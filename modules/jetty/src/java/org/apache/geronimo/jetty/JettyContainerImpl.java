@@ -26,7 +26,6 @@ import org.mortbay.jetty.Server;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 
 /**
  * @version $Rev$ $Date$
@@ -139,11 +138,11 @@ public class JettyContainerImpl implements JettyContainer, GBeanLifecycle {
         return server.getRequestLog();
     }
 
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
         server.start();
     }
 
-    public void doStop() throws WaitingException {
+    public void doStop() {
         try {
             server.stop(true);
         } catch (InterruptedException e) {

@@ -25,7 +25,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 
 
 /**
@@ -57,9 +56,6 @@ public class EJBWSGBean implements GBeanLifecycle {
 
     /**
      * Constructor AxisGbean
-     *
-     * @param name
-     * @param objectName
      */
     public EJBWSGBean(String objectName,Configuration ejbConfig,Collection classList) {
         this.objectName = objectName;
@@ -77,10 +73,9 @@ public class EJBWSGBean implements GBeanLifecycle {
     /**
      * Method doStart
      *
-     * @throws WaitingException
      * @throws Exception
      */
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
         log.info(objectName + "has started");
         ClassLoader cl = ejbConfig.getConfigurationClassLoader();
         for (Iterator it = classList.iterator(); it.hasNext();) {
@@ -94,10 +89,9 @@ public class EJBWSGBean implements GBeanLifecycle {
     /**
      * Method doStop
      *
-     * @throws WaitingException
      * @throws Exception
      */
-    public void doStop() throws WaitingException, Exception {
+    public void doStop() throws Exception {
         log.info("WebServiceGBean has stoped");
     }
 

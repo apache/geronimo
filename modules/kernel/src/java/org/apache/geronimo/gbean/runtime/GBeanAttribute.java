@@ -313,9 +313,9 @@ public class GBeanAttribute {
         return special;
     }
 
-    public void inject() throws Exception {
+    public void inject(Object target) throws Exception {
         if ((persistent || special) && !isConstructorArg && writable) {
-            setValue(persistentValue);
+            setValue(target, persistentValue);
         }
     }
 
@@ -339,7 +339,7 @@ public class GBeanAttribute {
         this.persistentValue = persistentValue;
     }
 
-    public Object getValue() throws Exception {
+    public Object getValue(Object target) throws Exception {
         if (!readable) {
             if (persistent) {
                 throw new IllegalStateException("This persistent attribute is not accessible while started. " + getDescription());
@@ -353,9 +353,8 @@ public class GBeanAttribute {
         }
 
         // get the target to invoke
-        Object target = gbeanInstance.getTarget();
         if (target == null && !framework) {
-            throw new IllegalStateException("GBeanMBean does not have a target instance to invoke. " + getDescription());
+            throw new IllegalStateException("GBean does not have a target instance to invoke. " + getDescription());
         }
 
         // call the getter
@@ -363,7 +362,7 @@ public class GBeanAttribute {
         return value;
     }
 
-    public void setValue(Object value) throws Exception {
+    public void setValue(Object target, Object value) throws Exception {
         if (!writable) {
             if (persistent) {
                 throw new IllegalStateException("This persistent attribute is not modifable while running. " + getDescription());
@@ -380,9 +379,8 @@ public class GBeanAttribute {
         // @todo actually check type
 
         // get the target to invoke
-        Object target = gbeanInstance.getTarget();
         if (target == null && !framework) {
-            throw new IllegalStateException("GBeanMBean does not have a target instance to invoke. " + getDescription());
+            throw new IllegalStateException("GBean does not have a target instance to invoke. " + getDescription());
         }
 
         // call the setter

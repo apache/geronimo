@@ -28,17 +28,16 @@ public interface GBeanLifecycle {
     /**
      * Starts the GBean.  This informs the GBean that it is about to transition to the running state.
      *
-     * @throws WaitingException if the target is waiting for an external condition before it can fully start
      * @throws Exception if the target failed to start; this will cause a transition to the failed state
      */
-    void doStart() throws WaitingException, Exception;
+    void doStart() throws Exception;
 
     /**
      * Stops the target.  This informs the GBean that it is about to transition to the stopped state.
      *
-     * @throws WaitingException if the target is waiting for an external condition before it can fully stop
+     * @throws Exception if the target failed to stop; this will cause a transition to the failed state
      */
-    void doStop() throws WaitingException, Exception;
+    void doStop() throws Exception;
 
     /**
      * Fails the GBean.  This informs the GBean that it is about to transition to the failed state.

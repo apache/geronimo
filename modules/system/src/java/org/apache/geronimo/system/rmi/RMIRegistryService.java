@@ -25,7 +25,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 
 /**
  * Thin GBean wrapper around the RMI Registry.
@@ -45,13 +44,13 @@ public class RMIRegistryService implements GBeanLifecycle {
         this.port = port;
     }
 
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
         System.setProperty("java.rmi.server.RMIClassLoaderSpi",RMIClassLoaderSpiImpl.class.getName());
         registry = LocateRegistry.createRegistry(port);
         log.info("Started RMI Registry on port " + port);
     }
 
-    public void doStop() throws WaitingException, Exception {
+    public void doStop() throws Exception {
         UnicastRemoteObject.unexportObject(registry, true);
         log.info("Stopped RMI Registry");
     }

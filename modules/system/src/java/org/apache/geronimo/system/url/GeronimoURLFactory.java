@@ -32,7 +32,6 @@ import java.util.StringTokenizer;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 
 /**
  * This service replaces the URLStreamHandlerFactory used in URL, which gives Geronimo
@@ -45,13 +44,13 @@ public class GeronimoURLFactory implements GBeanLifecycle {
     private static final URLStreamHandlerFactory factory = new URLStreamHandlerFactory();
     private static boolean installed = false;
 
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
         // verify that our factory is installed... if our factory can not be
         // installed the gbean will fail
         install();
     }
 
-    public void doStop() throws WaitingException, Exception {
+    public void doStop() throws Exception {
     }
 
     public void doFail() {

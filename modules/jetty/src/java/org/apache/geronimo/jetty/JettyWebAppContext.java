@@ -45,7 +45,6 @@ import org.mortbay.jetty.servlet.WebApplicationHandler;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.jetty.interceptor.BeforeAfter;
 import org.apache.geronimo.jetty.interceptor.ComponentContextBeforeAfter;
 import org.apache.geronimo.jetty.interceptor.InstanceContextBeforeAfter;
@@ -232,7 +231,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         chain.after(context, httpRequest, httpResponse);
     }
 
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
         // reset the classsloader... jetty likes to set it to null when stopping
         setClassLoader(webClassLoader);
 

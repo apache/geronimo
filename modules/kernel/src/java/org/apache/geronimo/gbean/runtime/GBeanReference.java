@@ -40,11 +40,11 @@ public interface GBeanReference {
 
     void offline();
 
-    void start() throws Exception;
+    boolean start();
 
     void stop();
 
     Object getProxy();
 
-    void inject() throws Exception;
+    void inject(Object target) throws Exception;
 }

@@ -23,7 +23,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 /**
@@ -53,8 +52,7 @@ public class AxisGbean implements GBeanLifecycle {
     /**
      * Constructor AxisGbean
      *
-     * @param name
-     @param objectName
+     * @param objectName
      */
     public AxisGbean(String objectName) {
         this.objectName = JMXUtil.getObjectName(objectName);
@@ -70,10 +68,9 @@ public class AxisGbean implements GBeanLifecycle {
     /**
      * Method doStart
      *
-     * @throws WaitingException
      * @throws Exception
      */
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
         log.info("Axis GBean has started");
         log.info(objectName);
     }
@@ -81,10 +78,9 @@ public class AxisGbean implements GBeanLifecycle {
     /**
      * Method doStop
      *
-     * @throws WaitingException
      * @throws Exception
      */
-    public void doStop() throws WaitingException, Exception {
+    public void doStop() throws Exception {
         log.info("Axis GBean has stoped");
     }
 

@@ -24,7 +24,6 @@ import org.apache.derby.drda.NetworkServerControl;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 
 /**
  * A GBean that manages remote network access to the embedded Derby server.
@@ -58,14 +57,14 @@ public class DerbyNetworkGBean implements GBeanLifecycle {
         this.port = port;
     }
 
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
         InetAddress address = InetAddress.getByName(host);
         network = new NetworkServerControl(address, port);
         network.start(null); // todo work out how to add this to our log stream
         log.info("Started on host " + host + ':' + port);
     }
 
-    public void doStop() throws WaitingException, Exception {
+    public void doStop() throws Exception {
         if (network != null) {
             try {
                 network.shutdown();

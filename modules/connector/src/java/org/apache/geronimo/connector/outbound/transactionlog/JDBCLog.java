@@ -33,7 +33,6 @@ import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.transaction.manager.LogException;
 import org.apache.geronimo.transaction.manager.Recovery;
 import org.apache.geronimo.transaction.manager.TransactionBranchInfo;
@@ -68,11 +67,11 @@ public class JDBCLog implements TransactionLog, GBeanLifecycle {
         this.dataSource = dataSource;
     }
 
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
         dataSource = (DataSource) managedConnectionFactoryWrapper.$getResource();
     }
 
-    public void doStop() throws WaitingException, Exception {
+    public void doStop() throws Exception {
         dataSource = null;
     }
 

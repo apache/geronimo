@@ -30,7 +30,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.transaction.manager.LogException;
 import org.apache.geronimo.transaction.manager.Recovery;
@@ -209,7 +208,7 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
         return serverInfo;
     }
 
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
         started = true;
         setLogFileDir(logFileDir);
         log.info("Initiating transaction manager recovery");
@@ -223,7 +222,7 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
         log.info("In doubt transactions recovered from log");
     }
 
-    public void doStop() throws WaitingException, Exception {
+    public void doStop() throws Exception {
         started = false;
         logger.close();
         recovered = null;

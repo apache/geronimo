@@ -28,7 +28,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.MBeanServerDelegate;
 
@@ -100,7 +99,7 @@ public class JMXConnector implements GBeanLifecycle {
         this.url = url;
     }
 
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
         JMXServiceURL serviceURL = new JMXServiceURL(url);
         Map env = new HashMap();
         if (applicationConfigName != null) {

@@ -20,12 +20,9 @@ import org.apache.axis.client.Call;
 import org.apache.axis.utils.ClassUtils;
 import org.apache.geronimo.axis.AbstractWebServiceTest;
 import org.apache.geronimo.axis.AxisGeronimoUtils;
-import org.apache.geronimo.gbean.WaitingException;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -40,7 +37,7 @@ import java.net.URLClassLoader;
  */
 
 public class AdminClientDeploymentTest extends AbstractWebServiceTest {
-    public AdminClientDeploymentTest(String testName) throws FileNotFoundException, WaitingException, IOException {
+    public AdminClientDeploymentTest(String testName) {
         super(testName);
     }
 

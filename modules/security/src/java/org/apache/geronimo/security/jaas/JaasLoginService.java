@@ -44,7 +44,6 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.ReferenceCollection;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.IdentificationPrincipal;
@@ -131,11 +130,11 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
         this.expiredLoginScanIntervalMillis = expiredLoginScanIntervalMillis;
     }
 
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
         expiredLoginScanIdentifier = clockDaemon.executePeriodically(expiredLoginScanIntervalMillis, new ExpirationMonitor(), true);
     }
 
-    public void doStop() throws WaitingException, Exception {
+    public void doStop() throws Exception {
         ClockDaemon.cancel(expiredLoginScanIdentifier);
         //todo: shut down all logins
     }

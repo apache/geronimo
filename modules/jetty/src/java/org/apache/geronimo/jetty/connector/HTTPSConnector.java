@@ -19,7 +19,6 @@ package org.apache.geronimo.jetty.connector;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.jetty.JettyContainer;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.mortbay.http.SunJsseListener;
@@ -94,7 +93,7 @@ public class HTTPSConnector extends JettyConnector {
         return https.getNeedClientAuth();
     }
 
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
         https.setKeystore(serverInfo.resolvePath(keystore));
         super.doStart();
     }

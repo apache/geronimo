@@ -35,7 +35,6 @@ import javax.transaction.Transaction;
 
 import EDU.oswego.cs.dl.util.concurrent.Executor;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 
@@ -68,7 +67,7 @@ public class ThreadPooledTimer implements PersistentTimer, GBeanLifecycle {
         this.transactionContextManager = transactionContextManager;
     }
 
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
         delegate = new Timer(true);
     }
 

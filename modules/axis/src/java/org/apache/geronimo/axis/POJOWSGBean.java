@@ -27,7 +27,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 
 /**
  * @version $Rev: $ $Date: $
@@ -65,7 +64,7 @@ public class POJOWSGBean implements GBeanLifecycle {
     public void doFail() {
     }
 
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
         log.info("POJO WS starting");
         ClassLoader cl = new URLClassLoader(new URL[]{moduleURL});
         for (Iterator it = classList.iterator(); it.hasNext();) {
@@ -78,10 +77,9 @@ public class POJOWSGBean implements GBeanLifecycle {
     /**
      * Method doStop
      *
-     * @throws WaitingException
      * @throws Exception
      */
-    public void doStop() throws WaitingException, Exception {
+    public void doStop() throws Exception {
         log.info("WebServiceGBean has stoped");
     }
 

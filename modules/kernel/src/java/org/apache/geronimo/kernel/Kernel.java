@@ -354,7 +354,9 @@ public class Kernel {
     }
 
     public void unloadGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
-       gbeanRegistry.unregister(name);
+        GBeanInstance gbeanInstance = gbeanRegistry.getGBeanInstance(name);
+        gbeanInstance.die();
+        gbeanRegistry.unregister(name);
     }
 
     public Set listGBeans(ObjectName pattern) {

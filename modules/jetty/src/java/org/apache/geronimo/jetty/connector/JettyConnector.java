@@ -20,7 +20,6 @@ package org.apache.geronimo.jetty.connector;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.jetty.JettyContainer;
 import org.mortbay.http.HttpListener;
 import org.mortbay.util.ThreadedServer;
@@ -50,13 +49,13 @@ public abstract class JettyConnector implements GBeanLifecycle {
         listener.setPort(port);
     }
 
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
         container.addListener(listener);
         ((ThreadedServer) listener).open();
         listener.start();
     }
 
-    public void doStop() throws WaitingException {
+    public void doStop() {
         while (true) {
             try {
                 listener.stop();

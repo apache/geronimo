@@ -35,7 +35,6 @@ import org.apache.geronimo.kernel.registry.GBeanRegistry;
 import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
-import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
 
 /**
  * @version $Rev$ $Date$
@@ -48,20 +47,9 @@ public class JMXGBeanRegistry implements GBeanRegistry {
     public void start(Kernel kernel) {
         this.kernel = kernel;
         mbServer = MBeanServerFactory.createMBeanServer(kernel.getKernelName());
-//        try {
-//            mbServer.registerMBean(kernel, Kernel.KERNEL);
-//        } catch (Exception e) {
-//            throw new InternalKernelException("Error registering kernel with MBeanServer", unwrapJMException(e));
-//        }
     }
 
     public void stop() {
-//        try {
-//            mbServer.unregisterMBean(Kernel.KERNEL);
-//        } catch (Exception e) {
-//            // ignore
-//        }
-//
         MBeanServerFactory.releaseMBeanServer(mbServer);
 
         // todo destroy instances

@@ -18,8 +18,6 @@ package org.apache.geronimo.axis;
 
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.net.URI;
 
 import javax.management.ObjectName;
@@ -27,7 +25,6 @@ import javax.management.ObjectName;
 import org.apache.geronimo.axis.testUtils.AxisGeronimoConstants;
 import org.apache.geronimo.axis.testUtils.TestingUtils;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
@@ -54,7 +51,7 @@ public class AbstractWebServiceTest extends AbstractTestCase {
     /**
      * @param testName
      */
-    public AbstractWebServiceTest(String testName) throws FileNotFoundException, WaitingException, IOException {
+    public AbstractWebServiceTest(String testName) {
         super(testName);
 
         store = AxisGeronimoConstants.STORE;

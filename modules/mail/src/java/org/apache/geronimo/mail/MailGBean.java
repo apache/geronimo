@@ -28,7 +28,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 
@@ -330,7 +329,7 @@ public class MailGBean implements GBeanLifecycle {
         }
     }
 
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
         log.info("Started " + objectName + " - will return "
                  + (Boolean.TRUE.equals(useDefault) ? "default" : "new")
                  + " JavaMail Session "
@@ -338,7 +337,7 @@ public class MailGBean implements GBeanLifecycle {
                  + " authenticator");
     }
 
-    public void doStop() throws WaitingException, Exception {
+    public void doStop() throws Exception {
         log.info("Stopped " + objectName);
     }
 

@@ -138,44 +138,20 @@ public abstract class AbstractGBeanReference implements GBeanReference {
             setInvoker = null;
         }
 
-        listener = new LifecycleAdapter() {
-            public void running(ObjectName objectName) {
-                if (!targets.contains(objectName)) {
-                    targets.add(objectName);
-                    targetAdded(objectName);
-                }
-            }
-
-            public void stopping(ObjectName objectName) {
-                removeTarget(objectName);
-            }
-
-            public void stopped(ObjectName objectName) {
-                removeTarget(objectName);
-            }
-
-            public void failed(ObjectName objectName) {
-                removeTarget(objectName);
-            }
-
-            public void unloaded(ObjectName objectName) {
-                removeTarget(objectName);
-            }
-
-            private void removeTarget(ObjectName objectName) {
-                boolean wasTarget = targets.remove(objectName);
-                if (wasTarget) {
-                    targetRemoved(objectName);
-                }
-            }
-        };
+        listener = createLifecycleListener();
     }
+
+    protected abstract LifecycleListener createLifecycleListener();
+
+    protected abstract void targetAdded(ObjectName target);
+
+    protected abstract void targetRemoved(ObjectName target);
 
     protected final Kernel getKernel() {
         return kernel;
     }
 
-    protected DependencyManager getDependencyManager() {
+    protected final DependencyManager getDependencyManager() {
         return dependencyManager;
     }
 
@@ -199,11 +175,11 @@ public abstract class AbstractGBeanReference implements GBeanReference {
         return proxyType;
     }
 
-    public Object getProxy() {
+    public final Object getProxy() {
         return proxy;
     }
 
-    protected void setProxy(Object proxy) {
+    protected final void setProxy(Object proxy) {
         this.proxy = proxy;
     }
 
@@ -258,18 +234,28 @@ public abstract class AbstractGBeanReference implements GBeanReference {
         isOnline = false;
     }
 
-    protected abstract void targetAdded(ObjectName target);
-
-    protected abstract void targetRemoved(ObjectName target);
-
     protected final Set getTargets() {
         return targets;
     }
 
-    public final synchronized void inject() throws Exception {
+    protected final void addTarget(ObjectName objectName) {
+        if (!targets.contains(objectName)) {
+            targets.add(objectName);
+            targetAdded(objectName);
+        }
+    }
+
+    protected final void removeTarget(ObjectName objectName) {
+        boolean wasTarget = targets.remove(objectName);
+        if (wasTarget) {
+            targetRemoved(objectName);
+        }
+    }
+
+    public final synchronized void inject(Object target) throws Exception {
         // set the proxy into the instance
         if (setInvoker != null && patterns.size() > 0) {
-            setInvoker.invoke(gbeanInstance.getTarget(), new Object[]{getProxy()});
+            setInvoker.invoke(target, new Object[]{getProxy()});
         }
     }
 

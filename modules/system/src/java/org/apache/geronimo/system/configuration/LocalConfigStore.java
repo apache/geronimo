@@ -46,7 +46,6 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
@@ -96,7 +95,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         return objectName.toString();
     }
 
-    public void doStart() throws WaitingException, FileNotFoundException, IOException {
+    public void doStart() throws FileNotFoundException, IOException {
         // resolve the root dir if not alredy resolved
         if (rootDir == null) {
             if (serverInfo == null) {
@@ -122,7 +121,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         }
     }
 
-    public void doStop() throws WaitingException {
+    public void doStop() {
     }
 
     public void doFail() {

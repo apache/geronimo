@@ -22,8 +22,6 @@ import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.DependencyManager;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
@@ -41,7 +39,7 @@ public class GBeanInstanceState {
     /**
      * The GBeanInstance in which this server is registered.
      */
-    private final GBeanLifecycle gbeanLifecycle;
+    private final GBeanInstance gbeanInstance;
 
     /**
      * The kernel in which this server is registered.
@@ -73,11 +71,11 @@ public class GBeanInstanceState {
     // objects check if each other are in one state or another (i.e., classic A calls B while B calls A)
     private volatile State state = State.STOPPED;
 
-    GBeanInstanceState(ObjectName objectName, Kernel kernel, DependencyManager dependencyManager, GBeanLifecycle gbeanLifecycle, LifecycleBroadcaster lifecycleBroadcaster) {
+    GBeanInstanceState(ObjectName objectName, Kernel kernel, DependencyManager dependencyManager, GBeanInstance gbeanInstance, LifecycleBroadcaster lifecycleBroadcaster) {
         this.objectName = objectName;
         this.kernel = kernel;
         this.dependencyManager = dependencyManager;
-        this.gbeanLifecycle = gbeanLifecycle;
+        this.gbeanInstance = gbeanInstance;
         this.lifecycleBroadcaster = lifecycleBroadcaster;
     }
 
@@ -93,20 +91,20 @@ public class GBeanInstanceState {
         assert !Thread.holdsLock(this): "This method cannot be called while holding a synchronized lock on this";
 
         // Move to the starting state
-        State state;
+        State originalState;
         synchronized (this) {
-            state = getStateInstance();
-            if (state == State.RUNNING) {
+            originalState = getStateInstance();
+            if (originalState == State.RUNNING) {
                 return;
             }
             // only try to change states if we are not already starting
-            if (state != State.STARTING) {
+            if (originalState != State.STARTING) {
                 setStateInstance(State.STARTING);
             }
         }
 
         // only fire a notification if we are not already starting
-        if (state != State.STARTING) {
+        if (originalState != State.STARTING) {
             lifecycleBroadcaster.fireStartingEvent();
         }
 
@@ -166,21 +164,21 @@ public class GBeanInstanceState {
         assert !Thread.holdsLock(this): "This method cannot be called while holding a synchronized lock on this";
 
         // move to the stopping state
-        State state;
+        State originalState;
         synchronized (this) {
-            state = getStateInstance();
-            if (state == State.STOPPED) {
+            originalState = getStateInstance();
+            if (originalState == State.STOPPED) {
                 return;
             }
 
             // only try to change states if we are not already stopping
-            if (state != State.STOPPING) {
+            if (originalState != State.STOPPING) {
                 setStateInstance(State.STOPPING);
             }
         }
 
         // only fire a notification if we are not already stopping
-        if (state != State.STOPPING) {
+        if (originalState != State.STOPPING) {
             lifecycleBroadcaster.fireStoppingEvent();
         }
 
@@ -221,209 +219,207 @@ public class GBeanInstanceState {
             if (state == State.STOPPED || state == State.FAILED) {
                 return;
             }
-            doSafeFail();
-            setStateInstance(State.FAILED);
         }
+
+        try {
+            if (gbeanInstance.destroyInstance(false)) {
+                // instance is not ready to destroyed... this is because another thread has
+                // already killed the gbean.
+                return;
+            }
+        } catch (Throwable e) {
+            log.warn("Problem in doFail", e);
+        }
+        setStateInstance(State.FAILED);
         lifecycleBroadcaster.fireFailedEvent();
     }
 
     /**
      * Attempts to bring the component into {@link org.apache.geronimo.kernel.management.State#RUNNING} state. If an Exception occurs while
      * starting the component, the component will be failed.
-     *
+     * <p/>
      * <p/>
      * Note: Do not call this from within a synchronized block as it makes may send a JMX notification
      */
     void attemptFullStart() {
         assert !Thread.holdsLock(this): "This method cannot be called while holding a synchronized lock on this";
 
-        State newState = null;
-        try {
-            synchronized (this) {
-                try {
-                    // if we are still trying to start and can start now... start
-                    if (getStateInstance() != State.STARTING) {
-                        return;
+        synchronized (this) {
+            // if we are still trying to start and can start now... start
+            if (getStateInstance() != State.STARTING) {
+                return;
+            }
+
+            if (blockerListener != null) {
+                log.trace("Cannot run because gbean is still being blocked");
+                return;
+            }
+
+            // check if an gbean is blocking us from starting
+            final ObjectName blocker = dependencyManager.checkBlocker(objectName);
+            if (blocker != null) {
+                blockerListener = new LifecycleAdapter() {
+
+                    public void stopped(ObjectName objectName) {
+                        checkBlocker(objectName);
                     }
 
-                    // check if an mbean is blocking us from starting
-                    final ObjectName blocker = dependencyManager.checkBlocker(objectName);
-                    if (blocker != null) {
-                        blockerListener = new LifecycleAdapter() {
-
-                            public void stopped(ObjectName objectName) {
-                                checkBlocker(objectName);
-                            }
-
-                            public void failed(ObjectName objectName) {
-                                checkBlocker(objectName);
-                            }
-
-                            public void unloaded(ObjectName objectName) {
-                                checkBlocker(objectName);
-                            }
-
-                            private void checkBlocker(ObjectName objectName) {
-                                if (objectName.equals(blocker)) {
-                                    try {
-                                        attemptFullStart();
-                                    } catch (Exception e) {
-                                        log.warn("A problem occured while attempting to start", e);
-                                    }
-                                }
-                            }
-                        };
-                        kernel.getLifecycleMonitor().addLifecycleListener(blockerListener, blocker);
-                        return;
+                    public void failed(ObjectName objectName) {
+                        checkBlocker(objectName);
                     }
 
-                    // check if all of the mbeans we depend on are running
-                    Set parents = dependencyManager.getParents(objectName);
-                    for (Iterator i = parents.iterator(); i.hasNext();) {
-                        ObjectName parent = (ObjectName) i.next();
-                        if (!kernel.isLoaded(parent)) {
-                            log.trace("Cannot run because parent is not registered: parent=" + parent);
-                            return;
-                        }
-                        try {
-                            log.trace("Checking if parent is running: parent=" + parent);
-                            if (((Integer) kernel.getAttribute(parent, "state")).intValue() != State.RUNNING_INDEX) {
-                                log.trace("Cannot run because parent is not running: parent=" + parent);
+                    public void unloaded(ObjectName objectName) {
+                        checkBlocker(objectName);
+                    }
+
+                    private void checkBlocker(ObjectName objectName) {
+                        synchronized (GBeanInstanceState.this) {
+                            if (!objectName.equals(blocker)) {
+                                // it did not start so just exit this method
                                 return;
                             }
-                            log.trace("Parent is running: parent=" + parent);
-                        } catch (NoSuchAttributeException e) {
-                            // ok -- parent is not a startable
-                            log.trace("Parent does not have a State attibute");
-                        } catch (GBeanNotFoundException e) {
-                            // depended on instance was removed bewteen the register check and the invoke
-                            log.trace("Cannot run because parent is not registered: parent=" + parent);
-                            return;
+
+                            // it started, so remove the blocker and attempt a full start
+                            kernel.getLifecycleMonitor().removeLifecycleListener(this);
+                            GBeanInstanceState.this.blockerListener = null;
+                        }
+
+                        try {
+                            attemptFullStart();
                         } catch (Exception e) {
-                            // problem getting the attribute, parent has most likely failed
-                            log.trace("Cannot run because an error occurred while checking if parent is running: parent=" + parent);
-                            return;
+                            log.warn("A problem occured while attempting to start", e);
                         }
                     }
+                };
+                // register the listener and return
+                kernel.getLifecycleMonitor().addLifecycleListener(blockerListener, blocker);
+                return;
+            }
 
-                    // remove any open watches on a blocker
-                    // todo is this correct if we are returning to a waiting state?
-                    if (blockerListener != null) {
-                        // remove any open watches on a blocker
-                        kernel.getLifecycleMonitor().removeLifecycleListener(blockerListener);
-                        blockerListener = null;
-                    }
-
-                    try {
-                        gbeanLifecycle.doStart();
-                    } catch (WaitingException e) {
-                        log.debug("Waiting to start: objectName=\"" + objectName + "\" reason=\"" + e.getMessage() + "\"");
-                        return;
-                    } catch (Exception e) {
-                        log.error("Error while starting: objectName=\"" + objectName+ "\"", e);
+            // check if all of the gbeans we depend on are running
+            Set parents = dependencyManager.getParents(objectName);
+            for (Iterator i = parents.iterator(); i.hasNext();) {
+                ObjectName parent = (ObjectName) i.next();
+                if (!kernel.isLoaded(parent)) {
+                    log.trace("Cannot run because parent is not registered: parent=" + parent);
+                    return;
+                }
+                try {
+                    log.trace("Checking if parent is running: parent=" + parent);
+                    if (((Integer) kernel.getAttribute(parent, "state")).intValue() != State.RUNNING_INDEX) {
+                        log.trace("Cannot run because parent is not running: parent=" + parent);
                         return;
                     }
-                    setStateInstance(State.RUNNING);
-                    newState = State.RUNNING;
-                } catch (Error e) {
-                    doSafeFail();
-                    setStateInstance(State.FAILED);
-                    newState = State.FAILED;
-                    throw e;
+                    log.trace("Parent is running: parent=" + parent);
+                } catch (NoSuchAttributeException e) {
+                    // ok -- parent is not a startable
+                    log.trace("Parent does not have a State attibute");
+                } catch (GBeanNotFoundException e) {
+                    // depended on instance was removed bewteen the register check and the invoke
+                    log.trace("Cannot run because parent is not registered: parent=" + parent);
+                    return;
+                } catch (Exception e) {
+                    // problem getting the attribute, parent has most likely failed
+                    log.trace("Cannot run because an error occurred while checking if parent is running: parent=" + parent);
+                    return;
                 }
             }
-        } finally {
-            if (newState != null) {
-                stateChanged(newState);
+        }
+
+        try {
+            // try to create the instance
+            if (!gbeanInstance.createInstance()) {
+                // instance is not ready to start... this is normally caused by references
+                // not being available, but could be because someone alreayd started the gbean.
+                // in another thread.  The reference will log a debug message about why
+                // it could not start
+                return;
+            }
+        } catch (Throwable t) {
+            // oops there was a problem and the gbean failed
+            setStateInstance(State.FAILED);
+            lifecycleBroadcaster.fireFailedEvent();
+
+            if (t instanceof Exception) {
+                log.error("Error while starting; GBean is not in the FAILED state: objectName=\"" + objectName + "\"", t);
+            } else if (t instanceof Error) {
+                throw (Error) t;
+            } else {
+                throw new Error(t);
             }
         }
+
+        // started successfully... notify everyone else
+        setStateInstance(State.RUNNING);
+        lifecycleBroadcaster.fireRunningEvent();
     }
 
     /**
      * Attempt to bring the component into the fully stopped state.
      * If an exception occurs while stopping the component, the component will be failed.
-     *
+     * <p/>
      * <p/>
      * Note: Do not call this from within a synchronized block as it may send a JMX notification
      */
     void attemptFullStop() {
         assert !Thread.holdsLock(this): "This method cannot be called while holding a synchronized lock on this";
 
-        State newState = null;
-        try {
-            synchronized (this) {
-                // if we are still trying to stop...
-                if (getStateInstance() != State.STOPPING) {
-                    return;
-                }
-                try {
-                    // check if all of the mbeans depending on us are stopped
-                    Set children = dependencyManager.getChildren(objectName);
-                    for (Iterator i = children.iterator(); i.hasNext();) {
-                        ObjectName child = (ObjectName) i.next();
-                        if (kernel.isLoaded(child)) {
-                            try {
-                                log.trace("Checking if child is stopped: child=" + child);
-                                int state = ((Integer) kernel.getAttribute(child, "State")).intValue();
-                                if (state == State.RUNNING_INDEX) {
-                                    log.trace("Cannot stop because child is still running: child=" + child);
-                                    return;
-                                }
-                            } catch (NoSuchAttributeException e) {
-                                // ok -- dependect bean is not state manageable
-                                log.trace("Child does not have a State attibute");
-                            } catch (GBeanNotFoundException e) {
-                                // depended on instance was removed between the register check and the invoke
-                            } catch (Exception e) {
-                                // problem getting the attribute, depended on bean has most likely failed
-                                log.trace("Cannot run because an error occurred while checking if child is stopped: child=" + child);
-                                return;
-                            }
-                        }
-                    }
+        // check if we are able to stop
+        synchronized (this) {
+            // if we are still trying to stop...
+            if (getStateInstance() != State.STOPPING) {
+                return;
+            }
 
-                    // if we can stop, stop
+            // check if all of the mbeans depending on us are stopped
+            Set children = dependencyManager.getChildren(objectName);
+            for (Iterator i = children.iterator(); i.hasNext();) {
+                ObjectName child = (ObjectName) i.next();
+                if (kernel.isLoaded(child)) {
                     try {
-                        gbeanLifecycle.doStop();
-                    } catch (WaitingException e) {
-                        log.debug("Waiting to stop: objectName=\"" + objectName + "\" reason=\"" + e.getMessage() + "\"");
-                        return;
+                        log.trace("Checking if child is stopped: child=" + child);
+                        int state = ((Integer) kernel.getAttribute(child, "State")).intValue();
+                        if (state == State.RUNNING_INDEX) {
+                            log.trace("Cannot stop because child is still running: child=" + child);
+                            return;
+                        }
+                    } catch (NoSuchAttributeException e) {
+                        // ok -- dependect bean is not state manageable
+                        log.trace("Child does not have a State attibute");
+                    } catch (GBeanNotFoundException e) {
+                        // depended on instance was removed between the register check and the invoke
                     } catch (Exception e) {
-                        log.error("Error while stopping: objectName=\"" + objectName+ "\"", e);
+                        // problem getting the attribute, depended on bean has most likely failed
+                        log.trace("Cannot run because an error occurred while checking if child is stopped: child=" + child);
                         return;
                     }
-                    setStateInstance(State.STOPPED);
-                    newState = State.STOPPED;
-                } catch (Error e) {
-                    doSafeFail();
-                    setStateInstance(State.FAILED);
-                    newState = State.FAILED;
-                    throw e;
                 }
             }
-        } finally {
-            if (newState != null) {
-                stateChanged(newState);
+        }
+
+        // all is clear to stop... try to stop
+        try {
+            if (!gbeanInstance.destroyInstance(true)) {
+                // instance is not ready to stop... this is because another thread has
+                // already stopped the gbean.
+                return;
+            }
+        } catch (Throwable t) {
+            setStateInstance(State.FAILED);
+            lifecycleBroadcaster.fireFailedEvent();
+
+            if (t instanceof Exception) {
+                log.error("Error while stopping; GBean is not in the FAILED state: objectName=\"" + objectName + "\"", t);
+            } else if (t instanceof Error) {
+                throw (Error) t;
+            } else {
+                throw new Error(t);
             }
         }
-    }
 
-    /**
-     * Calls doFail, but catches all RutimeExceptions and Errors.
-     * These problems are logged but ignored.
-     * <p/>
-     * Note: This must be called while holding a lock on this
-     */
-    private void doSafeFail() {
-        assert Thread.holdsLock(this): "This method can only called while holding a synchronized lock on this";
-
-        try {
-            gbeanLifecycle.doFail();
-        } catch (RuntimeException e) {
-            log.warn("RuntimeException thrown from doFail", e);
-        } catch (Error e) {
-            log.warn("Error thrown from doFail", e);
-        }
+        // we successfully stopped, notify everyone else
+        setStateInstance(State.STOPPED);
+        lifecycleBroadcaster.fireStoppedEvent();
     }
 
     public int getState() {
@@ -504,31 +500,6 @@ public class GBeanInstanceState {
         }
         log.debug(toString() + " State changed from " + state + " to " + newState);
         state = newState;
-    }
-
-    private void stateChanged(State state) {
-        assert !Thread.holdsLock(this): "This method cannot be called while holding a synchronized lock on this";
-        switch (state.toInt()) {
-            case State.STOPPED_INDEX:
-                lifecycleBroadcaster.fireStoppedEvent();
-                break;
-
-            case State.STARTING_INDEX:
-                lifecycleBroadcaster.fireStartingEvent();
-                break;
-
-            case State.RUNNING_INDEX:
-                lifecycleBroadcaster.fireRunningEvent();
-                break;
-
-            case State.STOPPING_INDEX:
-                lifecycleBroadcaster.fireStoppingEvent();
-                break;
-
-            case State.FAILED_INDEX:
-                lifecycleBroadcaster.fireFailedEvent();
-                break;
-        }
     }
 
     public String toString() {

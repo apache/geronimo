@@ -24,8 +24,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
-
 
 /**
  * @version $Rev$ $Date$
@@ -50,14 +48,11 @@ public class ClockPool implements GBeanLifecycle {
         this.poolName = poolName;
     }
 
-    /**
-     * @return
-     */
     public ClockDaemon getClockDaemon() {
         return clockDaemon;
     }
 
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
         clockDaemon = new ClockDaemon();
         clockDaemon.setThreadFactory(new ThreadFactory() {
             public Thread newThread(Runnable r) {
@@ -69,7 +64,7 @@ public class ClockPool implements GBeanLifecycle {
         log.info("Clock pool " + poolName + " started");
     }
 
-    public void doStop() throws WaitingException, Exception {
+    public void doStop() throws Exception {
         clockDaemon.shutDown();
         log.info("Clock pool " + poolName + " stopped");
     }

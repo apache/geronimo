@@ -33,16 +33,6 @@ public interface GBeanLifecycleController {
     int getState();
 
     /**
-     * Attempts to bring the component into the fully running state. If an Exception occurs while
-     * starting the component, the component is automaticaly failed.
-     * <p/>
-     * There is no guarantee that the Geronimo MBean will be running when the method returns.
-     *
-     * @throws Exception if a problem occurs while starting the component
-     */
-    void start() throws Exception;
-
-    /**
      * Attempt to bring the component into the fully stopped state. If an exception occurs while
      * stopping the component, tthe component is automaticaly failed.
      * <p/>
@@ -51,11 +41,4 @@ public interface GBeanLifecycleController {
      * @throws Exception if a problem occurs while stopping the component
      */
     void stop() throws Exception;
-
-    /**
-     * Moves this component to the FAILED state.
-     * <p/>
-     * The component is guaranteed to be in the failed state when the method returns.
-     */
-    void fail();
 }

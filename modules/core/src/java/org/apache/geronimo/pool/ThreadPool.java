@@ -24,8 +24,6 @@ import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
-
 
 /**
  * @version $Rev$ $Date$
@@ -60,10 +58,10 @@ public class ThreadPool implements Executor, GBeanLifecycle {
         return nextWorkerID++;
     }
 
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
     }
 
-    public void doStop() throws WaitingException, Exception {
+    public void doStop() throws Exception {
         executor.shutdownNow();
     }
 

@@ -24,8 +24,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
-
 
 /**
  * A generic GBean that provides for the configuration of a JavaMail protocol.
@@ -152,11 +150,11 @@ public class ProtocolGBean implements GBeanLifecycle {
         if (user != null) props.put("mail." + protocol + ".user", user);
     }
 
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
         log.info("Started " + objectName);
     }
 
-    public void doStop() throws WaitingException, Exception {
+    public void doStop() throws Exception {
         log.info("Stopped " + objectName);
     }
 

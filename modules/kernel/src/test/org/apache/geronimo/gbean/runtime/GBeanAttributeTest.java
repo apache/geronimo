@@ -54,7 +54,7 @@ public class GBeanAttributeTest extends TestCase {
     private Kernel kernel;
 //    private GAttributeInfo throwingExceptionAttributeInfo = null;
 
-    public final void testGBeanMBeanAttributeGBeanMBeanStringClassMethodInvokerMethodInvoker() {
+    public final void testGBeanAttributStringClassMethodInvokerMethodInvoker() {
         try {
             GBeanAttribute.createFrameworkAttribute(null, null, null, null);
             fail("IllegalArgumentException expected");
@@ -231,7 +231,7 @@ public class GBeanAttributeTest extends TestCase {
             // attribute that isn't readable and persistent
             final GBeanAttribute attribute = GBeanAttribute.createFrameworkAttribute(gbeanInstance, attributeName, String.class, null, setInvoker, false, null);
             try {
-                attribute.getValue();
+                attribute.getValue(gbeanInstance);
                 fail("Only persistent attributes can be accessed while offline; exception expected");
             } catch (/* IllegalState */Exception expected) {
             }
@@ -243,7 +243,7 @@ public class GBeanAttributeTest extends TestCase {
             try {
                 gbeanInstance.start();
 
-                attribute.getValue();
+                attribute.getValue(gbeanInstance);
                 fail("This attribute is not readable; exception expected");
             } catch (/* IllegalArgument */Throwable expected) {
             } finally {
@@ -258,7 +258,7 @@ public class GBeanAttributeTest extends TestCase {
         {
             final GBeanAttribute attribute = GBeanAttribute.createFrameworkAttribute(gbeanInstance, attributeName, String.class, null, setInvoker, false, null);
             try {
-                attribute.setValue(null);
+                attribute.setValue(gbeanInstance, null);
                 fail("Only persistent attributes can be modified while offline; exception expected");
             } catch (/* IllegalState */Exception expected) {
             }
@@ -269,7 +269,7 @@ public class GBeanAttributeTest extends TestCase {
         {
             final GBeanAttribute persistentAttribute = new GBeanAttribute(gbeanInstance, persistentPrimitiveAttributeInfo, false);
             try {
-                persistentAttribute.setValue(null);
+                persistentAttribute.setValue(gbeanInstance, null);
                 fail("Cannot assign null to a primitive attribute; exception expected");
             } catch (/* IllegalArgument */Exception expected) {
             }
@@ -282,7 +282,7 @@ public class GBeanAttributeTest extends TestCase {
             try {
                 gbeanInstance.start();
 
-                immutableAttribute.setValue(null);
+                immutableAttribute.setValue(gbeanInstance, null);
                 fail("This attribute is not writable; exception expected");
             } catch (/* IllegalArgument */Exception expected) {
             } finally {
@@ -297,7 +297,7 @@ public class GBeanAttributeTest extends TestCase {
             try {
                 gbeanInstance.start();
 
-                mutablePersistentAttribute.setValue(null);
+                mutablePersistentAttribute.setValue(gbeanInstance, null);
                 fail("Cannot assign null to a primitive attribute; exception expected");
             } catch (/* IllegalArgument */Exception expected) {
             } finally {
@@ -313,7 +313,7 @@ public class GBeanAttributeTest extends TestCase {
             try {
                 gbeanInstance.start();
 
-                mutablePersistentAttribute.setValue(new Integer(4));
+                mutablePersistentAttribute.setValue(gbeanInstance, new Integer(4));
                 //fail("Cannot assign a value to a persistent attribute while
                 // online; exception expected");
             } catch (/* IllegalState */Exception expected) {
@@ -335,7 +335,7 @@ public class GBeanAttributeTest extends TestCase {
             try {
                 gbeanInstance.start();
 
-                attribute.setValue(new Integer(4));
+                attribute.setValue(gbeanInstance, new Integer(4));
                 fail("Exception expected upon setValue's call");
             } catch (/* IllegalState */Exception expected) {
             } finally {

@@ -17,8 +17,6 @@ package org.apache.geronimo.axis;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
@@ -26,7 +24,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 
 import org.apache.geronimo.axis.testUtils.TestingUtils;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 
 /**
@@ -35,7 +32,7 @@ import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
  */
 public class SimpleEJBWebServiceTest extends AbstractWebServiceTest {
 
-    public SimpleEJBWebServiceTest(String testName) throws FileNotFoundException, WaitingException, IOException {
+    public SimpleEJBWebServiceTest(String testName) {
         super(testName);
     }
 

@@ -28,7 +28,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
@@ -75,14 +74,14 @@ public class ReadOnlyRepository implements Repository, GBeanLifecycle {
         return rootURI.resolve(uri).toURL();
     }
 
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
         if (rootURI == null) {
             rootURI = serverInfo.resolve(root);
         }
         log.info("Repository root is " + rootURI);
     }
 
-    public void doStop() throws WaitingException, Exception {
+    public void doStop() throws Exception {
     }
 
     public void doFail() {

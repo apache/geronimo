@@ -80,7 +80,7 @@ public final class GBeanOperation {
                 private String[] types = (String[]) parameterTypes.toArray(new String[parameterTypes.size()]);
 
                 public Object invoke(Object target, Object[] arguments) throws Exception {
-                    DynamicGBean dynamicGBean = (DynamicGBean) GBeanOperation.this.gbeanInstance.getTarget();
+                    DynamicGBean dynamicGBean = (DynamicGBean) target;
                     dynamicGBean.invoke(name, arguments, types);
                     return null;
                 }
@@ -114,8 +114,8 @@ public final class GBeanOperation {
         return framework;
     }
 
-    public Object invoke(final Object[] arguments) throws Exception {
-        return methodInvoker.invoke(gbeanInstance.getTarget(), arguments);
+    public Object invoke(Object target, final Object[] arguments) throws Exception {
+        return methodInvoker.invoke(target, arguments);
     }
 
     public String getDescription() {

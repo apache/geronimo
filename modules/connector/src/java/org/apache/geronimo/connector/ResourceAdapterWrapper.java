@@ -17,8 +17,6 @@
 
 package org.apache.geronimo.connector;
 
-import java.util.Map;
-
 import javax.resource.ResourceException;
 import javax.resource.spi.ActivationSpec;
 import javax.resource.spi.BootstrapContext;
@@ -34,7 +32,6 @@ import org.apache.geronimo.gbean.DynamicGBeanDelegate;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
@@ -105,11 +102,11 @@ public class ResourceAdapterWrapper implements GBeanLifecycle, DynamicGBean, Res
         return resourceAdapter.getXAResources(specs);
     }
 
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
         resourceAdapter.start(bootstrapContext);
     }
 
-    public void doStop() throws WaitingException {
+    public void doStop() {
         resourceAdapter.stop();
     }
 

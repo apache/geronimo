@@ -36,7 +36,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
@@ -92,7 +91,7 @@ public class FileConfigurationList implements GBeanLifecycle, PersistentConfigur
         this.configFile = configDir;
     }
 
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
         configList = serverInfo.resolve(configFile);
         File parent = configList.getParentFile();
         if (!parent.isDirectory()) {

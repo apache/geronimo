@@ -23,8 +23,6 @@ import org.apache.commons.logging.LogFactory;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.WaitingException;
-
 
 /**
  * A GBean that provides for the configuration of a JavaMail SMTP transport
@@ -717,11 +715,11 @@ public class SMTPTransportGBean extends ProtocolGBean {
         if (mailExtension != null) props.put("mail.smtp.mailextension", mailExtension);
     }
 
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
         log.info("Started " + getObjectName());
     }
 
-    public void doStop() throws WaitingException, Exception {
+    public void doStop() throws Exception {
         log.info("Stopped " + getObjectName());
     }
 

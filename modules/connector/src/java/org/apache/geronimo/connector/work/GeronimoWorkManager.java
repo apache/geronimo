@@ -35,7 +35,6 @@ import org.apache.geronimo.connector.work.pool.WorkExecutorPool;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
@@ -95,13 +94,13 @@ public class GeronimoWorkManager implements WorkManager, GBeanLifecycle {
         this.transactionContextManager = transactionContextManager;
     }
 
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
         syncWorkExecutorPool = syncWorkExecutorPool.start();
         startWorkExecutorPool = startWorkExecutorPool.start();
         scheduledWorkExecutorPool = scheduledWorkExecutorPool.start();
     }
 
-    public void doStop() throws WaitingException, Exception {
+    public void doStop() throws Exception {
         syncWorkExecutorPool = syncWorkExecutorPool.stop();
         startWorkExecutorPool = startWorkExecutorPool.stop();
         scheduledWorkExecutorPool = scheduledWorkExecutorPool.stop();

@@ -31,7 +31,6 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 
@@ -73,7 +72,7 @@ public class WSConfigBuilder implements ConfigurationBuilder {
 
     }
     
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
     }
 
     public Object getDeploymentPlan(File planFile, JarFile jarFile) throws DeploymentException {
@@ -127,7 +126,7 @@ public class WSConfigBuilder implements ConfigurationBuilder {
     
     public void doFail() {
     }
-    public void doStop() throws WaitingException, Exception {
+    public void doStop() throws Exception {
     }
 
     

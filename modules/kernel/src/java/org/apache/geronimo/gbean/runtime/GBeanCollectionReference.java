@@ -23,6 +23,8 @@ import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.DependencyManager;
+import org.apache.geronimo.kernel.lifecycle.LifecycleAdapter;
+import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
 
 /**
  * @version $Rev: 71492 $ $Date: 2004-11-14 21:31:50 -0800 (Sun, 14 Nov 2004) $
@@ -32,19 +34,13 @@ public class GBeanCollectionReference extends AbstractGBeanReference {
         super(gbeanInstance, referenceInfo, kernel, dependencyManager);
     }
 
-    public synchronized void start() throws Exception {
-        // if there are no patterns then there is nothing to start
-        if (getPatterns().isEmpty()) {
-            return;
+    public synchronized boolean start() {
+        // We only need to start if there are patterns and we don't already have a proxy
+        if (!getPatterns().isEmpty() && getProxy() == null) {
+            // add a dependency on our target and create the proxy
+            setProxy(new ProxyCollection(getName(), getReferenceType(), getKernel().getProxyManager(), getTargets()));
         }
-
-        // if we already have a proxy then we have already been started
-        if (getProxy() != null) {
-            return;
-        }
-
-        // add a dependency on our target and create the proxy
-        setProxy(new ProxyCollection(getName(), getReferenceType(), getKernel().getProxyManager(), getTargets()));
+        return true;
     }
 
     public synchronized void stop() {
@@ -55,17 +51,41 @@ public class GBeanCollectionReference extends AbstractGBeanReference {
         }
     }
 
-    public synchronized void targetAdded(ObjectName target) {
+    protected synchronized void targetAdded(ObjectName target) {
         ProxyCollection proxy = (ProxyCollection) getProxy();
         if (proxy != null) {
             proxy.addTarget(target);
         }
     }
 
-    public synchronized void targetRemoved(ObjectName target) {
+    protected synchronized void targetRemoved(ObjectName target) {
         ProxyCollection proxy = (ProxyCollection) getProxy();
         if (proxy != null) {
             proxy.removeTarget(target);
         }
+    }
+
+    protected LifecycleListener createLifecycleListener() {
+        return new LifecycleAdapter() {
+                    public void running(ObjectName objectName) {
+                        addTarget(objectName);
+                    }
+
+                    public void stopping(ObjectName objectName) {
+                        removeTarget(objectName);
+                    }
+
+                    public void stopped(ObjectName objectName) {
+                        removeTarget(objectName);
+                    }
+
+                    public void failed(ObjectName objectName) {
+                        removeTarget(objectName);
+                    }
+
+                    public void unloaded(ObjectName objectName) {
+                        removeTarget(objectName);
+                    }
+                };
     }
 }

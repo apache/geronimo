@@ -17,8 +17,6 @@ package org.apache.geronimo.axis;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
@@ -27,7 +25,6 @@ import java.net.URLClassLoader;
 
 import org.apache.axis.utils.ClassUtils;
 import org.apache.geronimo.axis.testUtils.TestingUtils;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 /**
  * 
@@ -36,7 +33,7 @@ import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 public class SimplePOJOWebServiceTest extends AbstractWebServiceTest {
     
 
-    public SimplePOJOWebServiceTest(String testName) throws FileNotFoundException, WaitingException, IOException {
+    public SimplePOJOWebServiceTest(String testName) {
         super(testName);
     }
 

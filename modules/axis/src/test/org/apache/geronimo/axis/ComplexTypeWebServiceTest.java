@@ -16,8 +16,6 @@
 package org.apache.geronimo.axis;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -27,7 +25,6 @@ import javax.management.ObjectName;
 import org.apache.axis.utils.ClassUtils;
 import org.apache.geronimo.axis.testUtils.AxisGeronimoConstants;
 import org.apache.geronimo.axis.testUtils.TestingUtils;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 import org.apache.geronimo.kernel.Kernel;
 
@@ -39,13 +36,7 @@ public class ComplexTypeWebServiceTest extends AbstractWebServiceTest {
     private ObjectName axisname;
     private Kernel kernel;
 
-    /**
-     * @param testName
-     * @throws IOException
-     * @throws WaitingException
-     * @throws FileNotFoundException
-     */
-    public ComplexTypeWebServiceTest(String testName) throws FileNotFoundException, WaitingException, IOException {
+    public ComplexTypeWebServiceTest(String testName) {
         super(testName);
     }
 

@@ -29,7 +29,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.springframework.beans.BeansException;
@@ -92,7 +91,7 @@ public class POJOGBean
   // GBeanLifecycle
   //----------------------------------------
 
-  public void doStart() throws WaitingException, Exception {}
-  public void doStop() throws WaitingException, Exception {}
+  public void doStart() throws Exception {}
+  public void doStop() throws Exception {}
   public void doFail() {}
 }

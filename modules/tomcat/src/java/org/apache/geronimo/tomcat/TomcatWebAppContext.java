@@ -34,7 +34,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.security.deploy.Security;
 
 
@@ -147,7 +146,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
         this.path = path;
     }
 
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
 
         // See the note of TomcatContainer::addContext
         container.addContext(this);

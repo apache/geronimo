@@ -48,7 +48,6 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
@@ -288,7 +287,7 @@ public class Configuration implements GBeanLifecycle {
         }
     }
 
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
     }
 
     public void doStop() throws Exception {

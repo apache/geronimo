@@ -33,7 +33,6 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.security.SecurityServiceImpl;
 
 
@@ -118,7 +117,7 @@ public class GeronimoLoginConfiguration extends Configuration implements GBeanLi
         log.info("Added Application Configuration Entry " + factory.getConfigurationName());
     }
 
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
         try {
             oldConfiguration = Configuration.getConfiguration();
         } catch (SecurityException e) {
@@ -128,7 +127,7 @@ public class GeronimoLoginConfiguration extends Configuration implements GBeanLi
         log.info("Installed Geronimo login configuration");
     }
 
-    public void doStop() throws WaitingException, Exception {
+    public void doStop() throws Exception {
         Configuration.setConfiguration(oldConfiguration);
 
         for (Iterator iter = entries.keySet().iterator(); iter.hasNext();){

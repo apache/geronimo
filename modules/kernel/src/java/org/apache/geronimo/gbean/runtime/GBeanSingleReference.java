@@ -25,9 +25,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.DependencyManager;
+import org.apache.geronimo.kernel.lifecycle.LifecycleAdapter;
+import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
 import org.apache.geronimo.kernel.management.State;
 
 /**
@@ -50,40 +51,37 @@ public class GBeanSingleReference extends AbstractGBeanReference {
         super(gbeanInstance, referenceInfo, kernel, dependencyManager);
     }
 
-    public synchronized void start() throws Exception {
-        // if there are no patterns then there is nothing to start
-        if (getPatterns().isEmpty()) {
-            return;
+    public synchronized boolean start() {
+        // We only need to start if there are patterns and we don't already have a proxy
+        if (!getPatterns().isEmpty() && getProxy() == null) {
+            //
+            // We must have exactally one running target
+            //
+            ObjectName objectName = getGBeanInstance().getObjectNameObject();
+            Set targets = getTargets();
+            if (targets.size() == 0) {
+                waitingForMe = true;
+                log.debug("Waiting to start " + objectName + " because no targets are running for reference " + getName() +" matching the patternspatterns " + getPatternsText());
+                return false;
+            } else if (targets.size() > 1) {
+                waitingForMe = true;
+                log.debug("Waiting to start " + objectName + " because more then one targets are running for the single valued reference " + getName() +" matching the patternspatterns " + getPatternsText());
+                return false;
+            }
+            waitingForMe = false;
+
+            // stop all gbeans that would match our patterns from starting
+            DependencyManager dependencyManager = getDependencyManager();
+            dependencyManager.addStartHolds(objectName, getPatterns());
+
+            // add a dependency on our target and create the proxy
+            ObjectName target = (ObjectName) targets.iterator().next();
+            setProxy(getKernel().getProxyManager().createProxy(target, getReferenceType()));
+            proxyTarget = target;
+            dependencyManager.addDependency(objectName, target);
         }
 
-        // if we already have a proxy then we have already been started
-        if (getProxy() != null) {
-            return;
-        }
-
-        //
-        // We must have exactally one running target
-        //
-        Set targets = getTargets();
-        if (targets.size() == 0) {
-            waitingForMe = true;
-            throw new WaitingException("No targets are running for " + getName() + " reference matching patterns " + getPatternsText());
-        } else if (targets.size() > 1) {
-            waitingForMe = true;
-            throw new WaitingException("More then one targets are running for " + getName() + " reference matching patterns " + getPatternsText());
-        }
-        waitingForMe = false;
-
-        // stop all gbeans that would match our patterns from starting
-        ObjectName objectName = getGBeanInstance().getObjectNameObject();
-        DependencyManager dependencyManager = getDependencyManager();
-        dependencyManager.addStartHolds(objectName, getPatterns());
-
-        // add a dependency on our target and create the proxy
-        ObjectName target = (ObjectName) targets.iterator().next();
-        setProxy(getKernel().getProxyManager().createProxy(target, getReferenceType()));
-        proxyTarget = target;
-        dependencyManager.addDependency(objectName, target);
+        return true;
     }
 
     private String getPatternsText() {
@@ -114,11 +112,11 @@ public class GBeanSingleReference extends AbstractGBeanReference {
         }
     }
 
-    public synchronized void targetAdded(ObjectName target) {
+    protected synchronized void targetAdded(ObjectName target) {
         // if we are running, and we now have two valid targets, which is an illegal state so we need to fail
         GBeanInstance gbeanInstance = getGBeanInstance();
         if (gbeanInstance.getStateInstance() == State.RUNNING) {
-            gbeanInstance.fail();
+            gbeanInstance.referenceFailed();
         } else if (waitingForMe) {
             Set targets = getTargets();
             if (targets.size() == 1) {
@@ -128,11 +126,11 @@ public class GBeanSingleReference extends AbstractGBeanReference {
         }
     }
 
-    public synchronized void targetRemoved(ObjectName target) {
+    protected synchronized void targetRemoved(ObjectName target) {
         GBeanInstance gbeanInstance = getGBeanInstance();
         if (gbeanInstance.getStateInstance() == State.RUNNING) {
             // we no longer have a valid target, which is an illegal state so we need to fail
-            gbeanInstance.fail();
+            gbeanInstance.referenceFailed();
         } else if (waitingForMe) {
             Set targets = getTargets();
             if (targets.size() == 1) {
@@ -154,4 +152,23 @@ public class GBeanSingleReference extends AbstractGBeanReference {
         }
     }
 
+    protected LifecycleListener createLifecycleListener() {
+        return new LifecycleAdapter() {
+                    public void running(ObjectName objectName) {
+                        addTarget(objectName);
+                    }
+
+                    public void stopped(ObjectName objectName) {
+                        removeTarget(objectName);
+                    }
+
+                    public void failed(ObjectName objectName) {
+                        removeTarget(objectName);
+                    }
+
+                    public void unloaded(ObjectName objectName) {
+                        removeTarget(objectName);
+                    }
+                };
+    }
 }

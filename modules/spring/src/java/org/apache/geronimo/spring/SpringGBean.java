@@ -32,7 +32,6 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.Kernel;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -110,7 +109,7 @@ public class SpringGBean
 
   public void
     doStart()
-    throws WaitingException, Exception
+    throws Exception
   {
     _jmxName=new ObjectName(_objectName);
 

@@ -36,7 +36,6 @@ import org.apache.geronimo.gbean.DynamicGBeanDelegate;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.naming.geronimo.GeronimoContextManager;
 import org.apache.geronimo.transaction.manager.NamedXAResource;
@@ -188,7 +187,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         this.connectionManagerFactory = connectionManagerFactory;
     }
 
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
         //register with resource adapter if not yet done
         if (!registered && (managedConnectionFactory instanceof ResourceAdapterAssociation)) {
             if (resourceAdapterWrapper == null) {

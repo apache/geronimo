@@ -19,7 +19,6 @@ package org.apache.geronimo.jetty.requestlog;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.jetty.JettyContainer;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
@@ -112,13 +111,13 @@ public class NCSARequestLog implements GBeanLifecycle {
         return preferProxiedForAddress;
     }
 
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
         requestLog.setFilename(serverInfo.resolvePath(filename));
         container.setRequestLog(requestLog);
         requestLog.start();
     }
 
-    public void doStop() throws WaitingException, Exception {
+    public void doStop() throws Exception {
         requestLog.stop();
         container.setRequestLog(null);
     }

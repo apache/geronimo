@@ -25,7 +25,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
@@ -47,7 +46,7 @@ public class DerbySystemGBean implements DerbySystem, GBeanLifecycle {
         this.systemHome = derbySystemHome;
     }
 
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
         // set up the system property for the database home
         String actualHome = System.getProperty(SYSTEM_HOME);
         if (actualHome == null) {
@@ -64,7 +63,7 @@ public class DerbySystemGBean implements DerbySystem, GBeanLifecycle {
         log.info("Started in " + actualHome);
     }
 
-    public void doStop() throws WaitingException, Exception {
+    public void doStop() throws Exception {
         try {
             DriverManager.getConnection(SHUTDOWN_ALL, null, null);
         } catch (SQLException e) {
