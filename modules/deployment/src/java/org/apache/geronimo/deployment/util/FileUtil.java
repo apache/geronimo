@@ -18,13 +18,35 @@
 package org.apache.geronimo.deployment.util;
 
 import java.io.File;
+import java.io.InputStream;
+import java.io.IOException;
+import java.io.FileOutputStream;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/25 09:57:39 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/01 20:50:07 $
  */
 public class FileUtil {
+
+    private static int i;
+
+    public static File toTempFile(InputStream is) throws IOException {
+        File tmp;
+       // do {
+            tmp = File.createTempFile("geronimodeployment" + i++, "tmp");
+        //} while (tmp.exists());
+        FileOutputStream fos = new FileOutputStream(tmp);
+        byte[] buffer = new byte[4096];
+        int count;
+        while ((count = is.read(buffer)) > 0) {
+            fos.write(buffer, 0, count);
+        }
+        fos.flush();
+        fos.close();
+        return tmp;
+    }
+
     public static void recursiveDelete(File root) {
         if (root.isDirectory()) {
             File[] files = root.listFiles();

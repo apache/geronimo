@@ -17,16 +17,16 @@
 
 package org.apache.geronimo.connector.deployment;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.MalformedURLException;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
@@ -56,7 +56,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/02/28 10:08:47 $
+ * @version $Revision: 1.6 $ $Date: 2004/03/01 20:50:07 $
  *
  * */
 public abstract class AbstractRARConfigBuilder implements ConfigurationBuilder {
@@ -100,9 +100,7 @@ public abstract class AbstractRARConfigBuilder implements ConfigurationBuilder {
                 }
                 if (name.endsWith(".jar")) {
                     URI uri = moduleBase.resolve(name);
-                    context.addFile(uri, jarInputStream);
-                    //URL rarPath = entry.
-                    context.addToClassPath(uri, null);
+                    context.addStreamInclude(uri, jarInputStream);
                 }
                 //native libraries?
             }
@@ -187,6 +185,7 @@ public abstract class AbstractRARConfigBuilder implements ConfigurationBuilder {
             os.flush();
         } finally {
             fos.close();
+
         }
     }
 

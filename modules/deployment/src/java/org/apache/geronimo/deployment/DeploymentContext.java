@@ -17,6 +17,7 @@
 
 package org.apache.geronimo.deployment;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
@@ -25,6 +26,7 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -35,9 +37,11 @@ import java.util.Set;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
+import org.apache.geronimo.deployment.util.FileUtil;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
@@ -47,7 +51,7 @@ import org.apache.geronimo.kernel.repository.Repository;
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/02/28 10:08:47 $
+ * @version $Revision: 1.8 $ $Date: 2004/03/01 20:50:07 $
  */
 public class DeploymentContext {
     private final URI configID;
@@ -61,6 +65,7 @@ public class DeploymentContext {
     private final byte[] buffer = new byte[4096];
     private final List ancestors;
     private final ClassLoader parentCL;
+    private final Collection tmpfiles = new ArrayList();
 
     public DeploymentContext(JarOutputStream jos, URI id, URI parentID, Kernel kernel) throws IOException, MalformedObjectNameException, DeploymentException {
         this.configID = id;
@@ -132,6 +137,13 @@ public class DeploymentContext {
         addToClassPath(path, url);
     }
 
+    public void addStreamInclude(URI path, InputStream is) throws IOException {
+        File tmp = FileUtil.toTempFile(is);
+        addInclude(path, tmp.toURL());
+        tmpfiles.add(tmp);
+
+    }
+
     public void addArchive(URI path, ZipInputStream archive) throws IOException {
         ZipEntry src;
         while ((src = archive.getNextEntry()) != null) {
@@ -140,7 +152,10 @@ public class DeploymentContext {
         }
     }
 
-    public void addToClassPath(URI path, URL url) {
+    //This method was once public.  It appears to be useless in most cases so I made it private.
+    //Deploying from a stream (usual jsr 88 case) there is no URL to map unless the stream
+    //contents are copied to a temp file.
+    private void addToClassPath(URI path, URL url) {
         classPath.add(path);
         includes.put(path, url);
     }
@@ -192,6 +207,13 @@ public class DeploymentContext {
         saveConfiguration();
         jos.flush();
         jos.close();
+
+        for (Iterator iterator = tmpfiles.iterator(); iterator.hasNext();) {
+            try {
+                ((File) iterator.next()).delete();
+            } catch (Exception e) {
+            }
+        }
 
         if (kernel != null && ancestors != null && ancestors.size() > 0) {
             try {

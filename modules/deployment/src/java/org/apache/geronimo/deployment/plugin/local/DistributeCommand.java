@@ -21,17 +21,15 @@ import java.io.File;
 import java.util.jar.JarInputStream;
 
 import javax.enterprise.deploy.shared.CommandType;
-import javax.enterprise.deploy.spi.Target;
 
 import org.apache.geronimo.deployment.ConfigurationBuilder;
-import org.apache.geronimo.kernel.config.ConfigurationParent;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.xmlbeans.XmlObject;
 
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/02/28 10:08:47 $
+ * @version $Revision: 1.7 $ $Date: 2004/03/01 20:50:07 $
  */
 public class DistributeCommand extends CommandSupport {
     private final ConfigurationStore store;

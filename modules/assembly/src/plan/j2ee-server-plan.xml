@@ -31,8 +31,11 @@ by the server.
         <uri>geronimo/jars/geronimo-naming-DEV.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-j2ee-DEV.jar</uri>
+        <uri>geronimo/jars/geronimo-security-DEV.jar</uri>
     </dependency>
+
+    <gbean name="geronimo.server:type=ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator">
+    </gbean>
 
     <!-- default WAR container using Jetty -->
     <gbean name="geronimo.server:type=WebContainer,container=Jetty" class="org.apache.geronimo.jetty.JettyContainerImpl">

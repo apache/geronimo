@@ -25,11 +25,12 @@ Configuration for the Geronimo deployer
     <include>
         <uri>geronimo/jars/geronimo-transaction-DEV.jar</uri>
     </include>
-    <include>
-        <uri>geronimo-spec/jars/geronimo-spec-j2ee-DEV.jar</uri>
-    </include>
     <dependency>
         <uri>geronimo-spec/jars/geronimo-spec-j2eeschema-DEV.jar</uri>
+    </dependency>
+    <!-- seems to be required to load jetty deployer - but I think this should not be here-->
+    <dependency>
+        <uri>geronimo-spec/jars/geronimo-spec-j2ee-DEV.jar</uri>
     </dependency>
 
     <gbean name="geronimo.deployment:role=Deployer,config=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.deployment.Deployer">
@@ -38,6 +39,7 @@ Configuration for the Geronimo deployer
     </gbean>
 
     <gbean name="geronimo.deployer:role=Builder,type=RAR_1_0,config=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.connector.deployment.RAR_1_0ConfigBuilder">
+        <attribute name="ConnectionTrackerNamePattern" type="javax.management.ObjectName">geronimo.server:type=ConnectionTracker</attribute>
         <reference name="Kernel">geronimo.boot:role=Kernel</reference>
         <reference name="Repository">*:role=Repository,*</reference>
     </gbean>
