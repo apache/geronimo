@@ -32,6 +32,14 @@ public class PlanParsingTest extends TestCase {
         ref.setTargetName("target");
 
         SchemaConversionUtils.validateDD(appClient);
-        System.out.println(appClient.toString());
+//        System.out.println(appClient.toString());
+    }
+
+    public void testConnectorInclude() throws Exception {
+        File resourcePlan = new File(basedir, "src/test-resources/plans/plan2.xml");
+        assertTrue(resourcePlan.exists());
+        GerApplicationClientType appClient = builder.getApplicationClientType(resourcePlan, null, null, null);
+        assertEquals(1, appClient.getResourceRefArray().length);
+        assertEquals(1, appClient.getResourceArray().length);
     }
 }

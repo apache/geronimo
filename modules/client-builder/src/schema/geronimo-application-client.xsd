@@ -67,7 +67,7 @@
                 <xs:element name="external-rar" type="xs:string"/>
                 <xs:element name="internal-rar" type="xs:string"/>
             </xs:choice>
-            <xs:element name="connector" type="connector:connectorType"/>
+            <xs:element ref="connector:connector"/>
         </xs:sequence>
     </xs:complexType>
 
