@@ -38,7 +38,7 @@ import org.apache.commons.logging.LogFactory;
  *
  * @version $Rev$ $Date$
  */
-public class SinglePoolMatchAllConnectionInterceptor implements ConnectionInterceptor {
+public class SinglePoolMatchAllConnectionInterceptor implements ConnectionInterceptor, PoolingAttributes {
 
     private static Log log = LogFactory.getLog(SinglePoolMatchAllConnectionInterceptor.class.getName());
 
@@ -84,6 +84,7 @@ public class SinglePoolMatchAllConnectionInterceptor implements ConnectionInterc
                                             mci.getConnectionRequestInfo());
                             if (matchedMC != null) {
                                 connectionInfo.setManagedConnectionInfo((ManagedConnectionInfo) pool.get(matchedMC));
+                                pool.remove(matchedMC);
                                 if (log.isTraceEnabled()) {
                                     log.trace("Returning pooled connection " + connectionInfo.getManagedConnectionInfo());
                                 }
@@ -164,4 +165,20 @@ public class SinglePoolMatchAllConnectionInterceptor implements ConnectionInterc
         }
     }
 
+    //PoolingAttributes implementation
+    public int getPartitionCount() {
+        return 1;
+    }
+
+    public int getPartitionMaxSize() {
+        return maxSize;
+    }
+
+    public int getIdleConnectionCount() {
+        return pool.size();
+    }
+
+    public int getConnectionCount() {
+        return actualConnections;
+    }
 }

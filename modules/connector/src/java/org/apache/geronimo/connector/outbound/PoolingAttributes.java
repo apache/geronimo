@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2003-2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,18 +15,17 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.connector.outbound.connectionmanagerconfig;
-
-import java.io.Serializable;
-
-import org.apache.geronimo.connector.outbound.ConnectionInterceptor;
-import org.apache.geronimo.connector.outbound.PoolingAttributes;
+package org.apache.geronimo.connector.outbound;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $
  */
-public interface PoolingSupport extends Serializable, PoolingAttributes {
+public interface PoolingAttributes {
+    int getPartitionCount();
 
-    ConnectionInterceptor addPoolingInterceptors(ConnectionInterceptor tail);
+    int getPartitionMaxSize();
 
+    int getIdleConnectionCount();
+
+    int getConnectionCount();
 }

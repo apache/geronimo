@@ -21,6 +21,7 @@ package org.apache.geronimo.connector.outbound;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Iterator;
 
 import javax.resource.ResourceException;
 import javax.resource.spi.ConnectionRequestInfo;
@@ -37,7 +38,7 @@ import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PoolingSup
  *
  * @version $Rev$ $Date$
  */
-public class MultiPoolConnectionInterceptor implements ConnectionInterceptor {
+public class MultiPoolConnectionInterceptor implements ConnectionInterceptor, PoolingAttributes{
 
     private final ConnectionInterceptor next;
     private final PoolingSupport singlePoolFactory;
@@ -83,6 +84,32 @@ public class MultiPoolConnectionInterceptor implements ConnectionInterceptor {
         ManagedConnectionInfo mci = connectionInfo.getManagedConnectionInfo();
         ConnectionInterceptor poolInterceptor = mci.getPoolInterceptor();
         poolInterceptor.returnConnection(connectionInfo, connectionReturnAction);
+    }
+
+    public int getPartitionCount() {
+        return pools.size();
+    }
+
+    public int getPartitionMaxSize() {
+        return singlePoolFactory.getPartitionMaxSize();
+    }
+
+    public int getIdleConnectionCount() {
+        int count = 0;
+        for (Iterator iterator = pools.entrySet().iterator(); iterator.hasNext();) {
+            PoolingAttributes poolingAttributes = (PoolingAttributes) ((Map.Entry) iterator.next()).getValue();
+            count += poolingAttributes.getIdleConnectionCount();
+        }
+        return count;
+    }
+
+    public int getConnectionCount() {
+        int count = 0;
+        for (Iterator iterator = pools.entrySet().iterator(); iterator.hasNext();) {
+            PoolingAttributes poolingAttributes = (PoolingAttributes) ((Map.Entry) iterator.next()).getValue();
+            count += poolingAttributes.getConnectionCount();
+        }
+        return count;
     }
 
     static class SubjectCRIKey {

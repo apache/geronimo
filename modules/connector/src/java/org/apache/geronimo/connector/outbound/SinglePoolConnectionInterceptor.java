@@ -38,7 +38,7 @@ import org.apache.commons.logging.LogFactory;
  * @version $Rev$ $Date$
  *
  */
-public class SinglePoolConnectionInterceptor implements ConnectionInterceptor {
+public class SinglePoolConnectionInterceptor implements ConnectionInterceptor, PoolingAttributes {
 
     private static Log log = LogFactory.getLog(SinglePoolConnectionInterceptor.class.getName());
 
@@ -51,6 +51,8 @@ public class SinglePoolConnectionInterceptor implements ConnectionInterceptor {
 
     private int blockingTimeout;
     private boolean selectOneAssumeMatch;
+
+    private int connectionCount = 0;
 
     public SinglePoolConnectionInterceptor(
             final ConnectionInterceptor next,
@@ -75,6 +77,7 @@ public class SinglePoolConnectionInterceptor implements ConnectionInterceptor {
                 synchronized (pool) {
                     if (pool.isEmpty()) {
                         next.getConnection(connectionInfo);
+                        connectionCount++;
                         if (log.isTraceEnabled()) {
                             log.trace("Returning new connection " + connectionInfo.getManagedConnectionInfo());
                         }
@@ -165,6 +168,7 @@ public class SinglePoolConnectionInterceptor implements ConnectionInterceptor {
 
         if (connectionReturnAction == ConnectionReturnAction.DESTROY) {
             next.returnConnection(connectionInfo, connectionReturnAction);
+            connectionCount--;
         } else {
             synchronized (pool) {
                 mci.setLastUsed(System.currentTimeMillis());
@@ -176,6 +180,22 @@ public class SinglePoolConnectionInterceptor implements ConnectionInterceptor {
         if (!wasInPool) {
             permits.release();
         }
+    }
+
+    public int getPartitionCount() {
+        return 1;
+    }
+
+    public int getPartitionMaxSize() {
+        return pool.capacity();
+    }
+
+    public int getIdleConnectionCount() {
+        return pool.currentSize();
+    }
+
+    public int getConnectionCount() {
+        return connectionCount;
     }
 
     static class PoolDeque {
@@ -229,6 +249,14 @@ public class SinglePoolConnectionInterceptor implements ConnectionInterceptor {
 
             }
             return false;
+        }
+
+        public int capacity() {
+            return deque.length;
+        }
+
+        public int currentSize() {
+            return last - first + 1;
         }
     }
 

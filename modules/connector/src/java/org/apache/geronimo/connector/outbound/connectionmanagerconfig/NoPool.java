@@ -25,8 +25,24 @@ import org.apache.geronimo.connector.outbound.ConnectionInterceptor;
  * @version $Rev$ $Date$
  *
  * */
-public class NoPool extends PoolingSupport {
+public class NoPool implements PoolingSupport {
     public ConnectionInterceptor addPoolingInterceptors(ConnectionInterceptor tail) {
         return tail;
+    }
+
+    public int getPartitionCount() {
+        return 0;
+    }
+
+    public int getPartitionMaxSize() {
+        return 0;
+    }
+
+    public int getIdleConnectionCount() {
+        return 0;
+    }
+
+    public int getConnectionCount() {
+        return 0;
     }
 }

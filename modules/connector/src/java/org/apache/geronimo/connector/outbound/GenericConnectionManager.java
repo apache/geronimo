@@ -34,22 +34,9 @@ import org.apache.geronimo.transaction.context.TransactionContextManager;
  */
 public class GenericConnectionManager extends AbstractConnectionManager {
 
-    private String objectName;
-
-    //connection manager configuration choices
-    private TransactionSupport transactionSupport;
-    private PoolingSupport pooling;
-    //dependencies
-
-    private final RealmBridge realmBridge;
-    private final ConnectionTracker connectionTracker;
-    private final TransactionContextManager transactionContextManager;
-
     //default constructor for use as endpoint
     public GenericConnectionManager() {
-        this.realmBridge = null;
-        this.connectionTracker = null;
-        this.transactionContextManager = null;
+        super(null);
     }
 
     public GenericConnectionManager(TransactionSupport transactionSupport,
@@ -58,85 +45,76 @@ public class GenericConnectionManager extends AbstractConnectionManager {
                                     RealmBridge realmBridge,
                                     ConnectionTracker connectionTracker,
                                     TransactionContextManager transactionContextManager) {
-        this.transactionSupport = transactionSupport;
-        this.pooling = pooling;
-        this.objectName = objectName;
-        this.realmBridge = realmBridge;
-        this.connectionTracker = connectionTracker;
-        assert transactionContextManager != null;
-        this.transactionContextManager = transactionContextManager;
+        super(new InterceptorsImpl(transactionSupport, pooling, objectName, realmBridge, connectionTracker, transactionContextManager));
     }
 
-    /**
-     * Order of constructed interceptors:
-     * <p/>
-     * ConnectionTrackingInterceptor (connectionTracker != null)
-     * ConnectionHandleInterceptor
-     * TransactionCachingInterceptor (useTransactions & useTransactionCaching)
-     * TransactionEnlistingInterceptor (useTransactions)
-     * SubjectInterceptor (realmBridge != null)
-     * SinglePoolConnectionInterceptor or MultiPoolConnectionInterceptor
-     * LocalXAResourceInsertionInterceptor or XAResourceInsertionInterceptor (useTransactions (&localTransactions))
-     * MCFConnectionInterceptor
-     */
-    protected ConnectionInterceptor[] setUpConnectionManager() throws IllegalStateException {
-        //check for consistency between attributes
-        if (realmBridge == null && pooling instanceof PartitionedPool && ((PartitionedPool) pooling).isPartitionBySubject()) {
-            throw new IllegalStateException("To use Subject in pooling, you need a SecurityDomain");
-        }
+    private static class InterceptorsImpl implements AbstractConnectionManager.Interceptors {
 
-        //Set up the interceptor stack
-        MCFConnectionInterceptor tail = new MCFConnectionInterceptor();
-        ConnectionInterceptor stack = tail;
+        private final ConnectionInterceptor stack;
+        private final ConnectionInterceptor recoveryStack;
+        private final PoolingAttributes poolingSupport;
 
-        stack = transactionSupport.addXAResourceInsertionInterceptor(stack, objectName);
-        stack = pooling.addPoolingInterceptors(stack);
-        //experimental threadlocal caching
-        //moved to XATransactions
+        /**
+         * Order of constructed interceptors:
+         * <p/>
+         * ConnectionTrackingInterceptor (connectionTracker != null)
+         * ConnectionHandleInterceptor
+         * TransactionCachingInterceptor (useTransactions & useTransactionCaching)
+         * TransactionEnlistingInterceptor (useTransactions)
+         * SubjectInterceptor (realmBridge != null)
+         * SinglePoolConnectionInterceptor or MultiPoolConnectionInterceptor
+         * LocalXAResourceInsertionInterceptor or XAResourceInsertionInterceptor (useTransactions (&localTransactions))
+         * MCFConnectionInterceptor
+         */
+        public InterceptorsImpl(TransactionSupport transactionSupport, PoolingSupport pooling, String objectName, RealmBridge realmBridge, ConnectionTracker connectionTracker, TransactionContextManager transactionContextManager) {
+            //check for consistency between attributes
+            if (realmBridge == null && pooling instanceof PartitionedPool && ((PartitionedPool) pooling).isPartitionBySubject()) {
+                throw new IllegalStateException("To use Subject in pooling, you need a SecurityDomain");
+            }
+
+            //Set up the interceptor stack
+            MCFConnectionInterceptor tail = new MCFConnectionInterceptor();
+            ConnectionInterceptor stack = tail;
+
+            stack = transactionSupport.addXAResourceInsertionInterceptor(stack, objectName);
+            stack = pooling.addPoolingInterceptors(stack);
+            this.poolingSupport = pooling;
+            //experimental threadlocal caching
+            //moved to XATransactions
 //        if (transactionSupport instanceof XATransactions && ((XATransactions)transactionSupport).isUseThreadCaching()) {
 //            stack = new ThreadLocalCachingConnectionInterceptor(stack, false);
 //        }
-        stack = transactionSupport.addTransactionInterceptors(stack, transactionContextManager);
+            stack = transactionSupport.addTransactionInterceptors(stack, transactionContextManager);
 
-        if (realmBridge != null) {
-            stack = new SubjectInterceptor(stack, realmBridge);
+            if (realmBridge != null) {
+                stack = new SubjectInterceptor(stack, realmBridge);
+            }
+
+            recoveryStack = stack;
+
+            stack = new ConnectionHandleInterceptor(stack);
+            if (connectionTracker != null) {
+                stack = new ConnectionTrackingInterceptor(stack,
+                        objectName,
+                        connectionTracker);
+            }
+            tail.setStack(stack);
+            this.stack = stack;
         }
 
-        ConnectionInterceptor recoveryStack = stack;
-
-        stack = new ConnectionHandleInterceptor(stack);
-        if (connectionTracker != null) {
-            stack = new ConnectionTrackingInterceptor(stack,
-                    objectName,
-                    connectionTracker);
+        public ConnectionInterceptor getStack() {
+            return stack;
         }
-        tail.setStack(stack);
-        return new ConnectionInterceptor[]{stack, recoveryStack};
+
+        public ConnectionInterceptor getRecoveryStack() {
+            return recoveryStack;
+        }
+
+        public PoolingAttributes getPoolingAttributes() {
+            return poolingSupport;
+        }
     }
 
-    public TransactionSupport getTransactionSupport() {
-        return transactionSupport;
-    }
-
-    public void setTransactionSupport(TransactionSupport transactionSupport) {
-        this.transactionSupport = transactionSupport;
-    }
-
-    public PoolingSupport getPooling() {
-        return pooling;
-    }
-
-    public void setPooling(PoolingSupport pooling) {
-        this.pooling = pooling;
-    }
-
-    public RealmBridge getRealmBridge() {
-        return realmBridge;
-    }
-
-    public ConnectionTracker getConnectionTracker() {
-        return connectionTracker;
-    }
 
     public static final GBeanInfo GBEAN_INFO;
 

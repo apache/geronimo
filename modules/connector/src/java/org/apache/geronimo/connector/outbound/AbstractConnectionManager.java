@@ -25,37 +25,18 @@ import javax.resource.spi.ManagedConnectionFactory;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.transaction.manager.NamedXAResource;
 
 /**
  * @version $Rev$ $Date$
  */
-public abstract class AbstractConnectionManager implements ConnectionManagerFactory, GBeanLifecycle, ConnectionManager, LazyAssociatableConnectionManager {
+public abstract class AbstractConnectionManager implements ConnectionManagerFactory, ConnectionManager, LazyAssociatableConnectionManager, PoolingAttributes {
 
-    private ConnectionInterceptor stack;
-
-    private ConnectionInterceptor recoveryStack;
+    protected final Interceptors interceptors;
 
 
-    public AbstractConnectionManager() {
-    }
-
-    public void doStart() throws WaitingException, Exception {
-        ConnectionInterceptor[] stacks = setUpConnectionManager();
-        assert stacks.length == 2;
-        stack = stacks[0];
-        recoveryStack = stacks[1];
-    }
-
-    protected abstract ConnectionInterceptor[] setUpConnectionManager() throws IllegalStateException;
-
-    public void doStop() {
-        stack = null;
-    }
-
-    public void doFail() {
+    public AbstractConnectionManager(Interceptors interceptors) {
+        this.interceptors = interceptors;
     }
 
     public Object createConnectionFactory(ManagedConnectionFactory mcf) throws ResourceException {
@@ -71,7 +52,7 @@ public abstract class AbstractConnectionManager implements ConnectionManagerFact
             throws ResourceException {
         ManagedConnectionInfo mci = new ManagedConnectionInfo(managedConnectionFactory, connectionRequestInfo);
         ConnectionInfo ci = new ConnectionInfo(mci);
-        stack.getConnection(ci);
+        getStack().getConnection(ci);
         return ci.getConnectionHandle();
     }
 
@@ -87,11 +68,11 @@ public abstract class AbstractConnectionManager implements ConnectionManagerFact
         ManagedConnectionInfo mci = new ManagedConnectionInfo(managedConnectionFactory, connectionRequestInfo);
         ConnectionInfo ci = new ConnectionInfo(mci);
         ci.setConnectionHandle(connection);
-        stack.getConnection(ci);
+        getStack().getConnection(ci);
     }
 
     ConnectionInterceptor getConnectionInterceptor() {
-        return stack;
+        return getStack();
     }
 
 
@@ -103,10 +84,46 @@ public abstract class AbstractConnectionManager implements ConnectionManagerFact
             return null;
         }
         ConnectionInfo recoveryConnectionInfo = new ConnectionInfo(mci);
-        recoveryStack.getConnection(recoveryConnectionInfo);
-        return new ConnectionManagerFactory.ReturnableXAResource(namedXAResource, recoveryStack, recoveryConnectionInfo);
+        getRecoveryStack().getConnection(recoveryConnectionInfo);
+        return new ConnectionManagerFactory.ReturnableXAResource(namedXAResource, getRecoveryStack(), recoveryConnectionInfo);
     }
 
+    //statistics
+
+    public int getPartitionCount() {
+        return getPooling().getPartitionCount();
+    }
+
+    public int getPartitionMaxSize() {
+        return getPooling().getPartitionMaxSize();
+    }
+
+    public int getIdleConnectionCount() {
+        return getPooling().getIdleConnectionCount();
+    }
+
+    public int getConnectionCount() {
+        return getPooling().getConnectionCount();
+    }
+
+
+    private ConnectionInterceptor getStack() {
+        return interceptors.getStack();
+    }
+
+    private ConnectionInterceptor getRecoveryStack() {
+        return interceptors.getRecoveryStack();
+    }
+
+    private PoolingAttributes getPooling() {
+        return interceptors.getPoolingAttributes();
+    }
+
+    public interface Interceptors {
+        ConnectionInterceptor getStack();
+        ConnectionInterceptor getRecoveryStack();
+        PoolingAttributes getPoolingAttributes();
+    }
 
     protected static final GBeanInfo GBEAN_INFO;
 
@@ -115,6 +132,7 @@ public abstract class AbstractConnectionManager implements ConnectionManagerFact
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(AbstractConnectionManager.class);
 
         infoFactory.addInterface(ConnectionManagerFactory.class);
+        infoFactory.addInterface(PoolingAttributes.class);
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

@@ -100,7 +100,6 @@ public class ConnectionManagerTestUtils extends TestCase implements DefaultInter
                 realmBridge,
                 connectionTrackingCoordinator,
                 transactionContextManager);
-        connectionManagerDeployment.doStart();
         connectionFactory = (MockConnectionFactory) connectionManagerDeployment.createConnectionFactory(mockManagedConnectionFactory);
         defaultComponentContext = new DefaultInstanceContext(unshareableResources, applicationManagedSecurityResources);
         defaultComponentInterceptor = new DefaultComponentInterceptor(this, connectionTrackingCoordinator, transactionContextManager);

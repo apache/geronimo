@@ -19,6 +19,7 @@ package org.apache.geronimo.connector.outbound.connectionmanagerconfig;
 
 import org.apache.geronimo.connector.outbound.ConnectionInterceptor;
 import org.apache.geronimo.connector.outbound.MultiPoolConnectionInterceptor;
+import org.apache.geronimo.connector.outbound.PoolingAttributes;
 
 /**
  *
@@ -26,12 +27,14 @@ import org.apache.geronimo.connector.outbound.MultiPoolConnectionInterceptor;
  * @version $Rev$ $Date$
  *
  * */
-public class PartitionedPool extends PoolingSupport {
+public class PartitionedPool implements PoolingSupport {
 
     private boolean partitionByConnectionRequestInfo;
     private boolean partitionBySubject;
 
     private final SinglePool singlePool;
+
+    private PoolingAttributes poolingAttributes;
 
     public PartitionedPool(boolean partitionByConnectionRequestInfo, boolean partitionBySubject, int maxSize, int blockingTimeoutMilliseconds, boolean matchOne, boolean matchAll, boolean selectOneAssumeMatch) {
         singlePool = new SinglePool(maxSize, blockingTimeoutMilliseconds, matchOne, matchAll, selectOneAssumeMatch);
@@ -96,10 +99,28 @@ public class PartitionedPool extends PoolingSupport {
     }
 
         public ConnectionInterceptor addPoolingInterceptors(ConnectionInterceptor tail) {
-            return new MultiPoolConnectionInterceptor(
+            MultiPoolConnectionInterceptor pool = new MultiPoolConnectionInterceptor(
                             tail,
                             singlePool,
                             isPartitionBySubject(),
                             isPartitionByConnectionRequestInfo());
+            this.poolingAttributes = pool;
+            return pool;
         }
+
+    public int getPartitionCount() {
+        return poolingAttributes.getPartitionCount();
+    }
+
+    public int getPartitionMaxSize() {
+        return poolingAttributes.getPartitionMaxSize();
+    }
+
+    public int getIdleConnectionCount() {
+        return poolingAttributes.getIdleConnectionCount();
+    }
+
+    public int getConnectionCount() {
+        return poolingAttributes.getConnectionCount();
+    }
 }

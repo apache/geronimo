@@ -20,6 +20,7 @@ package org.apache.geronimo.connector.outbound.connectionmanagerconfig;
 import org.apache.geronimo.connector.outbound.ConnectionInterceptor;
 import org.apache.geronimo.connector.outbound.SinglePoolConnectionInterceptor;
 import org.apache.geronimo.connector.outbound.SinglePoolMatchAllConnectionInterceptor;
+import org.apache.geronimo.connector.outbound.PoolingAttributes;
 
 /**
  *
@@ -27,12 +28,14 @@ import org.apache.geronimo.connector.outbound.SinglePoolMatchAllConnectionInterc
  * @version $Rev$ $Date$
  *
  * */
-public class SinglePool extends PoolingSupport {
+public class SinglePool implements PoolingSupport {
     private int maxSize;
     private int blockingTimeoutMilliseconds;
     private boolean matchOne;
     private boolean matchAll;
     private boolean selectOneAssumeMatch;
+
+    private PoolingAttributes pool;
 
     public SinglePool(int maxSize, int blockingTimeoutMilliseconds, boolean matchOne, boolean matchAll, boolean selectOneAssumeMatch) {
         this.maxSize = maxSize;
@@ -84,17 +87,37 @@ public class SinglePool extends PoolingSupport {
 
     public ConnectionInterceptor addPoolingInterceptors(ConnectionInterceptor tail) {
         if (isMatchAll()) {
-            return new SinglePoolMatchAllConnectionInterceptor(
+            SinglePoolMatchAllConnectionInterceptor pool = new SinglePoolMatchAllConnectionInterceptor(
                     tail,
                     getMaxSize(),
                     getBlockingTimeoutMilliseconds());
+            this.pool = pool;
+            return pool;
 
         } else {
-            return new SinglePoolConnectionInterceptor(
+            SinglePoolConnectionInterceptor pool = new SinglePoolConnectionInterceptor(
                     tail,
                     getMaxSize(),
                     getBlockingTimeoutMilliseconds(),
                     isSelectOneAssumeMatch());
+            this.pool = pool;
+            return pool;
         }
+    }
+
+    public int getPartitionCount() {
+        return 1;
+    }
+
+    public int getPartitionMaxSize() {
+        return pool == null?  maxSize: pool.getPartitionMaxSize();
+    }
+
+    public int getIdleConnectionCount() {
+        return pool.getIdleConnectionCount();
+    }
+
+    public int getConnectionCount() {
+        return pool.getConnectionCount();
     }
 }
