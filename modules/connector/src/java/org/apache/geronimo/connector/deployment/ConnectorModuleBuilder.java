@@ -220,7 +220,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
     }
 
     public String addGBeans(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
-        ObjectName resourceAdapterModuleName = addResourceAdapterModuleGBean(earContext, module, cl);
+        addResourceAdapterModuleGBean(earContext, module, cl);
 
         GerConnectorType geronimoConnector = (GerConnectorType) module.getVendorDD();
         XmlObject specDD = module.getSpecDD();
@@ -626,6 +626,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
             if (connectionManager.getRealmBridge() != null) {
                 connectionManagerGBean.setReferencePattern("RealmBridge", ObjectName.getInstance(BASE_REALM_BRIDGE_NAME + connectionManager.getRealmBridge()));
             }
+            connectionManagerGBean.setReferencePattern("TransactionContextManager", earContext.getTransactionContextManagerObjectName());
         } catch (Exception e) {
             throw new DeploymentException("Problem setting up ConnectionManager", e);
         }

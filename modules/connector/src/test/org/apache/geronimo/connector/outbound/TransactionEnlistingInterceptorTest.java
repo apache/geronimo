@@ -18,16 +18,14 @@
 package org.apache.geronimo.connector.outbound;
 
 import javax.resource.ResourceException;
-import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
 import org.apache.geronimo.transaction.context.ContainerTransactionContext;
-import org.apache.geronimo.transaction.context.TransactionContext;
-import org.apache.geronimo.transaction.context.UnspecifiedTransactionContext;
-import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.manager.NamedXAResource;
+import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 
 /**
  *
@@ -43,10 +41,13 @@ public class TransactionEnlistingInterceptorTest extends ConnectionInterceptorTe
     private boolean ended;
     private boolean returned;
     private boolean committed;
+    private TransactionContextManager transactionContextManager;
 
     protected void setUp() throws Exception {
         super.setUp();
-        transactionEnlistingInterceptor = new TransactionEnlistingInterceptor(this);
+        TransactionManagerImpl transactionManager = new TransactionManagerImpl();
+        transactionContextManager = new TransactionContextManager(transactionManager, transactionManager, null);
+        transactionEnlistingInterceptor = new TransactionEnlistingInterceptor(this, transactionContextManager);
     }
 
     protected void tearDown() throws Exception {
@@ -60,7 +61,7 @@ public class TransactionEnlistingInterceptorTest extends ConnectionInterceptorTe
 
     public void testNoTransaction() throws Exception {
         ConnectionInfo connectionInfo = makeConnectionInfo();
-        TransactionContext.setContext(new UnspecifiedTransactionContext());
+        transactionContextManager.newUnspecifiedTransactionContext();
         transactionEnlistingInterceptor.getConnection(connectionInfo);
         assertTrue("Expected not started", !started);
         assertTrue("Expected not ended", !ended);
@@ -70,10 +71,7 @@ public class TransactionEnlistingInterceptorTest extends ConnectionInterceptorTe
     }
 
     public void testTransactionShareableConnection() throws Exception {
-        TransactionManager transactionManager = new TransactionManagerImpl();
-        ContainerTransactionContext transactionContext = new ContainerTransactionContext(transactionManager);
-        TransactionContext.setContext(transactionContext);
-        transactionContext.begin();
+        ContainerTransactionContext transactionContext = transactionContextManager.newContainerTransactionContext();
         ConnectionInfo connectionInfo = makeConnectionInfo();
         transactionEnlistingInterceptor.getConnection(connectionInfo);
         assertTrue("Expected started", started);
@@ -83,15 +81,12 @@ public class TransactionEnlistingInterceptorTest extends ConnectionInterceptorTe
         assertTrue("Expected not started", !started);
         assertTrue("Expected ended", ended);
         assertTrue("Expected returned", returned);
-        transactionManager.commit();
+        transactionContext.commit();
         assertTrue("Expected committed", committed);
     }
 
     public void testTransactionUnshareableConnection() throws Exception {
-        TransactionManager transactionManager = new TransactionManagerImpl();
-        ContainerTransactionContext transactionContext = new ContainerTransactionContext(transactionManager);
-        TransactionContext.setContext(transactionContext);
-        transactionContext.begin();
+        ContainerTransactionContext transactionContext = transactionContextManager.newContainerTransactionContext();
         ConnectionInfo connectionInfo = makeConnectionInfo();
         connectionInfo.setUnshareable(true);
         transactionEnlistingInterceptor.getConnection(connectionInfo);
@@ -102,7 +97,7 @@ public class TransactionEnlistingInterceptorTest extends ConnectionInterceptorTe
         assertTrue("Expected not started", !started);
         assertTrue("Expected ended", ended);
         assertTrue("Expected returned", returned);
-        transactionManager.commit();
+        transactionContext.commit();
         assertTrue("Expected committed", committed);
     }
 

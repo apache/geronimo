@@ -24,6 +24,7 @@ import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrack
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.security.bridge.RealmBridge;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
  * GenericConnectionManager sets up a connection manager stack according to the
@@ -40,23 +41,30 @@ public class GenericConnectionManager extends AbstractConnectionManager {
     private PoolingSupport pooling;
     //dependencies
 
-    protected RealmBridge realmBridge;
-    protected ConnectionTracker connectionTracker;
+    private final RealmBridge realmBridge;
+    private final ConnectionTracker connectionTracker;
+    private final TransactionContextManager transactionContextManager;
 
     //default constructor for use as endpoint
     public GenericConnectionManager() {
+        this.realmBridge = null;
+        this.connectionTracker = null;
+        this.transactionContextManager = null;
     }
 
     public GenericConnectionManager(TransactionSupport transactionSupport,
-            PoolingSupport pooling,
-            String objectName,
-            RealmBridge realmBridge,
-            ConnectionTracker connectionTracker) {
+                                    PoolingSupport pooling,
+                                    String objectName,
+                                    RealmBridge realmBridge,
+                                    ConnectionTracker connectionTracker,
+                                    TransactionContextManager transactionContextManager) {
         this.transactionSupport = transactionSupport;
         this.pooling = pooling;
         this.objectName = objectName;
         this.realmBridge = realmBridge;
         this.connectionTracker = connectionTracker;
+        assert transactionContextManager != null;
+        this.transactionContextManager = transactionContextManager;
     }
 
     /**
@@ -88,7 +96,7 @@ public class GenericConnectionManager extends AbstractConnectionManager {
 //        if (transactionSupport instanceof XATransactions && ((XATransactions)transactionSupport).isUseThreadCaching()) {
 //            stack = new ThreadLocalCachingConnectionInterceptor(stack, false);
 //        }
-        stack = transactionSupport.addTransactionInterceptors(stack);
+        stack = transactionSupport.addTransactionInterceptors(stack, transactionContextManager);
 
         if (realmBridge != null) {
             stack = new SubjectInterceptor(stack, realmBridge);
@@ -103,7 +111,7 @@ public class GenericConnectionManager extends AbstractConnectionManager {
                     connectionTracker);
         }
         tail.setStack(stack);
-        return new ConnectionInterceptor[] {stack, recoveryStack};
+        return new ConnectionInterceptor[]{stack, recoveryStack};
     }
 
     public TransactionSupport getTransactionSupport() {
@@ -126,16 +134,8 @@ public class GenericConnectionManager extends AbstractConnectionManager {
         return realmBridge;
     }
 
-    public void setRealmBridge(RealmBridge realmBridge) {
-        this.realmBridge = realmBridge;
-    }
-
     public ConnectionTracker getConnectionTracker() {
         return connectionTracker;
-    }
-
-    public void setConnectionTracker(ConnectionTracker connectionTracker) {
-        this.connectionTracker = connectionTracker;
     }
 
     public static final GBeanInfo GBEAN_INFO;
@@ -151,13 +151,15 @@ public class GenericConnectionManager extends AbstractConnectionManager {
 
         infoFactory.addReference("ConnectionTracker", ConnectionTracker.class);
         infoFactory.addReference("RealmBridge", RealmBridge.class);
+        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class);
 
         infoFactory.setConstructor(new String[]{
             "transactionSupport",
             "pooling",
             "objectName",
             "RealmBridge",
-            "ConnectionTracker"});
+            "ConnectionTracker",
+            "TransactionContextManager"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

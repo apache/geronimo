@@ -80,6 +80,7 @@
 
     <gbean name="geronimo.server:type=ThreadPooledTimer,name=JDBCNonTransactionalThreadPooledTimer" class="org.apache.geronimo.timer.jdbc.JDBCStoreThreadPooledNonTransactionalTimer">
         <reference name="ManagedConnectionFactoryWrapper">geronimo.server:J2EEServer=geronimo,j2eeType=JCAManagedConnectionFactory,name=DefaultDatasource</reference>
+        <reference name="TransactionContextManager">geronimo.server:type=TransactionContextManager</reference>
         <reference name="ThreadPool">geronimo.server:type=ThreadPool,name=DefaultThreadPool</reference>
     </gbean>
 

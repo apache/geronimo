@@ -41,7 +41,7 @@ public class JDBCStoreThreadPooledTransactionalTimer extends ThreadPooledTimer {
             Executor threadPool,
             Kernel kernel) {
         super(new TransactionalExecutorTaskFactory(transactionContextManager, repeatCount),
-                new JDBCWorkerPersistence(kernel, managedConnectionFactoryWrapper), threadPool);
+                new JDBCWorkerPersistence(kernel, managedConnectionFactoryWrapper), threadPool, transactionContextManager);
     }
 
 

@@ -18,13 +18,12 @@
 package org.apache.geronimo.connector;
 
 import java.util.Timer;
-
 import javax.resource.spi.XATerminator;
 import javax.resource.spi.work.WorkManager;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.connector.work.GeronimoWorkManager;
-import org.apache.geronimo.transaction.XAServices;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
  * Unit tests for {@link BootstrapContextImpl}
@@ -36,8 +35,8 @@ public class BootstrapContextTest extends TestCase {
      * Tests get and set work manager
      */
     public void testGetSetWorkManager() {
-        XAServices xaServices = new MockXATerminator("MockXATerminator");
-        GeronimoWorkManager manager = new GeronimoWorkManager(1, xaServices);
+        TransactionContextManager transactionContextManager = new TransactionContextManager();
+        GeronimoWorkManager manager = new GeronimoWorkManager(1, transactionContextManager);
         BootstrapContextImpl context = new BootstrapContextImpl(manager);
         WorkManager wm = context.getWorkManager();
 
@@ -48,12 +47,12 @@ public class BootstrapContextTest extends TestCase {
      * Tests get and set XATerminator
      */
     public void testGetSetXATerminator() {
-        XAServices xaServices = new MockXATerminator("MockXATerminator");
-        GeronimoWorkManager manager = new GeronimoWorkManager(1, xaServices);
+        TransactionContextManager transactionContextManager = new TransactionContextManager();
+        GeronimoWorkManager manager = new GeronimoWorkManager(1, transactionContextManager);
         BootstrapContextImpl context = new BootstrapContextImpl(manager);
         XATerminator xat = context.getXATerminator();
 
-        assertSame("Make sure it is the same object", xaServices, xat);
+        assertSame("Make sure it is the same object", transactionContextManager, xat);
     }
 
     /**

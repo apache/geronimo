@@ -21,6 +21,7 @@ import org.apache.geronimo.connector.outbound.ConnectionInterceptor;
 import org.apache.geronimo.connector.outbound.LocalXAResourceInsertionInterceptor;
 import org.apache.geronimo.connector.outbound.TransactionCachingInterceptor;
 import org.apache.geronimo.connector.outbound.TransactionEnlistingInterceptor;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
  *
@@ -38,8 +39,8 @@ public class LocalTransactions extends TransactionSupport {
         return new LocalXAResourceInsertionInterceptor(stack, name);
     }
 
-    public ConnectionInterceptor addTransactionInterceptors(ConnectionInterceptor stack) {
-        stack = new TransactionEnlistingInterceptor(stack);
-        return new TransactionCachingInterceptor(stack);
+    public ConnectionInterceptor addTransactionInterceptors(ConnectionInterceptor stack, TransactionContextManager transactionContextManager) {
+        stack = new TransactionEnlistingInterceptor(stack, transactionContextManager);
+        return new TransactionCachingInterceptor(stack, transactionContextManager);
     }
 }

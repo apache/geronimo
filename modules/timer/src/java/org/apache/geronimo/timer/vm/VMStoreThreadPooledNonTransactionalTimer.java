@@ -23,6 +23,7 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.timer.NontransactionalExecutorTaskFactory;
 import org.apache.geronimo.timer.PersistentTimer;
 import org.apache.geronimo.timer.ThreadPooledTimer;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
  *
@@ -32,9 +33,9 @@ import org.apache.geronimo.timer.ThreadPooledTimer;
  * */
 public class VMStoreThreadPooledNonTransactionalTimer extends ThreadPooledTimer {
 
-    public VMStoreThreadPooledNonTransactionalTimer(Executor threadPool) {
+    public VMStoreThreadPooledNonTransactionalTimer(TransactionContextManager transactionContextManager, Executor threadPool) {
         super(new NontransactionalExecutorTaskFactory(),
-                new VMWorkerPersistence(), threadPool);
+                new VMWorkerPersistence(), threadPool, transactionContextManager);
     }
 
 
@@ -45,8 +46,9 @@ public class VMStoreThreadPooledNonTransactionalTimer extends ThreadPooledTimer 
         infoFactory.addInterface(PersistentTimer.class);
 
         infoFactory.addReference("ThreadPool", Executor.class);
+        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class);
 
-        infoFactory.setConstructor(new String[] {"ThreadPool"});
+        infoFactory.setConstructor(new String[] {"TransactionContextManager", "ThreadPool"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

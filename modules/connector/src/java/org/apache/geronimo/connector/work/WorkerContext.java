@@ -24,13 +24,13 @@ import javax.resource.spi.work.WorkCompletedException;
 import javax.resource.spi.work.WorkEvent;
 import javax.resource.spi.work.WorkException;
 import javax.resource.spi.work.WorkListener;
-import javax.resource.spi.work.WorkRejectedException;
 import javax.resource.spi.work.WorkManager;
+import javax.resource.spi.work.WorkRejectedException;
 
 import EDU.oswego.cs.dl.util.concurrent.Latch;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.transaction.XAWork;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
  * Work wrapper providing an execution context to a Work instance.
@@ -82,7 +82,7 @@ public class WorkerContext implements Work {
      */
     private final ExecutionContext executionContext;
 
-    private final XAWork xaWork;
+    private final TransactionContextManager transactionContextManager;
 
     /**
      * Listener to be notified during the life-cycle of the work treatment.
@@ -107,12 +107,13 @@ public class WorkerContext implements Work {
     /**
      * Create a WorkWrapper.
      *
-     * @param aWork Work to be wrapped.
+     * @param work Work to be wrapped.
+     * @param transactionContextManager
      */
-    public WorkerContext(Work aWork) {
-        adaptee = aWork;
+    public WorkerContext(Work work, TransactionContextManager transactionContextManager) {
+        adaptee = work;
         executionContext = null;
-        xaWork = null;
+        this.transactionContextManager = transactionContextManager;
     }
 
     /**
@@ -125,16 +126,15 @@ public class WorkerContext implements Work {
      * the submitted Work instance must be executed.
      * @param workListener an object which would be notified when the various
      * Work processing events (work accepted, work rejected, work started,
-     * work completed) occur.
      */
     public WorkerContext(Work aWork, long aStartTimeout,
                          ExecutionContext execContext,
-                         XAWork xaWork,
+                         TransactionContextManager transactionContextManager,
                          WorkListener workListener) {
         adaptee = aWork;
         startTimeOut = aStartTimeout;
         executionContext = execContext;
-        this.xaWork = xaWork;
+        this.transactionContextManager = transactionContextManager;
         if (null != workListener) {
             this.workListener = workListener;
         }
@@ -271,15 +271,19 @@ public class WorkerContext implements Work {
         workListener.workStarted(
                 new WorkEvent(this, WorkEvent.WORK_STARTED, adaptee, null));
         startLatch.release();
+        //Implementation note: we assume this is being called without an interesting TransactionContext,
+        //and ignore/replace whatever is associated with the current thread.
         try {
             if (executionContext == null || executionContext.getXid() == null) {
+                transactionContextManager.newUnspecifiedTransactionContext();
                 adaptee.run();
+                //TODO should we commit the txContext to flush any leftover state???
             } else {
                 try {
-                    xaWork.begin(executionContext.getXid(), executionContext.getTransactionTimeout());
+                    transactionContextManager.begin(executionContext.getXid(), executionContext.getTransactionTimeout());
                     adaptee.run();
                 } finally {
-                    xaWork.end(executionContext.getXid());
+                    transactionContextManager.end(executionContext.getXid());
                 }
 
             }

@@ -61,7 +61,7 @@ public abstract class AbstractThreadPooledTimerTest extends TestCase {
         threadPool.setPoolName("TestPool");
         threadPool.doStart();
         WorkerPersistence workerPersistence = new VMWorkerPersistence();
-        timer = new ThreadPooledTimer(executableWorkFactory, workerPersistence, threadPool);
+        timer = new ThreadPooledTimer(executableWorkFactory, workerPersistence, threadPool, transactionContextManager);
         timer.doStart();
 
         counter.set(0);

@@ -23,11 +23,12 @@ import javax.transaction.SystemException;
 import javax.transaction.xa.XAResource;
 
 import org.apache.geronimo.transaction.context.TransactionContext;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
  * TransactionEnlistingInterceptor.java
- *
- *
+ * <p/>
+ * <p/>
  * Created: Fri Sep 26 14:52:24 2003
  *
  * @version 1.0
@@ -35,19 +36,19 @@ import org.apache.geronimo.transaction.context.TransactionContext;
 public class TransactionEnlistingInterceptor implements ConnectionInterceptor {
 
     private final ConnectionInterceptor next;
+    private final TransactionContextManager transactionContextManager;
 
-    public TransactionEnlistingInterceptor(
-            ConnectionInterceptor next
-            ) {
+    public TransactionEnlistingInterceptor(ConnectionInterceptor next, TransactionContextManager transactionContextManager) {
         this.next = next;
+        this.transactionContextManager = transactionContextManager;
     }
 
     public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {
         next.getConnection(connectionInfo);
         try {
             ManagedConnectionInfo mci = connectionInfo.getManagedConnectionInfo();
-            TransactionContext transactionContext = TransactionContext.getContext();
-            if (transactionContext.isActive()) {
+            TransactionContext transactionContext = transactionContextManager.getContext();
+            if (transactionContext != null && transactionContext.isActive()) {
                 XAResource xares = mci.getXAResource();
                 transactionContext.getTransaction().enlistResource(xares);
             }
@@ -55,8 +56,7 @@ public class TransactionEnlistingInterceptor implements ConnectionInterceptor {
         } catch (SystemException e) {
             throw new ResourceException("Could not get transaction", e);
         } catch (RollbackException e) {
-            throw new ResourceException(
-                    "Could not enlist resource in rolled back transaction",
+            throw new ResourceException("Could not enlist resource in rolled back transaction",
                     e);
         }
 
@@ -64,19 +64,19 @@ public class TransactionEnlistingInterceptor implements ConnectionInterceptor {
 
     /**
      * The <code>returnConnection</code> method
-     *
+     * <p/>
      * todo Probably the logic needs improvement if a connection
      * error occurred and we are destroying the handle.
-     * @param connectionInfo a <code>ConnectionInfo</code> value
+     *
+     * @param connectionInfo         a <code>ConnectionInfo</code> value
      * @param connectionReturnAction a <code>ConnectionReturnAction</code> value
      */
-    public void returnConnection(
-            ConnectionInfo connectionInfo,
-            ConnectionReturnAction connectionReturnAction) {
+    public void returnConnection(ConnectionInfo connectionInfo,
+                                 ConnectionReturnAction connectionReturnAction) {
         try {
             ManagedConnectionInfo mci = connectionInfo.getManagedConnectionInfo();
-            TransactionContext transactionContext = TransactionContext.getContext();
-            if (transactionContext.isActive()) {
+            TransactionContext transactionContext = transactionContextManager.getContext();
+            if (transactionContext != null && transactionContext.isActive()) {
                 XAResource xares = mci.getXAResource();
                 transactionContext.getTransaction().delistResource(xares, XAResource.TMSUSPEND);
             }

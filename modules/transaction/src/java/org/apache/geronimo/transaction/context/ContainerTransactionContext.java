@@ -28,21 +28,21 @@ import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 
 /**
- *
- *
  * @version $Rev$ $Date$
  */
 public class ContainerTransactionContext extends InheritableTransactionContext {
     private final TransactionManager txnManager;
     private Transaction transaction;
 
-    public ContainerTransactionContext(TransactionManager txnManager) {
+    public ContainerTransactionContext(TransactionManager txnManager) throws SystemException, NotSupportedException {
         this.txnManager = txnManager;
-    }
-
-    public void begin() throws SystemException, NotSupportedException {
         txnManager.begin();
         transaction = txnManager.getTransaction();
+    }
+
+    public ContainerTransactionContext(TransactionManager txnManager, Transaction transaction) {
+        this.txnManager = txnManager;
+        this.transaction = transaction;
     }
 
     public void suspend() throws SystemException {
@@ -59,9 +59,13 @@ public class ContainerTransactionContext extends InheritableTransactionContext {
      * a successful commit...??
      *
      * @throws javax.transaction.HeuristicMixedException
+     *
      * @throws javax.transaction.HeuristicRollbackException
+     *
      * @throws javax.transaction.RollbackException
+     *
      * @throws javax.transaction.SystemException
+     *
      */
     public void commit() throws HeuristicMixedException, HeuristicRollbackException, RollbackException, SystemException {
         try {
@@ -139,6 +143,6 @@ public class ContainerTransactionContext extends InheritableTransactionContext {
         int status = transaction.getStatus();
         return (status == Status.STATUS_MARKED_ROLLBACK ||
                 status == Status.STATUS_ROLLEDBACK ||
-                status == Status.STATUS_ROLLING_BACK );
+                status == Status.STATUS_ROLLING_BACK);
     }
 }

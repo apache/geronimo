@@ -74,4 +74,12 @@ specific services - those should be provided by children.
         <attribute name="maxFileSize" type="java.lang.String">10MB</attribute>
         <reference name="ServerInfo">geronimo.client:role=ServerInfo</reference>
     </gbean>
+
+    <!-- Naming properties -->
+    <gbean name="geronimo.client:role=NamingProperties" class="org.apache.geronimo.system.properties.NamingProperties">
+        <attribute name="namingFactoryInitial" type="java.lang.String">com.sun.jndi.rmi.registry.RegistryContextFactory</attribute>
+        <attribute name="namingFactoryUrlPkgs" type="java.lang.String">org.apache.geronimo.naming</attribute>
+        <attribute name="namingProviderUrl" type="java.lang.String">rmi://localhost:1099</attribute>
+    </gbean>
+
 </configuration>

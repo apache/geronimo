@@ -20,7 +20,6 @@ package org.apache.geronimo.connector.outbound;
 import java.util.HashSet;
 import java.util.Set;
 import javax.security.auth.Subject;
-import javax.transaction.TransactionManager;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.connector.mock.MockConnection;
@@ -89,8 +88,8 @@ public class ConnectionManagerTestUtils extends TestCase implements DefaultInter
 
     protected void setUp() throws Exception {
         connectionTrackingCoordinator = new ConnectionTrackingCoordinator();
-        TransactionManager transactionManager = new TransactionManagerImpl();
-        transactionContextManager = new TransactionContextManager(transactionManager);
+        TransactionManagerImpl transactionManager = new TransactionManagerImpl();
+        transactionContextManager = new TransactionContextManager(transactionManager, transactionManager, null);
         mockManagedConnectionFactory = new MockManagedConnectionFactory();
         subject = new Subject();
         ContextManager.setCurrentCaller(subject);
@@ -99,11 +98,12 @@ public class ConnectionManagerTestUtils extends TestCase implements DefaultInter
                 poolingSupport,
                 name,
                 realmBridge,
-                connectionTrackingCoordinator);
+                connectionTrackingCoordinator,
+                transactionContextManager);
         connectionManagerDeployment.doStart();
         connectionFactory = (MockConnectionFactory) connectionManagerDeployment.createConnectionFactory(mockManagedConnectionFactory);
         defaultComponentContext = new DefaultInstanceContext(unshareableResources, applicationManagedSecurityResources);
-        defaultComponentInterceptor = new DefaultComponentInterceptor(this, connectionTrackingCoordinator);
+        defaultComponentInterceptor = new DefaultComponentInterceptor(this, connectionTrackingCoordinator, transactionContextManager);
     }
 
     protected void tearDown() throws Exception {

@@ -62,7 +62,7 @@ public abstract class TransactionContext {
     private Map managedConnections;
     private InTxCache inTxCache;
 
-    public abstract void begin() throws SystemException, NotSupportedException;
+//    public abstract void begin() throws SystemException, NotSupportedException;
 
     public abstract void suspend() throws SystemException;
 

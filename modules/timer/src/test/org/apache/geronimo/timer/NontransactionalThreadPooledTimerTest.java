@@ -17,12 +17,8 @@
 
 package org.apache.geronimo.timer;
 
-import javax.transaction.TransactionManager;
-
-import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.timer.NontransactionalExecutorTaskFactory;
-import org.apache.geronimo.timer.AbstractThreadPooledTimerTest;
+import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 
 /**
  *
@@ -33,8 +29,8 @@ import org.apache.geronimo.timer.AbstractThreadPooledTimerTest;
 public class NontransactionalThreadPooledTimerTest extends AbstractThreadPooledTimerTest {
 
     protected void setUp() throws Exception {
-        TransactionManager transactionManager = new TransactionManagerImpl();
-        transactionContextManager = new TransactionContextManager(transactionManager);
+        TransactionManagerImpl transactionManager = new TransactionManagerImpl();
+        transactionContextManager = new TransactionContextManager(transactionManager, transactionManager, null);
         executableWorkFactory = new NontransactionalExecutorTaskFactory();
         super.setUp();
     }

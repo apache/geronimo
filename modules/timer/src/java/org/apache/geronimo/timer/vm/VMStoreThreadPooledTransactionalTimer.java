@@ -37,7 +37,7 @@ public class VMStoreThreadPooledTransactionalTimer extends ThreadPooledTimer {
             TransactionContextManager transactionContextManager,
             Executor threadPool) {
         super(new TransactionalExecutorTaskFactory(transactionContextManager, repeatCount),
-                new VMWorkerPersistence(), threadPool);
+                new VMWorkerPersistence(), threadPool, transactionContextManager);
     }
 
 

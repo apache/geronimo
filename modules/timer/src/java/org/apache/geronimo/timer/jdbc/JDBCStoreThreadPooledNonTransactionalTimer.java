@@ -25,20 +25,19 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.timer.NontransactionalExecutorTaskFactory;
 import org.apache.geronimo.timer.PersistentTimer;
 import org.apache.geronimo.timer.ThreadPooledTimer;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
- *
- *
  * @version $Rev$ $Date$
- *
- * */
+ */
 public class JDBCStoreThreadPooledNonTransactionalTimer extends ThreadPooledTimer {
 
     public JDBCStoreThreadPooledNonTransactionalTimer(ManagedConnectionFactoryWrapper managedConnectionFactoryWrapper,
-            Executor threadPool,
-            Kernel kernel) {
+                                                      TransactionContextManager transactionContextManager,
+                                                      Executor threadPool,
+                                                      Kernel kernel) {
         super(new NontransactionalExecutorTaskFactory(),
-                new JDBCWorkerPersistence(kernel, managedConnectionFactoryWrapper), threadPool);
+                new JDBCWorkerPersistence(kernel, managedConnectionFactoryWrapper), threadPool, transactionContextManager);
     }
 
 
@@ -50,9 +49,11 @@ public class JDBCStoreThreadPooledNonTransactionalTimer extends ThreadPooledTime
 
         infoFactory.addReference("ManagedConnectionFactoryWrapper", ManagedConnectionFactoryWrapper.class);
         infoFactory.addReference("ThreadPool", Executor.class);
+        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class);
+
         infoFactory.addAttribute("kernel", Kernel.class, false);
 
-        infoFactory.setConstructor(new String[] {"ManagedConnectionFactoryWrapper", "ThreadPool", "kernel"});
+        infoFactory.setConstructor(new String[]{"ManagedConnectionFactoryWrapper", "TransactionContextManager", "ThreadPool", "kernel"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

@@ -37,6 +37,7 @@ import EDU.oswego.cs.dl.util.concurrent.Executor;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.transaction.context.TransactionContext;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
  *
@@ -49,6 +50,7 @@ public class ThreadPooledTimer implements PersistentTimer, GBeanLifecycle {
     private final ExecutorTaskFactory executorTaskFactory;
     private final WorkerPersistence workerPersistence;
     private final Executor executor;
+    private final TransactionContextManager transactionContextManager;
 
     private Timer delegate;
 
@@ -56,13 +58,14 @@ public class ThreadPooledTimer implements PersistentTimer, GBeanLifecycle {
 
     //default constructor for use as reference endpoint.
     public ThreadPooledTimer() {
-        this(null, null, null);
+        this(null, null, null, null);
     }
 
-    public ThreadPooledTimer(ExecutorTaskFactory executorTaskFactory, WorkerPersistence workerPersistence, Executor executor) {
+    public ThreadPooledTimer(ExecutorTaskFactory executorTaskFactory, WorkerPersistence workerPersistence, Executor executor, TransactionContextManager transactionContextManager) {
         this.executorTaskFactory = executorTaskFactory;
         this.workerPersistence = workerPersistence;
         this.executor = executor;
+        this.transactionContextManager = transactionContextManager;
     }
 
     public void doStart() throws WaitingException, Exception {
@@ -194,8 +197,9 @@ public class ThreadPooledTimer implements PersistentTimer, GBeanLifecycle {
     }
 
     void registerSynchronization(Synchronization sync) throws RollbackException, SystemException {
-        TransactionContext transactionContext = TransactionContext.getContext();
-        Transaction transaction = transactionContext == null ? null : transactionContext.getTransaction();
+        TransactionContext transactionContext = transactionContextManager.getContext();
+        //TODO move the registerSynchronization to the TransactionContext
+        Transaction transaction = transactionContext == null? null: transactionContext.getTransaction();
         if (transaction == null) {
             sync.beforeCompletion();
             sync.afterCompletion(Status.STATUS_COMMITTED);

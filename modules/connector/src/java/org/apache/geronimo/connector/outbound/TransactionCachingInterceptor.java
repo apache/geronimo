@@ -26,6 +26,7 @@ import javax.resource.ResourceException;
 
 import org.apache.geronimo.transaction.ConnectionReleaser;
 import org.apache.geronimo.transaction.context.TransactionContext;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
  * TransactionCachingInterceptor.java
@@ -50,13 +51,18 @@ import org.apache.geronimo.transaction.context.TransactionContext;
 public class TransactionCachingInterceptor implements ConnectionInterceptor, ConnectionReleaser {
 
     private final ConnectionInterceptor next;
+    private final TransactionContextManager transactionContextManager;
 
-    public TransactionCachingInterceptor(final ConnectionInterceptor next) {
+    public TransactionCachingInterceptor(ConnectionInterceptor next, TransactionContextManager transactionContextManager) {
         this.next = next;
+        this.transactionContextManager = transactionContextManager;
     }
 
     public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {
-        TransactionContext transactionContext = TransactionContext.getContext();
+        TransactionContext transactionContext = transactionContextManager.getContext();
+        if (transactionContext == null) {
+            next.getConnection(connectionInfo);
+        } else {
         ManagedConnectionInfos managedConnectionInfos = (ManagedConnectionInfos) transactionContext.getManagedConnectionInfo(this);
         if (managedConnectionInfos == null) {
             managedConnectionInfos = new ManagedConnectionInfos();
@@ -77,6 +83,7 @@ public class TransactionCachingInterceptor implements ConnectionInterceptor, Con
                 managedConnectionInfos.setShared(connectionInfo.getManagedConnectionInfo());
             }
         }
+        }
     }
 
     public void returnConnection(ConnectionInfo connectionInfo, ConnectionReturnAction connectionReturnAction) {
@@ -86,8 +93,8 @@ public class TransactionCachingInterceptor implements ConnectionInterceptor, Con
             return;
         }
 
-        TransactionContext transactionContext = TransactionContext.getContext();
-        if (transactionContext.isActive()) {
+        TransactionContext transactionContext = transactionContextManager.getContext();
+        if (transactionContext != null && transactionContext.isActive()) {
             return;
         }
         if (connectionInfo.getManagedConnectionInfo().hasConnectionHandles()) {

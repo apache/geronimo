@@ -23,7 +23,7 @@ import javax.management.ObjectName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.transaction.context.TransactionContext;
-import org.apache.geronimo.transaction.context.UnspecifiedTransactionContext;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
  * @version $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $
@@ -36,12 +36,14 @@ public final class AppClientContainer {
     private final ObjectName appClientModuleName;
     private final Method mainMethod;
     private final ClassLoader classLoader;
+    private final TransactionContextManager transactionContextManager;
 
-    public AppClientContainer(String mainClassName, ObjectName appClientModuleName, AppClientPlugin jndiContext, ClassLoader classLoader) throws Exception {
+    public AppClientContainer(String mainClassName, ObjectName appClientModuleName, ClassLoader classLoader, AppClientPlugin jndiContext, TransactionContextManager transactionContextManager) throws Exception {
         this.mainClassName = mainClassName;
-        this.jndiContext = jndiContext;
         this.appClientModuleName = appClientModuleName;
         this.classLoader = classLoader;
+        this.jndiContext = jndiContext;
+        this.transactionContextManager = transactionContextManager;
 
         try {
             Class mainClass = classLoader.loadClass(mainClassName);
@@ -66,11 +68,11 @@ public final class AppClientContainer {
 
         ClassLoader contextClassLoader = thread.getContextClassLoader();
         thread.setContextClassLoader(classLoader);
-        TransactionContext oldTransactionContext = TransactionContext.getContext();
-
+        TransactionContext oldTransactionContext = transactionContextManager.getContext();
+        TransactionContext currentTransactionContext = null;
         try {
             jndiContext.startClient(appClientModuleName);
-            TransactionContext.setContext(new UnspecifiedTransactionContext());
+            currentTransactionContext = transactionContextManager.newUnspecifiedTransactionContext();
             mainMethod.invoke(null, new Object[]{args});
 
         } catch (InvocationTargetException e) {
@@ -85,8 +87,8 @@ public final class AppClientContainer {
             jndiContext.stopClient(appClientModuleName);
 
             thread.setContextClassLoader(contextClassLoader);
-            TransactionContext.setContext(oldTransactionContext);
-
+            transactionContextManager.setContext(oldTransactionContext);
+            currentTransactionContext.commit();
         }
     }
 
@@ -98,10 +100,11 @@ public final class AppClientContainer {
         infoFactory.addOperation("main", new Class[]{String[].class});
         infoFactory.addAttribute("mainClassName", String.class, true);
         infoFactory.addAttribute("appClientModuleName", ObjectName.class, true);
-        infoFactory.addReference("JNDIContext", AppClientPlugin.class);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
+        infoFactory.addReference("JNDIContext", AppClientPlugin.class);
+        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class);
 
-        infoFactory.setConstructor(new String[]{"mainClassName", "appClientModuleName", "JNDIContext", "classLoader"});
+        infoFactory.setConstructor(new String[]{"mainClassName", "appClientModuleName", "classLoader", "JNDIContext", "TransactionContextManager"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

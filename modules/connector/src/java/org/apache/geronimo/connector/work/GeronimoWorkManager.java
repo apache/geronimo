@@ -36,7 +36,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.transaction.XAServices;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
  * WorkManager implementation which uses under the cover three WorkExecutorPool
@@ -70,7 +70,7 @@ public class GeronimoWorkManager implements WorkManager, GBeanLifecycle {
      */
     private WorkExecutorPool scheduledWorkExecutorPool;
 
-    private final XAServices xaServices;
+    private final TransactionContextManager transactionContextManager;
 
     private final WorkExecutor scheduleWorkExecutor = new ScheduleWorkExecutor();
     private final WorkExecutor startWorkExecutor = new StartWorkExecutor();
@@ -83,15 +83,15 @@ public class GeronimoWorkManager implements WorkManager, GBeanLifecycle {
         this(DEFAULT_POOL_SIZE, null);
     }
 
-    public GeronimoWorkManager(int size, XAServices xaServices) {
-        this(size, size, size, xaServices);
+    public GeronimoWorkManager(int size, TransactionContextManager transactionContextManager) {
+        this(size, size, size, transactionContextManager);
     }
 
-    public GeronimoWorkManager(int syncSize, int startSize, int schedSize, XAServices xaServices) {
+    public GeronimoWorkManager(int syncSize, int startSize, int schedSize, TransactionContextManager transactionContextManager) {
         syncWorkExecutorPool = new NullWorkExecutorPool(syncSize);
         startWorkExecutorPool = new NullWorkExecutorPool(startSize);
         scheduledWorkExecutorPool = new NullWorkExecutorPool(schedSize);
-        this.xaServices = xaServices;
+        this.transactionContextManager = transactionContextManager;
     }
 
     public void doStart() throws WaitingException, Exception {
@@ -115,7 +115,7 @@ public class GeronimoWorkManager implements WorkManager, GBeanLifecycle {
     }
 
     public XATerminator getXATerminator() {
-        return xaServices;
+        return transactionContextManager;
     }
 
     public int getSyncThreadCount() {
@@ -158,7 +158,7 @@ public class GeronimoWorkManager implements WorkManager, GBeanLifecycle {
      * @see javax.resource.spi.work.WorkManager#doWork(javax.resource.spi.work.Work)
      */
     public void doWork(Work work) throws WorkException {
-        executeWork(new WorkerContext(work), syncWorkExecutor, syncWorkExecutorPool);
+        executeWork(new WorkerContext(work, transactionContextManager), syncWorkExecutor, syncWorkExecutorPool);
     }
 
     /* (non-Javadoc)
@@ -171,7 +171,7 @@ public class GeronimoWorkManager implements WorkManager, GBeanLifecycle {
             WorkListener workListener)
             throws WorkException {
         WorkerContext workWrapper =
-                new WorkerContext(work, startTimeout, execContext, xaServices, workListener);
+                new WorkerContext(work, startTimeout, execContext, transactionContextManager, workListener);
         workWrapper.setThreadPriority(Thread.currentThread().getPriority());
         executeWork(workWrapper, syncWorkExecutor, syncWorkExecutorPool);
     }
@@ -180,7 +180,7 @@ public class GeronimoWorkManager implements WorkManager, GBeanLifecycle {
      * @see javax.resource.spi.work.WorkManager#startWork(javax.resource.spi.work.Work)
      */
     public long startWork(Work work) throws WorkException {
-        WorkerContext workWrapper = new WorkerContext(work);
+        WorkerContext workWrapper = new WorkerContext(work, transactionContextManager);
         workWrapper.setThreadPriority(Thread.currentThread().getPriority());
         executeWork(workWrapper, startWorkExecutor, startWorkExecutorPool);
         return System.currentTimeMillis() - workWrapper.getAcceptedTime();
@@ -196,7 +196,7 @@ public class GeronimoWorkManager implements WorkManager, GBeanLifecycle {
             WorkListener workListener)
             throws WorkException {
         WorkerContext workWrapper =
-                new WorkerContext(work, startTimeout, execContext, xaServices, workListener);
+                new WorkerContext(work, startTimeout, execContext, transactionContextManager, workListener);
         workWrapper.setThreadPriority(Thread.currentThread().getPriority());
         executeWork(workWrapper, startWorkExecutor, startWorkExecutorPool);
         return System.currentTimeMillis() - workWrapper.getAcceptedTime();
@@ -206,7 +206,7 @@ public class GeronimoWorkManager implements WorkManager, GBeanLifecycle {
      * @see javax.resource.spi.work.WorkManager#scheduleWork(javax.resource.spi.work.Work)
      */
     public void scheduleWork(Work work) throws WorkException {
-        WorkerContext workWrapper = new WorkerContext(work);
+        WorkerContext workWrapper = new WorkerContext(work, transactionContextManager);
         workWrapper.setThreadPriority(Thread.currentThread().getPriority());
         executeWork(workWrapper, scheduleWorkExecutor, scheduledWorkExecutorPool);
     }
@@ -221,7 +221,7 @@ public class GeronimoWorkManager implements WorkManager, GBeanLifecycle {
             WorkListener workListener)
             throws WorkException {
         WorkerContext workWrapper =
-                new WorkerContext(work, startTimeout, execContext, xaServices, workListener);
+                new WorkerContext(work, startTimeout, execContext, transactionContextManager, workListener);
         workWrapper.setThreadPriority(Thread.currentThread().getPriority());
         executeWork(workWrapper, scheduleWorkExecutor, scheduledWorkExecutorPool);
     }
@@ -262,13 +262,13 @@ public class GeronimoWorkManager implements WorkManager, GBeanLifecycle {
 
         infoFactory.addOperation("getXATerminator");
 
-        infoFactory.addReference("XAServices", XAServices.class);
+        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class);
 
         infoFactory.setConstructor(new String[]{
             "syncMaximumPoolSize",
             "startMaximumPoolSize",
             "scheduledMaximumPoolSize",
-            "XAServices"});
+            "TransactionContextManager"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

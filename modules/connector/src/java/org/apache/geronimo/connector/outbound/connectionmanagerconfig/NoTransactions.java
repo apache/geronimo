@@ -18,6 +18,7 @@
 package org.apache.geronimo.connector.outbound.connectionmanagerconfig;
 
 import org.apache.geronimo.connector.outbound.ConnectionInterceptor;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
  *
@@ -35,7 +36,7 @@ public class NoTransactions extends TransactionSupport {
         return stack;
     }
 
-    public ConnectionInterceptor addTransactionInterceptors(ConnectionInterceptor stack) {
+    public ConnectionInterceptor addTransactionInterceptors(ConnectionInterceptor stack, TransactionContextManager transactionContextManager) {
         return stack;
     }
 }

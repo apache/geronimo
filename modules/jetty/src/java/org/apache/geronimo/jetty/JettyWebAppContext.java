@@ -22,7 +22,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.Set;
-
 import javax.resource.ResourceException;
 
 import org.apache.commons.logging.Log;
@@ -38,6 +37,7 @@ import org.apache.geronimo.transaction.DefaultInstanceContext;
 import org.apache.geronimo.transaction.InstanceContext;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.UserTransactionImpl;
+import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.mortbay.http.HttpException;
 import org.mortbay.http.HttpRequest;
@@ -161,16 +161,32 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
             // Turn on the UserTransaction
             userTransaction.setOnline(true);
 
-            if (transactionContextManager.getContext() == null) {
-                transactionContextManager.newUnspecifiedTransactionContext();
-            }
-            try {
-                oldInstanceContext = associator.enter(new DefaultInstanceContext(unshareableResources, applicationManagedSecurityResources));
-            } catch (ResourceException e) {
-                throw new RuntimeException(e);
+            TransactionContext transactionContext = transactionContextManager.getContext();
+            if (transactionContext == null) {
+                transactionContext = transactionContextManager.newUnspecifiedTransactionContext();
+            } else {
+                transactionContext = null;
             }
 
-            super.handle(pathInContext, pathParams, httpRequest, httpResponse);
+            try {
+                try {
+                    oldInstanceContext = associator.enter(new DefaultInstanceContext(unshareableResources, applicationManagedSecurityResources));
+                } catch (ResourceException e) {
+                    throw new RuntimeException(e);
+                }
+
+                super.handle(pathInContext, pathParams, httpRequest, httpResponse);
+            } finally {
+                if (transactionContext != null) {
+                    transactionContextManager.setContext(null);
+                    try {
+                        transactionContext.commit();
+                    } catch (Exception e) {
+                        //TODO this is undoubtedly the wrong error code!
+                        throw (HttpException) new HttpException(500, "Problem committing unspecified transaction context").initCause(e);
+                    }
+                }
+            }
         } finally {
             try {
                 associator.exit(oldInstanceContext);
@@ -187,12 +203,11 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     public void doStart() throws WaitingException, Exception {
 
         // merge Geronimo and Jetty Lifecycles
-        if (!isStarting())
-        {
+        if (!isStarting()) {
             super.start();
             return;
         }
-        
+
         if (uri.isAbsolute()) {
             setWAR(uri.toString());
         } else {
@@ -212,18 +227,33 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
                 // Turn on the UserTransaction
                 userTransaction.setOnline(true);
 
-                //TODO should this always create an unspecified context, or might this be executed in a tx?
-                if (transactionContextManager.getContext() == null) {
-                    transactionContextManager.newUnspecifiedTransactionContext();
+                TransactionContext transactionContext = transactionContextManager.getContext();
+                if (transactionContext == null) {
+                    transactionContext = transactionContextManager.newUnspecifiedTransactionContext();
+                } else {
+                    transactionContext = null;
                 }
 
                 try {
-                    oldInstanceContext = associator.enter(new DefaultInstanceContext(unshareableResources, applicationManagedSecurityResources));
-                } catch (ResourceException e) {
-                    throw new RuntimeException(e);
-                }
 
-                super.doStart();
+                    try {
+                        oldInstanceContext = associator.enter(new DefaultInstanceContext(unshareableResources, applicationManagedSecurityResources));
+                    } catch (ResourceException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    super.doStart();
+                } finally {
+                    if (transactionContext != null) {
+                        transactionContextManager.setContext(null);
+                        try {
+                            transactionContext.commit();
+                        } catch (Exception e) {
+                            //TODO this is undoubtedly the wrong error code!
+                            throw (HttpException) new HttpException(500, "Problem committing unspecified transaction context").initCause(e);
+                        }
+                    }
+                }
             } finally {
                 try {
                     associator.exit(oldInstanceContext);
@@ -245,12 +275,11 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     public void doStop() throws Exception {
 
         // merge Geronimo and Jetty Lifecycles
-        if (!isStopping())
-        {
+        if (!isStopping()) {
             super.stop();
             return;
         }
-        
+
         ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(classLoader);
@@ -261,23 +290,37 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
                 // Turn on the UserTransaction
                 userTransaction.setOnline(true);
 
-                //TODO should this always create an unspecified context, or might this be executed in a tx?
-                if (transactionContextManager.getContext() == null) {
-                    transactionContextManager.newUnspecifiedTransactionContext();
+                TransactionContext transactionContext = transactionContextManager.getContext();
+                if (transactionContext == null) {
+                    transactionContext = transactionContextManager.newUnspecifiedTransactionContext();
+                } else {
+                    transactionContext = null;
                 }
-
                 try {
-                    oldInstanceContext = associator.enter(new DefaultInstanceContext(unshareableResources, applicationManagedSecurityResources));
-                } catch (ResourceException e) {
-                    throw new RuntimeException(e);
-                }
 
-                while (true) {
                     try {
-                        super.doStop();
-                        break;
-                    } catch (InterruptedException e) {
-                        continue;
+                        oldInstanceContext = associator.enter(new DefaultInstanceContext(unshareableResources, applicationManagedSecurityResources));
+                    } catch (ResourceException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    while (true) {
+                        try {
+                            super.doStop();
+                            break;
+                        } catch (InterruptedException e) {
+                            continue;
+                        }
+                    }
+                } finally {
+                    if (transactionContext != null) {
+                        transactionContextManager.setContext(null);
+                        try {
+                            transactionContext.commit();
+                        } catch (Exception e) {
+                            //TODO this is undoubtedly the wrong error code!
+                            throw (HttpException) new HttpException(500, "Problem committing unspecified transaction context").initCause(e);
+                        }
                     }
                 }
             } finally {

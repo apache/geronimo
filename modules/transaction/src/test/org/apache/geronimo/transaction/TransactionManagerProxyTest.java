@@ -18,6 +18,7 @@
 package org.apache.geronimo.transaction;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import javax.transaction.RollbackException;
 import javax.transaction.Status;
@@ -86,7 +87,7 @@ public class TransactionManagerProxyTest extends TestCase {
         assertEquals(Status.STATUS_MARKED_ROLLBACK, tm.getStatus());
         try {
             tm.commit();
-            fail("tx should roll back");
+            fail("tx should not commit");
         } catch (RollbackException e) {
             //expected
         }
@@ -100,7 +101,7 @@ public class TransactionManagerProxyTest extends TestCase {
         assertEquals(Status.STATUS_MARKED_ROLLBACK, tx.getStatus());
         try {
             tx.commit();
-            fail("tx should roll back");
+            fail("tx should not commit");
         } catch (RollbackException e) {
             //expected
         }
@@ -252,14 +253,15 @@ public class TransactionManagerProxyTest extends TestCase {
     //BE VERY CAREFUL!! the ResourceManager only "recovers" the LAST resource it creates.
     //This test depends on using the resource that will be recovered by the resource manager.
     public void testSimpleRecovery() throws Exception {
+        //create a transaction in our own transaction manager
         Xid xid = xidFactory.createXid();
-        tm.begin(xid, 1000);
+        tm.importXid(xid);
         Transaction tx = tm.getTransaction();
         tx.enlistResource(r1_2);
         tx.enlistResource(r2_2);
         tx.delistResource(r1_2, XAResource.TMSUCCESS);
         tx.delistResource(r2_2, XAResource.TMSUCCESS);
-        tm.prepare(xid);
+        tm.prepare(tx);
         //recover
         resourceManagers.add(rm1);
         tm.doStart();
@@ -271,15 +273,16 @@ public class TransactionManagerProxyTest extends TestCase {
     }
 
     public void testImportedXidRecovery() throws Exception {
+        //create a transaction from an external transaction manager.
         XidFactory xidFactory2 = new XidFactoryImpl("tm2".getBytes());
         Xid xid = xidFactory2.createXid();
-        tm.begin(xid, 1000);
+        tm.importXid(xid);
         Transaction tx = tm.getTransaction();
         tx.enlistResource(r1_2);
         tx.enlistResource(r2_2);
         tx.delistResource(r1_2, XAResource.TMSUCCESS);
         tx.delistResource(r2_2, XAResource.TMSUCCESS);
-        tm.prepare(xid);
+        tm.prepare(tx);
         //recover
         resourceManagers.add(rm1);
         tm.doStart();
@@ -289,9 +292,9 @@ public class TransactionManagerProxyTest extends TestCase {
         assertTrue(!r2_2.isCommitted());
         //there are no transactions started here, so local recovery is complete
         assertTrue(recovery.localRecoveryComplete());
-        Xid[] recovered = tm.recover(XAResource.TMSTARTRSCAN);
-        assertEquals(1, recovered.length);
-        assertEquals(xid, recovered[0]);
+        Map recovered = tm.getExternalXids();
+        assertEquals(1, recovered.size());
+        assertEquals(xid, recovered.keySet().iterator().next());
     }
 
     public void testResourceManagerContract() throws Exception {

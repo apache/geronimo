@@ -150,7 +150,7 @@ by the server.
         <attribute name="syncMaximumPoolSize" type="int">10</attribute>
         <attribute name="startMaximumPoolSize" type="int">10</attribute>
         <attribute name="scheduledMaximumPoolSize" type="int">10</attribute>
-        <reference name="XAServices">geronimo.server:type=TransactionManager</reference>
+        <reference name="TransactionContextManager">geronimo.server:type=TransactionContextManager</reference>
     </gbean>
 
     <gbean name="geronimo.server:type=HOWLTransactionLog" class="org.apache.geronimo.transaction.log.HOWLLog">
@@ -179,6 +179,8 @@ by the server.
 
     <gbean name="geronimo.server:type=TransactionContextManager" class="org.apache.geronimo.transaction.context.TransactionContextManager">
         <reference name="TransactionManager">geronimo.server:type=TransactionManager</reference>
+        <reference name="XidImporter">geronimo.server:type=TransactionManager</reference>
+        <reference name="Recovery">geronimo.server:type=TransactionManager</reference>
     </gbean>
 
 
