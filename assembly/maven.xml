@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- $Revision: 1.2 $ $Date: 2004/01/29 14:00:12 $ -->
+<!-- $Revision: 1.3 $ $Date: 2004/01/29 22:42:46 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -49,7 +49,7 @@
         <deploy:deploy
             deployconfigid="org/apache/geronimo/Server"
             deployoutfile="target/Server.car"
-            deployurl="${g.repo}/geronimo-security-package-DEV.jar,${g.repo}/geronimo-transaction-package-DEV.jar,${g.repo}/geronimo-connector-package-DEV.jar,${g.repo}/geronimo-jetty-package-DEV.jar"/>
+            deployurl="${g.repo}/geronimo-security-package-DEV.jar,${g.repo}/geronimo-transaction-package-DEV.jar,${g.repo}/geronimo-connector-package-DEV.jar,${g.repo}/geronimo-jetty-package-DEV.jar,${g.repo}/geronimo-web-console-package-DEV.jar"/>
         <ant:echo message="did deploy:server"/>
     </goal>
 

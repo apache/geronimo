@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.1 $ $Date: 2003/09/18 04:45:26 $ -->
+<!-- $Revision: 1.2 $ $Date: 2004/01/29 22:42:47 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -10,4 +10,32 @@
     <goal name="default">
         <attainGoal name="war"/>
     </goal>
+
+    <!-- generate packages ready to be deployed, if appropriate -->
+    <postGoal name="war">
+        <ant:available property="geronimoServicePresent" file="${basedir}/src/etc/META-INF/geronimo-service.xml"/>
+        <j:if test="${geronimoServicePresent == 'true'}">
+            <ant:jar destfile="${basedir}/target/${pom.artifactId}-package-${pom.currentVersion}.jar">
+                <fileset dir="${basedir}/target" includes="${pom.artifactId}-${pom.currentVersion}.jar"/>
+                <fileset dir="${basedir}/target" includes="geronimo-web-console.war"/>
+
+                <fileset dir="${basedir}/src/etc" includes="META-INF/geronimo-service.xml"/>
+                <j:forEach var="artifact" items="${pom.artifacts}">
+                    <j:set var="dependency" value="${artifact.dependency}"/>
+                    <j:if test="${dependency.getProperty('package') == 'true'}">
+                        <ant:echo>Processing dependency: ${dependency.id}</ant:echo>
+                        <fileset file="${artifact.path}"/>
+                    </j:if>
+                </j:forEach>
+            </ant:jar>
+            <ant:property name="jardir__" value="${maven.repo.local}/${pom.artifactDirectory}/jars"/>
+            <ant:mkdir dir="${jardir__}"/>
+            <ant:copy
+                file="${basedir}/target/${pom.artifactId}-package-${pom.currentVersion}.jar"
+                todir="${jardir__}"
+                overwrite="true"
+                />
+        </j:if>
+    </postGoal>
+
 </project>
