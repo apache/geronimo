@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.1 $ $Date: 2004/01/21 20:01:52 $ -->
+<!-- $Revision: 1.2 $ $Date: 2004/01/22 00:24:07 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -11,7 +11,7 @@
     <!-- ===================== -->
 
     <name>Geronimo :: Jetty</name>
-    <id>geronimo-deployment</id>
+    <id>geronimo-jetty</id>
     <shortDescription>Jetty Integration</shortDescription>
     <description>Geronimo Jetty Integration</description>
     <url>http://incubator.apache.org/projects/geronimo/jetty/</url>
