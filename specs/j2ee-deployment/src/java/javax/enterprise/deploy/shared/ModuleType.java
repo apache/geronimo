@@ -60,16 +60,30 @@
 package javax.enterprise.deploy.shared;
 
 /**
+ * Class ModuleTypes defines enumeration values for the J2EE module types.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/16 12:28:26 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/04 05:41:20 $
  */
 public class ModuleType {
-    private static final int MAX_VALUE = 4;
-
+    /**
+     * The module is an EAR archive.
+     */
     public static final ModuleType EAR = new ModuleType(0);
+    /**
+     * The module is an Enterprise Java Bean archive.
+     */
     public static final ModuleType EJB = new ModuleType(1);
+    /**
+     * The module is an Client Application archive.
+     */
     public static final ModuleType CAR = new ModuleType(2);
+    /**
+     * The module is an Connector archive.
+     */
     public static final ModuleType RAR = new ModuleType(3);
+    /**
+     * The module is an Web Application archive.
+     */
     public static final ModuleType WAR = new ModuleType(4);
 
     private static final ModuleType[] enumValueTable = {
@@ -98,34 +112,64 @@ public class ModuleType {
 
     private int value;
 
+    /**
+     * Construct a new enumeration value with the given integer value.
+     */
     protected ModuleType(int value) {
         this.value = value;
     }
 
+    /**
+     * Returns this enumeration value's integer value.
+     */
     public int getValue() {
         return value;
     }
 
+    /**
+     * Returns the string table for class ModuleType
+     */
     protected String[] getStringTable() {
         return stringTable;
     }
 
+    /**
+     * Returns the enumeration value table for class ModuleType
+     */
     protected ModuleType[] getEnumValueTable() {
         return enumValueTable;
     }
 
+    /**
+     * Return the file extension string for this enumeration.
+     */
     public String getModuleExtension() {
         return moduleExtensionTable[value];
     }
 
+    /**
+     * Return an object of the specified value.
+     *
+     * @param value a designator for the object.
+     */
     public static ModuleType getModuleType(int value) {
         return enumValueTable[value];
     }
 
+    /**
+     * Return the string name of this ModuleType or the integer value if
+     * outside the bounds of the table
+     */
     public String toString() {
-        return (value >= getOffset() && value <= getOffset() + MAX_VALUE) ? getStringTable()[value] : String.valueOf(value);
+        return (value >= 0 && value <= 4) ? stringTable[value] : String.valueOf(value);
     }
 
+    /**
+     * Returns the lowest integer value used by this enumeration value's
+     * enumeration class.
+     *
+     * @return the offset of the lowest enumeration value.
+     */
     protected int getOffset() {
         return 0;
     }

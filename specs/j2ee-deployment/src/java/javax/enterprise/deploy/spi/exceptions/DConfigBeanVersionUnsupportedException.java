@@ -60,10 +60,15 @@
 package javax.enterprise.deploy.spi.exceptions;
 
 /**
+ * This exception is to report that there is no support for the DConfigBean
+ * version requested.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/16 12:28:26 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/04 05:41:21 $
  */
 public class DConfigBeanVersionUnsupportedException extends Exception {
+    /**
+     * Creates a new DConfigBeanVersionUnsupportedException.
+     */
     public DConfigBeanVersionUnsupportedException(String s) {
         super(s);
     }

@@ -60,14 +60,25 @@
 package javax.enterprise.deploy.spi.exceptions;
 
 /**
+ * This exception reports errors in setting up an application client for
+ * execution.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/16 12:28:26 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/04 05:41:21 $
  */
 public class ClientExecuteException extends Exception {
+    /**
+     * Creates new <tt>ClientExecuteException</tt> without a detail message.
+     */
     public ClientExecuteException() {
         super();
     }
 
+    /**
+     * Constructs a <tt>ClientExecuteException</tt> with the specified detail
+     * message.
+     *
+     * @param msg the detail message.
+     */
     public ClientExecuteException(String msg) {
         super(msg);
     }

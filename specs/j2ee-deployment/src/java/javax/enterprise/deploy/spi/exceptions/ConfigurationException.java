@@ -60,14 +60,24 @@
 package javax.enterprise.deploy.spi.exceptions;
 
 /**
+ * This exception reports errors in generating a configuration bean.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/16 12:28:26 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/04 05:41:21 $
  */
 public class ConfigurationException extends Exception {
+    /**
+     * Creates new <tt>ConfigurationException</tt> without a detail message.
+     */
     public ConfigurationException() {
         super();
     }
 
+    /**
+     * Constructs a <tt>ConfigurationException</tt> with the specified detail
+     * message.
+     *
+     * @param msg the detail message.
+     */
     public ConfigurationException(String msg) {
         super(msg);
     }

@@ -60,16 +60,30 @@
 package javax.enterprise.deploy.shared;
 
 /**
+ * Defines enumerated values for the available deployment commands.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/16 12:28:26 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/04 05:41:20 $
  */
 public class CommandType {
-    private static final int MAX_VALUE = 4;
-
+    /**
+     * The DeploymentManger action operation being processed is distribute.
+     */
     public static final CommandType DISTRIBUTE = new CommandType(0);
+    /**
+     * The DeploymentManger action operation being processed is start.
+     */
     public static final CommandType START = new CommandType(1);
+    /**
+     * The DeploymentManger action operation being processed is stop.
+     */
     public static final CommandType STOP = new CommandType(2);
+    /**
+     * The DeploymentManger action operation being processed is undeploy.
+     */
     public static final CommandType UNDEPLOY = new CommandType(3);
+    /**
+     * he DeploymentManger action operation being processed is redeploy.
+     */
     public static final CommandType REDEPLOY = new CommandType(4);
 
     private static final CommandType[] enumValueTable = new CommandType[]{
@@ -90,30 +104,57 @@ public class CommandType {
 
     private int value;
 
+    /**
+     * Construct a new enumeration value with the given integer value.
+     */
     protected CommandType(int value) {
         this.value = value;
     }
 
+    /**
+     * Returns this enumeration value's integer value.
+     */
     public int getValue() {
         return value;
     }
 
+    /**
+     * Returns the string table for class CommandType
+     */
     protected String[] getStringTable() {
         return stringTable;
     }
 
+    /**
+     * Returns the enumeration value table for class CommandType
+     */
     protected CommandType[] getEnumValueTable() {
         return enumValueTable;
     }
 
+    /**
+     * Return an object of the specified value.
+     *
+     * @param value a designator for the object.
+     */
     public static CommandType getCommandType(int value) {
         return enumValueTable[value];
     }
 
+    /**
+     * Return the string name of this CommandType or the integer value if
+     * outside the bounds of the table
+     */
     public String toString() {
-        return (value >= getOffset() && value <= getOffset() + MAX_VALUE) ? getStringTable()[value] : String.valueOf(value);
+        return (value >= 0 && value <= 4) ? stringTable[value] : String.valueOf(value);
     }
 
+    /**
+     * Returns the lowest integer value used by this enumeration value's
+     * enumeration class.
+     *
+     * @return the offset of the lowest enumeration value.
+     */
     protected int getOffset() {
         return 0;
     }

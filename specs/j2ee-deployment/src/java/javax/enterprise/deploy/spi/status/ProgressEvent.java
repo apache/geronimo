@@ -63,23 +63,45 @@ import javax.enterprise.deploy.spi.TargetModuleID;
 import java.util.EventObject;
 
 /**
+ * An event which indicates that a deployment status change has occurred.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/16 12:28:27 $
+ * @see ProgressObject
+ * @see ProgressListener
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/09/04 05:41:21 $
  */
 public class ProgressEvent extends EventObject {
     private TargetModuleID targetModuleID;
     private DeploymentStatus deploymentStatus;
 
+    /**
+     * Creates a new object representing a deployment progress event.
+     *
+     * @param source         the object on which the Event initially occurred.
+     * @param targetModuleID the combination of target and module for which the
+     *                       event occured.
+     * @param sCode          the object containing the status information.
+     */
     public ProgressEvent(Object source, TargetModuleID targetModuleID, DeploymentStatus sCode) {
         super(source);
         this.targetModuleID = targetModuleID;
         this.deploymentStatus = sCode;
     }
 
+    /**
+     * Retrieves the TargetModuleID for this event.
+     *
+     * @return the TargetModuleID
+     */
     public TargetModuleID getTargetModuleID() {
         return targetModuleID;
     }
 
+    /**
+     * Retrieves the status information for this event.
+     *
+     * @return the object containing the status information.
+     */
     public DeploymentStatus getDeploymentStatus() {
         return deploymentStatus;
     }

@@ -60,16 +60,24 @@
 package javax.enterprise.deploy.shared;
 
 /**
+ * Class ActionTypes defines enumeration values for the J2EE DeploymentStatus
+ * actions.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/16 12:28:26 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/04 05:41:20 $
  */
 public class ActionType {
-    private static int MAX_VALUE = 2;
-
+    /**
+     * The action is currently executing.
+     */
     public static final ActionType EXECUTE = new ActionType(0);
+    /**
+     * The action has been canceled.
+     */
     public static final ActionType CANCEL = new ActionType(1);
-    public static final ActionType STOP = new ActionType(MAX_VALUE);
-
+    /**
+     * A stop operation is being preformed on the DeploymentManager action command.
+     */
+    public static final ActionType STOP = new ActionType(2);
 
     private static final ActionType[] enumValueTable = new ActionType[]{
         EXECUTE,
@@ -85,31 +93,59 @@ public class ActionType {
 
     private int value;
 
-
+    /**
+     * Construct a new enumeration value with the given integer value.
+     */
     protected ActionType(int value) {
         this.value = value;
     }
 
+    /**
+     * Returns this enumeration value's integer value.
+     *
+     * @return the value
+     */
     public int getValue() {
         return value;
     }
 
+    /**
+     * Returns the string table for class ActionType
+     */
     protected String[] getStringTable() {
         return stringTable;
     }
 
+    /**
+     * Returns the enumeration value table for class ActionType
+     */
     protected ActionType[] getEnumValueTable() {
         return enumValueTable;
     }
 
+    /**
+     * Return an object of the specified value.
+     *
+     * @param value a designator for the object.
+     */
     public static ActionType getActionType(int value) {
         return enumValueTable[value];
     }
 
+    /**
+     * Return the string name of this ActionType or the integer value if
+     * outside the bounds of the table
+     */
     public String toString() {
-        return (value >= getOffset() && value <= getOffset() + MAX_VALUE) ? getStringTable()[value] : String.valueOf(value);
+        return (value >= 0 && value <= 2) ? stringTable[value] : String.valueOf(value);
     }
 
+    /**
+     * Returns the lowest integer value used by this enumeration value's
+     * enumeration class.
+     *
+     * @return the offset of the lowest enumeration value.
+     */
     protected int getOffset() {
         return 0;
     }

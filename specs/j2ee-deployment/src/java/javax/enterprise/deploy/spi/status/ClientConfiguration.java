@@ -63,9 +63,18 @@ import javax.enterprise.deploy.spi.exceptions.ClientExecuteException;
 import java.io.Serializable;
 
 /**
+ * The ClientConfiguration object installs, configures and executes an
+ * Application Client.  This class resolves the settings for installing and
+ * running the application client.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/16 12:28:27 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/04 05:41:21 $
  */
 public interface ClientConfiguration extends Serializable {
+    /**
+     * This method performs an exec and starts the application client running
+     * in another process.
+     *
+     * @throws ClientExecuteException when the configuration is incomplete.
+     */
     public void execute() throws ClientExecuteException;
 }

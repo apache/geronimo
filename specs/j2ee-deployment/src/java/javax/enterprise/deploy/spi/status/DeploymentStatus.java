@@ -64,21 +64,58 @@ import javax.enterprise.deploy.shared.StateType;
 import javax.enterprise.deploy.shared.ActionType;
 
 /**
+ * The DeploymentStatus interface provides information about the progress of a
+ * deployment action.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/16 12:28:27 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/04 05:41:21 $
  */
 public interface DeploymentStatus {
+    /**
+     * Retrieve the StateType value.
+     *
+     * @return the StateType object
+     */
     public StateType getState();
 
+    /**
+     * Retrieve the deployment CommandType of this event.
+     *
+     * @return the CommandType Object
+     */
     public CommandType getCommand();
 
+    /**
+     * Retrieve the deployment ActionType for this event.
+     *
+     * @return the ActionType Object
+     */
     public ActionType getAction();
 
+    /**
+     * Retrieve any additional information about the status of this event.
+     *
+     * @return message text
+     */
     public String getMessage();
 
+    /**
+     * A convience method to report if the operation is in the completed state.
+     *
+     * @return <tt>true</tt> if this command has completed successfully
+     */
     public boolean isCompleted();
 
+    /**
+     * A convience method to report if the operation is in the failed state.
+     *
+     * @return <tt>true</tt> if this command has failed
+     */
     public boolean isFailed();
 
+    /**
+     * A convience method to report if the operation is in the running state.
+     *
+     * @return <tt>true</tt> if this command is still running
+     */
     public boolean isRunning();
 }

@@ -62,9 +62,15 @@ package javax.enterprise.deploy.spi.status;
 import java.util.EventListener;
 
 /**
+ * The listener interface for receiving deployment progress events.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/16 12:28:27 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/04 05:41:21 $
  */
 public interface ProgressListener extends EventListener {
+    /**
+     * Invoked when a deployment progress event occurs.
+     *
+     * @param event the progress event.
+     */
     public void handleProgressEvent(ProgressEvent event);
 }

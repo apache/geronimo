@@ -60,15 +60,23 @@
 package javax.enterprise.deploy.shared;
 
 /**
+ * Class DConfigBeanVersionTypes defines enumeration values for the J2EE
+ * Platform verion number.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/16 12:28:26 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/04 05:41:20 $
  */
 public class DConfigBeanVersionType {
-    private static final int MAX_VALUE = 2;
-
+    /**
+     * J2EE Platform version 1.3
+     */
     public static final DConfigBeanVersionType V1_3 = new DConfigBeanVersionType(0);
+    /**
+     * J2EE Platform version 1.3.1
+     */
     public static final DConfigBeanVersionType V1_3_1 = new DConfigBeanVersionType(1);
-    // Found during unittesting against Sun RI. Not in API doc, but expected.
+    /**
+     * J2EE Platform version 1.4
+     */
     public static final DConfigBeanVersionType V1_4 = new DConfigBeanVersionType(2);
 
     private static final DConfigBeanVersionType[] enumValueTable = {
@@ -85,30 +93,57 @@ public class DConfigBeanVersionType {
 
     private int value;
 
+    /**
+     * Construct a new enumeration value with the given integer value.
+     */
     protected DConfigBeanVersionType(int value) {
         this.value = value;
     }
 
+    /**
+     * Returns this enumeration value's integer value.
+     */
     public int getValue() {
         return value;
     }
 
+    /**
+     * Returns the string table for class DConfigBeanVersionType
+     */
     protected String[] getStringTable() {
         return stringTable;
     }
 
+    /**
+     * Returns the enumeration value table for class DConfigBeanVersionType
+     */
     protected DConfigBeanVersionType[] getEnumValueTable() {
         return enumValueTable;
     }
 
+    /**
+     * Return an object of the specified value.
+     *
+     * @param value a designator for the object.
+     */
     public static DConfigBeanVersionType getDConfigBeanVersionType(int value) {
         return enumValueTable[value];
     }
 
+    /**
+     * Return the string name of this DConfigBeanVersionType or the integer
+     * value if outside the bounds of the table
+     */
     public String toString() {
-        return (value >= getOffset() && value <= getOffset() + MAX_VALUE) ? getStringTable()[value] : String.valueOf(value);
+        return (value >= 0 && value <= 2) ? getStringTable()[value] : String.valueOf(value);
     }
 
+    /**
+     * Returns the lowest integer value used by this enumeration value's
+     * enumeration class.
+     *
+     * @return the offset of the lowest enumeration value.
+     */
     protected int getOffset() {
         return 0;
     }
