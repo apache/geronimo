@@ -51,7 +51,7 @@ import org.apache.geronimo.kernel.management.State;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/06/02 19:50:40 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/02 19:58:02 $
  */
 public class JMXDeploymentManager implements DeploymentManager {
     private JMXConnector jmxConnector;
@@ -191,38 +191,40 @@ public class JMXDeploymentManager implements DeploymentManager {
     }
 
     public Locale[] getSupportedLocales() {
-        throw new UnsupportedOperationException();
+        return new Locale[]{getDefaultLocale()};
     }
 
     public Locale getCurrentLocale() {
-        throw new UnsupportedOperationException();
+        return getDefaultLocale();
     }
 
     public Locale getDefaultLocale() {
-        throw new UnsupportedOperationException();
+        return Locale.getDefault();
     }
 
     public boolean isLocaleSupported(Locale locale) {
-        throw new UnsupportedOperationException();
+        return getDefaultLocale().equals(locale);
     }
 
     public void setLocale(Locale locale) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("Cannot set Locale");
     }
 
     public DConfigBeanVersionType getDConfigBeanVersion() {
-        throw new UnsupportedOperationException();
+        return DConfigBeanVersionType.V1_4;
     }
 
     public boolean isDConfigBeanVersionSupported(DConfigBeanVersionType version) {
-        throw new UnsupportedOperationException();
+        return DConfigBeanVersionType.V1_4.equals(version);
     }
 
     public void setDConfigBeanVersion(DConfigBeanVersionType version) throws DConfigBeanVersionUnsupportedException {
-        throw new UnsupportedOperationException();
+        if (!isDConfigBeanVersionSupported(version)) {
+            throw new DConfigBeanVersionUnsupportedException("Version not supported " + version);
+        }
     }
 
     public DeploymentConfiguration createConfiguration(DeployableObject dObj) throws InvalidModuleException {
-        throw new UnsupportedOperationException();
+        throw new InvalidModuleException("Not supported");
     }
 }
