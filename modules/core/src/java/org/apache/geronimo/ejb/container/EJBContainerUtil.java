@@ -61,14 +61,15 @@ import java.lang.reflect.Method;
 import java.security.Principal;
 
 import org.apache.geronimo.common.Invocation;
+import org.apache.geronimo.common.InvocationKey;
 
 /**
  *
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/24 06:07:36 $
+ * @version $Revision: 1.5 $ $Date: 2003/08/28 05:12:10 $
  */
-public final class EJBContainerUtil implements Serializable {
+public final class EJBContainerUtil implements Serializable, InvocationKey {
     // Be careful here.  If you change the ordinals, this class must be changed on evey client.
     private static int MAX_ORDINAL = 4;
     private static final EJBContainerUtil[] values = new EJBContainerUtil[MAX_ORDINAL + 1];
@@ -79,43 +80,43 @@ public final class EJBContainerUtil implements Serializable {
     private static final EJBContainerUtil CREDENTIALS = new EJBContainerUtil("CREDENTIALS", 4);
 
     public static Method getMethod(Invocation invocation) {
-        return (Method) invocation.getAsIs(METHOD);
+        return (Method) invocation.get(METHOD);
     }
 
     public static void putMethod(Invocation invocation, Method method) {
-        invocation.putAsIs(METHOD, method);
+        invocation.put(METHOD, method);
     }
 
     public static Object getId(Invocation invocation) {
-        return invocation.getMarshal(ID);
+        return invocation.get(ID);
     }
 
     public static void putId(Invocation invocation, Object id) {
-        invocation.putMarshal(ID, id);
+        invocation.put(ID, id);
     }
 
     public static Object[] getArguments(Invocation invocation) {
-        return (Object[]) invocation.getMarshal(ARGUMENTS);
+        return (Object[]) invocation.get(ARGUMENTS);
     }
 
     public static void putArguments(Invocation invocation, Object[] arguments) {
-        invocation.putMarshal(ARGUMENTS, arguments);
+        invocation.put(ARGUMENTS, arguments);
     }
 
     public static Principal getPrincipal(Invocation invocation) {
-        return (Principal) invocation.getAsIs(PRINCIPAL);
+        return (Principal) invocation.get(PRINCIPAL);
     }
 
     public static void putPrincipal(Invocation invocation, Principal principal) {
-        invocation.putAsIs(PRINCIPAL, principal);
+        invocation.put(PRINCIPAL, principal);
     }
 
     public static Object getCredentials(Invocation invocation) {
-        return invocation.getMarshal(CREDENTIALS);
+        return invocation.get(CREDENTIALS);
     }
 
     public static void putCredentials(Invocation invocation, Object credentials) {
-        invocation.putMarshal(CREDENTIALS, credentials);
+        invocation.put(CREDENTIALS, credentials);
     }
 
     private final transient String name;
@@ -135,5 +136,12 @@ public final class EJBContainerUtil implements Serializable {
 
     Object readResolve() throws ObjectStreamException {
         return values[ordinal];
+    }
+
+    /**
+     * @see org.apache.geronimo.common.InvocationKey#isTransient()
+     */
+    public boolean isTransient() {
+        return false;
     }
 }

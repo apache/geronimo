@@ -61,81 +61,85 @@ import java.lang.reflect.Method;
 import java.security.Principal;
 
 import org.apache.geronimo.common.Invocation;
+import org.apache.geronimo.common.InvocationKey;
 
 /**
  *
  *
  *
- * @version $Revision: 1.5 $ $Date: 2003/08/24 06:07:36 $
+ * @version $Revision: 1.6 $ $Date: 2003/08/28 05:12:10 $
  */
-public final class EJBInvocationUtil implements Serializable {
+public final class EJBInvocationUtil implements Serializable, InvocationKey {
+    
     // Be careful here.  If you change the ordinals, this class must be changed on evey client.
     private static int MAX_ORDINAL = 5;
     private static final EJBInvocationUtil[] values = new EJBInvocationUtil[MAX_ORDINAL + 1];
-    private static final EJBInvocationUtil METHOD = new EJBInvocationUtil("METHOD", 0);
-    private static final EJBInvocationUtil ID = new EJBInvocationUtil("ID", 1);
-    private static final EJBInvocationUtil ARGUMENTS = new EJBInvocationUtil("ARGUMENTS", 2);
-    private static final EJBInvocationUtil EJB_CONTEXT_KEY = new EJBInvocationUtil("EJB_CONTEXT_KEY", 3);
-    private static final EJBInvocationUtil PRINCIPAL = new EJBInvocationUtil("PRINCIPAL", 4);
-    private static final EJBInvocationUtil CREDENTIALS = new EJBInvocationUtil("CREDENTIALS", 5);
+    private static final EJBInvocationUtil METHOD = new EJBInvocationUtil("METHOD", 0, false);
+    private static final EJBInvocationUtil ID = new EJBInvocationUtil("ID", 1, false);
+    private static final EJBInvocationUtil ARGUMENTS = new EJBInvocationUtil("ARGUMENTS", 2, false);
+    private static final EJBInvocationUtil EJB_CONTEXT_KEY = new EJBInvocationUtil("EJB_CONTEXT_KEY", 3, true);
+    private static final EJBInvocationUtil PRINCIPAL = new EJBInvocationUtil("PRINCIPAL", 4, false);
+    private static final EJBInvocationUtil CREDENTIALS = new EJBInvocationUtil("CREDENTIALS", 5, false);
 
     public static Method getMethod(Invocation invocation) {
-        return (Method) invocation.getAsIs(METHOD);
+        return (Method) invocation.get(METHOD);
     }
 
     public static void putMethod(Invocation invocation, Method method) {
-        invocation.putAsIs(METHOD, method);
+        invocation.put(METHOD, method);
     }
 
     public static Object getId(Invocation invocation) {
-        return invocation.getMarshal(ID);
+        return invocation.get(ID);
     }
 
     public static void putId(Invocation invocation, Object id) {
-        invocation.putMarshal(ID, id);
+        invocation.put(ID, id);
     }
 
     public static Object[] getArguments(Invocation invocation) {
-        return (Object[]) invocation.getMarshal(ARGUMENTS);
+        return (Object[]) invocation.get(ARGUMENTS);
     }
 
     public static void putArguments(Invocation invocation, Object[] arguments) {
-        invocation.putMarshal(ARGUMENTS, arguments);
+        invocation.put(ARGUMENTS, arguments);
     }
 
     public static EnterpriseContext getEnterpriseContext(Invocation invocation) {
-        return (EnterpriseContext) invocation.getTransient(EJB_CONTEXT_KEY);
+        return (EnterpriseContext) invocation.get(EJB_CONTEXT_KEY);
     }
 
     public static void putEnterpriseContext(Invocation invocation, EnterpriseContext enterpriseContext) {
-        invocation.putTransient(EJB_CONTEXT_KEY, enterpriseContext);
+        invocation.put(EJB_CONTEXT_KEY, enterpriseContext);
     }
 
     public static Principal getPrincipal(Invocation invocation) {
-        return (Principal) invocation.getAsIs(PRINCIPAL);
+        return (Principal) invocation.get(PRINCIPAL);
     }
 
     public static void putPrincipal(Invocation invocation, Principal principal) {
-        invocation.putAsIs(PRINCIPAL, principal);
+        invocation.put(PRINCIPAL, principal);
     }
 
     public static Object getCredentials(Invocation invocation) {
-        return invocation.getMarshal(CREDENTIALS);
+        return invocation.get(CREDENTIALS);
     }
 
     public static void putCredentials(Invocation invocation, Object credentials) {
-        invocation.putMarshal(CREDENTIALS, credentials);
+        invocation.put(CREDENTIALS, credentials);
     }
 
     private final transient String name;
     private final int ordinal;
+    private final transient boolean isTransient;
 
-    private EJBInvocationUtil(String name, int ordinal) {
+    private EJBInvocationUtil(String name, int ordinal, boolean isTransient) {
         assert ordinal < MAX_ORDINAL;
         assert values[ordinal] == null;
         this.name = name;
         this.ordinal = ordinal;
         values[ordinal] = this;
+        this.isTransient = isTransient;
     }
 
     public String toString() {
@@ -144,5 +148,12 @@ public final class EJBInvocationUtil implements Serializable {
 
     Object readResolve() throws ObjectStreamException {
         return values[ordinal];
+    }
+
+    /**
+     * @see org.apache.geronimo.common.InvocationKey#isTransient()
+     */
+    public boolean isTransient() {
+        return isTransient;
     }
 }

@@ -62,10 +62,10 @@ import java.io.Serializable;
  *
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/24 06:07:35 $
+ * @version $Revision: 1.5 $ $Date: 2003/08/28 05:12:10 $
  */
-public final class InvocationType implements Serializable {
-    private static final String INVOCATION_TYPE_KEY = "INVOCATION_TYPE_KEY";
+public final class InvocationType implements Serializable, InvocationKey {
+    private static final StringInvocationKey INVOCATION_TYPE_KEY = new StringInvocationKey("INVOCATION_TYPE_KEY", false);
 
     // Be careful here.  If you change the ordinals, this class must be changed on evey client.
     private static int MAX_ORDINAL = 3;
@@ -76,11 +76,11 @@ public final class InvocationType implements Serializable {
     public static final InvocationType LOCALHOME = new InvocationType("LOCALHOME", 3, false, false);
 
     public static InvocationType getType(Invocation invocation) {
-        return (InvocationType) invocation.getMarshal(INVOCATION_TYPE_KEY);
+        return (InvocationType) invocation.get(INVOCATION_TYPE_KEY);
     }
 
     public static void putType(Invocation invocation, InvocationType type) {
-        invocation.putMarshal(INVOCATION_TYPE_KEY, type);
+        invocation.put(INVOCATION_TYPE_KEY, type);
     }
 
     private final transient String name;
@@ -97,6 +97,14 @@ public final class InvocationType implements Serializable {
         this.ordinal = ordinal;
         values[ordinal] = this;
     }
+    
+    /**
+     * @see org.apache.geronimo.common.InvocationKey#isTransient()
+     */
+    public boolean isTransient() {
+        return false;
+    }
+    
 
     public boolean isRemoteInvocation() {
         return !local;
@@ -121,4 +129,5 @@ public final class InvocationType implements Serializable {
     Object readResolve() throws ObjectStreamException {
         return values[ordinal];
     }
+
 }

@@ -64,15 +64,16 @@ import javax.ejb.EJBObject;
 
 import org.apache.geronimo.common.Invocation;
 import org.apache.geronimo.common.InvocationType;
+import org.apache.geronimo.common.StringInvocationKey;
 
 /**
  *
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:11 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/28 05:12:10 $
  */
 public final class Entrancy implements Serializable {
-    private static final String ENTRANCY_KEY = "ENTRANCY_KEY";
+    private static final StringInvocationKey ENTRANCY_KEY = new StringInvocationKey("ENTRANCY_KEY", false);
 
     public static final Entrancy ENTRANT = new Entrancy("ENTRANT", true);
     public static final Entrancy NON_ENTRANT = new Entrancy("NON_ENTRANT", false);
@@ -111,11 +112,11 @@ public final class Entrancy implements Serializable {
     }
 
     public static Entrancy getEntrancy(Invocation invocation) {
-        return (Entrancy) invocation.getTransient(ENTRANCY_KEY);
+        return (Entrancy) invocation.get(ENTRANCY_KEY);
     }
 
     public static void putEntrancy(Invocation invocation, Entrancy type) {
-        invocation.putTransient(ENTRANCY_KEY, type);
+        invocation.put(ENTRANCY_KEY, type);
     }
 
     private final transient String name;

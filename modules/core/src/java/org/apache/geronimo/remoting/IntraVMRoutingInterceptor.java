@@ -66,7 +66,7 @@ import org.apache.geronimo.common.InvocationResult;
 import org.apache.geronimo.remoting.transport.NullTransportInterceptor;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2003/08/26 22:11:24 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/28 05:12:10 $
  */
 public class IntraVMRoutingInterceptor implements Interceptor, Externalizable {
 
@@ -77,8 +77,6 @@ public class IntraVMRoutingInterceptor implements Interceptor, Externalizable {
      * @see org.apache.geronimo.common.AbstractInterceptor#invoke(org.apache.geronimo.common.Invocation)
      */
     public InvocationResult invoke(Invocation invocation) throws Throwable {
-        if (next == null)
-            resolveNext();
         return next.invoke(invocation);
     }
 
@@ -124,7 +122,7 @@ public class IntraVMRoutingInterceptor implements Interceptor, Externalizable {
      */
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         deMarshalingInterceptorID = new Long(in.readLong());
-
+        resolveNext();
     }
 
     /**

@@ -57,16 +57,16 @@ package org.apache.geronimo.remoting.transport;
 
 import java.net.URI;
 
-import org.apache.geronimo.common.AbstractComponent;
+import org.apache.geronimo.management.AbstractManagedObject;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/22 02:23:26 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/28 05:12:10 $
  */
-public class TransportLoader extends AbstractComponent implements TransportLoaderMBean {
+public class TransportLoader extends AbstractManagedObject implements TransportLoaderMBean {
 
     URI bindURI;
     TransportServer server;
-    Router dispatchingRouter;
+    Router dispatchingRouter = new FragmentBasedInterceptorRouter();
 
     /**
      * @see org.apache.geronimo.common.AbstractComponent#doStart()

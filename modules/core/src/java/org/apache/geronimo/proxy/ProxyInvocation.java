@@ -65,9 +65,9 @@ import org.apache.geronimo.common.SimpleInvocation;
 import org.apache.geronimo.remoting.*;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/22 02:23:25 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/28 05:12:10 $
  */
-public class ProxyInvocation extends SimpleInvocation {
+final public class ProxyInvocation extends SimpleInvocation {
 
     Method method;
     Object args[];

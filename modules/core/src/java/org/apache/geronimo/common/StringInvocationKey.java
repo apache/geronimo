@@ -53,83 +53,73 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.remoting;
-import java.io.ObjectStreamException;
-import java.io.Serializable;
-import java.net.URI;
-import org.apache.geronimo.common.Invocation;
-import org.apache.geronimo.common.InvocationKey;
+package org.apache.geronimo.common;
+
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+
 /**
- * @version $Revision: 1.4 $ $Date: 2003/08/28 05:12:10 $
+ * @version $Revision: 1.1 $ $Date: 2003/08/28 05:12:10 $
  */
-public final class InvocationSupport implements Serializable, InvocationKey {
-
-    // Be careful here.  If you change the ordinals, this class must be changed on evey client.
-    private static int MAX_ORDINAL = 3;
-    private static final InvocationSupport[] values = new InvocationSupport[MAX_ORDINAL + 1];
-    private static final InvocationSupport MARSAHLLED_VALUE = new InvocationSupport("MARSHALED_VALUE", 0);
-    private static final InvocationSupport REMOTE_URI = new InvocationSupport("REMOTE_URI", 1);
-    private static final InvocationSupport INVOCATION_TYPE = new InvocationSupport("INVOCATION_TYPE", 2);
-
-    public static MarshalledObject getMarshaledValue(Invocation invocation) {
-        return (MarshalledObject) invocation.get(MARSAHLLED_VALUE);
-    }
-    public static void putMarshaledValue(Invocation invocation, MarshalledObject mo) {
-        invocation.put(MARSAHLLED_VALUE, mo);
-    }
-    public static URI getRemoteURI(Invocation invocation) {
-        return (URI) invocation.get(REMOTE_URI);
-    }
-    public static void putRemoteURI(Invocation invocation, URI remoteURI) {
-        invocation.put(REMOTE_URI, remoteURI);
-    }
-    public static InvocationType getInvocationType(Invocation invocation) {
-        return (InvocationType) invocation.get(INVOCATION_TYPE);
-    }
-    public static void putInvocationType(Invocation invocation, InvocationType type) {
-        invocation.put(INVOCATION_TYPE, type);
-    }
+public class StringInvocationKey implements InvocationKey, Externalizable {
     
-    private final transient String name;
-    private final int ordinal;
-
-    private InvocationSupport(String name, int ordinal) {
-        assert ordinal < MAX_ORDINAL;
-        assert values[ordinal] == null;
-        this.name = name;
-        this.ordinal = ordinal;
-        values[ordinal] = this;
+    private String key;
+    private boolean isTransient;
+    private int hashCode;   
+    
+    public StringInvocationKey(String key, boolean isTransient) {
+        this.key = key;
+        this.hashCode = key.hashCode();
+        this.isTransient = isTransient;
+    }
+     
+    /**
+     * @return
+     */
+    public boolean isTransient() {
+        return isTransient;
     }
 
-    public String toString() {
-        return name;
-    }
-
-    Object readResolve() throws ObjectStreamException {
-        return values[ordinal];
-    }
-
-    static public boolean isAncestor(ClassLoader parent, ClassLoader child) {
-        // Root child? ancestor must be root too.
-        if (child == null)
-            return parent == null;
-        // Root parent is the ancestor of all classloaders.
-        if (parent == null)
-            return true;
-
-        while (child != null) {
-            if (child.equals(parent))
-                return true;
-            child = child.getParent();
-        }
-        return false;
+    /**
+     * @see java.lang.Object#hashCode()
+     */
+    public int hashCode() {
+        return hashCode;
     }
     
     /**
-     * @see org.apache.geronimo.common.InvocationKey#isTransient()
+     * @see java.lang.Object#equals(java.lang.Object)
      */
-    public boolean isTransient() {
-        return true;
+    public boolean equals(Object obj) {
+        if( obj == null )
+            return false;
+        if( !StringInvocationKey.class.equals(obj.getClass()) )
+            return false;
+        return key.equals( ((StringInvocationKey)obj).key );
     }
 
+    /**
+     * @see java.io.Externalizable#writeExternal(java.io.ObjectOutput)
+     */
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeUTF(key);
+    }
+
+    /**
+     * @see java.io.Externalizable#readExternal(java.io.ObjectInput)
+     */
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        key = in.readUTF();
+        hashCode = key.hashCode();
+        isTransient = false;
+    }
+    
+    /**
+     * @see java.lang.Object#toString()
+     */
+    public String toString() {
+        return key;
+    }
 }

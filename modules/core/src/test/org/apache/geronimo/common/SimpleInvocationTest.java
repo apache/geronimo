@@ -59,13 +59,13 @@ package org.apache.geronimo.common;
 import junit.framework.TestCase;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/12 09:14:43 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/28 05:12:10 $
  */
 public class SimpleInvocationTest 
     extends TestCase
 {
     private Invocation invocation;
-    private Object     key;
+    private StringInvocationKey  key;
     private Object     value;
 
     public SimpleInvocationTest( String name ) 
@@ -77,7 +77,7 @@ public class SimpleInvocationTest
         throws Exception
     {
         invocation = new SimpleInvocation();
-        key        = new Object();
+        key        = new StringInvocationKey("Test", false);
         value      = new Object();
     }
 
@@ -87,37 +87,11 @@ public class SimpleInvocationTest
      *
      * @throws Exception
      */
-    public void testGetPutMarshal()
+    public void testGetPut()
         throws Exception
     {
-        invocation.putMarshal( key, value );
-        assertEquals( "Objects should match", value, invocation.getMarshal( key ) );
-    }
-
-    /**
-     * Test case for {@link SimpleInvocation#getAsIs()}
-     * and {@link SimpleInvocation#putAsIs( Object, Object )}
-     *
-     * @throws Exception
-     */
-    public void testGetPutAsIs()
-        throws Exception
-    {
-        invocation.putAsIs( key, value );
-        assertEquals( "Objects should match", value, invocation.getAsIs( key ) );
-    }
-
-    /**
-     * Test case for {@link SimpleInvocation#getTransient()}
-     * and {@link SimpleInvocation#putTransient( Object, Object )}
-     *
-     * @throws Exception
-     */
-    public void testGetPutTransient()
-        throws Exception
-    {
-        invocation.putTransient( key, value );
-        assertEquals( "Objects should match", value, invocation.getTransient( key ) );
+        invocation.put( key, value );
+        assertEquals( "Objects should match", value, invocation.get( key ) );
     }
 
     protected void tearDown()

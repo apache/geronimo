@@ -55,71 +55,14 @@
  */
 package org.apache.geronimo.common;
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
 /**
- *
- *
- *
- * @version $Revision: 1.5 $ $Date: 2003/08/28 05:12:10 $
+ * @version $Revision: 1.1 $ $Date: 2003/08/28 05:12:10 $
  */
-public class SimpleInvocation implements Invocation, Externalizable {
+public interface InvocationKey {
     
-    private Map data;
-
-    public Object get(InvocationKey key) {
-        if(data==null)
-            return null;
-        return data.get(key);
-    }
-
-    public void put(InvocationKey key, Object value) {
-        if(data==null)
-            data = new HashMap();
-        data.put(key, value);
-    }
-
-    /* (non-Javadoc)
-     * @see java.io.Externalizable#writeExternal(java.io.ObjectOutput)
-     */
-    public void writeExternal(ObjectOutput out) throws IOException {
-        if( data !=null ) {
-            Iterator iterator = data.keySet().iterator();
-            while(iterator.hasNext()) {
-                InvocationKey key = (InvocationKey) iterator.next();
-                if( key.isTransient() )
-                    continue; // don't serialize this item.
-                Object value = data.get(key);
-                out.writeObject(key);
-                out.writeObject(value);
-            }        
-        }
-        // write end of list terminator.
-        out.writeObject(null);
-    }
-
     /**
-     * @see java.io.Externalizable#readExternal(java.io.ObjectInput)
+     * 
+     * @return
      */
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-        
-        if( data!=null )
-            data.clear();
-            
-        InvocationKey key = (InvocationKey) in.readObject();
-        while( key!=null ) {
-            Object value = in.readObject();
-            put(key,value);
-            key = (InvocationKey) in.readObject();
-        }
-        
-    }
-
-
+    boolean isTransient();
 }

@@ -80,7 +80,7 @@ import org.apache.geronimo.remoting.transport.URISupport;
  * This test uses 2 classloaders to mock 2 seperate
  * application classloaders.
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/27 04:50:39 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/28 05:12:10 $
  */
 
 public class RemotingInterceptorsTest extends TestCase {
@@ -377,6 +377,7 @@ public class RemotingInterceptorsTest extends TestCase {
 
         // Configure the client side interceptors.
         localRouter.setDeMarshalingInterceptorID(dmiid);
+        localRouter.setNext(demarshaller.getNext());
         remoteRouter.setLocalInterceptor(localRouter);
         RemoteTransportInterceptor transport = new RemoteTransportInterceptor();
         transport.setRemoteURI(URISupport.setFragment(connectURI, ""+dmiid));

@@ -55,22 +55,16 @@
  */
 package org.apache.geronimo.common;
 
+
 /**
  *
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 17:59:10 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/28 05:12:10 $
  */
 public interface Invocation {
-    Object getMarshal(Object key);
 
-    void putMarshal(Object key, Object value);
-
-    Object getAsIs(Object key);
-
-    void putAsIs(Object key, Object value);
-
-    Object getTransient(Object key);
-
-    void putTransient(Object key, Object value);
+    Object get(InvocationKey key);
+    void put(InvocationKey key, Object value);
+    
 }
