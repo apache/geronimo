@@ -23,16 +23,16 @@ import java.net.URL;
 import java.rmi.Remote;
 import java.util.Iterator;
 import java.util.Map;
+
 import javax.xml.namespace.QName;
 import javax.xml.rpc.Call;
 import javax.xml.rpc.ServiceException;
 import javax.xml.rpc.encoding.TypeMappingRegistry;
 import javax.xml.rpc.handler.HandlerRegistry;
 
-import org.apache.axis.client.Service;
-import org.apache.axis.client.AxisClient;
 import org.apache.axis.EngineConfiguration;
-import org.apache.axis.configuration.EngineConfigurationFactoryFinder;
+import org.apache.axis.client.AxisClient;
+import org.apache.axis.client.Service;
 import org.apache.axis.configuration.FileProvider;
 
 
@@ -44,7 +44,7 @@ public class ServiceImpl implements javax.xml.rpc.Service, Serializable {
     private transient Service delegate;
     private final Map seiClassNameToFactoryMap;
     private final Map portToImplementationMap;
-
+    
     public ServiceImpl(Map portToImplementationMap, Map seiClassNameToFactoryMap) {
         this.portToImplementationMap = portToImplementationMap;
         this.seiClassNameToFactoryMap = seiClassNameToFactoryMap;
@@ -77,8 +77,22 @@ public class ServiceImpl implements javax.xml.rpc.Service, Serializable {
         return port;
     }
 
-    public Call[] getCalls(QName qName) throws ServiceException {
-        return delegate.getCalls(qName);
+    public Call[] getCalls(QName portName) throws ServiceException {
+        
+        if (portName == null)
+            throw new ServiceException("Portname cannot be null");
+        
+        SEIFactory factory = (SEIFactory) portToImplementationMap.get(portName.getLocalPart());
+        if( factory == null )
+            throw new ServiceException("No port for portname: " + portName);
+
+        OperationInfo[] operationInfos = factory.getOperationInfos();        
+        javax.xml.rpc.Call[] array = new javax.xml.rpc.Call[operationInfos.length];
+        for (int i = 0; i < operationInfos.length; i++) {
+            OperationInfo operation = operationInfos[i];
+            array[i] = delegate.createCall(factory.getPortQName(), operation.getOperationName());
+        }
+        return array;
     }
 
     public Call createCall(QName qName) throws ServiceException {
@@ -98,7 +112,11 @@ public class ServiceImpl implements javax.xml.rpc.Service, Serializable {
     }
 
     public QName getServiceName() {
-        return delegate.getServiceName();
+        Iterator iterator = portToImplementationMap.values().iterator();
+        if( !iterator.hasNext() )
+            return null;
+        SEIFactory factory = (SEIFactory)iterator.next();        
+        return factory.getServiceName();
     }
 
     public Iterator getPorts() throws ServiceException {
@@ -106,15 +124,20 @@ public class ServiceImpl implements javax.xml.rpc.Service, Serializable {
     }
 
     public URL getWSDLDocumentLocation() {
-        return delegate.getWSDLDocumentLocation();
+        Iterator iterator = portToImplementationMap.values().iterator();
+        if( !iterator.hasNext() )
+            return null;
+        SEIFactory factory = (SEIFactory)iterator.next();        
+        return factory.getWSDLDocumentLocation();
     }
 
     public TypeMappingRegistry getTypeMappingRegistry() {
-        return delegate.getTypeMappingRegistry();
+        throw new UnsupportedOperationException();
+        //return delegate.getTypeMappingRegistry();
     }
 
     public HandlerRegistry getHandlerRegistry() {
-        return delegate.getHandlerRegistry();
+        throw new UnsupportedOperationException();
     }
 
     Remote internalGetPort(String portName) throws ServiceException {

@@ -16,28 +16,31 @@
  */
 package org.apache.geronimo.axis.client;
 
-import java.lang.reflect.InvocationTargetException;
-import java.rmi.Remote;
-import java.io.Serializable;
-import java.io.ObjectStreamException;
 import java.io.InvalidClassException;
+import java.io.ObjectStreamException;
+import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.rmi.Remote;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Iterator;
-import java.net.URL;
+
+import javax.xml.namespace.QName;
 import javax.xml.rpc.ServiceException;
 import javax.xml.rpc.handler.HandlerChain;
-import javax.xml.namespace.QName;
 
+import net.sf.cglib.core.Signature;
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodProxy;
-import net.sf.cglib.reflect.FastConstructor;
 import net.sf.cglib.reflect.FastClass;
-import net.sf.cglib.core.Signature;
+import net.sf.cglib.reflect.FastConstructor;
+
 import org.apache.axis.client.Service;
-import org.apache.axis.handlers.HandlerInfoChainFactory;
 import org.apache.axis.description.TypeDesc;
+import org.apache.axis.handlers.HandlerInfoChainFactory;
 
 /**
  * @version $Rev:  $ $Date:  $
@@ -45,6 +48,7 @@ import org.apache.axis.description.TypeDesc;
 public class SEIFactoryImpl implements SEIFactory, Serializable {
     private static final Class[] SERVICE_ENDPOINT_CONSTRUCTOR_TYPES = new Class[]{GenericServiceEndpoint.class};
 
+    private final QName serviceName;
     private final QName portQName;
     private final Class serviceEndpointClass;
     private final OperationInfo[] operationInfos;
@@ -57,7 +61,8 @@ public class SEIFactoryImpl implements SEIFactory, Serializable {
     private transient HandlerInfoChainFactory handlerInfoChainFactory;
     private transient OperationInfo[] sortedOperationInfos;
 
-    public SEIFactoryImpl(String portName, Class serviceEndpointClass, OperationInfo[] operationInfos, Object serviceImpl, List typeMappings, Map typeDescriptors, URL location, List handlerInfos, ClassLoader classLoader) throws ClassNotFoundException {
+    public SEIFactoryImpl(QName serviceName, String portName, Class serviceEndpointClass, OperationInfo[] operationInfos, Object serviceImpl, List typeMappings, Map typeDescriptors, URL location, List handlerInfos, ClassLoader classLoader) throws ClassNotFoundException {
+        this.serviceName = serviceName;
         this.portQName = new QName("", portName);
         this.serviceEndpointClass = serviceEndpointClass;
         this.operationInfos = operationInfos;
@@ -111,9 +116,30 @@ public class SEIFactoryImpl implements SEIFactory, Serializable {
 
     private Object readResolve() throws ObjectStreamException {
         try {
-            return new SEIFactoryImpl(portQName.getLocalPart(), serviceEndpointClass, operationInfos, serviceImpl, typeMappings, typeDescriptors, location, handlerInfos, null);
+            return new SEIFactoryImpl(serviceName, portQName.getLocalPart(), serviceEndpointClass, operationInfos, serviceImpl, typeMappings, typeDescriptors, location, handlerInfos, null);
         } catch (ClassNotFoundException e) {
             throw new InvalidClassException(GenericServiceEndpoint.class.getName(), "this is impossible");
+        }
+    }
+
+    public OperationInfo[] getOperationInfos() {
+        return operationInfos;
+    }
+
+    public QName getPortQName() {
+        return portQName;
+    }
+
+    public QName getServiceName() {
+        return serviceName;
+    }
+
+    public URL getWSDLDocumentLocation() {
+        try {
+            return new URL(location.toExternalForm()+"?wsdl");
+        }
+        catch (MalformedURLException e) {
+            return null;
         }
     }
 }

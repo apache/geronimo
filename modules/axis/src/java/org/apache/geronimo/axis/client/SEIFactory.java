@@ -16,7 +16,10 @@
  */
 package org.apache.geronimo.axis.client;
 
+import java.net.URL;
 import java.rmi.Remote;
+
+import javax.xml.namespace.QName;
 import javax.xml.rpc.ServiceException;
 import javax.xml.rpc.handler.HandlerChain;
 
@@ -28,4 +31,12 @@ public interface SEIFactory {
     Remote createServiceEndpoint() throws ServiceException;
 
     HandlerChain createHandlerChain();
+
+    OperationInfo[] getOperationInfos();
+
+    QName getPortQName();
+
+    QName getServiceName();
+
+    URL getWSDLDocumentLocation();    
 }
