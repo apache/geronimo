@@ -54,14 +54,14 @@
  * ====================================================================
  */
 
-package org.apache.management.j2ee;
+package org.apache.geronimo.management;
 
 import junit.framework.TestCase;
 
 /**
  * Unit test for org.apache.geronimo.common.State class
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/18 13:29:30 $
+ * @version $Revision: 1.1 $ $Date: 2003/08/21 00:36:35 $
  */
 
 public class StateTest extends TestCase {
