@@ -806,7 +806,7 @@ public class AxisBuilder implements ServiceReferenceBuilder {
                 part = (Part) message.getOrderedParts(null).iterator().next();
             }
             QName faultTypeQName = part.getElementName() == null ? part.getTypeName() : part.getElementName();
-            boolean isComplex = part.getTypeName() != null && complexTypeMap.containsKey(part.getTypeName());
+            boolean isComplex = faultTypeQName != null && complexTypeMap.containsKey(faultTypeQName);
             FaultDesc faultDesc = new FaultDesc(faultQName, className, faultTypeQName, isComplex);
 
             //constructor parameters
@@ -814,7 +814,7 @@ public class AxisBuilder implements ServiceReferenceBuilder {
                 if (!isComplex) {
                     throw new DeploymentException("ConstructorParameterOrder can only be set for complex types, not " + faultTypeQName);
                 }
-                ComplexType complexType = (ComplexType) complexTypeMap.get(part.getTypeName());
+                ComplexType complexType = (ComplexType) complexTypeMap.get(faultTypeQName);
                 Map elementMap = new HashMap();
                 ExplicitGroup explicitGroup = complexType.getSequence();
                 LocalElement[] elements = explicitGroup.getElementArray();
