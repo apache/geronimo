@@ -26,7 +26,7 @@ import javax.naming.NamingException;
  * Automatically handles switching the "java:comp" sub-context to the
  * appropriate one for the current thread.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:08 $
+ * @version $Revision: 1.4 $ $Date: 2004/04/19 21:58:31 $
  */
 public class RootContext extends ReadOnlyContext {
     private static InheritableThreadLocal compContext = new InheritableThreadLocal();
@@ -45,7 +45,7 @@ public class RootContext extends ReadOnlyContext {
             ReadOnlyContext compCtx = (ReadOnlyContext) compContext.get();
             if (compCtx == null) {
                 // the component context was not set for this thread
-                throw new NameNotFoundException();
+                throw new NameNotFoundException(name);
             }
             compCtx = new ReadOnlyContext(compCtx, getEnvironment());
 
