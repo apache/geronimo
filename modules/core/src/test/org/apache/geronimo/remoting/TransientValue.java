@@ -58,11 +58,11 @@ package org.apache.geronimo.remoting;
 import java.io.Serializable;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/22 02:23:36 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/24 05:31:40 $
  */
 public class TransientValue implements Serializable {
-	transient public Object value;
-	
+    transient public Object value;
+    
    /**
     * @return
     */

@@ -58,15 +58,15 @@ package org.apache.geronimo.remoting;
 import java.io.Serializable;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/22 02:23:36 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/24 05:31:40 $
  */
 public class Person implements Serializable, IPerson {
-	
-	private String firstName;
-	private String lastName;
-	private IPerson spouse;
-	private TransientValue value;
-	
+    
+    private String firstName;
+    private String lastName;
+    private IPerson spouse;
+    private TransientValue value;
+    
    /**
     * @return
     */
@@ -123,7 +123,7 @@ public class Person implements Serializable, IPerson {
       this.lastName = lastName;
    }
 
-	public static void main(String[] args) {
+    public static void main(String[] args) {
       Person p = new Person();
       p.setSpouse(p);
    }

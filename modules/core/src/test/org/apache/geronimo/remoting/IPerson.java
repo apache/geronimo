@@ -56,11 +56,11 @@
 package org.apache.geronimo.remoting;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/22 02:23:36 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/24 05:31:40 $
  */
 public interface IPerson {
-	public TransientValue getValue();
-	public void setValue(TransientValue value);
+    public TransientValue getValue();
+    public void setValue(TransientValue value);
    /**
     * @return
     */

@@ -61,7 +61,7 @@ import junit.framework.TestCase;
 /**
  * Unit test for {@link org.apache.geronimo.lock.LockCounter} class.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/20 14:56:31 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/24 05:31:40 $
  */
 
 public class LockCounterTest extends TestCase {
