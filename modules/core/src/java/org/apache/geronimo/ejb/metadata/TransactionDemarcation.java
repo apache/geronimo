@@ -59,11 +59,11 @@ package org.apache.geronimo.ejb.metadata;
  *
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 17:59:12 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/01 16:25:11 $
  */
 public final class TransactionDemarcation {
-    public static final TransactionDemarcation CONTAINER = new TransactionDemarcation("Container Managed Transctions");
-    public static final TransactionDemarcation BEAN = new TransactionDemarcation("Bean Managed Transactions");
+    public static final TransactionDemarcation CONTAINER = new TransactionDemarcation("Container");
+    public static final TransactionDemarcation BEAN = new TransactionDemarcation("Bean");
 
     private final String name;
 
@@ -81,6 +81,16 @@ public final class TransactionDemarcation {
 
     public String toString() {
         return name;
+    }
+
+    public static TransactionDemarcation valueOf(String demarcation) {
+        if (CONTAINER.name.equals(demarcation)) {
+            return CONTAINER;
+        } else if (BEAN.name.equals(demarcation)) {
+            return BEAN;
+        } else {
+            throw new IllegalArgumentException("Invalid demarcation type: "+demarcation);
+        }
     }
 
 }
