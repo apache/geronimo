@@ -16,12 +16,11 @@
  */
 package org.apache.geronimo.webservices;
 
-import java.io.OutputStream;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.URI;
-import java.net.URL;
 import java.util.Map;
 
 /**
@@ -78,12 +77,6 @@ public interface WebServiceContainer extends Serializable {
         String getHeader(String name);
 
         URI getURI();
-
-        String getHost();
-
-        String getPath();
-
-        int getPort();
 
         int getContentLength();
 
