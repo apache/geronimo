@@ -74,7 +74,7 @@ import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 /**
  * A collection of <code>Class</code> utilities.
  *
- * @version $Revision: 1.7 $ $Date: 2003/09/27 20:18:37 $
+ * @version $Revision: 1.8 $ $Date: 2003/11/17 00:46:39 $
  */
 public class Classes extends ClassUtils {
     private static final Class[] stringArg = new Class[]{String.class};
@@ -462,5 +462,26 @@ public class Classes extends ClassUtils {
         type = loadClass(typeName, cl);
         return getValue(type, value, baseURI);
     }
+    
+    static public Method getMethod(Class source, String name) {
+        Method[] methods = source.getMethods();
+        for (int i = 0; i < methods.length; i++) {
+            Method method = methods[i];
+            if( method.getName().equals(name) )
+                return method;
+        }
+        throw new RuntimeException("Method name not found: "+name+", in class: "+source.getName());
+    }
+
+    static public Method getMethod(Class source, String name, Class args[] ) {
+        try {
+            return  source.getMethod(name, args);
+        } catch (SecurityException e) {
+            throw new RuntimeException("Method could not be found.", e);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException("Method could not be found.", e);
+        }
+    }
+    
 }
 
