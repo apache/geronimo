@@ -94,7 +94,7 @@ import org.xml.sax.SAXException;
  * (see http://www.oasis-open.org/committees/entity/spec-2001-08-01.html
  * and http://www.oasis-open.org/html/a401.htm)
  *
- * @version $Revision: 1.7 $ $Date: 2004/01/05 00:05:35 $
+ * @version $Revision: 1.8 $ $Date: 2004/01/05 17:44:30 $
  */
 public class LocalEntityResolver implements EntityResolver {
 
@@ -168,8 +168,6 @@ public class LocalEntityResolver implements EntityResolver {
         setLocalRepository(localRepository);
         setFailOnUnresolvable(failOnUnresolvable);
         setCatalogFile(catalogFile);
-        LoaderUtil.setEntityResolver(this);
-        StorerUtil.setEntityResolver(this);
     }
 
     /**

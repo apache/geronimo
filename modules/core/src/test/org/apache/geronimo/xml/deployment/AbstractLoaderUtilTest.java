@@ -61,7 +61,7 @@ import junit.framework.TestCase;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/01/05 00:05:36 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/05 17:44:30 $
  */
 public abstract class AbstractLoaderUtilTest extends TestCase {
 
@@ -76,6 +76,8 @@ public abstract class AbstractLoaderUtilTest extends TestCase {
 
     protected void setUp(String catalogFile, String docDirectory) {
         resolver = new LocalEntityResolver(catalogFile, docDirectory, true);
+        new LoaderUtil().setEntityResolver(resolver);
+        new StorerUtil().setEntityResolver(resolver);
     }
 
     /**
@@ -83,8 +85,8 @@ public abstract class AbstractLoaderUtilTest extends TestCase {
      */
     protected void tearDown() throws Exception {
         resolver = null;
-        LoaderUtil.setEntityResolver(null);
-        StorerUtil.setEntityResolver(null);
+        new LoaderUtil().setEntityResolver(null);
+        new StorerUtil().setEntityResolver(null);
     }
 
 }

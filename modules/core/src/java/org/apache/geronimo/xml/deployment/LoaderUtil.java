@@ -63,6 +63,8 @@ import java.util.LinkedList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -77,11 +79,13 @@ import org.xml.sax.SAXParseException;
 import org.xml.sax.EntityResolver;
 
 import org.apache.xerces.parsers.DOMParser;
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.kernel.service.GeronimoMBeanEndpoint;
 
 /**
  * Holds utility methods for parsing a DOM tree.
  *
- * @version $Revision: 1.12 $ $Date: 2004/01/05 00:05:35 $
+ * @version $Revision: 1.13 $ $Date: 2004/01/05 17:44:30 $
  */
 public final class LoaderUtil {
 
@@ -89,7 +93,18 @@ public final class LoaderUtil {
 
     private static EntityResolver entityResolver;
 
-    public static void setEntityResolver(EntityResolver entityResolver) {
+    public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws MalformedObjectNameException {
+        GeronimoMBeanInfo mBeanInfo = new GeronimoMBeanInfo();
+        mBeanInfo.setTargetClass(LoaderUtil.class);
+        mBeanInfo.addEndpoint(new GeronimoMBeanEndpoint("EntityResolver", EntityResolver.class, ObjectName.getInstance("geronimo.xml:role=EntityResolver"), true));
+        return mBeanInfo;
+    }
+
+    public EntityResolver getEntityResolver() {
+        return entityResolver;
+    }
+
+    public void setEntityResolver(EntityResolver entityResolver) {
         LoaderUtil.entityResolver = entityResolver;
     }
 
