@@ -4,5 +4,7 @@
 #
 # Note that you can't override these defaults, merely add to them.
 #
+# 1.1 2003/08/27 11:24:51
+#
 rfc822=smtp
 news=nntp
