@@ -67,14 +67,13 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2003/09/27 17:22:16 $
+ * @version $Revision: 1.3 $ $Date: 2003/10/24 22:35:42 $
  */
-public final class ParserUtil extends ClassUtils {
+public final class ParserUtil {
     private ParserUtil(){
     }
 
