@@ -17,65 +17,62 @@
 
 package org.apache.geronimo.jetty.deployment;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.FileInputStream;
-import java.io.BufferedInputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
-import java.util.ArrayList;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
+
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import javax.naming.NamingException;
 
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.deployment.service.GBeanHelper;
 import org.apache.geronimo.deployment.util.XmlBeansUtil;
-import org.apache.geronimo.deployment.service.GBeanBuilder;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.jetty.JettyWebApplicationContext;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.xbeans.geronimo.jetty.JettyAttributeType;
+import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
+import org.apache.geronimo.naming.java.ComponentContextBuilder;
+import org.apache.geronimo.naming.java.ReadOnlyContext;
+import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyGbeanType;
-import org.apache.geronimo.xbeans.geronimo.jetty.JettyReferenceType;
-import org.apache.geronimo.xbeans.geronimo.jetty.JettyReferencesType;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettyLocalRefType;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
+import org.apache.geronimo.xbeans.j2ee.EnvEntryType;
 import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
 import org.apache.geronimo.xbeans.j2ee.WebAppType;
-import org.apache.geronimo.xbeans.j2ee.EnvEntryType;
-import org.apache.geronimo.naming.java.ReadOnlyContext;
-import org.apache.geronimo.naming.java.ComponentContextBuilder;
-import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlOptions;
 
 /**
  *
  *
- * @version $Revision: 1.11 $ $Date: 2004/02/27 07:35:03 $
+ * @version $Revision: 1.12 $ $Date: 2004/03/09 18:03:52 $
  */
 public class WARConfigBuilder implements ConfigurationBuilder {
     private final Repository repository;
@@ -147,18 +144,7 @@ public class WARConfigBuilder implements ConfigurationBuilder {
                 throw new DeploymentException(e);
             }
 
-            // todo do we need to support include and dependency or can we rely on the parent?
-            // add low-level GBean definitions to the config
-//            addIncludes(context, configType);
-//            addDependencies(context, configType.getDependencyArray());
-            ClassLoader cl = context.getClassLoader(repository);
-            addGBeans(context, jettyWebApp.getGbeanArray(), cl);
-
-
-            // add the GBean for the web application
-            addWebAppGBean(context, webApp, jettyWebApp, module.getAbsoluteFile().toURI());
-
-            // todo do we need to add GBeans to make the servlets JSR77 ManagedObjects?
+            buildGBeanConfiguration(context, jettyWebApp, webApp, module.getAbsoluteFile().toURI());
 
             context.close();
             os.flush();
@@ -228,18 +214,8 @@ public class WARConfigBuilder implements ConfigurationBuilder {
                 throw new DeploymentException("Did not find WEB-INF/web.xml in module");
             }
 
-            // todo do we need to support include and dependency or can we rely on the parent?
-            // add low-level GBean definitions to the config
-//            addIncludes(context, configType);
-//            addDependencies(context, configType.getDependencyArray());
-            ClassLoader cl = context.getClassLoader(repository);
-            addGBeans(context, jettyWebApp.getGbeanArray(), cl);
+            buildGBeanConfiguration(context, jettyWebApp, webApp, warRoot);
 
-
-            // add the GBean for the web application
-            addWebAppGBean(context, webApp, jettyWebApp, warRoot);
-
-            // todo do we need to add GBeans to make the servlets JSR77 ManagedObjects?
 
             context.close();
             os.flush();
@@ -248,7 +224,26 @@ public class WARConfigBuilder implements ConfigurationBuilder {
         }
     }
 
-    private void addWebAppGBean(DeploymentContext context, WebAppType webApp, JettyWebAppType jettyWebApp, URI warRoot) throws DeploymentException {
+    private void buildGBeanConfiguration(DeploymentContext context, JettyWebAppType jettyWebApp, WebAppType webApp, URI warRoot) throws DeploymentException {
+        // todo do we need to support include and dependency or can we rely on the parent?
+        // add low-level GBean definitions to the config
+//            addIncludes(context, configType);
+//            addDependencies(context, configType.getDependencyArray());
+        ClassLoader cl = context.getClassLoader(repository);
+
+        JettyGbeanType[] gbeans = jettyWebApp.getGbeanArray();
+        for (int i = 0; i < gbeans.length; i++) {
+            GBeanHelper.addGbean(new JettyGBeanAdapter(gbeans[i]), cl, context);
+        }
+
+
+        // add the GBean for the web application
+        addWebAppGBean(context, webApp, jettyWebApp, warRoot, cl);
+
+        // todo do we need to add GBeans to make the servlets JSR77 ManagedObjects?
+    }
+
+    private void addWebAppGBean(DeploymentContext context, WebAppType webApp, JettyWebAppType jettyWebApp, URI warRoot, ClassLoader cl) throws DeploymentException {
         String contextRoot = jettyWebApp.getContextRoot().trim();
         if (contextRoot.length() == 0) {
             throw new DeploymentException("Missing value for context-root");
@@ -268,7 +263,7 @@ public class WARConfigBuilder implements ConfigurationBuilder {
             throw new DeploymentException("Unable to construct ObjectName", e);
         }
 
-        ReadOnlyContext compContext = buildComponentContext(webApp, jettyWebApp);
+        ReadOnlyContext compContext = buildComponentContext(webApp, jettyWebApp, cl);
 
         GBeanMBean gbean = new GBeanMBean(JettyWebApplicationContext.GBEAN_INFO);
         try {
@@ -287,66 +282,24 @@ public class WARConfigBuilder implements ConfigurationBuilder {
         context.addGBean(name, gbean);
     }
 
-    private ReadOnlyContext buildComponentContext(WebAppType webApp, JettyWebAppType jettyWebApp) throws DeploymentException {
-        ComponentContextBuilder builder = new ComponentContextBuilder();
+    private ReadOnlyContext buildComponentContext(WebAppType webApp, JettyWebAppType jettyWebApp, ClassLoader cl) throws DeploymentException {
+        ComponentContextBuilder builder = new ComponentContextBuilder(new JMXReferenceFactory());
         EnvEntryType[] envEntries = webApp.getEnvEntryArray();
-        for (int i = 0; i < envEntries.length; i++) {
-            EnvEntryType envEntry = envEntries[i];
-            String name = envEntry.getEnvEntryName().getStringValue();
-            String type = envEntry.getEnvEntryType().getStringValue();
-            String text = envEntry.getEnvEntryValue().getStringValue();
-            try {
-                builder.addEnvEntry(name, type, text);
-            } catch (NumberFormatException e) {
-                throw new DeploymentException("Invalid env-entry value for name: " + name, e);
-            } catch (NamingException e) {
-                throw new DeploymentException("Invalid env-entry definition for name: " + name, e);
-            }
-        }
+        ENCConfigBuilder.addEnvEntries(envEntries, builder);
         // todo ejb-ref
         // todo ejb-local-ref
         // todo resource-ref
+        Map resourceRefMap = new HashMap();
+        JettyLocalRefType[] jettyResourceRefs = jettyWebApp.getResourceRefArray();
+        for (int i = 0; i < jettyResourceRefs.length; i++) {
+            JettyLocalRefType jettyResourceRef = jettyResourceRefs[i];
+            resourceRefMap.put(jettyResourceRef.getRefName(), new JettyRefAdapter(jettyResourceRef));
+        }
+        ENCConfigBuilder.addResourceRefs(webApp.getResourceRefArray(), cl, resourceRefMap, builder);
         // todo resource-env-ref
         // todo message-destination-ref
         // todo usertransaction
         return builder.getContext();
-    }
-
-    /**
-     * Add any GBean explicitly defined in the deployment plan
-     * @param context the context of this deployment
-     * @param gbeans the XMLBeans for the <gbean> entries
-     * @param cl the ClassLoader to use to load the GBeans
-     * @throws DeploymentException if there is a problem with the plan
-     */
-    private void addGBeans(DeploymentContext context, JettyGbeanType[] gbeans, ClassLoader cl) throws DeploymentException {
-        for (int i = 0; i < gbeans.length; i++) {
-            JettyGbeanType gbean = gbeans[i];
-            GBeanBuilder builder = new GBeanBuilder(gbean.getName(), cl, gbean.getClass1());
-
-            // set up attributes
-            JettyAttributeType[] attrs = gbean.getAttributeArray();
-            for (int j = 0; j < attrs.length; j++) {
-                JettyAttributeType attr = attrs[j];
-                builder.setAttribute(attr.getName(), attr.getType(), attr.getStringValue());
-            }
-
-            // set up all single pattern references
-            JettyReferenceType[] refs = gbean.getReferenceArray();
-            for (int j = 0; j < refs.length; j++) {
-                JettyReferenceType ref = refs[j];
-                builder.setReference(ref.getName(), ref.getStringValue());
-            }
-
-            // set up app multi-patterned references
-            JettyReferencesType[] refs2 = gbean.getReferencesArray();
-            for (int j = 0; j < refs2.length; j++) {
-                JettyReferencesType type = refs2[j];
-                builder.setReference(type.getName(), type.getPatternArray());
-            }
-
-            context.addGBean(builder.getName(), builder.getGBean());
-        }
     }
 
 
@@ -389,12 +342,12 @@ public class WARConfigBuilder implements ConfigurationBuilder {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(WARConfigBuilder.class);
         infoFactory.addInterface(ConfigurationBuilder.class);
-        infoFactory.addReference(new GReferenceInfo("Repository", Repository.class));
-        infoFactory.addReference(new GReferenceInfo("Kernel", Kernel.class));
-        infoFactory.setConstructor(new GConstructorInfo(
+        infoFactory.addReference("Repository", Repository.class);
+        infoFactory.addReference("Kernel", Kernel.class);
+        infoFactory.setConstructor(
                 new String[]{"Kernel", "Repository"},
                 new Class[]{Kernel.class, Repository.class}
-        ));
+        );
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

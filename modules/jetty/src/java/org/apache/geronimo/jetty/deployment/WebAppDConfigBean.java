@@ -23,90 +23,132 @@ import javax.enterprise.deploy.spi.exceptions.BeanNotFoundException;
 import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
 
 import org.apache.geronimo.deployment.plugin.DConfigBeanSupport;
-//import org.apache.geronimo.naming.deployment.ENCHelper;
+import org.apache.geronimo.naming.deployment.ENCHelper;
+import org.apache.geronimo.naming.deployment.RefAdapter;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettyLocalRefType;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettyRemoteRefType;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
 import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.XmlBeans;
 
 /**
  *
  *
- * @version $Revision: 1.12 $ $Date: 2004/02/25 09:57:44 $
+ * @version $Revision: 1.13 $ $Date: 2004/03/09 18:03:52 $
  */
 public class WebAppDConfigBean extends DConfigBeanSupport {
 
-//    private ENCHelper encHelper;
+    private ENCHelper encHelper;
 
     WebAppDConfigBean(DDBean ddBean, JettyWebAppType webApp) {
         super(ddBean, webApp);
-/*
-        encHelper = new ENCHelper(ddBean, new ENCHelper.XmlEnvRefs() {
-            public GerEjbRefType[] getEjbRefs() {
-                return getWebApp().getEjbRefArray();
+
+        ENCHelper.XmlEnvRefs envRefs = new ENCHelper.XmlEnvRefs() {
+            public RefAdapter[] getEjbRefs() {
+                return wrapArray(getWebApp().getEjbRefArray());
             }
 
-            public GerEjbRefType addNewEjbRef() {
-                return getWebApp().addNewEjbRef();
+            public RefAdapter addNewEjbRef() {
+                return new JettyRefAdapter(getWebApp().addNewEjbRef());
+            }
+
+            public void setEjbRef(int i, RefAdapter refAdapter) {
+                getWebApp().setEjbRefArray(i, (JettyRemoteRefType) refAdapter.getXmlObject());
+                refAdapter.setXmlObject(getWebApp().getEjbRefArray(i));
             }
 
             public void removeEjbRef(int i) {
                 getWebApp().removeEjbRef(i);
             }
 
-            public GerEjbLocalRefType[] getEjbLocalRefs() {
-                return getWebApp().getEjbLocalRefArray();
+            public RefAdapter[] getEjbLocalRefs() {
+                return wrapArray(getWebApp().getEjbLocalRefArray());
             }
 
-            public GerEjbLocalRefType addNewEjbLocalRef() {
-                return getWebApp().addNewEjbLocalRef();
+            public RefAdapter addNewEjbLocalRef() {
+                return new JettyRefAdapter(getWebApp().addNewEjbLocalRef());
+            }
+
+            public void setEjbLocalRef(int i, RefAdapter refAdapter) {
+                getWebApp().setEjbLocalRefArray(i, (JettyLocalRefType) refAdapter.getXmlObject());
+                refAdapter.setXmlObject(getWebApp().getEjbLocalRefArray(i));
             }
 
             public void removeEjbLocalRef(int i) {
                 getWebApp().removeEjbLocalRef(i);
             }
 
-            public GerMessageDestinationRefType[] getMessageDestinationRefs() {
-                return getWebApp().getMessageDestinationRefArray();
+            public RefAdapter[] getMessageDestinationRefs() {
+                return wrapArray(getWebApp().getMessageDestinationRefArray());
             }
 
-            public GerMessageDestinationRefType addNewMessageDestinationRef() {
-                return getWebApp().addNewMessageDestinationRef();
+            public RefAdapter addNewMessageDestinationRef() {
+                return new JettyRefAdapter(getWebApp().addNewMessageDestinationRef());
+            }
+
+            public void setMessageDestinationRef(int i, RefAdapter refAdapter) {
+                getWebApp().setMessageDestinationRefArray(i, (JettyLocalRefType) refAdapter.getXmlObject());
+                refAdapter.setXmlObject(getWebApp().getMessageDestinationRefArray(i));
             }
 
             public void removeMessageDestinationRef(int i) {
                 getWebApp().removeMessageDestinationRef(i);
             }
 
-            public GerResourceEnvRefType[] getResourceEnvRefs() {
-                return getWebApp().getResourceEnvRefArray();
+            public RefAdapter[] getResourceEnvRefs() {
+                return wrapArray(getWebApp().getResourceEnvRefArray());
             }
 
-            public GerResourceEnvRefType addNewResourceEnvRef() {
-                return getWebApp().addNewResourceEnvRef();
+            public RefAdapter addNewResourceEnvRef() {
+                return new JettyRefAdapter(getWebApp().addNewResourceEnvRef());
+            }
+
+            public void setResourceEnvRef(int i, RefAdapter refAdapter) {
+                getWebApp().setResourceEnvRefArray(i, (JettyLocalRefType) refAdapter.getXmlObject());
+                refAdapter.setXmlObject(getWebApp().getResourceEnvRefArray(i));
             }
 
             public void removeResourceEnvRef(int i) {
                 getWebApp().removeResourceEnvRef(i);
             }
 
-            public GerResourceRefType[] getResourceRefs() {
-                return getWebApp().getResourceRefArray();
+            public RefAdapter[] getResourceRefs() {
+                return wrapArray(getWebApp().getResourceRefArray());
             }
 
-            public GerResourceRefType addNewResourceRef() {
-                return getWebApp().addNewResourceRef();
+            public RefAdapter addNewResourceRef() {
+                return new JettyRefAdapter(getWebApp().addNewResourceRef());
+            }
+
+            public void setResourceRef(int i, RefAdapter refAdapter) {
+                getWebApp().setResourceRefArray(i, (JettyLocalRefType) refAdapter.getXmlObject());
+                refAdapter.setXmlObject(getWebApp().getResourceRefArray(i));
             }
 
             public void removeResourceRef(int i) {
                 getWebApp().removeResourceRef(i);
             }
 
-        });
-*/
+            private RefAdapter[] wrapArray(JettyRemoteRefType[] refs) {
+                RefAdapter[] wrapped = new RefAdapter[refs.length];
+                for (int i = 0; i < refs.length; i++) {
+                    wrapped[i] = new JettyRefAdapter(refs[i]);
+                }
+                return wrapped;
+            }
+
+        };
+        //which version are we dealing with?
+        String version = ddBean.getRoot().getAttributeValue("version");
+        if ("2.4".equals(version)) {
+            encHelper = new ENCHelper(ddBean, envRefs, getXPathsForJ2ee_1_4(ENCHelper.ENC_XPATHS), getXPathsForJ2ee_1_4(ENCHelper.NAME_XPATHS));
+        } else {
+            encHelper = new ENCHelper(ddBean, envRefs, getXPathsWithPrefix(null, ENCHelper.ENC_XPATHS), getXPathsWithPrefix(null, ENCHelper.NAME_XPATHS));
+        }
+
     }
 
     JettyWebAppType getWebApp() {
-        return (JettyWebAppType)getXmlObject();
+        return (JettyWebAppType) getXmlObject();
     }
 
     public String getContextRoot() {
@@ -136,17 +178,15 @@ public class WebAppDConfigBean extends DConfigBeanSupport {
     }
 
     public DConfigBean getDConfigBean(DDBean ddBean) throws ConfigurationException {
-        return null;
-//        return encHelper.getDConfigBean(ddBean);
+        return encHelper.getDConfigBean(ddBean);
     }
 
     public void removeDConfigBean(DConfigBean dcBean) throws BeanNotFoundException {
-        //encHelper.removeDConfigBean(dcBean);
+        encHelper.removeDConfigBean(dcBean);
     }
 
     public String[] getXpaths() {
-        return null;
-//        return ENCHelper.ENC_XPATHS;
+        return getXPathsForJ2ee_1_4(ENCHelper.ENC_XPATHS);
     }
 
     protected SchemaTypeLoader getSchemaTypeLoader() {
