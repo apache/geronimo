@@ -66,6 +66,10 @@ import javax.management.ObjectName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.impl.LogFactoryImpl;
+
+import org.apache.geronimo.common.Duration;
+import org.apache.geronimo.common.StopWatch; 
+
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.jmx.JMXKernel;
 
@@ -73,7 +77,7 @@ import org.apache.geronimo.jmx.JMXKernel;
  *
  *
  *
- * @version $Revision: 1.13 $ $Date: 2003/08/27 20:38:49 $
+ * @version $Revision: 1.14 $ $Date: 2003/08/29 17:56:39 $
  */
 public class Main implements Runnable {
     static {
@@ -101,15 +105,16 @@ public class Main implements Runnable {
     /**
      * Main entry point
      */
-    public void run() {
+    public void run() 
+    {
+        StopWatch watch = new StopWatch(true);
+        
         Object[] deployArgs = {bootURL};
         JMXKernel kernel = null;
         ShutdownThread hook = new ShutdownThread("Shutdown-Thread", Thread.currentThread());
         try {
             Runtime.getRuntime().addShutdownHook(hook);
             try {
-                long start = System.currentTimeMillis();
-
                 log.info("Starting JMXKernel");
                 kernel = new JMXKernel(domainName);
 
@@ -145,9 +150,8 @@ public class Main implements Runnable {
                 log.info("Deploying Bootstrap Services from " + bootURL);
                 MBeanServer mbServer = kernel.getMBeanServer();
                 mbServer.invoke(controllerName, "deploy", deployArgs, DEPLOY_ARG_TYPES);
-
-                long end = System.currentTimeMillis();
-                log.info("Started Server in " + (end - start) + "ms.");
+                
+                log.info("Started Server in " + new Duration(watch.getTime())); 
             } catch (Throwable e) {
                 log.error("Error starting Server", e);
                 return;
