@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd" version="2.4" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/j2ee">
+    <servlet>
+        <display-name>Jetspeed Container</display-name>
+        <description>MVC Servlet for Jetspeed Portlet Applications</description>
+        <servlet-name>JetspeedContainer</servlet-name>
+        <servlet-class>org.apache.jetspeed.container.JetspeedContainerServlet</servlet-class>
+        <init-param>
+            <param-name>registerAtInit</param-name>
+            <param-value>1</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portletApplication</param-name>
+            <param-value>RssPortlet-enhanced</param-value>
+        </init-param>
+        <load-on-startup>100</load-on-startup>
+    </servlet>
+    <servlet>
+        <display-name>Jetspeed Container</display-name>
+        <description>MVC Servlet for Jetspeed Portlet Applications</description>
+        <servlet-name>JetspeedContainer2</servlet-name>
+        <servlet-class>org.apache.jetspeed.container.JetspeedContainerServlet</servlet-class>
+        <init-param>
+            <param-name>registerAtInit</param-name>
+            <param-value>1</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portletApplication</param-name>
+            <param-value>RssPortlet-enhanced</param-value>
+        </init-param>
+        <load-on-startup>100</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>JetspeedContainer</servlet-name>
+        <url-pattern>/container/*</url-pattern>
+    </servlet-mapping>
+</web-app>

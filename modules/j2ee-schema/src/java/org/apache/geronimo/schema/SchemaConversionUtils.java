@@ -173,6 +173,13 @@ public class SchemaConversionUtils {
         }
         XmlCursor cursor = xmlObject.newCursor();
         XmlCursor moveable = xmlObject.newCursor();
+        moveable.toStartDoc();
+        moveable.toFirstChild();
+        if ("http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd".equals(moveable.getName().getNamespaceURI())) {
+            XmlObject result = xmlObject.changeType(WebAppDocument.type);
+            validateDD(result);
+            return (WebAppDocument) result;
+        }
         String schemaLocationURL = "http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd";
         String version = "2.4";
         try {

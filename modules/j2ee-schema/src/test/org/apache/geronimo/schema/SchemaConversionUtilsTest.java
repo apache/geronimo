@@ -24,6 +24,7 @@ import java.util.List;
 import junit.framework.TestCase;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlException;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 
 /**
@@ -270,6 +271,17 @@ public class SchemaConversionUtilsTest extends TestCase {
         xmlObject = SchemaConversionUtils.convertToServletSchema(xmlObject);
         boolean ok2 = compareXmlObjects(xmlObject, expected, problems);
         assertTrue("Differences: " + problems, ok2);
+    }
+
+    public void testWebRejectBad24() throws Exception {
+        File srcXml = new File(basedir, "src/test-data/j2ee_1_4schema/web-1-24.xml");
+        XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
+        try {
+            xmlObject = SchemaConversionUtils.convertToServletSchema(xmlObject);
+            fail("doc src/test-data/j2ee_1_4schema/web-1-24.xml is invalid, should not have validated");
+        } catch (XmlException e) {
+            //expected
+        }
     }
 
     public void testEJB21To21DoesNothing() throws Exception {
