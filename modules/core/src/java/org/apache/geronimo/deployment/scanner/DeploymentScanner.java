@@ -59,31 +59,28 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.Collections;
 import java.util.StringTokenizer;
-import javax.management.MBeanRegistration;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.management.relation.RelationServiceMBean;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.jmx.JMXUtil;
 import org.apache.geronimo.common.AbstractStateManageable;
+import org.apache.geronimo.jmx.JMXUtil;
 
 /**
  * An MBean that maintains a list of URLs and periodically invokes a Scanner
  * to search them for deployments.
  *
  *
- * @version $Revision: 1.8 $ $Date: 2003/08/17 06:09:14 $
+ * @version $Revision: 1.9 $ $Date: 2003/08/20 22:40:01 $
  */
 public class DeploymentScanner extends AbstractStateManageable implements DeploymentScannerMBean {
     private static final Log log = LogFactory.getLog(DeploymentScanner.class);
@@ -98,7 +95,7 @@ public class DeploymentScanner extends AbstractStateManageable implements Deploy
 
     public DeploymentScanner(String initialURLs, boolean recurse) throws MalformedURLException {
         StringTokenizer tokenizer = new StringTokenizer(initialURLs, " \t\r\n,[]{}");
-        while(tokenizer.hasMoreTokens()) {
+        while (tokenizer.hasMoreTokens()) {
             addURL(new URL(tokenizer.nextToken()), recurse);
         }
     }
@@ -185,7 +182,7 @@ public class DeploymentScanner extends AbstractStateManageable implements Deploy
 
         Set results = new HashSet();
         Set scannersCopy;
-        synchronized(this) {
+        synchronized (this) {
             scannersCopy = new HashSet(scanners.entrySet());
         }
         for (Iterator i = scannersCopy.iterator(); i.hasNext();) {
