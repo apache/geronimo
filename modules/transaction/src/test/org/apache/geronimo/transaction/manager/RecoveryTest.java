@@ -30,7 +30,7 @@ import junit.framework.TestCase;
 /**
  * This is just a unit test for recovery, depending on proper behavior of the log(s) it uses.
  *
- * @version $Revision: 1.3 $ $Date: 2004/07/27 03:52:15 $
+ * @version $Revision: 1.4 $ $Date: 2004/07/27 03:55:40 $
  *
  * */
 public class RecoveryTest extends TestCase {
@@ -45,8 +45,8 @@ public class RecoveryTest extends TestCase {
         Xid[] xids = getXidArray(1);
         // specifies an empty Xid array such that this XAResource has nothing
         // to recover. This means that the presumed abort protocol has failed
-        // right after the commit of the RM and after the force-write of the
-        // prepared log record.
+        // right after the commit of the RM and before the force-write of the
+        // committed log record.
         MockXAResource xares1 = new MockXAResource(RM1, new Xid[0]);
         MockTransactionInfo[] txInfos = makeTxInfos(xids);
         addBranch(txInfos, xares1);
