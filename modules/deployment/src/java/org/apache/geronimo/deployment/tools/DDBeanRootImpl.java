@@ -17,55 +17,50 @@
 
 package org.apache.geronimo.deployment.tools;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+
 import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.model.DDBeanRoot;
 import javax.enterprise.deploy.model.DeployableObject;
 import javax.enterprise.deploy.model.XpathListener;
 import javax.enterprise.deploy.model.exceptions.DDBeanCreateException;
 import javax.enterprise.deploy.shared.ModuleType;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
-import org.w3c.dom.Document;
+import org.apache.geronimo.schema.SchemaConversionUtils;
+import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlObject;
 
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:58:49 $
+ * @version $Revision: 1.6 $ $Date: 2004/07/18 21:58:38 $
  */
 public class DDBeanRootImpl implements DDBeanRoot {
     private final DeployableObject deployable;
-    private final Document doc;
     private final DDBean docBean;
 
     public DDBeanRootImpl(DeployableObject deployable, URL descriptor) throws DDBeanCreateException {
         this.deployable = deployable;
-        DocumentBuilder parser = null;
-        try {
-            parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        } catch (ParserConfigurationException e) {
-            throw (DDBeanCreateException) new DDBeanCreateException("Unable to load parser").initCause(e);
-        }
         InputStream is = null;
         try {
             is = descriptor.openStream();
-            doc = parser.parse(is);
-        } catch (Exception e) {
-            throw (DDBeanCreateException) new DDBeanCreateException("Unable to parse descriptor").initCause(e);
-        } finally {
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (IOException e) {
-                    // ignore
-                }
+        try {
+        XmlObject xmlObject = SchemaConversionUtils.parse(is);
+            XmlCursor c = xmlObject.newCursor();
+            try {
+                c.toStartDoc();
+                c.toFirstChild();
+                docBean = new DDBeanImpl(this, "/" + c.getName().getLocalPart(), c);
+            } finally {
+                c.dispose();
             }
+        } finally {
+            is.close();
         }
-        docBean = new DDBeanImpl(this, "/"+ doc.getDocumentElement().getNodeName(), doc.getDocumentElement());
+        } catch (Exception e) {
+            throw (DDBeanCreateException)new DDBeanCreateException("problem").initCause(e);
+        }
     }
 
     public DDBeanRoot getRoot() {
@@ -77,7 +72,7 @@ public class DDBeanRootImpl implements DDBeanRoot {
     }
 
     public String getDDBeanRootVersion() {
-        return doc.getDocumentElement().getAttribute("version");
+        return docBean.getAttributeValue("version");
     }
 
     public DeployableObject getDeployableObject() {
@@ -118,7 +113,7 @@ public class DDBeanRootImpl implements DDBeanRoot {
         }
         int index = xpath.indexOf('/');
         String childName = (index == -1) ? xpath : xpath.substring(0, index);
-        if (childName.equals(doc.getDocumentElement().getNodeName())) {
+        if (("/" + childName).equals(docBean.getXpath())) {
             if (index == -1) {
                 return new DDBean[] {new DDBeanImpl((DDBeanImpl)docBean, xpath)};
             } else {

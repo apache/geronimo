@@ -28,7 +28,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.12 $ $Date: 2004/03/10 09:58:48 $
+ * @version $Revision: 1.13 $ $Date: 2004/07/18 21:58:38 $
  */
 public abstract class DConfigBeanSupport extends XmlBeanSupport implements DConfigBean {
     private DDBean ddBean;
@@ -95,8 +95,9 @@ public abstract class DConfigBeanSupport extends XmlBeanSupport implements DConf
                 }
             }
         }
-        //??? malformed document, apparently
-        throw new IllegalStateException("namespace " + uri + " not declared in source document");
+        //we can't determine the namespace from looking at attributes, since the namespace is not an attribute.
+        //try assuming that the ddbeans strip namespaces from their xpath handing.
+        return getXPathsWithPrefix(null , xpathSegments);
     }
 
     protected String[] getXPathsForJ2ee_1_4(String[][] xpathSegments) {

@@ -26,47 +26,56 @@ import java.util.Map;
 import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.model.DDBeanRoot;
 import javax.enterprise.deploy.model.XpathListener;
+import javax.xml.namespace.QName;
 
-import org.apache.geronimo.deployment.util.XMLUtil;
-import org.w3c.dom.Attr;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
+import org.apache.xmlbeans.XmlCursor;
 
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:58:49 $
+ * @version $Revision: 1.6 $ $Date: 2004/07/18 21:58:38 $
  */
 public class DDBeanImpl implements DDBean {
     protected final DDBeanRoot root;
-    protected final Element element;
     protected final String xpath;
     protected final Map children;
+    protected final String content;
+    protected final Map attributeMap;
 
-    public DDBeanImpl(DDBeanRoot root, String xpath, Element element) {
+    public DDBeanImpl(DDBeanRoot root, String xpath, XmlCursor c) {
         this.root = root;
         this.xpath = xpath;
-        this.element = element;
         this.children = new HashMap();
-        for (Node node = element.getFirstChild(); node != null; node = node.getNextSibling()) {
-            if (node instanceof Element) {
-                Element child = (Element) node;
-                List childs = (List) children.get(child.getNodeName());
-                if (childs == null) {
-                    childs = new ArrayList();
-                    children.put(child.getNodeName(), childs);
-                }
-                childs.add(new DDBeanImpl(root, xpath + "/" + child.getNodeName(), child));
-            }
+        this.attributeMap = new HashMap();
+        content = c.getTextValue();
+        c.push();
+        if (c.toFirstAttribute()) {
+            do {
+                attributeMap.put(c.getName().getLocalPart(), c.getTextValue());
+            } while (c.toNextAttribute());
         }
+        c.pop();
+        c.push();
+        if (c.toFirstChild()) {
+            do {
+                String name = c.getName().getLocalPart();
+                List nodes = (List) children.get(name);
+                if (nodes == null) {
+                    nodes = new ArrayList();
+                    children.put(name, nodes);
+                }
+                nodes.add(new DDBeanImpl(root, xpath + "/" + name, c));
+            } while (c.toNextSibling());
+        }
+        c.pop();
     }
 
     DDBeanImpl(DDBeanImpl source, String xpath) {
         this.xpath = xpath;
         this.root = source.root;
         this.children = source.children;
-        this.element = source.element;
+        this.content = source.content;
+        this.attributeMap = source.attributeMap;
     }
 
     public DDBeanRoot getRoot() {
@@ -78,7 +87,7 @@ public class DDBeanImpl implements DDBean {
     }
 
     public String getText() {
-        return (String) XMLUtil.getContent(element);
+        return content;
     }
 
     public String getId() {
@@ -86,9 +95,9 @@ public class DDBeanImpl implements DDBean {
     }
 
     public String getAttributeValue(String attrName) {
-        String value = element.getAttribute(attrName).trim();
-        if (value.length() == 0) {
-            value = null;
+        String value = (String) attributeMap.get(attrName);
+        if (value == null || value.length() == 0) {
+            return null;
         }
         return value;
     }
@@ -142,13 +151,7 @@ public class DDBeanImpl implements DDBean {
     }
 
     public String[] getAttributeNames() {
-        NamedNodeMap attrs = element.getAttributes();
-        String[] attrNames = new String[attrs.getLength()];
-        for (int i = 0; i < attrNames.length; i++) {
-            Attr node = (Attr) attrs.item(i);
-            attrNames[i] = node.getName();
-        }
-        return attrNames;
+        return (String[]) attributeMap.keySet().toArray(new String[attributeMap.size()]);
     }
 
     public void addXpathListener(String xpath, XpathListener xpl) {
@@ -161,13 +164,14 @@ public class DDBeanImpl implements DDBean {
         if (other.getClass() != DDBeanImpl.class) {
             return false;
         }
-        DDBeanImpl otherdd = (DDBeanImpl)other;
+        DDBeanImpl otherdd = (DDBeanImpl) other;
         return xpath.equals(otherdd.xpath)
-        && element.equals(otherdd.element)
-        && root.equals(otherdd.root);
+                && children.equals(otherdd.children)
+                && attributeMap.equals(otherdd.attributeMap)
+                && root.equals(otherdd.root);
     }
 
     public int hashCode() {
-        return xpath.hashCode() ^ element.hashCode() ^ root.hashCode();
+        return xpath.hashCode() ^ attributeMap.hashCode() ^ root.hashCode();
     }
 }
