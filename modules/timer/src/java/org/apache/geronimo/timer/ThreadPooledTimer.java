@@ -37,6 +37,8 @@ import EDU.oswego.cs.dl.util.concurrent.Executor;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  *
@@ -45,6 +47,8 @@ import org.apache.geronimo.transaction.context.TransactionContextManager;
  *
  * */
 public class ThreadPooledTimer implements PersistentTimer, GBeanLifecycle {
+
+    private static final Log log = LogFactory.getLog(ThreadPooledTimer.class);
 
     private final ExecutorTaskFactory executorTaskFactory;
     private final WorkerPersistence workerPersistence;
@@ -265,7 +269,16 @@ public class ThreadPooledTimer implements PersistentTimer, GBeanLifecycle {
 
         public void afterCompletion(int status) {
             if (status == Status.STATUS_COMMITTED) {
-                getTimer().schedule(worker, time);
+                if (worker.isCancelled()) {
+                    log.trace("Worker is already cancelled, not scheduling");
+                    return;
+                }
+                try {
+                    getTimer().schedule(worker, time);
+                } catch (IllegalStateException e) {
+                    //TODO consider again if catching this exception is appropriate
+                    log.info("Couldn't schedule worker " + e.getMessage() + "at (now) " + System.currentTimeMillis() + " for " + time.getTime());
+                }
             }
         }
     }
@@ -287,7 +300,15 @@ public class ThreadPooledTimer implements PersistentTimer, GBeanLifecycle {
 
         public void afterCompletion(int status) {
             if (status == Status.STATUS_COMMITTED) {
-                getTimer().schedule(worker, time, period);
+                if (worker.isCancelled()) {
+                    log.trace("Worker is already cancelled, not scheduling/period");
+                    return;
+                }
+                try {
+                    getTimer().schedule(worker, time, period);
+                } catch (Exception e) {
+                    log.info("Couldn't schedule/period worker " + e.getMessage() + "at (now) " + System.currentTimeMillis() + " for " + time.getTime());
+                }
             }
         }
     }
@@ -309,7 +330,15 @@ public class ThreadPooledTimer implements PersistentTimer, GBeanLifecycle {
 
         public void afterCompletion(int status) {
             if (status == Status.STATUS_COMMITTED) {
-                getTimer().scheduleAtFixedRate(worker, time, period);
+                if (worker.isCancelled()) {
+                    log.trace("Worker is already cancelled, not scheduleAtFixedRate");
+                    return;
+                }
+                try {
+                    getTimer().scheduleAtFixedRate(worker, time, period);
+                } catch (Exception e) {
+                    log.info("Couldn't scheduleAtFixedRate worker " + e.getMessage() + "at (now) " + System.currentTimeMillis() + " for " + time.getTime());
+                }
             }
         }
     }

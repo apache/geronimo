@@ -39,6 +39,7 @@ public class ExecutorFeedingTimerTask extends TimerTask {
 
     private final WorkInfo workInfo;
     private final ThreadPooledTimer threadPooledTimer;
+    boolean cancelled = false;
 
     public ExecutorFeedingTimerTask(WorkInfo workInfo, ThreadPooledTimer threadPooledTimer) {
         this.workInfo = workInfo;
@@ -59,14 +60,19 @@ public class ExecutorFeedingTimerTask extends TimerTask {
             threadPooledTimer.registerSynchronization(new CancelSynchronization(this));
         } catch (RollbackException e) {
             log.info(e);
-            throw (IllegalStateException) new IllegalStateException("RollbackException when trying to register cacel synchronization").initCause(e);
+            throw (IllegalStateException) new IllegalStateException("RollbackException when trying to register Cancel Synchronization").initCause(e);
         } catch (SystemException e) {
             log.info(e);
-            throw (IllegalStateException) new IllegalStateException("SystemException when trying to register cacel synchronization").initCause(e);
+            throw (IllegalStateException) new IllegalStateException("SystemException when trying to register Cancel Synchronization").initCause(e);
         }
         // One cancels the task at this specific time. If the transaction is
         // rolled-back, one will recreate it.
+        cancelled = true;
         return super.cancel();
+    }
+
+    public boolean isCancelled() {
+        return cancelled;
     }
 
     private void doCancel() {
