@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Id: project.xml,v 1.7 2003/08/16 12:29:03 jdillon Exp $ -->
+<!-- $Id: project.xml,v 1.8 2003/08/16 12:31:12 jdillon Exp $ -->
 
 <project>
   <pomVersion>3</pomVersion>
@@ -18,7 +18,7 @@
   <siteDirectory>/www/incubator.apache.org/projects/geronimo/core</siteDirectory>
   <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds/core</distributionDirectory>
   
-  <currentVersion>1.0-alpha-1-SNAPSHOT</currentVersion>
+  <currentVersion>DEV</currentVersion>
   
   <!-- ============ -->
   <!-- Dependencies -->
