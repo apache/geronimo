@@ -18,22 +18,40 @@
 package javax.mail;
 
 /**
+ * Class representing a header field.
+ *
  * @version $Rev$ $Date$
  */
 public class Header {
-    private String _name;
-    private String _value;
+    private final String name;
+    private final String value;
 
+    /**
+     * Constructor initializing all immutable fields.
+     *
+     * @param name  the name of this header
+     * @param value the value of this header
+     */
     public Header(String name, String value) {
-        _name = name;
-        _value = value;
+        this.name = name;
+        this.value = value;
     }
 
+    /**
+     * Return the name of this header.
+     *
+     * @return the name of this header
+     */
     public String getName() {
-        return _name;
+        return name;
     }
 
+    /**
+     * Return the value of this header.
+     *
+     * @return the value of this header
+     */
     public String getValue() {
-        return _value;
+        return value;
     }
 }
