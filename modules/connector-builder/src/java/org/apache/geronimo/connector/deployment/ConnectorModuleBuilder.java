@@ -403,7 +403,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                 setDynamicGBeanDataAttributes(resourceAdapterInstanceGBeanData, geronimoResourceAdapter.getResourceadapterInstance().getConfigPropertySettingArray(), cl);
 
                 // set the work manager name
-                ObjectName workManagerName = ENCConfigBuilder.getGBeanId(NameFactory.JCA_WORK_MANAGER, geronimoResourceAdapter.getResourceadapterInstance().getWorkmanager(), moduleJ2eeContext, earContext.getGBeanNames(), kernel);
+                ObjectName workManagerName = ENCConfigBuilder.getGBeanId(NameFactory.JCA_WORK_MANAGER, geronimoResourceAdapter.getResourceadapterInstance().getWorkmanager(), moduleJ2eeContext, earContext, kernel);
                 resourceAdapterInstanceGBeanData.setReferencePattern("WorkManager", workManagerName);
 
                 String resourceAdapterName = geronimoResourceAdapter.getResourceadapterInstance().getResourceadapterName();

@@ -166,25 +166,18 @@ public class NameFactory {
      */
 
     public static ObjectName getComponentRestrictedQueryName(String j2eeDomainName, String j2eeServerName, String j2eeName, String j2eeType, J2eeContext context) throws MalformedObjectNameException {
-//        Properties props = new Properties();
-//        props.put(J2EE_TYPE, context.getJ2eeType(j2eeType));
-//        props.put(J2EE_SERVER, context.getJ2eeServerName(j2eeServerName));
-//        props.put(J2EE_APPLICATION, NULL;
-//        props.put(RESOURCE_ADAPTER_MODULE, context.getJ2eeModuleName(j2eeModuleName));
-//        props.put(JCA_RESOURCE, context.getJ2eeModuleName(j2eeModuleName));
-//        props.put(J2EE_NAME, context.getJ2eeName(j2eeName));
-//        try {
-//            return ObjectName.getInstance(context.getJ2eeDomainName(j2eeDomainName), props);
-//        } catch (MalformedObjectNameException e) {
-//            throw new DeploymentException("Invalid component name", e);
-//        }
+        String applicationName = NULL;
+        return getComponentNameQuery(j2eeDomainName, j2eeServerName, applicationName, j2eeName, j2eeType, context);
+    }
+
+    public static ObjectName getComponentNameQuery(String j2eeDomainName, String j2eeServerName, String applicationName, String j2eeName, String j2eeType, J2eeContext context) throws MalformedObjectNameException {
         StringBuffer buffer = new StringBuffer(context.getJ2eeDomainName(j2eeDomainName))
                 .append(":" + J2EE_TYPE + "=").append(context.getJ2eeType(j2eeType))
                 .append("," + J2EE_SERVER + "=").append(context.getJ2eeServerName(j2eeServerName))
-                .append("," + J2EE_APPLICATION + "=" + NULL)
+                .append("," + J2EE_APPLICATION + "=").append(context.getJ2eeApplicationName(applicationName))
                 .append("," + J2EE_NAME + "=").append(context.getJ2eeName(j2eeName))
                 .append(",*");
-        return new ObjectName(buffer.toString());
+        return ObjectName.getInstance(buffer.toString());
     }
 
     public static ObjectName getWebComponentName(String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, String j2eeModuleName, String j2eeName, String j2eeType, J2eeContext context) throws MalformedObjectNameException {

@@ -25,40 +25,37 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.net.URI;
-import java.net.URL;
 import java.net.MalformedURLException;
-import java.net.URLClassLoader;
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.ArrayList;
-import java.util.StringTokenizer;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
-import java.util.jar.Attributes;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
+import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.repository.Repository;
 
 /**
  * @version $Rev$ $Date$
@@ -71,7 +68,7 @@ public class DeploymentContext {
     private final ConfigurationModuleType type;
     private final Kernel kernel;
     private final GBeanData config;
-    private final Map gbeans = new HashMap();
+    private final GBeanDataRegistry gbeans = new GBeanDataRegistry();
     private final Set dependencies = new LinkedHashSet();
     private final LinkedHashSet classPath = new LinkedHashSet();
     private final File baseDir;
@@ -115,6 +112,8 @@ public class DeploymentContext {
             // we created this GBean ...
             throw new AssertionError();
         }
+
+        gbeans.setDefaultDomain(domain);
 
         if (kernel != null && parentID != null) {
             ConfigurationManager configurationManager = kernel.getConfigurationManager();
@@ -204,20 +203,17 @@ public class DeploymentContext {
         return (String) config.getAttribute("server");
     }
 
-    /**
-     * @deprecated use addGBean(GBeanData gbean)
-     */
-    public void addGBean(ObjectName name, GBeanMBean gbean) {
-        gbeans.put(name, gbean);
-    }
-
     public void addGBean(GBeanData gbean) {
         assert gbean.getName() != null: "GBean name is null";
-        gbeans.put(gbean.getName(), gbean);
+        gbeans.register(gbean);
     }
 
     public Set getGBeanNames() {
-        return Collections.unmodifiableSet(gbeans.keySet());
+        return gbeans.getGBeanNames();
+    }
+
+    public Set listGBeans(ObjectName pattern) {
+        return gbeans.listGBeans(pattern);
     }
 
     public void addDependency(URI uri) {
@@ -490,18 +486,7 @@ public class DeploymentContext {
         // persist all the GBeans in this Configuration
         // save the dependencies and classpath
         try {
-            GBeanData[] gbeanArray = new GBeanData[gbeans.size()];
-            Iterator iterator = gbeans.entrySet().iterator();
-            for (int i = 0; i < gbeanArray.length; i++) {
-                Map.Entry entry = (Map.Entry) iterator.next();
-                Object gbean = entry.getValue();
-                if (gbean instanceof GBeanMBean) {
-                    gbeanArray[i] = ((GBeanMBean) gbean).getGBeanData();
-                    gbeanArray[i].setName((ObjectName) entry.getKey());
-                } else {
-                    gbeanArray[i] = (GBeanData) gbean;
-                }
-            }
+            GBeanData[] gbeanArray = gbeans.getGBeans();
             config.setAttribute("gBeanState", Configuration.storeGBeans(gbeanArray));
             config.setReferencePatterns("Repositories", Collections.singleton(new ObjectName("*:name=Repository,*")));
             config.setAttribute("dependencies", new ArrayList(dependencies));

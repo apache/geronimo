@@ -17,11 +17,9 @@
 package org.apache.geronimo.security.deployment;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.deploy.Principal;
 import org.apache.geronimo.security.deploy.Realm;
@@ -40,7 +38,7 @@ import org.apache.geronimo.xbeans.geronimo.security.GerSecurityType;
  */
 public class SecurityBuilder {
 
-    public static Security buildSecurityConfig(Set loginDomainNames, GerSecurityType securityType, Set roleNames, Map localSecurityRealms, Kernel kernel) throws DeploymentException {
+    public static Security buildSecurityConfig(GerSecurityType securityType, Set roleNames) throws DeploymentException {
         Security security = null;
 
         if (securityType == null) {

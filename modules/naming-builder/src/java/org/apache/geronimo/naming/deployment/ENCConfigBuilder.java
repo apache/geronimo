@@ -25,7 +25,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,9 +36,10 @@ import javax.transaction.UserTransaction;
 import javax.xml.namespace.QName;
 
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.j2ee.deployment.EARContext;
-import org.apache.geronimo.j2ee.deployment.RefContext;
 import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.deployment.RefContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
@@ -65,7 +65,8 @@ import org.apache.geronimo.xbeans.j2ee.XsdStringType;
  * @version $Rev$ $Date$
  */
 public class ENCConfigBuilder {
-    public static ObjectName getGBeanId(String j2eeType, GerGbeanLocatorType gerGbeanLocator, J2eeContext j2eeContext, Set localGBeans, Kernel kernel) throws DeploymentException {
+
+    public static ObjectName getGBeanId(String j2eeType, GerGbeanLocatorType gerGbeanLocator, J2eeContext j2eeContext, DeploymentContext context, Kernel kernel) throws DeploymentException {
         ObjectName containerId = null;
         if (gerGbeanLocator.isSetGbeanLink()) {
             //exact match
@@ -76,23 +77,23 @@ public class ENCConfigBuilder {
             } catch (MalformedObjectNameException e) {
                 throw new DeploymentException("Could not construct gbean name", e);
             }
-            if (localGBeans.contains(exact)) {
+            if (context.listGBeans(exact).size() == 1) {
                 containerId = exact;
             } else {
-                Map keys = new HashMap();
-                keys.put(NameFactory.J2EE_TYPE, j2eeType);
-                keys.put(NameFactory.J2EE_NAME, linkName);
-                for (Iterator iterator = localGBeans.iterator(); iterator.hasNext();) {
-                    ObjectName objectName = (ObjectName) iterator.next();
-                    if (objectName.getKeyPropertyList().entrySet().containsAll(keys.entrySet())) {
-                        if (containerId != null) {
-                            throw new DeploymentException("two matches for gbean link!" + objectName);
-                        }
-                        containerId = objectName;
-                    }
+                ObjectName query = null;
+                try {
+                    query = NameFactory.getComponentNameQuery(null, null, null, linkName, j2eeType, j2eeContext);
+                } catch(MalformedObjectNameException e) {
+                    throw new DeploymentException("Could not construct query for gbean name", e);
+                }
+                Set localMatches = context.listGBeans(query);
+                if (localMatches.size() > 1) {
+                    throw new DeploymentException("More than one local match for gbean link, " + localMatches);
+                }
+                if (localMatches.size() == 1) {
+                    containerId = (ObjectName) localMatches.iterator().next();
                 }
                 if (containerId == null) {
-                    ObjectName query = null;
                     try {
                         query = NameFactory.getComponentRestrictedQueryName(null, null, linkName, j2eeType, j2eeContext);
                     } catch (MalformedObjectNameException e) {
@@ -185,7 +186,7 @@ public class ENCConfigBuilder {
                 } else {
                     j2eeType = NameFactory.JCA_MANAGED_CONNECTION_FACTORY;
                 }
-                String containerId = getResourceContainerId(name, j2eeType, uri, gerResourceRef, refContext, j2eeContext);
+                String containerId = getResourceContainerId(name, j2eeType, uri, gerResourceRef, refContext, j2eeContext, earContext);
 
                 ref = refContext.getConnectionFactoryRef(containerId, iface);
                 try {
@@ -198,16 +199,16 @@ public class ENCConfigBuilder {
 
     }
 
-    private static String getResourceContainerId(String name, String type, URI uri, GerResourceRefType gerResourceRef, RefContext refContext, J2eeContext j2eeContext) throws DeploymentException {
+    private static String getResourceContainerId(String name, String type, URI uri, GerResourceRefType gerResourceRef, RefContext refContext, J2eeContext j2eeContext, DeploymentContext context) throws DeploymentException {
         String containerId = null;
         if (gerResourceRef == null) {
             //try to resolve ref based only matching resource-ref-name
             //throws exception if it can't locate ref.
-            containerId = refContext.getConnectionFactoryContainerId(uri, name, type, j2eeContext);
+            containerId = refContext.getConnectionFactoryContainerId(uri, name, type, j2eeContext, context);
         } else if (gerResourceRef.isSetResourceLink()) {
-            containerId = refContext.getConnectionFactoryContainerId(uri, getStringValue(gerResourceRef.getResourceLink()), NameFactory.JCA_MANAGED_CONNECTION_FACTORY, j2eeContext);
+            containerId = refContext.getConnectionFactoryContainerId(uri, gerResourceRef.getResourceLink().trim(), type, j2eeContext, context);
         } else if (gerResourceRef.isSetTargetName()) {
-            containerId = getStringValue(gerResourceRef.getTargetName());
+            containerId =  gerResourceRef.getTargetName().trim();
         } else {
             //construct name from components
             try {
@@ -216,7 +217,6 @@ public class ENCConfigBuilder {
                         getStringValue(gerResourceRef.getApplication()),
                         getStringValue(gerResourceRef.getModule()),
                         getStringValue(gerResourceRef.getName()),
-                        //todo determine type from iface class
                         gerResourceRef.getType() == null ? type : gerResourceRef.getType().trim(),
                         j2eeContext);
             } catch (MalformedObjectNameException e) {
@@ -556,7 +556,7 @@ public class ENCConfigBuilder {
             if (!URL.class.getName().equals(type)
                     && !"javax.mail.Session".equals(type)) {
                 GerResourceRefType gerResourceRef = (GerResourceRefType) refMap.get(resourceRefType.getResRefName().getStringValue());
-                String containerId = getResourceContainerId(getStringValue(resourceRefType.getResRefName()), NameFactory.JCA_MANAGED_CONNECTION_FACTORY, uri, gerResourceRef, refContext, j2eeContext);
+                String containerId = getResourceContainerId(getStringValue(resourceRefType.getResRefName()), NameFactory.JCA_MANAGED_CONNECTION_FACTORY, uri, gerResourceRef, refContext, j2eeContext, earContext);
                 if ("Unshareable".equals(getStringValue(resourceRefType.getResSharingScope()))) {
                     unshareableResources.add(containerId);
                 }

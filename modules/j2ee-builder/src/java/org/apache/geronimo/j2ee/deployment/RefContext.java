@@ -21,6 +21,7 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
+import java.util.Set;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -249,12 +250,25 @@ public class RefContext {
         }
     }
 
-    public String getConnectionFactoryContainerId(URI module, String resourceLink, String type, J2eeContext j2eeContext) throws DeploymentException, UnknownEJBRefException {
+    public String getConnectionFactoryContainerId(URI module, String resourceLink, String type, J2eeContext j2eeContext, DeploymentContext context) throws DeploymentException, UnknownEJBRefException {
         String name = resourceLink.substring(resourceLink.lastIndexOf('#') + 1);
         try {
             return getContainerId(module, resourceLink, (Map) connectionFactoryIndex.get(name));
         } catch (UnknownEJBRefException e) {
+
             ObjectName query = null;
+            try {
+                query = NameFactory.getComponentNameQuery(null, null, null, name, type, j2eeContext);
+            } catch (MalformedObjectNameException e1) {
+                throw new DeploymentException("Could not construct connection factory object name query", e);
+            }
+            Set matches = context.listGBeans(query);
+            if (matches.size() > 1) {
+                throw new DeploymentException("More than one match for query " + matches);
+            }
+            if (matches.size() == 1) {
+                return ((ObjectName)matches.iterator().next()).getCanonicalName();
+            }
             try {
                 query = NameFactory.getComponentRestrictedQueryName(null, null, name, type, j2eeContext);
             } catch (MalformedObjectNameException e1) {

@@ -73,7 +73,6 @@ import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.security.deployment.SecurityBuilder;
-import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.security.util.URLPattern;
 import org.apache.geronimo.transaction.OnlineUserTransaction;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppDocument;
@@ -348,17 +347,9 @@ public class JettyModuleBuilder implements ModuleBuilder {
             contextPriorityClassLoader = Boolean.valueOf(jettyWebApp.getContextPriorityClassloader()).booleanValue();
         }
         ClassLoader webClassLoader = new JettyClassLoader(webClassPathURLs, cl, contextPriorityClassLoader);
-        Map localSecurityRealms = new HashMap();
         if (jettyWebApp != null) {
             GbeanType[] gbeans = jettyWebApp.getGbeanArray();
-            Set added = ServiceConfigBuilder.addGBeans(gbeans, cl, moduleJ2eeContext, earContext);
-            for (Iterator iterator = added.iterator(); iterator.hasNext();) {
-                GBeanData gBeanData = (GBeanData) iterator.next();
-                String className = gBeanData.getGBeanInfo().getClassName();
-                if (GenericSecurityRealm.class.getName().equals(className)) {
-                    localSecurityRealms.put(gBeanData.getAttribute("realmName"), gBeanData);
-                }
-            }
+            ServiceConfigBuilder.addGBeans(gbeans, cl, moduleJ2eeContext, earContext);
         }
 
         ObjectName webModuleName = null;
@@ -377,7 +368,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
             Set securityRoles = collectRoleNames(webApp);
             if (jettyWebApp.isSetSecurityRealmName()) {
                 String securityRealmName = jettyWebApp.getSecurityRealmName().trim();
-                Security security = SecurityBuilder.buildSecurityConfig(Collections.singleton(securityRealmName), jettyWebApp.getSecurity(), securityRoles, localSecurityRealms, kernel);
+                Security security = SecurityBuilder.buildSecurityConfig(jettyWebApp.getSecurity(), securityRoles);
                 webModuleData.setAttribute("securityRealmName", securityRealmName);
                 webModuleData.setAttribute("securityConfig", security);
 

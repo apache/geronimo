@@ -17,16 +17,16 @@
 
 package org.apache.geronimo.j2ee.deployment;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.net.URL;
-import java.util.jar.JarFile;
 import java.util.List;
-import javax.management.ObjectName;
+import java.util.jar.JarFile;
 import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 
 import junit.extensions.TestSetup;
 import junit.framework.Test;
@@ -34,18 +34,17 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.registry.GBeanRegistry;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.registry.BasicGBeanRegistry;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -62,7 +61,6 @@ public class EARConfigBuilderTest extends TestCase {
     private static ServiceReferenceBuilder serviceReferenceBuilder = null;
 
     private static final String j2eeServerName = "someDomain";
-    private static final ObjectName j2eeServer = JMXUtil.getObjectName(j2eeServerName + ":j2eeType=J2EEServer,name=J2EEServerName");
     private static final ObjectName transactionManagerObjectName = JMXUtil.getObjectName(j2eeServerName + ":type=TransactionManager");
     private static final ObjectName connectionTrackerObjectName = JMXUtil.getObjectName(j2eeServerName + ":type=ConnectionTracker");
     private static final ObjectName transactionalTimerObjectName = JMXUtil.getObjectName(j2eeServerName + ":type=ThreadPooledTimer,name=TransactionalThreaPooledTimer");

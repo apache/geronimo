@@ -206,15 +206,13 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         }
     }
 
-    //TODO returning set of added gbeans is a HACK used only by stuff needing to access security gbeans at deploy time!  REMOVE IT!!
-    public static Set addGBeans(GbeanType[] gbeans, ClassLoader cl, J2eeContext j2eeContext, DeploymentContext context) throws DeploymentException {
+    public static void addGBeans(GbeanType[] gbeans, ClassLoader cl, J2eeContext j2eeContext, DeploymentContext context) throws DeploymentException {
         Set result = new HashSet();
         for (int i = 0; i < gbeans.length; i++) {
             GBeanData gBeanData = getGBeanData(gbeans[i], j2eeContext, cl);
             context.addGBean(gBeanData);
             result.add(gBeanData);
         }
-        return result;
     }
 
     public static GBeanData getGBeanData(GbeanType gbean, J2eeContext j2eeContext, ClassLoader cl) throws DeploymentException {
