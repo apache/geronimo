@@ -12,75 +12,30 @@
     >
 
     <define:taglib uri="geronimo:deploy">
-        <!-- DeployCommand  <configID> <outfile> <url>+ -->
-        <!-- DeployCommand org/apache/geronimo/Default /tmp/default.car jetty-service.xml -->
-        <define:tag name="deploy" xmlns="jelly:ant">
-            <j:if test="${deployconfigid == null}">
-                <fail>Missing required attribute: deployconfigid</fail>
-            </j:if>
-            <j:if test="${deployoutfile == null}">
-                <fail>Missing required attribute: deployoutfile</fail>
-            </j:if>
-            <j:if test="${deployurl == null}">
-                <fail>Missing required attribute: deployurl</fail>
-            </j:if>
-            <j:invokeStatic var="dummy" className="org.apache.geronimo.deployment.tools.DeployCommand" method="deploy">
-                <j:arg type="java.lang.String" value="${deployconfigid}"/>
-                <j:arg type="java.lang.String" value="${deployoutfile}"/>
-                <j:arg type="java.lang.String" value="${deployurl}"/>
-            </j:invokeStatic>
-        </define:tag>
-
-        <define:tag name="install" xmlns="jelly:ant">
-            <j:if test="${installDomain == null}">
-                <fail>Missing required attribute: installDomain</fail>
-            </j:if>
-            <j:if test="${installStoreDir == null}">
-                <fail>Missing required attribute: installStoreDir</fail>
-            </j:if>
-            <j:if test="${installConfig == null}">
-                <fail>Missing required attribute: installConfig</fail>
-            </j:if>
-            <j:invokeStatic var="kernel" className="org.apache.geronimo.Geronimo" method="installPackage">
-                <j:arg type="java.lang.String" value="${installDomain}"/>
-                <j:arg type="java.lang.String" value="${installStoreDir}"/>
-                <j:arg type="java.lang.String" value="${installConfig}"/>
-            </j:invokeStatic>
-        </define:tag>
-
-        <define:tag name="loadAndReturn" xmlns="jelly:ant">
-            <j:if test="${runDomain == null}">
-                <fail>Missing required attribute: runDomain</fail>
-            </j:if>
-            <j:if test="${runStoreDir == null}">
-                <fail>Missing required attribute: runStoreDir</fail>
-            </j:if>
-            <j:if test="${runConfigID == null}">
-                <fail>Missing required attribute: runConfigID</fail>
-            </j:if>
-            <j:invokeStatic var="kernel" className="org.apache.geronimo.Geronimo" method="load">
-                <j:arg type="java.lang.String" value="${runDomain}"/>
-                <j:arg type="java.lang.String" value="${runStoreDir}"/>
-                <j:arg type="java.lang.String" value="${runConfigID}"/>
-            </j:invokeStatic>
-        </define:tag>
-
-        <define:tag name="loadAndWait" xmlns="jelly:ant">
-            <j:if test="${runDomain == null}">
-                <fail>Missing required attribute: runDomain</fail>
-            </j:if>
-            <j:if test="${runStoreDir == null}">
-                <fail>Missing required attribute: runStoreDir</fail>
-            </j:if>
-            <j:if test="${runConfigID == null}">
-                <fail>Missing required attribute: runConfigID</fail>
-            </j:if>
-            <j:invokeStatic var="kernel" className="org.apache.geronimo.Geronimo" method="loadAndWait">
-                <j:arg type="java.lang.String" value="${runDomain}"/>
-                <j:arg type="java.lang.String" value="${runStoreDir}"/>
-                <j:arg type="java.lang.String" value="${runConfigID}"/>
-            </j:invokeStatic>
-        </define:tag>
+        <define:jellybean
+            name="distribute"
+            className="org.apache.geronimo.deployment.mavenplugin.DistributeModule"
+            method="execute"/>
+        <define:jellybean
+            name="start"
+            className="org.apache.geronimo.deployment.mavenplugin.StartModule"
+            method="execute"/>
+        <define:jellybean
+            name="stop"
+            className="org.apache.geronimo.deployment.mavenplugin.StopModule"
+            method="execute"/>
+        <define:jellybean
+            name="undeploy"
+            className="org.apache.geronimo.deployment.mavenplugin.UndeployModule"
+            method="execute"/>
+        <define:jellybean
+            name="startServer"
+            className="org.apache.geronimo.deployment.mavenplugin.StartServer"
+            method="execute"/>
+        <define:jellybean
+            name="stopServer"
+            className="org.apache.geronimo.deployment.mavenplugin.StopServer"
+            method="execute"/>
 
     </define:taglib>
 
