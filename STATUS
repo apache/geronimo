@@ -1,5 +1,5 @@
 ##
-## $Revision: 1.6 $ $Date: 2003/12/17 07:39:08 $
+## $Revision: 1.7 $ $Date: 2003/12/17 07:41:16 $
 ##
 
 Exit Criteria
@@ -30,7 +30,7 @@ Naming
 
   --  Has the final name for the project decided?
 2003/12/21 vote on keeping the name Geronimo
-      +1 jboynes, dblevins, adc
+      +1 jboynes, dblevins, adc, gstein
       -1
 
   --  Does the codebase,mailing list,bug tracker contain the right name of the project?
@@ -52,14 +52,6 @@ Committers:
 
   -- Have all of the active long-term volunteers been identified
      and acknowledged as committers on the project?
-
-2003/09/15 vote on Aaron Mulder as committer
-     +1 jboynes, dain, jdillon, bsnyder, dblevins, chirino, gregw, janb, jules, jstrachan
-
-2003/09/16 vote on Alan Cabrera as committer
-     +1 dblevins, dain, chirino, jdillon, jules, bsnyder, janb, rmonson,
-        gstein
-     +0.5 jboynes
 
   -- Have all the commiters signed the CLA?
 
