@@ -69,7 +69,7 @@ import net.sf.cglib.reflect.FastMethod;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/16 23:55:54 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/21 19:45:14 $
  */
 public class DynamicGBeanDelegate implements DynamicGBean {
     protected final Map getters = new HashMap();
@@ -103,7 +103,7 @@ public class DynamicGBeanDelegate implements DynamicGBean {
     }
 
     public void addGetter(String name, Object target, Method method) {
-        if (method.getParameterTypes().length == 0 && method.getReturnType() != Void.TYPE) {
+        if (!(method.getParameterTypes().length == 0 && method.getReturnType() != Void.TYPE)) {
             throw new IllegalArgumentException("Method must take no parameters and return a value " + method);
         }
         getters.put(name, new Operation(target, method));
@@ -117,10 +117,10 @@ public class DynamicGBeanDelegate implements DynamicGBean {
     }
 
     public void addSetter(String name, Object target, Method method) {
-        if (method.getParameterTypes().length == 1 && method.getReturnType() == Void.TYPE) {
+        if (!(method.getParameterTypes().length == 1 && method.getReturnType() == Void.TYPE)) {
             throw new IllegalArgumentException("Method must take one parameter and not return anything " + method);
         }
-        setters.put(method.getName().substring(3), new Operation(target, method));
+        setters.put(name, new Operation(target, method));
     }
 
     public void addOperation(Object target, Method method) {
