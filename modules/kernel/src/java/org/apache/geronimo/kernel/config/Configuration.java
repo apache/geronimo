@@ -66,33 +66,33 @@ import java.io.ObjectStreamClass;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
 import javax.management.AttributeNotFoundException;
 import javax.management.InvalidAttributeValueException;
 import javax.management.MBeanException;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GBean;
+import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.gbean.jmx.GBeanMBeanContext;
-import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.MissingDependencyException;
 
 /**
  * A Configuration represents a collection of runnable services that can be
@@ -121,7 +121,7 @@ import org.apache.geronimo.kernel.Kernel;
  * a startRecursive() for all the GBeans it contains. Similarly, if the
  * Configuration is stopped then all of its GBeans will be stopped as well.
  *
- * @version $Revision: 1.8 $ $Date: 2004/02/06 08:27:49 $
+ * @version $Revision: 1.9 $ $Date: 2004/02/10 22:34:04 $
  */
 public class Configuration implements GBean {
     private static final Log log = LogFactory.getLog(Configuration.class);
@@ -129,7 +129,9 @@ public class Configuration implements GBean {
     private final URI id;
     private final ConfigurationParent parent;
     private final List classPath;
+    private final List dependencies;
     private final byte[] gbeanState;
+    private final Collection repositories;
 
     private GBeanMBeanContext context;
     private URL baseURL;
@@ -145,12 +147,16 @@ public class Configuration implements GBean {
      * @param parent the parent Configuration; may be null
      * @param classPath a List<URI> of locations that define the codebase for this Configuration
      * @param gbeanState a byte array contain the Java Serialized form of the GBeans in this Configuration
+     * @param repositories a Collection<Repository> of repositories used to resolve dependencies
+     * @param dependencies a List<URI> of dependencies
      */
-    public Configuration(URI id, ConfigurationParent parent, List classPath, byte[] gbeanState) {
+    public Configuration(URI id, ConfigurationParent parent, List classPath, byte[] gbeanState, Collection repositories, List dependencies) {
         this.id = id;
         this.parent = parent;
         this.gbeanState = gbeanState;
         this.classPath = classPath;
+        this.dependencies = dependencies;
+        this.repositories = repositories;
     }
 
     public void setGBeanContext(GBeanContext context) {
@@ -159,11 +165,29 @@ public class Configuration implements GBean {
 
     public void doStart() throws Exception {
         // build classpath
-        URL[] urls = new URL[classPath.size()];
-        for (int i = 0; i < urls.length; i++) {
-            URI path = (URI) classPath.get(i);
-            urls[i] = new URL(baseURL, path.toString());
+        URL[] urls = new URL[dependencies.size() + classPath.size()];
+        int idx = 0;
+        for (Iterator i = dependencies.iterator(); i.hasNext();) {
+            URI uri = (URI) i.next();
+            URL url = null;
+            for (Iterator j = repositories.iterator(); j.hasNext();) {
+                Repository repository = (Repository) j.next();
+                if (repository.hasURI(uri)) {
+                    url = repository.getURL(uri);
+                    break;
+                }
+            }
+            if (url == null) {
+                throw new MissingDependencyException("Unable to resolve dependency " + uri);
+            }
+            urls[idx++] = url;
         }
+        for (Iterator i = classPath.iterator(); i.hasNext();) {
+            URI uri = (URI) i.next();
+            urls[idx++] = new URL(baseURL, uri.toString());
+        }
+        assert idx == urls.length;
+
         if (parent == null) {
             classLoader = new URLClassLoader(urls);
         } else {
@@ -355,29 +379,22 @@ public class Configuration implements GBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        Set attributes = new HashSet();
-        attributes.add(new GAttributeInfo("ID", true));
-        attributes.add(new GAttributeInfo("ClassPath", true));
-        attributes.add(new GAttributeInfo("GBeanState", true));
-        attributes.add(new GAttributeInfo("BaseURL"));
-        attributes.add(new GAttributeInfo("ObjectName"));
-        attributes.add(new GAttributeInfo("ClassLoader"));
-        attributes.add(new GAttributeInfo("SavedState"));
-        List constructorNames = new ArrayList();
-        constructorNames.add("ID");
-        constructorNames.add("Parent");
-        constructorNames.add("ClassPath");
-        constructorNames.add("GBeanState");
-        List constructorTypes = new ArrayList();
-        constructorTypes.add(URI.class);
-        constructorTypes.add(ConfigurationParent.class);
-        constructorTypes.add(List.class);
-        constructorTypes.add(byte[].class);
-        GConstructorInfo constructor = new GConstructorInfo(constructorNames, constructorTypes);
-        Set endpoints = new HashSet();
-        endpoints.add(new GReferenceInfo("Parent", ConfigurationParent.class.getName()));
-        Set operations = Collections.EMPTY_SET;
-        GBEAN_INFO = new GBeanInfo(Configuration.class.getName(), attributes, constructor, operations, endpoints, Collections.EMPTY_SET);
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(Configuration.class);
+        infoFactory.addAttribute(new GAttributeInfo("ID", true));
+        infoFactory.addAttribute(new GAttributeInfo("ClassPath", true));
+        infoFactory.addAttribute(new GAttributeInfo("Dependencies", true));
+        infoFactory.addAttribute(new GAttributeInfo("GBeanState", true));
+        infoFactory.addAttribute(new GAttributeInfo("BaseURL"));
+        infoFactory.addAttribute(new GAttributeInfo("ObjectName"));
+        infoFactory.addAttribute(new GAttributeInfo("ClassLoader"));
+        infoFactory.addAttribute(new GAttributeInfo("SavedState")); // @todo is this used?
+        infoFactory.addReference(new GReferenceInfo("Parent", ConfigurationParent.class));
+        infoFactory.addReference(new GReferenceInfo("Repositories", Repository.class));
+        infoFactory.setConstructor(new GConstructorInfo(
+                new String[]{"ID", "Parent", "ClassPath", "GBeanState", "Repositories", "Dependencies"},
+                new Class[]{URI.class, ConfigurationParent.class, List.class, byte[].class, Collection.class, List.class}
+        ));
+        GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
     public static GBeanInfo getGBeanInfo() {

@@ -77,7 +77,7 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.10 $ $Date: 2004/02/04 05:42:57 $
+ * @version $Revision: 1.11 $ $Date: 2004/02/10 22:34:04 $
  */
 public class ConfigTest extends TestCase {
     private ObjectName gbeanName1;
@@ -101,6 +101,7 @@ public class ConfigTest extends TestCase {
         config.setReferencePatterns("Parent", null);
         config.setAttribute("ClassPath", Collections.EMPTY_LIST);
         config.setAttribute("GBeanState", state);
+        config.setAttribute("Dependencies", Collections.EMPTY_LIST);
         ObjectName configName = (ObjectName) mbServer.invoke(Kernel.KERNEL, "load", new Object[]{config, null}, new String[]{GBeanMBean.class.getName(), URL.class.getName()});
         mbServer.invoke(configName, "startRecursive", null, null);
 

@@ -73,9 +73,14 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Collections;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 import javax.management.ObjectName;
+import javax.management.AttributeNotFoundException;
+import javax.management.InvalidAttributeValueException;
+import javax.management.MBeanException;
+import javax.management.ReflectionException;
 
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
@@ -85,7 +90,7 @@ import org.apache.geronimo.kernel.config.ConfigurationParent;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/24 19:50:04 $
+ * @version $Revision: 1.4 $ $Date: 2004/02/10 22:34:04 $
  */
 public class ModuleDeployer implements ConfigurationCallback {
     private final ConfigurationParent parent;
@@ -177,6 +182,11 @@ public class ModuleDeployer implements ConfigurationCallback {
                 config.setAttribute("GBeanState", Configuration.storeGBeans(gbeans));
             } catch (Exception e) {
                 throw new DeploymentException("Unable to save state to configuration", e);
+            }
+            try {
+                config.setAttribute("Dependencies", Collections.EMPTY_LIST);
+            } catch (Exception e) {
+                throw new DeploymentException("Unable to intialize Dependencies", e);
             }
         } finally {
             // tell each module we are done with it

@@ -79,7 +79,7 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/02/04 05:43:31 $
+ * @version $Revision: 1.6 $ $Date: 2004/02/10 22:34:04 $
  */
 public class ParentDeployerTest extends TestCase {
     private DocumentBuilder parser;
@@ -98,6 +98,7 @@ public class ParentDeployerTest extends TestCase {
         parentPath.add(new URI(cl.getResource("services/").toString()));
         parentGBean.setAttribute("ClassPath", parentPath);
         parentGBean.setAttribute("GBeanState", state);
+        parentGBean.setAttribute("Dependencies", Collections.EMPTY_LIST);
         kernel.load(parentGBean, null, parentName);
         kernel.getMBeanServer().invoke(parentName, "start", null, null);
 
