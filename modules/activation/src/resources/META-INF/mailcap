@@ -22,4 +22,5 @@ text/xml;;      x-java-content-handler=org.apache.geronimo.activation.handlers.T
 
 image/gif;;     x-java-content-handler=org.apache.geronimo.activation.handlers.ImageGifHandler
 image/jpeg;;    x-java-content-handler=org.apache.geronimo.activation.handlers.ImageJpegHandler
-     
+
+multipart/*;;   x-java-content-handler=org.apache.geronimo.activation.handlers.MultipartHandler     

@@ -52,5 +52,11 @@
             <version>${geronimo_spec_activation_version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-javamail</artifactId>
+            <version>${geronimo_spec_javamail_version}</version>
+        </dependency>
+
     </dependencies>
 </project>
