@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.datastore.impl.remote;
+package org.apache.geronimo.datastore.impl.remote.datastore;
 
 import java.io.File;
 import java.net.InetAddress;
@@ -35,7 +35,7 @@ import org.apache.geronimo.kernel.Kernel;
 /**
  * This is a remote use-case.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/03 13:10:07 $
+ * @version $Revision: 1.1 $ $Date: 2004/03/03 15:19:01 $
  */
 public class RemoteUseCaseTest extends AbstractUseCaseTest {
 
