@@ -41,6 +41,19 @@
     <dependencies>
 
         <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-qname</artifactId>
+            <version>${geronimo_spec_qname_version}</version>
+            <properties>
+                <lib>true</lib>
+                <server>true</server>
+                <client>true</client>
+                <deploy>true</deploy>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+        
+        <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-deployment-plugin</artifactId>
             <version>${geronimo_version}</version>
@@ -55,7 +68,7 @@
             <version>${jelly_velocity_tags_version}</version>
         </dependency>
         <dependency>
-            <groupId> velocity</groupId>
+            <groupId>velocity</groupId>
             <artifactId>velocity</artifactId>
             <version>${velocity_version}</version>
         </dependency>
@@ -969,6 +982,7 @@
             </properties>
         </dependency>
 
+<!--
         <dependency>
             <groupId>axis</groupId>
             <artifactId>axis-jaxrpc</artifactId>
@@ -977,7 +991,7 @@
                 <repository>true</repository>
             </properties>
         </dependency>
-
+-->
         <dependency>
             <groupId>axis</groupId>
             <artifactId>axis-saaj</artifactId>
