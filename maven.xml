@@ -41,7 +41,7 @@
        |    Deletes the 'target' directory in all projects
        |
        | m:clean-repo
-       |    Deletes the local repository artifacts of ActiveMQ, Geronimo, HOWL, OpenEJB, and TranQL
+       |    Deletes the local repository artifacts of ActiveMQ, Geronimo, OpenEJB, and TranQL
        |
        | m:rebuild
        |    Same as m:clean m:default
@@ -50,13 +50,13 @@
        |    Same as m:clean m:clean-repo m:default and it includes geronimo-spec modules
        |
        | m:checkout or m:co
-       |    Checks out ActiveMQ, HOWL, OpenEJB, and TranQL
+       |    Checks out ActiveMQ, OpenEJB, and TranQL
        |
        | m:update
-       |    Updates ActiveMQ, Geronimo, HOWL, OpenEJB, and TranQL
+       |    Updates ActiveMQ, Geronimo, OpenEJB, and TranQL
        |
        | m:fresh-checkout
-       |    BECAREFUL: Deletes checkout of ActiveMQ, HOWL, OpenEJB, and TranQL and checks them out again
+       |    BECAREFUL: Deletes checkout of ActiveMQ, OpenEJB, and TranQL and checks them out again
        |
        |
        | In addition to the above we support a -Dmodules command line option which is a comma
@@ -153,7 +153,7 @@
         <ant:echo>+----------------------------------------</ant:echo>
         <delete dir="${maven.repo.local}/activemq"/>
         <delete dir="${maven.repo.local}/geronimo"/>
-        <delete dir="${maven.repo.local}/howl"/>
+        <!--delete dir="${maven.repo.local}/howl"/-->
         <delete dir="${maven.repo.local}/openejb"/>
         <delete dir="${maven.repo.local}/tranql"/>
         <j:if test="${context.getVariable('geronimo.all') == 'true'}">
@@ -178,6 +178,8 @@
 
     <goal name="m:intellij" prereqs="m:idea"/>
     <goal name="m:idea" prereqs="m:init">
+        <!--include the specs -->
+        <!--j:set var="maven.multiproject.includes" value="${maven.multiproject.includes},specs/*/project.xml"/-->
         <attainGoal name="idea:multiproject"/>
     </goal>
 
@@ -204,6 +206,7 @@
             />
         </define:tag>
         <define:tag name="update">
+            <echo message="updating ${dir}"/>
             <ant:cvs command="update -P -d"
                quiet="${maven.scm.cvs.quiet}"
                cvsRsh="ssh"
@@ -216,7 +219,7 @@
     <goal name="m:co" prereqs="m:checkout"/>
     <goal name="m:checkout">
         <gscm:checkout module="activemq" root="${geronimo.activemq.cvs.access}@cvs.activemq.codehaus.org:/home/projects/activemq/scm"/>
-        <gscm:checkout module="howl/logger" root="${geronimo.howl.cvs.access}@cvs.forge.objectweb.org:/cvsroot/howl"/>
+        <!--gscm:checkout module="howl/logger" root="${geronimo.howl.cvs.access}@cvs.forge.objectweb.org:/cvsroot/howl"/-->
         <gscm:checkout module="openejb" root="${geronimo.openejb.cvs.access}@cvs.openejb.org:/home/projects/openejb/scm"/>
 
         <mkdir dir="${basedir}/tranql"/>
@@ -229,7 +232,7 @@
             <ant:arg line="update"/>
         </ant:exec>
         <gscm:update dir="${basedir}/activemq"/>
-        <gscm:update dir="${basedir}/howl/logger"/>
+        <!--gscm:update dir="${basedir}/howl/logger"/-->
         <gscm:update dir="${basedir}/openejb"/>
         <gscm:update dir="${basedir}/tranql/tranql"/>
         <gscm:update dir="${basedir}/tranql/connector"/>
@@ -237,7 +240,7 @@
 
     <goal name="m:fresh-checkout">
         <delete dir="${basedir}/activemq"/>
-        <delete dir="${basedir}/howl"/>
+        <!--delete dir="${basedir}/howl"/-->
         <delete dir="${basedir}/openejb"/>
         <delete dir="${basedir}/tranql"/>
         <attainGoal name="m:checkout"/>
