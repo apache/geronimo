@@ -127,7 +127,7 @@ import org.xml.sax.SAXException;
  * 2. the url is a directory which contains a WEB-INF/web.xml file
  *
  * @jmx:mbean extends="org.apache.geronimo.web.WebContainer, org.apache.geronimo.kernel.management.StateManageable, javax.management.MBeanRegistration"
- * @version $Revision: 1.17 $ $Date: 2003/11/17 00:10:55 $
+ * @version $Revision: 1.18 $ $Date: 2003/11/17 00:43:41 $
  */
 public abstract class AbstractWebContainer
         extends AbstractManagedContainer
@@ -215,7 +215,7 @@ public abstract class AbstractWebContainer
 
         // Is the specific URL deployable?
         if (null == geronimoURL) {
-            log.info("Looking at and rejecting url " + url);
+//            log.info("Looking at and rejecting url " + url);
             return false;
         }
         URI baseURI = URI.create(url.toString()).normalize();
