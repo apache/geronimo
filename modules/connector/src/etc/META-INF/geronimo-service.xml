@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gbeans>
     <path>geronimo-connector-DEV.jar</path>
+    <path>geronimo-spec-j2ee-connector-DEV.jar</path>
 
     <!-- connector -->
     <gbean class="org.apache.geronimo.connector.work.GeronimoWorkManager" objectName="geronimo.connector:service=WorkManager">
