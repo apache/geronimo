@@ -57,21 +57,30 @@
 package org.apache.geronimo.common.net.protocol;
 
 import java.net.URL;
+import java.net.URLStreamHandler;
 
 import java.util.List;
 import java.util.LinkedList;
+import java.util.Iterator;
 import java.util.StringTokenizer;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.apache.geronimo.common.NullArgumentException;
 import org.apache.geronimo.common.Strings;
+import org.apache.geronimo.common.Classes;
+import org.apache.geronimo.common.ThrowableHandler;
 
 /**
  * Protocol utilties.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/30 11:57:14 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/01 15:16:39 $
  */
 public class Protocols
 {
+    private static final Log log = LogFactory.getLog(Protocols.class);
+    
     public static final String HANDLER_PACKAGES = "java.protocol.handler.pkgs";
     public static final String SYSTEM_HANDLER_PACKAGES = System.getProperty(HANDLER_PACKAGES);
     
@@ -132,5 +141,73 @@ public class Protocols
         List list = getHandlerPackages();
         list.add(0, name);
         setHandlerPackages(list);
+    }
+    
+    public static Class getURLStreamHandlerType(final String protocol)
+    {
+        if (protocol == null) {
+            throw new NullArgumentException("protocol");
+        }
+        
+        Iterator iter = getHandlerPackages().iterator();
+        while (iter.hasNext()) {
+            String pkg = (String)iter.next();
+            String classname = pkg + "." + protocol + ".Handler";
+            
+            try {
+                return Classes.loadClass(classname);
+            }
+            catch (ClassNotFoundException e) {
+                ThrowableHandler.add(e);
+            }
+        }
+        
+        return null;
+    }
+    
+    public static URLStreamHandler createURLStreamHandler(final String protocol)
+    {
+        // protocol checked by getURLStreamHandlerType
+        
+        Class type = getURLStreamHandlerType(protocol);
+        
+        if (type != null) {
+            try {
+                Object obj = type.newInstance();
+                if (obj instanceof URLStreamHandler) {
+                    return (URLStreamHandler)obj;
+                }
+                else {
+                    // Handler is not instance of URLStreamHandler; ignoring
+                }
+            }
+            catch (Exception e) {
+                ThrowableHandler.add(e);
+            }
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Preload the specific protocol handlers, so that URL knows about
+     * them even if the handler factory is changed.
+     */
+    public static void preloadURLStreamHandlers(final String[] protocols)
+    {
+        if (protocols == null) {
+            throw new NullArgumentException("protocols");
+        }
+        
+        for (int i=0; i<protocols.length; i++) {
+            if (protocols[i] == null) {
+                throw new NullArgumentException("protocols", i);
+            }
+            
+            try {
+                URL url = new URL(protocols[i], "", -1, "");
+            }
+            catch (Exception ignore) {}
+        }
     }
 }
