@@ -266,7 +266,6 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
             super.stop();
             return;
         }
-        jettyContainer.removeContext(this);
 
         if (securityInterceptor != null) {
             securityInterceptor.stop();
@@ -276,6 +275,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
             super.doStop();
         } finally {
             leaveContextScope(null, null, context);
+            jettyContainer.removeContext(this);
         }
         log.info("JettyWebAppContext stopped");
     }
