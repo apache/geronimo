@@ -17,7 +17,6 @@
 package org.apache.geronimo.client.builder;
 
 import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -33,17 +32,17 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
+import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
-import java.util.jar.Attributes;
 import java.util.zip.ZipEntry;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import javax.transaction.UserTransaction;
 
+import org.apache.geronimo.client.AppClientContainer;
 import org.apache.geronimo.common.xml.XmlBeansUtil;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.DeploymentException;
@@ -63,7 +62,7 @@ import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.schema.SchemaConversionUtils;
-import org.apache.geronimo.transaction.UserTransactionImpl;
+import org.apache.geronimo.system.main.CommandLineManifest;
 import org.apache.geronimo.xbeans.geronimo.client.GerApplicationClientDocument;
 import org.apache.geronimo.xbeans.geronimo.client.GerApplicationClientType;
 import org.apache.geronimo.xbeans.geronimo.client.GerDependencyType;
@@ -72,8 +71,6 @@ import org.apache.geronimo.xbeans.geronimo.client.GerRemoteRefType;
 import org.apache.geronimo.xbeans.j2ee.ApplicationClientDocument;
 import org.apache.geronimo.xbeans.j2ee.ApplicationClientType;
 import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
-import org.apache.geronimo.system.main.CommandLineManifest;
-import org.apache.geronimo.client.AppClientContainer;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlException;
@@ -399,8 +396,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 }
             }
 
-            UserTransaction userTransaction = new UserTransactionImpl();
-            ReadOnlyContext componentContext = buildComponentContext(earContext, appClientModule, appClient, geronimoAppClient, userTransaction, appClientClassLoader);
+            ReadOnlyContext componentContext = buildComponentContext(earContext, appClientModule, appClient, geronimoAppClient, appClientClassLoader);
             GBeanMBean appClienContainerGBean = new GBeanMBean(AppClientContainer.GBEAN_INFO, cl);
             try {
                 appClientModuleGBean.setAttribute("componentContext", componentContext);
@@ -437,7 +433,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         return applicationClientDoc;
     }
 
-    private ReadOnlyContext buildComponentContext(EARContext earContext, AppClientModule appClientModuel, ApplicationClientType appClient, GerApplicationClientType geronimoAppClient, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {
+    private ReadOnlyContext buildComponentContext(EARContext earContext, AppClientModule appClientModuel, ApplicationClientType appClient, GerApplicationClientType geronimoAppClient, ClassLoader cl) throws DeploymentException {
         Map ejbRefMap = mapRefs(geronimoAppClient.getEjbRefArray());
         Map resourceRefMap = mapRefs(geronimoAppClient.getResourceRefArray());
         Map resourceEnvRefMap = mapRefs(geronimoAppClient.getResourceEnvRefArray());
@@ -446,7 +442,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
 
         return ENCConfigBuilder.buildComponentContext(earContext,
                 uri,
-                userTransaction,
+                null,
                 appClient.getEnvEntryArray(),
                 appClient.getEjbRefArray(), ejbRefMap,
                 new EjbLocalRefType[0], Collections.EMPTY_MAP,

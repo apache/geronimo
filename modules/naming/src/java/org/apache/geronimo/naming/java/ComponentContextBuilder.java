@@ -21,7 +21,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import javax.management.MalformedObjectNameException;
 import javax.naming.NamingException;
-import javax.naming.Reference;
 import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.naming.deployment.RefAdapter;
