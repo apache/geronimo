@@ -66,7 +66,7 @@ import net.sf.cglib.reflect.FastMethod;
  * direct the attibute to a specific target in a multi target GeronimoMBean.  It also supports caching of the
  * attribute value, which can reduce the number of calls on the target.
  *
- * @version $Revision: 1.5 $ $Date: 2003/11/10 20:38:31 $
+ * @version $Revision: 1.6 $ $Date: 2003/11/11 16:00:59 $
  */
 public class GeronimoAttributeInfo extends MBeanAttributeInfo {
     /**
@@ -127,6 +127,11 @@ public class GeronimoAttributeInfo extends MBeanAttributeInfo {
      */
     long cacheTimeLimit;
 
+    /**
+     * The initial value that will be set into the attribute.
+     */
+    private Object initialValue;
+
     //
     // Runtime information -- this is not exposed to clients
     //
@@ -174,26 +179,39 @@ public class GeronimoAttributeInfo extends MBeanAttributeInfo {
      * Creates a mutable GeronimoAttributeInfo with the specified name
      */
     public GeronimoAttributeInfo(String name) {
-        this(name, true, true);
+        this(name, true, true, null, null, null);
     }
 
-	public GeronimoAttributeInfo(String name, boolean readable, boolean writable) {
-	    this(name, readable, writable, null, null);
-	}
+    public GeronimoAttributeInfo(String name, Object initialValue) {
+        this(name, true, true, null, null, initialValue);
+    }
 
-	public GeronimoAttributeInfo(String name, boolean readable, boolean writable, String description, String targetName) {
-		super("Ignore", "Ignore", null, true, true, false);
-		this.name = name;
-		this.readable = readable;
-		this.writable = writable;
-		this.description = description;
-		this.targetName = targetName;
+    public GeronimoAttributeInfo(String name, boolean readable, boolean writable) {
+        this(name, readable, writable, null, null, null);
+    }
 
-		immutable = false;
-		getterMethod = null;
-		setterMethod = null;
-		type = null;
-	}
+    public GeronimoAttributeInfo(String name, boolean readable, boolean writable, Object initialValue) {
+        this(name, readable, writable, null, null, initialValue);
+    }
+
+    public GeronimoAttributeInfo(String name, boolean readable, boolean writable, String description, String targetName) {
+        this(name, readable, writable, description, targetName, null);
+    }
+
+    public GeronimoAttributeInfo(String name, boolean readable, boolean writable, String description, String targetName, Object initialValue) {
+        super("Ignore", "Ignore", null, true, true, false);
+        this.name = name;
+        this.readable = readable;
+        this.writable = writable;
+        this.description = description;
+        this.targetName = targetName;
+        this.initialValue = initialValue;
+
+        immutable = false;
+        getterMethod = null;
+        setterMethod = null;
+        type = null;
+    }
 
 
     /**
@@ -201,7 +219,7 @@ public class GeronimoAttributeInfo extends MBeanAttributeInfo {
      * @param source the source GeronimoAttributeInfo to copy
      * @param parent the GeronimoMBeanInfo that will contain this attribute
      */
-    GeronimoAttributeInfo(GeronimoAttributeInfo source, GeronimoMBeanInfo parent) {
+    GeronimoAttributeInfo(GeronimoAttributeInfo source, GeronimoMBeanInfo parent) throws Exception {
         super("Ignore", "Ignore", null, true, true, false);
         immutable = true;
 
@@ -224,6 +242,7 @@ public class GeronimoAttributeInfo extends MBeanAttributeInfo {
         //
         description = source.description;
         cacheTimeLimit = source.cacheTimeLimit;
+        initialValue = source.initialValue;
 
         //
         // Optional (derived)
@@ -322,6 +341,15 @@ public class GeronimoAttributeInfo extends MBeanAttributeInfo {
             setterMethod = null;
         }
         type = attributeType.getName();
+
+        if(initialValue != null) {
+            if (attributeType != String.class && initialValue instanceof String) {
+                initialValue = ParserUtil.getValue(attributeType, (String) initialValue);
+            }
+            if (setterMethod != null) {
+                setterMethod.invoke(target, new Object[]{initialValue});
+            }
+        }
     }
 
     public String getName() {
@@ -446,6 +474,14 @@ public class GeronimoAttributeInfo extends MBeanAttributeInfo {
         } else {
             this.cacheTimeLimit = Long.parseLong(cacheTimeLimit);
         }
+    }
+
+    public Object getInitialValue() {
+        return initialValue;
+    }
+
+    public void setInitialValue(Object initialValue) {
+        this.initialValue = initialValue;
     }
 
     public int hashCode() {

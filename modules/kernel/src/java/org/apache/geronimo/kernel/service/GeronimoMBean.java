@@ -91,7 +91,7 @@ import net.sf.cglib.reflect.FastClass;
  * GeronimoMBeanInfo instance.  The GeronimoMBean also support caching of attribute values and invocation results
  * which can reduce the number of calls to a target.
  *
- * @version $Revision: 1.5 $ $Date: 2003/11/09 20:00:05 $
+ * @version $Revision: 1.6 $ $Date: 2003/11/11 16:00:59 $
  */
 public class GeronimoMBean extends AbstractManagedObject2 implements DynamicMBean {
     public static final FastClass fastClass = FastClass.create(GeronimoMBean.class);
@@ -119,6 +119,17 @@ public class GeronimoMBean extends AbstractManagedObject2 implements DynamicMBea
 
         classLoader = ClassSpaceUtil.getClassLoader(server, classSpace);
         context = new GeronimoMBeanContext(server, this, name);
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        try {
+            // Set the class loader
+            Thread.currentThread().setContextClassLoader(classLoader);
+
+            // @todo there is an issue here with restarted deployments
+            addManagedObjectMBeanInfo();
+            mbeanInfo = new GeronimoMBeanInfo(mbeanInfo);
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
+        }
         return this.objectName;
     }
 
@@ -133,8 +144,7 @@ public class GeronimoMBean extends AbstractManagedObject2 implements DynamicMBea
             // Set the class loader
             Thread.currentThread().setContextClassLoader(classLoader);
 
-            addManagedObjectMBeanInfo();
-            mbeanInfo = new GeronimoMBeanInfo(mbeanInfo);
+            // build the attribute map
             Set attributes = mbeanInfo.getAttributeSet();
             for (Iterator iterator = attributes.iterator(); iterator.hasNext();) {
                 GeronimoAttributeInfo attributeInfo = (GeronimoAttributeInfo) iterator.next();
@@ -151,12 +161,15 @@ public class GeronimoMBean extends AbstractManagedObject2 implements DynamicMBea
                     operationInfoMap.put(new MBeanOperationSignature(setterName, new String[]{attributeInfo.getType()}), attributeInfo);
                 }
             }
+
+            // build the operation map
             Set operations = mbeanInfo.getOperationsSet();
             for (Iterator iterator = operations.iterator(); iterator.hasNext();) {
                 GeronimoOperationInfo operationInfo = (GeronimoOperationInfo) iterator.next();
                 operationInfoMap.put(new MBeanOperationSignature(operationInfo.getName(), operationInfo.getParameterTypes()), operationInfo);
             }
 
+            // set the context
             for (Iterator i = mbeanInfo.targets.values().iterator(); i.hasNext();) {
                 Object target = i.next();
                 if (target instanceof GeronimoMBeanTarget) {
@@ -230,8 +243,8 @@ public class GeronimoMBean extends AbstractManagedObject2 implements DynamicMBea
 
     protected boolean canStart() {
         for (Iterator i = mbeanInfo.getEndpointsSet().iterator(); i.hasNext();) {
-            GeronimoMBeanEndpoint endpoint = (GeronimoMBeanEndpoint)i.next();
-            if(!endpoint.canStart()) {
+            GeronimoMBeanEndpoint endpoint = (GeronimoMBeanEndpoint) i.next();
+            if (!endpoint.canStart()) {
                 return false;
             }
         }
@@ -248,7 +261,7 @@ public class GeronimoMBean extends AbstractManagedObject2 implements DynamicMBea
 
     protected void doStart() throws Exception {
         for (Iterator i = mbeanInfo.getEndpointsSet().iterator(); i.hasNext();) {
-            GeronimoMBeanEndpoint endpoint = (GeronimoMBeanEndpoint)i.next();
+            GeronimoMBeanEndpoint endpoint = (GeronimoMBeanEndpoint) i.next();
             endpoint.doStart();
         }
         for (Iterator i = mbeanInfo.targets.values().iterator(); i.hasNext();) {
@@ -261,8 +274,8 @@ public class GeronimoMBean extends AbstractManagedObject2 implements DynamicMBea
 
     protected boolean canStop() {
         for (Iterator i = mbeanInfo.getEndpointsSet().iterator(); i.hasNext();) {
-            GeronimoMBeanEndpoint endpoint = (GeronimoMBeanEndpoint)i.next();
-            if(!endpoint.canStop()) {
+            GeronimoMBeanEndpoint endpoint = (GeronimoMBeanEndpoint) i.next();
+            if (!endpoint.canStop()) {
                 return false;
             }
         }
@@ -279,7 +292,7 @@ public class GeronimoMBean extends AbstractManagedObject2 implements DynamicMBea
 
     protected void doStop() throws Exception {
         for (Iterator i = mbeanInfo.getEndpointsSet().iterator(); i.hasNext();) {
-            GeronimoMBeanEndpoint endpoint = (GeronimoMBeanEndpoint)i.next();
+            GeronimoMBeanEndpoint endpoint = (GeronimoMBeanEndpoint) i.next();
             endpoint.doStop();
         }
         for (Iterator i = mbeanInfo.targets.values().iterator(); i.hasNext();) {
@@ -292,7 +305,7 @@ public class GeronimoMBean extends AbstractManagedObject2 implements DynamicMBea
 
     protected void doFail() {
         for (Iterator i = mbeanInfo.getEndpointsSet().iterator(); i.hasNext();) {
-            GeronimoMBeanEndpoint endpoint = (GeronimoMBeanEndpoint)i.next();
+            GeronimoMBeanEndpoint endpoint = (GeronimoMBeanEndpoint) i.next();
             endpoint.doFail();
         }
         for (Iterator i = mbeanInfo.targets.values().iterator(); i.hasNext();) {

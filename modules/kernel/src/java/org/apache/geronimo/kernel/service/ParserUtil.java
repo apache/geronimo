@@ -71,7 +71,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2003/10/24 22:35:42 $
+ * @version $Revision: 1.4 $ $Date: 2003/11/11 16:00:59 $
  */
 public final class ParserUtil {
     private ParserUtil(){
@@ -314,21 +314,27 @@ public final class ParserUtil {
         return getValue(type, value, baseURI);
     }
 
+    public static Object getValue(Class type, String value) {
+        return getValue(type, value, null);
+    }
+
     public static Object getValue(Class type, String value, URI baseURI) {
         value = parse(value);
 
-        if (URI.class.equals(type)) {
-            return baseURI.resolve(value);
-        }
-        if (URL.class.equals(type)) {
-            try {
-                return baseURI.resolve(value).toURL();
-            } catch (MalformedURLException e) {
-                throw new IllegalArgumentException("Value is not a valid URI: value=" + value);
+        if(baseURI != null) {
+            if (URI.class.equals(type)) {
+                return baseURI.resolve(value);
             }
-        }
-        if (File.class.equals(type)) {
-            return new File(baseURI.resolve(value));
+            if (URL.class.equals(type)) {
+                try {
+                    return baseURI.resolve(value).toURL();
+                } catch (MalformedURLException e) {
+                    throw new IllegalArgumentException("Value is not a valid URI: value=" + value);
+                }
+            }
+            if (File.class.equals(type)) {
+                return new File(baseURI.resolve(value));
+            }
         }
 
         // try a property editor
