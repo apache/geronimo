@@ -132,7 +132,7 @@ import org.xml.sax.SAXException;
  * 2. the url is a directory which contains a WEB-INF/web.xml file
  *
  * @jmx:mbean extends="org.apache.geronimo.web.WebContainer, org.apache.geronimo.kernel.management.StateManageable, javax.management.MBeanRegistration"
- * @version $Revision: 1.23 $ $Date: 2003/11/29 03:30:45 $
+ * @version $Revision: 1.24 $ $Date: 2003/12/07 03:45:48 $
  */
 public abstract class AbstractWebContainer
         extends AbstractManagedContainer
@@ -188,7 +188,7 @@ public abstract class AbstractWebContainer
                         (MBeanServerNotification) n;
                 source = notification.getMBeanName();
                 if (server.isInstanceOf(source, WebConnector.class.getName())) {
-                    log.debug("Received registration notification for webconnecter=" + source);
+                    log.debug("Received registration notification for webconnector=" + source);
                     server.setAttribute(source, new Attribute("Container", this));
                 } else if (server.isInstanceOf(source, WebAccessLog.class.getName())) {
                     log.debug("Received registration notification for weblog=" + source);
