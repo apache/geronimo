@@ -21,6 +21,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectStreamException;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.io.ByteArrayInputStream;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.Enumeration;
 import javax.activation.DataHandler;
@@ -95,6 +98,8 @@ public class MimeMessage extends Message implements MimePart {
      */
     protected boolean saved;
 
+    private final MailDateFormat dateFormat = new MailDateFormat();
+
     /**
      * Create a new MimeMessage.
      * An empty message is created, with empty {@link #headers} and empty {@link #flags}.
@@ -111,8 +116,9 @@ public class MimeMessage extends Message implements MimePart {
 
     /**
      * Create a MimeMessage by reading an parsing the data from the supplied stream.
+     *
      * @param session the session for this message
-     * @param in the stream to load from
+     * @param in      the stream to load from
      * @throws MessagingException if there is a problem reading or parsing the stream
      */
     public MimeMessage(Session session, InputStream in) throws MessagingException {
@@ -122,6 +128,7 @@ public class MimeMessage extends Message implements MimePart {
 
     /**
      * Copy a MimeMessage.
+     *
      * @param message the message to copy
      * @throws MessagingException is there was a problem copying the message
      */
@@ -133,6 +140,7 @@ public class MimeMessage extends Message implements MimePart {
 
     /**
      * Create an new MimeMessage in the supplied {@link Folder} and message number.
+     *
      * @param folder the Folder that contains the new message
      * @param number the message number of the new message
      */
@@ -145,8 +153,9 @@ public class MimeMessage extends Message implements MimePart {
 
     /**
      * Create a MimeMessage by reading an parsing the data from the supplied stream.
+     *
      * @param folder the folder for this message
-     * @param in the stream to load from
+     * @param in     the stream to load from
      * @param number the message number of the new message
      * @throws MessagingException if there is a problem reading or parsing the stream
      */
@@ -157,10 +166,11 @@ public class MimeMessage extends Message implements MimePart {
 
     /**
      * Create a MimeMessage with the supplied headers and content.
-     * @param folder the folder for this message
+     *
+     * @param folder  the folder for this message
      * @param headers the headers for the new message
      * @param content the content of the new message
-     * @param number the message number of the new message
+     * @param number  the message number of the new message
      * @throws MessagingException if there is a problem reading or parsing the stream
      */
     protected MimeMessage(Folder folder, InternetHeaders headers, byte[] content, int number) throws MessagingException {
@@ -172,6 +182,7 @@ public class MimeMessage extends Message implements MimePart {
 
     /**
      * Parse the supplied stream and initialize {@link #headers} and {@link #content} appropriately.
+     *
      * @param in the stream to read
      * @throws MessagingException if there was a problem parsing the stream
      */
@@ -195,6 +206,7 @@ public class MimeMessage extends Message implements MimePart {
 
     /**
      * Set the "From" header using the value returned by {@link InternetAddress#getLocalAddress(javax.mail.Session)}.
+     *
      * @throws MessagingException if there was a problem setting the header
      */
     public void setFrom() throws MessagingException {
@@ -207,6 +219,7 @@ public class MimeMessage extends Message implements MimePart {
 
     /**
      * Return the "Sender" header as an address.
+     *
      * @return the "Sender" header as an address, or null if not present
      * @throws MessagingException if there was a problem parsing the header
      */
@@ -217,6 +230,7 @@ public class MimeMessage extends Message implements MimePart {
 
     /**
      * Set the "Sender" header.
+     *
      * @param address the new Sender address
      * @throws MessagingException if there was a problem setting the header
      */
@@ -251,128 +265,147 @@ public class MimeMessage extends Message implements MimePart {
     }
 
     public Address[] getReplyTo() throws MessagingException {
-        // TODO Implement method
-        throw new UnsupportedOperationException("Method not yet implemented");
+        return getHeaderAsAddresses("Reply-To", isStrictAddressing());
     }
 
     public void setReplyTo(Address[] address) throws MessagingException {
-        // TODO Implement method
-        throw new UnsupportedOperationException("Method not yet implemented");
+        setHeader("Reply-To", address);
     }
 
     public String getSubject() throws MessagingException {
-        // TODO Implement method
-        throw new UnsupportedOperationException("Method not yet implemented");
+        String subject = getSingleHeader("Subject");
+        if (subject == null) {
+            return null;
+        } else {
+            try {
+                return MimeUtility.decodeText(subject);
+            } catch (UnsupportedEncodingException e) {
+                return subject;
+            }
+        }
     }
 
     public void setSubject(String subject) throws MessagingException {
-        // TODO Implement method
-        throw new UnsupportedOperationException("Method not yet implemented");
+        setHeader("Subject", subject);
     }
 
     public void setSubject(String subject, String charset) throws MessagingException {
-        // TODO Implement method
-        throw new UnsupportedOperationException("Method not yet implemented");
+        try {
+            setHeader("Subject", MimeUtility.encodeText(subject, charset, null));
+        } catch (UnsupportedEncodingException e) {
+            throw new MessagingException(e.getMessage(), e);
+        }
     }
 
     public Date getSentDate() throws MessagingException {
-        // TODO Implement method
-        throw new UnsupportedOperationException("Method not yet implemented");
+        String value = getSingleHeader("Date");
+        if (value == null) {
+            return null;
+        }
+        try {
+            return dateFormat.parse(value);
+        } catch (ParseException e) {
+            return null;
+        }
     }
 
     public void setSentDate(Date sent) throws MessagingException {
-        // TODO Implement method
-        throw new UnsupportedOperationException("Method not yet implemented");
+        if (sent == null) {
+            removeHeader("Date");
+        } else {
+            setHeader("Date", dateFormat.format(sent));
+        }
     }
 
     public Date getReceivedDate() throws MessagingException {
-        // TODO Implement method
-        throw new UnsupportedOperationException("Method not yet implemented");
+        return null;
     }
 
     public int getSize() throws MessagingException {
-        // TODO Implement method
-        throw new UnsupportedOperationException("Method not yet implemented");
+        if (content != null) {
+            return content.length;
+        }
+        return -1;
     }
 
     public int getLineCount() throws MessagingException {
-        // TODO Implement method
-        throw new UnsupportedOperationException("Method not yet implemented");
+        return -1;
     }
 
     public String getContentType() throws MessagingException {
-        // TODO Implement method
-        throw new UnsupportedOperationException("Method not yet implemented");
+        String value = getSingleHeader("Content-Type");
+        if (value == null) {
+            value = "text/plain";
+        }
+        return value;
     }
 
     public boolean isMimeType(String type) throws MessagingException {
-        ContentType c1 = new ContentType(type);
-        ContentType c2 = new ContentType(dh.getContentType());
-        return c1.match(c2);
+        return new ContentType(getContentType()).match(type);
     }
 
     public String getDisposition() throws MessagingException {
-        // TODO Implement method
-        throw new UnsupportedOperationException("Method not yet implemented");
+        return getSingleHeader("Content-Disposition");
     }
 
     public void setDisposition(String disposition) throws MessagingException {
-        // TODO Implement method
-        throw new UnsupportedOperationException("Method not yet implemented");
+        setHeader("Content-Disposition", disposition);
     }
 
     public String getEncoding() throws MessagingException {
-        // TODO Implement method
-        throw new UnsupportedOperationException("Method not yet implemented");
+        return getSingleHeader("Content-Transfer-Encoding");
     }
 
     public String getContentID() throws MessagingException {
-        // TODO Implement method
-        throw new UnsupportedOperationException("Method not yet implemented");
+        return getSingleHeader("Content-ID");
     }
 
     public void setContentID(String cid) throws MessagingException {
-        // TODO Implement method
-        throw new UnsupportedOperationException("Method not yet implemented");
+        setHeader("Content-ID", cid);
     }
 
     public String getContentMD5() throws MessagingException {
-        // TODO Implement method
-        throw new UnsupportedOperationException("Method not yet implemented");
+        return getSingleHeader("Content-MD5");
     }
 
     public void setContentMD5(String md5) throws MessagingException {
-        // TODO Implement method
-        throw new UnsupportedOperationException("Method not yet implemented");
+        setHeader("Content-MD5", md5);
     }
 
     public String getDescription() throws MessagingException {
-        // TODO Implement method
-        throw new UnsupportedOperationException("Method not yet implemented");
+        return getSingleHeader("Content-Description");
     }
 
     public void setDescription(String description) throws MessagingException {
-        // TODO Implement method
-        throw new UnsupportedOperationException("Method not yet implemented");
+        setHeader("Content-Description", description);
     }
 
     public void setDescription(String description, String charset) throws MessagingException {
-        // TODO Implement method
-        throw new UnsupportedOperationException("Method not yet implemented");
+        // todo encoding
+        setHeader("Content-Description", description);
     }
 
     public String[] getContentLanguage() throws MessagingException {
-        // TODO Implement method
-        throw new UnsupportedOperationException("Method not yet implemented");
+        return getHeader("Content-Language");
     }
 
     public void setContentLanguage(String[] languages) throws MessagingException {
-        // TODO Implement method
-        throw new UnsupportedOperationException("Method not yet implemented");
+        if (languages == null || languages.length == 0) {
+            removeHeader("Content-Language");
+        } else if (languages.length == 1) {
+            setHeader("Content-Language", languages[0]);
+        } else {
+            StringBuffer buf = new StringBuffer(languages.length * 20);
+            buf.append(languages[0]);
+            for (int i = 1; i < languages.length; i++) {
+                buf.append(',').append(languages[i]);
+            }
+            setHeader("Content-Language", buf.toString());
+        }
     }
 
     public String getMessageID() throws MessagingException {
-        return headers.getHeader("Message-ID", null);
+        return getSingleHeader("Message-ID");
     }
 
     public String getFileName() throws MessagingException {
@@ -386,21 +419,25 @@ public class MimeMessage extends Message implements MimePart {
     }
 
     public InputStream getInputStream() throws MessagingException, IOException {
-        // TODO Implement method
-        throw new UnsupportedOperationException("Method not yet implemented");
+        return getDataHandler().getInputStream();
     }
 
     protected InputStream getContentStream() throws MessagingException {
-        // TODO Implement method
-        throw new UnsupportedOperationException("Method not yet implemented");
+        if (content != null) {
+            return new ByteArrayInputStream(content);
+        } else {
+            throw new MessagingException("No content");
+        }
     }
 
     public InputStream getRawInputStream() throws MessagingException {
-        // TODO Implement method
-        throw new UnsupportedOperationException("Method not yet implemented");
+        return getContentStream();
     }
 
     public synchronized DataHandler getDataHandler() throws MessagingException {
+        if (dh == null) {
+            dh = new DataHandler(new MimePartDataSource(this));
+        }
         return dh;
     }
 
@@ -445,13 +482,11 @@ public class MimeMessage extends Message implements MimePart {
     }
 
     public String[] getHeader(String name) throws MessagingException {
-        // TODO Implement method
-        throw new UnsupportedOperationException("Method not yet implemented");
+        return headers.getHeader(name);
     }
 
     public String getHeader(String name, String delimiter) throws MessagingException {
-        // TODO Implement method
-        throw new UnsupportedOperationException("Method not yet implemented");
+        return headers.getHeader(name, delimiter);
     }
 
     public void setHeader(String name, String value) throws MessagingException {
@@ -525,7 +560,7 @@ public class MimeMessage extends Message implements MimePart {
 
     private boolean isStrictAddressing() {
         String property = session.getProperty("mail.mime.address.strict");
-        return property == null ? true: Boolean.valueOf(property).booleanValue();
+        return property == null ? true : Boolean.valueOf(property).booleanValue();
     }
 
     private void setHeader(String header, Address address) {
@@ -559,6 +594,15 @@ public class MimeMessage extends Message implements MimePart {
             return "Newsgroups";
         } else {
             throw new MessagingException("Unsupported recipient type: " + type.toString());
+        }
+    }
+
+    private String getSingleHeader(String name) throws MessagingException {
+        String[] values = getHeader(name);
+        if (values == null || values.length == 0) {
+            return null;
+        } else {
+            return values[0];
         }
     }
 }
