@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.1 $ $Date: 2003/08/22 11:18:56 $ -->
+<!-- $Revision: 1.2 $ $Date: 2003/09/01 22:00:40 $ -->
 
 <project>
   <pomVersion>3</pomVersion>
@@ -38,7 +38,7 @@
     </dependency>
     
     <!-- For JAXB -->
-<!--    
+    <!--
     <dependency>
       <id>jaxb+api</id>
       <version>1.2</version>
@@ -71,10 +71,10 @@
       <id>xsdlib</id>
       <version>20030225</version>
     </dependency>
--->
+    -->
 
 	<!-- for castor -->
-<!--	
+  <!-- 
     <dependency>
       <id>castor</id>
       <version>0.9.5</version>
@@ -96,7 +96,7 @@
       <version>1.0.3</version>
       <url>http://jakarta.apache.org/commons/logging.html</url>
     </dependency>
--->    
+    -->
     
   </dependencies>
   
@@ -106,26 +106,7 @@
   <!-- =================== -->
   
   <build>
-    <sourceDirectory>${basedir}/target/src</sourceDirectory>
-
-    <unitTest>
-      <!-- For some reason this is not pulled from the global project -->
-      <includes>
-        <include>**/*Test.java</include>
-      </includes>
-      <excludes>
-        <exclude>**/Abstract*.java</exclude>
-      </excludes>
-      
-      <resources>
-        <resource>
-          <directory>${basedir}/src/test</directory>
-          <includes>
-            <include>**/*.xml</include>
-          </includes>
-        </resource>
-      </resources>
-    </unitTest>
+    <sourceDirectory>${basedir}/target/xmlbeans/gen</sourceDirectory>
   </build>
 
   <reports>
