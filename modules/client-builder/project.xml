@@ -70,7 +70,7 @@
 
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-connector</artifactId>
+            <artifactId>geronimo-connector-builder</artifactId>
             <version>${pom.currentVersion}</version>
             <properties>
                 <xmlbeans>true</xmlbeans>
@@ -105,6 +105,9 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee-schema</artifactId>
             <version>${pom.currentVersion}</version>
+            <properties>
+                <xmlbeans>true</xmlbeans>
+            </properties>
         </dependency>
 
         <dependency>
