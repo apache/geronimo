@@ -61,6 +61,9 @@ public class SEIFactoryImpl implements SEIFactory, Serializable {
             OperationInfo operationInfo = operationInfos[i];
             Signature signature = operationInfo.getSignature();
             MethodProxy methodProxy = MethodProxy.find(serviceEndpointClass, signature);
+            if (methodProxy == null) {
+                throw new RuntimeException("No method proxy for operationInfo " + signature);
+            }
             int index = methodProxy.getSuperIndex();
             sortedOperationInfos[index] = operationInfo;
         }

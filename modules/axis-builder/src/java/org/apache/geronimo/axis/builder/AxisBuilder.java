@@ -22,15 +22,20 @@ import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.jar.JarFile;
 import javax.wsdl.Binding;
 import javax.wsdl.BindingInput;
@@ -41,8 +46,10 @@ import javax.wsdl.Operation;
 import javax.wsdl.Part;
 import javax.wsdl.Port;
 import javax.wsdl.PortType;
+import javax.wsdl.Types;
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensibilityElement;
+import javax.wsdl.extensions.UnknownExtensibilityElement;
 import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.wsdl.extensions.soap.SOAPBinding;
 import javax.wsdl.extensions.soap.SOAPBody;
@@ -51,6 +58,27 @@ import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLLocator;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
+import javax.xml.rpc.holders.BigDecimalHolder;
+import javax.xml.rpc.holders.BigIntegerHolder;
+import javax.xml.rpc.holders.BooleanHolder;
+import javax.xml.rpc.holders.BooleanWrapperHolder;
+import javax.xml.rpc.holders.ByteArrayHolder;
+import javax.xml.rpc.holders.ByteHolder;
+import javax.xml.rpc.holders.ByteWrapperHolder;
+import javax.xml.rpc.holders.CalendarHolder;
+import javax.xml.rpc.holders.DoubleHolder;
+import javax.xml.rpc.holders.DoubleWrapperHolder;
+import javax.xml.rpc.holders.FloatHolder;
+import javax.xml.rpc.holders.FloatWrapperHolder;
+import javax.xml.rpc.holders.IntHolder;
+import javax.xml.rpc.holders.IntegerWrapperHolder;
+import javax.xml.rpc.holders.LongHolder;
+import javax.xml.rpc.holders.LongWrapperHolder;
+import javax.xml.rpc.holders.ObjectHolder;
+import javax.xml.rpc.holders.QNameHolder;
+import javax.xml.rpc.holders.ShortHolder;
+import javax.xml.rpc.holders.ShortWrapperHolder;
+import javax.xml.rpc.holders.StringHolder;
 
 import net.sf.cglib.core.DefaultGeneratorStrategy;
 import net.sf.cglib.proxy.Callback;
@@ -86,6 +114,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.naming.reference.DeserializingReference;
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingDocument;
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingType;
@@ -96,9 +125,14 @@ import org.apache.geronimo.xbeans.j2ee.ServiceEndpointInterfaceMappingType;
 import org.apache.geronimo.xbeans.j2ee.ServiceEndpointMethodMappingType;
 import org.apache.geronimo.xbeans.j2ee.WsdlMessageMappingType;
 import org.apache.geronimo.xbeans.j2ee.WsdlReturnValueMappingType;
-import org.apache.geronimo.kernel.ClassLoading;
+import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlCursor;
 import org.objectweb.asm.Type;
+import org.w3.x2001.xmlSchema.SchemaDocument;
+import org.w3.x2001.xmlSchema.ComplexType;
+import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 
 /**
@@ -240,6 +274,8 @@ public class AxisBuilder implements ServiceReferenceBuilder {
 
         Map wsdlPortMap = service.getPorts();
 
+        Map complexTypeMap = getComplexTypesInWsdl(definition);
+
         for (Iterator iterator = wsdlPortMap.entrySet().iterator(); iterator.hasNext();) {
             Map.Entry entry = (Map.Entry) iterator.next();
             String portName = (String) entry.getKey();
@@ -302,7 +338,7 @@ public class AxisBuilder implements ServiceReferenceBuilder {
                     Operation operation = (Operation) ops.next();
                     BindingOperation bindingOperation = binding.getBindingOperation(operation.getName(), operation.getInput().getName(), operation.getOutput() == null ? null : operation.getOutput().getName());
                     ServiceEndpointMethodMappingType methodMapping = getMethodMappingForOperation(operation, methodMappings);
-                    OperationInfo operationInfo = buildOperationInfoHeavyweight(methodMapping, bindingOperation, portStyle, soapVersion, mapping, classLoader);
+                    OperationInfo operationInfo = buildOperationInfoHeavyweight(methodMapping, bindingOperation, portStyle, soapVersion, complexTypeMap, mapping, classLoader);
                     operationInfos[i++] = operationInfo;
                 }
                 JavaXmlTypeMappingType[] javaXmlTypeMappings = mapping.getJavaXmlTypeMappingArray();
@@ -382,7 +418,6 @@ public class AxisBuilder implements ServiceReferenceBuilder {
     }
 
     private Class getServiceEndpointInterfaceLightweight(PortType portType, JavaWsdlMappingType mappings, ClassLoader classLoader) throws DeploymentException {
-//        PortType portType = port.getBinding().getPortType();
         QName portTypeQName = portType.getQName();
         String portTypeNamespace = portTypeQName.getNamespaceURI();
         String portTypePackage = getPackageFromNamespace(portTypeNamespace, mappings);
@@ -396,23 +431,6 @@ public class AxisBuilder implements ServiceReferenceBuilder {
             throw new DeploymentException("Could not load service endpoint interface type", e);
         }
 
-//        Method[] methods = serviceInterface.getMethods();
-//        String methodName = "get" + port.getName();
-//        String serviceEndpointInterfaceShortName = port.getBinding().getPortType().getQName().getLocalPart();
-//        for (int i = 0; i < methods.length; i++) {
-//            Method method = methods[i];
-//            if (method.getName().equals(methodName)) {
-//                Class serviceEndpointInterface = method.getReturnType();
-//                String longName = serviceEndpointInterface.getName();
-//                String name = longName.substring(longName.lastIndexOf('.') + 1);
-//                if (!name.equals(serviceEndpointInterfaceShortName) &&
-//                        !Introspector.decapitalize(name).equals(serviceEndpointInterfaceShortName)) {
-//                    throw new DeploymentException("unexpected name for service endpoint interface, expected ending: " + serviceEndpointInterfaceShortName + ", found " + serviceEndpointInterface.getName());
-//                }
-//                return serviceEndpointInterface;
-//            }
-//        }
-//        throw new DeploymentException("Could not find service endpoint interface for port named " + port.getName());
     }
 
     private ServiceEndpointInterfaceMappingType getServiceEndpointInterfaceMapping(ServiceEndpointInterfaceMappingType[] endpointMappings, QName portTypeQName) throws DeploymentException {
@@ -435,17 +453,6 @@ public class AxisBuilder implements ServiceReferenceBuilder {
         }
         throw new DeploymentException("No element of class " + clazz.getName() + " found");
     }
-
-//    private String getNamespaceFromPackage(String packageName, JavaWsdlMappingType mapping) throws DeploymentException {
-//        PackageMappingType[] packageMappings = mapping.getPackageMappingArray();
-//        for (int i = 0; i < packageMappings.length; i++) {
-//            PackageMappingType packageMapping = packageMappings[i];
-//            if (packageName.equals(packageMapping.getPackageType().getStringValue().trim())) {
-//                return packageMapping.getNamespaceURI().getStringValue().trim();
-//            }
-//        }
-//        throw new DeploymentException("Package " + packageName + " was not mapped in jaxrpc mapping file");
-//    }
 
     private String getPackageFromNamespace(String namespace, JavaWsdlMappingType mapping) throws DeploymentException {
         PackageMappingType[] packageMappings = mapping.getPackageMappingArray();
@@ -512,6 +519,7 @@ public class AxisBuilder implements ServiceReferenceBuilder {
             throw new DeploymentException("Lightweight mapping has at most one part in the (optional) output message, not: " + outputMessage.getParts().size());
         }
         Class[] methodParamTypes = method.getParameterTypes();
+        //TODO investigate getOrderedParts
         Map inputParts = inputMessage.getParts();
         if (methodParamTypes.length != inputParts.size()) {
             throw new DeploymentException("mismatch in parameter counts: method has " + methodParamTypes.length + " whereas the input message has " + inputParts.size());
@@ -570,7 +578,7 @@ public class AxisBuilder implements ServiceReferenceBuilder {
         return operationInfo;
     }
 
-    public OperationInfo buildOperationInfoHeavyweight(ServiceEndpointMethodMappingType methodMapping, BindingOperation bindingOperation, Style defaultStyle, SOAPConstants soapVersion, JavaWsdlMappingType mapping, ClassLoader classLoader) throws DeploymentException {
+    public OperationInfo buildOperationInfoHeavyweight(ServiceEndpointMethodMappingType methodMapping, BindingOperation bindingOperation, Style defaultStyle, SOAPConstants soapVersion, Map complexTypeMap, JavaWsdlMappingType mapping, ClassLoader classLoader) throws DeploymentException {
 
         //TODO how can bindingOperation be null?
         Operation operation = bindingOperation.getOperation();
@@ -578,47 +586,104 @@ public class AxisBuilder implements ServiceReferenceBuilder {
 
 
         Message inputMessage = operation.getInput().getMessage();
+        Message outputMessage = operation.getOutput() == null ? null : operation.getOutput().getMessage();
 
         boolean isWrappedElement = methodMapping.isSetWrappedElement();
 
         MethodParamPartsMappingType[] paramMappings = methodMapping.getMethodParamPartsMappingArray();
         Type[] parameterASMTypes = new Type[paramMappings.length];
         ParameterDesc[] parameterDescriptions = new ParameterDesc[paramMappings.length];
+
+        Set inParamNames = new HashSet();
+        Set outParamNames = new HashSet();
         for (int i = 0; i < paramMappings.length; i++) {
             MethodParamPartsMappingType paramMapping = paramMappings[i];
             int position = paramMapping.getParamPosition().getBigIntegerValue().intValue();
-            String paramJavaTypeName = paramMapping.getParamType().getStringValue().trim();
-            Class paramJavaType = null;
-            try {
-                paramJavaType = ClassLoading.loadClass(paramJavaTypeName, classLoader);
-            } catch (ClassNotFoundException e) {
-                throw new DeploymentException("could not load parameter type", e);
-            }
 
             WsdlMessageMappingType wsdlMessageMappingType = paramMapping.getWsdlMessageMapping();
-            String parameterMode = wsdlMessageMappingType.getParameterMode().getStringValue().trim();
-            byte mode = ParameterDesc.modeFromString(parameterMode);
-            boolean isSoapHeader = wsdlMessageMappingType.isSetSoapHeader();
-            boolean inHeader = isSoapHeader && (mode == ParameterDesc.IN || mode == ParameterDesc.INOUT);
-            boolean outHeader = isSoapHeader && (mode == ParameterDesc.OUT || mode == ParameterDesc.INOUT);
             QName wsdlMessageQName = wsdlMessageMappingType.getWsdlMessage().getQNameValue();
             String wsdlMessagePartName = wsdlMessageMappingType.getWsdlMessagePartName().getStringValue().trim();
 
+            String parameterMode = wsdlMessageMappingType.getParameterMode().getStringValue().trim();
+            byte mode = ParameterDesc.modeFromString(parameterMode);
+            boolean isInParam = mode == ParameterDesc.IN || mode == ParameterDesc.INOUT;
+            boolean isOutParam = mode == ParameterDesc.OUT || mode == ParameterDesc.INOUT;
 
-            //TODO Must this be the inputMessage? Then we don't need definition.
-            if (!wsdlMessageQName.equals(inputMessage.getQName())) {
-                throw new DeploymentException("QName of input message: " + inputMessage.getQName() + " does not match mapping message QName: " + wsdlMessageQName);
+            if (isOutParam && outputMessage == null) {
+                throw new DeploymentException("Mapping for output parameter " + wsdlMessagePartName + " found, but no output message for operation " + operationName);
             }
-//            Message inputMessage = definition.getMessage(wsdlMessageQName);
-            Part part = inputMessage.getPart(wsdlMessagePartName);
+            boolean isSoapHeader = wsdlMessageMappingType.isSetSoapHeader();
+            boolean inHeader = isSoapHeader && isInParam;
+            boolean outHeader = isSoapHeader && isOutParam;
+
+            Part part;
+            if (isInParam) {
+                if (!wsdlMessageQName.equals(inputMessage.getQName())) {
+                    throw new DeploymentException("QName of input message: " + inputMessage.getQName() +
+                            " does not match mapping message QName: " + wsdlMessageQName + " for operation " + operationName);
+                }
+                part = inputMessage.getPart(wsdlMessagePartName);
+                if (part == null) {
+                    throw new DeploymentException("No part for wsdlMessagePartName " + wsdlMessagePartName + " in input message for operation " + operationName);
+                }
+                inParamNames.add(wsdlMessagePartName);
+                if (isOutParam) {
+                    //inout, check that part of same name and type is in output message
+                    Part outPart = outputMessage.getPart(wsdlMessagePartName);
+                    if (outPart == null) {
+                        throw new DeploymentException("No part for wsdlMessagePartName " + wsdlMessagePartName + " in output message for INOUT parameter of operation " + operationName);
+                    }
+                    if (!part.getName().equals(outPart.getName())) {
+                        throw new DeploymentException("Mismatched input part name: " + part.getName() + " and output part name: " + outPart.getName() + " for INOUT parameter for wsdlMessagePartName " + wsdlMessagePartName + " for operation " + operationName);
+                    }
+                    if (!(part.getElementName() == null ? outPart.getElementName() == null : part.getElementName().equals(outPart.getElementName()))) {
+                        throw new DeploymentException("Mismatched input part element name: " + part.getElementName() + " and output part element name: " + outPart.getElementName() + " for INOUT parameter for wsdlMessagePartName " + wsdlMessagePartName + " for operation " + operationName);
+                    }
+                    if (!(part.getTypeName() == null ? outPart.getTypeName() == null : part.getTypeName().equals(outPart.getTypeName()))) {
+                        throw new DeploymentException("Mismatched input part type name: " + part.getTypeName() + " and output part type name: " + outPart.getTypeName() + " for INOUT parameter for wsdlMessagePartName " + wsdlMessagePartName + " for operation " + operationName);
+                    }
+                    outParamNames.add(wsdlMessagePartName);
+                }
+            } else if (isOutParam) {
+                if (!wsdlMessageQName.equals(outputMessage.getQName())) {
+                    throw new DeploymentException("QName of output message: " + outputMessage.getQName() +
+                            " does not match mapping message QName: " + wsdlMessageQName + " for operation " + operationName);
+                }
+                part = outputMessage.getPart(wsdlMessagePartName);
+                if (part == null) {
+                    throw new DeploymentException("No part for wsdlMessagePartName " + wsdlMessagePartName + " in output message for operation " + operationName);
+                }
+                outParamNames.add(wsdlMessagePartName);
+            } else {
+                throw new AssertionError("a param mapping has to be IN or OUT or INOUT");
+            }
+
             //TODO this makes little sense but may be correct, see comments in axis Parameter class
             //the part name qname is really odd.
-            QName partQName = isWrappedElement? part.getElementName(): new QName("", part.getName());
+            QName partQName = isWrappedElement ? part.getElementName() : new QName("", part.getName());
             QName partTypeQName = part.getTypeName();
 
-            ParameterDesc parameterDesc = new ParameterDesc(partQName, mode, partTypeQName, paramJavaType, inHeader, outHeader);
+           //use complexTypeMap
+            boolean isComplexType = complexTypeMap.containsKey(partTypeQName);
+            String paramJavaTypeName = paramMapping.getParamType().getStringValue().trim();
+            Class actualParamJavaType = getHolderType(paramJavaTypeName, mode, partTypeQName, isComplexType, mapping, classLoader);
+
+            ParameterDesc parameterDesc = new ParameterDesc(partQName, mode, partTypeQName, actualParamJavaType, inHeader, outHeader);
             parameterDescriptions[position] = parameterDesc;
-            parameterASMTypes[position] = Type.getType(paramJavaType);
+            parameterASMTypes[position] = Type.getType(actualParamJavaType);
+        }
+
+        //check that all the parameters are there
+        for (int i = 0; i < parameterDescriptions.length; i++) {
+            ParameterDesc parameterDescription = parameterDescriptions[i];
+            if (parameterDescription == null) {
+                throw new DeploymentException("There is no mapping for parameter number " + i + " for operation " + operationName);
+            }
+        }
+
+        //check that all input message parts are mapped
+        if (!inParamNames.equals(inputMessage.getParts().keySet())) {
+            throw new DeploymentException("Not all input message parts were mapped for operation name" + operationName);
         }
 
 
@@ -627,34 +692,45 @@ public class AxisBuilder implements ServiceReferenceBuilder {
         Class returnClass = null;
         Type returnASMType = Type.VOID_TYPE;
 
-        Message outputMessage = operation.getOutput() == null ? null : operation.getOutput().getMessage();
         if (methodMapping.isSetWsdlReturnValueMapping()) {
+            if (outputMessage == null) {
+                throw new DeploymentException("No output message, but a mapping for it for operation " + operationName);
+            }
             WsdlReturnValueMappingType wsdlReturnValueMapping = methodMapping.getWsdlReturnValueMapping();
             String returnClassName = wsdlReturnValueMapping.getMethodReturnValue().getStringValue().trim();
             try {
                 returnClass = ClassLoading.loadClass(returnClassName, classLoader);
             } catch (ClassNotFoundException e) {
-                throw new DeploymentException("Could not load return type", e);
+                throw new DeploymentException("Could not load return type for operation " + operationName, e);
             }
 
             QName wsdlMessageQName = wsdlReturnValueMapping.getWsdlMessage().getQNameValue();
 
-            if (outputMessage == null) {
-                throw new DeploymentException("No output message, but a mapping for it!");
-            }
             if (!wsdlMessageQName.equals(outputMessage.getQName())) {
-                throw new DeploymentException("OutputMessage has QName: " + outputMessage.getQName() + " but mapping specifies: " + wsdlMessageQName);
+                throw new DeploymentException("OutputMessage has QName: " + outputMessage.getQName() + " but mapping specifies: " + wsdlMessageQName + " for operation " + operationName);
             }
 
             if (wsdlReturnValueMapping.isSetWsdlMessagePartName()) {
                 String wsdlMessagePartName = wsdlReturnValueMapping.getWsdlMessagePartName().getStringValue().trim();
+                if (outParamNames.contains(wsdlMessagePartName)) {
+                    throw new DeploymentException("output message part " + wsdlMessagePartName + " has both an INOUT or OUT mapping and a return value mapping for operation " + operationName);
+                }
                 Part part = outputMessage.getPart(wsdlMessagePartName);
                 returnQName = part.getElementName();
                 returnType = part.getTypeName();
+
+                outParamNames.add(wsdlMessagePartName);
+
+            } else {
+                //what does this mean????
             }
 
             returnASMType = Type.getType(returnClass);
 
+        }
+
+        if (outputMessage != null && !outParamNames.equals(outputMessage.getParts().keySet())) {
+            throw new DeploymentException("Not all output message parts were mapped to parameters or a return value for operation " + operationName);
         }
 
         OperationDesc operationDesc = new OperationDesc(operationName, parameterDescriptions, returnQName);
@@ -688,6 +764,124 @@ public class AxisBuilder implements ServiceReferenceBuilder {
         String methodDesc = Type.getMethodDescriptor(returnASMType, parameterASMTypes);
         OperationInfo operationInfo = new OperationInfo(operationDesc, usesSOAPAction, soapActionURI, soapVersion, operationQName, methodName, methodDesc);
         return operationInfo;
+    }
+
+    Map getComplexTypesInWsdl(Definition definition) throws DeploymentException {
+        Map complexTypeMap = new HashMap();
+        Types types = definition.getTypes();
+        Map namespaceMap = definition.getNamespaces();
+        if (types != null) {
+            List schemas = types.getExtensibilityElements();
+            for (Iterator iterator = schemas.iterator(); iterator.hasNext();) {
+                Object o = iterator.next();
+                if (o instanceof UnknownExtensibilityElement) {
+                    UnknownExtensibilityElement unknownExtensibilityElement = (UnknownExtensibilityElement) o;
+                    QName elementType = unknownExtensibilityElement.getElementType();
+                    if (new QName("http://www.w3.org/2001/XMLSchema", "schema").equals(elementType)) {
+                        Element element = unknownExtensibilityElement.getElement();
+                        try {
+                            XmlObject xmlObject = SchemaConversionUtils.parse(element);
+                            XmlCursor cursor = xmlObject.newCursor();
+                            try {
+                                cursor.toFirstContentToken();
+                                for (Iterator namespaces = namespaceMap.entrySet().iterator(); namespaces.hasNext();) {
+                                    Map.Entry entry =  (Map.Entry) namespaces.next();
+                                    cursor.insertNamespace((String)entry.getKey(), (String)entry.getValue());
+                                }
+                            } finally {
+                                cursor.dispose();
+                            }
+                            SchemaDocument schemaDoc = (SchemaDocument) xmlObject.changeType(SchemaDocument.type);
+                            SchemaConversionUtils.validateDD(schemaDoc);
+                            SchemaDocument.Schema schema = schemaDoc.getSchema();
+                            String targetNamespace = schema.getTargetNamespace();
+                            ComplexType[] complexTypes = schema.getComplexTypeArray();
+                            for (int j = 0; j < complexTypes.length; j++) {
+                                ComplexType complexType = complexTypes[j];
+                                String complexTypeName = complexType.getName();
+                                QName complexTypeQName = new QName(targetNamespace, complexTypeName);
+                                complexTypeMap.put(complexTypeQName, complexType);
+                            }
+                        } catch (XmlException e) {
+                            throw new DeploymentException("Invalid schema in wsdl", e);
+                        }
+                    } else {
+                        //problems??
+                    }
+                }
+            }
+        }
+        return complexTypeMap;
+    }
+
+    private static final Map rpcHolderClasses = new HashMap();
+
+    static {
+        rpcHolderClasses.put(BigDecimal.class, BigDecimalHolder.class);
+        rpcHolderClasses.put(BigInteger.class, BigIntegerHolder.class);
+        rpcHolderClasses.put(boolean.class, BooleanHolder.class);
+        rpcHolderClasses.put(Boolean.class, BooleanWrapperHolder.class);
+        rpcHolderClasses.put(byte[].class, ByteArrayHolder.class);
+        rpcHolderClasses.put(byte.class, ByteHolder.class);
+        rpcHolderClasses.put(Byte.class, ByteWrapperHolder.class);
+        rpcHolderClasses.put(Calendar.class, CalendarHolder.class);
+        rpcHolderClasses.put(double.class, DoubleHolder.class);
+        rpcHolderClasses.put(Double.class, DoubleWrapperHolder.class);
+        rpcHolderClasses.put(float.class, FloatHolder.class);
+        rpcHolderClasses.put(Float.class, FloatWrapperHolder.class);
+        rpcHolderClasses.put(int.class, IntHolder.class);
+        rpcHolderClasses.put(Integer.class, IntegerWrapperHolder.class);
+        rpcHolderClasses.put(long.class, LongHolder.class);
+        rpcHolderClasses.put(Long.class, LongWrapperHolder.class);
+        rpcHolderClasses.put(Object.class, ObjectHolder.class);
+        rpcHolderClasses.put(QName.class, QNameHolder.class);
+        rpcHolderClasses.put(short.class, ShortHolder.class);
+        rpcHolderClasses.put(Short.class, ShortWrapperHolder.class);
+        rpcHolderClasses.put(String.class, StringHolder.class);
+    }
+
+    private Class getHolderType(String paramJavaTypeName, byte mode, QName typeQName, boolean isComplexType, JavaWsdlMappingType mapping, ClassLoader classLoader) throws DeploymentException {
+        Class paramJavaType = null;
+        if (mode == ParameterDesc.IN) {
+            try {
+                paramJavaType = ClassLoading.loadClass(paramJavaTypeName, classLoader);
+            } catch (ClassNotFoundException e) {
+                throw new DeploymentException("could not load parameter type", e);
+            }
+            return paramJavaType;
+        } else {
+            String holderName;
+            if (isComplexType) {
+                String namespace = typeQName.getNamespaceURI();
+                 String packageName = getPackageFromNamespace(namespace, mapping);
+                 StringBuffer buf = new StringBuffer(packageName.length() + typeQName.getLocalPart().length() + 14);
+                 buf.append(packageName).append(".holders.").append(typeQName.getLocalPart()).append("Holder");
+                 buf.setCharAt(packageName.length() + 9, Character.toUpperCase(typeQName.getLocalPart().charAt(0)));
+                 holderName = buf.toString();
+            } else {
+                try {
+                    paramJavaType = ClassLoading.loadClass(paramJavaTypeName, classLoader);
+                } catch (ClassNotFoundException e) {
+                    throw new DeploymentException("could not load parameter type", e);
+                }
+                Class holder = (Class) rpcHolderClasses.get(paramJavaType);
+                if (holder != null) {
+                    return holder;
+                }
+                String paramTypeName = paramJavaType.getName();
+                StringBuffer buf = new StringBuffer(paramTypeName.length() + 14);
+                int dot = paramTypeName.lastIndexOf(".");
+                //foo.Bar >>> foo.holders.BarHolder
+                buf.append(paramTypeName.substring(0, dot)).append(".holders").append(paramTypeName.substring(dot)).append("Holder");
+                holderName = buf.toString();
+            }
+            try {
+                Class holder = ClassLoading.loadClass(holderName, classLoader);
+                return holder;
+            } catch (ClassNotFoundException e) {
+                throw new DeploymentException("Could not load holder class", e);
+            }
+        }
     }
 
 

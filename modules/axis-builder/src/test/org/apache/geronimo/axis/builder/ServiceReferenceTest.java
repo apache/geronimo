@@ -257,6 +257,14 @@ public class ServiceReferenceTest extends TestCase {
         testInteropPort((InteropTestPortType) sei2);
     }
 
+    public void testBuildComplexTypeMap() throws Exception {
+        WSDLFactory factory = WSDLFactory.newInstance();
+        WSDLReader reader = factory.newWSDLReader();
+        Definition definition = reader.readWSDL(wsdlFile.toURI().toString());
+        AxisBuilder builder = new AxisBuilder();
+        Map complexTypeMap = builder.getComplexTypesInWsdl(definition);
+        assertEquals(7, complexTypeMap.size());
+    }
 
 
     private OperationInfo buildOperationInfoForMockOperation(AxisBuilder builder) throws NoSuchMethodException, DeploymentException, WSDLException {

@@ -35,6 +35,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlDocumentProperties;
+import org.w3c.dom.Element;
 
 /**
  * @version $Rev$ $Date$
@@ -74,6 +75,15 @@ public class SchemaConversionUtils {
     public static XmlObject parse(String xml) throws XmlException {
         ArrayList errors = new ArrayList();
         XmlObject parsed = XmlObject.Factory.parse(xml, createXmlOptions(errors));
+        if (errors.size() != 0) {
+            throw new XmlException(errors.toArray().toString());
+        }
+        return parsed;
+    }
+
+    public static XmlObject parse(Element element) throws XmlException {
+        ArrayList errors = new ArrayList();
+        XmlObject parsed = XmlObject.Factory.parse(element, createXmlOptions(errors));
         if (errors.size() != 0) {
             throw new XmlException(errors.toArray().toString());
         }
