@@ -70,7 +70,7 @@ public class AxisServiceBuilder {
 
         // Grab the portInfo for this ejb
         PortInfo portInfo = (PortInfo) portComponentsMap.get(ejbName);
-        JavaServiceDesc serviceDesc = createServiceDesc(portInfo, classLoader);
+        JavaServiceDesc serviceDesc = createServiceDesc(jarFile, portInfo, classLoader);
         List handlerInfos = createHandlerInfos(portInfo, classLoader);
         return new ServiceInfo(serviceDesc, handlerInfos);
     }
@@ -86,7 +86,7 @@ public class AxisServiceBuilder {
 
         // Grab the portInfo for this ejb
         PortInfo portInfo = (PortInfo) portComponentsMap.get(ejbName);
-        return createServiceDesc(portInfo, classLoader);
+        return createServiceDesc(jarFile, portInfo, classLoader);
     }
 
     private static List createHandlerInfos(PortInfo portInfo, ClassLoader classLoader) throws DeploymentException {
@@ -129,13 +129,13 @@ public class AxisServiceBuilder {
         return list;
     }
 
-    public static ServiceInfo createServiceInfo(PortInfo portInfo, ClassLoader classLoader) throws DeploymentException {
-        JavaServiceDesc serviceDesc = createServiceDesc(portInfo, classLoader);
+    public static ServiceInfo createServiceInfo(JarFile moduleFile, PortInfo portInfo, ClassLoader classLoader) throws DeploymentException {
+        JavaServiceDesc serviceDesc = createServiceDesc(moduleFile, portInfo, classLoader);
         List handlerInfos = createHandlerInfos(portInfo, classLoader);
         return new ServiceInfo(serviceDesc, handlerInfos);
     }
 
-    public static JavaServiceDesc createServiceDesc(PortInfo portInfo, ClassLoader classLoader) throws DeploymentException {
+    public static JavaServiceDesc createServiceDesc(JarFile moduleFile, PortInfo portInfo, ClassLoader classLoader) throws DeploymentException {
 
         Port port = portInfo.getPort();
 //        System.out.println("port = " + port);
@@ -148,7 +148,7 @@ public class AxisServiceBuilder {
         }
 
         Map exceptionMap = WSDescriptorParser.getExceptionMap(portInfo.getJavaWsdlMapping());
-        SchemaInfoBuilder schemaInfoBuilder = new SchemaInfoBuilder(null, portInfo.getDefinition());
+        SchemaInfoBuilder schemaInfoBuilder = new SchemaInfoBuilder(moduleFile, portInfo.getDefinition());
         Map schemaTypeKeyToSchemaTypeMap = schemaInfoBuilder.getSchemaTypeKeyToSchemaTypeMap();
         Map complexTypeMap = schemaInfoBuilder.getComplexTypesInWsdl();
         Map elementMap = schemaInfoBuilder.getElementToTypeMap();
@@ -324,7 +324,8 @@ public class AxisServiceBuilder {
                 String operationName = bindingOperation.getOperation().getName();
                 ServiceEndpointMethodMappingType[] methodMappings = portInfo.getServiceEndpointInterfaceMapping().getServiceEndpointMethodMappingArray();
                 ServiceEndpointMethodMappingType methodMapping = WSDescriptorParser.getMethodMappingForOperation(operationName, methodMappings);
-                operationDescBuilder = new HeavyweightOperationDescBuilder(bindingOperation, portInfo.getJavaWsdlMapping(), methodMapping, Style.RPC, exceptionMap, complexTypeMap, elementMap, classLoader, serviceEndpointInterface);
+                JavaXmlTypeMappingType[] javaXmlTypeMappingTypes = portInfo.getJavaWsdlMapping().getJavaXmlTypeMappingArray();
+                operationDescBuilder = new HeavyweightOperationDescBuilder(bindingOperation, portInfo.getJavaWsdlMapping(), methodMapping, Style.RPC, exceptionMap, complexTypeMap, elementMap, javaXmlTypeMappingTypes, classLoader, serviceEndpointInterface);
                 Set wrappedElementQNamesForOper = ((HeavyweightOperationDescBuilder) operationDescBuilder).getWrapperElementQNames();
                 wrappedElementQNames.addAll(wrappedElementQNamesForOper);
             }

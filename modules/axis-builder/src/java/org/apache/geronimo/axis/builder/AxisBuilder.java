@@ -106,9 +106,9 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
 
 
     //WebServiceBuilder
-    public void configurePOJO(GBeanData targetGBean, Object portInfoObject, String seiClassName, ClassLoader classLoader) throws DeploymentException {
+    public void configurePOJO(GBeanData targetGBean, JarFile moduleFile, Object portInfoObject, String seiClassName, ClassLoader classLoader) throws DeploymentException {
         PortInfo portInfo = (PortInfo) portInfoObject;
-        ServiceInfo serviceInfo = AxisServiceBuilder.createServiceInfo(portInfo, classLoader);
+        ServiceInfo serviceInfo = AxisServiceBuilder.createServiceInfo(moduleFile, portInfo, classLoader);
         JavaServiceDesc serviceDesc = serviceInfo.getServiceDesc();
 
         Class pojoClass = null;
@@ -325,6 +325,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
         ServiceEndpointMethodMappingType[] methodMappings = endpointMapping.getServiceEndpointMethodMappingArray();
         int i = 0;
         Set wrapperElementQNames = new HashSet();
+        JavaXmlTypeMappingType[] javaXmlTypeMappings = mapping.getJavaXmlTypeMappingArray();
         for (Iterator ops = operations.iterator(); ops.hasNext();) {
             Operation operation = (Operation) ops.next();
             String operationName = operation.getName();
@@ -343,12 +344,11 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
                 throw new DeploymentException("No BindingOperation for operation: " + operationName + ", input: " + operation.getInput().getName() + ", output: " + (operation.getOutput() == null ? "<none>" : operation.getOutput().getName()));
             }
             ServiceEndpointMethodMappingType methodMapping = WSDescriptorParser.getMethodMappingForOperation(operationName, methodMappings);
-            HeavyweightOperationDescBuilder operationDescBuilder = new HeavyweightOperationDescBuilder(bindingOperation, mapping, methodMapping, portStyle, exceptionMap, complexTypeMap, elementMap, classLoader, enhancedServiceEndpointClass);
+            HeavyweightOperationDescBuilder operationDescBuilder = new HeavyweightOperationDescBuilder(bindingOperation, mapping, methodMapping, portStyle, exceptionMap, complexTypeMap, elementMap, javaXmlTypeMappings, classLoader, enhancedServiceEndpointClass);
             OperationInfo operationInfo = operationDescBuilder.buildOperationInfo(soapVersion);
             operationInfos[i++] = operationInfo;
             wrapperElementQNames.addAll(operationDescBuilder.getWrapperElementQNames());
         }
-        JavaXmlTypeMappingType[] javaXmlTypeMappings = mapping.getJavaXmlTypeMappingArray();
         List typeMappings = new ArrayList();
         Map typeDescriptors = new HashMap();
         buildTypeInfoHeavyweight(wrapperElementQNames, javaXmlTypeMappings, schemaTypeKeyToSchemaTypeMap, classLoader, typeMappings, typeDescriptors);
@@ -471,16 +471,12 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
                 deserializerFactoryClass = ArrayDeserializerFactory.class;
             }
 
-            TypeDesc typeDesc = getTypeDescriptor(clazz, typeName, javaXmlTypeMapping, schemaType);
+            TypeDesc typeDesc = TypeDescBuilder.getTypeDescriptor(clazz, typeName, javaXmlTypeMapping, schemaType);
 
             TypeMappingInfo typeMappingInfo = new TypeMappingInfo(clazz, typeName, serializerFactoryClass, deserializerFactoryClass);
             typeMappings.add(typeMappingInfo);
             typeDescriptors.put(clazz, typeDesc);
         }
-    }
-
-    private static TypeDesc getTypeDescriptor(Class javaClass, QName typeQName, JavaXmlTypeMappingType javaXmlTypeMapping, SchemaType schemaType) throws DeploymentException {
-        return TypeDescBuilder.getTypeDescriptor(javaClass, typeQName, javaXmlTypeMapping, schemaType);
     }
 
     private Class getServiceEndpointInterfaceLightweight(PortType portType, JavaWsdlMappingType mappings, ClassLoader classLoader) throws DeploymentException {

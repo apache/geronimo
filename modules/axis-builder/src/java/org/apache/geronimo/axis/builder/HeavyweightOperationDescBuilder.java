@@ -58,6 +58,7 @@ import org.apache.xmlbeans.SchemaParticle;
 import org.apache.xmlbeans.SchemaProperty;
 import org.apache.xmlbeans.SchemaType;
 import org.objectweb.asm.Type;
+import org.apache.geronimo.xbeans.j2ee.JavaXmlTypeMappingType;
 
 public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
 
@@ -72,7 +73,9 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
     private final Map elementMap;
     private final ClassLoader classLoader;
     private final boolean wrappedStype;
-    
+    private final Map publicTypes = new HashMap();
+    private final Map anonymousTypes = new HashMap();
+
     /* Keep track of in and out parameter names so we can verify that
      * everything has been mapped and mapped correctly
      */
@@ -84,8 +87,8 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
      * Track the wrapper elements
      */
     private final Set wrapperElementQNames = new HashSet();
-    
-    public HeavyweightOperationDescBuilder(BindingOperation bindingOperation, JavaWsdlMappingType mapping, ServiceEndpointMethodMappingType methodMapping, Style defaultStyle, Map exceptionMap, Map complexTypeMap, Map elementMap, ClassLoader classLoader, Class serviceEndpointInterface) throws DeploymentException {
+
+    public HeavyweightOperationDescBuilder(BindingOperation bindingOperation, JavaWsdlMappingType mapping, ServiceEndpointMethodMappingType methodMapping, Style defaultStyle, Map exceptionMap, Map complexTypeMap, Map elementMap, JavaXmlTypeMappingType[] javaXmlTypeMappingTypes, ClassLoader classLoader, Class serviceEndpointInterface) throws DeploymentException {
         super(bindingOperation);
         this.mapping = mapping;
         this.methodMapping = methodMapping;
@@ -93,6 +96,17 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
         this.exceptionMap = exceptionMap;
         this.complexTypeMap = complexTypeMap;
         this.elementMap = elementMap;
+        for (int i = 0; i < javaXmlTypeMappingTypes.length; i++) {
+            JavaXmlTypeMappingType javaXmlTypeMappingType = javaXmlTypeMappingTypes[i];
+            String javaClassName = javaXmlTypeMappingType.getJavaType().getStringValue().trim();
+            if (javaXmlTypeMappingType.isSetAnonymousTypeQname()) {
+                String anonymousTypeQName = javaXmlTypeMappingType.getAnonymousTypeQname().getStringValue().trim();
+                anonymousTypes.put(anonymousTypeQName, javaClassName);
+            } else if (javaXmlTypeMappingType.isSetRootTypeQname()) {
+                QName qname = javaXmlTypeMappingType.getRootTypeQname().getQNameValue();
+                publicTypes.put(qname, javaClassName);
+            }
+        }
         this.classLoader = classLoader;
         this.serviceEndpointInterface = serviceEndpointInterface;
         BindingInput bindingInput = bindingOperation.getBindingInput();
@@ -102,7 +116,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
 
     public Set getWrapperElementQNames() throws DeploymentException {
         buildOperationDesc();
-        
+
         return Collections.unmodifiableSet(wrapperElementQNames);
     }
 
@@ -340,43 +354,49 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
                 SchemaProperty property = properties[i];
                 QName elementName = property.getName();
                 SchemaType elementType = property.getType();
-                QName elementTypeQName = elementType.getName();
-                elementMap.put(elementName.getLocalPart(), elementTypeQName);
+                elementMap.put(elementName.getLocalPart(), elementType);
             }
-//                LocalElement[] elements = explicitGroup.getElementArray();
-//                for (int i = 0; i < elements.length; i++) {
-//                    LocalElement element = elements[i];
-//                    String elementName = element.getName();
-//                    QName elementType = element.getType();
-//                    elementMap.put(elementName, elementType);
-//                }
             ArrayList parameterTypes = new ArrayList();
             ConstructorParameterOrderType constructorParameterOrder = exceptionMapping.getConstructorParameterOrder();
             for (int i = 0; i < constructorParameterOrder.getElementNameArray().length; i++) {
                 String elementName = constructorParameterOrder.getElementNameArray(i).getStringValue().trim();
-                QName elementType = (QName) elementMap.get(elementName);
+                SchemaType elementType = (SchemaType) elementMap.get(elementName);
                 Class javaElementType;
-                if (complexTypeMap.containsKey(elementType)) {
-                    String packageName = WSDescriptorParser.getPackageFromNamespace(elementType.getNamespaceURI(), mapping);
-                    String javaElementTypeName = packageName + "." + elementType.getLocalPart();
-                    try {
-                        javaElementType = ClassLoading.loadClass(javaElementTypeName, classLoader);
-                    } catch (ClassNotFoundException e) {
-                        throw new DeploymentException("Could not load exception constructor parameter", e);
+
+                QName elementTypeQName = elementType.getName();
+                if (elementTypeQName != null) {
+                    if (complexTypeMap.containsKey(elementType)) {
+                        String javaClassName = (String) publicTypes.get(elementTypeQName);
+                        javaElementType = getJavaClass(javaClassName);
+                    } else if (qnameToClassMap.containsKey(elementType)) {
+                        javaElementType = (Class) qnameToClassMap.get(elementType);
+                    } else {
+                        throw new DeploymentException("Unknown type: " + elementType + " of name: " + elementName);
                     }
-                } else if (qnameToClassMap.containsKey(elementType)) {
-                    javaElementType = (Class) qnameToClassMap.get(elementType);
                 } else {
-                    throw new DeploymentException("Unknown type: " + elementType);
+                    //anonymous type
+                    //anonymous type qname is constructed using rules 1.b and 2.b
+                    String anonymousQName = complexType.getName().getNamespaceURI() + ":>" + complexType.getName().getLocalPart() + ">" + elementName;
+                    String javaClassName = (String) anonymousTypes.get(anonymousQName);
+                    javaElementType = getJavaClass(javaClassName);
                 }
                 //todo faultTypeQName is speculative
                 //todo outheader might be true!
-                ParameterDesc parameterDesc = new ParameterDesc(faultTypeQName, ParameterDesc.OUT, elementType, javaElementType, false, false);
+                ParameterDesc parameterDesc = new ParameterDesc(faultTypeQName, ParameterDesc.OUT, elementTypeQName, javaElementType, false, false);
                 parameterTypes.add(parameterDesc);
             }
             faultDesc.setParameters(parameterTypes);
         }
         return faultDesc;
+    }
+
+    private Class getJavaClass(String javaClassName) throws DeploymentException {
+        try {
+            Class javaClass = ClassLoading.loadClass(javaClassName, classLoader);
+            return javaClass;
+        } catch (ClassNotFoundException e) {
+            throw new DeploymentException("Could not load class", e);
+        }
     }
 
     private void mapReturnType() throws DeploymentException {
@@ -406,7 +426,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
             if (outParamNames.contains(wsdlMessagePartName)) {
                 throw new DeploymentException("output message part " + wsdlMessagePartName + " has both an INOUT or OUT mapping and a return value mapping for operation " + operationName);
             }
-            
+
             if (wrappedStype) {
                 Part outPart = getWrappedPart(output);
                 SchemaParticle returnParticle = getWrapperChild(outPart, wsdlMessagePartName);
@@ -452,7 +472,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
 
         QName paramQName;
         QName paramTypeQName;
-        
+
         Part part = null;
         SchemaParticle inParameter = null;
         if (isInParam) {
@@ -465,7 +485,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
                 // the local name of the global element refered by the part is equal to the operation name
                 QName name = inPart.getElementName();
                 if (false == name.getLocalPart().equals(operationName)) {
-                    throw new DeploymentException("message " + input.getQName() + " refers to a global element named " +  
+                    throw new DeploymentException("message " + input.getQName() + " refers to a global element named " +
                             name.getLocalPart() + ", which is not equal to the operation name " + operationName);
                 }
                 inParameter = getWrapperChild(inPart, wsdlMessagePartName);
@@ -489,7 +509,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
                     Part outPart = getWrappedPart(input);
                     SchemaParticle outParameter = getWrapperChild(outPart, wsdlMessagePartName);
                     if (inParameter.getType() != outParameter.getType()) {
-                        throw new DeploymentException("The wrapper children " + wsdlMessagePartName + 
+                        throw new DeploymentException("The wrapper children " + wsdlMessagePartName +
                                 " do not have the same type for operation " + operationName);
                     }
                 } else {
@@ -552,18 +572,18 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
         // in case of wrapped element, the message has only one part.
         Collection parts = message.getParts().values();
         if (1 != parts.size()) {
-            throw new DeploymentException("message " + message.getQName() + " has " + parts.size() + 
-                    " parts and should only have one as wrapper style mapping is specified for operation " + 
+            throw new DeploymentException("message " + message.getQName() + " has " + parts.size() +
+                    " parts and should only have one as wrapper style mapping is specified for operation " +
                     operationName);
         }
         return (Part) parts.iterator().next();
     }
-    
+
     private SchemaParticle getWrapperChild(Part part, String wsdlMessagePartName) throws DeploymentException {
         QName name = part.getElementName();
-        
+
         wrapperElementQNames.add(name);
-        
+
         SchemaType operationType = (SchemaType) complexTypeMap.get(name);
         if (null == operationType) {
             throw new DeploymentException("No global element named " + name + " for operation " + operationName);
@@ -588,7 +608,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
                 }
             }
             throw new DeploymentException("Global element named " + name +
-                    " does not define a child element named " + wsdlMessagePartName + 
+                    " does not define a child element named " + wsdlMessagePartName +
                     " required by the operation " + operationName);
         } else {
             throw new DeploymentException("Global element named " + name +

@@ -702,11 +702,11 @@ public class JettyModuleBuilder implements ModuleBuilder {
 
             //set up servlet gbeans.
             ServletType[] servletTypes = webApp.getServletArray();
-            Map portMap = ((WebModule)module).getPortMap();
+            Map portMap = webModule.getPortMap();
 
             for (int i = 0; i < servletTypes.length; i++) {
                 ServletType servletType = servletTypes[i];
-                addServlet(webModuleName, servletType, servletMappings, securityRoles, portMap, webClassLoader, moduleJ2eeContext, earContext);
+                addServlet(webModuleName, webModule.getModuleFile(), servletType, servletMappings, securityRoles, portMap, webClassLoader, moduleJ2eeContext, earContext);
             }
         } catch (DeploymentException de) {
             throw de;
@@ -735,10 +735,12 @@ public class JettyModuleBuilder implements ModuleBuilder {
     }
 
     private void addServlet(ObjectName webModuleName,
+                            JarFile moduleFile,
                             ServletType servletType,
                             Map servletMappings,
                             Set securityRoles,
-                            Map portMap, ClassLoader webClassLoader,
+                            Map portMap,
+                            ClassLoader webClassLoader,
                             J2eeContext moduleJ2eeContext,
                             EARContext earContext) throws MalformedObjectNameException, DeploymentException {
         String servletName = servletType.getServletName().getStringValue().trim();
@@ -773,7 +775,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
                 if (portInfo == null) {
                     throw new DeploymentException("No web service deployment info for servlet name " + servletName);
                 }
-                pojoWebServiceBuilder.configurePOJO(servletData, portInfo, servletClassName, webClassLoader);
+                pojoWebServiceBuilder.configurePOJO(servletData, moduleFile, portInfo, servletClassName, webClassLoader);
             }
         } else if (servletType.isSetJspFile()) {
             servletData = new GBeanData(servletObjectName, JettyServletHolder.GBEAN_INFO);

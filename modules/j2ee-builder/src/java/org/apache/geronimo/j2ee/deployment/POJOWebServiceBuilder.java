@@ -18,6 +18,7 @@ package org.apache.geronimo.j2ee.deployment;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;
+import java.util.jar.JarFile;
 
 /**
  * @version $Rev:  $ $Date:  $
@@ -30,11 +31,12 @@ public interface POJOWebServiceBuilder {
      * The GBeanData will be for a ServletHolder like gbean that is adapted to holding a ws stack that talks to a
      * POJO web service.  The web deployer is responsible for filling in the standard servlet info such as init params.
      * @param targetGBean
+     * @param moduleFile
      * @param portInfo
      * @param seiClassName
      * @throws DeploymentException
      */
-    void configurePOJO(GBeanData targetGBean, Object portInfo, String seiClassName, ClassLoader classLoader) throws DeploymentException;
+    void configurePOJO(GBeanData targetGBean, JarFile moduleFile, Object portInfo, String seiClassName, ClassLoader classLoader) throws DeploymentException;
 
     /**
      * configure the supplied EJBContainer gbeandata to implement the ejb web service described in the deployment descriptor

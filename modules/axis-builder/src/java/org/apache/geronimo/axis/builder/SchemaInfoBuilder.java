@@ -396,7 +396,7 @@ public class SchemaInfoBuilder {
             InputStream wsdlInputStream = null;
             try {
                 ZipEntry entry = moduleFile.getEntry(location.toString());
-                System.out.println("entry: " + entry.getName());
+//                System.out.println("entry: " + entry.getName());
                 wsdlInputStream = moduleFile.getInputStream(entry);
 //                byte[] buf = new byte[1024];
 //                int i;
