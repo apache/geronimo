@@ -71,7 +71,6 @@ import javax.transaction.xa.Xid;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GOperationInfo;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 
 /**
@@ -80,7 +79,7 @@ import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
  * are delegated to the wrapped TransactionManager; all other operations are delegated to the
  * wrapped Transaction.
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/19 06:29:08 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/22 07:29:56 $
  */
 public class TransactionManagerProxy implements TransactionManager, XATerminator {
 
@@ -222,18 +221,6 @@ public class TransactionManagerProxy implements TransactionManager, XATerminator
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
-    }
-
-    /**
-     * Provides the GeronimoMBean description for this class
-     * @return
-     */
-    public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
-        GeronimoMBeanInfo rc = new GeronimoMBeanInfo();
-        rc.setTargetClass(TransactionManagerProxy.class);
-        rc.addOperationsDeclaredIn(TransactionManager.class);
-        rc.addOperationsDeclaredIn(XATerminator.class);
-        return rc;
     }
 
 }

@@ -57,24 +57,19 @@
 package org.apache.geronimo.security.bridge;
 
 import javax.security.auth.Subject;
+import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-import javax.security.auth.callback.CallbackHandler;
 
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
-import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
-import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
-import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
+import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.security.providers.PropertiesFileSecurityRealm;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/20 06:12:45 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/22 07:29:56 $
  *
  * */
 public abstract class AbstractRealmBridge implements RealmBridge {
@@ -117,17 +112,6 @@ public abstract class AbstractRealmBridge implements RealmBridge {
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
-    }
-
-    public static GeronimoMBeanInfo getGeronimoMBeanInfo() {
-        GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
-        //set target class in concrete subclass
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("TargetRealm", true, true, "Name of realm to log in to"));
-        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("getSubject",
-                new GeronimoParameterInfo[]{new GeronimoParameterInfo("sourceSubject", Subject.class, "Subject to be translated")},
-                GeronimoOperationInfo.ACTION,
-                "Log into the target realm using information gleaned from the supplied Subject"));
-        return mbeanInfo;
     }
 
 }

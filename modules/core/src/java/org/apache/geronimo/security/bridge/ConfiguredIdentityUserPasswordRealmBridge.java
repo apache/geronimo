@@ -69,15 +69,13 @@ import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 
 /**
  * ConfiguredIdentityRealmBridge supplies a constant mapping between realms:
  * it always returns the configured user and password, no matter what the
  * source realm or source subject.
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/20 06:12:45 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/22 07:29:56 $
  *
  * */
 public class ConfiguredIdentityUserPasswordRealmBridge extends AbstractRealmBridge {
@@ -142,14 +140,6 @@ public class ConfiguredIdentityUserPasswordRealmBridge extends AbstractRealmBrid
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
-    }
-
-    public static GeronimoMBeanInfo getGeronimoMBeanInfo() {
-        GeronimoMBeanInfo mbeanInfo = AbstractRealmBridge.getGeronimoMBeanInfo();
-        mbeanInfo.setTargetClass(ConfiguredIdentityUserPasswordRealmBridge.class);
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ConfiguredUser", true, true, "Name of user to log in as"));
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ConfiguredPassword", true, true, "Password of user to log in as"));
-        return mbeanInfo;
     }
 
 }

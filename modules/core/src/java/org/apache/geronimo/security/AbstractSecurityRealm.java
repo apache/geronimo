@@ -69,9 +69,9 @@ import org.apache.regexp.RE;
 
 /**
  *
- * @version $Revision: 1.6 $ $Date: 2004/01/22 02:46:27 $
+ * @version $Revision: 1.7 $ $Date: 2004/01/22 07:29:56 $
  */
-public abstract class AbstractSecurityRealm  implements SecurityRealm, GeronimoMBeanTarget, GBean {
+public abstract class AbstractSecurityRealm  implements SecurityRealm, GBean {
 
     private static final GBeanInfo GBEAN_INFO;
 
@@ -102,15 +102,7 @@ public abstract class AbstractSecurityRealm  implements SecurityRealm, GeronimoM
     public void setGBeanContext(GBeanContext context) {
     }
 
-    public boolean canStart() {
-        return true;
-    }
-
     public void doStart() {
-    }
-
-    public boolean canStop() {
-        return true;
     }
 
     public void doStop() {

@@ -60,30 +60,24 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 
-import javax.management.ObjectName;
 import javax.security.auth.login.Configuration;
 import javax.security.jacc.PolicyContextException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
-import org.apache.geronimo.kernel.service.GeronimoMBeanEndpoint;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
-import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
-import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
-import org.apache.geronimo.security.util.ConfigurationUtil;
+import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GOperationInfo;
-import org.apache.geronimo.gbean.GAttributeInfo;
-import org.apache.geronimo.gbean.GEndpointInfo;
 import org.apache.geronimo.gbean.GConstructorInfo;
+import org.apache.geronimo.gbean.GEndpointInfo;
+import org.apache.geronimo.gbean.GOperationInfo;
+import org.apache.geronimo.security.util.ConfigurationUtil;
 
 
 /**
  * An MBean that maintains a list of security realms.
  *
- * @version $Revision: 1.8 $ $Date: 2004/01/20 01:36:59 $
+ * @version $Revision: 1.9 $ $Date: 2004/01/22 07:29:56 $
  */
 public class SecurityService  {
 
@@ -232,28 +226,6 @@ public class SecurityService  {
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
-    }
-
-    public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
-        GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
-        mbeanInfo.setTargetClass(SecurityService.class.getName());
-
-        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("getModuleConfiguration",
-                new GeronimoParameterInfo[] {
-                    new GeronimoParameterInfo("contextID", String.class, ""),
-                    new GeronimoParameterInfo("remove", Boolean.TYPE, "")},
-                GeronimoOperationInfo.ACTION_INFO,
-                "Get security configuration for module identified by contextID"));
-
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("PolicyConfigurationFactory",
-                                                             true, true,
-                                                             "The PolicyConfigurationFactory to use",
-                                                             (Object)"org.apache.geronimo.security.GeronimoPolicyConfigurationFactory"));
-
-        mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("Realms", SecurityRealm.class, ObjectName.getInstance(SecurityRealm.BASE_OBJECT_NAME + ",*")));
-        mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("ModuleConfigurations", ModuleConfiguration.class, ObjectName.getInstance(AbstractModuleConfiguration.BASE_OBJECT_NAME + ",*")));
-
-        return mbeanInfo;
     }
 
 }

@@ -72,7 +72,6 @@ import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.security.util.ConfigurationUtil;
 
 
@@ -86,7 +85,7 @@ import org.apache.geronimo.security.util.ConfigurationUtil;
  * <p>It is expected that deployment tools will configure modules through
  * these utility MBeans and not directly access the
  * <code>PolicyConfiguration</code> objects.
- * @version $Revision: 1.8 $ $Date: 2004/01/20 01:36:59 $
+ * @version $Revision: 1.9 $ $Date: 2004/01/22 07:29:56 $
  * @see javax.security.jacc.PolicyConfiguration
  * @see "Java Authorization Contract for Containers", section 3.1.3
  */
@@ -171,9 +170,4 @@ public class WebModuleConfiguration extends AbstractModuleConfiguration {
         return GBEAN_INFO;
     }
 
-    public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
-        GeronimoMBeanInfo mbeanInfo = AbstractModuleConfiguration.getGeronimoMBeanInfo();
-        mbeanInfo.setTargetClass(WebModuleConfiguration.class);
-        return mbeanInfo;
-    }
 }

@@ -56,19 +56,16 @@
 
 package org.apache.geronimo.security.bridge;
 
-import java.net.URL;
-import java.util.Properties;
-import java.util.Map;
-import java.util.Iterator;
-import java.util.StringTokenizer;
 import java.io.IOException;
+import java.net.URL;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Properties;
+import java.util.StringTokenizer;
 
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
-import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
-import org.apache.geronimo.security.bridge.AbstractPrincipalMappingUserPasswordRealmBridge;
+import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GConstructorInfo;
 
 /**
@@ -79,7 +76,7 @@ import org.apache.geronimo.gbean.GConstructorInfo;
  * from the appropriate principal class and possibly
  * callback name.
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/20 06:12:45 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/22 07:29:56 $
  *
  * */
 public class PropertiesFilePrincipalMappingUserPasswordRealmBridge extends AbstractPrincipalMappingUserPasswordRealmBridge {
@@ -147,13 +144,6 @@ public class PropertiesFilePrincipalMappingUserPasswordRealmBridge extends Abstr
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
-    }
-
-    public static GeronimoMBeanInfo getGeronimoMBeanInfo() {
-        GeronimoMBeanInfo mbeanInfo = AbstractPrincipalMappingUserPasswordRealmBridge.getGeronimoMBeanInfo();
-        mbeanInfo.setTargetClass(PropertiesFilePrincipalMappingUserPasswordRealmBridge.class);
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("PropertyFileURL", true, true, "URL to read the mapping from in sourcePrincipal=targetPrincipal:targetUserName:targetPassword format0"));
-        return mbeanInfo;
     }
 
 }

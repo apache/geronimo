@@ -57,6 +57,7 @@ package org.apache.geronimo.security;
 
 import java.util.Collection;
 import java.util.HashSet;
+
 import javax.security.jacc.PolicyConfiguration;
 import javax.security.jacc.PolicyConfigurationFactory;
 import javax.security.jacc.PolicyContextException;
@@ -67,23 +68,19 @@ import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GOperationInfo;
-import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
-import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
 
 
 /**
  *
- * @version $Revision: 1.6 $ $Date: 2004/01/22 02:46:27 $
+ * @version $Revision: 1.7 $ $Date: 2004/01/22 07:29:56 $
  */
-public abstract class AbstractModuleConfiguration implements ModuleConfiguration, GeronimoMBeanTarget, GBean {
+public abstract class AbstractModuleConfiguration implements ModuleConfiguration, GBean {
 
     private static final GBeanInfo GBEAN_INFO;
 
     public static final String BASE_OBJECT_NAME = "geronimo.security:type=ModuleConfiguration";
 
     private String contextId;
-    private GeronimoMBeanContext context;
     private PolicyConfigurationFactory factory;
     private PolicyConfiguration policyConfiguration;
     private boolean configured = false;
@@ -119,19 +116,6 @@ public abstract class AbstractModuleConfiguration implements ModuleConfiguration
     public void doFail() {
 
     }
-
-    public boolean canStart() {
-        return true;
-    }
-
-    public boolean canStop() {
-        return true;
-    }
-
-    public void setMBeanContext(GeronimoMBeanContext context) {
-        this.context = context;
-    }
-
 
     /**
      * This method returns this object's policy context identifier.
@@ -312,13 +296,6 @@ public abstract class AbstractModuleConfiguration implements ModuleConfiguration
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
-    }
-
-    public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
-        GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
-        //don't set target class: do this in concrete subclasses.
-        mbeanInfo.addOperationsDeclaredIn(ModuleConfiguration.class);
-        return mbeanInfo;
     }
 
 }

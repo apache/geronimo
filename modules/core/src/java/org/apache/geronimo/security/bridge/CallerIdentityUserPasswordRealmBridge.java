@@ -68,13 +68,12 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.security.providers.GeronimoPasswordCredential;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/20 06:12:45 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/22 07:29:56 $
  *
  * */
 public class CallerIdentityUserPasswordRealmBridge extends AbstractRealmBridge {
@@ -120,12 +119,6 @@ public class CallerIdentityUserPasswordRealmBridge extends AbstractRealmBridge {
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
-    }
-
-    public static GeronimoMBeanInfo getGeronimoMBeanInfo() {
-        GeronimoMBeanInfo mbeanInfo = AbstractRealmBridge.getGeronimoMBeanInfo();
-        mbeanInfo.setTargetClass(CallerIdentityUserPasswordRealmBridge.class);
-        return mbeanInfo;
     }
 
 }

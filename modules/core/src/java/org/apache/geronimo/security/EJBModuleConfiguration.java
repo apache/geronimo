@@ -69,18 +69,17 @@ import org.apache.geronimo.deployment.model.geronimo.j2ee.Role;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.RoleMappings;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.Security;
 import org.apache.geronimo.deployment.model.j2ee.SecurityRole;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
-import org.apache.geronimo.security.util.ConfigurationUtil;
+import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.security.util.ConfigurationUtil;
 
 
 /**
  *
  *
- * @version $Revision: 1.8 $ $Date: 2004/01/20 01:36:59 $
+ * @version $Revision: 1.9 $ $Date: 2004/01/22 07:29:56 $
  */
 public class EJBModuleConfiguration extends AbstractModuleConfiguration {
 
@@ -169,9 +168,4 @@ public class EJBModuleConfiguration extends AbstractModuleConfiguration {
         return GBEAN_INFO;
     }
 
-    public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
-        GeronimoMBeanInfo mbeanInfo = AbstractModuleConfiguration.getGeronimoMBeanInfo();
-        mbeanInfo.setTargetClass(EJBModuleConfiguration.class);
-        return mbeanInfo;
-    }
 }

@@ -73,8 +73,6 @@ import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.security.AbstractSecurityRealm;
 import org.apache.geronimo.security.GeronimoSecurityException;
 import org.apache.regexp.RE;
@@ -82,7 +80,7 @@ import org.apache.regexp.RE;
 
 /**
  *
- * @version $Revision: 1.7 $ $Date: 2004/01/20 06:12:45 $
+ * @version $Revision: 1.8 $ $Date: 2004/01/22 07:29:56 $
  */
 
 public class SQLSecurityRealm extends AbstractSecurityRealm {
@@ -328,21 +326,6 @@ public class SQLSecurityRealm extends AbstractSecurityRealm {
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
-    }
-
-    public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
-        GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
-
-        mbeanInfo.setTargetClass(PropertiesFileSecurityRealm.class.getName());
-
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("RealmName", true, true, "The name of this security realm"));
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ConnectionURL", true, true, "The URL of the data source"));
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("User", true, true, "The user name to use when logging in to the data source"));
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Password", true, true, "The password to use when logging in to the data source"));
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("UserSelect", true, true, "The SQL statement to used to obtain the list of users"));
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("GroupSelect", true, true, "The SQL statement to used to obtain the list of groups"));
-
-        return mbeanInfo;
     }
 
 }
