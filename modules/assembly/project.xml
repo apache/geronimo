@@ -22,7 +22,7 @@
 %versions;
 ]>
 
-<!-- $Revision: 1.43 $ $Date: 2004/09/03 05:48:14 $ -->
+<!-- $Revision: 1.44 $ $Date: 2004/09/08 16:22:30 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -462,6 +462,16 @@
             <groupId>xerces</groupId>
             <artifactId>xercesImpl</artifactId>
             <version>&xerces-version;</version>
+            <properties>
+                <lib>true</lib>
+                <server>true</server>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xmlParserAPIs</artifactId>
+            <version>&xml-parser-apis-version;</version>
             <properties>
                 <lib>true</lib>
                 <server>true</server>
