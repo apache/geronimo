@@ -21,7 +21,6 @@ import javax.management.ObjectName;
 import junit.framework.TestCase;
 
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 
 
@@ -45,8 +44,8 @@ public class InteropGBeanTest extends TestCase {
             GBeanInfo gbi = InteropGBean.getGBeanInfo();
             log("testProperties(): gbi = " + gbi);
 
-            GBeanMBean cmf = new GBeanMBean(gbi);
-            log("testProperties(): cmf = " + cmf);
+//            GBeanMBean cmf = new GBeanMBean(gbi);
+//            log("testProperties(): cmf = " + cmf);
 
             /*
             cmf.setAttribute("strprop", "strvalue");
