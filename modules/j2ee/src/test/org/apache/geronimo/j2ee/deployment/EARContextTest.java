@@ -21,10 +21,12 @@ import java.io.FileOutputStream;
 import java.net.URI;
 import java.util.jar.JarOutputStream;
 
+import javax.management.ObjectName;
+
 import junit.framework.TestCase;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/05/19 20:53:59 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/11 19:18:21 $
  */
 public class EARContextTest extends TestCase {
     private final URI coffee = URI.create("some/path/coffee.jar");
@@ -133,7 +135,9 @@ public class EARContextTest extends TestCase {
                 null,
                 "j2eeDomain",
                 "j2eeServer",
-                "j2eeApplicationName");
+                "j2eeApplicationName",
+                ObjectName.getInstance("j2eeDomain:type=TransactionManager"),
+                ObjectName.getInstance("j2eeDomain:type=ConnectionTracker"));
 
         earContext.addEJBRef(coffee, "peaberry", coffee_peaberry);
         earContext.addEJBLocalRef(coffee, "peaberry", coffee_peaberry_local);

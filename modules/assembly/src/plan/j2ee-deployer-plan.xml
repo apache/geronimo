@@ -91,6 +91,8 @@ Configuration for the Geronimo deployer
         <reference name="EJBConfigBuilder">geronimo.deployer:role=ModuleBuilder,type=EJB,config=org/apache/geronimo/J2EEDeployer</reference>
         <reference name="WebConfigBuilder">geronimo.deployer:role=ModuleBuilder,type=Web,config=org/apache/geronimo/J2EEDeployer</reference>
         <!--        <reference name="ConnectorConfigBuilder"></reference> -->
+        <attribute name="transactionManagerObjectName" type="javax.management.ObjectName">geronimo.server:type=TransactionManager</attribute>
+        <attribute name="connectionTrackerObjectName" type="javax.management.ObjectName">geronimo.server:type=ConnectionTracker</attribute>
     </gbean>
 
     <gbean name="geronimo.deployer:role=ModuleBuilder,type=Web,config=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.jetty.deployment.JettyModuleBuilder"/>

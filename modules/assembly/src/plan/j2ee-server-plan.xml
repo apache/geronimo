@@ -114,15 +114,20 @@ by the server.
         <attribute name="StartMaximumPoolSize" type="int">10</attribute>
         <attribute name="ScheduledMinimumPoolSize" type="int">0</attribute>
         <attribute name="ScheduledMaximumPoolSize" type="int">10</attribute>
-        <reference name="XAWork">geronimo.transaction:service=TransactionManager</reference>
+        <reference name="XAWork">geronimo.server:type=TransactionManager</reference>
     </gbean>
 
     <gbean name="geronimo.server:type=BootstrapContext" class="org.apache.geronimo.connector.BootstrapContext">
         <reference name="WorkManager">geronimo.connector:service=WorkManager</reference>
-        <reference name="XATerminator">geronimo.transaction:service=TransactionManager</reference>
+        <reference name="XATerminator">geronimo.server:type=TransactionManager</reference>
     </gbean>
 
-    <gbean name="geronimo.server:type=TransactionManager" class="org.apache.geronimo.transaction.TransactionManagerProxy"/>
+    <gbean name="geronimo.server:type=TransactionManager" class="org.apache.geronimo.transaction.GeronimoTransactionManager">
+        <references name="resourceManagers">
+            <pattern>geronimo.management:J2eeType=ManagedConnectionFactory,*</pattern>
+            <pattern>geronimo.server:j2eeType=MessageDrivenBean,*</pattern>
+        </references>
+    </gbean>
 
 
     <!-- default WAR container using Jetty -->

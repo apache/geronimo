@@ -24,6 +24,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Set;
+import java.util.HashSet;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
@@ -33,13 +34,13 @@ import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrack
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.jetty.connector.HTTPConnector;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.transaction.TransactionManagerProxy;
+import org.apache.geronimo.transaction.GeronimoTransactionManager;
 import org.apache.geronimo.transaction.UserTransactionImpl;
 
 /**
  *
  *
- * @version $Revision: 1.9 $ $Date: 2004/05/30 19:09:57 $
+ * @version $Revision: 1.10 $ $Date: 2004/06/11 19:18:21 $
  */
 public class ApplicationTest extends TestCase {
     private Kernel kernel;
@@ -109,7 +110,10 @@ public class ApplicationTest extends TestCase {
         start(containerName, container);
         start(connectorName, connector);
 
-        tm = new GBeanMBean(TransactionManagerProxy.GBEAN_INFO);
+        tm = new GBeanMBean(GeronimoTransactionManager.GBEAN_INFO);
+        Set patterns = new HashSet();
+        patterns.add(ObjectName.getInstance("geronimo.management:J2eeType=ManagedConnectionFactory,*"));
+        tm.setReferencePatterns("resourceManagers", patterns);
         start(tmName, tm);
         ctc = new GBeanMBean(ConnectionTrackingCoordinator.GBEAN_INFO);
         start(tcaName, ctc);

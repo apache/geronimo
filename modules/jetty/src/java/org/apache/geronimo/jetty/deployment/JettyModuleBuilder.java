@@ -85,7 +85,7 @@ import org.apache.xmlbeans.XmlObject;
 
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/06/10 02:24:27 $
+ * @version $Revision: 1.8 $ $Date: 2004/06/11 19:18:21 $
  */
 public class JettyModuleBuilder implements ModuleBuilder {
 
@@ -231,7 +231,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
             } else {
                 warRoot = URI.create("war/");
             }
-            
+
             String PolicyContextID = (earContext.getApplicationObjectName()==null? module.getName():earContext.getApplicationObjectName().toString());
 
             gbean.setAttribute("URI", warRoot);
@@ -244,8 +244,8 @@ public class JettyModuleBuilder implements ModuleBuilder {
             setResourceEnvironment(gbean, webApp.getResourceRefArray(), jettyWebApp.getResourceRefArray());
             gbean.setReferencePatterns("Configuration", Collections.singleton(new ObjectName("geronimo.config:name=" + ObjectName.quote(configID.toString())))); // @todo this is used to resolve relative URIs, we should fix this
             gbean.setReferencePatterns("JettyContainer", Collections.singleton(new ObjectName("*:type=WebContainer,container=Jetty"))); // @todo configurable
-            gbean.setReferencePatterns("TransactionManager", Collections.singleton(new ObjectName("*:type=TransactionManager,*")));
-            gbean.setReferencePatterns("TrackedConnectionAssociator", Collections.singleton(new ObjectName("*:type=ConnectionTracker,*")));
+            gbean.setReferencePatterns("TransactionManager", Collections.singleton(earContext.getTransactionManagerObjectName()));
+            gbean.setReferencePatterns("TrackedConnectionAssociator", Collections.singleton(earContext.getConnectionTrackerObjectName()));
         } catch (Exception e) {
             throw new DeploymentException("Unable to initialize webapp GBean", e);
         }

@@ -35,6 +35,7 @@ import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
+
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -59,7 +60,7 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/06/05 01:40:09 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/11 19:18:21 $
  */
 public class EARConfigBuilder implements ConfigurationBuilder {
     private final Kernel kernel;
@@ -69,10 +70,13 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     private final ModuleBuilder connectorConfigBuilder;
     private final String j2eeServerName;
     private final String j2eeDomainName;
-    private ObjectName j2eeServer;
+    private final ObjectName j2eeServer;
+    private final ObjectName transactionManagerObjectName;
+    private final ObjectName connectionTrackerObjectName;
 
 
-    public EARConfigBuilder(Kernel kernel, Repository repository, ObjectName j2eeServer, ModuleBuilder ejbConfigBuilder, ModuleBuilder webConfigBuilder, ModuleBuilder connectorConfigBuilder) {
+    public EARConfigBuilder(Kernel kernel, Repository repository, ObjectName j2eeServer, ModuleBuilder ejbConfigBuilder, ModuleBuilder webConfigBuilder, ModuleBuilder connectorConfigBuilder,
+                            ObjectName transactionManagerObjectName, ObjectName connectionTrackerObjectName) {
         this.kernel = kernel;
         this.repository = repository;
         this.j2eeServer = j2eeServer;
@@ -82,6 +86,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         this.ejbConfigBuilder = ejbConfigBuilder;
         this.webConfigBuilder = webConfigBuilder;
         this.connectorConfigBuilder = connectorConfigBuilder;
+        this.transactionManagerObjectName = transactionManagerObjectName;
+        this.connectionTrackerObjectName = connectionTrackerObjectName;
     }
 
     public boolean canConfigure(XmlObject plan) {
@@ -166,7 +172,15 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             JarOutputStream os = new JarOutputStream(new BufferedOutputStream(fos));
             EARContext earContext = null;
             try {
-                earContext = new EARContext(os, configId, parentId, kernel, j2eeDomainName, j2eeServerName, applicationName);
+                earContext = new EARContext(os,
+                        configId,
+                        parentId,
+                        kernel,
+                        j2eeDomainName,
+                        j2eeServerName,
+                        applicationName,
+                        transactionManagerObjectName,
+                        connectionTrackerObjectName);
             } catch (MalformedObjectNameException e) {
                 throw new DeploymentException(e);
             }
@@ -368,6 +382,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(EARConfigBuilder.class);
         infoFactory.addAttribute("kernel", Kernel.class, false);
+        infoFactory.addAttribute("transactionManagerObjectName", ObjectName.class, true);
+        infoFactory.addAttribute("connectionTrackerObjectName", ObjectName.class, true);
         infoFactory.addReference("Repository", Repository.class);
         infoFactory.addAttribute("j2eeServer", ObjectName.class, true);
         infoFactory.addReference("EJBConfigBuilder", ModuleBuilder.class);
@@ -382,7 +398,9 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             "j2eeServer",
             "EJBConfigBuilder",
             "WebConfigBuilder",
-            "ConnectorConfigBuilder"});
+            "ConnectorConfigBuilder",
+            "transactionManagerObjectName",
+            "connectionTrackerObjectName"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

@@ -30,7 +30,7 @@ import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.kernel.Kernel;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/05/26 21:12:08 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/11 19:18:21 $
  */
 public class EARContext extends DeploymentContext {
     private final Map ejbRefs = new HashMap();
@@ -42,7 +42,10 @@ public class EARContext extends DeploymentContext {
     private final ObjectName serverObjectName;
     private final ObjectName applicationObjectName;
 
-    public EARContext(JarOutputStream jos, URI id, URI parentID, Kernel kernel, String j2eeDomainName, String j2eeServerName, String j2eeApplicationName) throws MalformedObjectNameException, DeploymentException {
+    private final ObjectName transactionManagerObjectName;
+    private final ObjectName connectionTrackerObjectName;
+
+    public EARContext(JarOutputStream jos, URI id, URI parentID, Kernel kernel, String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, ObjectName transactionManagerObjectName, ObjectName connectionTrackerObjectName) throws MalformedObjectNameException, DeploymentException {
         super(jos, id, parentID, kernel);
         this.j2eeDomainName = j2eeDomainName;
         this.j2eeServerName = j2eeServerName;
@@ -83,6 +86,8 @@ public class EARContext extends DeploymentContext {
         } else {
             applicationObjectName = null;
         }
+        this.transactionManagerObjectName = transactionManagerObjectName;
+        this.connectionTrackerObjectName = connectionTrackerObjectName;
 
     }
 
@@ -108,6 +113,14 @@ public class EARContext extends DeploymentContext {
 
     public ObjectName getApplicationObjectName() {
         return applicationObjectName;
+    }
+
+    public ObjectName getTransactionManagerObjectName() {
+        return transactionManagerObjectName;
+    }
+
+    public ObjectName getConnectionTrackerObjectName() {
+        return connectionTrackerObjectName;
     }
 
     public void addEJBRef(URI modulePath, String name, Object reference) throws DeploymentException {
