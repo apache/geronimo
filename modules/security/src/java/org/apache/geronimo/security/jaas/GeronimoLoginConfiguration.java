@@ -19,19 +19,24 @@ package org.apache.geronimo.security.jaas;
 
 import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.Configuration;
-
 import java.util.Hashtable;
 import java.util.Map;
 
+import org.apache.geronimo.gbean.GBean;
+import org.apache.geronimo.gbean.GBeanContext;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.security.SecurityService;
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:25 $
+ * @version $Revision: 1.5 $ $Date: 2004/05/30 18:32:42 $
  */
-public class GeronimoLoginConfiguration extends Configuration {
+public class GeronimoLoginConfiguration extends Configuration implements GBean {
 
     private static Map entries = new Hashtable();
+    private Configuration oldConfiguration;
 
     public AppConfigurationEntry[] getAppConfigurationEntry(String JAASId) {
         ConfigurationEntry entry = (ConfigurationEntry) entries.get(JAASId);
@@ -58,5 +63,32 @@ public class GeronimoLoginConfiguration extends Configuration {
         if (sm != null) sm.checkPermission(SecurityService.CONFIGURE);
 
         entries.remove(entry.getJAASId());
+    }
+
+    public void setGBeanContext(GBeanContext context) {
+    }
+
+    public void doStart() throws WaitingException, Exception {
+        oldConfiguration = Configuration.getConfiguration();
+        Configuration.setConfiguration(this);
+    }
+
+    public void doStop() throws WaitingException, Exception {
+        Configuration.setConfiguration(oldConfiguration);
+    }
+
+    public void doFail() {
+        Configuration.setConfiguration(oldConfiguration);
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
+
+    private static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(GeronimoLoginConfiguration.class.getName());
+        GBEAN_INFO = infoFactory.getBeanInfo();
     }
 }
