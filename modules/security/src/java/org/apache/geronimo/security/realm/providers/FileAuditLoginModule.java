@@ -91,7 +91,9 @@ public class FileAuditLoginModule implements LoginModule {
             writer.println(DATE_FORMAT.format(date)+" - "+action+" - "+username);
             writer.flush();
             writer.close();
-            lock.release();
+            if(lock.isValid()) {
+                lock.release();
+            }
         } catch (IOException e) {
             throw new RuntimeException("Unable to write to authentication log file", e);
         }
