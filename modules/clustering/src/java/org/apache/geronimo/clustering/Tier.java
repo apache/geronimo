@@ -74,17 +74,17 @@ import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
  * into the same abstract base.
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/01/07 00:15:38 $
+ * @version $Revision: 1.7 $ $Date: 2004/01/21 14:12:12 $
  */
 public abstract class
   Tier
   extends NamedMBeanImpl
 {
   protected Log    _log=LogFactory.getLog(Tier.class);
-  protected Node   _node;
   protected Data   _data;
   protected Map    _tiers;
   protected Object _tier;
+
 
   /**
    * Makes an ObjectName for a Tier MBean with the given parameters.
@@ -105,6 +105,11 @@ public abstract class
   //----------------------------------------
   // Tier
   //----------------------------------------
+
+  protected Node   _node;
+  public Node getNode(){return _node;}
+
+  public ObjectName getNodeObjectName(){return _node==null?null:_node.getObjectName();}
 
   public String getClusterName(){return _objectName.getKeyProperty("cluster");}
   public String getNodeName(){return _objectName.getKeyProperty("node");}
@@ -182,8 +187,9 @@ public abstract class
   {
     GeronimoMBeanInfo mbeanInfo=MBeanImpl.getGeronimoMBeanInfo();
     //set target class in concrete subclass
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ClusterName", true, false, "Name of this Tier's Node's Cluster"));
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("NodeName",    true, false, "Name of this Tier's Node"));
+    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ClusterName",    true, false, "Name of this Tier's Node's Cluster"));
+    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("NodeName",       true, false, "Name of this Tier's Node"));
+    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("NodeObjectName", true, false, "ObjectName of this Tier's Node"));
     return mbeanInfo;
   }
 }

@@ -68,7 +68,7 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
  * A base class containing fnality useful to the MBeans of the
  * Clustering module.
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/04 14:35:06 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/21 14:12:12 $
  */
 public abstract class
   MBeanImpl
@@ -103,6 +103,8 @@ public abstract class
     _objectName=(context==null)?null:context.getObjectName();
     _server    =(context==null)?null:context.getServer();
   }
+
+  public ObjectName getObjectName() {return _objectName;}
 
   public static GeronimoMBeanInfo
     getGeronimoMBeanInfo()

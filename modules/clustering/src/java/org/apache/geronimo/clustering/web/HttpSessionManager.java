@@ -75,14 +75,13 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
  * An HttpSessionManager for &lt;distributable/&gt; webapps, which
  * backs onto the generic Geronimo clustering framework.
  *
- * @version $Revision: 1.7 $ $Date: 2004/01/07 22:09:47 $
+ * @version $Revision: 1.8 $ $Date: 2004/01/21 14:12:12 $
  */
 public class
   HttpSessionManager
   extends MBeanImpl
 {
   protected Log _log=LogFactory.getLog(HttpSessionManager.class);
-
   //----------------------------------------
   // HttpSessionManager
   //----------------------------------------
@@ -93,6 +92,8 @@ public class
 
   protected Tier _tier;
   public Tier getTier(){return _tier;}
+
+  public ObjectName getTierObjectName() {return _tier==null?null:_tier.getObjectName();}
 
   protected String _clusterName;
   public String getClusterName(){return _clusterName;}
@@ -166,13 +167,16 @@ public class
   {
     GeronimoMBeanInfo mbeanInfo=MBeanImpl.getGeronimoMBeanInfo();
     mbeanInfo.setTargetClass(HttpSessionManager.class);
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Size",        true, false, "number of extant HttpSessions within this webapp"));
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("UID",         true, false, "unique identity for this webapp within this vm"));
+    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Size",           true, false, "number of extant HttpSessions within this webapp"));
+    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("UID",            true, false, "unique identity for this webapp within this vm"));
+    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("TierObjectName", true, false, "ObjectName of Tier to which this webapp is attached"));
+
     // TODO - these should probably become RO...
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ClusterName", true, true, "name of Cluster upon which this webapp is deployed"));
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("NodeName",    true, true, "name of Cluster Node upon which this webapp is deployed"));
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("TierName",    true, true, "name of Tier to which this webapp is attached"));
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ContextPath", true, true, "context path at which this webapp is deployed"));
+    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ClusterName",    true, true, "name of Cluster upon which this webapp is deployed"));
+    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("NodeName",       true, true, "name of Cluster Node upon which this webapp is deployed"));
+    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("TierName",       true, true, "name of Tier to which this webapp is attached"));
+    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ContextPath",    true, true, "context path at which this webapp is deployed"));
+
     return mbeanInfo;
   }
 }

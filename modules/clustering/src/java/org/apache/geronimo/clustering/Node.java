@@ -71,7 +71,7 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
  * uniquely within their Cluster and VM. A VM may contain more than
  * one Node.
  *
- * @version $Revision: 1.6 $ $Date: 2004/01/07 00:15:38 $
+ * @version $Revision: 1.7 $ $Date: 2004/01/21 14:12:12 $
  */
 public class
   Node
@@ -79,7 +79,6 @@ public class
   implements MetaDataListener, DataListener, DataDeltaListener
 {
   protected Log     _log=LogFactory.getLog(Node.class);
-  protected Cluster _cluster;
 
   /**
    * Makes an ObjectName for a Node MBean with the given parameters.
@@ -100,6 +99,7 @@ public class
   // Node
   //----------------------------------------
 
+  protected Cluster _cluster;
   /**
    * Returns the Node's Cluster's MBean's unique identifier.
    *
@@ -108,6 +108,8 @@ public class
   public String getClusterName(){return _objectName.getKeyProperty("cluster");}
 
   public Cluster getCluster(){return _cluster;}
+
+  public ObjectName getClusterObjectName(){return _cluster==null?null:_cluster.getObjectName();}
 
   //----------------------------------------
   // MetaDataListener
@@ -224,8 +226,10 @@ public class
   {
     GeronimoMBeanInfo mbeanInfo=MBeanImpl.getGeronimoMBeanInfo();
     mbeanInfo.setTargetClass(Node.class);
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ClusterName", true, false, "Node's Cluster's Name"));
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Data",        true, false, "Node's state"));
+    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ClusterName",       true, false, "Node's Cluster's Name"));
+    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ClusterObjectName", true, false, "Node's Cluster's ObjectName"));
+    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Data",              true, false, "Node's state"));
+
     return mbeanInfo;
   }
 }
