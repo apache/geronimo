@@ -63,21 +63,28 @@ import java.util.Set;
 import java.util.List;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.HashSet;
 import java.beans.PropertyEditorManager;
 import javax.management.MBeanServer;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
+import javax.management.NotificationListener;
+import javax.management.Notification;
+import javax.management.NotificationFilter;
+import javax.management.InstanceNotFoundException;
+import javax.management.ListenerNotFoundException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.impl.LogFactoryImpl;
 import org.apache.geronimo.kernel.deployment.DeploymentException;
+import org.apache.geronimo.kernel.deployment.client.DeploymentNotification;
 import org.apache.geronimo.kernel.jmx.JMXKernel;
 
 /**
  * Main entry point for the Geronimo server.
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/17 10:57:40 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/17 15:26:46 $
  */
 public class Main implements Runnable {
     static {
@@ -121,7 +128,7 @@ public class Main implements Runnable {
      * Main entry point
      */
     public void run() {
-        long time = System.currentTimeMillis();
+        final long time = System.currentTimeMillis();
 
         Object[] deployArgs = {bootURL};
         JMXKernel kernel = null;
@@ -171,18 +178,47 @@ public class Main implements Runnable {
 
                 // start her up
                 log.info("Deploying Bootstrap Services from " + bootURL);
-                MBeanServer mbServer = kernel.getMBeanServer();
+                final MBeanServer mbServer = kernel.getMBeanServer();
+                final ObjectName nameToDeregister = controllerName;
+                mbServer.addNotificationListener(controllerName, new NotificationListener() {
+                    private Set ids = new HashSet();
+                    private int zeroCount = 0;
+                    public void handleNotification(Notification notification, Object handback) {
+                        DeploymentNotification dn = (DeploymentNotification)notification;
+                        if(dn.getType().equals(DeploymentNotification.DEPLOYMENT_UPDATE)) {
+                            ids.add(dn.getTargetModuleID());
+                        } else {
+                            ids.remove(dn.getTargetModuleID());
+                        }
+                        if(ids.size() == 0) {
+                            ++zeroCount;
+                            if(zeroCount > 1) { // todo: here we assume that the first run of the DeploymentScanner will not do anything.  We could save several seconds if we fixed that, but for now this works.
+                                // Booted... print the startup time
+                                long delta = (System.currentTimeMillis() - time) / 1000;
+                                StringBuffer startMessage = new StringBuffer(50);
+                                startMessage.append("Started Server in ");
+                                if(delta > 60) {
+                                    startMessage.append(delta / 60).append("m ");
+                                }
+                                startMessage.append(delta %  60).append("s");
+                                log.info(startMessage);
+                                try {
+                                    mbServer.removeNotificationListener(nameToDeregister, this);
+                                } catch(InstanceNotFoundException e) {
+                                    log.error("Couldn't remove start listener", e);
+                                } catch(ListenerNotFoundException e) {
+                                    log.error("Couldn't remove start listener", e);
+                                }
+                            }
+                        }
+                    }
+                }, new NotificationFilter() {
+                    public boolean isNotificationEnabled(Notification notification) {
+                        return true;
+                    }
+                }, null);
                 mbServer.invoke(deployerName, "deploy", deployArgs, DEPLOY_ARG_TYPES);
 
-                // Booted... print the startup time
-                time = (System.currentTimeMillis() - time) / 1000;
-                StringBuffer startMessage = new StringBuffer(50);
-                startMessage.append("Started Server in ");
-                if(time > 60) {
-                    startMessage.append(time / 60).append("m ");
-                }
-                startMessage.append(time %  60).append("s");
-                log.info(startMessage);
             } catch (Throwable e) {
                 log.error("Error starting Server", e);
                 return;

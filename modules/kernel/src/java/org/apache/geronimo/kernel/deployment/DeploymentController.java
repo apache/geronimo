@@ -84,7 +84,7 @@ import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
  * Handles the nuts & bolts of deployment -- acting on a set of goals, and
  * providing status notifications along the way.
  *
- * @version $Revision: 1.6 $ $Date: 2003/11/17 10:57:40 $
+ * @version $Revision: 1.7 $ $Date: 2003/11/17 15:26:46 $
  */
 public class DeploymentController implements GeronimoMBeanTarget {
 
@@ -183,16 +183,13 @@ public class DeploymentController implements GeronimoMBeanTarget {
         waiter.startJob(deploymentID);
     }
 
-    private synchronized void executeJob(DeploymentGoal[] job) {
+    private void executeJob(DeploymentGoal[] job) {
         if(job.length == 0) {
             return;
         }
         int id = job[0].getTargetModule().getDeploymentID();
         try {
             goals.addAll(Arrays.asList(job));
-            for(int i=0; i<job.length; i++) {
-                updateDeploymentStatus(id, "Starting deployment job.", DeploymentNotification.DEPLOYMENT_UPDATE, job[i].getTargetModule());
-            }
             generatePlans();
             executePlans();
             for(int i=0; i<job.length; i++) {
@@ -344,6 +341,9 @@ public class DeploymentController implements GeronimoMBeanTarget {
             if(job == null) {
                 log.error("Job should not be null", new RuntimeException());
                 return;
+            }
+            for(int i=0; i<job.length; i++) {
+                updateDeploymentStatus(job[i].getTargetModule().getDeploymentID(), "Starting deployment job.", DeploymentNotification.DEPLOYMENT_UPDATE, job[i].getTargetModule());
             }
             synchronized(work) {
                 work.addLast(job);
