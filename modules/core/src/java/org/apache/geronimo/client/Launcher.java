@@ -98,7 +98,7 @@ import org.apache.geronimo.xml.deployment.LoaderUtil;
 /**
  * Launcher for J2EE Application Clients.
  *
- * @version $Revision: 1.5 $ $Date: 2003/09/08 04:22:00 $
+ * @version $Revision: 1.6 $ $Date: 2003/09/22 21:09:35 $
  */
 public class Launcher {
     static {
@@ -220,7 +220,7 @@ public class Launcher {
         Context compContext = ComponentContextBuilder.buildContext(appClient);
 
         try {
-            AttributeList attrs = new AttributeList(2);
+            AttributeList attrs = new AttributeList(3);
             attrs.add(new Attribute("MainClassName", mainClassName));
             attrs.add(new Attribute("ClientURL", clientURL));
             attrs.add(new Attribute("ComponentContext", compContext));
@@ -269,7 +269,7 @@ public class Launcher {
             GeronimoAppClientLoader loader = new GeronimoAppClientLoader();
             return loader.load(LoaderUtil.parseXML(reader));
         } catch (Exception e) {
-            throw new DeploymentException("Unable to load application-client.xml", e);
+            throw new DeploymentException("Unable to load geronimo-application-client.xml", e);
         }
     }
 
