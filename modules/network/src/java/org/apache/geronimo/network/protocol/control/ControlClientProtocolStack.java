@@ -31,7 +31,7 @@ import org.apache.geronimo.system.ThreadPool;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:14 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/17 03:11:59 $
  */
 public class ControlClientProtocolStack extends ProtocolStack implements ControlClientListener {
 
@@ -91,7 +91,7 @@ public class ControlClientProtocolStack extends ProtocolStack implements Control
         return result;
     }
 
-    public void doStart() throws ProtocolException {
+    public void setup() throws ProtocolException {
         try {
             kitchen = new ControlClientProtocolKitchen();
             kitchen.setClassLoader(classLoader);
@@ -101,16 +101,16 @@ public class ControlClientProtocolStack extends ProtocolStack implements Control
 
             push(kitchen);
 
-            super.doStart();
+            super.setup();
         } catch (InterruptedException e) {
             throw new ProtocolException(e);
         }
     }
 
-    public void doStop() throws ProtocolException {
+    public void drain() throws ProtocolException {
         pop();
 
-        super.doStop();
+        super.drain();
     }
 
     public void serveUp(Collection menu) throws ControlException {
@@ -120,7 +120,7 @@ public class ControlClientProtocolStack extends ProtocolStack implements Control
     public void shutdown() {
         log.trace("Shutdown");
         try {
-            doStop();
+            drain();
         } catch (ProtocolException e) {
         }
     }

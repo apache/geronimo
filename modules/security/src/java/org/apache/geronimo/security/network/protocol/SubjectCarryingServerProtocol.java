@@ -38,7 +38,7 @@ import org.apache.geronimo.security.ContextManager;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:26 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/17 03:16:10 $
  */
 public class SubjectCarryingServerProtocol extends AbstractProtocol implements BootstrapCook {
 
@@ -46,12 +46,15 @@ public class SubjectCarryingServerProtocol extends AbstractProtocol implements B
 
     private Subject clientSubject;
 
-    public void doStart() throws ProtocolException {
+    public void setup() throws ProtocolException {
         log.trace("Starting");
     }
 
-    public void doStop() throws ProtocolException {
+    public void drain() throws ProtocolException {
         log.trace("Stopping");
+    }
+
+    public void teardown() throws ProtocolException {
     }
 
     public void sendUp(UpPacket packet) throws ProtocolException {
@@ -59,19 +62,19 @@ public class SubjectCarryingServerProtocol extends AbstractProtocol implements B
         UpPacket p = SubjectCarryingPacketReader.getInstance().read(packet.getBuffer());
         if (p instanceof PassthroughUpPacket) {
             MetadataSupport.setSubject(packet, clientSubject);
-            getUp().sendUp(packet);
+            getUpProtocol().sendUp(packet);
         } else if (p instanceof SubjectCarryingUpPacket) {
             SubjectCarryingUpPacket subjectPacket = (SubjectCarryingUpPacket)p;
             clientSubject = ContextManager.getRegisteredSubject(subjectPacket.getSubjectId());
 
             MetadataSupport.setSubject(packet, clientSubject);
-            getUp().sendUp(packet);
+            getUpProtocol().sendUp(packet);
         }
     }
 
     public void sendDown(DownPacket packet) throws ProtocolException {
         log.trace("sendDown");
-        getDown().sendDown(packet);
+        getDownProtocol().sendDown(packet);
     }
 
     public Collection cook(ControlContext context) {

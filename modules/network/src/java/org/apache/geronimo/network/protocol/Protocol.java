@@ -18,25 +18,27 @@
 package org.apache.geronimo.network.protocol;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:13 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/17 03:11:59 $
  */
 public interface Protocol extends Cloneable {
 
-    Protocol getUp();
+    Protocol getUpProtocol();
 
-    void setUp(Protocol up);
+    void setUpProtocol(Protocol up);
 
-    Protocol getDown();
+    Protocol getDownProtocol();
 
-    void setDown(Protocol down);
+    void setDownProtocol(Protocol down);
 
     void clearLinks();
 
     Protocol cloneProtocol() throws CloneNotSupportedException;
 
-    void doStart() throws ProtocolException;
+    void setup() throws ProtocolException;
 
-    void doStop() throws ProtocolException;
+    void drain() throws ProtocolException;
+
+    void teardown() throws ProtocolException;
 
     void sendUp(UpPacket packet) throws ProtocolException;
 

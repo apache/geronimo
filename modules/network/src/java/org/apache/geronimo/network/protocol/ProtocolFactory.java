@@ -26,16 +26,13 @@ import EDU.oswego.cs.dl.util.concurrent.ClockDaemon;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.system.ClockPool;
 
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:13 $
+ * @version $Revision: 1.4 $ $Date: 2004/03/17 03:11:59 $
  */
-public class ProtocolFactory implements ServerSocketAcceptorListener, GBean {
+public class ProtocolFactory implements ServerSocketAcceptorListener {
 
     private final static Log log = LogFactory.getLog(ProtocolFactory.class);
 
@@ -92,7 +89,7 @@ public class ProtocolFactory implements ServerSocketAcceptorListener, GBean {
         try {
             AcceptableProtocol protocol = (AcceptableProtocol) template.cloneProtocol();
             protocol.accept(socketChannel);
-            protocol.doStart();
+            protocol.setup();
 
             Long id = new Long(nextConnectionId++);
 
@@ -109,20 +106,17 @@ public class ProtocolFactory implements ServerSocketAcceptorListener, GBean {
         }
     }
 
-    public void setGBeanContext(GBeanContext context) {
+    public void startup() throws Exception {
     }
 
-    public void doStart() throws WaitingException, Exception {
-    }
-
-    public void doStop() throws WaitingException, Exception {
+    public void drain() throws Exception {
         synchronized (connectionCache) {
             Iterator keys = connectionCache.keySet().iterator();
             while (keys.hasNext()) {
                 ConnectionCacheMonitor ccm = (ConnectionCacheMonitor) connectionCache.get(keys.next());
 
                 ClockDaemon.cancel(ccm.clockTicket);
-                ccm.connection.doStop();
+                ccm.connection.drain();
 
                 log.trace("Connection [" + ccm.key + "] reclaimed");
             }
@@ -130,7 +124,7 @@ public class ProtocolFactory implements ServerSocketAcceptorListener, GBean {
         }
     }
 
-    public void doFail() {
+    public void teardown() {
 
     }
 
@@ -161,7 +155,7 @@ public class ProtocolFactory implements ServerSocketAcceptorListener, GBean {
                             || (currentTime - connection.getLastUsed()) > maxInactivity) {
                         log.trace("Connection [" + key + "] reclaimed");
 
-                        connection.doStop();
+                        connection.drain();
 
                         ClockDaemon.cancel(clockTicket);
                         connectionCache.remove(key);

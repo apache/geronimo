@@ -37,7 +37,7 @@ import org.apache.geronimo.network.SelectorManager;
 
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/14 00:11:01 $
+ * @version $Revision: 1.4 $ $Date: 2004/03/17 03:11:59 $
  */
 public class DatagramProtocol implements Protocol, SelectionEventListner {
 
@@ -59,19 +59,19 @@ public class DatagramProtocol implements Protocol, SelectionEventListner {
     private int state = STOPPED;
 
 
-    public Protocol getUp() {
+    public Protocol getUpProtocol() {
         return up;
     }
 
-    public void setUp(Protocol up) {
+    public void setUpProtocol(Protocol up) {
         this.up = up;
     }
 
-    public Protocol getDown() {
+    public Protocol getDownProtocol() {
         throw new UnsupportedOperationException("Datagram protocol is at the bottom");
     }
 
-    public void setDown(Protocol down) {
+    public void setDownProtocol(Protocol down) {
         throw new UnsupportedOperationException("Datagram protocol is at the bottom");
     }
 
@@ -114,7 +114,7 @@ public class DatagramProtocol implements Protocol, SelectionEventListner {
         return (Protocol) super.clone();
     }
 
-    public void doStart() throws ProtocolException {
+    public void setup() throws ProtocolException {
         try {
             if (sourceAddress != null) {
                 source = DatagramChannel.open();
@@ -157,9 +157,12 @@ public class DatagramProtocol implements Protocol, SelectionEventListner {
         state = STARTED;
     }
 
-    public void doStop() throws ProtocolException {
+    public void drain() throws ProtocolException {
         close();
         state = STOPPED;
+    }
+
+    public void teardown() throws ProtocolException {
     }
 
     public void sendUp(UpPacket packet) throws ProtocolException {

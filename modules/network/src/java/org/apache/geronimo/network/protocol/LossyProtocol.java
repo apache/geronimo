@@ -21,7 +21,7 @@ import java.util.Random;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:13 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/17 03:11:59 $
  */
 public class LossyProtocol extends AbstractProtocol {
 
@@ -53,24 +53,27 @@ public class LossyProtocol extends AbstractProtocol {
         this.downLoss = downLoss;
     }
 
-    public void doStart() throws ProtocolException {
+    public void setup() throws ProtocolException {
         state = STARTED;
     }
 
-    public void doStop() throws ProtocolException {
+    public void drain() throws ProtocolException {
         state = STOPPED;
+    }
+
+    public void teardown() throws ProtocolException {
     }
 
     public void sendUp(UpPacket packet) throws ProtocolException {
         if (state == STOPPED) throw new IllegalStateException("Protocol is not started");
 
-        if (upRandom.nextFloat() > upLoss) getUp().sendUp(packet);
+        if (upRandom.nextFloat() > upLoss) getUpProtocol().sendUp(packet);
     }
 
     public void sendDown(DownPacket packet) throws ProtocolException {
         if (state == STOPPED) throw new IllegalStateException("Protocol is not started");
 
-        if (downRandom.nextFloat() > downLoss) getDown().sendDown(packet);
+        if (downRandom.nextFloat() > downLoss) getDownProtocol().sendDown(packet);
     }
 
 }

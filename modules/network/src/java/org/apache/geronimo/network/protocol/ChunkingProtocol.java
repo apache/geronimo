@@ -18,14 +18,17 @@
 package org.apache.geronimo.network.protocol;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:13 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/17 03:11:59 $
  */
 public class ChunkingProtocol extends AbstractProtocol {
 
-    public void doStart() throws ProtocolException {
+    public void setup() throws ProtocolException {
     }
 
-    public void doStop() throws ProtocolException {
+    public void drain() throws ProtocolException {
+    }
+
+    public void teardown() throws ProtocolException {
     }
 
     public void sendUp(UpPacket packet) throws ProtocolException {

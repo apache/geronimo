@@ -32,7 +32,7 @@ import org.apache.geronimo.system.ThreadPool;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:13 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/17 03:11:59 $
  */
 public class BufferProtocol extends AbstractProtocol implements BootstrapCook {
 
@@ -52,7 +52,7 @@ public class BufferProtocol extends AbstractProtocol implements BootstrapCook {
         this.threadPool = threadPool;
     }
 
-    public void doStart() throws ProtocolException {
+    public void setup() throws ProtocolException {
         log.trace("Starting");
         running = true;
         try {
@@ -61,7 +61,7 @@ public class BufferProtocol extends AbstractProtocol implements BootstrapCook {
                     try {
                         while (running) {
                             UpPacket packet = (UpPacket) upQueue.poll(500);
-                            if (packet != null) getUp().sendUp(packet);
+                            if (packet != null) getUpProtocol().sendUp(packet);
                         }
                     } catch (InterruptedException e) {
                     } catch (ProtocolException e) {
@@ -75,7 +75,7 @@ public class BufferProtocol extends AbstractProtocol implements BootstrapCook {
                     try {
                         while (running) {
                             DownPacket packet = (DownPacket) downQueue.poll(500);
-                            if (packet != null) getDown().sendDown(packet);
+                            if (packet != null) getDownProtocol().sendDown(packet);
                         }
                     } catch (InterruptedException e) {
                     } catch (ProtocolException e) {
@@ -89,9 +89,12 @@ public class BufferProtocol extends AbstractProtocol implements BootstrapCook {
         }
     }
 
-    public void doStop() throws ProtocolException {
+    public void drain() throws ProtocolException {
         log.trace("Stopping");
         running = false;
+    }
+
+    public void teardown() throws ProtocolException {
     }
 
     public void sendUp(UpPacket packet) throws ProtocolException {

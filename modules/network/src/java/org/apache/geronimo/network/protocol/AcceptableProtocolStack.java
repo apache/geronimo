@@ -25,7 +25,7 @@ import org.apache.commons.logging.LogFactory;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:13 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/17 03:11:59 $
  */
 public class AcceptableProtocolStack extends Stack implements AcceptableProtocol {
 
@@ -41,9 +41,9 @@ public class AcceptableProtocolStack extends Stack implements AcceptableProtocol
         } else {
             top = (Protocol) object;
             Protocol down = (Protocol) super.peek();
-            top.setUp(down.getUp());
-            top.setDown(down);
-            down.setUp(top);
+            top.setUpProtocol(down.getUpProtocol());
+            top.setDownProtocol(down);
+            down.setUpProtocol(top);
         }
         return super.push(object);
     }
@@ -58,33 +58,33 @@ public class AcceptableProtocolStack extends Stack implements AcceptableProtocol
         Protocol result = (Protocol) super.pop();
 
         top = (Protocol) super.peek();
-        top.setUp(result.getUp());
+        top.setUpProtocol(result.getUpProtocol());
 
-        result.setUp(null);
-        result.setDown(null);
+        result.setUpProtocol(null);
+        result.setDownProtocol(null);
 
         return result;
     }
 
-    public Protocol getUp() {
-        return top.getUp();
+    public Protocol getUpProtocol() {
+        return top.getUpProtocol();
     }
 
-    public void setUp(Protocol up) {
-        top.setUp(up);
+    public void setUpProtocol(Protocol up) {
+        top.setUpProtocol(up);
     }
 
-    public Protocol getDown() {
-        return bottom.getDown();
+    public Protocol getDownProtocol() {
+        return bottom.getDownProtocol();
     }
 
-    public void setDown(Protocol down) {
-        bottom.setDown(down);
+    public void setDownProtocol(Protocol down) {
+        bottom.setDownProtocol(down);
     }
 
     public void clearLinks() {
-        top.setUp(null);
-        bottom.setDown(null);
+        top.setUpProtocol(null);
+        bottom.setDownProtocol(null);
     }
 
     public Protocol cloneProtocol() throws CloneNotSupportedException {
@@ -99,20 +99,23 @@ public class AcceptableProtocolStack extends Stack implements AcceptableProtocol
         return stack;
     }
 
-    public void doStart() throws ProtocolException {
+    public void setup() throws ProtocolException {
         log.trace("Starting");
         for (int i = 0; i < this.size(); i++) {
             Protocol protocol = (Protocol) this.get(i);
-            protocol.doStart();
+            protocol.setup();
         }
     }
 
-    public void doStop() throws ProtocolException {
+    public void drain() throws ProtocolException {
         log.trace("Stopping");
         for (int i = this.size() - 1; 0 <= i; i--) {
             Protocol protocol = (Protocol) this.get(i);
-            protocol.doStop();
+            protocol.drain();
         }
+    }
+
+    public void teardown() throws ProtocolException {
     }
 
     public void sendUp(UpPacket packet) throws ProtocolException {

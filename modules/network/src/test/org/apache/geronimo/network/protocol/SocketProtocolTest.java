@@ -31,7 +31,7 @@ import org.apache.geronimo.system.ThreadPool;
 
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/14 01:01:20 $
+ * @version $Revision: 1.4 $ $Date: 2004/03/17 03:12:00 $
  */
 public class SocketProtocolTest extends TestCase {
 
@@ -54,20 +54,20 @@ public class SocketProtocolTest extends TestCase {
         sm.doStart();
 
         SocketProtocol spt = new SocketProtocol();
-        spt.setUp(new Protocol() {
-            public Protocol getUp() {
+        spt.setUpProtocol(new Protocol() {
+            public Protocol getUpProtocol() {
                 throw new NoSuchMethodError();
             }
 
-            public void setUp(Protocol up) {
+            public void setUpProtocol(Protocol up) {
                 throw new NoSuchMethodError();
             }
 
-            public Protocol getDown() {
+            public Protocol getDownProtocol() {
                 throw new NoSuchMethodError();
             }
 
-            public void setDown(Protocol down) {
+            public void setDownProtocol(Protocol down) {
                 throw new NoSuchMethodError();
             }
 
@@ -78,10 +78,13 @@ public class SocketProtocolTest extends TestCase {
                 return (Protocol) super.clone();
             }
 
-            public void doStart() {
+            public void setup() {
             }
 
-            public void doStop() {
+            public void drain() {
+            }
+
+            public void teardown() throws ProtocolException {
             }
 
             public void sendUp(UpPacket packet) {
@@ -107,23 +110,23 @@ public class SocketProtocolTest extends TestCase {
         ssa.setTimeOut(5 * 1000);
         ssa.setUri(new URI("async://localhost:0/?tcp.nodelay=true&tcp.backlog=5#"));
         ssa.setAcceptorListener(pf);
-        ssa.doStart();
+        ssa.startup();
 
         SocketProtocol sp = new SocketProtocol();
-        sp.setUp(new Protocol() {
-            public Protocol getUp() {
+        sp.setUpProtocol(new Protocol() {
+            public Protocol getUpProtocol() {
                 throw new NoSuchMethodError();
             }
 
-            public void setUp(Protocol up) {
+            public void setUpProtocol(Protocol up) {
                 throw new NoSuchMethodError();
             }
 
-            public Protocol getDown() {
+            public Protocol getDownProtocol() {
                 throw new NoSuchMethodError();
             }
 
-            public void setDown(Protocol down) {
+            public void setDownProtocol(Protocol down) {
                 throw new NoSuchMethodError();
             }
 
@@ -134,10 +137,13 @@ public class SocketProtocolTest extends TestCase {
                 return (Protocol) super.clone();
             }
 
-            public void doStart() {
+            public void setup() {
             }
 
-            public void doStop() {
+            public void drain() {
+            }
+
+            public void teardown() throws ProtocolException {
             }
 
             public void sendUp(UpPacket packet) {
@@ -153,7 +159,7 @@ public class SocketProtocolTest extends TestCase {
         sp.setAddress(new InetSocketAddress(ssa.getConnectURI().getHost(), ssa.getConnectURI().getPort()));
         sp.setSelectorManager(sm);
 
-        sp.doStart();
+        sp.setup();
 
 
         sp.sendDown(getDatagramPacket());
@@ -166,13 +172,13 @@ public class SocketProtocolTest extends TestCase {
 
         Thread.sleep(5 * 1000);
 
-        sp.doStop();
+        sp.drain();
 
-        ssa.doStop();
+        ssa.drain();
 
-        pf.doStop();
+        pf.drain();
 
-        spt.doStop();
+        spt.drain();
 
         sm.doStop();
 

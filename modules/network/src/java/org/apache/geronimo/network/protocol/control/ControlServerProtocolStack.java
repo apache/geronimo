@@ -28,7 +28,7 @@ import org.apache.geronimo.network.protocol.ProtocolException;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:14 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/17 03:12:00 $
  */
 public class ControlServerProtocolStack extends AcceptableProtocolStack implements ControlServerListener, BootstrapChef {
 
@@ -57,16 +57,16 @@ public class ControlServerProtocolStack extends AcceptableProtocolStack implemen
         return result;
     }
 
-    public void doStart() throws ProtocolException {
+    public void setup() throws ProtocolException {
         if (waiter == null) throw new IllegalStateException("Waiter not added to stack");
 
-        super.doStart();
+        super.setup();
     }
 
     public void shutdown() {
         log.trace("Shutdown");
         try {
-            doStop();
+            drain();
         } catch (ProtocolException e) {
         }
     }

@@ -37,7 +37,7 @@ import org.apache.geronimo.system.ThreadPool;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:15 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/17 03:12:00 $
  */
 public class TestProtocol extends AbstractProtocol implements BootstrapCook {
 
@@ -83,10 +83,13 @@ public class TestProtocol extends AbstractProtocol implements BootstrapCook {
         this.selectorManager = selectorManager;
     }
 
-    public void doStart() throws ProtocolException {
+    public void setup() throws ProtocolException {
     }
 
-    public void doStop() throws ProtocolException {
+    public void drain() throws ProtocolException {
+    }
+
+    public void teardown() throws ProtocolException {
     }
 
     public void sendUp(UpPacket packet) throws ProtocolException {
@@ -101,12 +104,12 @@ public class TestProtocol extends AbstractProtocol implements BootstrapCook {
         Subject subject = MetadataSupport.getSubject(packet);
         if (subject != null) log.trace("Subject passed: " + subject);
 
-        if (getUp() != null) getUp().sendUp(packet);
+        if (getUpProtocol() != null) getUpProtocol().sendUp(packet);
     }
 
     public void sendDown(DownPacket packet) throws ProtocolException {
         log.trace("sendDown");
-        getDown().sendDown(packet);
+        getDownProtocol().sendDown(packet);
     }
 
     public Collection cook(ControlContext context) {

@@ -34,7 +34,7 @@ import org.apache.geronimo.system.ThreadPool;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:13 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/17 03:11:59 $
  */
 public class GSSAPIClientProtocol extends AbstractProtocol {
 
@@ -100,7 +100,7 @@ public class GSSAPIClientProtocol extends AbstractProtocol {
     }
 
 
-    public void doStart() throws ProtocolException {
+    public void setup() throws ProtocolException {
         log.trace("Starting");
         try {
             Oid krb5Oid = new Oid("1.2.840.113554.1.2.2");
@@ -122,7 +122,7 @@ public class GSSAPIClientProtocol extends AbstractProtocol {
                         token = context.initSecContext(token, 0, token.length);
                         PlainDownPacket packet = new PlainDownPacket();
                         packet.setBuffers(Collections.singletonList(ByteBuffer.allocate(token.length).put(token).flip()));
-                        getDown().sendDown(packet);
+                        getDownProtocol().sendDown(packet);
                     } catch (ProtocolException e) {
                     } catch (GSSException e) {
                     }
@@ -135,8 +135,11 @@ public class GSSAPIClientProtocol extends AbstractProtocol {
         }
     }
 
-    public void doStop() throws ProtocolException {
+    public void drain() throws ProtocolException {
         log.trace("Stoping");
+    }
+
+    public void teardown() throws ProtocolException {
     }
 
     public void sendUp(UpPacket packet) throws ProtocolException {
@@ -149,7 +152,7 @@ public class GSSAPIClientProtocol extends AbstractProtocol {
                 if (!context.isEstablished()) {
                     PlainDownPacket reply = new PlainDownPacket();
                     reply.setBuffers(Collections.singletonList(ByteBuffer.allocate(token.length).put(token).flip()));
-                    getDown().sendDown(reply);
+                    getDownProtocol().sendDown(reply);
                 } else {
                     log.trace("SECURE CONTEXT ESTABLISHED");
                     log.trace("Client is " + context.getSrcName());
@@ -164,7 +167,7 @@ public class GSSAPIClientProtocol extends AbstractProtocol {
                 byte[] token = context.unwrap(buffer.array(), buffer.position(), buffer.remaining(), new MessageProp(0, true));
                 UpPacket message = new UpPacket();
                 message.setBuffer((ByteBuffer) ByteBuffer.allocate(token.length).put(token).flip());
-                getUp().sendUp(message);
+                getUpProtocol().sendUp(message);
             }
         } catch (GSSException e) {
             throw new ProtocolException(e);
@@ -188,7 +191,7 @@ public class GSSAPIClientProtocol extends AbstractProtocol {
             byte[] token = context.wrap(buffer.array(), buffer.position(), buffer.remaining(), new MessageProp(0, true));
             PlainDownPacket reply = new PlainDownPacket();
             reply.setBuffers(Collections.singletonList(ByteBuffer.allocate(token.length).put(token).flip()));
-            getDown().sendDown(reply);
+            getDownProtocol().sendDown(reply);
         } catch (GSSException e) {
             throw new ProtocolException(e);
         }

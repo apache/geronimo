@@ -57,7 +57,7 @@ import org.apache.geronimo.system.ThreadPool;
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/14 01:01:49 $
+ * @version $Revision: 1.5 $ $Date: 2004/03/17 03:16:10 $
  */
 public class SubjectCarryingProtocolTest extends AbstractTest {
 
@@ -127,7 +127,7 @@ public class SubjectCarryingProtocolTest extends AbstractTest {
 
             clientStack.push(ccp);
 
-            clientStack.doStart();
+            clientStack.setup();
 
             clientStack.sendDown(getPlainPacket());
             clientStack.sendDown(getPlainPacket());
@@ -135,7 +135,7 @@ public class SubjectCarryingProtocolTest extends AbstractTest {
 
             Thread.sleep(5 * 1000);
 
-            clientStack.doStop();
+            clientStack.drain();
 
             shutdownLatch.release();
 
@@ -239,15 +239,15 @@ public class SubjectCarryingProtocolTest extends AbstractTest {
             ssa.setTimeOut(5 * 1000);
             ssa.setUri(new URI("async://localhost:0/?tcp.nodelay=true&tcp.backlog=5#"));
             ssa.setAcceptorListener(pf);
-            ssa.doStart();
+            ssa.startup();
 
             startLatch.release();
 
             shutdownLatch.acquire();
 
-            ssa.doStop();
+            ssa.drain();
 
-            pf.doStop();
+            pf.drain();
 
             sm.doStop();
 

@@ -24,14 +24,17 @@ import org.apache.geronimo.network.protocol.UpPacket;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:15 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/17 03:12:00 $
  */
 public class MultiTotemRingProtocol implements Protocol {
 
-    public void doStart() throws ProtocolException {
+    public void setup() throws ProtocolException {
     }
 
-    public void doStop() throws ProtocolException {
+    public void drain() throws ProtocolException {
+    }
+
+    public void teardown() throws ProtocolException {
     }
 
     public void sendUp(UpPacket packet) throws ProtocolException {
@@ -40,18 +43,18 @@ public class MultiTotemRingProtocol implements Protocol {
     public void sendDown(DownPacket packet) throws ProtocolException {
     }
 
-    public Protocol getUp() {
+    public Protocol getUpProtocol() {
         return null;
     }
 
-    public void setUp(Protocol up) {
+    public void setUpProtocol(Protocol up) {
     }
 
-    public Protocol getDown() {
+    public Protocol getDownProtocol() {
         return null;
     }
 
-    public void setDown(Protocol down) {
+    public void setDownProtocol(Protocol down) {
     }
 
     public void clearLinks() {

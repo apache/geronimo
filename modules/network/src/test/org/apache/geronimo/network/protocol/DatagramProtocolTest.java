@@ -30,7 +30,7 @@ import org.apache.geronimo.system.ThreadPool;
 
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/14 00:11:29 $
+ * @version $Revision: 1.4 $ $Date: 2004/03/17 03:12:00 $
  */
 public class DatagramProtocolTest extends TestCase {
 
@@ -49,20 +49,20 @@ public class DatagramProtocolTest extends TestCase {
         sm.doStart();
 
         DatagramProtocol dgp = new DatagramProtocol();
-        dgp.setUp(new Protocol() {
-            public Protocol getUp() {
+        dgp.setUpProtocol(new Protocol() {
+            public Protocol getUpProtocol() {
                 throw new NoSuchMethodError();
             }
 
-            public void setUp(Protocol up) {
+            public void setUpProtocol(Protocol up) {
                 throw new NoSuchMethodError();
             }
 
-            public Protocol getDown() {
+            public Protocol getDownProtocol() {
                 throw new NoSuchMethodError();
             }
 
-            public void setDown(Protocol down) {
+            public void setDownProtocol(Protocol down) {
                 throw new NoSuchMethodError();
             }
 
@@ -73,10 +73,13 @@ public class DatagramProtocolTest extends TestCase {
                 return (Protocol) super.clone();
             }
 
-            public void doStart() {
+            public void setup() {
             }
 
-            public void doStop() {
+            public void drain() {
+            }
+
+            public void teardown() throws ProtocolException {
             }
 
             public void sendUp(UpPacket packet) {
@@ -93,7 +96,7 @@ public class DatagramProtocolTest extends TestCase {
         dgp.setSourceAddress(new InetSocketAddress("localhost", 0));
         dgp.setSelectorManager(sm);
 
-        dgp.doStart();
+        dgp.setup();
 
         DatagramDownPacket packet = new DatagramDownPacket();
         packet.setAddress(new InetSocketAddress(dgp.getConnectURI().getHost(), dgp.getConnectURI().getPort()));
@@ -105,7 +108,7 @@ public class DatagramProtocolTest extends TestCase {
 
         Thread.sleep(1 * 1000);
 
-        dgp.doStop();
+        dgp.drain();
 
         sm.doStop();
 
@@ -126,20 +129,20 @@ public class DatagramProtocolTest extends TestCase {
         sm.doStart();
 
         DatagramProtocol dgp = new DatagramProtocol();
-        dgp.setUp(new Protocol() {
-            public Protocol getUp() {
+        dgp.setUpProtocol(new Protocol() {
+            public Protocol getUpProtocol() {
                 throw new NoSuchMethodError();
             }
 
-            public void setUp(Protocol up) {
+            public void setUpProtocol(Protocol up) {
                 throw new NoSuchMethodError();
             }
 
-            public Protocol getDown() {
+            public Protocol getDownProtocol() {
                 throw new NoSuchMethodError();
             }
 
-            public void setDown(Protocol down) {
+            public void setDownProtocol(Protocol down) {
                 throw new NoSuchMethodError();
             }
 
@@ -150,10 +153,13 @@ public class DatagramProtocolTest extends TestCase {
                 return (Protocol) super.clone();
             }
 
-            public void doStart() {
+            public void setup() {
             }
 
-            public void doStop() {
+            public void drain() {
+            }
+
+            public void teardown() throws ProtocolException {
             }
 
             public void sendUp(UpPacket packet) {
@@ -172,7 +178,7 @@ public class DatagramProtocolTest extends TestCase {
 
         DatagramProtocol dgp2 = (DatagramProtocol) dgp.cloneProtocol();
 
-        dgp2.doStart();
+        dgp2.setup();
 
         DatagramDownPacket packet = new DatagramDownPacket();
         packet.setAddress(new InetSocketAddress("localhost", 8081));
@@ -184,7 +190,7 @@ public class DatagramProtocolTest extends TestCase {
 
         Thread.sleep(5 * 1000);
 
-        dgp2.doStop();
+        dgp2.drain();
 
         sm.doStop();
 

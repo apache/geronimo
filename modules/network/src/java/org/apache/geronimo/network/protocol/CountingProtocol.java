@@ -29,7 +29,7 @@ import org.apache.geronimo.network.protocol.control.commands.CreateInstanceMenuI
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:13 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/17 03:11:59 $
  */
 public class CountingProtocol extends AbstractProtocol implements BootstrapCook {
 
@@ -47,28 +47,31 @@ public class CountingProtocol extends AbstractProtocol implements BootstrapCook 
         return downCount;
     }
 
-    public void doStart() throws ProtocolException {
+    public void setup() throws ProtocolException {
         tracing = log.isTraceEnabled();
 
         if (tracing) log.trace("Starting");
     }
 
-    public void doStop() throws ProtocolException {
+    public void drain() throws ProtocolException {
         if (tracing) log.trace("Stopping");
+    }
+
+    public void teardown() throws ProtocolException {
     }
 
     public void sendUp(UpPacket packet) throws ProtocolException {
         if (tracing) log.trace("sendUp " + upCount);
 
         upCount++;
-        getUp().sendUp(packet);
+        getUpProtocol().sendUp(packet);
     }
 
     public void sendDown(DownPacket packet) throws ProtocolException {
         if (tracing) log.trace("sendDown " + downCount);
 
         downCount++;
-        getDown().sendDown(packet);
+        getDownProtocol().sendDown(packet);
     }
 
     public Collection cook(ControlContext context) {

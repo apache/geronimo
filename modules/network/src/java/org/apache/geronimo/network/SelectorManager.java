@@ -41,7 +41,7 @@ import org.apache.geronimo.system.ThreadPool;
  * The SelectorManager will manage one Selector and the thread that checks
  * the selector.
  *
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:12 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/17 03:11:59 $
  */
 public class SelectorManager implements Runnable, GBean {
 
@@ -216,6 +216,10 @@ public class SelectorManager implements Runnable, GBean {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(SelectorManager.class.getName());
 
+        infoFactory.addAttribute("Timeout", true);
+        infoFactory.addAttribute("ThreadPool", true);
+        infoFactory.addAttribute("ThreadName", true);
+        infoFactory.addOperation("getSelector");
         infoFactory.addOperation("getStartCounter");
 
         GBEAN_INFO = infoFactory.getBeanInfo();

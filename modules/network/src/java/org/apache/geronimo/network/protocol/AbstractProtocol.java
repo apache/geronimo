@@ -18,26 +18,26 @@
 package org.apache.geronimo.network.protocol;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:13 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/17 03:11:59 $
  */
 public abstract class AbstractProtocol implements Protocol {
 
     private Protocol up;
     private Protocol down;
 
-    public Protocol getUp() {
+    public Protocol getUpProtocol() {
         return up;
     }
 
-    public void setUp(Protocol up) {
+    public void setUpProtocol(Protocol up) {
         this.up = up;
     }
 
-    public Protocol getDown() {
+    public Protocol getDownProtocol() {
         return down;
     }
 
-    public void setDown(Protocol down) {
+    public void setDownProtocol(Protocol down) {
         this.down = down;
     }
 

@@ -32,7 +32,7 @@ import org.apache.geronimo.system.ThreadPool;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:14 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/17 03:11:59 $
  */
 public class ControlServerProtocol extends AbstractControlProtocol {
 
@@ -98,7 +98,7 @@ public class ControlServerProtocol extends AbstractControlProtocol {
         this.timeout = timeout;
     }
 
-    public void doStart() throws ProtocolException {
+    public void setup() throws ProtocolException {
         try {
             log.trace("Starting");
             sendMutex.acquire();
@@ -108,28 +108,31 @@ public class ControlServerProtocol extends AbstractControlProtocol {
         }
     }
 
-    public void doStop() throws ProtocolException {
+    public void drain() throws ProtocolException {
         log.trace("Stopping");
         if (state == STARTED) {
-            getDown().sendDown(new ShutdownRequestDownPacket());
+            getDownProtocol().sendDown(new ShutdownRequestDownPacket());
             state = STOPPED;
         }
+    }
+
+    public void teardown() throws ProtocolException {
     }
 
     public void sendUp(UpPacket packet) throws ProtocolException {
         UpPacket p = ControlPacketReader.getInstance().read(packet.getBuffer());
         if (p instanceof PassthroughUpPacket) {
             log.trace("PASSTHROUGH");
-            getUp().sendUp(packet);
+            getUpProtocol().sendUp(packet);
         } else if (p instanceof BootRequestUpPacket) {
             log.trace("BOOT REQUEST");
-            getDown().sendDown(constructBootPacket());
+            getDownProtocol().sendDown(constructBootPacket());
         } else if (p instanceof BootSuccessUpPacket) {
             log.trace("BOOT SUCCESS");
             sendMutex.release();
         } else if (p instanceof ShutdownRequestUpPacket) {
             log.trace("SHUTDOWN_REQ");
-            getDown().sendDown(new ShutdownAcknowledgeDownPacket());
+            getDownProtocol().sendDown(new ShutdownAcknowledgeDownPacket());
             state = STOPPED;
             controlServerListener.shutdown();
         }
@@ -142,7 +145,7 @@ public class ControlServerProtocol extends AbstractControlProtocol {
             PassthroughDownPacket passthtough = new PassthroughDownPacket();
             passthtough.setBuffers(packet.getBuffers());
 
-            getDown().sendDown(passthtough);
+            getDownProtocol().sendDown(passthtough);
 
             sendMutex.release();
         } catch (InterruptedException e) {

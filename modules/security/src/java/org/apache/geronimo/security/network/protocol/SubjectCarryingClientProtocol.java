@@ -33,7 +33,7 @@ import org.apache.geronimo.security.IdentificationPrincipal;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:26 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/17 03:16:10 $
  */
 public class SubjectCarryingClientProtocol extends AbstractProtocol {
 
@@ -41,16 +41,19 @@ public class SubjectCarryingClientProtocol extends AbstractProtocol {
 
     private Subject clientSubject;
 
-    public void doStart() throws ProtocolException {
+    public void setup() throws ProtocolException {
         log.trace("Starting");
     }
 
-    public void doStop() throws ProtocolException {
+    public void drain() throws ProtocolException {
         log.trace("Stopping");
     }
 
+    public void teardown() throws ProtocolException {
+    }
+
     public void sendUp(UpPacket packet) throws ProtocolException {
-        getUp().sendUp(packet);
+        getUpProtocol().sendUp(packet);
     }
 
     public void sendDown(DownPacket packet) throws ProtocolException {
@@ -59,7 +62,7 @@ public class SubjectCarryingClientProtocol extends AbstractProtocol {
             PassthroughDownPacket passthroughPacket = new PassthroughDownPacket();
             passthroughPacket.setBuffers(packet.getBuffers());
 
-            getDown().sendDown(passthroughPacket);
+            getDownProtocol().sendDown(passthroughPacket);
         } else {
             clientSubject = subject;
             Collection principals = clientSubject.getPrincipals(IdentificationPrincipal.class);
@@ -68,7 +71,7 @@ public class SubjectCarryingClientProtocol extends AbstractProtocol {
                 PassthroughDownPacket passthroughPacket = new PassthroughDownPacket();
                 passthroughPacket.setBuffers(packet.getBuffers());
 
-                getDown().sendDown(passthroughPacket);
+                getDownProtocol().sendDown(passthroughPacket);
             } else {
                 IdentificationPrincipal principal = (IdentificationPrincipal) principals.iterator().next();
 
@@ -76,7 +79,7 @@ public class SubjectCarryingClientProtocol extends AbstractProtocol {
                 subjectPacket.setSubjectId(principal.getId());
                 subjectPacket.setBuffers(packet.getBuffers());
 
-                getDown().sendDown(subjectPacket);
+                getDownProtocol().sendDown(subjectPacket);
             }
         }
     }

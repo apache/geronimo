@@ -44,7 +44,7 @@ import org.apache.geronimo.system.ThreadPool;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:13 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/17 03:11:59 $
  */
 public class GSSAPIServerProtocol extends AbstractProtocol implements BootstrapCook {
 
@@ -98,7 +98,7 @@ public class GSSAPIServerProtocol extends AbstractProtocol implements BootstrapC
         this.integrity = integrity;
     }
 
-    public void doStart() throws ProtocolException {
+    public void setup() throws ProtocolException {
         log.trace("Starting");
         try {
             GSSManager manager = GSSManager.getInstance();
@@ -113,8 +113,11 @@ public class GSSAPIServerProtocol extends AbstractProtocol implements BootstrapC
         }
     }
 
-    public void doStop() throws ProtocolException {
+    public void drain() throws ProtocolException {
         log.trace("Stoping");
+    }
+
+    public void teardown() throws ProtocolException {
     }
 
     public void sendUp(UpPacket packet) throws ProtocolException {
@@ -126,7 +129,7 @@ public class GSSAPIServerProtocol extends AbstractProtocol implements BootstrapC
 
                 PlainDownPacket reply = new PlainDownPacket();
                 reply.setBuffers(Collections.singletonList(ByteBuffer.allocate(token.length).put(token).flip()));
-                getDown().sendDown(reply);
+                getDownProtocol().sendDown(reply);
 
                 if (context.isEstablished()) {
                     log.trace("SECURE CONTEXT ESTABLISHED");
@@ -153,7 +156,7 @@ public class GSSAPIServerProtocol extends AbstractProtocol implements BootstrapC
 
                 MetadataSupport.setSubject(message, clientSubject);
 
-                getUp().sendUp(message);
+                getUpProtocol().sendUp(message);
             }
         } catch (GSSException e) {
             throw new ProtocolException(e);
@@ -177,7 +180,7 @@ public class GSSAPIServerProtocol extends AbstractProtocol implements BootstrapC
             byte[] token = context.wrap(buffer.array(), buffer.position(), buffer.remaining(), new MessageProp(0, true));
             PlainDownPacket reply = new PlainDownPacket();
             reply.setBuffers(Collections.singletonList(ByteBuffer.allocate(token.length).put(token).flip()));
-            getDown().sendDown(reply);
+            getDownProtocol().sendDown(reply);
         } catch (GSSException e) {
             throw new ProtocolException(e);
         }

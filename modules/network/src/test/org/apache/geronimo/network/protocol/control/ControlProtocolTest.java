@@ -38,7 +38,7 @@ import org.apache.geronimo.system.ThreadPool;
 
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/14 01:01:21 $
+ * @version $Revision: 1.4 $ $Date: 2004/03/17 03:12:00 $
  */
 public class ControlProtocolTest extends TestCase {
 
@@ -110,7 +110,7 @@ public class ControlProtocolTest extends TestCase {
         ssa.setTimeOut(5 * 1000);
         ssa.setUri(new URI("async://localhost:0/?tcp.nodelay=true&tcp.backlog=5#"));
         ssa.setAcceptorListener(pf);
-        ssa.doStart();
+        ssa.startup();
 
         ControlClientProtocolStack clientStack = new ControlClientProtocolStack();
         clientStack.setClassLoader(Thread.currentThread().getContextClassLoader());
@@ -131,7 +131,7 @@ public class ControlProtocolTest extends TestCase {
 
         clientStack.push(ccp);
 
-        clientStack.doStart();
+        clientStack.setup();
 
         clientStack.sendDown(getDatagramPacket());
         clientStack.sendDown(getDatagramPacket());
@@ -139,13 +139,13 @@ public class ControlProtocolTest extends TestCase {
 
         Thread.sleep(5 * 1000);
 
-        clientStack.doStop();
+        clientStack.drain();
 
         Thread.sleep(5 * 1000);
 
-        ssa.doStop();
+        ssa.drain();
 
-        pf.doStop();
+        pf.drain();
 
         sm.doStop();
 
