@@ -37,10 +37,10 @@ import org.apache.geronimo.security.bridge.RealmBridge;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/04/07 22:37:10 $
+ * @version $Revision: 1.1 $ $Date: 2004/04/20 18:29:39 $
  *
  * */
-public class ConnectionManagerTestUtils extends TestCase implements RealmBridge, ConnectionInterceptor {
+public class ConnectionInterceptorTestUtils extends TestCase implements RealmBridge, ConnectionInterceptor {
     protected Subject subject;
     protected ConnectionInfo obtainedConnectionInfo;
     protected ConnectionInfo returnedConnectionInfo;

@@ -29,10 +29,10 @@ import org.apache.geronimo.transaction.TransactionContext;
  * TODO test unshareable resources.
  * TODO test repeat calls with null/non-null Subject
  *
- * @version $Revision: 1.5 $ $Date: 2004/04/07 22:37:10 $
+ * @version $Revision: 1.6 $ $Date: 2004/04/20 18:29:39 $
  *
  * */
-public class ConnectionTrackingInterceptorTest extends ConnectionManagerTestUtils
+public class ConnectionTrackingInterceptorTest extends ConnectionInterceptorTestUtils
         implements ConnectionTracker {
 
     private final static String key = "test-name";

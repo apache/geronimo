@@ -29,10 +29,10 @@ import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/04/06 00:21:21 $
+ * @version $Revision: 1.6 $ $Date: 2004/04/20 18:29:39 $
  *
  * */
-public class TransactionCachingInterceptorTest extends ConnectionManagerTestUtils
+public class TransactionCachingInterceptorTest extends ConnectionInterceptorTestUtils
         implements ConnectionTracker {
 
     private TransactionManager transactionManager;

@@ -22,10 +22,10 @@ import javax.security.auth.Subject;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:34 $
+ * @version $Revision: 1.4 $ $Date: 2004/04/20 18:29:39 $
  *
  * */
-public class SubjectInterceptorTest extends ConnectionManagerTestUtils {
+public class SubjectInterceptorTest extends ConnectionInterceptorTestUtils {
 
     private SubjectInterceptor subjectInterceptor;
 

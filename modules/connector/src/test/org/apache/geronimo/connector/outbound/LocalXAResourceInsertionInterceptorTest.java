@@ -23,10 +23,10 @@ import javax.resource.spi.LocalTransaction;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:34 $
+ * @version $Revision: 1.4 $ $Date: 2004/04/20 18:29:39 $
  *
  * */
-public class LocalXAResourceInsertionInterceptorTest extends ConnectionManagerTestUtils {
+public class LocalXAResourceInsertionInterceptorTest extends ConnectionInterceptorTestUtils {
 
     private LocalXAResourceInsertionInterceptor localXAResourceInsertionInterceptor;
     private LocalTransaction localTransaction;

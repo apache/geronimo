@@ -31,10 +31,10 @@ import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/04/06 00:21:21 $
+ * @version $Revision: 1.5 $ $Date: 2004/04/20 18:29:39 $
  *
  * */
-public class TransactionEnlistingInterceptorTest extends ConnectionManagerTestUtils
+public class TransactionEnlistingInterceptorTest extends ConnectionInterceptorTestUtils
         implements XAResource {
 
     private TransactionEnlistingInterceptor transactionEnlistingInterceptor;
