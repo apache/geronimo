@@ -65,13 +65,17 @@
             <!--copy stuff for this project into new geronimo repository-->
             <ant:copy todir="${targetDir}/repository">
                 <ant:fileset dir="${maven.repo.local}">
+                    <j:set var="docopy" value="false"/>
                     <j:forEach var="artifact" items="${pom.artifacts}">
                         <j:set var="dependency" value="${artifact.dependency}"/>
                         <j:if test="${dependency.getProperty('repository') == 'true'}">
+                            <j:set var="docopy" value="true"/>
                             <ant:include name="${dependency.getArtifactDirectory()}/${dependency.getType()}s/${dependency.getArtifact()}"/>
                         </j:if>
                     </j:forEach>
-                    <ant:exclude name="**/*"/>
+                    <j:if test="${docopy == false}">
+                        <ant:exclude name="**/*"/>
+                    </j:if>
                 </ant:fileset>
             </ant:copy>
             <!-- this version doesn't seem to work. Why not?-->
