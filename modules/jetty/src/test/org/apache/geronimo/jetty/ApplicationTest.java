@@ -76,7 +76,7 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/02/04 05:45:11 $
+ * @version $Revision: 1.5 $ $Date: 2004/02/04 05:54:08 $
  */
 public class ApplicationTest extends TestCase {
     private Kernel kernel;
@@ -89,23 +89,23 @@ public class ApplicationTest extends TestCase {
     private ObjectName appName;
 
     public void testApplication() throws Exception {
-//        URL url = Thread.currentThread().getContextClassLoader().getResource("deployables/war1");
-//        GBeanMBean app = new GBeanMBean(JettyWebApplicationContext.GBEAN_INFO);
-//        app.setAttribute("URI", URI.create(url.toString()));
-//        app.setAttribute("ContextPath", "/test");
-//        app.setAttribute("ComponentContext", null);
-//        app.setAttribute("PolicyContextID", null);
-//        app.setReferencePatterns("Configuration", Collections.EMPTY_SET);
-//        app.setReferencePatterns("JettyContainer", containerPatterns);
-//        app.setReferencePatterns("TransactionManager", Collections.EMPTY_SET);
-//        app.setReferencePatterns("TrackedConnectionAssociator", Collections.EMPTY_SET);
-//        start(appName, app);
-//
-//        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:5678/test/hello.txt").openConnection();
-//        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-//        assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
-//        assertEquals("Hello World", reader.readLine());
-//        connection.disconnect();
+        URL url = Thread.currentThread().getContextClassLoader().getResource("deployables/war1");
+        GBeanMBean app = new GBeanMBean(JettyWebApplicationContext.GBEAN_INFO);
+        app.setAttribute("URI", URI.create(url.toString()));
+        app.setAttribute("ContextPath", "/test");
+        app.setAttribute("ComponentContext", null);
+        app.setAttribute("PolicyContextID", null);
+        app.setReferencePatterns("Configuration", Collections.EMPTY_SET);
+        app.setReferencePatterns("JettyContainer", containerPatterns);
+        app.setReferencePatterns("TransactionManager", Collections.EMPTY_SET);
+        app.setReferencePatterns("TrackedConnectionAssociator", Collections.EMPTY_SET);
+        start(appName, app);
+
+        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:5678/test/hello.txt").openConnection();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
+        assertEquals("Hello World", reader.readLine());
+        connection.disconnect();
     }
 
     private void start(ObjectName name, Object instance) throws Exception {

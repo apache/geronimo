@@ -82,7 +82,7 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/02/04 05:45:11 $
+ * @version $Revision: 1.5 $ $Date: 2004/02/04 05:54:08 $
  */
 public class DeploymentTest extends DeployerTestCase {
 //    private byte[] plan;
@@ -90,40 +90,40 @@ public class DeploymentTest extends DeployerTestCase {
     private Target[] targets;
 
     public void testUnpacked() throws Exception {
-//        File war = new File(URI.create(classLoader.getResource("deployables/war1/").toString()));
-//
-//        ProgressObject result = manager.distribute(targets, war, new File(war, "WEB-INF/geronimo-web.xml"));
-//        waitFor(result);
-//        TargetModuleID[] ids = result.getResultTargetModuleIDs();
-//        assertEquals(1, ids.length);
-//
-//        result = manager.start(ids);
-//        waitFor(result);
-//        checkHaveContent();
-//
-//        result = manager.stop(ids);
-//        waitFor(result);
-//
-//        checkNoContent();
+        File war = new File(URI.create(classLoader.getResource("deployables/war1/").toString()));
+
+        ProgressObject result = manager.distribute(targets, war, new File(war, "WEB-INF/geronimo-web.xml"));
+        waitFor(result);
+        TargetModuleID[] ids = result.getResultTargetModuleIDs();
+        assertEquals(1, ids.length);
+
+        result = manager.start(ids);
+        waitFor(result);
+        checkHaveContent();
+
+        result = manager.stop(ids);
+        waitFor(result);
+
+        checkNoContent();
     }
 
     public void testPacked() throws Exception {
-//        File war1 = new File(URI.create(classLoader.getResource("deployables/war1/").toString()));
-//        File war2 = new File(URI.create(classLoader.getResource("deployables/war2.war").toString()));
-//
-//        ProgressObject result = manager.distribute(targets, war2, new File(war1, "WEB-INF/geronimo-web.xml"));
-//        waitFor(result);
-//        TargetModuleID[] ids = result.getResultTargetModuleIDs();
-//        assertEquals(1, ids.length);
-//
-//        result = manager.start(ids);
-//        waitFor(result);
-//        checkHaveContent();
-//
-//        result = manager.stop(ids);
-//        waitFor(result);
-//
-//        checkNoContent();
+        File war1 = new File(URI.create(classLoader.getResource("deployables/war1/").toString()));
+        File war2 = new File(URI.create(classLoader.getResource("deployables/war2.war").toString()));
+
+        ProgressObject result = manager.distribute(targets, war2, new File(war1, "WEB-INF/geronimo-web.xml"));
+        waitFor(result);
+        TargetModuleID[] ids = result.getResultTargetModuleIDs();
+        assertEquals(1, ids.length);
+
+        result = manager.start(ids);
+        waitFor(result);
+        checkHaveContent();
+
+        result = manager.stop(ids);
+        waitFor(result);
+
+        checkNoContent();
     }
 
     private void checkNoContent() throws IOException {
