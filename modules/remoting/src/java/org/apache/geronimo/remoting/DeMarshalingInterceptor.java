@@ -63,7 +63,7 @@ import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2003/11/26 20:54:28 $
+ * @version $Revision: 1.4 $ $Date: 2004/02/15 18:23:28 $
  */
 public class DeMarshalingInterceptor implements Interceptor {
 
@@ -118,11 +118,16 @@ public class DeMarshalingInterceptor implements Interceptor {
 
             try {
                 InvocationResult rc = next.invoke(marshalledInvocation);
-                mo.set(rc.getResult());
-                return new SimpleInvocationResult(true, mo);
+                if (rc.isNormal()) {
+                    mo.set(rc.getResult());
+                    return new SimpleInvocationResult(true, mo);
+                } else {
+                    mo.set(new ThrowableWrapper((Throwable)rc.getResult()));
+                    return new SimpleInvocationResult(false, mo);
+                }
             } catch (Throwable e) {
                 mo.set(new ThrowableWrapper(e));
-                return new SimpleInvocationResult(true, mo);
+                return new SimpleInvocationResult(false, mo);
             }
 
         } finally {
