@@ -26,6 +26,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  * Describes a GBean.
@@ -64,6 +66,7 @@ public final class GBeanInfo implements Serializable {
     private final String name;
     private final String className;
     private final Set attributes;
+    private final Map attributesByName;
     private final GConstructorInfo constructor;
     private final Set operations;
     private final Set notifications;
@@ -78,8 +81,15 @@ public final class GBeanInfo implements Serializable {
         this.className = className;
         if (attributes == null) {
             this.attributes = Collections.EMPTY_SET;
+            this.attributesByName = Collections.EMPTY_MAP;
         } else {
-            this.attributes = Collections.unmodifiableSet(new HashSet(attributes));
+            Map map = new HashMap();
+            for (Iterator iterator = attributes.iterator(); iterator.hasNext();) {
+                GAttributeInfo attribute = (GAttributeInfo) iterator.next();
+                map.put(attribute.getName(), attribute);
+            }
+            this.attributesByName = Collections.unmodifiableMap(map);
+            this.attributes = Collections.unmodifiableSet(new HashSet(map.values()));
         }
         if (constructor == null) {
             this.constructor = new GConstructorInfo(Collections.EMPTY_LIST);
@@ -111,6 +121,10 @@ public final class GBeanInfo implements Serializable {
         return className;
     }
 
+    public GAttributeInfo getAttribute(String name) {
+        return (GAttributeInfo) attributesByName.get(name);
+    }
+    
     public Set getAttributes() {
         return attributes;
     }

@@ -49,6 +49,7 @@ import javax.management.ObjectName;
 
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.config.Configuration;
@@ -152,6 +153,11 @@ public class DeploymentContext {
 
     public void addGBean(ObjectName name, GBeanMBean gbean) {
         gbeans.put(name, gbean);
+    }
+
+    public void addGBean(ObjectName name, GBeanData gbean, ClassLoader classLoader) {
+        GBeanMBean gbeanMBean = new GBeanMBean(gbean, classLoader);
+        gbeans.put(name, gbeanMBean);
     }
 
     public void addDependency(URI uri) {

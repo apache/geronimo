@@ -20,13 +20,14 @@ package org.apache.geronimo.deployment.service;
 import java.beans.PropertyEditor;
 import java.util.HashSet;
 import java.util.Set;
-import javax.management.AttributeNotFoundException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 import org.apache.geronimo.deployment.DeploymentException;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GAttributeInfo;
 
 /**
  *
@@ -35,7 +36,8 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
  */
 public class GBeanBuilder {
     private final ObjectName name;
-    private final GBeanMBean gbean;
+    private final GBeanData gbean;
+    private final ClassLoader classLoader;
 
     public GBeanBuilder(String name, ClassLoader classLoader, String className) throws DeploymentException {
         try {
@@ -43,8 +45,11 @@ public class GBeanBuilder {
         } catch (MalformedObjectNameException e) {
             throw new DeploymentException("Invalid ObjectName: " + name, e);
         }
+
+        this.classLoader = classLoader;
+
         try {
-            this.gbean = new GBeanMBean(className, classLoader);
+            gbean = new GBeanData(GBeanInfo.getGBeanInfo(className, classLoader));
         } catch (Exception e) {
             throw new DeploymentException("Unable to create GBean from class " + className, e);
         }
@@ -53,7 +58,12 @@ public class GBeanBuilder {
     public void setAttribute(String name, String type, String text) throws DeploymentException {
         try {
             // @todo we should not need all of common just for this
-            PropertyEditor editor = PropertyEditors.findEditor(type, gbean.getClassLoader());
+            if (type == null) {
+                GAttributeInfo attribute = gbean.getGBeanInfo().getAttribute(name);
+                type = attribute.getType();
+            }
+
+            PropertyEditor editor = PropertyEditors.findEditor(type, classLoader);
             if (editor == null) {
                 throw new DeploymentException("Unable to find PropertyEditor for " + type);
             }
@@ -62,8 +72,6 @@ public class GBeanBuilder {
             gbean.setAttribute(name, value);
         } catch (ClassNotFoundException e) {
             throw new DeploymentException("Unable to find PropertyEditor for " + type, e);
-        } catch (AttributeNotFoundException e) {
-            throw new DeploymentException("Unknown attribute " + name);
         } catch (Exception e) {
             throw new DeploymentException("Unable to set attribute " + name + " to " + text, e);
         }
@@ -85,7 +93,7 @@ public class GBeanBuilder {
         gbean.setReferencePatterns(name, patternNames);
     }
 
-    public GBeanMBean getGBean() {
+    public GBeanData getGBeanData() {
         return gbean;
     }
 
