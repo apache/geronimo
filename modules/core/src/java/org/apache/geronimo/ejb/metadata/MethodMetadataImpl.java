@@ -59,10 +59,10 @@ import java.lang.reflect.Method;
 import java.util.Set;
 
 /**
- * 
- * 
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/10 20:51:54 $ 
+ *
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/08/11 17:59:12 $
  */
 public class MethodMetadataImpl implements MethodMetadata {
     private Method interfaceMethod;

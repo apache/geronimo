@@ -62,7 +62,7 @@ import java.io.Serializable;
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/10 20:45:02 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/11 17:59:10 $
  */
 public final class InvocationType implements Serializable {
     private static final String INVOCATION_TYPE_KEY = "INVOCATION_TYPE_KEY";

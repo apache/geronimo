@@ -12,7 +12,7 @@
     </organization>
 
     <inceptionYear>2003</inceptionYear>
-    <package>org.apache.geronimo</package>
+    <package>geronimo</package>
     <logo>/images/geronimo.jpg</logo>
     <description>Geronimo J2EE Application Server</description>
     <shortDescription>Geronimo J2EE Application Server</shortDescription>
@@ -20,16 +20,16 @@
 
 <!--
 	I hope we can use JIRA but will probably have to settle for bugzilla
-	
+
     <issueTrackingUrl>http://jira.codehaus.org/secure/BrowseProject.jspa?id=XXXX</issueTrackingUrl>
 -->
     <siteAddress>incubator.apache.org</siteAddress>
-    
+
     <!--
     <siteDirectory>/www/incubator.apache.org/projects/geronimo</siteDirectory>
     -->
     <siteDirectory>/home/jstrachan/public_html/geronimo</siteDirectory>
-    
+
     <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds</distributionDirectory>
     <repository>
         <connection>scm:cvs:pserver:anoncvs@cvs.apache.org:/home/cvspublic:incubator-geronimo</connection>
@@ -99,7 +99,7 @@
         <id>geirm</id>
         <email>geirm@apache.org</email>
         <organization></organization>
-      </developer>            
+      </developer>
       <developer>
         <name>Greg Wilkins</name>
         <id>gregw</id>
@@ -164,7 +164,7 @@
 
 
     <contributors>
-<!--    
+<!--
       <contributor>
         <name>John Doe</name>
         <email>foo@bar.com</email>
@@ -201,22 +201,18 @@
         </dependency>
 
         <dependency>
-            <id>mx4j+jmx</id>
-            <version>1.1.1</version>
-        </dependency>
-        <dependency>
-            <id>mx4j+tools</id>
-            <version>1.1.1</version>
+            <id>mx4j</id>
+            <version>SNAPSHOT</version>
         </dependency>
     </dependencies>
 
     <build>
         <nagEmailAddress>geronimo-dev@incubator.apache.org</nagEmailAddress>
-        
+
 		<!-- this is a quick hack as we've only got 1 module so far     -->
 		<!-- switching to a multi-project reactor based build real soon -->
-<!--		
--->        
+<!--
+-->
         <sourceDirectory>${basedir}/modules/core/src/java</sourceDirectory>
         <unitTestSourceDirectory>${basedir}/modules/core/src/test</unitTestSourceDirectory>
         <unitTest>
@@ -243,7 +239,7 @@
         <report>maven-pmd-plugin</report>
 <!--
         <report>maven-simian-plugin</report>
--->        
+-->
         <report>maven-jdepend-plugin</report>
         <report>maven-changelog-plugin</report>
         <report>maven-statcvs-plugin</report>

@@ -64,10 +64,10 @@ import javax.transaction.TransactionManager;
 import javax.transaction.UserTransaction;
 
 /**
- * 
- * 
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/10 20:51:54 $
+ *
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/08/11 17:59:12 $
  */
 public final class GeronimoUserTransaction implements UserTransaction {
     private TransactionManager transactionManager;
@@ -90,7 +90,7 @@ public final class GeronimoUserTransaction implements UserTransaction {
 
     public void commit() throws RollbackException, HeuristicMixedException, HeuristicRollbackException, SecurityException, IllegalStateException, SystemException {
         ExecutionContext executionContext = ExecutionContext.getContext();
-        if(!(executionContext instanceof TxExecutionContext)) {
+        if (!(executionContext instanceof TxExecutionContext)) {
             throw new IllegalStateException("Not in a transaction execution context");
         }
 
@@ -126,7 +126,7 @@ public final class GeronimoUserTransaction implements UserTransaction {
 
     public void rollback() throws IllegalStateException, SecurityException, SystemException {
         ExecutionContext executionContext = ExecutionContext.getContext();
-        if(!(executionContext instanceof TxExecutionContext)) {
+        if (!(executionContext instanceof TxExecutionContext)) {
             throw new IllegalStateException("Not in a transaction execution context");
         }
 

@@ -56,7 +56,6 @@
 package org.apache.geronimo.ejb;
 
 import java.lang.reflect.Method;
-
 import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
 
@@ -71,7 +70,7 @@ import org.apache.geronimo.ejb.metadata.EJBMetadata;
  *
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:20 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:11 $
  */
 public class StatelessLifeCycleInterceptor extends AbstractInterceptor {
     private static final Method removeRemote;
@@ -81,7 +80,7 @@ public class StatelessLifeCycleInterceptor extends AbstractInterceptor {
         try {
             removeRemote = EJBObject.class.getMethod("remove", null);
             removeLocal = EJBLocalObject.class.getMethod("remove", null);
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new ExceptionInInitializerError(e);
         }
     }
@@ -93,12 +92,12 @@ public class StatelessLifeCycleInterceptor extends AbstractInterceptor {
         super.start();
         EJBMetadata ejbMetadata = EJBPlugins.getEJBMetadata(getContainer());
         Class homeInterface = ejbMetadata.getHomeInterface();
-        if(homeInterface != null) {
+        if (homeInterface != null) {
             createRemote = homeInterface.getMethod("create", null);
         }
 
         Class localHomeInterface = ejbMetadata.getLocalHomeInterface();
-        if(localHomeInterface != null) {
+        if (localHomeInterface != null) {
             createLocal = localHomeInterface.getMethod("create", null);
         }
     }
@@ -111,7 +110,7 @@ public class StatelessLifeCycleInterceptor extends AbstractInterceptor {
 
     public InvocationResult invoke(Invocation invocation) throws Exception {
         Method method = EJBInvocationUtil.getMethod(invocation);
-        if(method == null) {
+        if (method == null) {
             return getNext().invoke(invocation);
         }
 

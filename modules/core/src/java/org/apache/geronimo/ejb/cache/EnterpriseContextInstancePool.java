@@ -71,9 +71,9 @@ import org.apache.geronimo.ejb.container.EJBPlugins;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:20 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:11 $
  */
-public final class EnterpriseContextInstancePool extends AbstractComponent implements  InstancePool {
+public final class EnterpriseContextInstancePool extends AbstractComponent implements InstancePool {
     private SimpleInstancePool pool;
     private DiscardQueue discardQueue;
     private int maxSize = 100;

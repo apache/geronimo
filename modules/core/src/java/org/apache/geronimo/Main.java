@@ -59,55 +59,95 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.Set;
-
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import javax.management.loading.MLet;
 
+import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.log4j.Logger;
 
 /**
  *
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:19 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:09 $
  */
 public class Main implements Runnable {
     private static final Logger log = Logger.getLogger("Geronimo");
+    private static final String[] DEPLOY_ARG_TYPES = {"java.net.URL"};
 
-    private String domainName;
-    private URL bootURL;
+    private final String domainName;
+    private final URL mletURL;
+    private final URL bootURL;
 
     private MBeanServer mbServer;
     private ObjectName serverName;
     private ObjectName bootMLetName;
     private Set bootedMBeans;
 
-    public Main(String domainName, URL url) {
+    public Main(String domainName, URL mletURL, URL bootURL) {
         this.domainName = domainName;
-        bootURL = url;
+        this.mletURL = mletURL;
+        this.bootURL = bootURL;
     }
 
     /**
      * Main entry point
      */
     public void run() {
+        Object[] deployArgs = {bootURL};
         ShutdownThread hook = new ShutdownThread("Shutdown-Thread", Thread.currentThread());
         try {
             Runtime.getRuntime().addShutdownHook(hook);
             try {
-                init();
+                long start = System.currentTimeMillis();
+
+                log.info("Starting MBeanServer");
+                mbServer = MBeanServerFactory.createMBeanServer(domainName);
+
+                String urlString = mletURL.toString();
+                log.info("Booting MLets from URL " + urlString);
+
+                MLet bootMLet = new MLet();
+                bootMLetName = mbServer.registerMBean(bootMLet, new ObjectName("geronimo.boot:type=BootMLet,bootURL=" + ObjectName.quote(urlString))).getObjectName();
+                bootedMBeans = bootMLet.getMBeansFromURL(mletURL);
+
+                // check they all loaded OK
+                ObjectName serverPattern = new ObjectName("*:role=DeploymentController,*");
+                for (Iterator i = bootedMBeans.iterator(); i.hasNext();) {
+                    Object o = i.next();
+                    if (o instanceof Throwable) {
+                        throw (Throwable) o;
+                    }
+                    ObjectName mletName = ((ObjectInstance) o).getObjectName();
+                    if (serverPattern.apply(mletName)) {
+                        if (serverName != null) {
+                            throw new DeploymentException("Multiple DeploymentControllers specified in boot mlet");
+                        }
+                        serverName = mletName;
+                    }
+                }
+
+                // start her up
+                log.info("Deploying Bootstrap Services from " + bootURL);
+                mbServer.invoke(serverName, "deploy", deployArgs, DEPLOY_ARG_TYPES);
+
+                long end = System.currentTimeMillis();
+                log.info("Started Server in " + (end - start) + "ms.");
             } catch (Throwable e) {
                 log.error("Error starting Server", e);
                 return;
             }
 
-            // and now go to sleep until exit
+            // and now go to sleep until we get interrupted
             try {
-                synchronized (this) {
-                    wait();
+                // loop forever to avoid exiting on suprious notify
+                while (true) {
+                    synchronized (this) {
+                        wait();
+                    }
                 }
             } catch (InterruptedException e) {
                 // time to go...
@@ -118,102 +158,50 @@ public class Main implements Runnable {
             } catch (Exception e) {
                 // we were in the process of shutting down - ignore
             }
-            shutdown();
-        }
-    }
-
-    private void init() throws Throwable {
-        long start = System.currentTimeMillis();
-
-        log.info("Starting MBeanServer");
-        mbServer = MBeanServerFactory.createMBeanServer(domainName);
-
-        bootMLet(bootURL);
-        serverName = findServer();
-
-        // start her up
-        log.info("Initializing Server " + serverName);
-        mbServer.invoke(serverName, "init", null, null);
-
-        log.info("Starting Server " + serverName);
-        mbServer.invoke(serverName, "start", null, null);
-
-        long end = System.currentTimeMillis();
-        log.info("Started Server in " + (end - start) + "ms.");
-    }
-
-    private void shutdown() {
-        if (serverName != null) {
-            try {
-                log.info("Stopping Server");
-                mbServer.invoke(serverName, "stop", null, null);
-                mbServer.invoke(serverName, "destroy", null, null);
-            } catch (Throwable e) {
-                log.error("Error stopping Server", e);
+            if (serverName != null) {
+                try {
+                    log.info("Undeploy Bootstrap Services");
+                    mbServer.invoke(serverName, "undeploy", deployArgs, DEPLOY_ARG_TYPES);
+                } catch (Throwable e) {
+                    log.error("Error stopping Server", e);
+                }
             }
-        }
 
-        if (bootedMBeans != null) {
-            for (Iterator i = bootedMBeans.iterator(); i.hasNext();) {
-                Object o = i.next();
-                if (o instanceof ObjectInstance) {
-                    ObjectInstance inst = (ObjectInstance) o;
-                    ObjectName name = inst.getObjectName();
-                    try {
-                        log.debug("Unregistering " + name);
-                        mbServer.unregisterMBean(name);
-                    } catch (Throwable t) {
-                        log.error("Error unregistering " + name);
+            if (bootedMBeans != null) {
+                for (Iterator i = bootedMBeans.iterator(); i.hasNext();) {
+                    Object o = i.next();
+                    if (o instanceof ObjectInstance) {
+                        ObjectInstance inst = (ObjectInstance) o;
+                        ObjectName name = inst.getObjectName();
+                        try {
+                            log.debug("Unregistering " + name);
+                            mbServer.unregisterMBean(name);
+                        } catch (Throwable t) {
+                            log.error("Error unregistering " + name);
+                        }
                     }
                 }
             }
-        }
 
-        if (bootMLetName != null) {
-            try {
-                log.info("Unregistering MLet " + bootMLetName);
-                mbServer.unregisterMBean(bootMLetName);
-            } catch (Throwable t) {
-                log.error("Error unregistering MLet ", t);
+            if (bootMLetName != null) {
+                try {
+                    log.info("Unregistering MLet " + bootMLetName);
+                    mbServer.unregisterMBean(bootMLetName);
+                } catch (Throwable t) {
+                    log.error("Error unregistering MLet ", t);
+                }
             }
-        }
 
-        if (mbServer != null) {
-            try {
-                log.info("Releasing MBeanServer");
-                MBeanServerFactory.releaseMBeanServer(mbServer);
-            } catch (Throwable t) {
-                log.error("Error releasing MBeanServer", t);
+            if (mbServer != null) {
+                try {
+                    log.info("Releasing MBeanServer");
+                    MBeanServerFactory.releaseMBeanServer(mbServer);
+                } catch (Throwable t) {
+                    log.error("Error releasing MBeanServer", t);
+                }
             }
+            log.info("Shutdown complete");
         }
-        log.info("Shutdown complete");
-    }
-
-    private void bootMLet(URL url) throws Throwable {
-        log.info("Booting from URL " + url);
-
-        MLet bootMLet = new MLet();
-        bootMLetName = mbServer.registerMBean(bootMLet, new ObjectName("geronimo.boot:type=BootMLet,url=\"" + url + "\"")).getObjectName();
-        bootedMBeans = bootMLet.getMBeansFromURL(url);
-
-        // check they all loaded OK
-        for (Iterator i = bootedMBeans.iterator(); i.hasNext();) {
-            Object o = i.next();
-            if (o instanceof Throwable) {
-                throw (Throwable) o;
-            }
-        }
-    }
-
-    private ObjectName findServer() throws Exception {
-        // find which one (and only one) is our Server
-        Set serverMBeans = mbServer.queryNames(new ObjectName("geronimo.server:type=Server,*"), null);
-        if (serverMBeans.size() == 0) {
-            throw new Exception("No Server found (ObjectName must match \"" + serverName + "\")");
-        } else if (serverMBeans.size() > 1) {
-            throw new Exception("Multiple Servers found (ObjectName matching \"" + serverName + "\")");
-        }
-        return (ObjectName) serverMBeans.iterator().next();
     }
 
     /**
@@ -222,18 +210,19 @@ public class Main implements Runnable {
      * @param args command line arguments
      */
     public static void main(String[] args) {
-        URL url;
         try {
-            url = new URL("file:server/default/config/boot.mlet");
+            // @todo get these from somewhere a little more flexible
+            URL mletURL = new URL("file:modules/core/src/conf/boot.mlet");
+            URL deployURL = new URL("file:modules/core/src/conf/boot-service.xml");
+            Main main = new Main("geronimo", mletURL, deployURL);
+
+            ThreadGroup group = new ThreadGroup("Geronimo");
+            Thread mainThread = new Thread(group, main, "Main-Thread");
+            mainThread.start();
         } catch (MalformedURLException e) {
             e.printStackTrace();
             return;
         }
-        Main main = new Main(args[0], url); // @todo you should not need to explicitly name the MBean Server
-
-        ThreadGroup group = new ThreadGroup("Geronimo");
-        Thread mainThread = new Thread(group, main, "Main-Thread");
-        mainThread.start();
     }
 
     private static class ShutdownThread extends Thread {
@@ -246,10 +235,6 @@ public class Main implements Runnable {
 
         public void run() {
             mainThread.interrupt();
-            try {
-                mainThread.join();
-            } catch (InterruptedException e) {
-            }
         }
     }
 }

@@ -56,7 +56,6 @@
 package org.apache.geronimo.ejb.context;
 
 import java.rmi.RemoteException;
-
 import javax.ejb.EJBException;
 import javax.transaction.Status;
 import javax.transaction.SystemException;
@@ -71,7 +70,7 @@ import org.apache.geronimo.ejb.container.EJBPlugins;
  *
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:19 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:12 $
  */
 public final class StatelessBMTInterceptor extends ExecutionContextInterceptor {
     private String ejbName;

@@ -62,7 +62,7 @@ import org.apache.log4j.helpers.PatternConverter;
  * 'a' letter for a NamedNDC.
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/10 20:46:29 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/11 17:59:10 $
  */
 public class PatternParser extends org.apache.log4j.helpers.PatternParser {
     public PatternParser(String pattern) {

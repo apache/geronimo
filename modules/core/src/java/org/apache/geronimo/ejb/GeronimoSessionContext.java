@@ -58,7 +58,6 @@ package org.apache.geronimo.ejb;
 import java.security.Identity;
 import java.security.Principal;
 import java.util.Properties;
-
 import javax.ejb.EJBException;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
@@ -81,7 +80,7 @@ import org.apache.geronimo.ejb.metadata.EJBMetadata;
  *
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:20 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:11 $
  */
 public class GeronimoSessionContext implements SessionContext {
     private final Container container;

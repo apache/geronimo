@@ -59,7 +59,6 @@ import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
-
 import javax.transaction.Synchronization;
 
 import org.apache.commons.logging.Log;
@@ -69,7 +68,7 @@ import org.apache.geronimo.lock.LockContext;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:19 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:12 $
  */
 public abstract class ExecutionContext {
     private static Log log = LogFactory.getLog(ExecutionContext.class);

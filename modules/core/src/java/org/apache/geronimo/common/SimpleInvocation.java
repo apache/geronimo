@@ -59,10 +59,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 
- * 
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:21 $
+ *
+ *
+ * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:10 $
  */
 public class SimpleInvocation implements Invocation {
     private Map marshalMap = new HashMap();

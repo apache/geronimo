@@ -59,13 +59,13 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
- * 
- * 
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:19 $
+ *
+ *
+ * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:11 $
  */
 public interface DeploymentScannerMBean {
-    public static final String SCAN_COMPLETE="geronimo.deployment.SCAN_COMPLETE";
+    public static final String SCAN_COMPLETE = "org.apache.geronimo.deployment.SCAN_COMPLETE";
 
     public long getScanInterval();
 

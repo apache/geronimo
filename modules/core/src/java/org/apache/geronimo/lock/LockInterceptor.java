@@ -56,7 +56,6 @@
 package org.apache.geronimo.lock;
 
 import java.rmi.RemoteException;
-
 import javax.ejb.EJBException;
 
 import org.apache.geronimo.common.AbstractInterceptor;
@@ -71,7 +70,7 @@ import org.apache.geronimo.ejb.context.ExecutionContext;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:19 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:12 $
  */
 public final class LockInterceptor extends AbstractInterceptor {
     private LockDomain lockDomain;

@@ -62,7 +62,7 @@ import java.io.StringWriter;
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/10 20:46:29 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/11 17:59:10 $
  */
 public class LoggingUtil {
     public static String formatException(String msg, Throwable t) {

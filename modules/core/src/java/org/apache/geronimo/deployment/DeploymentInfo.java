@@ -56,36 +56,50 @@
 package org.apache.geronimo.deployment;
 
 import java.net.URL;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import javax.management.ObjectName;
 
 /**
  *
  *
- *
- * @version $Revision: 1.1 $ $Date: 2003/08/10 20:47:53 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/11 17:59:10 $
  */
-public class DeploymentInfo {
+public class DeploymentInfo implements DeploymentInfoMBean {
     private final URL url;
-    private final URL watchURL;
-    private long timestamp;
+    private final ObjectName name;
+    private final ObjectName parent;
+    private final Set children = new HashSet();
 
-    public DeploymentInfo(URL url, URL watchURL) {
+    public DeploymentInfo(ObjectName name, ObjectName parent, URL url) {
+        this.name = name;
+        this.parent = parent;
         this.url = url;
-        this.watchURL = watchURL;
     }
 
     public URL getURL() {
         return url;
     }
 
-    public URL getWatchURL() {
-        return watchURL;
+    public ObjectName getName() {
+        return name;
     }
 
-    public long getTimestamp() {
-        return timestamp;
+    public ObjectName getParent() {
+        return parent;
     }
 
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
+    public Collection getChildren() {
+        return Collections.unmodifiableCollection(children);
+    }
+
+    public synchronized void addChild(ObjectName childName) {
+        children.add(childName);
+    }
+
+    public synchronized void removeChild(ObjectName childName) {
+        children.remove(childName);
     }
 }

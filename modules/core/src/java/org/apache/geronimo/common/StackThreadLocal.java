@@ -58,10 +58,10 @@ package org.apache.geronimo.common;
 import java.util.LinkedList;
 
 /**
- * 
- * 
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/10 20:45:02 $ 
+ *
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/08/11 17:59:10 $
  */
 public class StackThreadLocal {
     private final ThreadLocal threadLocal = new ThreadLocal() {
@@ -71,23 +71,23 @@ public class StackThreadLocal {
     };
 
     public void push(Object value) {
-        if(value == null) {
+        if (value == null) {
             throw new IllegalArgumentException("Value is null");
         }
-        ((LinkedList)threadLocal.get()).addFirst(value);
+        ((LinkedList) threadLocal.get()).addFirst(value);
     }
 
     public Object pop() {
-        LinkedList linkedList = ((LinkedList)threadLocal.get());
-        if(linkedList.isEmpty()) {
+        LinkedList linkedList = ((LinkedList) threadLocal.get());
+        if (linkedList.isEmpty()) {
             return null;
         }
         return linkedList.removeFirst();
     }
 
     public Object peek() {
-        LinkedList linkedList = ((LinkedList)threadLocal.get());
-        if(linkedList.isEmpty()) {
+        LinkedList linkedList = ((LinkedList) threadLocal.get());
+        if (linkedList.isEmpty()) {
             return null;
         }
         return linkedList.getFirst();

@@ -63,7 +63,7 @@ import java.util.HashMap;
  * limits.
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/10 20:43:58 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/11 17:59:09 $
  */
 public final class SimpleInstanceCache implements InstanceCache {
     private HashMap active = new HashMap();

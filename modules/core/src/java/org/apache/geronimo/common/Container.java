@@ -61,7 +61,7 @@ import javax.management.ObjectName;
  *
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:21 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:10 $
  */
 public interface Container extends Component {
     //

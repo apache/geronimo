@@ -57,7 +57,6 @@ package org.apache.geronimo.ejb.context;
 
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
-
 import javax.ejb.EJBException;
 import javax.ejb.TransactionRequiredLocalException;
 import javax.transaction.RollbackException;
@@ -80,7 +79,7 @@ import org.apache.geronimo.transaction.GeronimoTransactionRolledbackLocalExcepti
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:19 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:12 $
  */
 public final class CMTInterceptor extends ExecutionContextInterceptor {
     private EJBMetadata ejbMetadata;
@@ -103,7 +102,7 @@ public final class CMTInterceptor extends ExecutionContextInterceptor {
         }
         MethodMetadata methodMetadata = ejbMetadata.getMethodMetadata(m);
         TransactionAttribute transactionAttribute = null;
-        if(methodMetadata != null) {
+        if (methodMetadata != null) {
             transactionAttribute = methodMetadata.getTransactionAttribute();
         }
 

@@ -63,7 +63,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
-
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
@@ -84,7 +83,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * assumed to be deployable; others may be recursed into
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:19 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:11 $
  */
 public class WebDAVScanner implements Scanner {
     private final URL base;
@@ -121,7 +120,7 @@ public class WebDAVScanner implements Scanner {
         try {
             parser = saxParserFactory.newSAXParser();
         } catch (Exception e) {
-            throw new AssertionError("Unable to allocate SAXParser: "+e.getMessage());
+            throw new AssertionError("Unable to allocate SAXParser: " + e.getMessage());
         }
     }
 

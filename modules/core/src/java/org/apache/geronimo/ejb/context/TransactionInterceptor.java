@@ -64,10 +64,10 @@ import org.apache.geronimo.ejb.container.EJBPlugins;
 import org.apache.geronimo.ejb.metadata.EJBMetadata;
 
 /**
- * 
- * 
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:19 $
+ *
+ *
+ * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:12 $
  */
 public class TransactionInterceptor implements Interceptor {
     private Interceptor transactionInterceptor;
@@ -96,7 +96,7 @@ public class TransactionInterceptor implements Interceptor {
 
     public void create() throws Exception {
         EJBMetadata ejbMetadata = EJBPlugins.getEJBMetadata(container);
-        if(ejbMetadata.getTransactionDemarcation().isContainer()) {
+        if (ejbMetadata.getTransactionDemarcation().isContainer()) {
             transactionInterceptor = new CMTInterceptor();
         } else {
             transactionInterceptor = new StatelessBMTInterceptor();

@@ -59,7 +59,7 @@ package org.apache.geronimo.lock;
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/10 20:55:14 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/11 17:59:12 $
  */
 public class LockCounter {
     private int counter = 0;

@@ -60,10 +60,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * 
- * 
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/10 20:45:02 $
+ *
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/08/11 17:59:10 $
  */
 public class AbstractComponent implements Component {
     private State state = State.NOT_CREATED;

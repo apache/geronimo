@@ -61,7 +61,7 @@ import java.lang.reflect.Method;
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/10 20:51:54 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/11 17:59:12 $
  */
 public interface EJBMetadata {
     String getName();

@@ -58,7 +58,6 @@ package org.apache.geronimo.ejb.context;
 import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.ejb.EJBException;
 import javax.transaction.Transaction;
 
@@ -72,7 +71,7 @@ import org.apache.geronimo.ejb.EJBInvocationUtil;
  * re-associated with the invocation the next time the bean is invoked.
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:19 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:12 $
  */
 public final class StatefulBMTInterceptor extends ExecutionContextInterceptor {
     private final static Map savedTransactions = new HashMap();

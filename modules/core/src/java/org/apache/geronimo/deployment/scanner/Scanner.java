@@ -62,7 +62,7 @@ import java.util.Set;
  * Interface for scanning a location for deployments
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:19 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:11 $
  */
 public interface Scanner {
     /**

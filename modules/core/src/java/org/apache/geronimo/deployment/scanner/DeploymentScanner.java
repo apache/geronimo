@@ -59,19 +59,17 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-
 import javax.management.MBeanRegistration;
 import javax.management.MBeanServer;
-import javax.management.Notification;
-import javax.management.NotificationBroadcasterSupport;
 import javax.management.ObjectName;
+import javax.management.relation.RelationServiceMBean;
 
+import org.apache.geronimo.jmx.JMXUtil;
 import org.apache.log4j.Logger;
 
 /**
@@ -80,19 +78,23 @@ import org.apache.log4j.Logger;
  * Notifiction.
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:19 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:11 $
  */
-public class DeploymentScanner extends NotificationBroadcasterSupport implements DeploymentScannerMBean,MBeanRegistration {
+public class DeploymentScanner implements DeploymentScannerMBean, MBeanRegistration {
     private static final Logger log = Logger.getLogger(DeploymentScanner.class);
+    private MBeanServer server;
+    private RelationServiceMBean relationService;
+    private ObjectName objectName;
+
     private final Map scanners = new HashMap();
     private long scanInterval;
     private boolean run;
     private Thread scanThread;
-    private int sequence = 0;
-    private ObjectName objectName;
 
     public ObjectName preRegister(MBeanServer mBeanServer, ObjectName objectName) throws Exception {
+        this.server = mBeanServer;
         this.objectName = objectName;
+        relationService = JMXUtil.getRelationService(server);
         return objectName;
     }
 
@@ -131,7 +133,7 @@ public class DeploymentScanner extends NotificationBroadcasterSupport implements
         } else if ("http".equals(protocol) || "https".equals(protocol)) {
             return new WebDAVScanner(url, recurse);
         } else {
-            throw new IllegalArgumentException("Unknown protocol "+protocol);
+            throw new IllegalArgumentException("Unknown protocol " + protocol);
         }
     }
 
@@ -176,19 +178,29 @@ public class DeploymentScanner extends NotificationBroadcasterSupport implements
         for (Iterator i = scanners.entrySet().iterator(); i.hasNext();) {
             Map.Entry entry = (Map.Entry) i.next();
             URL url = (URL) entry.getKey();
-            log.debug("Starting scan of "+url);
+            log.debug("Starting scan of " + url);
             Scanner scanner = (Scanner) entry.getValue();
             try {
                 Set result = scanner.scan();
-                log.debug("Finished scan of "+url+", "+result.size()+" deployment(s) found");
+                log.debug("Finished scan of " + url + ", " + result.size() + " deployment(s) found");
                 results.addAll(result);
             } catch (IOException e) {
-                log.error("Error scanning url "+url,  e);
+                log.error("Error scanning url " + url, e);
             }
         }
 
-        Notification notification = new Notification(SCAN_COMPLETE, objectName, ++sequence);
-        notification.setUserData(Collections.unmodifiableSet(results));
-        sendNotification(notification);
+        try {
+            Map controllers = relationService.findAssociatedMBeans(objectName, "DeploymentController-DeploymentScanner", "DeploymentScanner");
+            if (!controllers.isEmpty()) {
+                Set set = controllers.keySet();
+                ObjectName controller = (ObjectName) set.iterator().next();
+                server.invoke(controller,
+                        "planDeployment",
+                        new Object[]{objectName, results},
+                        new String[]{"javax.management.ObjectName", "java.util.Set"});
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
     }
 }

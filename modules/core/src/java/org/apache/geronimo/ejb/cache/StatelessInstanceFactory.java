@@ -57,7 +57,6 @@ package org.apache.geronimo.ejb.cache;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
 import javax.ejb.EJBException;
 import javax.ejb.SessionBean;
 
@@ -69,10 +68,10 @@ import org.apache.geronimo.ejb.SimpleEnterpriseContext;
 import org.apache.geronimo.ejb.container.EJBPlugins;
 
 /**
- * 
- * 
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:20 $
+ *
+ *
+ * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:11 $
  */
 public class StatelessInstanceFactory extends AbstractComponent implements InstanceFactory {
     private Class beanClass;
@@ -92,7 +91,7 @@ public class StatelessInstanceFactory extends AbstractComponent implements Insta
 
     public Object createInstance() throws Exception {
         // create the instance
-        SessionBean instance = (SessionBean)beanClass.newInstance();
+        SessionBean instance = (SessionBean) beanClass.newInstance();
 
         // initialize the instance
         instance.setSessionContext(new GeronimoSessionContext(getContainer()));

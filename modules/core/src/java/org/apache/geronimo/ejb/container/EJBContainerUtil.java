@@ -66,7 +66,7 @@ import org.apache.geronimo.common.Invocation;
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/10 20:51:54 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/11 17:59:11 $
  */
 public final class EJBContainerUtil implements Serializable {
     // Be careful here.  If you change the oridnals, this class must be changed on evey client.

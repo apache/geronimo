@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<components>
+<!--
+    <class-space name="geronimo.system:role=ClassSpace,name=System">
+        <codebase url="file:/D:/temp/jetty/">
+            <archive name="*"/>
+        </codebase>
+    </class-space>
+
+    <mbean code="jetty.Jetty" name="jetty:role=WebContainer">
+        <constructor>
+            <arg type="java.net.URL">file:/D:/temp/jetty.xml</arg>
+        </constructor>
+    </mbean>
+-->
+    <mbean code="org.apache.geronimo.deployment.scanner.DeploymentScanner" name="geronimo.deployment:role=DeploymentScanner">
+        <attribute name="ScanInterval">5000</attribute>
+        <relationship type="DeploymentController-DeploymentScanner" name="DeploymentController-DeploymentScanner" role="DeploymentScanner"/>
+    </mbean>
+
+</components>

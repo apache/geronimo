@@ -69,11 +69,12 @@ import org.apache.geronimo.lock.LockDomain;
  *
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:21 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:11 $
  */
 public final class EJBPlugins {
     // only static methods are allowed for this class
-    private EJBPlugins() {}
+    private EJBPlugins() {
+    }
 
     public static String EJB_PROXY_FACTORY_MANAGER = "EJB Proxy Factory Manager";
     public static String EJB_METADATA = "EJB Metadata";

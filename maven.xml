@@ -7,22 +7,4 @@
     <attainGoal name="html2xdoc"/>
     <attainGoal name="faq"/>
   </preGoal>
-  
-  <goal name="run" prereqs="set.classpath"
-    description="Runs the Geronimo Server using the current build">
-    <java classname="org.apache.geronimo.Main" fork="yes">
-      <classpath refid="test.classpath"/>
-    </java>
-  </goal>
-
-  <goal name="set.classpath" prereqs="java:compile, test:compile"
-    description="Sets up the classpath for running things">
-    <path id="test.classpath">
-      <pathelement path="target/test-classes"/>
-      <pathelement path="${maven.build.dest}"/>
-	  <path refid="maven.dependency.classpath"/>
-	</path>
-  </goal>
-  
-  
 </project>

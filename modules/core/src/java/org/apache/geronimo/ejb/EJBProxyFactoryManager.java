@@ -58,7 +58,6 @@ package org.apache.geronimo.ejb;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
 import javax.ejb.EJBException;
 
 import org.apache.geronimo.common.AbstractComponent;
@@ -68,7 +67,7 @@ import org.apache.geronimo.ejb.container.EJBPlugins;
  *
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:20 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:11 $
  */
 public class EJBProxyFactoryManager extends AbstractComponent {
     private Map proxies = new HashMap();

@@ -58,7 +58,6 @@ package org.apache.geronimo.ejb.cache;
 import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.ejb.EJBException;
 import javax.ejb.SessionSynchronization;
 import javax.transaction.Status;
@@ -83,7 +82,7 @@ import org.apache.geronimo.ejb.metadata.EJBMetadata;
  *
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:20 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:11 $
  */
 public final class StatefulSessionSynchronizationInterceptor extends AbstractInterceptor {
     protected TransactionManager tm;

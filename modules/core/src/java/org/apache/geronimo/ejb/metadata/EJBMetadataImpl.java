@@ -60,10 +60,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 
- * 
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 10:41:21 $
+ *
+ *
+ * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:12 $
  */
 public final class EJBMetadataImpl implements EJBMetadata {
     private String name;

@@ -56,17 +56,23 @@
 package org.apache.geronimo.ejb;
 
 /**
- * 
- * 
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/10 20:51:54 $
+ *
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/08/11 17:59:11 $
  */
 public interface EJBProxyFactory {
     void create() throws Exception;
+
     void start() throws Exception;
+
     void stop();
+
     void destroy();
+
     Object getEJBObject();
+
     Object getEJBObject(Object primaryKey);
+
     Object getEJBHome();
 }

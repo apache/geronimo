@@ -55,11 +55,21 @@
  */
 package org.apache.geronimo.deployment;
 
+import java.net.URL;
+import java.util.Set;
+import javax.management.ObjectName;
+
 /**
- * 
- * 
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/10 20:47:53 $
+ *
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/08/11 17:59:10 $
  */
 public interface DeploymentControllerMBean {
+    void deploy(URL url) throws DeploymentException;
+
+    void undeploy(URL url);
+
+    void planDeployment(ObjectName source, Set urls);
+
 }
