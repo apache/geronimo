@@ -27,6 +27,16 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.mortbay.http.Authenticator;
+import org.mortbay.http.HttpRequest;
+import org.mortbay.http.HttpResponse;
+import org.mortbay.jetty.servlet.AbstractSessionManager;
+import org.mortbay.jetty.servlet.FilterHolder;
+import org.mortbay.jetty.servlet.JSR154Filter;
+import org.mortbay.jetty.servlet.ServletHolder;
+import org.mortbay.jetty.servlet.WebApplicationContext;
+import org.mortbay.jetty.servlet.WebApplicationHandler;
+
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -41,14 +51,7 @@ import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.transaction.OnlineUserTransaction;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.mortbay.http.Authenticator;
-import org.mortbay.http.HttpRequest;
-import org.mortbay.http.HttpResponse;
-import org.mortbay.jetty.servlet.FilterHolder;
-import org.mortbay.jetty.servlet.JSR154Filter;
-import org.mortbay.jetty.servlet.ServletHolder;
-import org.mortbay.jetty.servlet.WebApplicationContext;
-import org.mortbay.jetty.servlet.WebApplicationHandler;
+
 
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
@@ -190,6 +193,8 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
             super.start();
             return;
         }
+
+        ((AbstractSessionManager)getServletHandler().getSessionManager()).setUseRequestedId(true);
 
         setWAR(webAppRoot.toString());
 
