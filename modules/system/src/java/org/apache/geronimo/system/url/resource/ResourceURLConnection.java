@@ -49,7 +49,11 @@ public class ResourceURLConnection extends DelegatingURLConnection {
                 // ignore... somewhat expected, and we are handling this below
             }
         }
-
+        // initial / doesn't work with classLoader.getResource, so if it's present remove it.
+        // this is a hack but somehow openorb is rewriting our url so the path starts with a /
+        if (name.startsWith("/")) {
+            name = name.substring(1);
+        }
         if (target == null) {
             // Then try TCL and then SCL
             target = classLoader.getResource(name);
