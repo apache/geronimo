@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.5 $ $Date: 2004/01/26 06:50:46 $ -->
+<!-- $Revision: 1.6 $ $Date: 2004/02/03 06:47:56 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -25,12 +25,23 @@
     <!-- ============ -->
 
     <dependencies>
+
+        <!-- the maven-xmlbeans-plugin dependency is here
+        to force it to be built (and installed) before it is needed-->
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-maven-xmlbeans-plugin</artifactId>
+            <version>DEV</version>
+            <properties>
+            </properties>
+        </dependency>
+
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
             <version>DEV</version>
             <properties>
-                <module>true</module>
             </properties>
         </dependency>
 
@@ -39,7 +50,6 @@
             <artifactId>geronimo-common</artifactId>
             <version>DEV</version>
             <properties>
-                <module>true</module>
             </properties>
         </dependency>
 
@@ -48,8 +58,6 @@
             <version>2.0-RC2</version>
             <url>http://cglib.sf.net/</url>
             <properties>
-                <runtime>true</runtime>
-                <destinations>bootlib</destinations>
             </properties>
         </dependency>
 
@@ -57,8 +65,6 @@
             <id>mx4j</id>
             <version>SNAPSHOT</version>
             <properties>
-                <runtime>true</runtime>
-                <destinations>bootlib</destinations>
             </properties>
         </dependency>
 
@@ -67,8 +73,6 @@
             <version>1.0.3</version>
             <url>http://jakarta.apache.org/commons/logging/</url>
             <properties>
-                <runtime>true</runtime>
-                <destinations>bootlib</destinations>
             </properties>
         </dependency>
 
@@ -77,7 +81,6 @@
             <artifactId>geronimo-spec-j2ee-deployment</artifactId>
             <version>DEV</version>
             <properties>
-                <module>true</module>
             </properties>
         </dependency>
 
@@ -87,7 +90,6 @@
             <version>1.1</version>
             <url>http://xml.apache.org/commons</url>
             <properties>
-                <runtime>true</runtime>
             </properties>
         </dependency>
 

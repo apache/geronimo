@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.1 $ $Date: 2004/02/02 22:04:21 $ -->
+<!-- $Revision: 1.2 $ $Date: 2004/02/03 06:47:56 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -27,6 +27,12 @@
 
     <goal name="default">
         <attainGoal name="plugin:install"/>
+        <!-- install a marker file for use by dependencies-->
+        <ant:property name="jardir__" value="${maven.repo.local}/${pom.artifactDirectory}/jars"/>
+        <ant:mkdir dir="${jardir__}"/>
+        <ant:touch
+            file="${jardir__}/${pom.artifactId}-${pom.currentVersion}.jar"
+            />
     </goal>
 
     <goal name="build">
