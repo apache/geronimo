@@ -39,7 +39,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/07/22 03:39:01 $
+ * @version $Revision: 1.4 $ $Date: 2004/07/27 03:52:15 $
  *
  * */
 public class RecoveryImpl implements Recovery {
@@ -77,6 +77,7 @@ public class RecoveryImpl implements Recovery {
                     Set transactionsForName = (Set)nameToOurTxMap.get(name);
                     if (transactionsForName == null) {
                         transactionsForName = new HashSet();
+                        nameToOurTxMap.put(name, transactionsForName);
                     }
                     transactionsForName.add(xidBranchesPair);
                 }

@@ -30,7 +30,7 @@ import junit.framework.TestCase;
 /**
  * This is just a unit test for recovery, depending on proper behavior of the log(s) it uses.
  *
- * @version $Revision: 1.2 $ $Date: 2004/06/11 19:20:55 $
+ * @version $Revision: 1.3 $ $Date: 2004/07/27 03:52:15 $
  *
  * */
 public class RecoveryTest extends TestCase {
@@ -40,6 +40,28 @@ public class RecoveryTest extends TestCase {
     private final String RM2 = "rm2";
     private final String RM3 = "rm3";
 
+    public void testCommittedRMToBeRecovered() throws Exception {
+        MockLog mockLog = new MockLog();
+        Xid[] xids = getXidArray(1);
+        // specifies an empty Xid array such that this XAResource has nothing
+        // to recover. This means that the presumed abort protocol has failed
+        // right after the commit of the RM and after the force-write of the
+        // prepared log record.
+        MockXAResource xares1 = new MockXAResource(RM1, new Xid[0]);
+        MockTransactionInfo[] txInfos = makeTxInfos(xids);
+        addBranch(txInfos, xares1);
+        prepareLog(mockLog, txInfos);
+        Recovery recovery = new RecoveryImpl(mockLog, xidFactory);
+        recovery.recoverLog();
+        assertTrue(!recovery.hasRecoveryErrors());
+        assertTrue(recovery.getExternalXids().isEmpty());
+        assertTrue(!recovery.localRecoveryComplete());
+        recovery.recoverResourceManager(xares1);
+        assertEquals(0, xares1.committed.size());
+        assertTrue(recovery.localRecoveryComplete());
+        
+    }
+    
     public void test2ResOnlineAfterRecoveryStart() throws Exception {
         MockLog mockLog = new MockLog();
         Xid[] xids = getXidArray(3);
