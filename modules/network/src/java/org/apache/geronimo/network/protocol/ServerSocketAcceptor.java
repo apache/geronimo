@@ -40,7 +40,7 @@ import org.apache.geronimo.network.URISupport;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:13 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/14 01:01:20 $
  */
 public class ServerSocketAcceptor implements SelectionEventListner, GBean {
 
@@ -125,17 +125,13 @@ public class ServerSocketAcceptor implements SelectionEventListner, GBean {
 
     public void doStart() throws WaitingException, Exception {
         String serverBindAddress = uri.getHost();
-        String clientConnectAddress = null;
         int serverBindPort = uri.getPort();
-        int clientConnectPort = serverBindPort;
         int connectBackLog = 50;
         enableTcpNoDelay = true;
 
         Properties params = URISupport.parseQueryParameters(uri);
         enableTcpNoDelay = params.getProperty("tcp.nodelay", "true").equals("true");
         connectBackLog = Integer.parseInt(params.getProperty("tcp.backlog", "50"));
-        clientConnectAddress = params.getProperty("client.host");
-        clientConnectPort = Integer.parseInt(params.getProperty("client.port", "0"));
 
         serverSocketChannel = ServerSocketChannel.open();
         serverSocketChannel.socket().bind(new InetSocketAddress(InetAddress.getByName(serverBindAddress), serverBindPort), connectBackLog);
@@ -143,19 +139,13 @@ public class ServerSocketAcceptor implements SelectionEventListner, GBean {
         serverSocketChannel.configureBlocking(false);
         selectionKey = selectorManager.register(serverSocketChannel, SelectionKey.OP_ACCEPT, this);
 
-        // Lookup the local host name if needed.
-        clientConnectAddress = (clientConnectAddress == null || clientConnectAddress.length() == 0)
-                ? InetAddress.getLocalHost().getHostName()
-                : clientConnectAddress;
-        clientConnectPort = (clientConnectPort <= 0) ? serverSocketChannel.socket().getLocalPort() : clientConnectPort;
-
         // Create the client URI:
         Properties clientParms = new Properties();
         clientParms.put("tcp.nodelay", enableTcpNoDelay ? "true" : "false");
         connectURI = new URI("async",
                              null,
-                             clientConnectAddress,
-                             clientConnectPort,
+                             InetAddress.getByName(serverBindAddress).getHostName(),
+                             serverSocketChannel.socket().getLocalPort(),
                              "",
                              URISupport.toQueryString(clientParms),
                              null);

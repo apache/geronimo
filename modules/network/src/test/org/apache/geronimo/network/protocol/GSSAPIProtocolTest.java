@@ -48,7 +48,7 @@ import org.apache.geronimo.system.ThreadPool;
 
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/13 16:50:18 $
+ * @version $Revision: 1.4 $ $Date: 2004/03/14 01:01:20 $
  */
 public class GSSAPIProtocolTest extends TestCase {
 
@@ -62,6 +62,7 @@ public class GSSAPIProtocolTest extends TestCase {
     private Latch shutdownLatch;
     private Latch stopLatch;
     private ThreadGroup threadGroup;
+    private ServerSocketAcceptor ssa;
 
     public void testDummy() throws Exception {
     }
@@ -106,8 +107,8 @@ public class GSSAPIProtocolTest extends TestCase {
 
             SocketProtocol sp = new SocketProtocol();
             sp.setTimeout(1000 * 1000); //todo reset to 10s
-            sp.setInterface(new InetSocketAddress("localhost", 0));
-            sp.setAddress(new InetSocketAddress("localhost", 8081));
+            sp.setInterface(new InetSocketAddress(ssa.getConnectURI().getHost(), 0));
+            sp.setAddress(new InetSocketAddress(ssa.getConnectURI().getHost(), ssa.getConnectURI().getPort()));
             sp.setSelectorManager(sm);
 
             clientStack.push(sp);
@@ -230,10 +231,10 @@ public class GSSAPIProtocolTest extends TestCase {
             pf.setReclaimPeriod(10 * 1000);
             pf.setTemplate(templateStack);
 
-            ServerSocketAcceptor ssa = new ServerSocketAcceptor();
+            ssa = new ServerSocketAcceptor();
             ssa.setSelectorManager(sm);
             ssa.setTimeOut(5 * 1000);
-            ssa.setUri(new URI("async://localhost:8081/?tcp.nodelay=true&tcp.backlog=5#"));
+            ssa.setUri(new URI("async://localhost:0/?tcp.nodelay=true&tcp.backlog=5#"));
             ssa.setAcceptorListener(pf);
             ssa.doStart();
 

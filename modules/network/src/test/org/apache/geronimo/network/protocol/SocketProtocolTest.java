@@ -31,7 +31,7 @@ import org.apache.geronimo.system.ThreadPool;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:15 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/14 01:01:20 $
  */
 public class SocketProtocolTest extends TestCase {
 
@@ -105,7 +105,7 @@ public class SocketProtocolTest extends TestCase {
         ServerSocketAcceptor ssa = new ServerSocketAcceptor();
         ssa.setSelectorManager(sm);
         ssa.setTimeOut(5 * 1000);
-        ssa.setUri(new URI("async://localhost:8081/?tcp.nodelay=true&tcp.backlog=5#"));
+        ssa.setUri(new URI("async://localhost:0/?tcp.nodelay=true&tcp.backlog=5#"));
         ssa.setAcceptorListener(pf);
         ssa.doStart();
 
@@ -149,8 +149,8 @@ public class SocketProtocolTest extends TestCase {
         });
 
         sp.setTimeout(10 * 1000);
-        sp.setInterface(new InetSocketAddress("localhost", 0));
-        sp.setAddress(new InetSocketAddress("localhost", 8081));
+        sp.setInterface(new InetSocketAddress(ssa.getConnectURI().getHost(), 0));
+        sp.setAddress(new InetSocketAddress(ssa.getConnectURI().getHost(), ssa.getConnectURI().getPort()));
         sp.setSelectorManager(sm);
 
         sp.doStart();
