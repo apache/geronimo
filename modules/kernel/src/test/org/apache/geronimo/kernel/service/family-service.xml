@@ -4,16 +4,16 @@
         <codebase url="file:../../../../../../../target/test-classes/"/>
     </class-space>
 
-    <mbean code="org.apache.geronimo.kernel.service.PersonImpl" name="family:role=Grandparent">
+    <mbean code="org.apache.geronimo.kernel.service.Person" name="family:role=Grandparent">
         <attribute name="Name">Grandparent</attribute>
     </mbean>
 
-    <mbean code="org.apache.geronimo.kernel.service.PersonImpl" name="family:role=Parent">
+    <mbean code="org.apache.geronimo.kernel.service.Person" name="family:role=Parent">
         <attribute name="Name">Parent</attribute>
         <depends name="family:role=Grandparent"/>
     </mbean>
 
-    <mbean code="org.apache.geronimo.kernel.service.PersonImpl" name="family:role=Child">
+    <mbean code="org.apache.geronimo.kernel.service.Person" name="family:role=Child">
         <attribute name="Name">Child</attribute>
         <depends name="family:role=Parent"/>
     </mbean>

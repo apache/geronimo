@@ -55,13 +55,83 @@
  */
 package org.apache.geronimo.kernel.service;
 
-/**
- * 
- * 
- * @version $Revision: 1.1 $ $Date: 2003/11/06 20:01:53 $
- */
-public interface Person {
-    String getName();
 
-    String getParentName();
+/**
+ * @version $Revision: 1.2 $ $Date: 2003/11/09 20:18:58 $
+ */
+public class Person {
+    private String name;
+    private Person parent;
+    private boolean doStartCalled = false;
+    private boolean doStopCalled = false;
+    private boolean doFailCalled = false;
+    private GeronimoMBeanContext context;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getParentName() {
+        if (parent != null) {
+            return parent.getName();
+        }
+        return null;
+    }
+
+    public void setParent(Person parent) {
+        this.parent = parent;
+        if(parent != null) {
+            System.out.println("parent " + parent.getName() + " - "+ parent.hashCode());
+        }
+    }
+
+    public void fail() {
+        context.fail();
+    }
+
+    public boolean isDoStartCalled() {
+        return doStartCalled;
+    }
+
+    public boolean isDoStopCalled() {
+        return doStopCalled;
+    }
+
+    public boolean isDoFailCalled() {
+        return doFailCalled;
+    }
+
+    public void reset() {
+        doStartCalled = false;
+        doStopCalled = false;
+        doFailCalled = false;
+    }
+
+    protected void doStart() {
+        doStartCalled = true;
+    }
+
+    protected void doStop() {
+        doStopCalled = true;
+    }
+
+    protected void doFail() {
+        doFailCalled = true;
+    }
+
+    protected void setMBeanContext(GeronimoMBeanContext context) {
+        this.context = context;
+    }
+
+    protected boolean canStart() {
+        return true;
+    }
+
+    protected boolean canStop() {
+        return true;
+    }
 }

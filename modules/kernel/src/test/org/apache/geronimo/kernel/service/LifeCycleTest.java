@@ -69,7 +69,7 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/06 20:01:53 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/09 20:18:58 $
  */
 public class LifeCycleTest extends TestCase {
     private JMXKernel kernel;
@@ -406,8 +406,8 @@ public class LifeCycleTest extends TestCase {
 
     private GeronimoMBeanInfo createPersonMBeanInfo(ObjectName parent) {
         GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
-        mbeanInfo.setTargetClass("org.apache.geronimo.kernel.service.PersonImpl");
-        mbeanInfo.setName("PersonImpl");
+        mbeanInfo.setTargetClass("org.apache.geronimo.kernel.service.Person");
+        mbeanInfo.setName("Person");
         mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("name"));
         mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("doStartCalled", true, false));
         mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("doStopCalled", true, false));
