@@ -49,7 +49,7 @@ import org.apache.geronimo.transaction.manager.XidImporter;
  * are delegated to the wrapped TransactionManager; all other operations are delegated to the
  * wrapped Transaction.
  *
- * @version $Revision: 1.6 $ $Date: 2004/03/10 09:59:36 $
+ * @version $Revision: 1.7 $ $Date: 2004/03/12 17:55:34 $
  */
 public class TransactionManagerProxy implements TransactionManager, XATerminator, XAWork {
 
@@ -254,11 +254,11 @@ public class TransactionManagerProxy implements TransactionManager, XATerminator
     //for now we use the default constructor.
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(TransactionManagerProxy.class.getName());
-
+        /*
         infoFactory.setConstructor(new GConstructorInfo(
-                new String[]{"Delegate"},
-                new Class[]{TransactionManager.class}));
-
+                new String[]{"Delegate", "XidImporter"},
+                new Class[]{TransactionManager.class, XidImporter.class}));
+         */
         infoFactory.addAttribute(new GAttributeInfo("Delegate", true));
 
         infoFactory.addOperation(new GOperationInfo("setTransactionTimeout", new String[]{Integer.TYPE.getName()}));
