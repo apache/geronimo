@@ -81,7 +81,7 @@ import org.w3c.dom.NodeList;
  * Knows how to load common J2EE deployment descriptor elements from a DOM
  * into POJOs.
  *
- * @version $Revision: 1.8 $ $Date: 2003/10/01 03:22:48 $
+ * @version $Revision: 1.9 $ $Date: 2003/10/01 19:02:39 $
  */
 public final class J2EELoader {
     public static EnvEntry[] loadEnvEntries(Element parent) {
@@ -193,6 +193,7 @@ public final class J2EELoader {
     }
 
     public static ServiceRef loadServiceRef(Element e, ServiceRef serviceRef) {
+        loadDisplayable(e, serviceRef);
         serviceRef.setServiceRefName(LoaderUtil.getChildContent(e, "service-ref-name"));
         serviceRef.setServiceInterface(LoaderUtil.getChildContent(e, "service-interface"));
         serviceRef.setWSDLFile(LoaderUtil.getChildContent(e, "wsdl-file"));
@@ -224,6 +225,7 @@ public final class J2EELoader {
         for (int i = 0; i < length; i++) {
             Element e = (Element) nodes.item(i);
             Handler handler = new Handler();
+            loadDisplayable(e, handler);
             handler.setHandlerName(LoaderUtil.getChildContent(e, "handler-name"));
             handler.setHandlerClass(LoaderUtil.getChildContent(e, "handler-class"));
             handler.setInitParam(loadInitParams(e));
@@ -242,6 +244,7 @@ public final class J2EELoader {
         for (int i = 0; i < length; i++) {
             Element e = (Element) nodes.item(i);
             ParamValue handler = new ParamValue();
+            loadDescribable(e, handler);
             handler.setParamName(LoaderUtil.getChildContent(e, "param-name"));
             handler.setParamValue(LoaderUtil.getChildContent(e, "param-value"));
             result[i] = handler;
@@ -314,6 +317,7 @@ public final class J2EELoader {
     public static MessageDestinationRef loadMessageDestinationRef(Element e, MessageDestinationRef msgDestRef) {
         msgDestRef.setMessageDestinationRefName(LoaderUtil.getChildContent(e, "message-destination-ref-name"));
         msgDestRef.setMessageDestinationType(LoaderUtil.getChildContent(e, "message-destination-type"));
+        msgDestRef.setMessageDestinationUsage(LoaderUtil.getChildContent(e, "message-destination-usage"));
         msgDestRef.setMessageDestinationLink(LoaderUtil.getChildContent(e, "message-destination-link"));
         return msgDestRef;
     }
