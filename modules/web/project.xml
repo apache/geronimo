@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.11 $ $Date: 2003/12/10 10:54:07 $ -->
+<!-- $Revision: 1.12 $ $Date: 2003/12/30 08:37:43 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -122,7 +122,7 @@
                 </destinations>
             </properties>
         </dependency>
-        
+
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-jacc</artifactId>
@@ -185,37 +185,6 @@
             </properties>
         </dependency>
 
-   <dependency>
-      <id>xdoclet</id>
-      <version>1.2b2</version>
-      <properties>
-        <runtime>false</runtime>
-      </properties>
-    </dependency>
-
-    <dependency>
-      <id>xdoclet+xdoclet-module</id>
-      <version>1.2b2</version>
-      <properties>
-        <runtime>false</runtime>
-      </properties>
-    </dependency>
-
-    <dependency>
-      <id>xdoclet+jmx-module</id>
-      <version>1.2b2</version>
-      <properties>
-        <runtime>false</runtime>
-      </properties>
-    </dependency>
-
-    <dependency>
-      <id>xdoclet+xjavadoc</id>
-      <version>1.2b2</version>
-      <properties>
-        <runtime>false</runtime>
-      </properties>
-    </dependency>
 
 
         <dependency>
@@ -226,13 +195,6 @@
             </properties>
         </dependency>
 
-        <dependency>
-            <id>mx4j+tools</id>
-            <version>SNAPSHOT</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
-        </dependency>
 
         <dependency>
             <id>jetty</id>
