@@ -24,7 +24,7 @@ import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.kernel.management.State;
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/06/04 22:31:56 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/04 23:05:25 $
  */
 public final class GBeanMBeanContext implements GBeanContext {
     /**
@@ -59,6 +59,7 @@ public final class GBeanMBeanContext implements GBeanContext {
      * Gets a reference to the MBean server in which the Geronimo MBean is registered.
      *
      * @return a reference to the MBean server in which the Geronimo MBean is registered
+     * @deprecated use a kernel GBeanAttribute instead
      */
     public MBeanServer getServer() {
         return server;
@@ -68,6 +69,7 @@ public final class GBeanMBeanContext implements GBeanContext {
      * Gets the registered name of the Geronimo MBean
      *
      * @return the registered name of the Geronimo MBean
+     * @deprecated use an objectName GBeanAttribute instead
      */
     public ObjectName getObjectName() {
         return objectName;
