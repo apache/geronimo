@@ -3,7 +3,7 @@
     <pomVersion>3</pomVersion>
     <id>geronimo-maven-xmlbeans-plugin</id>
     <name>Geronimo maven xmlbeans plugin</name>
-    <groupId>geronimo</groupId>
+    <groupId>maven</groupId>
     <currentVersion>DEV</currentVersion>
     <organization>
         <name>Apache Software Foundation</name>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.3 $ $Date: 2004/02/03 16:41:59 $ -->
+<!-- $Revision: 1.4 $ $Date: 2004/02/08 19:37:00 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -27,6 +27,7 @@
 
     <goal name="default">
         <attainGoal name="plugin:install"/>
+        <attainGoal name="plugin:deploy"/>
     </goal>
 
     <goal name="build">
