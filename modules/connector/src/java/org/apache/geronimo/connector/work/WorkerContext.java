@@ -25,6 +25,7 @@ import javax.resource.spi.work.WorkEvent;
 import javax.resource.spi.work.WorkException;
 import javax.resource.spi.work.WorkListener;
 import javax.resource.spi.work.WorkRejectedException;
+import javax.resource.spi.work.WorkManager;
 
 import EDU.oswego.cs.dl.util.concurrent.Latch;
 import org.apache.commons.logging.Log;
@@ -34,7 +35,7 @@ import org.apache.geronimo.transaction.XAWork;
 /**
  * Work wrapper providing an execution context to a Work instance.
  *
- * @version $Revision: 1.6 $ $Date: 2004/05/30 19:03:36 $
+ * @version $Revision: 1.7 $ $Date: 2004/07/06 17:15:54 $
  */
 public class WorkerContext implements Work {
 
@@ -214,10 +215,11 @@ public class WorkerContext implements Work {
     public synchronized boolean isTimedOut() {
         assert isAccepted: "The work is not accepted.";
         // A value of 0 means that the work never times out.
-        if (0 == startTimeOut) {
+        //??? really?
+        if (0 == startTimeOut || startTimeOut == WorkManager.INDEFINITE) {
             return false;
         }
-        boolean isTimeout =
+        boolean isTimeout = acceptedTime + startTimeOut > 0 &&
                 System.currentTimeMillis() > acceptedTime + startTimeOut;
         if (log.isDebugEnabled()) {
             log.debug(

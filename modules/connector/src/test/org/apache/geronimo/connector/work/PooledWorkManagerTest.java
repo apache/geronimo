@@ -30,16 +30,17 @@ import junit.framework.TestCase;
  * Timing is crucial for this test case, which focuses on the synchronization
  * specificities of the doWork, startWork and scheduleWork.
  *
- * @version $Revision: 1.6 $ $Date: 2004/05/17 13:48:13 $
+ * @version $Revision: 1.7 $ $Date: 2004/07/06 17:15:54 $
  */
 public class PooledWorkManagerTest extends TestCase {
 
     private GeronimoWorkManager workManager;
 
     protected void setUp() throws Exception {
-        workManager = new GeronimoWorkManager(1, 1, null);
+        workManager = new GeronimoWorkManager(1, null);
+        workManager.doStart();
     }
-    
+
     public void testDoWork() throws Exception {
         int nbThreads = 2;
         AbstractDummyWork threads[] =
@@ -100,6 +101,13 @@ public class PooledWorkManagerTest extends TestCase {
         }
         assertTrue("At least one work should be in the WORK_ACCEPTED state.",
             nbAccepted > 0);
+    }
+
+    public void testLifecycle() throws Exception {
+        testDoWork();
+        workManager.doStop();
+        workManager.doStart();
+        testDoWork();
     }
 
     private AbstractDummyWork[] helperTest(Class aWork, int nbThreads,
@@ -191,7 +199,7 @@ public class PooledWorkManagerTest extends TestCase {
     public static class DummyWork implements Work {
         private final String name;
         private final int tempo;
-        
+
         public DummyWork(String aName, int aTempo) {
             name = aName;
             tempo = aTempo;
@@ -218,21 +226,25 @@ public class PooledWorkManagerTest extends TestCase {
         public WorkEvent rejectedEvent;
         public WorkEvent startedEvent;
         public WorkEvent completedEvent;
-        
+
         public void workAccepted(WorkEvent e) {
             acceptedEvent = e;
+            System.out.println("accepted" + e);
         }
 
         public void workRejected(WorkEvent e) {
             rejectedEvent = e;
+            System.out.println("rejected" + e);
         }
 
         public void workStarted(WorkEvent e) {
             startedEvent = e;
+            System.out.println("started" + e);
         }
 
         public void workCompleted(WorkEvent e) {
             completedEvent = e;
+            System.out.println("completed" + e);
         }
     }
 }

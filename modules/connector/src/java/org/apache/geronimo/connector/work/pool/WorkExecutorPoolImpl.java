@@ -21,6 +21,8 @@ import javax.resource.spi.work.WorkCompletedException;
 import javax.resource.spi.work.WorkException;
 
 import EDU.oswego.cs.dl.util.concurrent.Channel;
+import EDU.oswego.cs.dl.util.concurrent.PooledExecutor;
+import EDU.oswego.cs.dl.util.concurrent.LinkedQueue;
 import org.apache.geronimo.connector.work.WorkerContext;
 
 /**
@@ -28,27 +30,25 @@ import org.apache.geronimo.connector.work.WorkerContext;
  * policy (should the call block until the end of the work; or when it starts
  * et cetera).
  *
- * @version $Revision: 1.4 $ $Date: 2004/05/30 19:03:36 $
+ * @version $Revision: 1.1 $ $Date: 2004/07/06 17:15:54 $
  */
-public abstract class AbstractWorkExecutorPool implements WorkExecutorPool {
+public class WorkExecutorPoolImpl implements WorkExecutorPool {
 
     /**
      * A timed out pooled executor.
      */
-    private TimedOutPooledExecutor pooledExecutor;
+    private PooledExecutor pooledExecutor;
 
     /**
      * Creates a pool with the specified minimum and maximum sizes. The Channel
      * used to enqueue the submitted Work instances is queueless synchronous
      * one.
      *
-     * @param minSize Minimum size of the work executor pool.
      * @param maxSize Maximum size of the work executor pool.
      */
-    public AbstractWorkExecutorPool(int minSize, int maxSize) {
-        pooledExecutor = new TimedOutPooledExecutor();
-        pooledExecutor.setMinimumPoolSize(minSize);
-        pooledExecutor.setMaximumPoolSize(maxSize);
+    public WorkExecutorPoolImpl(int maxSize) {
+        pooledExecutor = new PooledExecutor(new LinkedQueue(), maxSize);
+        pooledExecutor.setMinimumPoolSize(maxSize);
         pooledExecutor.waitWhenBlocked();
     }
 
@@ -57,25 +57,14 @@ public abstract class AbstractWorkExecutorPool implements WorkExecutorPool {
      * specified Channel to enqueue the submitted Work instances.
      *
      * @param channel Queue to be used as the queueing facility of this pool.
-     * @param minSize Minimum size of the work executor pool.
      * @param maxSize Maximum size of the work executor pool.
      */
-    public AbstractWorkExecutorPool(
+    public WorkExecutorPoolImpl(
             Channel channel,
-            int minSize, int maxSize) {
-        pooledExecutor = new TimedOutPooledExecutor(channel);
-        pooledExecutor.setMinimumPoolSize(minSize);
-        pooledExecutor.setMaximumPoolSize(maxSize);
+            int maxSize) {
+        pooledExecutor = new PooledExecutor(channel, maxSize);
+        pooledExecutor.setMinimumPoolSize(maxSize);
         pooledExecutor.waitWhenBlocked();
-    }
-
-    /**
-     * Delegates the work execution to the pooled executor.
-     *
-     * @param work Work to be executed.
-     */
-    protected void execute(WorkerContext work) throws InterruptedException {
-        pooledExecutor.execute(work);
     }
 
     /**
@@ -83,23 +72,11 @@ public abstract class AbstractWorkExecutorPool implements WorkExecutorPool {
      *
      * @param work Work to be executed.
      *
-     * @exception WorkException Indicates that the Work execution has been
+     * @exception InterruptedException Indicates that the Work execution has been
      * unsuccessful.
      */
-    public void executeWork(WorkerContext work) throws WorkException {
-        work.workAccepted(this);
-        try {
-            doExecute(work);
-            WorkException exception = work.getWorkException();
-            if (null != exception) {
-                throw exception;
-            }
-        } catch (InterruptedException e) {
-            WorkCompletedException wcj = new WorkCompletedException(
-                    "The execution has been interrupted.", e);
-            wcj.setErrorCode(WorkException.INTERNAL);
-            throw wcj;
-        }
+    public void execute(Runnable work) throws InterruptedException {
+        pooledExecutor.execute(work);
     }
 
     /**
@@ -107,21 +84,6 @@ public abstract class AbstractWorkExecutorPool implements WorkExecutorPool {
      */
     public int getPoolSize() {
         return pooledExecutor.getPoolSize();
-    }
-
-    /**
-     * Gets the minimu size of this pool.
-     */
-    public int getMinimumPoolSize() {
-        return pooledExecutor.getMinimumPoolSize();
-    }
-
-    /**
-     * Sets the minimum size of this pool.
-     * @param minSize New minimum size of the pool.
-     */
-    public void setMinimumPoolSize(int minSize) {
-        pooledExecutor.setMinimumPoolSize(minSize);
     }
 
     /**
@@ -139,26 +101,18 @@ public abstract class AbstractWorkExecutorPool implements WorkExecutorPool {
         pooledExecutor.setMaximumPoolSize(maxSize);
     }
 
-    /**
-     * This method must be implemented by sub-classes in order to provide the
-     * relevant synchronization policy. It is called by the executeWork template
-     * method.
-     *
-     * @param work Work to be executed.
-     *
-     * @throws WorkException Indicates that the work has failed.
-     * @throws InterruptedException Indicates that the thread in charge of the
-     * execution of the specified work has been interrupted.
-     */
-    protected abstract void doExecute(WorkerContext work)
-            throws WorkException, InterruptedException;
+    public WorkExecutorPool start() {
+        throw new IllegalStateException("This pooled executor is already started");
+    }
 
     /**
      * Stops this pool. Prior to stop this pool, all the enqueued Work instances
      * are processed. This is an orderly shutdown.
      */
-    public void doStop() {
+    public WorkExecutorPool stop() {
+        int maxSize = getMaximumPoolSize();
         pooledExecutor.shutdownAfterProcessingCurrentlyQueuedTasks();
+        return new NullWorkExecutorPool(maxSize);
     }
 
 }

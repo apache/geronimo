@@ -19,16 +19,22 @@ package org.apache.geronimo.connector.work;
 
 import javax.resource.spi.work.ExecutionContext;
 import javax.resource.spi.work.Work;
+import javax.resource.spi.work.WorkCompletedException;
 import javax.resource.spi.work.WorkException;
 import javax.resource.spi.work.WorkListener;
 import javax.resource.spi.work.WorkManager;
 
-import org.apache.geronimo.connector.work.pool.ScheduleWorkExecutorPool;
-import org.apache.geronimo.connector.work.pool.StartWorkExecutorPool;
-import org.apache.geronimo.connector.work.pool.SyncWorkExecutorPool;
+import EDU.oswego.cs.dl.util.concurrent.Executor;
+import org.apache.geronimo.connector.work.pool.NullWorkExecutorPool;
+import org.apache.geronimo.connector.work.pool.ScheduleWorkExecutor;
+import org.apache.geronimo.connector.work.pool.StartWorkExecutor;
+import org.apache.geronimo.connector.work.pool.SyncWorkExecutor;
+import org.apache.geronimo.connector.work.pool.WorkExecutor;
 import org.apache.geronimo.connector.work.pool.WorkExecutorPool;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.transaction.XAWork;
 
 /**
@@ -39,68 +45,80 @@ import org.apache.geronimo.transaction.XAWork;
  * A WorkManager is a component of the JCA specifications, which allows a
  * Resource Adapter to submit tasks to an Application Server for execution.
  *
- * TODO There needs to be better lifecycle support.  The individual pools can be stopped now, but
- * not restarted AFAIK.
- *
- * @version $Revision: 1.7 $ $Date: 2004/06/02 05:33:02 $
+ * @version $Revision: 1.8 $ $Date: 2004/07/06 17:15:54 $
  */
-public class GeronimoWorkManager implements WorkManager {
+public class GeronimoWorkManager implements WorkManager, GBeanLifecycle {
 
-    private final static int DEFAULT_MIN_POOL_SIZE = 0;
-    private final static int DEFAULT_MAX_POOL_SIZE = 10;
+    private final static int DEFAULT_POOL_SIZE = 10;
 
     /**
      * Pool of threads used by this WorkManager in order to process
      * the Work instances submitted via the doWork methods.
      */
-    private final WorkExecutorPool syncWorkExecutorPool;
+    private WorkExecutorPool syncWorkExecutorPool;
 
     /**
      * Pool of threads used by this WorkManager in order to process
      * the Work instances submitted via the startWork methods.
      */
-    private final WorkExecutorPool startWorkExecutorPool;
+    private WorkExecutorPool startWorkExecutorPool;
 
     /**
      * Pool of threads used by this WorkManager in order to process
      * the Work instances submitted via the scheduleWork methods.
      */
-    private final WorkExecutorPool scheduledWorkExecutorPool;
+    private WorkExecutorPool scheduledWorkExecutorPool;
 
     private final XAWork xaWork;
+
+    private final WorkExecutor scheduleWorkExecutor = new ScheduleWorkExecutor();
+    private final WorkExecutor startWorkExecutor = new StartWorkExecutor();
+    private final WorkExecutor syncWorkExecutor = new SyncWorkExecutor();
 
     /**
      * Create a WorkManager.
      */
     public GeronimoWorkManager() {
-        this(DEFAULT_MIN_POOL_SIZE, DEFAULT_MAX_POOL_SIZE, null);
+        this(DEFAULT_POOL_SIZE, null);
     }
 
-    public GeronimoWorkManager(int minSize, int maxSize, XAWork xaWork) {
-        this(minSize, maxSize, minSize, maxSize, minSize, maxSize, xaWork);
+    public GeronimoWorkManager(int size, XAWork xaWork) {
+        this(size, size, size, xaWork);
     }
 
-    public GeronimoWorkManager(int syncMinSize, int syncMaxSize, int startMinSize, int startMaxSize, int schedMinSize, int schedMaxSize, XAWork xaWork) {
-        syncWorkExecutorPool = new SyncWorkExecutorPool(syncMinSize, syncMaxSize);
-        startWorkExecutorPool = new StartWorkExecutorPool(startMinSize, startMaxSize);
-        scheduledWorkExecutorPool = new ScheduleWorkExecutorPool(schedMinSize, schedMaxSize);
+    public GeronimoWorkManager(int syncSize, int startSize, int schedSize, XAWork xaWork) {
+        syncWorkExecutorPool = new NullWorkExecutorPool(syncSize);
+        startWorkExecutorPool = new NullWorkExecutorPool(startSize);
+        scheduledWorkExecutorPool = new NullWorkExecutorPool(schedSize);
         this.xaWork = xaWork;
+    }
+
+    public void doStart() throws WaitingException, Exception {
+        syncWorkExecutorPool = syncWorkExecutorPool.start();
+        startWorkExecutorPool = startWorkExecutorPool.start();
+        scheduledWorkExecutorPool = scheduledWorkExecutorPool.start();
+    }
+
+    public void doStop() throws WaitingException, Exception {
+        syncWorkExecutorPool = syncWorkExecutorPool.stop();
+        startWorkExecutorPool = startWorkExecutorPool.stop();
+        scheduledWorkExecutorPool = scheduledWorkExecutorPool.stop();
+    }
+
+    public void doFail() {
+        try {
+            doStop();
+        } catch (Exception e) {
+            //TODO what to do?
+        }
     }
 
     public int getSyncThreadCount() {
         return syncWorkExecutorPool.getPoolSize();
     }
 
-    public int getSyncMinimumPoolSize() {
-        return syncWorkExecutorPool.getMinimumPoolSize();
-    }
-
     public int getSyncMaximumPoolSize() {
         return syncWorkExecutorPool.getMaximumPoolSize();
-    }
-
-    public void setSyncMinimumPoolSize(int minSize) {
-        syncWorkExecutorPool.setMinimumPoolSize(minSize);
     }
 
     public void setSyncMaximumPoolSize(int maxSize) {
@@ -111,16 +129,8 @@ public class GeronimoWorkManager implements WorkManager {
         return startWorkExecutorPool.getPoolSize();
     }
 
-    public int getStartMinimumPoolSize() {
-        return startWorkExecutorPool.getMinimumPoolSize();
-    }
-
     public int getStartMaximumPoolSize() {
         return startWorkExecutorPool.getMaximumPoolSize();
-    }
-
-    public void setStartMinimumPoolSize(int minSize) {
-        startWorkExecutorPool.setMinimumPoolSize(minSize);
     }
 
     public void setStartMaximumPoolSize(int maxSize) {
@@ -131,16 +141,8 @@ public class GeronimoWorkManager implements WorkManager {
         return scheduledWorkExecutorPool.getPoolSize();
     }
 
-    public int getScheduledMinimumPoolSize() {
-        return scheduledWorkExecutorPool.getMinimumPoolSize();
-    }
-
     public int getScheduledMaximumPoolSize() {
         return scheduledWorkExecutorPool.getMaximumPoolSize();
-    }
-
-    public void setScheduledMinimumPoolSize(int minSize) {
-        scheduledWorkExecutorPool.setMinimumPoolSize(minSize);
     }
 
     public void setScheduledMaximumPoolSize(int maxSize) {
@@ -151,7 +153,7 @@ public class GeronimoWorkManager implements WorkManager {
      * @see javax.resource.spi.work.WorkManager#doWork(javax.resource.spi.work.Work)
      */
     public void doWork(Work work) throws WorkException {
-        syncWorkExecutorPool.executeWork(new WorkerContext(work));
+        executeWork(new WorkerContext(work), syncWorkExecutor, syncWorkExecutorPool);
     }
 
     /* (non-Javadoc)
@@ -166,7 +168,7 @@ public class GeronimoWorkManager implements WorkManager {
         WorkerContext workWrapper =
                 new WorkerContext(work, startTimeout, execContext, xaWork, workListener);
         workWrapper.setThreadPriority(Thread.currentThread().getPriority());
-        syncWorkExecutorPool.executeWork(workWrapper);
+        executeWork(workWrapper, syncWorkExecutor, syncWorkExecutorPool);
     }
 
     /* (non-Javadoc)
@@ -175,7 +177,7 @@ public class GeronimoWorkManager implements WorkManager {
     public long startWork(Work work) throws WorkException {
         WorkerContext workWrapper = new WorkerContext(work);
         workWrapper.setThreadPriority(Thread.currentThread().getPriority());
-        startWorkExecutorPool.executeWork(workWrapper);
+        executeWork(workWrapper, startWorkExecutor, startWorkExecutorPool);
         return System.currentTimeMillis() - workWrapper.getAcceptedTime();
     }
 
@@ -191,7 +193,7 @@ public class GeronimoWorkManager implements WorkManager {
         WorkerContext workWrapper =
                 new WorkerContext(work, startTimeout, execContext, xaWork, workListener);
         workWrapper.setThreadPriority(Thread.currentThread().getPriority());
-        startWorkExecutorPool.executeWork(workWrapper);
+        executeWork(workWrapper, startWorkExecutor, startWorkExecutorPool);
         return System.currentTimeMillis() - workWrapper.getAcceptedTime();
     }
 
@@ -201,7 +203,7 @@ public class GeronimoWorkManager implements WorkManager {
     public void scheduleWork(Work work) throws WorkException {
         WorkerContext workWrapper = new WorkerContext(work);
         workWrapper.setThreadPriority(Thread.currentThread().getPriority());
-        scheduledWorkExecutorPool.executeWork(workWrapper);
+        executeWork(workWrapper, scheduleWorkExecutor, scheduledWorkExecutorPool);
     }
 
     /* (non-Javadoc)
@@ -216,7 +218,31 @@ public class GeronimoWorkManager implements WorkManager {
         WorkerContext workWrapper =
                 new WorkerContext(work, startTimeout, execContext, xaWork, workListener);
         workWrapper.setThreadPriority(Thread.currentThread().getPriority());
-        scheduledWorkExecutorPool.executeWork(workWrapper);
+        executeWork(workWrapper, scheduleWorkExecutor, scheduledWorkExecutorPool);
+    }
+
+    /**
+     * Execute the specified Work.
+     *
+     * @param work Work to be executed.
+     *
+     * @exception WorkException Indicates that the Work execution has been
+     * unsuccessful.
+     */
+    private void executeWork(WorkerContext work, WorkExecutor workExecutor, Executor pooledExecutor) throws WorkException {
+        work.workAccepted(this);
+        try {
+            workExecutor.doExecute(work, pooledExecutor);
+            WorkException exception = work.getWorkException();
+            if (null != exception) {
+                throw exception;
+            }
+        } catch (InterruptedException e) {
+            WorkCompletedException wcj = new WorkCompletedException(
+                    "The execution has been interrupted.", e);
+            wcj.setErrorCode(WorkException.INTERNAL);
+            throw wcj;
+        }
     }
 
     public static final GBeanInfo GBEAN_INFO;
@@ -225,21 +251,15 @@ public class GeronimoWorkManager implements WorkManager {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(GeronimoWorkManager.class);
         infoFactory.addInterface(WorkManager.class);
 
-        infoFactory.addAttribute("SyncMinimumPoolSize", Integer.TYPE, true);
         infoFactory.addAttribute("SyncMaximumPoolSize", Integer.TYPE, true);
-        infoFactory.addAttribute("StartMinimumPoolSize", Integer.TYPE, true);
         infoFactory.addAttribute("StartMaximumPoolSize", Integer.TYPE, true);
-        infoFactory.addAttribute("ScheduledMinimumPoolSize", Integer.TYPE, true);
         infoFactory.addAttribute("ScheduledMaximumPoolSize", Integer.TYPE, true);
 
         infoFactory.addReference("XAWork", XAWork.class);
 
         infoFactory.setConstructor(new String[]{
-            "SyncMinimumPoolSize",
             "SyncMaximumPoolSize",
-            "StartMinimumPoolSize",
             "StartMaximumPoolSize",
-            "ScheduledMinimumPoolSize",
             "ScheduledMaximumPoolSize",
             "XAWork"});
 
@@ -249,5 +269,6 @@ public class GeronimoWorkManager implements WorkManager {
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
+
 
 }
