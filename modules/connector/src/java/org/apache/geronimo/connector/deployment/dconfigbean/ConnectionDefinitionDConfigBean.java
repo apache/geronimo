@@ -61,18 +61,20 @@ import javax.enterprise.deploy.model.DDBean;
 import org.apache.geronimo.deployment.plugin.DConfigBeanSupport;
 import org.apache.geronimo.xbeans.geronimo.GerConnectionDefinitionType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectiondefinitionInstanceType;
+import org.apache.geronimo.xbeans.geronimo.GerConnectionmanagerType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/09 23:13:27 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/15 17:46:21 $
  *
- * */
+ **/
 public class ConnectionDefinitionDConfigBean extends DConfigBeanSupport {
     private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
     private final static String[] CONNECTION_DEFINITION_XPATHS = {};
+    private ConnectionDefinitionInstance[] instances = new ConnectionDefinitionInstance[0];
 
     public ConnectionDefinitionDConfigBean(DDBean ddBean, GerConnectionDefinitionType connectionDefinition) {
         super(ddBean, connectionDefinition, SCHEMA_TYPE_LOADER);
@@ -82,42 +84,56 @@ public class ConnectionDefinitionDConfigBean extends DConfigBeanSupport {
         } else {
             assert connectionfactoryInterface.equals(connectionDefinition.getConnectionfactoryInterface().getStringValue());
         }
+        // Get initial list of instances
+        instances = new ConnectionDefinitionInstance[getConnectionDefinition().getConnectiondefinitionInstanceArray().length];
+        for (int i = 0; i < instances.length; i++) {
+            instances[i] = new ConnectionDefinitionInstance();
+            instances[i].initialize(getConnectionDefinition().getConnectiondefinitionInstanceArray(i), this);
+        }
     }
 
     GerConnectionDefinitionType getConnectionDefinition() {
         return (GerConnectionDefinitionType)getXmlObject();
     }
 
-    public ConnectionDefinitionInstanceDConfigBean[] getConnectionDefinitionInstance() {
-        GerConnectiondefinitionInstanceType[] connectiondefinitionInstances = getConnectionDefinition().getConnectiondefinitionInstanceArray();
-        ConnectionDefinitionInstanceDConfigBean[] connectiondefinitionInstanceDConfigBeans = new ConnectionDefinitionInstanceDConfigBean[connectiondefinitionInstances.length];
-        for (int i = 0; i < connectiondefinitionInstances.length; i++) {
-            GerConnectiondefinitionInstanceType connectiondefinitionInstance = connectiondefinitionInstances[i];
-            connectiondefinitionInstanceDConfigBeans[i] = new ConnectionDefinitionInstanceDConfigBean(getDDBean(), connectiondefinitionInstance);
-        }
-        return connectiondefinitionInstanceDConfigBeans;
+    public ConnectionDefinitionInstance[] getConnectionDefinitionInstance() {
+        return instances;
     }
 
-    public void setConnectionDefinitionInstance(ConnectionDefinitionInstanceDConfigBean[] connectiondefinitionInstanceDConfigBeans) {
-        GerConnectiondefinitionInstanceType[] connectiondefinitionInstances = new GerConnectiondefinitionInstanceType[connectiondefinitionInstanceDConfigBeans.length];
-        for (int i = 0; i < connectiondefinitionInstanceDConfigBeans.length; i++) {
-            ConnectionDefinitionInstanceDConfigBean connectiondefinitionInstanceDConfigBean = connectiondefinitionInstanceDConfigBeans[i];
-            if (connectiondefinitionInstanceDConfigBean == null) {
-                throw new IllegalStateException("the " + i + "th connectiondefinition instance was null");
-            }
-            connectiondefinitionInstances[i] = connectiondefinitionInstanceDConfigBean.getConnectiondefinitionInstance();
-            if (connectiondefinitionInstances[i] == null) {
-                connectiondefinitionInstances[i] = GerConnectiondefinitionInstanceType.Factory.newInstance();
+    public void setConnectionDefinitionInstance(ConnectionDefinitionInstance[] instances) {
+        ConnectionDefinitionInstance[] old = getConnectionDefinitionInstance();
+        this.instances = instances;
+        for (int i = 0; i < instances.length; i++) { // catch additions
+            ConnectionDefinitionInstance instance = instances[i];
+            if(!instance.hasParent()) {
+                GerConnectiondefinitionInstanceType xmlObject = getConnectionDefinition().addNewConnectiondefinitionInstance();
+                xmlObject.setConnectionmanager(GerConnectionmanagerType.Factory.newInstance());
+                instance.initialize(xmlObject, this);
             }
         }
-        //this will copy all the xmlobjects.
-        getConnectionDefinition().setConnectiondefinitionInstanceArray(connectiondefinitionInstances);
-        //get the new copies
-        GerConnectiondefinitionInstanceType[] newconnectiondefinitionInstances = getConnectionDefinition().getConnectiondefinitionInstanceArray();
-        for (int i = 0; i < newconnectiondefinitionInstances.length; i++) {
-            GerConnectiondefinitionInstanceType newconnectiondefinitionInstance = newconnectiondefinitionInstances[i];
-            connectiondefinitionInstanceDConfigBeans[i].setParent(getDDBean(), newconnectiondefinitionInstance);
+        for (int i = 0; i < old.length; i++) { // catch removals
+            ConnectionDefinitionInstance instance = old[i];
+            boolean found = false;
+            for (int j = 0; j < instances.length; j++) {
+                if(instances[j] == instance) {
+                    found = true;
+                    break;
+                }
+            }
+            if(!found) {
+                // remove the XmlBean
+                for (int j = 0; j < getConnectionDefinition().getConnectiondefinitionInstanceArray().length; j++) {
+                    GerConnectiondefinitionInstanceType test = getConnectionDefinition().getConnectiondefinitionInstanceArray(j);
+                    if(test == instance.getConnectiondefinitionInstance()) {
+                        getConnectionDefinition().removeConnectiondefinitionInstance(j);
+                        break;
+                    }
+                }
+                // clean up the removed JavaBean
+                instance.dispose();
+            }
         }
+        pcs.firePropertyChange("connectionDefinitionInstance", old, instances);
     }
 
     public String[] getXpaths() {

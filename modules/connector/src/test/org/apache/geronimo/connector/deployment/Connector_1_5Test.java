@@ -95,18 +95,13 @@ import org.apache.geronimo.deployment.DeploymentModule;
 import org.apache.geronimo.deployment.ConfigurationCallback;
 import org.apache.geronimo.deployment.tools.DDBeanRootImpl;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.connector.deployment.dconfigbean.ResourceAdapterDConfigBean;
-import org.apache.geronimo.connector.deployment.dconfigbean.ConfigPropertySettingDConfigBean;
-import org.apache.geronimo.connector.deployment.dconfigbean.AdminObjectDConfigBean;
-import org.apache.geronimo.connector.deployment.dconfigbean.AdminObjectInstanceDConfigBean;
-import org.apache.geronimo.connector.deployment.dconfigbean.ConnectionDefinitionDConfigBean;
-import org.apache.geronimo.connector.deployment.dconfigbean.ConnectionDefinitionInstanceDConfigBean;
+import org.apache.geronimo.connector.deployment.dconfigbean.*;
 import org.apache.xmlbeans.XmlOptions;
 
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/02/10 19:59:14 $
+ * @version $Revision: 1.7 $ $Date: 2004/02/15 17:46:21 $
  *
  * */
 public class Connector_1_5Test extends TestCase implements ConfigurationCallback {
@@ -177,14 +172,14 @@ public class Connector_1_5Test extends TestCase implements ConfigurationCallback
         assertEquals(2, connectionDefinitiondds.length);
         ConnectionDefinitionDConfigBean connectionDefinitionDConfigBean = (ConnectionDefinitionDConfigBean)resourceAdapterDConfigBean.getDConfigBean(connectionDefinitiondds[0]);
         assertNotNull(connectionDefinitionDConfigBean);
-        ConnectionDefinitionInstanceDConfigBean connectionDefinitionInstanceDConfigBean1 = new ConnectionDefinitionInstanceDConfigBean();
-        connectionDefinitionDConfigBean.setConnectionDefinitionInstance(new ConnectionDefinitionInstanceDConfigBean[] {connectionDefinitionInstanceDConfigBean1});
-        DDBean[] connectionDefinitionConfigPropDDs = connectionDefinitiondds[0].getChildBean(connectionDefinitionInstanceDConfigBean1.getXpaths()[0]);
+        ConnectionDefinitionInstance connectionDefinitionInstance1 = new ConnectionDefinitionInstance();
+        connectionDefinitionDConfigBean.setConnectionDefinitionInstance(new ConnectionDefinitionInstance[] {connectionDefinitionInstance1});
+        DDBean[] connectionDefinitionConfigPropDDs = connectionDefinitiondds[0].getChildBean("config-property");
         assertEquals(4, connectionDefinitionConfigPropDDs.length);
-        ConfigPropertySettingDConfigBean connectionDefinitionSetting1 = (ConfigPropertySettingDConfigBean) connectionDefinitionInstanceDConfigBean1.getDConfigBean(connectionDefinitionConfigPropDDs[0]);
+        ConfigPropertySettings connectionDefinitionSetting1 = (ConfigPropertySettings) connectionDefinitionInstance1.getConfigProperty()[0];
         connectionDefinitionSetting1.setConfigPropertyValue("TestCDValue1");
         //connection manager properties
-        connectionDefinitionInstanceDConfigBean1.setBlockingTimeout(3000);
+        connectionDefinitionInstance1.setBlockingTimeout(3000);
 
         //check the results
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -239,8 +234,8 @@ public class Connector_1_5Test extends TestCase implements ConfigurationCallback
         //outbound
         connectionDefinitionDConfigBean = (ConnectionDefinitionDConfigBean)resourceAdapterDConfigBean.getDConfigBean(connectionDefinitiondds[0]);
         assertNotNull(connectionDefinitionDConfigBean);
-        ConnectionDefinitionInstanceDConfigBean[] connectionDefinitionInstanceDConfigBeans = connectionDefinitionDConfigBean.getConnectionDefinitionInstance();
-        connectionDefinitionSetting1 = (ConfigPropertySettingDConfigBean) connectionDefinitionInstanceDConfigBeans[0].getDConfigBean(connectionDefinitionConfigPropDDs[0]);
+        ConnectionDefinitionInstance[] connectionDefinitionInstanceDConfigBeans = connectionDefinitionDConfigBean.getConnectionDefinitionInstance();
+        connectionDefinitionSetting1 = (ConfigPropertySettings) connectionDefinitionInstanceDConfigBeans[0].getConfigProperty()[0];
         assertEquals("TestCDValue1", connectionDefinitionSetting1.getConfigPropertyValue());
         //connection manager
         assertEquals(3000, connectionDefinitionInstanceDConfigBeans[0].getBlockingTimeout());

@@ -55,49 +55,52 @@
  */
 package org.apache.geronimo.deployment.plugin;
 
-import javax.enterprise.deploy.model.DDBean;
-import javax.enterprise.deploy.model.XpathEvent;
-import javax.enterprise.deploy.spi.DConfigBean;
-import javax.enterprise.deploy.spi.exceptions.BeanNotFoundException;
-import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/02/15 17:46:21 $
+ * @version $Revision: 1.1 $ $Date: 2004/02/15 17:46:21 $
  */
-public abstract class DConfigBeanSupport extends XmlBeanSupport implements DConfigBean {
-    private DDBean ddBean;
+public abstract class XmlBeanSupport { // should implement Serializable or Externalizable
+    protected final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+    private XmlObject xmlObject;
+    private final SchemaTypeLoader schemaTypeLoader;
 
-    public DConfigBeanSupport(DDBean ddBean, XmlObject xmlObject, SchemaTypeLoader schemaTypeLoader) {
-        super(xmlObject, schemaTypeLoader);
-        this.ddBean = ddBean;
+    public XmlBeanSupport(XmlObject xmlObject, SchemaTypeLoader schemaTypeLoader) {
+        this.xmlObject = xmlObject;
+        this.schemaTypeLoader = schemaTypeLoader;
     }
 
-    protected void setParent(DDBean ddBean, XmlObject xmlObject) {
-        this.ddBean = ddBean;
-        setXmlObject(xmlObject);
+    protected void setXmlObject(XmlObject xmlObject) {
+        this.xmlObject = xmlObject;
     }
 
-    public DDBean getDDBean() {
-        return ddBean;
+    protected XmlObject getXmlObject() {
+        return xmlObject;
     }
 
-    public DConfigBean getDConfigBean(DDBean bean) throws ConfigurationException {
-        throw new ConfigurationException("No DConfigBean matching DDBean "+bean);
+    public void addPropertyChangeListener(PropertyChangeListener pcl) {
+        pcs.addPropertyChangeListener(pcl);
     }
 
-    public String[] getXpaths() {
-        return new String[0];
+    public void removePropertyChangeListener(PropertyChangeListener pcl) {
+        pcs.removePropertyChangeListener(pcl);
     }
 
-    public void removeDConfigBean(DConfigBean bean) throws BeanNotFoundException {
-        throw new BeanNotFoundException("No children");
+    public void toXML(OutputStream outputStream) throws IOException {
+        xmlObject.save(outputStream);
     }
 
-    public void notifyDDChange(XpathEvent event) {
+    public void fromXML(InputStream inputStream) throws XmlException, IOException {
+        xmlObject = schemaTypeLoader.parse(inputStream, null, null);
     }
 }
