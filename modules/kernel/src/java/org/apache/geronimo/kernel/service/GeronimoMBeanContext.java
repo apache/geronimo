@@ -59,17 +59,28 @@ import javax.management.MBeanServer;
 import javax.management.Notification;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.kernel.service.GeronimoMBean;
+import org.apache.geronimo.kernel.management.State;
 
 /**
  * Context handle for Geronimo MBean targets which gives a target a reference to the MBean server, the object name
  * of the GeronimoMBean containing the target, allows the target to send MBean notifications.
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:38:35 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/06 19:56:00 $
  */
 public class GeronimoMBeanContext {
+    /**
+     * The MBean server in which the Geronimo MBean is registered.
+     */
     private MBeanServer server;
+
+    /**
+     * The GeronimoMBean which owns the target.
+     */
     private GeronimoMBean geronimoMBean;
+
+    /**
+     * The object name of the Geronimo MBean.
+     */
     private ObjectName objectName;
 
     /**
@@ -99,6 +110,45 @@ public class GeronimoMBeanContext {
      */
     public ObjectName getObjectName() {
         return objectName;
+    }
+
+    /**
+     * Attempts to bring the component into the fully running state. If an Exception occurs while
+     * starting the component, the component is automaticaly failed.
+     *
+     * There is no guarantee that the Geronimo MBean will be running when the method returns.
+     *
+     * @throws Exception if a problem occurs while starting the component
+     */
+    public void start() throws Exception {
+        geronimoMBean.attemptFullStart();
+    }
+
+    /**
+     * Attempt to bring the component into the fully stopped state. If an exception occurs while
+     * stopping the component, tthe component is automaticaly failed.
+     *
+     * There is no guarantee that the Geronimo MBean will be stopped when the method returns.
+     *
+     * @throws Exception if a problem occurs while stopping the component
+     */
+    public void stop() throws Exception {
+        final int state = geronimoMBean.getState();
+        if (state == State.RUNNING_INDEX || state == State.STARTING_INDEX) {
+            geronimoMBean.stop();
+        } else if (state == State.STOPPING_INDEX) {
+            geronimoMBean.attemptFullStop();
+        }
+    }
+
+    /**
+     * Moves this component to the FAILED state.
+     *
+     * The component is guaranteed to be in the failed state when the method returns.
+     *
+     */
+    public void fail() {
+        geronimoMBean.fail();
     }
 
     /**
