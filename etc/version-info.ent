@@ -3,7 +3,7 @@
 <!ENTITY geronimo-system-version "1.0-SNAPSHOT">
 
 <!--actual dependencies-->
-<!ENTITY activemq-version "1.3-SNAPSHOT">
+<!ENTITY activemq-version "1.2-SNAPSHOT">
 <!ENTITY geronimo-version "1.0-SNAPSHOT">
 <!ENTITY openejb-version "2.0-SNAPSHOT">
 <!ENTITY tranql-version "1.0-SNAPSHOT">
