@@ -1,288 +1,315 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.17 $ $Date: 2003/11/25 04:19:29 $ -->
+<!-- $Revision: 1.18 $ $Date: 2004/01/28 21:38:00 $ -->
 
 <project>
-  
-  <pomVersion>3</pomVersion>
-  
-  <!-- ============== -->
-  <!-- Identification -->
-  <!-- ============== -->
 
-  <name>Apache Geronimo</name>
-  <id>geronimo</id>
-  <groupId>geronimo</groupId>
-  <package>org.apache.geronimo</package>
+    <pomVersion>3</pomVersion>
 
-  <organization>
-    <name>Apache Software Foundation</name>
-    <url>http://incubator.apache.org/</url>
-    <logo>http://incubator.apache.org/geronimo/images/apache-incubator.png</logo>
-  </organization>
+    <!-- ============== -->
+    <!-- Identification -->
+    <!-- ============== -->
 
-  <inceptionYear>2003</inceptionYear>
-  <logo>http://incubator.apache.org/geronimo/images/geronimo.gif</logo>
-  <description>Geronimo J2EE Application Server</description>
-  <shortDescription>Geronimo J2EE Application Server</shortDescription>
-  <url>http://incubator.apache.org/projects/geronimo/</url>
-  <issueTrackingUrl>http://jira.codehaus.org/secure/BrowseProject.jspa?id=10220</issueTrackingUrl>
+    <name>Apache Geronimo</name>
+    <id>geronimo</id>
+    <groupId>geronimo</groupId>
+    <package>org.apache.geronimo</package>
 
-  <siteAddress>incubator.apache.org</siteAddress>
-  <siteDirectory>/www/incubator.apache.org/geronimo</siteDirectory> 
-  <distributionDirectory>/www/incubator.apache.org/geronimo/builds</distributionDirectory>
+    <organization>
+        <name>Apache Software Foundation</name>
+        <url>http://incubator.apache.org/</url>
+        <logo>http://incubator.apache.org/geronimo/images/apache-incubator.png</logo>
+    </organization>
 
-  <repository>
-    <connection>scm:cvs:pserver:anoncvs@cvs.apache.org:/home/cvspublic:incubator-geronimo</connection>
-    <developerConnection>scm:cvs:ext:${geronimo.username}@cvs.apache.org:/home/cvs:incubator-geronimo</developerConnection>
-    <url>http://cvs.apache.org/viewcvs/incubator-geronimo/</url>
-  </repository>
+    <inceptionYear>2003</inceptionYear>
+    <logo>http://incubator.apache.org/geronimo/images/geronimo.gif</logo>
+    <description>Geronimo J2EE Application Server</description>
+    <shortDescription>Geronimo J2EE Application Server</shortDescription>
+    <url>http://incubator.apache.org/projects/geronimo/</url>
+    <issueTrackingUrl>http://jira.codehaus.org/secure/BrowseProject.jspa?id=10220</issueTrackingUrl>
 
-  <mailingLists>
-    <!--
-    <mailingList>
-      <name>Geronimo User List</name>
-      <subscribe>geronimo-users-subscribe@incubator.apache.org</subscribe>
-      <unsubscribe>geronimo-users-unsubscribe@incubator.apache.org</unsubscribe>
-      <archive>http://nagoya.apache.org/eyebrowse/SummarizeList?listName=geronimo-user@jakarta.apache.org</archive>
-    </mailingList>
-    -->
-    <mailingList>
-      <name>Geronimo Developer List</name>
-      <subscribe>geronimo-dev-subscribe@incubator.apache.org</subscribe>
-      <unsubscribe>geronimo-dev-unsubscribe@incubator.apache.org</unsubscribe>
-      <archive>http://nagoya.apache.org/eyebrowse/SummarizeList?listId=140</archive>
-    </mailingList>
-  </mailingLists>
+    <siteAddress>incubator.apache.org</siteAddress>
+    <siteDirectory>/www/incubator.apache.org/geronimo</siteDirectory>
+    <distributionDirectory>/www/incubator.apache.org/geronimo/builds</distributionDirectory>
 
+    <repository>
+        <connection>scm:cvs:pserver:anoncvs@cvs.apache.org:/home/cvspublic:incubator-geronimo</connection>
+        <developerConnection>scm:cvs:ext:${geronimo.username}@cvs.apache.org:/home/cvs:incubator-geronimo</developerConnection>
+        <url>http://cvs.apache.org/viewcvs/incubator-geronimo/</url>
+    </repository>
 
-  <!-- ======== -->
-  <!-- Versions -->
-  <!-- ======== -->
-
-  <currentVersion>DEV</currentVersion>
-
-  <versions>
-    <version>
-      <id>1.0-alpha-1</id>
-      <name>1.0-alpha-1</name>
-      <tag>GERONIMO_1_0_ALPHA_1</tag>
-    </version>
-    <version>
-      <id>1.0-alpha-2</id>
-      <name>1.0-alpha-2</name>
-      <tag>HEAD</tag>
-    </version>
-  </versions>
+    <mailingLists>
+        <!--
+        <mailingList>
+          <name>Geronimo User List</name>
+          <subscribe>geronimo-users-subscribe@incubator.apache.org</subscribe>
+          <unsubscribe>geronimo-users-unsubscribe@incubator.apache.org</unsubscribe>
+          <archive>http://nagoya.apache.org/eyebrowse/SummarizeList?listName=geronimo-user@jakarta.apache.org</archive>
+        </mailingList>
+        -->
+        <mailingList>
+            <name>Geronimo Developer List</name>
+            <subscribe>geronimo-dev-subscribe@incubator.apache.org</subscribe>
+            <unsubscribe>geronimo-dev-unsubscribe@incubator.apache.org</unsubscribe>
+            <archive>http://nagoya.apache.org/eyebrowse/SummarizeList?listId=140</archive>
+        </mailingList>
+    </mailingLists>
 
 
-  <!-- ========== -->
-  <!-- Developers -->
-  <!-- ========== -->
-  
-  <developers>
-    <developer>
-      <name>Bruce Snyder</name>
-      <id>bsnyder</id>
-      <email>bsnyder@apache.org</email>
-      <organization></organization>
-    </developer>
+    <!-- ======== -->
+    <!-- Versions -->
+    <!-- ======== -->
 
-    <developer>
-      <name>Dain Sundstrom</name>
-      <id>dain</id>
-      <email>dain@apache.org</email>
-      <organization></organization>
-    </developer>
+    <currentVersion>DEV</currentVersion>
 
-    <developer>
-      <name>David Blevins</name>
-      <id>dblevins</id>
-      <email>dblevins@apache.org</email>
-      <organization></organization>
-    </developer>
-
-    <developer>
-      <name>David Jencks</name>
-      <id>djencks</id>
-      <email>djencks@apache.org</email>
-      <organization></organization>
-    </developer>
-
-    <developer>
-      <name>Geir Magnusson Jr.</name>
-      <id>geirm</id>
-      <email>geirm@apache.org</email>
-      <organization></organization>
-    </developer>
-
-    <developer>
-      <name>Greg Wilkins</name>
-      <id>gregw</id>
-      <email>gregw@apache.org</email>
-      <organization></organization>
-    </developer>
-
-    <developer>
-      <name>James Strachan</name>
-      <id>jstrachan</id>
-      <email>jstrachan@apache.org</email>
-      <organization></organization>
-    </developer>
-
-    <developer>
-      <name>Jan Bartel</name>
-      <id>janb</id>
-      <email>janb@apache.org</email>
-      <organization></organization>
-    </developer>
-
-    <developer>
-      <name>Jason Dillon</name>
-      <id>jdilon</id>
-      <email>jdilon@planet57.com</email>
-      <organization></organization>
-    </developer>
-
-    <developer>
-      <name>Jeremy Boynes</name>
-      <id>jboynes</id>
-      <email>jboynes@apache.org</email>
-      <organization></organization>
-    </developer>
-
-    <developer>
-      <name>Jim Jagielski</name>
-      <id>jim</id>
-      <email>jim@apache.org</email>
-      <organization></organization>
-    </developer>
-
-    <developer>
-      <name>Jules Golsnell</name>
-      <id>jules</id>
-      <email>jules@apache.org</email>
-      <organization></organization>
-    </developer>
-
-    <developer>
-      <name>Richard Monson-Haefel</name>
-      <id>rmonson</id>
-      <email>rmonson@apache.org</email>
-      <organization></organization>
-    </developer>
-
-    <developer>
-      <name>Remigio Chirino</name>
-      <id>chirino</id>
-      <email>chirino@apache.org</email>
-      <organization></organization>
-    </developer>
-
-    <developer>
-      <name>Simone Bordet</name>
-      <id>simon</id>
-      <email>simon@apache.org</email>
-      <organization></organization>
-    </developer>
-
-    <developer>
-      <name>Aaron Mulder</name>
-      <id>ammulder</id>
-      <email>ammulder@apache.org</email>
-      <organization></organization>
-    </developer>
-    
-    <developer>
-      <name>Alan D. Cabrera</name>
-      <id>adc</id>
-      <email>adc@apache.org</email>
-      <organization></organization>
-    </developer>
-  </developers>
-  
-  
-  <!-- ============ -->
-  <!-- Contributors -->
-  <!-- ============ -->
-  
-  <contributors>
-    <contributor>
-      <name>Alex Blewitt</name>
-      <email>Alex.Blewitt@ioshq.com</email>
-    </contributor>
-    <contributor>
-      <name>Brent Worden</name>
-      <email>brent@worden.org</email>
-    </contributor>
-    <contributor>
-      <name>Ed Letifov</name>
-      <email>e.letifov@chello.nl</email>
-    </contributor>
-    <contributor>
-      <name>Maas van den Berg</name>
-      <email>email@dds.nl</email>
-    </contributor>
-    <contributor>
-      <name>Siva</name>
-      <email>siva@sivasundaram.com></email>
-    </contributor>
-  </contributors>
+    <versions>
+        <version>
+            <id>1.0-alpha-1</id>
+            <name>1.0-alpha-1</name>
+            <tag>GERONIMO_1_0_ALPHA_1</tag>
+        </version>
+        <version>
+            <id>1.0-alpha-2</id>
+            <name>1.0-alpha-2</name>
+            <tag>HEAD</tag>
+        </version>
+    </versions>
 
 
-  <!-- =================== -->
-  <!-- Build Specification -->
-  <!-- =================== -->
+    <!-- ========== -->
+    <!-- Developers -->
+    <!-- ========== -->
 
-  <build>
-    <nagEmailAddress>geronimo-dev@incubator.apache.org</nagEmailAddress>
-    <sourceDirectory>${basedir}/src/java</sourceDirectory>
-    <unitTestSourceDirectory>${basedir}/src/test</unitTestSourceDirectory>
-    
-    <resources>
-      <resource>
-        <directory>${basedir}/src/java</directory>
-        <includes>
-          <include>**/*.properties</include>
-         </includes>
-      </resource>
-       <resource>
-        <directory>${basedir}/src/resources</directory>
-        <includes>
-          <include>**/*</include>
-         </includes>
-      </resource>
-    </resources>
-    
-    <unitTest>
-      <includes>
-        <include>**/*Test.java</include>
-      </includes>
-      <excludes>
-        <exclude>**/Abstract*.java</exclude>
-      </excludes>
-    </unitTest>
-  </build>
+    <developers>
+        <developer>
+            <name>Bruce Snyder</name>
+            <id>bsnyder</id>
+            <email>bsnyder@apache.org</email>
+            <organization></organization>
+        </developer>
+
+        <developer>
+            <name>Dain Sundstrom</name>
+            <id>dain</id>
+            <email>dain@apache.org</email>
+            <organization></organization>
+        </developer>
+
+        <developer>
+            <name>David Blevins</name>
+            <id>dblevins</id>
+            <email>dblevins@apache.org</email>
+            <organization></organization>
+        </developer>
+
+        <developer>
+            <name>David Jencks</name>
+            <id>djencks</id>
+            <email>djencks@apache.org</email>
+            <organization></organization>
+        </developer>
+
+        <developer>
+            <name>Geir Magnusson Jr.</name>
+            <id>geirm</id>
+            <email>geirm@apache.org</email>
+            <organization></organization>
+        </developer>
+
+        <developer>
+            <name>Greg Wilkins</name>
+            <id>gregw</id>
+            <email>gregw@apache.org</email>
+            <organization></organization>
+        </developer>
+
+        <developer>
+            <name>James Strachan</name>
+            <id>jstrachan</id>
+            <email>jstrachan@apache.org</email>
+            <organization></organization>
+        </developer>
+
+        <developer>
+            <name>Jan Bartel</name>
+            <id>janb</id>
+            <email>janb@apache.org</email>
+            <organization></organization>
+        </developer>
+
+        <developer>
+            <name>Jason Dillon</name>
+            <id>jdilon</id>
+            <email>jdilon@planet57.com</email>
+            <organization></organization>
+        </developer>
+
+        <developer>
+            <name>Jeremy Boynes</name>
+            <id>jboynes</id>
+            <email>jboynes@apache.org</email>
+            <organization></organization>
+        </developer>
+
+        <developer>
+            <name>Jim Jagielski</name>
+            <id>jim</id>
+            <email>jim@apache.org</email>
+            <organization></organization>
+        </developer>
+
+        <developer>
+            <name>Jules Golsnell</name>
+            <id>jules</id>
+            <email>jules@apache.org</email>
+            <organization></organization>
+        </developer>
+
+        <developer>
+            <name>Richard Monson-Haefel</name>
+            <id>rmonson</id>
+            <email>rmonson@apache.org</email>
+            <organization></organization>
+        </developer>
+
+        <developer>
+            <name>Remigio Chirino</name>
+            <id>chirino</id>
+            <email>chirino@apache.org</email>
+            <organization></organization>
+        </developer>
+
+        <developer>
+            <name>Simone Bordet</name>
+            <id>simon</id>
+            <email>simon@apache.org</email>
+            <organization></organization>
+        </developer>
+
+        <developer>
+            <name>Aaron Mulder</name>
+            <id>ammulder</id>
+            <email>ammulder@apache.org</email>
+            <organization></organization>
+        </developer>
+
+        <developer>
+            <name>Alan D. Cabrera</name>
+            <id>adc</id>
+            <email>adc@apache.org</email>
+            <organization></organization>
+        </developer>
+
+        <developer>
+            <name>Gianny Damour</name>
+            <id>gdamour</id>
+            <email>gianny_damour@hotmail.com</email>
+            <organization></organization>
+        </developer>
+    </developers>
 
 
-  <!-- ======= -->
-  <!-- Reports -->
-  <!-- ======= -->
-  
-  <reports>
-    <report>maven-license-plugin</report>
-    <report>maven-checkstyle-plugin</report>
-    <report>maven-pmd-plugin</report>
-    <!-- <report>maven-simian-plugin</report> -->
-    <report>maven-jdepend-plugin</report>
-    <report>maven-changelog-plugin</report>
-    <report>maven-statcvs-plugin</report>
-    <report>maven-file-activity-plugin</report>
-    <report>maven-developer-activity-plugin</report>
-    <report>maven-jxr-plugin</report>
-    <report>maven-javadoc-plugin</report>
-    <report>maven-junit-report-plugin</report>
-    <report>maven-clover-plugin</report>
-  </reports>
-  
+    <!-- ============ -->
+    <!-- Contributors -->
+    <!-- ============ -->
+
+    <contributors>
+        <contributor>
+            <name>Alex Blewitt</name>
+            <email>Alex.Blewitt@ioshq.com</email>
+        </contributor>
+        <contributor>
+            <name>Brendan W. McAdams</name>
+            <email>bmcadams@sluggy.com</email>
+        </contributor>
+        <contributor>
+            <name>Brent Worden</name>
+            <email>brent@worden.org</email>
+        </contributor>
+        <contributor>
+            <name>Davanum Srinivas</name>
+            <email>dims@yahoo.com</email>
+        </contributor>
+        <contributor>
+            <name>Ed Letifov</name>
+            <email>e.letifov@chello.nl</email>
+        </contributor>
+        <contributor>
+            <name>Jacek Laskowski</name>
+            <email>jacek.laskowski@hp.com</email>
+        </contributor>
+        <contributor>
+            <name>Kristian Koehler</name>
+            <email>Kristian.Koehler@gmx.de</email>
+        </contributor>
+        <contributor>
+            <name>Maas van den Berg</name>
+            <email>email@dds.nl</email>
+        </contributor>
+        <contributor>
+            <name>N. Alex Rupp</name>
+            <email>alex@nrfx.com</email>
+        </contributor>
+        <contributor>
+            <name>Siva</name>
+            <email>siva@sivasundaram.com</email>
+        </contributor>
+    </contributors>
+
+
+    <!-- =================== -->
+    <!-- Build Specification -->
+    <!-- =================== -->
+
+    <build>
+        <nagEmailAddress>geronimo-dev@incubator.apache.org</nagEmailAddress>
+        <sourceDirectory>${basedir}/src/java</sourceDirectory>
+        <unitTestSourceDirectory>${basedir}/src/test</unitTestSourceDirectory>
+
+        <resources>
+            <resource>
+                <directory>${basedir}/src/java</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>${basedir}/src/resources</directory>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+            </resource>
+        </resources>
+
+        <unitTest>
+            <includes>
+                <include>**/*Test.java</include>
+            </includes>
+            <excludes>
+                <exclude>**/Abstract*.java</exclude>
+            </excludes>
+        </unitTest>
+    </build>
+
+
+    <!-- ======= -->
+    <!-- Reports -->
+    <!-- ======= -->
+
+    <reports>
+        <report>maven-license-plugin</report>
+        <report>maven-checkstyle-plugin</report>
+        <report>maven-pmd-plugin</report>
+        <!-- <report>maven-simian-plugin</report> -->
+        <report>maven-jdepend-plugin</report>
+        <report>maven-changelog-plugin</report>
+        <report>maven-statcvs-plugin</report>
+        <report>maven-file-activity-plugin</report>
+        <report>maven-developer-activity-plugin</report>
+        <report>maven-jxr-plugin</report>
+        <report>maven-javadoc-plugin</report>
+        <report>maven-junit-report-plugin</report>
+        <report>maven-clover-plugin</report>
+    </reports>
+
 </project>
