@@ -32,7 +32,7 @@ import org.apache.geronimo.console.cli.TextController;
 /**
  * List deployed modules for the selected targets
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:41 $
+ * @version $Revision: 1.5 $ $Date: 2004/07/22 03:14:48 $
  */
 public class ListDeployments extends TextController {
     private static final Log log = LogFactory.getLog(ListDeployments.class);
@@ -104,14 +104,29 @@ public class ListDeployments extends TextController {
                 ids = context.deployer.getAvailableModules(type, context.targets);
             } else {
                 List list = new ArrayList();
-                list.addAll(Arrays.asList(context.deployer.getAvailableModules(ModuleType.CAR, context.targets)));
-                list.addAll(Arrays.asList(context.deployer.getAvailableModules(ModuleType.EAR, context.targets)));
-                list.addAll(Arrays.asList(context.deployer.getAvailableModules(ModuleType.EJB, context.targets)));
-                list.addAll(Arrays.asList(context.deployer.getAvailableModules(ModuleType.RAR, context.targets)));
-                list.addAll(Arrays.asList(context.deployer.getAvailableModules(ModuleType.WAR, context.targets)));
+                TargetModuleID[] modules = context.deployer.getAvailableModules(ModuleType.CAR, context.targets);
+                if ( null != modules ) {
+                    list.addAll(Arrays.asList(modules));
+                }
+                modules = context.deployer.getAvailableModules(ModuleType.EAR, context.targets);
+                if ( null != modules ) {
+                    list.addAll(Arrays.asList(modules));
+                }
+                modules = context.deployer.getAvailableModules(ModuleType.EJB, context.targets);
+                if ( null != modules ) {
+                    list.addAll(Arrays.asList(modules));
+                }
+                modules = context.deployer.getAvailableModules(ModuleType.RAR, context.targets);
+                if ( null != modules ) {
+                    list.addAll(Arrays.asList(modules));
+                }
+                modules = context.deployer.getAvailableModules(ModuleType.WAR, context.targets);
+                if ( null != modules ) {
+                    list.addAll(Arrays.asList(modules));
+                }
                 ids = (TargetModuleID[])list.toArray(new TargetModuleID[list.size()]);
             }
-            println(ids.length == 0 ? "No matching modules found." : "Found "+ids.length+" matching module"+(ids.length == 1 ? "" : "s"));
+            println(null == ids || ids.length == 0 ? "No matching modules found." : "Found "+ids.length+" matching module"+(ids.length == 1 ? "" : "s"));
             for(int i=0; i<ids.length; i++) {
                 println("  "+ids[i].toString());
             }
