@@ -79,10 +79,14 @@ public class SecurityServiceImpl {
             if (policyProvider != null) {
                 System.setProperty("javax.security.jacc.policy.provider", policyProvider);
                 Policy customPolicy = (Policy) classLoader.loadClass(policyProvider).newInstance();
+                customPolicy.refresh();
                 Policy.setPolicy(customPolicy);
             } else {
-                Policy.setPolicy(new GeronimoPolicy());
+                Policy gPolicy = new GeronimoPolicy();
+                gPolicy.refresh();
+                Policy.setPolicy(gPolicy);
             }
+
             POLICY_INSTALLED = true;
         }
 
