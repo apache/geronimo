@@ -58,15 +58,19 @@ package org.apache.geronimo.web.hack;
 import java.net.URL;
 import java.net.URLClassLoader;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.mortbay.jetty.servlet.WebApplicationContext;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/05 10:26:17 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/08 04:40:50 $
  */
 public class GeronimoWebApplicationContext extends WebApplicationContext {
     private static final String SEPERATOR = System.getProperty("path.separator");
+    private final Log log = LogFactory.getLog(this.getClass());
 
     public GeronimoWebApplicationContext() {
     }
@@ -96,7 +100,9 @@ public class GeronimoWebApplicationContext extends WebApplicationContext {
             cl = cl.getParent();
         }
         String s = path.toString();
-        System.out.println("classpath = " + s);
+        if(log.isTraceEnabled()) {
+            log.trace("File Class Path = " + s);
+        }
         return s;
     }
 }
