@@ -23,6 +23,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ArrayList;
@@ -53,19 +54,19 @@ import org.apache.geronimo.spring.SpringApplicationImpl;
 public class SPRConfigBuilder
   implements ConfigurationBuilder
 {
-  protected static final Log log=LogFactory.getLog(SPRConfigBuilder.class);
-  protected static final String defaultConfigPath="META-INF/spring.xml";
+  protected static final Log    _log=LogFactory.getLog(SPRConfigBuilder.class);
+  protected static final String _defaultConfigPath="META-INF/spring.xml";
 
-  protected final Kernel     kernel;
-  protected final Repository repository;
-  protected final URI        defaultParentId;
+  protected final Kernel     _kernel;
+  protected final Repository _repository;
+  protected final URI        _defaultParentId;
 
   public
     SPRConfigBuilder(URI defaultParentId, Repository repository, Kernel kernel)
   {
-    this.kernel         =kernel;
-    this.repository     =repository;
-    this.defaultParentId=defaultParentId;
+    _kernel         =kernel;
+    _repository     =repository;
+    _defaultParentId=defaultParentId;
   }
 
   //----------------------------------------
@@ -76,9 +77,9 @@ public class SPRConfigBuilder
   static
   {
     GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(SPRConfigBuilder.class, NameFactory.CONFIG_BUILDER);
-    infoFactory.addAttribute("defaultParentId", URI.class, true);
-    infoFactory.addReference("Repository", Repository.class);
-    infoFactory.addAttribute("kernel", Kernel.class, false);
+    infoFactory.addAttribute("defaultParentId" , URI.class, true);
+    infoFactory.addReference("Repository"      , Repository.class);
+    infoFactory.addAttribute("kernel"          , Kernel.class, false);
     infoFactory.addInterface(ConfigurationBuilder.class);
     infoFactory.setConstructor(new String[]{"defaultParentId", "Repository", "kernel"});
 
@@ -95,7 +96,7 @@ public class SPRConfigBuilder
   {
     if (sprFile==null || !sprFile.getName().endsWith(".spr")) return null;
 
-    log.info("Planning: "+sprFile.getName());
+    _log.info("Planning: "+sprFile.getName());
 
     // N.B.
     // - we should check that META-INF/spring.xml exists here (we can't really validate it)
@@ -112,18 +113,18 @@ public class SPRConfigBuilder
     if (!(plan instanceof SPRConfigBuilder)) // hacky...
       return null;
 
-    log.info("Building: "+sprFile.getName());
+    String uid=sprFile.getName(); // should be overrideable in geronimo-spring.xml
 
-    String moduleId="Spring-App-1"; // what should this look like ?
+    _log.info("Building: "+uid);
 
     SPRContext ctx=null;
     try
     {
       URI configId=new URI(sprFile.getName());	// could be overridden in META-INF/geronimo-spring.xml
-      URI parentId=defaultParentId; // could be overridden in META-INF/geronimo-spring.xml
-      URI configPath=new URI(defaultConfigPath);
+      URI parentId=_defaultParentId; // could be overridden in META-INF/geronimo-spring.xml
+      URI configPath=new URI(_defaultConfigPath);
 
-      ctx=new SPRContext(outfile, configId, ConfigurationModuleType.SPR, parentId, kernel);
+      ctx=new SPRContext(outfile, configId, ConfigurationModuleType.SPR, parentId, _kernel);
 
       // set up classpath and files that we want available in final
       // distribution...
@@ -141,26 +142,26 @@ public class SPRConfigBuilder
       }
 
       // now we can get ClassLoader...
-      //ClassLoader cl=ctx.getClassLoader(repository);
+      //ClassLoader cl=ctx.getClassLoader(_repository);
 
       // managed Object for this Spring Application
       {
-	ObjectName name=new ObjectName("geronimo.config", "name", sprFile.getName());
+	ObjectName name=new ObjectName("geronimo.config", "name", uid);
 	GBeanData gbeanData=new GBeanData(name, SpringApplicationImpl.GBEAN_INFO);
 	ctx.addGBean(gbeanData);
       }
 
       // the actual Application...
       {
-	ObjectName name=new ObjectName("geronimo.server"+":"+
-				       "J2EEServer"+"="+ "geronimo"+","+
-				       "J2EEApplication"+"="+"null"+","+
-				       "j2eeType"+"="+"SpringModule"+","+
-				       "name"+"="+ sprFile.getName()
-				       );
-	GBeanData gbeanData=new GBeanData(name, SpringGBean.GBEAN_INFO);
-	gbeanData.setAttribute("classPath", classPath.toArray(new URI[classPath.size()]));
-	gbeanData.setAttribute("configPath", configPath);
+	Hashtable props=new Hashtable();
+        props.put("J2EEServer"      , "geronimo");
+        props.put("J2EEApplication" , "null");
+        props.put("j2eeType"        , "SpringModule");
+        props.put("name"            , uid);
+	ObjectName on=new ObjectName("geronimo.server", props);
+	GBeanData gbeanData=new GBeanData(on, SpringGBean.GBEAN_INFO);
+        gbeanData.setAttribute("classPath"  , classPath.toArray(new URI[classPath.size()]));
+        gbeanData.setAttribute("configPath" , configPath);
 	ctx.addGBean(gbeanData);
       }
     }
@@ -173,6 +174,6 @@ public class SPRConfigBuilder
       if (ctx!=null) ctx.close();
     }
 
-    return Collections.singletonList(moduleId);
+    return Collections.singletonList(uid);
   }
 }

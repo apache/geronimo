@@ -21,25 +21,25 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Set;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.support.BeanDefinitionValidationException;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
-import org.springframework.beans.factory.xml.XmlBeanFactory;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 
 /**
  * A GBean for creating graphs of Spring POJOs and auto-deploying them inside Geronimo as GBeans
@@ -49,17 +49,18 @@ import org.springframework.core.io.Resource;
 public class SpringGBean
   implements GBeanLifecycle
 {
-  protected static final Log log = LogFactory.getLog(SpringGBean.class);
+  protected static final Log _log = LogFactory.getLog(SpringGBean.class);
 
   // injected into ctor
-  protected final Kernel      kernel;
-  protected final String      objectName;
-  protected final ClassLoader classLoader;
-  protected final URI[]       classPath;
-  protected final URL         configurationBaseUrl;
-  protected final URI         configPath;
+  protected final Kernel      _kernel;
+  protected final String      _objectName;
+  protected final ClassLoader _classLoader;
+  protected final URI[]       _classPath;
+  protected final URL         _configurationBaseUrl;
+  protected final URI         _configPath;
 
-  protected DefaultListableBeanFactory factory;
+  protected ObjectName                 _jmxName;
+  protected DefaultListableBeanFactory _factory;
 
   //----------------------------------------
   public static final GBeanInfo GBEAN_INFO;
@@ -95,118 +96,164 @@ public class SpringGBean
   public
     SpringGBean(Kernel kernel, String objectName, ClassLoader classLoader, URI[] classPath, URL configurationBaseUrl, URI configPath)
   {
-    this.kernel               =kernel;
-    this.objectName           =objectName;
-    this.configPath           =configPath;
-    this.classLoader          =classLoader;
-    this.classPath            =classPath;
-    this.configurationBaseUrl =configurationBaseUrl;
+    _kernel               =kernel;
+    _objectName           =objectName;
+    _configPath           =configPath;
+    _classLoader          =classLoader;
+    _classPath            =classPath;
+    _configurationBaseUrl =configurationBaseUrl;
   }
 
+  //----------------------------------------
   // GBeanLifecycle
-  //-------------------------------------------------------------------------
+  //----------------------------------------
 
   public void
     doStart()
     throws WaitingException, Exception
   {
+    _jmxName=new ObjectName(_objectName);
+
     // set up classloader
-    URI root = URI.create(configurationBaseUrl.toString());
+    URI root = URI.create(_configurationBaseUrl.toString());
 
-    URL[] urls=new URL[classPath.length];
+    URL[] urls=new URL[_classPath.length];
 
-    for (int i=0; i<classPath.length; i++)
+    for (int i=0; i<_classPath.length; i++)
     {
-      URL url=root.resolve(classPath[i]).toURL();
-      log.info("classPath["+i+"]: "+url);
+      URL url=root.resolve(_classPath[i]).toURL();
+      _log.info("_classPath["+i+"]: "+url);
       urls[i]=url;
     }
 
-    ClassLoader cl=new URLClassLoader(urls, classLoader);
+    ClassLoader cl=new URLClassLoader(urls, _classLoader);
 
     // delegate work to Spring framework...
-    factory=new DefaultListableBeanFactory();
-    XmlBeanDefinitionReader xbdr=new XmlBeanDefinitionReader(factory);
+    _factory=new DefaultListableBeanFactory();
+    XmlBeanDefinitionReader xbdr=new XmlBeanDefinitionReader(_factory);
     xbdr.setBeanClassLoader(cl);
-    xbdr.loadBeanDefinitions(new ClassPathResource(configPath.toString(), cl));
+    xbdr.loadBeanDefinitions(new ClassPathResource(_configPath.toString(), cl));
 
-    // force lazy construction of every bean described...
-    String[] ids=factory.getBeanDefinitionNames();
+    // install aspects around Spring Bean initialisation...
+    _factory.addBeanPostProcessor(new BeanPostProcessor() {
+     	public Object postProcessBeforeInitialization(Object bean, String name) throws BeansException {
+     	  return beforeInitialization(bean, name);
+     	}
+
+	public Object postProcessAfterInitialization(Object bean, String name) throws BeansException {
+	  return afterInitialization(bean, name);
+	}
+      });
+
+    // force lazy construction of every bean described... - is there a better way - ROB ?
+    String[] ids=_factory.getBeanDefinitionNames();
     int n=ids.length;
     for (int i=n; i>0; i--)
-      factory.getBean(ids[i-1]);
-    log.info("Deployed: "+n+" POJO"+(n==1?"":"s"));
+      _factory.getBean(ids[i-1]);
 
-    // James was going to use these to register each spring-bean as
-    // a gbean - do we want to do that ?
-
-    // factory.addBeanPostProcessor(new BeanPostProcessor() {
-    // 	public Object postProcessBeforeInitialization(Object bean, String name) throws BeansException {
-    // 	  return beforeInitialization(bean, name);
-    // 	}
-
-    // 	public Object postProcessAfterInitialization(Object bean, String name) throws BeansException {
-    // 	  return afterInitialization(bean, name);
-    // 	}
-    //       });
+    _log.info("Deployed: "+n+" POJO"+(n==1?"":"s"));
   }
+
 
   public void
     doStop()
-    throws WaitingException, Exception
+    throws Exception
   {
-    factory.destroySingletons();
-    /*
-      if (springNames != null) {
-      for (int i = 0, size = springNames.length; i < size; i++ ) {
-      String name = springNames[i];
-      ObjectName objectName = (ObjectName) springNameToObjectName.get(name);
-      // TODO - how do we invoke the 'close' in Spring??
-      }
-      }
-    */
+    tidyUp();
   }
 
   public void
     doFail()
   {
-    factory.destroySingletons();
+    try
+    {
+      tidyUp();
+    }
+    catch (Exception e)
+    {
+      _log.warn("problem decommissioning Spring module: "+_jmxName, e);
+    }
   }
 
+  protected void
+    tidyUp()
+    throws Exception
+  {
+    String pattern=_jmxName.getDomain()+":J2EEApplication="+_jmxName.getKeyProperty("J2EEApplication")+",J2EEServer="+_jmxName.getKeyProperty("J2EEServer")+",SpringModule="+_jmxName.getKeyProperty("name")+",j2eeType=SpringBean,*";
+    ObjectName on=new ObjectName(pattern);
+
+    // can't we do it like this - much less typo-prone...
+    //     Hashtable props  =new Hashtable(_jmxName.getKeyPropertyList());
+    //     props.put("SpringModule" , props.get("name"));
+    //     props.put("j2eeType"     , "SpringBean");
+    //     props.remove("name");
+    //     props.put("*"           , null);
+    //     ObjectName on=new ObjectName(_jmxName.getDomain(), props);
+
+    Set peers=_kernel.listGBeans(on);
+    for (Iterator i=peers.iterator(); i.hasNext();)
+    {
+      ObjectName tmp=(ObjectName)i.next();
+      try
+      {
+	_log.info("stopping: "+tmp);
+	_kernel.stopGBean(tmp);
+	_log.info("unloading: "+tmp);
+	_kernel.unloadGBean(tmp);
+      }
+      catch (Exception e)
+      {
+	_log.warn("problem decommissioning POJO peer GBean: "+tmp, e);
+      }
+    }
+
+    _factory.destroySingletons();
+  }
+
+  //----------------------------------------
+  // aspects around Spring Bean creation...
+  //----------------------------------------
+
   /**
-   * Do we need to apply an interceptor to the bean?
+   * Hook to perform action before Spring Bean initialisation.
    */
   protected Object
     beforeInitialization(Object bean, String name)
   {
-    // we could add some interceptor stuff here if we like
     return bean;
   }
 
   /**
-   * Create an GBean wrapper
+   * Hook to perform action after Spring Bean initialisation.
    */
-  protected Object afterInitialization(Object bean, String name)
+  protected Object
+    afterInitialization(Object bean, String name)
     throws BeansException
   {
-    //     try {
-    //       ObjectName objectName = createObjectName(name);
-    //       /*
-    //  	springNameToObjectName.put(name, objectName);
-    //       */
-    //       GBeanMBean gbean = createGBean(bean, name);
-    //       if (gbean == null) {
-    //  	log.warn("No GBean available for name: " + name + " bean: " + bean);
-    //       }
-    //       else {
-    //  	kernel.loadGBean(objectName, gbean);
-    //       }
-    //     }
-    //     catch (Exception e) {
-    //       throw new BeanDefinitionValidationException("Could not load the GBean for name: " + name + " bean: " + bean + ". Reason: " + e, e);
-    //     }
+    // create a GBean peer...
+    try
+    {
+      GBeanData gd=createPOJOGBeanData(bean, name);
+      if (gd==null)
+      	_log.warn("No GBean available for name: " + name + " bean: " + bean);
+      else
+      {
+	_log.info("loading: "+gd.getName());
+      	_kernel.loadGBean(gd, _classLoader);
+	_log.info("starting: "+gd.getName());
+	_kernel.startGBean(gd.getName());
+      }
+    }
+    catch (Exception e)
+    {
+      throw new BeanDefinitionValidationException("Could not load the GBean for name: " + name + " bean: " + bean + ". Reason: " + e, e);
+    }
     return bean;
   }
+
+  //----------------------------------------
+  // utils...
+  //----------------------------------------
 
   /**
    * Factory method to create an ObjectName for the Spring bean
@@ -214,19 +261,24 @@ public class SpringGBean
    * @param name the name of the bean in the Spring config file
    * @return the ObjectName to use for the given Spring bean name
    */
-//   protected ObjectName createObjectName(String name) throws MalformedObjectNameException {
-//     Hashtable nameProps = new Hashtable(objectName.getKeyPropertyList());
-//     nameProps.put("name", name);
-//     return new ObjectName(objectName.getDomain(), nameProps);
-//   }
+  protected ObjectName
+    createObjectName(String name)
+    throws MalformedObjectNameException
+  {
+    Hashtable props  =new Hashtable(_jmxName.getKeyPropertyList());
+    props.put("SpringModule" , props.get("name"));
+    props.put("j2eeType"     , "SpringBean");
+    props.put("name"         , name);
+    return new ObjectName(_jmxName.getDomain(), props);
+  }
 
-  /**
-   * @return a newly created GBeanMBean for the given bean
-   */
-//   protected GBeanMBean
-//     createGBean(Object bean, String name)
-//   {
-//     // TODO
-//     return null;
-//   }
+  protected GBeanData
+    createPOJOGBeanData(Object bean, String name)
+    throws MalformedObjectNameException
+  {
+    GBeanData gbeanData=new GBeanData(createObjectName(name), POJOGBean.GBEAN_INFO);
+    gbeanData.setAttribute("peer", bean);
+
+    return gbeanData;
+  }
 }
