@@ -1,19 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: maven.xml,v 1.2 2003/08/13 11:07:51 jdillon Exp $ -->
+<!-- $Id: maven.xml,v 1.3 2003/08/14 17:08:00 jdillon Exp $ -->
 
-<project
+<project default="default"
   xmlns:j="jelly:core"
   xmlns:u="jelly:util"
   xmlns:ant="jelly:ant"
   xmlns:castor="castor">
-  
-  <!-- ===================== -->
-  <!-- Module Initialization -->
-  <!-- ===================== -->
-  
-  <ant:property file="${basedir}/../../etc/project.properties"/>
-  
   
   <!-- ================================= -->
   <!-- Compile XML->Java Binding Sources -->

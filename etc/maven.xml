@@ -1,6 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: maven.xml,v 1.1 2003/08/12 14:44:09 jdillon Exp $ -->
+<!-- $Id: maven.xml,v 1.2 2003/08/14 17:08:00 jdillon Exp $ -->
 
-<project>
+<project
+  xmlns:j="jelly:core"
+  xmlns:u="jelly:util"
+  xmlns:ant="jelly:ant">
+  
+  <!-- ================= -->
+  <!-- Global Properties -->
+  <!-- ================= -->
+  
+  <!-- Determine what the top-level project root is -->
+  <j:set var="project.root" value="${pom.parentBasedir().getParentFile().getCanonicalFile()}"/>
+  
+  <!-- Load the global properties -->
+  <ant:property file="${project.root}/etc/globals.properties"/>
+  
+  
+  <!-- ==================== -->
+  <!-- Default Global Goals -->
+  <!-- ==================== -->
+  
+  <goal name="default">
+    <attainGoal name="jar:install"/>
+  </goal>
+  
+  <goal name="build">
+    <attainGoal name="default"/>
+  </goal>
+  
+  <goal name="rebuild">
+    <attainGoal name="clean"/>
+    <attainGoal name="build"/>
+  </goal>
+  
+  <!-- For testing -->
+  <goal name="hello">
+    <ant:echo>H E L L O</ant:echo>
+  </goal>
+  
 </project>

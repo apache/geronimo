@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Id: project.xml,v 1.4 2003/08/14 10:04:40 gregw Exp $ -->
+<!-- $Id: project.xml,v 1.5 2003/08/14 17:08:00 jdillon Exp $ -->
 
 <project>
   <pomVersion>3</pomVersion>
@@ -25,6 +25,35 @@
   <!-- ============ -->
   
   <dependencies>
+    
+    <!-- Module Dependencies -->
+    
+    <dependency>
+      <groupId>geronimo</groupId>
+      <artifactId>geronimo-common</artifactId>
+      <version>DEV</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>geronimo-spec</groupId>
+      <artifactId>geronimo-spec-j2ee</artifactId>
+      <version>DEV</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>geronimo-spec</groupId>
+      <artifactId>geronimo-spec-jsr77</artifactId>
+      <version>DEV</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>geronimo-spec</groupId>
+      <artifactId>geronimo-spec-jsr88</artifactId>
+      <version>DEV</version>
+    </dependency>
+    
+    <!-- Thirdparty -->
+    
     <dependency>
       <id>commons-logging</id>
       <version>1.0.3</version>

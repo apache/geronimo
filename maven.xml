@@ -1,68 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: maven.xml,v 1.10 2003/08/14 15:43:25 jstrachan Exp $ -->
+<!-- $Id: maven.xml,v 1.11 2003/08/14 17:08:00 jdillon Exp $ -->
 
-<project default="modules:build" 
-         xmlns:j="jelly:core" 
-         xmlns:ant="jelly:ant" 
-         xmlns:maven="jelly:maven">
-  
-  <!-- ===================== -->
-  <!-- Module Initialization -->
-  <!-- ===================== -->
-  
-  <ant:property file="${basedir}/etc/project.properties"/>
-  
-  
-  <preGoal name="xdoc:jelly-transform">
-    <attainGoal name="html2xdoc"/>
-    <attainGoal name="faq"/>
-  </preGoal>
-  
-  
-  <goal name="run" prereqs="set.classpath"
-        description="Runs the Geronimo Server using the current build">
-    <ant:java classname="org.apache.geronimo.Main" fork="yes">
-      <ant:classpath refid="test.classpath"/>
-    </ant:java>
-  </goal>
-
-  <goal name="set.classpath" prereqs="java:compile, test:compile"
-        description="Sets up the classpath for running things">
-    <ant:path id="test.classpath">
-      <ant:pathelement path="target/test-classes"/>
-      <ant:pathelement path="modules/core/src/conf/"/>
-      <ant:pathelement path="${maven.build.dest}"/>
-      <ant:path refid="maven.dependency.classpath"/>
-    </ant:path>
-  </goal>
-  
+<project default="default"
+  xmlns:j="jelly:core" 
+  xmlns:ant="jelly:ant" 
+  xmlns:maven="jelly:maven">
   
   <!-- ======= -->
   <!-- Modules -->
   <!-- ======= -->
   
-  <goal name="modules:reactor">
+  <goal name="modules:reactor:init">
+    <j:if test="${empty(module)}">
+      <j:set var="module" value="*"/>
+    </j:if>
+    
+    <j:if test="${empty(modules.includes)}">
+      <j:set var="modules.includes" value="modules/${module}/project.xml,specs/${module}/project.xml"/>
+    </j:if>
+    
+    <j:if test="${empty(modules.excludes)}">
+      <j:set var="modules.excludes" value=""/>
+    </j:if>
+  </goal>
+  
+  <goal name="modules:reactor" prereqs="modules:reactor:init">
     <maven:reactor
-        basedir="${basedir}/modules"
-        includes="*/project.xml"
-        excludes="xmlbeans/project.xml"
+        basedir="${basedir}"
+        includes="${modules.includes}"
+        excludes="${modules.excludes}"
         banner="Executing (${goals}):"
         ignoreFailures="false"
         goals="${goals}"
     />
   </goal>
   
-  <goal name="modules:build">
-    <j:set var="goals" value="jar:install"/>
-    <attainGoal name="modules:reactor"/>
-  </goal>
-   
-  <goal name="modules:rebuild">
-    <j:set var="goals" value="clean, jar:install"/>
+  <goal name="modules:default">
+    <j:set var="goals" value="default"/>
     <attainGoal name="modules:reactor"/>
   </goal>
   
+  <goal name="modules:build">
+    <attainGoal name="modules:default"/>
+  </goal>
+   
   <goal name="modules:site">
     <j:set var="goals" value="site"/>
     <attainGoal name="modules:reactor"/>
@@ -82,46 +64,50 @@
     <attainGoal name="modules:clean"/>
   </preGoal>
   
-  <goal name="build">
-    <attainGoal name="modules:build"/>
-  </goal>
+  <preGoal name="default">
+    <attainGoal name="modules:default"/>
+  </preGoal>
   
-  <goal name="rebuild">
-    <attainGoal name="modules:rebuild"/>
-  </goal>
+  
+  <!-- =============================== -->
+  <!-- Documentation & Site Generation -->
+  <!-- =============================== -->
   
   <goal name="javadoc">
     <attainGoal name="modules:javadoc"/>
   </goal>
   
-  
+  <preGoal name="xdoc:jelly-transform">
+    <attainGoal name="html2xdoc"/>
+    <attainGoal name="faq"/>
+  </preGoal>
   
   <postGoal name="site">
     <maven:attainGoal name="modules:site"/>
     <maven:attainGoal name="modules:copy-site"/>
   </postGoal>
   
-  
   <goal name="modules:copy-site" prereqs="modules:site"
   	description="copy the generated websites of all the modules into the root project">
   	
   	<!-- a dummy scope tag to change XML namespace to ant -->
   	<j:scope xmlns="jelly:ant">
-  	
+      
       <fileScanner var="scanner">
         <fileset dir="${basedir}/modules" includes="*/project.xml" excludes="xmlbeans/project.xml"/>
       </fileScanner>
-    
+      
       <j:forEach var="file" items="${scanner.iterator()}">
         <j:set var="name">${file.parentFile.name}</j:set>
         <j:set var="outDir">${basedir}/target/docs/modules/${name}</j:set>
-      
+        
         <echo>Copying module ${name} to ${outDir}</echo>
         <mkdir dir="${outDir}"/>
         <copy todir="${outDir}">
           <fileset dir="${basedir}/modules/${name}/target/docs"/>
    	    </copy>
       </j:forEach>
+      
     </j:scope>
   </goal>
   
@@ -132,15 +118,41 @@
   	
   	<!-- a dummy scope tag to change XML namespace to ant -->
   	<j:scope xmlns="jelly:ant">
+    
   	  <j:if test="${empty(geronimo.cvs.docdir)}">
   	    <j:set var="geronimo.cvs.docdir" value="../incubator-site/build/site/projects/geronimo"/>
   	  </j:if>
-  	  
-  	    
+      
       <mkdir dir="${geronimo.cvs.docdir}"/>
       <copy todir="${geronimo.cvs.docdir}">
         <fileset dir="${basedir}/target/docs"/>
    	  </copy>
+      
   	</j:scope>
   </goal>
+  
+  
+  <!-- ============================== -->
+  <!-- Helpers to run Apache Geronimo -->
+  <!-- ============================== -->
+  
+  <!-- jason: need to fix this -->
+  
+  <goal name="run" prereqs="set.classpath"
+        description="Runs the Geronimo Server using the current build">
+    <ant:java classname="org.apache.geronimo.Main" fork="yes">
+      <ant:classpath refid="test.classpath"/>
+    </ant:java>
+  </goal>
+  
+  <goal name="set.classpath" prereqs="java:compile, test:compile"
+        description="Sets up the classpath for running things">
+    <ant:path id="test.classpath">
+      <ant:pathelement path="target/test-classes"/>
+      <ant:pathelement path="modules/core/src/conf/"/>
+      <ant:pathelement path="${maven.build.dest}"/>
+      <ant:path refid="maven.dependency.classpath"/>
+    </ant:path>
+  </goal>
+  
 </project>
