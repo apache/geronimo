@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Revision: 1.1 $ $Date: 2003/08/22 11:18:56 $ -->
+
+<project>
+  <pomVersion>3</pomVersion>
+  <extend>${basedir}/../../etc/project.xml</extend>
+  
+  <!-- ===================== -->
+  <!-- Module Identification -->
+  <!-- ===================== -->
+  
+  <name>Geronimo :: XBeans</name>
+  <id>geronimo-xbeans</id>
+  <shortDescription></shortDescription>
+  <description></description>
+  <siteDirectory>/home/jstrachan/public_html/geronimo/modules/xbeans</siteDirectory>
+  <distributionDirectory></distributionDirectory>
+  
+  <package>org.apache.geronimo.xbeans</package>
+  <currentVersion>DEV</currentVersion>
+  
+  
+  <!-- ============ -->
+  <!-- Dependencies -->
+  <!-- ============ -->
+  
+  <dependencies>
+  
+    <!-- Module Dependencies -->
+    
+    <!-- Thirdparty Dependencies -->
+    
+    <!-- For XMLBeans -->
+     <dependency>
+      <id>xmlbeans</id>
+      <version>1.0</version>
+    </dependency>
+    
+    <!-- For JAXB -->
+<!--    
+    <dependency>
+      <id>jaxb+api</id>
+      <version>1.2</version>
+    </dependency>
+    <dependency>
+      <id>jaxb+impl</id>
+      <version>1.2</version>
+    </dependency>
+    <dependency>
+      <id>jaxb+libs</id>
+      <version>1.2</version>
+    </dependency>
+    <dependency>
+      <id>jaxb+xjc</id>
+      <version>1.2</version>
+    </dependency>
+    <dependency>
+      <id>jaxb+qname</id>
+      <version>1.2</version>
+    </dependency>
+    <dependency>
+      <id>jaxb+namespace</id>
+      <version>1.2</version>
+    </dependency>
+    <dependency>
+      <id>relaxngDatatype</id>
+      <version>20020414</version>
+    </dependency>
+    <dependency>
+      <id>xsdlib</id>
+      <version>20030225</version>
+    </dependency>
+-->
+
+	<!-- for castor -->
+<!--	
+    <dependency>
+      <id>castor</id>
+      <version>0.9.5</version>
+      <url>http://castor.exolab.org</url>
+    </dependency>
+    <dependency>
+      <id>xerces</id>
+      <version>2.4.0</version>
+      <url>http://xml.apache.org</url>
+    </dependency>
+    
+    <dependency>
+      <id>xml-apis</id>
+      <version>1.0.b2</version>
+    </dependency>
+    
+    <dependency>
+      <id>commons-logging</id>
+      <version>1.0.3</version>
+      <url>http://jakarta.apache.org/commons/logging.html</url>
+    </dependency>
+-->    
+    
+  </dependencies>
+  
+  
+  <!-- =================== -->
+  <!-- Build Specification -->
+  <!-- =================== -->
+  
+  <build>
+    <sourceDirectory>${basedir}/target/src</sourceDirectory>
+
+    <unitTest>
+      <!-- For some reason this is not pulled from the global project -->
+      <includes>
+        <include>**/*Test.java</include>
+      </includes>
+      <excludes>
+        <exclude>**/Abstract*.java</exclude>
+      </excludes>
+      
+      <resources>
+        <resource>
+          <directory>${basedir}/src/test</directory>
+          <includes>
+            <include>**/*.xml</include>
+          </includes>
+        </resource>
+      </resources>
+    </unitTest>
+  </build>
+
+  <reports>
+    <report>maven-license-plugin</report>
+<!--    
+    <report>maven-checkstyle-plugin</report>
+    <report>maven-pmd-plugin</report>
+    <report>maven-simian-plugin</report>
+    <report>maven-jdepend-plugin</report>
+    <report>maven-clover-plugin</report>
+-->
+    <report>maven-changelog-plugin</report>
+    <report>maven-statcvs-plugin</report>
+    <report>maven-file-activity-plugin</report>
+    <report>maven-developer-activity-plugin</report>
+    <report>maven-jxr-plugin</report>
+    <report>maven-javadoc-plugin</report>
+    <report>maven-junit-report-plugin</report>
+  </reports>
+</project>

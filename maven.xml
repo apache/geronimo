@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.19 $ $Date: 2003/08/16 19:57:47 $ -->
+<!-- $Revision: 1.20 $ $Date: 2003/08/22 11:20:43 $ -->
 
 <project default="default"
   xmlns:j="jelly:core" 
@@ -21,7 +21,7 @@
     </j:if>
     
     <j:if test="${context.getVariable('modules.excludes') == null}">
-      <j:set var="modules.excludes" value="modules/xmlbeans/project.xml"/>
+      <j:set var="modules.excludes" value="modules/xbeans/project.xml"/>
     </j:if>
   </goal>
   
@@ -61,6 +61,11 @@
     <attainGoal name="modules:reactor"/>
   </goal>
   
+  <goal name="modules:jar:deploy">
+    <j:set var="goals" value="jar:deploy"/>
+    <attainGoal name="modules:reactor"/>
+  </goal>
+  
   <preGoal name="clean">
     <attainGoal name="modules:clean"/>
   </preGoal>
@@ -68,6 +73,10 @@
   <preGoal name="default">
     <attainGoal name="modules:default"/>
   </preGoal>
+  
+  <goal name="jar:deploy">
+    <attainGoal name="modules:jar:deploy"/>
+  </goal>
   
   
   <!-- ========================= -->

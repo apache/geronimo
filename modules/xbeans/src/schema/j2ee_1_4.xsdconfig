@@ -1,0 +1,19 @@
+<xb:config xmlns:xb="http://www.bea.com/2002/09/xbean/config"
+  xmlns:j2ee="http://java.sun.com/xml/ns/j2ee">
+           
+  <xb:namespace uri="http://java.sun.com/xml/ns/j2ee">
+    <xb:package>org.apache.geronimo.xmlbeans.j2ee</xb:package>
+  </xb:namespace>
+
+<!--
+  <xb:namespace uri="http://www.w3.org/XML/1998/namespace">
+    <xb:package>org.apache.geronimo.xmlbeans.w3.namespace</xb:package>
+  </xb:namespace>
+
+  <xb:namespace uri="##any">
+    <xb:prefix>Xml</xb:prefix>
+    <xb:suffix>Bean</xb:suffix>
+  </xb:namespace>
+-->
+
+</xb:config>

@@ -1,0 +1,80 @@
+<jaxb:bindings xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+               xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+               version="1.0">
+  <!--
+    Binding customizations defining package names for generated code.
+  -->
+  <jaxb:bindings schemaLocation="../schema/ejb-jar_2_1.xsd" node="/xsd:schema">
+    <jaxb:schemaBindings>
+      <jaxb:package name="org.apache.geronimo.xmlbeans.ejb"/>
+    </jaxb:schemaBindings>
+  </jaxb:bindings>
+  <jaxb:bindings schemaLocation="../schema/j2ee_1_4.xsd" node="/xsd:schema">
+    <jaxb:schemaBindings>
+      <jaxb:package name="org.apache.geronimo.xmlbeans.j2ee"/>
+    </jaxb:schemaBindings>
+  </jaxb:bindings>
+
+<!--
+  <jaxb:bindings schemaLocation="../schema/j2ee_jaxrpc_mapping_1_1.xsd" node="/xsd:schema">
+    <jaxb:schemaBindings>
+      <jaxb:package name="org.apache.geronimo.xmlbeans.j2ee.jaxrpc"/>
+    </jaxb:schemaBindings>
+  </jaxb:bindings>
+  <jaxb:bindings schemaLocation="../schema/j2ee_web_services_1_1.xsd" node="/xsd:schema">
+    <jaxb:schemaBindings>
+      <jaxb:package name="org.apache.geronimo.xmlbeans.ws"/>
+    </jaxb:schemaBindings>
+  </jaxb:bindings>
+  <jaxb:bindings schemaLocation="../schema/j2ee_web_services_1_1.xsd" node="/xsd:schema">
+    <jaxb:schemaBindings>
+      <jaxb:package name="org.apache.geronimo.xmlbeans.appclient"/>
+    </jaxb:schemaBindings>
+  </jaxb:bindings>
+  <jaxb:bindings schemaLocation="../schema/jsp_2_0.xsd" node="/xsd:schema">
+    <jaxb:schemaBindings>
+      <jaxb:package name="org.apache.geronimo.xmlbeans.jsp"/>
+    </jaxb:schemaBindings>
+  </jaxb:bindings>
+  <jaxb:bindings schemaLocation="../schema/application-client_1_4.xsd" node="/xsd:schema">
+    <jaxb:schemaBindings>
+      <jaxb:package name="org.apache.geronimo.xmlbeans.app.client"/>
+    </jaxb:schemaBindings>
+  </jaxb:bindings>
+  <jaxb:bindings schemaLocation="../schema/application_1_4.xsd" node="/xsd:schema">
+    <jaxb:schemaBindings>
+      <jaxb:package name="org.apache.geronimo.xmlbeans.app"/>
+    </jaxb:schemaBindings>
+  </jaxb:bindings>
+  <jaxb:bindings schemaLocation="../schema/connector_1_5.xsd" node="/xsd:schema">
+    <jaxb:schemaBindings>
+      <jaxb:package name="org.apache.geronimo.xmlbeans.connector"/>
+    </jaxb:schemaBindings>
+  </jaxb:bindings>
+  <jaxb:bindings schemaLocation="../schema/jax-rpc-ri-config.xsd" node="/xsd:schema">
+    <jaxb:schemaBindings>
+      <jaxb:package name="org.apache.geronimo.xmlbeans.jaxrpc.ri.config"/>
+    </jaxb:schemaBindings>
+  </jaxb:bindings>
+  <jaxb:bindings schemaLocation="../schema/j2ee_web_services_client_1_1.xsd" node="/xsd:schema">
+    <jaxb:schemaBindings>
+      <jaxb:package name="org.apache.geronimo.xmlbeans.ws.client"/>
+    </jaxb:schemaBindings>
+  </jaxb:bindings>
+  <jaxb:bindings schemaLocation="../schema/web-jsptaglibrary_2_0.xsd" node="/xsd:schema">
+    <jaxb:schemaBindings>
+      <jaxb:package name="org.apache.geronimo.xmlbeans.jsptaglibrary"/>
+    </jaxb:schemaBindings>
+  </jaxb:bindings>
+  <jaxb:bindings schemaLocation="../schema/web-app_2_4.xsd" node="/xsd:schema">
+    <jaxb:schemaBindings>
+      <jaxb:package name="org.apache.geronimo.xmlbeans.webapp"/>
+    </jaxb:schemaBindings>
+  </jaxb:bindings>
+  <jaxb:bindings schemaLocation="../schema/xml.xsd" node="/xsd:schema">
+    <jaxb:schemaBindings>
+      <jaxb:package name="org.apache.geronimo.xmlbeans.xml"/>
+    </jaxb:schemaBindings>
+  </jaxb:bindings>
+-->  
+</jaxb:bindings>
