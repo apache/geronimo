@@ -1,16 +1,19 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
-
-<web-app>
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+         version="2.4">
 
     <!-- Welcome File List -->
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
 
-    <taglib>
-        <taglib-uri>console-web</taglib-uri>
-        <taglib-location>/WEB-INF/lib/jmx-console-servlet.jar</taglib-location>
-    </taglib>
+    <jsp-config>
+      <taglib>
+        <taglib-uri>http://geronimo.apache.org/tlds/geronimo_jmx-console_v0-1.tld</taglib-uri>
+        <taglib-location>/WEB-INF/geronimo_jmx-console_v0-1.tld</taglib-location>
+      </taglib>
+    </jsp-config>
 
 </web-app>

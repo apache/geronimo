@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.10 $ $Date: 2004/01/31 19:27:17 $ -->
+<!-- $Revision: 1.11 $ $Date: 2004/02/03 03:46:44 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -148,11 +148,10 @@
             </properties>
         </dependency>
 
-
         <dependency>
             <id>tomcat</id>
             <artifactId>jasper-compiler</artifactId>
-            <version>4.0.4</version>
+            <version>5.0.16</version>
             <properties>
                 <package>true</package>
             </properties>
@@ -161,7 +160,26 @@
         <dependency>
             <id>tomcat</id>
             <artifactId>jasper-runtime</artifactId>
-            <version>4.0.4</version>
+            <version>5.0.16</version>
+            <properties>
+                <package>true</package>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <id>commons-el</id>
+            <artifactId>commons-el</artifactId>
+            <version>1.0</version>
+            <url>http://jakarta.apache.org/commons/el/</url>
+            <properties>
+                <package>true</package>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <id>ant</id>
+            <artifactId>ant</artifactId>
+            <version>1.5</version>
             <properties>
                 <package>true</package>
             </properties>

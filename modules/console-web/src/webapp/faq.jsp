@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html" session="false" %>
-<%@ taglib uri="/WEB-INF/geronimo_jmx-console_v0-1.tld" prefix="jmx" %>
+<%@ taglib uri="http://geronimo.apache.org/tlds/geronimo_jmx-console_v0-1.tld" prefix="jmx" %>
 
 <html>
 <head>
