@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- $Revision: 1.3 $ $Date: 2004/02/24 06:05:36 $ -->
+<!-- $Revision: 1.4 $ $Date: 2004/02/24 07:36:20 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
-    xmlns:ant="jelly:ant">
+    xmlns:ant="jelly:ant"
+    xmlns:define="jelly:define"
+    xmlns:bootstrap="geronimo:bootstrap">
 
     <!-- ================= -->
     <!-- Global Properties -->
@@ -17,7 +19,6 @@
 
     <!-- Load the global properties -->
     <ant:property file="${project.root}/etc/global.properties"/>
-
 
     <!-- ==================== -->
     <!-- Default Global Goals -->
@@ -106,16 +107,35 @@
         <ant:echo>Bootstrapping service deployer</ant:echo>
         <ant:mkdir dir="${distDir}/bin"/>
         <ant:mkdir dir="${distDir}/config-store"/>
-        <j:invokeStatic className="org.apache.geronimo.deployment.Bootstrap" method="bootstrap">
-            <j:arg type="java.lang.String" value="${distDir}/bin/deployer.jar"/>
-            <j:arg type="java.lang.String" value="${distDir}"/>
-            <j:arg type="java.lang.String" value="config-store"/>
-            <j:arg type="java.lang.String" value="${basedir}/src/plan/deployer-config.xml"/>
-            <j:arg type="java.lang.String" value="${deploy.classpath}"/>
-            <j:arg type="java.lang.String" value="geronimo.deployment:role=Deployer,config=org/apache/geronimo/J2EEDeployer"/>
-            <j:arg type="java.lang.String" value="deploy"/>
-            <j:arg type="java.lang.String" value="org/apache/geronimo/J2EEDeployer"/>
-        </j:invokeStatic>
+
+        <define:taglib uri="geronimo:bootstrap">
+            <define:jellybean
+                name="bootstrap"
+                className="org.apache.geronimo.deployment.Bootstrap"
+                method="bootstrap"/>
+        </define:taglib>
+
+        <bootstrap:bootstrap
+            outputFile="${distDir}/bin/deployer.jar"
+            baseDir="${distDir}"
+            store="config-store"
+            deploymentPlan="${basedir}/src/plan/deployer-config.xml"
+            classPath="${deploy.classpath}"
+            mainGBean="geronimo.deployment:role=Deployer,config=org/apache/geronimo/J2EEDeployer"
+            mainMethod="deploy"
+            configurations="org/apache/geronimo/J2EEDeployer"
+            />
+
+        <!--        <j:invokeStatic className="org.apache.geronimo.deployment.Bootstrap" method="bootstrap">-->
+        <!--            <j:arg type="java.lang.String" value="${distDir}/bin/deployer.jar"/>-->
+        <!--            <j:arg type="java.lang.String" value="${distDir}"/>-->
+        <!--            <j:arg type="java.lang.String" value="config-store"/>-->
+        <!--            <j:arg type="java.lang.String" value="${basedir}/src/plan/deployer-config.xml"/>-->
+        <!--            <j:arg type="java.lang.String" value="${deploy.classpath}"/>-->
+        <!--            <j:arg type="java.lang.String" value="geronimo.deployment:role=Deployer,config=org/apache/geronimo/J2EEDeployer"/>-->
+        <!--            <j:arg type="java.lang.String" value="deploy"/>-->
+        <!--            <j:arg type="java.lang.String" value="org/apache/geronimo/J2EEDeployer"/>-->
+        <!--        </j:invokeStatic>-->
 
         <!-- build the system configuration and server.jar -->
         <ant:echo>Building system configuration</ant:echo>

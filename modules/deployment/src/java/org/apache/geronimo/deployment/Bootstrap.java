@@ -84,23 +84,94 @@ import org.apache.geronimo.system.repository.ReadOnlyRepository;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Helper class to bootstrap the Geronimo deployer.
  *
- * @version $Revision: 1.8 $ $Date: 2004/02/24 06:05:36 $
+ * @version $Revision: 1.9 $ $Date: 2004/02/24 07:36:20 $
  */
 public class Bootstrap {
     public static final URI CONFIG_ID = URI.create("org/apache/geronimo/DeployerSystem");
     private static final ObjectName REPOSITORY_NAME = JMXUtil.getObjectName("geronimo.deployer:role=Repository,root=repository");
     private static final ObjectName SERVICE_BUILDER_NAME = JMXUtil.getObjectName("geronimo.deployer:role=Builder,type=Service,id=" + CONFIG_ID.toString());
 
-    /**
-     * Invoked from maven.xml during the build to create the first Deployment Configuration
-     * @param car the configuration file to generate
-     */
-    public static void bootstrap(String car, String baseDir, String store, String planPath, String classPath, String mainGBean, String mainMethod, String configurations) {
-        File carfile = new File(car);
+    private String outputFile;
+    private String baseDir;
+    private String store;
+    private String deploymentPlan;
+    private String classPath;
+    private String mainGBean;
+    private String mainMethod;
+    private String configurations;
+
+    public String getOutputFile() {
+        return outputFile;
+    }
+
+    public void setOutputFile(String outputFile) {
+        this.outputFile = outputFile;
+    }
+
+    public String getBaseDir() {
+        return baseDir;
+    }
+
+    public void setBaseDir(String baseDir) {
+        this.baseDir = baseDir;
+    }
+
+    public String getStore() {
+        return store;
+    }
+
+    public void setStore(String store) {
+        this.store = store;
+    }
+
+    public String getDeploymentPlan() {
+        return deploymentPlan;
+    }
+
+    public void setDeploymentPlan(String deploymentPlan) {
+        this.deploymentPlan = deploymentPlan;
+    }
+
+    public String getClassPath() {
+        return classPath;
+    }
+
+    public void setClassPath(String classPath) {
+        this.classPath = classPath;
+    }
+
+    public String getMainGBean() {
+        return mainGBean;
+    }
+
+    public void setMainGBean(String mainGBean) {
+        this.mainGBean = mainGBean;
+    }
+
+    public String getMainMethod() {
+        return mainMethod;
+    }
+
+    public void setMainMethod(String mainMethod) {
+        this.mainMethod = mainMethod;
+    }
+
+    public String getConfigurations() {
+        return configurations;
+    }
+
+    public void setConfigurations(String configurations) {
+        this.configurations = configurations;
+    }
+
+    public void bootstrap() {
+        File file = new File(outputFile);
         File storeDir = new File(baseDir, store);
 
         ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
@@ -119,7 +190,7 @@ public class Bootstrap {
             mainAttributes.putValue(CommandLine.CONFIGURATIONS.toString(), configurations);
 
             // write the deployer system out to a jar
-            JarOutputStream jos = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(carfile)), manifest);
+            JarOutputStream jos = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(file)), manifest);
             try {
                 // add the startup jar entry which allows us to locat the startup directory
                 jos.putNextEntry(new ZipEntry("META-INF/startup-jar"));
@@ -137,24 +208,24 @@ public class Bootstrap {
 
             // install the deployer systen in to the config store
             LocalConfigStore configStore = new LocalConfigStore(storeDir);
-            configStore.install(carfile.toURL());
+            configStore.install(file.toURL());
 
             System.setProperty("geronimo.base.dir", baseDir);
             Kernel kernel = new Kernel("geronimo.bootstrap");
             kernel.boot();
 
             ConfigurationManager configurationManager = kernel.getConfigurationManager();
-            ObjectName deploymentSystemName = configurationManager.load(deploymentSystemConfig, carfile.toURL());
+            ObjectName deploymentSystemName = configurationManager.load(deploymentSystemConfig, file.toURL());
             kernel.startRecursiveGBean(deploymentSystemName);
 
             GBeanMBean serviceDeployerConfig = getServiceDeployerConfig();
             serviceDeployerConfig.setReferencePatterns("Parent", Collections.singleton(deploymentSystemName));
-            ObjectName serviceDeployerName = configurationManager.load(serviceDeployerConfig, carfile.toURL());
+            ObjectName serviceDeployerName = configurationManager.load(serviceDeployerConfig, file.toURL());
             kernel.startRecursiveGBean(serviceDeployerName);
 
             File tempFile = File.createTempFile("deployer", ".car");
             try {
-                URL planURL = new File(planPath).toURL();
+                URL planURL = new File(deploymentPlan).toURL();
                 XmlObject plan = XmlBeans.getContextTypeLoader().parse(planURL, null, null);
                 kernel.getMBeanServer().invoke(
                         SERVICE_BUILDER_NAME,
