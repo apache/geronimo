@@ -85,7 +85,7 @@ import org.apache.xmlbeans.XmlException;
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/02/15 16:33:44 $
+ * @version $Revision: 1.8 $ $Date: 2004/02/20 07:19:13 $
  */
 public class AbstractModule implements DeploymentModule {
 
@@ -101,7 +101,7 @@ public class AbstractModule implements DeploymentModule {
         this.configID = configID;
         this.jettyWebApp = jettyWebApp;
         this.proxyFactory = proxyFactory;
-        contextPath = jettyWebApp.getContextRoot().getStringValue();
+        contextPath = jettyWebApp.getContextRoot();
         if (contextPath == null) {
             throw new DeploymentException("No context root specified");
         }
@@ -130,6 +130,7 @@ public class AbstractModule implements DeploymentModule {
             app.setAttribute("ContextPriorityClassLoader", new Boolean(contextPriorityClassLoader));
             app.setAttribute("PolicyContextID", null);
             //jndi
+/*
             if (proxyFactory != null) {
                 UserTransaction userTransaction = null;
                 Context componentContext = new ComponentContextBuilder(proxyFactory, cl).buildContext(
@@ -142,6 +143,7 @@ public class AbstractModule implements DeploymentModule {
                         userTransaction);
                 app.setAttribute("ComponentContext", componentContext);
             }
+*/
 
             app.setReferencePatterns("Configuration", Collections.singleton(Kernel.getConfigObjectName(configID)));
             app.setReferencePatterns("JettyContainer", Collections.singleton(new ObjectName("geronimo.web:type=WebContainer,container=Jetty"))); // @todo configurable

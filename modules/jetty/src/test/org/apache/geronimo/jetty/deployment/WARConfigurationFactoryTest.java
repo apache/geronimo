@@ -57,20 +57,19 @@ package org.apache.geronimo.jetty.deployment;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-
 import javax.enterprise.deploy.spi.DConfigBeanRoot;
 
 import org.apache.geronimo.deployment.tools.loader.WebDeployable;
-import org.apache.geronimo.xbeans.geronimo.jetty.JettyContextRootType;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
  *
  *
- * @version $Revision: 1.10 $ $Date: 2004/02/14 01:50:15 $
+ * @version $Revision: 1.11 $ $Date: 2004/02/20 07:19:13 $
  */
 public class WARConfigurationFactoryTest extends DeployerTestCase {
 
@@ -105,7 +104,7 @@ public class WARConfigurationFactoryTest extends DeployerTestCase {
 
         JettyWebAppDocument webAppDoc = JettyWebAppDocument.Factory.parse(new ByteArrayInputStream(baos.toByteArray()));
         JettyWebAppType webApp = webAppDoc.getWebApp();
-        assertEquals("/test", webApp.getContextRoot().getStringValue());
+        assertEquals("/test", webApp.getContextRoot());
         assertEquals(false, webApp.getContextPriorityClassloader());
     }
 
@@ -128,7 +127,7 @@ public class WARConfigurationFactoryTest extends DeployerTestCase {
         configRoot = config.getDConfigBeanRoot(deployable.getDDBeanRoot());
         contextBean = (WebAppDConfigBean) configRoot.getDConfigBean(deployable.getChildBean(configRoot.getXpaths()[0])[0]);
 
-        assertEquals("", contextBean.getContextRoot());
+        assertNull(contextBean.getContextRoot());
 
         config.restore(new ByteArrayInputStream(baos.toByteArray()));
         configRoot = config.getDConfigBeanRoot(deployable.getDDBeanRoot());
@@ -142,7 +141,7 @@ public class WARConfigurationFactoryTest extends DeployerTestCase {
 
     private void checkContents(JettyWebAppDocument webAppDoc) {
         JettyWebAppType webApp = webAppDoc.getWebApp();
-        assertEquals("/test", webApp.getContextRoot().getStringValue());
+        assertEquals("/test", webApp.getContextRoot());
         assertEquals(true, webApp.getContextPriorityClassloader());
     }
 
@@ -150,13 +149,10 @@ public class WARConfigurationFactoryTest extends DeployerTestCase {
         JettyWebAppDocument webAppDoc = JettyWebAppDocument.Factory.newInstance();
         JettyWebAppType webApp = webAppDoc.addNewWebApp();
         webAppDoc.setWebApp(webApp);
-        JettyContextRootType contextRoot = webApp.addNewContextRoot();
-        webApp.setContextRoot(contextRoot);
-        contextRoot.setStringValue("/test");
+        webApp.setContextRoot("/test");
         webApp.setContextPriorityClassloader(true);
         checkContents(webAppDoc);
-        assertEquals("/test", webApp.getContextRoot().getStringValue());
-        assertEquals("/test", contextRoot.getStringValue());
+        assertEquals("/test", webApp.getContextRoot());
         assertEquals(true, webApp.getContextPriorityClassloader());
     }
 

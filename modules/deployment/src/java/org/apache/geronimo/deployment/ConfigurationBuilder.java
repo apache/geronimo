@@ -59,15 +59,19 @@ import java.io.IOException;
 import java.io.File;
 import java.net.URL;
 import java.util.jar.JarInputStream;
+import java.util.List;
 
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.SchemaTypeLoader;
 
 /**
  * 
  * 
- * @version $Revision: 1.2 $ $Date: 2004/02/19 01:51:44 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/20 07:19:13 $
  */
 public interface ConfigurationBuilder {
+    SchemaTypeLoader[] getTypeLoaders();
+
     /**
      * Determine if this builder can handle the supplied plan.
      * @param plan the plan to examine
@@ -83,5 +87,5 @@ public interface ConfigurationBuilder {
      */
     XmlObject getDeploymentPlan(URL module);
 
-    void buildConfiguration(File outfile, JarInputStream module, XmlObject plan, boolean install) throws IOException, DeploymentException;
+    void buildConfiguration(File outfile, JarInputStream module, XmlObject plan) throws IOException, DeploymentException;
 }

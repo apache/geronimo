@@ -89,7 +89,7 @@ import org.apache.xmlbeans.XmlOptions;
 /**
  *
  *
- * @version $Revision: 1.8 $ $Date: 2004/02/14 18:49:43 $
+ * @version $Revision: 1.9 $ $Date: 2004/02/20 07:19:13 $
  */
 public class DeploymentTest extends DeployerTestCase {
 //    private byte[] plan;
@@ -109,7 +109,7 @@ public class DeploymentTest extends DeployerTestCase {
             System.out.println("Errors: " + errors);
             throw new DeploymentException("Invalid deployment descriptor: errors: " + errors);
         }
-        assertEquals("/test", doc.getWebApp().getContextRoot().getStringValue());
+        assertEquals("/test", doc.getWebApp().getContextRoot());
     }
 
     //unpacked needs a little more work.

@@ -83,7 +83,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 /**
  * Helper class to bootstrap the Geronimo deployer.
  *
- * @version $Revision: 1.6 $ $Date: 2004/02/12 18:27:39 $
+ * @version $Revision: 1.7 $ $Date: 2004/02/20 07:19:13 $
  */
 public class Bootstrap {
     public static final URI CONFIG_ID = URI.create("org/apache/geronimo/ServiceDeployer");
@@ -125,6 +125,7 @@ public class Bootstrap {
             // Install Deployer
             ObjectName deployerName = Deployer.getDeployerName(CONFIG_ID);
             GBeanMBean deployer = new GBeanMBean(Deployer.GBEAN_INFO);
+            deployer.setReferencePatterns("Kernel", Collections.singleton(Kernel.KERNEL));
             deployer.setReferencePatterns("Builders", Collections.singleton(new ObjectName("geronimo.deployer:role=Builder,id=" + CONFIG_ID.toString() + ",*")));
             gbeans.put(deployerName, deployer);
 

@@ -63,6 +63,9 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Properties;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -78,6 +81,7 @@ import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.LocalConfigStore;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
@@ -87,7 +91,7 @@ import org.apache.xmlbeans.XmlObject;
  * Command line based deployment utility which combines multiple deployable modules
  * into a single configuration.
  *
- * @version $Revision: 1.4 $ $Date: 2004/02/19 01:51:44 $
+ * @version $Revision: 1.5 $ $Date: 2004/02/20 07:19:13 $
  */
 public class Deployer {
     static {
@@ -98,8 +102,10 @@ public class Deployer {
     public static final URI DEFAULT_CONFIG = URI.create("org/apache/geronimo/J2EEDeployer");
 
     private final Collection builders;
+    private final Kernel kernel;
 
-    public Deployer(Collection builders) {
+    public Deployer(Kernel kernel, Collection builders) {
+        this.kernel = kernel;
         this.builders = builders;
     }
 
@@ -126,7 +132,16 @@ public class Deployer {
             saveOutput = true;
         }
         try {
-            builder.buildConfiguration(cmd.carfile, null, plan, cmd.install);
+            builder.buildConfiguration(cmd.carfile, null, plan);
+
+            try {
+                if (cmd.install) {
+                    kernel.install(cmd.carfile.toURL());
+                }
+            } catch (InvalidConfigException e) {
+                // unlikely as we just built this
+                throw new DeploymentException(e);
+            }
         } finally {
             if (!saveOutput) {
                 cmd.carfile.delete();
@@ -135,8 +150,14 @@ public class Deployer {
     }
 
     private SchemaTypeLoader getLoader() {
+        List types = new ArrayList(builders.size());
+        for (Iterator i = builders.iterator(); i.hasNext();) {
+            ConfigurationBuilder builder = (ConfigurationBuilder) i.next();
+            types.addAll(Arrays.asList(builder.getTypeLoaders()));
+        }
         // @todo this should also set up the entity resolver and error handlers
-        return XmlBeans.getContextTypeLoader();
+        SchemaTypeLoader[] loaders = (SchemaTypeLoader[]) types.toArray(new SchemaTypeLoader[types.size()]);
+        return XmlBeans.typeLoaderUnion(loaders);
     }
 
     /**
@@ -258,10 +279,11 @@ public class Deployer {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(Deployer.class);
         infoFactory.addOperation(new GOperationInfo("deploy", new Class[]{String[].class}));
         infoFactory.addOperation(new GOperationInfo("deploy", new Class[]{Command.class}));
+        infoFactory.addReference(new GReferenceInfo("Kernel", Kernel.class));
         infoFactory.addReference(new GReferenceInfo("Builders", ConfigurationBuilder.class));
         infoFactory.setConstructor(new GConstructorInfo(
-                new String[]{"Builders"},
-                new Class[]{Collection.class}
+                new String[]{"Kernel", "Builders"},
+                new Class[]{Kernel.class, Collection.class}
         ));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

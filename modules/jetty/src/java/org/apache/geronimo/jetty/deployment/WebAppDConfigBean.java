@@ -61,31 +61,24 @@ import javax.enterprise.deploy.spi.exceptions.BeanNotFoundException;
 import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
 
 import org.apache.geronimo.deployment.plugin.DConfigBeanSupport;
-import org.apache.geronimo.naming.deployment.ENCHelper;
+//import org.apache.geronimo.naming.deployment.ENCHelper;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
-import org.apache.geronimo.xbeans.geronimo.GerEjbRefType;
-import org.apache.geronimo.xbeans.geronimo.GerEjbLocalRefType;
-import org.apache.geronimo.xbeans.geronimo.GerMessageDestinationRefType;
-import org.apache.geronimo.xbeans.geronimo.GerResourceEnvRefType;
-import org.apache.geronimo.xbeans.geronimo.GerResourceRefType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 
 /**
  *
  *
- * @version $Revision: 1.9 $ $Date: 2004/02/18 20:58:43 $
+ * @version $Revision: 1.10 $ $Date: 2004/02/20 07:19:13 $
  */
 public class WebAppDConfigBean extends DConfigBeanSupport {
     private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
 
-    private ENCHelper encHelper;
+//    private ENCHelper encHelper;
 
     WebAppDConfigBean(DDBean ddBean, JettyWebAppType webApp) {
         super(ddBean, webApp, SCHEMA_TYPE_LOADER);
-        if (webApp.getContextRoot() == null) {
-            webApp.addNewContextRoot();
-        }
+/*
         encHelper = new ENCHelper(ddBean, new ENCHelper.XmlEnvRefs() {
             public GerEjbRefType[] getEjbRefs() {
                 return getWebApp().getEjbRefArray();
@@ -148,6 +141,7 @@ public class WebAppDConfigBean extends DConfigBeanSupport {
             }
 
         });
+*/
     }
 
     JettyWebAppType getWebApp() {
@@ -155,12 +149,12 @@ public class WebAppDConfigBean extends DConfigBeanSupport {
     }
 
     public String getContextRoot() {
-        return getWebApp().getContextRoot().getStringValue();
+        return getWebApp().getContextRoot();
     }
 
     public void setContextRoot(String contextRoot) {
         pcs.firePropertyChange("contextRoot", getContextRoot(), contextRoot);
-        getWebApp().getContextRoot().setStringValue(contextRoot);
+        getWebApp().setContextRoot(contextRoot);
     }
 
     /** getContextPriorityClassLoader.
@@ -181,7 +175,8 @@ public class WebAppDConfigBean extends DConfigBeanSupport {
     }
 
     public DConfigBean getDConfigBean(DDBean ddBean) throws ConfigurationException {
-        return encHelper.getDConfigBean(ddBean);
+        return null;
+//        return encHelper.getDConfigBean(ddBean);
     }
 
     public void removeDConfigBean(DConfigBean dcBean) throws BeanNotFoundException {
@@ -189,7 +184,8 @@ public class WebAppDConfigBean extends DConfigBeanSupport {
     }
 
     public String[] getXpaths() {
-        return ENCHelper.ENC_XPATHS;
+        return null;
+//        return ENCHelper.ENC_XPATHS;
     }
 
 }

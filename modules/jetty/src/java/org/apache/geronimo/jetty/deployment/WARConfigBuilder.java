@@ -53,7 +53,7 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.service;
+package org.apache.geronimo.jetty.deployment;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -64,204 +64,152 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.jar.Attributes;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
-import java.util.jar.Manifest;
 import javax.management.MalformedObjectNameException;
 
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.DeploymentException;
-import org.apache.geronimo.deployment.xbeans.AttributeType;
-import org.apache.geronimo.deployment.xbeans.ConfigurationDocument;
-import org.apache.geronimo.deployment.xbeans.ConfigurationType;
-import org.apache.geronimo.deployment.xbeans.DependencyType;
-import org.apache.geronimo.deployment.xbeans.GbeanType;
-import org.apache.geronimo.deployment.xbeans.ReferenceType;
-import org.apache.geronimo.deployment.xbeans.ReferencesType;
-import org.apache.geronimo.deployment.xbeans.ServiceDocument;
+import org.apache.geronimo.deployment.service.GBeanBuilder;
+import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettyAttributeType;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettyGbeanType;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettyReferenceType;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettyReferencesType;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppDocument;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
+import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
+import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/02/20 07:19:13 $
+ * @version $Revision: 1.1 $ $Date: 2004/02/20 07:19:13 $
  */
-public class ServiceConfigBuilder implements ConfigurationBuilder {
+public class WARConfigBuilder implements ConfigurationBuilder {
     private final Repository repository;
     private final Kernel kernel;
 
-    public ServiceConfigBuilder(Repository repository, Kernel kernel) {
-        this.repository = repository;
+    public WARConfigBuilder(Kernel kernel, Repository repository) {
         this.kernel = kernel;
+        this.repository = repository;
+    }
+
+    public boolean canConfigure(XmlObject plan) {
+        return plan instanceof JettyWebAppDocument || plan instanceof WebAppDocument;
     }
 
     public SchemaTypeLoader[] getTypeLoaders() {
         return new SchemaTypeLoader[]{XmlBeans.getContextTypeLoader()};
     }
 
-    public boolean canConfigure(XmlObject plan) {
-        return plan instanceof ConfigurationDocument;
+    public XmlObject getDeploymentPlan(URL module) {
+        try {
+            XmlObject plan = getPlan(new URL(module, "WEB-INF/geronimo-jetty.xml"), JettyWebAppDocument.type);
+// todo needs generic web XMLBeans
+//            if (plan == null) {
+//                plan = getPlan(new URL(module, "WEB-INF/geronimo-web.xml"));
+//            }
+// todo should be able to deploy a naked WAR
+//            if (plan == null) {
+//                plan = getPlan(new URL(module, "WEB-INF/web.xml"), WebAppDocument.type);
+//            }
+            return plan;
+        } catch (MalformedURLException e) {
+            return null;
+        }
     }
 
-    public XmlObject getDeploymentPlan(URL module) {
-        return null;
+    private XmlObject getPlan(URL planURL, SchemaType type) {
+        InputStream is;
+        try {
+            is = planURL.openStream();
+            try {
+                return XmlBeans.getContextTypeLoader().parse(is, type, null);
+            } finally {
+                is.close();
+            }
+        } catch (IOException e) {
+            return null;
+        } catch (XmlException e) {
+            return null;
+        }
     }
 
     public void buildConfiguration(File outfile, JarInputStream module, XmlObject plan) throws IOException, DeploymentException {
-        ConfigurationType configType = ((ConfigurationDocument) plan).getConfiguration();
+        JettyWebAppType jettyWebApp = ((JettyWebAppDocument) plan).getWebApp();
         URI configID;
         try {
-            configID = new URI(configType.getConfigId());
+            configID = new URI(jettyWebApp.getConfigId());
         } catch (URISyntaxException e) {
-            throw new DeploymentException("Invalid configId " + configType.getConfigId(), e);
+            throw new DeploymentException("Invalid configId " + jettyWebApp.getConfigId(), e);
         }
         URI parentID;
-        if (configType.isSetParentId()) {
+        if (jettyWebApp.isSetParentId()) {
             try {
-                parentID = new URI(configType.getParentId());
+                parentID = new URI(jettyWebApp.getParentId());
             } catch (URISyntaxException e) {
-                throw new DeploymentException("Invalid parentId " + configType.getParentId(), e);
+                throw new DeploymentException("Invalid parentId " + jettyWebApp.getParentId(), e);
             }
         } else {
             parentID = null;
         }
 
-        Manifest manifest = new Manifest();
-        manifest.getMainAttributes().putValue(Attributes.Name.MANIFEST_VERSION.toString(), "1.0");
-        // @todo support attributes in plan to make CARfile executable
-
         FileOutputStream fos = new FileOutputStream(outfile);
         try {
-            JarOutputStream os = new JarOutputStream(new BufferedOutputStream(fos), manifest);
+            JarOutputStream os = new JarOutputStream(new BufferedOutputStream(fos));
             DeploymentContext context = null;
             try {
                 context = new DeploymentContext(os, configID, parentID, kernel);
             } catch (MalformedObjectNameException e) {
                 throw new DeploymentException(e);
             }
-            addIncludes(context, configType);
-            addDependencies(context, configType.getDependencyArray());
+//            addIncludes(context, configType);
+//            addDependencies(context, configType.getDependencyArray());
             ClassLoader cl = context.getClassLoader(repository);
-            addGBeans(context, configType, cl);
+            addGBeans(context, jettyWebApp, cl);
             context.close();
             os.flush();
         } finally {
             fos.close();
         }
-
     }
 
-    private void addIncludes(DeploymentContext context, ConfigurationType configType) throws DeploymentException {
-        DependencyType[] includes = configType.getIncludeArray();
-        for (int i = 0; i < includes.length; i++) {
-            DependencyType include = includes[i];
-            URI uri = getDependencyURI(include);
-            String name = uri.toString();
-            int idx = name.lastIndexOf('/');
-            if (idx != -1) {
-                name = name.substring(idx + 1);
-            }
-            URI path;
-            try {
-                path = new URI(name);
-            } catch (URISyntaxException e) {
-                throw new DeploymentException("Unable to generate path for include: " + uri, e);
-            }
-            try {
-                URL url = repository.getURL(uri);
-                context.addInclude(path, url);
-            } catch (IOException e) {
-                throw new DeploymentException("Unable to add include: " + uri, e);
-            }
-        }
-    }
-
-    private void addDependencies(DeploymentContext context, DependencyType[] deps) throws DeploymentException {
-        for (int i = 0; i < deps.length; i++) {
-            URI dependencyURI = getDependencyURI(deps[i]);
-            context.addDependency(dependencyURI);
-
-            URL url;
-            try {
-                url = repository.getURL(dependencyURI);
-            } catch (MalformedURLException e) {
-                throw new DeploymentException("Unable to get URL for dependency " + dependencyURI, e);
-            }
-            ClassLoader depCL = new URLClassLoader(new URL[]{url}, ClassLoader.getSystemClassLoader());
-            InputStream is = depCL.getResourceAsStream("META-INF/geronimo-service.xml");
-            if (is != null) {
-                // it has a geronimo-service.xml file
-                ServiceDocument serviceDoc = null;
-                try {
-                    serviceDoc = ServiceDocument.Factory.parse(is);
-                } catch (org.apache.xmlbeans.XmlException e) {
-                    throw new DeploymentException("Invalid geronimo-service.xml file in " + url, e);
-                } catch (IOException e) {
-                    throw new DeploymentException("Unable to parse geronimo-service.xml file in " + url, e);
-                }
-                DependencyType[] dependencyDeps = serviceDoc.getService().getDependencyArray();
-                if (dependencyDeps != null) {
-                    addDependencies(context, dependencyDeps);
-                }
-            }
-        }
-    }
-
-    private URI getDependencyURI(DependencyType dep) throws DeploymentException {
-        URI uri;
-        if (dep.isSetUri()) {
-            try {
-                uri = new URI(dep.getUri());
-            } catch (URISyntaxException e) {
-                throw new DeploymentException("Invalid dependency URI " + dep.getUri(), e);
-            }
-        } else {
-            // @todo support more than just jars
-            String id = dep.getGroupId() + "/jars/" + dep.getArtifactId() + '-' + dep.getVersion() + ".jar";
-            try {
-                uri = new URI(id);
-            } catch (URISyntaxException e) {
-                throw new DeploymentException("Unable to construct URI for groupId=" + dep.getGroupId() + ", artifactId=" + dep.getArtifactId() + ", version=" + dep.getVersion(), e);
-            }
-        }
-        return uri;
-    }
-
-    private void addGBeans(DeploymentContext context, ConfigurationType configType, ClassLoader cl) throws DeploymentException {
-        GbeanType[] gbeans = configType.getGbeanArray();
+    private void addGBeans(DeploymentContext context, JettyWebAppType webApp, ClassLoader cl) throws DeploymentException {
+        JettyGbeanType[] gbeans = webApp.getGbeanArray();
         for (int i = 0; i < gbeans.length; i++) {
-            GbeanType gbean = gbeans[i];
+            JettyGbeanType gbean = gbeans[i];
             GBeanBuilder builder = new GBeanBuilder(gbean.getName(), cl, gbean.getClass1());
 
             // set up attributes
-            AttributeType[] attrs = gbean.getAttributeArray();
+            JettyAttributeType[] attrs = gbean.getAttributeArray();
             for (int j = 0; j < attrs.length; j++) {
-                AttributeType attr = attrs[j];
+                JettyAttributeType attr = attrs[j];
                 builder.setAttribute(attr.getName(), attr.getType(), attr.getStringValue());
             }
 
             // set up all single pattern references
-            ReferenceType[] refs = gbean.getReferenceArray();
+            JettyReferenceType[] refs = gbean.getReferenceArray();
             for (int j = 0; j < refs.length; j++) {
-                ReferenceType ref = refs[j];
+                JettyReferenceType ref = refs[j];
                 builder.setReference(ref.getName(), ref.getStringValue());
             }
 
             // set up app multi-patterned references
-            ReferencesType[] refs2 = gbean.getReferencesArray();
+            JettyReferencesType[] refs2 = gbean.getReferencesArray();
             for (int j = 0; j < refs2.length; j++) {
-                ReferencesType type = refs2[j];
+                JettyReferencesType type = refs2[j];
                 builder.setReference(type.getName(), type.getPatternArray());
             }
 
