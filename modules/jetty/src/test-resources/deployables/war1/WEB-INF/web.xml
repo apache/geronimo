@@ -3,4 +3,30 @@
 
 <web-app>
     <description>Test Web Deployment</description>
+    <resource-env-ref>
+        <resource-env-ref-name>fake-resource-env-ref</resource-env-ref-name>
+        <resource-env-ref-type>javax.jms.Queue</resource-env-ref-type>
+    </resource-env-ref>
+    <resource-ref>
+        <res-ref-name>fake-resource-ref</res-ref-name>
+        <res-type>javax.sql.DataSource</res-type>
+        <res-auth>Container</res-auth>
+        <res-sharing-scope>Shareable</res-sharing-scope>
+    </resource-ref>
+    <ejb-ref>
+        <ejb-ref-name>fake-ejb-ref</ejb-ref-name>
+        <ejb-ref-type>Entity</ejb-ref-type>
+        <home>some.package.FakeHome</home>
+        <remote>some.package.Fake</remote>
+    </ejb-ref>
+    <ejb-local-ref>
+        <ejb-ref-name>fake-ejb-local-ref</ejb-ref-name>
+        <ejb-ref-type>Entity</ejb-ref-type>
+        <local-home>some.package.FakeLocalHome</local-home>
+        <local>some.package.FakeLocal</local>
+    </ejb-local-ref>
+<!--    <service-ref>-->
+<!--        <service-ref-name>fake-service-ref</service-ref-name>-->
+<!--        <service-interface>some.package.FakeService</service-interface>-->
+<!--    </service-ref>-->
 </web-app>

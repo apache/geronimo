@@ -68,6 +68,8 @@ import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
 
 import org.apache.geronimo.deployment.plugin.DConfigBeanSupport;
 import org.apache.geronimo.deployment.util.XMLUtil;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -75,7 +77,7 @@ import org.w3c.dom.Node;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/23 22:39:08 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/25 01:08:25 $
  */
 public class ENCHelper {
     public static final String[] ENC_XPATHS = {
@@ -91,11 +93,11 @@ public class ENCHelper {
     public ENCHelper(DDBean ddBean) {
         this.ddBean = ddBean;
     }
-
+    private static final Log log = LogFactory.getLog(ENCHelper.class);
     public DConfigBean getDConfigBean(DDBean ddBean) throws ConfigurationException {
         String xpath = ddBean.getXpath();
         String name = ddBean.getText();
-
+        log.info("Gettig config bean for " + name + " at " + xpath);
         if (xpath.endsWith("ejb-ref/ejb-ref-name")) {
             DConfigBean dcBean = (DConfigBean) ejbRefs.get(name);
             if (dcBean == null) {
