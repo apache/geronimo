@@ -93,7 +93,7 @@ import org.apache.xmlbeans.XmlObject;
  * Command line based deployment utility which combines multiple deployable modules
  * into a single configuration.
  *
- * @version $Revision: 1.8 $ $Date: 2004/02/20 21:04:02 $
+ * @version $Revision: 1.9 $ $Date: 2004/02/21 20:03:24 $
  */
 public class Deployer {
     static {
@@ -298,9 +298,9 @@ public class Deployer {
     private static URL getURL(String location) throws MalformedURLException {
         File f = new File(location);
         if (f.exists() && f.canRead()) {
-            return f.toURL();
+            return f.toURI().toURL();
         }
-        return new URL(new File(".").toURL(), location);
+        return new File(".").toURI().resolve(location).toURL();
     }
 
     private static class Command {
