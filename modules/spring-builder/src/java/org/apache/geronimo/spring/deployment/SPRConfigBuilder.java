@@ -142,6 +142,12 @@ public class SPRConfigBuilder
       xbdr.setBeanClassLoader(cl);
       xbdr.loadBeanDefinitions(new ClassPathResource("META-INF/spring.xml", cl));
 
+      // force lazy construction of every bean described...
+      DefaultListableBeanFactory dlbf=(DefaultListableBeanFactory)xbdr.getBeanFactory();
+      String[] ids=dlbf.getBeanDefinitionNames();
+      for (int i=ids.length; i>0; i--)
+	dlbf.getBean(ids[i-1]);
+
       ObjectName name=new ObjectName("geronimo.config", "name", sprFile.getName());
       GBeanData gbeanData = new GBeanData(name, org.apache.geronimo.j2ee.management.impl.SpringApplicationImpl.GBEAN_INFO);
 
