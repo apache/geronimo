@@ -53,7 +53,7 @@ import org.mortbay.jetty.servlet.WebApplicationContext;
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
  *
- * @version $Revision: 1.13 $ $Date: 2004/04/07 19:22:15 $
+ * @version $Revision: 1.14 $ $Date: 2004/05/24 19:12:55 $
  */
 public class JettyWebApplicationContext extends WebApplicationContext implements GBean {
 
@@ -69,7 +69,8 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
     private final UserTransactionImpl userTransaction;
 
     // @todo get these from DD
-    private final Set unshareableResources = Collections.EMPTY_SET;
+    private final Set unshareableResources;
+    private final Set applicationManagedSecurityResources;
 
     private boolean contextPriorityClassLoader = false;
 
@@ -79,6 +80,8 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
             JettyContainer container,
             ReadOnlyContext compContext,
             String policyContextID,
+            Set unshareableResources,
+            Set applicationManagedSecurityResources,
             TransactionManager txManager,
             TrackedConnectionAssociator associator,
             UserTransactionImpl userTransaction) {
@@ -88,6 +91,8 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
         this.container = container;
         this.componentContext = compContext;
         this.policyContextID = policyContextID;
+        this.unshareableResources = unshareableResources;
+        this.applicationManagedSecurityResources = applicationManagedSecurityResources;
         this.txManager = txManager;
         this.associator = associator;
         this.userTransaction = userTransaction;
@@ -156,7 +161,7 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
                 TransactionContext.setContext(new UnspecifiedTransactionContext());
             }
             try {
-                oldConnectorContext = associator.enter(new DefaultComponentContext(), unshareableResources);
+                oldConnectorContext = associator.enter(new DefaultComponentContext(), unshareableResources, applicationManagedSecurityResources);
             } catch (ResourceException e) {
                 throw new RuntimeException(e);
             }
@@ -226,14 +231,16 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
         infoFactory.addAttribute("ContextPriorityClassLoader", true);
         infoFactory.addAttribute("ComponentContext", true);
         infoFactory.addAttribute("PolicyContextID", true);
+        infoFactory.addAttribute("UnshareableResources", true);
+        infoFactory.addAttribute("ApplicationManagedSecurityResources", true);
         infoFactory.addAttribute("UserTransaction", true);
         infoFactory.addReference("Configuration", ConfigurationParent.class);
         infoFactory.addReference("JettyContainer", JettyContainer.class);
         infoFactory.addReference("TransactionManager", TransactionManager.class);
         infoFactory.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class);
         infoFactory.setConstructor(new GConstructorInfo(
-                Arrays.asList(new Object[]{"Configuration", "URI", "JettyContainer", "ComponentContext", "PolicyContextID", "TransactionManager", "TrackedConnectionAssociator", "UserTransaction"}),
-                Arrays.asList(new Object[]{ConfigurationParent.class, URI.class, JettyContainer.class, ReadOnlyContext.class, String.class, TransactionManager.class, TrackedConnectionAssociator.class, UserTransactionImpl.class})));
+                Arrays.asList(new Object[]{"Configuration", "URI", "JettyContainer", "ComponentContext", "PolicyContextID", "UnshareableResources", "ApplicationManagedSecurityResources", "TransactionManager", "TrackedConnectionAssociator", "UserTransaction"}),
+                Arrays.asList(new Object[]{ConfigurationParent.class, URI.class, JettyContainer.class, ReadOnlyContext.class, String.class, Set.class, Set.class, TransactionManager.class, TrackedConnectionAssociator.class, UserTransactionImpl.class})));
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

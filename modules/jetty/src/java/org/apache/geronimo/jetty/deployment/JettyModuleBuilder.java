@@ -30,11 +30,17 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.zip.ZipEntry;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.management.AttributeNotFoundException;
+import javax.management.ReflectionException;
+import javax.management.InvalidAttributeValueException;
+import javax.management.MBeanException;
 import javax.naming.NamingException;
 import javax.transaction.UserTransaction;
 
@@ -65,11 +71,12 @@ import org.apache.geronimo.xbeans.j2ee.EjbRefType;
 import org.apache.geronimo.xbeans.j2ee.EnvEntryType;
 import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
 import org.apache.geronimo.xbeans.j2ee.WebAppType;
+import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/05/19 20:54:00 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/24 19:12:55 $
  */
 public class JettyModuleBuilder implements ModuleBuilder {
     public XmlObject getDeploymentPlan(URL module) throws XmlException {
@@ -220,6 +227,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
             gbean.setAttribute("PolicyContextID", null);
             gbean.setAttribute("ComponentContext", compContext);
             gbean.setAttribute("UserTransaction", userTransaction);
+            setResourceEnvironment(gbean, webApp.getResourceRefArray(), jettyWebApp.getResourceRefArray());
             gbean.setReferencePatterns("Configuration", Collections.singleton(ConfigurationManager.getConfigObjectName(configID)));
             gbean.setReferencePatterns("JettyContainer", Collections.singleton(new ObjectName("*:type=WebContainer,container=Jetty"))); // @todo configurable
             gbean.setReferencePatterns("TransactionManager", Collections.singleton(new ObjectName("*:type=TransactionManager,*")));
@@ -332,6 +340,30 @@ public class JettyModuleBuilder implements ModuleBuilder {
             }
         }
     }
+
+    private void setResourceEnvironment(GBeanMBean bean, ResourceRefType[] resourceRefArray, JettyLocalRefType[] jettyResourceRefArray) throws AttributeNotFoundException, ReflectionException, InvalidAttributeValueException, MBeanException {
+        Map openejbNames = new HashMap();
+        for (int i = 0; i < jettyResourceRefArray.length; i++) {
+            JettyLocalRefType jettyLocalRefType = jettyResourceRefArray[i];
+            openejbNames.put(jettyLocalRefType.getRefName(), jettyLocalRefType.getTargetName());
+        }
+        Set unshareableResources = new HashSet();
+        Set applicationManagedSecurityResources = new HashSet();
+        for (int i = 0; i < resourceRefArray.length; i++) {
+            ResourceRefType resourceRefType = resourceRefArray[i];
+            String name = (String)openejbNames.get(resourceRefType.getResRefName().getStringValue());
+            if ("Unshareable".equals(resourceRefType.getResSharingScope().getStringValue())) {
+                unshareableResources.add(name);
+            }
+            if ("Application".equals(resourceRefType.getResAuth().getStringValue())) {
+                applicationManagedSecurityResources.add(name);
+            }
+        }
+        bean.setAttribute("UnshareableResources", unshareableResources);
+        bean.setAttribute("ApplicationManagedSecurityResources", applicationManagedSecurityResources);
+    }
+
+
 
     private static String getJ2eeStringValue(org.apache.geronimo.xbeans.j2ee.String string) {
         if (string == null) {
