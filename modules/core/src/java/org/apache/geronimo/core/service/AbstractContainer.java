@@ -70,7 +70,7 @@ import org.apache.geronimo.core.service.AbstractComponent;
 /**
  * Abstract implementation of Container interface.
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:25:19 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/16 16:42:26 $
  *
  */
 public abstract class AbstractContainer extends AbstractComponent implements Container {
@@ -103,7 +103,7 @@ public abstract class AbstractContainer extends AbstractComponent implements Con
             throw new NullArgumentException("component");
         }
         try {
-            dependency.addStartDependency(objectName, new ObjectName(component.getObjectName()));
+            dependency.addStartDependency(new ObjectName(component.getObjectName()), objectName);
         } catch (MalformedObjectNameException e) {
             throw new IllegalArgumentException("Component does not have a valid object name: objectName=" + component.getObjectName());
         }
