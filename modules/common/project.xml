@@ -17,7 +17,7 @@
 -->
   
 
-<!-- $Revision: 1.24 $ $Date: 2004/03/21 22:24:38 $ -->
+<!-- $Revision: 1.25 $ $Date: 2004/04/22 00:05:48 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -88,7 +88,7 @@
         <dependency>
             <groupId>mx4j</groupId>
             <artifactId>mx4j-jmx</artifactId>
-            <version>SNAPSHOT</version>
+            <version>2.0.1</version>
             <url>http://mx4j.sourceforge.net</url>
         </dependency>
 
