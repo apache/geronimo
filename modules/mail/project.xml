@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.1 $ $Date: 2003/08/27 11:24:51 $ -->
+<!-- $Revision: 1.2 $ $Date: 2003/08/27 11:26:58 $ -->
 
 <project>
   <pomVersion>3</pomVersion>
@@ -45,7 +45,7 @@
     
     <dependency>
       <groupId>geronimo-spec</groupId>
-      <artifactId>geronimo-spec-mail</artifactId>
+      <artifactId>geronimo-spec-javamail</artifactId>
       <version>DEV</version>
       <properties>
         <module>true</module>
