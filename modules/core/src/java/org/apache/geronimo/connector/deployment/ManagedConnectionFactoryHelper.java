@@ -69,12 +69,13 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanEndpoint;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
 import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
+import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
 import org.apache.geronimo.naming.ger.GerContextManager;
 
 /**
  * ManagedConnectionFactoryHelper
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/14 08:29:38 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/15 01:20:53 $
  */
 public class ManagedConnectionFactoryHelper implements GeronimoMBeanTarget {
 
@@ -321,9 +322,9 @@ public class ManagedConnectionFactoryHelper implements GeronimoMBeanTarget {
         mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ConnectionInterface", true, true, "Interface implemented by the Connection", TARGET_NAME));
         mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ConnectionImplClass", true, true, "Class of the Connection", TARGET_NAME));
         mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ManagedConnectionFactoryClass", true, true, "Class of the ManagedConnectionFactory", TARGET_NAME));
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("GlobalJNDIName", true, true, "Optional name to bind ConnectionFactory under in ger: context"));
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("GlobalJNDIName", true, true, "Optional name to bind ConnectionFactory under in ger: context", TARGET_NAME));
 
-        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("getConnectionFactory", null, GeronimoOperationInfo.INFO, "Retrieve the ConnectionFactory we deployed", TARGET_NAME));
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("getConnectionFactory", new GeronimoParameterInfo[]{}, GeronimoOperationInfo.INFO, "Retrieve the ConnectionFactory we deployed", TARGET_NAME));
 
         if (resourceAdapterName != null) {
             mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("ResourceAdapterHelper", ResourceAdapterHelper.class.getName(), resourceAdapterName, true, TARGET_NAME));
