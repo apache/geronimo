@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.71 $ $Date: 2004/02/24 15:50:00 $ -->
+<!-- $Revision: 1.72 $ $Date: 2004/03/02 22:28:34 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -69,7 +69,6 @@
     <!-- ======= -->
     <!-- Modules -->
     <!-- ======= -->
-
     <goal name="modules:reactor:init">
         <!--
            | Determine the includes which the reactor will use.
@@ -149,13 +148,15 @@
                | the baseddir portion of the file's name.  So this will essentially strip off
                | ${basedir}
              -->
-            <j:set var="filename"
-                value="${file.parentFile.parentFile.name}/${file.parentFile.name}/${file.name}"/>
+            <j:set var="directory" value="${file.parentFile.parentFile.name}/${file.parentFile.name}"/>
+            <j:set var="filename" value="${directory}/${file.name}"/>
             <j:choose>
                 <j:when test="${context.getVariable('modules.reactor.includes') == null}">
+                    <j:set var="modules.directories" value="${directory}"/>
                     <j:set var="modules.reactor.includes" value="${filename}"/>
                 </j:when>
                 <j:otherwise>
+                    <j:set var="modules.directories" value="${modules.directories},${directory}"/>
                     <j:set var="modules.reactor.includes" value="${modules.reactor.includes},${filename}"/>
                 </j:otherwise>
             </j:choose>
@@ -219,11 +220,36 @@
     </goal>
 
     <goal name="modules:clean">
-        <modules:reactor goals="clean"/>
+        <attainGoal name="modules:reactor:init"/>
+        <u:tokenize var="directories" delim=",">${modules.directories}</u:tokenize>
+        <j:forEach var="directory" items="${directories}">
+            <ant:echo>+----------------------------------------</ant:echo>
+            <ant:echo>| Cleaning: ${directory} </ant:echo>
+            <ant:echo>+----------------------------------------</ant:echo>
+            <ant:delete dir="${directory}/target"/>
+            <ant:delete file="${directory}/velocity.log" quiet="true" failonerror="false"/>
+            <ant:echo></ant:echo>
+        </j:forEach>
+
     </goal>
 
     <goal name="modules:clobber">
-        <modules:reactor goals="clobber"/>
+        <attainGoal name="modules:reactor:init"/>
+        <u:tokenize var="directories" delim=",">${modules.directories}</u:tokenize>
+        <j:forEach var="directory" items="${directories}">
+            <ant:echo>+----------------------------------------</ant:echo>
+            <ant:echo>| Clobbering: ${directory} </ant:echo>
+            <ant:echo>+----------------------------------------</ant:echo>
+            <ant:delete dir="${directory}/target"/>
+            <ant:delete quiet="false" failonerror="false">
+                <ant:fileset dir="${directory}">
+                    <ant:include name="maven.log"/>
+                    <ant:include name="velocity.log*"/>
+                    <ant:include name="junit*.properties"/>
+                </ant:fileset>
+            </ant:delete>
+            <ant:echo></ant:echo>
+        </j:forEach>
     </goal>
 
     <preGoal name="clean:clean">

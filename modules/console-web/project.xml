@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.4 $ $Date: 2004/02/19 09:00:27 $ -->
+<!-- $Revision: 1.5 $ $Date: 2004/03/02 22:28:34 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -10,8 +10,9 @@
     <!-- Module Identification -->
     <!-- ===================== -->
 
-    <name>Geronimo :: Web Console</name>
-    <id>geronimo-web-console</id>
+    <name>Geronimo :: Console Web</name>
+    <id>geronimo-console-web</id>
+    <type>war</type>
     <shortDescription></shortDescription>
     <description></description>
     <siteDirectory></siteDirectory>

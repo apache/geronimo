@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- $Revision: 1.5 $ $Date: 2004/02/25 08:01:08 $ -->
+<!-- $Revision: 1.6 $ $Date: 2004/03/02 22:28:34 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -45,6 +45,9 @@
     <!-- Assemble server installation from generated modules  -->
     <!-- ==================================================== -->
     <goal name="assemble">
+        <!-- delete the dist directory first, to remove any cruft -->
+        <ant:delete dir="${distDir}"/>
+
         <!-- Copy  the runtime dependencies into lib and create a classpath for the server.jar file -->
         <j:set var="libDir" value="${distDir}/lib"/>
         <ant:mkdir dir="${libDir}"/>
@@ -149,7 +152,7 @@
         <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
             <ant:arg value="--install"/>
             <ant:arg value="--module"/>
-            <ant:arg value="${project.root}/applications/jmxdebug/target/geronimo-jmxdebug.war"/>
+            <ant:arg value="${maven.repo.local}/geronimo/wars/geronimo-jmxdebug-${pom.currentVersion}.war"/>
         </ant:java>
     </goal>
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.4 $ $Date: 2004/02/20 23:28:41 $ -->
+<!-- $Revision: 1.5 $ $Date: 2004/03/02 22:28:34 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -8,24 +8,6 @@
     xmlns:ant="jelly:ant">
 
     <goal name="default">
-        <attainGoal name="war"/>
-    </goal>
-
-    <!-- Remove the log files -->
-    <goal name="clobber"
-        description="Removes all (non-repository installed) build generated files">
-
-        <!-- Let clean:clean do some work first -->
-        <attainGoal name="clean:clean"/>
-
-        <j:jelly xmlns="jelly:ant">
-            <delete quiet="false" failonerror="false">
-                <fileset dir="${basedir}">
-                    <include name="maven.log"/>
-                    <include name="velocity.log*"/>
-                    <include name="junit*.properties"/>
-                </fileset>
-            </delete>
-        </j:jelly>
+        <attainGoal name="war:install"/>
     </goal>
 </project>

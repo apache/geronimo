@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.29 $ $Date: 2004/02/18 22:11:28 $ -->
+<!-- $Revision: 1.30 $ $Date: 2004/03/02 22:28:34 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -19,6 +19,10 @@
 
     <!-- Load the global properties -->
     <ant:property file="${project.root}/etc/global.properties"/>
+
+    <!-- set the maven.war.final.name by hand here because the variable is not -->
+    <!-- expanded correctly when in the global.properties file -->
+    <j:set var="maven.war.final.name" value="${pom.artifactId}-${pom.currentVersion}.war"/>
 
 
     <!-- ==================== -->
