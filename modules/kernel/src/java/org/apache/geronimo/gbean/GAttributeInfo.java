@@ -60,7 +60,7 @@ import java.io.Serializable;
 /**
  * Describes an attibute of a GBean.
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/16 23:31:21 $
+ * @version $Revision: 1.4 $ $Date: 2004/02/20 17:25:11 $
  */
 public class GAttributeInfo implements Serializable {
     /**
@@ -95,20 +95,12 @@ public class GAttributeInfo implements Serializable {
      */
     private final String setterName;
 
-    public GAttributeInfo(String name) {
-        this(name, false, null, null, null, null);
-    }
-
-    public GAttributeInfo(String name, String getterName, String setterName) {
-        this(name, false, new Boolean(getterName != null), new Boolean(setterName != null), getterName, setterName);
-    }
-
     public GAttributeInfo(String name, boolean persistent) {
         this(name, persistent, null, null, null, null);
     }
 
     public GAttributeInfo(String name, boolean persistent, String getterName, String setterName) {
-        this(name, persistent, new Boolean(getterName != null), new Boolean(setterName != null), getterName, setterName);
+        this(name, persistent, Boolean.valueOf(getterName != null), Boolean.valueOf(setterName != null), getterName, setterName);
     }
 
     public GAttributeInfo(String name, boolean persistent, Boolean readable, Boolean writable, String getterName, String setterName) {

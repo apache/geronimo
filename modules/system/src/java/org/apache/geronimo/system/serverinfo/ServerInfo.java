@@ -61,14 +61,12 @@ import java.net.JarURLConnection;
 import java.net.URI;
 import java.net.URL;
 
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GOperationInfo;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/02/18 18:02:57 $
+ * @version $Revision: 1.4 $ $Date: 2004/02/20 17:25:12 $
  */
 public class ServerInfo {
     private final File base;
@@ -106,7 +104,7 @@ public class ServerInfo {
             baseURI = base.toURI();
         }
         if (!base.isDirectory()) {
-            throw new IllegalArgumentException("Base directory is not a directory: "+baseDirectory);
+            throw new IllegalArgumentException("Base directory is not a directory: " + baseDirectory);
         }
     }
 
@@ -146,13 +144,13 @@ public class ServerInfo {
         infoFactory.setConstructor(new GConstructorInfo(
                 new String[]{"BaseDirectory"},
                 new Class[]{String.class}));
-        infoFactory.addAttribute(new GAttributeInfo("BaseDirectory", true));
-        infoFactory.addAttribute(new GAttributeInfo("Version"));
-        infoFactory.addAttribute(new GAttributeInfo("BuildDate"));
-        infoFactory.addAttribute(new GAttributeInfo("BuildTime"));
-        infoFactory.addAttribute(new GAttributeInfo("Copyright"));
-        infoFactory.addOperation(new GOperationInfo("resolvePath", new String[]{"java.lang.String"}));
-        infoFactory.addOperation(new GOperationInfo("resolve", new Class[]{URI.class}));
+        infoFactory.addAttribute("BaseDirectory", true);
+        infoFactory.addAttribute("Version", false);
+        infoFactory.addAttribute("BuildDate", false);
+        infoFactory.addAttribute("BuildTime", false);
+        infoFactory.addAttribute("Copyright", false);
+        infoFactory.addOperation("resolvePath", new Class[]{String.class});
+        infoFactory.addOperation("resolve", new Class[]{URI.class});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

@@ -88,7 +88,6 @@ import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.gbean.jmx.GBeanMBeanContext;
@@ -123,7 +122,7 @@ import org.apache.geronimo.kernel.repository.Repository;
  * a startRecursive() for all the GBeans it contains. Similarly, if the
  * Configuration is stopped then all of its GBeans will be stopped as well.
  *
- * @version $Revision: 1.11 $ $Date: 2004/02/13 23:21:07 $
+ * @version $Revision: 1.12 $ $Date: 2004/02/20 17:25:11 $
  */
 public class Configuration implements GBean {
     private static final Log log = LogFactory.getLog(Configuration.class);
@@ -409,21 +408,21 @@ public class Configuration implements GBean {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(Configuration.class);
-        infoFactory.addAttribute(new GAttributeInfo("ID", true));
-        infoFactory.addAttribute(new GAttributeInfo("ParentID", true));
-        infoFactory.addAttribute(new GAttributeInfo("ClassPath", true));
-        infoFactory.addAttribute(new GAttributeInfo("Dependencies", true));
-        infoFactory.addAttribute(new GAttributeInfo("GBeanState", true));
-        infoFactory.addAttribute(new GAttributeInfo("BaseURL"));
-        infoFactory.addAttribute(new GAttributeInfo("ObjectName"));
-        infoFactory.addAttribute(new GAttributeInfo("ClassLoader"));
-        infoFactory.addAttribute(new GAttributeInfo("SavedState")); // @todo is this used?
-        infoFactory.addReference(new GReferenceInfo("Parent", ConfigurationParent.class));
-        infoFactory.addReference(new GReferenceInfo("Repositories", Repository.class));
-        infoFactory.setConstructor(new GConstructorInfo(
+        infoFactory.addAttribute("ID", true);
+        infoFactory.addAttribute("ParentID", true);
+        infoFactory.addAttribute("ClassPath", true);
+        infoFactory.addAttribute("Dependencies", true);
+        infoFactory.addAttribute("GBeanState", true);
+        infoFactory.addAttribute("BaseURL", false);
+        infoFactory.addAttribute("ObjectName", false);
+        infoFactory.addAttribute("ClassLoader", false);
+        infoFactory.addAttribute("SavedState", false); // @todo is this used?
+        infoFactory.addReference("Parent", ConfigurationParent.class);
+        infoFactory.addReference("Repositories", Repository.class);
+        infoFactory.setConstructor(
                 new String[]{"ID", "ParentID", "Parent", "ClassPath", "GBeanState", "Repositories", "Dependencies"},
                 new Class[]{URI.class, URI.class, ConfigurationParent.class, List.class, byte[].class, Collection.class, List.class}
-        ));
+        );
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

@@ -67,6 +67,7 @@ import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.jmx.GBeanMBeanContext;
 import org.apache.geronimo.remoting.InvocationSupport;
 import org.apache.geronimo.remoting.MarshalledObject;
@@ -78,7 +79,7 @@ import EDU.oswego.cs.dl.util.concurrent.Sync;
 import EDU.oswego.cs.dl.util.concurrent.TimeoutSync;
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/01/25 21:07:04 $
+ * @version $Revision: 1.6 $ $Date: 2004/02/20 17:25:12 $
  */
 public abstract class AbstractInterceptorRouter implements GBean, Router {
     private long stoppedRoutingTimeout = 1000 * 60; // 1 min.
@@ -162,10 +163,10 @@ public abstract class AbstractInterceptorRouter implements GBean, Router {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        Set operations = new HashSet();
-        operations.add(new GOperationInfo("sendRequest", new String[]{"java.net.URI", "org.apache.geronimo.remoting.transport.Msg"}));
-        operations.add(new GOperationInfo("sendDatagram", new String[]{"java.net.URI", "org.apache.geronimo.remoting.transport.Msg"}));
-        GBEAN_INFO = new GBeanInfo(AbstractInterceptorRouter.class.getName(), null, null, operations, null, null);
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(AbstractInterceptorRouter.class);
+        infoFactory.addOperation("sendRequest", new Class[] {URI.class, Msg.class});
+        infoFactory.addOperation("sendDatagram", new Class[] {URI.class, Msg.class});
+        GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
     public static GBeanInfo getGBeanInfo() {

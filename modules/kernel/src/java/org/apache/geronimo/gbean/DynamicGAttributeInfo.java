@@ -58,7 +58,7 @@ package org.apache.geronimo.gbean;
 /**
  * 
  * 
- * @version $Revision: 1.1 $ $Date: 2004/01/16 23:31:21 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/20 17:25:11 $
  */
 public class DynamicGAttributeInfo extends GAttributeInfo {
     public DynamicGAttributeInfo(String name) {
@@ -70,6 +70,6 @@ public class DynamicGAttributeInfo extends GAttributeInfo {
     }
 
     public DynamicGAttributeInfo(String name, boolean persistent, boolean readable, boolean writable) {
-        super(name, persistent, new Boolean(readable), new Boolean(writable), null, null);
+        super(name, persistent, Boolean.valueOf(readable), Boolean.valueOf(writable), null, null);
     }
 }
