@@ -31,12 +31,12 @@ import org.apache.geronimo.system.ThreadPool;
 
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/04/03 22:37:58 $
+ * @version $Revision: 1.6 $ $Date: 2004/04/03 22:57:41 $
  */
 public class ProtocolStackTest extends TestCase {
     public void testNothing() {}
 
-    public void Xtest() throws Exception {
+    public void test() throws Exception {
         ThreadPool tp = new ThreadPool();
         tp.setKeepAliveTime(1 * 1000);
         tp.setMinimumPoolSize(5);

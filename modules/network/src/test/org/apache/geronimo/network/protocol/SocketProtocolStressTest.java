@@ -32,7 +32,7 @@ import org.apache.geronimo.system.ThreadPool;
 
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/04/03 22:37:58 $
+ * @version $Revision: 1.8 $ $Date: 2004/04/03 22:57:41 $
  */
 public class SocketProtocolStressTest extends TestCase {
 
@@ -47,7 +47,7 @@ public class SocketProtocolStressTest extends TestCase {
 
     public void testNothing() {}
 
-    public void XtestSimple() throws Exception {
+    public void testSimple() throws Exception {
         sp.sendDown(getDatagramPacket());
         sp.sendDown(getDatagramPacket());
         sp.sendDown(getDatagramPacket());
@@ -59,7 +59,7 @@ public class SocketProtocolStressTest extends TestCase {
         Thread.sleep(5 * 1000);
     }
 
-    public void XtestConcurrentRequests() throws Exception {
+    public void testConcurrentRequests() throws Exception {
 
         final int WORKERS = 100;
         final int MESSAGE_COUNT = 10;
