@@ -152,7 +152,7 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
         cmfName = ObjectName.getInstance("test:role=ConnectionManagerFactory");
         kernel.loadGBean(cmfName, cmf);
 
-        managedConnectionFactoryName = ObjectName.getInstance(JMXReferenceFactory.BASE_MANAGED_CONNECTION_FACTORY_NAME + TARGET_NAME);
+        managedConnectionFactoryName = ObjectName.getInstance("geronimo.server:J2EEServer=geronimo" + JMXReferenceFactory.BASE_MANAGED_CONNECTION_FACTORY_NAME + TARGET_NAME);
 
         GBeanMBean mcfw = new GBeanMBean(ManagedConnectionFactoryWrapper.getGBeanInfo());
         mcfw.setAttribute("managedConnectionFactoryClass", MockManagedConnectionFactory.class);
