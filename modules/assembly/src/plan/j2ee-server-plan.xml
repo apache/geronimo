@@ -129,6 +129,9 @@ by the server.
     <dependency>
         <uri>howl/jars/howl-logger-${howl_version}.jar</uri>
     </dependency>
+    <dependency>
+        <uri>antlr/jars/antlr-${antlr_version}.jar</uri>
+    </dependency>
 
     <!-- required for rar 1.5 to load realms -->
     <dependency>
