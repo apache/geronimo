@@ -34,4 +34,9 @@ public class DynamicGAttributeInfo extends GAttributeInfo {
     public DynamicGAttributeInfo(String name, boolean persistent, boolean readable, boolean writable) {
         super(name, Object.class.getName(), persistent, Boolean.valueOf(readable), Boolean.valueOf(writable), null, null);
     }
+
+    public DynamicGAttributeInfo(String name, String type, boolean persistent, boolean readable, boolean writable) {
+        super(name, type, persistent, Boolean.valueOf(readable), Boolean.valueOf(writable), null, null);
+    }
+    
 }

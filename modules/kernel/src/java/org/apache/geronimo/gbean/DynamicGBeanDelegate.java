@@ -144,6 +144,8 @@ public class DynamicGBeanDelegate implements DynamicGBean {
         private final FastMethod method;
 
         public Operation(Object target, Method method) {
+            assert target != null;
+            assert method != null;
             this.target = target;
             this.method = FastClass.create(target.getClass()).getMethod(method);
         }

@@ -16,18 +16,18 @@
  */
 package org.apache.geronimo.connector.deployment;
 
-import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
 import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
 import java.beans.PropertyEditor;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
@@ -41,6 +41,7 @@ import javax.naming.Reference;
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 import org.apache.geronimo.connector.ActivationSpecInfo;
 import org.apache.geronimo.connector.ResourceAdapterModuleImpl;
+import org.apache.geronimo.connector.outbound.JCAConnectionFactoryImpl;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.LocalTransactions;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.NoPool;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.NoTransactions;
@@ -51,7 +52,6 @@ import org.apache.geronimo.connector.outbound.connectionmanagerconfig.Transactio
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionSupport;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.XATransactions;
 import org.apache.geronimo.connector.outbound.security.PasswordCredentialRealm;
-import org.apache.geronimo.connector.outbound.JCAConnectionFactoryImpl;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.service.GBeanHelper;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
@@ -68,8 +68,9 @@ import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.naming.reference.RefAddrContentObjectFactory;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.naming.reference.GBeanGetResourceRefAddr;
+import org.apache.geronimo.naming.reference.RefAddrContentObjectFactory;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.geronimo.GerAdminobjectInstanceType;
 import org.apache.geronimo.xbeans.geronimo.GerAdminobjectType;
@@ -81,9 +82,9 @@ import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorType;
 import org.apache.geronimo.xbeans.geronimo.GerDependencyType;
 import org.apache.geronimo.xbeans.geronimo.GerGbeanType;
+import org.apache.geronimo.xbeans.geronimo.GerPartitionedpoolType;
 import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
 import org.apache.geronimo.xbeans.geronimo.GerSinglepoolType;
-import org.apache.geronimo.xbeans.geronimo.GerPartitionedpoolType;
 import org.apache.geronimo.xbeans.j2ee.ActivationspecType;
 import org.apache.geronimo.xbeans.j2ee.AdminobjectType;
 import org.apache.geronimo.xbeans.j2ee.ConfigPropertyType;
@@ -97,7 +98,6 @@ import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConfigPropertyType10;
 import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConnectorDocument10;
 import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConnectorType10;
 import org.apache.geronimo.xbeans.j2ee.connector_1_0.ResourceadapterType10;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
@@ -507,29 +507,37 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             String messageListenerInterface = messagelistenerType.getMessagelistenerType().getStringValue().trim();
             ActivationspecType activationspec = messagelistenerType.getActivationspec();
             String activationSpecClassName = activationspec.getActivationspecClass().getStringValue();
-            GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("org.apache.geronimo.connector.ActivationSpecWrapper", cl);
+            GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder("org.apache.geronimo.connector.ActivationSpecWrapper", cl);
 
             //add all javabean properties that have both getter and setter.  Ignore the "required" flag from the dd.
-            BeanInfo beanInfo;
+            Map getters = new HashMap();
+            Set setters = new HashSet();
+            Method[] methods = null;
             try {
                 Class activationSpecClass = cl.loadClass(activationSpecClassName);
-                beanInfo = Introspector.getBeanInfo(activationSpecClass);
-            } catch (IntrospectionException e) {
-                throw new DeploymentException("Can not introspect activation spec class", e);
+                methods = activationSpecClass.getMethods();
             } catch (ClassNotFoundException e) {
                 throw new DeploymentException("Can not load activation spec class", e);
             }
-
-            PropertyDescriptor[] attDescriptors = beanInfo.getPropertyDescriptors();
-            for (int j = 0; j < attDescriptors.length; j++) {
-                PropertyDescriptor desc = attDescriptors[j];
-                if (desc.getName().equals("resourceAdapter") || desc.getReadMethod() == null || desc.getWriteMethod() == null) {
-                    continue;
+            for (int j = 0; j < methods.length; j++) {
+                Method method = methods[j];
+                String methodName = method.getName();
+                if ((methodName.startsWith("get") || methodName.startsWith("is")) && method.getParameterTypes().length == 0) {
+                    String attributeName = (methodName.startsWith("get")) ? methodName.substring(3) : methodName.substring(2);
+                    getters.put(Introspector.decapitalize(attributeName), method.getReturnType().getName());
+                } else if (methodName.startsWith("set") && method.getParameterTypes().length == 1) {
+                    setters.add(Introspector.decapitalize(methodName.substring(3)));
                 }
-                infoFactory.addAttribute(new DynamicGAttributeInfo(desc.getName(), true));
+            }
+            getters.keySet().retainAll(setters);
+            getters.remove("resourceAdapter");
+
+            for (Iterator iterator = getters.entrySet().iterator(); iterator.hasNext();) {
+                Map.Entry entry =  (Map.Entry) iterator.next();
+                infoBuilder.addAttribute(new DynamicGAttributeInfo((String) entry.getKey(), (String) entry.getValue(), true, true, true));
             }
 
-            GBeanInfo gbeanInfo = infoFactory.getBeanInfo();
+            GBeanInfo gbeanInfo = infoBuilder.getBeanInfo();
             try {
                 //make sure the class is available, but we don't use it.
                 cl.loadClass(activationSpecClassName);
@@ -544,7 +552,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
 
     private GBeanMBean setUpDynamicGBean(GBeanInfoBuilder infoFactory, ConfigProperty[] configProperties, ClassLoader cl) throws DeploymentException {
         for (int i = 0; i < configProperties.length; i++) {
-            infoFactory.addAttribute(new DynamicGAttributeInfo(configProperties[i].getName(), true));
+            infoFactory.addAttribute(new DynamicGAttributeInfo(configProperties[i].getName(), configProperties[i].getType(),true, true, true));
         }
 
         GBeanInfo gbeanInfo = infoFactory.getBeanInfo();
