@@ -85,7 +85,7 @@ import org.apache.geronimo.kernel.config.ConfigurationParent;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/24 02:56:23 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/24 19:50:04 $
  */
 public class ModuleDeployer implements ConfigurationCallback {
     private final ConfigurationParent parent;
@@ -156,7 +156,12 @@ public class ModuleDeployer implements ConfigurationCallback {
             }
             ClassLoader cl;
             if (parent == null) {
-                cl = new URLClassLoader(urls);
+                //Use in maven plugin seems to require access to the classloader used to load this class,
+                //not just the SystemClassLoader.  DeployCommand sets the thread context classloader.
+                // If I understand Maven correctly it will load using a classloader including the
+                //dependencies specified in the plugins project.xml file.
+                //cl = new URLClassLoader(urls);
+                cl = new URLClassLoader(urls, Thread.currentThread().getContextClassLoader());
             } else {
                 cl = new URLClassLoader(urls, parent.getClassLoader());
             }

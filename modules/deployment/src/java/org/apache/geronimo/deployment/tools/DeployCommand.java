@@ -63,25 +63,27 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.StringTokenizer;
 import java.util.jar.JarOutputStream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.geronimo.deployment.URLDeployer;
-import org.apache.geronimo.deployment.NoDeployerException;
-import org.apache.geronimo.deployment.util.FileUtil;
-import org.apache.geronimo.deployment.service.ServiceDeployer;
 import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.deployment.NoDeployerException;
+import org.apache.geronimo.deployment.URLDeployer;
+import org.apache.geronimo.deployment.service.ServiceDeployer;
+import org.apache.geronimo.deployment.util.FileUtil;
 import org.apache.geronimo.deployment.util.URLInfo;
 import org.apache.geronimo.deployment.util.URLType;
 
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/01/23 19:58:17 $
+ * @version $Revision: 1.6 $ $Date: 2004/01/24 19:50:04 $
  */
 public class DeployCommand {
     private final File configFile;
@@ -89,7 +91,18 @@ public class DeployCommand {
 
     public DeployCommand(File configFile, URI configID, File workDir, List deployers) {
         this.configFile = configFile;
+        Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
         batcher = new URLDeployer(null, configID, deployers, workDir);
+    }
+
+    public DeployCommand(File configFile, URI configID, File workDir, List deployers, List urls) throws IOException, DeploymentException, NoDeployerException {
+        this.configFile = configFile;
+        Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
+        batcher = new URLDeployer(null, configID, deployers, workDir);
+        for (Iterator iterator = urls.iterator(); iterator.hasNext();) {
+            URL url = (URL) iterator.next();
+            add(url);
+        }
     }
 
     public void add(URL url) throws IOException, DeploymentException, NoDeployerException {
@@ -103,6 +116,23 @@ public class DeployCommand {
         JarOutputStream jos = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(configFile)));
         batcher.saveConfiguration(jos);
         jos.close();
+    }
+
+    //used by maven plugin
+    public static void deploy(String configIDString, String outfile, String urlsString) throws IOException, URISyntaxException, DeploymentException, NoDeployerException {
+        URI configID = null;
+        configID = new URI(configIDString);
+        List urls = new ArrayList();
+        for (StringTokenizer st = new StringTokenizer(urlsString, ","); st.hasMoreTokens();) {
+            String url = st.nextToken();
+            File source = new File(url);
+            urls.add(source.toURL());
+        }
+        File configFile = new File(outfile);
+        File workDir = createWorkDir();
+        List deployers = getDeployers();
+        DeployCommand deployer = new DeployCommand(configFile, configID, workDir, deployers, urls);
+        deployer.deploy();
     }
 
     public static void main(String[] args) {
@@ -119,31 +149,38 @@ public class DeployCommand {
             System.exit(1);
             throw new AssertionError();
         }
+        System.out.println("found configID: " + configID);
         File configFile = new File(args[1]);
         File workDir;
         try {
-            workDir = File.createTempFile("deployer", "");
-            workDir.delete();
-            workDir.mkdir();
+            workDir = createWorkDir();
         } catch (IOException e) {
             System.err.println("Unable to create working directory");
             System.exit(2);
             throw new AssertionError();
         }
+        System.out.println("work dir: " + workDir.getAbsolutePath());
 
         List deployers = getDeployers();
 
-        DeployCommand deployer = new DeployCommand(configFile, configID, workDir, deployers);
         int status = 0;
+        List urls = new ArrayList();
         try {
             for (int i = 2; i < args.length; i++) {
                 File source = new File(args[i]);
-                deployer.add(source.toURL());
+                urls.add(source.toURL());
             }
-            deployer.deploy();
         } catch (Exception e) {
             e.printStackTrace();
             status = 2;
+        }
+        try {
+            DeployCommand deployer = new DeployCommand(configFile, configID, workDir, deployers, urls);
+            deployer.deploy();
+            System.out.println("deployed successfully");
+        } catch (Exception e) {
+            e.printStackTrace();
+            status = 3;
         } finally {
             FileUtil.recursiveDelete(workDir);
         }
@@ -159,6 +196,13 @@ public class DeployCommand {
         } catch (ParserConfigurationException e) {
             throw new AssertionError("Unable to instantiate XML Parser");
         }
+    }
+
+    private static File createWorkDir() throws IOException {
+        File workDir = File.createTempFile("deployer", "");
+        workDir.delete();
+        workDir.mkdir();
+        return workDir;
     }
 
 }

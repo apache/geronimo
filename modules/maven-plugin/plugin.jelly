@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+
+<!-- ================================================================== -->
+<!-- Geronimo deployment plugin                                         -->
+<!-- ================================================================== -->
+<project xmlns:j="jelly:core"
+    xmlns:u="jelly:util"
+    xmlns:ant="jelly:ant"
+    xmlns:maven="jelly:maven"
+    xmlns:define="jelly:define"
+    xmlns:deploy="geronimo:deploy"
+    >
+
+    <define:taglib uri="geronimo:deploy">
+        <!-- DeployCommand  <configID> <outfile> <url>+ -->
+        <!-- DeployCommand org/apache/geronimo/Default /tmp/default.car jetty-service.xml -->
+        <define:tag name="deploy" xmlns="jelly:ant">
+            <j:if test="${deployconfigid == null}">
+                <fail>Missing required attribute: deployconfigid</fail>
+            </j:if>
+            <j:if test="${deployoutfile == null}">
+                <fail>Missing required attribute: deployoutfile</fail>
+            </j:if>
+            <j:if test="${deployurl == null}">
+                <fail>Missing required attribute: deployurl</fail>
+            </j:if>
+            <j:invokeStatic var="dummy" className="org.apache.geronimo.deployment.tools.DeployCommand" method="deploy">
+                <j:arg type="java.lang.String" value="${deployconfigid}"/>
+                <j:arg type="java.lang.String" value="${deployoutfile}"/>
+                <j:arg type="java.lang.String" value="${deployurl}"/>
+            </j:invokeStatic>
+        </define:tag>
+    </define:taglib>
+
+</project>

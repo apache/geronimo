@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Revision: 1.1 $ $Date: 2004/01/24 19:50:04 $ -->
+
+<project default="default"
+    xmlns:j="jelly:core"
+    xmlns:u="jelly:util"
+    xmlns:ant="jelly:ant"
+    xmlns:maven="jelly:maven"
+    xmlns:define="jelly:define"
+    xmlns:deploy="geronimo:deploy">
+
+    <!-- ================= -->
+    <!-- Global Properties -->
+    <!-- ================= -->
+
+    <!-- Determine what the top-level project root is -->
+    <j:set var="project.root" value="${pom.parentBasedir().getParentFile().getCanonicalFile()}"/>
+
+    <!-- Load the global properties -->
+    <ant:property file="${project.root}/etc/global.properties"/>
+
+
+    <!-- ==================== -->
+    <!-- Default Global Goals -->
+    <!-- ==================== -->
+
+    <goal name="default">
+        <attainGoal name="plugin:install"/>
+    </goal>
+
+    <goal name="build">
+        <attainGoal name="default"/>
+    </goal>
+
+    <goal name="rebuild">
+        <attainGoal name="clean"/>
+        <attainGoal name="build"/>
+    </goal>
+
+
+</project>

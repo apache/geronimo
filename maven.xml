@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.55 $ $Date: 2004/01/22 01:37:44 $ -->
+<!-- $Revision: 1.56 $ $Date: 2004/01/24 19:50:04 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -8,11 +8,20 @@
     xmlns:ant="jelly:ant"
     xmlns:maven="jelly:maven"
     xmlns:define="jelly:define"
+    xmlns:deploy="geronimo:deploy"
     xmlns:aggregate="local:aggregate"
     xmlns:modules="local:modules">
 
     <j:set var="release.id" value="${pom.standardToLegacyId(pom.id)}-${pom.currentVersion}"/>
 
+    <goal name="deploy:test">
+        <ant:echo message="in deploy:test"/>
+        <deploy:deploy
+            deployconfigid="org/apache/geronimo/Default"
+            deployoutfile="target/Test.car"
+            deployurl="geronimo-service.xml"/>
+        <ant:echo message="did deploy:test"/>
+    </goal>
     <!-- ======= -->
     <!-- Modules -->
     <!-- ======= -->
@@ -670,12 +679,13 @@
                           <include name="concurrent-1.3.2.jar"/>
                     </fileset>
                     <!-- connector openjca loading test -->
-                    <fileset dir="${maven.repo.local}/openejb-jca/jars">
+                    <!-- uncomment if you want to load this connector.  Also set the path in bootstrapped-service.xml-->
+                    <!--fileset dir="${maven.repo.local}/openejb-jca/jars">
                           <include name="openejb-jca-DEV.jar"/>
                     </fileset>
                     <fileset dir="${maven.repo.local}/hsqldb/jars">
                           <include name="hsqldb-1.7.1.jar"/>
-                    </fileset>
+                    </fileset-->
                     <!-- WebDAV, not required for boot. To be fixed.-->
                     <fileset dir="${maven.repo.local}/tomcat/jars">
                           <include name="catalina-5.0.16.jar"/>
@@ -765,12 +775,13 @@
                           <include name="concurrent-1.3.2.jar"/>
                     </fileset>
                     <!-- connector openjca loading test -->
-                    <fileset dir="${maven.repo.local}/openejb-jca/jars">
+                    <!-- uncomment if you want to load this connector.  Also set the path in bootstrapped-service.xml-->
+                    <!--fileset dir="${maven.repo.local}/openejb-jca/jars">
                           <include name="openejb-jca-DEV.jar"/>
                     </fileset>
                     <fileset dir="${maven.repo.local}/hsqldb/jars">
                           <include name="hsqldb-1.7.1.jar"/>
-                    </fileset>
+                    </fileset-->
                     <!-- WebDAV, not required for boot. To be fixed.-->
                     <fileset dir="${maven.repo.local}/tomcat/jars">
                           <include name="catalina-5.0.16.jar"/>
