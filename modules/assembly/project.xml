@@ -330,6 +330,15 @@
         </dependency>
 
         <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-webservices</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
             <groupId>howl</groupId>
             <artifactId>howl-logger</artifactId>
             <version>${howl_version}</version>
@@ -711,7 +720,7 @@
                 <!--server and client should not be needed, but there are problems ATM removing them -->
                 <!--client is needed for the QName implementation for deserializing axis objects-->
                 <server>true</server>
-                <client>true</client>
+<!--                <client>true</client>-->
                 <repository>true</repository>
             </properties>
         </dependency>
