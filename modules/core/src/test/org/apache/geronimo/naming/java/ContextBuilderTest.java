@@ -77,7 +77,7 @@ import org.apache.geronimo.transaction.manager.UserTransactionImpl;
 /**
  *
  *
- * @version $Revision: 1.10 $ $Date: 2003/11/17 07:33:51 $
+ * @version $Revision: 1.11 $ $Date: 2003/12/30 08:28:57 $
  */
 public class ContextBuilderTest extends TestCase {
     protected static final String objectName1 = "geronimo.test:name=test1";
@@ -166,7 +166,7 @@ public class ContextBuilderTest extends TestCase {
             // OK
         }
 
-        UserTransaction userTransaction = new UserTransactionImpl(null);
+        UserTransaction userTransaction = new UserTransactionImpl();
         compCtx = new ComponentContextBuilder(referenceFactory, userTransaction).buildContext(client);
         assertEquals(userTransaction, compCtx.lookup("UserTransaction"));
     }

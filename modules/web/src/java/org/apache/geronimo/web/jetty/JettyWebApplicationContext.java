@@ -56,26 +56,23 @@
 package org.apache.geronimo.web.jetty;
 
 import javax.naming.Context;
+import javax.security.jacc.PolicyContext;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.java.RootContext;
-
 import org.mortbay.http.HttpRequest;
 import org.mortbay.http.HttpResponse;
 import org.mortbay.jetty.servlet.WebApplicationContext;
 
-import javax.management.MBeanServer;
-import javax.security.jacc.PolicyContext;
-
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/12/28 19:38:19 $
+ * @version $Revision: 1.5 $ $Date: 2003/12/30 08:28:58 $
  */
 public class JettyWebApplicationContext extends WebApplicationContext {
     private Context componentContext;
-    private MBeanServer server;
     private String contextID;
     private Log log = LogFactory.getLog(JettyWebApplicationContext.class);
 
@@ -106,14 +103,6 @@ public class JettyWebApplicationContext extends WebApplicationContext {
 
     public void setComponentContext(Context componentContext) {
         this.componentContext = componentContext;
-    }
-
-    public MBeanServer getServer() {
-        return server;
-    }
-
-    public void setServer(MBeanServer server) {
-        this.server = server;
     }
 
     public String getContextID() {

@@ -69,9 +69,9 @@ import org.apache.geronimo.web.WebContainer;
 /* -------------------------------------------------------------------------------------- */
 /**
  * RemoveWebApplication
- * 
- * 
- * @version $Revision: 1.1 $ $Date: 2003/10/05 01:39:48 $
+ *
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/12/30 08:28:58 $
  */
 public class RemoveWebApplication implements DeploymentTask
 {
@@ -86,8 +86,8 @@ public class RemoveWebApplication implements DeploymentTask
         this.container = container;
         this.webapp = webapp;
     }
-    
-    
+
+
     /* -------------------------------------------------------------------------------------- */
     /* Check if it is ok to remove the webapp from the container
      * @return
@@ -96,23 +96,23 @@ public class RemoveWebApplication implements DeploymentTask
      */
     public boolean canRun() throws DeploymentException
     {
-        
+
         if (container == null)
         {
             log.debug ("Container==null");
             return false;
         }
-            
-            
+
+
         if (webapp == null)
         {
             log.debug ("webapp==null");
             return false;
         }
-            
-        
-        log.debug ("RemoveWebApplication task can run");    
-        return true;    
+
+
+        log.debug ("RemoveWebApplication task can run");
+        return true;
     }
 
     /* -------------------------------------------------------------------------------------- */
@@ -125,7 +125,7 @@ public class RemoveWebApplication implements DeploymentTask
         try
         {
             log.debug ("Performing removal of webapp");
-            container.removeComponent(webapp);               
+            //container.removeComponent(webapp);
         }
         catch (Exception e)
         {
@@ -146,7 +146,7 @@ public class RemoveWebApplication implements DeploymentTask
         try
         {
             log.info ("Undo called on remove web app");
-            container.addComponent(webapp);
+            //container.addComponent(webapp);
         }
         catch (Exception e)
         {

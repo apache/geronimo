@@ -56,63 +56,34 @@
 
 package org.apache.geronimo.web.jetty;
 
-import java.net.URI;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.kernel.management.StateManageable;
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.web.AbstractWebContainer;
 import org.apache.geronimo.web.WebApplication;
 import org.apache.geronimo.web.WebConnector;
 import org.mortbay.jetty.Server;
+import org.mortbay.jetty.servlet.WebApplicationContext;
 
 /**
  * Base class for jetty web containers.
- * @jmx:mbean extends="org.apache.geronimo.web.AbstractWebContainerMBean"
  *
  *
- * @version $Revision: 1.9 $ $Date: 2003/12/07 03:42:50 $
+ * @version $Revision: 1.10 $ $Date: 2003/12/30 08:28:58 $
  */
-public class JettyWebContainer extends AbstractWebContainer implements JettyWebContainerMBean {
-  
-    private final Log _log = LogFactory.getLog(JettyWebContainer.class);
+public class JettyWebContainer extends AbstractWebContainer {
 
-    private Server _jettyServer = null;
+    private final Log log = LogFactory.getLog(JettyWebContainer.class);
+
+    private final Server jettyServer;
 
 
-    public JettyWebContainer ()
+    public JettyWebContainer() throws Exception
     {
-        _jettyServer = new Server();
+        jettyServer = new Server();
+        jettyServer.start();
     }
-
-
-    /**
-     * Start the Jetty server
-     *
-     * @exception Exception if an error occurs
-     */
-    public void doStart() throws Exception
-    {
-        try
-        {
-            _log.debug ("Jetty Server starting");
-            
-            _jettyServer.start();
-
-            _log.debug ("Jetty Server started");
-        }
-        catch (Exception e)
-        {
-            _log.error ("Exception in doStart()", e);
-        }
-    }
-
- 
-    public WebApplication createWebApplication (URI uri)
-    { 
-        return new JettyWebApplication(uri);   
-    }
-
- 
 
     /**
      * Get the Jetty server delegate
@@ -121,11 +92,11 @@ public class JettyWebContainer extends AbstractWebContainer implements JettyWebC
      */
     Server getJettyServer ()
     {
-        return _jettyServer;
+        return jettyServer;
     }
 
 
-    
+
     /**
      * Handle addition of a web connector.
      *
@@ -133,8 +104,9 @@ public class JettyWebContainer extends AbstractWebContainer implements JettyWebC
      */
     protected void webConnectorAdded(WebConnector connector)
     {
-        _log.debug ("Web connector="+connector.getObjectName()+" added");
-        super.webConnectorAdded(connector);
+        JettyWebConnector jettyWebConnector = (JettyWebConnector)connector;
+        jettyServer.addListener(jettyWebConnector.getListener());
+        log.debug ("Web connector="+connector+" added");
     }
 
 
@@ -155,11 +127,11 @@ public class JettyWebContainer extends AbstractWebContainer implements JettyWebC
         }
         catch (Exception e)
         {
-            _log.warn("Ignoring exception on stopping connector", e);
+            log.warn("Ignoring exception on stopping connector", e);
         }
 
         //remove the listener
-        _jettyServer.removeListener (((JettyWebConnector)connector).getListener());
+        jettyServer.removeListener (((JettyWebConnector)connector).getListener());
     }
 
 
@@ -171,22 +143,42 @@ public class JettyWebContainer extends AbstractWebContainer implements JettyWebC
      */
     protected void webApplicationAdded (WebApplication webapp)
     {
-        _log.debug ("Web application="+webapp.getObjectName()+" added to Jetty");
-        _jettyServer.addContext (((JettyWebApplication)webapp).getJettyContext());
-        ((JettyWebApplication)webapp).getJettyContext().setExtractWAR(true);
-        super.webApplicationAdded (webapp);
+        log.debug ("Web application="+webapp+" added to Jetty");
+        JettyWebApplication jettyWebApplication = (JettyWebApplication)webapp;
+        WebApplicationContext webApplicationContext = jettyWebApplication.getJettyContext();
+        jettyServer.addContext(webApplicationContext);
+        //TODO Why isn't this done in JettyWebApplication or JettyWebApplicationContext?
+        webApplicationContext.setExtractWAR(true);
+
+        webApplicationContext.setDefaultsDescriptor(getDefaultWebXmlURI() == null? null: getDefaultWebXmlURI().toString());
+        try {
+            webApplicationContext.start();
+        } catch (Exception e) {
+            throw new RuntimeException("Could not start jetty context", e);
+        }
+        log.debug("web application " + webapp + " file classpath:" + webApplicationContext.getFileClassPath());
     }
-    
-    
+
+
     /* -------------------------------------------------------------------------------------- */
-    /**Remove a web app from the underlying Jetty delegate. 
+    /**Remove a web app from the underlying Jetty delegate.
      * Called when the web app's war or dir is undeployed.
      * @param webapp
      */
     protected void webApplicationRemoval (WebApplication webapp)
     {
-        _log.debug ("Web application="+webapp.getObjectName()+" removed from Jetty");
-        _jettyServer.removeContext (((JettyWebApplication)webapp).getJettyContext());
-        super.webApplicationRemoval (webapp);
+        log.debug ("Web application="+webapp+" removed from Jetty");
+        JettyWebApplication jettyWebApplication = (JettyWebApplication)webapp;
+        WebApplicationContext webApplicationContext = jettyWebApplication.getJettyContext();
+        try {
+            webApplicationContext.stop();
+        } catch (InterruptedException e) {
+            throw new RuntimeException("could not stop jetty context", e);
+        }
+        jettyServer.removeContext (((JettyWebApplication)webapp).getJettyContext());
+    }
+
+    public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
+        return AbstractWebContainer.getGeronimoMBeanInfo(JettyWebContainer.class, "Jetty", JettyWebApplication.class, JettyWebConnector.class, JettyWebAccessLog.class);
     }
 }

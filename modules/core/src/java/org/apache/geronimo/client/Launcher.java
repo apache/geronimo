@@ -68,6 +68,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
+
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
@@ -79,7 +80,6 @@ import javax.management.ObjectName;
 import javax.management.ReflectionException;
 import javax.management.ServiceNotFoundException;
 import javax.transaction.TransactionManager;
-import javax.transaction.UserTransaction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -102,7 +102,7 @@ import org.apache.geronimo.xml.deployment.LoaderUtil;
 /**
  * Launcher for J2EE Application Clients.
  *
- * @version $Revision: 1.9 $ $Date: 2003/11/13 04:30:56 $
+ * @version $Revision: 1.10 $ $Date: 2003/12/30 08:28:57 $
  */
 public class Launcher {
     static {
@@ -206,7 +206,12 @@ public class Launcher {
 
         String mainClassName = getMainClassName();
 
-        UserTransaction userTransaction = txnManager == null ? null : new UserTransactionImpl(txnManager);
+        UserTransactionImpl userTransaction = null;
+        if (txnManager != null) {
+            userTransaction = new UserTransactionImpl();
+            userTransaction.setTransactionManager(txnManager);
+            userTransaction.setTrackedConnectionAssociator(null);//probably needs to be a real one or a dummy?
+        }
         ApplicationClient appClient = loadAppClientDescriptor();
         ReferenceFactory referenceFactory = new JMXReferenceFactory(kernel.getMBeanServerId());
 

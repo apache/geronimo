@@ -53,82 +53,33 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.transaction.manager;
 
-import javax.transaction.HeuristicMixedException;
-import javax.transaction.HeuristicRollbackException;
-import javax.transaction.NotSupportedException;
-import javax.transaction.RollbackException;
-import javax.transaction.SystemException;
-import javax.transaction.TransactionManager;
-import javax.transaction.UserTransaction;
+package org.apache.geronimo.web;
 
-import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
+import java.net.URI;
+
+import javax.naming.Context;
+
+import org.apache.geronimo.deployment.model.geronimo.web.GeronimoWebAppDocument;
+import org.apache.geronimo.deployment.model.web.WebApp;
+import org.apache.geronimo.transaction.manager.UserTransactionImpl;
 
 /**
- * TODO this needs to migrate to using TransactionContext.
- * TODO this needs to notify the TrackedConnectionAssociator when a tx starts.
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/12/30 08:28:57 $
- */
-public class UserTransactionImpl implements UserTransaction {
-    private TransactionManager transactionManager;
-    private TrackedConnectionAssociator trackedConnectionAssociator;
+ * @version $Revision: 1.1 $ $Date: 2003/12/30 08:28:57 $
+ *
+ * */
+public class WebApplicationContext {
 
-    public UserTransactionImpl() {
-    }
-
-    public TransactionManager getTransactionManager() {
-        return transactionManager;
-    }
-
-    public void setTransactionManager(TransactionManager transactionManager) {
-        this.transactionManager = transactionManager;
-    }
-
-    public TrackedConnectionAssociator getTrackedConnectionAssociator() {
-        return trackedConnectionAssociator;
-    }
-
-    public void setTrackedConnectionAssociator(TrackedConnectionAssociator trackedConnectionAssociator) {
-        this.trackedConnectionAssociator = trackedConnectionAssociator;
-    }
-
-    public void begin() throws NotSupportedException, SystemException {
-        checkState();
-        transactionManager.begin();
-    }
-
-    public void commit() throws HeuristicMixedException, HeuristicRollbackException, IllegalStateException, RollbackException, SecurityException, SystemException {
-        checkState();
-        transactionManager.commit();
-    }
-
-    public int getStatus() throws SystemException {
-        checkState();
-        return transactionManager.getStatus();
-    }
-
-    public void rollback() throws IllegalStateException, SecurityException, SystemException {
-        checkState();
-        transactionManager.rollback();
-    }
-
-    public void setRollbackOnly() throws IllegalStateException, SystemException {
-        checkState();
-        transactionManager.setRollbackOnly();
-    }
-
-    public void setTransactionTimeout(int timeout) throws SystemException {
-        checkState();
-        transactionManager.setTransactionTimeout(timeout);
-    }
-
-    private void checkState() {
-        if (transactionManager == null || trackedConnectionAssociator == null) {
-            throw new IllegalStateException("UserTransaction is disabled");
-        }
-    }
-
+    public URI uri;
+    public ClassLoader classLoader;
+    public ClassLoader parentClassLoader;
+    public WebApp webApp;
+    public GeronimoWebAppDocument geronimoWebAppDoc;
+    public String contextPath;
+    public Context context;
+    public UserTransactionImpl userTransaction;
+    //not set in deployment planner
+    public boolean java2ClassLoadingCompliance;
 }

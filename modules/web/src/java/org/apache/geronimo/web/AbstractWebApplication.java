@@ -57,20 +57,19 @@
 package org.apache.geronimo.web;
 
 
-import java.io.StringWriter;
 import java.net.URI;
 
+import javax.management.ObjectName;
 import javax.naming.Context;
+import javax.transaction.TransactionManager;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.core.service.AbstractManagedComponent;
-import org.apache.geronimo.core.service.Container;
+import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.apache.geronimo.deployment.model.geronimo.web.GeronimoWebAppDocument;
 import org.apache.geronimo.deployment.model.web.Servlet;
 import org.apache.geronimo.deployment.model.web.WebApp;
-import org.apache.geronimo.xml.deployment.WebAppLoader;
-import org.apache.geronimo.xml.deployment.StorerUtil;
+import org.apache.geronimo.kernel.service.GeronimoMBeanEndpoint;
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.transaction.manager.UserTransactionImpl;
 import org.w3c.dom.Document;
 
 
@@ -80,21 +79,18 @@ import org.w3c.dom.Document;
  * Instances are created by a deployer. The deployer finds the
  * WebContainer and associates it with the WebApplication.
  *
- * @jmx:mbean extends="org.apache.geronimo.web.WebApplication, org.apache.geronimo.kernel.management.ManagedObject, org.apache.geronimo.kernel.management.StateManageable, javax.management.MBeanRegistration"
- * @version $Revision: 1.11 $ $Date: 2003/12/28 19:38:19 $
+ * @version $Revision: 1.12 $ $Date: 2003/12/30 08:28:57 $
  */
-public abstract class AbstractWebApplication extends AbstractManagedComponent implements WebApplication {
-
-    private final static Log log = LogFactory.getLog(AbstractWebApplication.class);
+public abstract class AbstractWebApplication implements WebApplication {
 
     //uri of the webapp
     protected final URI uri;
 
     // pojo for web.xml
-    protected WebApp webDDObj;
+    protected WebApp webApp;
 
     // pojo for geronimo-web.xml
-    protected GeronimoWebAppDocument geronimoDDObj;
+    protected GeronimoWebAppDocument geronimoWebAppDoc;
 
     // parsed web.xml
     protected Document deploymentDescriptorDoc;
@@ -112,53 +108,36 @@ public abstract class AbstractWebApplication extends AbstractManagedComponent im
     protected String contextPath;
 
     //class loading delegation model. Default to web-app scope
-    private boolean java2ClassloadingCompliance = false;
+    private boolean java2ClassloadingCompliance;
+    private ClassLoader parentClassLoader;
+    private UserTransactionImpl userTransaction;
 
-
-
-    /**
-     * Creates a new <code>AbstractWebApplication</code> instance.
-     *
-     */
-    public AbstractWebApplication() {
-        uri = null;
+    public AbstractWebApplication(WebApplicationContext webApplicationContext) {
+        uri = webApplicationContext.uri;
+        parentClassLoader = webApplicationContext.parentClassLoader;
+        webApp = webApplicationContext.webApp;
+        geronimoWebAppDoc = webApplicationContext.geronimoWebAppDoc;
+        contextPath = webApplicationContext.contextPath;
+        context = webApplicationContext.context;
+        userTransaction = webApplicationContext.userTransaction;
+        java2ClassloadingCompliance = webApplicationContext.java2ClassLoadingCompliance;
     }
 
-
-    /**
-     * Creates a new <code>AbstractWebApplication</code> instance.
-     *
-     * @param uri uri of the webapp
-     */
-    public AbstractWebApplication(URI uri) {
-        this.uri = uri;
+    public TransactionManager getTransactionManager() {
+        return userTransaction.getTransactionManager();
     }
 
-
-
-
-
-    /**
-     * Start the webapp. Called by the container or management interface
-     * @throws Exception
-     * @throws IllegalStateException
-     */
-    public void doStart() throws Exception {
-
+    public void setTransactionManager(TransactionManager transactionManager) {
+        userTransaction.setTransactionManager(transactionManager);
     }
 
-
-    /**
-     * Stop the webapp. Called by the container, or by mangement
-     * interface
-     */
-    public void doStop() throws Exception {
+    public TrackedConnectionAssociator getTrackedConnectionAssociator() {
+        return userTransaction.getTrackedConnectionAssociator();
     }
 
-
-
-
-
+    public void setTrackedConnectionAssociator(TrackedConnectionAssociator trackedConnectionAssociator) {
+        userTransaction.setTrackedConnectionAssociator(trackedConnectionAssociator);
+    }
 
     /** Get the URI of this webapp
      * @return the URI of the webapp
@@ -168,92 +147,15 @@ public abstract class AbstractWebApplication extends AbstractManagedComponent im
         return uri;
     }
 
-
-
-
     /**
-     * Setter for classloading compliance. If true, then classloading will
+     * Getter for classloading compliance. If true, then classloading will
      * delegate first to parent classloader a la Java2 spec. If false, then
      * webapps wanting to load class will try their own context class loader first.
-     * @param state
-     */
-    public void setJava2ClassloadingCompliance(boolean state) {
-        java2ClassloadingCompliance = state;
-    }
-
-
-    /**
-     * Getter for classloading compliance.
-     * @return truen if application is using Java 2 compliant class loading
+     * @return true if application is using Java 2 compliant class loading
      */
     public boolean getJava2ClassloadingCompliance() {
         return java2ClassloadingCompliance;
     }
-
-
-
-    /** Set the container to which this webapp belongs.
-     * In turn, we add ourselves as a component to that container.
-     * @param container
-     * @see org.apache.geronimo.core.service.Component#setContainer(org.apache.geronimo.core.service.Container)
-     */
-    public void setContainer (Container container) {
-        super.setContainer(container);
-        container.addComponent (this);
-    }
-
-
-     /** JSR077
-      * Return the list of Servlets of this webapp
-      * @return
-      * @see org.apache.geronimo.web.WebApplication#getServlets()
-      */
-     public String[] getServlets() {
-        if (servlets == null) {
-            if (webDDObj == null)
-                return null;
-
-           Servlet[] servletObjs = webDDObj.getServlet();
-           servlets = new String[servletObjs.length];
-           for (int i=0; i<servletObjs.length; i++) {
-               servlets[i] = servletObjs[i].getServletName();
-           }
-        }
-
-        return servlets;
-     }
-
-
-     /** JSR077
-      * TODO: This method should be able to be implemented based on the pojos.
-      *  Need a method to get from pojo->xml->string
-      * @return web.xml as a string
-      * @see org.apache.geronimo.web.WebApplication#getDeploymentDescriptor()
-      */
-     public abstract String getDeploymentDescriptor();
-
-
-
-
-    /**JSR077
-     * @return ObjectName(s) as string of JVM(s) on which this webapp is deployed
-     * @see org.apache.geronimo.kernel.management.J2EEModule#getJavaVMs()
-     */
-    public String[] getJavaVMs() {
-        // TODO
-        return null;
-    }
-
-
-    /** JSR077
-     * @return ObjectName as string of Geronimo server  on which this webapp is deployed
-     * @see org.apache.geronimo.kernel.management.J2EEDeployedObject#getServer()
-     */
-    public String getServer() {
-        // TODO
-        return null;
-    }
-
 
 
     /*
@@ -264,15 +166,6 @@ public abstract class AbstractWebApplication extends AbstractManagedComponent im
         return context;
     }
 
-
-    /*
-     * @param context
-     * @see org.apache.geronimo.web.WebApplication#setComponentContext(javax.naming.Context)
-     */
-    public void setComponentContext(Context context) {
-        this.context = context;
-    }
-
     /*
      * @return
      * @see org.apache.geronimo.web.WebApplication#getContextPath()
@@ -281,70 +174,91 @@ public abstract class AbstractWebApplication extends AbstractManagedComponent im
         return contextPath;
     }
 
-
-    /*
-     * @param path
-     * @see org.apache.geronimo.web.WebApplication#setContextPath(java.lang.String)
-     */
-    public void setContextPath(String path) {
-        contextPath = path;
-    }
-
-
     /*
      * @return
      * @see org.apache.geronimo.web.WebApplication#getParentClassLoader()
      */
     public ClassLoader getParentClassLoader() {
-        // TODO
-        return null;
+        return parentClassLoader;
     }
-
-
-
-
-
-
-    /*
-     * @param loader
-     * @see org.apache.geronimo.web.WebApplication#setParentClassLoader(java.lang.ClassLoader)
-     */
-    public void setParentClassLoader(ClassLoader loader) {
-
-    }
-
-
-
-
-    /*
-     *
-     * @see org.apache.geronimo.web.WebApplication#setGeronimoDDObj()
-     */
-    public void setGeronimoDDObj(GeronimoWebAppDocument geronimoDDObj) {
-        this.geronimoDDObj = geronimoDDObj;
-    }
-
 
     /*
      * @return
      * @see org.apache.geronimo.web.WebApplication#getGeronimoDDObj()
      */
-    public GeronimoWebAppDocument getGeronimoDDObj() {
-        return geronimoDDObj;
+    public GeronimoWebAppDocument getGeronimoWebAppDoc() {
+        return geronimoWebAppDoc;
     }
 
-    /*
-     * @param webDDObj
-     * @see org.apache.geronimo.web.WebApplication#setWebDDObj(org.apache.geronimo.deployment.model.web.WebApp)
+    public WebApp getWebApp () {
+        return webApp;
+    }
+    //computed info:
+
+    /** JSR077
+     * Return the list of Servlets of this webapp
+     * @return
+     * @see org.apache.geronimo.web.WebApplication#getServlets()
      */
-    public void setWebDDObj(WebApp webDDObj) {
-        this.webDDObj = webDDObj;
+    public String[] getServlets() {
+       if (servlets == null) {
+           if (webApp == null)
+               return null;
+
+          Servlet[] servletObjs = webApp.getServlet();
+          servlets = new String[servletObjs.length];
+          for (int i=0; i<servletObjs.length; i++) {
+              servlets[i] = servletObjs[i].getServletName();
+          }
+       }
+
+       return servlets;
     }
 
-    public WebApp getWebDDObj () {
-        return webDDObj;
+    /** JSR077
+     * TODO: This method should be able to be implemented based on the pojos.
+     *  Need a method to get from pojo->xml->string
+     * @return web.xml as a string
+     * @see org.apache.geronimo.web.WebApplication#getDeploymentDescriptor()
+     */
+    public abstract String getDeploymentDescriptor();
+
+   /**JSR077
+    * @return ObjectName(s) as string of JVM(s) on which this webapp is deployed
+    * @see org.apache.geronimo.kernel.management.J2EEModule#getJavaVMs()
+    */
+   public String[] getJavaVMs() {
+       // TODO
+       return null;
+   }
+
+
+   /** JSR077
+    * @return ObjectName as string of Geronimo server  on which this webapp is deployed
+    * @see org.apache.geronimo.kernel.management.J2EEDeployedObject#getServer()
+    */
+   public String getServer() {
+       // TODO
+       return null;
+   }
+
+    public static GeronimoMBeanInfo getGeronimoMBeanInfo(String containerName) throws Exception {
+        GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
+        //should do this individually with comments
+        mbeanInfo.addOperationsDeclaredIn(WebApplication.class);
+            mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("WebContainer",
+                    AbstractWebContainer.class.getName(),
+                    ObjectName.getInstance(AbstractWebContainer.BASE_WEB_CONTAINER_NAME + AbstractWebContainer.CONTAINER_CLAUSE + containerName),
+                    true));
+            mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("TransactionManager",
+                    TransactionManager.class.getName(),
+                    ObjectName.getInstance("geronimo.transaction:role=TransactionManager"),
+                    true));
+            mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("TrackedConnectionAssociator",
+                    TrackedConnectionAssociator.class.getName(),
+                    ObjectName.getInstance("geronimo.connector:role=ConnectionTrackingCoordinator"),
+                    true));
+        return mbeanInfo;
     }
-
-
 
 }

@@ -57,32 +57,33 @@ package org.apache.geronimo.web;
 
 import java.net.URI;
 
-import org.apache.geronimo.core.service.Component;
-import org.apache.geronimo.deployment.model.web.WebApp;
-import org.apache.geronimo.deployment.model.geronimo.web.GeronimoWebAppDocument;
-import org.apache.geronimo.kernel.management.WebModule;
 import javax.naming.Context;
-import org.w3c.dom.Document;
+
+import org.apache.geronimo.deployment.model.geronimo.web.GeronimoWebAppDocument;
 
 /**
  * The WebApplication interface represents a web application deployable within a WebContainer.
  *
  * It supports the J2EE Management WebModule attributes
  *
- * @version  $Revision: 1.13 $ $Date: 2003/11/20 09:10:17 $
+ * @version  $Revision: 1.14 $ $Date: 2003/12/30 08:28:57 $
  */
-public interface WebApplication extends Component, WebModule {
+public interface WebApplication {
+    //extends WebModule {
+
+    //FROM WebModule without the ManagedObject cruft that GeronimoMBean takes care of.
+    /**
+     * Gets the list of servlets contained in the deployed WAR module.
+     *
+     * @return the object names of the servlets defined by the WAR module
+     */
+    String[] getServlets();
+
     /**
      * Get the uri of the webapp
      * @return the URI of the webapp deployment
      */
     public URI getURI();
-
-    /**
-     * Setter for the parent classloader for this webapp
-     * @param loader
-     */
-    public void setParentClassLoader(ClassLoader loader);
 
     /**
      * Getter for the parent classloader for this webapp
@@ -100,7 +101,7 @@ public interface WebApplication extends Component, WebModule {
      * Set the context path for the webapp
      * @param path the context path of the web application
      */
-    public void setContextPath(String path);
+    //public void setContextPath(String path);
 
     /**
      * JSR077 WebModule method to expose the
@@ -108,23 +109,10 @@ public interface WebApplication extends Component, WebModule {
      * @return the contents of the web.xml as a string
      */
     public String getDeploymentDescriptor();
-    
-    
-    /** Configure the pojo for the web.xml
-     * @param webDDObj
-     */
-    public void setWebDDObj (WebApp webDDObj);
-    
-    //public WebApp getWebDDObj ();
-    
 
-    /** Configure the pojo for the geronimo-web.xml
-     * @param geronimoDDObj
-     */
-    public void setGeronimoDDObj (GeronimoWebAppDocument geronimoDDObj);
-    
-    public GeronimoWebAppDocument getGeronimoDDObj();
-    
+
+    public GeronimoWebAppDocument getGeronimoWebAppDoc();
+
 
     /**
      * Getter for the class loader delegation model for this webapp
@@ -132,11 +120,6 @@ public interface WebApplication extends Component, WebModule {
      */
     public boolean getJava2ClassloadingCompliance();
 
-    /**
-     * Set the class loading delegation model for this web application
-     * @param state
-     */
-    public void setJava2ClassloadingCompliance(boolean state);
 
     /**
      * Gets the JNDI context for the web application.
@@ -144,9 +127,4 @@ public interface WebApplication extends Component, WebModule {
      */
     public Context getComponentContext();
 
-    /**
-     * Sets the JNDI context for the web application.
-     * @param context the jndi context
-     */
-    public void setComponentContext(Context context);
 }

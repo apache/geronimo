@@ -6,13 +6,13 @@ import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URL;
 
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-import javax.naming.Context;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
+import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
 import org.apache.geronimo.web.AbstractWebApplication;
+import org.apache.geronimo.web.AbstractWebContainer;
 import org.apache.geronimo.web.WebContainer;
 import org.mortbay.jetty.servlet.WebApplicationContext;
 
@@ -23,57 +23,37 @@ import org.mortbay.jetty.servlet.WebApplicationContext;
  *
  * Created: Sun Sep 14 16:40:17 2003
  *
- * @jmx:mbean extends="org.apache.geronimo.web.AbstractWebApplicationMBean
- * @version $Revision: 1.8 $ $Date: 2003/12/28 19:38:19 $
+ * @version $Revision: 1.9 $ $Date: 2003/12/30 08:28:58 $
  */
-public class JettyWebApplication extends AbstractWebApplication implements JettyWebApplicationMBean {
-    private JettyWebApplicationContext jettyContext;
-    private final Log log = LogFactory.getLog(getClass());
+public class JettyWebApplication extends AbstractWebApplication {
 
+    private static String CONTAINER_NAME = "Jetty";
+
+    private JettyWebApplicationContext jettyContext;
+    private static final Log log = LogFactory.getLog(JettyWebApplication.class);
+    private AbstractWebContainer webContainer;
 
     public JettyWebApplication() {
-        super();
-        jettyContext = new JettyWebApplicationContext();
+        super(new org.apache.geronimo.web.WebApplicationContext());
+    }
 
-        try {
-            objectName = new ObjectName("jetty:role=WebApplication, instance=" + hashCode());
-        } catch (Exception e) {
-            log.warn(e.getMessage());
+    public JettyWebApplication(org.apache.geronimo.web.WebApplicationContext webApplicationContext) {
+        super(webApplicationContext);
+        URI uri = webApplicationContext.uri;
+
+        if (uri == null) {
+            jettyContext = new JettyWebApplicationContext();
+        } else {
+            jettyContext = new JettyWebApplicationContext(uri.toString());
         }
+        //we could perhaps use geronimo classloading
+        //jettyContext.setClassLoader(webApplicationContext.classLoader);
+        jettyContext.setParentClassLoader(webApplicationContext.parentClassLoader);
+        jettyContext.setContextPath(webApplicationContext.contextPath);
+        jettyContext.setClassLoaderJava2Compliant(webApplicationContext.java2ClassLoadingCompliance);
+        jettyContext.setComponentContext(webApplicationContext.context);
+
     }
-
-    public JettyWebApplication(URI uri) {
-        super(uri);
-        jettyContext = new JettyWebApplicationContext(uri.toString());
-
-        try {
-            objectName = new ObjectName("jetty:role=WebApplication, uri=" + ObjectName.quote(uri.toString()));
-        } catch (Exception e) {
-            throw new IllegalStateException(e.getMessage());
-        }
-    }
-
-    public ObjectName preRegister(MBeanServer server, ObjectName objectName) throws Exception {
-        jettyContext.setServer(server);
-        return super.preRegister(server, objectName);
-    }
-
-    public void setParentClassLoader(ClassLoader loader) {
-        jettyContext.setParentClassLoader(loader);
-    }
-
-    public ClassLoader getParentClassLoader() {
-        return jettyContext.getParentClassLoader();
-    }
-
-    public void setContextPath(String path) {
-        jettyContext.setContextPath(path);
-    }
-
-    public String getContextPath() {
-        return jettyContext.getContextPath();
-    }
-
 
     /* Hacky implementation of getting the web.xm as a String.
      * This should be handled by converting pojo->xml->string
@@ -116,40 +96,22 @@ public class JettyWebApplication extends AbstractWebApplication implements Jetty
         }
     }
 
-    public boolean getJava2ClassloadingCompliance() {
-        return jettyContext.isClassLoaderJava2Compliant();
-    }
-
-    public void setJava2ClassloadingCompliance(boolean state) {
-        jettyContext.setClassLoaderJava2Compliant(state);
-    }
-
-    WebApplicationContext getJettyContext() {
+    public WebApplicationContext getJettyContext() {
         return jettyContext;
     }
 
-    public Context getComponentContext() {
-        return jettyContext.getComponentContext();
+    public void setWebContainer(WebContainer webContainer) {
+        this.webContainer = (AbstractWebContainer) webContainer;
     }
 
-    public void setComponentContext(Context context) {
-        jettyContext.setComponentContext(context);
+    public WebContainer getWebContainer() {
+        return webContainer;
     }
 
-    public void doStart() throws Exception {
-        super.doStart();
-        String defaultDescriptor = null;
-        URI defaultDescriptorURI = ((WebContainer) getContainer()).getDefaultWebXmlURI();
-        if (defaultDescriptorURI != null)
-            defaultDescriptor = defaultDescriptorURI.toString();
-        jettyContext.setDefaultsDescriptor(defaultDescriptor);
-        jettyContext.start();
-
-        log.debug(jettyContext.getFileClassPath());
-    }
-
-    public void doStop() throws Exception {
-        super.doStop();
-        jettyContext.stop();
+    public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
+        GeronimoMBeanInfo mbeanInfo = AbstractWebApplication.getGeronimoMBeanInfo(CONTAINER_NAME);
+        mbeanInfo.setTargetClass(JettyWebApplication.class.getName());
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("getJettyContext", new GeronimoParameterInfo[] {}, GeronimoOperationInfo.INFO, "Retrieve the internal JettyContext"));
+        return mbeanInfo;
     }
 }

@@ -60,46 +60,26 @@ import java.lang.reflect.Constructor;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.core.service.Container;
-import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
+import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
+import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
 import org.apache.geronimo.web.AbstractWebConnector;
 import org.mortbay.http.HttpListener;
 import org.mortbay.http.SocketListener;
 import org.mortbay.http.SunJsseListener;
 import org.mortbay.http.ajp.AJP13Listener;
-import org.mortbay.jetty.Server;
 import org.mortbay.util.ThreadedServer;
 
 /**
- * @jmx:mbean extends="org.apache.geronimo.web.AbstractWebConnectorMBean"
- * @version $Revision: 1.5 $ $Date: 2003/10/30 07:47:05 $
+ * @version $Revision: 1.6 $ $Date: 2003/12/30 08:28:58 $
  */
-public class JettyWebConnector extends AbstractWebConnector implements JettyWebConnectorMBean
-{
+public class JettyWebConnector extends AbstractWebConnector implements GeronimoMBeanTarget {
     private final static Log log = LogFactory.getLog(JettyWebConnector.class);
     private final static Class[] _defaultConstructorSignature = new Class[]{};
     private final static Object[] _defaultConstructorArgs = new Object[]{};
-    private HttpListener _listener = null;
-    private Server _jetty = null;
-
-
-
-    /**
-     * Set the parent Container for this  component
-     *
-     * @param container a <code>Container</code> value
-     */
-    public void setContainer (Container container)
-    {
-        super.setContainer(container);
-
-        //get the Jetty instance
-        if (! (container instanceof JettyWebContainer))
-            throw new IllegalStateException ("Non Jetty container set as parent on connector");
-
-        _jetty = ((JettyWebContainer)container).getJettyServer();
-    }
-
+    private HttpListener listener = null;
 
     /**
      * Set up the port for the Connector to listen on.
@@ -108,10 +88,9 @@ public class JettyWebConnector extends AbstractWebConnector implements JettyWebC
      *
      * @param port an <code>int</code> value
      */
-    public void setPort (int port)
-    {
-        if (getStateInstance() != State.STOPPED) 
-            throw new IllegalStateException ("Cannot change the connector port after the connector is started");
+    public void setPort(int port) {
+        //if (getStateInstance() != State.STOPPED)
+        //  throw new IllegalStateException ("Cannot change the connector port after the connector is started");
 
         super.setPort(port);
     }
@@ -124,10 +103,9 @@ public class JettyWebConnector extends AbstractWebConnector implements JettyWebC
      *
      * @param protocol a <code>String</code> value
      */
-    public void setProtocol (String protocol)
-    {
-         if (getStateInstance() != State.STOPPED) 
-            throw new IllegalStateException ("Cannot change protocol after connector has started");
+    public void setProtocol(String protocol) {
+        //if (getStateInstance() != State.STOPPED)
+        // throw new IllegalStateException ("Cannot change protocol after connector has started");
 
         super.setProtocol(protocol);
     }
@@ -140,97 +118,99 @@ public class JettyWebConnector extends AbstractWebConnector implements JettyWebC
      *
      * @param iface a <code>String</code> value
      */
-    public void setInterface (String iface)
-    {     
-        if (getStateInstance() != State.STOPPED) 
-            throw new IllegalStateException ("Cannot change interface after connector has started");
+    public void setInterface(String iface) {
+        //if (getStateInstance() != State.STOPPED)
+        //  throw new IllegalStateException ("Cannot change interface after connector has started");
         super.setInterface(iface);
+    }
+
+    public void setMBeanContext(GeronimoMBeanContext context) {
+    }
+
+    public boolean canStart() {
+        return true;
     }
 
     /**
      * Start the connector
      *
-     * @exception Exception if an error occurs
      */
-    public void doStart() throws Exception
-    {
-        try
-        {
-        if (getContainer() == null)
-            throw new IllegalStateException ("Container not set on connector");
+    public void doStart() {
+        try {
 
-        //configure the listener 
-        if ((getProtocol() == null) || (getProtocol().equalsIgnoreCase(HTTP_PROTOCOL)))
-        {
-            _listener = new SocketListener();
-        }      
-        else if (getProtocol().equalsIgnoreCase (AJP13_PROTOCOL))
-        {
-            _listener = new AJP13Listener();
-        }
-        else if (getProtocol().equalsIgnoreCase (HTTPS_PROTOCOL))
-        {
-            _listener = new SunJsseListener();
-        }
-        else
-        {
-            //maybe the protocol is a classname of a listener 
-            //implementing a particular protocol
-            Class listenerClass = Thread.currentThread().getContextClassLoader().loadClass(getProtocol());
-            //get the default constructor, if it has one
-            Constructor constructor = listenerClass.getConstructor (_defaultConstructorSignature);
-            _listener = (HttpListener)constructor.newInstance (_defaultConstructorArgs);
-        }
+            //configure the listener
+            if ((getProtocol() == null) || (getProtocol().equalsIgnoreCase(HTTP_PROTOCOL))) {
+                listener = new SocketListener();
+            } else if (getProtocol().equalsIgnoreCase(AJP13_PROTOCOL)) {
+                listener = new AJP13Listener();
+            } else if (getProtocol().equalsIgnoreCase(HTTPS_PROTOCOL)) {
+                listener = new SunJsseListener();
+            } else {
+                //maybe the protocol is a classname of a listener
+                //implementing a particular protocol
+                Class listenerClass = Thread.currentThread().getContextClassLoader().loadClass(getProtocol());
+                //get the default constructor, if it has one
+                Constructor constructor = listenerClass.getConstructor(_defaultConstructorSignature);
+                listener = (HttpListener) constructor.newInstance(_defaultConstructorArgs);
+            }
 
-        log.debug ("About to start WebConnector: "+getObjectName());
-        //NB: need to check if port is set - what to use instead of 0?
-        _listener.setPort(getPort());
+            log.debug("About to start WebConnector: interface " + getInterface() + ", port: " + getPort() + ", protocol: " + getProtocol());
+            //NB: need to check if port is set - what to use instead of 0?
+            listener.setPort(getPort());
 
-        if (getInterface() != null)
-            _listener.setHost(getInterface());
+            if (getInterface() != null)
+                listener.setHost(getInterface());
 
-        //take the listener default unless connections have been set
-        //what to use instead of 0?
-        if (getMaxConnections() > 0)
-            ((ThreadedServer)_listener).setMaxThreads(getMaxConnections());
+            //take the listener default unless connections have been set
+            //what to use instead of 0?
+            if (getMaxConnections() > 0)
+                ((ThreadedServer) listener).setMaxThreads(getMaxConnections());
 
-        //take the listener default unless idle time has been set
-        //what to use instead of 0?
-        if (getMaxIdleTime() > 0)
-            ((ThreadedServer)_listener).setMaxIdleTimeMs (getMaxIdleTime());
+            //take the listener default unless idle time has been set
+            //what to use instead of 0?
+            if (getMaxIdleTime() > 0)
+                ((ThreadedServer) listener).setMaxIdleTimeMs(getMaxIdleTime());
 
-        //open the underlying Jetty socket, if these calls fail,
-        //the connector will not transit to STARTED
-        ((ThreadedServer)_listener).open();
-        ((ThreadedServer)_listener).start();
-        log.debug ("Listener on port="+getPort()+" started.");
+            //open the underlying Jetty socket, if these calls fail,
+            //the connector will not transit to STARTED
+            ((ThreadedServer) listener).open();
+            listener.start();
+            log.debug("Listener on port=" + getPort() + " started.");
 
-        //at this point, when the method returns, the WebConnector will be STARTED
-        //even though the underlying socket may not be handling
-        //connections because it's criteria to listen may not
-        //be met etc
-        
-        //if the start succeeded, set up the listener on the
-        //Jetty instance
-        _jetty.addListener(_listener);
-        log.debug ("Listener on port="+getPort()+" added to Jetty");
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            throw e;
+            //at this point, when the method returns, the WebConnector will be STARTED
+            //even though the underlying socket may not be handling
+            //connections because it's criteria to listen may not
+            //be met etc
+
+            //if the start succeeded, set up the listener on the
+            //Jetty instance
+            //webContainer.getJettyServer().addListener(listener);
+            //log.debug("Listener on port=" + getPort() + " added to Jetty");
+        } catch (Exception e) {
+            log.info("Problem starting JettyWebConnector", e);
+            throw new RuntimeException(e);
         }
     }
 
-  
+    public boolean canStop() {
+        return true;
+    }
+
+
     /**
      * Stop the connector
      *
-     * @exception Exception if an error occurs
      */
-    public void doStop () throws Exception
-    {
-        _listener.stop();
+    public void doStop() {
+        try {
+            listener.stop();
+        } catch (InterruptedException e) {
+            log.info("problem stopping JettyWebConnector", e);
+            //throw something?
+        }
+    }
+
+    public void doFail() {
     }
 
     /**
@@ -238,8 +218,15 @@ public class JettyWebConnector extends AbstractWebConnector implements JettyWebC
      *
      * @return the Jetty listener
      */
-    HttpListener getListener ()
-    {
-        return _listener;
+    public HttpListener getListener() {
+        return listener;
     }
+
+    public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
+        GeronimoMBeanInfo mbeanInfo = AbstractWebConnector.getGeronimoMBeanInfo();
+        mbeanInfo.setTargetClass(JettyWebConnector.class);
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("getListener", new GeronimoParameterInfo[] {}, GeronimoOperationInfo.INFO, "Retrieve the internal HTTP Listener"));
+        return mbeanInfo;
+    }
+
 }

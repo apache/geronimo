@@ -57,22 +57,21 @@
 
 package org.apache.geronimo.web;
 
-import org.apache.geronimo.core.service.AbstractManagedComponent;
-import org.apache.geronimo.core.service.Container;
-
 import java.net.URI;
+
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
 
 
 
 /* -------------------------------------------------------------------------------------- */
 /**
  * AbstractWebAccessLog
- * 
- * * @jmx:mbean extends="org.apache.geronimo.web.WebAccessLog, org.apache.geronimo.kernel.management.StateManageable"
- * @version $Revision: 1.1 $ $Date: 2003/11/20 09:10:17 $
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/12/30 08:28:57 $
  */
-public abstract class AbstractWebAccessLog extends AbstractManagedComponent implements WebAccessLog, AbstractWebAccessLogMBean
-{
+public abstract class AbstractWebAccessLog implements WebAccessLog {
+
     protected String logImpl;
     protected URI logLocation;
     protected String logPattern;
@@ -83,12 +82,12 @@ public abstract class AbstractWebAccessLog extends AbstractManagedComponent impl
     protected boolean resolutionEnabled = false;
     protected boolean appendEnabled = true;
     protected int logRetentionDays;
-    
-    
-    
-    
+
+
+
+
     /* -------------------------------------------------------------------------------------- */
-    /* 
+    /*
      * @param uri
      * @see org.apache.geronimo.web.WebAccessLog#setLogLocation(java.net.URI)
      */
@@ -98,7 +97,7 @@ public abstract class AbstractWebAccessLog extends AbstractManagedComponent impl
     }
 
     /* -------------------------------------------------------------------------------------- */
-    /* 
+    /*
      * @return
      * @see org.apache.geronimo.web.WebAccessLog#getLogLocation()
      */
@@ -108,7 +107,7 @@ public abstract class AbstractWebAccessLog extends AbstractManagedComponent impl
     }
 
     /* -------------------------------------------------------------------------------------- */
-    /* 
+    /*
      * @param pattern
      * @see org.apache.geronimo.web.WebAccessLog#setLogPattern(java.lang.String)
      */
@@ -118,12 +117,12 @@ public abstract class AbstractWebAccessLog extends AbstractManagedComponent impl
             logPattern = NCSA_COMMON_PATTERN;
          else if (pattern.equalsIgnoreCase (NCSA_EXTENDED_NAME))
              logPattern = NCSA_EXTENDED_PATTERN;
-         else    
+         else
              logPattern = pattern;
     }
 
     /* -------------------------------------------------------------------------------------- */
-    /* 
+    /*
      * @return
      * @see org.apache.geronimo.web.WebAccessLog#getLogPattern()
      */
@@ -133,17 +132,17 @@ public abstract class AbstractWebAccessLog extends AbstractManagedComponent impl
     }
 
     /* -------------------------------------------------------------------------------------- */
-    /* 
+    /*
      * @param days
      * @see org.apache.geronimo.web.WebAccessLog#setLogRetentionDays(int)
      */
     public void setLogRetentionDays(int days)
     {
-         logRetentionDays = days;        
+         logRetentionDays = days;
     }
 
     /* -------------------------------------------------------------------------------------- */
-    /* 
+    /*
      * @return
      * @see org.apache.geronimo.web.WebAccessLog#getLogRetentionDays()
      */
@@ -153,7 +152,7 @@ public abstract class AbstractWebAccessLog extends AbstractManagedComponent impl
     }
 
     /* -------------------------------------------------------------------------------------- */
-    /* 
+    /*
      * @param state
      * @see org.apache.geronimo.web.WebAccessLog#setLogRollover(boolean)
      */
@@ -163,7 +162,7 @@ public abstract class AbstractWebAccessLog extends AbstractManagedComponent impl
     }
 
     /* -------------------------------------------------------------------------------------- */
-    /* 
+    /*
      * @return
      * @see org.apache.geronimo.web.WebAccessLog#getLogRollover()
      */
@@ -173,17 +172,17 @@ public abstract class AbstractWebAccessLog extends AbstractManagedComponent impl
     }
 
     /* -------------------------------------------------------------------------------------- */
-    /* 
+    /*
      * @param prefix
      * @see org.apache.geronimo.web.WebAccessLog#setLogPrefix(java.lang.String)
      */
     public void setLogPrefix(String prefix)
     {
-        logPrefix = prefix;  
+        logPrefix = prefix;
     }
 
     /* -------------------------------------------------------------------------------------- */
-    /* 
+    /*
      * @return
      * @see org.apache.geronimo.web.WebAccessLog#getLogPrefix()
      */
@@ -193,7 +192,7 @@ public abstract class AbstractWebAccessLog extends AbstractManagedComponent impl
     }
 
     /* -------------------------------------------------------------------------------------- */
-    /* 
+    /*
      * @param suffix
      * @see org.apache.geronimo.web.WebAccessLog#setLogSuffix(java.lang.String)
      */
@@ -203,7 +202,7 @@ public abstract class AbstractWebAccessLog extends AbstractManagedComponent impl
     }
 
     /* -------------------------------------------------------------------------------------- */
-    /* 
+    /*
      * @return
      * @see org.apache.geronimo.web.WebAccessLog#getLogSuffix()
      */
@@ -213,7 +212,7 @@ public abstract class AbstractWebAccessLog extends AbstractManagedComponent impl
     }
 
     /* -------------------------------------------------------------------------------------- */
-    /* 
+    /*
      * @param dateFormat
      * @see org.apache.geronimo.web.WebAccessLog#setLogDateFormat(java.lang.String)
      */
@@ -223,7 +222,7 @@ public abstract class AbstractWebAccessLog extends AbstractManagedComponent impl
     }
 
     /* -------------------------------------------------------------------------------------- */
-    /* 
+    /*
      * @return
      * @see org.apache.geronimo.web.WebAccessLog#getLogDateFormat()
      */
@@ -233,7 +232,7 @@ public abstract class AbstractWebAccessLog extends AbstractManagedComponent impl
     }
 
     /* -------------------------------------------------------------------------------------- */
-    /* 
+    /*
      * @param state
      * @see org.apache.geronimo.web.WebAccessLog#setResolveHostNames(boolean)
      */
@@ -243,7 +242,7 @@ public abstract class AbstractWebAccessLog extends AbstractManagedComponent impl
     }
 
     /* -------------------------------------------------------------------------------------- */
-    /* 
+    /*
      * @return
      * @see org.apache.geronimo.web.WebAccessLog#getResolveHostNames()
      */
@@ -252,22 +251,8 @@ public abstract class AbstractWebAccessLog extends AbstractManagedComponent impl
         return resolutionEnabled;
     }
 
-    public void setContainer (Container container)
-    {
-        super.setContainer(container);
-        
-        container.addComponent (this);
-    }
-  
-    protected void doStart() throws Exception
-    {
-        if (getContainer() == null)
-            throw new IllegalStateException ("WebAccessLog has no web container");
-
-    }
-    
     /* -------------------------------------------------------------------------------------- */
-    /* 
+    /*
      * @return
      * @see org.apache.geronimo.web.WebAccessLog#getAppend()
      */
@@ -277,7 +262,7 @@ public abstract class AbstractWebAccessLog extends AbstractManagedComponent impl
     }
 
     /* -------------------------------------------------------------------------------------- */
-    /* 
+    /*
      * @param state
      * @see org.apache.geronimo.web.WebAccessLog#setAppend(boolean)
      */
@@ -287,23 +272,38 @@ public abstract class AbstractWebAccessLog extends AbstractManagedComponent impl
     }
 
     /* -------------------------------------------------------------------------------------- */
-    /* 
+    /*
      * @return
-     * @see org.apache.geronimo.web.WebAccessLog#getLogImpl()
+     * @see org.apache.geronimo.web.WebAccessLog#getLogImplementationClass()
      */
-    public String getLogImpl()
+    public String getLogImplementationClass()
     {
         return logImpl;
     }
 
     /* -------------------------------------------------------------------------------------- */
-    /* 
+    /*
      * @param classname
-     * @see org.apache.geronimo.web.WebAccessLog#setLogImpl(java.lang.String)
+     * @see org.apache.geronimo.web.WebAccessLog#setLogImplementationClass(java.lang.String)
      */
-    public void setLogImpl(String classname)
+    public void setLogImplementationClass(String classname)
     {
         logImpl = classname;
+    }
+
+    public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
+        GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("LogImplementationClass", true, true, "class of log implementation. I think this is speculative"));
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("LogLocation", true, true, "URI indicating where to put the log"));
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("LogPattern", true, true, "NCSA log pattern spec"));
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("LogRetentionDays", true, true, "Number of days to retain logs"));
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("LogRolloverIntervalHrs", true, true, "Hours between log rollovers"));
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("LogPrefix", true, true, "file name prefix for log files"));
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("LogSuffix", true, true, "file name suffix for log files"));
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("LogDateFormat", true, true, "Date format to use in logs, following java.text.DateFormat (??)"));
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ResolveHostNames", true, true, "Should host names be resolved"));
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Append", true, true, "Should logs be appended or overwritten (? rolled over)"));
+        return mbeanInfo;
     }
 
 }

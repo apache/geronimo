@@ -18,24 +18,25 @@
     <!-- ================================================================ -->
     <!-- Set up a Jetty container                                         -->
     <!-- ================================================================ -->
-    <mbean code="org.apache.geronimo.web.jetty.JettyWebContainer"
-        name="jetty:role=WebContainer">
+    <mbean descriptor="org.apache.geronimo.web.jetty.JettyWebContainer"
+        name="geronimo.web:type=WebContainer,container=Jetty">
         <attribute type="java.net.URI" name="DefaultWebXmlURI">webdefault.xml</attribute>
     </mbean>
-    <!-- planner that delegates to the mbean above -->
+
     <mbean descriptor="org.apache.geronimo.web.WebDeploymentPlanner"
         name="geronimo.deployment:role=DeploymentPlanner,type=Jetty">
+        <attribute name="ContainerName">Jetty</attribute>
+        <attribute name="WebApplicationClass">org.apache.geronimo.web.jetty.JettyWebApplication</attribute>
     </mbean>
 
 
     <!-- ================================================================ -->
     <!-- Set up a connector to listen for http requests                   -->
     <!-- ================================================================ -->
-    <mbean code="org.apache.geronimo.web.jetty.JettyWebConnector"
-        name="jetty:role=WebConnector, port=8080">
+    <mbean descriptor="org.apache.geronimo.web.jetty.JettyWebConnector"
+        name="geronimo.web:type=WebConnector,container=Jetty,port=8080">
         <attribute name="Port">8080</attribute>
-        <attribute name="Contexts">/abc, /def, /geh</attribute>
-        <depends name="jetty:role=WebContainer"/>
+        <!--attribute name="Contexts">/abc, /def, /geh</attribute-->
     </mbean>
 
     <!-- ================================================================ -->
@@ -51,8 +52,8 @@
     <!--            http://httpd.apache.org/docs/logs.html#accesslog      -->
     <!-- ================================================================ -->
     <!-- COMMENTED OUT PENDING NEW JETTY SNAPSHOT JAR
-    <mbean code="org.apache.geronimo.web.jetty.JettyWebAccessLog"
-           name="jetty:role=WebAccessLog, instance=1">
+    <mbean descriptor="org.apache.geronimo.web.jetty.JettyWebAccessLog"
+           name="geronimo.web:type=WebAccessLog,container=Jetty,instance=1">
            <attribute name="LogLocation" type="java.net.URI">logs</attribute>
            <attribute name="LogRolloverIntervalHrs">24</attribute>
            <attribute name="LogRetentionDays">10</attribute>

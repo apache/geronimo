@@ -2,6 +2,9 @@ package org.apache.geronimo.web;
 
 import org.apache.geronimo.core.service.AbstractManagedComponent;
 import org.apache.geronimo.core.service.Container;
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -11,13 +14,11 @@ import java.util.List;
  *
  *
  * Created: Mon Sep  8 20:39:02 2003
- * @jmx:mbean extends="org.apache.geronimo.web.WebConnector, org.apache.geronimo.kernel.management.StateManageable"
- * 
- * @version $Revision: 1.3 $ $Date: 2003/10/30 07:47:04 $
+ *
+ * @version $Revision: 1.4 $ $Date: 2003/12/30 08:28:57 $
  */
-public abstract class AbstractWebConnector extends AbstractManagedComponent implements WebConnector, AbstractWebConnectorMBean
-{
-    
+public abstract class AbstractWebConnector implements WebConnector {
+
     public static final String HTTP_PROTOCOL = "http";
     public static final String HTTPS_PROTOCOL = "https";
     public static final String AJP13_PROTOCOL = "ajp13";
@@ -126,20 +127,17 @@ public abstract class AbstractWebConnector extends AbstractManagedComponent impl
     {
         return (String[])_contexts.toArray(new String[0]);
     }
-    
 
-    public void setContainer (Container container)
-    {
-        super.setContainer(container);
-        
-        container.addComponent (this);
-    }
-  
-    protected void doStart() throws Exception
-    {
-        if (getContainer() == null)
-            throw new IllegalStateException ("Connector has no web container");
 
+    public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
+        GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Port", true, true, "port to listen on"));
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Protocol", true, true, "Protocol (hhtp, https, ftp etc) to use"));
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Interface", true, true, "Interface to listen on"));
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("MaxConnections", true, true, "Maximum number of connections"));
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("MaxIdleTime", true, true, "Maximum idle time (ms??) a connection can be idle before being closed"));
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Contexts", true, true, "Contexts that must be registered in the web container before this connector will start accepting connections"));
+        return mbeanInfo;
     }
 
-} // AbstractWebConnector
+}

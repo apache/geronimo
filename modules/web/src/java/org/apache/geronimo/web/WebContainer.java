@@ -66,11 +66,11 @@ import org.w3c.dom.Document;
  * WebContainer
  *
  *
- * @version $Revision: 1.8 $  $Date: 2003/10/30 07:47:05 $
+ * @version $Revision: 1.9 $  $Date: 2003/12/30 08:28:57 $
  */
 
-public interface WebContainer extends ManagedContainer {
-    
+public interface WebContainer {
+
 
     /**
      * Set up a web.xml descriptor for the Container to use as defaults.
