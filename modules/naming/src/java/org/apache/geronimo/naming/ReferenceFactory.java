@@ -26,6 +26,8 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerRemoteRefType;
  * @version $Revision$ $Date$
  */
 public interface ReferenceFactory {
+    Reference buildResourceLinkReference(GerLocalRefType localRef, Class iface) throws MalformedObjectNameException;
+
     Reference buildConnectionFactoryReference(GerLocalRefType localRef, Class iface) throws MalformedObjectNameException;
 
     Reference buildAdminObjectReference(GerLocalRefType localRef, Class iface) throws MalformedObjectNameException;

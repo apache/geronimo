@@ -101,13 +101,19 @@ public class ComponentContextBuilder {
     }
 
     public void addResourceRef(String name, Class iface, GerLocalRefType localRef) throws NamingException {
-        if (iface == URL.class) {
+        if (localRef.isSetExternalUri()) {
             try {
                 context.internalBind(ENV + name, new URL(localRef.getExternalUri()));
             } catch (MalformedURLException e) {
                 throw (NamingException) new NamingException("Could not convert " + localRef + " to URL").initCause(e);
             }
-        } else {
+        } else if (localRef.isSetResourceLink()) {
+            try {
+                bind(name, referenceFactory.buildResourceLinkReference(localRef, iface));
+            } catch (MalformedObjectNameException e) {
+                throw (NamingException) new NamingException("invalid object name").initCause(e);
+            }
+        } else if (localRef.isSetTargetName()) {
             try {
                 bind(name, referenceFactory.buildConnectionFactoryReference(localRef, iface));
             } catch (MalformedObjectNameException e) {

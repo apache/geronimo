@@ -43,6 +43,13 @@ public class JMXReferenceFactory implements ReferenceFactory {
         baseName = domainName + ":J2EEServer=" + serverName;
     }
 
+    public Reference buildResourceLinkReference(GerLocalRefType localRef, Class iface) throws MalformedObjectNameException {
+        Reference ref = new Reference(null, JMXObjectFactory.class.getName(), null);
+
+        ref.add(new JMXRefAddr(null, localRef.getKernelName(), ObjectName.getInstance(localRef.getResourceLink()), iface));
+        return ref;
+    }
+
     public Reference buildConnectionFactoryReference(GerLocalRefType localRef, Class iface) throws MalformedObjectNameException {
         Reference ref = new Reference(null, JMXObjectFactory.class.getName(), null);
 
@@ -52,7 +59,11 @@ public class JMXReferenceFactory implements ReferenceFactory {
     }
 
     public ObjectName createManagedConnectionFactoryObjectName(String targetName) throws MalformedObjectNameException {
-        return ObjectName.getInstance(baseName + BASE_MANAGED_CONNECTION_FACTORY_NAME + targetName);
+        if (targetName.indexOf(':') < 0) {
+            return ObjectName.getInstance(baseName + BASE_MANAGED_CONNECTION_FACTORY_NAME + targetName);
+        } else {
+            return ObjectName.getInstance(targetName);
+        }
     }
 
     public Reference buildAdminObjectReference(GerLocalRefType localRef, Class iface) throws MalformedObjectNameException {
