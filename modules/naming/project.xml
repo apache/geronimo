@@ -47,12 +47,6 @@
     <!-- ============ -->
 
     <dependencies>
-        <!-- needed for xmlbeans runtime-->
-        <dependency>
-            <groupId>xmlbeans</groupId>
-            <artifactId>xbean-apache</artifactId>
-            <version>&xmlbeans-version;</version>
-        </dependency>
 
         <!-- Module Dependencies -->
         <!-- only for ComponentContextInterceptor -->
@@ -69,50 +63,9 @@
         </dependency>
 
         <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-deployment</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-j2ee</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>geronimo-spec</groupId>
-            <artifactId>geronimo-spec-j2ee-deployment</artifactId>
-            <version>&geronimo-spec-j2ee-deployment-version;</version>
-        </dependency>
-
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-j2ee-schema</artifactId>
-            <version>${pom.currentVersion}</version>
-            <properties>
-                <xmlbeans>true</xmlbeans>
-            </properties>
-        </dependency>
-
-        <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jta</artifactId>
             <version>&geronimo-spec-jta-version;</version>
-        </dependency>
-
-        <dependency>
-            <groupId>cglib</groupId>
-            <artifactId>cglib-full</artifactId>
-            <version>&cglib-version;</version>
-            <url>http://cglib.sf.net/</url>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>&commons-logging-version;</version>
-            <url>http://jakarta.apache.org/commons/logging/</url>
         </dependency>
 
         <dependency>
