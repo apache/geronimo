@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.2 $ $Date: 2003/08/22 13:46:47 $ -->
+<!-- $Revision: 1.3 $ $Date: 2003/09/01 15:28:26 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
@@ -8,28 +8,16 @@
   xmlns:ant="jelly:ant"
   xmlns:castor="castor">
   
-  <!-- ===================== -->
-  <!-- Module Initialization -->
-  <!-- ===================== -->
-  
-  <ant:property file="${basedir}/../../etc/project.properties"/>
-  
-  <goal name="default">
-	<attainGoal name="java:compile"/>      
-	<attainGoal name="javadoc"/>      
-  </goal>
-  
   <preGoal name="xdoc:jelly-transform">
     <attainGoal name="html2xdoc"/>
   </preGoal>
 
   <preGoal name="site">
-	<attainGoal name="java:compile"/>      
-	<attainGoal name="javadoc"/>      
+    <attainGoal name="generate:xmlbeans"/>
   </preGoal>
 
   <preGoal name="java:compile">
-	<attainGoal name="generate:xmlbeans"/>      
+    <attainGoal name="generate:xmlbeans"/>
   </preGoal>
 
 
