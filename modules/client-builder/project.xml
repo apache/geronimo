@@ -115,6 +115,13 @@
             <artifactId>geronimo-transaction</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-jta</artifactId>
+            <version>&geronimo-spec-jta-version;</version>
+        </dependency>
+
         <!-- Thirdparty -->
 
         <dependency>
