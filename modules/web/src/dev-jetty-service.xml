@@ -20,7 +20,7 @@
     <!-- ================================================================ -->
     <mbean code="org.apache.geronimo.web.jetty.JettyWebContainer" 
            name="jetty:role=WebContainer">
-       <attribute type="java.net.URI" name="DefaultWebXmlURI">file:web-defaults.xml</attribute>
+       <attribute type="java.net.URI" name="DefaultWebXmlURI">webdefault.xml</attribute>
     </mbean>
 
 
