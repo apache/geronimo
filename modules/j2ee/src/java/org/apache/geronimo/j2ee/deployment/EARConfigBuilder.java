@@ -67,7 +67,7 @@ import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
 /**
- * @version $Revision: 1.20 $ $Date: 2004/08/09 04:19:35 $
+ * @version $Revision: 1.21 $ $Date: 2004/08/13 08:16:29 $
  */
 public class EARConfigBuilder implements ConfigurationBuilder {
     static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderUnion(new SchemaTypeLoader[]{
@@ -498,11 +498,13 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                     moduleLocations.add(uri.toString());
                     connectorModules.add(currentModule);
                 }
-                moduleMap.put(currentModule.getName(), currentModule);
                 // TODO remove test against null when application clients will be supported.
-                if ( module.isSetAltDd() && null != currentModule ) {
-                    URL altDDURL = appLocator.toURL(module.getAltDd().getStringValue());
-                    currentModule.setAltSpecDD(altDDURL);
+                if ( null != currentModule ) {
+                    moduleMap.put(currentModule.getName(), currentModule);
+                    if ( module.isSetAltDd() ) {
+                        URL altDDURL = appLocator.toURL(module.getAltDd().getStringValue());
+                        currentModule.setAltSpecDD(altDDURL);
+                    }
                 }
             }
             
