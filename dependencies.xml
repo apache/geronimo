@@ -56,13 +56,13 @@
         </dependency>
         <dependency>
             <groupId>axis</groupId>
-            <artifactId>axis-commons-discovery</artifactId>
-            <version>&axis-version;</version>
+            <artifactId>commons-discovery</artifactId>
+            <version>&axis-commons-discovery-version;</version>
         </dependency>
         <dependency>
             <groupId>axis</groupId>
-            <artifactId>axis-commons-logging</artifactId>
-            <version>&axis-version;</version>
+            <artifactId>commons-logging</artifactId>
+            <version>&axis-commons-logging-version;</version>
         </dependency>
         <dependency>
             <groupId>axis</groupId>
@@ -77,7 +77,7 @@
         <dependency>
             <groupId>axis</groupId>
             <artifactId>axis-wsdl4j</artifactId>
-            <version>&axis-version;</version>
+            <version>&axis-wsdl4j-version;</version>
         </dependency>
         <dependency>
             <groupId>castor</groupId>
@@ -502,6 +502,51 @@
             <artifactId>xstream</artifactId>
             <version>&xstream-version;</version>
         </dependency>
+
+<!-- Aaron put these in to get ActiveMQ to work -->
+    <dependency>
+      <id>servletapi</id>
+      <version>2.3</version>
+    </dependency>
+    <dependency>
+      <id>springframework</id>
+      <artifactId>spring</artifactId>
+      <version>1.1</version>
+      <url>http://www.springframework.org</url>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <id>berkeleydb</id>
+      <version>1.5.1</version>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <id>berkeleydb+native</id>
+      <version>4.2</version>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <id>jmdns</id>
+      <version>0.2</version>
+    </dependency>
+    <dependency>
+      <id>jetty</id>
+      <jar>org.mortbay.jetty-&activemq-jetty-version;.jar</jar>
+    </dependency>
+    <dependency>
+      <id>jetty+jasper-compiler</id>
+      <jar>jasper-compiler-&activemq-jetty-version;.jar</jar>
+    </dependency>
+    <dependency>
+      <id>jetty+jasper-runtime</id>
+      <jar>jasper-runtime-&activemq-jetty-version;.jar</jar>
+    </dependency>
     </dependencies>
 
     <build>

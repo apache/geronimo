@@ -354,7 +354,7 @@
         <dependency>
             <groupId>axis</groupId>
             <artifactId>commons-discovery</artifactId>
-            <version>&axis-version;</version>
+            <version>&axis-commons-discovery-version;</version>
             <properties>
                 <module>true</module>
             </properties>
@@ -362,7 +362,7 @@
         <dependency>
             <groupId>axis</groupId>
             <artifactId>commons-logging</artifactId>
-            <version>&axis-version;</version>
+            <version>&axis-commons-logging-version;</version>
             <properties>
                 <module>true</module>
             </properties>
@@ -370,7 +370,7 @@
         <dependency>
             <groupId>axis</groupId>
             <artifactId>axis-jaxrpc</artifactId>
-            <version>&axis-version;</version>
+            <version>&axis-jaxrpc-version;</version>
             <properties>
                 <module>true</module>
             </properties>
@@ -378,7 +378,7 @@
         <dependency>
             <groupId>axis</groupId>
             <artifactId>axis-saaj</artifactId>
-            <version>&axis-version;</version>
+            <version>&axis-saaj-version;</version>
             <properties>
                 <module>true</module>
             </properties>
@@ -386,7 +386,7 @@
         <dependency>
             <groupId>axis</groupId>
             <artifactId>axis-wsdl4j</artifactId>
-            <version>&axis-version;</version>
+            <version>&axis-wsdl4j-version;</version>
             <properties>
                 <module>true</module>
             </properties>
