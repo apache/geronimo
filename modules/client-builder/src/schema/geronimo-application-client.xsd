@@ -28,7 +28,7 @@
 
     <xs:import namespace="http://geronimo.apache.org/xml/ns/naming" schemaLocation="../../../naming-builder/src/schema/geronimo-naming.xsd"/>
     <xs:import namespace="http://geronimo.apache.org/xml/ns/j2ee/connector" schemaLocation="../../../connector-builder/src/schema/geronimo-connector_1_5.xsd"/>
-    <!--xs:include schemaLocation="../../../naming/src/schema/geronimo-naming.xsd"/-->
+    <!--xs:include schemaLocation="../../../naming-builder/src/schema/geronimo-naming.xsd"/-->
     <xs:include schemaLocation="../../../deployment/src/schema/geronimo-common.xsd"/>
 
     <xs:element name="application-client" type="geronimo:application-clientType"/>
