@@ -68,6 +68,10 @@ import org.apache.geronimo.connector.outbound.ConnectionTrackingInterceptor;
 import org.apache.geronimo.connector.outbound.ConnectionInfo;
 import org.apache.geronimo.connector.outbound.ConnectorTransactionContext;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GOperationInfo;
 
 /**
  * ConnectionTrackingCoordinator tracks connections that are in use by
@@ -83,9 +87,11 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
  * ConnectionManager stacks so the existing ManagedConnections can be
  * enrolled properly.
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/01 09:55:08 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/19 06:29:08 $
  */
 public class ConnectionTrackingCoordinator implements TrackedConnectionAssociator, ConnectionTracker {
+
+    private final static GBeanInfo GBEAN_INFO;
 
     private final ThreadLocal currentConnectorComponentContexts = new ThreadLocal();
     private final ThreadLocal currentConnectorTransactionContexts = new ThreadLocal();
@@ -173,6 +179,23 @@ public class ConnectionTrackingCoordinator implements TrackedConnectionAssociato
 
     public ConnectorTransactionContext getConnectorTransactionContext() {
         return (ConnectorTransactionContext) currentConnectorTransactionContexts.get();
+    }
+
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ConnectionTrackingCoordinator.class.getName());
+        infoFactory.addOperation(new GOperationInfo("enter", new String[] {ConnectorComponentContext.class.getName()}));
+        infoFactory.addOperation(new GOperationInfo("exit", new String[] {ConnectorComponentContext.class.getName(), Set.class.getName()}));
+        infoFactory.addOperation(new GOperationInfo("setConnectorTransactionContext", new String[] {ConnectorTransactionContext.class.getName()}));
+        infoFactory.addOperation(new GOperationInfo("setUnshareableResources", new String[] {Set.class.getName()}));
+        infoFactory.addOperation(new GOperationInfo("resetConnectorTransactionContext", new String[] {ConnectorTransactionContext.class.getName()}));
+        infoFactory.addOperation(new GOperationInfo("handleObtained", new String[] {ConnectionTrackingInterceptor.class.getName(), ConnectionInfo.class.getName()}));
+        infoFactory.addOperation(new GOperationInfo("handleReleased",new String[] {ConnectionTrackingInterceptor.class.getName(), ConnectionInfo.class.getName()}));
+        infoFactory.addOperation(new GOperationInfo("getConnectorTransactionContext"));
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
     }
 
     public static GeronimoMBeanInfo getGeronimoMBeanInfo() {

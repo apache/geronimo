@@ -68,7 +68,9 @@ import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.Xid;
 
-import org.apache.geronimo.connector.work.GeronimoWorkManager;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 
@@ -78,9 +80,12 @@ import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
  * are delegated to the wrapped TransactionManager; all other operations are delegated to the
  * wrapped Transaction.
  *
- * @version $Revision: 1.3 $ $Date: 2003/11/17 00:46:09 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/19 06:29:08 $
  */
 public class TransactionManagerProxy implements TransactionManager, XATerminator {
+
+    private static final GBeanInfo GBEAN_INFO;
+
     private final TransactionManager delegate;
     private final ThreadLocal threadTx = new ThreadLocal();
 
@@ -199,7 +204,26 @@ public class TransactionManagerProxy implements TransactionManager, XATerminator
     public void rollback(Xid arg0) throws XAException {
         throw new XAException("Not implemented.");
     }
-    
+
+    //for now we use the default constructor.
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(TransactionManagerProxy.class.getName());
+        infoFactory.addOperation(new GOperationInfo("setTransactionTimeout", new String[] {Integer.TYPE.getName()}));
+        infoFactory.addOperation(new GOperationInfo("begin"));
+        infoFactory.addOperation(new GOperationInfo("getStatus"));
+        infoFactory.addOperation(new GOperationInfo("getTransaction"));
+        infoFactory.addOperation(new GOperationInfo("suspend"));
+        infoFactory.addOperation(new GOperationInfo("resume", new String[] {Transaction.class.getName()}));
+        infoFactory.addOperation(new GOperationInfo("commit"));
+        infoFactory.addOperation(new GOperationInfo("rollback"));
+        infoFactory.addOperation(new GOperationInfo("setRollbackOnly"));
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
+
     /**
      * Provides the GeronimoMBean description for this class
      * @return
@@ -211,5 +235,5 @@ public class TransactionManagerProxy implements TransactionManager, XATerminator
         rc.addOperationsDeclaredIn(XATerminator.class);
         return rc;
     }
-    
+
 }
