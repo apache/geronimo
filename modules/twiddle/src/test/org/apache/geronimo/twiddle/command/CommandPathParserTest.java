@@ -61,7 +61,7 @@ import junit.framework.TestCase;
 /**
  * Tests for <code>CommandPathParser</code>.
  *
- * @version <code>$Revision: 1.5 $ $Date: 2003/08/24 17:12:38 $</code>
+ * @version <code>$Revision: 1.6 $ $Date: 2003/08/24 19:40:48 $</code>
  */
 public class CommandPathParserTest
     extends TestCase
@@ -93,6 +93,7 @@ public class CommandPathParserTest
         assertEquals(true, parser.isAbsolute());
         assertEquals(1, elements.length);
         assertEquals("/", elements[0]);
+        assertEquals("/",parser.getPath());
     }
 
     public void testTrailing()
@@ -104,6 +105,7 @@ public class CommandPathParserTest
         assertEquals(2, elements.length);
         assertEquals("/", elements[0]);
         assertEquals("one", elements[1]);
+        assertEquals("/one/",parser.getPath());
     }
     
     public void testAbsolute2()
@@ -115,6 +117,7 @@ public class CommandPathParserTest
         assertEquals(2, elements.length);
         assertEquals("/", elements[0]);
         assertEquals("one", elements[1]);
+        assertEquals("/one",parser.getPath());
     }
 
     public void testAbsolute3()
@@ -127,6 +130,7 @@ public class CommandPathParserTest
         assertEquals("/", elements[0]);
         assertEquals("one", elements[1]);
         assertEquals("two", elements[2]);
+        assertEquals("/one/two",parser.getPath());
     }
 
     public void testAbsolute4()
@@ -140,6 +144,7 @@ public class CommandPathParserTest
         assertEquals("one", elements[1]);
         assertEquals("two", elements[2]);
         assertEquals("three", elements[3]);
+        assertEquals("/one/two/three",parser.getPath());
     }
     
     public void testRelative1()
@@ -150,6 +155,7 @@ public class CommandPathParserTest
         assertEquals(false, parser.isAbsolute());
         assertEquals(1, elements.length);
         assertEquals("one", elements[0]);
+        assertEquals("one",parser.getPath());
     }
 
     public void testRelative2()
@@ -161,6 +167,7 @@ public class CommandPathParserTest
         assertEquals(2, elements.length);
         assertEquals("one", elements[0]);
         assertEquals("two", elements[1]);
+        assertEquals("one/two",parser.getPath());
     }
 
     public void testRelative3()
@@ -173,6 +180,6 @@ public class CommandPathParserTest
         assertEquals("one", elements[0]);
         assertEquals("two", elements[1]);
         assertEquals("three", elements[2]);
+        assertEquals("one/two/three",parser.getPath());
     }
 }
-

@@ -60,11 +60,12 @@ import junit.framework.TestCase;
 
 import org.apache.geronimo.twiddle.config.CommandConfig;
 import org.apache.geronimo.twiddle.config.Attribute;
+import org.apache.geronimo.common.NullArgumentException;
 
 /**
  * Tests for <code>CommandFactory</code>.
  *
- * @version <code>$Revision: 1.6 $ $Date: 2003/08/24 17:12:38 $</code>
+ * @version <code>$Revision: 1.7 $ $Date: 2003/08/24 19:40:48 $</code>
  */
 public class CommandFactoryTest
     extends TestCase
@@ -75,19 +76,19 @@ public class CommandFactoryTest
     protected void setUp()
     {
     }
-    
+
     /**
      * Tear down instance variables required by this test case.
      */
     protected void tearDown()
     {
     }
-    
-    
+
+
     /////////////////////////////////////////////////////////////////////////
     //                               Tests                                 //
     /////////////////////////////////////////////////////////////////////////
-    
+
     public void testCreateCommand() throws Exception
     {
         CommandConfig config = new CommandConfig();
@@ -97,41 +98,81 @@ public class CommandFactoryTest
         config.setName(name);
         config.setDescription(desc);
         config.setCode(type);
-        
+
         CommandInfo protoInfo = new CommandInfo(config);
+        assertEquals(config,protoInfo.getConfig());
+        assertTrue(protoInfo.hasDescription());
         Command command = protoInfo.getPrototype();
-        
+
+        try {
+            new CommandInfo(null);
+            fail("Expected NullArgumentException");
+        } catch (NullArgumentException ignore) {
+        }
+
         // Verify command info
         CommandInfo info = command.getCommandInfo();
         assertNotNull(command.getCommandInfo());
         assertEquals(name, info.getName());
         assertEquals(desc, info.getDescription());
-        
+
         // Verify the class type
         assertEquals(type, command.getClass().getName());
-        
+
         command.execute(new String[0]);
     }
-    
+
     public void testCreateCommandWithAttribute() throws Exception
     {
         CommandConfig config = new CommandConfig();
         config.setName("mytest");
         config.setCode("org.apache.geronimo.twiddle.command.TestCommand");
-        
+
         Attribute attr = new Attribute();
         String text = "this is the value for the text attribute";
         attr.setName("text");
         attr.setContent(text);
         config.addAttribute(attr);
-        
+
         CommandInfo protoInfo = new CommandInfo(config);
         Command command = protoInfo.getPrototype();
-        
+
         // Verify that the text attribute was set correctly
         assertEquals(text, ((TestCommand)command).getText());
-        
+
         command.execute(new String[0]);
+    }
+
+    public void testCommandFactory() {
+        CommandFactory commandFactory;
+
+        try {
+            new CommandFactory(null);
+            fail("Expected NullArgumentException");
+        } catch (NullArgumentException ignore) {
+        }
+
+        CommandConfig config = new CommandConfig();
+        String name = "mytest";
+        String desc = "my test description";
+        String type = "org.apache.geronimo.twiddle.command.TestCommand";
+        config.setName(name);
+        config.setDescription(desc);
+        config.setCode(type);
+
+        commandFactory = new CommandFactory(config);
+        assertEquals(config,commandFactory.getConfig());
+        try {
+            commandFactory.create();
+        } catch (CommandException e) {
+            fail("Unexpected CommandException"+e);
+        }
+
+        try {
+            new CommandFactory(new CommandConfig()).create();
+            fail("Expected CommandException");
+        } catch (CommandException ignore) {
+        }
     }
 }
 
