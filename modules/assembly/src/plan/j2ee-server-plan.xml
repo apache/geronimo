@@ -62,6 +62,9 @@ by the server.
     <dependency>
         <uri>geronimo/jars/geronimo-jetty-DEV.jar</uri>
     </dependency>
+    <dependency>
+      <uri>activemq/jars/activemq-SNAPSHOT.jar</uri>
+    </dependency>
 
     <gbean name="geronimo.server:type=ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator">
     </gbean>
@@ -95,6 +98,17 @@ by the server.
 <!--        <attribute name="MaxIdleTime" type="int">10</attribute>-->
     </gbean>
 
+    <!-- JMS container -->
+    <gbean name="geronimo.server:type=JMSServer,container=ActiveMQ" class="org.codehaus.activemq.container.ActiveMQContainer">
+    </gbean>
+
+    <gbean name="geronimo.server:type=JMSConnector,container=ActiveMQ,port=61616" class="org.codehaus.activemq.container.ActiveMQConnector">
+        <attribute name="Url" type="java.lang.String">tcp://localhost:61616</attribute>
+        <reference name="ActiveMQContainer">geronimo.server:type=JMSServer,container=ActiveMQ</reference>
+    </gbean>
+
+
+    <!-- EJB container -->
     <gbean name="openejb:type=ContainerIndex" class="org.openejb.ContainerIndex">
         <references name="EJBContainers">
             <pattern>openejb:j2eeType=StatelessSessionBean,*</pattern>
