@@ -34,13 +34,14 @@ import org.apache.geronimo.messaging.MsgHeaderConstants;
 import org.apache.geronimo.messaging.NodeException;
 import org.apache.geronimo.messaging.NodeInfo;
 import org.apache.geronimo.messaging.NodeTopology;
+import org.apache.geronimo.messaging.RequestSender;
 import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
 import org.apache.geronimo.messaging.io.IOContext;
 
 /**
  * RemoteNode implementation.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:42 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/27 14:27:32 $
  */
 public class RemoteNodeManagerImpl
     implements RemoteNodeManager
@@ -170,7 +171,15 @@ public class RemoteNodeManagerImpl
             }
             Msg msg = new Msg();
             MsgHeader header = msg.getHeader();
+            header.addHeader(MsgHeaderConstants.SRC_NODE, nodeInfo);
             header.addHeader(MsgHeaderConstants.DEST_NODE, aNodeInfo);
+            
+            // Only set to comply with a valid request. 
+            header.addHeader(MsgHeaderConstants.DEST_NODES, aNodeInfo);
+            header.addHeader(MsgHeaderConstants.SRC_ENDPOINT, "");
+            header.addHeader(MsgHeaderConstants.CORRELATION_ID,
+                new RequestSender.RequestID(new Integer(0)));
+            
             msg.getBody().setContent(nodeInfo);
             remoteNode.getMsgConsumerOut().push(msg);
             

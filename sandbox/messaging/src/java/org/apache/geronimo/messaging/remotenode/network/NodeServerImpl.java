@@ -48,7 +48,7 @@ import org.apache.geronimo.system.ClockPool;
 /**
  * NodeServer implementation.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:42 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/27 14:27:32 $
  */
 public class NodeServerImpl
     implements NodeServer, AcceptedCallBack
@@ -177,9 +177,7 @@ public class NodeServerImpl
             }
             remoteNode.addConnection(connection);
             
-            Msg msg = new Msg();
-            MsgHeader header = msg.getHeader();
-            header.addHeader(MsgHeaderConstants.DEST_NODE, otherNodeInfo);
+            Msg msg = aMsg.reply();
             msg.getBody().setContent(Boolean.TRUE);
             connection.getMsgConsumerOut().push(msg);
         }
