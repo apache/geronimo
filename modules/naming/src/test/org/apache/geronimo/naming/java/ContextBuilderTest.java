@@ -28,9 +28,10 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 
 import junit.framework.TestCase;
+
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 
 /**
@@ -90,9 +91,9 @@ public class ContextBuilderTest extends TestCase {
         try {
             assertEquals(kernel, Kernel.getKernel("test.kernel"));
             ObjectName proxyFactoryName = null;//referenceFactory.createAdminObjectObjectName("testAdminObject");
-            GBeanMBean gbean = new GBeanMBean(getGbeanInfo());
+            GBeanData gbean = new GBeanData(proxyFactoryName, getGbeanInfo());
             gbean.setAttribute("Content", proxy);
-            kernel.loadGBean(proxyFactoryName, gbean);
+            kernel.loadGBean(gbean, Class.forName(gbean.getGBeanInfo().getClassName()).getClassLoader());
             kernel.startGBean(proxyFactoryName);
             Object o = context.lookup("env/resourceenvref");
             assertEquals(proxy, o);
