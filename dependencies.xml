@@ -460,7 +460,7 @@
         </dependency>
         <dependency>
             <groupId>velocity</groupId>
-            <artifactId>velocity</artifactId>
+            <artifactId>velocity-dep</artifactId>
             <version>&velocity-version;</version>
         </dependency>
         <dependency>
