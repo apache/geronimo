@@ -30,7 +30,7 @@ import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.kernel.Kernel;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/05/26 03:20:49 $
+ * @version $Revision: 1.3 $ $Date: 2004/05/26 21:12:08 $
  */
 public class EARContext extends DeploymentContext {
     private final Map ejbRefs = new HashMap();
@@ -46,6 +46,10 @@ public class EARContext extends DeploymentContext {
         super(jos, id, parentID, kernel);
         this.j2eeDomainName = j2eeDomainName;
         this.j2eeServerName = j2eeServerName;
+
+        if (j2eeApplicationName == null) {
+            j2eeApplicationName = "null";
+        }
         this.j2eeApplicationName = j2eeApplicationName;
 
         Properties domainNameProps = new Properties();
@@ -65,16 +69,21 @@ public class EARContext extends DeploymentContext {
         } catch (MalformedObjectNameException e) {
             throw new DeploymentException("Unable to construct J2EEServer ObjectName", e);
         }
-        
-        Properties applicationNameProps = new Properties();
-        applicationNameProps.put("j2eeType", "J2EEApplication");
-        applicationNameProps.put("name", j2eeApplicationName);
-        applicationNameProps.put("J2EEServer", j2eeServerName);
-        try {
-            applicationObjectName = new ObjectName(j2eeDomainName, applicationNameProps);
-        } catch (MalformedObjectNameException e) {
-            throw new DeploymentException("Unable to construct J2EEApplication ObjectName", e);
+
+        if (!j2eeApplicationName.equals("null")) {
+            Properties applicationNameProps = new Properties();
+            applicationNameProps.put("j2eeType", "J2EEApplication");
+            applicationNameProps.put("name", j2eeApplicationName);
+            applicationNameProps.put("J2EEServer", j2eeServerName);
+            try {
+                applicationObjectName = new ObjectName(j2eeDomainName, applicationNameProps);
+            } catch (MalformedObjectNameException e) {
+                throw new DeploymentException("Unable to construct J2EEApplication ObjectName", e);
+            }
+        } else {
+            applicationObjectName = null;
         }
+
     }
 
     public String getJ2EEDomainName() {
@@ -129,12 +138,12 @@ public class EARContext extends DeploymentContext {
     }
 
     public Object getEJBRef(URI module, String ejbLink) throws DeploymentException {
-        String name = ejbLink.substring(ejbLink.lastIndexOf('#')+1);
+        String name = ejbLink.substring(ejbLink.lastIndexOf('#') + 1);
         return getRef(module, ejbLink, (Map) ejbRefs.get(name));
     }
 
     public Object getEJBLocalRef(URI module, String ejbLink) throws DeploymentException {
-        String name = ejbLink.substring(ejbLink.lastIndexOf('#')+1);
+        String name = ejbLink.substring(ejbLink.lastIndexOf('#') + 1);
         return getRef(module, ejbLink, (Map) ejbLocalRefs.get(name));
     }
 
