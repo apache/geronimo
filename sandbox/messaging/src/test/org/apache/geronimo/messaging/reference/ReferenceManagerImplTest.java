@@ -21,15 +21,13 @@ import java.net.InetAddress;
 
 import junit.framework.TestCase;
 
+import org.apache.geronimo.messaging.EndPointUtil;
 import org.apache.geronimo.messaging.MockNode;
-import org.apache.geronimo.messaging.MsgHeaderConstants;
 import org.apache.geronimo.messaging.NodeInfo;
-import org.apache.geronimo.messaging.interceptors.HeaderOutInterceptor;
-import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:43 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/24 12:03:34 $
  */
 public class ReferenceManagerImplTest extends TestCase
 {
@@ -43,21 +41,7 @@ public class ReferenceManagerImplTest extends TestCase
         ReferenceableManager manager1 = new ReferenceableManagerImpl(node1, "A");
         ReferenceableManager manager2 = new ReferenceableManagerImpl(new MockNode(), "A");
 
-        MsgOutInterceptor out =
-            new HeaderOutInterceptor(
-                MsgHeaderConstants.SRC_NODE, node1,
-                new HeaderOutInterceptor(
-                    MsgHeaderConstants.SRC_ENDPOINT, "DUMMY",
-                    manager2.getMsgConsumerOut()));
-        manager1.setMsgProducerOut(out);
-
-        out =
-            new HeaderOutInterceptor(
-                MsgHeaderConstants.SRC_NODE, node1,
-                new HeaderOutInterceptor(
-                        MsgHeaderConstants.SRC_ENDPOINT, "DUMMY",
-                        manager1.getMsgConsumerOut()));
-        manager2.setMsgProducerOut(out);
+        EndPointUtil.interConnect(manager1, manager2);
         
         MockReferenceableImpl reference1 = new MockReferenceableImpl();
         ReferenceableInfo info = manager1.register(reference1);

@@ -23,15 +23,13 @@ import java.net.InetAddress;
 
 import junit.framework.TestCase;
 
+import org.apache.geronimo.messaging.EndPointUtil;
 import org.apache.geronimo.messaging.MockNode;
-import org.apache.geronimo.messaging.MsgHeaderConstants;
 import org.apache.geronimo.messaging.NodeInfo;
-import org.apache.geronimo.messaging.interceptors.HeaderOutInterceptor;
-import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:43 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/24 12:03:34 $
  */
 public class StreamManagerImplTest
     extends TestCase
@@ -64,24 +62,9 @@ public class StreamManagerImplTest
         node.setNodeInfo(new NodeInfo("dummy", address, 8081));
         
         StreamManager master = new StreamManagerImpl(node);
-        
         StreamManager slave = new StreamManagerImpl(node);
 
-        MsgOutInterceptor out =
-            new HeaderOutInterceptor(
-                MsgHeaderConstants.SRC_NODE, node,
-                new HeaderOutInterceptor(
-                    MsgHeaderConstants.SRC_ENDPOINT, "DUMMY",
-                    slave.getMsgConsumerOut()));
-        master.setMsgProducerOut(out);
-        
-        out =
-            new HeaderOutInterceptor(
-                MsgHeaderConstants.SRC_NODE, node,
-                new HeaderOutInterceptor(
-                    MsgHeaderConstants.SRC_ENDPOINT, "DUMMY",
-                    master.getMsgConsumerOut()));
-        slave.setMsgProducerOut(out);
+        EndPointUtil.interConnect(master, slave);
 
         int size = 1024*1024;
         InputStream inputStream = new DummyInputStream(size);

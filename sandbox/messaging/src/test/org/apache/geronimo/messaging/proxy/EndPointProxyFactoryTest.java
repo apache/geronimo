@@ -22,18 +22,16 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.apache.geronimo.messaging.EndPointUtil;
 import org.apache.geronimo.messaging.MockEndPoint;
 import org.apache.geronimo.messaging.MockEndPointImpl;
 import org.apache.geronimo.messaging.MockNode;
-import org.apache.geronimo.messaging.MsgHeaderConstants;
 import org.apache.geronimo.messaging.NodeInfo;
 import org.apache.geronimo.messaging.Request;
-import org.apache.geronimo.messaging.interceptors.HeaderOutInterceptor;
-import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/20 13:37:11 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/24 12:03:34 $
  */
 public class EndPointProxyFactoryTest
     extends TestCase
@@ -63,21 +61,7 @@ public class EndPointProxyFactoryTest
     public void testInvoke() throws Exception {
         MockEndPoint actual = new MockEndPointImpl(new MockNode(), "", targets);
         
-        MsgOutInterceptor out =
-            new HeaderOutInterceptor(
-                MsgHeaderConstants.SRC_NODE, "",
-                new HeaderOutInterceptor(
-                    MsgHeaderConstants.SRC_ENDPOINT, "",
-                    actual.getMsgConsumerOut()));
-        factory.setMsgProducerOut(out);
-
-        out =
-            new HeaderOutInterceptor(
-                MsgHeaderConstants.SRC_NODE, "",
-                new HeaderOutInterceptor(
-                    MsgHeaderConstants.SRC_ENDPOINT, "",
-                    factory.getMsgConsumerOut()));
-        actual.setMsgProducerOut(out);
+        EndPointUtil.interConnect(actual, factory);
         
         MockEndPoint endPoint = (MockEndPoint) proxy;
         Object opaque = new Object();

@@ -21,15 +21,13 @@ import java.net.InetAddress;
 
 import junit.framework.TestCase;
 
+import org.apache.geronimo.messaging.EndPointUtil;
 import org.apache.geronimo.messaging.MockNode;
-import org.apache.geronimo.messaging.MsgHeaderConstants;
 import org.apache.geronimo.messaging.NodeInfo;
-import org.apache.geronimo.messaging.interceptors.HeaderOutInterceptor;
-import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:43 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/24 12:03:34 $
  */
 public class ReplicationMemberImplTest
     extends TestCase
@@ -46,21 +44,7 @@ public class ReplicationMemberImplTest
         primary = new ReplicationMemberImpl(new MockNode(), "Group", targets);
         secondary = new ReplicationMemberImpl(new MockNode(), "Group", targets);
         
-        MsgOutInterceptor out =
-            new HeaderOutInterceptor(
-                MsgHeaderConstants.SRC_NODE, dummy,
-                new HeaderOutInterceptor(
-                    MsgHeaderConstants.SRC_ENDPOINT, "DUMMY",
-                    secondary.getMsgConsumerOut()));
-        primary.setMsgProducerOut(out);
-
-        out =
-            new HeaderOutInterceptor(
-                MsgHeaderConstants.SRC_NODE, dummy,
-                new HeaderOutInterceptor(
-                    MsgHeaderConstants.SRC_ENDPOINT, "DUMMY",
-                    primary.getMsgConsumerOut()));
-        secondary.setMsgProducerOut(out);
+        EndPointUtil.interConnect(primary, secondary);
     }
     
     public void testRegisterReplicantCapable() {
