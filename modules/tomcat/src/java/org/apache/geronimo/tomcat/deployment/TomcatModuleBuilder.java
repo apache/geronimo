@@ -17,6 +17,8 @@
 
 package org.apache.geronimo.tomcat.deployment;
 
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -29,16 +31,16 @@ import java.util.LinkedList;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
@@ -52,8 +54,7 @@ import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
 import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
 import org.apache.geronimo.xbeans.j2ee.WebAppType;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlObject;
+
 
 /**
  * @version $Rev: 106522 $ $Date: 2004-11-25 01:28:57 +0100 (Thu, 25 Nov 2004) $
@@ -72,8 +73,10 @@ public class TomcatModuleBuilder implements ModuleBuilder {
 
     public String addGBeans(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
         J2eeContext earJ2eeContext = earContext.getJ2eeContext();
-        J2eeContext moduleJ2eeContext = new J2eeContextImpl(earJ2eeContext.getJ2eeDomainName(), earJ2eeContext
-                .getJ2eeServerName(), earJ2eeContext.getJ2eeApplicationName(), module.getName(), null, null);
+        J2eeContext moduleJ2eeContext = new J2eeContextImpl(earJ2eeContext.getJ2eeDomainName(),
+                                                            earJ2eeContext.getJ2eeServerName(),
+                                                            earJ2eeContext.getJ2eeApplicationName(),
+                                                            module.getName(), null, null);
         WebModule webModule = (WebModule) module;
 
         // construct the webClassLoader
@@ -91,16 +94,16 @@ public class TomcatModuleBuilder implements ModuleBuilder {
 
         ObjectName webModuleName = null;
         try {
-            webModuleName = NameFactory
-                    .getModuleName(null, null, null, null, NameFactory.WEB_MODULE, moduleJ2eeContext);
+            webModuleName = NameFactory.getModuleName(null, null, null, null, NameFactory.WEB_MODULE, moduleJ2eeContext);
         } catch (MalformedObjectNameException e) {
             throw new DeploymentException("Could not construct module name", e);
         }
 
-        GBeanMBean gbean;
+        GBeanData gbean;
         try {
-            gbean = new GBeanMBean(TomcatWebAppContext.GBEAN_INFO);
+            gbean = new GBeanData(TomcatWebAppContext.GBEAN_INFO);
 
+            gbean.setName(webModuleName);
             gbean.setAttribute("webAppRoot", baseUri);
             gbean.setAttribute("webClassPath", webClassPath);
 
@@ -110,7 +113,8 @@ public class TomcatModuleBuilder implements ModuleBuilder {
         } catch (Exception e) {
             throw new DeploymentException("Unable to initialize webapp GBean", e);
         }
-        earContext.addGBean(webModuleName, gbean);
+        earContext.addGBean(gbean);
+
         return null;
     }
 
@@ -172,7 +176,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
     public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, URI earConfigId)
             throws DeploymentException {
         log.debug("createModule: " + plan + "; " + moduleFile + "; " + targetPath + "; " + specDDUrl + "; "
-                + earConfigId);
+                  + earConfigId);
         return null;
     }
 
@@ -217,7 +221,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
     }
 
     JettyWebAppType getJettyWebApp(Object plan, JarFile moduleFile, boolean standAlone, String targetPath,
-            WebAppType webApp) throws DeploymentException {
+                                   WebAppType webApp) throws DeploymentException {
         JettyWebAppType jettyWebApp = null;
         try {
             // load the geronimo-jetty.xml from either the supplied plan or from
@@ -225,7 +229,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
             try {
                 if (plan instanceof XmlObject) {
                     jettyWebApp = (JettyWebAppType) SchemaConversionUtils.getNestedObjectAsType((XmlObject) plan,
-                            "web-app", JettyWebAppType.type);
+                                                                                                "web-app", JettyWebAppType.type);
                 } else {
                     JettyWebAppDocument jettyWebAppdoc = null;
                     if (plan != null) {
@@ -326,7 +330,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
         infoBuilder.addAttribute("defaultParentId", URI.class, true);
         infoBuilder.addInterface(ModuleBuilder.class);
 
-        infoBuilder.setConstructor(new String[] { "defaultParentId" });
+        infoBuilder.setConstructor(new String[]{"defaultParentId"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

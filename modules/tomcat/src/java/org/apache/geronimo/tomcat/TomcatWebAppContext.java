@@ -21,6 +21,9 @@ import java.net.URI;
 import java.net.URL;
 
 import org.apache.catalina.Context;
+import org.apache.catalina.Realm;
+import org.apache.catalina.deploy.SecurityConstraint;
+import org.apache.catalina.deploy.LoginConfig;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -49,8 +52,19 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
 
     private String docBase = null;
 
-    public TomcatWebAppContext(URI webAppRoot, URI[] webClassPath, URL configurationBaseUrl, TomcatContainer container) {
+    private final LoginConfig loginConfig;
 
+    private final Realm tomcatRealm;
+
+    private final SecurityConstraint[] securityConstraints;
+
+    private final String[] securityRoles;
+
+
+    public TomcatWebAppContext(URI webAppRoot, URI[] webClassPath, URL configurationBaseUrl, String authMethod,
+                               String realmName, String loginPage, String errorPage, Realm tomcatRealm,
+                               SecurityConstraint[] securityConstraints, String[] securityRoles,
+                               TomcatContainer container) {
         assert webAppRoot != null;
         assert webClassPath != null;
         assert configurationBaseUrl != null;
@@ -60,6 +74,19 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
         this.container = container;
 
         this.setDocBase(this.webAppRoot.getPath());
+        this.tomcatRealm = tomcatRealm;
+        this.securityConstraints = securityConstraints;
+        this.securityRoles = securityRoles;
+
+        if (authMethod != null){
+            loginConfig = new LoginConfig();
+            loginConfig.setAuthMethod(authMethod);
+            loginConfig.setRealmName(realmName);
+            loginConfig.setLoginPage(loginPage);
+            loginConfig.setErrorPage(errorPage);
+        } else {
+            loginConfig = null;    
+        }
     }
 
     public String getDocBase() {
@@ -73,6 +100,28 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
     public void setContextProperties() {
         context.setDocBase(webAppRoot.getPath());
         context.setPath(path);
+
+        //Security
+        if (tomcatRealm != null)
+            context.setRealm(tomcatRealm);
+
+        if (loginConfig != null)
+            context.setLoginConfig(loginConfig);
+
+        // Add the security constraints
+        if (securityConstraints != null) {
+            for (int i = 0; i < securityConstraints.length; i++) {
+                SecurityConstraint sc = securityConstraints[i];
+                context.addConstraint(sc);
+            }
+        }
+
+        // Add the security roles
+        if (securityRoles != null) {
+            for (int i = 0; i < securityRoles.length; i++) {
+                context.addSecurityRole(securityRoles[i]);
+            }
+        }
     }
 
     public Context getContext() {
@@ -109,7 +158,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
 
     public void doFail() {
         container.removeContext(this);
-        
+
         log.info("TomcatWebAppContext failed");
     }
 
@@ -124,9 +173,20 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
 
         infoFactory.addAttribute("path", String.class, true);
 
+        infoFactory.addAttribute("authMethod", String.class, true);
+        infoFactory.addAttribute("realmName", String.class, true);
+        infoFactory.addAttribute("loginPage", String.class, true);
+        infoFactory.addAttribute("errorPage", String.class, true);
+
+        infoFactory.addAttribute("tomcatRealm", Realm.class, true);
+        infoFactory.addAttribute("securityConstraints", SecurityConstraint[].class, true);
+        infoFactory.addAttribute("securityRoles", String[].class, true);
+
         infoFactory.addReference("Container", TomcatContainer.class);
 
-        infoFactory.setConstructor(new String[]{"webAppRoot", "webClassPath", "configurationBaseUrl", "Container"});
+        infoFactory.setConstructor(new String[]{"webAppRoot", "webClassPath", "configurationBaseUrl", "authMethod",
+                                                "realmName", "loginPage", "errorPage", "tomcatRealm",
+                                                "securityConstraints", "securityRoles", "Container"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

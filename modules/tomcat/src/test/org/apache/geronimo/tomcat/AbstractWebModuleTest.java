@@ -132,7 +132,7 @@ public class AbstractWebModuleTest extends TestCase {
     // securityRoles, Map legacySecurityConstraintMap) throws Exception {
     protected ObjectName setUpSecureAppContext(SecurityConstraint[] securityConstraints, String[] securityRoles)
             throws Exception {
-        GBeanData app = new GBeanData(webModuleName, TomcatSecureWebAppContext.GBEAN_INFO);
+        GBeanData app = new GBeanData(webModuleName, TomcatWebAppContext.GBEAN_INFO);
         app.setAttribute("webAppRoot", new File("target/var/catalina/webapps/war3/").toURI());
         app.setAttribute("webClassPath", new URI[] {});
         app.setAttribute("configurationBaseUrl", new File("target/var/catalina/webapps/war3/WEB-INF/web.xml").toURL());
