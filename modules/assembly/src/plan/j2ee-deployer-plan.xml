@@ -83,22 +83,6 @@ Configuration for the Geronimo deployer
     <dependency>
         <uri>geronimo/jars/geronimo-jetty-${geronimo_version}.jar</uri>
     </dependency>
-<!-- the tomcat module's requirement
-   - uncomment it to run Apache Tomcat as a web container
-   -
-    <dependency>
-        <uri>geronimo/jars/geronimo-tomcat-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>tomcat/jars/catalina-${tomcat_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>tomcat/jars/naming-resources-${tomcat_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>tomcat/jars/tomcat-util-${tomcat_version}.jar</uri>
-    </dependency>
-   -->
     <dependency>
         <uri>geronimo/jars/geronimo-naming-${geronimo_version}.jar</uri>
     </dependency>
@@ -190,11 +174,24 @@ Configuration for the Geronimo deployer
         <reference name="SecurityService">geronimo.deployer:type=SecurityService</reference>
         <attribute name="defaultServlets">geronimo.deployer:role=DefaultServlet,config=org/apache/geronimo/J2EEDeployer,*</attribute>
     </gbean>
-<!-- the tomcat module's requirement
-   - uncomment it to run Apache Tomcat as a web container
+
+<!--
+   - Uncomment it to deploy webapps to Apache Tomcat
    -
+    <dependency>
+        <uri>geronimo/jars/geronimo-tomcat-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/catalina-${tomcat_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/naming-resources-${tomcat_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/tomcat-util-${tomcat_version}.jar</uri>
+    </dependency>
     <gbean name="geronimo.deployer:role=ModuleBuilder,type=Web,config=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.tomcat.deployment.TomcatModuleBuilder">
-        <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
+        <attribute name="defaultParentId">org/apache/geronimo/Tomcat</attribute>
     </gbean>
    -->
 

@@ -43,12 +43,19 @@ public class TomcatContainer implements GBeanLifecycle {
     /**
      * The default value of CATALINA_HOME variable
      */
-    private static final String CATALINA_HOME = "var/catalina";
-    
+    private static final String DEFAULT_CATALINA_HOME = "var/catalina";
+
+    /**
+     * The default port the HTTP connector listens to
+     * 
+     * TODO: Move it to another GBean, e.g. HTTPConnector
+     */
+    private static final int DEFAULT_HTTP_CONNECTOR_PORT = 8090;
+
     /**
      * Work directory
      */
-    private static final String WORK_DIR = "work"; 
+    private static final String WORK_DIR = "work";
 
     /**
      * Reference to the org.apache.catalina.Embedded embedded.
@@ -80,11 +87,25 @@ public class TomcatContainer implements GBeanLifecycle {
     private Context defaultContext;
 
     /**
+     * The port Tomcat's HTTP Connector listens to
+     * 
+     * TODO: Make it a part of the Listener GBean
+     */
+    private int port;
+
+    // Required as it's referenced by deployed webapps
+    public TomcatContainer(){
+        setCatalinaHome(DEFAULT_CATALINA_HOME);
+        setPort(DEFAULT_HTTP_CONNECTOR_PORT);
+    }
+    
+    /**
      * GBean constructor (invoked dynamically when the gbean is declared in a
      * plan)
      */
-    public TomcatContainer() {
-        System.setProperty("catalina.home", CATALINA_HOME);
+    public TomcatContainer(String catalinaHome, int port) {
+        setCatalinaHome(catalinaHome);
+        setPort(port);
     }
 
     public void doFail() {
@@ -133,7 +154,7 @@ public class TomcatContainer implements GBeanLifecycle {
         // desired. After you customize this Host, add it to the corresponding
         // Engine with engine.addChild(host).
         host = embedded.createHost("localhost", "");
-        // TODO: Make it that gbean's attribute or tomcatwebappcontext's one
+        // TODO: Make it the gbean's attribute or tomcatwebappcontext's one
         ((StandardHost) host).setWorkDir(WORK_DIR);
 
         engine.addChild(host);
@@ -161,7 +182,7 @@ public class TomcatContainer implements GBeanLifecycle {
 
         // Create an HTTP/1.1 connector manually
         connector = new Connector("HTTP/1.1");
-        connector.setPort(8080);
+        connector.setPort(this.getPort());
 
         // 8. Call addConnector() to attach this Connector to the set of defined
         // Connectors for this object. The added Connector will use the most
@@ -193,8 +214,10 @@ public class TomcatContainer implements GBeanLifecycle {
      */
     public void addContext(Context ctx) {
         // TODO: Rethink what we're doing here
-        // The param - ctx - extends StandardContext, but at the same time we don't leverage it.
-        // TomcatContainer creates it again - so in fact there're two classes for the same thing.
+        // The param - ctx - extends StandardContext, but at the same time we
+        // don't leverage it.
+        // TomcatContainer creates it again - so in fact there're two classes
+        // for the same thing.
         // The question comes up what do we get from having the
         // TomcatWebAppContext class extend Tomcat's StandardContext?
         Context anotherCtxObj = embedded.createContext(ctx.getPath(), ctx.getDocBase());
@@ -206,10 +229,27 @@ public class TomcatContainer implements GBeanLifecycle {
         embedded.removeContext(ctx);
     }
 
+    public void setCatalinaHome(String catalinaHome) {
+        System.setProperty("catalina.home", catalinaHome);
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Tomcat Web Container", TomcatContainer.class);
+
+        infoFactory.setConstructor(new String[] { "catalinaHome", "port" });
+
+        infoFactory.addAttribute("catalinaHome", String.class, true);
+        infoFactory.addAttribute("port", int.class, true);
 
         infoFactory.addOperation("addContext", new Class[] { Context.class });
         infoFactory.addOperation("removeContext", new Class[] { Context.class });

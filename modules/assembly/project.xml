@@ -591,11 +591,7 @@
                 <client>true</client>
                 <deploy>true</deploy>
                 <clideployer>true</clideployer>
-<!-- the tomcat module's requirement
-   - uncomment it to run Apache Tomcat as a web container
-   -
                 <repository>true</repository>
-   -->
             </properties>
         </dependency>
 
@@ -702,9 +698,6 @@
                 <repository>true</repository>
             </properties>
         </dependency>
-<!-- the tomcat module's requirement
-   - uncomment it to run Apache Tomcat as a web container
-   -
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-tomcat</artifactId>
@@ -821,7 +814,6 @@
                 <repository>true</repository>
             </properties>
         </dependency>
-   -->
 
         <!-- for jsps -->
         <dependency>

@@ -65,7 +65,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
     private static final Log log = LogFactory.getLog(TomcatModuleBuilder.class);
 
     public TomcatModuleBuilder(URI defaultParentId) {
-        log.debug("TomcatModuleBuilder()");
+        log.debug("TomcatModuleBuilder(" + defaultParentId + ")");
 
         this.defaultParentId = defaultParentId;
     }
@@ -140,7 +140,8 @@ public class TomcatModuleBuilder implements ModuleBuilder {
         // parse vendor dd
         JettyWebAppType jettyWebApp = getJettyWebApp(plan, moduleFile, false, "war", webApp);
 
-        // get the ids from either the application plan or for a stand alone module from the specific deployer
+        // get the ids from either the application plan or for a stand alone
+        // module from the specific deployer
         URI configId = null;
         try {
             configId = new URI(jettyWebApp.getConfigId());
@@ -158,6 +159,13 @@ public class TomcatModuleBuilder implements ModuleBuilder {
         } else {
             parentId = defaultParentId;
         }
+
+        // for now, every webapps will get defaultParentId which is
+        // org/apache/geronimo/Tomcat
+        // TODO: Create a general WebModuleBuilder and hand over deploying a
+        // webapp to Jetty- or TomcatModuleBuilder based on parentId.
+        log.warn("Assigning defaultParentId [" + defaultParentId + "] to webapp [" + configId + "]");
+        parentId = defaultParentId;
 
         WebModule module = new WebModule(false, configId, parentId, moduleFile, "war", webApp, jettyWebApp, specDD);
         module.setContextRoot(jettyWebApp.getContextRoot());
@@ -212,15 +220,16 @@ public class TomcatModuleBuilder implements ModuleBuilder {
         }
     }
 
-    JettyWebAppType getJettyWebApp(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, WebAppType webApp) throws DeploymentException {
+    JettyWebAppType getJettyWebApp(Object plan, JarFile moduleFile, boolean standAlone, String targetPath,
+            WebAppType webApp) throws DeploymentException {
         JettyWebAppType jettyWebApp = null;
         try {
-            // load the geronimo-jetty.xml from either the supplied plan or from the earFile
+            // load the geronimo-jetty.xml from either the supplied plan or from
+            // the earFile
             try {
                 if (plan instanceof XmlObject) {
                     jettyWebApp = (JettyWebAppType) SchemaConversionUtils.getNestedObjectAsType((XmlObject) plan,
-                            "web-app",
-                            JettyWebAppType.type);
+                            "web-app", JettyWebAppType.type);
                 } else {
                     JettyWebAppDocument jettyWebAppdoc = null;
                     if (plan != null) {
@@ -236,7 +245,8 @@ public class TomcatModuleBuilder implements ModuleBuilder {
             } catch (IOException e) {
             }
 
-            // if we got one extract and validate it otherwise create a default one
+            // if we got one extract and validate it otherwise create a default
+            // one
             if (jettyWebApp != null) {
                 jettyWebApp = (JettyWebAppType) SchemaConversionUtils.convertToGeronimoNamingSchema(jettyWebApp);
                 jettyWebApp = (JettyWebAppType) SchemaConversionUtils.convertToGeronimoSecuritySchema(jettyWebApp);
@@ -247,7 +257,8 @@ public class TomcatModuleBuilder implements ModuleBuilder {
                     // default configId is based on the moduleFile name
                     path = new File(moduleFile.getName()).getName();
                 } else {
-                    // default configId is based on the module uri from the application.xml
+                    // default configId is based on the module uri from the
+                    // application.xml
                     path = targetPath;
                 }
                 jettyWebApp = createDefaultPlan(path, webApp);
@@ -319,7 +330,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
         infoBuilder.addAttribute("defaultParentId", URI.class, true);
         infoBuilder.addInterface(ModuleBuilder.class);
 
-        infoBuilder.setConstructor(new String[]{"defaultParentId"});
+        infoBuilder.setConstructor(new String[] { "defaultParentId" });
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
