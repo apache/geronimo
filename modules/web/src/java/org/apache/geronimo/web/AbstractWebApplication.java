@@ -56,7 +56,7 @@
 
 package org.apache.geronimo.web;
 
-import java.net.URL;
+import java.net.URI;
 
 import org.apache.geronimo.common.AbstractComponent;
 import org.w3c.dom.Document;
@@ -70,7 +70,7 @@ import org.w3c.dom.Document;
  *  deploy() on the container passing in the identity of the WebApplication.
  * 
  * 
- * @version $Revision: 1.1 $ $Date: 2003/08/18 13:30:41 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/21 14:36:22 $
  */
 public class AbstractWebApplication
     extends AbstractComponent
@@ -131,7 +131,7 @@ public class AbstractWebApplication
      * @return
      * @see org.apache.geronimo.web.WebApplication#getDeploymentDescriptor()
      */
-    public Document getDeploymentDescriptor()
+    public String getDeploymentDescriptor()
     {
         // TODO
         return null;
@@ -140,9 +140,9 @@ public class AbstractWebApplication
     /* -------------------------------------------------------------------------------------- */
     /* 
      * @return
-     * @see org.apache.geronimo.web.WebApplication#getDeploymentDescriptorURL()
+     * @see org.apache.geronimo.web.WebApplication#getDeploymentDescriptorURI()
      */
-    public URL getDeploymentDescriptorURL()
+    public URI getDeploymentDescriptorURI()
     {
         // TODO
         return null;
@@ -151,9 +151,20 @@ public class AbstractWebApplication
     /* -------------------------------------------------------------------------------------- */
     /* 
      * @return
-     * @see org.apache.geronimo.web.WebApplication#getURL()
+     * @see org.apache.geronimo.web.WebApplication#getDeploymentDescriptorDocument()
      */
-    public URL getURL()
+    public Document getDeploymentDescriptorDocument()
+    {
+        // TODO
+        return null;
+    }
+
+    /* -------------------------------------------------------------------------------------- */
+    /* 
+     * @return
+     * @see org.apache.geronimo.web.WebApplication#getURI()
+     */
+    public URI getURI()
     {
         // TODO
         return null;
