@@ -1,9 +1,0 @@
-<Server port="8005" shutdown="SHUTDOWN" debug="0">
-	<Service name="Catalina">
-    	<Connector port="8080"/>
-
-		<Engine name="Geronimo" defaultHost="localhost" debug="0">
-			<Host name="localhost" debug="0" appBase="webapps"/>
-		</Engine>
-	</Service>
-</Server>

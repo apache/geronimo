@@ -39,11 +39,16 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 public class TomcatContainer implements GBeanLifecycle {
 
     private static final Log log = LogFactory.getLog(TomcatContainer.class);
+    
+    /**
+     * The default value of CATALINA_HOME variable
+     */
+    private static final String CATALINA_HOME = "var/catalina";
 
     /**
-     * Reference to the org.apache.catalina.Embedded shell.
+     * Reference to the org.apache.catalina.Embedded embedded.
      */
-    private Embedded shell;
+    private Embedded embedded;
 
     /**
      * Tomcat Host that will contain deployed contexts (webapps)
@@ -74,6 +79,7 @@ public class TomcatContainer implements GBeanLifecycle {
      * plan)
      */
     public TomcatContainer() {
+        System.setProperty("catalina.home", CATALINA_HOME);
     }
 
     public void doFail() {
@@ -95,30 +101,29 @@ public class TomcatContainer implements GBeanLifecycle {
         // The comments are from the javadoc of the Embedded class
 
         // 1. Instantiate a new instance of this class.
-        if (shell == null) {
-            shell = new Embedded();
+        if (embedded == null) {
+            embedded = new Embedded();
         }
 
         // 2. Set the relevant properties of this object itself. In particular,
         // you will want to establish the default Logger to be used, as well as
         // the default Realm if you are using container-managed security.
-        shell.setUseNaming(false);
+        embedded.setUseNaming(false);
 
         // 3. Call createEngine() to create an Engine object, and then call its
         // property setters as desired.
-        engine = shell.createEngine();
+        engine = embedded.createEngine();
         engine.setName("Geronimo");
+        engine.setDefaultHost("localhost");
 
         // 4. Call createHost() to create at least one virtual Host associated
         // with the newly created Engine, and then call its property setters as
         // desired. After you customize this Host, add it to the corresponding
         // Engine with engine.addChild(host).
-        host = shell.createHost("localhost", "");
+        host = embedded.createHost("localhost", "");
         // TODO: Make it that gbean's attribute or tomcatwebappcontext's one
-        ((StandardHost) host).setWorkDir("var/catalina");
-        
-        engine.setDefaultHost(host.getName());
-        host.setParent(engine);
+        ((StandardHost) host).setWorkDir(CATALINA_HOME);
+
         engine.addChild(host);
 
         // 5. Call createContext() to create at least one Context associated
@@ -127,18 +132,19 @@ public class TomcatContainer implements GBeanLifecycle {
         // zero-length string, which will be used to process all requests not
         // mapped to some other Context. After you customize this Context, add
         // it to the corresponding Host with host.addChild(context).
-        defaultContext = shell.createContext("", "");
+        defaultContext = embedded.createContext("", "");
+        defaultContext.setParentClassLoader(this.getClass().getClassLoader());
         host.addChild(defaultContext);
 
         // 6. Call addEngine() to attach this Engine to the set of defined
         // Engines for this object.
-        shell.addEngine(engine);
+        embedded.addEngine(engine);
 
         // 7. Call createConnector() to create at least one TCP/IP connector,
         // and then call its property setters as desired.
 
         // It doesn't work - there's no HTTP connector created
-        // connector = shell.createConnector((String) null, 8080, "http");
+        // connector = embedded.createConnector((String) null, 8080, "http");
 
         // Create an HTTP/1.1 connector manually
         connector = new Connector("HTTP/1.1");
@@ -147,17 +153,17 @@ public class TomcatContainer implements GBeanLifecycle {
         // 8. Call addConnector() to attach this Connector to the set of defined
         // Connectors for this object. The added Connector will use the most
         // recently added Engine to process its received requests.
-        shell.addConnector(connector);
+        embedded.addConnector(connector);
 
         // 9. Call start() to initiate normal operations of all the attached
         // components.
-        shell.start();
+        embedded.start();
     }
 
     public void doStop() throws Exception {
-        if (shell != null) {
-            shell.stop();
-            shell = null;
+        if (embedded != null) {
+            embedded.stop();
+            embedded = null;
         }
     }
 
@@ -173,12 +179,12 @@ public class TomcatContainer implements GBeanLifecycle {
      * @see org.apache.catalina.Host
      */
     public void addContext(Context ctx) {
-        ctx.setParent(host);
+        ctx.setParentClassLoader(this.getClass().getClassLoader());
         host.addChild(ctx);
     }
 
     public void removeContext(Context ctx) {
-        shell.removeContext(ctx);
+        embedded.removeContext(ctx);
     }
 
     public static final GBeanInfo GBEAN_INFO;
