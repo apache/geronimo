@@ -58,9 +58,9 @@ package org.apache.geronimo.deployment.model.geronimo.j2ee;
 /**
  * JavaBean for the Geronimo DD tag ejb-ref
  *
- * @version $Revision: 1.4 $ $Date: 2003/09/29 14:47:00 $
+ * @version $Revision: 1.5 $ $Date: 2003/11/13 04:21:17 $
  */
-public class EjbRef extends org.apache.geronimo.deployment.model.j2ee.EJBRef {
+public class EjbRef extends org.apache.geronimo.deployment.model.j2ee.EJBRef implements JNDILocator {
     private String jndiName;
     private JndiContextParam[] jndiContextParam = new JndiContextParam[0];
 

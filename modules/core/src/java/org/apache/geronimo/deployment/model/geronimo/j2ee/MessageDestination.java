@@ -58,9 +58,9 @@ package org.apache.geronimo.deployment.model.geronimo.j2ee;
 /**
  * JavaBean for the Geronimo DD tag message-destination-ref
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/29 14:47:00 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/13 04:21:17 $
  */
-public class MessageDestination extends org.apache.geronimo.deployment.model.j2ee.MessageDestination {
+public class MessageDestination extends org.apache.geronimo.deployment.model.j2ee.MessageDestination implements JNDILocator {
     private String jndiName;
     private JndiContextParam[] jndiContextParam = new JndiContextParam[0];
 
