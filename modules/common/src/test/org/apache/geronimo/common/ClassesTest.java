@@ -61,7 +61,7 @@ import junit.framework.TestCase;
 /**
  * Unit test for {@link Classes} class.
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/29 19:33:43 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/27 20:18:37 $
  */
 public class ClassesTest
     extends TestCase
@@ -69,26 +69,49 @@ public class ClassesTest
     protected Class loadClass(final String name)
     {
         Class type = null;
-        
+
         try {
             type = Classes.loadClass(name);
         }
         catch (ClassNotFoundException e) {
             fail("Class should have been found: " + e);
         }
-        
+
         assertNotNull(type);
-        
+
         return type;
     }
-    
+
+    public void testLoadClass_Null()
+    {
+        try {
+            Classes.loadClass(null);
+            fail("Expected NullArgumentException");
+        }
+        catch(NullArgumentException ignore) {
+        }
+        catch (ClassNotFoundException e) {
+            fail("Class should have been found: " + e);
+        }
+
+        try {
+            Classes.loadClass("org.apache.geronimo.common.Classes",null);
+            fail("Expected NullArgumentException");
+        }
+        catch(NullArgumentException ignore) {
+        }
+        catch (ClassNotFoundException e) {
+            fail("Class should have been found: " + e);
+        }
+    }
+
     public void testLoadClass_Simple()
     {
         String className = "org.apache.geronimo.common.Classes";
         Class type = loadClass(className);
         assertEquals(className, type.getName());
     }
-    
+
     public void testLoadClass_Missing()
     {
         String className = "some.class.that.does.not.Exist";
@@ -98,33 +121,48 @@ public class ClassesTest
         }
         catch (ClassNotFoundException ignore) {}
     }
-    
+
     public void testLoadClass_Primitives()
     {
         String className = "boolean";
         Class type = loadClass(className);
         assertEquals(className, type.getName());
     }
-    
+
     public void testLoadClass_VMPrimitives()
     {
         String className = "B";
         Class type = loadClass(className);
         assertEquals(byte.class, type);
     }
-    
+
     public void testLoadClass_VMClassSyntax()
     {
         String className = "org.apache.geronimo.common.Classes";
         Class type = loadClass("L" + className + ";");
         assertEquals(className, type.getName());
     }
-    
+
     public void testLoadClass_VMArraySyntax()
     {
         String className = "[B";
         Class type = loadClass(className);
         assertEquals(byte[].class, type);
+
+        className = "[java.lang.String";
+        type = loadClass(className);
+        assertEquals(String[].class, type);
+    }
+
+    public void testLoadClass_UserFriendlySyntax()
+    {
+        String className = "I[]";
+        Class type = loadClass(className);
+        assertEquals(int[].class, type);
+
+        className = "I[][][]";
+        type = loadClass(className);
+        assertEquals(int[][][].class, type);
     }
 
     public void testgetClassName() throws ClassNotFoundException {
@@ -136,7 +174,7 @@ public class ClassesTest
         x = Classes.getClassName(t);
         y = loadClass(x);
         assertEquals(t,y);
-        
+
         t= int.class;
         x = Classes.getClassName(t);
         y = loadClass(x);
@@ -163,5 +201,40 @@ public class ClassesTest
         assertEquals(t,y);
 
     }
-    
+
+    public void testGetPrimitiveWrapper() {
+        try {
+            Classes.getPrimitiveWrapper(null);
+            fail("Expected NullArgumentException");
+        } catch (NullArgumentException ignore) {
+        }
+
+        try {
+            Classes.getPrimitiveWrapper(String.class);
+            fail("Expected IllegalArgumentException");
+        } catch (IllegalArgumentException ignore) {
+        }
+
+        assertEquals(Boolean.class,Classes.getPrimitiveWrapper(Boolean.TYPE));
+    }
+
+    public void testIsPrimitiveWrapper() {
+        try {
+            Classes.isPrimitiveWrapper(null);
+            fail("Expected NullArgumentException");
+        } catch (NullArgumentException ignore) {
+        }
+        assertTrue(Classes.isPrimitiveWrapper(Boolean.TYPE));
+        assertFalse(Classes.isPrimitiveWrapper(String.class));
+    }
+
+    public void testIsPrimitive() {
+        try {
+            Classes.isPrimitive(null);
+            fail("Expected NullArgumentException");
+        } catch (NullArgumentException ignore) {
+        }
+        assertTrue(Classes.isPrimitive(Boolean.TYPE));
+        assertFalse(Classes.isPrimitive(String.class));
+    }
 }

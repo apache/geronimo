@@ -74,7 +74,7 @@ import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 /**
  * A collection of <code>Class</code> utilities.
  *
- * @version $Revision: 1.6 $ $Date: 2003/09/05 05:49:26 $
+ * @version $Revision: 1.7 $ $Date: 2003/09/27 20:18:37 $
  */
 public class Classes extends ClassUtils {
     private static final Class[] stringArg = new Class[]{String.class};
@@ -374,7 +374,7 @@ public class Classes extends ClassUtils {
             int arrayDimension = 0;
             String componentClassName = className;
             while (componentClassName.endsWith("[]")) {
-                componentClassName = componentClassName.substring(0, className.length() - 2);
+                componentClassName = componentClassName.substring(0, componentClassName.length() - 2);
                 arrayDimension++;
             }
 
