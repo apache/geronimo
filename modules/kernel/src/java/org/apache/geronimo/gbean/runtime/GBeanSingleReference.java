@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.gbean.jmx;
+package org.apache.geronimo.gbean.runtime;
 
 import java.util.Set;
 import javax.management.ObjectName;
@@ -44,8 +44,8 @@ public class GBeanSingleReference extends AbstractGBeanReference {
      */
     private ObjectName proxyTarget;
 
-    public GBeanSingleReference(GBeanMBean gmbean, GReferenceInfo referenceInfo, Class constructorType) throws InvalidConfigurationException {
-        super(gmbean, referenceInfo, constructorType);
+    public GBeanSingleReference(GBeanInstance gbeanInstance, GReferenceInfo referenceInfo, Class constructorType) throws InvalidConfigurationException {
+        super(gbeanInstance, referenceInfo, constructorType);
     }
 
     public synchronized void start() throws Exception {
@@ -74,7 +74,7 @@ public class GBeanSingleReference extends AbstractGBeanReference {
 
         // stop all gbeans that would match our patterns from starting
         Kernel kernel = getKernel();
-        ObjectName objectName = getGBeanMBean().getObjectNameObject();
+        ObjectName objectName = getGBeanInstance().getObjectNameObject();
         kernel.getDependencyManager().addStartHolds(objectName, getPatterns());
 
         // add a dependency on our target and create the proxy
@@ -87,7 +87,7 @@ public class GBeanSingleReference extends AbstractGBeanReference {
     public synchronized void stop() {
         waitingForMe = false;
         Kernel kernel = getKernel();
-        ObjectName objectName = getGBeanMBean().getObjectNameObject();
+        ObjectName objectName = getGBeanInstance().getObjectNameObject();
         Set patterns = getPatterns();
         if (!patterns.isEmpty()) {
             kernel.getDependencyManager().removeStartHolds(objectName, patterns);
@@ -104,9 +104,9 @@ public class GBeanSingleReference extends AbstractGBeanReference {
 
     public synchronized void targetAdded(ObjectName target) {
         // if we are running, and we now have two valid targets, which is an illegal state so we need to fail
-        GBeanMBean gbeanMBean = getGBeanMBean();
-        if (gbeanMBean.getStateInstance() == State.RUNNING) {
-            gbeanMBean.fail();
+        GBeanInstance gbeanInstance = getGBeanInstance();
+        if (gbeanInstance.getStateInstance() == State.RUNNING) {
+            gbeanInstance.fail();
         } else if (waitingForMe) {
             Set targets = getTargets();
             if (targets.size() == 1) {
@@ -117,10 +117,10 @@ public class GBeanSingleReference extends AbstractGBeanReference {
     }
 
     public synchronized void targetRemoved(ObjectName target) {
-        GBeanMBean gbeanMBean = getGBeanMBean();
-        if (gbeanMBean.getStateInstance() == State.RUNNING) {
+        GBeanInstance gbeanInstance = getGBeanInstance();
+        if (gbeanInstance.getStateInstance() == State.RUNNING) {
             // we no longer have a valid target, which is an illegal state so we need to fail
-            gbeanMBean.fail();
+            gbeanInstance.fail();
         } else if (waitingForMe) {
             Set targets = getTargets();
             if (targets.size() == 1) {
@@ -136,9 +136,9 @@ public class GBeanSingleReference extends AbstractGBeanReference {
             // component never reached the starting phase... then a target registers and we automatically
             // attempt to restart
             waitingForMe = false;
-            getGBeanMBean().attemptFullStart();
+            getGBeanInstance().start();
         } catch (Exception e) {
-            log.warn("Exception occured while attempting to fully start: objectName=" + getGBeanMBean().getObjectName(), e);
+            log.warn("Exception occured while attempting to fully start: objectName=" + getGBeanInstance().getObjectName(), e);
         }
     }
 

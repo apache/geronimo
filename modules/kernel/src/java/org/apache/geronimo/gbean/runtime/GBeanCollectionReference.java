@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.gbean.jmx;
+package org.apache.geronimo.gbean.runtime;
 
 import javax.management.ObjectName;
 
@@ -26,8 +26,8 @@ import org.apache.geronimo.gbean.InvalidConfigurationException;
  * @version $Rev: 71492 $ $Date: 2004-11-14 21:31:50 -0800 (Sun, 14 Nov 2004) $
  */
 public class GBeanCollectionReference extends AbstractGBeanReference {
-    public GBeanCollectionReference(GBeanMBean gmbean, GReferenceInfo referenceInfo, Class constructorType) throws InvalidConfigurationException {
-        super(gmbean, referenceInfo, constructorType);
+    public GBeanCollectionReference(GBeanInstance gbeanInstance, GReferenceInfo referenceInfo, Class constructorType) throws InvalidConfigurationException {
+        super(gbeanInstance, referenceInfo, constructorType);
     }
 
     public synchronized void start() throws Exception {

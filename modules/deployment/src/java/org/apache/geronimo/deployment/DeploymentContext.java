@@ -126,7 +126,7 @@ public class DeploymentContext {
                 }
             }
             try {
-                parentCL = (ClassLoader) kernel.getAttribute(parentName, "classLoader");
+                parentCL = (ClassLoader) kernel.getAttribute(parentName, "configurationClassLoader");
             } catch (Exception e) {
                 throw new DeploymentException(e);
             }
@@ -171,7 +171,7 @@ public class DeploymentContext {
      * <p/>
      * NOTE: The class loader that is obtained from this deployment context
      * may get out of sync with the newly augmented classpath; obtain a freshly
-     * minted class loader by calling <code>getClassLoader</code> method.
+     * minted class loader by calling <code>getConfigurationClassLoader</code> method.
      *
      * @param targetPath where the packed jar file should be placed
      * @param jarFile    the jar file to copy
@@ -190,7 +190,7 @@ public class DeploymentContext {
      * <p/>
      * NOTE: The class loader that is obtained from this deployment context
      * may get out of sync with the newly augmented classpath; obtain a freshly
-     * minted class loader by calling <code>getClassLoader</code> method.
+     * minted class loader by calling <code>getConfigurationClassLoader</code> method.
      *
      * @param targetPath where the ZIP file entry should be placed
      * @param zipFile    the ZIP file
@@ -210,7 +210,7 @@ public class DeploymentContext {
      * <p/>
      * NOTE: The class loader that is obtained from this deployment context
      * may get out of sync with the newly augmented classpath; obtain a freshly
-     * minted class loader by calling <code>getClassLoader</code> method.
+     * minted class loader by calling <code>getConfigurationClassLoader</code> method.
      *
      * @param targetPath where the file should be placed
      * @param source     the URL of file to be copied
@@ -229,7 +229,7 @@ public class DeploymentContext {
      * <p/>
      * NOTE: The class loader that is obtained from this deployment context
      * may get out of sync with the newly augmented classpath; obtain a freshly
-     * minted class loader by calling <code>getClassLoader</code> method.
+     * minted class loader by calling <code>getConfigurationClassLoader</code> method.
      *
      * @param targetPath where the file should be placed
      * @param source     the file to be copied
@@ -247,7 +247,7 @@ public class DeploymentContext {
      * <p/>
      * NOTE: The class loader that is obtained from this deployment context
      * may get out of sync with the newly augmented classpath; obtain a freshly
-     * minted class loader by calling <code>getClassLoader</code> method.
+     * minted class loader by calling <code>getConfigurationClassLoader</code> method.
      *
      * @param moduleFile    the jar file from which the manifest is obtained.
      * @param moduleBaseUri the base for the imported classpath

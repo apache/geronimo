@@ -40,12 +40,15 @@ import javax.management.MBeanServerFactory;
 import javax.management.MalformedObjectNameException;
 import javax.management.NotificationBroadcasterSupport;
 import javax.management.ObjectName;
+import javax.management.AttributeNotFoundException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.runtime.GBeanInstance;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.gbean.jmx.JMXLifecycleBroadcaster;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
@@ -158,7 +161,7 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
     /**
      * The GBeanMbean that wraps the configuration manager
      */
-    private GBeanMBean configurationManagerGBean;
+    private GBeanInstance configurationManagerInstance;
 
     /**
      * Monitors the lifecycle of all gbeans.
@@ -285,7 +288,11 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
             return mbServer.getAttribute(objectName, attributeName);
         } catch (Exception e) {
             Throwable cause = unwrapJMException(e);
-            if (cause instanceof Error) {
+            if (cause instanceof InstanceNotFoundException) {
+                throw new GBeanNotFoundException(objectName.getCanonicalName());
+            } else if (cause instanceof AttributeNotFoundException) {
+                throw new NoSuchAttributeException(cause.getMessage());
+            } else if (cause instanceof Error) {
                 throw (Error) cause;
             } else if (cause instanceof Exception) {
                 throw (Exception) cause;
@@ -300,7 +307,11 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
             mbServer.setAttribute(objectName, new Attribute(attributeName, attributeValue));
         } catch (Exception e) {
             Throwable cause = unwrapJMException(e);
-            if (cause instanceof Error) {
+            if (cause instanceof InstanceNotFoundException) {
+                throw new GBeanNotFoundException(objectName.getCanonicalName());
+            } else if (cause instanceof AttributeNotFoundException) {
+                throw new NoSuchAttributeException(cause.getMessage());
+            } else if (cause instanceof Error) {
                 throw (Error) cause;
             } else if (cause instanceof Exception) {
                 throw (Exception) cause;
@@ -319,7 +330,11 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
             return mbServer.invoke(objectName, methodName, args, types);
         } catch (Exception e) {
             Throwable cause = unwrapJMException(e);
-            if (cause instanceof Error) {
+            if (cause instanceof InstanceNotFoundException) {
+                throw new GBeanNotFoundException(objectName.getCanonicalName());
+            } else if (cause instanceof NoSuchMethodException) {
+                throw new NoSuchOperationException(cause.getMessage());
+            } else if (cause instanceof Error) {
                 throw (Error) cause;
             } else if (cause instanceof Exception) {
                 throw (Exception) cause;
@@ -372,7 +387,7 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
 
     public void loadGBean(GBeanData gbeanData, ClassLoader classLoader) throws InstanceAlreadyExistsException, InvalidConfigException {
         try {
-            GBeanMBean gbean = new GBeanMBean(gbeanData, classLoader);
+            GBeanMBean gbean = new GBeanMBean(this, gbeanData, classLoader);
             mbServer.registerMBean(gbean, gbeanData.getName());
         } catch (JMRuntimeException e) {
             throw new InvalidConfigException("Invalid GBean configuration for " + gbeanData.getName(), unwrapJMException(e));
@@ -521,11 +536,20 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
         lifecycleMonitor = new LifecycleMonitor(mbServer);
         proxyManager = new ProxyManager(this);
 
-        configurationManagerGBean = new GBeanMBean(ConfigurationManagerImpl.GBEAN_INFO);
-        configurationManagerGBean.setReferencePatterns("Stores", Collections.singleton(CONFIGURATION_STORE_PATTERN));
+        // set up the data for the new configuration manager instance
+        GBeanData configurationData = new GBeanData(CONFIGURATION_MANAGER_NAME, ConfigurationManagerImpl.GBEAN_INFO);
+        configurationData.setReferencePatterns("Stores", Collections.singleton(CONFIGURATION_STORE_PATTERN));
+
+        // create the connfiguration manager instance
+        JMXLifecycleBroadcaster lifecycleBroadcaster = new JMXLifecycleBroadcaster();
+        configurationManagerInstance = new GBeanInstance(this, configurationData, lifecycleBroadcaster, getClass().getClassLoader());
+        configurationManagerInstance.start();
+        configurationManager = (ConfigurationManager) configurationManagerInstance.getTarget();
+
+        // wrap it in an mbean and register it
+        GBeanMBean configurationManagerGBean = new GBeanMBean(this, configurationManagerInstance, lifecycleBroadcaster);
         mbServer.registerMBean(configurationManagerGBean, CONFIGURATION_MANAGER_NAME);
-        configurationManagerGBean.start();
-        configurationManager = (ConfigurationManager) configurationManagerGBean.getTarget();
+
         running = true;
         log.info("Booted");
     }
@@ -599,21 +623,19 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
 
     private void shutdownConfigManager() {
         configurationManager = null;
-        try {
-            if (configurationManagerGBean != null) {
-                configurationManagerGBean.stop();
+        if (configurationManagerInstance != null) {
+            try {
+                configurationManagerInstance.stop();
+            } catch (Exception e) {
+                // ignore
             }
-        } catch (Exception e) {
-            // ignore
-        }
-        try {
-            if (configurationManagerGBean != null) {
+            try {
                 mbServer.unregisterMBean(CONFIGURATION_MANAGER_NAME);
+            } catch (Exception e) {
+                // ignore
             }
-        } catch (Exception e) {
-            // ignore
+            configurationManagerInstance = null;
         }
-        configurationManagerGBean = null;
     }
 
     public boolean isRunning() {

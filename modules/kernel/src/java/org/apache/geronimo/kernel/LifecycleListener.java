@@ -23,10 +23,11 @@ import javax.management.ObjectName;
  * @version $Rev$ $Date$
  */
 public interface LifecycleListener extends EventListener {
-    public void created(ObjectName objectName);
+    public void loaded(ObjectName objectName);
     public void starting(ObjectName objectName);
     public void running(ObjectName objectName);
     public void stopping(ObjectName objectName);
     public void stopped(ObjectName objectName);
-    public void deleted(ObjectName objectName);
+    public void failed(ObjectName objectName);
+    public void unloaded(ObjectName objectName);
 }

@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,293 +14,104 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+package org.apache.geronimo.gbean.runtime;
 
-package org.apache.geronimo.gbean.jmx;
-
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
-import javax.management.AttributeNotFoundException;
-import javax.management.InstanceNotFoundException;
-import javax.management.JMException;
-import javax.management.ListenerNotFoundException;
-import javax.management.MBeanNotificationInfo;
-import javax.management.MBeanRegistration;
-import javax.management.MBeanServer;
-import javax.management.MBeanServerNotification;
-import javax.management.Notification;
-import javax.management.NotificationBroadcasterSupport;
-import javax.management.NotificationEmitter;
-import javax.management.NotificationFilter;
-import javax.management.NotificationFilterSupport;
-import javax.management.NotificationListener;
-import javax.management.ObjectName;
-import javax.management.ReflectionException;
+import java.util.Iterator;
 
+import javax.management.ObjectName;
+
+import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.LifecycleAdapter;
+import org.apache.geronimo.kernel.LifecycleListener;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.DependencyManager;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.NoSuchAttributeException;
+import org.apache.geronimo.gbean.WaitingException;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.kernel.DependencyManager;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.kernel.management.EventProvider;
-import org.apache.geronimo.kernel.management.ManagedObject;
-import org.apache.geronimo.kernel.management.NotificationType;
-import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.kernel.management.StateManageable;
 
 /**
- * Abstract implementation of JSR77 StateManageable.
- * Implementors of StateManageable may use this class and simply provide
- * {@link #doStart()}, {@link #doStop()} and {@link #sendNotification(String)} methods.
- *
  * @version $Rev$ $Date$
  */
-public abstract class AbstractManagedObject implements ManagedObject, StateManageable, EventProvider, NotificationListener, MBeanRegistration, NotificationEmitter {
-    protected final Log log = LogFactory.getLog(getClass());
+public class GBeanInstanceState {
+    private static final Log log = LogFactory.getLog(GBeanInstanceState.class);
 
     /**
-     * The mbean server in which this server is registered.
+     * The GBeanInstance in which this server is registered.
      */
-    protected MBeanServer server;
+    private final GBeanLifecycle gbeanLifecycle;
+
+    /**
+     * The kernel in which this server is registered.
+     */
+    private final Kernel kernel;
 
     /**
      * The unique name of this service.
      */
-    protected ObjectName objectName;
-
-    /**
-     * The definitive list of notifications types supported by this service.
-     */
-    private final Set notificationTypes = new HashSet();
+    private final ObjectName objectName;
 
     /**
      * The dependency manager
      */
-    private DependencyManager dependencyManager;
+    private final DependencyManager dependencyManager;
 
     /**
-     * The sequence number of the events.
+     * The broadcaster of lifecycle events
      */
-    private long sequenceNumber;
+    private final LifecycleListener lifecycleBroadcaster;
 
     /**
-     * The time this application started.
+     * The listener for the of the object blocking the start of this gbean.
+     * When the blocker dies we attempt to start.
      */
-    private long startTime;
-
-    /**
-     * The name of the object blocking the start of this mbean.
-     */
-    private ObjectName blocker;
-
-    /**
-     * Is this gbean enabled?  A disabled gbean can not be started.
-     */
-    private boolean enabled = true;
+    private LifecycleListener blockerListener;
 
     // This must be volatile otherwise getState must be synchronized which will result in deadlock as dependent
     // objects check if each other are in one state or another (i.e., classic A calls B while B calls A)
     private volatile State state = State.STOPPED;
 
-    public AbstractManagedObject() {
-        for (int i = 0; i < NotificationType.TYPES.length; i++) {
-            notificationTypes.add(NotificationType.TYPES[i]);
-        }
-    }
-
-    /**
-     * The broadcaster for notifications
-     */
-    protected final NotificationBroadcasterSupport notificationBroadcaster = new NotificationBroadcasterSupport();
-
-    /**
-     * Do the start tasks for the component.  Called in the {@link State#STARTING} state by
-     * the {@link #start()} and {@link #startRecursive()} methods to perform the tasks required to
-     * start the component.
-     * <p/>
-     * Note: this method is called from within a synchronized block, so be careful what you call as you
-     * may create a deadlock.
-     */
-    protected void doStart() throws Exception {
-    }
-
-    /**
-     * Do the stop tasks for the component.  Called in the {@link State#STOPPING} state by
-     * the {@link #stop()} method to perform the tasks required to stop the component.
-     * <p/>
-     * Note: this method is called from within a synchronized block, so be careful what you call as you
-     * may create a deadlock.
-     */
-    protected void doStop() throws Exception {
-    }
-
-    /**
-     * Do the failure tasks for the component.  Called in the {@link State#FAILED} state by
-     * the {@link #fail()} method to perform the tasks required to cleanup a failed component.
-     * <p/>
-     * Note: this method is called from within a synchronized block, so be careful what you call as you
-     * may create a deadlock.
-     */
-    protected void doFail() {
-    }
-
-    public synchronized ObjectName preRegister(MBeanServer server, ObjectName objectName) throws Exception {
-        this.server = server;
+    GBeanInstanceState(Kernel kernel, ObjectName objectName, GBeanLifecycle gbeanLifecycle, LifecycleListener lifecycleBroadcaster) {
+        this.kernel = kernel;
+        this.dependencyManager = kernel.getDependencyManager();
         this.objectName = objectName;
-        Kernel kernel;
-        try {
-            String kernelName = (String) server.getAttribute(Kernel.KERNEL, "KernelName");
-            kernel = Kernel.getKernel(kernelName);
-        } catch (Exception e) {
-            throw new IllegalStateException("No kernel is registered in this MBeanServer");
-        }
-        dependencyManager = kernel.getDependencyManager();
-        return objectName;
-    }
-
-    public void postRegister(Boolean registrationDone) {
-        if (registrationDone.booleanValue()) {
-            sendNotification(NotificationType.OBJECT_CREATED);
-        }
-    }
-
-    public void preDeregister() throws Exception {
-        sendNotification(NotificationType.OBJECT_DELETED);
-    }
-
-    public void postDeregister() {
-        synchronized (this) {
-            server = null;
-            objectName = null;
-            dependencyManager = null;
-        }
-    }
-
-    public MBeanServer getServer() {
-        return server;
-    }
-
-    public final String getObjectName() {
-        return objectName.getCanonicalName();
-    }
-
-    public final ObjectName getObjectNameObject() {
-        return objectName;
+        this.gbeanLifecycle = gbeanLifecycle;
+        this.lifecycleBroadcaster = lifecycleBroadcaster;
     }
 
     /**
-     * Is this gbean enabled.  A disabled gbean can not be started.
-     *
-     * @return true if the gbean is enabled and can be started
-     */
-    public synchronized final boolean isEnabled() {
-        return enabled;
-    }
-
-    /**
-     * Changes the enabled status.
-     *
-     * @param enabled the new enabled flag
-     */
-    public synchronized final void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
-    public DependencyManager getDependencyManager() {
-        return dependencyManager;
-    }
-
-    public final boolean isStateManageable() {
-        return true;
-    }
-
-    public boolean isStatisticsProvider() {
-        return false;
-    }
-
-    public final boolean isEventProvider() {
-        return true;
-    }
-
-    public final String[] getEventTypes() {
-        return (String[]) notificationTypes.toArray(new String[notificationTypes.size()]);
-    }
-
-    public MBeanNotificationInfo[] getNotificationInfo() {
-        return new MBeanNotificationInfo[]{
-            new MBeanNotificationInfo(getEventTypes(), "javax.management.Notification", "J2EE Notifications")
-        };
-    }
-
-    protected void addEventType(String eventType) {
-        notificationTypes.add(eventType);
-    }
-
-    public void addNotificationListener(NotificationListener listener, NotificationFilter filter, Object handback) {
-        notificationBroadcaster.addNotificationListener(listener, filter, handback);
-    }
-
-    public void removeNotificationListener(NotificationListener listener) throws ListenerNotFoundException {
-        notificationBroadcaster.removeNotificationListener(listener);
-    }
-
-    public void removeNotificationListener(NotificationListener listener, NotificationFilter filter, Object handback) throws ListenerNotFoundException {
-        notificationBroadcaster.removeNotificationListener(listener, filter, handback);
-    }
-
-    /**
-     * Sends the specified MBean notification.
-     * <p/>
-     * Note:  This method can not be call while the current thread holds a syncronized lock on this MBean,
-     * because this method sends JMX notifications.  Sending a general notification from a synchronized block
-     * is a bad idea and therefore not allowed.
-     *
-     * @param type the notification type to send
-     */
-    public final void sendNotification(String type) {
-        assert !Thread.holdsLock(this): "This method cannot be called while holding a synchronized lock on this";
-        long seq;
-        synchronized (this) {
-            seq = sequenceNumber++;
-        }
-        notificationBroadcaster.sendNotification(new Notification(type, objectName, seq));
-    }
-
-    public void sendNotification(Notification notification) {
-        assert !Thread.holdsLock(this): "This method cannot be called while holding a synchronized lock on this";
-        notificationBroadcaster.sendNotification(notification);
-    }
-
-    public synchronized final long getStartTime() {
-        return startTime;
-    }
-
-    /**
-     * Moves this MBean to the {@link State#STARTING} state and then attempts to move this MBean immediately
-     * to the {@link State#RUNNING} state.
+     * Moves this MBean to the {@link org.apache.geronimo.kernel.management.State#STARTING} state and then attempts to move this MBean immediately
+     * to the {@link org.apache.geronimo.kernel.management.State#RUNNING} state.
      * <p/>
      * Note:  This method cannot be called while the current thread holds a synchronized lock on this MBean,
      * because this method sends JMX notifications. Sending a general notification from a synchronized block
      * is a bad idea and therefore not allowed.
      *
-     * @throws java.lang.Exception If an exception occurs while starting this MBean
+     * @throws Exception If an exception occurs while starting this MBean
      */
     public final void start() throws Exception {
         assert !Thread.holdsLock(this): "This method cannot be called while holding a synchronized lock on this";
 
         // Move to the starting state
+        State state;
         synchronized (this) {
-            State state = getStateInstance();
-            if (state == State.STARTING || state == State.RUNNING) {
+            state = getStateInstance();
+            if (state == State.RUNNING) {
                 return;
             }
-            if (!enabled) {
-                throw new IllegalStateException("A disabled GBean can not be started: objectName=" + objectName);
+            // only try to change states if we are not already starting
+            if (state != State.STARTING) {
+                setStateInstance(State.STARTING);
             }
-            setStateInstance(State.STARTING);
         }
-        sendNotification(State.STARTING.getEventTypeValue());
+
+        // only fire a notification if we are not already starting
+        if (state != State.STARTING) {
+            lifecycleBroadcaster.starting(objectName);
+        }
 
         attemptFullStart();
     }
@@ -312,7 +123,7 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
      * because this method sends JMX notifications.  Sending a general notification from a synchronized block
      * is a bad idea and therefore not allowed.
      *
-     * @throws java.lang.Exception if a problem occurs will starting this MBean or any child MBean
+     * @throws Exception if a problem occurs will starting this MBean or any child MBean
      */
     public final void startRecursive() throws Exception {
         assert !Thread.holdsLock(this): "This method cannot be called while holding a synchronized lock on this";
@@ -334,19 +145,15 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
             ObjectName dependent = (ObjectName) iterator.next();
             boolean enabled = true;
             try {
-                enabled = ((Boolean) server.getAttribute(dependent, "gbeanEnabled")).booleanValue();
-            } catch (AttributeNotFoundException e) {
+                enabled = ((Boolean) kernel.getAttribute(dependent, "gbeanEnabled")).booleanValue();
+            } catch (NoSuchAttributeException e) {
                 // this is ok didn't have the attribute....
             }
             if (enabled) {
                 try {
-                    server.invoke(dependent, "startRecursive", null, null);
-                } catch (ReflectionException e) {
-                    if (e.getTargetException() instanceof NoSuchMethodException) {
-                        // did not have a startRecursive method - ok
-                    } else {
-                        throw e;
-                    }
+                    kernel.invoke(dependent, "startRecursive", null, null);
+                } catch (NoSuchMethodException e) {
+                    // did not have a startRecursive method - ok
                 }
             }
         }
@@ -360,7 +167,7 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
      * because this method sends JMX notifications.  Sending a general notification from a synchronized block
      * is a bad idea and therefore not allowed.
      *
-     * @throws java.lang.Exception If an exception occurs while stoping this MBean or any of the childern
+     * @throws Exception If an exception occurs while stoping this MBean or any of the childern
      */
     public final void stop() throws Exception {
         assert !Thread.holdsLock(this): "This method cannot be called while holding a syncrhonized lock on this";
@@ -368,12 +175,20 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
         // move to the stopping state
         synchronized (this) {
             State state = getStateInstance();
-            if (state == State.STOPPED || state == State.STOPPING) {
+            if (state == State.STOPPED) {
                 return;
             }
-            setStateInstance(State.STOPPING);
+
+            // only try to change states if we are not already stopping
+            if (state != State.STOPPING) {
+                setStateInstance(State.STOPPING);
+            }
         }
-        sendNotification(State.STOPPING.getEventTypeValue());
+
+        // only fire a notification if we are not already stopping
+        if (state != State.STOPPING) {
+            lifecycleBroadcaster.stopping(objectName);
+        }
 
         // Don't try to stop dependents from within a synchronized block... this should reduce deadlocks
 
@@ -383,9 +198,9 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
             ObjectName child = (ObjectName) iterator.next();
             try {
                 log.trace("Checking if child is running: child=" + child);
-                if (((Integer) server.getAttribute(child, "state")).intValue() == State.RUNNING_INDEX) {
+                if (((Integer) kernel.getAttribute(child, "state")).intValue() == State.RUNNING_INDEX) {
                     log.trace("Stopping child: child=" + child);
-                    server.invoke(child, "stop", null, null);
+                    kernel.invoke(child, "stop", null, null);
                     log.trace("Stopped child: child=" + child);
                 }
             } catch (Exception ignore) {
@@ -415,14 +230,14 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
             doSafeFail();
             setStateInstance(State.FAILED);
         }
-        sendNotification(State.FAILED.getEventTypeValue());
+        lifecycleBroadcaster.failed(objectName);
     }
 
     /**
-     * Attempts to bring the component into {@link State#RUNNING} state. If an Exception occurs while
+     * Attempts to bring the component into {@link org.apache.geronimo.kernel.management.State#RUNNING} state. If an Exception occurs while
      * starting the component, the component will be failed.
      *
-     * @throws java.lang.Exception if a problem occurs while starting the component
+     * @throws Exception if a problem occurs while starting the component
      * <p/>
      * Note: Do not call this from within a synchronized block as it makes may send a JMX notification
      */
@@ -439,47 +254,55 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
                     }
 
                     // check if an mbean is blocking us from starting
-                    blocker = dependencyManager.checkBlocker(objectName);
+                    final ObjectName blocker = dependencyManager.checkBlocker(objectName);
                     if (blocker != null) {
-                        try {
-                            // register for state change with the blocker
-                            NotificationFilterSupport stoppedFilter = new NotificationFilterSupport();
-                            stoppedFilter.enableType(NotificationType.STATE_STOPPED);
-                            stoppedFilter.enableType(NotificationType.STATE_FAILED);
-                            stoppedFilter.enableType(NotificationType.OBJECT_DELETED);
-                            server.addNotificationListener(blocker, this, stoppedFilter, null);
+                        blockerListener = new LifecycleAdapter() {
 
-                            // watch for the blocker to unregister
-                            NotificationFilterSupport mbeanServerFilter = new NotificationFilterSupport();
-                            mbeanServerFilter.enableType(MBeanServerNotification.UNREGISTRATION_NOTIFICATION);
-                            server.addNotificationListener(JMXUtil.DELEGATE_NAME, this, mbeanServerFilter, null);
+                            public void stopped(ObjectName objectName) {
+                                checkBlocker(objectName);
+                            }
 
-                            // done for now... wait for the blocker to die
-                            return;
-                        } catch (InstanceNotFoundException e) {
-                            // blocker died before we could get going... not a big deal
-                        }
+                            public void failed(ObjectName objectName) {
+                                checkBlocker(objectName);
+                            }
+
+                            public void unloaded(ObjectName objectName) {
+                                checkBlocker(objectName);
+                            }
+
+                            private void checkBlocker(ObjectName objectName) {
+                                if (objectName.equals(blocker)) {
+                                    try {
+                                        attemptFullStart();
+                                    } catch (Exception e) {
+                                        log.warn("A problem occured while attempting to start", e);
+                                    }
+                                }
+                            }
+                        };
+                        kernel.getLifecycleMonitor().addLifecycleListener(blockerListener, blocker);
+                        return;
                     }
 
                     // check if all of the mbeans we depend on are running
                     Set parents = dependencyManager.getParents(objectName);
                     for (Iterator i = parents.iterator(); i.hasNext();) {
                         ObjectName parent = (ObjectName) i.next();
-                        if (!server.isRegistered(parent)) {
+                        if (!kernel.isLoaded(parent)) {
                             log.trace("Cannot run because parent is not registered: parent=" + parent);
                             return;
                         }
                         try {
                             log.trace("Checking if parent is running: parent=" + parent);
-                            if (((Integer) server.getAttribute(parent, "state")).intValue() != State.RUNNING_INDEX) {
+                            if (((Integer) kernel.getAttribute(parent, "state")).intValue() != State.RUNNING_INDEX) {
                                 log.trace("Cannot run because parent is not running: parent=" + parent);
                                 return;
                             }
                             log.trace("Parent is running: parent=" + parent);
-                        } catch (AttributeNotFoundException e) {
+                        } catch (NoSuchAttributeException e) {
                             // ok -- parent is not a startable
                             log.trace("Parent does not have a State attibute");
-                        } catch (InstanceNotFoundException e) {
+                        } catch (GBeanNotFoundException e) {
                             // depended on instance was removed bewteen the register check and the invoke
                             log.trace("Cannot run because parent is not registered: parent=" + parent);
                             return;
@@ -492,23 +315,14 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
 
                     // remove any open watches on a blocker
                     // todo is this correct if we are returning to a waiting state?
-                    if (blocker != null) {
+                    if (blockerListener != null) {
                         // remove any open watches on a blocker
-                        try {
-                            server.removeNotificationListener(blocker, this);
-                        } catch (JMException ignore) {
-                            // don't care, just cleaning up... blocker is most likely dead
-                        }
-                        try {
-                            server.removeNotificationListener(JMXUtil.DELEGATE_NAME, this);
-                        } catch (JMException ignore) {
-                            // this should never happen... maybe server is dead
-                        }
-                        blocker = null;
+                        kernel.getLifecycleMonitor().removeLifecycleListener(blockerListener);
+                        blockerListener = null;
                     }
 
                     try {
-                        doStart();
+                        gbeanLifecycle.doStart();
                     } catch (WaitingException e) {
                         log.debug("Waiting to start: objectName=\"" + objectName + "\" reason=\"" + e.getMessage() + "\"");
                         return;
@@ -529,7 +343,7 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
             }
         } finally {
             if (newState != null) {
-                sendNotification(newState.getEventTypeValue());
+                stateChanged(newState);
             }
         }
     }
@@ -538,7 +352,7 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
      * Attempt to bring the component into the fully stopped state.
      * If an exception occurs while stopping the component, the component will be failed.
      *
-     * @throws java.lang.Exception if a problem occurs while stopping the component
+     * @throws Exception if a problem occurs while stopping the component
      * <p/>
      * Note: Do not call this from within a synchronized block as it may send a JMX notification
      */
@@ -557,18 +371,18 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
                     Set children = dependencyManager.getChildren(objectName);
                     for (Iterator i = children.iterator(); i.hasNext();) {
                         ObjectName child = (ObjectName) i.next();
-                        if (server.isRegistered(child)) {
+                        if (kernel.isLoaded(child)) {
                             try {
                                 log.trace("Checking if child is stopped: child=" + child);
-                                int state = ((Integer) server.getAttribute(child, "State")).intValue();
+                                int state = ((Integer) kernel.getAttribute(child, "State")).intValue();
                                 if (state == State.RUNNING_INDEX) {
                                     log.trace("Cannot stop because child is still running: child=" + child);
                                     return;
                                 }
-                            } catch (AttributeNotFoundException e) {
+                            } catch (NoSuchAttributeException e) {
                                 // ok -- dependect bean is not state manageable
                                 log.trace("Child does not have a State attibute");
-                            } catch (InstanceNotFoundException e) {
+                            } catch (GBeanNotFoundException e) {
                                 // depended on instance was removed between the register check and the invoke
                             } catch (Exception e) {
                                 // problem getting the attribute, depended on bean has most likely failed
@@ -580,7 +394,7 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
 
                     // if we can stop, stop
                     try {
-                        doStop();
+                        gbeanLifecycle.doStop();
                     } catch (WaitingException e) {
                         log.debug("Waiting to stop: objectName=\"" + objectName + "\" reason=\"" + e.getMessage() + "\"");
                         return;
@@ -601,13 +415,13 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
             }
         } finally {
             if (newState != null) {
-                sendNotification(newState.getEventTypeValue());
+                stateChanged(newState);
             }
         }
     }
 
     /**
-     * Calls {@link #doFail}, but catches all RutimeExceptions and Errors.
+     * Calls doFail, but catches all RutimeExceptions and Errors.
      * These problems are logged but ignored.
      * <p/>
      * Note: This must be called while holding a lock on this
@@ -616,39 +430,11 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
         assert Thread.holdsLock(this): "This method can only called while holding a synchronized lock on this";
 
         try {
-            doFail();
+            gbeanLifecycle.doFail();
         } catch (RuntimeException e) {
-            log.warn("RuntimeError thrown from doFail", e);
+            log.warn("RuntimeException thrown from doFail", e);
         } catch (Error e) {
-            log.warn("RuntimeError thrown from doFail", e);
-        }
-    }
-
-    public void handleNotification(Notification n, Object o) {
-        String type = n.getType();
-        if (MBeanServerNotification.UNREGISTRATION_NOTIFICATION.equals(type)) {
-            MBeanServerNotification notification = (MBeanServerNotification) n;
-            ObjectName source = notification.getMBeanName();
-            if (source.equals(blocker)) {
-                try {
-                    attemptFullStart();
-                } catch (Exception e) {
-                    log.warn("A problem occured while attempting to start", e);
-                }
-            }
-        } else if (type.equals(NotificationType.STATE_STOPPED) ||
-                type.equals(NotificationType.STATE_FAILED) ||
-                type.equals(NotificationType.OBJECT_DELETED)) {
-
-            ObjectName source = (ObjectName) n.getSource();
-            if (source.equals(blocker)) {
-                try {
-                    attemptFullStart();
-                } catch (Exception e) {
-                    log.warn("A problem occured while attempting to start", e);
-                }
-
-            }
+            log.warn("Error thrown from doFail", e);
         }
     }
 
@@ -664,7 +450,7 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
      * Set the Component state.
      *
      * @param newState the target state to transition
-     * @throws java.lang.IllegalStateException Thrown if the transition is not supported by the J2EE Management lifecycle.
+     * @throws IllegalStateException Thrown if the transition is not supported by the J2EE Management lifecycle.
      */
     private synchronized void setStateInstance(State newState) throws IllegalStateException {
         switch (state.toInt()) {
@@ -729,16 +515,32 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
                 break;
         }
         log.debug(toString() + " State changed from " + state + " to " + newState);
-        if (newState == State.RUNNING) {
-            startTime = System.currentTimeMillis();
-        }
         state = newState;
     }
 
-    public String toString() {
-        if (objectName == null) {
-            return super.toString();
+    private void stateChanged(State state) {
+        assert !Thread.holdsLock(this): "This method cannot be called while holding a synchronized lock on this";
+        switch (state.toInt()) {
+            case State.STOPPED_INDEX:
+                lifecycleBroadcaster.stopped(objectName);
+                break;
+
+            case State.STARTING_INDEX:
+                lifecycleBroadcaster.starting(objectName);
+                break;
+
+            case State.RUNNING_INDEX:
+                lifecycleBroadcaster.running(objectName);
+                break;
+
+            case State.STOPPING_INDEX:
+                lifecycleBroadcaster.stopping(objectName);
+                break;
+
+            case State.FAILED_INDEX:
+                lifecycleBroadcaster.failed(objectName);
+                break;
         }
-        return objectName.toString();
     }
+
 }

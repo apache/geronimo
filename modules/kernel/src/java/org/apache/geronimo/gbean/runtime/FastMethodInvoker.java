@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.gbean.jmx;
+package org.apache.geronimo.gbean.runtime;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

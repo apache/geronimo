@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,12 +14,33 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+package org.apache.geronimo.gbean.runtime;
 
-package org.apache.geronimo.gbean.jmx;
+import java.util.Set;
+
+import org.apache.geronimo.kernel.Kernel;
 
 /**
  * @version $Rev$ $Date$
  */
-public interface MethodInvoker {
-    Object invoke(Object target, Object[] arguments) throws Exception;
+public interface GBeanReference {
+    String getName();
+
+    Class getType();
+
+    Set getPatterns();
+
+    void setPatterns(Set patterns);
+
+    void online(Kernel kernel);
+
+    void offline();
+
+    void start() throws Exception;
+
+    void stop();
+
+    Object getProxy();
+
+    void inject() throws Exception;
 }

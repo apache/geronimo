@@ -14,46 +14,38 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.gbean.jmx;
+package org.apache.geronimo.gbean.runtime;
 
-import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.gbean.DynamicGAttributeInfo;
 import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.LifecycleAdapter;
 import org.apache.geronimo.kernel.MockDynamicGBean;
 import org.apache.geronimo.kernel.MockGBean;
 
 /**
  * @version $Rev$ $Date$
  */
-public class GBeanMBeanAttributeTest extends TestCase {
+public class GBeanAttributeTest extends TestCase {
 
     private static final String attributeName = "Name";
 
     private static final String persistentPrimitiveAttributeName = "MutableInt";
 
-    private static ObjectName name;
-
-    static {
-        try {
-            name = new ObjectName("test:name=MyMockGBean");
-        } catch (MalformedObjectNameException ignored) {
-        }
-    }
-
     /**
      * Wraps GBean
      */
-    private GBeanMBean gmbean = null;
+    private GBeanInstance gbeanInstance = null;
 
     /**
      * Wraps DynamicGBean
      */
-    private GBeanMBean dynamicGmbean = null;
+    private GBeanInstance dynamicGBeanInstance = null;
 
     private MethodInvoker getInvoker = null;
 
@@ -61,33 +53,34 @@ public class GBeanMBeanAttributeTest extends TestCase {
 
     private GAttributeInfo persistentPrimitiveAttributeInfo = null;
     private GAttributeInfo attributeInfo = null;
+    private Kernel kernel;
 //    private GAttributeInfo throwingExceptionAttributeInfo = null;
 
     public final void testGBeanMBeanAttributeGBeanMBeanStringClassMethodInvokerMethodInvoker() {
         try {
-            GBeanMBeanAttribute.createFrameworkAttribute((GBeanMBean) null, null, null, null);
+            GBeanAttribute.createFrameworkAttribute(null, null, null, null);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException expected) {
         }
 //        try {
-//            GBeanMBeanAttribute.createFrameworkAttribute(gmbean, attributeName, String.class, null);
+//            GBeanAttribute.createFrameworkAttribute(gbeanInstance, attributeName, String.class, null);
 //            fail("InvalidConfigurationException expected");
 //        } catch (InvalidConfigurationException expected) {
 //        }
-        GBeanMBeanAttribute attribute;
-        attribute = GBeanMBeanAttribute.createFrameworkAttribute(gmbean, attributeName, String.class, getInvoker);
+        GBeanAttribute attribute;
+        attribute = GBeanAttribute.createFrameworkAttribute(gbeanInstance, attributeName, String.class, getInvoker);
         assertEquals(String.class, attribute.getType());
         assertEquals(attributeName, attribute.getName());
         assertTrue(attribute.isReadable());
         assertFalse(attribute.isWritable());
         assertFalse(attribute.isPersistent());
-        attribute = GBeanMBeanAttribute.createFrameworkAttribute(gmbean, attributeName, String.class, null, setInvoker, false, null);
+        attribute = GBeanAttribute.createFrameworkAttribute(gbeanInstance, attributeName, String.class, null, setInvoker, false, null);
         assertEquals(String.class, attribute.getType());
         assertEquals(attributeName, attribute.getName());
         assertFalse(attribute.isReadable());
         assertTrue(attribute.isWritable());
         assertFalse(attribute.isPersistent());
-        attribute = GBeanMBeanAttribute.createFrameworkAttribute(gmbean, attributeName, String.class, getInvoker, setInvoker, false, null);
+        attribute = GBeanAttribute.createFrameworkAttribute(gbeanInstance, attributeName, String.class, getInvoker, setInvoker, false, null);
         assertEquals(String.class, attribute.getType());
         assertEquals(attributeName, attribute.getName());
         assertTrue(attribute.isReadable());
@@ -95,18 +88,18 @@ public class GBeanMBeanAttributeTest extends TestCase {
         assertFalse(attribute.isPersistent());
     }
 
-    public final void testGBeanMBeanAttributeGBeanMBeanGAttributeInfoClass() {
+    public final void testGBeanAttributeInfoClass() {
         try {
-            new GBeanMBeanAttribute(null, null, false);
+            new GBeanAttribute(null, null, false);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException expected) {
         }
 
         // 2. @todo BUG An attribute must be readable, writable, or persistent
-        // GBeanMBeanAttribute ctor doesn't check if readable/writable are
+        // GBeanAttribute ctor doesn't check if readable/writable are
         // null's
         try {
-            new GBeanMBeanAttribute(gmbean, attributeInfo, false);
+            new GBeanAttribute(gbeanInstance, attributeInfo, false);
             // till Dain sorts out the question of ctor
             // fail("InvalidConfigurationException expected");
         } catch (InvalidConfigurationException expected) {
@@ -115,21 +108,21 @@ public class GBeanMBeanAttributeTest extends TestCase {
         try {
             GAttributeInfo invalidAttributeInfo = new GAttributeInfo(attributeName, String.class.getName(), false, null, null);
 
-            new GBeanMBeanAttribute(gmbean, invalidAttributeInfo, false);
+            new GBeanAttribute(gbeanInstance, invalidAttributeInfo, false);
             fail("InvalidConfigurationException expected");
         } catch (InvalidConfigurationException expected) {
         }
 
         {
             final GAttributeInfo attributeInfo = new GAttributeInfo(attributeName, String.class.getName(), false, Boolean.TRUE, Boolean.FALSE, null, null);
-            GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(gmbean, attributeInfo, false);
+            GBeanAttribute attribute = new GBeanAttribute(gbeanInstance, attributeInfo, false);
             assertTrue(attribute.isReadable());
             assertFalse(attribute.isWritable());
         }
 
         {
             final GAttributeInfo attributeInfo = new GAttributeInfo(persistentPrimitiveAttributeName, int.class.getName(), false, Boolean.FALSE, Boolean.TRUE, null, null);
-            GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(gmbean, attributeInfo, false);
+            GBeanAttribute attribute = new GBeanAttribute(gbeanInstance, attributeInfo, false);
             assertFalse(attribute.isReadable());
             assertTrue(attribute.isWritable());
         }
@@ -137,7 +130,7 @@ public class GBeanMBeanAttributeTest extends TestCase {
         {
             final GAttributeInfo attributeInfo = new GAttributeInfo("AnotherFinalInt", int.class.getName(), false, Boolean.TRUE, Boolean.TRUE, null, null);
             try {
-                new GBeanMBeanAttribute(gmbean, attributeInfo, false);
+                new GBeanAttribute(gbeanInstance, attributeInfo, false);
                 fail("Getter and setter methods do not have the same types; InvalidConfigurationException expected");
             } catch (InvalidConfigurationException expected) {
             }
@@ -148,14 +141,14 @@ public class GBeanMBeanAttributeTest extends TestCase {
             // exist.
             // getYetAnotherFinalInt doesn't exist
             final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", int.class.getName(), true, "getFinalInt", null);
-            GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(gmbean, attributeInfo, false);
+            GBeanAttribute attribute = new GBeanAttribute(gbeanInstance, attributeInfo, false);
             assertNotNull(attribute);
         }
 
         {
             final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", int.class.getName(), true, null, "setCharAsYetAnotherFinalInt");
             try {
-                new GBeanMBeanAttribute(gmbean, attributeInfo, false);
+                new GBeanAttribute(gbeanInstance, attributeInfo, false);
                 fail("Expected InvalidConfigurationException due to invalid setter parameter type");
             } catch (InvalidConfigurationException expected) {
             }
@@ -164,7 +157,7 @@ public class GBeanMBeanAttributeTest extends TestCase {
         {
             final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", int.class.getName(), true, null, "setBooleanAsYetAnotherFinalInt");
             try {
-                new GBeanMBeanAttribute(gmbean, attributeInfo, false);
+                new GBeanAttribute(gbeanInstance, attributeInfo, false);
                 fail("Expected InvalidConfigurationException due to invalid setter parameter type");
             } catch (InvalidConfigurationException expected) {
             }
@@ -173,7 +166,7 @@ public class GBeanMBeanAttributeTest extends TestCase {
         {
             final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", int.class.getName(), true, null, "setByteAsYetAnotherFinalInt");
             try {
-                new GBeanMBeanAttribute(gmbean, attributeInfo, false);
+                new GBeanAttribute(gbeanInstance, attributeInfo, false);
                 fail("Expected InvalidConfigurationException due to invalid setter parameter type");
             } catch (InvalidConfigurationException expected) {
             }
@@ -182,7 +175,7 @@ public class GBeanMBeanAttributeTest extends TestCase {
         {
             final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", int.class.getName(), true, null, "setShortAsYetAnotherFinalInt");
             try {
-                new GBeanMBeanAttribute(gmbean, attributeInfo, false);
+                new GBeanAttribute(gbeanInstance, attributeInfo, false);
                 fail("Expected InvalidConfigurationException due to invalid setter parameter type");
             } catch (InvalidConfigurationException expected) {
             }
@@ -191,7 +184,7 @@ public class GBeanMBeanAttributeTest extends TestCase {
         {
             final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", int.class.getName(), true, null, "setLongAsYetAnotherFinalInt");
             try {
-                new GBeanMBeanAttribute(gmbean, attributeInfo, false);
+                new GBeanAttribute(gbeanInstance, attributeInfo, false);
                 fail("Expected InvalidConfigurationException due to invalid setter parameter type");
             } catch (InvalidConfigurationException expected) {
             }
@@ -200,7 +193,7 @@ public class GBeanMBeanAttributeTest extends TestCase {
         {
             final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", int.class.getName(), true, null, "setFloatAsYetAnotherFinalInt");
             try {
-                new GBeanMBeanAttribute(gmbean, attributeInfo, false);
+                new GBeanAttribute(gbeanInstance, attributeInfo, false);
                 fail("Expected InvalidConfigurationException due to invalid setter parameter type");
             } catch (InvalidConfigurationException expected) {
             }
@@ -209,7 +202,7 @@ public class GBeanMBeanAttributeTest extends TestCase {
         {
             final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", int.class.getName(), true, null, "setDoubleAsYetAnotherFinalInt");
             try {
-                new GBeanMBeanAttribute(gmbean, attributeInfo, false);
+                new GBeanAttribute(gbeanInstance, attributeInfo, false);
                 fail("Expected InvalidConfigurationException due to invalid setter parameter type");
             } catch (InvalidConfigurationException expected) {
             }
@@ -218,7 +211,7 @@ public class GBeanMBeanAttributeTest extends TestCase {
         {
             final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", int.class.getName(), true, "getVoidGetterOfFinalInt", null);
             try {
-                new GBeanMBeanAttribute(gmbean, attributeInfo, false);
+                new GBeanAttribute(gbeanInstance, attributeInfo, false);
                 fail("Getter method not found on target; InvalidConfigurationException expected");
             } catch (InvalidConfigurationException expected) {
             }
@@ -227,7 +220,7 @@ public class GBeanMBeanAttributeTest extends TestCase {
         {
             final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", int.class.getName(), true, null, "setThatDoesntExist");
             try {
-                new GBeanMBeanAttribute(gmbean, attributeInfo, false);
+                new GBeanAttribute(gbeanInstance, attributeInfo, false);
                 fail("Setter method not found on target; InvalidConfigurationException expected");
             } catch (InvalidConfigurationException expected) {
             }
@@ -235,7 +228,7 @@ public class GBeanMBeanAttributeTest extends TestCase {
 
         {
             final DynamicGAttributeInfo dynamicAttributeInfo = new DynamicGAttributeInfo(attributeName);
-            GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(gmbean, dynamicAttributeInfo, false);
+            GBeanAttribute attribute = new GBeanAttribute(gbeanInstance, dynamicAttributeInfo, false);
             assertFalse(attribute.isPersistent());
             assertEquals(dynamicAttributeInfo.isPersistent(), attribute.isPersistent());
             assertTrue(attribute.isReadable());
@@ -247,7 +240,7 @@ public class GBeanMBeanAttributeTest extends TestCase {
 
         {
             final DynamicGAttributeInfo dynamicAttributeInfo = new DynamicGAttributeInfo(attributeName, true);
-            GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(gmbean, dynamicAttributeInfo, false);
+            GBeanAttribute attribute = new GBeanAttribute(gbeanInstance, dynamicAttributeInfo, false);
             assertTrue(attribute.isPersistent());
             assertEquals(dynamicAttributeInfo.isPersistent(), attribute.isPersistent());
             assertTrue(attribute.isReadable());
@@ -260,7 +253,7 @@ public class GBeanMBeanAttributeTest extends TestCase {
         {
             final DynamicGAttributeInfo dynamicAttributeInfo = new DynamicGAttributeInfo(attributeName, true, false,
                     true);
-            GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(gmbean, dynamicAttributeInfo, false);
+            GBeanAttribute attribute = new GBeanAttribute(gbeanInstance, dynamicAttributeInfo, false);
             assertTrue(attribute.isPersistent());
             assertEquals(dynamicAttributeInfo.isPersistent(), attribute.isPersistent());
             assertFalse(attribute.isReadable());
@@ -273,7 +266,7 @@ public class GBeanMBeanAttributeTest extends TestCase {
         {
             final DynamicGAttributeInfo dynamicAttributeInfo = new DynamicGAttributeInfo(attributeName, true, false,
                     false);
-            GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(gmbean, dynamicAttributeInfo, false);
+            GBeanAttribute attribute = new GBeanAttribute(gbeanInstance, dynamicAttributeInfo, false);
             assertTrue(attribute.isPersistent());
             assertEquals(dynamicAttributeInfo.isPersistent(), attribute.isPersistent());
             assertFalse(attribute.isReadable());
@@ -290,18 +283,18 @@ public class GBeanMBeanAttributeTest extends TestCase {
 //        {
 //            final Integer valueThatCausesException = new Integer(-1);
 //
-//            final GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(gmbean, throwingExceptionAttributeInfo);
+//            final GBeanAttribute attribute = new GBeanAttribute(gbeanInstance, throwingExceptionAttributeInfo);
 //            attribute.setValue(valueThatCausesException);
 //
 //            final Kernel kernel = new Kernel("test.kernel");
 //            try {
 //                kernel.boot();
-//                kernel.loadGBean(name, gmbean);
+//                kernel.loadGBean(name, gbeanInstance);
 //                attribute.start();
 //                fail("Setter upon call with " + valueThatCausesException + " should have thrown exception");
 //            } catch (/* IllegalArgument */Exception expected) {
 //            } finally {
-//                // @todo possible BUG: gmbean holds information on being online
+//                // @todo possible BUG: gbeanInstance holds information on being online
 //                // although kernel is shutdown
 //                // explicit unloading GBean
 //                kernel.unloadGBean(name);
@@ -313,13 +306,13 @@ public class GBeanMBeanAttributeTest extends TestCase {
 //        {
 //            final Integer valueThatCausesError = new Integer(-2);
 //
-//            final GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(gmbean, throwingExceptionAttributeInfo);
+//            final GBeanAttribute attribute = new GBeanAttribute(gbeanInstance, throwingExceptionAttributeInfo);
 //            attribute.setValue(valueThatCausesError);
 //
 //            final Kernel kernel = new Kernel("test.kernel");
 //            try {
 //                kernel.boot();
-//                kernel.loadGBean(name, gmbean);
+//                kernel.loadGBean(name, gbeanInstance);
 //                attribute.start();
 //                fail("Setter upon call with " + valueThatCausesError + " should have thrown error");
 //            } catch (Error expected) {
@@ -334,13 +327,13 @@ public class GBeanMBeanAttributeTest extends TestCase {
 //        {
 //            final Integer valueThatCausesThrowable = new Integer(-3);
 //
-//            final GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(gmbean, throwingExceptionAttributeInfo);
+//            final GBeanAttribute attribute = new GBeanAttribute(gbeanInstance, throwingExceptionAttributeInfo);
 //            attribute.setValue(valueThatCausesThrowable);
 //
 //            final Kernel kernel = new Kernel("test.kernel");
 //            try {
 //                kernel.boot();
-//                kernel.loadGBean(name, gmbean);
+//                kernel.loadGBean(name, gbeanInstance);
 //                attribute.start();
 //                fail("Setter upon call with " + valueThatCausesThrowable + " should have thrown throwable");
 //            } catch (Throwable expected) {
@@ -352,7 +345,7 @@ public class GBeanMBeanAttributeTest extends TestCase {
 //        {
 //            try {
 //                GBeanMBean gmbean2 = new GBeanMBean(MockGBean.getGBeanInfo());
-//                GBeanMBeanAttribute attribute2 = new GBeanMBeanAttribute(gmbean2, throwingExceptionAttributeInfo);
+//                GBeanAttribute attribute2 = new GBeanAttribute(gmbean2, throwingExceptionAttributeInfo);
 //                attribute2.start();
 //                fail("AssertionError or NullPointerException expected");
 //            } catch (Exception expected) {
@@ -368,7 +361,7 @@ public class GBeanMBeanAttributeTest extends TestCase {
     public final void testGetValue() throws Exception {
         {
             // attribute that isn't readable and persistent
-            final GBeanMBeanAttribute attribute = GBeanMBeanAttribute.createFrameworkAttribute(gmbean, attributeName, String.class, null, setInvoker, false, null);
+            final GBeanAttribute attribute = GBeanAttribute.createFrameworkAttribute(gbeanInstance, attributeName, String.class, null, setInvoker, false, null);
             try {
                 attribute.getValue();
                 fail("Only persistent attributes can be accessed while offline; exception expected");
@@ -377,34 +370,25 @@ public class GBeanMBeanAttributeTest extends TestCase {
         }
 
         {
-            final GBeanMBeanAttribute attribute = GBeanMBeanAttribute.createFrameworkAttribute(gmbean, attributeName, String.class, null, setInvoker, false, null);
+            final GBeanAttribute attribute = GBeanAttribute.createFrameworkAttribute(gbeanInstance, attributeName, String.class, null, setInvoker, false, null);
 
-            final ObjectName name = new ObjectName("test:name=MyMockGBean");
-
-            final Kernel kernel = new Kernel("test.kernel");
             try {
-                kernel.boot();
-                kernel.loadGBean(name, gmbean);
-                kernel.startGBean(name);
+                gbeanInstance.start();
 
                 attribute.getValue();
                 fail("This attribute is not readable; exception expected");
             } catch (/* IllegalArgument */Throwable expected) {
             } finally {
-                kernel.shutdown();
+                gbeanInstance.stop();
             }
         }
 
         {
             final DynamicGAttributeInfo dynamicAttributeInfo = new DynamicGAttributeInfo(MockDynamicGBean.MUTABLE_INT_ATTRIBUTE_NAME, true, true, true);
-            GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(dynamicGmbean, dynamicAttributeInfo, false);
-            final ObjectName name = new ObjectName("test:name=MyMockDynamicGBean");
+            GBeanAttribute attribute = new GBeanAttribute(dynamicGBeanInstance, dynamicAttributeInfo, false);
 
-            final Kernel kernel = new Kernel("test.kernel");
             try {
-                kernel.boot();
-                kernel.loadGBean(name, dynamicGmbean);
-                kernel.startGBean(name);
+                dynamicGBeanInstance.start();
 
                 final Integer zero = new Integer(0);
                 assertEquals(zero, attribute.getValue());
@@ -413,7 +397,7 @@ public class GBeanMBeanAttributeTest extends TestCase {
                 attribute.setValue(one);
                 assertEquals(one, attribute.getValue());
             } finally {
-                kernel.shutdown();
+                dynamicGBeanInstance.stop();
             }
 
         }
@@ -423,7 +407,7 @@ public class GBeanMBeanAttributeTest extends TestCase {
 
         // 1. (offline) attribute that isn't readable and persistent
         {
-            final GBeanMBeanAttribute attribute = GBeanMBeanAttribute.createFrameworkAttribute(gmbean, attributeName, String.class, null, setInvoker, false, null);
+            final GBeanAttribute attribute = GBeanAttribute.createFrameworkAttribute(gbeanInstance, attributeName, String.class, null, setInvoker, false, null);
             try {
                 attribute.setValue(null);
                 fail("Only persistent attributes can be modified while offline; exception expected");
@@ -434,7 +418,7 @@ public class GBeanMBeanAttributeTest extends TestCase {
         // 2. (offline) attribute that is of primitive type, writable and
         // persistent, but not readable
         {
-            final GBeanMBeanAttribute persistentAttribute = new GBeanMBeanAttribute(gmbean, persistentPrimitiveAttributeInfo, false);
+            final GBeanAttribute persistentAttribute = new GBeanAttribute(gbeanInstance, persistentPrimitiveAttributeInfo, false);
             try {
                 persistentAttribute.setValue(null);
                 fail("Cannot assign null to a primitive attribute; exception expected");
@@ -444,63 +428,54 @@ public class GBeanMBeanAttributeTest extends TestCase {
 
         // 3. (online) attribute that is immutable and not persistent
         {
-            final GBeanMBeanAttribute immutableAttribute = GBeanMBeanAttribute.createFrameworkAttribute(gmbean, attributeName, String.class, getInvoker);
+            final GBeanAttribute immutableAttribute = GBeanAttribute.createFrameworkAttribute(gbeanInstance, attributeName, String.class, getInvoker);
 
-            final Kernel kernel = new Kernel("test.kernel");
             try {
-                kernel.boot();
-                kernel.loadGBean(name, gmbean);
-                kernel.startGBean(name);
+                gbeanInstance.start();
 
                 immutableAttribute.setValue(null);
                 fail("This attribute is not writable; exception expected");
             } catch (/* IllegalArgument */Exception expected) {
             } finally {
-                kernel.shutdown();
+                gbeanInstance.stop();
             }
         }
 
         // 4. (online) attribute that is mutable and of primitive type
         {
-            final GBeanMBeanAttribute mutablePersistentAttribute = new GBeanMBeanAttribute(gmbean, persistentPrimitiveAttributeInfo, false);
+            final GBeanAttribute mutablePersistentAttribute = new GBeanAttribute(gbeanInstance, persistentPrimitiveAttributeInfo, false);
 
-            final Kernel kernel = new Kernel("test.kernel");
             try {
-                kernel.boot();
-                kernel.loadGBean(name, gmbean);
-                kernel.startGBean(name);
+                gbeanInstance.start();
 
                 mutablePersistentAttribute.setValue(null);
                 fail("Cannot assign null to a primitive attribute; exception expected");
             } catch (/* IllegalArgument */Exception expected) {
             } finally {
-                kernel.shutdown();
+                gbeanInstance.stop();
             }
         }
 
         // 4a. @todo BUG: It's possible to set a value to a persistent
         // attribute while online; IllegalStateException expected
         {
-            final GBeanMBeanAttribute mutablePersistentAttribute = new GBeanMBeanAttribute(gmbean, persistentPrimitiveAttributeInfo, false);
+            final GBeanAttribute mutablePersistentAttribute = new GBeanAttribute(gbeanInstance, persistentPrimitiveAttributeInfo, false);
 
-            final Kernel kernel = new Kernel("test.kernel");
             try {
-                kernel.boot();
-                kernel.loadGBean(name, gmbean);
-                kernel.startGBean(name);
+                gbeanInstance.start();
 
                 mutablePersistentAttribute.setValue(new Integer(4));
                 //fail("Cannot assign a value to a persistent attribute while
                 // online; exception expected");
             } catch (/* IllegalState */Exception expected) {
             } finally {
-                kernel.shutdown();
+                gbeanInstance.stop();
             }
         }
 
         // 5. Invoke setValue so that exception is thrown
         {
-            final GBeanMBeanAttribute attribute = GBeanMBeanAttribute.createFrameworkAttribute(gmbean,
+            final GBeanAttribute attribute = GBeanAttribute.createFrameworkAttribute(gbeanInstance,
                     attributeName,
                     int.class,
                     null,
@@ -508,24 +483,30 @@ public class GBeanMBeanAttributeTest extends TestCase {
                     false,
                     null);
 
-            final Kernel kernel = new Kernel("test.kernel");
             try {
-                kernel.boot();
-                kernel.loadGBean(name, gmbean);
-                kernel.startGBean(name);
+                gbeanInstance.start();
 
                 attribute.setValue(new Integer(4));
                 fail("Exception expected upon setValue's call");
             } catch (/* IllegalState */Exception expected) {
             } finally {
-                kernel.shutdown();
+                gbeanInstance.stop();
             }
         }
     }
 
     protected void setUp() throws Exception {
-        gmbean = new GBeanMBean(MockGBean.getGBeanInfo());
-        dynamicGmbean = new GBeanMBean(MockDynamicGBean.getGBeanInfo());
+        kernel = new Kernel("test");
+        kernel.boot();
+
+        gbeanInstance = new GBeanInstance(kernel,
+                new GBeanData(new ObjectName("test:MockGBean=normal"), MockGBean.getGBeanInfo()),
+                new LifecycleAdapter(),
+                MockGBean.class.getClassLoader());
+        dynamicGBeanInstance = new GBeanInstance(kernel,
+                new GBeanData(new ObjectName("test:MockGBean=dynamic"), MockDynamicGBean.getGBeanInfo()),
+                new LifecycleAdapter(),
+                MockGBean.class.getClassLoader());
         getInvoker = new MethodInvoker() {
 
             public Object invoke(Object target, Object[] arguments) throws Exception {
@@ -544,6 +525,7 @@ public class GBeanMBeanAttributeTest extends TestCase {
     }
 
     protected void tearDown() throws Exception {
-        gmbean = null;
+        kernel.shutdown();
+        gbeanInstance = null;
     }
 }

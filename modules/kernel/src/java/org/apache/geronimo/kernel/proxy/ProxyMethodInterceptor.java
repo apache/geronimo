@@ -32,7 +32,8 @@ import net.sf.cglib.proxy.MethodProxy;
 import net.sf.cglib.reflect.FastClass;
 import org.apache.geronimo.gbean.GOperationSignature;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.gbean.jmx.RawInvoker;
+import org.apache.geronimo.gbean.runtime.RawInvoker;
+import org.apache.geronimo.gbean.runtime.GBeanInstance;
 import org.apache.geronimo.kernel.Kernel;
 import org.objectweb.asm.Type;
 
@@ -94,7 +95,7 @@ public class ProxyMethodInterceptor implements MethodInterceptor {
     private ProxyInvoker[] createGBeanInvokers(Kernel kernel, ObjectName objectName) {
         ProxyInvoker[] invokers;
         try {
-            RawInvoker rawInvoker = (RawInvoker) kernel.getAttribute(objectName, GBeanMBean.RAW_INVOKER);
+            RawInvoker rawInvoker = (RawInvoker) kernel.getAttribute(objectName, GBeanInstance.RAW_INVOKER);
             invokers = createRawGBeanInvokers(rawInvoker, proxyType);
         } catch (Exception e) {
             invokers = createKernelGBeanInvokers(kernel, objectName, proxyType);

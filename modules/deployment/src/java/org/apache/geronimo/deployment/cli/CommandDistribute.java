@@ -17,15 +17,18 @@
 
 package org.apache.geronimo.deployment.cli;
 
-import org.apache.geronimo.deployment.DeploymentException;
-
+import java.io.File;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.StringTokenizer;
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.status.ProgressObject;
-import java.io.PrintWriter;
-import java.io.File;
-import java.util.*;
+
+import org.apache.geronimo.deployment.DeploymentException;
 
 /**
  * The CLI deployer logic to distribute.

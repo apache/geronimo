@@ -15,18 +15,13 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.gbean.jmx;
+package org.apache.geronimo.gbean.runtime;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Iterator;
-
-import javax.management.MBeanOperationInfo;
-import javax.management.MBeanParameterInfo;
-import javax.management.ReflectionException;
+import java.util.List;
 
 import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.DynamicGOperationInfo;
@@ -37,47 +32,34 @@ import org.apache.geronimo.kernel.ClassLoading;
 /**
  * @version $Rev$ $Date$
  */
-public final class GBeanMBeanOperation {
-    private final GBeanMBean gmbean;
+public final class GBeanOperation {
+    private final GBeanInstance gbeanInstance;
     private final String name;
     private final List parameterTypes;
-    private final MBeanOperationInfo mbeanOperationInfo;
     private final MethodInvoker methodInvoker;
     private final boolean framework;
 
-    static GBeanMBeanOperation createFrameworkOperation(GBeanMBean gMBean, String name, List parameterTypes, Class returnType, MethodInvoker methodInvoker) {
-        return new GBeanMBeanOperation(gMBean, name, parameterTypes, returnType, methodInvoker);
+    static GBeanOperation createFrameworkOperation(GBeanInstance gbeanInstance, String name, List parameterTypes, MethodInvoker methodInvoker) {
+        return new GBeanOperation(gbeanInstance, name, parameterTypes, methodInvoker);
     }
 
-    private GBeanMBeanOperation(GBeanMBean gMBean, String name, List parameterTypes, Class returnType, MethodInvoker methodInvoker) {
+    private GBeanOperation(GBeanInstance gbeanInstance, String name, List parameterTypes, MethodInvoker methodInvoker) {
         framework = true;
-        this.gmbean = gMBean;
+        this.gbeanInstance = gbeanInstance;
         this.name = name;
         this.parameterTypes = Collections.unmodifiableList(new ArrayList(parameterTypes));
         this.methodInvoker = methodInvoker;
-
-        MBeanParameterInfo[] signature = new MBeanParameterInfo[parameterTypes.size()];
-        for (int i = 0; i < signature.length; i++) {
-            signature[i] = new MBeanParameterInfo("arg" + i, (String) parameterTypes.get(i), null);
-        }
-
-        mbeanOperationInfo = new MBeanOperationInfo(name,
-                null,
-                signature,
-                returnType.getName(),
-                MBeanOperationInfo.UNKNOWN);
-
     }
 
-    public GBeanMBeanOperation(GBeanMBean gMBean, GOperationInfo operationInfo) throws InvalidConfigurationException {
+    public GBeanOperation(GBeanInstance gbeanInstance, GOperationInfo operationInfo) throws InvalidConfigurationException {
         framework = false;
-        this.gmbean = gMBean;
+        this.gbeanInstance = gbeanInstance;
         this.name = operationInfo.getName();
 
         // get an array of the parameter classes
         this.parameterTypes = Collections.unmodifiableList(new ArrayList(operationInfo.getParameterList()));
         Class[] types = new Class[parameterTypes.size()];
-        ClassLoader classLoader = gMBean.getClassLoader();
+        ClassLoader classLoader = gbeanInstance.getClassLoader();
         for (int i = 0; i < types.length; i++) {
             String type = (String) parameterTypes.get(i);
             try {
@@ -90,43 +72,27 @@ public final class GBeanMBeanOperation {
         }
 
         // get a method invoker for the operation
-        Class returnType;
         if (operationInfo instanceof DynamicGOperationInfo) {
-            returnType = Object.class;
             methodInvoker = new MethodInvoker() {
                 private String[] types = (String[]) parameterTypes.toArray(new String[parameterTypes.size()]);
 
                 public Object invoke(Object target, Object[] arguments) throws Exception {
-                    DynamicGBean dynamicGBean = (DynamicGBean) GBeanMBeanOperation.this.gmbean.getTarget();
+                    DynamicGBean dynamicGBean = (DynamicGBean) GBeanOperation.this.gbeanInstance.getTarget();
                     dynamicGBean.invoke(name, arguments, types);
                     return null;
                 }
             };
         } else {
             try {
-                Method javaMethod = gMBean.getType().getMethod(operationInfo.getMethodName(), types);
-                returnType = javaMethod.getReturnType();
+                Method javaMethod = gbeanInstance.getType().getMethod(operationInfo.getMethodName(), types);
                 methodInvoker = new FastMethodInvoker(javaMethod);
             } catch (Exception e) {
                 throw new InvalidConfigurationException("Target does not have specified method (declared in a GBeanInfo operation):" +
                         " name=" + operationInfo.getName() +
                         " methodName=" + operationInfo.getMethodName() +
-                        " targetClass=" + gMBean.getType().getName());
+                        " targetClass=" + gbeanInstance.getType().getName());
             }
         }
-
-        MBeanParameterInfo[] signature = new MBeanParameterInfo[parameterTypes.size()];
-        for (int i = 0; i < signature.length; i++) {
-            signature[i] = new MBeanParameterInfo("arg" + i,
-                    (String) parameterTypes.get(i),
-                    null);
-        }
-
-        mbeanOperationInfo = new MBeanOperationInfo(operationInfo.getName(),
-                null,
-                signature,
-                returnType.getName(),
-                MBeanOperationInfo.UNKNOWN);
     }
 
     public String getName() {
@@ -137,23 +103,12 @@ public final class GBeanMBeanOperation {
         return parameterTypes;
     }
 
-    public MBeanOperationInfo getMbeanOperationInfo() {
-        return mbeanOperationInfo;
-    }
-
     public boolean isFramework() {
         return framework;
     }
 
-    public Object invoke(final Object[] arguments) throws ReflectionException {
-        // get the target to invoke
-        try {
-            return methodInvoker.invoke(gmbean.getTarget(), arguments);
-        } catch (Exception e) {
-            throw new ReflectionException(e);
-        } catch (Throwable throwable) {
-            throw new ReflectionException(new InvocationTargetException(throwable));
-        }
+    public Object invoke(final Object[] arguments) throws Exception {
+        return methodInvoker.invoke(gbeanInstance.getTarget(), arguments);
     }
 
     public String getDescription() {
@@ -166,6 +121,6 @@ public final class GBeanMBeanOperation {
             }
         }
         signature += ")";
-        return "Operation Signature: " + signature + ", GBean: " + gmbean.getName();
+        return "Operation Signature: " + signature + ", GBeanInstance: " + gbeanInstance.getName();
     }
 }

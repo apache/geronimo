@@ -15,27 +15,26 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.gbean.jmx;
+package org.apache.geronimo.gbean.runtime;
 
 import org.apache.geronimo.gbean.GBeanLifecycleController;
-import org.apache.geronimo.kernel.management.State;
 
 /**
  * @version $Rev$ $Date$
  */
-public final class GBeanMBeanLifecycleController implements GBeanLifecycleController {
+public final class GBeanInstanceLifecycleController implements GBeanLifecycleController {
     /**
-     * The GeronimoMBean which owns the target.
+     * The GeronimoInstance which owns the target.
      */
-    private final GBeanMBean gmbean;
+    private final GBeanInstance gbeanInstance;
 
     /**
      * Creates a new context for a target.
      *
-     * @param gmbean the Geronimo Mbean the contains the target
+     * @param gbeanInstance the GeronimoInstance 
      */
-    public GBeanMBeanLifecycleController(GBeanMBean gmbean) {
-        this.gmbean = gmbean;
+    public GBeanInstanceLifecycleController(GBeanInstance gbeanInstance) {
+        this.gbeanInstance = gbeanInstance;
     }
 
     /**
@@ -45,7 +44,7 @@ public final class GBeanMBeanLifecycleController implements GBeanLifecycleContro
      * @return the current state of this component
      */
     public int getState() {
-        return gmbean.getState();
+        return gbeanInstance.getState();
     }
 
     /**
@@ -57,7 +56,7 @@ public final class GBeanMBeanLifecycleController implements GBeanLifecycleContro
      * @throws Exception if a problem occurs while starting the component
      */
     public void start() throws Exception {
-        gmbean.attemptFullStart();
+        gbeanInstance.start();
     }
 
     /**
@@ -69,12 +68,7 @@ public final class GBeanMBeanLifecycleController implements GBeanLifecycleContro
      * @throws Exception if a problem occurs while stopping the component
      */
     public void stop() throws Exception {
-        final int state = gmbean.getState();
-        if (state == State.RUNNING_INDEX || state == State.STARTING_INDEX) {
-            gmbean.stop();
-        } else if (state == State.STOPPING_INDEX) {
-            gmbean.attemptFullStop();
-        }
+        gbeanInstance.stop();
     }
 
     /**
@@ -83,6 +77,6 @@ public final class GBeanMBeanLifecycleController implements GBeanLifecycleContro
      * The component is guaranteed to be in the failed state when the method returns.
      */
     public void fail() {
-        gmbean.fail();
+        gbeanInstance.fail();
     }
 }

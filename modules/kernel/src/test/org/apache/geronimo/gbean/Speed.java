@@ -26,7 +26,7 @@ import net.sf.cglib.reflect.FastClass;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.MockGBean;
-import org.apache.geronimo.gbean.jmx.RawInvoker;
+import org.apache.geronimo.gbean.runtime.RawInvoker;
 
 /**
  * @version $Rev$ $Date$

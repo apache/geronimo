@@ -23,6 +23,11 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
+
+import javax.management.ObjectName;
+
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -31,54 +36,72 @@ import java.util.Iterator;
  */
 public class EJBWSGBean implements GBeanLifecycle {
     private static Log log = LogFactory.getLog(EJBWSGBean.class);
-    
-    public static final GBeanInfo GBEAN_INFO;
-    private final String objectName; 
-    
-    private Collection classList;
-    private final Configuration ejbConfig;
+    /**
+     * Field name
+     */
+    private final String name;
 
+    /**
+     * Field GBEAN_INFO
+     */
+    private static final GBeanInfo GBEAN_INFO;
+
+    /**
+     * Field objectName
+     */
+    private final ObjectName objectName;
+    private Configuration ejbConfig;
+    private Collection classList;
 
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("EJBWSGBean",
                 EJBWSGBean.class);
 
-        // attributes
-        infoFactory.addAttribute("objectName", String.class, false);
-        infoFactory.addAttribute("classList", Collection.class, true);
-        
-        infoFactory.addReference("EjbConfig", Configuration.class);
 
+        // attributes
+        infoFactory.addAttribute("Name", String.class, true);
+        infoFactory.addAttribute("objectName", String.class, false);
+        infoFactory.addReference("ejbConfig", Configuration.class);
+        infoFactory.addAttribute("classList", Collection.class, true);
         // operations
-        infoFactory.setConstructor(new String[]{"objectName"});
-        infoFactory.setConstructor(new String[]{"objectName","EjbConfig"});
+        infoFactory.setConstructor(new String[]{"Name",
+                                                "objectName"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
-
-    public EJBWSGBean(String objectName) {
-        this.objectName = objectName;
-        this.ejbConfig = null;
+    /**
+     * Constructor AxisGbean
+     *
+     * @param name
+     * @param objectName
+     */
+    public EJBWSGBean(String name, String objectName) {
+        this.name = name;
+        this.objectName = JMXUtil.getObjectName(objectName);
     }
 
-    public EJBWSGBean(String objectName,Configuration ejbConfig) {
-        this.objectName = objectName;
-        System.out.println(ejbConfig);
-        this.ejbConfig = (Configuration)ejbConfig;
-    }
-
-
-    
+    /**
+     * Method doFail
+     */
     public void doFail() {
+        log.info("Axis GBean has failed");
     }
 
+    /**
+     * Method doStart
+     *
+     * @throws WaitingException
+     * @throws Exception
+     */
     public void doStart() throws WaitingException, Exception {
-        ClassLoader cl = ejbConfig.getClassLoader();
+        System.out.println(name + "has started");
+        ClassLoader cl = ejbConfig.getConfigurationClassLoader();
         for (Iterator it = classList.iterator(); it.hasNext();) {
             String className = (String) it.next();
             ClassUtils.setClassLoader(className, cl);
         }
         AxisGeronimoUtils.addEntryToAxisDD(cl.getResourceAsStream("deploy.wsdd"));
+        log.info(objectName);
     }
 
     /**
@@ -91,24 +114,49 @@ public class EJBWSGBean implements GBeanLifecycle {
         log.info("WebServiceGBean has stoped");
     }
 
+    /**
+     * Method getGBeanInfo
+     *
+     * @return
+     */
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
 
+    /**
+     * Method getName
+     *
+     * @return
+     */
+    public String getName() {
+        return name;
+    }
 
-
+    /**
+     * @return
+     */
     public Collection getClassList() {
         return classList;
     }
 
+    /**
+     * @return
+     */
+    public Configuration getEjbConfig() {
+        return ejbConfig;
+    }
+
+    /**
+     * @param collection
+     */
     public void setClassList(Collection collection) {
         classList = collection;
     }
 
-//    public Configuration getEjbConfig() {
-//        return ejbConfig;
-//    }
-//    public void setEjbConfig(Configuration configuration) {
-//        ejbConfig = configuration;
-//    }
+    /**
+     * @param configuration
+     */
+    public void setEjbConfig(Configuration configuration) {
+        ejbConfig = configuration;
+    }
 }

@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,14 +14,24 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
-package org.apache.geronimo.kernel.config;
-
-
+package org.apache.geronimo.kernel;
 
 /**
  * @version $Rev$ $Date$
  */
-public interface ConfigurationParent {
-    ClassLoader getConfigurationClassLoader();
+public class InternalKernelException extends RuntimeException {
+    public InternalKernelException() {
+    }
+
+    public InternalKernelException(String message) {
+        super(message);
+    }
+
+    public InternalKernelException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public InternalKernelException(Throwable cause) {
+        super(cause);
+    }
 }

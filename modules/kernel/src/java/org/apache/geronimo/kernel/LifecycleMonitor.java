@@ -135,6 +135,10 @@ public class LifecycleMonitor implements NotificationListener {
         boundListeners.remove(source);
     }
 
+    public synchronized void addLifecycleListener(LifecycleListener listener, ObjectName pattern) {
+        addLifecycleListener(listener, Collections.singleton(pattern));
+    }
+
     public synchronized void addLifecycleListener(LifecycleListener listener, Set patterns) {
         for (Iterator patternIterator = patterns.iterator(); patternIterator.hasNext();) {
             ObjectName pattern = (ObjectName) patternIterator.next();
@@ -168,12 +172,12 @@ public class LifecycleMonitor implements NotificationListener {
         }
     }
 
-    private void fireCreatedEvent(ObjectName objectName) {
+    private void fireLoadedEvent(ObjectName objectName) {
         Set targets = getTargets(objectName);
         for (Iterator iterator = targets.iterator(); iterator.hasNext();) {
             LifecycleListener listener = (LifecycleListener) iterator.next();
             try {
-                listener.created(objectName);
+                listener.loaded(objectName);
             } catch (Throwable e) {
                 log.warn("Exception occured while notifying listener", e);
             }
@@ -228,12 +232,24 @@ public class LifecycleMonitor implements NotificationListener {
         }
     }
 
-    private void fireDeleteEvent(ObjectName source) {
+    private void fireFailedEvent(ObjectName source) {
         Set targets = getTargets(source);
         for (Iterator iterator = targets.iterator(); iterator.hasNext();) {
             LifecycleListener listener = (LifecycleListener) iterator.next();
             try {
-                listener.deleted(source);
+                listener.failed(source);
+            } catch (Throwable e) {
+                log.warn("Exception occured while notifying listener", e);
+            }
+        }
+    }
+
+    private void fireUnloadedEvent(ObjectName source) {
+        Set targets = getTargets(source);
+        for (Iterator iterator = targets.iterator(); iterator.hasNext();) {
+            LifecycleListener listener = (LifecycleListener) iterator.next();
+            try {
+                listener.unloaded(source);
             } catch (Throwable e) {
                 log.warn("Exception occured while notifying listener", e);
             }
@@ -245,22 +261,25 @@ public class LifecycleMonitor implements NotificationListener {
 
         if (MBeanServerNotification.REGISTRATION_NOTIFICATION.equals(type)) {
             ObjectName source = ((MBeanServerNotification) notification).getMBeanName();
-            addSource(source);
+            if (!boundListeners.containsKey(source)) {
+                // register for state change notifications
+                try {
+                    server.addNotificationListener(source, this, NotificationType.STATE_CHANGE_FILTER, null);
+                } catch (InstanceNotFoundException e) {
+                    // the instance died before we could get going... not a big deal
+                    return;
+                }
 
-            // register for state change notifications
-            try {
-                server.addNotificationListener(source, this, NotificationType.STATE_CHANGE_FILTER, null);
-            } catch (InstanceNotFoundException e) {
-                // the instance died before we could get going... not a big deal
-                return;
+                addSource(source);
+                fireLoadedEvent(source);
             }
         } else if (MBeanServerNotification.UNREGISTRATION_NOTIFICATION.equals(type)) {
-            removeSource(((MBeanServerNotification) notification).getMBeanName());
+            ObjectName source = ((MBeanServerNotification) notification).getMBeanName();
+            fireUnloadedEvent(source);
+            removeSource(source);
         } else {
             final ObjectName source = (ObjectName) notification.getSource();
-            if (NotificationType.OBJECT_CREATED.equals(type)) {
-                fireCreatedEvent(source);
-            } else if (NotificationType.STATE_STARTING.equals(type)) {
+            if (NotificationType.STATE_STARTING.equals(type)) {
                 fireStartingEvent(source);
             } else if (NotificationType.STATE_RUNNING.equals(type)) {
                 fireRunningEvent(source);
@@ -268,8 +287,8 @@ public class LifecycleMonitor implements NotificationListener {
                 fireStoppingEvent(source);
             } else if (NotificationType.STATE_STOPPED.equals(type)) {
                 fireStoppedEvent(source);
-            } else if (NotificationType.OBJECT_DELETED.equals(type)) {
-                fireDeleteEvent(source);
+            } else if (NotificationType.STATE_FAILED.equals(type)) {
+                fireFailedEvent(source);
             }
         }
     }

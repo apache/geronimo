@@ -15,13 +15,11 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.kernel.config;
-
-
+package org.apache.geronimo.gbean.runtime;
 
 /**
  * @version $Rev$ $Date$
  */
-public interface ConfigurationParent {
-    ClassLoader getConfigurationClassLoader();
+public interface MethodInvoker {
+    Object invoke(Object target, Object[] arguments) throws Exception;
 }

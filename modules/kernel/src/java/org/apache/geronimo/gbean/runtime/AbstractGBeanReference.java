@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.gbean.jmx;
+package org.apache.geronimo.gbean.runtime;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -22,8 +22,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import javax.management.AttributeNotFoundException;
-import javax.management.InstanceNotFoundException;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GReferenceInfo;
@@ -32,6 +30,8 @@ import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.LifecycleAdapter;
 import org.apache.geronimo.kernel.LifecycleListener;
+import org.apache.geronimo.kernel.NoSuchAttributeException;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.management.State;
 
 /**
@@ -44,14 +44,14 @@ public abstract class AbstractGBeanReference implements GBeanReference {
     private final String name;
 
     /**
-     * Interface this GBeanMBean uses to refer to the other.
+     * Interface this GBeanInstance uses to refer to the other.
      */
     private final Class type;
 
     /**
-     * The GBeanMBean to which this reference belongs.
+     * The GBeanInstance to which this reference belongs.
      */
-    private final GBeanMBean gmbean;
+    private final GBeanInstance gbeanInstance;
 
     /**
      * The method that will be called to set the attribute value.  If null, the value will be set with
@@ -84,11 +84,11 @@ public abstract class AbstractGBeanReference implements GBeanReference {
      */
     private Object proxy;
 
-    public AbstractGBeanReference(GBeanMBean gmbean, GReferenceInfo referenceInfo, Class constructorType) throws InvalidConfigurationException {
-        this.gmbean = gmbean;
+    public AbstractGBeanReference(GBeanInstance gbeanInstance, GReferenceInfo referenceInfo, Class constructorType) throws InvalidConfigurationException {
+        this.gbeanInstance = gbeanInstance;
         this.name = referenceInfo.getName();
         try {
-            this.type = ClassLoading.loadClass(referenceInfo.getType(), gmbean.getClassLoader());
+            this.type = ClassLoading.loadClass(referenceInfo.getType(), gbeanInstance.getClassLoader());
         } catch (ClassNotFoundException e) {
             throw new InvalidConfigurationException("Could not load reference proxy interface class:" +
                     " name=" + name +
@@ -101,7 +101,7 @@ public abstract class AbstractGBeanReference implements GBeanReference {
         if (constructorType != null) {
             setInvoker = null;
         } else {
-            Method setterMethod = searchForSetter(gmbean, referenceInfo);
+            Method setterMethod = searchForSetter(gbeanInstance, referenceInfo);
             setInvoker = new FastMethodInvoker(setterMethod);
         }
 
@@ -114,6 +114,22 @@ public abstract class AbstractGBeanReference implements GBeanReference {
             }
 
             public void stoping(ObjectName objectName) {
+                removeTarget(objectName);
+            }
+
+            public void stopped(ObjectName objectName) {
+                removeTarget(objectName);
+            }
+
+            public void failed(ObjectName objectName) {
+                removeTarget(objectName);
+            }
+
+            public void unloaded(ObjectName objectName) {
+                removeTarget(objectName);
+            }
+
+            private void removeTarget(ObjectName objectName) {
                 boolean wasTarget = targets.remove(objectName);
                 if (wasTarget) {
                     targetRemoved(objectName);
@@ -126,8 +142,8 @@ public abstract class AbstractGBeanReference implements GBeanReference {
         return kernel;
     }
 
-    protected final GBeanMBean getGBeanMBean() {
-        return gmbean;
+    public final GBeanInstance getGBeanInstance() {
+        return gbeanInstance;
     }
 
     public final String getName() {
@@ -137,7 +153,6 @@ public abstract class AbstractGBeanReference implements GBeanReference {
     public final Class getType() {
         return type;
     }
-
 
     public Object getProxy() {
         return proxy;
@@ -210,7 +225,7 @@ public abstract class AbstractGBeanReference implements GBeanReference {
     public final synchronized void inject() throws Exception {
         // set the proxy into the instance
         if (setInvoker != null && patterns.size() > 0) {
-            setInvoker.invoke(gmbean.getTarget(), new Object[]{getProxy()});
+            setInvoker.invoke(gbeanInstance.getTarget(), new Object[]{getProxy()});
         }
     }
 
@@ -224,10 +239,10 @@ public abstract class AbstractGBeanReference implements GBeanReference {
         try {
             final int state = ((Integer) kernel.getAttribute(objectName, "state")).intValue();
             return state == State.RUNNING_INDEX;
-        } catch (AttributeNotFoundException e) {
+        } catch (NoSuchAttributeException e) {
             // ok -- mbean is not a startable
             return true;
-        } catch (InstanceNotFoundException e) {
+        } catch (GBeanNotFoundException e) {
             // mbean is no longer registerd
             return false;
         } catch (Exception e) {
@@ -236,11 +251,11 @@ public abstract class AbstractGBeanReference implements GBeanReference {
         }
     }
 
-    protected static Method searchForSetter(GBeanMBean gMBean, GReferenceInfo referenceInfo) throws InvalidConfigurationException {
+    protected static Method searchForSetter(GBeanInstance gbeanInstance, GReferenceInfo referenceInfo) throws InvalidConfigurationException {
         if (referenceInfo.getSetterName() == null) {
             // no explicit name give so we must search for a name
             String setterName = "set" + referenceInfo.getName();
-            Method[] methods = gMBean.getType().getMethods();
+            Method[] methods = gbeanInstance.getType().getMethods();
             for (int i = 0; i < methods.length; i++) {
                 Method method = methods[i];
                 if (method.getParameterTypes().length == 1 &&
@@ -253,7 +268,7 @@ public abstract class AbstractGBeanReference implements GBeanReference {
         } else {
             // even though we have an exact name we need to search the methods because
             // we don't know the parameter type
-            Method[] methods = gMBean.getType().getMethods();
+            Method[] methods = gbeanInstance.getType().getMethods();
             String setterName = referenceInfo.getSetterName();
             for (int i = 0; i < methods.length; i++) {
                 Method method = methods[i];
@@ -267,6 +282,6 @@ public abstract class AbstractGBeanReference implements GBeanReference {
         }
         throw new InvalidConfigurationException("Target does not have specified method:" +
                 " name=" + referenceInfo.getName() +
-                " targetClass=" + gMBean.getType().getName());
+                " targetClass=" + gbeanInstance.getType().getName());
     }
 }

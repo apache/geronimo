@@ -51,15 +51,15 @@ public class GBeanTest extends TestCase {
 
         assertSame(myCl, kernel.getAttribute(name, "actualClassLoader"));
 
-        // the normal classLoader attribute has been changed in the MockGBean implementation to
-        // return ClassLoader.getSystemClassLoader()
-        assertSame(ClassLoader.getSystemClassLoader(), kernel.getAttribute(name, "classLoader"));
+        // the MockGBean implemmentation of getConfigurationClassLoader will throw an exception, but since the GBean architecture
+        // handles this directly the implementation method will never be called
+        kernel.getAttribute(name, "classLoader");
 
         GBeanLifecycleController gbeanLifecycleController = (GBeanLifecycleController) kernel.getAttribute(name, "gbeanLifecycleController");
         assertNotNull(gbeanLifecycleController);
         assertEquals(State.RUNNING_INDEX, gbeanLifecycleController.getState());
 
-        assertNotSame(kernel, kernel.getAttribute(name, "kernel"));
+        assertSame(kernel, kernel.getAttribute(name, "kernel"));
         assertSame(kernel, kernel.getAttribute(name, "actualKernel"));
 
         kernel.stopGBean(name);

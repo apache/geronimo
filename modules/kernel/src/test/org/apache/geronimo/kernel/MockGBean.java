@@ -108,7 +108,7 @@ public class MockGBean implements MockEndpoint {
     }
 
     public String getObjectName() {
-        return "FakePhonyName";
+        throw new RuntimeException("this should never be called");
     }
 
     public ClassLoader getActualClassLoader() {
@@ -116,7 +116,7 @@ public class MockGBean implements MockEndpoint {
     }
 
     public ClassLoader getClassLoader() {
-        return ClassLoader.getSystemClassLoader();
+        throw new RuntimeException("this should never be called");
     }
 
     public GBeanLifecycleController getGBeanLifecycleController() {
@@ -128,7 +128,7 @@ public class MockGBean implements MockEndpoint {
     }
 
     public Kernel getKernel() {
-        return new Kernel("blah424242");
+        throw new RuntimeException("this should never be called");
     }
 
     public void setKernel(Kernel kernel) {

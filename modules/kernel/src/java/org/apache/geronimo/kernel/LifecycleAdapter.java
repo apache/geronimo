@@ -22,7 +22,7 @@ import javax.management.ObjectName;
  * @version $Rev$ $Date$
  */
 public class LifecycleAdapter implements LifecycleListener {
-    public void created(ObjectName objectName) {
+    public void loaded(ObjectName objectName) {
     }
 
     public void starting(ObjectName objectName) {
@@ -37,6 +37,9 @@ public class LifecycleAdapter implements LifecycleListener {
     public void stopped(ObjectName objectName) {
     }
 
-    public void deleted(ObjectName objectName) {
+    public void failed(ObjectName objectName) {
+    }
+
+    public void unloaded(ObjectName objectName) {
     }
 }

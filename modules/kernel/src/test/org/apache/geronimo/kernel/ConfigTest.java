@@ -60,7 +60,7 @@ public class ConfigTest extends TestCase {
         mbServer.invoke(configName, "startRecursive", null, null);
 
         assertEquals(new Integer(State.RUNNING_INDEX), mbServer.getAttribute(configName, "state"));
-        assertNotNull(mbServer.getAttribute(configName, "classLoader"));
+        assertNotNull(mbServer.getAttribute(configName, "configurationClassLoader"));
 
         assertEquals(new Integer(State.RUNNING_INDEX), mbServer.getAttribute(gbeanName1, "state"));
         Object state = mbServer.getAttribute(gbeanName2, "state");

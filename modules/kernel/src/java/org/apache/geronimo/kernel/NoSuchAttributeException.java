@@ -14,33 +14,24 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.gbean.jmx;
-
-import java.util.Set;
-
-import org.apache.geronimo.kernel.Kernel;
+package org.apache.geronimo.kernel;
 
 /**
  * @version $Rev$ $Date$
  */
-public interface GBeanReference {
-    String getName();
+public class NoSuchAttributeException extends KernelException {
+    public NoSuchAttributeException() {
+    }
 
-    Class getType();
+    public NoSuchAttributeException(String message) {
+        super(message);
+    }
 
-    Set getPatterns();
+    public NoSuchAttributeException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-    void setPatterns(Set patterns);
-
-    void online(Kernel kernel);
-
-    void offline();
-
-    void start() throws Exception;
-
-    void stop();
-
-    Object getProxy();
-
-    void inject() throws Exception;
+    public NoSuchAttributeException(Throwable cause) {
+        super(cause);
+    }
 }
