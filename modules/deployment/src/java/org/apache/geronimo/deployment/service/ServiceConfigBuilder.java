@@ -51,7 +51,7 @@ import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Revision: 1.16 $ $Date: 2004/07/22 03:22:53 $
+ * @version $Rev$ $Date$
  */
 public class ServiceConfigBuilder implements ConfigurationBuilder {
     private final Repository repository;

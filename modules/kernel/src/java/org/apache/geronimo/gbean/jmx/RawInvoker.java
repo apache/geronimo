@@ -27,7 +27,7 @@ import javax.management.ReflectionException;
  * crafted container code, because this class maintains a hard reference to a gbean which has a huge
  * potential for memory leaks.  USE WITH CAUTION
  *
- * @version $Revision: 1.4 $ $Date: 2004/06/04 22:31:56 $
+ * @version $Rev$ $Date$
  */
 public final class RawInvoker {
     private final GBeanMBean gbean;

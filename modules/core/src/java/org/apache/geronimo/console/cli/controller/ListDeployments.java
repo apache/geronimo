@@ -32,7 +32,7 @@ import org.apache.geronimo.console.cli.TextController;
 /**
  * List deployed modules for the selected targets
  *
- * @version $Revision: 1.6 $ $Date: 2004/07/23 07:27:50 $
+ * @version $Rev$ $Date$
  */
 public class ListDeployments extends TextController {
     private static final Log log = LogFactory.getLog(ListDeployments.class);

@@ -52,7 +52,7 @@ import org.apache.xmlbeans.XmlOptions;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/09/06 01:38:02 $
+ * @version $Rev$ $Date$
  *
  * */
 public class RAR_1_5DConfigBeanTest extends TestCase {

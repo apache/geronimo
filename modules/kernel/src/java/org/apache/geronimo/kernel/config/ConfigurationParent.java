@@ -20,7 +20,7 @@ package org.apache.geronimo.kernel.config;
 import java.net.URL;
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/05/27 01:06:00 $
+ * @version $Rev$ $Date$
  */
 public interface ConfigurationParent {
     ClassLoader getClassLoader();

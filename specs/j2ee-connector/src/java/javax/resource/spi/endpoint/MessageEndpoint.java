@@ -30,7 +30,7 @@ import javax.resource.ResourceException;
  *
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:46 $
+ * @version $Rev$ $Date$
  */
 public interface MessageEndpoint {
     public void beforeDelivery(Method method) throws NoSuchMethodException, ResourceException;

@@ -24,7 +24,7 @@ import javax.security.auth.login.LoginException;
 /**
  * JMX Authenticator that checks the Credentials by logging in via JAAS.
  *
- * @version $Revision: 1.3 $ $Date: 2004/06/05 16:54:35 $
+ * @version $Rev$ $Date$
  */
 public class Authenticator implements JMXAuthenticator {
     private final String configName;

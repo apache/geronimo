@@ -33,7 +33,7 @@ import org.apache.geronimo.remoting.transport.BytesMarshalledObject;
 
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/09/06 11:14:13 $
+ * @version $Rev$ $Date$
  */
 
 public class JMXRemotingTest extends TestCase {

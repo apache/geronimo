@@ -30,7 +30,7 @@ import org.apache.geronimo.pool.ClockPool;
 /**
  * MessagingTransportFactory using Geronimo network as the transport layer.
  * 
- * @version $Revision: 1.5 $ $Date: 2004/07/20 00:15:05 $
+ * @version $Rev$ $Date$
  */
 public class NetworkTransportFactory
     implements MessagingTransportFactory

@@ -29,7 +29,7 @@ import org.apache.commons.logging.LogFactory;
  * into the same abstract base.
  *
  *
- * @version $Revision: 1.10 $ $Date: 2004/03/10 09:58:21 $
+ * @version $Rev$ $Date$
  */
 public abstract class
   Tier

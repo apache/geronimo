@@ -11,7 +11,7 @@ import org.apache.geronimo.timer.PersistenceException;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/07/20 23:36:53 $
+ * @version $Rev$ $Date$
  *
  * */
 public interface PersistentTimer {

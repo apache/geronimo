@@ -26,7 +26,7 @@ import javax.resource.ResourceException;
  * or releasing a ManagedConnection.
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:32 $
+ * @version $Rev$ $Date$
  */
 
 public interface ConnectionInterceptor {

@@ -23,7 +23,7 @@ import javax.resource.spi.LocalTransaction;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/06/08 17:38:01 $
+ * @version $Rev$ $Date$
  *
  * */
 public class LocalXAResourceInsertionInterceptorTest extends ConnectionInterceptorTestUtils {

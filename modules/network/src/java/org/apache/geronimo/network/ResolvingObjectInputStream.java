@@ -27,7 +27,7 @@ import org.apache.geronimo.kernel.ClassLoading;
 
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/21 23:24:27 $
+ * @version $Rev$ $Date$
  */
 public class ResolvingObjectInputStream extends ObjectInputStream {
 

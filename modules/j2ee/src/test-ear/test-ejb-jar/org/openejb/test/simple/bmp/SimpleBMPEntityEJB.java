@@ -55,7 +55,7 @@ import javax.ejb.RemoveException;
 /**
  * 
  * 
- * @version $Revision: 1.1 $ $Date: 2004/05/19 20:53:59 $
+ * @version $Rev$ $Date$
  */
 public class SimpleBMPEntityEJB implements EntityBean {
     private static final Integer PK = new Integer(1);

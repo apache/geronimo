@@ -25,7 +25,7 @@ import javax.transaction.InvalidTransactionException;
 /**
  * primarily an interface between the WorkManager/ExecutionContext and the tm.
  *
- * @version $Revision: 1.3 $ $Date: 2004/07/11 21:25:21 $
+ * @version $Rev$ $Date$
  *
  * */
 public interface XAWork {

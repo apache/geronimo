@@ -39,7 +39,7 @@ import org.apache.geronimo.messaging.io.StreamOutputStream;
  * Its goal is to compress Msgs to be sent to other nodes. The compression is
  * based on a shared knowledge such as a Topology.
  *
- * @version $Revision: 1.4 $ $Date: 2004/07/20 00:26:04 $
+ * @version $Rev$ $Date$
  */
 public class LogicalCompression
     implements PopSynchronization, PushSynchronization

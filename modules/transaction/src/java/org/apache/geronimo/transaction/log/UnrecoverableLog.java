@@ -32,7 +32,7 @@ import org.apache.geronimo.transaction.manager.XidFactory;
  * Not recommended for production use as heuristic recovery will be needed if
  * the transaction coordinator dies.
  *
- * @version $Revision: 1.7 $ $Date: 2004/07/22 03:39:01 $
+ * @version $Rev$ $Date$
  */
 public class UnrecoverableLog implements TransactionLog {
     public void begin(Xid xid) throws LogException {

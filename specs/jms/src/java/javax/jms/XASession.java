@@ -26,7 +26,7 @@ package javax.jms;
 import javax.transaction.xa.XAResource;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/10 10:00:03 $
+ * @version $Rev$ $Date$
  */
 public interface XASession extends Session {
     Session getSession() throws JMSException;

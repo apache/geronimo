@@ -25,7 +25,7 @@ import org.apache.geronimo.kernel.management.State;
 /**
  * 
  * 
- * @version $Revision: 1.2 $ $Date: 2004/07/22 03:22:53 $
+ * @version $Rev$ $Date$
  */
 public class ConfigurationInfo implements Serializable {
     private final ObjectName storeName;

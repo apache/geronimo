@@ -27,7 +27,7 @@ import junit.framework.TestCase;
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2004/05/27 14:31:50 $
+ * @version $Rev$ $Date$
  */
 public class MBeanServerEndPointImplTest extends TestCase
 {

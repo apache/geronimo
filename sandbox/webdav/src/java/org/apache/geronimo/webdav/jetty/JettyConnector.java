@@ -29,7 +29,7 @@ import org.mortbay.http.HttpListener;
  * This interface captures the operations and attributes, which are exposed
  * as GBean operations and attributes.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:41 $
+ * @version $Rev$ $Date$
  */
 public interface JettyConnector extends Connector {
     HttpListener getListener();

@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Vector;
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:27 $
+ * @version $Rev$ $Date$
  */
 public abstract class Multipart {
     protected String contentType;

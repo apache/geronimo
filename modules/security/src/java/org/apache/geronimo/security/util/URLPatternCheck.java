@@ -19,7 +19,7 @@ package org.apache.geronimo.security.util;
 
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:27 $
+ * @version $Rev$ $Date$
  */
 public abstract class URLPatternCheck {
     public abstract boolean check(URLPattern base, URLPattern test);

@@ -30,7 +30,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/08/04 07:17:13 $
+ * @version $Rev$ $Date$
  *
  * */
 public class ExecutorFeedingTimerTask extends TimerTask {

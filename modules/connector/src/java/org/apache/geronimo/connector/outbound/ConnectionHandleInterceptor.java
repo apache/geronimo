@@ -23,7 +23,7 @@ import javax.resource.ResourceException;
  * ConnectionHandleInterceptor.java
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/05/24 22:36:13 $
+ * @version $Rev$ $Date$
  */
 public class ConnectionHandleInterceptor implements ConnectionInterceptor {
 

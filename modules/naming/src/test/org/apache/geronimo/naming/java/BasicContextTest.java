@@ -33,7 +33,7 @@ import javax.naming.NamingException;
 /**
 * Unit tests for basic ops on an {@link javax.naming.InitialContext}.
  *
- * @version $Revision: 1.4 $ $Date: 2004/06/22 01:34:24 $
+ * @version $Rev$ $Date$
  */
 public class BasicContextTest extends AbstractContextTest {
 

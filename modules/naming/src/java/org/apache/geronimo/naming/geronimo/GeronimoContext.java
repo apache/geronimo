@@ -32,7 +32,7 @@ import org.apache.geronimo.naming.java.ReadOnlyContext;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:08 $
+ * @version $Rev$ $Date$
  *
  * */
 public class GeronimoContext extends ReadOnlyContext {

@@ -26,7 +26,7 @@ import junit.framework.TestCase;
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2004/06/03 14:32:50 $
+ * @version $Rev$ $Date$
  */
 public class DeploymentReplacerResolverTest extends TestCase
 {

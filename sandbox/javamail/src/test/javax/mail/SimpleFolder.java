@@ -20,7 +20,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:29 $
+ * @version $Rev$ $Date$
  */
 public class SimpleFolder extends Folder {
     private static final Message[] MESSAGE_ARRAY = new Message[0];

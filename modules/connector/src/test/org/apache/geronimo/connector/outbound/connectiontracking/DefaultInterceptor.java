@@ -23,7 +23,7 @@ import org.apache.geronimo.transaction.InstanceContext;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/04/06 00:21:20 $
+ * @version $Rev$ $Date$
  *
  * */
 public interface DefaultInterceptor {

@@ -29,7 +29,7 @@ import org.codehaus.groovy.runtime.InvokerHelper;
 /**
  * Manages views of selected tree nodes
  *
- * @version <code>$Revision: 1.3 $ $Date: 2004/03/10 10:00:24 $</code>
+ * @version <code>$Rev$ $Date$</code>
  */
 public class ViewManager {
 

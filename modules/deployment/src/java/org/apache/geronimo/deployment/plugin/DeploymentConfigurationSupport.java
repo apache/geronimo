@@ -33,7 +33,7 @@ import org.apache.xmlbeans.XmlException;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:48 $
+ * @version $Rev$ $Date$
  */
 public abstract class DeploymentConfigurationSupport implements DeploymentConfiguration {
     private final DeployableObject deployable;

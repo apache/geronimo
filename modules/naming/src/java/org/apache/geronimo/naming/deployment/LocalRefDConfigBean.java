@@ -25,7 +25,7 @@ import org.apache.xmlbeans.SchemaTypeLoader;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/04/08 21:07:19 $
+ * @version $Rev$ $Date$
  */
 public class LocalRefDConfigBean extends DConfigBeanSupport {
 

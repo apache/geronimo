@@ -19,7 +19,7 @@ package org.apache.geronimo.gbean.jmx;
 import javax.management.ObjectName;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/06/02 20:40:58 $
+ * @version $Rev$ $Date$
  */
 public final class RawGetAttributeInvoker implements GBeanInvoker {
     private final RawInvoker rawInvoker;

@@ -20,7 +20,7 @@ package org.apache.geronimo.gbean.jmx;
 import java.lang.reflect.InvocationTargetException;
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/06/02 06:49:23 $
+ * @version $Rev$ $Date$
  */
 public abstract class ProxyFactory {
     private static final boolean useCGLib;

@@ -25,7 +25,7 @@ import net.sf.cglib.proxy.MethodInterceptor;
 /**
  * 
  * 
- * @version $Revision: 1.1 $ $Date: 2004/06/02 06:49:23 $
+ * @version $Rev$ $Date$
  */
 public class CGLibProxyFactory extends ProxyFactory {
     private final Class type;

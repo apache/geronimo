@@ -23,7 +23,7 @@ import javax.management.ObjectName;
 /**
  * A property editor for {@link javax.management.ObjectName}.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:26 $
+ * @version $Rev$ $Date$
  */
 public class ObjectNameEditor
     extends TextPropertyEditorSupport

@@ -24,7 +24,7 @@
 package javax.jms;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/10 10:00:03 $
+ * @version $Rev$ $Date$
  */
 public class TransactionInProgressException extends JMSException {
     public TransactionInProgressException(String reason, String errorCode) {

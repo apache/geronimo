@@ -17,7 +17,7 @@
 
 package javax.mail.event;
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:27 $
+ * @version $Rev$ $Date$
  */
 public abstract class FolderAdapter implements FolderListener {
     public void folderCreated(FolderEvent event) {

@@ -26,7 +26,7 @@ import org.apache.geronimo.remoting.transport.BytesMsg;
 import org.apache.geronimo.remoting.transport.Msg;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:20 $
+ * @version $Rev$ $Date$
  */
 public class AsyncMsg extends BytesMsg {
 

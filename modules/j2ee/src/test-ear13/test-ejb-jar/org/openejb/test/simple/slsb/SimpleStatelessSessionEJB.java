@@ -54,7 +54,7 @@ import javax.ejb.SessionContext;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/08/01 20:14:20 $
+ * @version $Rev$ $Date$
  */
 public class SimpleStatelessSessionEJB implements SessionBean {
     public SimpleStatelessSessionEJB() {

@@ -32,7 +32,7 @@ import org.apache.geronimo.messaging.proxy.EndPointProxyInfo;
  * EndPoint -- MTO -- Node -- MTM -- Node -- OTM -- EndPoint
  * </PRE>
  *
- * @version $Revision: 1.5 $ $Date: 2004/07/17 03:52:34 $
+ * @version $Rev$ $Date$
  */
 public interface Node extends GBeanLifecycle
 {

@@ -28,7 +28,7 @@ import org.apache.geronimo.console.cli.TextController;
 /**
  * Distribute a module to the current deployment manager.
  *
- * @version $Revision: 1.1 $ $Date: 2004/07/16 04:39:41 $
+ * @version $Rev$ $Date$
  */
 public class DistributeModule
     extends TextController

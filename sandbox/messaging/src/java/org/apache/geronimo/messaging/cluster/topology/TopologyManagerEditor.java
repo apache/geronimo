@@ -28,7 +28,7 @@ import org.apache.geronimo.common.propertyeditor.PropertyEditorException;
  * Based on a text, it tries to load a TopologyManager having the name:
  * org.apache.geronimo.messaging.cluster.topology.<text>TopologyManager
  * 
- * @version $Revision: 1.1 $ $Date: 2004/07/17 03:33:02 $
+ * @version $Rev$ $Date$
  */
 public class TopologyManagerEditor
     extends PropertyEditorSupport

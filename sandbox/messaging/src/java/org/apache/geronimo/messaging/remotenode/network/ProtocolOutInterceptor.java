@@ -38,7 +38,7 @@ import org.apache.geronimo.network.protocol.ProtocolException;
 
 /**
  *
- * @version $Revision: 1.3 $ $Date: 2004/06/24 23:43:29 $
+ * @version $Rev$ $Date$
  */
 public class ProtocolOutInterceptor
     implements MsgOutInterceptor

@@ -27,7 +27,7 @@ import java.util.StringTokenizer;
 /**
  * Adapter for editing array types.
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:58:26 $
+ * @version $Rev$ $Date$
  */
 public final class ArrayPropertyEditorAdapter extends PropertyEditorSupport {
     private Class type;

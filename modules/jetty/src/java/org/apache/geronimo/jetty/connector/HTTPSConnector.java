@@ -28,7 +28,7 @@ import org.mortbay.http.SunJsseListener;
 /**
  * 
  * 
- * @version $Revision: 1.4 $ $Date: 2004/06/02 05:33:03 $
+ * @version $Rev$ $Date$
  */
 public class HTTPSConnector extends JettyConnector {
     public HTTPSConnector(JettyContainer container) {

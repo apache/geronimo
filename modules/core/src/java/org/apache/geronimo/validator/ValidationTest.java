@@ -31,7 +31,7 @@ import org.apache.xmlbeans.SchemaType;
  * the same test class will have its tests executed multiple times with a
  * different context each time (once for each DD and/or hit on the XPath).
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:44 $
+ * @version $Rev$ $Date$
  */
 public abstract class ValidationTest {
     protected ValidationContext context;

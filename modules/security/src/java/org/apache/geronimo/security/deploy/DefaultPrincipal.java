@@ -20,7 +20,7 @@ import java.io.Serializable;
 
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/05/30 18:37:27 $
+ * @version $Rev$ $Date$
  */
 public class DefaultPrincipal implements Serializable {
     private String realmName;

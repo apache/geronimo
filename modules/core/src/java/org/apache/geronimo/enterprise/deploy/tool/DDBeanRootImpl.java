@@ -26,7 +26,7 @@ import org.dom4j.Document;
 /**
  * The DDBeanRootImpl provides an implementation for javax.enterprise.deploy.model.DDBeanRoot.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:43 $
+ * @version $Rev$ $Date$
  */
 public class DDBeanRootImpl extends DDBeanImpl implements DDBeanRoot {
     

@@ -28,7 +28,7 @@ import org.apache.geronimo.mail.AbstractFolder;
 
 /**
  * Represents an Apache implementation of a POP3 folder.
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:32 $
+ * @version $Rev$ $Date$
  */
 public class POP3Folder extends AbstractFolder {
 

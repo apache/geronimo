@@ -26,7 +26,7 @@ import javax.naming.NamingException;
  * Automatically handles switching the "java:comp" sub-context to the
  * appropriate one for the current thread.
  *
- * @version $Revision: 1.4 $ $Date: 2004/04/19 21:58:31 $
+ * @version $Rev$ $Date$
  */
 public class RootContext extends ReadOnlyContext {
     private static InheritableThreadLocal compContext = new InheritableThreadLocal();

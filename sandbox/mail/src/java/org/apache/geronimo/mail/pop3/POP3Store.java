@@ -26,7 +26,7 @@ import org.apache.geronimo.mail.AbstractStore;
 
 /**
  * Represents the Apache implementation of the POP3 Store.
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:32 $
+ * @version $Rev$ $Date$
  */
 public class POP3Store extends AbstractStore {
 

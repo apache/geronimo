@@ -20,7 +20,7 @@ package org.apache.geronimo.kernel.config;
 /**
  * Indicates a invalid Configuration instance.
  * 
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:01 $
+ * @version $Rev$ $Date$
  */
 public class InvalidConfigException extends Exception {
     public InvalidConfigException() {

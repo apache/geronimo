@@ -25,7 +25,7 @@ import org.apache.xmlbeans.SchemaTypeLoader;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/03/10 09:58:48 $
+ * @version $Rev$ $Date$
  */
 public class EARConfigBean extends DConfigBeanSupport {
     public EARConfigBean(DDBean ddBean) {

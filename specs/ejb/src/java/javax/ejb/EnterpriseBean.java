@@ -29,7 +29,7 @@ import java.io.Serializable;
  *
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:39 $
+ * @version $Rev$ $Date$
  */
 public interface EnterpriseBean extends Serializable {
 }

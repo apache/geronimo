@@ -30,7 +30,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:48 $
+ * @version $Rev$ $Date$
  */
 public abstract class XmlBeanSupport { // should implement Serializable or Externalizable
     protected final PropertyChangeSupport pcs = new PropertyChangeSupport(this);

@@ -20,7 +20,7 @@ package org.apache.geronimo.messaging;
 /**
  * Exception to be raised when a communication problem occurs.
  *
- * @version $Revision: 1.2 $ $Date: 2004/06/03 14:34:04 $
+ * @version $Rev$ $Date$
  */
 public class CommunicationException extends RuntimeException
 {

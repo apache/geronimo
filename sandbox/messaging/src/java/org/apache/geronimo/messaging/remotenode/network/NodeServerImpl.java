@@ -37,7 +37,7 @@ import org.apache.geronimo.pool.ClockPool;
 /**
  * NodeServer implementation.
  *
- * @version $Revision: 1.6 $ $Date: 2004/07/20 00:15:05 $
+ * @version $Rev$ $Date$
  */
 public class NodeServerImpl
     implements NodeServer, AcceptedCallBack

@@ -24,7 +24,7 @@ import java.util.Set;
 /**
  * Describes a notification of a GBean.
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:59:00 $
+ * @version $Rev$ $Date$
  */
 public final class GNotificationInfo implements Serializable {
     private final String name;

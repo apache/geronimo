@@ -22,7 +22,7 @@ import java.io.IOException;
 /**
  * Only exception which can be thrown by a GFileDAO implementation.
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:16 $
+ * @version $Rev$ $Date$
  */
 public class DAOException
     extends IOException

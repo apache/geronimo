@@ -26,7 +26,7 @@ import javax.management.ObjectName;
 import org.apache.geronimo.kernel.Kernel;
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/06/04 22:31:56 $
+ * @version $Rev$ $Date$
  */
 public class Util {
     public static String[] getObjectNames(Kernel kernel, Object parentName, String[] j2eeTypes) throws MalformedObjectNameException {

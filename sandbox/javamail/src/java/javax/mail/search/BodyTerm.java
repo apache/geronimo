@@ -20,7 +20,7 @@ import java.io.IOException;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:28 $
+ * @version $Rev$ $Date$
  */
 public final class BodyTerm extends StringTerm {
     public BodyTerm(String body) {

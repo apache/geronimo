@@ -30,7 +30,7 @@ import org.apache.geronimo.console.cli.module.WARInfo;
 /**
  * Selects a J2EE module to deploy/edit/etc.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:41 $
+ * @version $Rev$ $Date$
  */
 public class SelectModule extends TextController {
     private static final Log log = LogFactory.getLog(SelectModule.class);

@@ -22,7 +22,7 @@ import org.apache.geronimo.kernel.ClassLoading;
 /**
  * A property editor for {@link Class}.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/21 22:24:38 $
+ * @version $Rev$ $Date$
  */
 public class ClassEditor
     extends TextPropertyEditorSupport

@@ -22,7 +22,7 @@ import java.net.URI;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationKey;
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:19 $
+ * @version $Rev$ $Date$
  */
 public final class InvocationSupport implements Serializable, InvocationKey {
 

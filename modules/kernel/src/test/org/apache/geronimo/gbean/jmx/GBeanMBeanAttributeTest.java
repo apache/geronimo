@@ -28,7 +28,7 @@ import org.apache.geronimo.kernel.MockDynamicGBean;
 import org.apache.geronimo.kernel.MockGBean;
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/06/04 22:31:56 $
+ * @version $Rev$ $Date$
  */
 public class GBeanMBeanAttributeTest extends TestCase {
 

@@ -21,7 +21,7 @@ import javax.security.auth.Subject;
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:27 $
+ * @version $Rev$ $Date$
  */
 public class ConfiguredIdentityUserPasswordBridgeTest extends AbstractBridgeTest {
 

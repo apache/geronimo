@@ -31,7 +31,7 @@ import javax.ejb.EJBHome;
  *
  *
  *
- * @version $Revision: 1.3 $
+ * @version $Rev$
  */
 public interface ManagementHome extends EJBHome {
     public Management create() throws CreateException, RemoteException;

@@ -33,7 +33,7 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
  * it always returns the configured user and password, no matter what the
  * source realm or source subject.
  *
- * @version $Revision: 1.6 $ $Date: 2004/07/12 06:07:50 $
+ * @version $Rev$ $Date$
  */
 public class ConfiguredIdentityUserPasswordRealmBridge extends AbstractRealmBridge {
     private String configuredUser;

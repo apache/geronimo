@@ -35,7 +35,7 @@ import org.apache.geronimo.remoting.MarshalledObject;
 import org.apache.geronimo.remoting.TransportInterceptor;
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:59:19 $
+ * @version $Rev$ $Date$
  */
 public class RemoteTransportInterceptor implements TransportInterceptor, Externalizable {
 

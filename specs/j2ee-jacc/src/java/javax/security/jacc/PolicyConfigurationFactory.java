@@ -40,7 +40,7 @@ import java.security.SecurityPermission;
  * @see java.security.Permission
  * @see PolicyConfiguration
  * @see PolicyContextException
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:53 $
+ * @version $Rev$ $Date$
  */
 public abstract class PolicyConfigurationFactory {
 

@@ -22,7 +22,7 @@
 %versions;
 ]>
                                            
-<!-- $Id: project.xml,v 1.11 2004/09/02 18:32:28 dblevins Exp $ -->
+<!-- $Id$ -->
 
 <project>
     <pomVersion>3</pomVersion>

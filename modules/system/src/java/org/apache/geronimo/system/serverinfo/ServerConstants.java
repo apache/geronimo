@@ -22,7 +22,7 @@ import java.util.Properties;
 /**
  * Information about this build of the server.
  *
- * @version $Revision: 1.4 $ $Date: 2004/09/02 01:01:28 $
+ * @version $Rev$ $Date$
  */
 public class ServerConstants {
     private static final String VERSION;

@@ -27,7 +27,7 @@ import org.mortbay.http.UserRealm;
 import org.mortbay.jetty.Server;
 
 /**
- * @version $Revision: 1.8 $ $Date: 2004/06/05 07:53:21 $
+ * @version $Rev$ $Date$
  */
 public class JettyContainerImpl implements JettyContainer, GBeanLifecycle {
 

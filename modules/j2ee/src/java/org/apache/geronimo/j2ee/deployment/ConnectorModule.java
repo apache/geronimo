@@ -19,7 +19,7 @@ package org.apache.geronimo.j2ee.deployment;
 import java.net.URI;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/05/19 20:53:59 $
+ * @version $Rev$ $Date$
  */
 public class ConnectorModule extends Module {
     public ConnectorModule(String name, URI uri) {

@@ -47,7 +47,7 @@ import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 /**
  *
  *
- * @version $Revision: 1.13 $ $Date: 2004/07/18 22:08:59 $
+ * @version $Rev$ $Date$
  *
  * */
 public class ConnectionManagerTestUtils extends TestCase implements DefaultInterceptor, RealmBridge {

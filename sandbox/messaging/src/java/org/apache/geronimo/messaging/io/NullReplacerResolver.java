@@ -22,7 +22,7 @@ import java.io.IOException;
 /**
  * Null ReplacerResolver.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:41 $
+ * @version $Rev$ $Date$
  */
 public class NullReplacerResolver extends AbstractReplacerResolver {
 

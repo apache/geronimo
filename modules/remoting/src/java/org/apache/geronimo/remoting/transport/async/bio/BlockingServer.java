@@ -38,7 +38,7 @@ import org.apache.geronimo.remoting.transport.async.ChannelPool;
  * 
  * Sets up a blocking ServerSocket to accept blocking client connections.
  * 
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:20 $
+ * @version $Rev$ $Date$
  */
 public final class BlockingServer extends AbstractServer implements Runnable {
     final static private Log log = LogFactory.getLog(BlockingServer.class);

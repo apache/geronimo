@@ -35,7 +35,7 @@ import javax.transaction.xa.Xid;
  *
  *
  *
- * @version $Revision: 1.8 $ $Date: 2004/07/22 03:39:01 $
+ * @version $Rev$ $Date$
  */
 public class XATransactionTester {
     private TransactionLog log;

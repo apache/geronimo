@@ -28,7 +28,7 @@ import javax.transaction.xa.XAResource;
 /**
  * Dummy implementation of Transaction interface for use in
  * {@link TxUtilsTest}
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:33 $
+ * @version $Rev$ $Date$
  */
 public class MockTransaction implements Transaction {
 

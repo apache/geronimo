@@ -30,7 +30,7 @@ import java.io.PrintWriter;
  *
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:59:39 $
+ * @version $Rev$ $Date$
  */
 public class EJBException extends RuntimeException {
     public EJBException() {

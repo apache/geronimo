@@ -26,7 +26,7 @@ import java.util.StringTokenizer;
 
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/09/04 20:35:50 $
+ * @version $Rev$ $Date$
  */
 public class StartRemoteServer {
 

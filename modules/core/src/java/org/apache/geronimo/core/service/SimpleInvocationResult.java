@@ -25,7 +25,7 @@ import org.apache.geronimo.core.service.InvocationResult;
  *
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/21 22:24:39 $
+ * @version $Rev$ $Date$
  */
 public class SimpleInvocationResult implements InvocationResult, Serializable {
     private final Object result;

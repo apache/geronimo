@@ -32,7 +32,7 @@ import org.apache.geronimo.gbean.GOperationSignature;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/07/27 02:14:14 $
+ * @version $Rev$ $Date$
  */
 public class VMMethodInterceptor implements ProxyMethodInterceptor, InvocationHandler {
     private final Class proxyType;

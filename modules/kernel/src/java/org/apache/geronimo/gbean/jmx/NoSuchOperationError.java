@@ -19,7 +19,7 @@ package org.apache.geronimo.gbean.jmx;
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/05/27 01:05:59 $
+ * @version $Rev$ $Date$
  */
 public class NoSuchOperationError extends Error {
     public NoSuchOperationError(String message) {

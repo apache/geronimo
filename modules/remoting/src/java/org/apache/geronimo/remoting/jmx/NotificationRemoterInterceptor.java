@@ -31,7 +31,7 @@ import org.apache.geronimo.proxy.ProxyInvocation;
 import org.apache.geronimo.remoting.transport.TransportFactory;
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/03/10 09:59:19 $
+ * @version $Rev$ $Date$
  */
 public class NotificationRemoterInterceptor implements Interceptor, Serializable {
     private final Interceptor next;

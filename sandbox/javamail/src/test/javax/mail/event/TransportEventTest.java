@@ -25,7 +25,7 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import junit.framework.TestCase;
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:30 $
+ * @version $Rev$ $Date$
  */
 public class TransportEventTest extends TestCase {
     public TransportEventTest(String name) {

@@ -48,7 +48,7 @@ import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
  * An application wide registry to hold objects that
  * must be shared accross application components. 
  * 
- * @version $Revision: 1.6 $ $Date: 2004/03/10 09:59:20 $
+ * @version $Rev$ $Date$
  */
 public class Registry {
 

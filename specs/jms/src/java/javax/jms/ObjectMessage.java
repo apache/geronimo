@@ -26,7 +26,7 @@ package javax.jms;
 import java.io.Serializable;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/10 10:00:03 $
+ * @version $Rev$ $Date$
  */
 public interface ObjectMessage extends Message {
     void setObject(Serializable object) throws JMSException;

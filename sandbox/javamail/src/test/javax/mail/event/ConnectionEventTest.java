@@ -18,7 +18,7 @@
 package javax.mail.event;
 import junit.framework.TestCase;
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:30 $
+ * @version $Rev$ $Date$
  */
 public class ConnectionEventTest extends TestCase {
     public static class ConnectionListenerTest implements ConnectionListener {

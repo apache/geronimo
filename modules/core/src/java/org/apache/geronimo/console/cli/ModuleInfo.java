@@ -26,7 +26,7 @@ import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
 /**
  * Describes a generic J2EE module.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:41 $
+ * @version $Rev$ $Date$
  */
 public abstract class ModuleInfo {
     public File file;

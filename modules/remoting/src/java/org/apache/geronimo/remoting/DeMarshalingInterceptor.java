@@ -25,7 +25,7 @@ import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
 
 /**
- * @version $Revision: 1.8 $ $Date: 2004/03/10 09:59:19 $
+ * @version $Rev$ $Date$
  */
 public class DeMarshalingInterceptor implements Interceptor {
 

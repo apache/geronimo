@@ -24,7 +24,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/05/27 01:06:00 $
+ * @version $Rev$ $Date$
  */
 public class BootstrapLog4jLog implements Log {
     static {

@@ -23,7 +23,7 @@ import java.util.Collections;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/20 20:39:11 $
+ * @version $Rev$ $Date$
  */
 public class PacketOutputStream extends OutputStream {
 

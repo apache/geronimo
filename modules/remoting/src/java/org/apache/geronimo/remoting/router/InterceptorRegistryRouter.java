@@ -25,7 +25,7 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.remoting.InterceptorRegistry;
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/06/02 05:33:04 $
+ * @version $Rev$ $Date$
  */
 public class InterceptorRegistryRouter extends AbstractInterceptorRouter implements Router {
     private SubsystemRouter subsystemRouter;

@@ -36,7 +36,7 @@ import org.apache.geronimo.security.RealmPrincipal;
 
 /**
  *
- * @version $Revision: 1.4 $ $Date: 2004/06/22 02:07:37 $
+ * @version $Rev$ $Date$
  */
 public class PolicyConfigurationEJB implements GeronimoPolicyConfiguration {
     private final static int OPEN = 1;

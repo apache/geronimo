@@ -23,7 +23,7 @@ import java.io.InputStream;
  * Data Access Object contracts for a GFile. It is used to contact a data store
  * and retrieve the state of a file; perform queries et cetera.
  *
- * @version $Revision: 1.2 $ $Date: 2004/05/11 12:24:59 $
+ * @version $Rev$ $Date$
  */
 public interface GFileDAO
 {

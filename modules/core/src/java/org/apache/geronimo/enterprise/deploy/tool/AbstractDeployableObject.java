@@ -31,7 +31,7 @@ import javax.enterprise.deploy.shared.ModuleType;
  * The base class for all DeployableObject implementations.  Each subclass
  * defines how to get specific deployment descriptors.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:43 $
+ * @version $Rev$ $Date$
  */
 public abstract class AbstractDeployableObject implements DeployableObject {
     private JarFile jar;

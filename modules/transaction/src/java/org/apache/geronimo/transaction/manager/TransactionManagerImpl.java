@@ -37,7 +37,7 @@ import org.apache.geronimo.transaction.log.UnrecoverableLog;
  * Simple implementation of a transaction manager.
  * TODO timeout functionality
  *
- * @version $Revision: 1.6 $ $Date: 2004/06/11 19:20:55 $
+ * @version $Rev$ $Date$
  */
 public class TransactionManagerImpl implements TransactionManager, XidImporter {
     private final TransactionLog txnLog;

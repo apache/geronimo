@@ -28,7 +28,7 @@ import org.apache.commons.logging.LogConfigurationException;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/05/27 01:06:00 $
+ * @version $Rev$ $Date$
  */
 public class GeronimoLogFactory extends LogFactory {
     private final static Object factoryLock = new Object();

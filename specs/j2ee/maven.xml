@@ -17,7 +17,7 @@
 -->
   
 
-<!-- $Revision: 1.4 $ $Date: 2004/08/02 23:50:23 $ -->
+<!-- $Rev$ $Date$ -->
 
 <project default="default"
     xmlns:j="jelly:core"

@@ -18,7 +18,7 @@
 package javax.mail.search;
 import javax.mail.Address;
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:28 $
+ * @version $Rev$ $Date$
  */
 public abstract class AddressStringTerm extends StringTerm {
     protected AddressStringTerm(String addressString) {

@@ -33,7 +33,7 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/07/12 06:07:50 $
+ * @version $Rev$ $Date$
  */
 public abstract class AbstractPrincipalMappingUserPasswordRealmBridge extends AbstractRealmBridge {
     protected final Map principalMap = new HashMap();

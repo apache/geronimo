@@ -35,7 +35,7 @@ import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PoolingSup
  *
  * Created: Fri Oct 10 12:53:11 2003
  *
- * @version $Revision: 1.5 $ $Date: 2004/05/30 19:03:36 $
+ * @version $Rev$ $Date$
  */
 public class MultiPoolConnectionInterceptor implements ConnectionInterceptor {
 

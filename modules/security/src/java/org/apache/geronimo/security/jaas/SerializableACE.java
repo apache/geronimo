@@ -23,7 +23,7 @@ import java.util.Map;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/02/25 09:58:09 $
+ * @version $Rev$ $Date$
  */
 public class SerializableACE implements Serializable {
 

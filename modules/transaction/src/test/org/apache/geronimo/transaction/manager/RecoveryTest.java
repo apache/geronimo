@@ -30,7 +30,7 @@ import junit.framework.TestCase;
 /**
  * This is just a unit test for recovery, depending on proper behavior of the log(s) it uses.
  *
- * @version $Revision: 1.4 $ $Date: 2004/07/27 03:55:40 $
+ * @version $Rev$ $Date$
  *
  * */
 public class RecoveryTest extends TestCase {

@@ -29,7 +29,7 @@ import org.apache.commons.logging.LogFactory;
  * uniquely within their Cluster and VM. A VM may contain more than
  * one Node.
  *
- * @version $Revision: 1.10 $ $Date: 2004/03/10 09:58:21 $
+ * @version $Rev$ $Date$
  */
 public class
   Node

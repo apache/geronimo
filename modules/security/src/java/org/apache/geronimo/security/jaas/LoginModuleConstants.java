@@ -18,7 +18,7 @@
 package org.apache.geronimo.security.jaas;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/02/25 09:58:09 $
+ * @version $Rev$ $Date$
  */
 public interface LoginModuleConstants {
     public static final String REALM_NAME = "org.apache.geronimo.security.jaas.LoginModuleConstants.REALM_NAME";

@@ -23,7 +23,7 @@ import java.util.Set;
 /**
  * A property editor for {@link HashSet}.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:26 $
+ * @version $Rev$ $Date$
  */
 public class HashSetEditor
     extends SetEditor

@@ -21,7 +21,7 @@ import org.apache.geronimo.network.protocol.util.ByteKeyUpPacketReader;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:26 $
+ * @version $Rev$ $Date$
  */
 class SubjectCarryingPacketReader extends ByteKeyUpPacketReader implements SubjectCarryingPackets {
 

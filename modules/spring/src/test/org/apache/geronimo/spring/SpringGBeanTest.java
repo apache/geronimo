@@ -19,7 +19,7 @@ package org.apache.geronimo.spring;
 import junit.framework.TestCase;
 
 /**
- * @version $Revision: 1.1 $
+ * @version $Rev$
  */
 public class SpringGBeanTest extends TestCase {
 

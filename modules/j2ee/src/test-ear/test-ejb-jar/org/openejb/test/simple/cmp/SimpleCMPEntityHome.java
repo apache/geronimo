@@ -24,7 +24,7 @@ import javax.ejb.CreateException;
 /**
  * 
  * 
- * @version $Revision: 1.1 $ $Date: 2004/05/19 20:54:00 $
+ * @version $Rev$ $Date$
  */
 public interface SimpleCMPEntityHome extends EJBHome {
     SimpleCMPEntity create(Integer key) throws CreateException, RemoteException;

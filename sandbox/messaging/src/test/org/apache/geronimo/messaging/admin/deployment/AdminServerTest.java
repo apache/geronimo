@@ -46,7 +46,7 @@ import org.apache.xmlbeans.XmlObject;
 
 /**
  *
- * @version $Revision: 1.3 $ $Date: 2004/07/05 07:03:50 $
+ * @version $Rev$ $Date$
  */
 public class AdminServerTest
     extends TestCase

@@ -26,7 +26,7 @@ import org.apache.geronimo.console.cli.DeploymentContext;
 /**
  * Top-level menu for working with the DeploymentManager.
  *
- * @version $Revision: 1.6 $ $Date: 2004/07/23 07:26:55 $
+ * @version $Rev$ $Date$
  */
 public class TopLevel extends TextController {
     private static final Log log = LogFactory.getLog(TopLevel.class);

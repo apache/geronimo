@@ -32,7 +32,7 @@ import org.apache.geronimo.pool.ThreadPool;
 
 
 /**
- * @version $Revision: 1.13 $ $Date: 2004/08/01 13:03:51 $
+ * @version $Rev$ $Date$
  */
 public class SocketProtocolStressTest extends TestCase {
 

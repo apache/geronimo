@@ -23,7 +23,7 @@ import org.apache.geronimo.connector.outbound.ConnectionTrackingInterceptor;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/05/30 19:03:36 $
+ * @version $Rev$ $Date$
  *
  * */
 public interface ConnectionTracker {

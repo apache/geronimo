@@ -24,7 +24,7 @@ import javax.ejb.FinderException;
 /**
  * 
  * 
- * @version $Revision: 1.1 $ $Date: 2004/08/01 20:14:20 $
+ * @version $Rev$ $Date$
  */
 public interface SimpleBMPEntityHome extends EJBHome {
     SimpleBMPEntity create() throws CreateException, RemoteException;

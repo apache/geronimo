@@ -24,7 +24,7 @@ import java.security.Principal;
 /**
  * Represents a principal in an realm.
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:59:25 $
+ * @version $Rev$ $Date$
  */
 public class RealmPrincipal implements Principal, Serializable {
     private final String realm;

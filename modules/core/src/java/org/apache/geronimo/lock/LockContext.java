@@ -26,7 +26,7 @@ import javax.transaction.Synchronization;
  *
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:58:43 $
+ * @version $Rev$ $Date$
  */
 public abstract class LockContext implements Synchronization {
     protected final Set locks = new HashSet();

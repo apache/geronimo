@@ -38,7 +38,7 @@ import java.util.Collections;
 
 /**
  *
- * @version $Revision: 1.5 $ $Date: 2004/07/25 20:24:46 $
+ * @version $Rev$ $Date$
  */
 public final class EJBMethodPermissionCollection extends PermissionCollection {
 

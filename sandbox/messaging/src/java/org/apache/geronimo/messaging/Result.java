@@ -25,7 +25,7 @@ import java.io.ObjectOutput;
 /**
  * Encapsulates the result of a Request.
  *
- * @version $Revision: 1.2 $ $Date: 2004/06/10 23:12:24 $
+ * @version $Rev$ $Date$
  */
 public class Result
     implements Externalizable

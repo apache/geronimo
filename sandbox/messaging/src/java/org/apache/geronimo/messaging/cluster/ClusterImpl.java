@@ -38,7 +38,7 @@ import org.apache.geronimo.messaging.cluster.topology.TopologyManager;
  * reconfigurations of the underlying node topology when members are added or 
  * removed.
  *  
- * @version $Revision: 1.3 $ $Date: 2004/07/20 00:26:03 $
+ * @version $Rev$ $Date$
  */
 public class ClusterImpl
     implements Cluster, GBeanLifecycle

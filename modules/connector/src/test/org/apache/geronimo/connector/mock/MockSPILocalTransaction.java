@@ -23,7 +23,7 @@ import javax.resource.spi.LocalTransaction;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:34 $
+ * @version $Rev$ $Date$
  *
  * */
 public class MockSPILocalTransaction implements LocalTransaction {

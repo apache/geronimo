@@ -34,7 +34,7 @@ import org.apache.geronimo.system.url.GeronimoURLFactory;
 
 
 /**
- * @version $Revision: 1.8 $ $Date: 2004/09/02 11:03:18 $
+ * @version $Rev$ $Date$
  */
 public class CommandLine {
     private static Log log;

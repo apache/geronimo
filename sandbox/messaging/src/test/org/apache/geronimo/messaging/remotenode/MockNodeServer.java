@@ -22,7 +22,7 @@ import org.apache.geronimo.messaging.NodeException;
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2004/07/20 00:15:06 $
+ * @version $Rev$ $Date$
  */
 public class MockNodeServer implements NodeServer {
 

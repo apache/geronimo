@@ -20,7 +20,7 @@ package org.apache.geronimo.cache;
 /**
  * A factory for instances of Pooled or Cached objects
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:58:41 $
+ * @version $Rev$ $Date$
  */
 public interface InstanceFactory {
     /**

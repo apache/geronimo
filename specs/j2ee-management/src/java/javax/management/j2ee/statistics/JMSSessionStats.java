@@ -27,7 +27,7 @@ package javax.management.j2ee.statistics;
  *
  *
  *
- * @version $Revision: 1.3 $
+ * @version $Rev$
  */
 public interface JMSSessionStats extends Stats {
     public JMSProducerStats[] getProducers();

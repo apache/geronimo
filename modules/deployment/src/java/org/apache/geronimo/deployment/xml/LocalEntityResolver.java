@@ -56,7 +56,7 @@ import org.xml.sax.SAXException;
  * http://www.oasis-open.org/committees/entity/archives/spec-2001-08-01.html
  * and see http://www.oasis-open.org/html/a401.htm
  *
- * @version $Revision: 1.9 $ $Date: 2004/07/12 06:07:50 $
+ * @version $Rev$ $Date$
  */
 public class LocalEntityResolver implements EntityResolver {
     /**

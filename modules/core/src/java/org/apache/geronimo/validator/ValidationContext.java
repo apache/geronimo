@@ -26,7 +26,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  * Holds all the context information for the current validation process.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:44 $
+ * @version $Rev$ $Date$
  */
 public class ValidationContext {
     public final PrintWriter out;

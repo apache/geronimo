@@ -25,7 +25,7 @@ import java.util.Map;
 
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:22 $
+ * @version $Rev$ $Date$
  */
 public class MimeTypeParameterList {
     private final static String PARAMETER_SEPARATOR = ";";

@@ -26,7 +26,7 @@ import junit.framework.TestCase;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/07/17 03:51:15 $
+ * @version $Rev$ $Date$
  */
 public class NodeInfoEditorTest
     extends TestCase

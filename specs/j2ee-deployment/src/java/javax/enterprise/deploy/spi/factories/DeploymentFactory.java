@@ -47,7 +47,7 @@ import javax.enterprise.deploy.spi.DeploymentManager;
  *
  * @see javax.enterprise.deploy.shared.factories.DeploymentFactoryManager
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:51 $
+ * @version $Rev$ $Date$
  */
 public interface DeploymentFactory {
     /**

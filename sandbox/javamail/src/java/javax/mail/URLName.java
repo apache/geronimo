@@ -23,7 +23,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:27 $
+ * @version $Rev$ $Date$
  */
 public class URLName {
     private String file;

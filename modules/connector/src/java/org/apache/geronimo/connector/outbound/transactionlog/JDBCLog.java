@@ -46,7 +46,7 @@ import org.apache.geronimo.transaction.manager.XidFactory;
  * a single 1-pc datasource.  The database is used for the log, and the database work is
  * committed when the log writes its prepare record.
  *
- * @version $Revision: 1.9 $ $Date: 2004/07/22 03:39:01 $
+ * @version $Rev$ $Date$
  */
 public class JDBCLog implements TransactionLog, GBeanLifecycle {
     private final static String INSERT_XID = "INSERT INTO TXLOG (SYSTEMID, FORMATID, GLOBALID, GLOBALBRANCHID, BRANCHBRANCHID, NAME) VALUES (?, ?, ?, ?, ?)";

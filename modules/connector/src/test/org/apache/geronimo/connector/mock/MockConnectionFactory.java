@@ -30,7 +30,7 @@ import javax.resource.spi.ConnectionManager;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/12 17:58:45 $
+ * @version $Rev$ $Date$
  *
  * */
 public class MockConnectionFactory implements ConnectionFactoryExtension {

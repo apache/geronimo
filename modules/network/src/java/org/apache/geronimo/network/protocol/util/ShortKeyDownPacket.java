@@ -25,7 +25,7 @@ import org.apache.geronimo.network.protocol.DownPacket;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:15 $
+ * @version $Rev$ $Date$
  */
 public abstract class ShortKeyDownPacket implements DownPacket {
 

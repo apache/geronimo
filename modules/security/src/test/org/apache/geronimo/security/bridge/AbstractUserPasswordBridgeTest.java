@@ -25,7 +25,7 @@ import org.apache.geronimo.security.realm.providers.GeronimoPasswordCredential;
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:27 $
+ * @version $Rev$ $Date$
  */
 public abstract class AbstractUserPasswordBridgeTest extends AbstractTest {
     private SecurityServiceMBean securityService;

@@ -28,7 +28,7 @@ import org.apache.geronimo.transaction.context.TransactionContextManager;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/07/20 23:36:53 $
+ * @version $Rev$ $Date$
  *
  * */
 public class VMStoreThreadPooledTransactionalTimer extends ThreadPooledTimer {

@@ -23,7 +23,7 @@ import java.util.Properties;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:12 $
+ * @version $Rev$ $Date$
  */
 public final class URISupport {
 

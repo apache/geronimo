@@ -33,7 +33,7 @@ import javax.security.auth.spi.LoginModule;
 
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/07/25 08:14:42 $
+ * @version $Rev$ $Date$
  */
 public class PropertiesFileLoginModule implements LoginModule {
     PropertiesFileSecurityRealm realm;

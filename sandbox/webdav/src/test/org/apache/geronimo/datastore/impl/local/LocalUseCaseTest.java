@@ -26,7 +26,7 @@ import org.apache.geronimo.datastore.impl.local.LocalGFileManager;
 /**
  * This is a simple use-case.
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/29 13:14:11 $
+ * @version $Rev$ $Date$
  */
 public class LocalUseCaseTest extends AbstractUseCaseTest {
 

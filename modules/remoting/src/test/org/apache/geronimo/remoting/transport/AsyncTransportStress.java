@@ -30,7 +30,7 @@ import EDU.oswego.cs.dl.util.concurrent.Semaphore;
 /**
  * Unit test for the Async Remoting Transport
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:21 $
+ * @version $Rev$ $Date$
  */
 
 public class AsyncTransportStress extends TestCase {

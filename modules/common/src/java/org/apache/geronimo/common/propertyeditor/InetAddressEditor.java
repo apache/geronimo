@@ -22,7 +22,7 @@ import java.net.UnknownHostException;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/04/09 18:46:56 $
+ * @version $Rev$ $Date$
  */
 public class InetAddressEditor extends TextPropertyEditorSupport {
 

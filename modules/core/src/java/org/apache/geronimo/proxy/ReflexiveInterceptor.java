@@ -26,7 +26,7 @@ import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/03/10 09:58:43 $
+ * @version $Rev$ $Date$
  */
 public class ReflexiveInterceptor implements Interceptor {
 

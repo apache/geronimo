@@ -31,7 +31,7 @@ import javax.resource.spi.ManagedConnectionFactory;
  *
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:47 $
+ * @version $Rev$ $Date$
  */
 public final class PasswordCredential implements Serializable {
     private String userName;

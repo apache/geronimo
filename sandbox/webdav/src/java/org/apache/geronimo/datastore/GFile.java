@@ -29,7 +29,7 @@ import java.util.Map;
  * A file is uniquely identified by its path, which is relative to the root
  * of its associated GFileManager. It is an InputStream and a map of properties.
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:16 $
+ * @version $Rev$ $Date$
  */
 public interface GFile
 {

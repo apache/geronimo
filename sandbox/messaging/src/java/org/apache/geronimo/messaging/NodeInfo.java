@@ -31,7 +31,7 @@ import java.net.InetAddress;
  * Such an instance could be wrapped in a packet and sent to a multicast group.
  * Other Nodes belonging to this group could then decide to join it or not.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:41 $
+ * @version $Rev$ $Date$
  */
 public class NodeInfo implements Externalizable
 {

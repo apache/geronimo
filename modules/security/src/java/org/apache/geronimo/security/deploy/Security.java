@@ -22,7 +22,7 @@ import java.util.Set;
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/07/27 01:57:06 $
+ * @version $Rev$ $Date$
  */
 public class Security implements Serializable {
 

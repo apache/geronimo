@@ -18,7 +18,7 @@
 package org.apache.geronimo.remoting.router;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:19 $
+ * @version $Rev$ $Date$
  */
 public interface RouterTarget
 {

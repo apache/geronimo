@@ -33,7 +33,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 
 /**
- * @version $Revision: 1.8 $ $Date: 2004/08/06 22:44:36 $
+ * @version $Rev$ $Date$
  */
 public class EARContext extends DeploymentContext implements EJBReferenceBuilder {
     private final Map ejbRefs = new HashMap();

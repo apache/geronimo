@@ -40,7 +40,7 @@ import org.apache.geronimo.gbean.WaitingException;
  * Dynamic GBean wrapper around a ResourceAdapter object, exposing the config-properties as
  * GBean attributes.
  *
- * @version $Revision: 1.15 $ $Date: 2004/07/12 06:07:50 $
+ * @version $Rev$ $Date$
  */
 public class ResourceAdapterWrapper implements GBeanLifecycle, DynamicGBean, ResourceAdapter {
 

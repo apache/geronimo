@@ -27,7 +27,7 @@ import java.util.Set;
  * Utility class for <code>WebModuleConfiguration</code>.  This class is used to generate qualified patterns, HTTP
  * method sets, complements of HTTP method sets, and HTTP method sets w/ transport restrictions for URL patterns that
  * are found in the web deployment descriptor.
- * @version $Revision: 1.5 $ $Date: 2004/06/27 18:12:48 $
+ * @version $Rev$ $Date$
  * @see org.apache.geronimo.security.jacc.WebModuleConfiguration
  */
 public class URLPattern {

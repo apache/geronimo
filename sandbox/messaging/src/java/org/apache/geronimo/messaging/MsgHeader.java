@@ -25,7 +25,7 @@ import java.io.ObjectOutput;
 /**
  * Msg header.
  *
- * @version $Revision: 1.2 $ $Date: 2004/07/20 00:08:13 $
+ * @version $Rev$ $Date$
  */
 public class MsgHeader
     implements Externalizable

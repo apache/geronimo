@@ -26,7 +26,7 @@ import org.apache.geronimo.messaging.Msg;
  * Allows an implementation to be notified when a Msg is about to be
  * popped from an InputStream.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:41 $
+ * @version $Rev$ $Date$
  */
 public interface PopSynchronization
 {

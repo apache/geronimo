@@ -27,7 +27,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.SchemaTypeLoader;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/08/07 11:22:12 $
+ * @version $Rev$ $Date$
  */
 public interface ModuleBuilder {
     XmlObject getDeploymentPlan(URL module) throws XmlException;

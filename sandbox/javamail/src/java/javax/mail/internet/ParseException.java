@@ -18,7 +18,7 @@
 package javax.mail.internet;
 import javax.mail.MessagingException;
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:28 $
+ * @version $Rev$ $Date$
  */
 public class ParseException extends MessagingException {
     public ParseException() {

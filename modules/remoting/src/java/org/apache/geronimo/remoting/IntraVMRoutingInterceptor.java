@@ -28,7 +28,7 @@ import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.remoting.transport.NullTransportInterceptor;
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:59:19 $
+ * @version $Rev$ $Date$
  */
 public class IntraVMRoutingInterceptor implements Interceptor, Externalizable {
 

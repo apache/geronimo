@@ -39,7 +39,7 @@ import org.apache.geronimo.kernel.Kernel;
  * <p>More specifically, you can only use this method or Sun's JAAS config
  * file.
  *
- * @version $Revision: 1.12 $ $Date: 2004/07/12 06:07:50 $
+ * @version $Rev$ $Date$
  * @see org.apache.geronimo.security.jaas.GeronimoLoginConfiguration
  * @see javax.security.auth.login.Configuration
  */

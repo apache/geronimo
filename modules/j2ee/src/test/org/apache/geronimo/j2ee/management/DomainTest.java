@@ -21,7 +21,7 @@ import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/05/19 20:53:59 $
+ * @version $Rev$ $Date$
  */
 public class DomainTest extends Abstract77Test {
     private J2EEDomain domain;

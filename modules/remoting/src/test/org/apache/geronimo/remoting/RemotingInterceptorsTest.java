@@ -41,7 +41,7 @@ import org.apache.geronimo.remoting.transport.URISupport;
  * This test uses 2 classloaders to mock 2 seperate
  * application classloaders.
  *
- * @version $Revision: 1.7 $ $Date: 2004/09/06 11:32:53 $
+ * @version $Rev$ $Date$
  */
 
 public class RemotingInterceptorsTest extends TestCase {

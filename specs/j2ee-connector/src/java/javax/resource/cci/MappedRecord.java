@@ -30,7 +30,7 @@ import java.util.Map;
  *
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:45 $
+ * @version $Rev$ $Date$
  */
 public interface MappedRecord extends Record, Map, Serializable {
 }

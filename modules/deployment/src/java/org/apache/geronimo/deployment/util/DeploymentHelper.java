@@ -31,7 +31,7 @@ import org.xml.sax.SAXException;
  * Helper class that handles locating DDs in directories (mainly WEB-INF, META-INF),
  * building class space and dealing with deployments
  *
- * @version $Revision: 1.6 $ $Date: 2004/09/08 20:17:44 $
+ * @version $Rev$ $Date$
  */
 public class DeploymentHelper {
     protected final URL url;

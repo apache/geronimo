@@ -21,7 +21,7 @@ import java.io.Serializable;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/02/25 09:58:08 $
+ * @version $Rev$ $Date$
  */
 public class SubjectId implements Serializable {
     private final Long subjectId;

@@ -30,7 +30,7 @@ import org.apache.geronimo.deployment.xml.ParserFactoryImpl;
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:27 $
+ * @version $Rev$ $Date$
  */
 public abstract class AbstractLoaderUtilTest extends TestCase {
 

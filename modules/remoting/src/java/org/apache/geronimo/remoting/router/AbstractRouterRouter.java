@@ -27,7 +27,7 @@ import org.apache.geronimo.remoting.transport.Msg;
 import org.apache.geronimo.remoting.transport.TransportException;
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/06/05 07:53:22 $
+ * @version $Rev$ $Date$
  */
 public abstract class AbstractRouterRouter implements GBeanLifecycle, Router {
     private long stoppedRoutingTimeout = 1000 * 60; // 1 min.

@@ -25,7 +25,7 @@ import org.apache.geronimo.core.service.Component;
 import org.apache.geronimo.core.service.Container;
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/03/21 22:24:39 $
+ * @version $Rev$ $Date$
  */
 public class SimpleContainer extends SimpleComponent implements Container {
 

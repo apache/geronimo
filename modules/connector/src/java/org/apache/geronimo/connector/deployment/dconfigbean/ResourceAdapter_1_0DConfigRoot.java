@@ -35,7 +35,7 @@ import org.apache.xmlbeans.XmlException;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/05/30 19:03:36 $
+ * @version $Rev$ $Date$
  *
  * */
 public class ResourceAdapter_1_0DConfigRoot extends DConfigBeanRootSupport {

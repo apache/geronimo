@@ -28,7 +28,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/09/06 07:24:56 $
+ * @version $Rev$ $Date$
  *
  * */
 public class HOWLLogTest extends AbstractLogTest {

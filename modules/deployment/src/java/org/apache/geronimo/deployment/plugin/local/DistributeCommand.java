@@ -36,7 +36,7 @@ import org.apache.geronimo.kernel.KernelMBean;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 
 /**
- * @version $Revision: 1.13 $ $Date: 2004/09/01 16:35:25 $
+ * @version $Rev$ $Date$
  */
 public class DistributeCommand extends CommandSupport {
     private static final String[] DEPLOY_SIG = {File.class.getName(), File.class.getName()};

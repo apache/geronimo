@@ -71,7 +71,7 @@ import org.mortbay.util.LazyList;
  * A class extension to <code>JettyWebAppContext</code> whose purpose is to
  * provide JACC security checks.
  *
- * @version $Revision: 1.4 $ $Date: 2004/07/18 22:04:27 $
+ * @version $Rev$ $Date$
  * @see org.mortbay.jetty.servlet.WebApplicationContext#checkSecurityConstraints(java.lang.String, org.mortbay.http.HttpRequest, org.mortbay.http.HttpResponse)
  */
 public class JettyWebAppJACCContext extends JettyWebAppContext {

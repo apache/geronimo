@@ -30,7 +30,7 @@ import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.RPCContainer;
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/03/10 09:58:43 $
+ * @version $Rev$ $Date$
  */
 public class SimpleRPCContainer extends SimpleContainer implements RPCContainer {
 

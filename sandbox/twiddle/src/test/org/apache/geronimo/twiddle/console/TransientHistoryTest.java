@@ -26,7 +26,7 @@ import org.apache.geronimo.common.NullArgumentException;
 /**
  * Unit test for {@link TransientHistory} class.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:38 $
+ * @version $Rev$ $Date$
  */
 
 public class TransientHistoryTest extends TestCase {

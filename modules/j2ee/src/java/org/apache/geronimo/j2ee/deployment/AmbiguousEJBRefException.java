@@ -19,7 +19,7 @@ package org.apache.geronimo.j2ee.deployment;
 import org.apache.geronimo.deployment.DeploymentException;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/05/19 20:53:59 $
+ * @version $Rev$ $Date$
  */
 public class AmbiguousEJBRefException extends DeploymentException {
     private final String ejbLink;

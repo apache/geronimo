@@ -26,7 +26,7 @@ import org.apache.geronimo.twiddle.console.IOContext;
 /**
  * Executes commands.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:37 $
+ * @version $Rev$ $Date$
  */
 public class CommandExecutor
 {

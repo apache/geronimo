@@ -22,7 +22,7 @@ import org.apache.geronimo.kernel.Kernel;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/07/25 08:22:07 $
+ * @version $Rev$ $Date$
  *
  * */
 public class StopServer {

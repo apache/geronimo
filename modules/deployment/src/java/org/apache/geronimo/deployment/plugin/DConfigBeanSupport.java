@@ -28,7 +28,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.13 $ $Date: 2004/07/18 21:58:38 $
+ * @version $Rev$ $Date$
  */
 public abstract class DConfigBeanSupport extends XmlBeanSupport implements DConfigBean {
     private DDBean ddBean;

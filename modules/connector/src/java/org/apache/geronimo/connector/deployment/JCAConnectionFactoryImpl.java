@@ -26,7 +26,7 @@ import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/06/15 03:00:37 $
+ * @version $Rev$ $Date$
  */
 public class JCAConnectionFactoryImpl {
     private final J2EEServer server;

@@ -54,7 +54,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Implementation of ConfigurationStore using the local filesystem.
  *
- * @version $Revision: 1.12 $ $Date: 2004/08/04 07:21:54 $
+ * @version $Rev$ $Date$
  */
 public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
     private static final String INDEX_NAME = "index.properties";

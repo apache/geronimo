@@ -50,7 +50,7 @@ import org.apache.xmlbeans.XmlOptions;
 /**
  *
  *
- * @version $Revision: 1.17 $ $Date: 2004/06/02 05:33:02 $
+ * @version $Rev$ $Date$
  */
 public class DeploymentManagerImpl implements DeploymentManager {
     private final DeploymentServer server;

@@ -27,7 +27,7 @@ import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 
 /**
- * @version $Revision 1.0$  $Date: 2004/05/30 19:03:36 $
+ * @version $Revision 1.0$  $Date$
  */
 public class ConfigPropertySettings extends XmlBeanSupport {
     private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();

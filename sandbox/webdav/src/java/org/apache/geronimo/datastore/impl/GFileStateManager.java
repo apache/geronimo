@@ -24,7 +24,7 @@ import org.apache.geronimo.datastore.GFile;
 /**
  * StateManager for a GFile.
  * 
- * @version $Revision: 1.2 $ $Date: 2004/05/11 12:24:59 $
+ * @version $Rev$ $Date$
  */
 class GFileStateManager
     implements StateManager

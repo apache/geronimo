@@ -33,7 +33,7 @@ import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
- * @version $Revision: 1.9 $ $Date: 2004/07/12 06:07:51 $
+ * @version $Rev$ $Date$
  */
 public class ReadOnlyRepository implements Repository, GBeanLifecycle {
     private static final Log log = LogFactory.getLog(ReadOnlyRepository.class);

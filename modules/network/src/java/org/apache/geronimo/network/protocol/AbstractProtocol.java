@@ -18,7 +18,7 @@
 package org.apache.geronimo.network.protocol;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/17 03:11:59 $
+ * @version $Rev$ $Date$
  */
 public abstract class AbstractProtocol implements Protocol {
 

@@ -20,7 +20,7 @@ package org.apache.geronimo.kernel.log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/09/02 11:03:18 $
+ * @version $Rev$ $Date$
  */
 public class GeronimoLogging {
     public static final GeronimoLogging TRACE = new GeronimoLogging("TRACE");

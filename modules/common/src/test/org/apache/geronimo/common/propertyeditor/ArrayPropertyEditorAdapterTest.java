@@ -26,7 +26,7 @@ import junit.framework.TestCase;
 /**
  * Unit test for {@link org.apache.geronimo.common.propertyeditor.ArrayPropertyEditorAdapter} class.
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:58:27 $
+ * @version $Rev$ $Date$
  */
 public class ArrayPropertyEditorAdapterTest
     extends TestCase

@@ -21,7 +21,7 @@ import javax.ejb.EJBLocalObject;
 /**
  * 
  * 
- * @version $Revision: 1.1 $ $Date: 2004/05/19 20:54:00 $
+ * @version $Rev$ $Date$
  */
 public interface SimpleStatefulSessionLocal extends EJBLocalObject {
     String getValue();

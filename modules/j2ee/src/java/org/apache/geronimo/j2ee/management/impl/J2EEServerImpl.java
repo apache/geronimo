@@ -28,7 +28,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/06/04 22:31:56 $
+ * @version $Rev$ $Date$
  */
 public class J2EEServerImpl {
     private static final String SERVER_VENDOR = "The Apache Software Foundation";

@@ -35,7 +35,7 @@ import org.apache.xml.resolver.tools.CatalogResolver;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:59:06 $
+ * @version $Rev$ $Date$
  *
  * */
 public class SchemaCompilerWrapper {

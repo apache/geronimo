@@ -39,7 +39,7 @@ import org.apache.regexp.RE;
 
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/07/12 06:07:51 $
+ * @version $Rev$ $Date$
  */
 
 public class SQLSecurityRealm extends AbstractSecurityRealm {

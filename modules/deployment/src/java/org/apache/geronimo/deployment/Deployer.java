@@ -53,7 +53,7 @@ import org.apache.xmlbeans.XmlException;
  * Command line based deployment utility which combines multiple deployable modules
  * into a single configuration.
  *
- * @version $Revision: 1.22 $ $Date: 2004/07/23 06:14:35 $
+ * @version $Rev$ $Date$
  */
 public class Deployer {
     private final Collection builders;

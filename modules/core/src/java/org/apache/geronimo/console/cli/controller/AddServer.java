@@ -27,7 +27,7 @@ import org.apache.geronimo.console.cli.TextController;
 /**
  * Add a target to the list of selected targets.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:41 $
+ * @version $Rev$ $Date$
  */
 public class AddServer extends TextController {
     private static final Log log = LogFactory.getLog(AddServer.class);

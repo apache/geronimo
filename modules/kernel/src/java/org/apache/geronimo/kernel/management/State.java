@@ -23,7 +23,7 @@ import java.io.Serializable;
 /**
  * This class contains a type safe enumeration of the states from the J2EE Management specification.
  *
- * @version $Revision: 1.6 $ $Date: 2004/07/26 17:14:49 $
+ * @version $Rev$ $Date$
  */
 public final class State implements Serializable {
     public static final int STARTING_INDEX = 0;

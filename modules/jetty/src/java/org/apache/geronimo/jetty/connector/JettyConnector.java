@@ -26,7 +26,7 @@ import org.mortbay.http.HttpListener;
 import org.mortbay.util.ThreadedServer;
 
 /**
- * @version $Revision: 1.9 $ $Date: 2004/07/12 06:07:51 $
+ * @version $Rev$ $Date$
  */
 public abstract class JettyConnector implements GBeanLifecycle {
     private final JettyContainer container;

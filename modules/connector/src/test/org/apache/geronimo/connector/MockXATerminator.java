@@ -28,7 +28,7 @@ import org.apache.geronimo.transaction.XAServices;
 /**
  * Dummy implementation of XATerminator interface for use in
  * {@link BootstrapContextTest}
- * @version $Revision: 1.4 $ $Date: 2004/07/11 21:55:34 $
+ * @version $Rev$ $Date$
  */
 public class MockXATerminator implements XAServices {
 

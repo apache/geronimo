@@ -22,7 +22,7 @@ package org.apache.geronimo.cache;
  * Tests the {@link LRUInstanceCache} implementation of {@link InstanceCache} interface.
  * Adds tests for {@link LRUInstanceCache#size()} and {@link LRUInstanceCache#run(LRURunner)} methods to base set provided by {@link AbstractInstanceCacheTest}
  * @see AbstractInstanceCacheTest
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:44 $
+ * @version $Rev$ $Date$
  */
 public class LRUInstanceCacheTest extends AbstractInstanceCacheTest {
 

@@ -52,7 +52,7 @@ import EDU.oswego.cs.dl.util.concurrent.Mutex;
  * 
  * This implemenation uses the standard Java 1.3 blocking socket IO.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:20 $
+ * @version $Rev$ $Date$
  */
 public class NonBlockingChannel extends SimpleComponent implements Channel, SelectionEventListner {
 

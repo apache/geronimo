@@ -22,7 +22,7 @@ import java.text.MessageFormat;
 /**
  * Allows for an exception to be formatted using a given list of parameters.
  * 
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:25 $
+ * @version $Rev$ $Date$
  */
 public class ParameterizedException
     extends Exception

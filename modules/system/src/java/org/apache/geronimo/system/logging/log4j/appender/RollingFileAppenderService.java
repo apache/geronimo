@@ -23,7 +23,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.log4j.RollingFileAppender;
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/07/12 06:07:50 $
+ * @version $Rev$ $Date$
  */
 public class RollingFileAppenderService extends FileAppenderService {
     public RollingFileAppenderService(ServerInfo serverInfo) {

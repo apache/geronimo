@@ -29,7 +29,7 @@ import java.util.EventObject;
  *
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:47 $
+ * @version $Rev$ $Date$
  */
 public class WorkEvent extends EventObject {
     public static final int WORK_ACCEPTED = 1;

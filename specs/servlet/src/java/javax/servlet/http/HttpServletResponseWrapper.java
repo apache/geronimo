@@ -36,7 +36,7 @@ import javax.servlet.ServletResponseWrapper;
  *
  * @see javax.servlet.http.HttpServletResponse
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 10:00:20 $
+ * @version $Rev$ $Date$
  */
 public class HttpServletResponseWrapper extends ServletResponseWrapper implements HttpServletResponse {
     /**

@@ -20,7 +20,7 @@ import org.apache.geronimo.network.protocol.util.PacketUtil;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/08/01 13:03:43 $
+ * @version $Rev$ $Date$
  */
 public class EchoUpProtocol extends AbstractProtocol {
 

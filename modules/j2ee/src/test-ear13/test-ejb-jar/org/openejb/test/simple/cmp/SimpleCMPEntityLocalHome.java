@@ -23,7 +23,7 @@ import javax.ejb.FinderException;
 /**
  * 
  * 
- * @version $Revision: 1.1 $ $Date: 2004/08/01 20:14:20 $
+ * @version $Rev$ $Date$
  */
 public interface SimpleCMPEntityLocalHome extends EJBLocalHome {
     SimpleCMPEntityLocal create(Integer key) throws CreateException;

@@ -37,7 +37,7 @@ import org.apache.geronimo.transaction.context.UnspecifiedTransactionContext;
  * This adds the ability to enable or disable the operations depending on
  * the lifecycle of the EJB instance.
  *
- * @version $Revision: 1.5 $ $Date: 2004/07/18 22:02:01 $
+ * @version $Rev$ $Date$
  */
 public class UserTransactionImpl implements UserTransaction, Serializable {
     private transient TransactionContextManager transactionContextManager;

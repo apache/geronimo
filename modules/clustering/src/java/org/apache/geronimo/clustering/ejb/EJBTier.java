@@ -27,7 +27,7 @@ import org.apache.geronimo.clustering.Tier;
  * Responsible for maintaining state stored in the EJB tier -
  * i.e. StatefulSessions.
  *
- * @version $Revision: 1.8 $ $Date: 2004/03/10 09:58:22 $
+ * @version $Rev$ $Date$
  */
 public class
   EJBTier

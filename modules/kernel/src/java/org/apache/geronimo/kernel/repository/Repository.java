@@ -22,7 +22,7 @@ import java.net.URI;
 import java.net.URL;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/05/27 01:06:00 $
+ * @version $Rev$ $Date$
  */
 public interface Repository {
     boolean hasURI(URI uri);

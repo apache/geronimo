@@ -33,7 +33,7 @@ import org.apache.geronimo.enterprise.deploy.tool.EjbDeployableObject;
  * Loads the deployment descriptor information from the specific EJB JAR
  * file.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:41 $
+ * @version $Rev$ $Date$
  */
 public class InitializeEJBJAR extends TextController {
     private static final Log log = LogFactory.getLog(InitializeEJBJAR.class);

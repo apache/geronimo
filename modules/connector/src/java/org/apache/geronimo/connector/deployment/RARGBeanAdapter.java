@@ -23,7 +23,7 @@ import org.apache.geronimo.xbeans.geronimo.GerGbeanType;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/03/12 17:58:45 $
+ * @version $Rev$ $Date$
  *
  * */
 public class RARGBeanAdapter implements GBeanAdapter {

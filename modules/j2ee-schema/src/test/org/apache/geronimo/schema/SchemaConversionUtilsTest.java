@@ -29,7 +29,7 @@ import org.apache.xmlbeans.XmlObject;
  * ejb 1.1 dtd appears to be a subset of ejb 2.0 dtd so the same xsl should
  * work for both.
  *
- * @version $Revision: 1.3 $ $Date: 2004/09/09 16:47:46 $
+ * @version $Rev$ $Date$
  */
 public class SchemaConversionUtilsTest extends TestCase {
     private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));

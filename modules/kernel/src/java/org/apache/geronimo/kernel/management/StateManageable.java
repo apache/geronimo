@@ -21,7 +21,7 @@ package org.apache.geronimo.kernel.management;
 /**
  * A Java interface the meets the J2EE Management specification for a state manageable object.
  *
- * @version $Revision: 1.4 $ $Date: 2004/05/27 01:06:00 $
+ * @version $Rev$ $Date$
  */
 public interface StateManageable {
     /**

@@ -34,7 +34,7 @@ import org.apache.geronimo.messaging.Request;
 /**
  * StreamManager implementation.
  *
- * @version $Revision: 1.4 $ $Date: 2004/06/10 23:12:25 $
+ * @version $Rev$ $Date$
  */
 public class StreamManagerImpl
     extends BaseEndPoint
@@ -151,7 +151,7 @@ public class StreamManagerImpl
      * InputStream calls back its StreamManager when its internal buffer is
      * empty. 
      *
-     * @version $Revision: 1.4 $ $Date: 2004/06/10 23:12:25 $
+     * @version $Rev$ $Date$
      */
     private class ProxyInputStream extends InputStream {
         /**

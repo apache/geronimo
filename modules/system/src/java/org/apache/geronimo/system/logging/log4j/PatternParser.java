@@ -23,7 +23,7 @@ import org.apache.log4j.helpers.PatternConverter;
  * A simple extension of the log4j pattern parser which adds support for the
  * 'a' letter for a NamedNDC.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:30 $
+ * @version $Rev$ $Date$
  */
 public class PatternParser
         extends org.apache.log4j.helpers.PatternParser {

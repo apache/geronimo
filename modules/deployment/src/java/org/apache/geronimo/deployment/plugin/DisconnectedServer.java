@@ -32,7 +32,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/06/02 05:33:02 $
+ * @version $Rev$ $Date$
  */
 public class DisconnectedServer implements DeploymentServer {
     public boolean isLocal() {

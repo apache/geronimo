@@ -20,7 +20,7 @@ import java.io.Serializable;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/06/27 18:17:07 $
+ * @version $Rev$ $Date$
  */
 public class Principal implements Serializable {
     private String className;

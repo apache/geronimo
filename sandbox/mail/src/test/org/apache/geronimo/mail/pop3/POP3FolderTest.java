@@ -20,7 +20,7 @@ package org.apache.geronimo.mail.pop3;
 import junit.framework.TestCase;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:32 $
+ * @version $Rev$ $Date$
  */
 public class POP3FolderTest extends TestCase {
     public void testSomethingPlease() {

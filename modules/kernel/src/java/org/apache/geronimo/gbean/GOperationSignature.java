@@ -25,7 +25,7 @@ import javax.management.MBeanParameterInfo;
 /**
  * This is a key class based on a MBean operation name and parameters.
  *
- * @version $Revision: 1.2 $ $Date: 2004/05/27 01:05:58 $
+ * @version $Rev$ $Date$
  */
 public final class GOperationSignature {
     private final static String[] NO_TYPES = new String[0];

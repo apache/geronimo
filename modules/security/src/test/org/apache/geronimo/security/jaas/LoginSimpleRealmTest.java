@@ -41,7 +41,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 
 /**
- * @version $Revision: 1.9 $ $Date: 2004-07-12 02:07:52 -0400 (Mon, 12 Jul 2004) $
+ * @version $Rev$ $Date$
  */
 public class LoginSimpleRealmTest extends AbstractTest {
 

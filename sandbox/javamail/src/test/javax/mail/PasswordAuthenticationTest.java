@@ -18,7 +18,7 @@
 package javax.mail;
 import junit.framework.TestCase;
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:29 $
+ * @version $Rev$ $Date$
  */
 public class PasswordAuthenticationTest extends TestCase {
     public PasswordAuthenticationTest(String name) {

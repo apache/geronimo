@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * Describes an operation on a GBean.
  *
- * @version $Revision: 1.7 $ $Date: 2004/03/10 09:59:00 $
+ * @version $Rev$ $Date$
  */
 public class GOperationInfo implements Serializable {
     /**

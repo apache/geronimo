@@ -20,7 +20,7 @@ package org.apache.geronimo.webdav;
 /**
  * A Connector is a request listener and response broker.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:41 $
+ * @version $Rev$ $Date$
  */
 public interface Connector {
     /**

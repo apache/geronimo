@@ -25,7 +25,7 @@ import javax.mail.BodyPart;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:28 $
+ * @version $Rev$ $Date$
  */
 public class MimeBodyPart extends BodyPart implements MimePart {
     protected byte content[];

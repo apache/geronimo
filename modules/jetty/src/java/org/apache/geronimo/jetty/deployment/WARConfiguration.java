@@ -24,7 +24,7 @@ import org.apache.geronimo.deployment.plugin.DeploymentConfigurationSupport;
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/03/10 09:58:56 $
+ * @version $Rev$ $Date$
  */
 public class WARConfiguration extends DeploymentConfigurationSupport {
 

@@ -22,7 +22,7 @@ import javax.mail.internet.AllInternetTests;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 /**
- * @version $Revision $ $Date: 2004/03/10 10:00:29 $
+ * @version $Revision $ $Date$
  */
 public class AllTests {
     public static Test suite() {

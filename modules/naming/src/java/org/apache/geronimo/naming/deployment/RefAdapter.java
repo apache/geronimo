@@ -22,7 +22,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  * adapting wrapper for different xml objects generated for different schema incusions.
  *
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:08 $
+ * @version $Rev$ $Date$
  *
  * */
 public interface RefAdapter {

@@ -25,7 +25,7 @@ import org.apache.geronimo.messaging.Msg;
  * <BR>
  * It is also in charge of adding various specificities to pushed Msgs.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:40 $
+ * @version $Rev$ $Date$
  */
 public interface MsgOutInterceptor
 {

@@ -39,7 +39,7 @@ import org.apache.geronimo.network.protocol.UpPacket;
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2004/06/24 23:43:29 $
+ * @version $Rev$ $Date$
  */
 public class ProtocolInDispatcher
     implements MsgProducer

@@ -27,7 +27,7 @@ import org.apache.geronimo.core.service.SimpleInvocationResult;
 import org.apache.geronimo.proxy.ProxyInvocation;
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/03/21 22:24:39 $
+ * @version $Rev$ $Date$
  */
 public class IdentityInterceptor implements Interceptor, Serializable {
 

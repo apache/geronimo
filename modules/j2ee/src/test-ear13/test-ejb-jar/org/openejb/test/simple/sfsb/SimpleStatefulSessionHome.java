@@ -23,7 +23,7 @@ import javax.ejb.CreateException;
 /**
  * 
  * 
- * @version $Revision: 1.1 $ $Date: 2004/08/01 20:14:20 $
+ * @version $Rev$ $Date$
  */
 public interface SimpleStatefulSessionHome extends EJBHome {
     SimpleStatefulSession create() throws CreateException, RemoteException;

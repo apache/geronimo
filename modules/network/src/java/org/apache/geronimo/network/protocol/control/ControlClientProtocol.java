@@ -27,7 +27,7 @@ import org.apache.geronimo.network.protocol.UpPacket;
 
 
 /**
- * @version $Revision: 1.8 $ $Date: 2004/08/01 13:03:50 $
+ * @version $Rev$ $Date$
  */
 public class ControlClientProtocol extends AbstractControlProtocol {
 

@@ -54,7 +54,7 @@ import com.bea.x2002.x09.xbean.config.ConfigDocument;
  * This is a slightly modified version of the xmlbeans v1 SchemaCompiler, enhanced to allow specification of
  * an EntityResolver.  Some parts not used in the maven plugin have also been removed.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:06 $
+ * @version $Rev$ $Date$
  *
  * */
 public class SchemaCompiler {

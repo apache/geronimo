@@ -27,7 +27,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.remoting.router.Router;
 
 /**
- * @version $Revision: 1.14 $ $Date: 2004/09/08 12:27:32 $
+ * @version $Rev$ $Date$
  */
 public class TransportLoader implements GBeanLifecycle {
     private static final Log log = LogFactory.getLog(TransportLoader.class);

@@ -38,7 +38,7 @@ import EDU.oswego.cs.dl.util.concurrent.Semaphore;
  * - It pools AsychChannel connections to be able concurrently do multiple
  * asyc sends. 
  *   
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:20 $
+ * @version $Rev$ $Date$
  */
 public class ChannelPool implements Router {
 

@@ -23,7 +23,7 @@ import java.util.List;
  * An interface implemented by components that wish to be notified
  * about changes to Cluster state.
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:58:21 $
+ * @version $Rev$ $Date$
  */
 public interface
   DataDeltaListener

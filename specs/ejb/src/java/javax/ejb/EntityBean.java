@@ -29,7 +29,7 @@ import java.rmi.RemoteException;
  *
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:39 $
+ * @version $Rev$ $Date$
  */
 public interface EntityBean extends EnterpriseBean {
     void ejbActivate() throws EJBException, RemoteException;

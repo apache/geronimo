@@ -22,7 +22,7 @@ import org.apache.geronimo.messaging.io.IOContext;
 
 /**
  *
- * @version $Revision: 1.3 $ $Date: 2004/07/20 00:15:06 $
+ * @version $Rev$ $Date$
  */
 public class MockMessagingTransportFactory
     implements MessagingTransportFactory

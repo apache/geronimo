@@ -48,7 +48,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  * GBean that saves a list of configurations, for example to allow
  * a server to restart automatically.
  *
- * @version $Revision: 1.4 $ $Date: 2004/07/12 06:07:52 $
+ * @version $Rev$ $Date$
  */
 public class FileConfigurationList implements GBeanLifecycle, PersistentConfigurationList {
     private static final Log log = LogFactory.getLog(PersistentConfigurationList.class);

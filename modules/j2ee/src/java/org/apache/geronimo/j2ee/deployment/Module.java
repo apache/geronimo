@@ -22,7 +22,7 @@ import java.net.URL;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/08/09 04:19:35 $
+ * @version $Rev$ $Date$
  */
 public class Module {
     protected final String name;

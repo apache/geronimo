@@ -41,7 +41,7 @@ import org.apache.geronimo.messaging.proxy.HOPPFilter;
 /**
  * ReplicationMember implementation.
  *
- * @version $Revision: 1.5 $ $Date: 2004/07/17 03:50:27 $
+ * @version $Rev$ $Date$
  */
 public class ReplicationMemberImpl
     extends GBeanBaseEndPoint

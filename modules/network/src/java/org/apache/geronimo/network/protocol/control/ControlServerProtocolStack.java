@@ -28,7 +28,7 @@ import org.apache.geronimo.network.protocol.ProtocolException;
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/07/22 03:26:23 $
+ * @version $Rev$ $Date$
  */
 public class ControlServerProtocolStack extends AcceptableProtocolStack implements ControlServerListener, BootstrapChef {
 

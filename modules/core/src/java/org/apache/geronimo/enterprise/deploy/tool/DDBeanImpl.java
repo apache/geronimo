@@ -31,7 +31,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * The DDBeanImpl provides an implementation for javax.enterprise.deploy.model.DDBean.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:43 $
+ * @version $Rev$ $Date$
  */
 public class DDBeanImpl implements DDBean {
     private final static Log log = LogFactory.getLog(DDBeanImpl.class);

@@ -36,7 +36,7 @@ import org.apache.geronimo.network.protocol.ProtocolException;
 /**
  * Abstract implememtation for the RemoteNodeConnection contracts.
  *
- * @version $Revision: 1.2 $ $Date: 2004/07/20 00:15:05 $
+ * @version $Rev$ $Date$
  */
 public abstract class AbstractRemoteNodeConnection
     implements RemoteNodeConnection

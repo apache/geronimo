@@ -23,7 +23,7 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 /**
  *
  *
- * @version $Revision: 1.9 $ $Date: 2004/07/12 06:07:50 $
+ * @version $Rev$ $Date$
  */
 public class MockGBean implements MockEndpoint {
     private final String name;

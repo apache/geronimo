@@ -23,7 +23,7 @@ import org.apache.geronimo.remoting.transport.Msg;
 import org.apache.geronimo.remoting.transport.TransportException;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:19 $
+ * @version $Rev$ $Date$
  */
 public interface Router {
 

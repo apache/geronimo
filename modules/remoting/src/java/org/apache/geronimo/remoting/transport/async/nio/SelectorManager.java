@@ -36,7 +36,7 @@ import org.apache.commons.logging.LogFactory;
  * We may need to consider running more than one thread to check the selector
  * if servicing the selector takes too long.
  * 
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:20 $
+ * @version $Rev$ $Date$
  */
 public class SelectorManager implements Runnable {
 

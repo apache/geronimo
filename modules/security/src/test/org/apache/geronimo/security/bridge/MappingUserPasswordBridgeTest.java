@@ -25,7 +25,7 @@ import java.util.Map;
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:27 $
+ * @version $Rev$ $Date$
  */
 public class MappingUserPasswordBridgeTest extends AbstractBridgeTest {
     private static final String SOURCE_USER_1 = "sourceUser1";

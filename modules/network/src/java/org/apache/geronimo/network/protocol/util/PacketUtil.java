@@ -23,7 +23,7 @@ import java.util.Iterator;
 
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/18 04:05:27 $
+ * @version $Rev$ $Date$
  */
 public class PacketUtil {
 

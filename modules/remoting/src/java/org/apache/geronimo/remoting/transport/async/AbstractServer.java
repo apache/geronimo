@@ -31,7 +31,7 @@ import EDU.oswego.cs.dl.util.concurrent.ClockDaemon;
  * 
  * Sets up a blocking ServerSocket to accept blocking client connections.
  * 
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:20 $
+ * @version $Rev$ $Date$
  */
 abstract public class AbstractServer extends SimpleContainer implements TransportServer {
 

@@ -31,7 +31,7 @@ import javax.mail.event.MessageCountListener;
 import javax.mail.event.TransportListener;
 import javax.mail.search.SearchTerm;
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:27 $
+ * @version $Rev$ $Date$
  */
 public abstract class Folder {
     // Constants from J2SE 1.4 doc (Constant Values)

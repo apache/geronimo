@@ -32,7 +32,7 @@ import java.util.EventObject;
  * @see ProgressObject
  * @see ProgressListener
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:51 $
+ * @version $Rev$ $Date$
  */
 public class ProgressEvent extends EventObject {
     private TargetModuleID targetModuleID;

@@ -26,7 +26,7 @@ import junit.framework.TestCase;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/07/17 03:33:02 $
+ * @version $Rev$ $Date$
  */
 public class TopologyManagerEditorTest
     extends TestCase

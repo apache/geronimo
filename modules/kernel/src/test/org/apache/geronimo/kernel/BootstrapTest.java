@@ -24,7 +24,7 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.8 $ $Date: 2004/06/05 19:30:43 $
+ * @version $Rev$ $Date$
  */
 public class BootstrapTest extends TestCase {
     private File tmpDir;

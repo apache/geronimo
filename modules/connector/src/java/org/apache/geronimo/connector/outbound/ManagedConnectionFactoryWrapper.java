@@ -43,7 +43,7 @@ import org.apache.geronimo.transaction.manager.NamedXAResource;
 import org.apache.geronimo.transaction.manager.ResourceManager;
 
 /**
- * @version $Revision: 1.18 $ $Date: 2004/07/12 06:07:51 $
+ * @version $Rev$ $Date$
  */
 public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicGBean, ResourceManager {
 

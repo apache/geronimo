@@ -26,7 +26,7 @@ import net.sf.cglib.proxy.LazyLoader;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/27 14:23:21 $
+ * @version $Rev$ $Date$
  */
 public class ReferenceableEnhancer
 {

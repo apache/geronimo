@@ -26,7 +26,7 @@ import org.apache.geronimo.transaction.manager.NamedXAResource;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/06/08 17:33:43 $
+ * @version $Rev$ $Date$
  *
  * */
 public class WrapperNamedXAResource implements NamedXAResource {

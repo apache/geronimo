@@ -23,7 +23,7 @@ import javax.security.jacc.PolicyContextHandler;
 
 /**
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:25 $
+ * @version $Rev$ $Date$
  */
 public class PolicyContextHandlerSOAPMessage implements PolicyContextHandler {
     public static final String HANDLER_KEY = "javax.xml.soap.SOAPMessage";

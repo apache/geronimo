@@ -36,7 +36,7 @@ import javax.enterprise.deploy.spi.exceptions.OperationUnsupportedException;
  * The ProgressObject structure allows the user the option of polling for
  * status or to provide a callback.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:51 $
+ * @version $Rev$ $Date$
  */
 public interface ProgressObject {
     /**

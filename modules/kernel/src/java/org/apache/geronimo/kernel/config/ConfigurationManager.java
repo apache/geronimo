@@ -28,7 +28,7 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 /**
  * 
  * 
- * @version $Revision: 1.6 $ $Date: 2004/06/02 19:50:41 $
+ * @version $Rev$ $Date$
  */
 public interface ConfigurationManager {
     boolean isLoaded(URI configID);

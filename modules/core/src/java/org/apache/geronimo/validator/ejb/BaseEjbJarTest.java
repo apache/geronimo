@@ -31,7 +31,7 @@ import org.apache.xmlbeans.SchemaType;
  * the deployment descriptor that its subclasses apply to.  Also tracks the
  * current EJB-JAR JavaBean tree in case someone wants to navigate it.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:44 $
+ * @version $Rev$ $Date$
  */
 public abstract class BaseEjbJarTest extends ValidationTest {
     protected EjbJarType ejbJar;

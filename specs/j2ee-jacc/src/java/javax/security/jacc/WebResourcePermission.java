@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 
 /**
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:53 $
+ * @version $Rev$ $Date$
  */
 public final class WebResourcePermission extends Permission {
     private transient int cachedHashCode = 0;

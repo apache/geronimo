@@ -32,7 +32,7 @@ import javax.security.jacc.PolicyContextException;
  * <code>PolicyConfigurationFactory.getPolicyConfiguration</code>.  If the object that is returned <i>also</i>
  * implements <code>RoleMappingConfiguration</code>, Geronimo will call the methods of that interface to provide role
  * mappings to the <code>Policy</code> provider</p>
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:25 $
+ * @version $Rev$ $Date$
  * @see        javax.security.jacc.PolicyConfiguration
  * @see        javax.security.jacc.PolicyConfigurationFactory#getPolicyConfiguration
  */

@@ -24,7 +24,7 @@ import junit.framework.TestCase;
 /**
  * Unit test for org.apache.geronimo.core.service.InvocationType
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:58:44 $
+ * @version $Rev$ $Date$
  */
 
 public class InvocationTypeTest extends TestCase {

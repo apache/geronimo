@@ -27,7 +27,7 @@ import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.management.State;
 
 /**
- * @version $Revision: 1.13 $ $Date: 2004/06/05 20:33:40 $
+ * @version $Rev$ $Date$
  */
 public class SingleProxy implements Proxy {
     private static final Log log = LogFactory.getLog(SingleProxy.class);

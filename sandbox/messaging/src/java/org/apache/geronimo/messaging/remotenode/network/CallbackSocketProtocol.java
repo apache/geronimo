@@ -25,7 +25,7 @@ import org.apache.geronimo.network.protocol.SocketProtocol;
 /**
  * SocketProtocol providing asynchronous callbacks upon closure.
  *
- * @version $Revision: 1.1 $ $Date: 2004/07/20 00:15:05 $
+ * @version $Rev$ $Date$
  */
 public class CallbackSocketProtocol
     extends SocketProtocol
@@ -79,7 +79,7 @@ public class CallbackSocketProtocol
     /**
      * When the underlying socket is closed, this callback is called.
      *
-     * @version $Revision: 1.1 $ $Date: 2004/07/20 00:15:05 $
+     * @version $Rev$ $Date$
      */
     public interface SocketProtocolListener {
         

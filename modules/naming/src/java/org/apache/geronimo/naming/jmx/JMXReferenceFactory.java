@@ -26,7 +26,7 @@ import org.apache.geronimo.naming.deployment.RefAdapter;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/08/06 22:44:37 $
+ * @version $Rev$ $Date$
  *
  * */
 public class JMXReferenceFactory {

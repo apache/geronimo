@@ -33,7 +33,7 @@ import javax.security.auth.spi.LoginModule;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/05/30 19:03:36 $
+ * @version $Rev$ $Date$
  *
  * */
 public class PasswordCredentialLoginModule implements LoginModule {

@@ -28,7 +28,7 @@ import org.apache.geronimo.kernel.KernelMBean;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/09/09 14:14:41 $
+ * @version $Rev$ $Date$
  */
 public class StartCommand extends CommandSupport {
     private final KernelMBean kernel;

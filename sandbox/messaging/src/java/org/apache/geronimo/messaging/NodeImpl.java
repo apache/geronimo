@@ -58,7 +58,7 @@ import EDU.oswego.cs.dl.util.concurrent.Semaphore;
 /**
  * Node implementation.
  *
- * @version $Revision: 1.9 $ $Date: 2004/07/20 00:26:04 $
+ * @version $Rev$ $Date$
  */
 public class NodeImpl
     implements Node, GBeanLifecycle

@@ -31,7 +31,7 @@ import org.apache.geronimo.messaging.proxy.HOPPFilter;
 /**
  * Factory of Referenceable proxies.
  *
- * @version $Revision: 1.2 $ $Date: 2004/05/20 13:37:11 $
+ * @version $Rev$ $Date$
  */
 public class ReferenceFactory
 {

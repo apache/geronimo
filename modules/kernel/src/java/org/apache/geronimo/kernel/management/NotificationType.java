@@ -24,7 +24,7 @@ import javax.management.NotificationFilter;
  * Static constants class which contains all of the J2EE notification types from the
  * J2EE management specification.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:02 $
+ * @version $Rev$ $Date$
  */
 public final class NotificationType {
     private NotificationType() {

@@ -35,7 +35,7 @@ import org.apache.commons.logging.LogFactory;
  * If selectOneAssumeMatch is false, it checks with the ManagedConnectionFactory that the
  * selected connection does match before returning it: if not it throws an exception.
  *
- * @version $Revision: 1.6 $ $Date: 2004/05/24 19:10:34 $
+ * @version $Rev$ $Date$
  *
  */
 public class SinglePoolConnectionInterceptor implements ConnectionInterceptor {

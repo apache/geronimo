@@ -27,7 +27,7 @@ import org.apache.geronimo.transaction.InstanceContext;
 /**
  * Simple implementation of ComponentContext satisfying invariant.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/31 23:37:05 $
+ * @version $Rev$ $Date$
  *
  * */
 public class DefaultInstanceContext implements InstanceContext {

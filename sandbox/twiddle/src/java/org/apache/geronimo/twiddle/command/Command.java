@@ -23,7 +23,7 @@ package org.apache.geronimo.twiddle.command;
  * <p>Commands follow the prototype pattern using the {@link #clone} method
  *    to create new instances from the prototype.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:37 $
+ * @version $Rev$ $Date$
  */
 public interface Command
     extends Cloneable

@@ -29,7 +29,7 @@ import javax.enterprise.deploy.shared.ModuleType;
  * J2eeApplicationObject is an interface that represents a J2EE application (EAR);
  * it maintains a DeployableObject for each module in the archive.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:50 $
+ * @version $Rev$ $Date$
  */
 public interface J2eeApplicationObject extends DeployableObject {
     /**

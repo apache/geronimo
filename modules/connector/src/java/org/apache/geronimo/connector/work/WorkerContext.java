@@ -35,7 +35,7 @@ import org.apache.geronimo.transaction.XAWork;
 /**
  * Work wrapper providing an execution context to a Work instance.
  *
- * @version $Revision: 1.7 $ $Date: 2004/07/06 17:15:54 $
+ * @version $Rev$ $Date$
  */
 public class WorkerContext implements Work {
 

@@ -22,7 +22,7 @@ import junit.framework.TestCase;
 /**
  * Unit test for {@link org.apache.geronimo.kernel.ClassLoading} class.
  *
- * @version $Revision: 1.1 $ $Date: 2004/03/21 22:24:39 $
+ * @version $Rev$ $Date$
  */
 public class ClassloadingTest
         extends TestCase {

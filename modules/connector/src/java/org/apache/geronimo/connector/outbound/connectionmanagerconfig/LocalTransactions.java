@@ -25,7 +25,7 @@ import org.apache.geronimo.connector.outbound.TransactionEnlistingInterceptor;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/06/08 17:38:00 $
+ * @version $Rev$ $Date$
  *
  * */
 public class LocalTransactions extends TransactionSupport {

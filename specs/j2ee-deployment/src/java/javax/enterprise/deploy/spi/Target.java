@@ -28,7 +28,7 @@ package javax.enterprise.deploy.spi;
  * J2EE platform product.  It is a designator for a server and the implied location
  * to copy a configured application for the server to access.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:51 $
+ * @version $Rev$ $Date$
  */
 public interface Target {
     /**

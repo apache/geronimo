@@ -41,7 +41,7 @@ import org.apache.geronimo.twiddle.config.Attribute;
  * A factory for creating <code>Command</code> instances from
  * a <code>CommandConfig</code>.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:37 $
+ * @version $Rev$ $Date$
  */
 public class CommandFactory
 {

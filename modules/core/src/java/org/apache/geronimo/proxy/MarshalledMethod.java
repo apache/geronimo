@@ -27,7 +27,7 @@ import java.util.WeakHashMap;
 import org.apache.geronimo.kernel.ClassLoading;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/21 22:24:39 $
+ * @version $Rev$ $Date$
  */
 public class MarshalledMethod implements Serializable {
 

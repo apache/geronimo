@@ -44,7 +44,7 @@ import org.apache.xmlbeans.XmlOptions;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/05/06 03:59:55 $
+ * @version $Rev$ $Date$
  *
  * */
 public class RAR_1_0DConfigBeanTest extends TestCase  {

@@ -23,7 +23,7 @@ import javax.resource.ResourceException;
  * LocalXAResourceInsertionInterceptor.java
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/06/08 17:38:00 $
+ * @version $Rev$ $Date$
 
  */
 public class LocalXAResourceInsertionInterceptor

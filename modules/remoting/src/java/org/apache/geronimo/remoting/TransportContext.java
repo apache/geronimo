@@ -20,7 +20,7 @@ package org.apache.geronimo.remoting;
 import java.io.IOException;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:19 $
+ * @version $Rev$ $Date$
  */
 abstract public class TransportContext {
 

@@ -8,7 +8,7 @@ import EDU.oswego.cs.dl.util.concurrent.Executor;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/07/06 17:15:54 $
+ * @version $Rev$ $Date$
  *
  * */
 public interface WorkExecutor {

@@ -29,7 +29,7 @@ import javax.mail.event.ConnectionListener;
 import javax.mail.event.MailEvent;
 import javax.mail.event.TransportListener;
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:27 $
+ * @version $Rev$ $Date$
  */
 public abstract class Service {
     private boolean _connected;

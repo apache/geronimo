@@ -26,7 +26,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
  * This can be extended to include values from the ResourceAdapter configuration for
  * duplicated properties.
  *
- * @version $Revision: 1.1 $ $Date: 2004/06/25 21:33:26 $
+ * @version $Rev$ $Date$
  *
  * */
 public class ActivationSpecInfo implements Serializable {

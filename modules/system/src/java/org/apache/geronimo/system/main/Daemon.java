@@ -37,7 +37,7 @@ import org.apache.geronimo.kernel.log.GeronimoLogging;
 import org.apache.geronimo.system.url.GeronimoURLFactory;
 
 /**
- * @version $Revision: 1.10 $ $Date: 2004/09/09 02:27:31 $
+ * @version $Rev$ $Date$
  */
 public class Daemon {
     private static Log log;

@@ -30,7 +30,7 @@ import org.apache.geronimo.common.NullArgumentException;
  * Abstraction of a collection of input and output streams
  * as well as helper methods to access the corresponding reader/writers.
  *
- * @version <code>$Revision: 1.3 $ $Date: 2004/03/10 10:00:38 $</code>
+ * @version <code>$Rev$ $Date$</code>
  */
 public class IOContext
 {

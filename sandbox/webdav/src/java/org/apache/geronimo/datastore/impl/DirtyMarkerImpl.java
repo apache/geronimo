@@ -20,7 +20,7 @@ package org.apache.geronimo.datastore.impl;
 /**
  * DirtyMarker implementation.
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:15 $
+ * @version $Rev$ $Date$
  */
 public class DirtyMarkerImpl
     implements DirtyMarker

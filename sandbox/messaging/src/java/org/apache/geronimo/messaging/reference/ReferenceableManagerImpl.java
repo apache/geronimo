@@ -33,7 +33,7 @@ import org.apache.geronimo.messaging.io.ReplacerResolver;
 /**
  * ReferenceableManager implementation.
  *
- * @version $Revision: 1.6 $ $Date: 2004/06/10 23:12:24 $
+ * @version $Rev$ $Date$
  */
 public class ReferenceableManagerImpl
     extends BaseEndPoint

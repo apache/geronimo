@@ -28,7 +28,7 @@ import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
  * Some basic tests for session beans.  Right now this is not exhaustive, but
  * it's an example of how the tests can be written.
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:58:44 $
+ * @version $Rev$ $Date$
  */
 public class SessionBeanTests extends BaseEjbJarTest {
     protected SessionBeanType bean;

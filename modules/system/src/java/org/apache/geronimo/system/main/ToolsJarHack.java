@@ -29,7 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import sun.misc.URLClassPath;
 
 /**
- * @version $Revision: 1.2 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class ToolsJarHack {
     private static boolean installed = false;

@@ -18,7 +18,7 @@
 package org.apache.geronimo.network.protocol;
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/08/01 13:03:43 $
+ * @version $Rev$ $Date$
  */
 public class SASLClientProtocol extends AbstractProtocol {
     public void setup() throws ProtocolException {

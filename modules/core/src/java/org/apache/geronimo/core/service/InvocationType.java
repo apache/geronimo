@@ -27,7 +27,7 @@ import org.apache.geronimo.core.service.InvocationKey;
  *
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:42 $
+ * @version $Rev$ $Date$
  */
 public final class InvocationType implements Serializable, InvocationKey {
     private static final StringInvocationKey INVOCATION_TYPE_KEY = new StringInvocationKey("INVOCATION_TYPE_KEY", false);

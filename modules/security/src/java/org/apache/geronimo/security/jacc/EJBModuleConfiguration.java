@@ -38,7 +38,7 @@ import org.apache.geronimo.xbeans.j2ee.SecurityRoleType;
 
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/07/12 06:07:49 $
+ * @version $Rev$ $Date$
  */
 public class EJBModuleConfiguration extends AbstractModuleConfiguration {
     private EjbJarType ejbJar;

@@ -37,7 +37,7 @@ import java.util.Locale;
  *
  * @see javax.servlet.ServletResponse
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 10:00:20 $
+ * @version $Rev$ $Date$
  */
 public class ServletResponseWrapper implements ServletResponse {
     private ServletResponse response;

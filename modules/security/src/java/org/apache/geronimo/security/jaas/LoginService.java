@@ -63,7 +63,7 @@ import org.apache.geronimo.security.realm.SecurityRealm;
 /**
  * An MBean that maintains a list of security realms.
  *
- * @version $Revision: 1.9 $ $Date: 2004/07/12 06:07:50 $
+ * @version $Rev$ $Date$
  */
 public class LoginService implements LoginServiceMBean, GBeanLifecycle {
     /**

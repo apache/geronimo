@@ -22,7 +22,7 @@ import junit.framework.TestCase;
 
 /**
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:23 $
+ * @version $Rev$ $Date$
  */
 public class MimeTypeTest extends TestCase {
 

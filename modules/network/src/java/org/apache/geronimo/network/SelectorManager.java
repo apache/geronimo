@@ -41,7 +41,7 @@ import org.apache.geronimo.pool.ThreadPool;
  * The SelectorManager will manage one Selector and the thread that checks
  * the selector.
  *
- * @version $Revision: 1.20 $ $Date: 2004/08/21 15:59:02 $
+ * @version $Rev$ $Date$
  */
 public class SelectorManager implements Runnable, GBeanLifecycle {
 

@@ -30,7 +30,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/08/04 07:18:20 $
+ * @version $Rev$ $Date$
  */
 public class ResouceAdapterModuleImpl {
     private final Kernel kernel;

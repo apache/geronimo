@@ -21,7 +21,7 @@ import java.util.Random;
 
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/08/01 13:03:43 $
+ * @version $Rev$ $Date$
  */
 public class LossyProtocol extends AbstractProtocol {
 

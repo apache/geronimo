@@ -20,7 +20,7 @@ package org.apache.geronimo.twiddle.console;
 /**
 * A factory for creating {@link Console} instances.
  *
- * @version <code>$Revision: 1.3 $ $Date: 2004/03/10 10:00:38 $</code>
+ * @version <code>$Rev$ $Date$</code>
  */
 public class ConsoleFactory
 {

@@ -29,7 +29,7 @@ import java.util.Enumeration;
  * A servlet configuration object used by a servlet container
  * to pass information to a servlet during initialization.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 10:00:19 $
+ * @version $Rev$ $Date$
  */
 public interface ServletConfig {
     /**

@@ -36,7 +36,7 @@ import org.apache.geronimo.messaging.NodeTopology;
 /**
  * A simple ring topology manager.
  *
- * @version $Revision: 1.4 $ $Date: 2004/07/19 23:56:37 $
+ * @version $Rev$ $Date$
  */
 public class RingTopologyManager
     implements TopologyManager

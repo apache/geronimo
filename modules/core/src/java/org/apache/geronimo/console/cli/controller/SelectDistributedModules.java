@@ -34,7 +34,7 @@ import org.apache.geronimo.console.cli.DeploymentContext;
  * Chooses a set of distributed but running or not running modules, so the
  * caller can start, stop, or undeploy, or redeploy them.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:41 $
+ * @version $Rev$ $Date$
  */
 public class SelectDistributedModules extends TextController {
     private static final Log log = LogFactory.getLog(SelectDistributedModules.class);

@@ -27,7 +27,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/06/04 22:31:56 $
+ * @version $Rev$ $Date$
  */
 public class J2EEApplicationImpl {
     private final String deploymentDescriptor;

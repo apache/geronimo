@@ -16,7 +16,7 @@
     limitations under the License.
 -->
 
-<!-- $Revision: 1.6 $ $Date: 2004/09/07 18:36:51 $ -->
+<!-- $Rev$ $Date$ -->
 
 <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee"
     version="1.5"

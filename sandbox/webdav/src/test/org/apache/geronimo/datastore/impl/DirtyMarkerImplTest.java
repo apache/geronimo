@@ -21,7 +21,7 @@ import junit.framework.TestCase;
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2004/03/01 13:12:51 $
+ * @version $Rev$ $Date$
  */
 public class DirtyMarkerImplTest extends TestCase {
 

@@ -33,7 +33,7 @@ import org.apache.geronimo.security.IdentificationPrincipal;
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/08/01 13:41:16 $
+ * @version $Rev$ $Date$
  */
 public class SubjectCarryingClientProtocol extends AbstractProtocol {
 

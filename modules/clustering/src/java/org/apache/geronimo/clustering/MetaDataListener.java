@@ -23,7 +23,7 @@ import java.util.List;
  * An interface implemented by components that wish to be notified
  * upon membership of a Cluster changing.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:21 $
+ * @version $Rev$ $Date$
  */
 public interface
   MetaDataListener

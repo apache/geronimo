@@ -25,7 +25,7 @@ import java.io.IOException;
  * <BR>
  * ReplacerResolvers are chained components.
  *
- * @version $Revision: 1.2 $ $Date: 2004/05/27 14:18:13 $
+ * @version $Rev$ $Date$
  */
 public interface ReplacerResolver {
 

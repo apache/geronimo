@@ -23,7 +23,7 @@ import javax.management.ObjectName;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/06/02 19:50:40 $
+ * @version $Rev$ $Date$
  */
 public class TargetImpl implements Target {
     private final ObjectName name;

@@ -20,7 +20,7 @@ package org.apache.geronimo.kernel.config;
 /**
  * Exception indicating the requested ConfigurationStore could not be located.
  * 
- * @version $Revision: 1.1 $ $Date: 2004/06/02 19:50:41 $
+ * @version $Rev$ $Date$
  */
 public class NoSuchStoreException extends Exception {
     public NoSuchStoreException() {

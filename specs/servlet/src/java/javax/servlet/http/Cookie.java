@@ -59,7 +59,7 @@ import java.util.ResourceBundle;
  * (by RFC 2109) cookie specifications. By default, cookies are
  * created using Version 0 to ensure the best interoperability.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 10:00:20 $
+ * @version $Rev$ $Date$
  */
 
 // XXX would implement java.io.Serializable too, but can't do that

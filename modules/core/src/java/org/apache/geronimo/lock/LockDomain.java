@@ -27,7 +27,7 @@ import java.util.Map;
  *
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:58:43 $
+ * @version $Rev$ $Date$
  */
 public class LockDomain {
     private final String name;

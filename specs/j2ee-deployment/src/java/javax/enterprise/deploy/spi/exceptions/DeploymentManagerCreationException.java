@@ -27,7 +27,7 @@ package javax.enterprise.deploy.spi.exceptions;
  * This exception is to report problems in returning a DeploymentManager object
  * caused by such things as server down, unable to authenticate and the like.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:51 $
+ * @version $Rev$ $Date$
  */
 public class DeploymentManagerCreationException extends Exception {
     /**

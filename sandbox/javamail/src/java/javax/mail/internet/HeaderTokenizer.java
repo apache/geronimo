@@ -17,7 +17,7 @@
 
 package javax.mail.internet;
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:28 $
+ * @version $Rev$ $Date$
  */
 public class HeaderTokenizer {
     public static class Token {

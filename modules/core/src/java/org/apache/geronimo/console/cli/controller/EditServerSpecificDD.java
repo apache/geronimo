@@ -25,7 +25,7 @@ import org.apache.geronimo.console.cli.DConfigBeanConfigurator;
  * Hands over control to {@link org.apache.geronimo.console.cli.DConfigBeanConfigurator} to let the user edit
  * the server-specific deployment information.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:41 $
+ * @version $Rev$ $Date$
  */
 public class EditServerSpecificDD extends TextController {
     public EditServerSpecificDD(DeploymentContext context) {

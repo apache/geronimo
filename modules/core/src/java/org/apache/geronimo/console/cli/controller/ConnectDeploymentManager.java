@@ -30,7 +30,7 @@ import org.apache.geronimo.console.cli.TextController;
 /**
  * Connect to a DeploymentManager.
  *
- * @version $Revision: 1.1 $ $Date: 2004/07/16 04:39:41 $
+ * @version $Rev$ $Date$
  */
 public class ConnectDeploymentManager
     extends TextController

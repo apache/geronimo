@@ -32,7 +32,7 @@ import org.apache.xmlbeans.XmlOptions;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/04/17 20:34:24 $
+ * @version $Rev$ $Date$
  *
  * */
 public class XmlBeansUtil {

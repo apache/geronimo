@@ -22,7 +22,7 @@ package org.apache.geronimo.messaging.reference;
  * <BR> 
  * This interface is automatically implemented by Referenceable proxies.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:42 $
+ * @version $Rev$ $Date$
  */
 public interface Reference
 {

@@ -26,7 +26,7 @@ import java.util.Map;
  * , e.g. PROPFIND. This servlet is deployed and managed by the DAVServer,
  * which has mounted this repository.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:41 $
+ * @version $Rev$ $Date$
  */
 public interface DAVRepository {
     /**

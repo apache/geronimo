@@ -20,7 +20,7 @@ package org.apache.geronimo.gbean;
 /**
  * Describes an attibute of a GBean.
  * 
- * @version $Revision: 1.7 $ $Date: 2004/06/02 05:33:03 $
+ * @version $Rev$ $Date$
  */
 public class DynamicGAttributeInfo extends GAttributeInfo {
     public DynamicGAttributeInfo(String name) {

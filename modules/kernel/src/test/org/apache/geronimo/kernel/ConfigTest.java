@@ -33,7 +33,7 @@ import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.management.State;
 
 /**
- * @version $Revision: 1.16 $ $Date: 2004/07/12 06:07:49 $
+ * @version $Rev$ $Date$
  */
 public class ConfigTest extends TestCase {
     private ObjectName gbeanName1;

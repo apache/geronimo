@@ -20,7 +20,7 @@ package org.apache.geronimo.common;
 /**
  * Primitive utilities.
  *
- * @version $Revision: 1.6 $ $Date: 2004/03/10 09:58:25 $
+ * @version $Rev$ $Date$
  */
 public final class Primitives
 {

@@ -20,7 +20,7 @@ package org.apache.geronimo.kernel.management;
 /**
  * This is a representation of the J2EEManagedObject type defined in the J2EE Management specification
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:02 $
+ * @version $Rev$ $Date$
  */
 public interface ManagedObject {
     /**

@@ -33,7 +33,7 @@ import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
 
 /**
- * @version $Revision: 1.14 $ $Date: 2004/08/01 02:06:18 $
+ * @version $Rev$ $Date$
  */
 public interface KernelMBean {
     /**

@@ -34,7 +34,7 @@ import org.mortbay.util.ThreadedServer;
 /**
  * Connector using under the cover a Jetty HttpListener.
  *
- * @version $Revision: 1.6 $ $Date: 2004/06/10 23:12:24 $
+ * @version $Rev$ $Date$
  */
 public class JettyConnectorImpl extends AbstractConnector
     implements GBeanLifecycle, JettyConnector

@@ -30,7 +30,7 @@ import org.apache.geronimo.connector.work.WorkerContext;
  * policy (should the call block until the end of the work; or when it starts
  * et cetera).
  *
- * @version $Revision: 1.1 $ $Date: 2004/07/06 17:15:54 $
+ * @version $Rev$ $Date$
  */
 public class WorkExecutorPoolImpl implements WorkExecutorPool {
 

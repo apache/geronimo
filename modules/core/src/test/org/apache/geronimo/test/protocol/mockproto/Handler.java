@@ -32,7 +32,7 @@ import java.util.Map;
 /**
  * URL handler foe the 'mockproto' protocol.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:44 $
+ * @version $Rev$ $Date$
  */
 public class Handler
     extends URLStreamHandler

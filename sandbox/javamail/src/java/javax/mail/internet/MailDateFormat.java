@@ -28,7 +28,7 @@ import java.util.Locale;
  * <code>Wed, 02 Jan 2003 23:59:59 -0100 (GMT)</code>
  *
  * <code>EEE,  d MMM yyyy HH:mm:ss Z (z)</code>
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:28 $
+ * @version $Rev$ $Date$
  */
 public class MailDateFormat extends SimpleDateFormat {
     static final MailDateFormat INSTANCE = new MailDateFormat(); // @todo jboynes: this does not seem to be used

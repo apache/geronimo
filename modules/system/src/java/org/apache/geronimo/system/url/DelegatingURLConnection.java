@@ -29,7 +29,7 @@ import java.util.Map;
 /**
  * An delegating URLConnection support class.
  *
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:31 $
+ * @version $Rev$ $Date$
  */
 public class DelegatingURLConnection extends URLConnection {
     private URL delegateUrl;

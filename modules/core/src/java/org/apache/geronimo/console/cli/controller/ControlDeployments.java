@@ -29,7 +29,7 @@ import org.apache.geronimo.console.cli.DeploymentContext;
 /**
  * Select targets or view, start, stop, or undeploy modules from the targets.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:41 $
+ * @version $Rev$ $Date$
  */
 public class ControlDeployments extends TextController {
     private static final Log log = LogFactory.getLog(ControlDeployments.class);

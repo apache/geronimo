@@ -19,7 +19,7 @@ package org.apache.geronimo.j2ee.management.impl;
 import javax.management.ObjectName;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/05/19 20:53:59 $
+ * @version $Rev$ $Date$
  */
 public class InvalidObjectNameException extends RuntimeException {
     private final ObjectName objectName;

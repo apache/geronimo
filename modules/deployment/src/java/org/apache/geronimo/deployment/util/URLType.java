@@ -37,7 +37,7 @@ import java.util.zip.ZipException;
  *  <li><b>RESOURCE</b> -  none of the above
  * </ul>
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:49 $
+ * @version $Rev$ $Date$
  */
 public class URLType {
     public static final String MANIFEST_LOCATION = "META-INF/MANIFEST.MF";

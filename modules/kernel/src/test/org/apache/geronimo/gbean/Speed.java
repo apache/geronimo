@@ -17,7 +17,7 @@
 package org.apache.geronimo.gbean;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/06/03 15:27:28 $
+ * @version $Rev$ $Date$
  */
 import java.lang.reflect.Method;
 
@@ -36,7 +36,7 @@ import org.apache.geronimo.kernel.MockGBean;
 import org.apache.geronimo.kernel.Kernel;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/06/03 15:27:28 $
+ * @version $Rev$ $Date$
  */
 public class Speed {
     private static final Object[] NO_ARGS = new Object[0];

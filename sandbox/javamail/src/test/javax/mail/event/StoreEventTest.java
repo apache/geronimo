@@ -20,7 +20,7 @@ import javax.mail.Store;
 import javax.mail.TestData;
 import junit.framework.TestCase;
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:30 $
+ * @version $Rev$ $Date$
  */
 public class StoreEventTest extends TestCase {
     public StoreEventTest(String name) {

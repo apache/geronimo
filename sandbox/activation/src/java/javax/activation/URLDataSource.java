@@ -25,7 +25,7 @@ import java.net.URLConnection;
 
 /**
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:22 $
+ * @version $Rev$ $Date$
  */
 public class URLDataSource implements DataSource {
 

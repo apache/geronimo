@@ -42,7 +42,7 @@ import org.apache.geronimo.transaction.manager.XidFactoryImpl;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/06/11 19:20:55 $
+ * @version $Rev$ $Date$
  *
  * */
 public class TransactionManagerProxyTest extends TestCase {

@@ -22,7 +22,7 @@ import java.io.Serializable;
 /**
  * A long integer counter class.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:25 $
+ * @version $Rev$ $Date$
  */
 public class LongCounter
     extends CloneableObject

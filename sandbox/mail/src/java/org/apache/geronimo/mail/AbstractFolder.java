@@ -38,7 +38,7 @@ import javax.mail.URLName;
  * methods that allow for easier implementation. Subclasses should implement the abstract methods
  * from {@link Folder} and the <code>doXxxx()</code> that this requires in order to facilitate creation
  * of future folder types.
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:32 $
+ * @version $Rev$ $Date$
  */
 public abstract class AbstractFolder extends Folder {
     /**

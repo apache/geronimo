@@ -40,7 +40,7 @@ import org.apache.geronimo.datastore.impl.GFileTO;
 /**
  * DAO for a local filesystem. It works approximately and needs re-working.
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:15 $
+ * @version $Rev$ $Date$
  */
 public class LocalGFileDAO
     implements GFileDAO

@@ -21,7 +21,7 @@ import javax.security.auth.login.LoginException;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/02/25 09:58:09 $
+ * @version $Rev$ $Date$
  */
 public class ExpiredLoginModuleException extends LoginException {
 

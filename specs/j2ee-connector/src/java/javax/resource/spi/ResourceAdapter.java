@@ -31,7 +31,7 @@ import javax.transaction.xa.XAResource;
  *
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:45 $
+ * @version $Rev$ $Date$
  */
 public interface ResourceAdapter {
     public void start(BootstrapContext ctx) throws ResourceAdapterInternalException;

@@ -32,7 +32,7 @@ import org.apache.geronimo.messaging.interceptors.MsgTransformer;
 /**
  * This Callback sends Request to an EndPoint hosted by a set of Nodes. 
  *
- * @version $Revision: 1.3 $ $Date: 2004/07/20 00:06:13 $
+ * @version $Rev$ $Date$
  */
 public class EndPointCallback
     implements MethodInterceptor

@@ -5,7 +5,7 @@ import javax.transaction.xa.Xid;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/06/08 17:33:43 $
+ * @version $Rev$ $Date$
  *
  * */
 public interface XidFactory {

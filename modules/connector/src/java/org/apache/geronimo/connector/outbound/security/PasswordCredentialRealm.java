@@ -34,7 +34,7 @@ import org.apache.regexp.RE;
 /**
  *
  *
- * @version $Revision: 1.8 $ $Date: 2004/06/02 05:33:02 $
+ * @version $Rev$ $Date$
  *
  * */
 public class PasswordCredentialRealm extends AbstractSecurityRealm implements SecurityRealm, ManagedConnectionFactoryListener {

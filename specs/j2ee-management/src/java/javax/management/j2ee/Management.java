@@ -42,7 +42,7 @@ import javax.management.ReflectionException;
  *
  *
  *
- * @version $Revision: 1.3 $
+ * @version $Rev$
  */
 public interface Management extends EJBObject {
     public Object getAttribute(ObjectName name, String attribute) throws MBeanException, AttributeNotFoundException, InstanceNotFoundException, ReflectionException, RemoteException;

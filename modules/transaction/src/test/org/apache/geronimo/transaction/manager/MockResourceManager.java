@@ -30,7 +30,7 @@ import javax.transaction.xa.Xid;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/06/11 19:20:55 $
+ * @version $Rev$ $Date$
  */
 public class MockResourceManager implements ResourceManager {
     private boolean willCommit;

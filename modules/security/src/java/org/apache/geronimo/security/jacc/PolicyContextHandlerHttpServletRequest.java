@@ -23,7 +23,7 @@ import javax.security.jacc.PolicyContextHandler;
 
 /**
  *
- * @version $Revision: 1.4 $ $Date: 2004/07/27 03:35:10 $
+ * @version $Rev$ $Date$
  */
 public class PolicyContextHandlerHttpServletRequest implements PolicyContextHandler {
     public static final String HANDLER_KEY = "javax.servlet.http.HttpServletRequest";

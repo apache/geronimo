@@ -51,7 +51,7 @@ import org.apache.geronimo.twiddle.console.IOContext;
  *    command processor, it serves only to facilitate their operation and to
  *    provide a simple API to execute commands (hence facade).
  *
- * @version <tt>$Revision: 1.3 $ $Date: 2004/03/10 10:00:37 $</tt>
+ * @version <tt>$Rev$ $Date$</tt>
  */
 public class Twiddle
 {

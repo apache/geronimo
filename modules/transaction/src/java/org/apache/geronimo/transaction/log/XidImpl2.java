@@ -26,7 +26,7 @@ import javax.transaction.xa.Xid;
  * Unique id for a transaction.  This implementation is backed by a single byte buffer
  * so can do less copying than one backed by several byte buffers for the different components.
  *
- * @version $Revision: 1.3 $ $Date: 2004/06/08 17:33:42 $
+ * @version $Rev$ $Date$
  */
 public class XidImpl2 implements Xid, Serializable {
     private static int HEADER_SIZE = 4;

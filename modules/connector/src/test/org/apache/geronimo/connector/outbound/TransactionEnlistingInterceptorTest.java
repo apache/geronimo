@@ -32,7 +32,7 @@ import org.apache.geronimo.transaction.manager.NamedXAResource;
 /**
  *
  *
- * @version $Revision: 1.8 $ $Date: 2004/07/18 22:08:59 $
+ * @version $Rev$ $Date$
  *
  * */
 public class TransactionEnlistingInterceptorTest extends ConnectionInterceptorTestUtils

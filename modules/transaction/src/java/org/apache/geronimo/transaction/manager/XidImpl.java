@@ -24,7 +24,7 @@ import javax.transaction.xa.Xid;
 /**
  * Unique id for a transaction.
  *
- * @version $Revision: 1.5 $ $Date: 2004/05/06 04:00:51 $
+ * @version $Rev$ $Date$
  */
 public class XidImpl implements Xid, Serializable {
     private static int FORMAT_ID = 0x4765526f;  // Gero

@@ -27,7 +27,7 @@ package javax.transaction;
  *
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:12 $
+ * @version $Rev$ $Date$
  */
 public interface TransactionManager {
     void begin() throws NotSupportedException, SystemException;

@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:20 $
+ * @version $Rev$ $Date$
  */
 public abstract class TransportFactory {
 

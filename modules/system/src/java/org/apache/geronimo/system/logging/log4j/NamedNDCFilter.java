@@ -23,7 +23,7 @@ import org.apache.log4j.spi.LoggingEvent;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:30 $
+ * @version $Rev$ $Date$
  */
 public class NamedNDCFilter extends Filter {
     private NamedNDC namedNDC;

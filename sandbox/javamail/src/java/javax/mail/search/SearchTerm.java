@@ -19,7 +19,7 @@ package javax.mail.search;
 import java.io.Serializable;
 import javax.mail.Message;
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:28 $
+ * @version $Rev$ $Date$
  */
 public abstract class SearchTerm implements Serializable {
     public abstract boolean match(Message message);

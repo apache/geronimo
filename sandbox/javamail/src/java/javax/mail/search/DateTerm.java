@@ -18,7 +18,7 @@
 package javax.mail.search;
 import java.util.Date;
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:28 $
+ * @version $Rev$ $Date$
  */
 public abstract class DateTerm extends ComparisonTerm {
     protected Date date;

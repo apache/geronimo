@@ -28,7 +28,7 @@ import javax.enterprise.deploy.spi.status.ProgressObject;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/07/25 08:22:07 $
+ * @version $Rev$ $Date$
  *
  * */
 public class StopModule extends AbstractModuleCommand {

@@ -24,7 +24,7 @@ import org.apache.commons.logging.LogFactory;
 
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/08/01 13:03:43 $
+ * @version $Rev$ $Date$
  */
 public class ProtocolStack extends Stack implements Protocol {
 

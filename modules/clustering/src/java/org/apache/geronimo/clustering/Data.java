@@ -42,7 +42,7 @@ import org.apache.commons.logging.LogFactory;
  * clusterable services, but incur a little more synchronisation
  * overhead on lookups, consider...
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:58:21 $
+ * @version $Rev$ $Date$
  */
 public class
   Data

@@ -25,7 +25,7 @@ import org.apache.geronimo.messaging.NodeInfo;
 /**
  * Provides a local representation of a remote Node.
  * 
- * @version $Revision: 1.3 $ $Date: 2004/07/20 00:15:06 $
+ * @version $Rev$ $Date$
  */
 public interface RemoteNode
     extends MsgConsProd

@@ -27,7 +27,7 @@ package javax.enterprise.deploy.spi.exceptions;
  * This exception is to report that the method called is not supported by this
  * implementation.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:51 $
+ * @version $Rev$ $Date$
  */
 public class OperationUnsupportedException extends Exception {
     /**

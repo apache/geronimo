@@ -21,7 +21,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/07/12 06:07:49 $
+ * @version $Rev$ $Date$
  */
 public class MockDynamicGBean implements DynamicGBean {
 

@@ -20,7 +20,7 @@ package org.apache.geronimo.kernel;
 /**
  * ???
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:01 $
+ * @version $Rev$ $Date$
  */
 public class Version {
 }

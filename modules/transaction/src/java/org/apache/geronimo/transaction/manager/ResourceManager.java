@@ -7,7 +7,7 @@ import javax.transaction.SystemException;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/06/11 19:20:55 $
+ * @version $Rev$ $Date$
  *
  * */
 public interface ResourceManager {

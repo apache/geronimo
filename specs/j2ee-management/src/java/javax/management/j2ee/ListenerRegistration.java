@@ -35,7 +35,7 @@ import javax.management.ObjectName;
  *
  *
  *
- * @version $Revision: 1.3 $
+ * @version $Rev$
  */
 public interface ListenerRegistration extends Serializable {
     public void addNotificationListener(ObjectName name, NotificationListener listener, NotificationFilter filter, Object handback) throws InstanceNotFoundException, RemoteException;

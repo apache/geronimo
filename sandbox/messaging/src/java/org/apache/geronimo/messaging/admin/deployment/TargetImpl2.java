@@ -24,7 +24,7 @@ import javax.enterprise.deploy.spi.Target;
 /**
  * A serializable Target.
  *
- * @version $Revision: 1.2 $ $Date: 2004/06/03 14:32:50 $
+ * @version $Rev$ $Date$
  */
 public class TargetImpl2
     implements Target, Serializable

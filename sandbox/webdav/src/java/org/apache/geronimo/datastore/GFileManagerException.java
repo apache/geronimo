@@ -20,7 +20,7 @@ package org.apache.geronimo.datastore;
 /**
  * Exception to be thrown by GFileManager.
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:16 $
+ * @version $Rev$ $Date$
  */
 public class GFileManagerException
     extends Exception

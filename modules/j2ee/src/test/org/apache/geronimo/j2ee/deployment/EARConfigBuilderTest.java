@@ -31,7 +31,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Revision: 1.10 $ $Date: 2004/09/06 02:06:09 $
+ * @version $Rev$ $Date$
  */
 public class EARConfigBuilderTest extends TestCase {
     private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));

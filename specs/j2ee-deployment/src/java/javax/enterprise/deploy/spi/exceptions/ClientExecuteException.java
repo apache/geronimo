@@ -27,7 +27,7 @@ package javax.enterprise.deploy.spi.exceptions;
  * This exception reports errors in setting up an application client for
  * execution.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:51 $
+ * @version $Rev$ $Date$
  */
 public class ClientExecuteException extends Exception {
     /**

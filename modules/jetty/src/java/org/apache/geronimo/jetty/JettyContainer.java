@@ -24,7 +24,7 @@ import org.mortbay.http.UserRealm;
 /**
  * 
  * 
- * @version $Revision: 1.4 $ $Date: 2004/05/30 19:09:57 $
+ * @version $Rev$ $Date$
  */
 public interface JettyContainer {
     void addListener(HttpListener listener);

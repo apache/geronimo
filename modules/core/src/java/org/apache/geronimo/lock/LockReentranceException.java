@@ -21,7 +21,7 @@ package org.apache.geronimo.lock;
  *
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:43 $
+ * @version $Rev$ $Date$
  */
 public class LockReentranceException extends Exception {
 }

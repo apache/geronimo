@@ -23,7 +23,7 @@ import javax.xml.parsers.ParserConfigurationException;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/25 09:57:39 $
+ * @version $Rev$ $Date$
  *
  * */
 public interface ParserFactory {

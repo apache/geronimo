@@ -32,7 +32,7 @@ package org.apache.geronimo.core.service;
  * completed successfuly even if it throws declared Exception - the Exception there is indicating a business level
  * issue and not a system problem.</p>
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:42 $
+ * @version $Rev$ $Date$
  */
 public interface InvocationResult {
     /**

@@ -27,7 +27,7 @@ import org.apache.geronimo.clustering.Tier;
  * Responsible for maintaining state stored in the Web tier -
  * i.e. HttpSessions.
  *
- * @version $Revision: 1.9 $ $Date: 2004/03/10 09:58:22 $
+ * @version $Rev$ $Date$
  */
 public class
   WebTier

@@ -22,7 +22,7 @@ import java.io.Serializable;
 /**
  * Configuration types.
  *
- * @version $Revision: 1.1 $ $Date: 2004/07/22 03:22:53 $
+ * @version $Rev$ $Date$
  */
 public class ConfigurationModuleType implements Serializable
 {

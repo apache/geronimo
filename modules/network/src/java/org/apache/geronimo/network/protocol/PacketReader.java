@@ -21,7 +21,7 @@ import java.nio.ByteBuffer;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:13 $
+ * @version $Rev$ $Date$
  */
 public interface PacketReader {
 

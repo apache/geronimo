@@ -43,7 +43,7 @@ import org.apache.geronimo.timer.WorkerPersistence;
 /**
  * TODO use an insert returning or stored procedure to insert.
  *
- * @version $Revision: 1.2 $ $Date: 2004/07/20 23:36:53 $
+ * @version $Rev$ $Date$
  *
  * */
 public class JDBCWorkerPersistence implements WorkerPersistence, GBeanLifecycle {

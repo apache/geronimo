@@ -26,7 +26,7 @@ import java.util.Collection;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/08/04 07:21:54 $
+ * @version $Rev$ $Date$
  */
 public class FileUtil {
 

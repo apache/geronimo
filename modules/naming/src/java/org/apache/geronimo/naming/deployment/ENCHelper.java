@@ -31,7 +31,7 @@ import org.apache.xmlbeans.XmlBeans;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:59:08 $
+ * @version $Rev$ $Date$
  */
 public class ENCHelper {
     static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderUnion(new SchemaTypeLoader[]{

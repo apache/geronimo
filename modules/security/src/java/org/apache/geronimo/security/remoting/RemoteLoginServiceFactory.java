@@ -21,7 +21,7 @@ import org.apache.geronimo.security.jaas.LoginServiceMBean;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/02/25 09:58:10 $
+ * @version $Rev$ $Date$
  */
 abstract public class RemoteLoginServiceFactory {
 

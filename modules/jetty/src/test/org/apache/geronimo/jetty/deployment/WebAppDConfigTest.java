@@ -29,7 +29,7 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.12 $ $Date: 2004/03/10 09:58:56 $
+ * @version $Rev$ $Date$
  */
 public class WebAppDConfigTest extends TestCase {
     private DeploymentConfiguration config;

@@ -30,7 +30,7 @@ import org.apache.geronimo.remoting.MarshalledObject;
 import org.apache.geronimo.remoting.TransportContext;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:19 $
+ * @version $Rev$ $Date$
  */
 public class BytesMsg implements Msg {
 

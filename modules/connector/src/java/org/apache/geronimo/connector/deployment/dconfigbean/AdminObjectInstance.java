@@ -29,7 +29,7 @@ import org.apache.xmlbeans.XmlBeans;
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/06/25 21:33:26 $
+ * @version $Rev$ $Date$
  *
  * */
 public class AdminObjectInstance extends XmlBeanSupport {

@@ -32,7 +32,7 @@ import org.apache.geronimo.security.bridge.RealmBridge;
  * GenericConnectionManager sets up a connection manager stack according to the
  * policies described in the attributes.
  *
- * @version $Revision: 1.8 $ $Date: 2004/07/12 06:07:51 $
+ * @version $Rev$ $Date$
  */
 public class GenericConnectionManager extends AbstractConnectionManager {
 

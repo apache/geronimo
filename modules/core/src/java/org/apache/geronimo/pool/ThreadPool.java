@@ -30,7 +30,7 @@ import org.apache.geronimo.gbean.WaitingException;
 
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/07/18 21:53:03 $
+ * @version $Rev$ $Date$
  */
 public class ThreadPool implements Executor, GBeanLifecycle {
 

@@ -29,7 +29,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.9 $ $Date: 2004/04/23 03:08:28 $
+ * @version $Rev$ $Date$
  */
 public interface ConfigurationBuilder {
     SchemaTypeLoader[] getTypeLoaders();

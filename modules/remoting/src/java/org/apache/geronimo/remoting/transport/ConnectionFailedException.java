@@ -18,7 +18,7 @@
 package org.apache.geronimo.remoting.transport;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:19 $
+ * @version $Rev$ $Date$
  */
 public class ConnectionFailedException extends TransportException {
     /**

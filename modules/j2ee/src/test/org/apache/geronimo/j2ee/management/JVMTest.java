@@ -22,7 +22,7 @@ import java.net.InetAddress;
 import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/06/04 22:31:56 $
+ * @version $Rev$ $Date$
  */
 public class JVMTest extends Abstract77Test {
     private JVM jvm;

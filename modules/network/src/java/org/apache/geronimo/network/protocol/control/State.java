@@ -23,7 +23,7 @@ import org.apache.geronimo.network.protocol.UpPacket;
 
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/04/24 22:34:01 $
+ * @version $Rev$ $Date$
  */
 public abstract class State {
 

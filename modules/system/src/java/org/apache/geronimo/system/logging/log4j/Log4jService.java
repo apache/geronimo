@@ -37,7 +37,7 @@ import org.apache.log4j.Logger;
 /**
  * A Log4j logging service.
  *
- * @version $Revision: 1.8 $ $Date: 2004/07/25 08:15:35 $
+ * @version $Rev$ $Date$
  */
 public class Log4jService implements GBeanLifecycle {
     /**

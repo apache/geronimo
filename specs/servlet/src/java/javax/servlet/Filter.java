@@ -48,7 +48,7 @@ import java.io.IOException;
  *
  * @since Servlet 2.3
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 10:00:19 $
+ * @version $Rev$ $Date$
  */
 public interface Filter {
     /**

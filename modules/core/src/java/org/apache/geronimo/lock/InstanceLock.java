@@ -25,7 +25,7 @@ package org.apache.geronimo.lock;
  * implementation and may or may not be fair.
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:43 $
+ * @version $Rev$ $Date$
  */
 public interface InstanceLock {
     /**

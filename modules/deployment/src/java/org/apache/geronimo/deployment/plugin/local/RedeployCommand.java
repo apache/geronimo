@@ -30,7 +30,7 @@ import org.apache.geronimo.deployment.plugin.TargetImpl;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/06/24 02:50:13 $
+ * @version $Rev$ $Date$
  */
 public class RedeployCommand extends CommandSupport {
     private static final String[] DEPLOY_SIG = {File.class.getName(), File.class.getName()};

@@ -29,7 +29,7 @@ import sun.net.www.ParseUtil;
 /**
  * A protocol handler for the 'file' protocol.
  *
- * @version $Revision: 1.3 $ $Date: 2004/06/25 20:48:53 $
+ * @version $Rev$ $Date$
  */
 public class Handler extends URLStreamHandler {
     protected void parseURL(final URL url, final String s, final int i, final int j) {

@@ -31,7 +31,7 @@ import java.security.*;
 
 /**
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:53 $
+ * @version $Rev$ $Date$
  */
 public final class EJBMethodPermission extends Permission {
 

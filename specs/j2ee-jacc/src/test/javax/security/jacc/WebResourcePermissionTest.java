@@ -28,7 +28,7 @@ import junit.framework.TestCase;
 
 /**
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:54 $
+ * @version $Rev$ $Date$
  */
 public class WebResourcePermissionTest extends TestCase {
 

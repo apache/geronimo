@@ -21,7 +21,7 @@ import java.io.Serializable;
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:26 $
+ * @version $Rev$ $Date$
  */
 public class GeronimoPasswordCredential implements Serializable {
 

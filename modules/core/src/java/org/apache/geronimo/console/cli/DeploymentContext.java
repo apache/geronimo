@@ -29,7 +29,7 @@ import javax.enterprise.deploy.model.DeployableObject;
 /**
  * The information required in order to perform deployment operations.
  *
- * @version $Revision: 1.5 $ $Date: 2004/07/16 04:39:41 $
+ * @version $Rev$ $Date$
  */
 public class DeploymentContext {
     /**

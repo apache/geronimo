@@ -25,7 +25,7 @@ package org.apache.geronimo.cache;
  * An implementation will have to refill the pool as entries are removed.
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:41 $
+ * @version $Rev$ $Date$
  */
 public interface InstancePool {
     /**

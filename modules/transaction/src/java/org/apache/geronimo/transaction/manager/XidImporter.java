@@ -27,7 +27,7 @@ import javax.transaction.SystemException;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/05/06 04:00:51 $
+ * @version $Rev$ $Date$
  *
  * */
 public interface XidImporter {

@@ -41,7 +41,7 @@ import org.apache.geronimo.pool.ClockPool;
 /**
  * RemoteNode implementation.
  *
- * @version $Revision: 1.8 $ $Date: 2004/07/20 00:15:06 $
+ * @version $Rev$ $Date$
  */
 public class RemoteNodeManagerImpl
     implements RemoteNodeManager

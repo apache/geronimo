@@ -28,7 +28,7 @@ import java.util.Map;
 /**
  * This is the counterpart of StreamInputStream.
  *
- * @version $Revision: 1.3 $ $Date: 2004/06/10 23:05:36 $
+ * @version $Rev$ $Date$
  */
 public class StreamOutputStream
     extends ObjectOutputStream

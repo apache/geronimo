@@ -35,7 +35,7 @@ import org.apache.geronimo.messaging.interceptors.MsgTransformer;
 /**
  * EndPointProxyFactory implementation.
  *
- * @version $Revision: 1.3 $ $Date: 2004/07/20 00:06:13 $
+ * @version $Rev$ $Date$
  */
 public class EndPointProxyFactoryImpl
     extends BaseEndPoint

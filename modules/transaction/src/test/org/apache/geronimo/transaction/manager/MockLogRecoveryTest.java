@@ -20,7 +20,7 @@ package org.apache.geronimo.transaction.manager;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/06/19 17:17:13 $
+ * @version $Rev$ $Date$
  *
  * */
 public class MockLogRecoveryTest extends AbstractRecoveryTest {

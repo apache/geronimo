@@ -28,7 +28,7 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:56 $
+ * @version $Rev$ $Date$
  */
 public class WARConfigurer implements ModuleConfigurer {
     public DeploymentConfiguration createConfiguration(DeployableObject deployable) {

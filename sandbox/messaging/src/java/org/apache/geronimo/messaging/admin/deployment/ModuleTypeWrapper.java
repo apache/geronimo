@@ -24,7 +24,7 @@ import javax.enterprise.deploy.shared.ModuleType;
 /**
  * ModuleType wrapper which is serializable.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/27 14:45:59 $
+ * @version $Rev$ $Date$
  */
 public class ModuleTypeWrapper
     implements Serializable

@@ -24,7 +24,7 @@ import org.apache.geronimo.messaging.EndPoint;
 /**
  * EndPoint exposing a Referenceable MBeanServer to other EndPoints.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/24 12:12:47 $
+ * @version $Rev$ $Date$
  */
 public interface MBeanServerEndPoint
     extends EndPoint

@@ -22,7 +22,7 @@ package org.apache.geronimo.messaging;
  * <BR>
  * Only these keys are supported by MsgHeaders.
  *
- * @version $Revision: 1.2 $ $Date: 2004/07/20 00:08:13 $
+ * @version $Rev$ $Date$
  */
 public interface MsgHeaderConstants
 {

@@ -35,7 +35,7 @@ import javax.enterprise.deploy.spi.status.ProgressObject;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/06/02 06:50:41 $
+ * @version $Rev$ $Date$
  */
 public abstract class CommandSupport implements ProgressObject, Runnable {
     private final CommandType command;

@@ -37,7 +37,7 @@ import EDU.oswego.cs.dl.util.concurrent.Latch;
 
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/08/01 13:03:50 $
+ * @version $Rev$ $Date$
  */
 class ControlClientProtocolKitchen extends ProtocolStack implements ControlClientListener {
 

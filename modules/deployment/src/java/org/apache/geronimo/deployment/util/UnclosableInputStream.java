@@ -24,7 +24,7 @@ import java.io.IOException;
  * This class is a workaround for XMLBeans unfortunate habit of closing streams it reads from
  * combined with JarInputStreams insistence that you cant do that.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:49 $
+ * @version $Rev$ $Date$
  *
  * */
 public class UnclosableInputStream extends InputStream {

@@ -24,7 +24,7 @@
 package javax.jms;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/10 10:00:03 $
+ * @version $Rev$ $Date$
  */
 public class InvalidSelectorException extends JMSException {
     public InvalidSelectorException(String reason, String errorCode) {

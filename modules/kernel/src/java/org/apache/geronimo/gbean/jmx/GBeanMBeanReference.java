@@ -44,7 +44,7 @@ import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.ClassLoading;
 
 /**
- * @version $Revision: 1.11 $ $Date: 2004/07/18 22:05:11 $
+ * @version $Rev$ $Date$
  */
 public class GBeanMBeanReference implements NotificationListener {
     private static final Log log = LogFactory.getLog(GBeanMBeanReference.class);

@@ -20,7 +20,7 @@ package org.apache.geronimo.common;
 /**
  * An exception throw to indicate a problem with some type of data conversion.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:25 $
+ * @version $Rev$ $Date$
  */
 public class DataConversionException
     extends RuntimeException

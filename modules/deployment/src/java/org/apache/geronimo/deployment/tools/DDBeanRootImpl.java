@@ -34,7 +34,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/07/18 21:58:38 $
+ * @version $Rev$ $Date$
  */
 public class DDBeanRootImpl implements DDBeanRoot {
     private final DeployableObject deployable;

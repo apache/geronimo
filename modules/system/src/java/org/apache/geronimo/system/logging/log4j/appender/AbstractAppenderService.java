@@ -26,7 +26,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.WriterAppender;
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/07/12 06:07:50 $
+ * @version $Rev$ $Date$
  */
 public abstract class AbstractAppenderService implements GBeanLifecycle {
     protected final WriterAppender appender;

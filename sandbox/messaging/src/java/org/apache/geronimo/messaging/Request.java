@@ -27,7 +27,7 @@ import java.lang.reflect.Method;
 /**
  * Encapsulates a method invocation.
  *
- * @version $Revision: 1.2 $ $Date: 2004/06/01 13:37:14 $
+ * @version $Rev$ $Date$
  */
 public class Request
     implements Externalizable

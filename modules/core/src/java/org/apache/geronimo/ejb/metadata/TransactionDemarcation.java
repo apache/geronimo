@@ -21,7 +21,7 @@ package org.apache.geronimo.ejb.metadata;
  *
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/03/10 09:58:43 $
+ * @version $Rev$ $Date$
  */
 public final class TransactionDemarcation {
     public static final TransactionDemarcation CONTAINER = new TransactionDemarcation("Container");

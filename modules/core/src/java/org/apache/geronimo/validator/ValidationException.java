@@ -26,7 +26,7 @@ package org.apache.geronimo.validator;
  * It is a runtime exception because no user-provided validation code needs to
  * catch it; it will be trapped by the core validator implementation. 
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:44 $
+ * @version $Rev$ $Date$
  */
 public class ValidationException extends RuntimeException {
     public ValidationException() {

@@ -73,7 +73,7 @@ import javax.servlet.ServletContext;
  * @see HttpSessionBindingListener
  * @see HttpSessionContext
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 10:00:20 $
+ * @version $Rev$ $Date$
  */
 public interface HttpSession {
     /**

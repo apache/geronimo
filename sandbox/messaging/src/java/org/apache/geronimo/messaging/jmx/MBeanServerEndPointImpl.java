@@ -27,7 +27,7 @@ import org.apache.geronimo.messaging.reference.ReferenceableEnhancer;
 /**
  * MBeanServerEndPoint implementation.
  *
- * @version $Revision: 1.3 $ $Date: 2004/06/10 23:12:25 $
+ * @version $Rev$ $Date$
  */
 public class MBeanServerEndPointImpl
     extends GBeanBaseEndPoint

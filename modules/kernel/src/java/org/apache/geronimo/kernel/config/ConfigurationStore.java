@@ -27,7 +27,7 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 /**
  * Interface to a store for Configurations.
  *
- * @version $Revision: 1.10 $ $Date: 2004/06/24 02:50:13 $
+ * @version $Rev$ $Date$
  */
 public interface ConfigurationStore {
     /**

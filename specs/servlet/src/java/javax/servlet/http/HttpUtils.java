@@ -33,7 +33,7 @@ import javax.servlet.ServletInputStream;
  * @deprecated As of Java(tm) Servlet API 2.3. These methods were only useful
  * with the default encoding and have been moved to the request interfaces.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 10:00:20 $
+ * @version $Rev$ $Date$
  */
 public class HttpUtils {
     private static final String LSTRING_FILE = "javax.servlet.http.LocalStrings";

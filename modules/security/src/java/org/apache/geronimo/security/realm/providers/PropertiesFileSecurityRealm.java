@@ -37,7 +37,7 @@ import org.apache.regexp.RE;
 
 
 /**
- * @version $Revision: 1.10 $ $Date: 2004/07/25 08:14:42 $
+ * @version $Rev$ $Date$
  */
 public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
     private static Log log = LogFactory.getLog(PropertiesFileSecurityRealm.class);

@@ -31,7 +31,7 @@ import javax.enterprise.deploy.model.DDBean;
  * will paint information to the screen and then accept user input, possibly
  * repeating or invoking other controllers before returning to the caller.
  *
- * @version $Revision: 1.5 $ $Date: 2004/07/16 04:39:41 $
+ * @version $Rev$ $Date$
  */
 public abstract class TextController {
     protected final DeploymentContext context;

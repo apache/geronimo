@@ -24,7 +24,7 @@ import javax.resource.spi.ManagedConnection;
  * MCFConnectionInterceptor.java
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/05/24 19:10:34 $
+ * @version $Rev$ $Date$
  */
 public class MCFConnectionInterceptor implements ConnectionInterceptor {
 

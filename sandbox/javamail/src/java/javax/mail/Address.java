@@ -18,7 +18,7 @@
 package javax.mail;
 import java.io.Serializable;
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:26 $
+ * @version $Rev$ $Date$
  */
 public abstract class Address implements Serializable {
     public boolean equals(Object object) {

@@ -28,7 +28,7 @@ import javax.management.RuntimeMBeanException;
 import javax.management.RuntimeOperationsException;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/07/27 02:14:13 $
+ * @version $Rev$ $Date$
  */
 public final class JMXSetAttributeInvoker implements GBeanInvoker {
     private final MBeanServerConnection server;

@@ -33,7 +33,7 @@ import org.apache.commons.logging.LogFactory;
  * you can at a later time wait for the response to
  * arrive asynchrously.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:20 $
+ * @version $Rev$ $Date$
  */
 public class Correlator {
     private final ReferenceQueue queue = new ReferenceQueue();

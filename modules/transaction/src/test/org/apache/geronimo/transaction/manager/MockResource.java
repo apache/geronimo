@@ -27,7 +27,7 @@ import javax.transaction.xa.Xid;
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/06/11 19:20:55 $
+ * @version $Rev$ $Date$
  */
 public class MockResource implements NamedXAResource {
     private String xaResourceName = "mockResource";

@@ -22,7 +22,7 @@ import javax.ejb.EJBLocalHome;
 /**
  * 
  * 
- * @version $Revision: 1.1 $ $Date: 2004/05/19 20:54:00 $
+ * @version $Rev$ $Date$
  */
 public interface SimpleBMPEntityLocalHome extends EJBLocalHome {
     SimpleBMPEntityLocal create() throws CreateException;

@@ -41,7 +41,7 @@ import java.io.IOException;
  * @see ServletContext#getNamedDispatcher(java.lang.String)
  * @see ServletRequest#getRequestDispatcher(java.lang.String)
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 10:00:19 $
+ * @version $Rev$ $Date$
  */
 public interface RequestDispatcher {
     /**

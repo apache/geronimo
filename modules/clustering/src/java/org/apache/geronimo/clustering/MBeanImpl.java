@@ -27,7 +27,7 @@ import org.apache.commons.logging.LogFactory;
  * A base class containing fnality useful to the MBeans of the
  * Clustering module.
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:58:21 $
+ * @version $Rev$ $Date$
  */
 public abstract class
   MBeanImpl

@@ -30,7 +30,7 @@ import java.util.Set;
 /**
  * Describes a GBean.
  *
- * @version $Revision: 1.12 $ $Date: 2004/06/02 05:33:03 $
+ * @version $Rev$ $Date$
  */
 public final class GBeanInfo implements Serializable {
     /**

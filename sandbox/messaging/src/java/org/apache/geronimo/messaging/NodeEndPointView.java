@@ -26,7 +26,7 @@ package org.apache.geronimo.messaging;
  * create a proxy for static nested interfaces. I think that this is a CGLIB
  * limitation.
  *
- * @version $Revision :$ $Date: 2004/07/20 00:26:04 $
+ * @version $Revision :$ $Date$
  */
 public interface NodeEndPointView extends EndPoint
 {

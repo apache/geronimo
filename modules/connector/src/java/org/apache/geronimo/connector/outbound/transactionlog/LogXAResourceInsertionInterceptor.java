@@ -28,7 +28,7 @@ import org.apache.geronimo.connector.outbound.ManagedConnectionInfo;
  * LocalXAResourceInsertionInterceptor.java
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/06/08 17:38:01 $
+ * @version $Rev$ $Date$
 
  */
 public class LogXAResourceInsertionInterceptor

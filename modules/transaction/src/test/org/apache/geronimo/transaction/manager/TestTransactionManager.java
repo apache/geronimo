@@ -27,7 +27,7 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/06/08 20:14:39 $
+ * @version $Rev$ $Date$
  */
 public class TestTransactionManager extends TestCase {
     TransactionManager tm;

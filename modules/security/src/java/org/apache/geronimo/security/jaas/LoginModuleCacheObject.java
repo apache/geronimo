@@ -23,7 +23,7 @@ import javax.security.auth.spi.LoginModule;
 
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/02/25 09:58:09 $
+ * @version $Rev$ $Date$
  */
 class LoginModuleCacheObject {
 

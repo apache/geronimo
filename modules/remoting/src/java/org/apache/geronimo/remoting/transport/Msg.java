@@ -22,7 +22,7 @@ import java.io.IOException;
 import org.apache.geronimo.remoting.MarshalledObject;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:19 $
+ * @version $Rev$ $Date$
  */
 public interface Msg {
 

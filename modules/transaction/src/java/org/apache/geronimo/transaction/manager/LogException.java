@@ -20,7 +20,7 @@ package org.apache.geronimo.transaction.manager;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/06 04:00:51 $
+ * @version $Rev$ $Date$
  *
  * */
 public class LogException extends Exception {

@@ -22,7 +22,7 @@ import org.apache.geronimo.twiddle.command.CommandException;
 /**
  * A configuration exception.
  *
- * @version <code>$Revision: 1.3 $ $Date: 2004/03/10 10:00:38 $</code>
+ * @version <code>$Rev$ $Date$</code>
  */
 public class ConfigurationException
     extends CommandException

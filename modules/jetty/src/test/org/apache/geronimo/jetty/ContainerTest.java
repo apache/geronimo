@@ -33,7 +33,7 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/07/12 06:07:50 $
+ * @version $Rev$ $Date$
  */
 public class ContainerTest extends TestCase {
     private Kernel kernel;

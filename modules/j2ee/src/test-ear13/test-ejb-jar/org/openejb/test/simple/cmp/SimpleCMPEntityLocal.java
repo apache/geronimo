@@ -21,7 +21,7 @@ import javax.ejb.EJBLocalObject;
 /**
  * 
  * 
- * @version $Revision: 1.1 $ $Date: 2004/08/01 20:14:20 $
+ * @version $Rev$ $Date$
  */
 public interface SimpleCMPEntityLocal extends EJBLocalObject {
     Integer getId();

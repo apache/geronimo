@@ -25,7 +25,7 @@ import org.apache.geronimo.core.service.InvocationResult;
  * An interceptor that pushes the current component's java:comp context into
  * the java: JNDI namespace
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:08 $
+ * @version $Rev$ $Date$
  */
 public class ComponentContextInterceptor implements Interceptor {
     private final Interceptor next;

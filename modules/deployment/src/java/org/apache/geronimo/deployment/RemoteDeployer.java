@@ -30,7 +30,7 @@ import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/07/22 00:41:23 $
+ * @version $Rev$ $Date$
  */
 public class RemoteDeployer {
     public static void main(String[] args) throws Exception {

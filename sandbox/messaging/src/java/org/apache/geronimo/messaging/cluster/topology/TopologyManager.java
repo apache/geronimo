@@ -34,7 +34,7 @@ import org.apache.geronimo.messaging.NodeTopology;
  * Implementation node: a TopologyManager is a Serializable as it is a GBean
  * persistent attribute.
  *
- * @version $Revision: 1.2 $ $Date: 2004/07/17 03:33:02 $
+ * @version $Rev$ $Date$
  */
 public interface TopologyManager extends Serializable
 {

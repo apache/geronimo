@@ -22,7 +22,7 @@ package org.apache.geronimo.gbean;
  * This is unchecked becuase in many circumstances the GBeanInfo
  * is set up in a static initializer and should always be valid.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:00 $
+ * @version $Rev$ $Date$
  */
 public class InvalidConfigurationException extends RuntimeException {
     public InvalidConfigurationException() {

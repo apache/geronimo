@@ -27,7 +27,7 @@ import org.apache.geronimo.pool.ThreadPool;
 
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/07/08 05:13:29 $
+ * @version $Rev$ $Date$
  */
 public class ControlContext {
 

@@ -21,7 +21,7 @@ package org.apache.geronimo.j2ee.management;
  * Identifies a J2EE application EAR that has been deployed.
  * @see "JSR77.3.6"
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:52 $
+ * @version $Rev$ $Date$
  */
 public interface J2EEApplication extends J2EEDeployedObject {
     /**

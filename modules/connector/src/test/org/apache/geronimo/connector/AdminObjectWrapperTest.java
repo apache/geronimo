@@ -35,7 +35,7 @@ import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/07/12 06:07:52 $
+ * @version $Rev$ $Date$
  */
 public class AdminObjectWrapperTest extends TestCase {
 

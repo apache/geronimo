@@ -38,7 +38,7 @@ import org.apache.geronimo.pool.ThreadPool;
 
 
 /**
- * @version $Revision: 1.9 $ $Date: 2004/07/08 22:07:54 $
+ * @version $Rev$ $Date$
  */
 public class ControlProtocolTest extends TestCase {
 

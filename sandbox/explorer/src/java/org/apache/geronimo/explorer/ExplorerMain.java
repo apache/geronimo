@@ -30,7 +30,7 @@ import org.codehaus.groovy.runtime.InvokerHelper;
  * A temporary bootstap mechanism for the Groovy script until
  * Groovy reaches beta-1 and can support static main(String[]) methods
  * 
- * @version <code>$Revision: 1.3 $ $Date: 2004/03/10 10:00:24 $</code>
+ * @version <code>$Rev$ $Date$</code>
  */
 public class ExplorerMain {
     public static void main(String[] args) {

@@ -30,7 +30,7 @@ import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:43 $
+ * @version $Rev$ $Date$
  */
 public class ReferenceFactoryTest extends TestCase
 {

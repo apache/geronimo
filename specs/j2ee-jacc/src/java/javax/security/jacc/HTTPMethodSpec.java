@@ -25,7 +25,7 @@ package javax.security.jacc;
 
 /**
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:53 $
+ * @version $Rev$ $Date$
  */
 class HTTPMethodSpec {
 

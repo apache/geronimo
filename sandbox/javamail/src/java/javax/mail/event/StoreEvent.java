@@ -18,7 +18,7 @@
 package javax.mail.event;
 import javax.mail.Store;
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:27 $
+ * @version $Rev$ $Date$
  */
 public class StoreEvent extends MailEvent {
     public static final int ALERT = 1;

@@ -24,7 +24,7 @@ import javax.swing.tree.DefaultTreeModel;
 /**
  * Tree model for MBeans
  *
- * @version <code>$Revision: 1.3 $ $Date: 2004/03/10 10:00:24 $</code>
+ * @version <code>$Rev$ $Date$</code>
  */
 public class MBeanTreeModel extends DefaultTreeModel {
 

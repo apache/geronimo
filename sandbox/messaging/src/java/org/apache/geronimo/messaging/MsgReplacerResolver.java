@@ -29,7 +29,7 @@ import org.apache.geronimo.messaging.io.ReplacerResolver;
 /**
  * ReplacerResolver for the base classes of Msgs.
  * 
- * @version $Revision: 1.1 $ $Date: 2004/06/10 23:12:24 $
+ * @version $Rev$ $Date$
  */
 public class MsgReplacerResolver
     extends AbstractReplacerResolver

@@ -21,7 +21,7 @@ package org.apache.geronimo.messaging;
  * Exception to be raised when an problem occur when a node can not performed
  * a specified operation.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:41 $
+ * @version $Rev$ $Date$
  */
 public class NodeException extends Exception
 {

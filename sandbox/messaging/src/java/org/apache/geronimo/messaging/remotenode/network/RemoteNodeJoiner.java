@@ -37,7 +37,7 @@ import EDU.oswego.cs.dl.util.concurrent.TimeoutException;
 
 /**
  * 
- * @version $Revision: 1.4 $ $Date: 2004/07/20 00:15:05 $
+ * @version $Rev$ $Date$
  */
 public class RemoteNodeJoiner
     extends AbstractRemoteNode

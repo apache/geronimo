@@ -27,7 +27,7 @@ package javax.resource.spi.work;
  *
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:47 $
+ * @version $Rev$ $Date$
  */
 public interface Work extends Runnable {
     public void release();

@@ -25,7 +25,7 @@ import javax.enterprise.deploy.model.exceptions.DDBeanCreateException;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:49 $
+ * @version $Rev$ $Date$
  */
 public class DeployableFactory {
     public static DeployableObject createDeployable(URL moduleURL) throws DDBeanCreateException {

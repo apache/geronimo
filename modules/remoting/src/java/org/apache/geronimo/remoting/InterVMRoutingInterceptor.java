@@ -27,7 +27,7 @@ import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:19 $
+ * @version $Rev$ $Date$
  */
 public class InterVMRoutingInterceptor implements Interceptor, Externalizable {
 

@@ -43,7 +43,7 @@ import org.apache.geronimo.security.util.ConfigurationUtil;
 /**
  * An MBean that maintains a list of security realms.
  *
- * @version $Revision: 1.12 $ $Date: 2004/07/12 06:07:51 $
+ * @version $Rev$ $Date$
  */
 public class SecurityService implements SecurityServiceMBean, GBeanLifecycle {
     /**

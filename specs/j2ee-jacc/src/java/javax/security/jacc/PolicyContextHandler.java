@@ -33,7 +33,7 @@ package javax.security.jacc;
  * context to apply in their access decisions. All handlers registered and
  * activated via the <code>PolicyContext</code> class must implement the
  * <code>PolicyContextHandler</code> interface. 
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:53 $
+ * @version $Rev$ $Date$
  */
 public interface PolicyContextHandler {
 

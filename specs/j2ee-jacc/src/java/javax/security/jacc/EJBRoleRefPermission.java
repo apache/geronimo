@@ -36,7 +36,7 @@ import java.security.Permission;
  * The actions of an EJBRoleRefPermission identifies the role reference to
  * which the permission applies. An EJBRoleRefPermission is checked to
  * determine if the subject is a member of the role identified by the reference.
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:53 $
+ * @version $Rev$ $Date$
  */
 public final class EJBRoleRefPermission extends Permission {
 

@@ -18,7 +18,7 @@
 package javax.mail.internet;
 // can be in the form major/minor; charset=jobby
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:28 $
+ * @version $Rev$ $Date$
  */
 public class ContentType {
     private ParameterList _list;

@@ -28,7 +28,7 @@ import org.apache.commons.logging.Log;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/07/18 22:08:59 $
+ * @version $Rev$ $Date$
  *
  * */
 public class ConnectionManagerStressTest extends ConnectionManagerTestUtils {

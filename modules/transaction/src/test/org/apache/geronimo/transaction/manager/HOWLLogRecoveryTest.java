@@ -28,7 +28,7 @@ import junit.extensions.TestSetup;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/09/06 07:04:56 $
+ * @version $Rev$ $Date$
  *
  * */
 public class HOWLLogRecoveryTest extends AbstractRecoveryTest {

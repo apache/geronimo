@@ -26,7 +26,7 @@ package javax.resource;
 import javax.naming.Reference;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:45 $
+ * @version $Rev$ $Date$
  */
 public interface Referenceable extends javax.naming.Referenceable {
     public void setReference(Reference reference);

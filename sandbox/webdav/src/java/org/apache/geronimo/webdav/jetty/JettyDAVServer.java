@@ -43,7 +43,7 @@ import org.mortbay.jetty.servlet.ServletHttpContext;
 /**
  * DAVServer using under the cover a light Jetty servlet container.
  *
- * @version $Revision: 1.6 $ $Date: 2004/06/10 23:12:24 $
+ * @version $Rev$ $Date$
  */
 public class JettyDAVServer
     implements DAVServer, GBeanLifecycle

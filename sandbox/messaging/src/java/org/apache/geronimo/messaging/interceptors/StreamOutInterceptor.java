@@ -34,7 +34,7 @@ import org.apache.geronimo.messaging.io.StreamOutputStream;
  * Counterpart of StreamInInterceptor. It allows to push Msgs to an
  * OutputStream.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:40 $
+ * @version $Rev$ $Date$
  */
 public class StreamOutInterceptor
     implements MsgOutInterceptor

@@ -16,7 +16,7 @@
     limitations under the License.
 -->
 
-<!-- $Revision: 1.27 $ $Date: 2004/09/03 06:00:39 $ -->
+<!-- $Rev$ $Date$ -->
 
 <project default="default"
     xmlns:j="jelly:core"

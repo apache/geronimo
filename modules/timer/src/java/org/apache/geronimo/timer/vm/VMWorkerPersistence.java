@@ -33,7 +33,7 @@ import org.apache.geronimo.timer.WorkerPersistence;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/07/21 01:39:08 $
+ * @version $Rev$ $Date$
  *
  * */
 public class VMWorkerPersistence implements WorkerPersistence {

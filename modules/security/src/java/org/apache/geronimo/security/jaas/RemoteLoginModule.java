@@ -35,7 +35,7 @@ import org.apache.geronimo.security.remoting.jmx.RemoteLoginServiceFactory;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/02/25 09:58:09 $
+ * @version $Rev$ $Date$
  */
 public class RemoteLoginModule implements javax.security.auth.spi.LoginModule {
 

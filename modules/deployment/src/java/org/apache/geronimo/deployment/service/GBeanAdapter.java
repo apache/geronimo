@@ -20,7 +20,7 @@ package org.apache.geronimo.deployment.service;
 /**
  * adapter interface for multiple copies of xml gbean type.
  *
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:58:49 $
+ * @version $Rev$ $Date$
  *
  * */
 public interface GBeanAdapter {

@@ -28,7 +28,7 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.management.State;
 
 /**
- * @version $Revision: 1.11 $ $Date: 2004/07/12 06:07:49 $
+ * @version $Rev$ $Date$
  */
 public class GBeanTest extends TestCase {
     private ObjectName name;

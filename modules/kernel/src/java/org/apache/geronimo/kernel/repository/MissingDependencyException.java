@@ -18,7 +18,7 @@
 package org.apache.geronimo.kernel.repository;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/05/27 01:06:00 $
+ * @version $Rev$ $Date$
  */
 public class MissingDependencyException extends Exception {
     public MissingDependencyException() {

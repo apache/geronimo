@@ -23,7 +23,7 @@ import org.apache.geronimo.messaging.Request;
 /**
  * Referenceable manager.
  *
- * @version $Revision: 1.4 $ $Date: 2004/06/10 23:12:24 $
+ * @version $Rev$ $Date$
  */
 public interface ReferenceableManager extends EndPoint
 {

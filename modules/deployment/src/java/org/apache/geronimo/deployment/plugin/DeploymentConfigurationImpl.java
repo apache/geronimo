@@ -29,7 +29,7 @@ import javax.enterprise.deploy.model.DDBeanRoot;
 /**
  * 
  * 
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:48 $
+ * @version $Rev$ $Date$
  */
 public class DeploymentConfigurationImpl implements DeploymentConfiguration {
     private final DeployableObject deployable;

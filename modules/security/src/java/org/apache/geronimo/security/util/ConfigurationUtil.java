@@ -60,7 +60,7 @@ import org.apache.geronimo.xbeans.j2ee.WebResourceCollectionType;
  * A collection of utility functions that assist with the configuration of
  * <code>PolicyConfiguration</code>s.
  *
- * @version $Revision: 1.6 $ $Date: 2004/07/27 01:58:22 $
+ * @version $Rev$ $Date$
  * @see javax.security.jacc.PolicyConfiguration
  * @see "JSR 115" Java Authorization Contract for Containers
  */

@@ -24,7 +24,7 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/06/02 05:33:03 $
+ * @version $Rev$ $Date$
  */
 public class GBeanInfoTest extends TestCase {
     private static final String CONSTRUCTOR_ARG_0 = "ConstructorArg-0";

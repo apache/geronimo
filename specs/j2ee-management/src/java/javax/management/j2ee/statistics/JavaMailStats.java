@@ -27,7 +27,7 @@ package javax.management.j2ee.statistics;
  *
  *
  *
- * @version $Revision: 1.4 $
+ * @version $Rev$
  */
 public interface JavaMailStats extends Stats {
     public CountStatistic getSentMailCount();

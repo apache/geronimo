@@ -24,7 +24,7 @@ import javax.enterprise.deploy.model.DeployableObject;
  * Interface to be implemented by the deployment subsystem for any type
  * of component (e.g. EAR, WAR, ...) that needs configuration.
  * 
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:48 $
+ * @version $Rev$ $Date$
  */
 public interface ModuleConfigurer {
     /**

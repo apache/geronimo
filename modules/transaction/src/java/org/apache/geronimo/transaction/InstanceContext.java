@@ -23,7 +23,7 @@ import java.util.Set;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/05/31 23:37:05 $
+ * @version $Rev$ $Date$
  *
  * */
 public interface InstanceContext {

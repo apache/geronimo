@@ -58,7 +58,7 @@ import org.apache.xmlbeans.XmlObject;
  * result. Results are consolidated by the admin server, which provides a 
  * consistent view of the deployment operations.
  *
- * @version $Revision: 1.7 $ $Date: 2004/07/05 07:02:28 $
+ * @version $Rev$ $Date$
  */
 public class ManagedServer
     extends GBeanBaseEndPoint

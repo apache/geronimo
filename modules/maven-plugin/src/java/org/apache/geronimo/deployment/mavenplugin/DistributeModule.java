@@ -28,7 +28,7 @@ import javax.enterprise.deploy.spi.status.ProgressObject;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/08/01 02:04:41 $
+ * @version $Rev$ $Date$
  *
  * */
 public class DistributeModule extends AbstractModuleCommand {

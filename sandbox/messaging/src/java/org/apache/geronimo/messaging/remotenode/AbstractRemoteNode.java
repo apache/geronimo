@@ -31,7 +31,7 @@ import org.apache.geronimo.messaging.remotenode.RemoteNodeConnection.LifecycleLi
 /**
  * Abstract implememtation for the RemoteNode contracts.
  *
- * @version $Revision: 1.1 $ $Date: 2004/07/20 00:15:06 $
+ * @version $Rev$ $Date$
  */
 public abstract class AbstractRemoteNode
     implements RemoteNode

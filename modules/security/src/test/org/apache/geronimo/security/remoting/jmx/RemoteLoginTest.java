@@ -44,7 +44,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 
 /**
- * @version $Revision: 1.8 $ $Date: 2004/07/12 06:07:52 $
+ * @version $Rev$ $Date$
  */
 public class RemoteLoginTest extends TestCase {
     Kernel kernel;

@@ -46,7 +46,7 @@ import sun.net.www.ParseUtil;
  *
  * <p>Correctly returns headers.
  *
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:31 $
+ * @version $Rev$ $Date$
  */
 public class FileURLConnection extends URLConnection {
     private static final boolean IS_OS_WINDOWS = System.getProperty("os.name").startsWith("Windows");

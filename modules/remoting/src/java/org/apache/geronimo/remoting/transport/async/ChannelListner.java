@@ -22,7 +22,7 @@ package org.apache.geronimo.remoting.transport.async;
  * This interface should be implemented by objects that wants to 
  * receive Channel events.
  * 
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:20 $
+ * @version $Rev$ $Date$
  */
 public interface ChannelListner {
     

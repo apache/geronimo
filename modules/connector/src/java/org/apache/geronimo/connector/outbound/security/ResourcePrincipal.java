@@ -22,7 +22,7 @@ import java.security.Principal;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:33 $
+ * @version $Rev$ $Date$
  *
  * */
 public class ResourcePrincipal implements Principal {

@@ -30,7 +30,7 @@ import java.util.Set;
 /**
  * A simple Map, which is ReplicationCapable aware.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:40 $
+ * @version $Rev$ $Date$
  */
 public class SimpleReplicatedMap
     implements Map, ReplicationCapable

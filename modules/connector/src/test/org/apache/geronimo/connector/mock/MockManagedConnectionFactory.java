@@ -34,7 +34,7 @@ import javax.security.auth.Subject;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/05/06 03:59:56 $
+ * @version $Rev$ $Date$
  *
  * */
 public class MockManagedConnectionFactory implements ManagedConnectionFactory {

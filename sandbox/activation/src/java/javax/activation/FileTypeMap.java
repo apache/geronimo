@@ -22,7 +22,7 @@ import java.io.File;
 /**
  * FileTypeMap is an abstract class that provides a data type interface for files.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:22 $
+ * @version $Rev$ $Date$
  */
 public abstract class FileTypeMap {
 	

@@ -39,7 +39,7 @@ import org.apache.geronimo.remoting.transport.TransportException;
  * transport will take advantage of the NIO
  * classes to further reduce the resources used on the server.
  *
- * @version $Revision: 1.6 $ $Date: 2004/03/10 09:59:20 $
+ * @version $Rev$ $Date$
  */
 public class AsyncClient implements TransportClient {
 

@@ -28,7 +28,7 @@ import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrack
  * TODO test unshareable resources.
  * TODO test repeat calls with null/non-null Subject
  *
- * @version $Revision: 1.7 $ $Date: 2004/05/24 19:10:35 $
+ * @version $Rev$ $Date$
  *
  * */
 public class ConnectionTrackingInterceptorTest extends ConnectionInterceptorTestUtils

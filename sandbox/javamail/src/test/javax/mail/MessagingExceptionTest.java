@@ -18,7 +18,7 @@
 package javax.mail;
 import junit.framework.TestCase;
 /**
- * @version $Revision $ $Date: 2004/03/10 10:00:29 $
+ * @version $Revision $ $Date$
  */
 public class MessagingExceptionTest extends TestCase {
     private RuntimeException d;

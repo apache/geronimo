@@ -21,7 +21,7 @@ import java.net.URISyntaxException;
 import java.util.Properties;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:20 $
+ * @version $Rev$ $Date$
  */
 public final class URISupport {
 

@@ -36,7 +36,7 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
  * from the appropriate principal class and possibly
  * callback name.
  *
- * @version $Revision: 1.6 $ $Date: 2004/07/12 06:07:50 $
+ * @version $Rev$ $Date$
  */
 public class PropertiesFilePrincipalMappingUserPasswordRealmBridge extends AbstractPrincipalMappingUserPasswordRealmBridge {
     private URL propertyFileURL;

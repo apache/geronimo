@@ -31,7 +31,7 @@ import org.apache.geronimo.network.protocol.Protocol;
 
 /**
  * 
- * @version $Revision: 1.3 $ $Date: 2004/07/20 00:15:05 $
+ * @version $Rev$ $Date$
  */
 public class RemoteNodeJoined
     extends AbstractRemoteNode

@@ -20,7 +20,7 @@ package org.apache.geronimo.messaging.remotenode;
 /**
  * Event for RemoteNodes.
  * 
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:42 $
+ * @version $Rev$ $Date$
  */
 public class RemoteNodeEvent
 {

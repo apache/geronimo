@@ -43,7 +43,7 @@ import javax.servlet.http.HttpServletRequest;
  * The name of a WebUserDataPermission (also referred to as the target name)
  * identifies a Web resource by its context path relative URL pattern.
  *
- * @version $Revision: 1.5 $ $Date: 2004/07/25 00:57:35 $
+ * @version $Rev$ $Date$
  * @see java.security.Permission
  */
 public final class WebUserDataPermission extends Permission {

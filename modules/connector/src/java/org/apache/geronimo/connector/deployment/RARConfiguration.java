@@ -25,7 +25,7 @@ import org.apache.geronimo.deployment.plugin.DeploymentConfigurationSupport;
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/05/30 19:03:36 $
+ * @version $Rev$ $Date$
  *
  * */
 public class RARConfiguration extends DeploymentConfigurationSupport {

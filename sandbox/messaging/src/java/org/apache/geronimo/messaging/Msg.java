@@ -27,7 +27,7 @@ import java.io.ObjectOutput;
  * <BR>
  * Msgs are Externalizable as they are sent across the wire.
  *
- * @version $Revision: 1.3 $ $Date: 2004/07/20 00:08:14 $
+ * @version $Rev$ $Date$
  */
 public class Msg
     implements Externalizable

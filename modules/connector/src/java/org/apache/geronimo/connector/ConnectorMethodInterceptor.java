@@ -32,7 +32,7 @@ import org.apache.geronimo.kernel.Kernel;
  * MethodInterceptor used by various Proxies.  The important part of this class is the
  * deserialization in the readResolve method.
  *
- * @version $Revision: 1.3 $ $Date: 2004/06/12 18:43:31 $
+ * @version $Rev$ $Date$
  *
  * */
 public class ConnectorMethodInterceptor implements MethodInterceptor, Serializable {

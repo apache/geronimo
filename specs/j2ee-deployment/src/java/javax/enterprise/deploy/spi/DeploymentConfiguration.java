@@ -36,7 +36,7 @@ import java.io.InputStream;
  * object could represent a single stand alone module or an EAR file that contains
  * several sub-modules.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:51 $
+ * @version $Rev$ $Date$
  */
 public interface DeploymentConfiguration {
     /**

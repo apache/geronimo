@@ -26,7 +26,7 @@ import javax.enterprise.deploy.shared.ModuleType;
 /**
  * 
  * 
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:50 $
+ * @version $Rev$ $Date$
  */
 public class ApplicationRoot implements DDBeanRoot {
     public void addXpathListener(String xpath, XpathListener xpl) {

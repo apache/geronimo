@@ -25,7 +25,7 @@ import junit.framework.TestCase;
 
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/04/22 14:45:46 $
+ * @version $Rev$ $Date$
  */
 public class PacketStreamTest extends TestCase {
 

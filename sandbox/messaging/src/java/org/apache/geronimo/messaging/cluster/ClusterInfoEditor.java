@@ -27,7 +27,7 @@ import org.apache.geronimo.common.propertyeditor.PropertyEditorException;
 /**
  * ClusterInfo editor.
  *
- * @version $Revision: 1.1 $ $Date: 2004/07/17 03:38:42 $
+ * @version $Rev$ $Date$
  */
 public class ClusterInfoEditor
     extends PropertyEditorSupport

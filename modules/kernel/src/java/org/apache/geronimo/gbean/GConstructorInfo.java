@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/06/02 05:33:03 $
+ * @version $Rev$ $Date$
  */
 public class GConstructorInfo implements Serializable {
     private final List attributeNames;

@@ -40,7 +40,7 @@ import java.util.Hashtable;
 /**
  * A GBean for creating graphs of Spring POJOs and auto-deploying them inside Geronimo as GBeans
  *
- * @version $Revision: 1.1 $
+ * @version $Rev$
  */
 public class SpringGBean implements GBeanLifecycle {
     private static final Log log = LogFactory.getLog(SpringGBean.class);

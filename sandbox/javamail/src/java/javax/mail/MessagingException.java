@@ -17,7 +17,7 @@
 
 package javax.mail;
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:27 $
+ * @version $Rev$ $Date$
  */
 public class MessagingException extends Exception {
     // Required because serialization expects it to be here

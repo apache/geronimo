@@ -29,7 +29,7 @@ import org.apache.log4j.FileAppender;
  * An extention of the default Log4j FileAppenderService which
  * will make the directory structure for the set log file.
  *
- * @version $Revision: 1.6 $ $Date: 2004/07/12 06:07:50 $
+ * @version $Rev$ $Date$
  */
 public class FileAppenderService extends AbstractAppenderService {
     private final ServerInfo serverInfo;

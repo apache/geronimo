@@ -29,7 +29,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 /**
  * Base implementation for the Connector contracts.
  *
- * @version $Revision: 1.5 $ $Date: 2004/06/10 23:12:25 $
+ * @version $Rev$ $Date$
  */
 public abstract class AbstractConnector
     implements Connector, GBeanLifecycle

@@ -30,7 +30,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/04/03 22:37:57 $
+ * @version $Rev$ $Date$
  */
 public interface DeploymentServer {
     public boolean isLocal();

@@ -22,7 +22,7 @@ import java.io.IOException;
 /**
  * Manages the state of a component.
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:16 $
+ * @version $Rev$ $Date$
  */
 public interface StateManager extends DirtyMarker
 {

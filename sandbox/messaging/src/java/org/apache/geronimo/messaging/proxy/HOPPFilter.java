@@ -28,7 +28,7 @@ import net.sf.cglib.proxy.CallbackFilter;
  * <BR>
  * The other methods are mapped to the second one.
  * 
- * @version $Revision: 1.1 $ $Date: 2004/05/20 13:37:11 $
+ * @version $Rev$ $Date$
  */
 public class HOPPFilter
     implements CallbackFilter

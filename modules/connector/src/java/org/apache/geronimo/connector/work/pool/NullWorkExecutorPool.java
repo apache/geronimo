@@ -20,7 +20,7 @@ package org.apache.geronimo.connector.work.pool;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/07/06 17:15:54 $
+ * @version $Rev$ $Date$
  *
  * */
 public class NullWorkExecutorPool implements WorkExecutorPool {

@@ -31,7 +31,7 @@ import org.apache.geronimo.pool.ThreadPool;
 
 
 /**
- * @version $Revision: 1.9 $ $Date: 2004/08/01 13:03:51 $
+ * @version $Rev$ $Date$
  */
 public class ProtocolStackTest extends TestCase {
     public void testNothing() {}

@@ -22,7 +22,7 @@ package org.apache.geronimo.gbean;
  * An optional interface for a GBean.  When a GBean implements this interface, the implementation
  * will get life-cycle callbacks.
  *
- * @version $Revision: 1.1 $ $Date: 2004/06/05 07:53:22 $
+ * @version $Rev$ $Date$
  */
 public interface GBeanLifecycle {
     /**

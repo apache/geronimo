@@ -47,7 +47,7 @@ package javax.servlet;
  * @deprecated As of Java Servlet API 2.4, with no direct
  * replacement.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 10:00:20 $
+ * @version $Rev$ $Date$
  */
 public interface SingleThreadModel {
 }

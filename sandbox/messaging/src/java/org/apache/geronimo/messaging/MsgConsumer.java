@@ -22,7 +22,7 @@ import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
 /**
  * Components consuming Msgs implement this interface. 
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:41 $
+ * @version $Rev$ $Date$
  */
 public interface MsgConsumer
 {

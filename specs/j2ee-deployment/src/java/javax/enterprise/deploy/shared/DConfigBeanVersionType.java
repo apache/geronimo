@@ -27,7 +27,7 @@ package javax.enterprise.deploy.shared;
  * Class DConfigBeanVersionTypes defines enumeration values for the J2EE
  * Platform verion number.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:50 $
+ * @version $Rev$ $Date$
  */
 public class DConfigBeanVersionType {
     /**

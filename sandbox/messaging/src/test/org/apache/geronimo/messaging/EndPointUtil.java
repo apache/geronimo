@@ -22,7 +22,7 @@ import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2004/07/20 00:26:03 $
+ * @version $Rev$ $Date$
  */
 public class EndPointUtil
 {

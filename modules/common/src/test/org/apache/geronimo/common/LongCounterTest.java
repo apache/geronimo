@@ -22,7 +22,7 @@ import junit.framework.TestCase;
 /**
  * Unit test for {@link LongCounter} class.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:27 $
+ * @version $Rev$ $Date$
  */
 public class LongCounterTest
     extends TestCase

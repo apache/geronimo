@@ -27,7 +27,7 @@ package javax.management.j2ee.statistics;
  *
  *
  *
- * @version $Revision: 1.3 $
+ * @version $Rev$
  */
 public interface RangeStatistic extends Statistic {
     public long getHighWaterMark();

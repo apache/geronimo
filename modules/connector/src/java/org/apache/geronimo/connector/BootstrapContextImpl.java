@@ -29,7 +29,7 @@ import org.apache.geronimo.connector.work.GeronimoWorkManager;
  * GBean BootstrapContext implementation that refers to externally configured WorkManager
  * and XATerminator gbeans.
  *
- * @version $Revision: 1.1 $ $Date: 2004/07/11 21:55:33 $
+ * @version $Rev$ $Date$
  */
 public class BootstrapContextImpl implements javax.resource.spi.BootstrapContext {
     private final GeronimoWorkManager workManager;

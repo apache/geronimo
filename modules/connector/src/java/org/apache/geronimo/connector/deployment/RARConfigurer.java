@@ -30,7 +30,7 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/05/30 19:03:36 $
+ * @version $Rev$ $Date$
  */
 public class RARConfigurer implements ModuleConfigurer {
 

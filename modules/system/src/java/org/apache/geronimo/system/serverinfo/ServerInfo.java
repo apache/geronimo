@@ -27,7 +27,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 
 /**
- * @version $Revision: 1.10 $ $Date: 2004/07/12 06:07:51 $
+ * @version $Rev$ $Date$
  */
 public class ServerInfo {
     private final File base;

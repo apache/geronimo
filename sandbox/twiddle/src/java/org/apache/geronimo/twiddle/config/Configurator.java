@@ -52,7 +52,7 @@ import org.apache.geronimo.twiddle.config.classworlds.ImportPackageConfig;
 /**
  * Handles the details of Twiddle configuration.
  *
- * @version <code>$Revision: 1.3 $ $Date: 2004/03/10 10:00:38 $</code>
+ * @version <code>$Rev$ $Date$</code>
  */
 public class Configurator
 {

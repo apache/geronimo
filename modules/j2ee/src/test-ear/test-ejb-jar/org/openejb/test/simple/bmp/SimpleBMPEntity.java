@@ -22,7 +22,7 @@ import javax.ejb.EJBObject;
 /**
  * 
  * 
- * @version $Revision: 1.1 $ $Date: 2004/05/19 20:53:59 $
+ * @version $Rev$ $Date$
  */
 public interface SimpleBMPEntity extends EJBObject {
     String getName() throws RemoteException;

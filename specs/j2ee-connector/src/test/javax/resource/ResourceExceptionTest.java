@@ -29,7 +29,7 @@ import junit.framework.TestCase;
  *
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:47 $
+ * @version $Rev$ $Date$
  */
 public class ResourceExceptionTest extends TestCase {
 

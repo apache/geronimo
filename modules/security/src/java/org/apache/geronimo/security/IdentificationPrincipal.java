@@ -22,7 +22,7 @@ import java.security.Principal;
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/06/13 16:52:29 $
+ * @version $Rev$ $Date$
  */
 public class IdentificationPrincipal implements Principal, Serializable {
     private final SubjectId id;

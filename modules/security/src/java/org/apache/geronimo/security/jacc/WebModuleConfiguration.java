@@ -46,7 +46,7 @@ import org.apache.geronimo.xbeans.j2ee.WebAppType;
  * these utility MBeans and not directly access the
  * <code>PolicyConfiguration</code> objects.
  *
- * @version $Revision: 1.7 $ $Date: 2004/07/12 06:07:49 $
+ * @version $Rev$ $Date$
  * @see javax.security.jacc.PolicyConfiguration
  * @see "Java Authorization Contract for Containers", section 3.1.3
  */

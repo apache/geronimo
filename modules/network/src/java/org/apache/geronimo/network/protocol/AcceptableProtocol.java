@@ -18,7 +18,7 @@
 package org.apache.geronimo.network.protocol;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:13 $
+ * @version $Rev$ $Date$
  */
 public interface AcceptableProtocol extends Protocol, ServerSocketAcceptorListener {
 

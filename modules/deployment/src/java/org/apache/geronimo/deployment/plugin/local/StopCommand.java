@@ -28,7 +28,7 @@ import org.apache.geronimo.kernel.KernelMBean;
 /**
  *
  *
- * @version $Revision: 1.8 $ $Date: 2004/09/09 14:14:41 $
+ * @version $Rev$ $Date$
  */
 public class StopCommand extends CommandSupport {
     private final KernelMBean kernel;

@@ -40,7 +40,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/06/02 05:33:04 $
+ * @version $Rev$ $Date$
  */
 public class ContextBuilderTest extends TestCase {
     private ComponentContextBuilder builder;

@@ -38,7 +38,7 @@ package javax.servlet.http;
  * @see HttpSessionBindingListener
  * @see HttpSessionAttributeListener
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 10:00:20 $
+ * @version $Rev$ $Date$
  */
 public class HttpSessionBindingEvent extends HttpSessionEvent {
     /**

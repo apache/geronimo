@@ -25,7 +25,7 @@ import org.apache.log4j.Logger;
  * This log wrapper caches the trace, debug and info enabled flags.  The flags are updated
  * by a single timer task for all logs.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:30 $
+ * @version $Rev$ $Date$
  */
 public final class CachingLog4jLog implements Log {
     private final String FQCN = getClass().getName();

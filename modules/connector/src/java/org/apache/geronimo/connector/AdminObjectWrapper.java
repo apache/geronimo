@@ -34,7 +34,7 @@ import org.apache.geronimo.kernel.Kernel;
  * Wrapper around AdminObject that exposes its config-properties as GBeanAttributes and
  * supplies a disconnectable proxy to bind in jndi.
  *
- * @version $Revision: 1.11 $ $Date: 2004/07/12 06:07:50 $
+ * @version $Rev$ $Date$
  */
 public class AdminObjectWrapper implements GBeanLifecycle, DynamicGBean {
 

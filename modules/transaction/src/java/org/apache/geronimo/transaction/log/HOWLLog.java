@@ -56,7 +56,7 @@ import org.objectweb.howl.log.ReplayListener;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/07/22 03:39:01 $
+ * @version $Rev$ $Date$
  *
  * */
 public class HOWLLog implements TransactionLog, GBeanLifecycle {

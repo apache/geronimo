@@ -27,7 +27,7 @@ package javax.enterprise.deploy.model;
  * An interface for beans that represent a fragment of a standard deployment
  * descriptor.  A link is provided to the J2EE application that includes this bean.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:50 $
+ * @version $Rev$ $Date$
  */
 public interface DDBean {
     /**

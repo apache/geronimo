@@ -33,7 +33,7 @@ import org.apache.geronimo.enterprise.deploy.tool.WebDeployableObject;
  * Loads the deployment descriptor information from the specific WAR
  * file.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:41 $
+ * @version $Rev$ $Date$
  */
 public class InitializeWAR extends TextController {
     private static final Log log = LogFactory.getLog(InitializeWAR.class);

@@ -24,7 +24,7 @@ import javax.mail.event.FolderListener;
 import javax.mail.event.StoreEvent;
 import javax.mail.event.StoreListener;
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:27 $
+ * @version $Rev$ $Date$
  */
 public abstract class Store extends Service {
     private static final Folder[] FOLDER_ARRAY = new Folder[0];

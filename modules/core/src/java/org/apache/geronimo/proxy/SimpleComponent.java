@@ -23,7 +23,7 @@ import org.apache.geronimo.core.service.Component;
 import org.apache.geronimo.core.service.Container;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:43 $
+ * @version $Rev$ $Date$
  */
 public class SimpleComponent implements Component, Serializable {
 

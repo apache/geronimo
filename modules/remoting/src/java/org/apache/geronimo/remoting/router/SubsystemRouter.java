@@ -28,7 +28,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/09/08 12:26:50 $
+ * @version $Rev$ $Date$
  */
 public class SubsystemRouter extends AbstractRouterRouter {
     Log log = LogFactory.getLog(SubsystemRouter.class);

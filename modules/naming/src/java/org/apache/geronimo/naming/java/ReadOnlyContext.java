@@ -57,7 +57,7 @@ import javax.naming.spi.NamingManager;
  *   String envEntry2 = (String) componentContext.lookup("env/myEntry2");
  * </code>
  *
- * @version $Revision: 1.7 $ $Date: 2004/03/10 09:59:08 $
+ * @version $Rev$ $Date$
  */
 public class ReadOnlyContext implements Context,Serializable {
     protected final Hashtable env;        // environment for this context

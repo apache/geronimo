@@ -28,7 +28,7 @@ import org.apache.geronimo.security.ContextManager;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/06/27 20:37:38 $
+ * @version $Rev$ $Date$
  */
 public class JettyServer extends Server {
 

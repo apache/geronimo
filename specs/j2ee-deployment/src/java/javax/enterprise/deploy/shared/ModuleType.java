@@ -26,7 +26,7 @@ package javax.enterprise.deploy.shared;
 /**
  * Class ModuleTypes defines enumeration values for the J2EE module types.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:50 $
+ * @version $Rev$ $Date$
  */
 public class ModuleType {
     /**

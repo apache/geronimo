@@ -28,7 +28,7 @@ import org.apache.geronimo.transaction.XAServices;
 
 /**
  * Unit tests for {@link BootstrapContextImpl}
- * @version $Revision: 1.5 $ $Date: 2004/07/11 21:55:34 $
+ * @version $Rev$ $Date$
  */
 public class BootstrapContextTest extends TestCase {
 

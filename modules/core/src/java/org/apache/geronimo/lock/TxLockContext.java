@@ -24,7 +24,7 @@ import org.apache.commons.logging.LogFactory;
  *
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:43 $
+ * @version $Rev$ $Date$
  */
 public class TxLockContext extends LockContext {
     private final static Log log = LogFactory.getLog(LockContext.class);

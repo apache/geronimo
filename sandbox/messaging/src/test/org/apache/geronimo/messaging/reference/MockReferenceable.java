@@ -19,7 +19,7 @@ package org.apache.geronimo.messaging.reference;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:43 $
+ * @version $Rev$ $Date$
  */
 public interface MockReferenceable {
     public void testMe(String aParam);

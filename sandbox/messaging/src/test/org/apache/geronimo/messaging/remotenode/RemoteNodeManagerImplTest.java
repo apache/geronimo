@@ -35,7 +35,7 @@ import org.apache.geronimo.pool.ClockPool;
 
 /**
  *
- * @version $Revision: 1.5 $ $Date: 2004/07/20 00:15:06 $
+ * @version $Rev$ $Date$
  */
 public class RemoteNodeManagerImplTest extends TestCase
 {

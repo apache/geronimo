@@ -41,7 +41,7 @@ import org.apache.geronimo.transaction.context.TransactionContext;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/07/21 03:53:43 $
+ * @version $Rev$ $Date$
  *
  * */
 public class ThreadPooledTimer implements PersistentTimer, GBeanLifecycle {

@@ -24,7 +24,7 @@ import java.net.URL;
 /**
  * A property editor for {@link java.net.URL}.
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:58:26 $
+ * @version $Rev$ $Date$
  */
 public class URLEditor extends TextPropertyEditorSupport {
     /**

@@ -37,7 +37,7 @@ import org.apache.geronimo.network.SelectorManager;
 
 
 /**
- * @version $Revision: 1.16 $ $Date: 2004/08/02 03:53:30 $
+ * @version $Rev$ $Date$
  */
 public class SocketProtocol implements AcceptableProtocol, SelectionEventListner {
 

@@ -36,7 +36,7 @@ import org.apache.geronimo.gbean.ReferenceCollectionListener;
 import org.apache.geronimo.gbean.WaitingException;
 
 /**
- * @version $Revision: 1.17 $ $Date: 2004/06/02 06:49:23 $
+ * @version $Rev$ $Date$
  */
 public class CollectionProxy implements Proxy {
     private static final Log log = LogFactory.getLog(CollectionProxy.class);

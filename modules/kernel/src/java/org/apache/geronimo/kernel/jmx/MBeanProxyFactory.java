@@ -28,7 +28,7 @@ import org.apache.geronimo.gbean.jmx.ProxyMethodInterceptor;
  * MBeanProxyFactory creates a dynamic proxy to an MBean by ObjectName.
  * The interface type and object existance are enforced during construction.
  *
- * @version $Revision: 1.10 $ $Date: 2004/06/02 06:49:23 $
+ * @version $Rev$ $Date$
  */
 public final class MBeanProxyFactory {
 

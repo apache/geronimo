@@ -29,7 +29,7 @@ import java.util.Collection;
  * <BR>
  * It is a composition of connectors and repositories.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:41 $
+ * @version $Rev$ $Date$
  */
 public interface DAVServer {
     /**

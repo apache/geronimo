@@ -38,7 +38,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  * Helper class to bootstrap the Geronimo deployer.
  *
- * @version $Revision: 1.16 $ $Date: 2004/05/26 07:43:39 $
+ * @version $Rev$ $Date$
  */
 public class Bootstrap {
     private String deployerJar;

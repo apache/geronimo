@@ -38,7 +38,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/07/22 03:39:01 $
+ * @version $Rev$ $Date$
  *
  * */
 public interface Recovery {

@@ -27,7 +27,7 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GBeanLifecycleController;
 
 /**
- * @version $Revision: 1.21 $ $Date: 2004/07/12 06:07:49 $
+ * @version $Rev$ $Date$
  */
 public class MockGBean implements MockEndpoint {
 

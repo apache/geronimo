@@ -24,7 +24,7 @@ import java.nio.channels.SelectionKey;
  * that are registed with the Selector of the SelectorManager manager
  * must implement.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:20 $
+ * @version $Rev$ $Date$
  */
 public interface SelectionEventListner
 {

@@ -32,7 +32,7 @@ package org.apache.geronimo.lock;
  * starvation of shared requests.
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:58:43 $
+ * @version $Rev$ $Date$
  */
 public class WriterPreferredInstanceLock3 implements InstanceLock {
     private Object exclActive;

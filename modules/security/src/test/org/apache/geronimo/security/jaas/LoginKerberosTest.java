@@ -29,7 +29,7 @@ import org.apache.geronimo.security.RealmPrincipal;
 
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/07/12 06:07:51 $
+ * @version $Rev$ $Date$
  */
 public class LoginKerberosTest extends AbstractTest {
 

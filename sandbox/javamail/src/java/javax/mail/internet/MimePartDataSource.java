@@ -25,7 +25,7 @@ import javax.mail.MessageAware;
 import javax.mail.MessageContext;
 import javax.mail.MessagingException;
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:28 $
+ * @version $Rev$ $Date$
  */
 public class MimePartDataSource implements DataSource, MessageAware {
     private MimePart _part;

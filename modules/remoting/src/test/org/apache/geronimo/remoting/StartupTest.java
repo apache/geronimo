@@ -30,7 +30,7 @@ import junit.framework.TestCase;
 /**
  * 
  * 
- * @version $Revision: 1.8 $ $Date: 2004/09/06 11:14:13 $
+ * @version $Rev$ $Date$
  */
 public class StartupTest  extends TestCase {
     private Kernel kernel;

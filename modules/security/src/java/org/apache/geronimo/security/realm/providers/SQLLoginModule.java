@@ -39,7 +39,7 @@ import java.util.Set;
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:26 $
+ * @version $Rev$ $Date$
  */
 
 public class SQLLoginModule implements LoginModule {

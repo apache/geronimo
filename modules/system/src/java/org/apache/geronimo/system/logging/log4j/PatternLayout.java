@@ -21,7 +21,7 @@ package org.apache.geronimo.system.logging.log4j;
 /**
  * An extension to the standard log4j PatternLayout for printing a NamedNDC.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:30 $
+ * @version $Rev$ $Date$
  */
 public class PatternLayout extends org.apache.log4j.PatternLayout {
     protected org.apache.log4j.helpers.PatternParser createPatternParser(String pattern) {

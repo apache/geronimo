@@ -32,7 +32,7 @@ import java.util.List;
  * underlying InputStream. This identifier is then passed to the StreamManager,
  * which returns the InputStream having the provided identifier.
  * 
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:41 $
+ * @version $Rev$ $Date$
  */
 public class StreamInputStream
     extends ObjectInputStream

@@ -26,7 +26,7 @@ import org.apache.geronimo.common.NullArgumentException;
 /**
  * A container for commands.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:37 $
+ * @version $Rev$ $Date$
  */
 public class CommandContainer
 {

@@ -31,7 +31,7 @@ import javax.transaction.xa.XAResource;
  * the vendor's TransactionManager.
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:36 $
+ * @version $Rev$ $Date$
  */
 public class TransactionProxy implements Transaction {
     private final Transaction delegate;

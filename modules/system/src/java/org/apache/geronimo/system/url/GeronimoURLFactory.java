@@ -39,7 +39,7 @@ import org.apache.geronimo.gbean.WaitingException;
  * complete control over the URLs creted in the server.  This allows us to replace the
  * broken implementation of the "file" protocol.
  *
- * @version $Revision: 1.5 $ $Date: 2004/06/05 07:53:22 $
+ * @version $Rev$ $Date$
  */
 public class GeronimoURLFactory implements GBeanLifecycle {
     private static final URLStreamHandlerFactory factory = new URLStreamHandlerFactory();

@@ -52,7 +52,7 @@ import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Repository;
 
 /**
- * @version $Revision: 1.16 $ $Date: 2004/08/04 07:20:49 $
+ * @version $Rev$ $Date$
  */
 public class DeploymentContext {
     private final URI configID;

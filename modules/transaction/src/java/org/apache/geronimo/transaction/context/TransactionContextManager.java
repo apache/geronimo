@@ -27,7 +27,7 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/07/18 22:02:01 $
+ * @version $Rev$ $Date$
  *
  * */
 public class TransactionContextManager {

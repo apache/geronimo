@@ -23,7 +23,7 @@ import org.apache.commons.logging.Log;
  * This log wrapper caches the trace, debug and info enabled flags.  The flags are updated
  * by a single timer task for all logs.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:02 $
+ * @version $Rev$ $Date$
  */
 public final class GeronimoLog implements Log {
     private final String name;

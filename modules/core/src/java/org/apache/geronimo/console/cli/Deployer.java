@@ -40,7 +40,7 @@ import org.apache.geronimo.console.cli.controller.TopLevel;
 /**
  * Initializes a command-line JSR-88 deployer.
  *
- * @version $Revision: 1.10 $ $Date: 2004/07/16 04:39:41 $
+ * @version $Rev$ $Date$
  */
 public class Deployer {
 

@@ -33,7 +33,7 @@ import org.apache.xmlbeans.XmlCursor;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/07/18 21:58:38 $
+ * @version $Rev$ $Date$
  */
 public class DDBeanImpl implements DDBean {
     protected final DDBeanRoot root;

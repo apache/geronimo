@@ -28,7 +28,7 @@ import org.apache.geronimo.gbean.WaitingException;
 
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/07/08 05:13:29 $
+ * @version $Rev$ $Date$
  */
 public class ClockPool implements GBeanLifecycle {
 

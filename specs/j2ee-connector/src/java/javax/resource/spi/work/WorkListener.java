@@ -29,7 +29,7 @@ import java.util.EventListener;
  *
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:47 $
+ * @version $Rev$ $Date$
  */
 public interface WorkListener extends EventListener {
     public void workAccepted(WorkEvent e);

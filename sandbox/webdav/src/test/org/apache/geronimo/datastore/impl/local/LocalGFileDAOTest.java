@@ -33,7 +33,7 @@ import junit.framework.TestCase;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/29 13:14:11 $
+ * @version $Rev$ $Date$
  */
 public class LocalGFileDAOTest extends TestCase
 {

@@ -23,7 +23,7 @@ import junit.framework.TestCase;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/27 14:18:13 $
+ * @version $Rev$ $Date$
  */
 public class AbstractReplacerResolverTest
     extends TestCase

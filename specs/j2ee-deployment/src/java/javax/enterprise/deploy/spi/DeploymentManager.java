@@ -40,7 +40,7 @@ import java.util.Locale;
  * information, such as, a list of deployment targets, and vendor unique runtime
  * configuration information.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:51 $
+ * @version $Rev$ $Date$
  */
 public interface DeploymentManager {
     /**

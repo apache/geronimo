@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * A property editor for {@link List}.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:26 $
+ * @version $Rev$ $Date$
  */
 public class ListEditor
     extends CollectionEditor

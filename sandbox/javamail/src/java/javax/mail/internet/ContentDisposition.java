@@ -18,7 +18,7 @@
 package javax.mail.internet;
 // http://www.faqs.org/rfcs/rfc2183.html
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:28 $
+ * @version $Rev$ $Date$
  */
 public class ContentDisposition {
     private String _disposition;

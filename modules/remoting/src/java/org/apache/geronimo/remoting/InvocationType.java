@@ -19,7 +19,7 @@ package org.apache.geronimo.remoting;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:19 $
+ * @version $Rev$ $Date$
  */
 public final class InvocationType implements Serializable {
 

@@ -32,7 +32,7 @@ import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/02/25 09:57:09 $
+ * @version $Rev$ $Date$
  *
  * */
 public class ConfigPropertiesHelper {

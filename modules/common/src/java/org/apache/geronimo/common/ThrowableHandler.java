@@ -25,7 +25,7 @@ import java.util.List;
  * A static singleton that handles processing throwables that otherwise would
  * be ignored or dumped to System.err.
  *
- * @version $Revision: 1.7 $ $Date: 2004/03/10 09:58:25 $
+ * @version $Rev$ $Date$
  */
 public final class ThrowableHandler
 {

@@ -29,7 +29,7 @@ import junit.framework.TestCase;
 /**
  * Unit test for the 'resource' protocol.
  *
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:31 $
+ * @version $Rev$ $Date$
  */
 public class ResourceProtocolTest extends TestCase {
     static {

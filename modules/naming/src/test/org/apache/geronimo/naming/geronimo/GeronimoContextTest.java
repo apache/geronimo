@@ -25,7 +25,7 @@ import org.apache.geronimo.naming.geronimo.GeronimoContext;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:09 $
+ * @version $Rev$ $Date$
  *
  * */
 public class GeronimoContextTest extends TestCase {

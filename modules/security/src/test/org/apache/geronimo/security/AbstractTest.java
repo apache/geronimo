@@ -36,7 +36,7 @@ import org.apache.geronimo.security.bridge.TestRealm;
 
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/07/12 06:07:50 $
+ * @version $Rev$ $Date$
  */
 public abstract class AbstractTest extends TestCase {
     protected Kernel kernel;

@@ -37,7 +37,7 @@ import java.util.Set;
 
 
 /**
- * @version $Revision: 1.9 $ $Date: 2004/07/30 23:40:12 $
+ * @version $Rev$ $Date$
  */
 public class ContextManager {
     private static ThreadLocal currentCallerId = new ThreadLocal();

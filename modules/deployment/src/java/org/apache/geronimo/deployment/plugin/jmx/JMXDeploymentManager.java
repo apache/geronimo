@@ -55,7 +55,7 @@ import org.apache.geronimo.kernel.management.State;
 /**
  *
  *
- * @version $Revision: 1.9 $ $Date: 2004/07/23 06:15:15 $
+ * @version $Rev$ $Date$
  */
 public class JMXDeploymentManager implements DeploymentManager {
     private JMXConnector jmxConnector;

@@ -32,7 +32,7 @@ package javax.servlet;
  *
  * @since Servlet2.4
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 10:00:19 $
+ * @version $Rev$ $Date$
  */
 public class ServletRequestEvent extends java.util.EventObject {
     private ServletRequest request;

@@ -25,7 +25,7 @@ import java.util.StringTokenizer;
 import javax.mail.Address;
 import javax.mail.Session;
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:28 $
+ * @version $Rev$ $Date$
  */
 public class InternetAddress extends Address implements Cloneable {
     private static final InternetAddress[] IA_ARRAY = new InternetAddress[0];

@@ -28,7 +28,7 @@ package javax.enterprise.deploy.model.exceptions;
  *
  * @since 1.1
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:50 $
+ * @version $Rev$ $Date$
  */
 public class DDBeanCreateException extends Exception {
     /**

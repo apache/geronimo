@@ -26,7 +26,7 @@ import java.util.Map;
  * This is a sub-set of the GFile interface. GFile does not extend this
  * interface as this interface is implementation specific.
  *
- * @version $Revision: 1.2 $ $Date: 2004/05/11 12:24:59 $
+ * @version $Rev$ $Date$
  */
 public interface GFileDelegate
 {

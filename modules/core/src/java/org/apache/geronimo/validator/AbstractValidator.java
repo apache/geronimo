@@ -40,7 +40,7 @@ import org.apache.xmlbeans.SchemaType;
  * that apply to a single module type (so we'd expect to have an EJB validator,
  * a web app validator, etc.).
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:44 $
+ * @version $Rev$ $Date$
  */
 public abstract class AbstractValidator implements Validator {
     private static final Log log = LogFactory.getLog(AbstractValidator.class);

@@ -22,7 +22,7 @@ import java.util.List;
 import javax.mail.event.TransportEvent;
 import javax.mail.event.TransportListener;
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:27 $
+ * @version $Rev$ $Date$
  */
 public abstract class Transport extends Service {
     public static void send(Message message) throws MessagingException {

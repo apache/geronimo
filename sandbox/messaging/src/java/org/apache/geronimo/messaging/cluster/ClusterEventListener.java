@@ -20,7 +20,7 @@ package org.apache.geronimo.messaging.cluster;
 /**
  * Cluster event listener.
  * 
- * @version $Revision: 1.1 $ $Date: 2004/06/10 23:12:25 $
+ * @version $Rev$ $Date$
  */
 public interface ClusterEventListener
 {

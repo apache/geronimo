@@ -23,7 +23,7 @@ import javax.enterprise.deploy.spi.Target;
 /**
  * 
  * 
- * @version $Revision: 1.4 $ $Date: 2004/06/02 18:05:46 $
+ * @version $Rev$ $Date$
  */
 public class TargetModuleIDImpl implements TargetModuleID {
     private final Target target;

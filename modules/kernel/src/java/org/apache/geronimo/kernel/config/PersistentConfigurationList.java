@@ -26,7 +26,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/06/04 17:27:00 $
+ * @version $Rev$ $Date$
  */
 public interface PersistentConfigurationList {
     public static final ObjectName OBJECT_NAME = JMXUtil.getObjectName("geronimo.boot:role=PersistentConfigurationList");

@@ -29,7 +29,7 @@ import javax.enterprise.deploy.shared.ModuleType;
 /**
  * 
  * 
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:49 $
+ * @version $Rev$ $Date$
  */
 public abstract class ApplicationDeployable extends AbstractDeployable implements J2eeApplicationObject {
     private final Map uriMap;

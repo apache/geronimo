@@ -26,7 +26,7 @@ import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.SimpleInvocation;
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/03/10 09:58:43 $
+ * @version $Rev$ $Date$
  */
 final public class ProxyInvocation extends SimpleInvocation {
 

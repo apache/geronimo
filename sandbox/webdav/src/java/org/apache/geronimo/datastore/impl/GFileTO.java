@@ -27,7 +27,7 @@ import org.apache.geronimo.datastore.GFile;
  * Transfer object for a GFile. It is used between a GFileStateManager and
  * a DAO to transfer the state of a GFile.
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:16 $
+ * @version $Rev$ $Date$
  */
 public class GFileTO
 {

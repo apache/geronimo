@@ -67,7 +67,7 @@ import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
 /**
- * @version $Revision: 1.21 $ $Date: 2004/08/13 08:16:29 $
+ * @version $Rev$ $Date$
  */
 public class EARConfigBuilder implements ConfigurationBuilder {
     static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderUnion(new SchemaTypeLoader[]{

@@ -43,7 +43,7 @@ import org.apache.geronimo.common.propertyeditor.PropertyEditors;
  * edit one tree at a time, either the whole DDBean tree, or the whole
  * DConfigBean tree.
  * </p>
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:41 $
+ * @version $Rev$ $Date$
  */
 public class DConfigBeanConfigurator {
     private final static Log log = LogFactory.getLog(DConfigBeanConfigurator.class);

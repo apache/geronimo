@@ -38,7 +38,7 @@ import org.apache.geronimo.security.jaas.LoginServiceMBean;
 
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/09/08 12:29:37 $
+ * @version $Rev$ $Date$
  */
 public class LoginServiceStub implements GBeanLifecycle, JMXTarget {
     private static final Log log = LogFactory.getLog(LoginServiceStub.class);

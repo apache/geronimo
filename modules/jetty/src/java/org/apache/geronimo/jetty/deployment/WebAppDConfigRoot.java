@@ -35,7 +35,7 @@ import org.apache.xmlbeans.XmlException;
 /**
  *
  *
- * @version $Revision: 1.9 $ $Date: 2004/03/10 09:58:56 $
+ * @version $Rev$ $Date$
  */
 public class WebAppDConfigRoot extends DConfigBeanRootSupport {
     static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderUnion(new SchemaTypeLoader[] {

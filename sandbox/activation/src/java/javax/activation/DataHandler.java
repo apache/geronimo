@@ -26,7 +26,7 @@ import java.io.OutputStream;
 import java.net.URL;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:22 $
+ * @version $Rev$ $Date$
  */
 public class DataHandler implements Transferable {
     private DataSource _ds;

@@ -27,7 +27,7 @@ import javax.enterprise.deploy.spi.status.DeploymentStatus;
 /**
  * A Serializable DeploymentStatus implementation.
  *
- * @version $Revision: 1.1 $ $Date: 2004/06/01 12:44:22 $
+ * @version $Rev$ $Date$
  */
 public class DeploymentStatusImpl
     implements DeploymentStatus, Serializable

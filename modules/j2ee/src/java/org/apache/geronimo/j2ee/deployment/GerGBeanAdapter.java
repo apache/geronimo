@@ -21,7 +21,7 @@ import org.apache.geronimo.deployment.service.GBeanAdapter;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerGbeanType;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/06/23 20:24:45 $
+ * @version $Rev$ $Date$
  */
 public class GerGBeanAdapter implements GBeanAdapter {
 

@@ -31,7 +31,7 @@ import org.apache.geronimo.messaging.Request;
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2004/05/24 12:03:34 $
+ * @version $Rev$ $Date$
  */
 public class EndPointProxyFactoryTest
     extends TestCase

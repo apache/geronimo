@@ -26,7 +26,7 @@ import org.apache.geronimo.messaging.interceptors.HeaderOutInterceptor;
 
 /**
  *
- * @version $Revision: 1.4 $ $Date: 2004/07/17 03:52:33 $
+ * @version $Rev$ $Date$
  */
 public class MockEndPointImpl
     extends GBeanBaseEndPoint

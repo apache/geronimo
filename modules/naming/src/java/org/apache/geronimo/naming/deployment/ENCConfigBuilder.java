@@ -34,7 +34,7 @@ import org.apache.geronimo.j2ee.deployment.EARContext;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/08/19 15:47:30 $
+ * @version $Rev$ $Date$
  *
  * */
 public class ENCConfigBuilder {

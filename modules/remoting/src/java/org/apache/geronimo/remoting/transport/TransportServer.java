@@ -23,7 +23,7 @@ import org.apache.geronimo.core.service.Component;
 import org.apache.geronimo.remoting.router.*;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:20 $
+ * @version $Rev$ $Date$
  */
 public interface TransportServer extends Component {
 

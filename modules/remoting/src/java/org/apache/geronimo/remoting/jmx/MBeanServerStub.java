@@ -33,7 +33,7 @@ import org.apache.geronimo.remoting.router.JMXTarget;
 
 
 /**
- * @version $Revision: 1.16 $ $Date: 2004/06/05 07:53:22 $
+ * @version $Rev$ $Date$
  */
 public class MBeanServerStub implements GBeanLifecycle, JMXTarget {
     private final Kernel kernel;

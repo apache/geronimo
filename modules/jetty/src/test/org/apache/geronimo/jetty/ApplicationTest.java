@@ -38,7 +38,7 @@ import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
- * @version $Revision: 1.15 $ $Date: 2004/07/18 22:04:27 $
+ * @version $Rev$ $Date$
  */
 public class ApplicationTest extends TestCase {
     private Kernel kernel;

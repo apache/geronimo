@@ -42,7 +42,7 @@ import org.apache.geronimo.security.ContextManager;
 
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/07/12 06:07:51 $
+ * @version $Rev$ $Date$
  */
 public class JAASJettyRealm implements UserRealm, GBeanLifecycle {
 

@@ -27,7 +27,7 @@ import org.apache.geronimo.network.protocol.control.commands.MenuItem;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:14 $
+ * @version $Rev$ $Date$
  */
 public class ControlServerProtocolWaiter extends ProtocolStack implements BootstrapChef {
 

@@ -51,7 +51,7 @@ import java.beans.PropertyChangeListener;
  * <p>The properties of DConfigBeans are displayed and edited by the deployment tool by
  * using the JavaBean Property classes.</p>
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:51 $
+ * @version $Rev$ $Date$
  */
 public interface DConfigBean {
     /**

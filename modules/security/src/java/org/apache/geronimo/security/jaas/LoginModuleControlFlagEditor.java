@@ -23,7 +23,7 @@ import org.apache.geronimo.common.propertyeditor.PropertyEditorException;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/30 01:27:35 $
+ * @version $Rev$ $Date$
  */
 public class LoginModuleControlFlagEditor extends TextPropertyEditorSupport {
 

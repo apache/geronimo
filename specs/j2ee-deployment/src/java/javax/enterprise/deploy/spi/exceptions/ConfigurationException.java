@@ -26,7 +26,7 @@ package javax.enterprise.deploy.spi.exceptions;
 /**
  * This exception reports errors in generating a configuration bean.
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:59:51 $
+ * @version $Rev$ $Date$
  */
 public class ConfigurationException extends Exception {
     /**

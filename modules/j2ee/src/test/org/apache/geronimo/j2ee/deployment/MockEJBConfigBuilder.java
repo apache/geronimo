@@ -27,7 +27,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.SchemaTypeLoader;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/08/09 04:19:35 $
+ * @version $Rev$ $Date$
  */
 public class MockEJBConfigBuilder extends Assert implements ModuleBuilder {
     public EARContext earContext;

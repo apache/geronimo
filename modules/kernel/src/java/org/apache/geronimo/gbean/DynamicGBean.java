@@ -18,7 +18,7 @@
 package org.apache.geronimo.gbean;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/05/27 01:05:58 $
+ * @version $Rev$ $Date$
  */
 public interface DynamicGBean {
     Object getAttribute(String name) throws Exception;

@@ -22,7 +22,7 @@ import org.apache.log4j.Level;
 /**
  * Extention levels for Log4j
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:30 $
+ * @version $Rev$ $Date$
  */
 public final class XLevel extends Level {
     public static final int TRACE_INT = Level.DEBUG_INT - 1;

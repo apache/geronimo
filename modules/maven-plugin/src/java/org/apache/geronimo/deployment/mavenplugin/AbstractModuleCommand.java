@@ -31,7 +31,7 @@ import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/07/25 08:22:07 $
+ * @version $Rev$ $Date$
  *
  * */
 public abstract class AbstractModuleCommand {

@@ -30,7 +30,7 @@ import org.apache.commons.logging.LogFactory;
  * channel. A number of nodes which are part of the same cluster and
  * reside in the same VM should share a single Cluster object.
  *
- * @version $Revision: 1.15 $ $Date: 2004/03/10 09:58:21 $
+ * @version $Rev$ $Date$
  */
 public class
   LocalCluster

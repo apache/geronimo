@@ -27,7 +27,7 @@ import javax.naming.spi.ObjectFactory;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:08 $
+ * @version $Rev$ $Date$
  *
  * */
 public class geronimoURLContextFactory implements ObjectFactory {

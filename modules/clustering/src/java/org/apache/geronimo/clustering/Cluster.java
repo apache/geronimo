@@ -31,7 +31,7 @@ import org.apache.commons.logging.LogFactory;
  * every node replicates every other node and CleverCluster, which
  * automagically partitions data into SubClusters etc...
  *
- * @version $Revision: 1.12 $ $Date: 2004/03/10 09:58:21 $
+ * @version $Rev$ $Date$
  */
 public abstract class
   Cluster

@@ -34,7 +34,7 @@ import javax.enterprise.deploy.shared.ModuleType;
  * module (JAR, WAR, RAR, EAR).  A DeployableObject provides access to the module's
  * deployment descriptor and class files.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:50 $
+ * @version $Rev$ $Date$
  */
 public interface DeployableObject {
     /**

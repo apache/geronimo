@@ -22,7 +22,7 @@ package org.apache.geronimo.messaging.interceptors;
  * <BR>
  * In a first step, the Msg is pushed to this component, then the Msg is popped.
  *
- * @version $Revision: 1.1 $ $Date: 2004/07/20 00:06:13 $
+ * @version $Rev$ $Date$
  */
 public interface MsgTransformer
     extends MsgInInterceptor, MsgOutInterceptor

@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * @version $Revision: 1.22 $ $Date: 2004/07/12 06:07:49 $
+ * @version $Rev$ $Date$
  */
 public class GBeanInfoFactory {
     private static final Class[] NO_ARGS = {};

@@ -21,7 +21,7 @@ import org.apache.geronimo.gbean.GBeanLifecycleController;
 import org.apache.geronimo.kernel.management.State;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/06/05 16:07:04 $
+ * @version $Rev$ $Date$
  */
 public final class GBeanMBeanLifecycleController implements GBeanLifecycleController {
     /**

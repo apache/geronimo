@@ -31,7 +31,7 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/06/03 07:24:17 $
+ * @version $Rev$ $Date$
  */
 public class GBeanBuilder {
     private final ObjectName name;

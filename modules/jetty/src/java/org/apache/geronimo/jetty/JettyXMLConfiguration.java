@@ -51,7 +51,7 @@ import org.apache.geronimo.security.util.URLPattern;
  * JettyXMLConfiguration reads the web-app configuration and translates them
  * into corresponding JACC policy permissions.
  *
- * @version $Revision: 1.4 $ $Date: 2004/09/09 18:01:26 $
+ * @version $Rev$ $Date$
  */
 public class JettyXMLConfiguration extends XMLConfiguration {
 

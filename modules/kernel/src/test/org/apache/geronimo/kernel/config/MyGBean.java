@@ -23,7 +23,7 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 /**
  * 
  * 
- * @version $Revision: 1.4 $ $Date: 2004/06/02 05:33:04 $
+ * @version $Rev$ $Date$
  */
 public class MyGBean {
     public void main(String[] args) {

@@ -27,7 +27,7 @@ import org.apache.geronimo.remoting.transport.async.nio.NonBlockingChannel;
 import org.apache.geronimo.remoting.transport.async.nio.NonBlockingServer;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:20 $
+ * @version $Rev$ $Date$
  */
 public class TransportFactory extends org.apache.geronimo.remoting.transport.TransportFactory {
 

@@ -25,7 +25,7 @@ import java.util.Set;
  * <BR>
  * This is a Serializable as it is exchanged between nodes.
  *
- * @version $Revision: 1.5 $ $Date: 2004/07/20 00:26:03 $
+ * @version $Rev$ $Date$
  */
 public interface NodeTopology extends Serializable
 {

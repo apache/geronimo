@@ -24,7 +24,7 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 /**
- * @version $Revision: 1.8 $ $Date: 2004/07/12 06:07:52 $
+ * @version $Rev$ $Date$
  */
 public class GBeanInfoFactoryTest extends TestCase {
 

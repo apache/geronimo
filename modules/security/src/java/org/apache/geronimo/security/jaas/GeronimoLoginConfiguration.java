@@ -30,7 +30,7 @@ import org.apache.geronimo.security.SecurityService;
 
 
 /**
- * @version $Revision: 1.9 $ $Date: 2004/06/05 07:53:22 $
+ * @version $Rev$ $Date$
  */
 public class GeronimoLoginConfiguration extends Configuration implements GBeanLifecycle {
 

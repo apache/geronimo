@@ -48,7 +48,7 @@ import org.apache.geronimo.pool.ThreadPool;
 
 
 /**
- * @version $Revision: 1.8 $ $Date: 2004/07/10 16:26:36 $
+ * @version $Rev$ $Date$
  */
 public class GSSAPIProtocolTest extends TestCase {
 

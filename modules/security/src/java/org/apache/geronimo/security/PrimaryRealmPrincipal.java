@@ -21,7 +21,7 @@ import java.security.Principal;
 
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/06/13 16:52:53 $
+ * @version $Rev$ $Date$
  */
 public class PrimaryRealmPrincipal extends RealmPrincipal {
 

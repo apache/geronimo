@@ -27,7 +27,7 @@ import org.apache.geronimo.transaction.context.ContainerTransactionContext;
 /**
  *
  *
- * @version $Revision: 1.12 $ $Date: 2004/07/18 22:08:59 $
+ * @version $Rev$ $Date$
  *
  * */
 public class ConnectionManagerTest extends ConnectionManagerTestUtils {

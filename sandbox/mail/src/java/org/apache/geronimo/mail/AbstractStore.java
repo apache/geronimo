@@ -25,7 +25,7 @@ import javax.mail.URLName;
 
 /**
  * Apache implementation of a generic store. May be subclassed for optimisation for specific protocols.
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:32 $
+ * @version $Rev$ $Date$
  */
 public abstract class AbstractStore extends Store {
 

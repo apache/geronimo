@@ -17,7 +17,7 @@
 
 package javax.mail.search;
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:28 $
+ * @version $Rev$ $Date$
  */
 public abstract class ComparisonTerm extends SearchTerm {
     // Constants from J2SE 1.4 API Doc (Constant Values)

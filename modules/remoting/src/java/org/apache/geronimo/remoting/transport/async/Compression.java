@@ -28,7 +28,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Used to add compression at the transport level.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:20 $
+ * @version $Rev$ $Date$
  */
 public class Compression {
 

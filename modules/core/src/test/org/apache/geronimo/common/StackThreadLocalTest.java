@@ -22,7 +22,7 @@ import org.apache.geronimo.core.service.StackThreadLocal;
 import junit.framework.TestCase;
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:58:44 $
+ * @version $Rev$ $Date$
  */
 public class StackThreadLocalTest 
     extends TestCase

@@ -20,7 +20,7 @@ package org.apache.geronimo.connector.mock;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:58:34 $
+ * @version $Rev$ $Date$
  *
  * */
 public class MockAdminObjectImpl implements MockAdminObject {

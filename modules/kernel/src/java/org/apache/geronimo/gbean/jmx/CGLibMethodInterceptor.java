@@ -38,7 +38,7 @@ import org.objectweb.asm.Type;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/08/27 12:26:49 $
+ * @version $Rev$ $Date$
  */
 public class CGLibMethodInterceptor implements ProxyMethodInterceptor, MethodInterceptor {
     /**

@@ -21,7 +21,7 @@ package org.apache.geronimo.common;
  * Thrown to indicate that a method argument was <code>null</code> and 
  * should <b>not</b> have been.
  *
- * @version $Revision: 1.11 $ $Date: 2004/03/10 09:58:25 $
+ * @version $Rev$ $Date$
  */
 public class NullArgumentException
     extends InvalidArgumentException

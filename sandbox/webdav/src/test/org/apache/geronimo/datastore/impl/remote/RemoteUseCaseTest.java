@@ -41,7 +41,7 @@ import org.apache.geronimo.pool.ThreadPool;
 /**
  * This is a remote use-case.
  *
- * @version $Revision: 1.9 $ $Date: 2004/07/08 05:13:29 $
+ * @version $Rev$ $Date$
  */
 public class RemoteUseCaseTest extends AbstractUseCaseTest {
 

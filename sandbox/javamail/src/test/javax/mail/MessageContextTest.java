@@ -25,7 +25,7 @@ import javax.activation.DataHandler;
 import javax.mail.internet.MimeMessage;
 import junit.framework.TestCase;
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:29 $
+ * @version $Rev$ $Date$
  */
 public class MessageContextTest extends TestCase {
     public void testNothing() {

@@ -47,7 +47,7 @@ import org.mortbay.jetty.servlet.WebApplicationContext;
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
  *
- * @version $Revision: 1.4 $ $Date: 2004/09/01 17:38:02 $
+ * @version $Rev$ $Date$
  */
 public class JettyWebAppContext extends WebApplicationContext implements GBeanLifecycle {
 

@@ -26,7 +26,7 @@ import EDU.oswego.cs.dl.util.concurrent.Executor;
  * Defines the operations that a pool in charge of the execution of Work
  * instances must expose.
  *
- * @version $Revision: 1.4 $ $Date: 2004/07/06 17:15:54 $
+ * @version $Rev$ $Date$
  */
 public interface WorkExecutorPool extends Executor {
 

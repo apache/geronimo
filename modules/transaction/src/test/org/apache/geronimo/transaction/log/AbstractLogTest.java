@@ -32,7 +32,7 @@ import org.apache.geronimo.transaction.manager.TransactionLog;
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/07/22 03:39:01 $
+ * @version $Rev$ $Date$
  *
  * */
 public abstract class AbstractLogTest extends TestCase {

@@ -21,7 +21,7 @@ import org.apache.geronimo.deployment.DeploymentException;
 import javax.naming.Reference;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/08/09 21:31:13 $
+ * @version $Rev$ $Date$
  */
 public interface EJBReferenceBuilder {
 

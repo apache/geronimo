@@ -38,7 +38,7 @@ import org.apache.geronimo.remoting.transport.BytesMarshalledObject;
  * This test uses 2 classloaders to mock 2 seperate
  * application classloaders.
  *
- * @version $Revision: 1.5 $ $Date: 2004/09/06 11:14:13 $
+ * @version $Rev$ $Date$
  */
 
 public class MarshalingInterceptorsTest extends TestCase {

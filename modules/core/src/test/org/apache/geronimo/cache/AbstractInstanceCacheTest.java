@@ -23,7 +23,7 @@ import junit.framework.TestCase;
  * Base class for InstaceCache implementation tests.
  * Descendants should override the {@link AbstractInstanceCacheTest#setUp()} method,
  * create instance of specific InstaceCache implementation and store it to protected <code>cache</code> variable.
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:44 $
+ * @version $Rev$ $Date$
  */
 public abstract class AbstractInstanceCacheTest extends TestCase {
     protected InstanceCache cache;

@@ -27,7 +27,7 @@ import org.apache.geronimo.messaging.NodeInfo;
 /**
  * Wraps meta-data about a Referenceable.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:42 $
+ * @version $Rev$ $Date$
  */
 public class ReferenceableInfo implements Externalizable
 {

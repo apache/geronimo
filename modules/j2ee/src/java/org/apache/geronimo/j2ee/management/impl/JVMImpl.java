@@ -26,7 +26,7 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/06/02 05:33:02 $
+ * @version $Rev$ $Date$
  */
 public class JVMImpl {
     public static final String JAVA_VERSION = System.getProperty("java.version");

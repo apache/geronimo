@@ -30,7 +30,7 @@ import java.util.Set;
 
 /**
  *
- * @version $Revision: 1.5 $ $Date: 2004/05/30 18:34:35 $
+ * @version $Rev$ $Date$
  */
 public final class PolicyContext {
 

@@ -38,7 +38,7 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
  * <p/>
  * The MBean that will receive invocations must implement the JMXTarget interface.
  *
- * @version $Revision: 1.13 $ $Date: 2004/09/08 12:26:23 $
+ * @version $Rev$ $Date$
  */
 public class JMXRouter extends AbstractInterceptorRouter {
     private static final Log log = LogFactory.getLog(JMXRouter.class);

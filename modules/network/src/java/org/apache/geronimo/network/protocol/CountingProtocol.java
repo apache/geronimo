@@ -29,7 +29,7 @@ import org.apache.geronimo.network.protocol.control.commands.CreateInstanceMenuI
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/08/01 13:03:42 $
+ * @version $Rev$ $Date$
  */
 public class CountingProtocol extends AbstractProtocol implements BootstrapCook {
 

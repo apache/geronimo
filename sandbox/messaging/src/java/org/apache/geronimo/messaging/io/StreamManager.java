@@ -26,7 +26,7 @@ import org.apache.geronimo.messaging.EndPoint;
 /**
  * Tracks InputStream instances.
  *
- * @version $Revision: 1.2 $ $Date: 2004/06/10 23:12:25 $
+ * @version $Rev$ $Date$
  */
 public interface StreamManager extends EndPoint
 {

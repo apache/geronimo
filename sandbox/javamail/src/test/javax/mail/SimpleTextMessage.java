@@ -27,7 +27,7 @@ import java.util.List;
 import javax.activation.DataHandler;
 import javax.mail.internet.InternetAddress;
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:29 $
+ * @version $Rev$ $Date$
  */
 public class SimpleTextMessage extends Message {
     public static final Address[] ADDRESS_ARRAY = new Address[0];

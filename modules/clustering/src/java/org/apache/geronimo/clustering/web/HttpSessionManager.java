@@ -31,7 +31,7 @@ import org.apache.geronimo.clustering.Tier;
  * An HttpSessionManager for &lt;distributable/&gt; webapps, which
  * backs onto the generic Geronimo clustering framework.
  *
- * @version $Revision: 1.11 $ $Date: 2004/03/10 09:58:22 $
+ * @version $Rev$ $Date$
  */
 public class
   HttpSessionManager

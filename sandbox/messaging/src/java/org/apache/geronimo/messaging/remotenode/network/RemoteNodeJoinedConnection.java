@@ -23,7 +23,7 @@ import org.apache.geronimo.network.protocol.ProtocolException;
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2004/07/20 00:15:05 $
+ * @version $Rev$ $Date$
  */
 public class RemoteNodeJoinedConnection
     extends AbstractRemoteNodeConnection

@@ -30,7 +30,7 @@ import org.apache.geronimo.kernel.Kernel;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/07/06 17:13:54 $
+ * @version $Rev$ $Date$
  *
  * */
 public class JMXObjectFactory implements ObjectFactory {

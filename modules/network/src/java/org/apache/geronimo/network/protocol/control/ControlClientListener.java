@@ -21,7 +21,7 @@ import java.util.Collection;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:14 $
+ * @version $Rev$ $Date$
  */
 public interface ControlClientListener {
 

@@ -24,7 +24,7 @@ import org.apache.geronimo.messaging.NodeException;
 /**
  * Connection to a remote node.
  * 
- * @version $Revision: 1.2 $ $Date: 2004/07/20 00:15:06 $
+ * @version $Rev$ $Date$
  */
 public interface RemoteNodeConnection
     extends MsgConsProd

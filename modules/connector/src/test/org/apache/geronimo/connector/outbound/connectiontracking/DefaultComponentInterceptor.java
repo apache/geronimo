@@ -26,7 +26,7 @@ import org.apache.geronimo.transaction.context.UnspecifiedTransactionContext;
  * Sample functionality for an interceptor that enables connection caching and obtaining
  * connections outside a UserTransaction.
  *
- * @version $Revision: 1.4 $ $Date: 2004/07/18 22:08:59 $
+ * @version $Rev$ $Date$
  *
  * */
 public class DefaultComponentInterceptor implements DefaultInterceptor {

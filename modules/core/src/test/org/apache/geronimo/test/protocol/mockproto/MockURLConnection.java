@@ -25,7 +25,7 @@ import java.io.InputStream;
 /**
  * URL connection for the 'mockproto' protocol.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:44 $
+ * @version $Rev$ $Date$
  */
 public final class MockURLConnection
     extends URLConnection

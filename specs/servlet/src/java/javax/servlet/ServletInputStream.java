@@ -43,7 +43,7 @@ import java.io.InputStream;
  *
  * @see ServletRequest
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 10:00:19 $
+ * @version $Rev$ $Date$
  */
 public abstract class ServletInputStream extends InputStream {
     /**

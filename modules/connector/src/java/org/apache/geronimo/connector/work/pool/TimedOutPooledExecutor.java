@@ -25,7 +25,7 @@ import org.apache.geronimo.connector.work.WorkerContext;
  * PooledExecutor enforcing a timed out "blocked execution policy". The works
  * submitted to this pooled executor MUST be a WorkWrapper.
  *
- * @version $Revision: 1.4 $ $Date: 2004/05/30 19:03:36 $
+ * @version $Rev$ $Date$
  */
 public class TimedOutPooledExecutor extends PooledExecutor {
 
@@ -66,7 +66,7 @@ public class TimedOutPooledExecutor extends PooledExecutor {
      * This class implements a time out policy when a work is blocked: it offers
      * the task to the pool until the work has timed out.
      *
-     * @version $Revision: 1.4 $ $Date: 2004/05/30 19:03:36 $
+     * @version $Rev$ $Date$
      */
     private class TimedOutSpinHandler
             implements PooledExecutor.BlockedExecutionHandler {

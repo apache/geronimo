@@ -23,7 +23,7 @@ import java.io.IOException;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:49 $
+ * @version $Rev$ $Date$
  */
 public class URLInfo {
     private final URL url;

@@ -20,7 +20,7 @@ package org.apache.geronimo.twiddle.command;
 /**
  * Abstraction of a map-like environment.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:37 $
+ * @version $Rev$ $Date$
  */
 public interface Environment
 {

@@ -27,7 +27,7 @@ import java.util.StringTokenizer;
 //
 // The ;charset=klingon is the parameter list, may have more of them with ';'
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:28 $
+ * @version $Rev$ $Date$
  */
 public class ParameterList {
     private Map _parameters = new HashMap();

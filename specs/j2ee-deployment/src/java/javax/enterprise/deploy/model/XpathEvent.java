@@ -29,7 +29,7 @@ import java.beans.PropertyChangeEvent;
  * An Event class describing DDBeans being added to or removed from a J2EE
  * application, or updated in place.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:50 $
+ * @version $Rev$ $Date$
  */
 public class XpathEvent {
     /**

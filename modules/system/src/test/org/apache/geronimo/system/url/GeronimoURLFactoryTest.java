@@ -26,7 +26,7 @@ import junit.framework.TestCase;
 /**
  * 
  * 
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:31 $
+ * @version $Rev$ $Date$
  */
 public class GeronimoURLFactoryTest extends TestCase {
     public void testForceInstall() throws Exception{

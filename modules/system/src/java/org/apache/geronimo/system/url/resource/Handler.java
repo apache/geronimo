@@ -26,7 +26,7 @@ import java.net.URLStreamHandler;
  * A protocol handler for the 'resource' protocol.  Provides
  * access to system resources.
  *
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:31 $
+ * @version $Rev$ $Date$
  */
 public class Handler extends URLStreamHandler {
     public URLConnection openConnection(final URL url) throws IOException {

@@ -31,7 +31,7 @@ import org.apache.geronimo.common.NullArgumentException;
  *
  * <p>Sub-classes only need to implement {@link Command#execute}.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:37 $
+ * @version $Rev$ $Date$
  */
 public abstract class AbstractCommand
     extends CloneableObject

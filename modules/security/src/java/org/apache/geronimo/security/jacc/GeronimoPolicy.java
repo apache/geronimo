@@ -30,7 +30,7 @@ import javax.security.jacc.PolicyContextException;
 
 /**
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:25 $
+ * @version $Rev$ $Date$
  */
 public class GeronimoPolicy extends Policy {
     private final Policy root;

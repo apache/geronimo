@@ -33,7 +33,7 @@ import org.apache.geronimo.pool.ThreadPool;
 
 
 /**
- * @version $Revision: 1.8 $ $Date: 2004/08/01 13:03:50 $
+ * @version $Rev$ $Date$
  */
 public class ControlServerProtocol extends AbstractControlProtocol {
 

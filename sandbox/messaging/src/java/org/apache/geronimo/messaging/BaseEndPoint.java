@@ -23,7 +23,7 @@ import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
 /**
  * Base class for EndPoint implementations.
  *
- * @version $Revision: 1.1 $ $Date: 2004/06/10 23:12:24 $
+ * @version $Rev$ $Date$
  */
 public abstract class BaseEndPoint
     implements EndPoint

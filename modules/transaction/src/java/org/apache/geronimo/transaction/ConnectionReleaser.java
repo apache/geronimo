@@ -20,7 +20,7 @@ package org.apache.geronimo.transaction;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:36 $
+ * @version $Rev$ $Date$
  *
  * */
 public interface ConnectionReleaser {

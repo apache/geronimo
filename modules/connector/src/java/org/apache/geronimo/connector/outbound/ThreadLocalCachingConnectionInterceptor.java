@@ -24,7 +24,7 @@ import javax.resource.ResourceException;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/05/24 19:10:34 $
+ * @version $Rev$ $Date$
  *
  * */
 public class ThreadLocalCachingConnectionInterceptor implements ConnectionInterceptor {

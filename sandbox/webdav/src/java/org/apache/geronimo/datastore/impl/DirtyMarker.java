@@ -20,7 +20,7 @@ package org.apache.geronimo.datastore.impl;
 /**
  * Mix-in interface tracking the life-cycle of a component.
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:16 $
+ * @version $Rev$ $Date$
  */
 public interface DirtyMarker
 {

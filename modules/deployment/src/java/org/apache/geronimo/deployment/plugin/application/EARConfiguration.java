@@ -24,7 +24,7 @@ import org.apache.geronimo.deployment.plugin.DeploymentConfigurationSupport;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:48 $
+ * @version $Rev$ $Date$
  */
 public class EARConfiguration extends DeploymentConfigurationSupport{
     public EARConfiguration(DeployableObject deployable) {

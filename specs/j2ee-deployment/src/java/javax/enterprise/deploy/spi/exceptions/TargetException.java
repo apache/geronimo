@@ -29,7 +29,7 @@ package javax.enterprise.deploy.spi.exceptions;
  * or the tools is forging targets instead of using the ones provided by the
  * DeploymentManager.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:51 $
+ * @version $Rev$ $Date$
  */
 public class TargetException extends Exception {
     /**

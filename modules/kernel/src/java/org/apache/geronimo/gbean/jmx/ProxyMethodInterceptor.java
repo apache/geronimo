@@ -21,7 +21,7 @@ import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 
 /**
- * @version $Revision: 1.13 $ $Date: 2004/06/02 06:49:23 $
+ * @version $Rev$ $Date$
  */
 public interface ProxyMethodInterceptor {
 

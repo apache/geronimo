@@ -33,7 +33,7 @@ import org.apache.xmlbeans.SchemaTypeLoader;
 /**
  *
  *
- * @version $Revision: 1.14 $ $Date: 2004/03/10 09:58:56 $
+ * @version $Rev$ $Date$
  */
 public class WebAppDConfigBean extends DConfigBeanSupport {
 

@@ -26,7 +26,7 @@ import org.apache.geronimo.network.protocol.util.ByteKeyUpPacket;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:26 $
+ * @version $Rev$ $Date$
  */
 public class PassthroughUpPacket extends ByteKeyUpPacket implements PacketFactory, SubjectCarryingPackets {
 

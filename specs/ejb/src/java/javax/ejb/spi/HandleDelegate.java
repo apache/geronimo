@@ -33,7 +33,7 @@ import javax.ejb.EJBObject;
  *
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:40 $
+ * @version $Rev$ $Date$
  */
 public interface HandleDelegate {
     EJBHome readEJBHome(ObjectInputStream istream) throws ClassNotFoundException, IOException;

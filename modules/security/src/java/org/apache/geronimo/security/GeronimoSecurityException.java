@@ -18,7 +18,7 @@
 package org.apache.geronimo.security;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:25 $
+ * @version $Rev$ $Date$
  */
 public class GeronimoSecurityException extends RuntimeException {
     public GeronimoSecurityException() {

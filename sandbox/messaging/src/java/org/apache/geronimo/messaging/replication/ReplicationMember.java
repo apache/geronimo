@@ -25,7 +25,7 @@ import org.apache.geronimo.messaging.EndPoint;
  * This is an EndPoint in charge of replicating the state of registered
  * ReplicantCapables across N-nodes, which constitute a replication group.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:40 $
+ * @version $Rev$ $Date$
  */
 public interface ReplicationMember
     extends UpdateListener, EndPoint

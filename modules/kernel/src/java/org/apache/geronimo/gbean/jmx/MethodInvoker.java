@@ -18,7 +18,7 @@
 package org.apache.geronimo.gbean.jmx;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/05/27 01:05:59 $
+ * @version $Rev$ $Date$
  */
 public interface MethodInvoker {
     Object invoke(Object target, Object[] arguments) throws Exception;

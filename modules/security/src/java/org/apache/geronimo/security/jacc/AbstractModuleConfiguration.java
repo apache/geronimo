@@ -30,7 +30,7 @@ import org.apache.geronimo.security.GeronimoSecurityException;
 
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/07/12 06:07:49 $
+ * @version $Rev$ $Date$
  */
 public abstract class AbstractModuleConfiguration implements ModuleConfiguration, GBeanLifecycle {
     public static final String BASE_OBJECT_NAME = "geronimo.security:type=ModuleConfiguration";

@@ -20,7 +20,7 @@ import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.Transport;
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:27 $
+ * @version $Rev$ $Date$
  */
 public class TransportEvent extends MailEvent {
     public static final int MESSAGE_DELIVERED = 1;

@@ -29,7 +29,7 @@ import javax.transaction.xa.XAResource;
  *
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:12 $
+ * @version $Rev$ $Date$
  */
 public interface Transaction {
     void commit() throws HeuristicMixedException, HeuristicRollbackException, RollbackException, SecurityException, SystemException;

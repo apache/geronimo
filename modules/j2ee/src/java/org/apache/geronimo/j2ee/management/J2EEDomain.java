@@ -20,7 +20,7 @@ package org.apache.geronimo.j2ee.management;
 /**
  * 
  * 
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:52 $
+ * @version $Rev$ $Date$
  */
 public interface J2EEDomain extends J2EEManagedObject {
     /**

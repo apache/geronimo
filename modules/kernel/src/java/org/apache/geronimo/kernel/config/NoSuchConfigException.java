@@ -20,7 +20,7 @@ package org.apache.geronimo.kernel.config;
 /**
  * Exception indicating the requestion Configuration could not be located.
  * 
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:01 $
+ * @version $Rev$ $Date$
  */
 public class NoSuchConfigException extends Exception {
     public NoSuchConfigException() {

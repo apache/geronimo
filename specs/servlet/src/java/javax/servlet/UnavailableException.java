@@ -47,7 +47,7 @@ package javax.servlet;
  * of time suggested by the exception, rather than rejecting them until
  * the servlet container restarts.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 10:00:20 $
+ * @version $Rev$ $Date$
  */
 public class UnavailableException extends ServletException {
     /**

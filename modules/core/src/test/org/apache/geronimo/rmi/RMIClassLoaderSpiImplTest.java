@@ -27,7 +27,7 @@ import junit.framework.TestCase;
 /**
  * Unit tests for {@link RMIClassLoaderSpiImpl} class.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:44 $
+ * @version $Rev$ $Date$
  */
 public class RMIClassLoaderSpiImplTest
     extends TestCase

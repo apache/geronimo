@@ -21,7 +21,7 @@ package org.apache.geronimo.gbean.jmx;
 /**
  * 
  * 
- * @version $Revision: 1.2 $ $Date: 2004/06/03 23:12:54 $
+ * @version $Rev$ $Date$
  */
 public class VMProxyFactory extends ProxyFactory {
     private final Class proxyType;

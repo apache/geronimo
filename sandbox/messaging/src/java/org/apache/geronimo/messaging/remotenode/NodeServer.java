@@ -24,7 +24,7 @@ import org.apache.geronimo.messaging.NodeException;
  * A NodeServer listens for remote nodes and delegates to a
  * RemoteNodeManager their management. 
  * 
- * @version $Revision: 1.2 $ $Date: 2004/07/20 00:15:06 $
+ * @version $Rev$ $Date$
  */
 public interface NodeServer
 {

@@ -20,7 +20,7 @@ package org.apache.geronimo.common;
 /**
  * Thrown to inidcate an invalid value used for a method argument.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:25 $
+ * @version $Rev$ $Date$
  */
 public class InvalidArgumentException
     extends IllegalArgumentException

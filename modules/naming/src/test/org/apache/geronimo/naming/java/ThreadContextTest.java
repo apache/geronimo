@@ -27,7 +27,7 @@ import junit.framework.TestCase;
  * a component. This is required for Application Client and Servlets;
  * it is not applicable to EJBs as they are not allowed to create Threads.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:09 $
+ * @version $Rev$ $Date$
  */
 public class ThreadContextTest extends TestCase {
 

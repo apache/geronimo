@@ -18,7 +18,7 @@
 package javax.mail.search;
 import javax.mail.Message;
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:28 $
+ * @version $Rev$ $Date$
  */
 public final class NotTerm extends SearchTerm {
     protected SearchTerm term;

@@ -5,7 +5,7 @@ import javax.resource.cci.ConnectionFactory;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/03/12 17:58:45 $
+ * @version $Rev$ $Date$
  *
  * */
 public interface ConnectionFactoryExtension extends ConnectionFactory{

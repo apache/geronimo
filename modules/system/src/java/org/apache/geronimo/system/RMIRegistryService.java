@@ -30,7 +30,7 @@ import org.apache.geronimo.gbean.WaitingException;
 /**
  * Thin GBean wrapper around the RMI Registry.
  *
- * @version $Revision: 1.5 $ $Date: 2004/07/12 06:07:52 $
+ * @version $Rev$ $Date$
  */
 public class RMIRegistryService implements GBeanLifecycle {
     private static final Log log = LogFactory.getLog(RMIRegistryService.class);

@@ -31,7 +31,7 @@ import javax.enterprise.deploy.shared.ActionType;
  * The DeploymentStatus interface provides information about the progress of a
  * deployment action.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:51 $
+ * @version $Rev$ $Date$
  */
 public interface DeploymentStatus {
     /**

@@ -32,7 +32,7 @@ import org.xml.sax.SAXParseException;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/06/02 05:33:02 $
+ * @version $Rev$ $Date$
  *
  * */
 public class ParserFactoryImpl implements ParserFactory {

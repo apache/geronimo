@@ -20,7 +20,7 @@ import java.util.Date;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:28 $
+ * @version $Rev$ $Date$
  */
 public final class SentDateTerm extends DateTerm {
     public SentDateTerm(int comparison, Date date) {

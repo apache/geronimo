@@ -31,7 +31,7 @@ import org.apache.geronimo.security.bridge.RealmBridge;
  *
  * Created: Mon Oct  6 14:31:56 2003
  *
- * @version $Revision: 1.6 $ $Date: 2004/05/30 19:03:36 $
+ * @version $Rev$ $Date$
  */
 public class SubjectInterceptor implements ConnectionInterceptor {
 

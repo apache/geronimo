@@ -25,7 +25,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
  * <BR>
  * An interaction is delimited by a start and an end invocations. 
  *
- * @version $Revision: 1.4 $ $Date: 2004/06/10 23:12:25 $
+ * @version $Rev$ $Date$
  */
 public interface GFileManager extends GBeanLifecycle
 {

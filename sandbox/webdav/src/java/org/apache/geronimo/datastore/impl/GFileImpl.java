@@ -28,7 +28,7 @@ import org.apache.geronimo.messaging.reference.Referenceable;
 /**
  * GFile implementation.
  *
- * @version $Revision: 1.2 $ $Date: 2004/05/11 12:24:59 $
+ * @version $Rev$ $Date$
  */
 public class GFileImpl
     implements GFile, Referenceable

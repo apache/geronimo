@@ -36,7 +36,7 @@ import junit.framework.TestCase;
 /**
  * 
  * 
- * @version $Revision: 1.3 $ $Date: 2004/06/05 16:54:35 $
+ * @version $Rev$ $Date$
  */
 public class AuthenticatorTest extends TestCase {
     private static final String CONFIG_NAME = "testConfig";

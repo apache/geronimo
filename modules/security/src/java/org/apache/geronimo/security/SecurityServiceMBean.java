@@ -23,7 +23,7 @@ import java.util.Collection;
 /**
  * An MBean that maintains a list of security realms.
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/25 09:58:08 $
+ * @version $Rev$ $Date$
  */
 public interface SecurityServiceMBean {
 

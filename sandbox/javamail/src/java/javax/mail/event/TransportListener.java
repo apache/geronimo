@@ -18,7 +18,7 @@
 package javax.mail.event;
 import java.util.EventListener;
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:27 $
+ * @version $Rev$ $Date$
  */
 public interface TransportListener extends EventListener {
     public abstract void messageDelivered(TransportEvent event);

@@ -22,7 +22,7 @@ import org.apache.geronimo.connector.outbound.ConnectionInterceptor;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/06/08 17:38:00 $
+ * @version $Rev$ $Date$
  *
  * */
 public class NoTransactions extends TransactionSupport {

@@ -22,7 +22,7 @@ import java.net.URI;
 import org.apache.geronimo.remoting.router.Router;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:20 $
+ * @version $Rev$ $Date$
  */
 public class BackChannelServer extends AbstractServer {
 

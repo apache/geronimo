@@ -33,7 +33,7 @@ import org.mortbay.jetty.servlet.ServletHttpRequest;
  * ServletHolder for realms that are interested in the current servlet, e.g.
  * current servlet name.
  * @see org.apache.geronimo.jetty.JAASJettyRealm#isUserInRole(java.security.Principal, java.lang.String)
- * @version $Revision: 1.2 $ $Date: 2004/07/27 03:33:53 $
+ * @version $Rev$ $Date$
  */
 public class JettyServletHolder extends ServletHolder {
 

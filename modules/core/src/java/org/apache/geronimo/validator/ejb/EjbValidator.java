@@ -35,7 +35,7 @@ import org.apache.xmlbeans.XmlObject;
  * The validator class for validating an EJB JAR.  Right now just does enough
  * to prove that this whole thing works.
  *
- * @version $Revision: 1.6 $ $Date: 2004/03/10 09:58:44 $
+ * @version $Rev$ $Date$
  */
 public class EjbValidator extends AbstractValidator {
     public Class[] getTestClasses() {

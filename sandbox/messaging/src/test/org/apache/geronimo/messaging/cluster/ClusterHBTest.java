@@ -33,7 +33,7 @@ import junit.framework.TestCase;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/07/17 03:44:19 $
+ * @version $Rev$ $Date$
  */
 public class ClusterHBTest
     extends TestCase

@@ -37,7 +37,7 @@ import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
  * to contain the GBeans that are responsible for deploying each module
  * type.
  *
- * @version $Revision: 1.13 $ $Date: 2004/07/25 08:25:07 $
+ * @version $Rev$ $Date$
  */
 public class DeploymentFactoryImpl implements DeploymentFactory {
     public static final String URI_PREFIX = "deployer:geronimo:";

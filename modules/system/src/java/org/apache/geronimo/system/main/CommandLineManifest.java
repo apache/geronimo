@@ -33,7 +33,7 @@ import javax.management.MalformedObjectNameException;
 /**
  * 
  * 
- * @version $Revision: 1.2 $ $Date: 2004/09/02 11:03:18 $
+ * @version $Rev$ $Date$
  */
 public class CommandLineManifest {
     public static final Attributes.Name MAIN_GBEAN = new Attributes.Name("Main-GBean");

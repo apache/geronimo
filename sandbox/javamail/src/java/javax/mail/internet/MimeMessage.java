@@ -34,7 +34,7 @@ import javax.mail.Session;
 // If we can implement one in terms of the other it would be more efficient, and
 // it's fairly likely that we can ...
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:28 $
+ * @version $Rev$ $Date$
  */
 public class MimeMessage extends Message implements MimePart {
     public static class RecipientType extends Message.RecipientType {

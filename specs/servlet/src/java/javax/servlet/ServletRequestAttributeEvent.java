@@ -31,7 +31,7 @@ package javax.servlet;
  *
  * @since Servlet 2.4
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 10:00:19 $
+ * @version $Rev$ $Date$
  */
 public class ServletRequestAttributeEvent extends ServletRequestEvent {
     private String name;

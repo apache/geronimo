@@ -26,7 +26,7 @@ import java.io.IOException;
  *    - XML or SOAP based marshalled format
  *    - byte[] based marshalled format
  * 
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:19 $
+ * @version $Rev$ $Date$
  */
 public interface MarshalledObject {
 

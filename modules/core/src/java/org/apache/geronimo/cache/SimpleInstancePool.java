@@ -26,7 +26,7 @@ import EDU.oswego.cs.dl.util.concurrent.WaiterPreferenceSemaphore;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:41 $
+ * @version $Rev$ $Date$
  */
 public final class SimpleInstancePool implements InstancePool {
     private LinkedList pool;

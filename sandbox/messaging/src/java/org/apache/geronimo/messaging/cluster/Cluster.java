@@ -25,7 +25,7 @@ import org.apache.geronimo.messaging.NodeInfo;
 /**
  * Cluster of Nodes.
  *
- * @version $Revision: 1.2 $ $Date: 2004/07/17 03:38:42 $
+ * @version $Rev$ $Date$
  */
 public interface Cluster
 {

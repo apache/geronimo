@@ -29,7 +29,7 @@ import javax.enterprise.deploy.shared.ModuleType;
  * An interface that represents the root of a standard deployment descriptor.
  * A DDBeanRoot is a type of DDBean.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:50 $
+ * @version $Rev$ $Date$
  */
 public interface DDBeanRoot extends DDBean {
     /**

@@ -26,7 +26,7 @@ package javax.enterprise.deploy.shared;
 /**
  * Defines enumeration values for the various states of a deployment action.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:50 $
+ * @version $Rev$ $Date$
  */
 public class StateType {
     /**

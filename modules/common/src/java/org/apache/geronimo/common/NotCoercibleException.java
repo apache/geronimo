@@ -20,7 +20,7 @@ package org.apache.geronimo.common;
 /**
  * This exception is thrown to indicate that an object was not coercible.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:25 $
+ * @version $Rev$ $Date$
  */
 public class NotCoercibleException
     extends CoercionException

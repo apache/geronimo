@@ -22,7 +22,7 @@ import javax.enterprise.deploy.model.DDBean;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/03/09 18:03:11 $
+ * @version $Rev$ $Date$
  *
  * */
 public class RemoteRefDConfigBean extends LocalRefDConfigBean {

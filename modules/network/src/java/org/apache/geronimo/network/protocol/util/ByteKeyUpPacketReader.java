@@ -28,7 +28,7 @@ import org.apache.geronimo.network.protocol.UpPacket;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:15 $
+ * @version $Rev$ $Date$
  */
 public class ByteKeyUpPacketReader implements PacketReader {
 

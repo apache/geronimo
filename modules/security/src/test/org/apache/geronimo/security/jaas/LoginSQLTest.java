@@ -32,7 +32,7 @@ import org.apache.geronimo.security.RealmPrincipal;
 
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/07/12 06:07:51 $
+ * @version $Rev$ $Date$
  */
 public class LoginSQLTest extends AbstractTest {
 

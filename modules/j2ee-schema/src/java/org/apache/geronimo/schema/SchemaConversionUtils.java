@@ -32,7 +32,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/09/09 16:47:46 $
+ * @version $Rev$ $Date$
  */
 public class SchemaConversionUtils {
     private static final String J2EE_NAMESPACE = "http://java.sun.com/xml/ns/j2ee";

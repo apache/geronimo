@@ -18,7 +18,7 @@
 package javax.mail;
 import java.net.InetAddress;
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:26 $
+ * @version $Rev$ $Date$
  */
 public abstract class Authenticator {
     private InetAddress _host;

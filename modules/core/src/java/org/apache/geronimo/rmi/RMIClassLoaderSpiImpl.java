@@ -31,7 +31,7 @@ import java.rmi.server.RMIClassLoaderSpi;
  * An implementation of {@link RMIClassLoaderSpi} which provides normilzation
  * of codebase URLs and delegates to the default {@link RMIClassLoaderSpi}.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:44 $
+ * @version $Rev$ $Date$
  */
 public class RMIClassLoaderSpiImpl
     extends RMIClassLoaderSpi

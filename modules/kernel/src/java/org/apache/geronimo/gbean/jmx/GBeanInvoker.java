@@ -19,7 +19,7 @@ package org.apache.geronimo.gbean.jmx;
 import javax.management.ObjectName;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/05/26 03:22:21 $
+ * @version $Rev$ $Date$
  */
 public interface GBeanInvoker {
     int OPERATION = 1;

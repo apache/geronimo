@@ -28,7 +28,7 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/30 19:48:01 $
+ * @version $Rev$ $Date$
  */
 public class CredentialsTest extends TestCase {
     private static final String USERNAME = "username";

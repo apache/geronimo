@@ -27,7 +27,7 @@ import junit.framework.TestCase;
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2004/07/20 00:27:28 $
+ * @version $Rev$ $Date$
  */
 public class RingTopologyManagerTest extends TestCase
 {

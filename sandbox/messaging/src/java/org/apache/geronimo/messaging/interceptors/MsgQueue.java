@@ -26,7 +26,7 @@ import EDU.oswego.cs.dl.util.concurrent.LinkedQueue;
 /**
  * A named queue. It is a staging repository for Msgs.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:40 $
+ * @version $Rev$ $Date$
  */
 public class MsgQueue
 {

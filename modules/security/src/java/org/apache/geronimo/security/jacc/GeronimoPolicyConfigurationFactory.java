@@ -30,7 +30,7 @@ import org.apache.geronimo.security.GeronimoSecurityPermission;
 
 /**
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:25 $
+ * @version $Rev$ $Date$
  */
 public class GeronimoPolicyConfigurationFactory extends PolicyConfigurationFactory {
     private Map configurations = new HashMap();

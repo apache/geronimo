@@ -28,7 +28,7 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:48 $
+ * @version $Rev$ $Date$
  */
 public class EARConfigurer implements ModuleConfigurer {
     public DeploymentConfiguration createConfiguration(DeployableObject deployable) {

@@ -22,7 +22,7 @@ import java.io.Serializable;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/09 22:48:26 $
+ * @version $Rev$ $Date$
  *
  * */
 public interface MockAdminObject extends Serializable {

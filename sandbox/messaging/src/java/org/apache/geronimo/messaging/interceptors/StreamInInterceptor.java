@@ -32,7 +32,7 @@ import org.apache.geronimo.messaging.io.StreamManager;
 /**
  * Allows popping Msgs from an InputStream.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:40 $
+ * @version $Rev$ $Date$
  */
 public class StreamInInterceptor
     implements MsgInInterceptor

@@ -33,7 +33,7 @@ import junit.framework.TestCase;
 /**
  * Unit test for the 'file' protocol.
  *
- * @version $Revision: 1.3 $ $Date: 2004/06/25 20:48:53 $
+ * @version $Rev$ $Date$
  */
 public class FileProtocolTest extends TestCase {
     static {

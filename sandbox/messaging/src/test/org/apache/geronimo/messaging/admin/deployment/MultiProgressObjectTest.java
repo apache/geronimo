@@ -31,7 +31,7 @@ import junit.framework.TestCase;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/06/01 12:44:22 $
+ * @version $Rev$ $Date$
  */
 public class MultiProgressObjectTest extends TestCase
 {

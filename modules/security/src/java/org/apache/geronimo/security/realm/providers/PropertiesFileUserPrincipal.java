@@ -22,7 +22,7 @@ import java.security.Principal;
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:26 $
+ * @version $Rev$ $Date$
  */
 public class PropertiesFileUserPrincipal implements Principal, Serializable {
     private final String name;

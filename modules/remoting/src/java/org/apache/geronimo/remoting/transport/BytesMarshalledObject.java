@@ -35,7 +35,7 @@ import org.apache.geronimo.remoting.MarshalledObject;
 import org.apache.geronimo.remoting.TransportContext;
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/03/21 22:24:39 $
+ * @version $Rev$ $Date$
  */
 public class BytesMarshalledObject implements MarshalledObject, Externalizable {
 

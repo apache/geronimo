@@ -23,7 +23,7 @@ import javax.resource.ResourceException;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/05/24 19:10:35 $
+ * @version $Rev$ $Date$
  *
  * */
 public class SubjectInterceptorTest extends ConnectionInterceptorTestUtils {

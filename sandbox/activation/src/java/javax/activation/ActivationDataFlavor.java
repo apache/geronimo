@@ -23,7 +23,7 @@ import java.awt.datatransfer.DataFlavor;
  *
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:22 $
+ * @version $Rev$ $Date$
  */
 public class ActivationDataFlavor extends DataFlavor {
     public ActivationDataFlavor(Class representationClass, String mimeType, String humanPresentableName) {

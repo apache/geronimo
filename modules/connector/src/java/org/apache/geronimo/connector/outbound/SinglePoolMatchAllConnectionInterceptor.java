@@ -36,7 +36,7 @@ import org.apache.commons.logging.LogFactory;
  * ManagedConnectionFactory for a match from among all managed connections.  If none is found,
  * it may discard a random existing connection, and creates a new connection.
  *
- * @version $Revision: 1.2 $ $Date: 2004/05/24 19:10:34 $
+ * @version $Rev$ $Date$
  */
 public class SinglePoolMatchAllConnectionInterceptor implements ConnectionInterceptor {
 

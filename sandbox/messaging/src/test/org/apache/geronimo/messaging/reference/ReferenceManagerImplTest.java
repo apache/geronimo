@@ -27,7 +27,7 @@ import org.apache.geronimo.messaging.NodeInfo;
 
 /**
  *
- * @version $Revision: 1.3 $ $Date: 2004/05/24 13:02:55 $
+ * @version $Rev$ $Date$
  */
 public class ReferenceManagerImplTest extends TestCase
 {

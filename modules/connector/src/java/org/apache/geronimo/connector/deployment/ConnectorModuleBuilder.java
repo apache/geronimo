@@ -99,7 +99,7 @@ import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 
 /**
- * @version $Revision: 1.13 $ $Date: 2004/08/09 04:19:35 $
+ * @version $Rev$ $Date$
  */
 public class ConnectorModuleBuilder implements ModuleBuilder {
 

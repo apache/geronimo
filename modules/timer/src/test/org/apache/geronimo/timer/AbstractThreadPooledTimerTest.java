@@ -32,7 +32,7 @@ import org.apache.geronimo.timer.WorkInfo;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/07/21 03:53:43 $
+ * @version $Rev$ $Date$
  *
  * */
 public abstract class AbstractThreadPooledTimerTest extends TestCase {

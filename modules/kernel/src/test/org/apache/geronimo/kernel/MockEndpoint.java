@@ -20,7 +20,7 @@ package org.apache.geronimo.kernel;
 import org.apache.geronimo.gbean.GBeanLifecycleController;
 
 /**
- * @version $Revision: 1.8 $ $Date: 2004/06/05 16:07:04 $
+ * @version $Rev$ $Date$
  */
 public interface MockEndpoint {
 

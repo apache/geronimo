@@ -31,7 +31,7 @@ import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.kernel.ClassLoading;
 
 /**
- * @version $Revision: 1.16 $ $Date: 2004/06/12 18:37:16 $
+ * @version $Rev$ $Date$
  */
 public class GBeanMBeanAttribute {
     private static final Log log = LogFactory.getLog(GBeanMBeanAttribute.class);

@@ -6,7 +6,7 @@
 @rem ##########################################################################
 
 @rem 
-@rem $Revision: 1.1 $ $Date: 2004/01/23 02:57:16 $
+@rem $Rev$ $Date$
 @rem 
 
 @rem Set local scope for the variables with windows NT shell

@@ -23,7 +23,7 @@ import java.util.Collection;
  * An extension of collection that allows a client to register for notifications when
  * members are added to and removed from the collection.
  * 
- * @version $Revision: 1.4 $ $Date: 2004/05/27 01:05:58 $
+ * @version $Rev$ $Date$
  */
 public interface ReferenceCollection extends Collection {
     void addReferenceCollectionListener(ReferenceCollectionListener listener);

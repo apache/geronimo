@@ -18,7 +18,7 @@
 package org.apache.geronimo.core.service;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:42 $
+ * @version $Rev$ $Date$
  */
 public interface InvocationKey {
     

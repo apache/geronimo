@@ -30,7 +30,7 @@ import org.apache.geronimo.security.GeronimoSecurityException;
 
 
 /**
- * @version $Revision: $ $Date: $
+ * @version $Revision: $ $Date$
  */
 public class SimpleSecurityRealm extends AbstractSecurityRealm {
 

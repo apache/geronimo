@@ -35,7 +35,7 @@ import org.apache.geronimo.console.cli.TextController;
 /**
  * The screen that lets you distribute, deploy, or redeploy the current module.
  *
- * @version $Revision: 1.5 $ $Date: 2004/07/16 04:09:04 $
+ * @version $Rev$ $Date$
  */
 public class DeploymentOptions extends TextController {
     private static final Log log = LogFactory.getLog(DeploymentOptions.class);

@@ -26,7 +26,7 @@ import EDU.oswego.cs.dl.util.concurrent.Latch;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/07/06 17:15:54 $
+ * @version $Rev$ $Date$
  *
  * */
 public class SyncWorkExecutor implements WorkExecutor {

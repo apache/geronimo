@@ -28,7 +28,7 @@ import junit.framework.TestCase;
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2004/03/24 11:42:57 $
+ * @version $Rev$ $Date$
  */
 public class AbstractUseCaseTest
     extends TestCase

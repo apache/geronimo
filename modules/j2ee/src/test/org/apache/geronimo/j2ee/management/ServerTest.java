@@ -20,7 +20,7 @@ package org.apache.geronimo.j2ee.management;
 import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/07/12 06:07:51 $
+ * @version $Rev$ $Date$
  */
 public class ServerTest extends Abstract77Test {
     private J2EEServer server;

@@ -27,7 +27,7 @@ import org.apache.geronimo.console.cli.DeploymentContext;
 /**
  * Watch the progress of a long-running operation.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:41 $
+ * @version $Rev$ $Date$
  */
 public class ProgressMonitor extends TextController implements ProgressListener {
     private ProgressObject progress;

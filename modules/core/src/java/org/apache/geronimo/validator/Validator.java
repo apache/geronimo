@@ -31,7 +31,7 @@ import org.apache.xmlbeans.XmlObject;
  * initialize and validate, but it cannot validate two application modules
  * simultaneously.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:44 $
+ * @version $Rev$ $Date$
  */
 public interface Validator {
     /**

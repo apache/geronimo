@@ -35,7 +35,7 @@ import org.apache.log4j.xml.DOMConfigurator;
 /**
  * Handles the details of configuring Log4j from a URL.
  *
- * @version $Revision: 1.4 $ $Date: 2004/06/25 20:48:54 $
+ * @version $Rev$ $Date$
  */
 public class URLConfigurator implements Configurator {
     private static final Log log = LogFactory.getLog(URLConfigurator.class);

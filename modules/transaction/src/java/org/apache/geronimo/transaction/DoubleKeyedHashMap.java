@@ -24,7 +24,7 @@ import java.util.Collection;
 /**
  * <b>Really</b> stupid implementation of a double keyed map.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:36 $
+ * @version $Rev$ $Date$
  */
 public final class DoubleKeyedHashMap {
     private final Map map = new HashMap();

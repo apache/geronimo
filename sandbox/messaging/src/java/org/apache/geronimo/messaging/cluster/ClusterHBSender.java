@@ -41,7 +41,7 @@ import EDU.oswego.cs.dl.util.concurrent.ClockDaemon;
  * <BR>
  * Sends heartbeats for a given node, which is a member of a given cluster. 
  *
- * @version $Revision: 1.1 $ $Date: 2004/07/17 03:44:18 $
+ * @version $Rev$ $Date$
  */
 public class ClusterHBSender
     implements GBeanLifecycle

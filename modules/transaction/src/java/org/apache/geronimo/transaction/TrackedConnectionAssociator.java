@@ -22,7 +22,7 @@ import javax.resource.ResourceException;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/05/31 16:27:44 $
+ * @version $Rev$ $Date$
  *
  * */
 public interface TrackedConnectionAssociator {

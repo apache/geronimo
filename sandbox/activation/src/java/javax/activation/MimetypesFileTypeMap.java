@@ -25,7 +25,7 @@ import java.io.InputStream;
  *
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:22 $
+ * @version $Rev$ $Date$
  */
 public class MimetypesFileTypeMap extends FileTypeMap {
     public MimetypesFileTypeMap() {

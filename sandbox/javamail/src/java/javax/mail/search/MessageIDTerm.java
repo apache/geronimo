@@ -19,7 +19,7 @@ package javax.mail.search;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:28 $
+ * @version $Rev$ $Date$
  */
 public final class MessageIDTerm extends StringTerm {
     public MessageIDTerm(String id) {

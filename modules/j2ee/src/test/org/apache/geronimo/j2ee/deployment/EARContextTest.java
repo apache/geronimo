@@ -28,7 +28,7 @@ import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import junit.framework.TestCase;
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/08/06 22:44:37 $
+ * @version $Rev$ $Date$
  */
 public class EARContextTest extends TestCase {
     private final URI coffee = URI.create("some/path/coffee.jar");

@@ -28,7 +28,7 @@ import org.apache.geronimo.deployment.plugin.TargetImpl;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/09/09 14:14:41 $
+ * @version $Rev$ $Date$
  */
 public class UndeployCommand extends CommandSupport {
     private static final String[] UNINSTALL_SIG = {URI.class.getName()};

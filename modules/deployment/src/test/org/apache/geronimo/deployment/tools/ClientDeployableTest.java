@@ -31,7 +31,7 @@ import junit.framework.TestCase;
 /**
  * 
  * 
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:50 $
+ * @version $Rev$ $Date$
  */
 public class ClientDeployableTest extends TestCase {
     private ClassLoader classLoader;

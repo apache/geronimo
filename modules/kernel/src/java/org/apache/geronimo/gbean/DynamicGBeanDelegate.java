@@ -30,7 +30,7 @@ import net.sf.cglib.reflect.FastMethod;
 /**
  * Wraps an <code>Object</code> in a <code>DynamicGBean</code> facade.
  *
- * @version $Revision: 1.8 $ $Date: 2004/07/27 02:13:21 $
+ * @version $Rev$ $Date$
  */
 public class DynamicGBeanDelegate implements DynamicGBean {
     protected final Map getters = new HashMap();

@@ -46,7 +46,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
  * The DependencyManager uses the nomenclature of parent-child where a child is dependent on a parent.
  * The names parent and child have no other meaning are just a convience to make the code readable.
  *
- * @version $Revision: 1.1 $ $Date: 2004/06/05 20:33:40 $
+ * @version $Rev$ $Date$
  * @jmx:mbean
  */
 public class DependencyManager implements NotificationListener {

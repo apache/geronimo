@@ -31,7 +31,7 @@ import javax.enterprise.deploy.shared.ModuleType;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:50 $
+ * @version $Rev$ $Date$
  */
 public class Application implements J2eeApplicationObject {
     private final DDBeanRoot root;

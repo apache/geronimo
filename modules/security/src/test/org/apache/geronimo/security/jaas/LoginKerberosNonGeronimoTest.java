@@ -33,7 +33,7 @@ import org.apache.geronimo.security.RealmPrincipal;
  * An example of how to setup non-Geronimo login modules when the
  * <code>GeronimoLoginConfiguration</code> has been installed in the JVM.
  *
- * @version $Revision: 1.7 $ $Date: 2004/07/12 06:07:51 $
+ * @version $Rev$ $Date$
  * @see org.apache.geronimo.security.jaas.GeronimoLoginConfiguration
  * @see javax.security.auth.login.Configuration
  */

@@ -25,7 +25,7 @@ import java.util.HashMap;
  * limits.
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:58:41 $
+ * @version $Rev$ $Date$
  */
 public final class SimpleInstanceCache implements InstanceCache {
     private HashMap active = new HashMap();

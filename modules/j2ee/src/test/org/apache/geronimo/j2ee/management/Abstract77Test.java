@@ -33,7 +33,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/07/12 06:07:51 $
+ * @version $Rev$ $Date$
  */
 public abstract class Abstract77Test extends TestCase {
     protected static final ObjectName SERVER_INFO_NAME = JMXUtil.getObjectName("geronimo.system:role=ServerInfo");

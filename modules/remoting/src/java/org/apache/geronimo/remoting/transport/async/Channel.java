@@ -29,7 +29,7 @@ import org.apache.geronimo.remoting.transport.TransportException;
  * This interace abstraction is here so that it can be implemented 
  * using both the Blocking and Non-blocking IO APIs.
  * 
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:20 $
+ * @version $Rev$ $Date$
  */
 public interface Channel {
 

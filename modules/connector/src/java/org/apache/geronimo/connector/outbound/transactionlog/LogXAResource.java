@@ -29,7 +29,7 @@ import org.apache.geronimo.transaction.manager.NamedXAResource;
  * Works with JDBCLog to provide last resource optimization for a single 1-pc database.
  * The database work is committed when the log writes its prepare record, not here.
  *
- * @version $Revision: 1.3 $ $Date: 2004/06/08 17:38:01 $
+ * @version $Rev$ $Date$
  *
  * */
 public class LogXAResource implements NamedXAResource {

@@ -49,7 +49,7 @@ import org.apache.geronimo.remoting.transport.async.ChannelListner;
  * 
  * This implemenation uses the standard Java 1.3 blocking socket IO.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:20 $
+ * @version $Rev$ $Date$
  */
 public class BlockingChannel extends SimpleComponent implements Runnable, Channel {
 

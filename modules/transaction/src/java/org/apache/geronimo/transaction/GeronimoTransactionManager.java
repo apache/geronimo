@@ -38,7 +38,7 @@ import org.apache.geronimo.transaction.manager.XidImporter;
 /**
  * Class to set up the standard objects for a geronimo transaction manager.
  *
- * @version $Revision: 1.3 $ $Date: 2004/07/15 03:25:36 $
+ * @version $Rev$ $Date$
  *
  * */
 public class GeronimoTransactionManager extends TransactionManagerProxy {

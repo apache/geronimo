@@ -24,7 +24,7 @@ import junit.framework.TestCase;
 /**
  * Unit test for org.apache.geronimo.common.State class
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:44 $
+ * @version $Rev$ $Date$
  */
 
 public class StateTest extends TestCase {

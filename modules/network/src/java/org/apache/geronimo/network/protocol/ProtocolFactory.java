@@ -30,7 +30,7 @@ import org.apache.geronimo.pool.ClockPool;
 
 
 /**
- * @version $Revision: 1.8 $ $Date: 2004/08/01 03:52:20 $
+ * @version $Rev$ $Date$
  */
 public class ProtocolFactory implements ServerSocketAcceptorListener {
 

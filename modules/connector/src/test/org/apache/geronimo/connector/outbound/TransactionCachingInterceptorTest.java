@@ -28,7 +28,7 @@ import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 /**
  *
  *
- * @version $Revision: 1.9 $ $Date: 2004/07/18 22:08:59 $
+ * @version $Rev$ $Date$
  *
  * */
 public class TransactionCachingInterceptorTest extends ConnectionInterceptorTestUtils {

@@ -29,7 +29,7 @@ import org.apache.geronimo.security.GeronimoSecurityException;
 /**
  * An MBean that maintains a list of security realms.
  *
- * @version $Revision: 1.4 $ $Date: 2004/05/22 15:25:35 $
+ * @version $Rev$ $Date$
  */
 public interface LoginServiceMBean {
 

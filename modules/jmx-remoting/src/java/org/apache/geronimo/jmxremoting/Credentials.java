@@ -27,7 +27,7 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 /**
  * Simple wrapper for a username and password.
  * 
- * @version $Revision: 1.1 $ $Date: 2004/05/30 19:48:01 $
+ * @version $Rev$ $Date$
  */
 public class Credentials implements CallbackHandler, Serializable {
     private final String username;

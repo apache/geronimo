@@ -27,7 +27,7 @@ import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
 
 /**
  *
- * @version $Revision: 1.4 $ $Date: 2004/07/20 00:15:06 $
+ * @version $Rev$ $Date$
  */
 public class MockRemoteNode
     implements RemoteNode

@@ -39,7 +39,7 @@ import java.util.Map;
  *
  * @see ServletRequest
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 10:00:19 $
+ * @version $Rev$ $Date$
  */
 public class ServletRequestWrapper implements ServletRequest {
     private ServletRequest request;

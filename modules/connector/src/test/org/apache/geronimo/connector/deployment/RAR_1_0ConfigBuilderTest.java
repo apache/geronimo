@@ -60,7 +60,7 @@ import org.apache.xmlbeans.XmlOptions;
 import org.tranql.sql.jdbc.JDBCUtil;
 
 /**
- * @version $Revision: 1.16 $ $Date: 2004/09/06 01:38:02 $
+ * @version $Rev$ $Date$
  */
 public class RAR_1_0ConfigBuilderTest extends TestCase {
     private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));

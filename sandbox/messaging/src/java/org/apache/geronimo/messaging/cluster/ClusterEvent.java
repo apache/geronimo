@@ -22,7 +22,7 @@ import org.apache.geronimo.messaging.NodeInfo;
 /**
  * A cluster-wide event.
  *
- * @version $Revision: 1.2 $ $Date: 2004/07/17 03:35:31 $
+ * @version $Rev$ $Date$
  */
 public class ClusterEvent
 {

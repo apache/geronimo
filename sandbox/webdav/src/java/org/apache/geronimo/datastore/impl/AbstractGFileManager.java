@@ -41,7 +41,7 @@ import org.apache.geronimo.gbean.WaitingException;
  * Indeed, a full GFileManager just have to provide its own GFileDAO
  * implementation in order to support all the GFileManager contract.
  *
- * @version $Revision: 1.7 $ $Date: 2004/07/21 07:00:16 $
+ * @version $Rev$ $Date$
  */
 public abstract class AbstractGFileManager
     implements GFileManager

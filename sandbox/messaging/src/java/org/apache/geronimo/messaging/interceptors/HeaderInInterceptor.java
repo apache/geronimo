@@ -22,7 +22,7 @@ import org.apache.geronimo.messaging.Msg;
 /**
  * Inbound interceptor in charge of retrieving an header. 
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:40 $
+ * @version $Rev$ $Date$
  */
 public class HeaderInInterceptor implements MsgInInterceptor
 {

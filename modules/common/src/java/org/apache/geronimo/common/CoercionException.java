@@ -21,7 +21,7 @@ package org.apache.geronimo.common;
  * This exception is thrown to indicate that a problem has occured while
  * trying to coerce an object.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:25 $
+ * @version $Rev$ $Date$
  */
 public class CoercionException
     extends RuntimeException

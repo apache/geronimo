@@ -22,7 +22,7 @@ import javax.management.j2ee.statistics.Stats;
 /**
  * This is a representation of the StatisticsProvider type defined in the J2EE Management specification.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:02 $
+ * @version $Rev$ $Date$
  */
 public interface StatisticsProvider {
     /**

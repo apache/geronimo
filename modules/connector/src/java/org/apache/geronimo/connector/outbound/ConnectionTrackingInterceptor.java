@@ -34,7 +34,7 @@ import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrack
  * a connection the CachedConnectionManager is notified.
  *
  *
- * @version $Revision: 1.10 $ $Date: 2004/05/30 19:03:36 $
+ * @version $Rev$ $Date$
  */
 public class ConnectionTrackingInterceptor implements ConnectionInterceptor {
 

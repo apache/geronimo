@@ -25,7 +25,7 @@ import javax.mail.MessagingException;
 // encodings include "base64", "quoted-printable", "7bit", "8bit" and "binary".
 // In addition, "uuencode" is also supported. The 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:28 $
+ * @version $Rev$ $Date$
  */
 public class MimeUtility {
     // From J2SE 1.4 API Docs (Constant Values)

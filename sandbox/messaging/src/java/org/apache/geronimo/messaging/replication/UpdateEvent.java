@@ -22,7 +22,7 @@ import java.io.Externalizable;
 /**
  * Event to be multicasted by a ReplicationCapable upon modification.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:40 $
+ * @version $Rev$ $Date$
  */
 public interface UpdateEvent extends Externalizable
 {

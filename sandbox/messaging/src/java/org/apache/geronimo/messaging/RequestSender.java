@@ -33,7 +33,7 @@ import EDU.oswego.cs.dl.util.concurrent.TimeoutException;
 /**
  * Request Msgs sender.
  *
- * @version $Revision: 1.4 $ $Date: 2004/06/24 23:52:12 $
+ * @version $Rev$ $Date$
  */
 public class RequestSender
 {

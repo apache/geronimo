@@ -30,7 +30,7 @@ import javax.mail.Provider.Type;
 import javax.mail.internet.ParameterList;
 import javax.mail.internet.ParseException;
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:27 $
+ * @version $Rev$ $Date$
  */
 public final class Session {
     private static final Map _addressMap = new HashMap();

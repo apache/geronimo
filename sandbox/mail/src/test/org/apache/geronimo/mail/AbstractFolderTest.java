@@ -20,7 +20,7 @@ package org.apache.geronimo.mail;
 import junit.framework.TestCase;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:32 $
+ * @version $Rev$ $Date$
  */
 public class AbstractFolderTest extends TestCase {
 

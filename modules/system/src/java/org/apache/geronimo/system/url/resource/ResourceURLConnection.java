@@ -27,7 +27,7 @@ import org.apache.geronimo.system.url.DelegatingURLConnection;
 /**
  * Provides access to system resources as a URLConnection.
  *
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:31 $
+ * @version $Rev$ $Date$
  */
 public class ResourceURLConnection extends DelegatingURLConnection {
     public ResourceURLConnection(final URL url) throws MalformedURLException, IOException {

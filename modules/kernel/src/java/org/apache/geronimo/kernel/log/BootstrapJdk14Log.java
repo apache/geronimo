@@ -25,7 +25,7 @@ import java.util.logging.Logger;
 import org.apache.commons.logging.Log;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/05/27 01:06:00 $
+ * @version $Rev$ $Date$
  */
 public class BootstrapJdk14Log implements Log {
     static {

@@ -33,7 +33,7 @@ import javax.security.auth.Subject;
  *
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/04/07 06:54:57 $
+ * @version $Rev$ $Date$
  */
 public interface ManagedConnectionFactory extends Serializable {
 

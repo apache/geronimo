@@ -35,7 +35,7 @@ import org.apache.geronimo.network.URISupport;
 
 
 /**
- * @version $Revision: 1.8 $ $Date: 2004/05/04 03:05:36 $
+ * @version $Rev$ $Date$
  */
 public class ServerSocketAcceptor implements SelectionEventListner {
 

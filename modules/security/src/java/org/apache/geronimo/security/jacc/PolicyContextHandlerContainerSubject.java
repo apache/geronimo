@@ -26,7 +26,7 @@ import org.apache.geronimo.security.ContextManager;
 /**
  * Container Subject Policy Context Handler
  *
- * @version $Revision: 1.4 $ $Date: 2004/07/14 03:23:01 $
+ * @version $Rev$ $Date$
  * @see "JACC v1.0" section 4.6.1.1
  */
 public class PolicyContextHandlerContainerSubject implements PolicyContextHandler {

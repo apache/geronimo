@@ -54,7 +54,7 @@ import EDU.oswego.cs.dl.util.concurrent.QueuedExecutor;
  * running this service fails, then another node of the cluster should start
  * automatically this service.
  *
- * @version $Revision: 1.2 $ $Date: 2004/07/20 00:01:54 $
+ * @version $Rev$ $Date$
  */
 public class ClusterHBReceiver
     implements GBeanLifecycle

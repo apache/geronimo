@@ -30,7 +30,7 @@ import org.apache.geronimo.kernel.ClassLoading;
  *
  * <p>Allows editors to be nested sub-classes named PropertyEditor.
  *
- * @version $Revision: 1.11 $ $Date: 2004/07/25 08:27:17 $
+ * @version $Rev$ $Date$
  */
 public class PropertyEditors
 {

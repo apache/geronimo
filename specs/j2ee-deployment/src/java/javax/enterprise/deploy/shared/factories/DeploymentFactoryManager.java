@@ -47,7 +47,7 @@ import java.util.ArrayList;
  * DeploymentManager is getDisconnectedDeploymentManager. A disconnected
  * DeploymentManager does not need user authentication information.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:51 $
+ * @version $Rev$ $Date$
  */
 public final class DeploymentFactoryManager {
     private static DeploymentFactoryManager instance;

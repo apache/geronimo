@@ -32,7 +32,7 @@ import org.apache.geronimo.core.service.Interceptor;
  * server on every request).  For example, see
  * {@link org.apache.geronimo.remoting.jmx.RemoteMBeanServerFactory}
  *
- * @version $Revision: 1.9 $ $Date: 2004/03/10 09:58:43 $
+ * @version $Rev$ $Date$
  */
 public class ProxyContainer extends SimpleRPCContainer implements InvocationHandler {
 

@@ -29,7 +29,7 @@ import org.apache.log4j.Logger;
  * An extention of the default Log4j DailyRollingFileAppender
  * which will make the directory structure for the set log file.
  *
- * @version $Revision: 1.7 $ $Date: 2004/07/12 06:07:50 $
+ * @version $Rev$ $Date$
  */
 public class ConsoleAppenderService extends AbstractAppenderService {
     public ConsoleAppenderService() {

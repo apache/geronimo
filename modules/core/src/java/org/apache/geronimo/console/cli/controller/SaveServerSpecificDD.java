@@ -30,7 +30,7 @@ import org.apache.geronimo.console.cli.DeploymentContext;
  * Note that in JSR-88, server-specific DDs are not saved in the
  * JAR/EAR/whatever.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:41 $
+ * @version $Rev$ $Date$
  */
 public class SaveServerSpecificDD extends TextController {
     private static final Log log = LogFactory.getLog(SaveServerSpecificDD.class);

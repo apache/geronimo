@@ -23,7 +23,7 @@ import org.apache.geronimo.xbeans.geronimo.jetty.JettyGbeanType;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/03/09 18:03:52 $
+ * @version $Rev$ $Date$
  *
  * */
 public class JettyGBeanAdapter implements GBeanAdapter {

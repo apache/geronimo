@@ -28,7 +28,7 @@ import org.mortbay.http.ajp.AJP13Listener;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/06/02 05:33:03 $
+ * @version $Rev$ $Date$
  */
 public class AJP13Connector extends JettyConnector {
     public AJP13Connector(JettyContainer container) {

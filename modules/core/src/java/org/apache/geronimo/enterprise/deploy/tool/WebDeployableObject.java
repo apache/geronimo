@@ -35,7 +35,7 @@ import org.apache.commons.logging.LogFactory;
  * A DeployableObject implementation for EJB JARs.  This knows how to load and
  * validate the deployment descriptors for EJB (currently v2.1 only).
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:43 $
+ * @version $Rev$ $Date$
  */
 public class WebDeployableObject extends AbstractDeployableObject {
     private final static Log log = LogFactory.getLog(WebDeployableObject.class);

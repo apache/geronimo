@@ -37,7 +37,7 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 /**
  * 
  * 
- * @version $Revision: 1.5 $ $Date: 2004/07/12 06:07:52 $
+ * @version $Rev$ $Date$
  */
 public class RunTest extends TestCase {
     private File carFile;

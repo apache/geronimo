@@ -23,7 +23,7 @@ import java.io.Serializable;
  *
  * TODO introduce versioning.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:40 $
+ * @version $Rev$ $Date$
  */
 public interface ReplicationCapable
     extends Serializable

@@ -24,7 +24,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:49 $
+ * @version $Rev$ $Date$
  */
 public class GBeanDefault {
     private final String className;

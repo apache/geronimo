@@ -24,7 +24,7 @@ import java.io.ObjectOutput;
 
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:22 $
+ * @version $Rev$ $Date$
  */
 public class MimeType implements Externalizable {
     private final static String TYPE_SEPARATOR = "/";

@@ -26,7 +26,7 @@ import org.apache.geronimo.twiddle.config.CommandConfig;
 /**
  * Information about a command.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:37 $
+ * @version $Rev$ $Date$
  */
 public class CommandInfo
 {

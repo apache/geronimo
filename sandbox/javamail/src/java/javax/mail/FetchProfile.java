@@ -19,7 +19,7 @@ package javax.mail;
 import java.util.HashMap;
 import java.util.Map;
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:26 $
+ * @version $Rev$ $Date$
  */
 public class FetchProfile {
     public static class Item {

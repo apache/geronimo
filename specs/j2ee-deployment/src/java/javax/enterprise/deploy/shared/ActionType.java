@@ -27,7 +27,7 @@ package javax.enterprise.deploy.shared;
  * Class ActionTypes defines enumeration values for the J2EE DeploymentStatus
  * actions.
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:59:50 $
+ * @version $Rev$ $Date$
  */
 public class ActionType {
     /**

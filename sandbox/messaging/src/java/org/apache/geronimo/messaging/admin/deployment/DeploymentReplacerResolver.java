@@ -26,7 +26,7 @@ import org.apache.geronimo.messaging.io.AbstractReplacerResolver;
 
 /**
  *
- * @version $Revision: 1.3 $ $Date: 2004/06/03 14:32:50 $
+ * @version $Rev$ $Date$
  */
 public class DeploymentReplacerResolver
     extends AbstractReplacerResolver

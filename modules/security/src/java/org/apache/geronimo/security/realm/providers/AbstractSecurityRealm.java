@@ -25,7 +25,7 @@ import org.apache.regexp.RE;
 
 
 /**
- * @version $Revision: 1.9 $ $Date: 2004/07/12 06:07:51 $
+ * @version $Rev$ $Date$
  */
 public abstract class AbstractSecurityRealm implements SecurityRealm, GBeanLifecycle {
     private String realmName;

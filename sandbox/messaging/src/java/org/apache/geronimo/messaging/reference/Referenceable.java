@@ -28,7 +28,7 @@ package org.apache.geronimo.messaging.reference;
  * <BR>
  * Only the interfaces of the Referenceable are proxied.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:42 $
+ * @version $Rev$ $Date$
  */
 public interface Referenceable
 {

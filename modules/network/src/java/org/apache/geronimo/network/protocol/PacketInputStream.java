@@ -24,7 +24,7 @@ import EDU.oswego.cs.dl.util.concurrent.BoundedLinkedQueue;
 
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/08/01 13:03:43 $
+ * @version $Rev$ $Date$
  */
 public class PacketInputStream extends InputStream {
 

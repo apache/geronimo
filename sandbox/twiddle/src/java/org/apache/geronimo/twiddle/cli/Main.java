@@ -40,7 +40,7 @@ import org.apache.geronimo.twiddle.util.HelpFormatter;
 /**
  * Command-line interface to <code>Twiddle</code>.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:37 $
+ * @version $Rev$ $Date$
  */
 public class Main
 {

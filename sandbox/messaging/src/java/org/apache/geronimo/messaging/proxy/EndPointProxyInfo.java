@@ -22,7 +22,7 @@ import org.apache.geronimo.messaging.NodeInfo;
 /**
  * EndPoint proxy meta-data.
  *
- * @version $Revision: 1.2 $ $Date: 2004/05/27 14:20:53 $
+ * @version $Rev$ $Date$
  */
 public class EndPointProxyInfo
 {

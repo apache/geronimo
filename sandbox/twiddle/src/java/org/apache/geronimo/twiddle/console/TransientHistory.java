@@ -25,7 +25,7 @@ import org.apache.geronimo.common.NullArgumentException;
 /**
  * A transient history backing.
  *
- * @version <code>$Revision: 1.3 $ $Date: 2004/03/10 10:00:38 $</code>
+ * @version <code>$Rev$ $Date$</code>
  */
 public class TransientHistory
     implements History

@@ -34,7 +34,7 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 /**
  * GFileManager using a LocalGFileDAO to interact with the data store.
  *
- * @version $Revision: 1.4 $ $Date: 2004/06/02 11:29:25 $
+ * @version $Rev$ $Date$
  */
 public class LocalGFileManager
     extends AbstractGFileManager

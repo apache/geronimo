@@ -37,7 +37,7 @@ import org.apache.naming.resources.FileDirContext;
  * DAVRepository implementation using the Tomcat WebDAV servlet as the
  * processing servlet.
  *
- * @version $Revision: 1.6 $ $Date: 2004/06/10 23:12:25 $
+ * @version $Rev$ $Date$
  */
 public class CatalinaDAVRepository
     implements DAVRepository, GBeanLifecycle

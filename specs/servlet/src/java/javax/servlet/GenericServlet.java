@@ -47,7 +47,7 @@ import java.util.Enumeration;
  * <p>To write a generic servlet, you need only
  * override the abstract <code>service</code> method.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 10:00:19 $
+ * @version $Rev$ $Date$
  */
 public abstract class GenericServlet implements Servlet, ServletConfig, java.io.Serializable {
     private transient ServletConfig config;

@@ -60,7 +60,7 @@ import org.apache.geronimo.transaction.context.UnspecifiedTransactionContext;
  * are delegated to the wrapped TransactionManager; all other operations are delegated to the
  * wrapped Transaction.
  *
- * @version $Revision: 1.12 $ $Date: 2004/07/18 22:02:01 $
+ * @version $Rev$ $Date$
  */
 public class TransactionManagerProxy implements TransactionManager, XATerminator, XAWork, GBeanLifecycle {
     private static final boolean NOT_IN_RECOVERY = false;

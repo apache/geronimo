@@ -21,7 +21,7 @@ import java.io.Serializable;
 
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/05/27 01:05:58 $
+ * @version $Rev$ $Date$
  */
 public class GReferenceInfo implements Serializable {
     /**

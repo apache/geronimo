@@ -22,7 +22,7 @@ import org.apache.geronimo.messaging.EndPoint;
 /**
  * Factory of EndPoint proxies.
  *
- * @version $Revision: 1.3 $ $Date: 2004/06/10 23:12:24 $
+ * @version $Rev$ $Date$
  */
 public interface EndPointProxyFactory extends EndPoint
 {

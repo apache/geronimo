@@ -26,7 +26,7 @@ import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
 /**
  * Based implementation for EndPoints to be exposed as GBeans.
  *
- * @version $Revision: 1.2 $ $Date: 2004/07/17 03:50:27 $
+ * @version $Rev$ $Date$
  */
 public abstract class GBeanBaseEndPoint
     extends BaseEndPoint

@@ -26,7 +26,7 @@ package javax.enterprise.deploy.spi.exceptions;
 /**
  * This exception is to report that the bean is not a child of the parent bean.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:51 $
+ * @version $Rev$ $Date$
  */
 public class BeanNotFoundException extends Exception {
     /**

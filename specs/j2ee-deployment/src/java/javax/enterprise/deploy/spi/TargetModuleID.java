@@ -33,7 +33,7 @@ package javax.enterprise.deploy.spi;
  * super module it was bundled and deployed with.  The identifier consists of the
  * target name and the unique identifier for the deployed application module.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:51 $
+ * @version $Rev$ $Date$
  */
 public interface TargetModuleID {
     /**

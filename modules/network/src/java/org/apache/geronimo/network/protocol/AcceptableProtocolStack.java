@@ -25,7 +25,7 @@ import org.apache.commons.logging.LogFactory;
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/08/01 13:03:37 $
+ * @version $Rev$ $Date$
  */
 public class AcceptableProtocolStack extends Stack implements AcceptableProtocol {
 

@@ -33,7 +33,7 @@ import org.apache.geronimo.deployment.tools.DDBeanRootImpl;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:33 $
+ * @version $Rev$ $Date$
  *
  * */
 public class MockRARDeployable implements DeployableObject {

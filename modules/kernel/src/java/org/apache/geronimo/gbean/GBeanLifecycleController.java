@@ -21,7 +21,7 @@ package org.apache.geronimo.gbean;
  * Context handle for a GBean which allows the bean to determin the current state, and to change the
  * current state.
  *
- * @version $Revision: 1.1 $ $Date: 2004/06/05 16:07:04 $
+ * @version $Rev$ $Date$
  */
 public interface GBeanLifecycleController {
     /**

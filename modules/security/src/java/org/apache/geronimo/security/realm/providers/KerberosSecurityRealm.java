@@ -30,7 +30,7 @@ import org.apache.regexp.RE;
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/06/02 05:33:04 $
+ * @version $Rev$ $Date$
  */
 public class KerberosSecurityRealm extends AbstractSecurityRealm {
     private static Log log = LogFactory.getLog(KerberosSecurityRealm.class);

@@ -26,7 +26,7 @@ import javax.security.auth.login.LoginException;
  * the RealmBridge logs into a target realm using identity and credential information from
  * source realm, mapped as appropriate.
  *
- * @version $Revision: 1.3 $ $Date: 2004/02/25 09:58:08 $
+ * @version $Rev$ $Date$
  */
 public interface RealmBridge {
 

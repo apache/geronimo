@@ -42,7 +42,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Basic local transaction with support for multiple resources.
  *
- * @version $Revision: 1.9 $ $Date: 2004/09/02 00:51:57 $
+ * @version $Rev$ $Date$
  */
 public class TransactionImpl implements Transaction {
     private static final Log log = LogFactory.getLog("Transaction");

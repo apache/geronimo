@@ -34,7 +34,7 @@ import org.apache.geronimo.timer.ThreadPooledTimer;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/07/18 22:10:56 $
+ * @version $Rev$ $Date$
  *
  * */
 public class TransactionalExecutorTask implements ExecutorTask {

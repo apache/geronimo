@@ -26,7 +26,7 @@ import org.apache.xmlbeans.SchemaTypeLoader;
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/03/10 09:58:31 $
+ * @version $Rev$ $Date$
  *
  * */
 public class ConfigPropertySettingDConfigBean extends DConfigBeanSupport {

@@ -29,7 +29,7 @@ import org.mortbay.jetty.servlet.WebApplicationHandler;
  * to obtain the name of the servlet that is being handled so that it can
  * generate the proper JACC permission.
  *
- * @version $Revision: 1.1 $ $Date: 2004/06/27 20:37:38 $
+ * @version $Rev$ $Date$
  * @see org.apache.geronimo.jetty.JettyServletHolder
  * @see org.apache.geronimo.jetty.JAASJettyRealm#isUserInRole(java.security.Principal, java.lang.String)
  */

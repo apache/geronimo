@@ -31,7 +31,7 @@ import java.io.Serializable;
  * Application Client.  This class resolves the settings for installing and
  * running the application client.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:51 $
+ * @version $Rev$ $Date$
  */
 public interface ClientConfiguration extends Serializable {
     /**

@@ -36,7 +36,7 @@ import org.apache.xmlbeans.SchemaTypeLoader;
 /**
  *
  *
- * @version $Revision: 1.11 $ $Date: 2004/07/11 21:55:33 $
+ * @version $Rev$ $Date$
  *
  * */
 public class ResourceAdapterDConfigBean extends DConfigBeanSupport {

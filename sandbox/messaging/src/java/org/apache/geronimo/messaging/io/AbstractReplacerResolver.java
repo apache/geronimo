@@ -22,7 +22,7 @@ import java.io.IOException;
 /**
  * Base implementation for the ReplacerResolver contracts.
  *
- * @version $Revision: 1.2 $ $Date: 2004/05/27 14:18:13 $
+ * @version $Rev$ $Date$
  */
 public abstract class AbstractReplacerResolver implements ReplacerResolver {
 

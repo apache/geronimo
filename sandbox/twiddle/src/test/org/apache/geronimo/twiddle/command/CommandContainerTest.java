@@ -30,7 +30,7 @@ import org.apache.geronimo.twiddle.config.CommandConfig;
 /**
  * Unit test for {@link CommandContainer} class.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:38 $
+ * @version $Rev$ $Date$
  */
 public class CommandContainerTest extends TestCase {
 

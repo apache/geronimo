@@ -27,7 +27,7 @@ package org.apache.geronimo.messaging;
  * Conversely, an EndPoint provides to this Node a mean to push Msgs to it via
  * the MsgConsumer interface.
  *
- * @version $Revision: 1.2 $ $Date: 2004/06/10 23:12:24 $
+ * @version $Rev$ $Date$
  */
 public interface EndPoint
     extends MsgConsProd

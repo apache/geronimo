@@ -27,7 +27,7 @@ package javax.resource.cci;
  *
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:45 $
+ * @version $Rev$ $Date$
  */
 public interface ConnectionSpec {
 }

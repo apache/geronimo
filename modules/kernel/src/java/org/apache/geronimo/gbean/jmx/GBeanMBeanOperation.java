@@ -34,7 +34,7 @@ import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.kernel.ClassLoading;
 
 /**
- * @version $Revision: 1.13 $ $Date: 2004/06/25 07:24:20 $
+ * @version $Rev$ $Date$
  */
 public final class GBeanMBeanOperation {
     private final GBeanMBean gmbean;

@@ -23,7 +23,7 @@ import org.apache.geronimo.core.service.Interceptor;
  * You can ask a TransportInterceptor what what type of
  * MarshalledObject the transport would like.
  * 
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:19 $
+ * @version $Rev$ $Date$
  */
 public interface TransportInterceptor extends Interceptor {
     MarshalledObject createMarshalledObject();

@@ -42,7 +42,7 @@ import org.tranql.cache.SimpleFlushStrategy;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/07/18 22:02:01 $
+ * @version $Rev$ $Date$
  */
 public abstract class TransactionContext {
     protected static final Log log = LogFactory.getLog(TransactionContext.class);

@@ -28,7 +28,7 @@ import org.apache.geronimo.remoting.MarshalingInterceptor;
 import org.apache.geronimo.remoting.transport.RemoteTransportInterceptor;
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/03/10 09:59:19 $
+ * @version $Rev$ $Date$
  */
 public class RemoteMBeanServerFactory {
 

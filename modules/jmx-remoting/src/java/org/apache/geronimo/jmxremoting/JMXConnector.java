@@ -33,7 +33,7 @@ import org.apache.geronimo.kernel.Kernel;
 /**
  * A Connector that supports the server sideof JSR 160 JMX Remoting.
  *
- * @version $Revision: 1.8 $ $Date: 2004/07/12 06:07:52 $
+ * @version $Rev$ $Date$
  */
 public class JMXConnector implements GBeanLifecycle {
     private final Kernel kernel;

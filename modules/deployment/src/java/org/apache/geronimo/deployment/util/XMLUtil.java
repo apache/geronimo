@@ -24,7 +24,7 @@ import org.w3c.dom.Node;
 /**
  * 
  * 
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:49 $
+ * @version $Rev$ $Date$
  */
 public class XMLUtil {
     public static Object getContent(Element element) {

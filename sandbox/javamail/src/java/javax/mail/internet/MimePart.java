@@ -20,7 +20,7 @@ import java.util.Enumeration;
 import javax.mail.MessagingException;
 import javax.mail.Part;
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:28 $
+ * @version $Rev$ $Date$
  */
 public interface MimePart extends Part {
     public abstract void addHeaderLine(String line) throws MessagingException;

@@ -34,7 +34,7 @@ import javax.servlet.ServletRequest;
  * object and passes it as an argument to the servlet's service
  * methods (<code>doGet</code>, <code>doPost</code>, etc).
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 10:00:20 $
+ * @version $Rev$ $Date$
  */
 public interface HttpServletRequest extends ServletRequest {
 

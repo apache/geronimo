@@ -26,7 +26,7 @@ import org.apache.geronimo.network.protocol.util.ByteKeyUpPacket;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:14 $
+ * @version $Rev$ $Date$
  */
 class BootRequestUpPacket extends ByteKeyUpPacket implements PacketFactory {
 

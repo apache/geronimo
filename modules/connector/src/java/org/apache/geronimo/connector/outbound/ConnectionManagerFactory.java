@@ -28,7 +28,7 @@ import org.apache.geronimo.transaction.manager.NamedXAResource;
 /**
  * ConnectionManagerFactory
  *
- * @version $Revision: 1.6 $ $Date: 2004/06/11 19:22:04 $
+ * @version $Rev$ $Date$
  */
 public interface ConnectionManagerFactory {
 

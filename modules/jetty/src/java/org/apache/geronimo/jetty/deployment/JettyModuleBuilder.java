@@ -77,7 +77,7 @@ import org.apache.xmlbeans.XmlBeans;
 
 
 /**
- * @version $Revision: 1.22 $ $Date: 2004/08/09 04:19:35 $
+ * @version $Rev$ $Date$
  */
 public class JettyModuleBuilder implements ModuleBuilder {
     static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderUnion(new SchemaTypeLoader[]{

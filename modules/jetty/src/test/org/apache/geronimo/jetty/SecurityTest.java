@@ -41,7 +41,7 @@ import org.apache.geronimo.transaction.UserTransactionImpl;
 
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/07/15 17:57:56 $
+ * @version $Rev$ $Date$
  */
 public class SecurityTest extends TestCase {
 

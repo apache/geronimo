@@ -22,7 +22,7 @@ import org.apache.geronimo.deployment.xbeans.GbeanType;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/03/09 18:00:57 $
+ * @version $Rev$ $Date$
  *
  * */
 public class ServiceGBeanAdapter implements GBeanAdapter {

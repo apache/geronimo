@@ -26,7 +26,7 @@ import javax.management.ObjectName;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/03/09 18:03:11 $
+ * @version $Rev$ $Date$
  *
  * */
 public class JMXRefAddr extends RefAddr {

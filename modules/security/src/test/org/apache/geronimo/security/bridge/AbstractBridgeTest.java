@@ -24,7 +24,7 @@ import org.apache.geronimo.security.realm.providers.GeronimoPasswordCredential;
 
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:27 $
+ * @version $Rev$ $Date$
  */
 public abstract class AbstractBridgeTest extends AbstractTest {
     protected final static String USER = "testuser";
