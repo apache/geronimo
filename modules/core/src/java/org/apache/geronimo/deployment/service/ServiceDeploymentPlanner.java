@@ -105,7 +105,7 @@ import org.xml.sax.SAXException;
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2003/08/26 11:04:01 $
+ * @version $Revision: 1.8 $ $Date: 2003/08/26 13:03:58 $
  */
 public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, MBeanRegistration {
     private Log log = LogFactory.getLog(getClass());
@@ -170,13 +170,7 @@ public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, 
     private boolean addURL(DeployURL goal, Set goals, Set plans) throws DeploymentException {
         InputStream is;
         URL url = goal.getUrl();
-        URI baseURI = null;
-        
-        try {
-            baseURI = (new URI(url.toExternalForm())).normalize();
-        } catch (Exception e) {
-            throw new DeploymentException("Could not determine base URI", e);
-        }
+        URI baseURI = URI.create(url.toString()).normalize();;
         
         URLType type = goal.getType();
         if (type == URLType.RESOURCE) {
