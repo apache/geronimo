@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.17 $ $Date: 2003/08/16 17:15:11 $ -->
+<!-- $Revision: 1.18 $ $Date: 2003/08/16 19:18:32 $ -->
 
 <project default="default"
   xmlns:j="jelly:core" 
@@ -33,6 +33,7 @@
         banner="Executing (${goals}):"
         ignoreFailures="false"
         goals="${goals}"
+        postProcessing="true"
     />
   </goal>
   
@@ -67,6 +68,53 @@
   <preGoal name="default">
     <attainGoal name="modules:default"/>
   </preGoal>
+  
+  
+  <!-- ========================= -->
+  <!-- Module Output Aggregation -->
+  <!-- ========================= -->
+  
+  <goal name="modules:aggregate">
+    <ant:echo>Aggregating modules...</ant:echo>
+    
+    <j:scope>
+      <j:forEach var="module" items="${reactorProjects}">
+        <ant:echo>Processing ${module.id}...</ant:echo>
+        
+        <!-- Get the modules root directory -->
+        <j:set var="module.root" value="${module.file.parent}"/>
+        
+        <!--
+           | Execute the aggregation hook.
+           |
+           | TODO: Should check if there is an aggregate hook for this module
+           |       instead of using the catch hack.
+         -->
+        <j:set var="hook.name" value="modules:aggregate:${module.id}"/>
+        <j:catch var="e">
+          <attainGoal name="${hook.name}"/>
+        </j:catch>
+        <j:if test="${e != null}">
+          <ant:echo level="warning">Failed to invoke aggregate hook: ${e}</ant:echo>
+        </j:if>
+        
+        <!-- Process dependencies -->
+        <j:forEach var="dependency" items="${module.dependencies}">
+          <j:if test="${dependency.getProperty('runtime') == 'true'}">
+            <!-- 
+               | TODO: copy dependency artifact to lib/
+               |       probably need to have specifiers for where this lib will go?
+               |       or should this be put into a helper tag and called by the
+               |       module aggregation hook
+             -->
+          </j:if>
+        </j:forEach>
+      </j:forEach>
+    </j:scope>
+  </goal>
+  
+  <goal name="modules:aggregate:geronimo:geronimo-common">
+  </goal>
   
   
   <!-- =============================== -->
