@@ -167,6 +167,11 @@ public abstract class TransactionContext {
         return managedConnections.get(key);
     }
 
+    /**
+     * determines if the transaction is in a pre-prepared state
+     * of STATUS_ACTIVE or STATUS_MARKED_ROLLBACK.
+     * @return true if more work can be done in the transaction (although it might be forced to roll back)
+     */
     public abstract boolean isActive();
 
     public abstract Transaction getTransaction();

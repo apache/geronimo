@@ -57,7 +57,8 @@ public abstract class InheritableTransactionContext extends TransactionContext {
 
     public boolean isActive() {
         try {
-            return txnManager.getStatus() == Status.STATUS_ACTIVE;
+            int status = txnManager.getStatus();
+            return status == Status.STATUS_ACTIVE || status == Status.STATUS_MARKED_ROLLBACK;
         } catch (SystemException e) {
             return false;
         }
