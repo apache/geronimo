@@ -72,7 +72,7 @@ import org.apache.xmlbeans.XmlOptions;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/09 18:02:02 $
+ * @version $Revision: 1.5 $ $Date: 2004/03/09 20:48:26 $
  *
  * */
 public class RAR_1_5ConfigBuilder extends AbstractRARConfigBuilder {
@@ -211,7 +211,7 @@ public class RAR_1_5ConfigBuilder extends AbstractRARConfigBuilder {
                     */
                     managedConnectionFactoryGBean.setReferencePatterns("Kernel", Collections.singleton(Kernel.KERNEL));
                     managedConnectionFactoryGBean.setAttribute("SelfName", managedConnectionFactoryObjectName);
-                  } catch (Exception e) {
+                } catch (Exception e) {
                     throw new DeploymentException(e);
                 }
                 context.addGBean(managedConnectionFactoryObjectName, managedConnectionFactoryGBean);
@@ -232,14 +232,16 @@ public class RAR_1_5ConfigBuilder extends AbstractRARConfigBuilder {
                 GerAdminobjectInstanceType gerAdminobjectInstance = gerAdminObject.getAdminobjectInstanceArray()[j];
                 GBeanInfoFactory adminObjectInfoFactory = new GBeanInfoFactory(AdminObjectWrapper.class.getName(), AdminObjectWrapper.getGBeanInfo());
                 GBeanMBean adminObjectGBean = setUpDynamicGBean(adminObjectInfoFactory, adminobject.getConfigPropertyArray(), gerAdminobjectInstance.getConfigPropertySettingArray());
-                ObjectName adminObjectObjectName = null;
                 try {
-                    adminObjectObjectName = ObjectName.getInstance(JMXReferenceFactory.BASE_ADMIN_OBJECT_NAME + gerAdminobjectInstance.getAdminobjectName());
-                } catch (MalformedObjectNameException e) {
-                    throw new DeploymentException("Could not construct ManagedConnectionFactory object name", e);
+                    ObjectName adminObjectObjectName = ObjectName.getInstance(JMXReferenceFactory.BASE_ADMIN_OBJECT_NAME + gerAdminobjectInstance.getAdminobjectName());
+                    adminObjectGBean.setAttribute("AdminObjectInterface", cl.loadClass(adminobject.getAdminobjectInterface().getStringValue()));
+                    adminObjectGBean.setAttribute("AdminObjectClass", cl.loadClass(adminobject.getAdminobjectClass().getStringValue()));
+                    adminObjectGBean.setReferencePatterns("Kernel", Collections.singleton(Kernel.KERNEL));
+                    adminObjectGBean.setAttribute("SelfName", adminObjectObjectName);
+                    context.addGBean(adminObjectObjectName, adminObjectGBean);
+                } catch (Exception e) {
+                    throw new DeploymentException("Could not construct AdminObject", e);
                 }
-                context.addGBean(adminObjectObjectName, adminObjectGBean);
-
             }
         }
 
