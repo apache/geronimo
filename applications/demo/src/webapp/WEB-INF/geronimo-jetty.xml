@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://geronimo.apache.org/xml/ns/web/jetty" configId="org/apache/geronimo/Demo" parentId="org/apache/geronimo/Secure">
+    <context-root>/demo</context-root>
+    <context-priority-classloader>false</context-priority-classloader>
+    <security use-context-handler="false">
+        <default-principal>
+            <principal class="org.apache.geronimo.security.realm.providers.PropertiesFileUserPrincipal" name="george"/>
+        </default-principal>
+        <role-mappings>
+            <role role-name="content-administrator">
+                <realm realm-name="geronimo-properties-realm">
+                    <principal class="org.apache.geronimo.security.realm.providers.PropertiesFileGroupPrincipal" name="it"/>
+                    <principal class="org.apache.geronimo.security.realm.providers.PropertiesFileUserPrincipal" name="metro"/>
+                </realm>
+            </role>
+        </role-mappings>
+    </security>
+</web-app>
