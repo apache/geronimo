@@ -31,7 +31,7 @@ import javax.naming.NamingException;
 public class RootContext extends ReadOnlyContext {
     private static InheritableThreadLocal compContext = new InheritableThreadLocal();
 
-    RootContext(Hashtable env) {
+    public RootContext(Hashtable env) {
         super(env);
     }
 

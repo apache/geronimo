@@ -34,8 +34,9 @@ public class J2EEAppClientModuleImpl {
     private final J2EEServer server;
     private final J2EEApplication application;
     private final Context componentContext;
+    private final ClassLoader classLoader;
 
-    public J2EEAppClientModuleImpl(Context componentContext, String objectName, J2EEServer server, J2EEApplication application, String deploymentDescriptor) {
+    public J2EEAppClientModuleImpl(Context componentContext, String objectName, J2EEServer server, J2EEApplication application, String deploymentDescriptor, ClassLoader classLoader) {
         this.componentContext = componentContext;
         ObjectName myObjectName = JMXUtil.getObjectName(objectName);
         verifyObjectName(myObjectName);
@@ -43,6 +44,7 @@ public class J2EEAppClientModuleImpl {
         this.server = server;
         this.application = application;
         this.deploymentDescriptor = deploymentDescriptor;
+        this.classLoader = classLoader;
     }
 
     /**
@@ -95,6 +97,10 @@ public class J2EEAppClientModuleImpl {
         return componentContext;
     }
 
+    public ClassLoader getClassLoader() {
+        return classLoader;
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
@@ -109,13 +115,16 @@ public class J2EEAppClientModuleImpl {
         infoFactory.addAttribute("server", String.class, false);
         infoFactory.addAttribute("application", String.class, false);
         infoFactory.addAttribute("javaVMs", String[].class, false);
+        infoFactory.addAttribute("classLoader", ClassLoader.class, false);
+
 
         infoFactory.setConstructor(new String[]{
             "componentContext",
             "objectName",
             "J2EEServer",
             "J2EEApplication",
-            "deploymentDescriptor"});
+            "deploymentDescriptor",
+            "classLoader"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

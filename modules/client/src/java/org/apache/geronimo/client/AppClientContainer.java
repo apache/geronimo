@@ -33,11 +33,13 @@ public final class AppClientContainer {
     private final AppClientPlugin jndiContext;
     private final ObjectName appClientModuleName;
     private final Method mainMethod;
+    private final ClassLoader classLoader;
 
     public AppClientContainer(String mainClassName, ObjectName appClientModuleName, AppClientPlugin jndiContext, ClassLoader classLoader) throws Exception {
         this.mainClassName = mainClassName;
         this.jndiContext = jndiContext;
         this.appClientModuleName = appClientModuleName;
+        this.classLoader = classLoader;
 
         try {
             Class mainClass = classLoader.loadClass(mainClassName);
@@ -59,6 +61,11 @@ public final class AppClientContainer {
 
     public void main(String[] args) throws Exception {
         Throwable throwable = null;
+        Thread thread = Thread.currentThread();
+
+        ClassLoader contextClassLoader = thread.getContextClassLoader();
+        thread.setContextClassLoader(classLoader);
+
         try {
             jndiContext.startClient(appClientModuleName);
 
@@ -71,9 +78,10 @@ public final class AppClientContainer {
             } else if (cause instanceof Error) {
                 throwable = cause;
             }
-            throwable = e;
         } finally {
             jndiContext.stopClient(appClientModuleName);
+
+            thread.setContextClassLoader(contextClassLoader);
 
             if (throwable instanceof Exception) {
                 throw (Exception) throwable;
