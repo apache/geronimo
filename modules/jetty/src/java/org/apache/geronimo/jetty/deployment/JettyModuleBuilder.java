@@ -57,6 +57,7 @@ import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.java.ComponentContextBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
+import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.deploy.Principal;
 import org.apache.geronimo.security.deploy.Realm;
@@ -80,14 +81,12 @@ import org.apache.geronimo.xbeans.j2ee.EnvEntryType;
 import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
 import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
 import org.apache.geronimo.xbeans.j2ee.WebAppType;
-import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
-import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
 
 /**
- * @version $Revision: 1.10 $ $Date: 2004/06/17 06:56:02 $
+ * @version $Revision: 1.11 $ $Date: 2004/06/22 00:00:22 $
  */
 public class JettyModuleBuilder implements ModuleBuilder {
     private static final String PARENT_ID = "org/apache/geronimo/Server";
@@ -203,7 +202,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
                     } catch (XmlException e) {
                         throw new DeploymentException("Unable to parse web.xml", e);
                     }
-                } else if (jettyWebApp != null && "WEB-INF/geronimo-jetty.xml".equals(src.getName())) {
+                } else if (jettyWebApp == null && "WEB-INF/geronimo-jetty.xml".equals(src.getName())) {
                     byte[] buffer = getBytes(jarIS);
                     earContext.addFile(target, new ByteArrayInputStream(buffer));
                     try {
