@@ -250,7 +250,8 @@ public class ServiceReferenceTest extends TestCase {
         WSDLFactory factory = WSDLFactory.newInstance();
         WSDLReader reader = factory.newWSDLReader();
         Definition definition = reader.readWSDL(wsdlFile.toURI().toString());
-        Map complexTypeMap = WSDescriptorParser.getComplexTypesInWsdl(definition);
+        Map schemaTypeKeyToSchemaTypeMap = WSDescriptorParser.buildSchemaTypeKeyToSchemaTypeMap(definition);
+        Map complexTypeMap = WSDescriptorParser.getComplexTypesInWsdl(schemaTypeKeyToSchemaTypeMap);
         assertEquals(7, complexTypeMap.size());
     }
 

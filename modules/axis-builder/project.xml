@@ -236,7 +236,7 @@
     <build>
         <resources>
             <resource>
-                <directory>${basedir}/src/etc</directory>
+                <directory>${basedir}/src/schema</directory>
             </resource>
             <resource>
                 <directory>${basedir}/target/xmlbeans</directory>

@@ -102,6 +102,29 @@ import org.xml.sax.InputSource;
  */
 public class WSDescriptorParser {
 
+    private static SchemaTypeSystem basicTypeSystem;
+
+    static {
+        URL url = WSDescriptorParser.class.getClassLoader().getResource("soap_encoding_1_1.xsd");
+        if (url == null) {
+            throw new RuntimeException("Could not locate soap encoding schema");
+        }
+        Collection errors = new ArrayList();
+        XmlOptions xmlOptions = new XmlOptions();
+        xmlOptions.setErrorListener(errors);
+        try {
+            XmlObject xmlObject = SchemaConversionUtils.parse(url);
+            basicTypeSystem = XmlBeans.compileXsd(new XmlObject[]{xmlObject}, XmlBeans.getBuiltinTypeSystem(), xmlOptions);
+            if (errors.size() > 0) {
+                throw new RuntimeException("Could not compile schema type system: errors: " + errors);
+            }
+        } catch (XmlException e) {
+            throw new RuntimeException("Could not compile schema type system", e);
+        } catch (IOException e) {
+            throw new RuntimeException("Could not compile schema type system", e);
+        }
+    }
+
     public static Map parseWebServiceDescriptor(URL wsDDUrl, JarFile moduleFile, boolean isEJB) throws DeploymentException {
         try {
             WebservicesDocument webservicesDocument = WebservicesDocument.Factory.parse(wsDDUrl);
@@ -213,7 +236,7 @@ public class WSDescriptorParser {
         xmlOptions.setErrorListener(errors);
         XmlObject[] schemas = (XmlObject[]) schemaList.toArray(new XmlObject[schemaList.size()]);
         try {
-            SchemaTypeSystem schemaTypeSystem = XmlBeans.compileXsd(schemas, XmlBeans.getBuiltinTypeSystem(), xmlOptions);
+            SchemaTypeSystem schemaTypeSystem = XmlBeans.compileXsd(schemas, basicTypeSystem, xmlOptions);
             if (errors.size() > 0) {
                 throw new DeploymentException("Could not compile schema type system: errors: " + errors);
             }
@@ -243,7 +266,7 @@ public class WSDescriptorParser {
                     Element element = unknownExtensibilityElement.getElement();
                     String elementNamespace = element.getNamespaceURI();
                     String elementLocalName = element.getNodeName();
-                    if ("http://www.w3.org/2001/XMLSchema".equals(elementNamespace) &&  "schema".equals(elementLocalName)) {
+                    if ("http://www.w3.org/2001/XMLSchema".equals(elementNamespace) && "schema".equals(elementLocalName)) {
                         addSchemaElement(element, namespaceMap, schemaList);
                     }
                 }
@@ -397,57 +420,20 @@ public class WSDescriptorParser {
     }
 
     /**
-     * Find all the top level complex types in the schemas in the definitions' types.
+     * Find all the complex types in the previously constructed schema analysis.
      * Put them in a map from complex type QName to schema fragment.
-     * TODO it is not clear what happens with included schemas.
-     *
-     * @param definition
+     * @param schemaTypeKeyToSchemaTypeMap
      * @return
-     * @throws DeploymentException
      */
-    public static Map getComplexTypesInWsdl(Definition definition) throws DeploymentException {
+    public static Map getComplexTypesInWsdl(Map schemaTypeKeyToSchemaTypeMap) {
         Map complexTypeMap = new HashMap();
-        Types types = definition.getTypes();
-        Map namespaceMap = definition.getNamespaces();
-        if (types != null) {
-            List schemas = types.getExtensibilityElements();
-            for (Iterator iterator = schemas.iterator(); iterator.hasNext();) {
-                Object o = iterator.next();
-                if (o instanceof Schema) {
-                    Schema unknownExtensibilityElement = (Schema) o;
-                    QName elementType = unknownExtensibilityElement.getElementType();
-                    if (new QName("http://www.w3.org/2001/XMLSchema", "schema").equals(elementType)) {
-                        Element element = unknownExtensibilityElement.getElement();
-                        try {
-                            XmlObject xmlObject = SchemaConversionUtils.parse(element);
-                            XmlCursor cursor = xmlObject.newCursor();
-                            try {
-                                cursor.toFirstContentToken();
-                                for (Iterator namespaces = namespaceMap.entrySet().iterator(); namespaces.hasNext();) {
-                                    Map.Entry entry = (Map.Entry) namespaces.next();
-                                    cursor.insertNamespace((String) entry.getKey(), (String) entry.getValue());
-                                }
-                            } finally {
-                                cursor.dispose();
-                            }
-                            SchemaDocument schemaDoc = (SchemaDocument) xmlObject.changeType(SchemaDocument.type);
-                            SchemaConversionUtils.validateDD(schemaDoc);
-                            SchemaDocument.Schema schema = schemaDoc.getSchema();
-                            String targetNamespace = schema.getTargetNamespace();
-                            ComplexType[] complexTypes = schema.getComplexTypeArray();
-                            for (int j = 0; j < complexTypes.length; j++) {
-                                ComplexType complexType = complexTypes[j];
-                                String complexTypeName = complexType.getName();
-                                QName complexTypeQName = new QName(targetNamespace, complexTypeName);
-                                complexTypeMap.put(complexTypeQName, complexType);
-                            }
-                        } catch (XmlException e) {
-                            throw new DeploymentException("Invalid schema in wsdl", e);
-                        }
-                    } else {
-                        //problems??
-                    }
-                }
+        for (Iterator iterator = schemaTypeKeyToSchemaTypeMap.entrySet().iterator(); iterator.hasNext();) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            SchemaTypeKey key = (SchemaTypeKey) entry.getKey();
+            if (!key.isSimpleType() && !key.isAnonymous()) {
+                QName qName = key.getqName();
+                SchemaType schemaType = (SchemaType) entry.getValue();
+                complexTypeMap.put(qName, schemaType);
             }
         }
         return complexTypeMap;
