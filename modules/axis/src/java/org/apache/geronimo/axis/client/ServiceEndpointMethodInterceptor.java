@@ -17,7 +17,6 @@
 package org.apache.geronimo.axis.client;
 
 import java.lang.reflect.Method;
-import java.io.Serializable;
 import java.util.Arrays;
 
 import net.sf.cglib.proxy.MethodInterceptor;

@@ -101,6 +101,12 @@
             <version>${geronimo_spec_ejb_version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-jaxrpc</artifactId>
+            <version>${geronimo_spec_jaxrpc_version}</version>
+        </dependency>
+
         <!-- test only -->
         <dependency>
             <groupId>cglib</groupId>

@@ -20,6 +20,8 @@ import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.xml.namespace.QName;
+
 import org.apache.axis.AxisFault;
 import org.apache.axis.NoEndPointException;
 import org.apache.axis.client.Call;
@@ -32,10 +34,11 @@ public class GenericServiceEndpoint extends org.apache.axis.client.Stub {
 
     private final List typeMappings;
 
-    public GenericServiceEndpoint(Service service, List typeMappings, URL location) {
+    public GenericServiceEndpoint(QName portQName, Service service, List typeMappings, URL location) {
         this.service = service;
         this.typeMappings = typeMappings;
         cachedEndpoint = location;
+        cachedPortName = portQName;
     }
 
     Call createCall() throws java.rmi.RemoteException {

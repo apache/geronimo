@@ -17,8 +17,8 @@
 package org.apache.geronimo.axis.client;
 
 import java.rmi.Remote;
-import javax.xml.rpc.Service;
 import javax.xml.rpc.ServiceException;
+import javax.xml.rpc.handler.HandlerChain;
 
 /**
  * @version $Rev:  $ $Date:  $
@@ -26,5 +26,6 @@ import javax.xml.rpc.ServiceException;
 public interface SEIFactory {
 
     Remote createServiceEndpoint() throws ServiceException;
-    
+
+    HandlerChain createHandlerChain();
 }

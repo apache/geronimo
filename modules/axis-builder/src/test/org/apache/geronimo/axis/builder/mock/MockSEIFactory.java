@@ -19,6 +19,7 @@ package org.apache.geronimo.axis.builder.mock;
 import java.rmi.Remote;
 
 import javax.xml.rpc.Service;
+import javax.xml.rpc.handler.HandlerChain;
 
 import org.apache.geronimo.axis.client.SEIFactory;
 
@@ -28,5 +29,9 @@ import org.apache.geronimo.axis.client.SEIFactory;
 public class MockSEIFactory implements SEIFactory {
     public Remote createServiceEndpoint() {
         return new MockPortImpl();
+    }
+
+    public HandlerChain createHandlerChain() {
+        return null;
     }
 }

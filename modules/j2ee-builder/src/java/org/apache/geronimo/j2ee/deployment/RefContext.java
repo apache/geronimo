@@ -36,6 +36,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.xbeans.j2ee.ServiceRefHandlerType;
 
 /**
  * @version $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $
@@ -299,8 +300,8 @@ public class RefContext {
         }
     }
 
-    public Object getServiceReference(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlers, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException {
-        return serviceReferenceBuilder.createService(serviceInterface, wsdlURI, jaxrpcMappingURI, serviceQName, portComponentRefMap, handlers, deploymentContext, module, classLoader);
+    public Object getServiceReference(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlerInfos, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException {
+        return serviceReferenceBuilder.createService(serviceInterface, wsdlURI, jaxrpcMappingURI, serviceQName, portComponentRefMap, handlerInfos, deploymentContext, module, classLoader);
     }
 
     private String getContainerId(URI module, String ejbLink, Map references) throws AmbiguousEJBRefException, UnknownEJBRefException {

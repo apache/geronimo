@@ -16,12 +16,10 @@
  */
 package org.apache.geronimo.axis.client;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Map;
-import java.io.Serializable;
-
 import javax.xml.rpc.ServiceException;
-import javax.xml.rpc.Service;
 
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;

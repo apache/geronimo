@@ -23,7 +23,6 @@ import javax.xml.rpc.Stub;
 
 import org.apache.axis.message.SOAPHeaderElement;
 import org.apache.axis.client.Call;
-import org.apache.axis.AxisFault;
 import org.apache.axis.NoEndPointException;
 
 /**

@@ -24,6 +24,8 @@ import java.io.InvalidClassException;
 import java.util.List;
 import java.net.URL;
 import javax.xml.rpc.ServiceException;
+import javax.xml.rpc.handler.HandlerChain;
+import javax.xml.namespace.QName;
 
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
@@ -32,6 +34,7 @@ import net.sf.cglib.reflect.FastConstructor;
 import net.sf.cglib.reflect.FastClass;
 import net.sf.cglib.core.Signature;
 import org.apache.axis.client.Service;
+import org.apache.axis.handlers.HandlerInfoChainFactory;
 
 /**
  * @version $Rev:  $ $Date:  $
@@ -39,15 +42,18 @@ import org.apache.axis.client.Service;
 public class SEIFactoryImpl implements SEIFactory, Serializable {
     private static final Class[] SERVICE_ENDPOINT_CONSTRUCTOR_TYPES = new Class[]{GenericServiceEndpoint.class};
 
+    private final QName portQName;
     private final Class serviceEndpointClass;
     private final OperationInfo[] operationInfos;
     private transient final FastConstructor constructor;
     private final Object serviceImpl;
     private final List typeMappings;
     private final URL location;
+    private final HandlerInfoChainFactory handlerInfoChainFactory;
     private transient OperationInfo[] sortedOperationInfos;
 
-    public SEIFactoryImpl(Class serviceEndpointClass, OperationInfo[] operationInfos, Object serviceImpl, List typeMappings, URL location, ClassLoader classLoader) throws ClassNotFoundException {
+    public SEIFactoryImpl(String portName, Class serviceEndpointClass, OperationInfo[] operationInfos, Object serviceImpl, List typeMappings, URL location, HandlerInfoChainFactory handlerInfoChainFactory, ClassLoader classLoader) throws ClassNotFoundException {
+        this.portQName = new QName("", portName);
         this.serviceEndpointClass = serviceEndpointClass;
         this.operationInfos = operationInfos;
         Class[] constructorTypes = new java.lang.Class[0];
@@ -56,6 +62,7 @@ public class SEIFactoryImpl implements SEIFactory, Serializable {
         this.serviceImpl = serviceImpl;
         this.typeMappings = typeMappings;
         this.location = location;
+        this.handlerInfoChainFactory = handlerInfoChainFactory;
         sortedOperationInfos = new OperationInfo[FastClass.create(serviceEndpointClass).getMaxIndex() + 1];
         for (int i = 0; i < operationInfos.length; i++) {
             OperationInfo operationInfo = operationInfos[i];
@@ -71,7 +78,7 @@ public class SEIFactoryImpl implements SEIFactory, Serializable {
 
     public Remote createServiceEndpoint() throws ServiceException {
         Service service = ((ServiceImpl)serviceImpl).getService();
-        GenericServiceEndpoint serviceEndpoint = new GenericServiceEndpoint(service, typeMappings, location);
+        GenericServiceEndpoint serviceEndpoint = new GenericServiceEndpoint(portQName, service, typeMappings, location);
         Callback callback = new ServiceEndpointMethodInterceptor(serviceEndpoint, sortedOperationInfos);
         Callback[] callbacks = new Callback[]{SerializableNoOp.INSTANCE, callback};
         Enhancer.registerCallbacks(serviceEndpointClass, callbacks);
@@ -83,9 +90,14 @@ public class SEIFactoryImpl implements SEIFactory, Serializable {
         }
     }
 
+    public HandlerChain createHandlerChain() {
+        HandlerChain handlerChain = handlerInfoChainFactory.createHandlerChain();
+        return handlerChain;
+    }
+
     private Object readResolve() throws ObjectStreamException {
         try {
-            return new SEIFactoryImpl(serviceEndpointClass, operationInfos, serviceImpl, typeMappings, location, null);
+            return new SEIFactoryImpl(portQName.getLocalPart(), serviceEndpointClass, operationInfos, serviceImpl, typeMappings, location, handlerInfoChainFactory, null);
         } catch (ClassNotFoundException e) {
             throw new InvalidClassException(GenericServiceEndpoint.class.getName(), "this is impossible");
         }

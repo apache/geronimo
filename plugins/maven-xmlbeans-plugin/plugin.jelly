@@ -62,9 +62,9 @@
                     <touch file="${uptodateFile}"/>
                 </j:if>
 
+                <path id="maven.xmlbeans.compile.src.set"
+                    location="${targetdir}"/>
                 <j:if test="${context.antProject.getReference('maven.compile.src.set') != null}">
-                    <path id="maven.xmlbeans.compile.src.set"
-                        location="${targetdir}"/>
                     <maven:addPath id="maven.compile.src.set"
                         refid="maven.xmlbeans.compile.src.set"/>
                 </j:if>
@@ -72,7 +72,9 @@
                     <echo message="Maven cannot find the generated sources unless you provide a dummy source directory in project.xml"/>
                 </j:if>
 
-
+                <!-- include the generated binary files from the current xmlbeans run -->
+                <maven:addPath id="maven.dependency.classpath"
+                    refid="maven.xmlbeans.compile.src.set"/>
             </j:jelly>
         </define:tag>
 

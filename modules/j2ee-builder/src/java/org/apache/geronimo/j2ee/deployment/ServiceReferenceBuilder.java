@@ -19,11 +19,13 @@ package org.apache.geronimo.j2ee.deployment;
 import java.net.URI;
 import java.util.Map;
 import java.util.List;
+import java.util.Set;
 import javax.naming.Reference;
 import javax.xml.namespace.QName;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.xbeans.j2ee.ServiceRefHandlerType;
 
 /**
  * @version $Rev$ $Date$
@@ -31,7 +33,43 @@ import org.apache.geronimo.deployment.DeploymentContext;
 public interface ServiceReferenceBuilder {
 
     //it could return a Service or a Reference, we don't care
-    Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlers, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException;
+    Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlerInfos, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException;
 
     //TODO a locate port method for links.
+
+    public class HandlerInfoInfo {
+        private final Set portNames;
+        private final Class handlerClass;
+        private final Map handlerConfig;
+        private final QName[] soapHeaders;
+        private final Set soapRoles;
+
+        public HandlerInfoInfo(Set portNames, Class handlerClass, Map handlerConfig, QName[] soapHeaders, Set soapRoles) {
+            this.portNames = portNames;
+            this.handlerClass = handlerClass;
+            this.handlerConfig = handlerConfig;
+            this.soapHeaders = soapHeaders;
+            this.soapRoles = soapRoles;
+        }
+
+        public Set getPortNames() {
+            return portNames;
+        }
+
+        public Class getHandlerClass() {
+            return handlerClass;
+        }
+
+        public Map getHandlerConfig() {
+            return handlerConfig;
+        }
+
+        public QName[] getSoapHeaders() {
+            return soapHeaders;
+        }
+
+        public Set getSoapRoles() {
+            return soapRoles;
+        }
+    }
 }

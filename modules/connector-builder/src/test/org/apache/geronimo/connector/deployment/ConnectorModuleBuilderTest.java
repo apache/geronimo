@@ -73,6 +73,7 @@ import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.registry.BasicGBeanRegistry;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.xbeans.j2ee.ServiceRefHandlerType;
 import org.tranql.sql.jdbc.JDBCUtil;
 
 /**
@@ -141,7 +142,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
     };
     private ServiceReferenceBuilder serviceReferenceBuilder = new ServiceReferenceBuilder() {
                                         //it could return a Service or a Reference, we don't care
-                                        public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlers, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) {
+                                        public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlerInfos, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) {
                                             return null;
                                         }
                                     };

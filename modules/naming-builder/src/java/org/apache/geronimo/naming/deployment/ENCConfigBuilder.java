@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.ArrayList;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.NamingException;
@@ -40,9 +41,11 @@ import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.RefContext;
+import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.naming.java.ComponentContextBuilder;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbLocalRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefType;
@@ -59,6 +62,8 @@ import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
 import org.apache.geronimo.xbeans.j2ee.ServiceRefHandlerType;
 import org.apache.geronimo.xbeans.j2ee.ServiceRefType;
 import org.apache.geronimo.xbeans.j2ee.XsdStringType;
+import org.apache.geronimo.xbeans.j2ee.ParamValueType;
+import org.apache.geronimo.xbeans.j2ee.XsdQNameType;
 
 /**
  * @version $Rev$ $Date$
@@ -84,7 +89,7 @@ public class ENCConfigBuilder {
                 ObjectName query = null;
                 try {
                     query = NameFactory.getComponentNameQuery(null, null, null, linkName, j2eeType, j2eeContext);
-                } catch(MalformedObjectNameException e) {
+                } catch (MalformedObjectNameException e) {
                     throw new DeploymentException("Could not construct query for gbean name", e);
                 }
                 Set localMatches = context.listGBeans(query);
@@ -186,11 +191,9 @@ public class ENCConfigBuilder {
 
                 if ("javax.mail.Session".equals(type)) {
                     j2eeType = NameFactory.JAVA_MAIL_RESOURCE;
-                }
-                else if (JAXR_CONNECTION_FACTORY_CLASS.equals(type)) {
+                } else if (JAXR_CONNECTION_FACTORY_CLASS.equals(type)) {
                     j2eeType = NameFactory.JAXR_CONNECTION_FACTORY;
-                }
-                else {
+                } else {
                     j2eeType = NameFactory.JCA_MANAGED_CONNECTION_FACTORY;
                 }
                 String containerId = getResourceContainerId(name, j2eeType, uri, gerResourceRef, refContext, j2eeContext, earContext);
@@ -215,7 +218,7 @@ public class ENCConfigBuilder {
         } else if (gerResourceRef.isSetResourceLink()) {
             containerId = refContext.getConnectionFactoryContainerId(uri, gerResourceRef.getResourceLink().trim(), type, j2eeContext, context);
         } else if (gerResourceRef.isSetTargetName()) {
-            containerId =  gerResourceRef.getTargetName().trim();
+            containerId = gerResourceRef.getTargetName().trim();
         } else {
             //construct name from components
             try {
@@ -483,12 +486,11 @@ public class ENCConfigBuilder {
                     portComponentRefMap.put(serviceEndpointClass, portComponentLink);
                 }
             }
-            //TODO this sucks, but the handlers aren't implemented yet anyway.
-            ServiceRefHandlerType[] handlerTypes = serviceRef.getHandlerArray();
-            List handlers = Arrays.asList(handlerTypes);
+            ServiceRefHandlerType[] handlers = serviceRef.getHandlerArray();
+            List handlerInfos = buildHandlerInfoList(handlers, cl);
 
             //we could get a Reference or the actual serializable Service back.
-            Object ref = refContext.getServiceReference(serviceInterface, wsdlURI, jaxrpcMappingURI, serviceQName, portComponentRefMap, handlers, earContext, module, cl);
+            Object ref = refContext.getServiceReference(serviceInterface, wsdlURI, jaxrpcMappingURI, serviceQName, portComponentRefMap, handlerInfos, earContext, module, cl);
             try {
                 builder.bind(name, ref);
             } catch (NamingException e) {
@@ -498,6 +500,42 @@ public class ENCConfigBuilder {
 
     }
 
+    private static List buildHandlerInfoList(ServiceRefHandlerType[] handlers, ClassLoader classLoader) throws DeploymentException {
+        List handlerInfos = new ArrayList();
+        for (int i = 0; i < handlers.length; i++) {
+            ServiceRefHandlerType handler = handlers[i];
+            Set portNames = new HashSet(Arrays.asList(handler.getPortNameArray()));
+            String handlerClassName = handler.getHandlerClass().getStringValue().trim();
+            Class handlerClass = null;
+            try {
+                handlerClass = ClassLoading.loadClass(handlerClassName, classLoader);
+            } catch (ClassNotFoundException e) {
+                throw new DeploymentException("Could not load handler class", e);
+            }
+            Map config = new HashMap();
+            ParamValueType[] paramValues = handler.getInitParamArray();
+            for (int j = 0; j < paramValues.length; j++) {
+                ParamValueType paramValue = paramValues[j];
+                String paramName = paramValue.getParamName().getStringValue().trim();
+                String paramStringValue = paramValue.getParamValue().getStringValue().trim();
+                config.put(paramName, paramStringValue);
+            }
+            XsdQNameType[] soapHeaderQNames = handler.getSoapHeaderArray();
+            QName[] headerQNames = new QName[soapHeaderQNames.length];
+            for (int j = 0; j < soapHeaderQNames.length; j++) {
+                XsdQNameType soapHeaderQName = soapHeaderQNames[j];
+                headerQNames[j] = soapHeaderQName.getQNameValue();
+            }
+            Set soapRoles = new HashSet();
+            for (int j = 0; j < handler.getSoapRoleArray().length; j++) {
+                String soapRole = handler.getSoapRoleArray(j).getStringValue().trim();
+                soapRoles.add(soapRole);
+            }
+            ServiceReferenceBuilder.HandlerInfoInfo handlerInfoInfo = new ServiceReferenceBuilder.HandlerInfoInfo(portNames, handlerClass, config, headerQNames, soapRoles);
+            handlerInfos.add(handlerInfoInfo);
+        }
+        return handlerInfos;
+    }
 
     public static void assureEJBObjectInterface(String remote, ClassLoader cl) throws DeploymentException {
         assureInterface(remote, "javax.ejb.EJBObject", "Remote", cl);
@@ -570,7 +608,7 @@ public class ENCConfigBuilder {
 
             if (!URL.class.getName().equals(type)
                     && !"javax.mail.Session".equals(type)
-                    && !JAXR_CONNECTION_FACTORY_CLASS.equals(type) ) {
+                    && !JAXR_CONNECTION_FACTORY_CLASS.equals(type)) {
 
                 GerResourceRefType gerResourceRef = (GerResourceRefType) refMap.get(resourceRefType.getResRefName().getStringValue());
                 String containerId = getResourceContainerId(getStringValue(resourceRefType.getResRefName()), NameFactory.JCA_MANAGED_CONNECTION_FACTORY, uri, gerResourceRef, refContext, j2eeContext, earContext);

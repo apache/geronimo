@@ -51,8 +51,8 @@ import javax.xml.namespace.QName;
 import javax.xml.rpc.Service;
 
 import junit.framework.TestCase;
-import org.apache.axis.enum.Style;
 import org.apache.axis.soap.SOAPConstants;
+import org.apache.axis.constants.Style;
 import org.apache.geronimo.axis.builder.bookquote.BookQuote;
 import org.apache.geronimo.axis.builder.bookquote.BookQuoteService;
 import org.apache.geronimo.axis.builder.interop.InteropLab;
@@ -89,6 +89,7 @@ public class ServiceReferenceTest extends TestCase {
     private final String operationName = "doMockOperation";
     private final File wsdlDir = new File(basedir, "src/test-resources/interop");
     private final File wsdlFile = new File(wsdlDir, "interop.wsdl");
+    private List handlerInfos = new ArrayList();
 
     private Module module;
 
@@ -150,7 +151,8 @@ public class ServiceReferenceTest extends TestCase {
         OperationInfo op = buildOperationInfoForMockOperation(builder);
         OperationInfo[] operationInfos = new OperationInfo[]{op};
         Class serviceEndpointClass = builder.enhanceServiceEndpointInterface(MockPort.class, context, module, isolatedCl);
-        SEIFactory serviceInterfaceFactory = builder.createSEIFactory(serviceEndpointClass, serviceInstance, typeMappings, location, operationInfos, context, isolatedCl);
+        String portName = "foo";
+        SEIFactory serviceInterfaceFactory = builder.createSEIFactory(portName, serviceEndpointClass, serviceInstance, typeMappings, location, operationInfos, handlerInfos, context, isolatedCl);
         assertNotNull(serviceInterfaceFactory);
         Remote serviceInterface = serviceInterfaceFactory.createServiceEndpoint();
         assertTrue(serviceInterface instanceof MockPort);
@@ -169,7 +171,7 @@ public class ServiceReferenceTest extends TestCase {
         JavaWsdlMappingType mapping = buildLightweightMappingType();
         QName serviceQName = new QName(NAMESPACE, "MockService");
         AxisBuilder builder = new AxisBuilder();
-        Object proxy = builder.createService(MockService.class, definition, mapping, serviceQName, SOAPConstants.SOAP11_CONSTANTS, context, module, isolatedCl);
+        Object proxy = builder.createService(MockService.class, definition, mapping, serviceQName, SOAPConstants.SOAP11_CONSTANTS, handlerInfos, context, module, isolatedCl);
         assertNotNull(proxy);
         assertTrue(proxy instanceof MockService);
         MockPort mockPort = ((MockService) proxy).getMockPort();
@@ -186,7 +188,7 @@ public class ServiceReferenceTest extends TestCase {
         JavaWsdlMappingType mapping = mappingDocument.getJavaWsdlMapping();
         QName serviceQName = new QName("http://www.Monson-Haefel.com/jwsbook/BookQuote", "BookQuoteService");
         AxisBuilder builder = new AxisBuilder();
-        Object proxy = builder.createService(BookQuoteService.class, definition, mapping, serviceQName, SOAPConstants.SOAP11_CONSTANTS, context, module, isolatedCl);
+        Object proxy = builder.createService(BookQuoteService.class, definition, mapping, serviceQName, SOAPConstants.SOAP11_CONSTANTS, handlerInfos, context, module, isolatedCl);
         assertNotNull(proxy);
         assertTrue(proxy instanceof BookQuoteService);
         BookQuote bookQuote = ((BookQuoteService) proxy).getBookQuotePort();
@@ -203,7 +205,7 @@ public class ServiceReferenceTest extends TestCase {
         JavaWsdlMappingType mapping = mappingDocument.getJavaWsdlMapping();
         QName serviceQName = new QName("http://tempuri.org/4s4c/1/3/wsdl/def/interopLab", "interopLab");
         AxisBuilder builder = new AxisBuilder();
-        Object proxy = builder.createService(InteropLab.class, definition, mapping, serviceQName, SOAPConstants.SOAP11_CONSTANTS, context, module, isolatedCl);
+        Object proxy = builder.createService(InteropLab.class, definition, mapping, serviceQName, SOAPConstants.SOAP11_CONSTANTS, handlerInfos, context, module, isolatedCl);
         assertNotNull(proxy);
         assertTrue(proxy instanceof InteropLab);
         InteropTestPortType interopTestPort = ((InteropLab) proxy).getinteropTestPort();

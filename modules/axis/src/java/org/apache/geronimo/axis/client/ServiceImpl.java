@@ -30,6 +30,10 @@ import javax.xml.rpc.encoding.TypeMappingRegistry;
 import javax.xml.rpc.handler.HandlerRegistry;
 
 import org.apache.axis.client.Service;
+import org.apache.axis.client.AxisClient;
+import org.apache.axis.EngineConfiguration;
+import org.apache.axis.configuration.EngineConfigurationFactoryFinder;
+import org.apache.axis.configuration.FileProvider;
 
 
 /**
@@ -38,13 +42,24 @@ import org.apache.axis.client.Service;
 public class ServiceImpl implements javax.xml.rpc.Service, Serializable {
 
     private transient Service delegate;
-    private Map seiClassNameToFactoryMap;
+    private final Map seiClassNameToFactoryMap;
     private final Map portToImplementationMap;
 
     public ServiceImpl(Map portToImplementationMap, Map seiClassNameToFactoryMap) {
         this.portToImplementationMap = portToImplementationMap;
         this.seiClassNameToFactoryMap = seiClassNameToFactoryMap;
-        this.delegate = new Service();
+        buildDelegateService();
+    }
+
+    private void buildDelegateService() {
+        delegate = new Service();
+
+        EngineConfiguration engineConfiguration = delegate.getEngine().getConfig();
+        //there must be a better way
+        ((FileProvider)engineConfiguration).setInputStream(AxisClient.class.getResourceAsStream("client-config.wsdd"));
+        GeronimoAxisClient engine = new GeronimoAxisClient(engineConfiguration, portToImplementationMap);
+        delegate.setEngine(engine);
+        delegate.setEngineConfiguration(engineConfiguration);
     }
 
     public Remote getPort(QName qName, Class portClass) throws ServiceException {
@@ -122,7 +137,7 @@ public class ServiceImpl implements javax.xml.rpc.Service, Serializable {
 
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
-        delegate = new Service();
+        buildDelegateService();
     }
 
     Service getService() {
