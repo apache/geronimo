@@ -1,51 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.5 $ $Date: 2003/08/16 15:14:12 $ -->
+<!-- $Revision: 1.6 $ $Date: 2003/09/01 18:26:11 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
-  xmlns:u="jelly:util"
   xmlns:ant="jelly:ant"
-  xmlns:castor="castor">
+  xmlns:castor="common:castor">
   
   <!-- ================================= -->
   <!-- Compile XML->Java Binding Sources -->
   <!-- ================================= -->
   
   <preGoal name="java:compile">
-    <attainGoal name="castor:prepare-filesystem"/>
-      
-    <!-- this does not currently support -binding-file 
-    <castor:generate schema="${basedir}/src/schema/twiddle-configuration.xsd"
-                     package="org.apache.geronimo.twiddle.config"
-                     marshal="false"
-                     types="j2"/>
-    -->
-    
-    <j:set var="schema" value="${basedir}/src/schema/twiddle-configuration.xsd"/>
-    <j:set var="gen" value="${pom.getPluginContext('maven-castor-plugin').getVariable('maven.castor.dest')}"/>
-
-    <ant:path id="castor.classpath">
-      <ant:path refid="maven.dependency.classpath"/>
-    </ant:path>
-     
-    <ant:java className="org.exolab.castor.builder.SourceGenerator"
-              failonerror="true" fork="yes">
-      <ant:classpath refid="castor.classpath"/>
-      <ant:arg value="-i"/>
-      <ant:arg value="${schema}"/>
-      <ant:arg value="-binding-file"/>
-      <ant:arg value="${basedir}/src/etc/twiddle-configuration-binding.xml"/>
-      <ant:arg value="-package"/>
-      <ant:arg value="org.apache.geronimo.twiddle.config"/>
-      <ant:arg value="-types"/>
-      <ant:arg value="j2"/>
-      <ant:arg value="-nomarshall"/>
-      <ant:arg value="-f"/>
-      <ant:arg value="-dest"/>
-      <ant:arg value="${gen}"/>
-    </ant:java>
-    
+    <castor:generate
+      schema="${basedir}/src/schema/twiddle-configuration.xsd"
+      binding="${basedir}/src/etc/twiddle-configuration-binding.xml"
+      package="org.apache.geronimo.twiddle.config"
+      marshal="false"
+      types="j2"/>
   </preGoal>
 
 </project>
