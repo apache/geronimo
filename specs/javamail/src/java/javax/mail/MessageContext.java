@@ -60,7 +60,7 @@
 //
 package javax.mail;
 /**
- * @version $Revision: 1.2 $ $Date: 2003/08/16 04:29:52 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/04 01:37:01 $
  */
 public class MessageContext {
     private Part _part;
@@ -68,14 +68,30 @@ public class MessageContext {
         _part = part;
     }
     public Message getMessage() {
-        // TODO Review how to get this, if possible
-        return null;
+        return getMessageFrom(getPart());
+    }
+    private Message getMessageFrom(Part part) {
+        if (part instanceof Message) {
+            return (Message)part;
+        } else if (part instanceof BodyPart) {
+            Part parent = ((Multipart)part).getParent();
+            return getMessageFrom(parent);
+        } else if (part instanceof Multipart) {
+            Part parent = ((Multipart)part).getParent();
+            return getMessageFrom(parent);
+        } else {
+            return null;
+        }
     }
     public Part getPart() {
         return _part;
     }
     public Session getSession() {
-        // TODO Review how to get this, if possible
-        return null;
+        Message message = getMessage();
+        if (message == null) {
+            return null;
+        } else {
+            return message.session;
+        }
     }
 }
