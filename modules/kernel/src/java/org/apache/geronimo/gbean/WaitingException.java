@@ -18,6 +18,7 @@
 package org.apache.geronimo.gbean;
 
 /**
+ * @deprecated
  * @version $Rev$ $Date$
  */
 public class WaitingException extends Exception {
