@@ -33,11 +33,9 @@ public class J2EEAppClientModuleImpl {
     private final String deploymentDescriptor;
     private final J2EEServer server;
     private final J2EEApplication application;
-    private final Context componentContext;
     private final ClassLoader classLoader;
 
-    public J2EEAppClientModuleImpl(Context componentContext, String objectName, J2EEServer server, J2EEApplication application, String deploymentDescriptor, ClassLoader classLoader) {
-        this.componentContext = componentContext;
+    public J2EEAppClientModuleImpl(String objectName, J2EEServer server, J2EEApplication application, String deploymentDescriptor, ClassLoader classLoader) {
         ObjectName myObjectName = JMXUtil.getObjectName(objectName);
         verifyObjectName(myObjectName);
 
@@ -93,10 +91,6 @@ public class J2EEAppClientModuleImpl {
         return server.getJavaVMs();
     }
 
-    public Context getComponentContext() {
-        return componentContext;
-    }
-
     public ClassLoader getClassLoader() {
         return classLoader;
     }
@@ -108,7 +102,6 @@ public class J2EEAppClientModuleImpl {
         infoFactory.addReference("J2EEServer", J2EEServer.class);
         infoFactory.addReference("J2EEApplication", J2EEApplication.class);
 
-        infoFactory.addAttribute("componentContext", Context.class, true);
         infoFactory.addAttribute("deploymentDescriptor", String.class, true);
 
         infoFactory.addAttribute("objectName", String.class, false);
@@ -119,7 +112,6 @@ public class J2EEAppClientModuleImpl {
 
 
         infoFactory.setConstructor(new String[]{
-            "componentContext",
             "objectName",
             "J2EEServer",
             "J2EEApplication",
