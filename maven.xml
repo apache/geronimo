@@ -1,4 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2004 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
 
 <!-- $Rev$ $Date$ -->
 
@@ -10,6 +26,100 @@
     xmlns:define="jelly:define"
     xmlns:modules="local:modules">
 
+    <goal name="getotherprojects">
+        <!--activemq-->
+        <j:set var="g.scm.cvs.root" value="${geronimo.activemq.cvs.access}@cvs.activemq.codehaus.org:/home/projects/activemq/scm"/>
+
+        <j:set var="g.scm.cvs.module" value="activemq"/>
+
+        <ant:cvs command="checkout"
+           quiet="${maven.scm.cvs.quiet}"
+           cvsRsh="ssh"
+           cvsRoot="${g.scm.cvs.root}"
+           dest="${basedir}"
+           package="${g.scm.cvs.module}"
+           failonerror="true"
+        />
+
+        <!--howl-->
+        <j:set var="g.scm.cvs.root" value="${geronimo.howl.cvs.access}@cvs.forge.objectweb.org:/cvsroot/howl"/>
+        <j:set var="g.scm.cvs.module" value="howl/logger"/>
+
+        <ant:cvs command="checkout"
+           quiet="${maven.scm.cvs.quiet}"
+           cvsRsh="ssh"
+           cvsRoot="${g.scm.cvs.root}"
+           dest="${basedir}"
+           package="${g.scm.cvs.module}"
+           failonerror="true"
+        />
+
+        <!--openejb-->
+        <j:set var="g.scm.cvs.root" value="${geronimo.openejb.cvs.access}@cvs.openejb.org:/home/projects/openejb/scm"/>
+        <j:set var="g.scm.cvs.module" value="openejb"/>
+
+        <ant:cvs command="checkout"
+           quiet="${maven.scm.cvs.quiet}"
+           cvsRsh="ssh"
+           cvsRoot="${g.scm.cvs.root}"
+           dest="${basedir}"
+           package="${g.scm.cvs.module}"
+           failonerror="true"
+        />
+
+        <!--tranql-->
+        <j:set var="g.scm.cvs.root" value="${geronimo.tranql.cvs.access}@cvs.tranql.codehaus.org:/home/projects/tranql/scm"/>
+        <j:set var="g.scm.cvs.module" value="tranql"/>
+
+        <mkdir dir="${basedir}/tranql"/>
+
+        <ant:cvs command="checkout"
+           quiet="${maven.scm.cvs.quiet}"
+           cvsRsh="ssh"
+           cvsRoot="${g.scm.cvs.root}"
+           dest="${basedir}/tranql"
+           package="${g.scm.cvs.module}"
+           failonerror="true"
+        />
+
+        <!--tranql-connector-->
+        <j:set var="g.scm.cvs.root" value="${geronimo.tranql.cvs.access}@cvs.tranql.codehaus.org:/home/projects/tranql/scm"/>
+        <j:set var="g.scm.cvs.module" value="connector"/>
+
+        <ant:cvs command="checkout"
+           quiet="${maven.scm.cvs.quiet}"
+           cvsRsh="ssh"
+           cvsRoot="${g.scm.cvs.root}"
+           dest="${basedir}/tranql"
+           package="${g.scm.cvs.module}"
+           failonerror="true"
+        />
+
+    </goal>
+
+    <goal name="removeotherprojects">
+        <delete dir="${basedir}/activemq"/>
+        <delete dir="${basedir}/howl"/>
+        <delete dir="${basedir}/openejb"/>
+        <delete dir="${basedir}/tranql"/>
+    </goal>
+
+    <goal name="cleanlocalrepo">
+        <delete dir="${maven.repo.local}/activemq"/>
+        <delete dir="${maven.repo.local}/geronimo"/>
+        <delete dir="${maven.repo.local}/geronimo-spec"/>
+        <delete dir="${maven.repo.local}/howl"/>
+        <delete dir="${maven.repo.local}/openejb"/>
+        <delete dir="${maven.repo.local}/tranql"/>
+    </goal>
+
+    <goal name="complete-rebuild">
+        <attainGoal name="multiproject:clean"/>
+        <attainGoal name="cleanlocalrepo"/>
+        <attainGoal name="multiproject:install"/>
+    </goal>
+
+    <!--old style build starts here -->
     <j:set var="release.id" value="${pom.standardToLegacyId(pom.id)}-${pom.currentVersion}"/>
     <j:set var="distDir" value="target/${pom.groupId}-${pom.currentVersion}"/>
 
