@@ -62,15 +62,17 @@ import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.model.XpathEvent;
 import org.apache.geronimo.enterprise.deploy.server.BaseDConfigBean;
 import org.apache.geronimo.enterprise.deploy.server.DConfigBeanLookup;
+import org.apache.geronimo.enterprise.deploy.server.j2ee.ClassSpace;
 
 /**
  * The DConfigBean representing /ejb-jar
  *
- * @version $Revision: 1.1 $ $Date: 2003/10/06 14:35:34 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/17 20:28:11 $
  */
 public class EjbJarBean extends BaseDConfigBean {
     final static String ENTERPRISE_BEANS_XPATH = "enterprise-beans";
     private EnterpriseBeansBean enterpriseBeans;
+    private ClassSpace classSpace;
 
     /**
      * This is present for JavaBeans compliance, but if it is used, the
@@ -83,6 +85,14 @@ public class EjbJarBean extends BaseDConfigBean {
 
     public EjbJarBean(DDBean ddBean, DConfigBeanLookup lookup) {
         super(ddBean, lookup);
+    }
+
+    public ClassSpace getClassSpace() {
+        return classSpace;
+    }
+
+    public void setClassSpace(ClassSpace classSpace) {
+        this.classSpace = classSpace;
     }
 
     public String[] getXpaths() {

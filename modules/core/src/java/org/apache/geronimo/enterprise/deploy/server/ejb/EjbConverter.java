@@ -83,6 +83,7 @@ import org.apache.geronimo.deployment.model.geronimo.j2ee.JNDIEnvironmentRefs;
 import org.apache.geronimo.deployment.model.j2ee.RunAs;
 import org.apache.geronimo.enterprise.deploy.server.j2ee.J2EEConverter;
 import org.apache.geronimo.enterprise.deploy.server.j2ee.SecurityRoleRefBean;
+import org.apache.geronimo.enterprise.deploy.server.j2ee.ClassSpace;
 import org.apache.geronimo.enterprise.deploy.server.DConfigBeanLookup;
 
 /**
@@ -97,7 +98,7 @@ import org.apache.geronimo.enterprise.deploy.server.DConfigBeanLookup;
  * DConfigBean.  Note this means that the standard DD content may be out of
  * sync when loaded, but they'll be cleaned up when the DD is saved.
  *
- * @version $Revision: 1.2 $ $Date: 2003/10/07 17:16:36 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/17 20:28:10 $
  */
 public class EjbConverter extends J2EEConverter {
     private static final Log log = LogFactory.getLog(EjbConverter.class);
@@ -105,10 +106,14 @@ public class EjbConverter extends J2EEConverter {
     public static EjbJarRoot loadDConfigBeans(EjbJar custom, DDBeanRoot standard, DConfigBeanLookup lookup) throws ConfigurationException {
         EjbJarRoot root = new EjbJarRoot(standard, lookup);
         EjbJarBean ejbJar = (EjbJarBean)root.getDConfigBean(standard.getChildBean(EjbJarRoot.EJB_JAR_XPATH)[0]);
+        ejbJar.setClassSpace(new ClassSpace());
+        ejbJar.getClassSpace().setName(custom.getClassSpace().getClassSpace());
+        ejbJar.getClassSpace().setParent(custom.getClassSpace().getParentClassSpace());
         EnterpriseBeansBean beans = (EnterpriseBeansBean)ejbJar.getDConfigBean(ejbJar.getDDBean().getChildBean(EjbJarBean.ENTERPRISE_BEANS_XPATH)[0]);
         assignSession(beans, custom.getGeronimoEnterpriseBeans().getGeronimoSession(), beans.getDDBean().getChildBean(EnterpriseBeansBean.SESSION_XPATH));
         assignEntity(beans, custom.getGeronimoEnterpriseBeans().getGeronimoEntity(), beans.getDDBean().getChildBean(EnterpriseBeansBean.ENTITY_XPATH));
         assignMessageDriven(beans, custom.getGeronimoEnterpriseBeans().getGeronimoMessageDriven(), beans.getDDBean().getChildBean(EnterpriseBeansBean.MESSAGE_DRIVEN_XPATH));
+        log.warn("EJB JAR "+ejbJar+" has ClassSpace "+ejbJar.getClassSpace());
         return root;
     }
 
@@ -116,7 +121,12 @@ public class EjbConverter extends J2EEConverter {
         if(root == null || root.getEjbJar() == null) {
             throw new ConfigurationException("Insufficient configuration information to save.");
         }
+        log.warn("EJB JAR "+root.getEjbJar()+" has ClassSpace "+root.getEjbJar().getClassSpace());
         EjbJar jar = new EjbJar();
+        org.apache.geronimo.deployment.model.geronimo.j2ee.ClassSpace space = new org.apache.geronimo.deployment.model.geronimo.j2ee.ClassSpace();
+        space.setClassSpace(root.getEjbJar().getClassSpace().getName());
+        space.setParentClassSpace(root.getEjbJar().getClassSpace().getParent());
+        jar.setClassSpace(space);
         jar.setVersion(root.getEjbJar().getDDBean().getAttributeValue("version"));
         loadDescribable(root.getEjbJar().getDDBean(), jar);
         jar.setEnterpriseBeans(new EnterpriseBeans());
