@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.37 $ $Date: 2003/09/08 04:57:32 $ -->
+<!-- $Revision: 1.38 $ $Date: 2003/09/18 04:48:36 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -420,6 +420,17 @@
     <goal name="modules:aggregate:geronimo:geronimo-core">
         <!-- Do not do the default libraries stuff -->
         <aggregate:default deploy="false"/>
+    </goal>
+
+    <goal name="modules:aggregate:geronimo:geronimo-web-console">
+        <!-- Do not do the default libraries stuff -->
+        <aggregate:default libraries="false"/>
+
+        <!-- Put geronimo-web-console into deploy/jetty/lib -->
+        <aggregate:copy
+            source="${module.root}/target"
+            target="${aggregate.dir}/deploy/jetty"
+            include="*.war"/>
     </goal>
 
     <!--
