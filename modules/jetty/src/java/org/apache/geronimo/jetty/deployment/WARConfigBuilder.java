@@ -40,6 +40,8 @@ import java.util.zip.ZipEntry;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.transaction.UserTransaction;
+import javax.naming.NamingException;
 
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
@@ -65,6 +67,7 @@ import org.apache.geronimo.xbeans.j2ee.EnvEntryType;
 import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
 import org.apache.geronimo.xbeans.j2ee.WebAppType;
 import org.apache.geronimo.common.xml.XmlBeansUtil;
+import org.apache.geronimo.transaction.UserTransactionImpl;
 
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
@@ -74,7 +77,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.16 $ $Date: 2004/04/03 22:37:58 $
+ * @version $Revision: 1.17 $ $Date: 2004/04/07 19:22:15 $
  */
 public class WARConfigBuilder implements ConfigurationBuilder {
     private final Repository repository;
@@ -274,7 +277,8 @@ public class WARConfigBuilder implements ConfigurationBuilder {
             throw new DeploymentException("Unable to construct ObjectName", e);
         }
 
-        ReadOnlyContext compContext = buildComponentContext(webApp, jettyWebApp, cl);
+        UserTransaction userTransaction = new UserTransactionImpl();
+        ReadOnlyContext compContext = buildComponentContext(webApp, jettyWebApp, userTransaction, cl);
 
         GBeanMBean gbean = new GBeanMBean(JettyWebApplicationContext.GBEAN_INFO);
         try {
@@ -283,18 +287,27 @@ public class WARConfigBuilder implements ConfigurationBuilder {
             gbean.setAttribute("ContextPriorityClassLoader", Boolean.valueOf(jettyWebApp.getContextPriorityClassloader()));
             gbean.setAttribute("PolicyContextID", null);
             gbean.setAttribute("ComponentContext", compContext);
+            gbean.setAttribute("UserTransaction", userTransaction);
             gbean.setReferencePatterns("Configuration", Collections.singleton(ConfigurationManager.getConfigObjectName(configID)));
             gbean.setReferencePatterns("JettyContainer", Collections.singleton(new ObjectName("*:type=WebContainer,container=Jetty"))); // @todo configurable
-            gbean.setReferencePatterns("TransactionManager", Collections.EMPTY_SET);
-            gbean.setReferencePatterns("TrackedConnectionAssociator", Collections.EMPTY_SET);
+            gbean.setReferencePatterns("TransactionManager", Collections.singleton(new ObjectName("*:type=TransactionManager,*")));
+            gbean.setReferencePatterns("TrackedConnectionAssociator", Collections.singleton(new ObjectName("*:type=ConnectionTracker,*")));
         } catch (Exception e) {
             throw new DeploymentException("Unable to initialize webapp GBean", e);
         }
         context.addGBean(name, gbean);
     }
 
-    private ReadOnlyContext buildComponentContext(WebAppType webApp, JettyWebAppType jettyWebApp, ClassLoader cl) throws DeploymentException {
+    private ReadOnlyContext buildComponentContext(WebAppType webApp, JettyWebAppType jettyWebApp, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {
         ComponentContextBuilder builder = new ComponentContextBuilder(new JMXReferenceFactory());
+        if (userTransaction != null) {
+            try {
+                builder.addUserTransaction(userTransaction);
+            } catch (NamingException e) {
+                throw new DeploymentException("Unable to bind UserTransaction into ENC", e);
+            }
+        }
+
         EnvEntryType[] envEntries = webApp.getEnvEntryArray();
         ENCConfigBuilder.addEnvEntries(envEntries, builder);
         // todo ejb-ref
@@ -316,7 +329,6 @@ public class WARConfigBuilder implements ConfigurationBuilder {
         }
         ENCConfigBuilder.addResourceEnvRefs(webApp.getResourceEnvRefArray(), cl, resourceEnvRefMap, builder);
         // todo message-destination-ref
-        // todo usertransaction
         return builder.getContext();
     }
 

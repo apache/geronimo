@@ -53,7 +53,7 @@ import org.mortbay.jetty.servlet.WebApplicationContext;
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
  *
- * @version $Revision: 1.12 $ $Date: 2004/04/06 00:21:21 $
+ * @version $Revision: 1.13 $ $Date: 2004/04/07 19:22:15 $
  */
 public class JettyWebApplicationContext extends WebApplicationContext implements GBean {
 
@@ -149,6 +149,9 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
             // set up Security Context
             PolicyContext.setContextID(policyContextID);
 
+            // Turn on the UserTransaction
+            userTransaction.setOnline(true);
+
             if (TransactionContext.getContext() == null) {
                 TransactionContext.setContext(new UnspecifiedTransactionContext());
             }
@@ -167,6 +170,7 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
             } catch (ResourceException e) {
                 throw new RuntimeException(e);
             } finally {
+                userTransaction.setOnline(false);
                 PolicyContext.setContextID(oldPolicyContextID);
                 RootContext.setComponentContext(oldComponentContext);
             }
