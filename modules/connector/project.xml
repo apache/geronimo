@@ -18,7 +18,7 @@
 
 <!DOCTYPE project SYSTEM "../../etc/version-info.ent">
 
-<!-- $Revision: 1.27 $ $Date: 2004/09/02 03:02:16 $ -->
+<!-- $Revision: 1.28 $ $Date: 2004/09/02 06:25:07 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -114,8 +114,8 @@
         </dependency>
 
         <dependency>
-            <groupId>geronimo-spec</groupId>
-            <artifactId>geronimo-spec-j2eeschema</artifactId>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-j2ee-schema</artifactId>
             <version>${pom.currentVersion}</version>
             <properties>
                 <xmlbeans>true</xmlbeans>

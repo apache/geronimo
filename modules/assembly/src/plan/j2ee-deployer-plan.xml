@@ -64,7 +64,7 @@ Configuration for the Geronimo deployer
         <uri>geronimo/jars/geronimo-transaction-&version;.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo-spec/jars/geronimo-spec-j2eeschema-&version;.jar</uri>
+        <uri>geronimo/jars/geronimo-j2ee-schema-&version;.jar</uri>
     </dependency>
     <!-- seems to be required to load jetty deployer - but I think this should not be here-->
     <dependency>

@@ -1,0 +1,12 @@
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+
+    <public publicId="http://java.sun.com/xml/ns/j2ee"
+        uri="../j2ee_1_4schema/j2ee_1_4.xsd"/>
+
+    <public publicId="http://www.w3.org/XML/1998/namespace"
+        uri="../j2ee_1_4schema/xml.xsd"/>
+
+    <system systemId="http://www.ibm.com/webservices/xsd/j2ee_web_services_client_1_1.xsd"
+        uri="../j2ee_1_4schema/j2ee_web_services_client_1_1.xsd"/>
+
+</catalog>

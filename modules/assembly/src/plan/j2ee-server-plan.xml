@@ -90,7 +90,7 @@ by the server.
 
     <!-- needed for online deployment -->
     <dependency>
-        <uri>geronimo-spec/jars/geronimo-spec-j2eeschema-&version;.jar</uri>
+        <uri>geronimo/jars/geronimo-j2ee-schema-&version;.jar</uri>
     </dependency>
     <dependency>
         <uri>geronimo/jars/geronimo-deployment-&version;.jar</uri>
