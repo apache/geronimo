@@ -90,7 +90,7 @@
 
     <xs:complexType name="xml-attributeType">
         <xs:sequence>
-            <xs:any namespace="##other"/>
+            <xs:any namespace="##other" processContents="lax"/>
         </xs:sequence>
         <xs:attribute name="name" type="xs:string"/>
     </xs:complexType>
