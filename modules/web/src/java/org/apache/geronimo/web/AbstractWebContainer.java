@@ -127,7 +127,7 @@ import org.xml.sax.SAXException;
  * 2. the url is a directory which contains a WEB-INF/web.xml file
  *
  * @jmx:mbean extends="org.apache.geronimo.web.WebContainer, org.apache.geronimo.kernel.management.StateManageable, javax.management.MBeanRegistration"
- * @version $Revision: 1.16 $ $Date: 2003/11/16 22:36:31 $
+ * @version $Revision: 1.17 $ $Date: 2003/11/17 00:10:55 $
  */
 public abstract class AbstractWebContainer
         extends AbstractManagedContainer
@@ -210,7 +210,7 @@ public abstract class AbstractWebContainer
             throw new DeploymentException("WebContainer " + getObjectName() + " cannot deploy as it is not RUNNING");
 
         URL url = goal.getUrl();
-        DeploymentHelper deploymentHelper = new DeploymentHelper(url, goal.getType(), "WebApplication", ".war", "web.xml", "geronimo-web.xml");
+        DeploymentHelper deploymentHelper = new DeploymentHelper(url, goal.getType(), "WebApplication", "web.xml", "geronimo-web.xml", "WEB-INF");
         URL geronimoURL = deploymentHelper.locateGeronimoDD();
 
         // Is the specific URL deployable?
@@ -249,7 +249,7 @@ public abstract class AbstractWebContainer
             Document document = LoaderUtil.parseXML(new InputStreamReader(geronimoURL.openStream()));
             geronimoWebAppDoc = GeronimoWebAppLoader.load(document);
         } catch (FileNotFoundException e) {
-            throw new DeploymentException("Deployment descriptor not found", e);
+//            throw new DeploymentException("Deployment descriptor not found", e);
         } catch (SAXException e) {
             throw new DeploymentException("geronimo-web.xml malformed", e);
         } catch (IOException e) {
@@ -293,7 +293,9 @@ public abstract class AbstractWebContainer
         webapp.setParentClassLoader(getClass().getClassLoader());
 
         // Set up the ENC etc
-        webapp.setComponentContext(this.getComponentContext(geronimoWebAppDoc, null));
+        if(geronimoWebAppDoc != null) {
+            webapp.setComponentContext(this.getComponentContext(geronimoWebAppDoc, null));
+        }
 
         // Add a task to start the webapp which will finish configuring it
         webappPlan.addTask(new StartMBeanInstance(server, webappMetadata));
