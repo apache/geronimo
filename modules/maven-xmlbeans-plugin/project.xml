@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+    <pomVersion>3</pomVersion>
+    <id>geronimo-maven-xmlbeans-plugin</id>
+    <name>Geronimo maven xmlbeans plugin</name>
+    <groupId>geronimo</groupId>
+    <currentVersion>DEV</currentVersion>
+    <organization>
+        <name>Apache Software Foundation</name>
+        <url>http://www.apache.org/</url>
+        <logo></logo>
+    </organization>
+    <inceptionYear>2004</inceptionYear>
+    <package>org.apache.geronimo</package>
+    <logo></logo>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>xml-commons-resolver</groupId>
+            <artifactId>xml-commons-resolver</artifactId>
+            <version>1.1</version>
+            <properties>
+                <classloader>root</classloader>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>xmlbeans</groupId>
+            <artifactId>xbean-apache</artifactId>
+            <version>1.0-DEV</version>
+            <properties>
+                <classloader>root</classloader>
+            </properties>
+        </dependency>
+
+
+    </dependencies>
+
+    <build>
+        <sourceDirectory>src/java</sourceDirectory>
+        <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
+
+        <unitTest>
+            <includes>
+                <include>**/*Test.java</include>
+            </includes>
+        </unitTest>
+
+        <resources>
+            <resource>
+                <directory>src/plugin-resources</directory>
+                <targetPath>plugin-resources</targetPath>
+            </resource>
+            <resource>
+                <directory>.</directory>
+                <includes>
+                    <include>plugin.jelly</include>
+                    <include>plugin.properties</include>
+                    <include>project.properties</include>
+                    <include>project.xml</include>
+                </includes>
+            </resource>
+        </resources>
+
+    </build>
+
+
+</project>

@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+
+<!-- ================================================================== -->
+<!-- Geronimo deployment plugin                                         -->
+<!-- ================================================================== -->
+<project xmlns:j="jelly:core"
+    xmlns:u="jelly:util"
+    xmlns:ant="jelly:ant"
+    xmlns:maven="jelly:maven"
+    xmlns:define="jelly:define"
+    xmlns:xmlbeans="geronimo:xmlbeans"
+    >
+
+    <define:taglib uri="geronimo:xmlbeans">
+
+
+        <define:tag name="schema2java" xmlns="jelly:ant">
+
+            <j:if test="${targetdir == null}">
+                <fail>Missing required attribute: targetdir</fail>
+            </j:if>
+            <j:if test="${sourceschema == null}">
+                <fail>Missing required attribute: sourceschema</fail>
+            </j:if>
+            <j:if test="${xmlconfigs == null}">
+                <fail>Missing required attribute: xmlconfigs</fail>
+            </j:if>
+            <j:jelly xmlns="jelly:ant">
+
+                <j:set var="uptodatePropName" value="xmlbeans.uptodate"/>
+                <j:expr value="${context.setVariable(uptodatePropName, null)}"/>
+                <j:set var="uptodateFile" value="${targetdir}/tstamp"/>
+
+                <uptodate property="${uptodatePropName}"
+                    targetfile="${uptodateFile}">
+                    <srcfiles dir="${targetdir}" includes="**/*.xsd*"/>
+                </uptodate>
+
+                <j:if test="${context.getVariable(uptodatePropName) == null}">
+                    <j:invokeStatic var="dummy" className="org.apache.geronimo.tools.xmlbeans.SchemaCompilerWrapper" method="CompileSchemas">
+                        <j:arg type="java.lang.String" value="${sourceschema}"/>
+                        <j:arg type="java.lang.String" value="${xmlconfigs}"/>
+                        <j:arg type="java.lang.String" value="${targetdir}"/>
+                    </j:invokeStatic>
+
+                    <touch file="${uptodateFile}"/>
+                </j:if>
+
+                <ant:path id="maven.xmlbeans.compile.src.set"
+                          location="${targetdir}"/>
+                <maven:addPath id="maven.compile.src.set"
+                               refid="maven.xmlbeans.compile.src.set"/>
+
+
+            </j:jelly>
+        </define:tag>
+
+
+    </define:taglib>
+
+</project>
