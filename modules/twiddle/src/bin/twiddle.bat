@@ -6,14 +6,14 @@
 @rem ##########################################################################
 
 @rem 
-@rem $Revision: 1.1 $ $Date: 2003/08/25 15:44:54 $
+@rem $Revision: 1.2 $ $Date: 2003/08/26 10:38:26 $
 @rem 
 
 @rem Set local scope for the variables with windows NT shell
 if "%OS%"=="Windows_NT" setlocal
 
 @rem The version of classworlds to boot with
-set CLASSWORLDS_VERSION="SNAPSHOT"
+set CLASSWORLDS_VERSION=SNAPSHOT
 
 :begin
 @rem Determine what directory it is in.
@@ -84,21 +84,21 @@ set CMD_LINE_ARGS=%$
 
 :execute
 @rem Setup the command line
-set CLASSWORLDS_CLASSPATH="%TWIDDLE_HOME%\lib\classworlds-%CLASSWORLDS_VERSION%.jar"
-set CLASSWORLDS_MAIN_CLASS="com.werken.classworlds.Launcher"
-set CLASSWORLDS_CONF="%TWIDDLE_HOME%\etc\classworlds.conf"
+set CLASSWORLDS_CLASSPATH=%TWIDDLE_HOME%\lib\classworlds-%CLASSWORLDS_VERSION%.jar
+set CLASSWORLDS_MAIN_CLASS=com.werken.classworlds.Launcher
+set CLASSWORLDS_CONF=%TWIDDLE_HOME%\etc\classworlds.conf
+
+set JAVA_EXE=%JAVA_HOME%\bin\java.exe
+set TOOLS_JAR=%JAVA_HOME%\lib\tools.jar
 
 if "%JAVA_OPTS%" == "" set JAVA_OPTS="-Xmx128m"
-set JAVA_OPTS=%JAVA_OPTS% -Dprogram.name=%PROGNAME%
-set JAVA_OPTS=%JAVA_OPTS% -Dtwiddle.home=%TWIDDLE_HOME%
-set JAVA_OPTS=%JAVA_OPTS% -Dtools.jar=%TOOLS_JAR%
-set JAVA_OPTS=%JAVA_OPTS% -Dclassworlds.conf=%CLASSWORLDS_CONF%
-
-set JAVA_EXE="%JAVA_HOME%\bin\java.exe"
-set TOOLS_JAR="%JAVA_HOME%\lib\tools.jar"
+set JAVA_OPTS=%JAVA_OPTS% -Dprogram.name="%PROGNAME%"
+set JAVA_OPTS=%JAVA_OPTS% -Dtwiddle.home="%TWIDDLE_HOME%"
+set JAVA_OPTS=%JAVA_OPTS% -Dtools.jar="%TOOLS_JAR%"
+set JAVA_OPTS=%JAVA_OPTS% -Dclassworlds.conf="%CLASSWORLDS_CONF%"
 
 @rem Execute Twiddle
-%JAVA_EXE% %JAVA_OPTS% -classpath %CLASSWORLDS_CLASSPATH% %CLASSWORLDS_MAIN_CLASS% %CMD_LINE_ARGS%
+"%JAVA_EXE%" %JAVA_OPTS% -classpath "%CLASSWORLDS_CLASSPATH%" %CLASSWORLDS_MAIN_CLASS% %CMD_LINE_ARGS%
 
 :end
 @rem End local scope for the variables with windows NT shell

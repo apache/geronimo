@@ -6,14 +6,14 @@
 @rem ##########################################################################
 
 @rem 
-@rem $Revision: 1.1 $ $Date: 2003/08/25 15:44:54 $
+@rem $Revision: 1.2 $ $Date: 2003/08/26 10:38:26 $
 @rem 
 
 @rem Set local scope for the variables with windows NT shell
 if "%OS%"=="Windows_NT" setlocal
 
 @rem The path of the command to execute
-set COMMAND_PATH="geronimo/start"
+set COMMAND_PATH=geronimo/start
 
 :begin
 @rem Determine what directory it is in.
@@ -45,10 +45,10 @@ set CMD_LINE_ARGS=%$
 
 :execute
 @rem Setup the command line
-set TWIDDLE_CMD="%DIRNAME%/twiddle.bat"
+set TWIDDLE_CMD=%DIRNAME%twiddle.bat
 
 @rem Execute Twiddle
-call %TWIDDLE_CMD% %TWIDDLE_OPTS% geronimo/start -- %CMD_LINE_ARGS%
+call "%TWIDDLE_CMD%" %TWIDDLE_OPTS% "%COMMAND_PATH%" -- %CMD_LINE_ARGS%
 
 :end
 @rem End local scope for the variables with windows NT shell

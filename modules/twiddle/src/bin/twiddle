@@ -6,11 +6,11 @@
 ##############################################################################
 
 ##
-## $Revision: 1.2 $ $Date: 2003/08/25 15:44:54 $
+## $Revision: 1.3 $ $Date: 2003/08/26 10:38:26 $
 ##
 
-PROGNAME=`basename $0`
-DIRNAME=`dirname $0`
+PROGNAME=`basename "$0"`
+DIRNAME=`dirname "$0"`
 
 # Use the maximum available, or set MAX_FD != -1 to use that
 MAX_FD="maximum"
@@ -52,7 +52,7 @@ fi
 
 # Locate TWIDDLE_HOME if not it is not set
 if [ "x$TWIDDLE_HOME" = "x" ]; then
-    TWIDDLE_HOME=`cd $DIRNAME/..; pwd`
+    TWIDDLE_HOME=`cd "$DIRNAME/.."; pwd`
 fi
 
 # Use default classworlds config

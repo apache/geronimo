@@ -6,10 +6,10 @@
 ##############################################################################
 
 ##
-## $Revision: 1.2 $ $Date: 2003/08/25 15:44:54 $
+## $Revision: 1.3 $ $Date: 2003/08/26 10:38:26 $
 ##
 
-DIRNAME=`dirname $0`
+DIRNAME=`dirname "$0"`
 COMMAND_PATH="geronimo/start"
 
-exec $DIRNAME/twiddle $TWIDDLE_OPTS $COMMAND_PATH -- "$@"
+exec "$DIRNAME/twiddle" $TWIDDLE_OPTS "$COMMAND_PATH" -- "$@"
