@@ -100,7 +100,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/06/25 21:33:26 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/29 21:46:32 $
  */
 public class ConnectorModuleBuilder implements ModuleBuilder {
     private static final String BASE_REALM_BRIDGE_NAME = "geronimo.security:service=RealmBridge,name=";
@@ -337,13 +337,14 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
             ConfigProperty[] configProperties = getConfigProperties(resourceadapter.getConfigPropertyArray(), geronimoResourceAdapter.getResourceadapterInstance().getConfigPropertySettingArray());
             GBeanMBean resourceAdapterGBean = setUpDynamicGBean(resourceAdapterInfoFactory, configProperties, cl);
 
-            //get the ActivationSpec metadata as GBeanInfos
-            Map activationSpecInfoMap = getActivationSpecInfoMap(resourceadapter.getInboundResourceadapter().getMessageadapter().getMessagelistenerArray(), cl);
-
             // set the resource adapter class and activationSpec info map
             try {
                 resourceAdapterGBean.setAttribute("resourceAdapterClass", cl.loadClass(resourceadapter.getResourceadapterClass().getStringValue()));
-                resourceAdapterGBean.setAttribute("activationSpecInfoMap", activationSpecInfoMap);
+                if (resourceadapter.isSetInboundResourceadapter() && resourceadapter.getInboundResourceadapter().isSetMessageadapter()) {
+                    //get the ActivationSpec metadata as GBeanInfos
+                    Map activationSpecInfoMap = getActivationSpecInfoMap(resourceadapter.getInboundResourceadapter().getMessageadapter().getMessagelistenerArray(), cl);
+                    resourceAdapterGBean.setAttribute("activationSpecInfoMap", activationSpecInfoMap);
+                }
             } catch (Exception e) {
                 throw new DeploymentException("Could not set ResourceAdapterClass", e);
             }
