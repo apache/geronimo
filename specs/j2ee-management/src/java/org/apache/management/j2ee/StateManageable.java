@@ -57,10 +57,9 @@ package org.apache.management.j2ee;
 
 
 /**
- * Implements the JSR 77 state model
+ * A Java interface the meets the J2EE Management specification for a state manageable object.
  *
- *
- * @version $Revision: 1.1 $ $Date: 2003/08/18 13:29:30 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/18 23:02:34 $
  */
 public interface StateManageable {
     /**
