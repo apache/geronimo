@@ -61,7 +61,7 @@ public class RemoteLoginModule implements javax.security.auth.spi.LoginModule {
         String uri = (String) options.get("uri");
         String realm = (String) options.get("realm");
 
-        if (uri == null) throw new GeronimoSecurityException("Initialize error: uri to sercurity service is not set");
+        if (uri == null) throw new GeronimoSecurityException("Initialize error: uri to security service is not set");
         if (realm == null) throw new GeronimoSecurityException("Initialize error: realm name not specified");
 
         try {
