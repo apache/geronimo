@@ -62,9 +62,8 @@ import java.util.ListIterator;
 import java.util.Map;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.common.AbstractComponent;
+import org.apache.geronimo.common.AbstractContainer;
 import org.apache.geronimo.common.Component;
-import org.apache.geronimo.common.Container;
 import org.apache.geronimo.common.Interceptor;
 import org.apache.geronimo.common.Invocation;
 import org.apache.geronimo.common.InvocationResult;
@@ -74,12 +73,12 @@ import org.apache.geronimo.common.State;
  *
  *
  * @todo Currently this class implements the startRecursive method of 
- * the JSR77 lifecycle. This should be moved to an AbstractContainer class
+ * the JSR77 lifecycle. This should be moved to the AbstractContainer class
  * @todo The stop method is implemented as stopRecursive, which should be moved
  * to an abstractContainer class
- * @version $Revision: 1.4 $ $Date: 2003/08/13 02:12:40 $
+ * @version $Revision: 1.5 $ $Date: 2003/08/14 07:14:34 $
  */
-public class ContainerImpl extends AbstractComponent implements Container
+public class ContainerImpl extends AbstractContainer
 {
     private final Map plugins= new LinkedHashMap();
     private final Map pluginObjects= new LinkedHashMap();
@@ -132,7 +131,7 @@ public class ContainerImpl extends AbstractComponent implements Container
         }
         finally
         {
-            if (getState() != State.RUNNING)
+            if (getStateInstance() != State.RUNNING)
                 setState(State.FAILED);
         }
     }
@@ -178,7 +177,7 @@ public class ContainerImpl extends AbstractComponent implements Container
         }
         finally
         {
-            if (getState() != State.STOPPED)
+            if (getStateInstance() != State.STOPPED)
                 setState(State.FAILED);
         }
     }
@@ -208,7 +207,7 @@ public class ContainerImpl extends AbstractComponent implements Container
 
     public void putPlugin(String logicalPluginName, ObjectName objectName)
     {
-        State state= getState();
+        State state= getStateInstance();
         if (state != State.STOPPED)
         {
             throw new IllegalStateException(
@@ -224,7 +223,7 @@ public class ContainerImpl extends AbstractComponent implements Container
 
     public void putPluginObject(String logicalPluginName, Object plugin)
     {
-        State state= getState();
+        State state= getStateInstance();
         if (state != State.STOPPED)
         {
             throw new IllegalStateException(

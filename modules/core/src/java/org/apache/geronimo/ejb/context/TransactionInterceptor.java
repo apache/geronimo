@@ -67,15 +67,19 @@ import org.apache.geronimo.ejb.metadata.EJBMetadata;
  *
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/13 02:12:40 $
+ * @version $Revision: 1.5 $ $Date: 2003/08/14 07:14:34 $
  */
 public class TransactionInterceptor implements Interceptor {
     private Interceptor transactionInterceptor;
     private Container container;
     private Interceptor nextInterceptor;
 
-    public State getState() {
+    public int getState() {
         return transactionInterceptor.getState();
+    }
+    
+    public State getStateInstance() {
+        return transactionInterceptor.getStateInstance();
     }
 
     public long getStartTime(){

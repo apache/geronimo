@@ -55,26 +55,15 @@
  */
 package org.apache.geronimo.common;
 
-
 /**
- *
- *
- * @version $Revision: 1.4 $ $Date: 2003/08/14 07:14:33 $
- */
-public abstract class AbstractInterceptor extends AbstractComponent implements Interceptor {
-    private Interceptor next;
+ * Abstract implementation of Container interface.
+ * There is no behaviour here yet, as this is just a place holder 
+ * for a class that should exist
+ * 
+ * */
+public abstract class AbstractContainer 
+    extends AbstractComponent
+    implements Container
+{
 
-    public final Interceptor getNext() {
-        return next;
-    }
-
-    public final void setNext(Interceptor nextInterceptor) {
-        State state = getStateInstance();
-        if (state != State.STOPPED) {
-            throw new IllegalStateException("setNext can only be called while in the stopped state: state=" + state);
-        }
-        next = nextInterceptor;
-    }
-
-    public abstract InvocationResult invoke(Invocation invocation) throws Exception;
 }

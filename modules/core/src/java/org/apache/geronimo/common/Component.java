@@ -60,21 +60,10 @@ package org.apache.geronimo.common;
  * Implements the JSR 77 state model
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/13 02:12:40 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/14 07:14:33 $
  */
-public interface Component {
-    /**
-     * Gets the state of this component.
-     * @return the current state of this component
-     */
-    State getState();
-
-	/**
-	 * Gets the start time of this component
-	 * @return time in milliseonds since epoch that this component was started.
-	 */
-	long getStartTime();
-	
+public interface Component  extends StateManageable
+{
     /**
      * Gets the container to which this component belongs.
      * @return the container for which invocations will be intercepted
@@ -92,47 +81,6 @@ public interface Component {
      */
     void setContainer(Container container) throws IllegalStateException, IllegalArgumentException;
 
-    /**
-     * Transitions the component to the starting state.  This method has access to the
-     * container.
-     *
-     * Normally a component uses this to cache data from other components. The other components will
-     * have been created at this stage, but not necessairly started and may not be ready to have methods
-     * invoked on them.
-     *
-     * @throws java.lang.Exception if a problem occurs during the transition
-     * @throws java.lang.IllegalStateException if this interceptor is not in the stopped or failed state
-     */
-    void start() throws Exception, IllegalStateException;
-
-	/**
-	 * Transitions the component to the starting state.  This method has access to the
-	 * container.
-	 * 
-	 * If this Component is a Container, then startRecursive is called on all child Components
-	 * that are in the STOPPED or FAILED state.
-	 * Normally a component uses this to cache data from other components. The other components will
-	 * have been created at this stage, but not necessairly started and may not be ready to have methods
-	 * invoked on them.
-	 *
-	 * @throws java.lang.Exception if a problem occurs during the transition
-	 * @throws java.lang.IllegalStateException if this interceptor is not in the STOPPED or FAILED state
-	 */
-	void startRecursive() throws Exception, IllegalStateException;
-
-    /**
-     * Transitions the component to the stopping state.  This method has access to the
-     * container.
-     *
-	 * If this is Component is a Container, then all its child components must be in the 
-	 * STOPPED or FAILED State.
-	 * 
-     * Normally a component uses this to drop references to data cached in the start method.
-     * The other components will not necessairly have been stopped at this stage and may not be ready
-     * to have methods invoked on them.
-     */
-    void stop() throws IllegalStateException;
-    
 
 
 }

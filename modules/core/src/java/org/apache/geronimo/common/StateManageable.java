@@ -57,24 +57,74 @@ package org.apache.geronimo.common;
 
 
 /**
+ * Implements the JSR 77 state model
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/14 07:14:33 $
+ * @version $Revision: 1.1 $ $Date: 2003/08/14 07:14:34 $
  */
-public abstract class AbstractInterceptor extends AbstractComponent implements Interceptor {
-    private Interceptor next;
+public interface StateManageable
+{
+    /**
+     * Gets the state of this component as an int.
+     * The int return is required by the JSR77 specification.
+     * @see getStateInstance to obtain the State instance
+     * @return the current state of this component
+     */
+    int getState();
 
-    public final Interceptor getNext() {
-        return next;
-    }
+    /**
+     * Gets the state of this component as a State instance.
+     * @see getStateInstance to obtain the real state
+     * @return the current state of this component
+     */
+    State getStateInstance();
 
-    public final void setNext(Interceptor nextInterceptor) {
-        State state = getStateInstance();
-        if (state != State.STOPPED) {
-            throw new IllegalStateException("setNext can only be called while in the stopped state: state=" + state);
-        }
-        next = nextInterceptor;
-    }
+    /**
+     * Gets the start time of this component
+     * @return time in milliseonds since epoch that this component was started.
+     */
+    long getStartTime();
+    
 
-    public abstract InvocationResult invoke(Invocation invocation) throws Exception;
+    /**
+     * Transitions the component to the starting state.  This method has access to the
+     * container.
+     *
+     * Normally a component uses this to cache data from other components. The other components will
+     * have been created at this stage, but not necessairly started and may not be ready to have methods
+     * invoked on them.
+     *
+     * @throws java.lang.Exception if a problem occurs during the transition
+     * @throws java.lang.IllegalStateException if this interceptor is not in the stopped or failed state
+     */
+    void start() throws Exception, IllegalStateException;
+
+    /**
+     * Transitions the component to the starting state.  This method has access to the
+     * container.
+     * 
+     * If this Component is a Container, then startRecursive is called on all child Components
+     * that are in the STOPPED or FAILED state.
+     * Normally a component uses this to cache data from other components. The other components will
+     * have been created at this stage, but not necessairly started and may not be ready to have methods
+     * invoked on them.
+     *
+     * @throws java.lang.Exception if a problem occurs during the transition
+     * @throws java.lang.IllegalStateException if this interceptor is not in the STOPPED or FAILED state
+     */
+    void startRecursive() throws Exception, IllegalStateException;
+
+    /**
+     * Transitions the component to the stopping state.  This method has access to the
+     * container.
+     *
+     * If this is Component is a Container, then all its child components must be in the 
+     * STOPPED or FAILED State.
+     * 
+     * Normally a component uses this to drop references to data cached in the start method.
+     * The other components will not necessairly have been stopped at this stage and may not be ready
+     * to have methods invoked on them.
+     */
+    void stop() throws IllegalStateException;
+
 }

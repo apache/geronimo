@@ -55,128 +55,17 @@
  */
 package org.apache.geronimo.common;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 /**
+ * A helper implementation of the Component interface that should 
+ * be used as a base class for Component implementations.
  *
- *
- *
- * @version $Revision: 1.3 $ $Date: 2003/08/13 02:12:40 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/14 07:14:33 $
  */
-public class AbstractComponent implements Component
+public class AbstractComponent 
+    extends AbstractStateManageable
+    implements Component
 {
-    private State state= State.STOPPED;
-    private long startTime;
     private Container container;
-    protected Log log= LogFactory.getLog(getClass());
-
-    public State getState()
-    {
-        return state;
-    }
-
-    /**
-     * Set the Component state.
-     * @param newState
-     * @throws IllegalStateException Thrown if the transition is not supported by the JSR77 lifecycle.
-     */
-    protected void setState(State newState) throws IllegalStateException
-    {
-        switch (state.getIndex())
-        {
-            case State.STOPPED_INDEX :
-                {
-                    switch (state.getIndex())
-                    {
-                        case State.STARTING_INDEX :
-                            break;
-                        case State.STOPPED_INDEX :
-                        case State.RUNNING_INDEX :
-                        case State.STOPPING_INDEX :
-                        case State.FAILED_INDEX :
-                            throw new IllegalStateException(
-                                "Can not transition to " + newState + " state from " + state);
-                    }
-                    break;
-                }
-
-            case State.STARTING_INDEX :
-                {
-                    switch (state.getIndex())
-                    {
-                        case State.RUNNING_INDEX :
-                        case State.FAILED_INDEX :
-                        case State.STOPPING_INDEX :
-                            break;
-                        case State.STOPPED_INDEX :
-                        case State.STARTING_INDEX :
-                            throw new IllegalStateException(
-                                "Can not transition to " + newState + " state from " + state);
-                    }
-                    break;
-                }
-
-            case State.RUNNING_INDEX :
-                {
-                    switch (state.getIndex())
-                    {
-                        case State.STOPPING_INDEX :
-                        case State.FAILED_INDEX :
-                            break;
-                        case State.STOPPED_INDEX :
-                        case State.STARTING_INDEX :
-                        case State.RUNNING_INDEX :
-                            throw new IllegalStateException(
-                                "Can not transition to " + newState + " state from " + state);
-
-                    }
-                    break;
-                }
-
-            case State.STOPPING_INDEX :
-                {
-                    switch (state.getIndex())
-                    {
-                        case State.STOPPED_INDEX :
-                        case State.FAILED_INDEX :
-                            break;
-                        case State.STARTING_INDEX :
-                        case State.RUNNING_INDEX :
-                        case State.STOPPING_INDEX :
-                            throw new IllegalStateException(
-                                "Can not transition to " + newState + " state from " + state);
-                    }
-                    break;
-                }
-
-            case State.FAILED_INDEX :
-                {
-                    switch (state.getIndex())
-                    {
-                        case State.STARTING_INDEX :
-                        case State.STOPPING_INDEX :
-                            break;
-                        case State.STOPPED_INDEX :
-                        case State.RUNNING_INDEX :
-                        case State.FAILED_INDEX :
-                            throw new IllegalStateException(
-                                "Can not transition to " + newState + " state from " + state);
-                    }
-                    break;
-                }
-        }
-        log.debug("State changed from " + state + " to " + newState);
-        if (newState==State.RUNNING)
-            startTime= System.currentTimeMillis();
-        state= newState;
-
-    }
-
-    public long getStartTime()
-    {
-        return startTime;
-    }
 
     public final Container getContainer()
     {
@@ -185,68 +74,34 @@ public class AbstractComponent implements Component
 
     public final void setContainer(Container container)
     {
-        if (state != State.STOPPED)
+        if (getStateInstance() != State.STOPPED)
         {
             throw new IllegalStateException(
-                "Set container can only be called while in the stopped state: state=" + state);
+                "Set container can only be called while in the stopped state: state=" + getStateInstance());
         }
         this.container= container;
     }
 
-    public void start() throws Exception
-    {
-        try
-        {
-            setState(State.STARTING);
-            doStart();
-            setState(State.RUNNING);
-        }
-        finally
-        {
-            if (state != State.RUNNING)
-                setState(State.FAILED);
-        }
-    }
-
-    public void startRecursive() throws Exception
-    {
-        start();
-    }
-
-    /**
-     * Do the start tasks for the component.  Called in the STARTING state by 
-     * the start() and startRecursive() methods to perform the tasks required to 
-     * start the component. The default implementation does nothing.
-     * @throws Exception
+    /* (non-Javadoc)
+     * @see org.apache.geronimo.common.AbstractStateManageable#doStart()
      */
     public void doStart() throws Exception
     {
     }
 
-    public void stop()
-    {
-        // Do the actual stop tasks
-        try
-        {
-            setState(State.STOPPING);
-            doStop();
-            setState(State.STOPPED);
-        }
-        catch (Exception e)
-        {
-            log.warn("Stop failed", e);
-            setState(State.FAILED);
-        }
-    }
-
-    /**
-     * Do the stop tasks for the component.  Called in the STOPPING state by the stop()
-     * method to perform the tasks required to stop the component.
-     * This implementation does nothing.
-     * @throws Exception
+    /* (non-Javadoc)
+     * @see org.apache.geronimo.common.AbstractStateManageable#doStop()
      */
     public void doStop() throws Exception
     {
     }
 
+    /* (non-Javadoc)
+     * @see org.apache.geronimo.common.AbstractStateManageable#doNotification(java.lang.String)
+     */
+    public void doNotification(String eventTypeValue)
+    {
+        log.debug("notification: "+eventTypeValue+" from "+this);
+    }
+    
 }
