@@ -56,10 +56,16 @@
 
 package org.apache.geronimo.common;
 
+import java.beans.PropertyEditor;
+import java.beans.PropertyEditorManager;
+import java.io.File;
 import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -68,11 +74,11 @@ import org.apache.commons.lang.ClassUtils;
 /**
  * A collection of <code>Class</code> utilities.
  *
- * @version $Revision: 1.3 $ $Date: 2003/09/03 17:32:11 $
+ * @version $Revision: 1.4 $ $Date: 2003/09/05 02:33:56 $
  */
-public class Classes
-    extends ClassUtils
-{
+public class Classes extends ClassUtils {
+    private static final Class[] stringArg = new Class[]{String.class};
+
     /**
      * Force the given class to be loaded fully.
      *
@@ -88,38 +94,36 @@ public class Classes
     public static void forceLoad(final Class type) {
         if (type == null)
             throw new NullArgumentException("type");
-        
+
         // don't attempt to force primitives to load
         if (type.isPrimitive()) return;
-        
+
         // don't attempt to force java.* classes to load
         String packageName = ClassUtils.getPackageName(type);
         assert packageName != null;
-        
-        if (packageName.startsWith("java.") || 
-            packageName.startsWith("javax.")) {
+
+        if (packageName.startsWith("java.") ||
+                packageName.startsWith("javax.")) {
             return;
         }
-        
+
         try {
             Method methods[] = type.getDeclaredMethods();
             Method method = null;
-            for (int i=0; i<methods.length; i++) {
+            for (int i = 0; i < methods.length; i++) {
                 int modifiers = methods[i].getModifiers();
                 if (Modifier.isStatic(modifiers)) {
                     method = methods[i];
                     break;
                 }
             }
-            
+
             if (method != null) {
                 method.invoke(null, null);
-            }
-            else {
+            } else {
                 type.newInstance();
             }
-        }
-        catch (Exception ignore) {
+        } catch (Exception ignore) {
             ThrowableHandler.add(ignore);
         }
     }
@@ -131,10 +135,9 @@ public class Classes
 
     /** Primitive type name -> class map. */
     private static final Map PRIMITIVES = new HashMap();
-    
+
     /** Setup the primitives map. */
-    static
-    {
+    static {
         PRIMITIVES.put("boolean", Boolean.TYPE);
         PRIMITIVES.put("byte", Byte.TYPE);
         PRIMITIVES.put("char", Character.TYPE);
@@ -145,7 +148,7 @@ public class Classes
         PRIMITIVES.put("double", Double.TYPE);
         PRIMITIVES.put("void", Void.TYPE);
     }
-    
+
     /**
      * Get the primitive type for the given primitive name.
      *
@@ -153,15 +156,14 @@ public class Classes
      * @return        Primitive type or null.
      */
     public static Class getPrimitiveType(final String name) {
-        return (Class)PRIMITIVES.get(name);
+        return (Class) PRIMITIVES.get(name);
     }
-    
+
     /** VM primitive type name -> primitive type */
     private static final HashMap VM_PRIMITIVES = new HashMap();
-    
+
     /** Setup the vm primitives map. */
-    static
-    {
+    static {
         VM_PRIMITIVES.put("B", byte.class);
         VM_PRIMITIVES.put("C", char.class);
         VM_PRIMITIVES.put("D", double.class);
@@ -175,21 +177,20 @@ public class Classes
 
     /** VM primitive type primitive type ->  name  */
     private static final HashMap VM_PRIMITIVES_REVERSE = new HashMap();
-    
+
     /** Setup the vm primitives reverse map. */
-    static
-    {
+    static {
         VM_PRIMITIVES_REVERSE.put(byte.class, "B");
         VM_PRIMITIVES_REVERSE.put(char.class, "C");
         VM_PRIMITIVES_REVERSE.put(double.class, "D");
-        VM_PRIMITIVES_REVERSE.put(float.class,"F");
+        VM_PRIMITIVES_REVERSE.put(float.class, "F");
         VM_PRIMITIVES_REVERSE.put(int.class, "I");
         VM_PRIMITIVES_REVERSE.put(long.class, "J");
-        VM_PRIMITIVES_REVERSE.put(short.class,"S");
+        VM_PRIMITIVES_REVERSE.put(short.class, "S");
         VM_PRIMITIVES_REVERSE.put(boolean.class, "Z");
         VM_PRIMITIVES_REVERSE.put(void.class, "V");
     }
-    
+
     /**
      * Get the primitive type for the given VM primitive name.
      *
@@ -210,15 +211,14 @@ public class Classes
      * @return        Primitive type or null.
      */
     public static Class getVMPrimitiveType(final String name) {
-        return (Class)VM_PRIMITIVES.get(name);
+        return (Class) VM_PRIMITIVES.get(name);
     }
-    
+
     /** Map of primitive types to their wrapper classes */
     private static final Map PRIMITIVE_WRAPPERS = new HashMap();
-    
+
     /** Setup the wrapper map. */
-    static
-    {
+    static {
         PRIMITIVE_WRAPPERS.put(Boolean.TYPE, Boolean.class);
         PRIMITIVE_WRAPPERS.put(Byte.TYPE, Byte.class);
         PRIMITIVE_WRAPPERS.put(Character.TYPE, Character.class);
@@ -229,7 +229,7 @@ public class Classes
         PRIMITIVE_WRAPPERS.put(Short.TYPE, Short.class);
         PRIMITIVE_WRAPPERS.put(Void.TYPE, Void.class);
     }
-    
+
     /**
      * Get the wrapper class for the given primitive type.
      *
@@ -242,18 +242,18 @@ public class Classes
         if (type == null) {
             throw new NullArgumentException("type");
         }
-        if (! type.isPrimitive()) {
+        if (!type.isPrimitive()) {
             throw new IllegalArgumentException("type is not a primitive class");
         }
-        
-        Class wtype = (Class)PRIMITIVE_WRAPPERS.get(type);
-        
+
+        Class wtype = (Class) PRIMITIVE_WRAPPERS.get(type);
+
         // If wrapper type is null then the map is not valid & should be updated
         assert wtype != null;
-        
+
         return wtype;
     }
-    
+
     /**
      * Check if the given class is a primitive wrapper class.
      *
@@ -264,12 +264,12 @@ public class Classes
         if (type == null) {
             throw new NullArgumentException("type");
         }
-        
+
         return PRIMITIVE_WRAPPERS.containsKey(type);
     }
-    
+
     /**
-     * Check if the given class is a primitive class or a primitive 
+     * Check if the given class is a primitive class or a primitive
      * wrapper class.
      *
      * @param type    Class to check.
@@ -282,17 +282,17 @@ public class Classes
         if (type.isPrimitive() || isPrimitiveWrapper(type)) {
             return true;
         }
-        
+
         return false;
     }
-    
-    
+
+
     /////////////////////////////////////////////////////////////////////////
     //                            Class Loading                            //
     /////////////////////////////////////////////////////////////////////////
 
     /**
-     * This method acts equivalently to invoking 
+     * This method acts equivalently to invoking
      * <code>Thread.currentThread().getContextClassLoader()</code>.
      *
      * @return The thread context class Loader.
@@ -314,7 +314,7 @@ public class Classes
     public static Class loadClass(final String className) throws ClassNotFoundException {
         return loadClass(className, getContextClassLoader());
     }
-    
+
     /**
      * Load a class for the given name.
      *
@@ -327,33 +327,31 @@ public class Classes
      * @throws ClassNotFoundException   Failed to load Class object.
      */
     public static Class loadClass(final String className, final ClassLoader classLoader)
-        throws ClassNotFoundException
-    {
+            throws ClassNotFoundException {
         if (className == null) {
             throw new NullArgumentException("className");
         }
         if (classLoader == null) {
             throw new NullArgumentException("classLoader");
         }
-        
+
         // First just try to load
         try {
             return classLoader.loadClass(className);
-        }
-        catch (ClassNotFoundException ignore) {
+        } catch (ClassNotFoundException ignore) {
             // handle special cases below
         }
-        
+
         Class type = null;
-        
+
         // Check if it is a primitive type
         type = getPrimitiveType(className);
         if (type != null) return type;
-            
+
         // Check if it is a vm primitive
         type = getVMPrimitiveType(className);
         if (type != null) return type;
-        
+
         // Handle VM class syntax (Lclassname;)
         if (className.charAt(0) == 'L' && className.charAt(className.length() - 1) == ';') {
             return classLoader.loadClass(className.substring(1, className.length() - 1));
@@ -364,16 +362,16 @@ public class Classes
             int arrayDimension = className.lastIndexOf('[') + 1;
             String componentClassName = className.substring(arrayDimension, className.length());
             type = loadClass(componentClassName, classLoader);
-            
+
             int dim[] = new int[arrayDimension];
             java.util.Arrays.fill(dim, 0);
             return Array.newInstance(type, dim).getClass();
         }
-        
+
         // Else we can not load (give up)
         throw new ClassNotFoundException(className);
     }
-    
+
     /**
      */
     public static String getClassName(Class clazz) {
@@ -392,5 +390,52 @@ public class Classes
         return rc.toString();
     }
 
+    public static Object getValue(Class type, String value, URI baseURI) {
+        if (URI.class.equals(type)) {
+            return baseURI.resolve(value);
+        }
+        if (URL.class.equals(type)) {
+            try {
+                return baseURI.resolve(value).toURL();
+            } catch (MalformedURLException e) {
+                throw new IllegalArgumentException("Value is not a valid URI: value=" + value);
+            }
+        }
+        if (File.class.equals(type)) {
+            return new File(baseURI.resolve(value));
+        }
+
+        return getValue(type, value);
+    }
+
+    public static Object getValue(Class type, String value) {
+        // try a property editor
+        PropertyEditor editor = PropertyEditorManager.findEditor(type);
+        if (editor != null) {
+            editor.setAsText(value);
+            return editor.getValue();
+        }
+
+        // try a String constructor
+        try {
+            Constructor cons = type.getConstructor(stringArg);
+            return cons.newInstance(new Object[]{value});
+        } catch (Exception e) {
+            throw new CoercionException("Type does not have a registered property editor or a String constructor:" +
+                    " type=" + type.getName());
+        }
+    }
+
+    public static Object getValue(ClassLoader cl, String typeName, String value) throws ClassNotFoundException {
+        Class type = null;
+        type = loadClass(typeName, cl);
+        return getValue(type, value);
+    }
+
+    public static Object getValue(ClassLoader cl, String typeName, String value, URI baseURI) throws ClassNotFoundException {
+        Class type = null;
+        type = loadClass(typeName, cl);
+        return getValue(type, value, baseURI);
+    }
 }
-   
+
