@@ -59,14 +59,17 @@ import javax.enterprise.deploy.model.DDBeanRoot;
 import javax.enterprise.deploy.spi.DConfigBeanRoot;
 import javax.enterprise.deploy.spi.DConfigBean;
 
+import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.XmlObject;
+
 /**
- * 
- * 
- * @version $Revision: 1.1 $ $Date: 2004/01/22 04:44:43 $
+ *
+ *
+ * @version $Revision: 1.2 $ $Date: 2004/02/06 08:55:04 $
  */
 public abstract class DConfigBeanRootSupport extends DConfigBeanSupport implements DConfigBeanRoot {
-    public DConfigBeanRootSupport(DDBeanRoot ddBean) {
-        super(ddBean);
+    public DConfigBeanRootSupport(DDBeanRoot ddBean, XmlObject xmlObject, SchemaTypeLoader schemaTypeLoader) {
+        super(ddBean, xmlObject, schemaTypeLoader);
     }
 
     public DConfigBean getDConfigBean(DDBeanRoot ddBeanRoot) {

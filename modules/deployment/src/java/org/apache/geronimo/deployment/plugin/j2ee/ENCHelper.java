@@ -77,9 +77,12 @@ import org.w3c.dom.Node;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/25 01:53:17 $
+ * @version $Revision: 1.5 $ $Date: 2004/02/06 08:55:04 $
  */
 public class ENCHelper {
+
+    private static final Log log = LogFactory.getLog(ENCHelper.class);
+
     public static final String[] ENC_XPATHS = {
         "ejb-ref/ejb-ref-name",
         "ejb-local-ref/ejb-ref-name",
@@ -96,11 +99,11 @@ public class ENCHelper {
     public ENCHelper(DDBean ddBean) {
         this.ddBean = ddBean;
     }
-    private static final Log log = LogFactory.getLog(ENCHelper.class);
+
     public DConfigBean getDConfigBean(DDBean ddBean) throws ConfigurationException {
         String xpath = ddBean.getXpath();
         String name = ddBean.getText();
-        log.info("Gettig config bean for " + name + " at " + xpath);
+        log.info("Getting config bean for " + name + " at " + xpath);
         if (xpath.endsWith("ejb-ref/ejb-ref-name")) {
             DConfigBean dcBean = (DConfigBean) ejbRefs.get(name);
             if (dcBean == null) {
@@ -161,6 +164,7 @@ public class ENCHelper {
     }
 
     public void toXML(PrintWriter writer) throws IOException {
+        /*
         for (Iterator i = ejbRefs.entrySet().iterator(); i.hasNext();) {
             Map.Entry entry = (Map.Entry) i.next();
             writer.println("<ejb-ref>");
@@ -197,10 +201,11 @@ public class ENCHelper {
             ((DConfigBeanSupport) entry.getValue()).toXML(writer);
             writer.println("</resource-ref>");
         }
+        */
     }
 
     public void fromXML(Element parent) {
-        Map ejbRefDDBeans = mapDDBeans("ejb-ref/ejb-ref-name");
+       /* Map ejbRefDDBeans = mapDDBeans("ejb-ref/ejb-ref-name");
         Map ejbLocalRefDDBeans = mapDDBeans("ejb-local-ref/ejb-ref-name");
         Map serviceRefDDBeans = mapDDBeans("service-ref/service-ref-name");
         Map resourceRefDDBeans = mapDDBeans("resource-ref/res-ref-name");
@@ -239,6 +244,23 @@ public class ENCHelper {
                 }
             }
         }
+        */
+    }
+
+    public Map getEjbRefs() {
+        return ejbRefs;
+    }
+
+    public Map getEjbLocalRefs() {
+        return ejbLocalRefs;
+    }
+
+    public Map getServiceRefs() {
+        return serviceRefs;
+    }
+
+    public Map getResourceRefs() {
+        return resourceRefs;
     }
 
     private Map mapDDBeans(String xpath) {

@@ -64,8 +64,10 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
+
 import javax.enterprise.deploy.model.DeployableObject;
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.shared.DConfigBeanVersionType;
@@ -78,26 +80,35 @@ import javax.enterprise.deploy.spi.exceptions.DConfigBeanVersionUnsupportedExcep
 import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
 import javax.enterprise.deploy.spi.exceptions.TargetException;
 import javax.enterprise.deploy.spi.status.ProgressObject;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentModule;
 import org.apache.geronimo.deployment.plugin.factories.DeploymentConfigurationFactory;
-import org.apache.geronimo.deployment.util.XMLUtil;
+import org.apache.geronimo.gbean.GBean;
+import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
+import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.GReferenceInfo;
+import org.apache.geronimo.gbean.WaitingException;
+import org.apache.xmlbeans.SchemaType;
+import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.XmlObject;
 import org.w3c.dom.Document;
 
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/01/26 05:55:26 $
+ * @version $Revision: 1.8 $ $Date: 2004/02/06 08:55:04 $
  */
-public class DeploymentManagerImpl implements DeploymentManager {
+public class DeploymentManagerImpl implements DeploymentManager, GBean {
     private final DeploymentServer server;
+    private final Map schemaTypeToFactoryMap = new HashMap();
+    private final Map schemaTypeToLoaderMap = new LinkedHashMap();
+    private final SchemaTypeLoader thisTypeLoader = XmlBeans.getContextTypeLoader();
+    private SchemaTypeLoader schemaTypeLoader = thisTypeLoader;
     private final Map configurationFactories;
 
     public DeploymentManagerImpl(
@@ -109,12 +120,32 @@ public class DeploymentManagerImpl implements DeploymentManager {
             DeploymentConfigurationFactory carFactory
             ) {
         this.server = server;
+        //make sure context loader is always present
+        //todo think if null is a plausible key here.
+        schemaTypeToLoaderMap.put(null, thisTypeLoader);
         configurationFactories = new HashMap(5);
         addFactory(ModuleType.EAR, earFactory);
         addFactory(ModuleType.WAR, warFactory);
         addFactory(ModuleType.EJB, ejbFactory);
         addFactory(ModuleType.RAR, rarFactory);
         addFactory(ModuleType.CAR, carFactory);
+    }
+
+    public synchronized void addDeploymentConfigurationFactory(SchemaType schemaType, SchemaTypeLoader schemaTypeLoader, DeploymentConfigurationFactory factory) {
+        schemaTypeToFactoryMap.put(schemaType, factory);
+        schemaTypeToLoaderMap.put(schemaType, schemaTypeLoader);
+        rebuildSchemaTypeLoader();
+    }
+
+    public synchronized void removeDeploymentConfigurationFactory(SchemaType schemaType) {
+        schemaTypeToFactoryMap.remove(schemaType);
+        schemaTypeToLoaderMap.remove(schemaType);
+        rebuildSchemaTypeLoader();
+    }
+
+    private void rebuildSchemaTypeLoader() {
+        SchemaTypeLoader[] loaders = (SchemaTypeLoader[]) schemaTypeToLoaderMap.values().toArray(new SchemaTypeLoader[schemaTypeToLoaderMap.size()]);
+        schemaTypeLoader = XmlBeans.typeLoaderUnion(loaders);
     }
 
     private void addFactory(ModuleType type, DeploymentConfigurationFactory factory) {
@@ -183,35 +214,50 @@ public class DeploymentManagerImpl implements DeploymentManager {
     }
 
     public ProgressObject distribute(Target[] targetList, File moduleArchive, File deploymentPlan) throws IllegalStateException {
-        Document doc;
+        InputStream moduleArchiveStream = null;
         try {
-            DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            doc = parser.parse(deploymentPlan);
-        } catch (Exception e) {
-            return new FailedProgressObject(CommandType.DISTRIBUTE, e.getMessage());
+            moduleArchiveStream = new FileInputStream(moduleArchive);
+        } catch (FileNotFoundException e) {
+            return new FailedProgressObject(CommandType.DISTRIBUTE, "Could not find module archive: " + moduleArchive);
         }
-        URI configID;
+        InputStream deploymentPlanStream = null;
         try {
-            configID = getConfigID(doc);
+            deploymentPlanStream = new FileInputStream(deploymentPlan);
+        } catch (FileNotFoundException e) {
+            return new FailedProgressObject(CommandType.DISTRIBUTE, "Could not find deployment plan: " + deploymentPlan);
+        }
+        return distribute(targetList, moduleArchiveStream, deploymentPlanStream);
+    }
+
+    public ProgressObject distribute(Target[] targetList, InputStream moduleArchive, InputStream deploymentPlan) throws IllegalStateException {
+        XmlObject plan;
+        URI configId;
+        try {
+            plan = schemaTypeLoader.parse(deploymentPlan, null, null);
+            configId = getConfigID(null);
+        } catch (org.apache.xmlbeans.XmlException e) {
+            return new FailedProgressObject(CommandType.DISTRIBUTE, "Could not parse deployment plan");
+        } catch (java.io.IOException e) {
+            return new FailedProgressObject(CommandType.DISTRIBUTE, "Could not read deployment plan");
         } catch (URISyntaxException e) {
-            return new FailedProgressObject(CommandType.DISTRIBUTE, e.getMessage());
+            return new FailedProgressObject(CommandType.DISTRIBUTE, "Could not read construct configId URI");
         }
+        SchemaType planType = plan.schemaType();
+        DeploymentConfigurationFactory factory = (DeploymentConfigurationFactory) schemaTypeToFactoryMap.get(planType);
         DeploymentModule module = null;
-        for (Iterator i = configurationFactories.values().iterator(); i.hasNext();) {
-            DeploymentConfigurationFactory factory = (DeploymentConfigurationFactory) i.next();
-            try {
-                module = factory.createModule(moduleArchive, doc, configID, server.isLocal());
-            } catch (DeploymentException e) {
-                return new FailedProgressObject(CommandType.DISTRIBUTE, e.getMessage());
-            }
+        try {
+            module = factory.createModule(moduleArchive, plan, configId, server.isLocal());
+        } catch (DeploymentException e) {
+            return new FailedProgressObject(CommandType.DISTRIBUTE, e.getMessage());
         }
         if (module == null) {
             return new FailedProgressObject(CommandType.DISTRIBUTE, "No deployer found for supplied plan");
         }
-        return server.distribute(targetList, module, configID);
-    }
+        return server.distribute(targetList, module, configId);
 
-    public ProgressObject distribute(Target[] targetList, InputStream moduleArchive, InputStream deploymentPlan) throws IllegalStateException {
+
+        //this won't get called.
+        /*
         Document doc;
         try {
             DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -238,6 +284,7 @@ public class DeploymentManagerImpl implements DeploymentManager {
             return new FailedProgressObject(CommandType.DISTRIBUTE, "No deployer found for supplied plan");
         }
         return server.distribute(targetList, module, configID);
+        */
     }
 
     public ProgressObject start(TargetModuleID[] moduleIDList) throws IllegalStateException {
@@ -274,16 +321,39 @@ public class DeploymentManagerImpl implements DeploymentManager {
         // @todo shut down the deployment kernel
     }
 
+    //should we be using this or reading configID from deploymentplan?
     private URI getConfigID(Document doc) throws URISyntaxException {
         String id = Long.toString(System.currentTimeMillis()); // unique enough one hopes
-        id = XMLUtil.getChildContent(doc.getDocumentElement(), "config-id", id, id);
+        //id = XMLUtil.getChildContent(doc.getDocumentElement(), "config-id", id, id);
         return new URI(id);
     }
 
     public static final GBeanInfo GBEAN_INFO;
 
+    public void setGBeanContext(GBeanContext context) {
+    }
+
+    public void doStart() throws WaitingException, Exception {
+        for (Iterator iterator = configurationFactories.values().iterator(); iterator.hasNext();) {
+            DeploymentConfigurationFactory factory = (DeploymentConfigurationFactory) iterator.next();
+            addDeploymentConfigurationFactory(factory.getSchemaType(), factory.getSchemaTypeLoader(), factory);
+        }
+    }
+
+    public void doStop() throws WaitingException, Exception {
+        for (Iterator iterator = configurationFactories.values().iterator(); iterator.hasNext();) {
+            DeploymentConfigurationFactory factory = (DeploymentConfigurationFactory) iterator.next();
+            removeDeploymentConfigurationFactory(factory.getSchemaType());
+        }
+    }
+
+    public void doFail() {
+    }
+
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory("JSR88 Deployment Manager", DeploymentManagerImpl.class.getName());
+        infoFactory.addOperation(new GOperationInfo("addDeploymentConfigurationFactory", new String[]{SchemaType.class.getName(), SchemaTypeLoader.class.getName(), DeploymentConfigurationFactory.class.getName()}));
+        infoFactory.addOperation(new GOperationInfo("removeDeploymentConfigurationFactory", new String[]{SchemaType.class.getName()}));
         infoFactory.addReference(new GReferenceInfo("Server", DeploymentServer.class.getName()));
         infoFactory.addReference(new GReferenceInfo("EARFactory", DeploymentConfigurationFactory.class.getName()));
         infoFactory.addReference(new GReferenceInfo("WARFactory", DeploymentConfigurationFactory.class.getName()));

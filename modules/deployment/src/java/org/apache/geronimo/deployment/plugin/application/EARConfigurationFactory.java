@@ -69,14 +69,20 @@ import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GOperationInfo;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.SchemaType;
+import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.XmlBeans;
 import org.w3c.dom.Document;
 
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/26 05:55:26 $
+ * @version $Revision: 1.5 $ $Date: 2004/02/06 08:55:04 $
  */
 public class EARConfigurationFactory implements DeploymentConfigurationFactory {
+
+    private static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
     public DeploymentConfiguration createConfiguration(DeployableObject deployable) throws InvalidModuleException {
         if (!ModuleType.EAR.equals(deployable.getType())) {
             throw new InvalidModuleException("DeployableObject must be an EAR");
@@ -84,19 +90,25 @@ public class EARConfigurationFactory implements DeploymentConfigurationFactory {
         return new EARConfiguration(deployable);
     }
 
-    public DeploymentModule createModule(InputStream moduleArchive, Document deploymentPlan, URI configID) throws DeploymentException {
-        throw new UnsupportedOperationException();
+    public DeploymentModule createModule(InputStream moduleArchive, XmlObject deploymentPlan, URI configID, boolean isLocal) throws DeploymentException {
+        return null;
     }
 
-    public DeploymentModule createModule(File moduleArchive, Document deploymentPlan, URI configID, boolean isLocal) throws DeploymentException {
-        throw new UnsupportedOperationException();
+    //these might be temporary
+    public SchemaType getSchemaType() {
+        return null;
     }
+
+    public SchemaTypeLoader getSchemaTypeLoader() {
+        return SCHEMA_TYPE_LOADER;
+    }
+
 
     public static final GBeanInfo GBEAN_INFO;
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory("Geronimo EAR Configuration Factory", EARConfigurationFactory.class.getName());
-        infoFactory.addOperation(new GOperationInfo("createConfiguration", new String[]{DeployableObject.class.getName()}));
+        infoFactory.addInterface(DeploymentConfigurationFactory.class);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

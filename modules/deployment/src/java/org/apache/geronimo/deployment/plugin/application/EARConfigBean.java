@@ -62,10 +62,10 @@ import org.apache.geronimo.deployment.plugin.DConfigBeanSupport;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/22 04:44:43 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/06 08:55:04 $
  */
 public class EARConfigBean extends DConfigBeanSupport {
     public EARConfigBean(DDBean ddBean) {
-        super(ddBean);
+        super(ddBean, null, null);
     }
 }

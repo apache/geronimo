@@ -57,6 +57,8 @@ package org.apache.geronimo.deployment.plugin;
 
 import java.io.OutputStream;
 import java.io.InputStream;
+import java.io.IOException;
+
 import javax.enterprise.deploy.spi.DeploymentConfiguration;
 import javax.enterprise.deploy.spi.DConfigBeanRoot;
 import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
@@ -64,16 +66,21 @@ import javax.enterprise.deploy.spi.exceptions.BeanNotFoundException;
 import javax.enterprise.deploy.model.DeployableObject;
 import javax.enterprise.deploy.model.DDBeanRoot;
 
+import org.apache.xmlbeans.XmlException;
+
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/22 00:51:09 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/06 08:55:04 $
  */
 public abstract class DeploymentConfigurationSupport implements DeploymentConfiguration {
     private final DeployableObject deployable;
 
-    public DeploymentConfigurationSupport(DeployableObject deployable) {
+    protected DConfigBeanRootSupport dConfigRoot;
+
+    public DeploymentConfigurationSupport(DeployableObject deployable, DConfigBeanRootSupport dConfigRoot) {
         this.deployable = deployable;
+        this.dConfigRoot = dConfigRoot;
     }
 
     public DeployableObject getDeployableObject() {
@@ -81,6 +88,9 @@ public abstract class DeploymentConfigurationSupport implements DeploymentConfig
     }
 
     public DConfigBeanRoot getDConfigBeanRoot(DDBeanRoot bean) throws ConfigurationException {
+        if (getDeployableObject().getDDBeanRoot().equals(bean)) {
+            return dConfigRoot;
+        }
         return null;
     }
 
@@ -88,14 +98,34 @@ public abstract class DeploymentConfigurationSupport implements DeploymentConfig
     }
 
     public void save(OutputStream outputArchive) throws ConfigurationException {
+        try {
+            dConfigRoot.toXML(outputArchive);
+            outputArchive.flush();
+        } catch (IOException e) {
+            throw (ConfigurationException) new ConfigurationException("Unable to save configuration").initCause(e);
+        }
     }
 
     public void restore(InputStream inputArchive) throws ConfigurationException {
+        try {
+            dConfigRoot.fromXML(inputArchive);
+        } catch (IOException e) {
+            throw (ConfigurationException) new ConfigurationException("Error reading configuration input").initCause(e);
+        } catch (XmlException e) {
+            throw (ConfigurationException) new ConfigurationException("Error parsing configuration input").initCause(e);
+        }
     }
 
     public void saveDConfigBean(OutputStream outputArchive, DConfigBeanRoot bean) throws ConfigurationException {
+        try {
+            ((DConfigBeanRootSupport)bean).toXML(outputArchive);
+            outputArchive.flush();
+        } catch (IOException e) {
+            throw (ConfigurationException) new ConfigurationException("Unable to save configuration").initCause(e);
+        }
     }
 
+    //todo figure out how to implement this.
     public DConfigBeanRoot restoreDConfigBean(InputStream inputArchive, DDBeanRoot bean) throws ConfigurationException {
         return null;
     }

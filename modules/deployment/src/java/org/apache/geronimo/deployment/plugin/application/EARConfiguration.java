@@ -60,12 +60,12 @@ import javax.enterprise.deploy.model.DeployableObject;
 import org.apache.geronimo.deployment.plugin.DeploymentConfigurationSupport;
 
 /**
- * 
- * 
- * @version $Revision: 1.1 $ $Date: 2004/01/22 00:51:09 $
+ *
+ *
+ * @version $Revision: 1.2 $ $Date: 2004/02/06 08:55:04 $
  */
 public class EARConfiguration extends DeploymentConfigurationSupport{
     public EARConfiguration(DeployableObject deployable) {
-        super(deployable);
+        super(deployable, null);
     }
 }

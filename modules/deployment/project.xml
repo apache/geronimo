@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.7 $ $Date: 2004/02/03 16:41:59 $ -->
+<!-- $Revision: 1.8 $ $Date: 2004/02/06 08:55:04 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -25,6 +25,15 @@
     <!-- ============ -->
 
     <dependencies>
+
+        <!-- needed for xmlbeans runtime-->
+        <dependency>
+            <groupId>xmlbeans</groupId>
+            <artifactId>xbean-apache</artifactId>
+            <version>1.0-DEV</version>
+            <properties>
+            </properties>
+        </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>

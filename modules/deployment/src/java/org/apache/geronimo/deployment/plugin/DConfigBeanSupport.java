@@ -58,26 +58,34 @@ package org.apache.geronimo.deployment.plugin;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.model.XpathEvent;
 import javax.enterprise.deploy.spi.DConfigBean;
 import javax.enterprise.deploy.spi.exceptions.BeanNotFoundException;
 import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
 
-import org.w3c.dom.Element;
+import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
 
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/23 19:58:16 $
+ * @version $Revision: 1.5 $ $Date: 2004/02/06 08:55:04 $
  */
 public abstract class DConfigBeanSupport implements DConfigBean {
     protected final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
     private final DDBean ddBean;
+    protected XmlObject xmlObject;
+    private final SchemaTypeLoader schemaTypeLoader;
 
-    public DConfigBeanSupport(DDBean ddBean) {
+    public DConfigBeanSupport(DDBean ddBean, XmlObject xmlObject, SchemaTypeLoader schemaTypeLoader) {
         this.ddBean = ddBean;
+        this.xmlObject = xmlObject;
+        this.schemaTypeLoader = schemaTypeLoader;
     }
 
     public DDBean getDDBean() {
@@ -107,9 +115,11 @@ public abstract class DConfigBeanSupport implements DConfigBean {
         pcs.removePropertyChangeListener(pcl);
     }
 
-    public void toXML(PrintWriter writer) throws IOException {
+    public void toXML(OutputStream outputStream) throws IOException {
+        xmlObject.save(outputStream);
     }
 
-    public void fromXML(Element element) {
+    public void fromXML(InputStream inputStream) throws XmlException, IOException {
+        xmlObject = schemaTypeLoader.parse(inputStream, null, null);
     }
 }

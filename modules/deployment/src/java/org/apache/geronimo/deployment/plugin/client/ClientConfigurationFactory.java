@@ -65,24 +65,35 @@ import javax.enterprise.deploy.model.DeployableObject;
 import org.apache.geronimo.deployment.plugin.factories.DeploymentConfigurationFactory;
 import org.apache.geronimo.deployment.DeploymentModule;
 import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.SchemaType;
+import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.XmlBeans;
 import org.w3c.dom.Document;
 
 /**
- * 
- * 
- * @version $Revision: 1.4 $ $Date: 2004/01/26 05:55:26 $
+ *
+ *
+ * @version $Revision: 1.5 $ $Date: 2004/02/06 08:55:04 $
  */
 public class ClientConfigurationFactory implements DeploymentConfigurationFactory {
+    private static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
     public DeploymentConfiguration createConfiguration(DeployableObject deployable) throws InvalidModuleException {
         return null;
     }
 
-    public DeploymentModule createModule(InputStream moduleArchive, Document deploymentPlan, URI configID) throws DeploymentException {
-        throw new UnsupportedOperationException();
+    public DeploymentModule createModule(InputStream moduleArchive, XmlObject deploymentPlan, URI configID, boolean isLocal) throws DeploymentException {
+        return null;
     }
 
-    public DeploymentModule createModule(File moduleArchive, Document deploymentPlan, URI configID, boolean isLocal) throws DeploymentException {
-        throw new UnsupportedOperationException();
+    //these might be temporary
+    public SchemaType getSchemaType() {
+        return null;
     }
+
+    public SchemaTypeLoader getSchemaTypeLoader() {
+        return SCHEMA_TYPE_LOADER;
+    }
+
 
 }
