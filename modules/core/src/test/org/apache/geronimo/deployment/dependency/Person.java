@@ -55,17 +55,15 @@
  */
 package org.apache.geronimo.deployment.dependency;
 
-import org.apache.geronimo.kernel.service.AbstractManagedObject;
 
 /**
  *
  * @jmx:mbean
- *      extends="org.apache.geronimo.kernel.management.StateManageable,org.apache.geronimo.kernel.management.ManagedObject"
  *
- * @version $Revision: 1.4 $ $Date: 2003/09/08 04:35:12 $
+ * @version $Revision: 1.5 $ $Date: 2003/12/30 21:20:49 $
  */
 public class Person
-    extends AbstractManagedObject
+    //extends AbstractManagedObject
     implements PersonMBean
 {
     private String name;
@@ -78,28 +76,28 @@ public class Person
     public String getName() {
         return name;
     }
-    
+
     /**
      * @jmx:managed-attribute
      */
     public void setName(String name) {
         this.name = name;
     }
-    
+
     /**
      * @jmx:managed-attribute
      */
     public boolean isDoStartCalled() {
         return doStartCalled;
     }
-    
+
     /**
      * @jmx:managed-attribute
      */
     public boolean isDoStopCalled() {
         return doStopCalled;
     }
-    
+
     /**
      * @jmx:managed-operation
      */
