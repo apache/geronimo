@@ -39,7 +39,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/07/27 03:52:15 $
+ * @version $Revision: 1.5 $ $Date: 2004/07/28 02:22:53 $
  *
  * */
 public class RecoveryImpl implements Recovery {
@@ -152,7 +152,7 @@ public class RecoveryImpl implements Recovery {
         if (warn && removed == 0) {
             log.error("XAResource named: " + name + " returned branch xid for xid: " + xidBranchesPair.getXid() + " but was not registered with that transaction!");
         }
-        if (xidBranchesPair.getBranches().isEmpty()) {
+        if (xidBranchesPair.getBranches().isEmpty() && 0 != removed ) {
             try {
                 ourXids.remove(new ByteArrayWrapper(xidBranchesPair.getXid().getGlobalTransactionId()));
                 txLog.commit(xidBranchesPair.getXid(), xidBranchesPair.getMark());
