@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<connector  version="1.5">
+<!--WRONG NAMESPACE
+xmlns="http://java.sun.com/xml/ns/j2ee"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee file:/connector_1_5.xsd"
+-->
+  <resourceadapter>
+    <config-property-setting name="RAStringProperty">NewStringValue</config-property-setting>
+	<bootstrapcontext-name>geronimo.jca:service=bootstrapcontext</bootstrapcontext-name>
+    <outbound-resourceadapter>
+      <connection-definition>
+        <connectionfactory-interface>javax.resource.cci.ConnectionFactory</connectionfactory-interface>
+        <name>FirstTestOutboundConnectionFactory</name>
+          <config-property-setting name="OutboundStringProperty1">newvalue1</config-property-setting>
+          <config-property-setting name="OutboundStringProperty3">newvalue2</config-property-setting>
+        <connectionmanager-factory>
+          <connectionmanagerfactory-descriptor>org/apache/geronimo/connector/outbound/ConnectionManagerDeployer.xml</connectionmanagerfactory-descriptor>
+          <config-property-setting name="CacheByTransaction">true</config-property-setting>
+        </connectionmanager-factory>
+          
+        <security-domain>MySecurityDomain</security-domain>            
+      </connection-definition>
+      <connection-definition>
+        <connectionfactory-interface>javax.resource.cci.ConnectionFactory</connectionfactory-interface>
+        <name>SecondTestOutboundConnectionFactory</name>
+          <config-property-setting name="OutboundStringProperty4">newvalue3</config-property-setting>
+          <config-property-setting name="OutboundStringProperty1">newvalue4</config-property-setting>
+        <connectionmanager-factory>
+          <connectionmanagerfactory-class>org.apache.geronimo.connector.outbound.ConnectionManagerDeployer</connectionmanagerfactory-class>
+          <config-property-setting name="CacheByTransaction">true</config-property-setting>
+        </connectionmanager-factory>
+          
+        <security-domain>YourSecurityDomain</security-domain>            
+      </connection-definition>
+      <connection-definition>
+        <connectionfactory-interface>org.apache.geronimo.test.ConnectionFactory</connectionfactory-interface>
+        <name>ThirdTestOutboundConnectionFactory</name>
+        <config-property-setting name="OutboundStringProperty">StringValue3</config-property-setting>
+        <connectionmanager-factory>
+          <connectionmanagerfactory-class>org.apache.geronimo.connector.outbound.ConnectionManagerDeployer</connectionmanagerfactory-class>
+          <config-property-setting name="CacheByTransaction">true</config-property-setting>
+        </connectionmanager-factory>
+          
+        <security-domain>TheirSecurityDomain</security-domain>            
+      </connection-definition>
+      <transaction-support>XATransaction</transaction-support>
+    </outbound-resourceadapter>
+    <inbound-resourceadapter>
+    </inbound-resourceadapter>
+    <adminobject>
+      <adminobject-interface>org.apache.geronimo.jca.test.AdminObject</adminobject-interface>
+      <adminobject-class>org.apache.geronimo.jca.test.AdminObjectImpl</adminobject-class>
+      <config-property-setting name="Tweedle">Dee-value</config-property-setting>
+    </adminobject>
+    <adminobject>
+      <adminobject-interface>org.apache.geronimo.jca.test.AdminObject</adminobject-interface>
+      <adminobject-class>org.apache.geronimo.jca.test.AdminObjectImpl</adminobject-class>
+      <config-property-setting name="Tweedle">Dum-value</config-property-setting>
+    </adminobject>
+  </resourceadapter>
+</connector>

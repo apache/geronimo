@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.27 $ $Date: 2003/11/08 06:07:59 $ -->
+<!-- $Revision: 1.28 $ $Date: 2003/11/11 21:11:55 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -148,6 +148,15 @@
             <version>DEV</version>
             <properties>
                 <runtime>true</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-j2ee-connector</artifactId>
+            <version>DEV</version>
+            <properties>
+                <module>true</module>
             </properties>
         </dependency>
 
@@ -336,6 +345,27 @@
                 <targetPath>org/apache/geronimo/security</targetPath>
                 <includes>
                     <include>*.properties</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>${basedir}/src/java/org/apache/geronimo/connector/outbound</directory>
+                <targetPath>org/apache/geronimo/connector/outbound</targetPath>
+                <includes>
+                    <include>*.xml</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>${basedir}/src/java/org/apache/geronimo/connector/deployment</directory>
+                <targetPath>org/apache/geronimo/connector/deployment</targetPath>
+                <includes>
+                    <include>*.xml</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>${basedir}/src/java/org/apache/geronimo/transaction</directory>
+                <targetPath>org/apache/geronimo/transaction</targetPath>
+                <includes>
+                    <include>*.xml</include>
                 </includes>
             </resource>
         </resources>

@@ -55,6 +55,8 @@
  */
 package org.apache.geronimo.transaction;
 
+import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
+
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.InvalidTransactionException;
@@ -71,7 +73,7 @@ import javax.transaction.TransactionManager;
  * are delegated to the wrapped TransactionManager; all other operations are delegated to the
  * wrapped Transaction.
  *
- * @version $Revision: 1.1 $ $Date: 2003/10/15 02:53:27 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/11 21:11:58 $
  */
 public class TransactionManagerProxy implements TransactionManager {
     private final TransactionManager delegate;
@@ -83,6 +85,13 @@ public class TransactionManagerProxy implements TransactionManager {
      */
     public TransactionManagerProxy(TransactionManager delegate) {
         this.delegate = delegate;
+    }
+
+    /**
+     * Possibly temporary constructor to enable deploying this as a geronimo mbean w/o a managed constructor.
+     */
+    public TransactionManagerProxy() {
+        this.delegate = new TransactionManagerImpl();
     }
 
     public void setTransactionTimeout(int timeout) throws SystemException {

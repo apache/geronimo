@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.18 $ $Date: 2003/11/11 01:50:00 $ -->
+<!-- $Revision: 1.19 $ $Date: 2003/11/11 21:11:55 $ -->
 
 <components>
     <class-space name="geronimo.system:role=ClassSpace,name=System">
@@ -37,5 +37,18 @@
 
     <mbean code="org.apache.geronimo.deployment.app.ApplicationDeployer"
            name="geronimo.deployment:role=ApplicationDeployer">
-    </mbean> 
+    </mbean>
+
+    <mbean name="geronimo.transaction:role=TransactionManager"
+           descriptor="org/apache/geronimo/transaction/TransactionManagerProxy.xml">
+    </mbean>
+
+    <mbean name="geronimo.connector:role=CachedConnectionManager"
+           descriptor="org/apache/geronimo/connector/outbound/CachedConnectionManager.xml">
+    </mbean>
+
+    <mbean code="org.apache.geronimo.connector.deployment.ConnectorDeploymentPlanner"
+           name="geronimo.deployment:role=DeploymentPlanner,type=Connector">
+    </mbean>
+
 </components>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mbean name="CachedConnectionManager" description="CachedConnectionManager keeps track of connections held by objects that register with it."
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xsi:noNamespaceSchemaLocation="/Users/david/geronimo/head2/incubator-geronimo/modules/kernel/src/schema/mbean-descriptor.xsd">
+
+      <target class="org.apache.geronimo.connector.outbound.CachedConnectionManager"/>
+        <operation name="enter" impact="ACTION" description="Called by interceptor stack on entering a method call">
+            <parameter name="key" type="java.lang.Object" description="An object key for the target of the method invocation.  Normally the ejb instance object"/>
+            <parameter name="unshareableResources" type="java.util.Set" description="The set of connection factories whose connections cannot be shared"/>
+        </operation>
+    <operation name="exit" impact="ACTION" description="Called by interceptor stack on exiting a method call">
+        <parameter name="key" type="java.lang.Object" description="An object key for the target of the method call. Normally the ejb instance"/>
+        <parameter name="unshareableResources" type="java.util.Set" description="The set of connection factories whose connections cannot be shared"/>
+    </operation>
+    <operation name="handleObtained" impact="ACTION" description="Called by the connection manager when a connection handle is created">
+        <parameter name="metaCallConnectionInterceptor" type="org.apache.geronimo.connector.outbound.MetaCallConnectionInterceptor" description="ConnectionInterceptor responsible for communication with this object"/>
+        <parameter name="connectionInfo" type="org.apache.geronimo.connector.outbound.ConnectionInfo" description="Info about the handle created"/>
+    </operation>
+    <operation name="handleReleased" impact="ACTION" description="Called by the connection manager when a connection handle is closed">
+        <parameter name="metaCallConnectionInterceptor" type="org.apache.geronimo.connector.outbound.MetaCallConnectionInterceptor" description="ConnectionInterceptor responsible for communication with this object"/>
+        <parameter name="connectionInfo" type="org.apache.geronimo.connector.outbound.ConnectionInfo" description="Info about the handle closed"/>
+    </operation>
+</mbean>
