@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <connector xmlns="http://org.apache.geronimo/xml/ns/j2ee" version="1.5">
     <resourceadapter>
+        <resourceadapter-name>testRA</resourceadapter-name>
         <config-property-setting name="RAStringProperty">NewStringValue</config-property-setting>
         <bootstrapcontext-name>geronimo.jca:service=bootstrapcontext</bootstrapcontext-name>
         <outbound-resourceadapter>
@@ -62,7 +63,7 @@
         </outbound-resourceadapter>
         <adminobject>
             <adminobject-interface>org.apache.geronimo.connector.mock.MockAdminObject</adminobject-interface>
-            <adminobject-class>org.apache.geronimo.connector.mock.AdminObjectImpl</adminobject-class>
+            <adminobject-class>org.apache.geronimo.connector.mock.MockAdminObjectImpl</adminobject-class>
             <adminobject-instance>
                 <adminobject-name>tweedledee</adminobject-name>
                 <config-property-setting name="Tweedle">Dee-value</config-property-setting>

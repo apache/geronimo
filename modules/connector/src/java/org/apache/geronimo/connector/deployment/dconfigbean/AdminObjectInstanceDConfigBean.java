@@ -72,14 +72,13 @@ import org.apache.xmlbeans.XmlBeans;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/09 23:13:27 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/10 08:04:21 $
  *
  * */
 public class AdminObjectInstanceDConfigBean extends DConfigBeanSupport{
     private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
 
-    private final static String[] ADMIN_OBJECT_INSTANCE_XPATHS = {
-        "config-property"};
+    private final static String[] ADMIN_OBJECT_INSTANCE_XPATHS = {"config-property"};
     private Map configPropertiesMap = new HashMap();
 
     public AdminObjectInstanceDConfigBean() {

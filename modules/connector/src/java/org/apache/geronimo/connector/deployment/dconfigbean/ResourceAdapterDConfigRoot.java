@@ -74,13 +74,13 @@ import org.apache.xmlbeans.XmlException;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/09 23:13:27 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/10 08:04:21 $
  *
  * */
 public class ResourceAdapterDConfigRoot extends DConfigBeanRootSupport {
     private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
     private static String[] XPATHS = {
-        "resource-adapter"
+        "connector/resourceadapter"
     };
 
     private ResourceAdapterDConfigBean resourceAdapterDConfigBean;
@@ -93,7 +93,8 @@ public class ResourceAdapterDConfigRoot extends DConfigBeanRootSupport {
 
     private void replaceResourceAdapterDConfigBean(GerResourceadapterType resourceAdapter) {
         DDBean ddBean = getDDBean();
-        resourceAdapterDConfigBean = new ResourceAdapterDConfigBean(ddBean.getChildBean("resource-adapter")[0], resourceAdapter);
+        DDBean childDDBean = ddBean.getChildBean(XPATHS[0])[0];
+        resourceAdapterDConfigBean = new ResourceAdapterDConfigBean(childDDBean, resourceAdapter);
     }
 
     GerConnectorDocument getConnectorDocument() {
@@ -104,8 +105,9 @@ public class ResourceAdapterDConfigRoot extends DConfigBeanRootSupport {
         return XPATHS;
     }
 
+    //TODO should the xpath start with /??
     public DConfigBean getDConfigBean(DDBean bean) throws ConfigurationException {
-        if ("/connector/resource-adapter".equals(bean.getXpath())) {
+        if (("/" + XPATHS[0]).equals(bean.getXpath())) {
             return resourceAdapterDConfigBean;
         }
         return null;

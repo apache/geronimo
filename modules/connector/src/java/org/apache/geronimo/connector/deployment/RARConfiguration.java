@@ -59,16 +59,17 @@ package org.apache.geronimo.connector.deployment;
 import javax.enterprise.deploy.model.DeployableObject;
 
 import org.apache.geronimo.deployment.plugin.DeploymentConfigurationSupport;
+import org.apache.geronimo.connector.deployment.dconfigbean.ResourceAdapterDConfigRoot;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/06 08:56:42 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/10 08:04:21 $
  *
  * */
 public class RARConfiguration extends DeploymentConfigurationSupport {
 
     public RARConfiguration(DeployableObject deployable) {
-        super(deployable, null);
+        super(deployable, new ResourceAdapterDConfigRoot(deployable.getDDBeanRoot()));
     }
 }

@@ -107,7 +107,7 @@ import org.apache.xmlbeans.XmlOptions;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/02/09 23:13:27 $
+ * @version $Revision: 1.7 $ $Date: 2004/02/10 08:04:21 $
  *
  * */
 public class Connector_1_5Module extends AbstractConnectorModule {
@@ -147,7 +147,7 @@ public class Connector_1_5Module extends AbstractConnectorModule {
             throw new DeploymentException(e);
         }
         try {
-            resourceAdapterObjectName = ObjectName.getInstance(BASE_RESOURCE_ADAPTER_NAME + configID);
+            resourceAdapterObjectName = ObjectName.getInstance(BASE_RESOURCE_ADAPTER_NAME + geronimoResourceAdapter.getResourceadapterName() + ",configID=" + configID);
         } catch (MalformedObjectNameException e) {
             throw new DeploymentException("Could not construct resource adapter object name", e);
         }

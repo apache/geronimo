@@ -348,6 +348,7 @@
     <xsd:complexType name="resourceadapterType">
 
         <xsd:sequence>
+            <xsd:element name="resourceadapter-name" type="xsd:string"/>
             <xsd:element name="config-property-setting"
                 type="ger:config-property-settingType"
                 minOccurs="0"

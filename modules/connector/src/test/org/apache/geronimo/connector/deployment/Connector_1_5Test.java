@@ -61,29 +61,47 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.io.ByteArrayOutputStream;
 import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
 import java.net.URL;
 import java.net.URI;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.jar.JarOutputStream;
 
 import javax.management.ObjectName;
+import javax.enterprise.deploy.model.DeployableObject;
+import javax.enterprise.deploy.model.DDBeanRoot;
+import javax.enterprise.deploy.model.DDBean;
+import javax.enterprise.deploy.model.exceptions.DDBeanCreateException;
+import javax.enterprise.deploy.shared.ModuleType;
+import javax.enterprise.deploy.spi.DeploymentConfiguration;
+import javax.enterprise.deploy.spi.DConfigBeanRoot;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.xbeans.j2ee.ConnectorDocument;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
+import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
+import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
+import org.apache.geronimo.xbeans.geronimo.GerAdminobjectType;
+import org.apache.geronimo.xbeans.geronimo.GerAdminobjectInstanceType;
 import org.apache.geronimo.deployment.DeploymentModule;
 import org.apache.geronimo.deployment.ConfigurationCallback;
+import org.apache.geronimo.deployment.tools.DDBeanRootImpl;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.connector.deployment.dconfigbean.ResourceAdapterDConfigBean;
+import org.apache.geronimo.connector.deployment.dconfigbean.ConfigPropertySettingDConfigBean;
+import org.apache.geronimo.connector.deployment.dconfigbean.AdminObjectDConfigBean;
+import org.apache.geronimo.connector.deployment.dconfigbean.AdminObjectInstanceDConfigBean;
 import org.apache.xmlbeans.XmlOptions;
 
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/02/08 20:21:57 $
+ * @version $Revision: 1.4 $ $Date: 2004/02/10 08:04:21 $
  *
  * */
 public class Connector_1_5Test extends TestCase implements ConfigurationCallback {
@@ -112,7 +130,76 @@ public class Connector_1_5Test extends TestCase implements ConfigurationCallback
         }
     }
 
+    public void testDConfigBeans() throws Exception {
+        RARDeployable deployable = new RARDeployable(j2eeDD);
+        DDBeanRoot ddroot = deployable.getDDBeanRoot();
+        DeploymentConfiguration rarConfiguration = new RARConfigurer().createConfiguration(deployable);
+        DConfigBeanRoot root = rarConfiguration.getDConfigBeanRoot(deployable.getDDBeanRoot());
+        assertNotNull(root);
+
+        //resource adapter
+        DDBean resourceAdapterdd = ddroot.getChildBean(root.getXpaths()[0])[0];
+        ResourceAdapterDConfigBean resourceAdapterDConfigBean = (ResourceAdapterDConfigBean) root.getDConfigBean(resourceAdapterdd);
+        assertNotNull(resourceAdapterDConfigBean);
+        resourceAdapterDConfigBean.setResourceAdapterName("TestRAName");
+        DDBean[] resourceAdapterProperties = resourceAdapterdd.getChildBean(resourceAdapterDConfigBean.getXpaths()[0]);
+        assertEquals(1, resourceAdapterProperties.length);
+        ConfigPropertySettingDConfigBean resourceAdapterSetting = (ConfigPropertySettingDConfigBean)resourceAdapterDConfigBean.getDConfigBean(resourceAdapterProperties[0]);
+        assertNotNull(resourceAdapterSetting);
+        assertEquals("StringValue", resourceAdapterSetting.getConfigPropertyValue());
+        resourceAdapterSetting.setConfigPropertyValue("TestRAValue");
+
+        //admin objects
+        DDBean[] adminObjectdds = resourceAdapterdd.getChildBean(resourceAdapterDConfigBean.getXpaths()[2]);
+        assertEquals(1, adminObjectdds.length);
+        AdminObjectDConfigBean adminObjectDConfigBean = (AdminObjectDConfigBean)resourceAdapterDConfigBean.getDConfigBean(adminObjectdds[0]);
+        assertNotNull(adminObjectDConfigBean);
+        AdminObjectInstanceDConfigBean adminObjectInstanceDConfigBean1 = new AdminObjectInstanceDConfigBean();
+        adminObjectDConfigBean.setAdminObjectInstance(new AdminObjectInstanceDConfigBean[] {adminObjectInstanceDConfigBean1});
+        DDBean[] adminObjectConfigPropDDs = adminObjectdds[0].getChildBean(adminObjectInstanceDConfigBean1.getXpaths()[0]);
+        assertEquals(1, adminObjectConfigPropDDs.length);
+        ConfigPropertySettingDConfigBean adminObjectSetting1 = (ConfigPropertySettingDConfigBean) adminObjectInstanceDConfigBean1.getDConfigBean(adminObjectConfigPropDDs[0]);
+        adminObjectSetting1.setConfigPropertyValue("TestAOValue1");
+
+        //add a second admin object in first position
+        AdminObjectInstanceDConfigBean adminObjectInstanceDConfigBean2 = new AdminObjectInstanceDConfigBean();
+        adminObjectDConfigBean.setAdminObjectInstance(new AdminObjectInstanceDConfigBean[] {adminObjectInstanceDConfigBean2, adminObjectInstanceDConfigBean1});
+        ConfigPropertySettingDConfigBean adminObjectSetting2 = (ConfigPropertySettingDConfigBean) adminObjectInstanceDConfigBean2.getDConfigBean(adminObjectConfigPropDDs[0]);
+        adminObjectSetting2.setConfigPropertyValue("TestAOValue2");
+
+        //check the results
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        rarConfiguration.save(baos);
+        baos.flush();
+        InputStream is = new ByteArrayInputStream(baos.toByteArray());
+        baos.close();
+        GerConnectorDocument gcDoc = GerConnectorDocument.Factory.parse(is);
+        GerResourceadapterType ra = gcDoc.getConnector().getResourceadapter();
+        assertEquals("TestRAName", ra.getResourceadapterName());
+        GerConfigPropertySettingType rasetting = ra.getConfigPropertySettingArray(0);
+        assertEquals("TestRAValue", rasetting.getStringValue());
+
+        //admin object
+        GerAdminobjectType adminobjectType1 = ra.getAdminobjectArray(0);
+        GerAdminobjectInstanceType adminobjectInstanceType2 = adminobjectType1.getAdminobjectInstanceArray(0);
+        assertEquals("TestAOValue2", adminobjectInstanceType2.getConfigPropertySettingArray(0).getStringValue());
+        GerAdminobjectInstanceType adminobjectInstanceType1 = adminobjectType1.getAdminobjectInstanceArray(1);
+        assertEquals("TestAOValue1", adminobjectInstanceType1.getConfigPropertySettingArray(0).getStringValue());
+    }
+
     public void testCreateConnector_1_5Module() throws Exception {
+        InputStream moduleArchive = getRARInputStream();
+
+        InputStream geronimoInputStream = geronimoDD.openStream();
+        GerConnectorDocument connectorDocument = GerConnectorDocument.Factory.parse(geronimoInputStream);
+        RARConfigurationFactory rarConfigurationFactory = new RARConfigurationFactory(ObjectName.getInstance("geronimo.test:role=ConnectionTracker"));
+        DeploymentModule connector_1_5Module = rarConfigurationFactory.createModule(moduleArchive, connectorDocument, configID, true);
+        connector_1_5Module.init();
+        connector_1_5Module.generateClassPath(this);
+        connector_1_5Module.defineGBeans(this, this.getClass().getClassLoader());
+    }
+
+    private InputStream getRARInputStream() throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         JarOutputStream jarOutputStream = new JarOutputStream(baos);
         ZipEntry entry = new ZipEntry("META-INF/ra.xml");
@@ -128,13 +215,7 @@ public class Connector_1_5Test extends TestCase implements ConfigurationCallback
         jarOutputStream.close();
 
         InputStream moduleArchive = new ByteArrayInputStream(baos.toByteArray());
-        InputStream geronimoInputStream = geronimoDD.openStream();
-        GerConnectorDocument connectorDocument = GerConnectorDocument.Factory.parse(geronimoInputStream);
-        RARConfigurationFactory rarConfigurationFactory = new RARConfigurationFactory(ObjectName.getInstance("geronimo.test:role=ConnectionTracker"));
-        DeploymentModule connector_1_5Module = rarConfigurationFactory.createModule(moduleArchive, connectorDocument, configID, true);
-        connector_1_5Module.init();
-        connector_1_5Module.generateClassPath(this);
-        connector_1_5Module.defineGBeans(this, this.getClass().getClassLoader());
+        return moduleArchive;
     }
 
     protected void setUp() throws Exception {
@@ -155,5 +236,51 @@ public class Connector_1_5Test extends TestCase implements ConfigurationCallback
 
     public void addGBean(ObjectName name, GBeanMBean gbean) {
         gbeans.put(name, gbean);
+    }
+
+    private class RARDeployable implements DeployableObject {
+
+        private DDBeanRoot root;
+
+        public RARDeployable(URL dd) throws DDBeanCreateException {
+            root =  new DDBeanRootImpl(this, dd);
+        }
+
+        public ModuleType getType() {
+            return ModuleType.RAR;
+        }
+
+        public DDBeanRoot getDDBeanRoot() {
+            return root;
+        }
+
+        public DDBean[] getChildBean(String xpath) {
+            return root.getChildBean(xpath);
+        }
+
+        public String[] getText(String xpath) {
+            return root.getText(xpath);
+        }
+
+        public Class getClassFromScope(String className) {
+            return null;
+        }
+
+        public String getModuleDTDVersion() {
+            return null;
+        }
+
+        public DDBeanRoot getDDBeanRoot(String filename) throws FileNotFoundException, DDBeanCreateException {
+            return null;
+        }
+
+        public Enumeration entries() {
+            return null;
+        }
+
+        public InputStream getEntry(String name) {
+            return null;
+        }
+
     }
 }
