@@ -26,7 +26,7 @@ import org.apache.geronimo.console.cli.DeploymentContext;
 /**
  * Top-level menu for working with the DeploymentManager.
  *
- * @version $Revision: 1.5 $ $Date: 2004/07/16 06:35:55 $
+ * @version $Revision: 1.6 $ $Date: 2004/07/23 07:26:55 $
  */
 public class TopLevel extends TextController {
     private static final Log log = LogFactory.getLog(TopLevel.class);
@@ -38,7 +38,7 @@ public class TopLevel extends TextController {
     public void execute() {
         while(true) {
             println("  "+(context.connected ? "--" : "1)")+" Connect to the deployment server");
-            println("  "+(context.connected ? "2)" : "--")+" Configure a module");
+            println("  "+(context.connected ? "--" : "--")+" Configure a module");
             println("  "+(context.connected ? "3)" : "--")+" Control working targets");
             println("  "+(context.connected ? "4)" : "--")+" Distribute plan or module");
             println("  "+(context.connected ? "5)" : "--")+" Control existing plans or modules");
