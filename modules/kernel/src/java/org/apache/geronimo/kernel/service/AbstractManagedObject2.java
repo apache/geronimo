@@ -91,7 +91,7 @@ import org.apache.geronimo.kernel.management.StateManageable;
  * Implementors of StateManageable may use this class and simply provide
  * doStart, doStop and sendNotification methods.
  *
- * @version $Revision: 1.5 $ $Date: 2004/01/01 09:55:08 $
+ * @version $Revision: 1.6 $ $Date: 2004/01/19 06:34:58 $
  */
 public abstract class AbstractManagedObject2 implements ManagedObject, StateManageable, EventProvider, NotificationListener, MBeanRegistration, NotificationEmitter {
     protected final Log log = LogFactory.getLog(getClass());
@@ -305,7 +305,7 @@ public abstract class AbstractManagedObject2 implements ManagedObject, StateMana
 
     /**
      * Moves this MBean to the {@link State#STARTING} state
-     * and then attempts to move this MBean immedately to the {@link State#STARTED} state.
+     * and then attempts to move this MBean immedately to the {@link State#RUNNING} state.
      *
      * Note:  This method cannot be called while the current thread holds a synchronized lock on this MBean,
      * because this method sends JMX notifications. Sending a general notification from a synchronized block
@@ -496,7 +496,7 @@ public abstract class AbstractManagedObject2 implements ManagedObject, StateMana
                             log.trace("Parent is running: parent=" + parent);
                         } catch (AttributeNotFoundException e) {
                             // ok -- parent is not a startable
-                            log.trace("Parent does not have a State attibute");
+                            log.trace("Parent does not have a State attribute, continuing");
                         } catch (InstanceNotFoundException e) {
                             // depended on instance was removed bewteen the register check and the invoke
                             log.trace("Cannot run because parent is not registered: parent=" + parent);
