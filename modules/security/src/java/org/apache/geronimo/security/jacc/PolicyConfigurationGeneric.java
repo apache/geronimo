@@ -35,7 +35,7 @@ import org.apache.geronimo.security.RealmPrincipal;
 
 /**
  *
- * @version $Revision: 1.4 $ $Date: 2004/06/22 02:07:37 $
+ * @version $Revision: 1.5 $ $Date: 2004/09/08 12:29:09 $
  */
 public class PolicyConfigurationGeneric implements GeronimoPolicyConfiguration {
     private final static int OPEN = 1;
@@ -139,7 +139,7 @@ public class PolicyConfigurationGeneric implements GeronimoPolicyConfiguration {
 
         Enumeration e = permissions.elements();
         while (e.hasMoreElements()) {
-            addToUncheckedPolicy((Permission) e.nextElement());
+            addToExcludedPolicy((Permission) e.nextElement());
         }
     }
 
