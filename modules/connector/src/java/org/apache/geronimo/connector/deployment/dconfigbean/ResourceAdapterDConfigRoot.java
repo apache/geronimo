@@ -75,11 +75,15 @@ import org.apache.xmlbeans.XmlException;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/02/21 01:10:50 $
+ * @version $Revision: 1.6 $ $Date: 2004/02/22 19:11:52 $
  *
  * */
 public class ResourceAdapterDConfigRoot extends DConfigBeanRootSupport {
-    private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
+    static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderUnion(new SchemaTypeLoader[] {
+        XmlBeans.typeLoaderForClassLoader(org.apache.geronimo.xbeans.j2ee.String.class.getClassLoader()),
+        XmlBeans.typeLoaderForClassLoader(GerConnectorDocument.class.getClassLoader())
+    });
+
     private static String[][] XPATHS = {
         {"connector", "resourceadapter"}
     };
@@ -87,7 +91,7 @@ public class ResourceAdapterDConfigRoot extends DConfigBeanRootSupport {
     private ResourceAdapterDConfigBean resourceAdapterDConfigBean;
 
     public ResourceAdapterDConfigRoot(DDBeanRoot ddBean) {
-        super(ddBean, GerConnectorDocument.Factory.newInstance(), SCHEMA_TYPE_LOADER);
+        super(ddBean, GerConnectorDocument.Factory.newInstance());
         GerResourceadapterType resourceAdapter = getConnectorDocument().addNewConnector().addNewResourceadapter();
         getConnectorDocument().getConnector().setVersion(GerVersionType.X_1_5);
         replaceResourceAdapterDConfigBean(resourceAdapter);
@@ -120,5 +124,9 @@ public class ResourceAdapterDConfigRoot extends DConfigBeanRootSupport {
             throw new IllegalStateException("Wrong version, expected 1.5");
         }
         replaceResourceAdapterDConfigBean(getConnectorDocument().getConnector().getResourceadapter());
+    }
+
+    protected SchemaTypeLoader getSchemaTypeLoader() {
+        return SCHEMA_TYPE_LOADER;
     }
 }

@@ -73,10 +73,14 @@ import org.apache.xmlbeans.XmlException;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/02/14 01:50:15 $
+ * @version $Revision: 1.7 $ $Date: 2004/02/22 19:11:53 $
  */
 public class WebAppDConfigRoot extends DConfigBeanRootSupport {
-    private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
+    static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderUnion(new SchemaTypeLoader[] {
+        XmlBeans.typeLoaderForClassLoader(org.apache.geronimo.xbeans.j2ee.String.class.getClassLoader()),
+        XmlBeans.typeLoaderForClassLoader(JettyWebAppDocument.class.getClassLoader())
+    });
+
     private static String[] XPATHS = {
         "web-app"
     };
@@ -84,7 +88,7 @@ public class WebAppDConfigRoot extends DConfigBeanRootSupport {
     private WebAppDConfigBean webAppBean;
 
     public WebAppDConfigRoot(DDBeanRoot ddBean) {
-        super(ddBean, JettyWebAppDocument.Factory.newInstance(), SCHEMA_TYPE_LOADER);
+        super(ddBean, JettyWebAppDocument.Factory.newInstance());
         JettyWebAppType webApp = getWebAppDocument().addNewWebApp();
         replaceWebAppDConfigBean(webApp);
     }
@@ -112,6 +116,10 @@ public class WebAppDConfigRoot extends DConfigBeanRootSupport {
     public void fromXML(InputStream inputStream) throws XmlException, IOException {
         super.fromXML(inputStream);
         replaceWebAppDConfigBean(getWebAppDocument().getWebApp());
+    }
+
+    protected SchemaTypeLoader getSchemaTypeLoader() {
+        return SCHEMA_TYPE_LOADER;
     }
 
 

@@ -68,16 +68,14 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/15 17:46:21 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/22 19:11:53 $
  */
 public abstract class XmlBeanSupport { // should implement Serializable or Externalizable
     protected final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
     private XmlObject xmlObject;
-    private final SchemaTypeLoader schemaTypeLoader;
 
-    public XmlBeanSupport(XmlObject xmlObject, SchemaTypeLoader schemaTypeLoader) {
+    public XmlBeanSupport(XmlObject xmlObject) {
         this.xmlObject = xmlObject;
-        this.schemaTypeLoader = schemaTypeLoader;
     }
 
     protected void setXmlObject(XmlObject xmlObject) {
@@ -101,6 +99,12 @@ public abstract class XmlBeanSupport { // should implement Serializable or Exter
     }
 
     public void fromXML(InputStream inputStream) throws XmlException, IOException {
-        xmlObject = schemaTypeLoader.parse(inputStream, null, null);
+        xmlObject = getSchemaTypeLoader().parse(inputStream, null, null);
+    }
+
+    //override unless the particular object can never be read directly from xml, such as the
+    //connector ConnectionDefinitionInstance.
+    protected SchemaTypeLoader getSchemaTypeLoader() {
+        return null;
     }
 }

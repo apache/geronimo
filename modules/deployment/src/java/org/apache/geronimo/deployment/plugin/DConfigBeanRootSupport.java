@@ -56,20 +56,20 @@
 package org.apache.geronimo.deployment.plugin;
 
 import javax.enterprise.deploy.model.DDBeanRoot;
-import javax.enterprise.deploy.spi.DConfigBeanRoot;
 import javax.enterprise.deploy.spi.DConfigBean;
+import javax.enterprise.deploy.spi.DConfigBeanRoot;
 
-import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlObject;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/06 08:55:04 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/22 19:11:53 $
  */
 public abstract class DConfigBeanRootSupport extends DConfigBeanSupport implements DConfigBeanRoot {
-    public DConfigBeanRootSupport(DDBeanRoot ddBean, XmlObject xmlObject, SchemaTypeLoader schemaTypeLoader) {
-        super(ddBean, xmlObject, schemaTypeLoader);
+
+    public DConfigBeanRootSupport(DDBeanRoot ddBean, XmlObject xmlObject) {
+        super(ddBean, xmlObject);
     }
 
     public DConfigBean getDConfigBean(DDBeanRoot ddBeanRoot) {

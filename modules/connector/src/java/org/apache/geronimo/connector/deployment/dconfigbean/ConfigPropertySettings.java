@@ -65,7 +65,7 @@ import javax.enterprise.deploy.model.XpathListener;
 import javax.enterprise.deploy.model.XpathEvent;
 
 /**
- * @version $Revision 1.0$  $Date: 2004/02/21 01:10:50 $
+ * @version $Revision 1.0$  $Date: 2004/02/22 19:11:52 $
  */
 public class ConfigPropertySettings extends XmlBeanSupport {
     private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
@@ -75,7 +75,7 @@ public class ConfigPropertySettings extends XmlBeanSupport {
     private XpathListener nameListener;
 
     public ConfigPropertySettings() {
-        super(null, SCHEMA_TYPE_LOADER);
+        super(null);
     }
 
     void initialize(GerConfigPropertySettingType xmlObject, DDBean configPropertyBean) {

@@ -62,20 +62,18 @@ import org.apache.geronimo.deployment.plugin.DConfigBeanSupport;
 import org.apache.geronimo.xbeans.geronimo.GerAdminobjectInstanceType;
 import org.apache.geronimo.xbeans.geronimo.GerAdminobjectType;
 import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.XmlBeans;
 
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/02/21 16:40:00 $
+ * @version $Revision: 1.4 $ $Date: 2004/02/22 19:11:52 $
  *
  * */
 public class AdminObjectDConfigBean extends DConfigBeanSupport {
-    private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
     private AdminObjectInstance[] instances = new AdminObjectInstance[0];
 
     public AdminObjectDConfigBean(DDBean ddBean, GerAdminobjectType adminObject) {
-        super(ddBean, adminObject, SCHEMA_TYPE_LOADER);
+        super(ddBean, adminObject);
         String adminObjectInterface = ddBean.getText("adminobject-interface")[0];
         if (adminObject.getAdminobjectInterface() == null) {
             adminObject.addNewAdminobjectInterface().setStringValue(adminObjectInterface);
@@ -138,6 +136,10 @@ public class AdminObjectDConfigBean extends DConfigBeanSupport {
             }
         }
         pcs.firePropertyChange("adminObjectInstance", old, instances);
+    }
+
+    protected SchemaTypeLoader getSchemaTypeLoader() {
+        return ResourceAdapterDConfigRoot.SCHEMA_TYPE_LOADER;
     }
 
 }

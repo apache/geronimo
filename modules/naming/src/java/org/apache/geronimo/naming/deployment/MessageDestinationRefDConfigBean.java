@@ -60,18 +60,16 @@ import javax.enterprise.deploy.model.DDBean;
 import org.apache.geronimo.deployment.plugin.DConfigBeanSupport;
 import org.apache.geronimo.xbeans.geronimo.GerMessageDestinationRefType;
 import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.XmlBeans;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/18 20:58:43 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/22 19:11:53 $
  */
 public class MessageDestinationRefDConfigBean extends DConfigBeanSupport {
-    private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
 
     public MessageDestinationRefDConfigBean(DDBean ddBean, GerMessageDestinationRefType messageDestinationRef) {
-        super(ddBean, messageDestinationRef, SCHEMA_TYPE_LOADER);
+        super(ddBean, messageDestinationRef);
         assert ddBean.getChildBean("message-destination-ref-name")[0].equals(getMessageDestinationRefName());
     }
 
@@ -89,5 +87,9 @@ public class MessageDestinationRefDConfigBean extends DConfigBeanSupport {
 
     public void setTargetURI(String targetURI) {
         getMessageDestinationRef().setUri(targetURI);
+    }
+
+    protected SchemaTypeLoader getSchemaTypeLoader() {
+        return ENCHelper.SCHEMA_TYPE_LOADER;
     }
 }

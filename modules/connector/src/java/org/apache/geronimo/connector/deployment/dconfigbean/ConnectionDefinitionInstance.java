@@ -68,7 +68,7 @@ import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 
 /**
- * @version $Revision 1.0$  $Date: 2004/02/21 01:10:50 $
+ * @version $Revision 1.0$  $Date: 2004/02/22 19:11:52 $
  */
 public class ConnectionDefinitionInstance extends XmlBeanSupport {
     private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
@@ -77,7 +77,7 @@ public class ConnectionDefinitionInstance extends XmlBeanSupport {
     private XpathListener configListener;
 
     public ConnectionDefinitionInstance() {
-        super(null, SCHEMA_TYPE_LOADER);
+        super(null);
     }
 
     void initialize(GerConnectiondefinitionInstanceType xmlObject, ConnectionDefinitionDConfigBean parent) {

@@ -69,15 +69,14 @@ import org.apache.xmlbeans.XmlBeans;
 /**
  *
  *
- * @version $Revision: 1.10 $ $Date: 2004/02/20 07:19:13 $
+ * @version $Revision: 1.11 $ $Date: 2004/02/22 19:11:53 $
  */
 public class WebAppDConfigBean extends DConfigBeanSupport {
-    private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
 
 //    private ENCHelper encHelper;
 
     WebAppDConfigBean(DDBean ddBean, JettyWebAppType webApp) {
-        super(ddBean, webApp, SCHEMA_TYPE_LOADER);
+        super(ddBean, webApp);
 /*
         encHelper = new ENCHelper(ddBean, new ENCHelper.XmlEnvRefs() {
             public GerEjbRefType[] getEjbRefs() {
@@ -186,6 +185,10 @@ public class WebAppDConfigBean extends DConfigBeanSupport {
     public String[] getXpaths() {
         return null;
 //        return ENCHelper.ENC_XPATHS;
+    }
+
+    protected SchemaTypeLoader getSchemaTypeLoader() {
+        return WebAppDConfigRoot.SCHEMA_TYPE_LOADER;
     }
 
 }

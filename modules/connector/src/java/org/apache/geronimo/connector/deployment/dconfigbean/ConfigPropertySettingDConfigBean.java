@@ -61,19 +61,17 @@ import javax.enterprise.deploy.model.DDBean;
 import org.apache.geronimo.deployment.plugin.DConfigBeanSupport;
 import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
 import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.XmlBeans;
 
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/02/21 01:10:50 $
+ * @version $Revision: 1.5 $ $Date: 2004/02/22 19:11:52 $
  *
  * */
 public class ConfigPropertySettingDConfigBean extends DConfigBeanSupport {
-    private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
 
     public ConfigPropertySettingDConfigBean(DDBean ddBean, GerConfigPropertySettingType configPropertySetting) {
-        super(ddBean, configPropertySetting, SCHEMA_TYPE_LOADER);
+        super(ddBean, configPropertySetting);
         String name = ddBean.getText("config-property-name")[0];
         if (configPropertySetting.getName() == null) {
             configPropertySetting.setName(name);
@@ -105,6 +103,10 @@ public class ConfigPropertySettingDConfigBean extends DConfigBeanSupport {
 
     public void setConfigPropertyValue(String configPropertyValue) {
         getConfigPropertySetting().setStringValue(configPropertyValue);
+    }
+
+    protected SchemaTypeLoader getSchemaTypeLoader() {
+        return ResourceAdapterDConfigRoot.SCHEMA_TYPE_LOADER;
     }
 
 }

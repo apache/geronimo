@@ -68,7 +68,7 @@ import org.apache.xmlbeans.XmlBeans;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/02/21 01:10:50 $
+ * @version $Revision: 1.4 $ $Date: 2004/02/22 19:11:52 $
  *
  * */
 public class AdminObjectInstance extends XmlBeanSupport {
@@ -78,7 +78,7 @@ public class AdminObjectInstance extends XmlBeanSupport {
     private XpathListener configListener;
 
     public AdminObjectInstance() {
-        super(null, SCHEMA_TYPE_LOADER);
+        super(null);
     }
 
     void initialize(GerAdminobjectInstanceType xmlObject, AdminObjectDConfigBean parent) {

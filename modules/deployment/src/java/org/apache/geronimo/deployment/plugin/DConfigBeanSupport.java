@@ -57,24 +57,22 @@ package org.apache.geronimo.deployment.plugin;
 
 import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.model.XpathEvent;
-import javax.enterprise.deploy.model.DDBeanRoot;
 import javax.enterprise.deploy.spi.DConfigBean;
 import javax.enterprise.deploy.spi.exceptions.BeanNotFoundException;
 import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
 
-import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlObject;
 
 /**
  *
  *
- * @version $Revision: 1.9 $ $Date: 2004/02/20 08:11:39 $
+ * @version $Revision: 1.10 $ $Date: 2004/02/22 19:11:53 $
  */
 public abstract class DConfigBeanSupport extends XmlBeanSupport implements DConfigBean {
     private DDBean ddBean;
 
-    public DConfigBeanSupport(DDBean ddBean, XmlObject xmlObject, SchemaTypeLoader schemaTypeLoader) {
-        super(xmlObject, schemaTypeLoader);
+    public DConfigBeanSupport(DDBean ddBean, XmlObject xmlObject) {
+        super(xmlObject);
         this.ddBean = ddBean;
     }
 

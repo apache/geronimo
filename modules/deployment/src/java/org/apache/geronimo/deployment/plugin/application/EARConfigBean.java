@@ -58,14 +58,19 @@ package org.apache.geronimo.deployment.plugin.application;
 import javax.enterprise.deploy.model.DDBean;
 
 import org.apache.geronimo.deployment.plugin.DConfigBeanSupport;
+import org.apache.xmlbeans.SchemaTypeLoader;
 
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/02/06 08:55:04 $
+ * @version $Revision: 1.4 $ $Date: 2004/02/22 19:11:53 $
  */
 public class EARConfigBean extends DConfigBeanSupport {
     public EARConfigBean(DDBean ddBean) {
-        super(ddBean, null, null);
+        super(ddBean, null);
+    }
+
+    protected SchemaTypeLoader getSchemaTypeLoader() {
+        return null;
     }
 }

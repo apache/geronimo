@@ -63,20 +63,19 @@ import org.apache.geronimo.xbeans.geronimo.GerConnectionDefinitionType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectiondefinitionInstanceType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectionmanagerType;
 import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.XmlBeans;
 
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/02/21 01:10:50 $
+ * @version $Revision: 1.5 $ $Date: 2004/02/22 19:11:52 $
  *
  **/
 public class ConnectionDefinitionDConfigBean extends DConfigBeanSupport {
-    private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
+
     private ConnectionDefinitionInstance[] instances = new ConnectionDefinitionInstance[0];
 
     public ConnectionDefinitionDConfigBean(DDBean ddBean, GerConnectionDefinitionType connectionDefinition) {
-        super(ddBean, connectionDefinition, SCHEMA_TYPE_LOADER);
+        super(ddBean, connectionDefinition);
         String connectionfactoryInterface = ddBean.getText("connectionfactory-interface")[0];
         if (connectionDefinition.getConnectionfactoryInterface() == null) {
             connectionDefinition.addNewConnectionfactoryInterface().setStringValue(connectionfactoryInterface);
@@ -133,6 +132,10 @@ public class ConnectionDefinitionDConfigBean extends DConfigBeanSupport {
             }
         }
         pcs.firePropertyChange("connectionDefinitionInstance", old, instances);
+    }
+
+    protected SchemaTypeLoader getSchemaTypeLoader() {
+        return ResourceAdapterDConfigRoot.SCHEMA_TYPE_LOADER;
     }
 
 }

@@ -58,21 +58,18 @@ package org.apache.geronimo.naming.deployment;
 import javax.enterprise.deploy.model.DDBean;
 
 import org.apache.geronimo.deployment.plugin.DConfigBeanSupport;
-import org.apache.geronimo.xbeans.geronimo.GerEjbRefType;
 import org.apache.geronimo.xbeans.geronimo.GerResourceEnvRefType;
 import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.XmlBeans;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/18 20:58:43 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/22 19:11:53 $
  */
 public class ResourceEnvRefDConfigBean extends DConfigBeanSupport {
-    private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
 
     public ResourceEnvRefDConfigBean(DDBean ddBean, GerResourceEnvRefType resourceEnvRef) {
-        super(ddBean, resourceEnvRef, SCHEMA_TYPE_LOADER);
+        super(ddBean, resourceEnvRef);
         assert ddBean.getChildBean("resource-env-ref-name")[0].equals(getResourceEnvRefName());
     }
 
@@ -90,5 +87,9 @@ public class ResourceEnvRefDConfigBean extends DConfigBeanSupport {
 
     public void setTargetURI(String targetURI) {
         getResourceEnvRef().setUri(targetURI);
+    }
+
+    protected SchemaTypeLoader getSchemaTypeLoader() {
+        return ENCHelper.SCHEMA_TYPE_LOADER;
     }
 }

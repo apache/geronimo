@@ -58,21 +58,18 @@ package org.apache.geronimo.naming.deployment;
 import javax.enterprise.deploy.model.DDBean;
 
 import org.apache.geronimo.deployment.plugin.DConfigBeanSupport;
-import org.apache.geronimo.xbeans.geronimo.GerEjbRefType;
 import org.apache.geronimo.xbeans.geronimo.GerEjbLocalRefType;
 import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.XmlBeans;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/18 20:58:43 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/22 19:11:53 $
  */
 public class EJBLocalRefDConfigBean extends DConfigBeanSupport {
-    private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
 
     public EJBLocalRefDConfigBean(DDBean ddBean, GerEjbLocalRefType ejbLocalRef) {
-        super(ddBean, ejbLocalRef, SCHEMA_TYPE_LOADER);
+        super(ddBean, ejbLocalRef);
         assert ddBean.getChildBean("ejb-ref-name")[0].equals(getEjbRefName());
     }
 
@@ -90,5 +87,9 @@ public class EJBLocalRefDConfigBean extends DConfigBeanSupport {
 
     public void setTargetURI(String targetURI) {
         getEjbRef().setUri(targetURI);
+    }
+
+    protected SchemaTypeLoader getSchemaTypeLoader() {
+        return ENCHelper.SCHEMA_TYPE_LOADER;
     }
 }

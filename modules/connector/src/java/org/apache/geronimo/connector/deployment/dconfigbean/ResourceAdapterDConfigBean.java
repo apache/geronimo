@@ -56,31 +56,29 @@
 
 package org.apache.geronimo.connector.deployment.dconfigbean;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.spi.DConfigBean;
 import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
 
 import org.apache.geronimo.deployment.plugin.DConfigBeanSupport;
-import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
-import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
-import org.apache.geronimo.xbeans.geronimo.GerOutboundResourceadapterType;
-import org.apache.geronimo.xbeans.geronimo.GerConnectionDefinitionType;
 import org.apache.geronimo.xbeans.geronimo.GerAdminobjectType;
+import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
+import org.apache.geronimo.xbeans.geronimo.GerConnectionDefinitionType;
+import org.apache.geronimo.xbeans.geronimo.GerOutboundResourceadapterType;
 import org.apache.geronimo.xbeans.geronimo.GerResourceadapterInstanceType;
+import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
 import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.XmlBeans;
 
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/02/21 01:10:50 $
+ * @version $Revision: 1.8 $ $Date: 2004/02/22 19:11:52 $
  *
  * */
 public class ResourceAdapterDConfigBean extends DConfigBeanSupport {
-    private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
 
     private final static String[][] RESOURCE_ADAPTER_XPATHS = {
         {"config-property"},
@@ -91,7 +89,7 @@ public class ResourceAdapterDConfigBean extends DConfigBeanSupport {
     private Map adminObjectsMap = new HashMap();
 
     public ResourceAdapterDConfigBean(DDBean ddBean, final GerResourceadapterType resourceadapter) {
-        super(ddBean, resourceadapter, SCHEMA_TYPE_LOADER);
+        super(ddBean, resourceadapter);
         if (getResourceadapterInstance() == null) {
             resourceadapter.addNewResourceadapterInstance();
         }
@@ -235,6 +233,10 @@ public class ResourceAdapterDConfigBean extends DConfigBeanSupport {
 
     public String[] getXpaths() {
         return getXPathsForJ2ee_1_4(RESOURCE_ADAPTER_XPATHS);
+    }
+
+    protected SchemaTypeLoader getSchemaTypeLoader() {
+        return ResourceAdapterDConfigRoot.SCHEMA_TYPE_LOADER;
     }
 
 

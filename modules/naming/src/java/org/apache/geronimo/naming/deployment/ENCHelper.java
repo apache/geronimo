@@ -67,13 +67,19 @@ import org.apache.geronimo.xbeans.geronimo.GerEjbRefType;
 import org.apache.geronimo.xbeans.geronimo.GerMessageDestinationRefType;
 import org.apache.geronimo.xbeans.geronimo.GerResourceEnvRefType;
 import org.apache.geronimo.xbeans.geronimo.GerResourceRefType;
+import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.XmlBeans;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/18 20:58:43 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/22 19:11:53 $
  */
 public class ENCHelper {
+    static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderUnion(new SchemaTypeLoader[] {
+        XmlBeans.typeLoaderForClassLoader(org.apache.geronimo.xbeans.j2ee.String.class.getClassLoader()),
+        XmlBeans.typeLoaderForClassLoader(GerEjbRefType.class.getClassLoader())
+    });
 
 
     public static final String[] ENC_XPATHS = {

@@ -69,17 +69,17 @@ import org.apache.geronimo.xbeans.geronimo.GerConnectionDefinitionType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
 import org.apache.geronimo.xbeans.geronimo.GerVersionType;
 import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlBeans;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/21 01:10:50 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/22 19:11:52 $
  *
  * */
 public class ResourceAdapter_1_0DConfigRoot extends DConfigBeanRootSupport {
-    private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
+
     private static String[] XPATHS = {
         "connector/resourceadapter"
     };
@@ -87,7 +87,7 @@ public class ResourceAdapter_1_0DConfigRoot extends DConfigBeanRootSupport {
     private ConnectionDefinitionDConfigBean connectionDefinitionDConfigBean;
 
     public ResourceAdapter_1_0DConfigRoot(DDBeanRoot ddBean) {
-        super(ddBean, GerConnectorDocument.Factory.newInstance(), SCHEMA_TYPE_LOADER);
+        super(ddBean, GerConnectorDocument.Factory.newInstance());
         GerConnectionDefinitionType connectionDefinition = getConnectorDocument().addNewConnector().addNewResourceadapter().addNewOutboundResourceadapter().addNewConnectionDefinition();
         getConnectorDocument().getConnector().setVersion(GerVersionType.X_1_0);
         replaceConnectionDefinitionDConfigBean(connectionDefinition);
@@ -120,5 +120,9 @@ public class ResourceAdapter_1_0DConfigRoot extends DConfigBeanRootSupport {
             throw new IllegalStateException("Wrong version, expected 1.0");
         }
         replaceConnectionDefinitionDConfigBean(getConnectorDocument().getConnector().getResourceadapter().getOutboundResourceadapter().getConnectionDefinitionArray(0));
+    }
+
+    protected SchemaTypeLoader getSchemaTypeLoader() {
+        return ResourceAdapterDConfigRoot.SCHEMA_TYPE_LOADER;
     }
 }
