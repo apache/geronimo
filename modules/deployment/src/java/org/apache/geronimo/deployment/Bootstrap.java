@@ -20,8 +20,8 @@ package org.apache.geronimo.deployment;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.jar.Attributes;
-import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
@@ -38,7 +38,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  * Helper class to bootstrap the Geronimo deployer.
  *
- * @version $Revision: 1.12 $ $Date: 2004/03/10 09:58:48 $
+ * @version $Revision: 1.13 $ $Date: 2004/04/03 22:37:57 $
  */
 public class Bootstrap {
     private String deployerJar;
@@ -148,7 +148,7 @@ public class Bootstrap {
             // build and install the j2ee-deployer configuration
             File tempFile = File.createTempFile("j2ee-deployer", ".car");
             try {
-                builder.buildConfiguration(tempFile, (JarInputStream)null, j2eeDeployerXML);
+                builder.buildConfiguration(tempFile, (InputStream)null, j2eeDeployerXML);
                 configStore.install(tempFile.toURL());
             } finally {
                 tempFile.delete();

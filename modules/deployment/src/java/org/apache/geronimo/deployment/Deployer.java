@@ -19,6 +19,7 @@ package org.apache.geronimo.deployment;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -28,7 +29,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-import java.util.jar.JarInputStream;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -50,7 +50,7 @@ import org.apache.xmlbeans.XmlObject;
  * Command line based deployment utility which combines multiple deployable modules
  * into a single configuration.
  *
- * @version $Revision: 1.16 $ $Date: 2004/03/10 09:58:48 $
+ * @version $Revision: 1.17 $ $Date: 2004/04/03 22:37:57 $
  */
 public class Deployer {
     private final Collection builders;
@@ -113,14 +113,14 @@ public class Deployer {
 
         try {
             if (cmd.module == null) {
-                builder.buildConfiguration(cmd.carfile, (JarInputStream) null, plan);
+                builder.buildConfiguration(cmd.carfile, (InputStream) null, plan);
             } else if ("file".equals(cmd.module.getProtocol())) {
                 File module = new File(new URI(cmd.module.toString()));
                 builder.buildConfiguration(cmd.carfile, module, plan);
             } else if (cmd.module.toString().endsWith("/")) {
                 throw new DeploymentException("Unpacked modules must be files");
             } else {
-                JarInputStream moduleStream = new JarInputStream(cmd.module.openStream());
+                InputStream moduleStream = cmd.module.openStream();
                 try {
                     builder.buildConfiguration(cmd.carfile, moduleStream, plan);
                 } finally {

@@ -25,10 +25,9 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Iterator;
-import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 import javax.management.MalformedObjectNameException;
@@ -48,7 +47,7 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/03/12 17:58:45 $
+ * @version $Revision: 1.8 $ $Date: 2004/04/03 22:37:57 $
  *
  * */
 public class RAR_1_5ConfigBuilderTest extends TestCase {
@@ -126,7 +125,7 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
         }
     }
 
-    private JarInputStream getRARInputStream() throws IOException {
+    private InputStream getRARInputStream() throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         JarOutputStream jarOutputStream = new JarOutputStream(baos);
         ZipEntry entry = new ZipEntry("META-INF/ra.xml");
@@ -141,8 +140,7 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
         jarOutputStream.closeEntry();
         jarOutputStream.close();
 
-        InputStream moduleArchive = new ByteArrayInputStream(baos.toByteArray());
-        return new JarInputStream(moduleArchive);
+        return new ByteArrayInputStream(baos.toByteArray());
     }
 
     protected void setUp() throws Exception {

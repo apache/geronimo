@@ -20,8 +20,6 @@ package org.apache.geronimo.deployment.plugin.local;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.jar.JarInputStream;
-
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.shared.ModuleType;
 import javax.enterprise.deploy.spi.Target;
@@ -53,7 +51,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.8 $ $Date: 2004/03/10 09:58:49 $
+ * @version $Revision: 1.9 $ $Date: 2004/04/03 22:37:58 $
  */
 public class LocalServer implements DeploymentServer, GBean {
     private final URI rootConfigID;
@@ -100,11 +98,11 @@ public class LocalServer implements DeploymentServer, GBean {
         return null;
     }
 
-    public ProgressObject distribute(Target[] targetList, ConfigurationBuilder builder, JarInputStream jis, XmlObject plan) throws IllegalStateException {
+    public ProgressObject distribute(Target[] targetList, ConfigurationBuilder builder, InputStream in, XmlObject plan) throws IllegalStateException {
         if (targetList.length != 1 || !target.equals(targetList[0])) {
             return new FailedProgressObject(CommandType.DISTRIBUTE, "Invalid Target");
         }
-        DistributeCommand command = new DistributeCommand(store, builder, jis, plan);
+        DistributeCommand command = new DistributeCommand(store, builder, in, plan);
         new Thread(command).start();
         return command;
     }

@@ -57,7 +57,7 @@ import org.apache.xmlbeans.XmlOptions;
 /**
  *
  *
- * @version $Revision: 1.15 $ $Date: 2004/03/10 09:58:48 $
+ * @version $Revision: 1.16 $ $Date: 2004/04/03 22:37:57 $
  */
 public class DeploymentManagerImpl implements DeploymentManager {
     private final DeploymentServer server;
@@ -198,11 +198,7 @@ public class DeploymentManagerImpl implements DeploymentManager {
         for (Iterator iterator = builders.iterator(); iterator.hasNext();) {
             ConfigurationBuilder configurationBuilder = (ConfigurationBuilder) iterator.next();
             if (configurationBuilder.canConfigure(plan)) {
-                try {
-                    return server.distribute(targetList, configurationBuilder, new JarInputStream(moduleArchive), plan);
-                } catch (IOException e) {
-                    return new FailedProgressObject(CommandType.DISTRIBUTE, e.getMessage());
-                }
+                return server.distribute(targetList, configurationBuilder, moduleArchive, plan);
             }
         }
         return new FailedProgressObject(CommandType.DISTRIBUTE, "No configuration builder found for module");

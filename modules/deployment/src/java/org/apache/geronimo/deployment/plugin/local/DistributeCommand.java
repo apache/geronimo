@@ -18,8 +18,7 @@
 package org.apache.geronimo.deployment.plugin.local;
 
 import java.io.File;
-import java.util.jar.JarInputStream;
-
+import java.io.InputStream;
 import javax.enterprise.deploy.shared.CommandType;
 
 import org.apache.geronimo.deployment.ConfigurationBuilder;
@@ -29,19 +28,19 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.8 $ $Date: 2004/03/10 09:58:49 $
+ * @version $Revision: 1.9 $ $Date: 2004/04/03 22:37:58 $
  */
 public class DistributeCommand extends CommandSupport {
     private final ConfigurationStore store;
     private final ConfigurationBuilder builder;
-    private final JarInputStream jis;
+    private final InputStream in;
     private final XmlObject plan;
 
-    public DistributeCommand(ConfigurationStore store, ConfigurationBuilder builder, JarInputStream jis, XmlObject plan) {
+    public DistributeCommand(ConfigurationStore store, ConfigurationBuilder builder, InputStream in, XmlObject plan) {
         super(CommandType.DISTRIBUTE);
         this.store = store;
         this.builder = builder;
-        this.jis = jis;
+        this.in = in;
         this.plan = plan;
     }
 
@@ -50,7 +49,7 @@ public class DistributeCommand extends CommandSupport {
         try {
             // create some working space
             configFile = File.createTempFile("deploy", ".car");
-            builder.buildConfiguration(configFile, jis, plan);
+            builder.buildConfiguration(configFile, in, plan);
 
             // install in our local server
             store.install(configFile.toURL());

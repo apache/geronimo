@@ -19,6 +19,7 @@ package org.apache.geronimo.deployment;
 
 import java.io.IOException;
 import java.io.File;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.jar.JarInputStream;
 import java.util.List;
@@ -29,7 +30,7 @@ import org.apache.xmlbeans.SchemaTypeLoader;
 /**
  * 
  * 
- * @version $Revision: 1.6 $ $Date: 2004/03/10 09:58:48 $
+ * @version $Revision: 1.7 $ $Date: 2004/04/03 22:37:57 $
  */
 public interface ConfigurationBuilder {
     SchemaTypeLoader[] getTypeLoaders();
@@ -67,5 +68,5 @@ public interface ConfigurationBuilder {
      * @throws IOException if there was a problem reading or writing the files
      * @throws DeploymentException if there was a problem with the configuration
      */
-    void buildConfiguration(File outfile, JarInputStream module, XmlObject plan) throws IOException, DeploymentException;
+    void buildConfiguration(File outfile, InputStream module, XmlObject plan) throws IOException, DeploymentException;
 }

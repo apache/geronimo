@@ -28,11 +28,9 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.jar.Attributes;
-import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
-
 import javax.management.MalformedObjectNameException;
 
 import org.apache.geronimo.deployment.ConfigurationBuilder;
@@ -57,7 +55,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.11 $ $Date: 2004/03/10 09:58:49 $
+ * @version $Revision: 1.12 $ $Date: 2004/04/03 22:37:58 $
  */
 public class ServiceConfigBuilder implements ConfigurationBuilder {
     private final Repository repository;
@@ -85,10 +83,10 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
     }
 
     public void buildConfiguration(File outfile, File module, XmlObject plan) throws IOException, DeploymentException {
-        buildConfiguration(outfile, (JarInputStream)null, plan);
+        buildConfiguration(outfile, (InputStream)null, plan);
     }
 
-    public void buildConfiguration(File outfile, JarInputStream module, XmlObject plan) throws IOException, DeploymentException {
+    public void buildConfiguration(File outfile, InputStream ignored, XmlObject plan) throws IOException, DeploymentException {
         // create the manifext
         Manifest manifest = new Manifest();
         Attributes mainAttributes = manifest.getMainAttributes();

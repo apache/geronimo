@@ -74,7 +74,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.15 $ $Date: 2004/03/21 18:12:42 $
+ * @version $Revision: 1.16 $ $Date: 2004/04/03 22:37:58 $
  */
 public class WARConfigBuilder implements ConfigurationBuilder {
     private final Repository repository;
@@ -119,13 +119,13 @@ public class WARConfigBuilder implements ConfigurationBuilder {
 
     public void buildConfiguration(File outfile, File module, XmlObject plan) throws IOException, DeploymentException {
         if (!module.isDirectory()) {
-            FileInputStream is = new FileInputStream(module);
+            FileInputStream in = new FileInputStream(module);
             try {
-                buildConfiguration(outfile, new JarInputStream(new BufferedInputStream(is)), plan);
+                buildConfiguration(outfile, in, plan);
                 return;
             } finally {
                 try {
-                    is.close();
+                    in.close();
                 } catch (IOException e) {
                     // ignore
                 }
@@ -177,14 +177,16 @@ public class WARConfigBuilder implements ConfigurationBuilder {
         }
     }
 
-    public void buildConfiguration(File outfile, JarInputStream module, XmlObject plan) throws IOException, DeploymentException {
+    public void buildConfiguration(File outfile, InputStream in, XmlObject plan) throws IOException, DeploymentException {
         WebAppType webApp = null;
         JettyWebAppType jettyWebApp = ((JettyWebAppDocument) plan).getWebApp();
         URI configID = getConfigID(jettyWebApp);
         URI parentID = getParentID(jettyWebApp);
 
         FileOutputStream fos = new FileOutputStream(outfile);
+        JarInputStream module = null;
         try {
+            module = new JarInputStream(new BufferedInputStream(in));
             JarOutputStream os = new JarOutputStream(new BufferedOutputStream(fos));
             DeploymentContext context = null;
             try {
@@ -222,6 +224,13 @@ public class WARConfigBuilder implements ConfigurationBuilder {
             context.close();
             os.flush();
         } finally {
+            if (module != null) {
+                try {
+                    module.close();
+                } catch (IOException e) {
+                    // ignore
+                }
+            }
             fos.close();
         }
     }

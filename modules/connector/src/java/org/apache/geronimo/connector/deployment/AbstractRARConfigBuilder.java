@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -58,7 +59,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.11 $ $Date: 2004/03/21 18:12:06 $
+ * @version $Revision: 1.12 $ $Date: 2004/04/03 22:37:57 $
  *
  * */
 public abstract class AbstractRARConfigBuilder implements ConfigurationBuilder {
@@ -137,7 +138,7 @@ public abstract class AbstractRARConfigBuilder implements ConfigurationBuilder {
         }
         FileInputStream is = new FileInputStream(module);
         try {
-            buildConfiguration(outfile, new JarInputStream(new BufferedInputStream(is)), plan);
+            buildConfiguration(outfile, is, plan);
         } finally {
             try {
                 is.close();
@@ -147,7 +148,7 @@ public abstract class AbstractRARConfigBuilder implements ConfigurationBuilder {
         }
     }
 
-    public void buildConfiguration(File outfile, JarInputStream module, XmlObject plan) throws IOException, DeploymentException {
+    public void buildConfiguration(File outfile, InputStream in, XmlObject plan) throws IOException, DeploymentException {
         GerConnectorType geronimoConnector = ((GerConnectorDocument) plan).getConnector();
         URI configID;
         try {
@@ -167,7 +168,9 @@ public abstract class AbstractRARConfigBuilder implements ConfigurationBuilder {
         }
 
         FileOutputStream fos = new FileOutputStream(outfile);
+        JarInputStream module = null;
         try {
+            module = new JarInputStream(new BufferedInputStream(in));
             JarOutputStream os = new JarOutputStream(new BufferedOutputStream(fos));
             DeploymentContext context = null;
             try {
@@ -184,6 +187,13 @@ public abstract class AbstractRARConfigBuilder implements ConfigurationBuilder {
             context.close();
             os.flush();
         } finally {
+            if (module != null) {
+                try {
+                    module.close();
+                } catch (IOException e) {
+                    // ignore
+                }
+            }
             fos.close();
 
         }
