@@ -70,7 +70,7 @@ import org.apache.geronimo.core.service.InvocationResult;
  * server on every request).  For example, see
  * {@link org.apache.geronimo.remoting.jmx.RemoteMBeanServerFactory}
  *
- * @version $Revision: 1.4 $ $Date: 2003/10/01 02:30:16 $
+ * @version $Revision: 1.5 $ $Date: 2003/11/11 21:53:27 $
  */
 public class ProxyContainer extends SimpleRPCContainer implements InvocationHandler {
 
@@ -81,6 +81,7 @@ public class ProxyContainer extends SimpleRPCContainer implements InvocationHand
         Invocation invocation = new ProxyInvocation();
         ProxyInvocation.putMethod(invocation, method);
         ProxyInvocation.putArguments(invocation, args);
+        ProxyInvocation.putProxy(invocation, proxy);
         try {
             InvocationResult result = this.invoke(invocation);
             return result.getResult();
