@@ -53,11 +53,16 @@ public class TransactionEnlistingInterceptor implements ConnectionInterceptor {
                 transactionContext.enlistResource(xares);
             }
         } catch (SystemException e) {
+            returnConnection(connectionInfo, ConnectionReturnAction.DESTROY);
             throw new ResourceException("Could not get transaction", e);
         } catch (RollbackException e) {
+            //transaction is marked rolled back, so the xaresource could not have been enlisted
+            next.returnConnection(connectionInfo, ConnectionReturnAction.RETURN_HANDLE);
             throw new ResourceException("Could not enlist resource in rolled back transaction", e);
+        } catch (Throwable t) {
+            returnConnection(connectionInfo, ConnectionReturnAction.DESTROY);
+            throw new ResourceException("Unknown throwable when trying to enlist connection in tx", t);
         }
-
     }
 
     /**
@@ -81,6 +86,8 @@ public class TransactionEnlistingInterceptor implements ConnectionInterceptor {
 
         } catch (SystemException e) {
             //maybe we should warn???
+            connectionReturnAction = ConnectionReturnAction.DESTROY;
+        } catch (IllegalStateException e) {
             connectionReturnAction = ConnectionReturnAction.DESTROY;
         }
 
