@@ -183,7 +183,7 @@
         description="Copy any resources that must be present for the integration tests to run"
         prereqs="itest:prepare-filesystem">
 
-        <j:if test="${maven.itest.skip != 'true' and context.getVariable('maven.itest.resources') != null}">
+        <j:if test="${maven.itest.skip != 'true' and context.getVariable('maven.itest.resources') != ''}">
             <ant:copy todir="${maven.itest.dest}">
                 <u:tokenize var="resources" delim=", ">${maven.itest.resources}</u:tokenize>
                 <j:forEach var="resource" items="${resources}">
