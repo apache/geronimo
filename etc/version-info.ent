@@ -1,3 +1,4 @@
+<!ENTITY activemq-version "1.1-SNAPSHOT">
 <!ENTITY geronimo-version "1.0-SNAPSHOT">
 <!ENTITY openejb-version "2.0-SNAPSHOT">
 <!ENTITY tranql-version "1.0-SNAPSHOT">
