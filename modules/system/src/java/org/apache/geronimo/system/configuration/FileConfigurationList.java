@@ -52,10 +52,38 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  */
 public class FileConfigurationList implements GBeanLifecycle, PersistentConfigurationList {
     private static final Log log = LogFactory.getLog(PersistentConfigurationList.class);
+
+    /**
+     * The kernel for which we are persisting the configuration list.
+     */
     private final Kernel kernel;
+
+    /**
+     * Used to resolve the location of the configuration file.
+     */
     private final ServerInfo serverInfo;
+
+    /**
+     * The file to which we are saving the configurations.  This is relative to the
+     * server base directory in server info.
+     */
     private final String configFile;
+
+    /**
+     * Is the kernel fully started?  Until the kernel is fully started, we will
+     * not write out a new configuration list.  This stops a crtl^c during start up
+     * from completely overwriting the startup file with no content.
+     */
+    private boolean kernelFullyStarted = false;
+
+    /**
+     * The acutal absolute file where we write the configuration list.
+     */
     private File configList;
+
+    /**
+     * Our hook the kernel calls before shutting down.
+     */
     private Runnable hook;
 
     public FileConfigurationList(Kernel kernel, ServerInfo serverInfo, String configDir) {
@@ -94,7 +122,20 @@ public class FileConfigurationList implements GBeanLifecycle, PersistentConfigur
         configList = null;
     }
 
+    public synchronized boolean isKernelFullyStarted() {
+        return kernelFullyStarted;
+    }
+
+    public synchronized void setKernelFullyStarted(boolean kernelFullyStarted) {
+        this.kernelFullyStarted = kernelFullyStarted;
+    }
+
     public synchronized void save() throws IOException {
+        if (!kernelFullyStarted) {
+            log.info("Configuration list was not saved.  Kernel was never fully started.");
+            return;
+        }
+
         BufferedWriter writer = new BufferedWriter(new FileWriter(configList));
         try {
             List stores = kernel.listConfigurationStores();
@@ -147,6 +188,7 @@ public class FileConfigurationList implements GBeanLifecycle, PersistentConfigur
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(FileConfigurationList.class);
         infoFactory.addInterface(PersistentConfigurationList.class);
         infoFactory.addAttribute("kernel", Kernel.class, false);
+        infoFactory.addAttribute("kernelFullyStarted", boolean.class, false);
         infoFactory.addReference("ServerInfo", ServerInfo.class);
         infoFactory.addAttribute("configFile", String.class, true);
         infoFactory.setConstructor(new String[]{"kernel", "ServerInfo", "configFile"});

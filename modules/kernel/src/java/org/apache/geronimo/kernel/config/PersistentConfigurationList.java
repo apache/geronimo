@@ -18,9 +18,6 @@ package org.apache.geronimo.kernel.config;
 
 import java.io.IOException;
 import java.util.List;
-import javax.management.ObjectName;
-
-import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 /**
  *
@@ -29,6 +26,10 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
  * @version $Rev$ $Date$
  */
 public interface PersistentConfigurationList {
+    boolean isKernelFullyStarted();
+
+    void setKernelFullyStarted(boolean kernelFullyStarted);
+
     void save() throws IOException;
 
     List restore() throws IOException;

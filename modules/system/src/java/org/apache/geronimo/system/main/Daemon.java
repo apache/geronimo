@@ -129,7 +129,7 @@ public class Daemon {
                 for (Iterator i = configLists.iterator(); i.hasNext();) {
                     ObjectName configListName = (ObjectName) i.next();
                     try {
-                        configs = (List) kernel.invoke(configListName, "restore");
+                        configs.addAll((List) kernel.invoke(configListName, "restore"));
                     } catch (IOException e) {
                         System.err.println("Unable to restore last known configurations");
                         e.printStackTrace();
@@ -159,6 +159,13 @@ public class Daemon {
                 e.printStackTrace();
                 System.exit(3);
                 throw new AssertionError();
+            }
+
+            // Tell every persistent configuration list that the kernel is now fully started
+            Set configLists = kernel.listGBeans(JMXUtil.getObjectName("*:role=PersistentConfigurationList,*"));
+            for (Iterator i = configLists.iterator(); i.hasNext();) {
+                ObjectName configListName = (ObjectName) i.next();
+                kernel.setAttribute(configListName, "kernelFullyStarted", Boolean.TRUE);
             }
 
             log.info("Server startup completed");
