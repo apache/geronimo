@@ -19,36 +19,33 @@ package org.apache.geronimo.gbean.jmx;
 
 import java.lang.reflect.InvocationTargetException;
 
-import net.sf.cglib.proxy.Callback;
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.MethodInterceptor;
-
 /**
- * @version $Revision: 1.5 $ $Date: 2004/05/27 01:05:59 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/02 06:49:23 $
  */
-public class ProxyFactory {
-    private final Class type;
-    private final Enhancer enhancer;
+public abstract class ProxyFactory {
+    private static final boolean useCGLib;
 
-    public ProxyFactory(Class type) {
-        enhancer = new Enhancer();
-        enhancer.setSuperclass(type);
-        enhancer.setCallbackType(MethodInterceptor.class);
-        enhancer.setUseFactory(false);
-        this.type = enhancer.createClass();
+    static {
+        boolean flag = false;
+        try {
+            Class.forName("net.sf.cglib.proxy.Enhancer");
+            flag = true;
+        } catch (Exception e) {
+        }
+        useCGLib = flag;
     }
 
-    public Class getType() {
-        return type;
+    public static ProxyFactory newProxyFactory(Class type) {
+        if (useCGLib) {
+            return new CGLibProxyFactory(type);
+        } else {
+            return new VMProxyFactory(type);
+        }
     }
 
-    public Object create(MethodInterceptor methodInterceptor) throws InvocationTargetException {
-        return create(methodInterceptor, new Class[0], new Object[0]);
-    }
+    public abstract ProxyMethodInterceptor getMethodInterceptor();
 
-    public synchronized Object create(MethodInterceptor methodInterceptor, Class[] types, Object[] arguments) throws InvocationTargetException {
-        enhancer.setCallbacks(new Callback[]{methodInterceptor});
-        // @todo trap CodeGenerationException indicating missing no-arg ctr
-        return enhancer.create(types, arguments);
-    }
+    public abstract Object create(ProxyMethodInterceptor methodInterceptor);
+
+    public abstract Object create(ProxyMethodInterceptor methodInterceptor, Class[] types, Object[] arguments);
 }

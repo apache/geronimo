@@ -17,15 +17,14 @@
 
 package org.apache.geronimo.kernel;
 
-import java.io.Serializable;
 import java.io.IOException;
+import java.io.Serializable;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
+import java.net.URI;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Map;
-import java.util.List;
-import java.net.URI;
 import javax.management.Attribute;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
@@ -34,18 +33,18 @@ import javax.management.JMRuntimeException;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
+import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.NotificationBroadcasterSupport;
 import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.jmx.DependencyService;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 
@@ -67,7 +66,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
  * used hold the persistent state of each Configuration. This allows
  * Configurations to restart in he event of system failure.
  *
- * @version $Revision: 1.28 $ $Date: 2004/06/01 18:27:02 $
+ * @version $Revision: 1.29 $ $Date: 2004/06/02 06:49:23 $
  */
 public class Kernel extends NotificationBroadcasterSupport implements Serializable, KernelMBean {
 

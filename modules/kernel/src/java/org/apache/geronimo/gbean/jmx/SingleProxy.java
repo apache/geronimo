@@ -27,7 +27,7 @@ import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.management.State;
 
 /**
- * @version $Revision: 1.11 $ $Date: 2004/05/27 01:05:59 $
+ * @version $Revision: 1.12 $ $Date: 2004/06/02 06:49:23 $
  */
 public class SingleProxy implements Proxy {
     private static final Log log = LogFactory.getLog(SingleProxy.class);
@@ -73,8 +73,8 @@ public class SingleProxy implements Proxy {
         this.gmbean = gmbean;
         this.name = name;
         this.patterns = patterns;
-        ProxyFactory factory = new ProxyFactory(type);
-        methodInterceptor = new ProxyMethodInterceptor(factory.getType());
+        ProxyFactory factory = ProxyFactory.newProxyFactory(type);
+        methodInterceptor = factory.getMethodInterceptor();
         proxy = factory.create(methodInterceptor);
     }
 

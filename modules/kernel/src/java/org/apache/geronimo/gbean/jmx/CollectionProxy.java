@@ -17,7 +17,6 @@
 
 package org.apache.geronimo.gbean.jmx;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -37,7 +36,7 @@ import org.apache.geronimo.gbean.ReferenceCollectionListener;
 import org.apache.geronimo.gbean.WaitingException;
 
 /**
- * @version $Revision: 1.16 $ $Date: 2004/05/27 01:05:59 $
+ * @version $Revision: 1.17 $ $Date: 2004/06/02 06:49:23 $
  */
 public class CollectionProxy implements Proxy {
     private static final Log log = LogFactory.getLog(CollectionProxy.class);
@@ -80,7 +79,7 @@ public class CollectionProxy implements Proxy {
     public CollectionProxy(GBeanMBean gmbean, String name, Class type) {
         this.gmbean = gmbean;
         this.name = name;
-        factory = new ProxyFactory(type);
+        factory = ProxyFactory.newProxyFactory(type);
     }
 
     public synchronized void destroy() {
@@ -109,18 +108,13 @@ public class CollectionProxy implements Proxy {
     public synchronized void addTarget(ObjectName target) {
         // if this is a new target...
         if (!proxies.containsKey(target)) {
-            try {
-                ProxyMethodInterceptor interceptor = new ProxyMethodInterceptor(factory.getType());
-                interceptor.connect(gmbean.getServer(), target, proxy.isStopped());
-                interceptors.put(target, interceptor);
-                Object targetProxy = factory.create(interceptor);
-                proxies.put(target, targetProxy);
-                if (!stopped) {
-                    proxy.fireMemberAdddedEvent(targetProxy);
-                }
-            } catch (InvocationTargetException e) {
-                log.info("Could not create optional proxy to mbean: objectName=" + target);
-
+            ProxyMethodInterceptor interceptor = factory.getMethodInterceptor();
+            interceptor.connect(gmbean.getServer(), target, proxy.isStopped());
+            interceptors.put(target, interceptor);
+            Object targetProxy = factory.create(interceptor);
+            proxies.put(target, targetProxy);
+            if (!stopped) {
+                proxy.fireMemberAdddedEvent(targetProxy);
             }
         }
     }

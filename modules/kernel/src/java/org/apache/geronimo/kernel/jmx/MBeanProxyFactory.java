@@ -18,7 +18,7 @@
 package org.apache.geronimo.kernel.jmx;
 
 import java.util.Set;
-import javax.management.MBeanServer;
+import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.jmx.ProxyFactory;
@@ -28,7 +28,7 @@ import org.apache.geronimo.gbean.jmx.ProxyMethodInterceptor;
  * MBeanProxyFactory creates a dynamic proxy to an MBean by ObjectName.
  * The interface type and object existance are enforced during construction.
  *
- * @version $Revision: 1.9 $ $Date: 2004/04/08 05:22:15 $
+ * @version $Revision: 1.10 $ $Date: 2004/06/02 06:49:23 $
  */
 public final class MBeanProxyFactory {
 
@@ -40,20 +40,23 @@ public final class MBeanProxyFactory {
      * @param objectName the objectName of the MBean to proxy
      * @return the new MBean proxy, which implemnts the specified interface
      */
-    public static Object getProxy(Class type, MBeanServer server, ObjectName objectName) throws Exception {
+    public static Object getProxy(Class type, MBeanServerConnection server, ObjectName objectName) {
         assert type != null;
         assert server != null;
 
         if (objectName.isPattern()) {
+            throw new UnsupportedOperationException();
+/*
             Set names = server.queryNames(objectName, null);
             if (names.isEmpty()) {
                 throw new IllegalArgumentException("No names mbeans registered that match object name pattern: " + objectName);
             }
             objectName = (ObjectName) names.iterator().next();
+*/
         }
 
-        ProxyFactory factory = new ProxyFactory(type);
-        ProxyMethodInterceptor methodInterceptor = new ProxyMethodInterceptor(factory.getType());
+        ProxyFactory factory = ProxyFactory.newProxyFactory(type);
+        ProxyMethodInterceptor methodInterceptor = factory.getMethodInterceptor();
         methodInterceptor.connect(server, objectName);
         return factory.create(methodInterceptor);
     }

@@ -17,9 +17,8 @@
 
 package org.apache.geronimo.kernel;
 
-import java.net.URI;
 import java.io.IOException;
-import java.util.List;
+import java.net.URI;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanServer;
@@ -31,7 +30,7 @@ import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 
 /**
- * @version $Revision: 1.9 $ $Date: 2004/06/01 18:27:02 $
+ * @version $Revision: 1.10 $ $Date: 2004/06/02 06:49:23 $
  */
 public interface KernelMBean {
     /**
