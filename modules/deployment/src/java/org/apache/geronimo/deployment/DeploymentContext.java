@@ -448,7 +448,19 @@ public class DeploymentContext {
         // persist all the GBeans in this Configuration
         // save the dependencies and classpath
         try {
-            config.setAttribute("gBeanState", Configuration.storeGBeans(gbeans));
+            GBeanData[] gbeanArray = new GBeanData[gbeans.size()];
+            Iterator iterator = gbeans.entrySet().iterator();
+            for (int i = 0; i < gbeanArray.length; i++) {
+                Map.Entry entry = (Map.Entry) iterator.next();
+                Object gbean = entry.getValue();
+                if (gbean instanceof GBeanMBean) {
+                    gbeanArray[i] = ((GBeanMBean) gbean).getGBeanData();
+                    gbeanArray[i].setName((ObjectName) entry.getKey());
+                } else {
+                    gbeanArray[i] = (GBeanData) gbean;
+                }
+            }
+            config.setAttribute("gBeanState", Configuration.storeGBeans(gbeanArray));
             config.setReferencePatterns("Repositories", Collections.singleton(new ObjectName("*:role=Repository,*")));
             config.setAttribute("dependencies", new ArrayList(dependencies));
             config.setAttribute("classPath", new ArrayList(classPath));

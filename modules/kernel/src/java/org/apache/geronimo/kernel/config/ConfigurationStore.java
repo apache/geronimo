@@ -17,13 +17,13 @@
 
 package org.apache.geronimo.kernel.config;
 
-import java.io.IOException;
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.util.List;
 
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.gbean.GBeanData;
 
 /**
  * Interface to a store for Configurations.
@@ -63,12 +63,12 @@ public interface ConfigurationStore {
      * Return the Configuration GBean for the specified ID
      *
      * @param id the unique ID of a Configuration
-     * @return the GBeanMBean for that configuration
+     * @return the GBeanData for that configuration
      * @throws NoSuchConfigException if the store does not contain a Configuration with that id
      * @throws IOException if there was a problem loading the Configuration from the store
      * @throws InvalidConfigException if the Configuration is invalid
      */
-    GBeanMBean getConfiguration(URI id) throws NoSuchConfigException, IOException, InvalidConfigException;
+    GBeanData getConfiguration(URI id) throws NoSuchConfigException, IOException, InvalidConfigException;
 
     /**
      * Updates the saved state of the configuration.

@@ -47,7 +47,6 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
@@ -186,7 +185,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
 
         URI configId;
         try {
-            GBeanMBean config = loadConfig(configurationDir);
+            GBeanData config = loadConfig(configurationDir);
             configId = (URI) config.getAttribute("ID");
             index.setProperty(configId.toString(), configurationDir.getName());
         } catch (Exception e) {
@@ -212,7 +211,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
 
         URI configId;
         try {
-            GBeanMBean config = loadConfig(source);
+            GBeanData config = loadConfig(source);
             configId = (URI) config.getAttribute("ID");
             index.setProperty(configId.toString(), source.getName());
         } catch (Exception e) {
@@ -247,7 +246,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         delete(configDir);
     }
 
-    public synchronized GBeanMBean getConfiguration(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException {
+    public synchronized GBeanData getConfiguration(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException {
         return loadConfig(getRoot(configID));
     }
 
@@ -305,7 +304,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         return new File(rootDir, id);
     }
 
-    private GBeanMBean loadConfig(File configRoot) throws IOException, InvalidConfigException {
+    private GBeanData loadConfig(File configRoot) throws IOException, InvalidConfigException {
         File file = new File(configRoot, "META-INF/state.ser");
         if (!file.isFile()) {
             file = new File(configRoot, "META-INF/config.ser");
@@ -317,18 +316,15 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         FileInputStream fis = new FileInputStream(file);
         try {
             ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(fis));
-            GBeanMBean config;
+            GBeanData config = new GBeanData();
             try {
-                GBeanData gbeanData = new GBeanData();
-                gbeanData.readExternal(ois);
-                config = new GBeanMBean(gbeanData, Configuration.class.getClassLoader());
+                config.readExternal(ois);
             } catch (ClassNotFoundException e) {
                 //TODO more informative exceptions
                 throw new InvalidConfigException("Unable to read attribute ", e);
             } catch (Exception e) {
                 throw new InvalidConfigException("Unable to set attribute ", e);
             }
-
             config.setReferencePattern("ConfigurationStore", objectName);
             return config;
         } finally {

@@ -50,11 +50,6 @@ public interface ConfigurationManager {
     ObjectName load(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException;
 
     /**
-     * @deprecated use load(GBeanData config, URL rootURL, ClassLoader classLoader)
-     */
-    ObjectName load(GBeanMBean config, URL rootURL) throws InvalidConfigException;
-
-    /**
      * Load the supplied Configuration into the Kernel and override the default JMX name.
      * This method should be used with discretion as it is possible to create
      * Configurations that cannot be located by management or monitoring tools.

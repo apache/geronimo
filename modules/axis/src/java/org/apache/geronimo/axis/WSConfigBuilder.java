@@ -21,20 +21,17 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.jar.JarFile;
 import java.util.zip.ZipFile;
-
 import javax.management.ObjectName;
 
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 
@@ -91,15 +88,13 @@ public class WSConfigBuilder implements ConfigurationBuilder {
             }
             
             if(wsplan.isEJBbased()){
-                GBeanMBean wsGbean = new GBeanMBean(EJBWSGBean.getGBeanInfo());
+                GBeanData wsGbean = new GBeanData(wsplan.getWsName(), EJBWSGBean.getGBeanInfo());
                 ArrayList classList = AxisGeronimoUtils.getClassFileList(new ZipFile(wsplan.getModule()));
                 wsGbean.setAttribute("classList", classList);
                 wsGbean.setReferencePattern("EjbConfig", wsplan.getEjbConfName());
-                Map gbeans = new HashMap();
-                gbeans.put(wsplan.getWsName(), wsGbean);
-//      
-//                //create a configuraton with Web Service GBean
-                byte[] state = Configuration.storeGBeans(gbeans);
+
+                //create a configuraton with Web Service GBean
+                byte[] state = Configuration.storeGBeans(new GBeanData[] {wsGbean});
                 AxisGeronimoUtils.createConfiguration(wsplan.getConfigURI(),state,unpackedDir);
 
             }else{
@@ -108,15 +103,13 @@ public class WSConfigBuilder implements ConfigurationBuilder {
                 copyTheFile(rawmodule, installedModule);
                 
                 
-                GBeanMBean gbean = new GBeanMBean(POJOWSGBean.getGBeanInfo());
+                GBeanData gbean = new GBeanData(wsplan.getWsName(), POJOWSGBean.getGBeanInfo());
                 //TODO fill up the POJOWSGBean info
                 ArrayList classList = AxisGeronimoUtils.getClassFileList(new ZipFile(installedModule));
                 gbean.setAttribute("classList", classList);
                 gbean.setAttribute("moduleURL", installedModule.toURL());
             
-                Map gbeans = new HashMap();
-                gbeans.put(wsplan.getWsName(), gbean);
-                byte[] state = Configuration.storeGBeans(gbeans);
+                byte[] state = Configuration.storeGBeans(new GBeanData[] {gbean});
                 AxisGeronimoUtils.createConfiguration(wsplan.getConfigURI(),state,unpackedDir);
             }
         } catch (IOException e) {

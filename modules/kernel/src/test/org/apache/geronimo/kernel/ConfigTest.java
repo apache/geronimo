@@ -19,8 +19,6 @@ package org.apache.geronimo.kernel;
 
 import java.net.URI;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;
@@ -39,8 +37,9 @@ public class ConfigTest extends TestCase {
     private ObjectName gbeanName2;
 
     public void testOnlineConfig() throws Exception {
-        GBeanData config = new GBeanData(Configuration.GBEAN_INFO);
-        config.setAttribute("ID", new URI("test"));
+        URI id = new URI("test");
+        GBeanData config = new GBeanData(Configuration.getConfigurationObjectName(id), Configuration.GBEAN_INFO);
+        config.setAttribute("ID", id);
         config.setReferencePatterns("Parent", null);
         config.setAttribute("classPath", Collections.EMPTY_LIST);
         config.setAttribute("gBeanState", state);
@@ -105,10 +104,7 @@ public class ConfigTest extends TestCase {
         mockBean2.setReferencePatterns("MockEndpoint", Collections.singleton(gbeanName1));
         mockBean2.setReferencePatterns("EndpointCollection", Collections.singleton(gbeanName1));
 
-        Map gbeans = new HashMap();
-        gbeans.put(gbeanName1, mockBean1);
-        gbeans.put(gbeanName2, mockBean2);
-        state = Configuration.storeGBeans(gbeans);
+        state = Configuration.storeGBeans(new GBeanData[] {mockBean1, mockBean2});
     }
 
     protected void tearDown() throws Exception {

@@ -23,15 +23,12 @@ import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
@@ -59,7 +56,7 @@ public class LocalConfigStoreTest extends TestCase {
         assertEquals(new File(root, "1").toURL(),
             kernel.invoke(storeName, "getBaseURL", new Object[] {uri}, new String[] {"java.net.URI"}));
 
-        GBeanMBean config = (GBeanMBean) kernel.invoke(storeName, "getConfiguration", new Object[] {uri}, new String[] {"java.net.URI"});
+        GBeanData config = (GBeanData) kernel.invoke(storeName, "getConfiguration", new Object[] {uri}, new String[] {"java.net.URI"});
         assertEquals(uri, config.getAttribute("ID"));
     }
 
@@ -118,22 +115,19 @@ public class LocalConfigStoreTest extends TestCase {
 
     protected void setUp() throws Exception {
         try {
-            kernel = new Kernel("test.kernel", "geronimo");
+            kernel = new Kernel("test.kernel");
             kernel.boot();
 
             gbeanName1 = new ObjectName("geronimo.test:name=MyMockGMBean1");
-            GBeanMBean mockBean1 = new GBeanMBean(MockGBean.getGBeanInfo());
+            GBeanData mockBean1 = new GBeanData(gbeanName1, MockGBean.getGBeanInfo());
             mockBean1.setAttribute("value", "1234");
 
             gbeanName2 = new ObjectName("geronimo.test:name=MyMockGMBean2");
-            GBeanMBean mockBean2 = new GBeanMBean(MockGBean.getGBeanInfo());
+            GBeanData mockBean2 = new GBeanData(gbeanName2, MockGBean.getGBeanInfo());
             mockBean2.setAttribute("gbeanEnabled", Boolean.FALSE);
             mockBean2.setAttribute("value", "1234");
 
-            Map gbeans = new HashMap();
-            gbeans.put(gbeanName1, mockBean1);
-            gbeans.put(gbeanName2, mockBean2);
-            state = Configuration.storeGBeans(gbeans);
+            state = Configuration.storeGBeans(new GBeanData[] {mockBean1, mockBean2});
 
             root = new File(System.getProperty("java.io.tmpdir") + "/config-store");
             recursiveDelete(root);
@@ -146,8 +140,8 @@ public class LocalConfigStoreTest extends TestCase {
             kernel.loadGBean(store, getClass().getClassLoader());
             kernel.startGBean(storeName);
 
-            GBeanMBean gbean = new GBeanMBean(Configuration.GBEAN_INFO);
             uri = new URI("test");
+            GBeanData gbean = new GBeanData(Configuration.getConfigurationObjectName(uri), Configuration.GBEAN_INFO);
             gbean.setAttribute("ID", uri);
             gbean.setAttribute("gBeanState", state);
 
@@ -157,7 +151,7 @@ public class LocalConfigStoreTest extends TestCase {
             JarOutputStream jos = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(sourceFile)));
             jos.putNextEntry(new ZipEntry("META-INF/config.ser"));
             ObjectOutputStream oos = new ObjectOutputStream(jos);
-            gbean.getGBeanData().writeExternal(oos);
+            gbean.writeExternal(oos);
             oos.flush();
             jos.closeEntry();
             jos.close();

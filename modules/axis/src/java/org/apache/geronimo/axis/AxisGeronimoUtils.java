@@ -39,9 +39,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 import javax.ejb.EJBHome;
-import javax.management.AttributeNotFoundException;
+import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import javax.management.ReflectionException;
 
 import org.apache.axis.AxisFault;
 import org.apache.axis.client.AdminClient;
@@ -141,6 +140,18 @@ public class AxisGeronimoUtils {
         try {
             startedGbeans.add(objectName);
             kernel.loadGBean(objectName, gbean);
+            kernel.startGBean(objectName);
+        } catch (Exception e) {
+            throw new DeploymentException(e);
+        }
+    }
+
+    public static void startGBean(GBeanData gbean, Kernel kernel, ClassLoader classLoader)
+            throws DeploymentException {
+        try {
+            ObjectName objectName = gbean.getName();
+            startedGbeans.add(objectName);
+            kernel.loadGBean(gbean, classLoader);
             kernel.startGBean(objectName);
         } catch (Exception e) {
             throw new DeploymentException(e);
@@ -308,7 +319,7 @@ public class AxisGeronimoUtils {
      * @return
      * @throws Exception
      */
-    public static URI saveConfiguration(GBeanMBean config, ConfigurationStore store)throws Exception{
+    public static URI saveConfiguration(GBeanData config, ConfigurationStore store)throws Exception{
         File sourceFile = null;
         try {
             sourceFile = File.createTempFile("test", ".car");
@@ -316,11 +327,10 @@ public class AxisGeronimoUtils {
             JarOutputStream jos = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(sourceFile)));
             jos.putNextEntry(new ZipEntry("META-INF/config.ser"));
             ObjectOutputStream oos = new ObjectOutputStream(jos);
-            config.getGBeanData().writeExternal(oos);
+            config.writeExternal(oos);
             oos.flush();
             jos.closeEntry();
             jos.close();
-            ArrayList list = new ArrayList(1);
             return store.install(source);
         } finally {
             if (sourceFile != null) {
@@ -329,8 +339,8 @@ public class AxisGeronimoUtils {
         }
     }
     
-    public static void createConfiguration(URI id,byte[] state,File unpackedDir) throws AttributeNotFoundException, ReflectionException, IOException{
-        GBeanMBean config = new GBeanMBean(Configuration.GBEAN_INFO);
+    public static void createConfiguration(URI id,byte[] state,File unpackedDir) throws MalformedObjectNameException, IOException{
+        GBeanData config = new GBeanData(Configuration.getConfigurationObjectName(id), Configuration.GBEAN_INFO);
         config.setAttribute("ID", id);
         config.setReferencePatterns("Parent", null);
         config.setAttribute("classPath", Collections.EMPTY_LIST);
@@ -343,7 +353,7 @@ public class AxisGeronimoUtils {
             confSer.createNewFile();
             OutputStream fos = new FileOutputStream(confSer);
             ObjectOutputStream oos = new ObjectOutputStream(fos);
-            config.getGBeanData().writeExternal(oos);
+            config.writeExternal(oos);
             oos.flush();
             fos.close();
         } finally {
@@ -382,7 +392,7 @@ public class AxisGeronimoUtils {
     public static URI saveAsConfiguration(byte[] state,URI id, ConfigurationStore store) throws Exception{
         //create a configuraton with Web Service GBean
         
-        GBeanMBean config = new GBeanMBean(Configuration.GBEAN_INFO);
+        GBeanData config = new GBeanData(Configuration.getConfigurationObjectName(id), Configuration.GBEAN_INFO);
         config.setAttribute("ID", id);
         config.setReferencePatterns("Parent", null);
         config.setAttribute("classPath", Collections.EMPTY_LIST);

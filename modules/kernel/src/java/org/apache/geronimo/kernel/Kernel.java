@@ -410,13 +410,10 @@ public class Kernel implements KernelMBean {
      * @deprecated use loadGBean(GBeanData gbeanData, ClassLoader classLoader)
      */
     public void loadGBean(ObjectName name, GBeanMBean gbean) throws GBeanAlreadyExistsException, InternalKernelException {
-        try {
-            mbServer.registerMBean(gbean, name);
-        } catch (InstanceAlreadyExistsException e) {
-            throw new GBeanAlreadyExistsException(name.getCanonicalName());
-        } catch (Exception e) {
-            throw new InternalKernelException("Error loading GBean " + name.getCanonicalName(), unwrapJMException(e));
-        }
+        GBeanData gbeanData = gbean.getGBeanData();
+        gbeanData.setName(name);
+        ClassLoader classLoader = gbean.getClassLoader();
+        loadGBean(gbeanData, classLoader);
     }
 
     public void startGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException {

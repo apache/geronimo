@@ -23,7 +23,6 @@ import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
@@ -62,16 +61,15 @@ public class Run {
         try {
             kernel.boot();
 
-            GBeanMBean config;
+            GBeanData config = new GBeanData();
             ObjectInputStream ois = new ObjectInputStream(cl.getResourceAsStream("META-INF/config.ser"));
             try {
                 GBeanData gbeanData = new GBeanData();
                 gbeanData.readExternal(ois);
-                config = new GBeanMBean(gbeanData, cl);
             } finally {
                 ois.close();
             }
-            final ObjectName configName = kernel.getConfigurationManager().load(config, cl.getResource("/"));
+            final ObjectName configName = kernel.getConfigurationManager().load(config, cl.getResource("/"), cl);
 
             Runtime.getRuntime().addShutdownHook(new Thread("Shutdown Thread") {
                 public void run() {

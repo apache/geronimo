@@ -28,6 +28,7 @@ import java.io.ObjectStreamClass;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.net.MalformedURLException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -47,7 +48,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
@@ -89,26 +90,55 @@ public class Configuration implements GBeanLifecycle {
         return new ObjectName("geronimo.config:name=" + ObjectName.quote(configID.toString()));
     }
 
+    /**
+     * The kernel in which this configuration is registered
+     */
     private final Kernel kernel;
+
+    /**
+     * The registered objectName for this configuraion
+     */
     private final String objectNameString;
     private final ObjectName objectName;
+
+    /**
+     * URI used to referr to this configuration in the configuration manager
+     */
     private final URI id;
+
     /**
      * Identifies the type of configuration (WAR, RAR et cetera)
      */
     private final ConfigurationModuleType moduleType;
+
+    /**
+     * The uri of the parent of this configuration.  May be null.
+     */
     private final URI parentID;
-    private final ConfigurationParent parent;
-    private final List classPath;
-    private final List dependencies;
-    private byte[] gbeanState;
-    private final Collection repositories;
+
+    /**
+     * The configuration store from which this configuration was loaded.  May be null if this configuration
+     * was not loaded from a store.  The store is notified when the configurations stopps so it can update
+     * the saved state of the configration.
+     */
     private final ConfigurationStore configurationStore;
 
-    private URL baseURL;
-    private Set objectNames;
+    /**
+     * The names of all GBeans contained in this configuration.
+     */
+    private final Set objectNames;
 
-    private ClassLoader configurationClassLoader;
+    /**
+     * The classloadeder used to load the child GBeans contained in this configuration.
+     */
+    private final ClassLoader configurationClassLoader;
+
+    /**
+     * The GBeanData for the GBeans contained in this configuration.  These must be persisted as a ByteArray, becuase
+     * the data can only be deserialized in the configurationClassLoader, which is not available until this Configuration
+     * is deserialized and started.
+     */
+    private byte[] gbeanState;
 
     /**
      * Constructor that can be used to create an offline Configuration, typically
@@ -122,53 +152,31 @@ public class Configuration implements GBeanLifecycle {
      * @param repositories a Collection<Repository> of repositories used to resolve dependencies
      * @param dependencies a List<URI> of dependencies
      */
-    public Configuration(Kernel kernel, String objectName, URI id, ConfigurationModuleType moduleType, URI parentID, ConfigurationParent parent, List classPath, byte[] gbeanState, Collection repositories, List dependencies, ConfigurationStore configurationStore) {
+    public Configuration(Kernel kernel,
+            String objectName,
+            URI id,
+            ConfigurationModuleType moduleType,
+            URL baseURL,
+            URI parentID,
+            ConfigurationParent parent,
+            List classPath,
+            byte[] gbeanState,
+            Collection repositories,
+            List dependencies,
+            ConfigurationStore configurationStore) throws Exception {
+
         this.kernel = kernel;
         this.objectNameString = objectName;
         this.objectName = JMXUtil.getObjectName(objectName);
         this.id = id;
         this.moduleType = moduleType;
         this.parentID = parentID;
-        this.parent = parent;
         this.gbeanState = gbeanState;
-        if (classPath == null) {
-            this.classPath = Collections.EMPTY_LIST;
-        } else {
-            this.classPath = classPath;
-        }
-        if (dependencies == null) {
-            this.dependencies = Collections.EMPTY_LIST;
-        } else {
-            this.dependencies = dependencies;
-        }
-        this.repositories = repositories;
-        this.configurationStore = configurationStore;
-    }
 
-    public void doStart() throws Exception {
-        // build classpath
-        URL[] urls = new URL[dependencies.size() + classPath.size()];
-        int idx = 0;
-        for (Iterator i = dependencies.iterator(); i.hasNext();) {
-            URI uri = (URI) i.next();
-            URL url = null;
-            for (Iterator j = repositories.iterator(); j.hasNext();) {
-                Repository repository = (Repository) j.next();
-                if (repository.hasURI(uri)) {
-                    url = repository.getURL(uri);
-                    break;
-                }
-            }
-            if (url == null) {
-                throw new MissingDependencyException("Unable to resolve dependency " + uri);
-            }
-            urls[idx++] = url;
-        }
-        for (Iterator i = classPath.iterator(); i.hasNext();) {
-            URI uri = (URI) i.next();
-            urls[idx++] = new URL(baseURL, uri.toString());
-        }
-        assert idx == urls.length;
+        this.configurationStore = configurationStore;
+
+        // build configurationClassLoader
+        URL[] urls = resolveClassPath(classPath, baseURL, dependencies, repositories);
         log.debug("ClassPath for " + id + " resolved to " + Arrays.asList(urls));
 
         if (parent == null) {
@@ -203,7 +211,7 @@ public class Configuration implements GBeanLifecycle {
                 log.trace("Registering GBean " + name);
                 kernel.loadGBean(gbeanData, configurationClassLoader);
                 objectNames.add(name);
-                kernel.getDependencyManager().addDependency(name, objectName);
+                kernel.getDependencyManager().addDependency(name, this.objectName);
             }
             this.objectNames = objectNames;
         } finally {
@@ -211,6 +219,39 @@ public class Configuration implements GBeanLifecycle {
         }
 
         log.info("Started configuration " + id);
+    }
+
+    private static URL[] resolveClassPath(List classPath, URL baseURL, List dependencies, Collection repositories) throws MalformedURLException, MissingDependencyException {
+        if (classPath == null) {
+            classPath = Collections.EMPTY_LIST;
+        }
+        if (dependencies == null) {
+            dependencies = Collections.EMPTY_LIST;
+        }
+
+        URL[] urls = new URL[dependencies.size() + classPath.size()];
+        int idx = 0;
+        for (Iterator i = dependencies.iterator(); i.hasNext();) {
+            URI uri = (URI) i.next();
+            URL url = null;
+            for (Iterator j = repositories.iterator(); j.hasNext();) {
+                Repository repository = (Repository) j.next();
+                if (repository.hasURI(uri)) {
+                    url = repository.getURL(uri);
+                    break;
+                }
+            }
+            if (url == null) {
+                throw new MissingDependencyException("Unable to resolve dependency " + uri);
+            }
+            urls[idx++] = url;
+        }
+        for (Iterator i = classPath.iterator(); i.hasNext();) {
+            URI uri = (URI) i.next();
+            urls[idx++] = new URL(baseURL, uri.toString());
+        }
+        assert idx == urls.length;
+        return urls;
     }
 
     public String getObjectName() {
@@ -229,15 +270,27 @@ public class Configuration implements GBeanLifecycle {
         }
     }
 
+    public void doStart() throws WaitingException, Exception {
+    }
+
     public void doStop() throws Exception {
         log.info("Stopping configuration " + id);
-        if (objectNames == null) {
-            return;
+
+        // get the gbean data for all gbeans
+        GBeanData[] gbeans = new GBeanData[objectNames.size()];
+        Iterator iterator = objectNames.iterator();
+        for (int i = 0; i < gbeans.length; i++) {
+            ObjectName objectName = (ObjectName) iterator.next();
+            try {
+                gbeans[i] = kernel.getGBeanData(objectName);
+            } catch (Exception e) {
+                throw new InvalidConfigException("Unable to serialize GBeanData for " + objectName, e);
+            }
         }
 
         // save state
         try {
-            gbeanState = storeGBeans(kernel, objectNames);
+            gbeanState = storeGBeans(gbeans);
         } catch (InvalidConfigException e) {
             log.info("Unable to update persistent state during shutdown", e);
         }
@@ -258,8 +311,6 @@ public class Configuration implements GBeanLifecycle {
         if (configurationStore != null) {
             configurationStore.updateConfiguration(this);
         }
-
-        objectNames = null;
     }
 
     public void doFail() {
@@ -292,25 +343,7 @@ public class Configuration implements GBeanLifecycle {
         return moduleType;
     }
 
-    /**
-     * Return the URL that is used to resolve relative classpath locations
-     *
-     * @return the base URL for the classpath
-     */
-    public URL getBaseURL() {
-        return baseURL;
-    }
-
-    /**
-     * Set the URL that should be used to resolve relative class locations
-     *
-     * @param baseURL the base URL for the classpath
-     */
-    public void setBaseURL(URL baseURL) {
-        this.baseURL = baseURL;
-    }
-
-    public byte[] getGbeanState() {
+    public byte[] getGBeanState() {
         return gbeanState;
     }
 
@@ -370,12 +403,11 @@ public class Configuration implements GBeanLifecycle {
     /**
      * Return a byte array containing the persisted form of the supplied GBeans
      *
-     * @param gbeans a Map<ObjectName, GBeanMBean> of GBeans to store
+     * @param gbeans the gbean data to persist
      * @return the persisted GBeans
-     * @throws org.apache.geronimo.kernel.config.InvalidConfigException
-     *          if there is a problem serializing the state
+     * @throws org.apache.geronimo.kernel.config.InvalidConfigException if there is a problem serializing the state
      */
-    public static byte[] storeGBeans(Map gbeans) throws InvalidConfigException {
+    public static byte[] storeGBeans(GBeanData[] gbeans) throws InvalidConfigException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos;
         try {
@@ -383,58 +415,12 @@ public class Configuration implements GBeanLifecycle {
         } catch (IOException e) {
             throw (AssertionError) new AssertionError("Unable to initialize ObjectOutputStream").initCause(e);
         }
-        for (Iterator i = gbeans.entrySet().iterator(); i.hasNext();) {
-            Map.Entry entry = (Map.Entry) i.next();
-            ObjectName objectName = (ObjectName) entry.getKey();
-
-            // value may be either a gbeanMBean or a gbeanData
-            GBeanData gbeanData;
-            if (entry.getValue() instanceof GBeanMBean) {
-                GBeanMBean gbeanMBean = (GBeanMBean) entry.getValue();
-                gbeanData = gbeanMBean.getGBeanData();
-            } else {
-                gbeanData = (GBeanData) entry.getValue();
-            }
+        for (int i = 0; i < gbeans.length; i++) {
+            GBeanData gbeanData = gbeans[i];
             try {
-                // todo we must explicitly set the bean name here from the gbean key because the gbean mbean may
-                // not have been brought online, so the object namve in the gbean mbean will be null
-                gbeanData.setName(objectName);
                 gbeanData.writeExternal(oos);
             } catch (Exception e) {
-                throw new InvalidConfigException("Unable to serialize GBeanData for " + objectName, e);
-            }
-        }
-        try {
-            oos.flush();
-        } catch (IOException e) {
-            throw (AssertionError) new AssertionError("Unable to flush ObjectOutputStream").initCause(e);
-        }
-        return baos.toByteArray();
-    }
-
-    /**
-     * Return a byte array containing the persisted form of the supplied GBeans
-     *
-     * @param objectNames object names of gbeans to store
-     * @return the persisted GBeans
-     * @throws org.apache.geronimo.kernel.config.InvalidConfigException
-     *          if there is a problem serializing the state
-     */
-    private static byte[] storeGBeans(Kernel kernel, Set objectNames) throws InvalidConfigException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream oos;
-        try {
-            oos = new ObjectOutputStream(baos);
-        } catch (IOException e) {
-            throw (AssertionError) new AssertionError("Unable to initialize ObjectOutputStream").initCause(e);
-        }
-        for (Iterator i = objectNames.iterator(); i.hasNext();) {
-            ObjectName objectName = (ObjectName) i.next();
-            try {
-                GBeanData gbeanData = kernel.getGBeanData(objectName);
-                gbeanData.writeExternal(oos);
-            } catch (Exception e) {
-                throw new InvalidConfigException("Unable to serialize GBeanData for " + objectName, e);
+                throw new InvalidConfigException("Unable to serialize GBeanData for " + gbeanData.getName(), e);
             }
         }
         try {
@@ -469,6 +455,7 @@ public class Configuration implements GBeanLifecycle {
             "objectName",
             "ID",
             "type",
+            "baseURL",
             "parentID",
             "Parent",
             "classPath",

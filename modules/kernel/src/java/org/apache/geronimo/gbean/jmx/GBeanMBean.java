@@ -194,6 +194,10 @@ public final class GBeanMBean implements DynamicMBean, MBeanRegistration, Notifi
         return mbeanInfo;
     }
 
+    public ClassLoader getClassLoader() {
+        return classLoader;
+    }
+
     public synchronized ObjectName preRegister(MBeanServer server, ObjectName objectName) throws Exception {
         if (gbeanInstance == null) {
             this.objectName = objectName;

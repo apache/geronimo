@@ -35,7 +35,6 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.Kernel;
@@ -94,7 +93,7 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
                     }
                     ConfigurationModuleType type = null;
                     try {
-                        GBeanMBean bean = store.getConfiguration(configID);
+                        GBeanData bean = store.getConfiguration(configID);
                         type = (ConfigurationModuleType) bean.getAttribute("type");
                     } catch (Exception e) {
                         log.error(store + " defines configID " + configID + " which can not be loaded.");
@@ -122,51 +121,12 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
         for (int i = 0; i < storeSnapshot.size(); i++) {
             ConfigurationStore store = (ConfigurationStore) storeSnapshot.get(i);
             if (store.containsConfiguration(configID)) {
-                GBeanMBean config = store.getConfiguration(configID);
+                GBeanData config = store.getConfiguration(configID);
                 URL baseURL = store.getBaseURL(configID);
-                return load(config, baseURL);
+                return load(config, baseURL, Configuration.class.getClassLoader());
             }
         }
         throw new NoSuchConfigException("No configuration with id: " + configID);
-    }
-
-    /**
-     * @deprecated use load(GBeanData config, URL rootURL, ClassLoader classLoader)
-     */
-    public ObjectName load(GBeanMBean config, URL rootURL) throws InvalidConfigException {
-        URI configID;
-        try {
-            configID = (URI) config.getAttribute("ID");
-        } catch (Exception e) {
-            throw new InvalidConfigException("Cannot get config ID", e);
-        }
-
-        ObjectName configName;
-        try {
-            configName = Configuration.getConfigurationObjectName(configID);
-        } catch (MalformedObjectNameException e) {
-            throw new InvalidConfigException("Cannot convert ID to ObjectName: ", e);
-        }
-
-        try {
-            kernel.loadGBean(configName, config);
-        } catch (Exception e) {
-            throw new InvalidConfigException("Unable to register configuration", e);
-        }
-
-        try {
-            config.setAttribute("baseURL", rootURL);
-        } catch (Exception e) {
-            try {
-                kernel.unloadGBean(configName);
-            } catch (Exception ignored) {
-                // ignore
-            }
-            throw new InvalidConfigException("Cannot set baseURL", e);
-        }
-        log.info("Loaded Configuration " + configName);
-
-        return configName;
     }
 
     public ObjectName load(GBeanData config, URL rootURL, ClassLoader classLoader) throws InvalidConfigException {

@@ -28,7 +28,6 @@ import java.util.StringTokenizer;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
@@ -97,12 +96,10 @@ public class StartServer {
         URL systemURL = new File(root, "bin/server.jar").toURL();
 //        System.out.println("systemURL = " + systemURL);
         URL configURL = new URL("jar:" + systemURL.toString() + "!/META-INF/config.ser");
-        GBeanMBean configuration;
+        GBeanData configuration = new GBeanData();
         ObjectInputStream ois = new ObjectInputStream(configURL.openStream());
         try {
-            GBeanData gbeanData = new GBeanData();
-            gbeanData.readExternal(ois);
-            configuration = new GBeanMBean(gbeanData, this.getClass().getClassLoader());
+            configuration.readExternal(ois);
         } finally {
             ois.close();
         }
@@ -112,7 +109,7 @@ public class StartServer {
         kernel.boot();
 
         ConfigurationManager configurationManager = kernel.getConfigurationManager();
-        ObjectName configName = configurationManager.load(configuration, systemURL);
+        ObjectName configName = configurationManager.load(configuration, systemURL, this.getClass().getClassLoader());
         kernel.startRecursiveGBean(configName);
 
         // load the rest of the configuration listed on the command line

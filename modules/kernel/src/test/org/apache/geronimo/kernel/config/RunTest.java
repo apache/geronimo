@@ -23,8 +23,6 @@ import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.jar.Attributes;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
@@ -32,7 +30,7 @@ import java.util.zip.ZipEntry;
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.gbean.GBeanData;
 
 /**
  * 
@@ -50,14 +48,15 @@ public class RunTest extends TestCase {
         super.setUp();
 
         try {
-            Map gbeans = new HashMap();
             ObjectName objectName = new ObjectName("test:name=MyGBean");
-            gbeans.put(objectName, new GBeanMBean(MyGBean.GBEAN_INFO));
-            GBeanMBean config = new GBeanMBean(Configuration.GBEAN_INFO);
-            config.setAttribute("ID", URI.create("org/apache/geronimo/run-test"));
+            GBeanData myGBeanData = new GBeanData(objectName, MyGBean.GBEAN_INFO);
+
+            URI id = URI.create("org/apache/geronimo/run-test");
+            GBeanData config = new GBeanData(Configuration.getConfigurationObjectName(id), Configuration.GBEAN_INFO);
+            config.setAttribute("ID", id);
             config.setReferencePatterns("Parent", null);
             config.setAttribute("classPath", Collections.EMPTY_LIST);
-            config.setAttribute("gBeanState", Configuration.storeGBeans(gbeans));
+            config.setAttribute("gBeanState", Configuration.storeGBeans(new GBeanData[] {myGBeanData}));
 
             carFile = File.createTempFile("run", ".car");
             Manifest manifest = new Manifest();
@@ -69,7 +68,7 @@ public class RunTest extends TestCase {
             JarOutputStream jos = new JarOutputStream(new FileOutputStream(carFile), manifest);
             jos.putNextEntry(new ZipEntry("META-INF/config.ser"));
             ObjectOutputStream oos = new ObjectOutputStream(jos);
-            config.getGBeanData().writeExternal(oos);
+            config.writeExternal(oos);
             oos.flush();
             jos.closeEntry();
             jos.putNextEntry(new ZipEntry("org/apache/geronimo/kernel/config/MyGBean.class"));
