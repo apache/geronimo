@@ -424,7 +424,7 @@
                 type="ger:config-property-settingType"
                 minOccurs="0"
                 maxOccurs="unbounded"/>
-            <xsd:element name="bootstrapcontext-name"
+            <xsd:element name="workmanager-name"
                 type="j2ee:string"/>
         </xsd:sequence>
     </xsd:complexType>

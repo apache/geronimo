@@ -36,6 +36,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.zip.ZipEntry;
+
 import javax.management.AttributeNotFoundException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -44,12 +45,8 @@ import javax.resource.spi.security.PasswordCredential;
 
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 import org.apache.geronimo.common.xml.XmlBeansUtil;
-import org.apache.geronimo.connector.AdminObjectWrapper;
-import org.apache.geronimo.connector.ResourceAdapterWrapper;
-import org.apache.geronimo.connector.ActivationSpecWrapper;
 import org.apache.geronimo.connector.ActivationSpecInfo;
 import org.apache.geronimo.connector.outbound.GenericConnectionManager;
-import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.LocalTransactions;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.NoPool;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.NoTransactions;
@@ -82,15 +79,15 @@ import org.apache.geronimo.xbeans.geronimo.GerConnectorType;
 import org.apache.geronimo.xbeans.geronimo.GerDependencyType;
 import org.apache.geronimo.xbeans.geronimo.GerGbeanType;
 import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
+import org.apache.geronimo.xbeans.j2ee.ActivationspecType;
 import org.apache.geronimo.xbeans.j2ee.AdminobjectType;
 import org.apache.geronimo.xbeans.j2ee.ConfigPropertyType;
 import org.apache.geronimo.xbeans.j2ee.ConnectionDefinitionType;
 import org.apache.geronimo.xbeans.j2ee.ConnectorDocument;
 import org.apache.geronimo.xbeans.j2ee.ConnectorType;
-import org.apache.geronimo.xbeans.j2ee.ResourceadapterType;
 import org.apache.geronimo.xbeans.j2ee.MessagelistenerType;
-import org.apache.geronimo.xbeans.j2ee.ActivationspecType;
 import org.apache.geronimo.xbeans.j2ee.RequiredConfigPropertyType;
+import org.apache.geronimo.xbeans.j2ee.ResourceadapterType;
 import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConfigPropertyType10;
 import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConnectorDocument10;
 import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConnectorType10;
@@ -100,11 +97,12 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/07/06 17:19:13 $
+ * @version $Revision: 1.6 $ $Date: 2004/07/11 21:55:33 $
  */
 public class ConnectorModuleBuilder implements ModuleBuilder {
     private static final String BASE_REALM_BRIDGE_NAME = "geronimo.security:service=RealmBridge,name=";
     private static final String BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME = "geronimo.security:service=Realm,type=PasswordCredential,name=";
+    private static final String BASE_WORK_MANAGER_NAME = "geronimo.server:type=WorkManager,name=";
 
     public XmlObject getDeploymentPlan(URL module) throws XmlException {
         try {
@@ -333,7 +331,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
             String resourceAdapterName = geronimoResourceAdapter.getResourceadapterInstance().getResourceadapterName();
 
             // Create the resource adapter gbean
-            GBeanInfoFactory resourceAdapterInfoFactory = new GBeanInfoFactory(ResourceAdapterWrapper.class, ResourceAdapterWrapper.getGBeanInfo());
+            GBeanInfoFactory resourceAdapterInfoFactory = new GBeanInfoFactory("org.apache.geronimo.connector.ResourceAdapterWrapper", cl);
             ConfigProperty[] configProperties = getConfigProperties(resourceadapter.getConfigPropertyArray(), geronimoResourceAdapter.getResourceadapterInstance().getConfigPropertySettingArray());
             GBeanMBean resourceAdapterGBean = setUpDynamicGBean(resourceAdapterInfoFactory, configProperties, cl);
 
@@ -350,12 +348,12 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
                 throw new DeploymentException("Could not set ResourceAdapterClass", e);
             }
 
-            // set the bootstrap context name
+            // set the work manager name
             try {
-                resourceAdapterGBean.setReferencePattern("bootstrapContext",
-                        ObjectName.getInstance(geronimoResourceAdapter.getResourceadapterInstance().getBootstrapcontextName().getStringValue()));
+                resourceAdapterGBean.setReferencePattern("workManager",
+                        ObjectName.getInstance(BASE_WORK_MANAGER_NAME + geronimoResourceAdapter.getResourceadapterInstance().getWorkmanagerName().getStringValue()));
             } catch (MalformedObjectNameException e) {
-                throw new DeploymentException("Could not create object name for bootstrap context", e);
+                throw new DeploymentException("Could not create object name for work manager", e);
             }
 
             // add it
@@ -380,32 +378,36 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
 
         // first we need a map of the published outbound adaptors by connection factory interface type
         Map connectionDefinitions = new HashMap();
-        for (int j = 0; j < resourceadapter.getOutboundResourceadapter().getConnectionDefinitionArray().length; j++) {
-            ConnectionDefinitionType connectionDefinition = resourceadapter.getOutboundResourceadapter().getConnectionDefinitionArray(j);
-            connectionDefinitions.put(connectionDefinition.getConnectionfactoryInterface().getStringValue(), connectionDefinition);
-        }
-
-        // ManagedConnectionFactory setup
-        for (int i = 0; i < geronimoResourceAdapter.getOutboundResourceadapter().getConnectionDefinitionArray().length; i++) {
-            GerConnectionDefinitionType geronimoConnectionDefinition = geronimoResourceAdapter.getOutboundResourceadapter().getConnectionDefinitionArray(i);
-            assert geronimoConnectionDefinition != null: "Null GeronimoConnectionDefinition";
-
-            String connectionFactoryInterfaceName = geronimoConnectionDefinition.getConnectionfactoryInterface().getStringValue();
-            ConnectionDefinitionType connectionDefinition = (ConnectionDefinitionType) connectionDefinitions.get(connectionFactoryInterfaceName);
-            if (connectionDefinition == null) {
-                throw new DeploymentException("No connection definition for ConnectionFactory class: " + connectionFactoryInterfaceName);
+        if (resourceadapter.isSetOutboundResourceadapter()) {
+            for (int j = 0; j < resourceadapter.getOutboundResourceadapter().getConnectionDefinitionArray().length; j++) {
+                ConnectionDefinitionType connectionDefinition = resourceadapter.getOutboundResourceadapter().getConnectionDefinitionArray(j);
+                connectionDefinitions.put(connectionDefinition.getConnectionfactoryInterface().getStringValue(), connectionDefinition);
             }
 
-            for (int j = 0; j < geronimoConnectionDefinition.getConnectiondefinitionInstanceArray().length; j++) {
-                GerConnectiondefinitionInstanceType connectionfactoryInstance = geronimoConnectionDefinition.getConnectiondefinitionInstanceArray()[j];
-                String managedConnectionFactoryClass = connectionDefinition.getManagedconnectionfactoryClass().getStringValue();
-                String connectionFactoryInterface = connectionDefinition.getConnectionfactoryInterface().getStringValue();
-                String connectionFactoryImplClass = connectionDefinition.getConnectionfactoryImplClass().getStringValue();
-                String connectionInterface = connectionDefinition.getConnectionInterface().getStringValue();
-                String connectionImplClass = connectionDefinition.getConnectionImplClass().getStringValue();
-                ConfigProperty[] configProperties = getConfigProperties(connectionDefinition.getConfigPropertyArray(), connectionfactoryInstance.getConfigPropertySettingArray());
+        // ManagedConnectionFactory setup
+            if (geronimoResourceAdapter.isSetOutboundResourceadapter()) {
+                for (int i = 0; i < geronimoResourceAdapter.getOutboundResourceadapter().getConnectionDefinitionArray().length; i++) {
+                    GerConnectionDefinitionType geronimoConnectionDefinition = geronimoResourceAdapter.getOutboundResourceadapter().getConnectionDefinitionArray(i);
+                    assert geronimoConnectionDefinition != null: "Null GeronimoConnectionDefinition";
 
-                addOutboundGBeans(earContext, resourceAdapterObjectName, connectionfactoryInstance, configProperties, managedConnectionFactoryClass, connectionFactoryInterface, connectionFactoryImplClass, connectionInterface, connectionImplClass, cl);
+                    String connectionFactoryInterfaceName = geronimoConnectionDefinition.getConnectionfactoryInterface().getStringValue();
+                    ConnectionDefinitionType connectionDefinition = (ConnectionDefinitionType) connectionDefinitions.get(connectionFactoryInterfaceName);
+                    if (connectionDefinition == null) {
+                        throw new DeploymentException("No connection definition for ConnectionFactory class: " + connectionFactoryInterfaceName);
+                    }
+
+                    for (int j = 0; j < geronimoConnectionDefinition.getConnectiondefinitionInstanceArray().length; j++) {
+                        GerConnectiondefinitionInstanceType connectionfactoryInstance = geronimoConnectionDefinition.getConnectiondefinitionInstanceArray()[j];
+                        String managedConnectionFactoryClass = connectionDefinition.getManagedconnectionfactoryClass().getStringValue();
+                        String connectionFactoryInterface = connectionDefinition.getConnectionfactoryInterface().getStringValue();
+                        String connectionFactoryImplClass = connectionDefinition.getConnectionfactoryImplClass().getStringValue();
+                        String connectionInterface = connectionDefinition.getConnectionInterface().getStringValue();
+                        String connectionImplClass = connectionDefinition.getConnectionImplClass().getStringValue();
+                        ConfigProperty[] configProperties = getConfigProperties(connectionDefinition.getConfigPropertyArray(), connectionfactoryInstance.getConfigPropertySettingArray());
+
+                        addOutboundGBeans(earContext, resourceAdapterObjectName, connectionfactoryInstance, configProperties, managedConnectionFactoryClass, connectionFactoryInterface, connectionFactoryImplClass, connectionInterface, connectionImplClass, cl);
+                    }
+                }
             }
         }
 
@@ -434,7 +436,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
                 GerAdminobjectInstanceType gerAdminObjectInstance = gerAdminObject.getAdminobjectInstanceArray()[j];
 
                 // create the adminObjectGBean
-                GBeanInfoFactory adminObjectInfoFactory = new GBeanInfoFactory(AdminObjectWrapper.class, AdminObjectWrapper.getGBeanInfo());
+                GBeanInfoFactory adminObjectInfoFactory = new GBeanInfoFactory("org.apache.geronimo.connector.AdminObjectWrapper", cl);
                 ConfigProperty[] configProperties = getConfigProperties(adminObject.getConfigPropertyArray(), gerAdminObjectInstance.getConfigPropertySettingArray());
                 GBeanMBean adminObjectGBean = setUpDynamicGBean(adminObjectInfoFactory, configProperties, cl);
 
@@ -468,7 +470,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
             MessagelistenerType messagelistenerType = messagelistenerArray[i];
             ActivationspecType activationspec = messagelistenerType.getActivationspec();
             String activationSpecClassName = activationspec.getActivationspecClass().getStringValue();
-            GBeanInfoFactory infoFactory = new GBeanInfoFactory(ActivationSpecWrapper.class, ActivationSpecWrapper.getGBeanInfo());
+            GBeanInfoFactory infoFactory = new GBeanInfoFactory("org.apache.geronimo.connector.ActivationSpecWrapper", cl);
             for (int j = 0; j < activationspec.getRequiredConfigPropertyArray().length; j++) {
                 RequiredConfigPropertyType requiredConfigPropertyType = activationspec.getRequiredConfigPropertyArray()[j];
                 String propertyName = requiredConfigPropertyType.getConfigPropertyName().getStringValue();
@@ -590,7 +592,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
         gbean.setAttribute(name, value);
     }
 
-    private ObjectName configureConnectionManager(GerConnectiondefinitionInstanceType connectionfactoryInstance, EARContext earContext) throws DeploymentException {
+    private ObjectName configureConnectionManager(GerConnectiondefinitionInstanceType connectionfactoryInstance, EARContext earContext, ClassLoader cl) throws DeploymentException {
         if (connectionfactoryInstance.getConnectionmanagerRef() != null) {
             //we don't configure anything, just use the supplied gbean
             try {
@@ -604,7 +606,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
         GerConnectionmanagerType connectionManager = connectionfactoryInstance.getConnectionmanager();
         GBeanMBean connectionManagerGBean;
         try {
-            connectionManagerGBean = new GBeanMBean(GenericConnectionManager.GBEAN_INFO, GenericConnectionManager.class.getClassLoader());
+            connectionManagerGBean = new GBeanMBean(GBeanInfo.getGBeanInfo("org.apache.geronimo.connector.outbound.GenericConnectionManager", cl), cl);
         } catch (InvalidConfigurationException e) {
             throw new DeploymentException("Unable to create GMBean", e);
         }
@@ -670,10 +672,10 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
 
     private void addOutboundGBeans(EARContext earContext, ObjectName resourceAdapterObjectName, GerConnectiondefinitionInstanceType connectionfactoryInstance, ConfigProperty[] configProperties, String managedConnectionFactoryClass, String connectionFactoryInterface, String connectionFactoryImplClass, String connectionInterface, String connectionImplClass, ClassLoader cl) throws DeploymentException {
         // ConnectionManager
-        ObjectName connectionManagerObjectName = configureConnectionManager(connectionfactoryInstance, earContext);
+        ObjectName connectionManagerObjectName = configureConnectionManager(connectionfactoryInstance, earContext, cl);
 
         // ManagedConnectionFactory
-        GBeanInfoFactory managedConnectionFactoryInfoFactory = new GBeanInfoFactory(ManagedConnectionFactoryWrapper.class, ManagedConnectionFactoryWrapper.getGBeanInfo());
+        GBeanInfoFactory managedConnectionFactoryInfoFactory = new GBeanInfoFactory("org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper", cl);
         GBeanMBean managedConnectionFactoryGBean = setUpDynamicGBean(managedConnectionFactoryInfoFactory, configProperties, cl);
         try {
             managedConnectionFactoryGBean.setAttribute("ManagedConnectionFactoryClass", cl.loadClass(managedConnectionFactoryClass));
@@ -686,7 +688,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
                 managedConnectionFactoryGBean.setReferencePattern("ResourceAdapterWrapper", resourceAdapterObjectName);
             }
             managedConnectionFactoryGBean.setReferencePattern("ConnectionManagerFactory", connectionManagerObjectName);
-            if (connectionfactoryInstance.getCredentialInterface() != null && PasswordCredential.class.getName().equals(connectionfactoryInstance.getCredentialInterface().getStringValue())) {
+            if (connectionfactoryInstance.getCredentialInterface() != null && "javax.resource.spi.security.PasswordCredential".equals(connectionfactoryInstance.getCredentialInterface().getStringValue())) {
                 GBeanMBean realmGBean = new GBeanMBean(PasswordCredentialRealm.getGBeanInfo(), cl);
                 realmGBean.setAttribute("RealmName", BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME + connectionfactoryInstance.getName());
                 ObjectName realmObjectNam = ObjectName.getInstance(BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME + connectionfactoryInstance.getName());

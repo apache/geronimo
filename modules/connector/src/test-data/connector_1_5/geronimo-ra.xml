@@ -24,7 +24,7 @@
         <resourceadapter-instance>
             <resourceadapter-name>testRA</resourceadapter-name>
             <config-property-setting name="RAStringProperty">NewStringValue</config-property-setting>
-            <bootstrapcontext-name>geronimo.connector:role=BootstrapContext</bootstrapcontext-name>
+            <workmanager-name>DefaultWorkManager</workmanager-name>
         </resourceadapter-instance>
         <outbound-resourceadapter>
             <connection-definition>
@@ -104,16 +104,11 @@
     <gbean name="geronimo.connector:service=ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator">
     </gbean>
 
-    <gbean name="geronimo.connector:service=WorkManager" class="org.apache.geronimo.connector.work.GeronimoWorkManager">
-        <attribute name="SyncMaximumPoolSize" type="int">10</attribute>
-        <attribute name="StartMaximumPoolSize" type="int">10</attribute>
-        <attribute name="ScheduledMaximumPoolSize" type="int">10</attribute>
-        <reference name="XAWork">geronimo.server:type=TransactionManager</reference>
-    </gbean>
-
-    <gbean name="geronimo.connector:role=BootstrapContext" class="org.apache.geronimo.connector.BootstrapContext">
-        <reference name="WorkManager">geronimo.connector:service=WorkManager</reference>
-        <reference name="XATerminator">geronimo.server:type=TransactionManager</reference>
+    <gbean name="geronimo.server:type=WorkManager,name=DefaultWorkManager" class="org.apache.geronimo.connector.work.GeronimoWorkManager">
+        <attribute name="syncMaximumPoolSize" type="int">10</attribute>
+        <attribute name="startMaximumPoolSize" type="int">10</attribute>
+        <attribute name="scheduledMaximumPoolSize" type="int">10</attribute>
+        <reference name="xaServices">geronimo.server:type=TransactionManager</reference>
     </gbean>
 
     <gbean name="geronimo.server:type=TransactionManager" class="org.apache.geronimo.transaction.GeronimoTransactionManager">

@@ -20,13 +20,17 @@ package org.apache.geronimo.connector;
 import javax.resource.spi.XATerminator;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.Xid;
+import javax.transaction.InvalidTransactionException;
+import javax.transaction.SystemException;
+
+import org.apache.geronimo.transaction.XAServices;
 
 /**
  * Dummy implementation of XATerminator interface for use in
  * {@link BootstrapContextTest}
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:33 $
+ * @version $Revision: 1.4 $ $Date: 2004/07/11 21:55:34 $
  */
-public class MockXATerminator implements XATerminator {
+public class MockXATerminator implements XAServices {
 
     private String id = null;
 
@@ -63,6 +67,12 @@ public class MockXATerminator implements XATerminator {
     }
 
     public void rollback(Xid xid) throws XAException {
+    }
+
+    public void begin(Xid xid, long txTimeout) throws XAException, InvalidTransactionException, SystemException {
+    }
+
+    public void end(Xid xid) throws XAException, SystemException {
     }
 
 }

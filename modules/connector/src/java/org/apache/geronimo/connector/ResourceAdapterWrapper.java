@@ -21,13 +21,14 @@ import java.util.Map;
 
 import javax.resource.ResourceException;
 import javax.resource.spi.ActivationSpec;
+import javax.resource.spi.BootstrapContext;
 import javax.resource.spi.ResourceAdapter;
 import javax.resource.spi.ResourceAdapterAssociation;
-import javax.resource.spi.BootstrapContext;
 import javax.resource.spi.ResourceAdapterInternalException;
 import javax.resource.spi.endpoint.MessageEndpointFactory;
 import javax.transaction.xa.XAResource;
 
+import org.apache.geronimo.connector.work.GeronimoWorkManager;
 import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.DynamicGBeanDelegate;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -39,7 +40,7 @@ import org.apache.geronimo.gbean.WaitingException;
  * Dynamic GBean wrapper around a ResourceAdapter object, exposing the config-properties as
  * GBean attributes.
  *
- * @version $Revision: 1.13 $ $Date: 2004/06/25 21:33:26 $
+ * @version $Revision: 1.14 $ $Date: 2004/07/11 21:55:33 $
  */
 public class ResourceAdapterWrapper implements GBeanLifecycle, DynamicGBean, ResourceAdapter {
 
@@ -68,9 +69,9 @@ public class ResourceAdapterWrapper implements GBeanLifecycle, DynamicGBean, Res
 
     public ResourceAdapterWrapper(final Class resourceAdapterClass,
                                   final Map activationSpecInfoMap,
-                                  final BootstrapContext bootstrapContext) throws InstantiationException, IllegalAccessException {
+                                  final GeronimoWorkManager workManager) throws InstantiationException, IllegalAccessException {
         this.resourceAdapterClass = resourceAdapterClass;
-        this.bootstrapContext = bootstrapContext;
+        this.bootstrapContext = new BootstrapContextImpl(workManager);
         this.activationSpecInfoMap = activationSpecInfoMap;
         resourceAdapter = (ResourceAdapter) resourceAdapterClass.newInstance();
         delegate = new DynamicGBeanDelegate();
@@ -140,13 +141,13 @@ public class ResourceAdapterWrapper implements GBeanLifecycle, DynamicGBean, Res
         infoFactory.addAttribute("resourceAdapterClass", Class.class, true);
         infoFactory.addAttribute("activationSpecInfoMap", Map.class, true);
 
-        infoFactory.addReference("bootstrapContext", BootstrapContext.class);
+        infoFactory.addReference("workManager", GeronimoWorkManager.class);
 
         infoFactory.addOperation("registerResourceAdapterAssociation", new Class[]{ResourceAdapterAssociation.class});
 
         infoFactory.addInterface(ResourceAdapter.class);
 
-        infoFactory.setConstructor(new String[]{"resourceAdapterClass", "activationSpecInfoMap", "bootstrapContext"});
+        infoFactory.setConstructor(new String[]{"resourceAdapterClass", "activationSpecInfoMap", "workManager"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

@@ -18,52 +18,49 @@
 package org.apache.geronimo.connector;
 
 import java.util.Timer;
+
 import javax.resource.spi.XATerminator;
 import javax.resource.spi.work.WorkManager;
 
 import junit.framework.TestCase;
+import org.apache.geronimo.connector.work.GeronimoWorkManager;
+import org.apache.geronimo.transaction.XAServices;
 
 /**
- * Unit tests for {@link BootstrapContext}
- * @version $Revision: 1.4 $ $Date: 2004/06/12 18:43:31 $
+ * Unit tests for {@link BootstrapContextImpl}
+ * @version $Revision: 1.5 $ $Date: 2004/07/11 21:55:34 $
  */
 public class BootstrapContextTest extends TestCase {
-
-    /**
-     * Creates a new instance of BootstrapContextTest
-     * @param name the name of the test
-     */
-    public BootstrapContextTest(String name) {
-        super(name);
-    }
 
     /**
      * Tests get and set work manager
      */
     public void testGetSetWorkManager() {
-        MockWorkManager manager = new MockWorkManager("testGetSetWorkManager");
-        BootstrapContext context = new BootstrapContext(manager, null);
+        XAServices xaServices = new MockXATerminator("MockXATerminator");
+        GeronimoWorkManager manager = new GeronimoWorkManager(1, xaServices);
+        BootstrapContextImpl context = new BootstrapContextImpl(manager);
         WorkManager wm = context.getWorkManager();
 
-        assertTrue("Make sure it is the same object", manager.equals(wm));
+        assertSame("Make sure it is the same object", manager, wm);
     }
 
     /**
      * Tests get and set XATerminator
      */
     public void testGetSetXATerminator() {
-        MockXATerminator t = new MockXATerminator("testGetSetXATerminator");
-        BootstrapContext context = new BootstrapContext(null, t);
+        XAServices xaServices = new MockXATerminator("MockXATerminator");
+        GeronimoWorkManager manager = new GeronimoWorkManager(1, xaServices);
+        BootstrapContextImpl context = new BootstrapContextImpl(manager);
         XATerminator xat = context.getXATerminator();
 
-        assertTrue("Make sure it is the same object", t.equals(xat));
+        assertSame("Make sure it is the same object", xaServices, xat);
     }
 
     /**
      * Tests getTimer
      */
     public void testGetTimer() throws Exception {
-        BootstrapContext context = new BootstrapContext();
+        BootstrapContextImpl context = new BootstrapContextImpl(null);
         Timer t = context.createTimer();
         assertNotNull("Object is not null", t);
     }

@@ -36,7 +36,7 @@ import org.apache.xmlbeans.SchemaTypeLoader;
 /**
  *
  *
- * @version $Revision: 1.10 $ $Date: 2004/03/10 09:58:31 $
+ * @version $Revision: 1.11 $ $Date: 2004/07/11 21:55:33 $
  *
  * */
 public class ResourceAdapterDConfigBean extends DConfigBeanSupport {
@@ -54,8 +54,8 @@ public class ResourceAdapterDConfigBean extends DConfigBeanSupport {
         if (getResourceadapterInstance() == null) {
             resourceadapter.addNewResourceadapterInstance();
         }
-        if (getResourceadapterInstance().getBootstrapcontextName() == null) {
-            getResourceadapterInstance().addNewBootstrapcontextName();
+        if (getResourceadapterInstance().getWorkmanagerName() == null) {
+            getResourceadapterInstance().addNewWorkmanagerName();
         }
         ConfigPropertiesHelper.initializeConfigSettings(ddBean, new ConfigPropertiesHelper.ConfigPropertiesSource() {
             public GerConfigPropertySettingType[] getConfigPropertySettingArray() {
@@ -155,12 +155,12 @@ public class ResourceAdapterDConfigBean extends DConfigBeanSupport {
         getResourceadapterInstance().setResourceadapterName(resourceAdapterName);
     }
 
-    public String getBootstrapContext() {
-        return getResourceadapterInstance().getBootstrapcontextName().getStringValue();
+    public String getWorkManager() {
+        return getResourceadapterInstance().getWorkmanagerName().getStringValue();
     }
 
-    public void setBootstrapContext(String bootstrapContext) {
-        getResourceadapterInstance().getBootstrapcontextName().setStringValue(bootstrapContext);
+    public void setWorkManager(String workManager) {
+        getResourceadapterInstance().getWorkmanagerName().setStringValue(workManager);
     }
 
     public DConfigBean getDConfigBean(DDBean bean) throws ConfigurationException {
