@@ -42,6 +42,8 @@ import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.system.main.CommandLineManifest;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Command line based deployment utility which combines multiple deployable modules
@@ -50,6 +52,7 @@ import org.apache.geronimo.system.main.CommandLineManifest;
  * @version $Rev$ $Date$
  */
 public class Deployer {
+    private static final Log log = LogFactory.getLog(Deployer.class);
     private final Collection builders;
     private final ConfigurationStore store;
 
@@ -59,6 +62,7 @@ public class Deployer {
     }
 
     public List deploy(File moduleFile, File planFile) throws DeploymentException {
+        File originalModuleFile = moduleFile;
         File tmpDir = null;
         if (moduleFile != null && !moduleFile.isDirectory()) {
             // todo jar url handling with Sun's VM on Windows leaves a lock on the module file preventing rebuilds
@@ -79,6 +83,9 @@ public class Deployer {
 
         try {
             return deploy(planFile, moduleFile, null, true, null, null, null);
+        } catch (DeploymentException e) {
+            log.debug("Deployment failed: plan=" + planFile +", module=" + originalModuleFile, e);
+            throw e;
         } finally {
             if (tmpDir != null) {
                 DeploymentUtil.recursiveDelete(tmpDir);
