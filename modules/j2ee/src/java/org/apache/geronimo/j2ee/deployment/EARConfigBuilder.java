@@ -138,8 +138,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         // config id, which may be derived from the module file name set above
         module.setName(module.getConfigId().toString());
 
-        return new ApplicationInfo(
-                module.getType(),
+        return new ApplicationInfo(module.getType(),
                 module.getConfigId(),
                 module.getParentId(),
                 "null",
@@ -154,7 +153,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         ApplicationType application;
         try {
             XmlObject xmlObject = SchemaConversionUtils.parse(applicationXmlUrl);
-            application =  SchemaConversionUtils.convertToApplicationSchema(xmlObject).getApplication();
+            application = SchemaConversionUtils.convertToApplicationSchema(xmlObject).getApplication();
         } catch (Exception e) {
             return null;
         }
@@ -213,8 +212,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             throw new DeploymentException(e);
         }
 
-        return new ApplicationInfo(
-                ConfigurationModuleType.EAR,
+        return new ApplicationInfo(ConfigurationModuleType.EAR,
                 configId,
                 parentId,
                 configId.toString(),
@@ -247,7 +245,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     }
 
     public void buildConfiguration(File outfile, Manifest manifest, Object plan, JarFile earFile) throws IOException, DeploymentException {
-        ApplicationInfo applicationInfo = (ApplicationInfo)plan;
+        ApplicationInfo applicationInfo = (ApplicationInfo) plan;
         FileOutputStream fos = new FileOutputStream(outfile);
         try {
             // Create the output ear context
@@ -346,18 +344,18 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         for (int i = 0; i < gerModuleTypes.length; i++) {
             GerModuleType gerModule = gerModuleTypes[i];
             String path = null;
+            if (gerModule.isSetEjb()) {
+                path = gerModule.getEjb().getStringValue();
+            } else if (gerModule.isSetWeb()) {
+                path = gerModule.getWeb().getStringValue();
+            } else if (gerModule.isSetConnector()) {
+                path = gerModule.getConnector().getStringValue();
+            } else if (gerModule.isSetJava()) {
+                path = gerModule.getJava().getStringValue();
+            }
+
             if (gerModule.isSetAltDd()) {
                 // the the url of the alt dd
-                if (gerModule.isSetEjb()) {
-                    path = gerModule.getEjb().getStringValue();
-                } else if (gerModule.isSetWeb()) {
-                    path = gerModule.getWeb().getStringValue();
-                } else if (gerModule.isSetConnector()) {
-                    path = gerModule.getConnector().getStringValue();
-                } else if (gerModule.isSetJava()) {
-                    path = gerModule.getJava().getStringValue();
-                }
-
                 altVendorDDs.put(path, JarUtil.toFile(earFile, gerModule.getAltDd().getStringValue()));
             } else {
                 //dd is included explicitly
@@ -418,8 +416,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 altSpecDD = JarUtil.createJarURL(earFile, moduleXml.getAltDd().getStringValue());
             }
 
-            Module module = builder.createModule(
-                    modulePath,
+            Module module = builder.createModule(modulePath,
                     altVendorDDs.get(modulePath),
                     new NestedJarFile(earFile, modulePath),
                     altSpecDD,
