@@ -55,24 +55,20 @@
  */
 package org.apache.geronimo.connector.deployment.dconfigbean;
 
-import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.XmlBeans;
-import org.apache.geronimo.xbeans.geronimo.GerConnectiondefinitionInstanceType;
-import org.apache.geronimo.xbeans.geronimo.GerConnectionmanagerType;
-import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
-import org.apache.geronimo.deployment.plugin.XmlBeanSupport;
+import java.math.BigInteger;
 
 import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.model.XpathListener;
-import javax.enterprise.deploy.model.XpathEvent;
-import java.math.BigInteger;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Arrays;
-import java.util.Iterator;
+
+import org.apache.geronimo.deployment.plugin.XmlBeanSupport;
+import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
+import org.apache.geronimo.xbeans.geronimo.GerConnectiondefinitionInstanceType;
+import org.apache.geronimo.xbeans.geronimo.GerConnectionmanagerType;
+import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.XmlBeans;
 
 /**
- * @version $Revision 1.0$  $Date: 2004/02/15 17:53:22 $
+ * @version $Revision 1.0$  $Date: 2004/02/18 20:57:07 $
  */
 public class ConnectionDefinitionInstance extends XmlBeanSupport {
     private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
@@ -87,75 +83,31 @@ public class ConnectionDefinitionInstance extends XmlBeanSupport {
     void initialize(GerConnectiondefinitionInstanceType xmlObject, ConnectionDefinitionDConfigBean parent) {
         setXmlObject(xmlObject);
         this.parent = parent;
-        DDBean[] beans = parent.getDDBean().getChildBean("config-property");
-        configs = new ConfigPropertySettings[beans.length];
-        Set xmlBeans = new HashSet(Arrays.asList(getConnectiondefinitionInstance().getConfigPropertySettingArray()));
-        for (int i = 0; i < beans.length; i++) {
-            DDBean bean = beans[i];
-            String[] names = bean.getText("config-property-name");
-            String name = names.length == 1 ? names[0] : "";
-            GerConfigPropertySettingType target = null;
-            for (Iterator it = xmlBeans.iterator(); it.hasNext();) {
-                GerConfigPropertySettingType setting = (GerConfigPropertySettingType) it.next();
-                if(setting.getName().equals(name)) {
-                    target = setting;
-                    xmlBeans.remove(target);
-                    break;
-                }
+        DDBean parentDDBean = parent.getDDBean();
+        configListener = ConfigPropertiesHelper.initialize(parentDDBean, new ConfigPropertiesHelper.ConfigPropertiesSource() {
+            public GerConfigPropertySettingType[] getConfigPropertySettingArray() {
+                return getConnectiondefinitionInstance().getConfigPropertySettingArray();
             }
-            if(target == null) {
-                target = getConnectiondefinitionInstance().addNewConfigPropertySetting();
+
+            public GerConfigPropertySettingType addNewConfigPropertySetting() {
+                return getConnectiondefinitionInstance().addNewConfigPropertySetting();
             }
-            configs[i] = new ConfigPropertySettings();
-            configs[i].initialize(target, bean);
-        }
-        for (Iterator it = xmlBeans.iterator(); it.hasNext();) { // used to be in XmlBeans, no longer anything matching in J2EE DD
-            GerConfigPropertySettingType target = (GerConfigPropertySettingType) it.next();
-            for (int i = 0; i < getConnectiondefinitionInstance().getConfigPropertySettingArray().length; i++) {
-                if(getConnectiondefinitionInstance().getConfigPropertySettingArray(i) == target) {
-                    getConnectiondefinitionInstance().removeConfigPropertySetting(i);
-                    break;
-                }
+
+            public void removeConfigPropertySetting(int j) {
+                getConnectiondefinitionInstance().removeConfigPropertySetting(j);
             }
-        }
-        parent.getDDBean().addXpathListener("config-property", configListener = new XpathListener() {
-            public void fireXpathEvent(XpathEvent xpe) {
-                if(xpe.isAddEvent()) {
-                    ConfigPropertySettings[] bigger = new ConfigPropertySettings[configs.length+1];
-                    System.arraycopy(configs, 0, bigger, 0, configs.length);
-                    bigger[configs.length] = new ConfigPropertySettings();
-                    bigger[configs.length].initialize(getConnectiondefinitionInstance().addNewConfigPropertySetting(), xpe.getBean());
-                    setConfigProperty(bigger);
-                } else if(xpe.isRemoveEvent()) {
-                    int index = -1;
-                    for (int i = 0; i < configs.length; i++) {
-                        if(configs[i].matches(xpe.getBean())) {
-                            // remove the XMLBean
-                            for (int j = 0; j < getConnectiondefinitionInstance().getConfigPropertySettingArray().length; j++) {
-                                GerConfigPropertySettingType test = getConnectiondefinitionInstance().getConfigPropertySettingArray(j);
-                                if(test == configs[i].getConfigPropertySetting()) {
-                                    getConnectiondefinitionInstance().removeConfigPropertySetting(j);
-                                    break;
-                                }
-                            }
-                            // clean up the JavaBean
-                            configs[i].dispose();
-                            index = i;
-                            break;
-                        }
-                    }
-                    // remove the JavaBean from my list
-                    if(index > -1) {
-                        ConfigPropertySettings[] smaller = new ConfigPropertySettings[configs.length-1];
-                        System.arraycopy(configs, 0, smaller, 0, index);
-                        System.arraycopy(configs, index+1, smaller, index, smaller.length-index);
-                        setConfigProperty(smaller);
-                    }
-                }
-                // ignore change event (no contents, no attributes)
+
+            public ConfigPropertySettings[] getConfigPropertySettings() {
+                return configs;
             }
+
+            public void setConfigPropertySettings(ConfigPropertySettings[] configs) {
+                setConfigProperty(configs);
+            }
+
         });
     }
+
 
     boolean hasParent() {
         return parent != null;

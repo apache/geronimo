@@ -68,12 +68,11 @@ import org.apache.xmlbeans.XmlBeans;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/15 17:46:21 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/18 20:57:07 $
  *
  **/
 public class ConnectionDefinitionDConfigBean extends DConfigBeanSupport {
     private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
-    private final static String[] CONNECTION_DEFINITION_XPATHS = {};
     private ConnectionDefinitionInstance[] instances = new ConnectionDefinitionInstance[0];
 
     public ConnectionDefinitionDConfigBean(DDBean ddBean, GerConnectionDefinitionType connectionDefinition) {
@@ -135,10 +134,5 @@ public class ConnectionDefinitionDConfigBean extends DConfigBeanSupport {
         }
         pcs.firePropertyChange("connectionDefinitionInstance", old, instances);
     }
-
-    public String[] getXpaths() {
-        return CONNECTION_DEFINITION_XPATHS;
-    }
-
 
 }

@@ -75,7 +75,7 @@ import org.apache.xmlbeans.XmlBeans;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/02/11 08:02:20 $
+ * @version $Revision: 1.4 $ $Date: 2004/02/18 20:57:07 $
  *
  * */
 public class ResourceAdapterDConfigBean extends DConfigBeanSupport {
@@ -98,6 +98,16 @@ public class ResourceAdapterDConfigBean extends DConfigBeanSupport {
 
             public GerConfigPropertySettingType addNewConfigPropertySetting() {
                 return resourceadapter.addNewConfigPropertySetting();
+            }
+
+            public void removeConfigPropertySetting(int j) {
+            }
+
+            public ConfigPropertySettings[] getConfigPropertySettings() {
+                return new ConfigPropertySettings[0];
+            }
+
+            public void setConfigPropertySettings(ConfigPropertySettings[] configs) {
             }
 
         }, configPropertiesMap);

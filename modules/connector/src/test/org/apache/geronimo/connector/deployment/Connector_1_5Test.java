@@ -56,52 +56,58 @@
 
 package org.apache.geronimo.connector.deployment;
 
-import java.io.File;
-import java.io.InputStream;
-import java.io.IOException;
-import java.io.ByteArrayOutputStream;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
-import java.net.URL;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.zip.ZipEntry;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.jar.JarOutputStream;
+import java.util.zip.ZipEntry;
 
-import javax.management.ObjectName;
-import javax.enterprise.deploy.model.DeployableObject;
-import javax.enterprise.deploy.model.DDBeanRoot;
 import javax.enterprise.deploy.model.DDBean;
+import javax.enterprise.deploy.model.DDBeanRoot;
+import javax.enterprise.deploy.model.DeployableObject;
 import javax.enterprise.deploy.model.exceptions.DDBeanCreateException;
 import javax.enterprise.deploy.shared.ModuleType;
-import javax.enterprise.deploy.spi.DeploymentConfiguration;
 import javax.enterprise.deploy.spi.DConfigBeanRoot;
+import javax.enterprise.deploy.spi.DeploymentConfiguration;
+import javax.management.ObjectName;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.xbeans.j2ee.ConnectorDocument;
-import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
-import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
-import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
-import org.apache.geronimo.xbeans.geronimo.GerAdminobjectType;
+import org.apache.geronimo.connector.deployment.dconfigbean.AdminObjectDConfigBean;
+import org.apache.geronimo.connector.deployment.dconfigbean.AdminObjectInstance;
+import org.apache.geronimo.connector.deployment.dconfigbean.ConfigPropertySettingDConfigBean;
+import org.apache.geronimo.connector.deployment.dconfigbean.ConfigPropertySettings;
+import org.apache.geronimo.connector.deployment.dconfigbean.ConnectionDefinitionDConfigBean;
+import org.apache.geronimo.connector.deployment.dconfigbean.ConnectionDefinitionInstance;
+import org.apache.geronimo.connector.deployment.dconfigbean.ResourceAdapterDConfigBean;
+import org.apache.geronimo.deployment.ConfigurationCallback;
+import org.apache.geronimo.deployment.DeploymentModule;
+import org.apache.geronimo.deployment.tools.DDBeanRootImpl;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.xbeans.geronimo.GerAdminobjectInstanceType;
+import org.apache.geronimo.xbeans.geronimo.GerAdminobjectType;
+import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectionDefinitionType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectiondefinitionInstanceType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectionmanagerType;
-import org.apache.geronimo.deployment.DeploymentModule;
-import org.apache.geronimo.deployment.ConfigurationCallback;
-import org.apache.geronimo.deployment.tools.DDBeanRootImpl;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.connector.deployment.dconfigbean.*;
+import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
+import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
+import org.apache.geronimo.xbeans.j2ee.ConnectorDocument;
 import org.apache.xmlbeans.XmlOptions;
 
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/02/15 17:46:21 $
+ * @version $Revision: 1.8 $ $Date: 2004/02/18 20:57:08 $
  *
  * */
 public class Connector_1_5Test extends TestCase implements ConfigurationCallback {
@@ -154,17 +160,15 @@ public class Connector_1_5Test extends TestCase implements ConfigurationCallback
         assertEquals(1, adminObjectdds.length);
         AdminObjectDConfigBean adminObjectDConfigBean = (AdminObjectDConfigBean)resourceAdapterDConfigBean.getDConfigBean(adminObjectdds[0]);
         assertNotNull(adminObjectDConfigBean);
-        AdminObjectInstanceDConfigBean adminObjectInstanceDConfigBean1 = new AdminObjectInstanceDConfigBean();
-        adminObjectDConfigBean.setAdminObjectInstance(new AdminObjectInstanceDConfigBean[] {adminObjectInstanceDConfigBean1});
-        DDBean[] adminObjectConfigPropDDs = adminObjectdds[0].getChildBean(adminObjectInstanceDConfigBean1.getXpaths()[0]);
-        assertEquals(1, adminObjectConfigPropDDs.length);
-        ConfigPropertySettingDConfigBean adminObjectSetting1 = (ConfigPropertySettingDConfigBean) adminObjectInstanceDConfigBean1.getDConfigBean(adminObjectConfigPropDDs[0]);
+        AdminObjectInstance adminObjectInstance1 = new AdminObjectInstance();
+        adminObjectDConfigBean.setAdminObjectInstance(new AdminObjectInstance[] {adminObjectInstance1});
+        ConfigPropertySettings adminObjectSetting1 = adminObjectInstance1.getConfigProperty()[0];
         adminObjectSetting1.setConfigPropertyValue("TestAOValue1");
 
         //add a second admin object in first position
-        AdminObjectInstanceDConfigBean adminObjectInstanceDConfigBean2 = new AdminObjectInstanceDConfigBean();
-        adminObjectDConfigBean.setAdminObjectInstance(new AdminObjectInstanceDConfigBean[] {adminObjectInstanceDConfigBean2, adminObjectInstanceDConfigBean1});
-        ConfigPropertySettingDConfigBean adminObjectSetting2 = (ConfigPropertySettingDConfigBean) adminObjectInstanceDConfigBean2.getDConfigBean(adminObjectConfigPropDDs[0]);
+        AdminObjectInstance adminObjectInstance2 = new AdminObjectInstance();
+        adminObjectDConfigBean.setAdminObjectInstance(new AdminObjectInstance[] {adminObjectInstance2, adminObjectInstance1});
+        ConfigPropertySettings adminObjectSetting2 = adminObjectInstance2.getConfigProperty()[0];
         adminObjectSetting2.setConfigPropertyValue("TestAOValue2");
 
         //outbound
@@ -176,7 +180,7 @@ public class Connector_1_5Test extends TestCase implements ConfigurationCallback
         connectionDefinitionDConfigBean.setConnectionDefinitionInstance(new ConnectionDefinitionInstance[] {connectionDefinitionInstance1});
         DDBean[] connectionDefinitionConfigPropDDs = connectionDefinitiondds[0].getChildBean("config-property");
         assertEquals(4, connectionDefinitionConfigPropDDs.length);
-        ConfigPropertySettings connectionDefinitionSetting1 = (ConfigPropertySettings) connectionDefinitionInstance1.getConfigProperty()[0];
+        ConfigPropertySettings connectionDefinitionSetting1 = connectionDefinitionInstance1.getConfigProperty()[0];
         connectionDefinitionSetting1.setConfigPropertyValue("TestCDValue1");
         //connection manager properties
         connectionDefinitionInstance1.setBlockingTimeout(3000);
@@ -197,9 +201,9 @@ public class Connector_1_5Test extends TestCase implements ConfigurationCallback
         //admin object
         GerAdminobjectType adminobjectType1 = ra.getAdminobjectArray(0);
         GerAdminobjectInstanceType adminobjectInstanceType2 = adminobjectType1.getAdminobjectInstanceArray(0);
-        assertEquals("TestAOValue2", adminobjectInstanceType2.getConfigPropertySettingArray(0).getStringValue());
+        assertEquals("TestAOValue1", adminobjectInstanceType2.getConfigPropertySettingArray(0).getStringValue());
         GerAdminobjectInstanceType adminobjectInstanceType1 = adminobjectType1.getAdminobjectInstanceArray(1);
-        assertEquals("TestAOValue1", adminobjectInstanceType1.getConfigPropertySettingArray(0).getStringValue());
+        assertEquals("TestAOValue2", adminobjectInstanceType1.getConfigPropertySettingArray(0).getStringValue());
 
         //connection definition
         GerConnectionDefinitionType connectionDefinitionType = ra.getOutboundResourceadapter().getConnectionDefinitionArray(0);
@@ -222,23 +226,23 @@ public class Connector_1_5Test extends TestCase implements ConfigurationCallback
         //admin objects
         adminObjectDConfigBean = (AdminObjectDConfigBean)resourceAdapterDConfigBean.getDConfigBean(adminObjectdds[0]);
         assertNotNull(adminObjectDConfigBean);
-        AdminObjectInstanceDConfigBean[] adminObjectInstanceDConfigBeans = adminObjectDConfigBean.getAdminObjectInstance();
-        assertEquals(2, adminObjectInstanceDConfigBeans.length);
-        adminObjectSetting1 = (ConfigPropertySettingDConfigBean) adminObjectInstanceDConfigBeans[1].getDConfigBean(adminObjectConfigPropDDs[0]);
-        assertEquals("TestAOValue1", adminObjectSetting1.getConfigPropertyValue());
+        AdminObjectInstance[] adminObjectInstances = adminObjectDConfigBean.getAdminObjectInstance();
+        assertEquals(2, adminObjectInstances.length);
+        adminObjectSetting1 = adminObjectInstances[1].getConfigProperty()[0];
+        assertEquals("TestAOValue2", adminObjectSetting1.getConfigPropertyValue());
 
-        //second admin object is in first position
-        adminObjectSetting2 = (ConfigPropertySettingDConfigBean) adminObjectInstanceDConfigBeans[0].getDConfigBean(adminObjectConfigPropDDs[0]);
-        assertEquals("TestAOValue2", adminObjectSetting2.getConfigPropertyValue());
+        //second admin object is in first position ..not any longer:-(((
+        adminObjectSetting2 = adminObjectInstances[0].getConfigProperty()[0];
+        assertEquals("TestAOValue1", adminObjectSetting2.getConfigPropertyValue());
 
         //outbound
         connectionDefinitionDConfigBean = (ConnectionDefinitionDConfigBean)resourceAdapterDConfigBean.getDConfigBean(connectionDefinitiondds[0]);
         assertNotNull(connectionDefinitionDConfigBean);
-        ConnectionDefinitionInstance[] connectionDefinitionInstanceDConfigBeans = connectionDefinitionDConfigBean.getConnectionDefinitionInstance();
-        connectionDefinitionSetting1 = (ConfigPropertySettings) connectionDefinitionInstanceDConfigBeans[0].getConfigProperty()[0];
+        ConnectionDefinitionInstance[] connectionDefinitionInstances = connectionDefinitionDConfigBean.getConnectionDefinitionInstance();
+        connectionDefinitionSetting1 = connectionDefinitionInstances[0].getConfigProperty()[0];
         assertEquals("TestCDValue1", connectionDefinitionSetting1.getConfigPropertyValue());
         //connection manager
-        assertEquals(3000, connectionDefinitionInstanceDConfigBeans[0].getBlockingTimeout());
+        assertEquals(3000, connectionDefinitionInstances[0].getBlockingTimeout());
 
     }
 

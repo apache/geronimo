@@ -59,20 +59,20 @@ package org.apache.geronimo.connector.deployment.dconfigbean;
 import javax.enterprise.deploy.model.DDBean;
 
 import org.apache.geronimo.deployment.plugin.DConfigBeanSupport;
-import org.apache.geronimo.xbeans.geronimo.GerAdminobjectType;
 import org.apache.geronimo.xbeans.geronimo.GerAdminobjectInstanceType;
+import org.apache.geronimo.xbeans.geronimo.GerAdminobjectType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/09 23:13:27 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/18 20:57:07 $
  *
  * */
 public class AdminObjectDConfigBean extends DConfigBeanSupport {
     private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
-    private final static String[] ADMIN_OBJECT_XPATHS = {};
+    private AdminObjectInstance[] instances = new AdminObjectInstance[0];
 
     public AdminObjectDConfigBean(DDBean ddBean, GerAdminobjectType adminObject) {
         super(ddBean, adminObject, SCHEMA_TYPE_LOADER);
@@ -88,46 +88,56 @@ public class AdminObjectDConfigBean extends DConfigBeanSupport {
         } else {
             assert adminObjectClass.equals(adminObject.getAdminobjectClass().getStringValue());
         }
+        // Get initial list of instances
+        GerAdminobjectInstanceType[] xmlInstances = getAdminObject().getAdminobjectInstanceArray();
+        instances = new AdminObjectInstance[xmlInstances.length];
+        for (int i = 0; i < instances.length; i++) {
+            instances[i] = new AdminObjectInstance();
+            instances[i].initialize(xmlInstances[i], this);
+        }
     }
 
     GerAdminobjectType getAdminObject() {
-        return (GerAdminobjectType)getXmlObject();
+        return (GerAdminobjectType) getXmlObject();
     }
 
-    public AdminObjectInstanceDConfigBean[] getAdminObjectInstance() {
-        GerAdminobjectInstanceType[] adminobjectInstances = getAdminObject().getAdminobjectInstanceArray();
-        AdminObjectInstanceDConfigBean[] adminObjectInstanceDConfigBeans = new AdminObjectInstanceDConfigBean[adminobjectInstances.length];
-        for (int i = 0; i < adminobjectInstances.length; i++) {
-            GerAdminobjectInstanceType adminobjectInstance = adminobjectInstances[i];
-            adminObjectInstanceDConfigBeans[i] = new AdminObjectInstanceDConfigBean(getDDBean(), adminobjectInstance);
-        }
-        return adminObjectInstanceDConfigBeans;
+    public AdminObjectInstance[] getAdminObjectInstance() {
+        return instances;
     }
 
-    public void setAdminObjectInstance(AdminObjectInstanceDConfigBean[] adminObjectInstanceDConfigBeans) {
-        GerAdminobjectInstanceType[] adminobjectInstances = new GerAdminobjectInstanceType[adminObjectInstanceDConfigBeans.length];
-        for (int i = 0; i < adminObjectInstanceDConfigBeans.length; i++) {
-            AdminObjectInstanceDConfigBean adminObjectInstanceDConfigBean = adminObjectInstanceDConfigBeans[i];
-            if (adminObjectInstanceDConfigBean == null) {
-                throw new IllegalStateException("the " + i + "th adminobject instance was null");
-            }
-            adminobjectInstances[i] = adminObjectInstanceDConfigBean.getAdminobjectInstance();
-            if (adminobjectInstances[i] == null) {
-                adminobjectInstances[i] = GerAdminobjectInstanceType.Factory.newInstance();
+    public void setAdminObjectInstance(AdminObjectInstance[] instances) {
+        AdminObjectInstance[] old = getAdminObjectInstance();
+        this.instances = instances;
+        for (int i = 0; i < instances.length; i++) { // catch additions
+            AdminObjectInstance instance = instances[i];
+            if (!instance.hasParent()) {
+                GerAdminobjectInstanceType xmlObject = getAdminObject().addNewAdminobjectInstance();
+                instance.initialize(xmlObject, this);
             }
         }
-        //this will copy all the xmlobjects.
-        getAdminObject().setAdminobjectInstanceArray(adminobjectInstances);
-        //get the new copies
-        GerAdminobjectInstanceType[] newAdminobjectInstances = getAdminObject().getAdminobjectInstanceArray();
-        for (int i = 0; i < newAdminobjectInstances.length; i++) {
-            GerAdminobjectInstanceType newAdminobjectInstance = newAdminobjectInstances[i];
-            adminObjectInstanceDConfigBeans[i].setParent(getDDBean(), newAdminobjectInstance);
+        for (int i = 0; i < old.length; i++) { // catch removals
+            AdminObjectInstance instance = old[i];
+            boolean found = false;
+            for (int j = 0; j < instances.length; j++) {
+                if (instances[j] == instance) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                // remove the XmlBean
+                for (int j = 0; j < getAdminObject().getAdminobjectInstanceArray().length; j++) {
+                    GerAdminobjectInstanceType test = getAdminObject().getAdminobjectInstanceArray(j);
+                    if (test == instance.getAdminobjectInstance()) {
+                        getAdminObject().removeAdminobjectInstance(j);
+                        break;
+                    }
+                }
+                // clean up the removed JavaBean
+                instance.dispose();
+            }
         }
-    }
-
-    public String[] getXpaths() {
-        return ADMIN_OBJECT_XPATHS;
+        pcs.firePropertyChange("connectionDefinitionInstance", old, instances);
     }
 
 }

@@ -56,14 +56,10 @@
 
 package org.apache.geronimo.connector.deployment.dconfigbean;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.enterprise.deploy.model.DDBean;
-import javax.enterprise.deploy.spi.DConfigBean;
-import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
+import javax.enterprise.deploy.model.XpathListener;
 
-import org.apache.geronimo.deployment.plugin.DConfigBeanSupport;
+import org.apache.geronimo.deployment.plugin.XmlBeanSupport;
 import org.apache.geronimo.xbeans.geronimo.GerAdminobjectInstanceType;
 import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
 import org.apache.xmlbeans.SchemaTypeLoader;
@@ -72,45 +68,78 @@ import org.apache.xmlbeans.XmlBeans;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/02/11 08:02:20 $
+ * @version $Revision: 1.1 $ $Date: 2004/02/18 20:57:07 $
  *
  * */
-public class AdminObjectInstanceDConfigBean extends DConfigBeanSupport{
+public class AdminObjectInstance extends XmlBeanSupport{
     private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
+    private AdminObjectDConfigBean parent;
+    private ConfigPropertySettings[] configs;
+    private XpathListener configListener;
 
-    private final static String[] ADMIN_OBJECT_INSTANCE_XPATHS = {"config-property"};
-    private Map configPropertiesMap = new HashMap();
-
-    public AdminObjectInstanceDConfigBean() {
-        super(null, null, SCHEMA_TYPE_LOADER);
+    public AdminObjectInstance() {
+        super(null, SCHEMA_TYPE_LOADER);
     }
 
-    public AdminObjectInstanceDConfigBean(DDBean ddBean, final GerAdminobjectInstanceType adminobjectInstance) {
-        super(ddBean, adminobjectInstance, SCHEMA_TYPE_LOADER);
-        initialize(ddBean, adminobjectInstance);
-    }
-
-    void setParent(DDBean ddBean, final GerAdminobjectInstanceType adminobjectInstance) {
-        super.setParent(ddBean, adminobjectInstance);
-        initialize(ddBean, adminobjectInstance);
-    }
-
-    private void initialize(DDBean ddBean, final GerAdminobjectInstanceType adminobjectInstance) {
-        ConfigPropertiesHelper.initializeConfigSettings(ddBean, new ConfigPropertiesHelper.ConfigPropertiesSource() {
+    void initialize(GerAdminobjectInstanceType xmlObject, AdminObjectDConfigBean parent) {
+        setXmlObject(xmlObject);
+        this.parent = parent;
+        DDBean parentDDBean = parent.getDDBean();
+        configListener = ConfigPropertiesHelper.initialize(parentDDBean, new ConfigPropertiesHelper.ConfigPropertiesSource() {
             public GerConfigPropertySettingType[] getConfigPropertySettingArray() {
-                return adminobjectInstance.getConfigPropertySettingArray();
+                return getAdminobjectInstance().getConfigPropertySettingArray();
             }
 
             public GerConfigPropertySettingType addNewConfigPropertySetting() {
-                return adminobjectInstance.addNewConfigPropertySetting();
+                return getAdminobjectInstance().addNewConfigPropertySetting();
             }
 
-        }, configPropertiesMap);
+            public void removeConfigPropertySetting(int j) {
+                getAdminobjectInstance().removeConfigPropertySetting(j);
+            }
+
+            public ConfigPropertySettings[] getConfigPropertySettings() {
+                return configs;
+            }
+
+            public void setConfigPropertySettings(ConfigPropertySettings[] configs) {
+                setConfigProperty(configs);
+            }
+
+        });
     }
 
+    boolean hasParent() {
+        return parent != null;
+    }
 
+    void dispose() {
+        if(configs != null) {
+            for (int i = 0; i < configs.length; i++) {
+                configs[i].dispose();
+            }
+        }
+        if(parent != null) {
+            parent.getDDBean().removeXpathListener("config-property", configListener);
+        }
+        configs = null;
+        configListener = null;
+        parent = null;
+    }
+
+// JavaBean properties for this object (with a couple helper methods)
     GerAdminobjectInstanceType getAdminobjectInstance() {
         return (GerAdminobjectInstanceType)getXmlObject();
+    }
+
+    public ConfigPropertySettings[] getConfigProperty() {
+        return configs;
+    }
+
+    private void setConfigProperty(ConfigPropertySettings[] configs) { // can only be changed by adding a new DDBean
+        ConfigPropertySettings[] old = getConfigProperty();
+        this.configs = configs;
+        pcs.firePropertyChange("configProperty", old, configs);
     }
 
     public String getAdminObjectName() {
@@ -120,22 +149,5 @@ public class AdminObjectInstanceDConfigBean extends DConfigBeanSupport{
     public void setAdminObjectName(String adminObjectName) {
         getAdminobjectInstance().setAdminobjectName(adminObjectName);
     }
-
-    public DConfigBean getDConfigBean(DDBean bean) throws ConfigurationException {
-        String xpath = bean.getXpath();
-        if (xpath.equals(ADMIN_OBJECT_INSTANCE_XPATHS[0])) {
-            String configPropertyName = bean.getText("config-property-name")[0];
-            ConfigPropertySettingDConfigBean configPropertySetting = (ConfigPropertySettingDConfigBean) configPropertiesMap.get(configPropertyName);
-            assert configPropertySetting != null;
-            return configPropertySetting;
-        }
-        return null;
-    }
-
-
-    public String[] getXpaths() {
-        return ADMIN_OBJECT_INSTANCE_XPATHS;
-    }
-
 
 }
