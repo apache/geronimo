@@ -10,7 +10,7 @@
         <uri>geronimo/jars/geronimo-tomcat-1.0-SNAPSHOT.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo-spec/jars/geronimo-spec-j2ee-1.4-rc2.jar</uri>
+        <uri>geronimo-spec/jars/geronimo-spec-j2ee-1.4-SNAPSHOT.jar</uri>
     </dependency>
     <dependency>
         <uri>tomcat/jars/catalina-5.0.28.jar</uri>
