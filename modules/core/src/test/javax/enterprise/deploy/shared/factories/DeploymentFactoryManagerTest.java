@@ -58,9 +58,9 @@ package javax.enterprise.deploy.shared.factories;
 import junit.framework.TestCase;
 
 import javax.enterprise.deploy.spi.factories.DeploymentFactory;
-import javax.enterprise.deploy.spi.factories.MockDeploymentFactory;
 import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
 import javax.enterprise.deploy.spi.DeploymentManager;
+import org.apache.geronimo.enterprise.deploy.provider.GeronimoDeploymentFactory;
 
 /**
  * Low level tests on the DeploymentFactoryManager.
@@ -80,28 +80,54 @@ public class DeploymentFactoryManagerTest extends TestCase {
 
     public void testGetDeploymentManagerWithoutAnyRegisteredFactories() {
         try {
-            factoryManager.getDeploymentManager(null, null, null);
+            factoryManager.getDeploymentManager("invalid-uri", null, null);
+            fail("Expected a DeploymentManagerCreationException");
         } catch (DeploymentManagerCreationException e) {
-            assertEquals("Could not get DeploymentManager", e.getMessage());
-            return;
+            assertTrue(e.getMessage().startsWith("Could not get DeploymentManager"));
         }
-        fail("Expected a DeploymentManagerCreationException");
     }
 
     public void testDisconnectedGetDeploymentManagerWithoutAnyRegisteredFactories() {
         try {
-            factoryManager.getDisconnectedDeploymentManager(null);
+            factoryManager.getDisconnectedDeploymentManager("invalid-uri");
+            fail("Expected a DeploymentManagerCreationException");
         } catch (DeploymentManagerCreationException e) {
-            assertEquals("Could not get DeploymentManager", e.getMessage());
-            return;
+            assertTrue(e.getMessage().startsWith("Could not get DeploymentManager"));
         }
-        fail("Expected a DeploymentManagerCreationException");
+    }
+
+    public void testGetDeploymentManagerWithNullURI() {
+        try {
+            factoryManager.getDeploymentManager(null, null, null);
+            fail("Expected an IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+        } catch(DeploymentManagerCreationException e) {
+            fail("Unexpected Exception: "+e.getMessage());
+        }
+    }
+
+    public void testDisconnectedGetDeploymentManagerWithNullURI() {
+        try {
+            factoryManager.getDisconnectedDeploymentManager(null);
+            fail("Expected an IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+        } catch(DeploymentManagerCreationException e) {
+            fail("Unexpected Exception: "+e.getMessage());
+        }
+    }
+
+    public void testRegisterNull() {
+        try {
+            factoryManager.registerDeploymentFactory(null);
+            fail("Should have gotten an IllegalArgumentException");
+        } catch(IllegalArgumentException e) {
+        }
     }
 
     public void testRegisterDeploymentFactory() {
         int initialNumberOfFactories = factoryManager.getDeploymentFactories().length;
 
-        DeploymentFactory factory = new MockDeploymentFactory();
+        DeploymentFactory factory = new GeronimoDeploymentFactory();
         factoryManager.registerDeploymentFactory(factory);
 
         int expectedNumberOfFactories = initialNumberOfFactories + 1;
@@ -110,42 +136,43 @@ public class DeploymentFactoryManagerTest extends TestCase {
         assertEquals(expectedNumberOfFactories, currentNumberOfFactories);
     }
 
-    /**
-     * Relies on succesful completion of @link #testRegisterDeploymentFactory()
-     * bacause we need a registered DeploymentManager for this test.
-     */
     public void testGetDeploymentManager() {
-        int numberOfFactories = factoryManager.getDeploymentFactories().length;
-        assertTrue("We should have a registered MockDeploymentFactory", numberOfFactories > 0);
-
+        ensureFactoryRegistered();
         DeploymentManager deploymentManager = null;
         try {
-            deploymentManager = factoryManager.getDeploymentManager(null, null, null);
+            deploymentManager = factoryManager.getDeploymentManager("deployer:geronimo://server:port/application", "username", "password");
         } catch (DeploymentManagerCreationException e) {
             fail("Didn't expect a DeploymentManagerException here.");
         }
-        assertNotNull("Expected an instance of the MockDeploymentManager", deploymentManager);
+        assertNotNull("Expected an instance of the DeploymentManager", deploymentManager);
+    }
+
+    public void testGetDisconnectedDeploymentManager() {
+        ensureFactoryRegistered();
+        DeploymentManager deploymentManager = null;
+        try {
+            deploymentManager = factoryManager.getDeploymentManager("deployer:geronimo:", null, null);
+        } catch (DeploymentManagerCreationException e) {
+            fail("Didn't expect a DeploymentManagerException here.");
+        }
+        assertNotNull("Expected an instance of the DeploymentManager", deploymentManager);
     }
 
     public void testDeploymentManagerCreationException() {
+        ensureFactoryRegistered();
         try {
             factoryManager.getDisconnectedDeploymentManager("throw-exception");
+            fail("Expected a DeploymentManagerCreationException");
         } catch (DeploymentManagerCreationException e) {
-            assertEquals("Could not get DeploymentManager", e.getMessage());
-            return;
+            assertTrue(e.getMessage().startsWith("Could not get DeploymentManager"));
         }
-        fail("Expected a DeploymentManagerCreationException");
     }
 
-    public void testGetNullDeploymentManagerCreationException() {
-        DeploymentManager disconnectedDeploymentManager = null;
-        try {
-            disconnectedDeploymentManager = factoryManager.getDisconnectedDeploymentManager("return-null");
-        } catch (DeploymentManagerCreationException e) {
-            fail("Didn't expect a DeploymentManagerException here.");
+    private void ensureFactoryRegistered() {
+        int numberOfFactories = factoryManager.getDeploymentFactories().length;
+        if(numberOfFactories == 0) {
+            factoryManager.registerDeploymentFactory(new GeronimoDeploymentFactory());
         }
-        // Apperently the DeploymentFactoryManager doesn't care about the DeploymentFactory
-        // returning null
-        assertNull(disconnectedDeploymentManager);
+        assertTrue("We should have a registered DeploymentFactory", numberOfFactories > 0);
     }
 }
