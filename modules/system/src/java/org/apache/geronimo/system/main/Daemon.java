@@ -26,6 +26,9 @@ import java.util.Iterator;
 import java.util.List;
 import javax.management.ObjectName;
 
+import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.Log;
+
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
@@ -37,12 +40,15 @@ import org.apache.geronimo.system.url.GeronimoURLFactory;
 /**
  *
  *
- * @version $Revision: 1.8 $ $Date: 2004/07/13 02:29:36 $
+ * @version $Revision: 1.9 $ $Date: 2004/07/31 15:05:12 $
  */
 public class Daemon {
+    private static Log log;
+
     static {
         // This MUST be done before the first log is acquired
         GeronimoLogging.initialize(GeronimoLogging.INFO);
+        log = LogFactory.getLog(Daemon.class.getName());
 
         // Install our url factory
         GeronimoURLFactory.install();
@@ -63,6 +69,9 @@ public class Daemon {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+
+        log.info("Server startup begun");
+
         try {
             // get a list of the configuration uris from the command line
             List configs = new ArrayList();
@@ -104,7 +113,9 @@ public class Daemon {
             final ObjectName configName = configurationManager.load(configuration, classLoader.getResource("/"));
             Runtime.getRuntime().addShutdownHook(new Thread("Shutdown Thread") {
                 public void run() {
+                    log.info("Server shutdown begun");
                     kernel.shutdown();
+                    log.info("Server shutdown completed");
                 }
             });
 
@@ -147,6 +158,7 @@ public class Daemon {
                 throw new AssertionError();
             }
 
+            log.info("Server startup completed");
 
             // capture this thread until the kernel is ready to exit
             while (kernel.isRunning()) {
