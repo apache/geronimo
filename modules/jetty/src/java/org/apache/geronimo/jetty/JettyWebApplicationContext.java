@@ -62,6 +62,7 @@ import java.util.Set;
 import java.util.WeakHashMap;
 import java.net.URI;
 import java.io.IOException;
+
 import javax.resource.ResourceException;
 import javax.security.jacc.PolicyContext;
 import javax.transaction.RollbackException;
@@ -92,7 +93,7 @@ import org.mortbay.jetty.servlet.WebApplicationContext;
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/22 02:46:27 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/25 17:47:37 $
  */
 public class JettyWebApplicationContext extends WebApplicationContext implements GBean {
     private final JettyContainer container;
@@ -123,10 +124,10 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
         this.associator = associator;
     }
 
-    public boolean handle(String pathInContext,
-            String pathParams,
-            HttpRequest httpRequest,
-            HttpResponse httpResponse)
+    public void handle(String pathInContext,
+                       String pathParams,
+                       HttpRequest httpRequest,
+                       HttpResponse httpResponse)
             throws HttpException, IOException {
 
 
@@ -172,7 +173,7 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
                 }
             }
 
-            return super.handle(pathInContext, pathParams, httpRequest, httpResponse);
+            super.handle(pathInContext, pathParams, httpRequest, httpResponse);
         } finally {
             try {
                 if (txManager != null) {

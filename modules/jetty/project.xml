@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.6 $ $Date: 2004/01/23 19:58:17 $ -->
+<!-- $Revision: 1.7 $ $Date: 2004/01/25 17:47:37 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -107,9 +107,11 @@
         </dependency>
 
         <dependency>
-            <id>jetty</id>
-            <version>SNAPSHOT</version>
+            <groupId>jetty</groupId>
+            <artifactId>org.mortbay.jetty</artifactId>
+            <version>5.0.beta0</version>
             <properties>
+                <package>true</package>
                 <runtime>true</runtime>
             </properties>
         </dependency>
