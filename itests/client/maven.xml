@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- $Revision: 1.13 $ $Date: 2004/09/14 21:39:52 $ -->
+
+<project default="default"
+    xmlns:j="jelly:core"
+    xmlns:ant="jelly:ant"
+    xmlns:deploy="geronimo:deploy"
+    xmlns:maven="jelly:maven"
+    xmlns:u="jelly:util"
+    xmlns:define="jelly:define"
+    >
+
+    <preGoal name="xdoc:jelly-transform">
+        <attainGoal name="html2xdoc"/>
+    </preGoal>
+
+    <goal name="default" prereqs="ear"/>
+    <goal name="build" prereqs="default"/>
+
+    <goal name="ejb" prereqs="java:compile">
+        <!-- snag the openejb-itest-ejb -->
+    </goal>
+
+     <goal name="client" prereqs="java:compile">
+        <ant:jar destfile="target/${pom.artifactId}-client.jar">
+            <fileset dir="target/classes">
+                <include name="**/*Client.class"/>
+                <include name="**/MagicGBall.class"/>
+                <include name="**/MagicGBallHome.class"/>
+            </fileset>
+            <fileset dir="src/resources/client"/>
+            <manifest>
+                <attribute name="Main-Class" value="org.acme.MagicGBallClient"/>
+            </manifest>
+        </ant:jar>
+    </goal>
+
+    <goal name="ear" prereqs="ejb,client">
+        <ant:jar destfile="target/${pom.artifactId}.ear">
+            <fileset dir="target">
+                <include name="${pom.artifactId}-ejb.jar"/>
+                <include name="${pom.artifactId}-client.jar"/>
+            </fileset>
+            <fileset dir="src/resources/ear"/>
+        </ant:jar>
+    </goal>
+
+    <postGoal name="ear">
+        <attainGoal name="itest"/>
+    </postGoal>
+
+    <preGoal name="itest:setup">
+        <ant:delete dir="${maven.build.dir}/geronimo"/>
+
+        <deploy:unpackServer
+            geronimoVersion="${geronimo_version}"
+            geronimoName="geronimo"
+            targetDir="${maven.build.dir}/geronimo"/>
+        <deploy:startRemoteServer
+            geronimoTarget="${maven.build.dir}/geronimo"
+            vmArgs="-Djava.rmi.server.RMIClassLoaderSpi=org.apache.geronimo.rmi.RMIClassLoaderSpiImpl"
+            configs="org/apache/geronimo/DefaultDatabase"/>
+        <deploy:waitForStarted
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/apache/geronimo/DefaultDatabase"/>
+        <echo message="server has started"/>
+        <deploy:distribute
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            home="${basedir}"
+            module="${basedir}/target/geronimo-itests-client-${pom.currentVersion}.jar"
+            />
+        <echo message="distributed ejbs"/>
+        <deploy:start
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/apache/geronimo/client/Itests"/>
+    </preGoal>
+
+    <preGoal name="itest:teardown">
+        <deploy:stop
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/apache/geronimo/client/Itests"/>
+        <deploy:undeploy
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/apache/geronimo/client/Itests"/>
+        <echo message="undeployed ejbs"/>
+        <deploy:stopRemoteServer
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"/>
+        <echo message="server has stopped"/>
+    </preGoal>
+
+</project>

@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE project [
+<!ENTITY % locator SYSTEM "file:locator.ent">
+%locator;
+%versions;
+]>
+
+<!-- $Revision: 1.17 $ $Date: 2004/09/12 17:11:54 $ -->
+
+<project>
+    <pomVersion>3</pomVersion>
+    <extend>${basedir}/../../etc/project.xml</extend>
+
+    <!-- ===================== -->
+    <!-- Module Identification -->
+    <!-- ===================== -->
+
+    <name>Geronimo :: Client App Integration Tests</name>
+    <id>geronimo-itests-client</id>
+    <shortDescription>Compliance and Integration Tests</shortDescription>
+    <description>App Client Compliance and Server Integration Tests</description>
+
+    <!-- ============ -->
+    <!-- Dependencies -->
+    <!-- ============ -->
+
+    <dependencies>
+
+        <dependency>
+            <groupId>tranql</groupId>
+            <artifactId>tranql</artifactId>
+            <version>&tranql-version;</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-kernel</artifactId>
+            <version>&geronimo-version;</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-core</artifactId>
+            <version>&geronimo-version;</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-remoting</artifactId>
+            <version>&geronimo-version;</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-security</artifactId>
+            <version>&geronimo-version;</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-j2ee-jacc</artifactId>
+            <version>&geronimo-spec-j2ee-jacc-version;</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib-full</artifactId>
+            <version>&cglib-version;</version>
+            <url>http://cglib.sf.net</url>
+        </dependency>
+
+        <dependency>
+            <groupId>openejb</groupId>
+            <artifactId>openejb-core</artifactId>
+            <version>&openejb-version;</version>
+        </dependency>
+
+        <dependency>
+            <groupId>openejb</groupId>
+            <artifactId>openejb-assembly</artifactId>
+            <version>&openejb-version;</version>
+        </dependency>
+
+        <dependency>
+            <groupId>openejb</groupId>
+            <artifactId>openejb-itests-ejb</artifactId>
+            <version>&openejb-version;</version>
+            <type>ejb</type>
+        </dependency>
+
+        <!-- Thirdparty -->
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-jta</artifactId>
+            <version>&geronimo-spec-jta-version;</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-ejb</artifactId>
+            <version>&geronimo-spec-ejb-version;</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-servlet</artifactId>
+            <version>&geronimo-spec-servlet-version;</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-j2ee-connector</artifactId>
+            <version>&geronimo-spec-j2ee-connector-version;</version>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>&junit-version;</version>
+            <properties>
+                <classloader>root</classloader>
+            </properties>
+        </dependency>
+        
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>&commons-logging-version;</version>
+        </dependency>
+
+        <dependency>
+            <groupId>concurrent</groupId>
+            <artifactId>concurrent</artifactId>
+            <version>&concurrent-version;</version>
+        </dependency>
+    </dependencies>
+</project>
