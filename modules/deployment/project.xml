@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.4 $ $Date: 2004/01/21 20:37:39 $ -->
+<!-- $Revision: 1.5 $ $Date: 2004/01/26 06:50:46 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -44,8 +44,8 @@
         </dependency>
 
         <dependency>
-            <id>cglib</id>
-            <version>HEAD-20031111</version>
+            <id>cglib+full</id>
+            <version>2.0-RC2</version>
             <url>http://cglib.sf.net/</url>
             <properties>
                 <runtime>true</runtime>

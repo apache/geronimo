@@ -79,8 +79,8 @@
         </dependency>
 
         <dependency>
-            <id>cglib</id>
-            <version>HEAD-20031109</version>
+            <id>cglib+full</id>
+            <version>2.0-RC2</version>
             <url>http://cglib.sourceforge.net</url>
             <properties>
                 <classloader>root</classloader>

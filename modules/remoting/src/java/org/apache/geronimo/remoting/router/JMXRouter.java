@@ -74,7 +74,7 @@ import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
  *
  * The MBean that will receive invocations must implement the JMXTarget interface.
  *
- * @version $Revision: 1.6 $ $Date: 2004/01/25 21:07:04 $
+ * @version $Revision: 1.7 $ $Date: 2004/01/26 06:50:47 $
  */
 public class JMXRouter extends AbstractInterceptorRouter {
     private SubsystemRouter subsystemRouter;
@@ -87,7 +87,7 @@ public class JMXRouter extends AbstractInterceptorRouter {
         this.subsystemRouter = subsystemRouter;
     }
 
-    protected Interceptor lookupInterceptorFrom(URI to) throws MalformedObjectNameException {
+    protected Interceptor lookupInterceptorFrom(URI to) throws Exception {
         ObjectName on = new ObjectName(to.getFragment());
         JMXTarget bean = (JMXTarget) MBeanProxyFactory.getProxy(JMXTarget.class, context.getServer(), on);
         return bean.getRemotingEndpointInterceptor();

@@ -59,18 +59,16 @@ import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
 
-import net.sf.cglib.proxy.Callbacks;
-import net.sf.cglib.proxy.SimpleFilter;
+import net.sf.cglib.proxy.CallbackFilter;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/09 19:56:55 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/26 06:50:47 $
  */
-public final class InterfaceCallbackFilter extends SimpleFilter {
+public final class InterfaceCallbackFilter implements CallbackFilter {
     private final Set methodSet;
     public InterfaceCallbackFilter(Class iface) {
-        super(Callbacks.INTERCEPT);
         Method[] methods = iface.getMethods();
         methodSet = new HashSet(methods.length);
         for (int i = 0; i < methods.length; i++) {
@@ -81,9 +79,9 @@ public final class InterfaceCallbackFilter extends SimpleFilter {
 
     public int accept(Method method) {
         if(methodSet.contains(new MBeanOperationSignature(method))) {
-            return Callbacks.INTERCEPT;
+            return 1;
         }
-        return Callbacks.NO_OP;
+        return 0;
     }
 
 }

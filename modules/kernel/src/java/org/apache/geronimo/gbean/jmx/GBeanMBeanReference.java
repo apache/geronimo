@@ -55,7 +55,6 @@
  */
 package org.apache.geronimo.gbean.jmx;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
@@ -71,19 +70,18 @@ import javax.management.Notification;
 import javax.management.NotificationFilterSupport;
 import javax.management.NotificationListener;
 import javax.management.ObjectName;
-import javax.management.ReflectionException;
 
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.kernel.management.NotificationType;
-import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.gbean.WaitingException;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.management.NotificationType;
+import org.apache.geronimo.kernel.management.State;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/25 21:07:04 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/26 06:50:46 $
  */
 public class GBeanMBeanReference implements NotificationListener {
     /**
@@ -188,7 +186,7 @@ public class GBeanMBeanReference implements NotificationListener {
         }
     }
 
-    public synchronized void online() throws ReflectionException {
+    public synchronized void online() throws Exception {
         // create the proxy
         if (singleValued) {
             proxy = new SingleProxy(gmbean, name, type, patterns);
@@ -237,8 +235,6 @@ public class GBeanMBeanReference implements NotificationListener {
             try {
                 Thread.currentThread().setContextClassLoader(gmbean.getClassLoader());
                 setInvoker.invoke(gmbean.getTarget(), new Object[]{proxy.getProxy()});
-            } catch (Throwable throwable) {
-                throw new ReflectionException(new InvocationTargetException(throwable));
             } finally {
                 Thread.currentThread().setContextClassLoader(oldClassLoader);
             }

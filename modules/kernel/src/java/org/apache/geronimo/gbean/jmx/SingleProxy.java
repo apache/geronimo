@@ -55,7 +55,6 @@
  */
 package org.apache.geronimo.gbean.jmx;
 
-import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
 import javax.management.ObjectName;
@@ -65,20 +64,14 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.management.State;
 
-import net.sf.cglib.proxy.CallbackFilter;
-import net.sf.cglib.proxy.Callbacks;
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.Factory;
-import net.sf.cglib.proxy.SimpleCallbacks;
-import net.sf.cglib.core.CodeGenerationException;
-
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/01/25 21:07:04 $
+ * @version $Revision: 1.8 $ $Date: 2004/01/26 06:50:46 $
  */
 public class SingleProxy implements Proxy {
     private static final Log log = LogFactory.getLog(SingleProxy.class);
+
     /**
      * The GBeanMBean to which this proxy belongs.
      */
@@ -116,33 +109,13 @@ public class SingleProxy implements Proxy {
      */
     private ProxyMethodInterceptor methodInterceptor;
 
-    public SingleProxy(GBeanMBean gmbean, String name, Class type, Set patterns) {
+    public SingleProxy(GBeanMBean gmbean, String name, Class type, Set patterns) throws Exception {
         this.gmbean = gmbean;
         this.name = name;
         this.patterns = patterns;
-        Enhancer enhancer = new Enhancer();
-        if (type.isInterface()) {
-            enhancer.setSuperclass(Object.class);
-            enhancer.setInterfaces(new Class[]{type});
-        } else {
-            enhancer.setSuperclass(type);
-        }
-        enhancer.setCallbackFilter(new CallbackFilter() {
-            public int accept(Method method) {
-                return Callbacks.INTERCEPT;
-            }
-        });
-        enhancer.setCallbacks(new SimpleCallbacks());
-        enhancer.setClassLoader(type.getClassLoader());
-        Factory factory = null;
-        try {
-            factory = enhancer.create();
-        } catch (CodeGenerationException e) {
-            log.info("Most likely you are enhancing a class rather than an interface and it lacks a default constructor" +  e.getMessage());
-            throw e;
-        }
-        methodInterceptor = new ProxyMethodInterceptor(factory.getClass());
-        proxy = factory.newInstance(methodInterceptor);
+        ProxyFactory factory = new ProxyFactory(type);
+        methodInterceptor = new ProxyMethodInterceptor(factory.getType());
+        proxy = factory.create(methodInterceptor);
     }
 
     public synchronized void destroy() {

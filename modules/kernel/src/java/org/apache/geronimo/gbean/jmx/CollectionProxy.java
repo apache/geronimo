@@ -55,7 +55,7 @@
  */
 package org.apache.geronimo.gbean.jmx;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -74,17 +74,10 @@ import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
 import org.apache.geronimo.gbean.WaitingException;
 
-import net.sf.cglib.proxy.CallbackFilter;
-import net.sf.cglib.proxy.Callbacks;
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.Factory;
-import net.sf.cglib.proxy.SimpleCallbacks;
-import net.sf.cglib.core.CodeGenerationException;
-
 /**
  *
  *
- * @version $Revision: 1.10 $ $Date: 2004/01/25 21:07:04 $
+ * @version $Revision: 1.11 $ $Date: 2004/01/26 06:50:46 $
  */
 public class CollectionProxy implements Proxy {
     private static final Log log = LogFactory.getLog(CollectionProxy.class);
@@ -117,7 +110,7 @@ public class CollectionProxy implements Proxy {
     /**
      * Facotry for proxy instances.
      */
-    private Factory factory;
+    private ProxyFactory factory;
 
     /**
      * Is this proxy currently stopped?
@@ -127,26 +120,7 @@ public class CollectionProxy implements Proxy {
     public CollectionProxy(GBeanMBean gmbean, String name, Class type) {
         this.gmbean = gmbean;
         this.name = name;
-        Enhancer enhancer = new Enhancer();
-        if (type.isInterface()) {
-            enhancer.setSuperclass(Object.class);
-            enhancer.setInterfaces(new Class[]{type});
-        } else {
-            enhancer.setSuperclass(type);
-        }
-        enhancer.setCallbackFilter(new CallbackFilter() {
-            public int accept(Method method) {
-                return Callbacks.INTERCEPT;
-            }
-        });
-        enhancer.setCallbacks(new SimpleCallbacks());
-        enhancer.setClassLoader(type.getClassLoader());
-        try {
-            factory = enhancer.create();
-        } catch (CodeGenerationException e) {
-            log.info("Most likely you are enhancing a class rather than an interface and it lacks a default constructor" +  e.getMessage());
-            throw e;
-        }
+        factory = new ProxyFactory(type);
     }
 
     public synchronized void destroy() {
@@ -175,13 +149,17 @@ public class CollectionProxy implements Proxy {
     public synchronized void addTarget(ObjectName target) {
         // if this is a new target...
         if (!proxies.containsKey(target)) {
-            ProxyMethodInterceptor interceptor = new ProxyMethodInterceptor(factory.getClass());
-            interceptor.connect(gmbean.getServer(), target, proxy.isStopped());
-            interceptors.put(target, interceptor);
-            Factory targetProxy = factory.newInstance(interceptor);
-            proxies.put(target, targetProxy);
-            if (!stopped) {
-                proxy.fireMemberAdddedEvent(targetProxy);
+            try {
+                ProxyMethodInterceptor interceptor = new ProxyMethodInterceptor(factory.getType());
+                interceptor.connect(gmbean.getServer(), target, proxy.isStopped());
+                interceptors.put(target, interceptor);
+                proxies.put(target, factory.create(interceptor));
+                if (!stopped) {
+                    proxy.fireMemberAdddedEvent(target);
+                }
+            } catch (InvocationTargetException e) {
+                log.info("Could not create optional proxy to mbean: objectName=" + target);
+
             }
         }
     }

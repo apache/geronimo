@@ -53,47 +53,41 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.kernel.jmx;
+package org.apache.geronimo.gbean.jmx;
 
-import java.util.Set;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
+import java.lang.reflect.InvocationTargetException;
 
-import org.apache.geronimo.gbean.jmx.ProxyFactory;
-import org.apache.geronimo.gbean.jmx.ProxyMethodInterceptor;
+import net.sf.cglib.proxy.Callback;
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.MethodInterceptor;
 
 /**
- * MBeanProxyFactory creates a dynamic proxy to an MBean by ObjectName.
- * The interface type and object existance are enforced during construction.
  *
- * @version $Revision: 1.6 $ $Date: 2004/01/26 06:50:47 $
+ *
+ * @version $Revision: 1.1 $ $Date: 2004/01/26 06:50:46 $
  */
-public final class MBeanProxyFactory {
+public class ProxyFactory {
+    private final Class type;
+    private final Enhancer enhancer;
 
-    /**
-     * Creates an MBean proxy using the specified interface to the objectName.
-     *
-     * @param type the interface to implement for this proxy
-     * @param server the MBeanServer in which the object is registered
-     * @param objectName the objectName of the MBean to proxy
-     * @return the new MBean proxy, which implemnts the specified interface
-     */
-    public static Object getProxy(Class type, MBeanServer server, ObjectName objectName) throws Exception {
-        assert type != null;
-        assert type.isInterface();
-        assert server != null;
+    public ProxyFactory(Class type) {
+        enhancer = new Enhancer();
+        enhancer.setSuperclass(type);
+        enhancer.setCallbackType(MethodInterceptor.class);
+        enhancer.setUseFactory(false);
+        this.type = enhancer.createClass();
+    }
 
-        if (objectName.isPattern()) {
-            Set names = server.queryNames(objectName, null);
-            if (names.isEmpty()) {
-                throw new IllegalArgumentException("No names mbeans registered that match object name pattern: " + objectName);
-            }
-            objectName = (ObjectName) names.iterator().next();
-        }
+    public Class getType() {
+        return type;
+    }
 
-        ProxyFactory factory = new ProxyFactory(type);
-        ProxyMethodInterceptor methodInterceptor = new ProxyMethodInterceptor(factory.getType());
-        methodInterceptor.connect(server, objectName);
-        return factory.create(methodInterceptor);
+    public Object create(MethodInterceptor methodInterceptor) throws InvocationTargetException {
+        return create(methodInterceptor, new Class[0], new Object[0]);
+    }
+
+    public synchronized Object create(MethodInterceptor methodInterceptor, Class[] types, Object[] arguments) throws InvocationTargetException {
+        enhancer.setCallbacks(new Callback[]{methodInterceptor});
+        return enhancer.create(types, arguments);
     }
 }
