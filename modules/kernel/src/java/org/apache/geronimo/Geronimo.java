@@ -56,6 +56,7 @@
 
 package org.apache.geronimo;
 
+import javax.management.ObjectName;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -67,7 +68,7 @@ import org.apache.geronimo.kernel.Kernel;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/28 23:03:22 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/29 14:00:12 $
  *
  * */
 public class Geronimo {
@@ -86,7 +87,7 @@ public class Geronimo {
      * invoked or until the JVM exits.
      * @param args
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         if (args.length < 2) {
             System.err.println("usage: " + Geronimo.class.getName() + " <config-store-dir> <config-id>");
             System.exit(1);
@@ -118,6 +119,7 @@ public class Geronimo {
             e.printStackTrace();
             System.exit(3);
         }
+        kernel.getMBeanServer().invoke(new ObjectName("geronimo.config:name=" + ObjectName.quote(args[1])), "startRecursive", null, null);
         while (kernel.isRunning()) {
             try {
                 synchronized (kernel) {

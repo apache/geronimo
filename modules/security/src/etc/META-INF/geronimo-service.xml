@@ -18,8 +18,8 @@
     <!-- the rest of these are actually examples that should be set up by the security management tool-->
     <gbean class="org.apache.geronimo.security.realm.providers.PropertiesFileSecurityRealm" objectName="geronimo.security:type=SecurityRealm,name=Foo">
         <default attribute="RealmName" type="java.lang.String">Foo</default>
-        <default attribute="UsersURI" type="java.net.URI">file:../../modules/security/src/test-data/data/users.properties</default>
-        <default attribute="GroupsURI" type="java.net.URI">file:../../modules/security/src/test-data/data/groups.properties</default>
+        <default attribute="UsersURI" type="java.net.URI">file:../modules/security/src/test-data/data/users.properties</default>
+        <default attribute="GroupsURI" type="java.net.URI">file:../modules/security/src/test-data/data/groups.properties</default>
     </gbean>
 
     <gbean class="org.apache.geronimo.security.bridge.CallerIdentityUserPasswordRealmBridge" objectName="geronimo.security:service=RealmBridge,type=CallerIdentity">

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- $Revision: 1.1 $ $Date: 2004/01/29 05:17:25 $ -->
+<!-- $Revision: 1.2 $ $Date: 2004/01/29 14:00:12 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -82,6 +82,7 @@
 
     <goal name="run:server">
         <j:set var="run.dir" value="${basedir}"/>
+        <ant:echo message="Running in ${run.dir}"/>
 
         <j:jelly xmlns="jelly:ant">
 
@@ -103,6 +104,9 @@
                     <fileset dir="${maven.repo.local}/commons-logging/jars">
                         <include name="commons-logging-1.0.3.jar"/>
                     </fileset>
+                    <fileset dir="${maven.repo.local}/concurrent/jars">
+                        <include name="concurrent-1.3.2.jar"/>
+                    </fileset>
                     <fileset dir="${maven.repo.local}/log4j/jars">
                         <include name="log4j-1.2.8.jar"/>
                     </fileset>
@@ -120,6 +124,7 @@
                     </fileset>
                     <fileset dir="${maven.repo.local}/geronimo/jars">
                         <include name="geronimo-kernel-${pom.currentVersion}.jar"/>
+                        <include name="geronimo-core-${pom.currentVersion}.jar"/>
                         <include name="geronimo-deployment-${pom.currentVersion}.jar"/>
                         <include name="geronimo-common-${pom.currentVersion}.jar"/>
                     </fileset>
@@ -136,6 +141,8 @@
 
     <goal name="debug:server">
         <j:set var="run.dir" value="${basedir}"/>
+        <ant:echo message="Running in ${run.dir}"/>
+
         <j:jelly xmlns="jelly:ant">
 
             <property environment="env"/>
@@ -156,6 +163,9 @@
                     <fileset dir="${maven.repo.local}/commons-logging/jars">
                         <include name="commons-logging-1.0.3.jar"/>
                     </fileset>
+                    <fileset dir="${maven.repo.local}/concurrent/jars">
+                        <include name="concurrent-1.3.2.jar"/>
+                    </fileset>
                     <fileset dir="${maven.repo.local}/log4j/jars">
                         <include name="log4j-1.2.8.jar"/>
                     </fileset>
@@ -173,6 +183,7 @@
                     </fileset>
                     <fileset dir="${maven.repo.local}/geronimo/jars">
                         <include name="geronimo-kernel-${pom.currentVersion}.jar"/>
+                        <include name="geronimo-core-${pom.currentVersion}.jar"/>
                         <include name="geronimo-deployment-${pom.currentVersion}.jar"/>
                         <include name="geronimo-common-${pom.currentVersion}.jar"/>
                     </fileset>
