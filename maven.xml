@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.28 $ $Date: 2003/08/27 20:40:51 $ -->
+<!-- $Revision: 1.29 $ $Date: 2003/08/29 12:37:35 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
@@ -376,12 +376,13 @@
         
         <classpath>
           <pathelement location="${run.dir}/lib/classworlds-SNAPSHOT.jar"/>
+          <pathelement location="${run.dir}/lib/geronimo-core-rmiclassloaderspi.jar"/>
         </classpath>
         
         <sysproperty key="classworlds.conf" value="${run.dir}/etc/classworlds.conf"/>
         <sysproperty key="program.name" value="maven:run"/>
         <sysproperty key="twiddle.home" value="${run.dir}"/>
-        
+        <sysproperty key="java.rmi.server.RMIClassLoaderSpi" value="org.apache.geronimo.rmi.RMIClassLoaderSpiImpl"/>
         <arg value="geronimo/start"/>
       </java>
     </j:jelly>
@@ -410,7 +411,7 @@
 
         <sysproperty key="program.name" value="maven:run"/>
         <sysproperty key="geronimo.home" value="file:${run.dir}/"/>
-
+        <sysproperty key="java.rmi.server.RMIClassLoaderSpi" value="org.apache.geronimo.rmi.RMIClassLoaderSpiImpl"/>
       </java>
     </j:jelly>
   </goal>

@@ -6,7 +6,7 @@
 @rem ##########################################################################
 
 @rem 
-@rem $Revision: 1.2 $ $Date: 2003/08/26 10:38:26 $
+@rem $Revision: 1.3 $ $Date: 2003/08/29 12:37:35 $
 @rem 
 
 @rem Set local scope for the variables with windows NT shell
@@ -84,7 +84,7 @@ set CMD_LINE_ARGS=%$
 
 :execute
 @rem Setup the command line
-set CLASSWORLDS_CLASSPATH=%TWIDDLE_HOME%\lib\classworlds-%CLASSWORLDS_VERSION%.jar
+set CLASSWORLDS_CLASSPATH=%TWIDDLE_HOME%\lib\classworlds-%CLASSWORLDS_VERSION%.jar;%TWIDDLE_HOME%\lib\geronimo-core-rmiclassloaderspi.jar
 set CLASSWORLDS_MAIN_CLASS=com.werken.classworlds.Launcher
 set CLASSWORLDS_CONF=%TWIDDLE_HOME%\etc\classworlds.conf
 
@@ -96,6 +96,7 @@ set JAVA_OPTS=%JAVA_OPTS% -Dprogram.name="%PROGNAME%"
 set JAVA_OPTS=%JAVA_OPTS% -Dtwiddle.home="%TWIDDLE_HOME%"
 set JAVA_OPTS=%JAVA_OPTS% -Dtools.jar="%TOOLS_JAR%"
 set JAVA_OPTS=%JAVA_OPTS% -Dclassworlds.conf="%CLASSWORLDS_CONF%"
+set JAVA_OPTS=%JAVA_OPTS% -Djava.rmi.server.RMIClassLoaderSpi=org.apache.geronimo.rmi.RMIClassLoaderSpiImpl
 
 @rem Execute Twiddle
 "%JAVA_EXE%" %JAVA_OPTS% -classpath "%CLASSWORLDS_CLASSPATH%" %CLASSWORLDS_MAIN_CLASS% %CMD_LINE_ARGS%
