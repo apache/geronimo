@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.1 $ $Date: 2003/08/30 15:18:13 $ -->
+<!-- $Revision: 1.2 $ $Date: 2003/09/01 07:05:25 $ -->
 
 <project>
   <pomVersion>3</pomVersion>
@@ -17,7 +17,8 @@
   <url>http://incubator.apache.org/projects/geronimo/kernel/</url>
   <siteDirectory>/www/incubator.apache.org/projects/geronimo/kernel</siteDirectory>
   <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds/kernel</distributionDirectory>
-
+  
+  <package>org.apache.geronimo.kernel</package>
   <currentVersion>DEV</currentVersion>
 
   <!-- ============ -->
