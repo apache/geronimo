@@ -74,12 +74,12 @@ import org.apache.xml.resolver.tools.CatalogResolver;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/10 23:06:31 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/16 21:21:44 $
  *
  * */
 public class SchemaCompilerWrapper {
 
-    public static void CompileSchemas(String sourceDir, String sourceSchemas, String xmlConfigs, String targetDir, String catalogLocation) throws Exception {
+    public static void CompileSchemas(String sourceDir, String sourceSchemas, String xmlConfigs, String targetDir, String catalogLocation, String classpath) throws Exception {
         List schemas = new ArrayList();
         File base = new File(sourceDir);
         for (StringTokenizer st = new StringTokenizer(sourceSchemas, ","); st.hasMoreTokens();) {
@@ -100,13 +100,20 @@ public class SchemaCompilerWrapper {
             catalogManager.setCatalogFiles(catalogLocation);
             entityResolver = new PassThroughResolver(new CatalogResolver());
         }
+        List classPathList = new ArrayList();
+        if (classpath != null) {
+            for (StringTokenizer st = new StringTokenizer(classpath, ","); st.hasMoreTokens();) {
+                String classpathElement = st.nextToken();
+                classPathList.add(new File(classpathElement));
+            }
+        }
         SchemaCompiler.Parameters params = new SchemaCompiler.Parameters();
         params.setBaseDir(null);
         params.setXsdFiles((File[])schemas.toArray(new File[] {}));
         params.setWsdlFiles(new File[] {});
         params.setJavaFiles(new File[] {});
         params.setConfigFiles((File[])configs.toArray(new File[] {}));
-        params.setClasspath(new File[] {});
+        params.setClasspath((File[])classPathList.toArray(new File[] {}));
         params.setOutputJar(null);
         params.setName(null);
         params.setSrcDir(new File(targetDir));
@@ -118,9 +125,9 @@ public class SchemaCompilerWrapper {
         params.setNojavac(true);
         params.setQuiet(false);
         params.setVerbose(true);
-        params.setDownload(true);
-        params.setNoUpa(true);
-        params.setNoPvr(true);
+        params.setDownload(false);
+        params.setNoUpa(false);
+        params.setNoPvr(false);
         params.setDebug(true);
         params.setErrorListener(new ArrayList());
         params.setRepackage(null);

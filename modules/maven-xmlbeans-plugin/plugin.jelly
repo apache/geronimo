@@ -28,6 +28,17 @@
             <j:if test="${xmlconfigs == null}">
                 <fail>Missing required attribute: xmlconfigs</fail>
             </j:if>
+
+            <!-- set up classpath for already-compiled schemas -->
+            <j:forEach var="artifact" items="${pom.artifacts}">
+                <j:set var="dependency" value="${artifact.dependency}"/>
+                <j:set var="pathseparator" value=""/>
+                <j:if test="${dependency.getProperty('xmlbeans') == 'true'}">
+                    <j:set var="xmlbeans.classpath" value="${classpath}${pathseparator}${artifact.path}"/>
+                    <j:set var="pathseparator" value=","/>
+                </j:if>
+            </j:forEach>
+
             <j:jelly xmlns="jelly:ant">
 
                 <j:set var="uptodatePropName" value="xmlbeans.uptodate"/>
@@ -47,6 +58,7 @@
                         <j:arg type="java.lang.String" value="${xmlconfigs}"/>
                         <j:arg type="java.lang.String" value="${targetdir}"/>
                         <j:arg type="java.lang.String" value="${cataloglocation}"/>
+                        <j:arg type="java.lang.String" value="${xmlbeans.classpath}"/>
                     </j:invokeStatic>
 
                     <touch file="${uptodateFile}"/>
