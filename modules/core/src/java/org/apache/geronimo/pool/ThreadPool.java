@@ -30,23 +30,18 @@ import org.apache.geronimo.gbean.WaitingException;
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/07/11 02:15:23 $
+ * @version $Revision: 1.5 $ $Date: 2004/07/11 21:22:30 $
  */
-public class ThreadPool implements Executor, ExecutorFactory, GBeanLifecycle {
+public class ThreadPool implements Executor, GBeanLifecycle {
 
     static private final Log log = LogFactory.getLog(ThreadPool.class);
 
     private PooledExecutor executor;
     private long keepAliveTime;
     private int poolSize;
-    private int maximumPoolSize;
     private String poolName;
 
     private int nextWorkerID = 0;
-
-    public Executor getExecutor() {
-        return new ExecutorWrapper(executor);
-    }
 
     public long getKeepAliveTime() {
         return keepAliveTime;
@@ -108,18 +103,6 @@ public class ThreadPool implements Executor, ExecutorFactory, GBeanLifecycle {
         }
     }
 
-    private static class ExecutorWrapper implements Executor {
-        private final Executor delegate;
-
-        public ExecutorWrapper(Executor delegate) {
-            this.delegate = delegate;
-        }
-
-        public void execute(Runnable command) throws InterruptedException {
-            delegate.execute(command);
-        }
-    }
-
     private static final GBeanInfo GBEAN_INFO;
 
     static {
@@ -128,10 +111,8 @@ public class ThreadPool implements Executor, ExecutorFactory, GBeanLifecycle {
         infoFactory.addAttribute("keepAliveTime", long.class, true);
         infoFactory.addAttribute("poolSize", int.class, true);
         infoFactory.addAttribute("poolName", String.class, true);
-        infoFactory.addOperation("getExecutor");
 
         infoFactory.addInterface(Executor.class);
-        infoFactory.addInterface(ExecutorFactory.class);
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
