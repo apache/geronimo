@@ -32,17 +32,17 @@ import org.apache.xmlbeans.XmlOptions;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/03/21 17:49:22 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/21 18:11:11 $
  *
  * */
 public class XmlBeansUtil {
 
     private XmlBeansUtil() {}
 
-    public static XmlObject getPlan(URL planURL, SchemaType type) {
+    public static XmlObject getXmlObject(URL url, SchemaType type) {
         InputStream is;
         try {
-            is = planURL.openStream();
+            is = url.openStream();
             try {
                 return parse(is, type);
             } finally {
