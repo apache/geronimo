@@ -65,7 +65,7 @@ package org.apache.geronimo.kernel.management;
 /**
  * This is a representation of the J2EEManagedObject type defined in the J2EE Management specification
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:38:34 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/24 18:07:18 $
  */
 public interface ManagedObject {
     /**
@@ -84,7 +84,7 @@ public interface ManagedObject {
     boolean isStateManageable();
 
     /**
-     * Determines if this object implemnts the statistics provider type defined in the J2EE Management specification.
+     * Determines if this object implements the statistics provider type defined in the J2EE Management specification.
      *
      * @return true if this class also implements the state manageable type; false otherwise
      */
