@@ -74,14 +74,15 @@ import javax.transaction.xa.XAResource;
 import junit.framework.TestCase;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.DefaultTransactionContext;
+import org.apache.geronimo.security.bridge.RealmBridge;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/12/13 23:33:54 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/11 08:28:15 $
  *
  * */
-public class ConnectionManagerTestUtils extends TestCase implements SecurityDomain, ConnectionInterceptor {
+public class ConnectionManagerTestUtils extends TestCase implements RealmBridge, ConnectionInterceptor {
     protected Subject subject;
     protected ConnectionInfo obtainedConnectionInfo;
     protected ConnectionInfo returnedConnectionInfo;
@@ -100,8 +101,8 @@ public class ConnectionManagerTestUtils extends TestCase implements SecurityDoma
     public void testNothing() throws Exception {
     }
 
-    //SecurityDomain implementation
-    public Subject getSubject() {
+    //RealmBridge implementation
+    public Subject mapSubject(Subject sourceSubject) {
         return subject;
     }
 

@@ -60,12 +60,15 @@ import javax.resource.ResourceException;
 import javax.resource.spi.ManagedConnection;
 import javax.resource.spi.DissociatableManagedConnection;
 import javax.security.auth.Subject;
+import javax.security.auth.login.LoginException;
 
 import java.util.Collection;
 import java.util.Set;
 import java.util.Iterator;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
+import org.apache.geronimo.security.bridge.RealmBridge;
+import org.apache.geronimo.security.util.ContextManager;
 
 /**
  * ConnectionTrackingInterceptor.java handles communication with the
@@ -75,24 +78,24 @@ import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrack
  * a connection the CachedConnectionManager is notified.
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/12/13 23:33:53 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/11 08:28:15 $
  */
 public class ConnectionTrackingInterceptor implements ConnectionInterceptor {
 
     private final ConnectionInterceptor next;
     private final String key;
     private final ConnectionTracker connectionTracker;
-    private final SecurityDomain securityDomain;
+    private final RealmBridge realmBridge;
 
     public ConnectionTrackingInterceptor(
             final ConnectionInterceptor next,
             final String key,
             final ConnectionTracker connectionTracker,
-            final SecurityDomain securityDomain) {
+            final RealmBridge realmBridge) {
         this.next = next;
         this.key = key;
         this.connectionTracker = connectionTracker;
-        this.securityDomain = securityDomain;
+        this.realmBridge = realmBridge;
     }
 
     /**
@@ -134,16 +137,20 @@ public class ConnectionTrackingInterceptor implements ConnectionInterceptor {
             //the spec says anything about this.
             //this is wrong
         }
-        if (securityDomain == null) {
+        if (realmBridge == null) {
             return;    //this is wrong: need a "bouncing" subjectInterceptor
         }
 
         Subject currentSubject = null;
         try {
-            currentSubject = securityDomain.getSubject();
+            currentSubject = realmBridge.mapSubject(ContextManager.getCurrentCaller());
         } catch (SecurityException e) {
             throw new ResourceException("Can not obtain Subject for login", e);
+        } catch (LoginException e) {
+            throw new ResourceException("Can not obtain Subject for login", e);
         }
+        //TODO figure out which is right here
+        assert currentSubject != null;
         if (currentSubject == null) {
             //check to see if mci.getSubject() is null?
             return;

@@ -56,33 +56,33 @@
 
 package org.apache.geronimo.connector.outbound.connectiontracking;
 
-import java.util.Set;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.security.auth.Subject;
-import javax.transaction.TransactionManager;
 import javax.transaction.Transaction;
+import javax.transaction.TransactionManager;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.connector.outbound.ConnectionTrackingInterceptor;
-import org.apache.geronimo.connector.outbound.SecurityDomain;
-import org.apache.geronimo.connector.outbound.ConnectorComponentContext;
 import org.apache.geronimo.connector.outbound.ConnectionInfo;
-import org.apache.geronimo.connector.outbound.ManagedConnectionInfo;
+import org.apache.geronimo.connector.outbound.ConnectionTrackingInterceptor;
+import org.apache.geronimo.connector.outbound.ConnectorComponentContext;
 import org.apache.geronimo.connector.outbound.ConnectorTransactionContext;
+import org.apache.geronimo.connector.outbound.ManagedConnectionInfo;
 import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.DefaultComponentContext;
 import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.DefaultTransactionContext;
+import org.apache.geronimo.security.bridge.RealmBridge;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/12/10 09:39:46 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/11 08:28:15 $
  *
  * */
 public class ConnectionTrackingCoordinatorTest extends TestCase
-        implements SecurityDomain {
+        implements RealmBridge {
 
     private static final String name1 = "foo";
     private static final String name2 = "bar";
@@ -194,7 +194,7 @@ public class ConnectionTrackingCoordinatorTest extends TestCase
         assertNull("Expected no transactionContext", availableTransactionContext2);
     }
 
-    public Subject getSubject() {
+    public Subject mapSubject(Subject sourceSubject) {
         return subject;
     }
 }

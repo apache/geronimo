@@ -70,13 +70,14 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
 import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
 import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
+import org.apache.geronimo.security.bridge.RealmBridge;
 
 /**
  * ConnectionManagerDeployment is an mbean that sets up a ProxyConnectionManager
  * and connection manager stack according to the policies described in the attributes.
  * It's used by deserialized copies of the proxy to get a reference to the actual stack.
  *
- * @version $Revision: 1.7 $ $Date: 2003/12/28 19:31:16 $
+ * @version $Revision: 1.8 $ $Date: 2004/01/11 08:28:15 $
  * */
 public class ConnectionManagerDeployment
 
@@ -104,7 +105,7 @@ public class ConnectionManagerDeployment
      */
     private String jndiName;
     //dependencies
-    private SecurityDomain securityDomain;
+    private RealmBridge realmBridge;
     private ConnectionTracker connectionTracker;
 
     //GeronimoMBeanTarget support.
@@ -122,7 +123,7 @@ public class ConnectionManagerDeployment
      boolean useTransactions,
      int maxSize,
      int blockingTimeout,
-     SecurityDomain securityDomain,
+     RealmBridge realmBridge,
      String jndiName,
      ConnectionTracker connectionTracker) {
         this.useConnectionRequestInfo = useConnectionRequestInfo;
@@ -132,7 +133,7 @@ public class ConnectionManagerDeployment
         this.useTransactions = useTransactions;
         this.maxSize = maxSize;
         this.blockingTimeout = blockingTimeout;
-        this.securityDomain = securityDomain;
+        this.realmBridge = realmBridge;
         this.jndiName = jndiName;
         this.connectionTracker = connectionTracker;
         setUpConnectionManager(null, null);
@@ -166,14 +167,14 @@ public class ConnectionManagerDeployment
      * ConnectionHandleInterceptor
      * TransactionCachingInterceptor (useTransactions & useTransactionCaching)
      * TransactionEnlistingInterceptor (useTransactions)
-     * SubjectInterceptor (securityDomain != null)
+     * SubjectInterceptor (realmBridge != null)
      * SinglePoolConnectionInterceptor or MultiPoolConnectionInterceptor
      * LocalXAResourceInsertionInterceptor or XAResourceInsertionInterceptor (useTransactions (&localTransactions))
      * MCFConnectionInterceptor
      */
     private void setUpConnectionManager(String agentID, ObjectName connectionManagerName) {
         //check for consistency between attributes
-        if (securityDomain == null) {
+        if (realmBridge == null) {
             assert useSubject == false: "To use Subject in pooling, you need a SecurityDomain";
         }
 
@@ -201,8 +202,8 @@ public class ConnectionManagerDeployment
                     maxSize,
                     blockingTimeout);
         }
-        if (securityDomain != null) {
-            stack = new SubjectInterceptor(stack, securityDomain);
+        if (realmBridge != null) {
+            stack = new SubjectInterceptor(stack, realmBridge);
         }
         if (useTransactions) {
             stack = new TransactionEnlistingInterceptor(stack);
@@ -216,7 +217,7 @@ public class ConnectionManagerDeployment
                     stack,
                     jndiName,
                     connectionTracker,
-                    securityDomain);
+                    realmBridge);
         }
 
         cm = new ProxyConnectionManager(agentID, connectionManagerName, stack);
@@ -231,7 +232,7 @@ public class ConnectionManagerDeployment
          */
     public void doStop() {
         cm = null;
-        securityDomain = null;
+        realmBridge = null;
         connectionTracker = null;
 
     }
@@ -280,12 +281,12 @@ public class ConnectionManagerDeployment
         this.maxSize = maxSize;
     }
 
-    public SecurityDomain getSecurityDomain() {
-        return securityDomain;
+    public RealmBridge getRealmBridge() {
+        return realmBridge;
     }
 
-    public void setSecurityDomain(SecurityDomain securityDomain) {
-        this.securityDomain = securityDomain;
+    public void setRealmBridge(RealmBridge realmBridge) {
+        this.realmBridge = realmBridge;
     }
 
     public boolean isUseConnectionRequestInfo() {
@@ -313,6 +314,8 @@ public class ConnectionManagerDeployment
         this.useLocalTransactions = useLocalTransactions;
     }
 
+    //Even if realmBridge is present, if reauthentication is supported, you might not want to use
+    //the subject as pooling crieteria.
     public boolean isUseSubject() {
         return useSubject;
     }
@@ -334,7 +337,7 @@ public class ConnectionManagerDeployment
 
         mBeanInfo.setTargetClass(ConnectionManagerDeployment.class);
         mBeanInfo.addEndpoint(new GeronimoMBeanEndpoint("ConnectionTracker", ConnectionTracker.class, ObjectName.getInstance("geronimo.connector:role=ConnectionTrackingCoordinator"), true));
-        mBeanInfo.addEndpoint(new GeronimoMBeanEndpoint("SecurityDomain", SecurityDomain.class, ObjectName.getInstance("geronimo.connector:role=SecurityDomain"), false));
+        mBeanInfo.addEndpoint(new GeronimoMBeanEndpoint("RealmBridge", RealmBridge.class, ObjectName.getInstance("geronimo.connector:role=SecurityDomain"), false));
 
         mBeanInfo.addAttributeInfo(new GeronimoAttributeInfo("BlockingTimeout", true, true, "Milliseconds to wait for a connection to be returned"));
         mBeanInfo.addAttributeInfo(new GeronimoAttributeInfo("JndiName", true, true, "Name to use to identify this guy (needs refactoring of naming conventions)"));

@@ -61,13 +61,13 @@ import org.apache.geronimo.deployment.model.connector.ConnectionDefinition;
 /**
  * GeronimoConnectionDefinition
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/13 22:22:30 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/11 08:28:15 $
  */
 public class GeronimoConnectionDefinition extends ConnectionDefinition {
 
     private String name;
     private GeronimoConnectionManagerFactory geronimoConnectionManagerFactory;
-    private String securityDomain;
+    private String realmBridge;
 
     public GeronimoConnectionDefinition(ConnectionDefinition connectionDefinition) {
         setManagedConnectionFactoryClass(connectionDefinition.getManagedConnectionFactoryClass());
@@ -107,17 +107,17 @@ public class GeronimoConnectionDefinition extends ConnectionDefinition {
     }
 
     /**
-     * @return Returns the securityDomain.
+     * @return Returns the realmBridge.
      */
-    public String getSecurityDomain() {
-        return securityDomain;
+    public String getRealmBridge() {
+        return realmBridge;
     }
 
     /**
-     * @param securityDomain The securityDomain to set.
+     * @param realmBridge The realmBridge to set.
      */
-    public void setSecurityDomain(String securityDomain) {
-        this.securityDomain = securityDomain;
+    public void setRealmBridge(String realmBridge) {
+        this.realmBridge = realmBridge;
     }
 
 }

@@ -54,20 +54,25 @@
  * ====================================================================
  */
 
-package org.apache.geronimo.connector.outbound;
+package org.apache.geronimo.connector.outbound.security;
 
-import javax.security.auth.Subject;
+import java.security.Principal;
 
 /**
- * SecurityDomain.java
  *
  *
- * Created: Mon Oct  6 14:41:34 2003
+ * @version $Revision: 1.1 $ $Date: 2004/01/11 08:28:15 $
  *
- * @version 1.0
- */
-public interface SecurityDomain {
+ * */
+public class ResourcePrincipal implements Principal {
 
-    Subject getSubject();
+    private final String resourcePrincipal;
 
-} // SecurityDomain
+    public ResourcePrincipal(String resourcePrincipal) {
+        this.resourcePrincipal = resourcePrincipal;
+    }
+
+    public String getName() {
+        return resourcePrincipal;
+    }
+}

@@ -54,26 +54,86 @@
  * ====================================================================
  */
 
-package org.apache.geronimo.connector.outbound;
+package org.apache.geronimo.connector.outbound.security;
 
-import javax.security.auth.Subject;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.security.Principal;
+
+import javax.resource.spi.ManagedConnectionFactory;
+import javax.resource.spi.security.PasswordCredential;
+import javax.security.auth.login.AppConfigurationEntry;
+
+import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.security.GeronimoSecurityException;
+import org.apache.geronimo.security.SecurityRealm;
+import org.apache.regexp.RE;
 
 /**
- * SecurityDomainImpl.java
  *
  *
- * Created: Mon Oct  6 14:43:00 2003
+ * @version $Revision: 1.1 $ $Date: 2004/01/11 08:28:15 $
  *
- * @author <a href="mailto:d_jencks@users.sourceforge.net">David Jencks</a>
- * @version 1.0
- */
-public class SecurityDomainImpl implements SecurityDomain {
-    public SecurityDomainImpl() {
+ * */
+public class PasswordCredentialRealm implements SecurityRealm {
 
-    } // SecurityDomainImpl constructor
+    private String realmName;
 
-    public Subject getSubject() {
-        return new Subject();
+    ManagedConnectionFactory managedConnectionFactory;
+
+    static final String REALM_INSTANCE = "org.apache.connector.outbound.security.PasswordCredentialRealm";
+
+    public static GeronimoMBeanInfo getGeronimoMBeanInfo() {
+        GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
+        mbeanInfo.setTargetClass(PasswordCredentialRealm.class);
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Realm", true, true, "Name of this realm"));
+        return mbeanInfo;
     }
 
-} // SecurityDomainImpl
+    public void setRealmName(String realmName) {
+        this.realmName = realmName;
+    }
+
+    public String getRealmName() {
+        return realmName;
+    }
+
+    public Set getGroupPrincipals() throws GeronimoSecurityException {
+        return null;
+    }
+
+    public Set getGroupPrincipals(RE regexExpression) throws GeronimoSecurityException {
+        return null;
+    }
+
+    public Set getUserPrincipals() throws GeronimoSecurityException {
+        return null;
+    }
+
+    public Set getUserPrincipals(RE regexExpression) throws GeronimoSecurityException {
+        return null;
+    }
+
+    public void refresh() throws GeronimoSecurityException {
+    }
+
+    public AppConfigurationEntry[] getAppConfigurationEntry() {
+        Map options = new HashMap();
+        options.put(REALM_INSTANCE, this);
+        AppConfigurationEntry appConfigurationEntry = new AppConfigurationEntry(PasswordCredentialLoginModule.class.getName(),
+                AppConfigurationEntry.LoginModuleControlFlag.REQUISITE,
+                options);
+        return new AppConfigurationEntry[] {appConfigurationEntry};
+    }
+
+    public void setManagedConnectionFactory(ManagedConnectionFactory managedConnectionFactory) {
+        this.managedConnectionFactory = managedConnectionFactory;
+    }
+
+    ManagedConnectionFactory getManagedConnectionFactory() {
+        return managedConnectionFactory;
+    }
+
+}

@@ -56,35 +56,32 @@
 
 package org.apache.geronimo.connector.outbound;
 
-import java.util.Set;
 import java.util.HashSet;
+import java.util.Set;
 
-import javax.transaction.TransactionManager;
-import javax.transaction.Transaction;
-import javax.transaction.Status;
-import javax.resource.spi.ConnectionManager;
 import javax.security.auth.Subject;
+import javax.transaction.TransactionManager;
 
 import junit.framework.TestCase;
+import org.apache.geronimo.connector.mock.MockConnection;
+import org.apache.geronimo.connector.mock.MockConnectionFactory;
+import org.apache.geronimo.connector.mock.MockManagedConnection;
+import org.apache.geronimo.connector.mock.MockManagedConnectionFactory;
+import org.apache.geronimo.connector.mock.MockXAResource;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.DefaultComponentContext;
-import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.DefaultTransactionContext;
-import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.DefaultInterceptor;
 import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.DefaultComponentInterceptor;
-import org.apache.geronimo.connector.mock.MockManagedConnectionFactory;
-import org.apache.geronimo.connector.mock.MockConnectionFactory;
-import org.apache.geronimo.connector.mock.MockConnection;
-import org.apache.geronimo.connector.mock.MockXAResource;
-import org.apache.geronimo.connector.mock.MockManagedConnection;
+import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.DefaultInterceptor;
+import org.apache.geronimo.security.bridge.RealmBridge;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/12/23 17:34:35 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/11 08:28:15 $
  *
  * */
-public class ConnectionManagerTest extends TestCase implements DefaultInterceptor, SecurityDomain {
+public class ConnectionManagerTest extends TestCase implements DefaultInterceptor, RealmBridge {
 
     protected boolean useConnectionRequestInfo = false;
     protected boolean useSubject = true;
@@ -95,7 +92,7 @@ public class ConnectionManagerTest extends TestCase implements DefaultIntercepto
     protected int blockingTimeout = 100;
     protected String jndiName = "testCF";
     //dependencies
-    protected SecurityDomain securityDomain = this;
+    protected RealmBridge realmBridge = this;
     protected ConnectionTrackingCoordinator connectionTrackingCoordinator;
 
     protected TransactionManager transactionManager;
@@ -120,7 +117,7 @@ public class ConnectionManagerTest extends TestCase implements DefaultIntercepto
                 useTransactions,
                 maxSize,
                 blockingTimeout,
-                securityDomain,
+                realmBridge,
                 jndiName,
                 connectionTrackingCoordinator);
         connectionFactory = (MockConnectionFactory)connectionManagerDeployment.createConnectionFactory(mockManagedConnectionFactory);
@@ -176,7 +173,7 @@ public class ConnectionManagerTest extends TestCase implements DefaultIntercepto
         return null;
     }
 
-    public Subject getSubject() {
+    public Subject mapSubject(Subject sourceSubject) {
         return subject;
     }
 }

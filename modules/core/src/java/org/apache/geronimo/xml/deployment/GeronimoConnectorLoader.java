@@ -72,20 +72,20 @@ import org.w3c.dom.Element;
 /**
  * Knows how to load a set of POJOs from a DOM representing a ra.xml
  * deployment descriptor.
- * 
- * @version $Revision: 1.1 $ $Date: 2003/11/11 21:11:58 $
+ *
+ * @version $Revision: 1.2 $ $Date: 2004/01/11 08:28:15 $
  */
 public class GeronimoConnectorLoader {
-    
+
     private GeronimoConnectorLoader() {
     }
-    
+
     public static GeronimoConnectorDocument load(Document doc, ConnectorDocument connectorDocument) {
         Element root = doc.getDocumentElement();
         if (!"connector".equals(root.getTagName())) {
             throw new IllegalArgumentException("Document is not a ra instance");
         }
-        
+
         Connector connector = connectorDocument.getConnector();
         GeronimoConnector geronimoConnector = new GeronimoConnector(connector);
         geronimoConnector.setResourceAdapter(loadResourceAdapter(root, connector));
@@ -97,43 +97,43 @@ public class GeronimoConnectorLoader {
 
     private static GeronimoResourceAdapter loadResourceAdapter(Element econ, Connector connector) {
         Element era = LoaderUtil.getChild(econ, "resourceadapter");
-        if( null == era ) {
+        if (null == era) {
             throw new IllegalArgumentException("No resourceadapter element");
         }
         ResourceAdapter resourceAdapter = connector.getResourceAdapter();
-		GeronimoResourceAdapter ra = new GeronimoResourceAdapter(resourceAdapter);
-		ra.setName(LoaderUtil.getChildContent(era, "name"));
-		ConfigProperty[] configProperty = ra.getConfigProperty();
-		loadConfigSettings(era, configProperty);
-		ra.setBootstrapContext(LoaderUtil.getChildContent(era, "bootstrapcontext-name"));
-		ra.setOutboundResourceAdapter(loadOutboundResourceadapter(era, resourceAdapter.getOutboundResourceAdapter()));
-		ra.setInboundResourceAdapter(loadInboundResourceadapter(era, resourceAdapter.getInboundResourceAdapter()));
-		ra.setAdminObject(loadAdminobject(era, resourceAdapter.getAdminObject()));
-        
+        GeronimoResourceAdapter ra = new GeronimoResourceAdapter(resourceAdapter);
+        ra.setName(LoaderUtil.getChildContent(era, "name"));
+        ConfigProperty[] configProperty = ra.getConfigProperty();
+        loadConfigSettings(era, configProperty);
+        ra.setBootstrapContext(LoaderUtil.getChildContent(era, "bootstrapcontext-name"));
+        ra.setOutboundResourceAdapter(loadOutboundResourceadapter(era, resourceAdapter.getOutboundResourceAdapter()));
+        ra.setInboundResourceAdapter(loadInboundResourceadapter(era, resourceAdapter.getInboundResourceAdapter()));
+        ra.setAdminObject(loadAdminobject(era, resourceAdapter.getAdminObject()));
+
         return ra;
     }
-    
+
     private static void loadConfigSettings(Element era, ConfigProperty[] configProperty) {
         Element[] roots = LoaderUtil.getChildren(era, "config-property-setting");
-        for(int i = 0; i < roots.length; i++)
+        for (int i = 0; i < roots.length; i++)
             outer:
         {
-            Element root = roots[i];
-            String name = root.getAttribute("name");
-            for (int j = 0; j < configProperty.length; j++) {
-                if (configProperty[j].getConfigPropertyName().equals(name)) {
-					configProperty[j].setConfigPropertyValue(LoaderUtil.getContent(root));
-                    break outer;
+                Element root = roots[i];
+                String name = root.getAttribute("name");
+                for (int j = 0; j < configProperty.length; j++) {
+                    if (configProperty[j].getConfigPropertyName().equals(name)) {
+                        configProperty[j].setConfigPropertyValue(LoaderUtil.getContent(root));
+                        break outer;
+                    }
                 }
+                throw new IllegalArgumentException("No such property as " + name);
             }
-            throw new IllegalArgumentException("No such property as " + name);
-        }
     }
 
     private static ConfigProperty[] loadConfigPropertySettings(Element era) {
         Element[] roots = LoaderUtil.getChildren(era, "config-property-setting");
         ConfigProperty[] configProperties = new ConfigProperty[roots.length];
-        for(int i = 0; i < roots.length; i++) {
+        for (int i = 0; i < roots.length; i++) {
             Element root = roots[i];
             configProperties[i] = new ConfigProperty();
             configProperties[i].setConfigPropertyName(root.getAttribute("name"));
@@ -155,27 +155,27 @@ public class GeronimoConnectorLoader {
     private static GeronimoConnectionDefinition[] loadConnectionDefinition(Element ecd, ConnectionDefinition[] connectionDefinition) {
         Element[] roots = LoaderUtil.getChildren(ecd, "connection-definition");
         GeronimoConnectionDefinition[] conDefinition = new GeronimoConnectionDefinition[roots.length];
-        for(int i = 0; i < roots.length; i++)
+        for (int i = 0; i < roots.length; i++)
             loaded:
         {
-            Element root = roots[i];
-            String connectionFactoryInterface = LoaderUtil.getChildContent(root, "connectionfactory-interface");
-            for (int j = 0; j < connectionDefinition.length; j++) {
-                if (connectionFactoryInterface.equals(connectionDefinition[j].getConnectionFactoryInterface())) {
-					conDefinition[i] = new GeronimoConnectionDefinition(connectionDefinition[j]);
-					ConfigProperty[] configProperty = conDefinition[i].getConfigProperty();
-					loadConfigSettings(root, configProperty);
-                    conDefinition[i].setName(LoaderUtil.getChildContent(root, "name"));
-                    GeronimoConnectionManagerFactory connectionManagerFactory = new GeronimoConnectionManagerFactory();
-                    Element ecmf = LoaderUtil.getChild(root, "connectionmanager-factory");
-                    connectionManagerFactory.setConnectionManagerFactoryDescriptor(LoaderUtil.getChildContent(ecmf, "connectionmanagerfactory-descriptor"));
-                    connectionManagerFactory.setConfigProperty(loadConfigPropertySettings(ecmf));
-                    conDefinition[i].setGeronimoConnectionManagerFactory(connectionManagerFactory);
-					break loaded;
+                Element root = roots[i];
+                String connectionFactoryInterface = LoaderUtil.getChildContent(root, "connectionfactory-interface");
+                for (int j = 0; j < connectionDefinition.length; j++) {
+                    if (connectionFactoryInterface.equals(connectionDefinition[j].getConnectionFactoryInterface())) {
+                        conDefinition[i] = new GeronimoConnectionDefinition(connectionDefinition[j]);
+                        ConfigProperty[] configProperty = conDefinition[i].getConfigProperty();
+                        loadConfigSettings(root, configProperty);
+                        conDefinition[i].setName(LoaderUtil.getChildContent(root, "name"));
+                        GeronimoConnectionManagerFactory connectionManagerFactory = new GeronimoConnectionManagerFactory();
+                        Element ecmf = LoaderUtil.getChild(root, "connectionmanager-factory");
+                        connectionManagerFactory.setConnectionManagerFactoryDescriptor(LoaderUtil.getChildContent(ecmf, "connectionmanagerfactory-descriptor"));
+                        connectionManagerFactory.setConfigProperty(loadConfigPropertySettings(ecmf));
+                        conDefinition[i].setGeronimoConnectionManagerFactory(connectionManagerFactory);
+                        break loaded;
+                    }
                 }
+                throw new IllegalArgumentException("No such connectionfactory-interface as " + connectionFactoryInterface);
             }
-            throw new IllegalArgumentException("No such connectionfactory-interface as " + connectionFactoryInterface);
-        }
         return conDefinition;
     }
 
@@ -187,28 +187,28 @@ public class GeronimoConnectorLoader {
         Element root = LoaderUtil.getChild(era, "inbound-resourceadapter");
         GeronimoInboundResourceAdapter ira = new GeronimoInboundResourceAdapter();
         ira.setMessageAdapter(loadMessageAdapter(root, inboundResourceAdapter.getMessageAdapter()));
-        return ira;    
+        return ira;
     }
-    
+
     private static GeronimoMessageAdapter loadMessageAdapter(Element eira, MessageAdapter messageAdapter) {
-		GeronimoMessageAdapter ma = null;
+        GeronimoMessageAdapter ma = null;
         Element root = LoaderUtil.getChild(eira, "messageadapter");
-        if ( null != root && null != messageAdapter ) {
+        if (null != root && null != messageAdapter) {
             ma = new GeronimoMessageAdapter();
             ma.setMessageListener(loadMessagelistener(root, messageAdapter.getMessageListener()));
         }
-        return ma;    
+        return ma;
     }
 
     private static GeronimoMessageListener[] loadMessagelistener(Element ema, MessageListener[] messageListenerType) {
         Element[] roots = LoaderUtil.getChildren(ema, "messagelistener");
-		GeronimoMessageListener[] messageListener = new GeronimoMessageListener[roots.length];
-        for(int i = 0; i < roots.length; i++) {
+        GeronimoMessageListener[] messageListener = new GeronimoMessageListener[roots.length];
+        for (int i = 0; i < roots.length; i++) {
             Element root = roots[i];
             String messageListenerTypeName = LoaderUtil.getChildContent(root, "messagelistener-type");
             for (int j = 0; j < messageListenerType.length; j++) {
                 if (messageListenerType[j].getMessageListenerType().equals(messageListenerTypeName)) {
-					messageListener[i] = new GeronimoMessageListener(messageListenerType[j]);
+                    messageListener[i] = new GeronimoMessageListener(messageListenerType[j]);
                     messageListener[i].setMessageEndpointFactoryName(LoaderUtil.getChildContent(root, "message-endpoint-factory"));
                     break;
                 }
@@ -216,17 +216,17 @@ public class GeronimoConnectorLoader {
         }
         return messageListener;
     }
-    
-    
+
+
     private static AdminObject[] loadAdminobject(Element era, AdminObject[] adminObjectType) {
         Element[] roots = LoaderUtil.getChildren(era, "adminobject");
         AdminObject[] adminObject = new AdminObject[roots.length];
-        for(int i = 0; i < roots.length; i++) {
+        for (int i = 0; i < roots.length; i++) {
             Element root = roots[i];
             adminObject[i] = new AdminObject();
             adminObject[i].setAdminObjectInterface(LoaderUtil.getChildContent(root, "adminobject-interface"));
             adminObject[i].setAdminObjectClass(LoaderUtil.getChildContent(root, "adminobject-class"));
-            for (int j = 0; j < adminObjectType.length; j++ ) {
+            for (int j = 0; j < adminObjectType.length; j++) {
                 if (adminObjectType[j].getAdminObjectInterface().equals(adminObject[i].getAdminObjectInterface())
                         && adminObjectType[j].getAdminObjectClass().equals(adminObject[i].getAdminObjectClass())) {
                     adminObject[i].setConfigProperty(
@@ -238,5 +238,5 @@ public class GeronimoConnectorLoader {
         }
         return adminObject;
     }
-    
+
 }
