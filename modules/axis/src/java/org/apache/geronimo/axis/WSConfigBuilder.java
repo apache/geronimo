@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -176,7 +177,7 @@ public class WSConfigBuilder implements ConfigurationBuilder {
         }
     }
 
-    public File installWebService(File module, File unpackedDir, ClassLoader classLoader) throws IOException, DeploymentException {
+    public File installWebService(File module, File unpackedDir, ClassLoader classLoader) throws IOException, URISyntaxException, DeploymentException {
         ZipFile zipfile = new ZipFile(module);
         Enumeration entires = zipfile.entries();
         while (entires.hasMoreElements()) {
@@ -214,7 +215,7 @@ public class WSConfigBuilder implements ConfigurationBuilder {
         return out;
     }
 
-    private File installEJBWebService(File module, File unpackedDir, ClassLoader cl) throws IOException, DeploymentException {
+    private File installEJBWebService(File module, File unpackedDir, ClassLoader cl) throws IOException, URISyntaxException, DeploymentException {
         /**
          * TODO following code deploy the EJB in the OpenEJB EJB continaer. 
          * The code is borrows from the geronimo openEJB module
@@ -223,9 +224,11 @@ public class WSConfigBuilder implements ConfigurationBuilder {
          * But this can quickly fix looking at it.      
          */
 
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder();
+        URI defaultParentId = new URI("org/apache/geronimo/Server");
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, null);
         ResourceReferenceBuilder resourceReferenceBuilder = null;
-        EARConfigBuilder earConfigBuilder = new EARConfigBuilder(j2eeServer,
+        EARConfigBuilder earConfigBuilder = new EARConfigBuilder(defaultParentId,
+                j2eeServer,
                 transactionContextManagerObjectName,
                 trackedConnectionAssocator,
                 transactionalTimerObjectName,
@@ -242,36 +245,7 @@ public class WSConfigBuilder implements ConfigurationBuilder {
         JarFile jarFile = new JarFile(module);
         Object plan = earConfigBuilder.getDeploymentPlan(null, jarFile);
         earConfigBuilder.buildConfiguration(plan, jarFile, unpackedDir);
-        
-            
-            
-//        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder();
-//        
-//        Thread.currentThread().setContextClassLoader(cl);
-//            
-//        File carFile = File.createTempFile("OpenEJBTest", ".car");
-//        
-//            
-//        EARConfigBuilder earConfigBuilder
-//                = new EARConfigBuilder(j2eeServer,
-//                        transactionContextManagerObjectName,
-//                        trackedConnectionAssocator,
-//                        transactionalTimerObjectName,
-//                        nonTransactionalTimerObjectName,
-//                        null, moduleBuilder, moduleBuilder, null, null, null, null, null);
-//            
-//        
-//        try {
-//            Object plan = earConfigBuilder.getDeploymentPlan(null, new JarFile(module));
-//            earConfigBuilder.buildConfiguration(plan, new JarFile(module), unpackedDir);
-//        } finally {
-//            carFile.delete();
-//            JarFile jarmodule = new JarFile(module);
-//            ZipEntry deployentry = jarmodule.getEntry("deploy.wsdd");
-//            InputStream deplydd = jarmodule.getInputStream(deployentry);
-//            AxisGeronimoUtils.addEntryToAxisDD(deplydd);
         return unpackedDir;
-//        }
     }
 
     private GBeanMBean[] loadPOJOWebService(File module) throws Exception {
@@ -291,16 +265,6 @@ public class WSConfigBuilder implements ConfigurationBuilder {
         gbean.setAttribute("classList", classList);
         gbean.setAttribute("ejbConfig", config.getTarget());
         return new GBeanMBean[]{gbean, config};
-        
-//        ClassLoader classLoader = (ClassLoader)config.getAttribute("classLoader");
-//        File[] list = installLocation.listFiles();
-//        for(int i = 0; i< list.length;i++){
-//            if(list[i].getName().endsWith(".jar")){
-//                AxisGeronimoUtils.registerClassLoader(new ZipFile(list[i]),classLoader);
-//                return new GBeanMBean[]{gbean,config};
-//            }
-//        }
-//        throw new DeploymentException("can not found the ews module in " + installLocation);
     }
 
     private GBeanMBean loadConfig(File unpackedCar, ClassLoader classLoader) throws Exception {

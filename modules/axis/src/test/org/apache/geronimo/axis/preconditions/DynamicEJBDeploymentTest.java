@@ -26,6 +26,7 @@ import org.openejb.deployment.OpenEJBModuleBuilder;
 
 import javax.management.ObjectName;
 import java.io.File;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.jar.JarFile;
@@ -42,6 +43,7 @@ public class DynamicEJBDeploymentTest extends AbstractTestCase {
     private static final ObjectName connectionTrackerObjectName = JMXUtil.getObjectName(j2eeDomainName + ":type=ConnectionTracker");
     private Kernel kernel;
     private J2EEManager j2eeManager;
+    private URI defaultParentId;
 
     /**
      * @param testName
@@ -51,6 +53,7 @@ public class DynamicEJBDeploymentTest extends AbstractTestCase {
     }
 
     protected void setUp() throws Exception {
+        defaultParentId = new URI("org/apache/geronimo/Server");
         String str = System.getProperty(javax.naming.Context.URL_PKG_PREFIXES);
         if (str == null) {
             str = ":org.apache.geronimo.naming";
@@ -65,7 +68,7 @@ public class DynamicEJBDeploymentTest extends AbstractTestCase {
     }
 
     public void testEJBJarDeploy() throws Exception {
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder();
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, null);
         File jarFile = new File(outDir + "echo-jar/echo-ewsimpl.jar");
         ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
         ClassLoader cl = new URLClassLoader(new URL[]{jarFile.toURL()}, oldCl);
@@ -73,7 +76,8 @@ public class DynamicEJBDeploymentTest extends AbstractTestCase {
         File carFile = File.createTempFile("OpenEJBTest", ".car");
         try {
             EARConfigBuilder earConfigBuilder =
-                    new EARConfigBuilder(new ObjectName(j2eeDomainName + ":j2eeType=J2EEServer,name=" + j2eeServerName),
+                    new EARConfigBuilder(defaultParentId,
+                            new ObjectName(j2eeDomainName + ":j2eeType=J2EEServer,name=" + j2eeServerName),
                             transactionManagerObjectName,
                             connectionTrackerObjectName,
                             null,
