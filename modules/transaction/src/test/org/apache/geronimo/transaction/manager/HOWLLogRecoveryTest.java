@@ -28,10 +28,11 @@ import junit.extensions.TestSetup;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/07/28 02:12:57 $
+ * @version $Revision: 1.6 $ $Date: 2004/09/06 07:04:56 $
  *
  * */
 public class HOWLLogRecoveryTest extends AbstractRecoveryTest {
+    private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));
     private static final String LOG_FILE_NAME = "howl_test_";
 
     public void test2Again() throws Exception {
@@ -64,7 +65,7 @@ public class HOWLLogRecoveryTest extends AbstractRecoveryTest {
                 2, //                "maxLogFiles",
                 2, //                "minBuffers",
                 10,//                "threadsWaitingForceThreshold"});
-                new ServerInfo("target")
+                new ServerInfo(new File(basedir, "target").getAbsolutePath())
         );
         howlLog.doStart();
         txLog = howlLog;
@@ -83,11 +84,11 @@ public class HOWLLogRecoveryTest extends AbstractRecoveryTest {
     public static Test suite() {
         return new TestSetup(new TestSuite(HOWLLogRecoveryTest.class)) {
             protected void setUp() throws Exception {
-                File logFile = new File("target/" + LOG_FILE_NAME + "_1.log");
+                File logFile = new File(basedir, "target/" + LOG_FILE_NAME + "_1.log");
                 if (logFile.exists()) {
                     logFile.delete();
                 }
-                logFile = new File("target/" + LOG_FILE_NAME + "_2.log");
+                logFile = new File(basedir, "target/" + LOG_FILE_NAME + "_2.log");
                 if (logFile.exists()) {
                     logFile.delete();
                 }
