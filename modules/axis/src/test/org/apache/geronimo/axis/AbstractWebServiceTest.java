@@ -96,7 +96,7 @@ public class AbstractWebServiceTest extends AbstractTestCase {
 
     protected EARConfigBuilder getEARConfigBuilder() throws Exception {
         URI defaultParentId = new URI("org/apache/geronimo/Server");
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, null);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(null, defaultParentId, null);
         EARConfigBuilder earConfigBuilder =
                 new EARConfigBuilder(defaultParentId,
                         new ObjectName(j2eeDomainName + ":j2eeType=J2EEServer,name=" + j2eeServerName),

@@ -68,7 +68,7 @@ public class DynamicEJBDeploymentTest extends AbstractTestCase {
     }
 
     public void testEJBJarDeploy() throws Exception {
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, null);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(null, defaultParentId, null);
         File jarFile = new File(outDir + "echo-jar/echo-ewsimpl.jar");
         ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
         ClassLoader cl = new URLClassLoader(new URL[]{jarFile.toURL()}, oldCl);
