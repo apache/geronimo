@@ -1,37 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.12 $ $Date: 2003/09/05 04:53:02 $ -->
+<!-- $Revision: 1.13 $ $Date: 2003/09/08 04:15:20 $ -->
 
 <components>
-  <!-- Log4j Logging Service -->
-  <!--
-  <mbean code="org.apache.geronimo.core.logging.log4j.Log4jService" name="geronimo.core:role=Logging">
-    <constructor>
-      <arg type="java.net.URL">
-        ${geronimo.home}/etc/log4j.xml
-      </arg>
-    </constructor>
-  </mbean>
-  -->
-  
-  <!-- RMI adaptor to support MX4J -->
-  <mbean code="mx4j.tools.naming.NamingService" name="Naming:type=rmiregistry">
-  </mbean>
-  <mbean code="mx4j.adaptor.rmi.jrmp.JRMPAdaptor" name="Adaptor:protocol=JRMP">
-    <attribute name="JNDIName">jrmp</attribute>
-  </mbean>
-  
-  <mbean code="org.apache.geronimo.deployment.scanner.DeploymentScanner"
-         name="geronimo.deployment:role=DeploymentScanner">
-    <constructor>
-      <arg type="java.net.URL[]">
-        ${geronimo.home}/deploy/
-      </arg>
-      <arg type="boolean">true</arg>
-    </constructor>
-    <attribute name="ScanInterval">5000</attribute>
-    <relationship type="DeploymentController-DeploymentScanner"
-                  name="DeploymentController-DeploymentScanner"
-                  role="DeploymentScanner"/>
-  </mbean>
+    <class-space name="geronimo.system:role=ClassSpace,name=Jetty">
+        <codebase url="file:../lib/">
+            <archive name="*"/>
+        </codebase>
+    </class-space>
+
+
+    <!-- Log4j Logging Service -->
+    <!--
+    <mbean code="org.apache.geronimo.core.logging.log4j.Log4jService" name="geronimo.core:role=Logging">
+      <constructor>
+        <arg type="java.net.URL">
+          ${geronimo.home}/etc/log4j.xml
+        </arg>
+      </constructor>
+    </mbean>
+    -->
+
+    <!-- RMI adaptor to support MX4J -->
+    <!--
+    <mbean code="mx4j.tools.naming.NamingService" name="Naming:type=rmiregistry">
+    </mbean>
+    <mbean code="mx4j.adaptor.rmi.jrmp.JRMPAdaptor" name="Adaptor:protocol=JRMP">
+        <attribute name="JNDIName">jrmp</attribute>
+    </mbean>
+    -->
+    <mbean code="org.apache.geronimo.kernel.deployment.scanner.DeploymentScanner"
+        name="geronimo.deployment:role=DeploymentScanner">
+        <constructor>
+            <arg type="java.net.URL[]">
+                ${geronimo.home}/deploy/,
+            </arg>
+            <arg type="boolean">true</arg>
+        </constructor>
+        <attribute name="ScanInterval">5000</attribute>
+        <relationship type="DeploymentController-DeploymentScanner"
+            name="DeploymentController-DeploymentScanner"
+            role="DeploymentScanner"/>
+    </mbean>
 </components>
