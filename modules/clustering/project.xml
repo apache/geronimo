@@ -1,154 +1,70 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.2 $ $Date: 2003/12/30 21:16:03 $ -->
+<!-- $Revision: 1.3 $ $Date: 2004/01/22 20:24:38 $ -->
 
 <project>
-  <pomVersion>3</pomVersion>
-  <extend>${basedir}/../../etc/project.xml</extend>
+    <pomVersion>3</pomVersion>
+    <extend>${basedir}/../../etc/project.xml</extend>
 
-  <!-- ===================== -->
-  <!-- Module Identification -->
-  <!-- ===================== -->
+    <!-- ===================== -->
+    <!-- Module Identification -->
+    <!-- ===================== -->
 
-  <name>Geronimo :: Clustering</name>
-  <id>geronimo-clustering</id>
-  <shortDescription>Geronimo Clustering Service</shortDescription>
-  <description>Geronimo Clustering Service</description>
-  <siteDirectory>/www/incubator.apache.org/projects/geronimo/clustering</siteDirectory>
-  <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds/clustering</distributionDirectory>
+    <name>Geronimo :: Clustering</name>
+    <id>geronimo-clustering</id>
+    <shortDescription>Geronimo Clustering Service</shortDescription>
+    <description>Geronimo Clustering Service</description>
+    <siteDirectory>/www/incubator.apache.org/projects/geronimo/clustering</siteDirectory>
+    <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds/clustering</distributionDirectory>
 
-  <package>org.apache.geronimo.clustering</package>
-  <currentVersion>DEV</currentVersion>
-
-
-  <!-- ============ -->
-  <!-- Dependencies -->
-  <!-- ============ -->
-
-  <dependencies>
-
-    <!-- Plugin Dependencies -->
-
-    <!-- Module Dependencies -->
-    <dependency>
-      <groupId>geronimo</groupId>
-      <artifactId>geronimo-tools</artifactId>
-      <version>DEV</version>
-      <properties>
-	<module>true</module>
-      </properties>
-    </dependency>
-
-    <dependency>
-      <groupId>geronimo</groupId>
-      <artifactId>geronimo-kernel</artifactId>
-      <version>DEV</version>
-      <properties>
-	<module>true</module>
-      </properties>
-    </dependency>
-
-    <dependency>
-      <groupId>geronimo</groupId>
-      <artifactId>geronimo-common</artifactId>
-      <version>DEV</version>
-      <properties>
-	<module>true</module>
-      </properties>
-    </dependency>
-
-    <dependency>
-      <groupId>geronimo</groupId>
-      <artifactId>geronimo-core</artifactId>
-      <version>DEV</version>
-      <properties>
-	<module>true</module>
-      </properties>
-    </dependency>
-
-    <dependency>
-      <groupId>geronimo-spec</groupId>
-      <artifactId>geronimo-spec-servlet</artifactId>
-      <version>DEV</version>
-      <properties>
-	<module>true</module>
-      </properties>
-    </dependency>
-
-    <!-- Thirdparty Dependencies -->
-    <dependency>
-      <id>commons-collections</id>
-      <version>2.1</version>
-      <properties>
-        <runtime>false</runtime>
-      </properties>
-    </dependency>
-
-    <dependency>
-      <id>commons-logging</id>
-      <version>1.0.3</version>
-      <url>http://jakarta.apache.org/commons/logging/</url>
-      <properties>
-	<runtime>false</runtime>
-      </properties>
-    </dependency>
-
-    <dependency>
-      <id>commons-lang</id>
-      <version>SNAPSHOT</version>
-      <url>http://jakarta.apache.org/commons/lang</url>
-      <properties>
-	<runtime>false</runtime>
-      </properties>
-    </dependency>
-
-    <dependency>
-      <id>concurrent</id>
-      <version>1.3.2</version>
-      <properties>
-	<runtime>true</runtime>
-      </properties>
-    </dependency>
+    <package>org.apache.geronimo.clustering</package>
+    <currentVersion>DEV</currentVersion>
 
 
+    <!-- ============ -->
+    <!-- Dependencies -->
+    <!-- ============ -->
 
-    <dependency>
-      <id>mx4j</id>
-      <version>SNAPSHOT</version>
-      <properties>
-	<runtime>false</runtime>
-      </properties>
-    </dependency>
+    <dependencies>
 
-  </dependencies>
+        <dependency>
+            <id>commons-logging</id>
+            <version>1.0.3</version>
+            <url>http://jakarta.apache.org/commons/logging/</url>
+            <properties>
+                <runtime>false</runtime>
+            </properties>
+        </dependency>
 
-  <dependency>
-    <id>mx4j+tools</id>
-    <version>SNAPSHOT</version>
-    <properties>
-      <runtime>true</runtime>
-    </properties>
-  </dependency>
+        <dependency>
+            <id>mx4j</id>
+            <version>SNAPSHOT</version>
+            <properties>
+                <runtime>false</runtime>
+            </properties>
+        </dependency>
 
-  <!-- =================== -->
-  <!-- Build Specification -->
-  <!-- =================== -->
+    </dependencies>
 
-  <build>
-    <unitTest>
-      <includes>
-	<include>**/*Test.java</include>
-      </includes>
-    </unitTest>
-    <resources>
-      <resource>
-	<directory>${basedir}/src/java</directory>
-	<includes>
-	  <include>**/*.xml</include>
-	  <include>**/*.properties</include>
-	</includes>
-      </resource>
-    </resources>
-  </build>
+    <!-- =================== -->
+    <!-- Build Specification -->
+    <!-- =================== -->
+
+    <build>
+        <unitTest>
+            <includes>
+                <include>**/*Test.java</include>
+            </includes>
+        </unitTest>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/java</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                    <include>**/*.properties</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
 
 </project>
