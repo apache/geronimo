@@ -22,6 +22,7 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import java.io.File;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
@@ -58,6 +59,10 @@ public class LoginPropertiesFileTest extends AbstractTest {
 
         gbean = new GBeanMBean("org.apache.geronimo.security.jaas.GeronimoLoginConfiguration");
         loginConfiguration = new ObjectName("geronimo.security:type=LoginConfiguration");
+        Set configurations = new HashSet();
+        configurations.add(new ObjectName("geronimo.security:type=SecurityRealm,*"));
+        configurations.add(new ObjectName("geronimo.security:type=ConfigurationEntry,*"));
+        gbean.setReferencePatterns("Configurations", configurations);
         kernel.loadGBean(loginConfiguration, gbean);
 
         gbean = new GBeanMBean("org.apache.geronimo.security.jaas.LoginModuleGBean");

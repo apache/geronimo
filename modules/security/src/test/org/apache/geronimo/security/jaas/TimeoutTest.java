@@ -21,19 +21,19 @@ import javax.management.ObjectName;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import java.io.File;
+import java.net.URI;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
-import java.net.URI;
 
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.security.AbstractTest;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
-import org.apache.geronimo.security.bridge.TestLoginModule;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.kernel.Kernel;
 
 
 /**
@@ -99,6 +99,10 @@ public class TimeoutTest extends AbstractTest {
 
         gbean = new GBeanMBean("org.apache.geronimo.security.jaas.GeronimoLoginConfiguration");
         loginConfiguration = new ObjectName("geronimo.security:type=LoginConfiguration");
+        Set configurations = new HashSet();
+        configurations.add(new ObjectName("geronimo.security:type=SecurityRealm,*"));
+        configurations.add(new ObjectName("geronimo.security:type=ConfigurationEntry,*"));
+        gbean.setReferencePatterns("Configurations", configurations);
         kernel.loadGBean(loginConfiguration, gbean);
 
         gbean = new GBeanMBean("org.apache.geronimo.security.jaas.LoginModuleGBean");

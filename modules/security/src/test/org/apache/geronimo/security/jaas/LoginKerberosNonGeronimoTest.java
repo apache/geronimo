@@ -23,6 +23,8 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import java.util.Properties;
 import java.util.Collections;
+import java.util.Set;
+import java.util.HashSet;
 
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.security.AbstractTest;
@@ -56,6 +58,10 @@ public class LoginKerberosNonGeronimoTest extends AbstractTest {
 
         GBeanMBean gbean = new GBeanMBean("org.apache.geronimo.security.jaas.GeronimoLoginConfiguration");
         loginConfiguration = new ObjectName("geronimo.security:type=LoginConfiguration");
+        Set configurations = new HashSet();
+        configurations.add(new ObjectName("geronimo.security:type=SecurityRealm,*"));
+        configurations.add(new ObjectName("geronimo.security:type=ConfigurationEntry,*"));
+        gbean.setReferencePatterns("Configurations", configurations);
         kernel.loadGBean(loginConfiguration, gbean);
 
         gbean = new GBeanMBean("org.apache.geronimo.security.jaas.LoginModuleGBean");

@@ -17,19 +17,22 @@
 
 package org.apache.geronimo.connector.outbound.security;
 
+import javax.resource.spi.ManagedConnectionFactory;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import javax.resource.spi.ManagedConnectionFactory;
+import org.apache.regexp.RE;
 
+import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.common.GeronimoSecurityException;
-import org.apache.geronimo.security.realm.SecurityRealm;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.security.jaas.ConfigurationEntryFactory;
+import org.apache.geronimo.security.jaas.JaasLoginCoordinator;
 import org.apache.geronimo.security.jaas.JaasLoginModuleConfiguration;
 import org.apache.geronimo.security.jaas.LoginModuleControlFlag;
-import org.apache.regexp.RE;
+import org.apache.geronimo.security.realm.SecurityRealm;
 
 /**
  *
@@ -37,25 +40,23 @@ import org.apache.regexp.RE;
  * @version $Rev$ $Date$
  *
  * */
-public class PasswordCredentialRealm implements SecurityRealm, ManagedConnectionFactoryListener {
+public class PasswordCredentialRealm implements SecurityRealm, ConfigurationEntryFactory, ManagedConnectionFactoryListener {
 
     private static final GBeanInfo GBEAN_INFO;
 
     ManagedConnectionFactory managedConnectionFactory;
-    String realmName;
+    private final Kernel kernel;
+    private final String realmName;
 
     static final String REALM_INSTANCE = "org.apache.connector.outbound.security.PasswordCredentialRealm";
 
-    public PasswordCredentialRealm(String realmName) {
+    public PasswordCredentialRealm(Kernel kernel, String realmName) {
+        this.kernel = kernel;
         this.realmName = realmName;
     }
 
     public String getRealmName() {
         return realmName;
-    }
-
-    public void setRealmName(String realmName) {
-        this.realmName = realmName;
     }
 
     public Set getGroupPrincipals() throws GeronimoSecurityException {
@@ -100,16 +101,32 @@ public class PasswordCredentialRealm implements SecurityRealm, ManagedConnection
         return managedConnectionFactory;
     }
 
+    public String getConfigurationName() {
+        return realmName;
+    }
+
+    public JaasLoginModuleConfiguration generateConfiguration() {
+        Map options = new HashMap();
+        options.put("realm", realmName);
+        options.put("kernel", kernel.getKernelName());
+
+        return new JaasLoginModuleConfiguration(realmName, JaasLoginCoordinator.class.getName(), LoginModuleControlFlag.REQUIRED, options, true);
+    }
+
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(PasswordCredentialRealm.class);
+
         infoFactory.addInterface(ManagedConnectionFactoryListener.class);
+        infoFactory.addInterface(ConfigurationEntryFactory.class);
+        infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("realmName", String.class, true);
-        infoFactory.setConstructor(new String[]{"realmName"});
+
+        infoFactory.setConstructor(new String[]{"kernel", "realmName"});
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
-
 }

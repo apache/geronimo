@@ -127,7 +127,12 @@ by the server.
     </gbean>
 
     <!-- Register GeronimoLoginConfiguration as the LoginConfiguration handler -->
-    <gbean name="geronimo.security:type=LoginConfiguration" class="org.apache.geronimo.security.jaas.GeronimoLoginConfiguration"/>
+    <gbean name="geronimo.security:type=LoginConfiguration" class="org.apache.geronimo.security.jaas.GeronimoLoginConfiguration">
+        <references name="Configurations">
+            <pattern>geronimo.security:type=SecurityRealm,*</pattern>
+            <pattern>geronimo.security:type=ConfigurationEntry,*</pattern>
+        </references>
+    </gbean>
 
     <gbean name="geronimo.security:type=SecurityService" class="org.apache.geronimo.security.SecurityService">
         <attribute name="policyConfigurationFactory" type="java.lang.String">org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory</attribute>

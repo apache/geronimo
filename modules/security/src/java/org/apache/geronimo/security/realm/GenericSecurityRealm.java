@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.security.realm;
 
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -24,30 +26,30 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
+
+import org.apache.regexp.RE;
+
 import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
 import org.apache.geronimo.security.deploy.Principal;
-import org.apache.geronimo.security.jaas.GeronimoLoginConfiguration;
+import org.apache.geronimo.security.jaas.ConfigurationEntryFactory;
+import org.apache.geronimo.security.jaas.JaasLoginCoordinator;
 import org.apache.geronimo.security.jaas.JaasLoginModuleConfiguration;
 import org.apache.geronimo.security.jaas.LoginModuleControlFlag;
 import org.apache.geronimo.security.jaas.LoginModuleControlFlagEditor;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.regexp.RE;
+
 
 /**
  * A security realm that can be configured for one or more login modules.  It
  * can handle a combination of client-side and server-side login modules for
  * the case of remote clients, and it can auto-role-mapping for its login
  * modules (though you must configure it for that).
- *
+ * <p/>
  * To configure the list of LoginModules, set the loginModuleConfiguration
  * to a Properties object with syntax like this:
  * <pre>
@@ -59,7 +61,7 @@ import org.apache.regexp.RE;
  * configuration.  Each LoginModuleGBean has the configuration options for its
  * login module, and knows whether it should run on the client side or server
  * side.
- *
+ * <p/>
  * This realm populates a number of special login module options for the
  * benefit of Geronimo login modules (though some of them are only available to
  * server-side login modules, marked as not Serializable below):
@@ -74,11 +76,12 @@ import org.apache.regexp.RE;
  *
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
-public class GenericSecurityRealm implements SecurityRealm, GBeanLifecycle, AutoMapAssistant {
-    public final static String KERNEL_LM_OPTION="org.apache.geronimo.security.realm.GenericSecurityRealm.KERNEL";
-    public final static String SERVERINFO_LM_OPTION="org.apache.geronimo.security.realm.GenericSecurityRealm.SERVERINFO";
-    public final static String CLASSLOADER_LM_OPTION="org.apache.geronimo.security.realm.GenericSecurityRealm.CLASSLOADER";
-    private String name;
+public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFactory, AutoMapAssistant {
+
+    public final static String KERNEL_LM_OPTION = "org.apache.geronimo.security.realm.GenericSecurityRealm.KERNEL";
+    public final static String SERVERINFO_LM_OPTION = "org.apache.geronimo.security.realm.GenericSecurityRealm.SERVERINFO";
+    public final static String CLASSLOADER_LM_OPTION = "org.apache.geronimo.security.realm.GenericSecurityRealm.CLASSLOADER";
+    private String realmName;
     private JaasLoginModuleConfiguration[] config;
     private Kernel kernel;
     private ServerInfo serverInfo;
@@ -87,26 +90,15 @@ public class GenericSecurityRealm implements SecurityRealm, GBeanLifecycle, Auto
     private Principal defaultPrincipal;
 
     public GenericSecurityRealm(String realmName, Kernel kernel, ServerInfo serverInfo, Properties loginModuleConfiguration, ClassLoader classLoader) throws MalformedObjectNameException {
-        this.name = realmName;
+        this.realmName = realmName;
         this.kernel = kernel;
         this.serverInfo = serverInfo;
         this.classLoader = classLoader;
         processConfiguration(loginModuleConfiguration);
     }
 
-    public void doStart() throws WaitingException, Exception {
-        GeronimoLoginConfiguration.register(this);
-    }
-
-    public void doStop() throws WaitingException, Exception {
-        GeronimoLoginConfiguration.unRegister(name);
-    }
-
-    public void doFail() {
-    }
-
     public String getRealmName() {
-        return name;
+        return realmName;
     }
 
     public JaasLoginModuleConfiguration[] getAppConfigurationEntries() {
@@ -138,9 +130,9 @@ public class GenericSecurityRealm implements SecurityRealm, GBeanLifecycle, Auto
     }
 
     public void setDefaultPrincipal(String code) {
-        if(code != null) {
-            String[] parts=code.split("=");
-            if(parts.length != 2) {
+        if (code != null) {
+            String[] parts = code.split("=");
+            if (parts.length != 2) {
                 throw new IllegalArgumentException("Default Principal should have the form 'name=class'");
             }
             defaultPrincipal = new Principal();
@@ -150,7 +142,7 @@ public class GenericSecurityRealm implements SecurityRealm, GBeanLifecycle, Auto
     }
 
     public void setAutoMapPrincipalClasses(String classes) {
-        if(classes != null) {
+        if (classes != null) {
             autoMapPrincipals = classes.split(",");
         } else {
             autoMapPrincipals = new String[0];
@@ -189,33 +181,45 @@ public class GenericSecurityRealm implements SecurityRealm, GBeanLifecycle, Auto
         return null; //todo
     }
 
+    public String getConfigurationName() {
+        return realmName;
+    }
+
+    public JaasLoginModuleConfiguration generateConfiguration() {
+        Map options = new HashMap();
+        options.put("realm", realmName);
+        options.put("kernel", kernel.getKernelName());
+
+        return new JaasLoginModuleConfiguration(realmName, JaasLoginCoordinator.class.getName(), LoginModuleControlFlag.REQUIRED, options, true);
+    }
+
     private void processConfiguration(Properties props) throws MalformedObjectNameException {
         int i = 1;
         List list = new ArrayList();
         LoginModuleControlFlagEditor editor = new LoginModuleControlFlagEditor();
-        while(true) {
+        while (true) {
             boolean found = false;
-            String prefix = "LoginModule."+i+".";
+            String prefix = "LoginModule." + i + ".";
             for (Enumeration en = props.propertyNames(); en.hasMoreElements();) {
                 String key = (String) en.nextElement();
-                if(key.startsWith(prefix)) {
+                if (key.startsWith(prefix)) {
                     String flagName = key.substring(prefix.length()).toUpperCase();
                     editor.setAsText(flagName);
                     LoginModuleControlFlag flag = (LoginModuleControlFlag) editor.getValue();
                     LoginModuleGBean module = (LoginModuleGBean) MBeanProxyFactory.getProxy(LoginModuleGBean.class, kernel.getMBeanServer(), new ObjectName(props.getProperty(key)));
                     Map options = module.getOptions();
-                    if(options != null) {
+                    if (options != null) {
                         options = new HashMap(options);
                     } else {
                         options = new HashMap();
                     }
-                    if(kernel != null && !options.containsKey(KERNEL_LM_OPTION)) {
+                    if (kernel != null && !options.containsKey(KERNEL_LM_OPTION)) {
                         options.put(KERNEL_LM_OPTION, kernel.getKernelName());
                     }
-                    if(serverInfo != null && !options.containsKey(SERVERINFO_LM_OPTION)) {
+                    if (serverInfo != null && !options.containsKey(SERVERINFO_LM_OPTION)) {
                         options.put(SERVERINFO_LM_OPTION, serverInfo);
                     }
-                    if(classLoader != null && !options.containsKey(CLASSLOADER_LM_OPTION)) {
+                    if (classLoader != null && !options.containsKey(CLASSLOADER_LM_OPTION)) {
                         options.put(CLASSLOADER_LM_OPTION, classLoader);
                     }
                     JaasLoginModuleConfiguration config = new JaasLoginModuleConfiguration(module.getObjectName(), module.getLoginModuleClass(), flag, options, module.isServerSide());
@@ -225,7 +229,7 @@ public class GenericSecurityRealm implements SecurityRealm, GBeanLifecycle, Auto
                     break;
                 }
             }
-            if(!found) {
+            if (!found) {
                 break;
             }
         }
@@ -239,6 +243,7 @@ public class GenericSecurityRealm implements SecurityRealm, GBeanLifecycle, Auto
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(GenericSecurityRealm.class);
 
         infoFactory.addInterface(SecurityRealm.class);
+        infoFactory.addInterface(ConfigurationEntryFactory.class);
         infoFactory.addAttribute("realmName", String.class, true);
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("loginModuleConfiguration", Properties.class, true);
@@ -252,7 +257,7 @@ public class GenericSecurityRealm implements SecurityRealm, GBeanLifecycle, Auto
         infoFactory.addOperation("obtainDefaultPrincipal", new Class[0]);
         infoFactory.addOperation("obtainRolePrincipalClasses", new Class[0]);
 
-        infoFactory.setConstructor(new String[]{"realmName","kernel","ServerInfo","loginModuleConfiguration","classLoader"});
+        infoFactory.setConstructor(new String[]{"realmName", "kernel", "ServerInfo", "loginModuleConfiguration", "classLoader"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
@@ -260,4 +265,5 @@ public class GenericSecurityRealm implements SecurityRealm, GBeanLifecycle, Auto
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
+
 }

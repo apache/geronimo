@@ -17,20 +17,25 @@
 
 package org.apache.geronimo.security.jaas;
 
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Properties;
 import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.Configuration;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Map;
+
+import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.Log;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.ReferenceCollection;
+import org.apache.geronimo.gbean.ReferenceCollectionEvent;
+import org.apache.geronimo.gbean.ReferenceCollectionListener;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.security.SecurityService;
-import org.apache.geronimo.security.realm.SecurityRealm;
-import org.apache.geronimo.kernel.Kernel;
 
 
 /**
@@ -42,14 +47,33 @@ import org.apache.geronimo.kernel.Kernel;
  *
  * @version $Rev$ $Date$
  */
-public class GeronimoLoginConfiguration extends Configuration implements GBeanLifecycle {
+public class GeronimoLoginConfiguration extends Configuration implements GBeanLifecycle, ReferenceCollectionListener {
 
+    private final Log log = LogFactory.getLog(GeronimoLoginConfiguration.class);
     private static Map entries = new Hashtable();
     private Configuration oldConfiguration;
-    private static Kernel kernel; //todo: this restricts you to one Kernel per JVM
+    private Collection configurations = Collections.EMPTY_SET;
 
-    public GeronimoLoginConfiguration(Kernel kernel) {
-        this.kernel = kernel;
+
+    public Collection getConfigurations() {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) sm.checkPermission(SecurityService.CONFIGURE);
+
+        return configurations;
+    }
+
+    public void setConfigurations(Collection configurations) {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) sm.checkPermission(SecurityService.CONFIGURE);
+
+        ReferenceCollection ref = (ReferenceCollection) configurations;
+        ref.addReferenceCollectionListener(this);
+
+        this.configurations = configurations;
+
+        for (Iterator iter = configurations.iterator(); iter.hasNext();) {
+            addConfiguration((ConfigurationEntryFactory) iter.next());
+        }
     }
 
     public AppConfigurationEntry[] getAppConfigurationEntry(String name) {
@@ -57,55 +81,37 @@ public class GeronimoLoginConfiguration extends Configuration implements GBeanLi
 
         if (entry == null) return null;
 
-//        if(!entry.getOptions().containsKey("kernel")) {
-//            entry.getOptions().put("kernel", kernel.getKernelName());
-//        }
-
         return new AppConfigurationEntry[]{entry};
     }
 
     public void refresh() {
     }
 
-    /**
-     * Registers a single Geronimo LoginModule
-     */
-    public static void register(JaasLoginModuleConfiguration entry) {
+    public void memberAdded(ReferenceCollectionEvent event) {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(SecurityService.CONFIGURE);
 
-        if (entries.containsKey(entry.getName())) throw new java.lang.IllegalArgumentException("ConfigurationEntry already registered");
+        ConfigurationEntryFactory factory = (ConfigurationEntryFactory) event.getMember();
 
-        entries.put(entry.getName(), getAppConfigurationEntry(entry));
+        addConfiguration(factory);
     }
 
-    private static AppConfigurationEntry getAppConfigurationEntry(JaasLoginModuleConfiguration config) {
-        return new AppConfigurationEntry(config.getLoginModuleClassName(), config.getFlag().getFlag(), config.getOptions());
-    }
-
-    /**
-     * Registers a wrapper configuration that will hit a Geronimo security
-     * realm under the covers.
-     */
-    public static void register(SecurityRealm realm) {
+    public void memberRemoved(ReferenceCollectionEvent event) {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(SecurityService.CONFIGURE);
 
-        if (entries.containsKey(realm.getRealmName())) throw new java.lang.IllegalArgumentException("ConfigurationEntry already registered");
-        Map options = new HashMap();
-        options.put("realm", realm.getRealmName());
-        if(kernel != null) {
-            options.put("kernel", kernel.getKernelName());
-        }
+        ConfigurationEntryFactory factory = (ConfigurationEntryFactory) event.getMember();
 
-        entries.put(realm.getRealmName(), new AppConfigurationEntry("org.apache.geronimo.security.jaas.JaasLoginCoordinator", AppConfigurationEntry.LoginModuleControlFlag.REQUIRED, options));
+        entries.remove(factory.getConfigurationName());
+        log.info("Removed ACE " + factory.getConfigurationName());
     }
 
-    public static void unRegister(String name) {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) sm.checkPermission(SecurityService.CONFIGURE);
+    private final void addConfiguration(ConfigurationEntryFactory factory) {
+        JaasLoginModuleConfiguration config = factory.generateConfiguration();
+        AppConfigurationEntry ace = new AppConfigurationEntry(config.getLoginModuleClassName(), config.getFlag().getFlag(), config.getOptions());
 
-        entries.remove(name);
+        entries.put(factory.getConfigurationName(), ace);
+        log.info("Added ACE " + factory.getConfigurationName());
     }
 
     public void doStart() throws WaitingException, Exception {
@@ -115,14 +121,17 @@ public class GeronimoLoginConfiguration extends Configuration implements GBeanLi
             oldConfiguration = null;
         }
         Configuration.setConfiguration(this);
+        log.info("Installed Geronimo login configuration");
     }
 
     public void doStop() throws WaitingException, Exception {
         Configuration.setConfiguration(oldConfiguration);
+        log.info("Uninstalled Geronimo login configuration");
     }
 
     public void doFail() {
         Configuration.setConfiguration(oldConfiguration);
+        log.info("Uninstalled Geronimo login configuration");
     }
 
     public static GBeanInfo getGBeanInfo() {
@@ -133,8 +142,9 @@ public class GeronimoLoginConfiguration extends Configuration implements GBeanLi
 
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(GeronimoLoginConfiguration.class.getName());
-        infoFactory.addAttribute("kernel", Kernel.class, false);
-        infoFactory.setConstructor(new String[]{"kernel"});
+        infoFactory.addReference("Configurations", ConfigurationEntryFactory.class);
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
+
 }

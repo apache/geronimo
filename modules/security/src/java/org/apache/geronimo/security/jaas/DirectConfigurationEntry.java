@@ -18,8 +18,7 @@ package org.apache.geronimo.security.jaas;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
+
 
 /**
  * Exposes a LoginModule directly to JAAS clients, without any particular
@@ -29,13 +28,15 @@ import org.apache.geronimo.gbean.WaitingException;
  *
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
-public class DirectConfigurationEntry implements GBeanLifecycle {
-    private String applicationConfigName;
-    private LoginModuleControlFlag controlFlag;
-    private LoginModuleGBean module;
+public class DirectConfigurationEntry implements ConfigurationEntryFactory {
+    private final String applicationConfigName;
+    private final LoginModuleControlFlag controlFlag;
+    private final LoginModuleGBean module;
 
     public DirectConfigurationEntry() {
-        // just for use by GBean infrastructure
+        this.applicationConfigName = null;
+        this.controlFlag = null;
+        this.module = null;
     }
 
     public DirectConfigurationEntry(String applicationConfigName, LoginModuleControlFlag controlFlag, LoginModuleGBean module) {
@@ -44,21 +45,19 @@ public class DirectConfigurationEntry implements GBeanLifecycle {
         this.module = module;
     }
 
-    public void doStart() throws WaitingException, Exception {
-        GeronimoLoginConfiguration.register(new JaasLoginModuleConfiguration(applicationConfigName, module.getLoginModuleClass(), controlFlag, module.getOptions(), module.isServerSide()));
+    public String getConfigurationName() {
+        return applicationConfigName;
     }
 
-    public void doStop() throws WaitingException, Exception {
-        GeronimoLoginConfiguration.unRegister(applicationConfigName);
-    }
-
-    public void doFail() {
+    public JaasLoginModuleConfiguration generateConfiguration() {
+        return new JaasLoginModuleConfiguration(applicationConfigName, module.getLoginModuleClass(), controlFlag, module.getOptions(), module.isServerSide());
     }
 
     public static final GBeanInfo GBEAN_INFO;
 
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(DirectConfigurationEntry.class);
+        infoFactory.addInterface(ConfigurationEntryFactory.class);
         infoFactory.addAttribute("applicationConfigName", String.class, true);
         infoFactory.addAttribute("controlFlag", LoginModuleControlFlag.class, true);
 
