@@ -30,7 +30,7 @@ import junit.framework.TestCase;
  * Timing is crucial for this test case, which focuses on the synchronization
  * specificities of the doWork, startWork and scheduleWork.
  *
- * @version $Revision: 1.5 $ $Date: 2004/05/17 12:41:04 $
+ * @version $Revision: 1.6 $ $Date: 2004/05/17 13:48:13 $
  */
 public class PooledWorkManagerTest extends TestCase {
 
@@ -38,14 +38,6 @@ public class PooledWorkManagerTest extends TestCase {
 
     protected void setUp() throws Exception {
         workManager = new GeronimoWorkManager(1, 1, null);
-    }
-    
-    public static void main(String[] args) throws Exception {
-        PooledWorkManagerTest managerTest = new PooledWorkManagerTest();
-        managerTest.setUp();
-        while(true) {
-            managerTest.testDoWork();
-        }
     }
     
     public void testDoWork() throws Exception {
