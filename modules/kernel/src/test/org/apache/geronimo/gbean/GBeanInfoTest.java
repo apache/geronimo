@@ -25,20 +25,18 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:02 $
+ * @version $Revision: 1.4 $ $Date: 2004/03/13 23:48:56 $
  */
 public class GBeanInfoTest extends TestCase {
 
     public void testGetGBeanInfo() {
         // 1. Test GBean that exists
-        GBeanInfo gbeanInfo = GBeanInfo.getGBeanInfo(MockGBean.class.getName(),
-                MockGBean.class.getClassLoader());
+        GBeanInfo gbeanInfo = GBeanInfo.getGBeanInfo(MockGBean.class.getName(), MockGBean.class.getClassLoader());
         assertNotNull(gbeanInfo);
 
         // 2. Test GBean that doesn't exist
         try {
-            GBeanInfo.getGBeanInfo("ClassThatDoesNotExist", this.getClass()
-                    .getClassLoader());
+            GBeanInfo.getGBeanInfo("ClassThatDoesNotExist", this.getClass().getClassLoader());
             fail("InvalidConfigurationException expected");
         } catch (InvalidConfigurationException expected) {
         }
@@ -46,8 +44,7 @@ public class GBeanInfoTest extends TestCase {
         // 3. Test GBean that exist, but doesn't declare a getGBeanInfo()
         // method
         try {
-            GBeanInfo.getGBeanInfo(String.class.getName(), this.getClass()
-                    .getClassLoader());
+            GBeanInfo.getGBeanInfo(String.class.getName(), this.getClass().getClassLoader());
             fail("InvalidConfigurationException expected");
         } catch (InvalidConfigurationException expected) {
         }
@@ -65,8 +62,7 @@ public class GBeanInfoTest extends TestCase {
      * void GBeanInfo(String, String, Set, GConstructorInfo, Set, Set, Set)
      */
     public void testGBeanInfoStringStringSetGConstructorInfoSetSetSet() {
-        GBeanInfo gbeanInfo = new GBeanInfo(null, null, null, null, null, null,
-                null);
+        GBeanInfo gbeanInfo = new GBeanInfo(null, null, null, null, null, null, null);
         assertNotNull(gbeanInfo);
     }
 
@@ -131,21 +127,17 @@ public class GBeanInfoTest extends TestCase {
 
     final static String nonPersistentAttrName = "nonPersistentAttribute";
 
-    final static GAttributeInfo nonPersistentAttrInfo = new GAttributeInfo(
-            nonPersistentAttrName, false);
+    final static GAttributeInfo nonPersistentAttrInfo = new GAttributeInfo(nonPersistentAttrName, false);
 
     final static String persistentAttrName = "persistentAttribute";
 
-    final static GAttributeInfo persistentAttrInfo = new GAttributeInfo(
-            persistentAttrName, true);
+    final static GAttributeInfo persistentAttrInfo = new GAttributeInfo(persistentAttrName, true);
 
     final static GOperationInfo opInfo = new GOperationInfo("operation");
 
-    final static GNotificationInfo notificationInfo = new GNotificationInfo(
-            "notification", Collections.singleton(null));
+    final static GNotificationInfo notificationInfo = new GNotificationInfo("notification", Collections.singleton(null));
 
-    final static GReferenceInfo refInfo = new GReferenceInfo("reference",
-            String.class);
+    final static GReferenceInfo refInfo = new GReferenceInfo("reference", String.class);
 
     public void setUp() {
         gbeanInfo = MockGBean.getGBeanInfo();
@@ -161,9 +153,8 @@ public class GBeanInfoTest extends TestCase {
 
         static {
             GBeanInfoFactory infoFactory = new GBeanInfoFactory(MockGBean.class);
-            infoFactory.setConstructor(new GConstructorInfo(new String[] {
-                    String.class.getName(), Integer.class.getName()},
-                    new Class[] { String.class, Integer.class}));
+            infoFactory.setConstructor(new GConstructorInfo(new String[] { String.class.getName(),
+                    Integer.class.getName()}, new Class[] { String.class, Integer.class}));
             infoFactory.addAttribute(nonPersistentAttrInfo);
             infoFactory.addAttribute(persistentAttrInfo);
             infoFactory.addOperation(opInfo);

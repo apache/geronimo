@@ -51,9 +51,9 @@ import org.apache.geronimo.gbean.WaitingException;
 /**
  * Abstract implementation of JSR77 StateManageable.
  * Implementors of StateManageable may use this class and simply provide
- * doStart, doStop and sendNotification methods.
+ * {@link #doStart()}, {@link #doStop()} and {@link #sendNotification(String)} methods.
  *
- * @version $Revision: 1.6 $ $Date: 2004/03/10 09:59:00 $
+ * @version $Revision: 1.7 $ $Date: 2004/03/13 23:48:56 $
  */
 public abstract class AbstractManagedObject implements ManagedObject, StateManageable, EventProvider, NotificationListener, MBeanRegistration, NotificationEmitter {
     protected final Log log = LogFactory.getLog(getClass());
@@ -109,8 +109,8 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
     protected final NotificationBroadcasterSupport notificationBroadcaster = new NotificationBroadcasterSupport();
 
     /**
-     * Do the start tasks for the component.  Called in the STARTING state by
-     * the start() and startRecursive() methods to perform the tasks required to
+     * Do the start tasks for the component.  Called in the {@link State#STARTING} state by
+     * the {@link #start()} and {@link #startRecursive()} methods to perform the tasks required to
      * start the component.
      *
      * Note: this method is called from within a synchronized block, so be careful what you call as you
@@ -122,8 +122,8 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
     }
 
     /**
-     * Do the stop tasks for the component.  Called in the STOPPING state by the stop()
-     * method to perform the tasks required to stop the component.
+     * Do the stop tasks for the component.  Called in the {@link #STOPPING} state by 
+     * the {@link #stop()} method to perform the tasks required to stop the component.
      *
      * Note: this method is called from within a synchronized block, so be careful what you call as you
      * may create a deadlock.
@@ -134,8 +134,8 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
     }
 
     /**
-     * Do the failure tasks for the component.  Called in the FAILED state by the fail()
-     * method to perform the tasks required to cleanup a failed component.
+     * Do the failure tasks for the component.  Called in the {@link #FAILED} state by 
+     * the {@link #fail()} method to perform the tasks required to cleanup a failed component.
      *
      * Note: this method is called from within a synchronized block, so be careful what you call as you
      * may create a deadlock.
@@ -254,11 +254,11 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
     }
 
     /**
-     * Moves this MBean to the STARTING state and then attempst to move this MBean immedately to the STARTED
-     * state.
+     * Moves this MBean to the {@link State#STARTING} state and then attempts to move this MBean immediately 
+     * to the {@link State#STARTED} state.
      *
-     * Note:  This method cannot be call while the current thread holds a syncronized lock on this MBean,
-     * because this method sends JMX notifications.  Sending a general notification from a synchronized block
+     * Note:  This method cannot be called while the current thread holds a synchronized lock on this MBean,
+     * because this method sends JMX notifications. Sending a general notification from a synchronized block
      * is a bad idea and therefore not allowed.
      *
      * @throws java.lang.Exception  If an exception occurs while starting this MBean
@@ -280,9 +280,9 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
     }
 
     /**
-     * Starts this MBean and then attempts to start all of the start dependent children of this MBean.
+     * Starts this MBean and then attempts to start all of its start dependent children.
      *
-     * Note:  This method can not be call while the current thread holds a syncronized lock on this MBean,
+     * Note:  This method cannot be call while the current thread holds a synchronized lock on this MBean,
      * because this method sends JMX notifications.  Sending a general notification from a synchronized block
      * is a bad idea and therefore not allowed.
      *
@@ -385,7 +385,7 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
     }
 
     /**
-     * Attempts to bring the component into the fully running state. If an Exception occurs while
+     * Attempts to bring the component into {@link State#RUNNING} state. If an Exception occurs while
      * starting the component, the component will be failed.
      * @throws java.lang.Exception if a problem occurs while starting the component
      *

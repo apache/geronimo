@@ -61,7 +61,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
  * used hold the persistent state of each Configuration. This allows
  * Configurations to restart in he event of system failure.
  *
- * @version $Revision: 1.22 $ $Date: 2004/03/10 09:59:01 $
+ * @version $Revision: 1.23 $ $Date: 2004/03/13 23:48:56 $
  */
 public class Kernel extends NotificationBroadcasterSupport implements Serializable, KernelMBean {
 
@@ -137,10 +137,7 @@ public class Kernel extends NotificationBroadcasterSupport implements Serializab
             processQueue();
             KernelReference ref = (KernelReference) kernels.get(name);
             if (ref != null) {
-                Kernel kernel = (Kernel) ref.get();
-                if (kernel != null) {
-                    return kernel;
-                }
+                return (Kernel) ref.get();
             }
         }
         return null;
@@ -234,7 +231,7 @@ public class Kernel extends NotificationBroadcasterSupport implements Serializab
 
 
     public boolean isLoaded(ObjectName name) {
-        return mbServer.isRegistered(name);
+        return mbServer != null && mbServer.isRegistered(name);
     }
 
     public void loadGBean(ObjectName name, GBeanMBean gbean) throws InstanceAlreadyExistsException, InvalidConfigException {
@@ -280,7 +277,7 @@ public class Kernel extends NotificationBroadcasterSupport implements Serializab
     }
 
     /**
-     * Boot this Kernel, triggering the instanciation of the MBeanServer and
+     * Boot this Kernel, triggering the instantiation of the MBeanServer and
      * the registration of the DependencyService and ConfigurationStore
      * @throws java.lang.Exception if the boot fails
      */

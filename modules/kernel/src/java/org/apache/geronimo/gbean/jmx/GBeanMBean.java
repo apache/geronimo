@@ -57,11 +57,11 @@ import net.sf.cglib.reflect.FastClass;
 
 /**
  * A GBeanMBean is a J2EE Management Managed Object, and is standard base for Geronimo services.
- * This wraps one or more target POJOs and exposes the attributes and opperation according to a supplied
+ * This wraps one or more target POJOs and exposes the attributes and operations according to a supplied
  * {@link GBeanInfo} instance.  The GBeanMBean also supports caching of attribute values and invocation results
  * which can reduce the number of calls to a target.
  *
- * @version $Revision: 1.13 $ $Date: 2004/03/10 09:59:00 $
+ * @version $Revision: 1.14 $ $Date: 2004/03/13 23:48:56 $
  */
 public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     public static final FastClass fastClass = FastClass.create(GBeanMBean.class);
