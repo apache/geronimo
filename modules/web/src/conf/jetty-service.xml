@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<components>
+    <class-space name="geronimo.system:role=ClassSpace,name=Jetty">
+        <codebase url="file:lib/">
+            <archive name="*"/>
+        </codebase>
+    </class-space>
+
+    <mbean code="org.apache.geronimo.web.hack.Jetty" name="jetty:role=WebContainer">
+        <constructor>
+            <arg type="java.net.URL">jetty-config.xml</arg>
+        </constructor>
+    </mbean>
+</components>
