@@ -67,12 +67,12 @@
         <dependency>
             <groupId>axis</groupId>
             <artifactId>axis-jaxrpc</artifactId>
-            <version>&axis-version;</version>
+            <version>&axis-jaxrpc-version;</version>
         </dependency>
         <dependency>
             <groupId>axis</groupId>
             <artifactId>axis-saaj</artifactId>
-            <version>&axis-version;</version>
+            <version>&axis-saaj-version;</version>
         </dependency>
         <dependency>
             <groupId>axis</groupId>

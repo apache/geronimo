@@ -369,7 +369,7 @@
         </dependency>
         <dependency>
             <groupId>axis</groupId>
-            <artifactId>jaxrpc</artifactId>
+            <artifactId>axis-jaxrpc</artifactId>
             <version>&axis-version;</version>
             <properties>
                 <module>true</module>
@@ -377,7 +377,7 @@
         </dependency>
         <dependency>
             <groupId>axis</groupId>
-            <artifactId>saaj</artifactId>
+            <artifactId>axis-saaj</artifactId>
             <version>&axis-version;</version>
             <properties>
                 <module>true</module>
@@ -385,7 +385,7 @@
         </dependency>
         <dependency>
             <groupId>axis</groupId>
-            <artifactId>wsdl4j</artifactId>
+            <artifactId>axis-wsdl4j</artifactId>
             <version>&axis-version;</version>
             <properties>
                 <module>true</module>

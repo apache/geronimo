@@ -22,7 +22,7 @@
 <!ENTITY ant-version "1.5">
 <!ENTITY antlr-version "2.7.2">
 <!ENTITY axion-version "1.0-M3-dev">
-<!ENTITY axis-version "SNAPSHOT">
+<!ENTITY axis-version "1.2-RC1">
 <!ENTITY axis-jaxrpc-version "1.2-RC1">
 <!ENTITY axis-saaj-version "1.2-RC1">
 <!ENTITY cglib-version "2.0">
@@ -56,7 +56,7 @@
 <!ENTITY jetty-version "5.1.0-SNAPSHOT">
 <!ENTITY jgroups-version "2.2.5">
 <!ENTITY jrms-version "1.1">
-<!ENTITY junit-version "3.8">
+<!ENTITY junit-version "3.8.1">
 <!ENTITY jxta-version "2.0">
 <!ENTITY log4j-version "1.2.8">
 <!ENTITY maven-version "1.0">
