@@ -264,14 +264,14 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
 
     public void commit(Xid xid, Object logMark) throws LogException {
         //the data is theoretically unnecessary but is included to help with debugging and because HOWL currently requires it.
-//        byte[][] data = new byte[4][];
-//        data[0] = new byte[]{COMMIT};
-//        data[1] = intToBytes(xid.getFormatId());
-//        data[2] = xid.getGlobalTransactionId();
-//        data[3] = xid.getBranchQualifier();
+        byte[][] data = new byte[4][];
+        data[0] = new byte[]{COMMIT};
+        data[1] = intToBytes(xid.getFormatId());
+        data[2] = xid.getGlobalTransactionId();
+        data[3] = xid.getBranchQualifier();
         try {
-//            logger.putDone(data, (XACommittingTx) logMark);
-            logger.putDone(null, (XACommittingTx) logMark);
+            logger.putDone(data, (XACommittingTx) logMark);
+//            logger.putDone(null, (XACommittingTx) logMark);
         } catch (LogClosedException e) {
             throw (IllegalStateException) new IllegalStateException().initCause(e);
         } catch (LogRecordSizeException e) {
@@ -287,14 +287,14 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
 
     public void rollback(Xid xid, Object logMark) throws LogException {
         //the data is theoretically unnecessary but is included to help with debugging and because HOWL currently requires it.
-//        byte[][] data = new byte[4][];
-//        data[0] = new byte[]{ROLLBACK};
-//        data[1] = intToBytes(xid.getFormatId());
-//        data[2] = xid.getGlobalTransactionId();
-//        data[3] = xid.getBranchQualifier();
+        byte[][] data = new byte[4][];
+        data[0] = new byte[]{ROLLBACK};
+        data[1] = intToBytes(xid.getFormatId());
+        data[2] = xid.getGlobalTransactionId();
+        data[3] = xid.getBranchQualifier();
         try {
-//            logger.putDone(data, (XACommittingTx) logMark);
-            logger.putDone(null, (XACommittingTx) logMark);
+            logger.putDone(data, (XACommittingTx) logMark);
+//            logger.putDone(null, (XACommittingTx) logMark);
         } catch (LogClosedException e) {
             throw (IllegalStateException) new IllegalStateException().initCause(e);
         } catch (LogRecordSizeException e) {
