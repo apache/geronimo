@@ -71,27 +71,74 @@ import java.io.OutputStream;
 import java.net.URL;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2003/08/29 12:45:53 $
+ * @version $Revision: 1.5 $ $Date: 2003/09/04 01:00:02 $
  */
 public class DataHandler implements Transferable {
     private DataSource _ds;
-
     public DataHandler(DataSource ds) {
         _ds = ds;
     }
 
-    public DataHandler(Object obj,
-                       String mimeType) {
-        /*@todo implement*/
+    public DataHandler(Object data, String type) {
+        _ds = new ObjectDataSource(data, type);
     }
 
+    static class ObjectDataSource implements DataSource {
+
+        private Object _data;
+        private String _type;
+        public Object getContent() {
+            return _data;
+        }
+        /**
+         * Store an object as a data source type
+         * @param data the object
+         * @param type the mimeType
+         */
+        public ObjectDataSource(Object data, String type) {
+            _data = data;
+            _type = type;
+        }
+
+        /* (non-Javadoc)
+         * @see javax.activation.DataSource#getInputStream()
+         */
+        public InputStream getInputStream() throws IOException {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        /* (non-Javadoc)
+         * @see javax.activation.DataSource#getOutputStream()
+         */
+        public OutputStream getOutputStream() throws IOException {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        /* (non-Javadoc)
+         * @see javax.activation.DataSource#getContentType()
+         */
+        public String getContentType() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        /* (non-Javadoc)
+         * @see javax.activation.DataSource#getName()
+         */
+        public String getName() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+    }
     public DataHandler(URL url) {
         /*@todo implement*/
     }
 
     public DataSource getDataSource() {
-        /*@todo implement*/
-        return null;
+        return _ds;
     }
 
     public String getName() {
@@ -100,24 +147,19 @@ public class DataHandler implements Transferable {
     }
 
     public String getContentType() {
-        /*@todo implement*/
-        return null;
+        return _ds.getContentType();
     }
 
     public InputStream getInputStream() throws IOException {
-        /*@todo implement*/
-        return null;
-
+        return _ds.getInputStream();
     }
 
     public void writeTo(OutputStream os) throws IOException {
-        /*@todo implement*/
-
+        // TODO implement
     }
 
     public OutputStream getOutputStream() throws IOException {
-        /*@todo implement*/
-        return null;
+        return _ds.getOutputStream();
     }
 
     public synchronized DataFlavor[] getTransferDataFlavors() {
@@ -130,7 +172,8 @@ public class DataHandler implements Transferable {
         return false;
     }
 
-    public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
+    public Object getTransferData(DataFlavor flavor)
+        throws UnsupportedFlavorException, IOException {
         /*@todo implement*/
         return null;
     }
@@ -155,8 +198,12 @@ public class DataHandler implements Transferable {
     }
 
     public Object getContent() throws IOException {
-        /*@todo implement*/
-        return null;
+        if (_ds instanceof ObjectDataSource) {
+            return ((ObjectDataSource) _ds).getContent();
+        } else {
+            // TODO not yet implemented
+            throw new IOException("TODO Not yet implemented");
+        }
     }
 
     public Object getBean(CommandInfo cmdinfo) {
