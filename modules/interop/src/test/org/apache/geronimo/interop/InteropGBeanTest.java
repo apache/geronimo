@@ -95,7 +95,7 @@ public class InteropGBeanTest extends TestCase {
 
     protected void setUp() throws Exception {
         log("setUp():");
-        kernel = new Kernel(KERNEL_NAME, "test.domain");
+        kernel = new Kernel(KERNEL_NAME);
 
         log("setUp(): kernel = " + kernel);
 

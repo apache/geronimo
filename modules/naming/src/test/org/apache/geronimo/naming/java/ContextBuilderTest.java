@@ -85,7 +85,7 @@ public class ContextBuilderTest extends TestCase {
 //        builder.addResourceEnvRef("resourceenvref", List.class, localRef);
 
         SimpleReadOnlyContext context = new SimpleReadOnlyContext(builder.getContext());
-        Kernel kernel = new Kernel("test.kernel", "test.domain");
+        Kernel kernel = new Kernel("test.kernel");
         kernel.boot();
         try {
             assertEquals(kernel, Kernel.getKernel("test.kernel"));

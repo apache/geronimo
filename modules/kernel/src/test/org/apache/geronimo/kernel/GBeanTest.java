@@ -84,7 +84,7 @@ public class GBeanTest extends TestCase {
     protected void setUp() throws Exception {
         name = new ObjectName("test:name=MyMockGBean");
         name2 = new ObjectName("test:name=MyMockGBean2");
-        kernel = new Kernel("test.kernel", "test");
+        kernel = new Kernel("test");
         kernel.boot();
     }
 

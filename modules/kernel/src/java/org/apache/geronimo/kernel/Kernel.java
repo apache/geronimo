@@ -198,16 +198,6 @@ public class Kernel {
         this(kernelName, new BasicGBeanRegistry());
     }
 
-    /**
-     * Construct a Kernel with the specified name and an unspecified GBeanRegistry implementation.
-     *
-     * @param kernelName the name of the kernel
-     * @deprecated use new Kernel(kernelName)
-     */
-    public Kernel(String kernelName, String ignored) {
-        this(kernelName);
-    }
-
     public String getKernelName() {
         return kernelName;
     }

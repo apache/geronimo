@@ -108,7 +108,7 @@ public class StartServer {
         }
 
         // build a basic kernel without a configuration-store, our configuration store is
-        Kernel kernel = new Kernel(getKernelName(), new BasicGBeanRegistry());
+        Kernel kernel = new Kernel(getKernelName());
         kernel.boot();
 
         ConfigurationManager configurationManager = kernel.getConfigurationManager();

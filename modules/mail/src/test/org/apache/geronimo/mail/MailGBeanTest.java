@@ -233,7 +233,7 @@ public class MailGBeanTest extends TestCase {
     }
 
     protected void setUp() throws Exception {
-        kernel = new Kernel(KERNEL_NAME, "test.domain");
+        kernel = new Kernel(KERNEL_NAME);
         kernel.boot();
     }
 

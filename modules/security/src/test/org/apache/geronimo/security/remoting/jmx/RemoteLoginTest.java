@@ -80,7 +80,7 @@ public class RemoteLoginTest extends TestCase {
     }
 
     public void setUp() throws Exception {
-        kernel = new Kernel("test.kernel", "simple.geronimo.test");
+        kernel = new Kernel("test.kernel");
         kernel.boot();
 
         GBeanMBean gbean;

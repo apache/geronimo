@@ -122,7 +122,7 @@ public class ConfigurationEntryTest extends TestCase {
     }
 
     protected void setUp() throws Exception {
-        kernel = new Kernel("test.kernel", "simple.geronimo.test");
+        kernel = new Kernel("test.kernel");
         kernel.boot();
 
         GBeanMBean gbean;
