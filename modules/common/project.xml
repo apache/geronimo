@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: project.xml,v 1.1 2003/08/12 15:33:05 jdillon Exp $ -->
+<!-- $Id: project.xml,v 1.2 2003/08/12 18:25:52 jdillon Exp $ -->
 
 <project>
   <pomVersion>3</pomVersion>
@@ -10,7 +10,7 @@
   <!-- Module Identification -->
   <!-- ===================== -->
   
-  <name>Geronimo/Common</name>
+  <name>Geronimo :: Common</name>
   <id>geronimo-common</id>
   <shortDescription></shortDescription>
   <description></description>
