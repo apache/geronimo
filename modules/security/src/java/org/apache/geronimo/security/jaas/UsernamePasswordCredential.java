@@ -17,6 +17,7 @@
 package org.apache.geronimo.security.jaas;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import javax.security.auth.DestroyFailedException;
 import javax.security.auth.Destroyable;
 import javax.security.auth.RefreshFailedException;
@@ -32,26 +33,29 @@ import javax.security.auth.Refreshable;
 public class UsernamePasswordCredential implements Destroyable, Refreshable, Serializable {
 
     private String username;
-    private String password;
+    private char[] password;
     private boolean destroyed;
 
-    public UsernamePasswordCredential(String username, String password) {
+    public UsernamePasswordCredential(String username, char[] password) {
         assert username != null;
         assert password != null;
 
         this.username = username;
-        this.password = password;
+        this.password = new char[password.length];
+        System.arraycopy(password, 0, this.password, 0, password.length);
     }
 
     public String getUsername() {
         return username;
     }
 
-    public String getPassword() {
+    public char[] getPassword() {
         return password;
     }
 
     public void destroy() throws DestroyFailedException {
+        Arrays.fill(password, ' ');
+        
         username = null;
         password = null;
         destroyed = true;
@@ -72,19 +76,18 @@ public class UsernamePasswordCredential implements Destroyable, Refreshable, Ser
         if (this == o) return true;
         if (!(o instanceof UsernamePasswordCredential)) return false;
 
-        final UsernamePasswordCredential usernamePasswordCredential = (UsernamePasswordCredential) o;
+        final UsernamePasswordCredential credential = (UsernamePasswordCredential) o;
 
-        if (destroyed != usernamePasswordCredential.destroyed) return false;
-        if (!password.equals(usernamePasswordCredential.password)) return false;
-        if (!username.equals(usernamePasswordCredential.username)) return false;
+        if (destroyed != credential.destroyed) return false;
+        if (!Arrays.equals(password, credential.password)) return false;
+        if (username != null ? !username.equals(credential.username) : credential.username != null) return false;
 
         return true;
     }
 
     public int hashCode() {
         int result;
-        result = username.hashCode();
-        result = 29 * result + password.hashCode();
+        result = (username != null ? username.hashCode() : 0);
         result = 29 * result + (destroyed ? 1 : 0);
         return result;
     }

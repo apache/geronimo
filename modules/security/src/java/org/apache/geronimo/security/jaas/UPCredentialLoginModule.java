@@ -81,7 +81,7 @@ public class UPCredentialLoginModule implements LoginModule {
 
         if (username == null || password == null) return true;
 
-        upCredential = new UsernamePasswordCredential(username, new String(password));
+        upCredential = new UsernamePasswordCredential(username, password);
 
         return true;
     }
