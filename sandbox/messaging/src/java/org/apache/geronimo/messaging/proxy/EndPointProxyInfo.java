@@ -22,7 +22,7 @@ import org.apache.geronimo.messaging.NodeInfo;
 /**
  * EndPoint proxy meta-data.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/20 13:37:11 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/27 14:20:53 $
  */
 public class EndPointProxyInfo
 {
@@ -41,6 +41,18 @@ public class EndPointProxyInfo
      * Nodes hosting the EndPoint.
      */
     private final NodeInfo[] targets;
+    
+    /**
+     * Convenience constructor
+     *  
+     * @param anEndPointID EndPoint identifier.
+     * @param anInterface Interface of the EndPoint proxy.
+     * @param aTarget Node hosting the EndPoint.
+     */
+    public EndPointProxyInfo(Object anEndPointID, Class anInterface,
+        NodeInfo aTarget) {
+        this(anEndPointID, new Class[] {anInterface}, new NodeInfo[] {aTarget});
+    }
     
     /**
      * Creates the meta-data of an EndPoint proxy.  
