@@ -19,9 +19,33 @@ package org.apache.geronimo.axis.builder;
 import java.lang.String;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.net.URI;
 import javax.wsdl.*;
 import javax.wsdl.extensions.soap.SOAPBody;
 import javax.xml.namespace.QName;
+import javax.xml.rpc.holders.BigDecimalHolder;
+import javax.xml.rpc.holders.BigIntegerHolder;
+import javax.xml.rpc.holders.BooleanHolder;
+import javax.xml.rpc.holders.BooleanWrapperHolder;
+import javax.xml.rpc.holders.ByteArrayHolder;
+import javax.xml.rpc.holders.ByteHolder;
+import javax.xml.rpc.holders.ByteWrapperHolder;
+import javax.xml.rpc.holders.CalendarHolder;
+import javax.xml.rpc.holders.DoubleHolder;
+import javax.xml.rpc.holders.DoubleWrapperHolder;
+import javax.xml.rpc.holders.FloatHolder;
+import javax.xml.rpc.holders.FloatWrapperHolder;
+import javax.xml.rpc.holders.IntHolder;
+import javax.xml.rpc.holders.IntegerWrapperHolder;
+import javax.xml.rpc.holders.LongHolder;
+import javax.xml.rpc.holders.LongWrapperHolder;
+import javax.xml.rpc.holders.ObjectHolder;
+import javax.xml.rpc.holders.QNameHolder;
+import javax.xml.rpc.holders.ShortHolder;
+import javax.xml.rpc.holders.ShortWrapperHolder;
+import javax.xml.rpc.holders.StringHolder;
 
 import org.apache.axis.constants.Style;
 import org.apache.axis.constants.Use;
@@ -185,6 +209,34 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
         return operationDesc;
     }
 
+    //see jaxrpc 1.1 4.2.1
+    private static final Map qnameToClassMap = new HashMap();
+
+    static {
+        qnameToClassMap.put(new QName("http://www.w3.org/2001/XMLSchema", "string"), String.class);
+        qnameToClassMap.put(new QName("http://www.w3.org/2001/XMLSchema", "integer"), BigInteger.class);
+        qnameToClassMap.put(new QName("http://www.w3.org/2001/XMLSchema", "int"), int.class);
+        qnameToClassMap.put(new QName("http://www.w3.org/2001/XMLSchema", "long"), long.class);
+        qnameToClassMap.put(new QName("http://www.w3.org/2001/XMLSchema", "short"), short.class);
+        qnameToClassMap.put(new QName("http://www.w3.org/2001/XMLSchema", "decimal"), BigDecimal.class);
+        qnameToClassMap.put(new QName("http://www.w3.org/2001/XMLSchema", "float"), float.class);
+        qnameToClassMap.put(new QName("http://www.w3.org/2001/XMLSchema", "double"), double.class);
+        qnameToClassMap.put(new QName("http://www.w3.org/2001/XMLSchema", "boolean"), boolean.class);
+        qnameToClassMap.put(new QName("http://www.w3.org/2001/XMLSchema", "byte"), byte.class);
+        qnameToClassMap.put(new QName("http://www.w3.org/2001/XMLSchema", "unsignedInt"), long.class);
+        qnameToClassMap.put(new QName("http://www.w3.org/2001/XMLSchema", "unsignedShort"), int.class);
+        qnameToClassMap.put(new QName("http://www.w3.org/2001/XMLSchema", "unsignedByte"), short.class);
+        qnameToClassMap.put(new QName("http://www.w3.org/2001/XMLSchema", "QName"), QName.class);
+        qnameToClassMap.put(new QName("http://www.w3.org/2001/XMLSchema", "dateTime"), Calendar.class);
+        qnameToClassMap.put(new QName("http://www.w3.org/2001/XMLSchema", "date"), Calendar.class);
+        qnameToClassMap.put(new QName("http://www.w3.org/2001/XMLSchema", "time"), Calendar.class);
+        qnameToClassMap.put(new QName("http://www.w3.org/2001/XMLSchema", "anyURI"), URI.class);
+        qnameToClassMap.put(new QName("http://www.w3.org/2001/XMLSchema", "base64Binary"), byte[].class);
+        qnameToClassMap.put(new QName("http://www.w3.org/2001/XMLSchema", "hexBinary"), byte[].class);
+        qnameToClassMap.put(new QName("http://www.w3.org/2001/XMLSchema", "anySimpleType"), String.class);
+    }
+
+
     private FaultDesc mapException(String faultName, Fault fault) throws DeploymentException {
         Message message = fault.getMessage();
         QName messageQName = message.getQName();
@@ -234,23 +286,19 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
             for (int i = 0; i < constructorParameterOrder.getElementNameArray().length; i++) {
                 String elementName = constructorParameterOrder.getElementNameArray(i).getStringValue().trim();
                 QName elementType = (QName) elementMap.get(elementName);
-                String javaElementTypeName;
+                Class javaElementType;
                 if (complexTypeMap.containsKey(elementType)) {
                     String packageName = WSDescriptorParser.getPackageFromNamespace(elementType.getNamespaceURI(), mapping);
-                    javaElementTypeName = packageName + "." + elementType.getLocalPart();
-                } else {
-                    //TODO finish this
-                    if (elementType.getLocalPart().equals("String")) {
-                        javaElementTypeName = String.class.getName();
-                    } else {
-                        throw new DeploymentException("most simple exception constructor types not yet implemented");
+                    String javaElementTypeName = packageName + "." + elementType.getLocalPart();
+                    try {
+                        javaElementType = ClassLoading.loadClass(javaElementTypeName, classLoader);
+                    } catch (ClassNotFoundException e) {
+                        throw new DeploymentException("Could not load exception constructor parameter", e);
                     }
-                }
-                Class javaElementType;
-                try {
-                    javaElementType = ClassLoading.loadClass(javaElementTypeName, classLoader);
-                } catch (ClassNotFoundException e) {
-                    throw new DeploymentException("Could not load exception constructor parameter", e);
+                } else if (qnameToClassMap.containsKey(elementType)){
+                    javaElementType = (Class) qnameToClassMap.get(elementType);
+                } else {
+                    throw new DeploymentException("Unknown type: " +  elementType);
                 }
                 //todo faultTypeQName is speculative
                 //todo outheader might be true!
