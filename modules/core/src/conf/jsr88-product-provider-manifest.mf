@@ -1,0 +1,2 @@
+Manifest-Version: 1.0
+J2EE-DeploymentFactory-Implementation-Class: org.apache.geronimo.enterprise.deploy.provider.GeronimoDeploymentFactory
