@@ -53,7 +53,7 @@ public class XATransactionTester {
         XAResource xaRes = xaConn.getXAResource();
         log = new DummyLog();
         XidFactory xidFactory = new XidFactoryImpl();
-        manager = new TransactionManagerImpl(log, xidFactory);
+        manager = new TransactionManagerImpl(10, log, xidFactory);
         Connection c = xaConn.getConnection();
         Statement s = c.createStatement();
 

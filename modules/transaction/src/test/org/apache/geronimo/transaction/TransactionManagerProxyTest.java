@@ -41,11 +41,8 @@ import org.apache.geronimo.transaction.manager.XidFactory;
 import org.apache.geronimo.transaction.manager.XidFactoryImpl;
 
 /**
- *
- *
  * @version $Rev$ $Date$
- *
- * */
+ */
 public class TransactionManagerProxyTest extends TestCase {
 
     MockResourceManager rm1 = new MockResourceManager(true);
@@ -58,10 +55,20 @@ public class TransactionManagerProxyTest extends TestCase {
     TransactionLog transactionLog = new MockLog();
 
     XidFactory xidFactory = new XidFactoryImpl("tm1".getBytes());
-    TransactionManagerImpl transactionManager = new TransactionManagerImpl(transactionLog, xidFactory);
+    TransactionManagerImpl transactionManager;
     Recovery recovery = new RecoveryImpl(transactionLog, xidFactory);
     ReferenceCollection resourceManagers = new TestReferenceCollection();
-    TransactionManagerProxy tm = new TransactionManagerProxy(transactionManager, transactionManager, recovery, resourceManagers);
+    TransactionManagerProxy tm;
+
+    protected void setUp() throws Exception {
+        transactionManager = new TransactionManagerImpl(10, transactionLog, xidFactory);
+        tm = new TransactionManagerProxy(transactionManager, transactionManager, recovery, resourceManagers);
+    }
+
+    protected void tearDown() throws Exception {
+        transactionManager = null;
+        tm = null;
+    }
 
     public void testNoResourcesCommit() throws Exception {
         assertEquals(Status.STATUS_NO_TRANSACTION, tm.getStatus());

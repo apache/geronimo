@@ -38,7 +38,7 @@ public class TransactionContextManagerTest extends TestCase {
     private XidFactory xidFactory = new XidFactoryImpl("geronimo.test.tm".getBytes());
 
     protected void setUp() throws Exception {
-        TransactionManagerProxy tm = new GeronimoTransactionManager(null, null);
+        TransactionManagerProxy tm = new GeronimoTransactionManager(10, null, null);
         transactionContextManager = new TransactionContextManager(tm, tm, tm);
     }
 

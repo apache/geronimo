@@ -18,8 +18,7 @@
 package org.apache.geronimo.transaction;
 
 import java.util.Collection;
-
-import javax.transaction.Transaction;
+import javax.transaction.SystemException;
 import javax.transaction.TransactionManager;
 
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -43,17 +42,17 @@ import org.apache.geronimo.transaction.manager.XidImporter;
  * */
 public class GeronimoTransactionManager extends TransactionManagerProxy {
 
-    public GeronimoTransactionManager(TransactionLog transactionLog, Collection resourceManagers) {
-        super(getConstructorParams(transactionLog, (ReferenceCollection)resourceManagers));
+    public GeronimoTransactionManager(int defaultTransactionTimeoutSeconds, TransactionLog transactionLog, Collection resourceManagers) throws SystemException {
+        super(getConstructorParams(defaultTransactionTimeoutSeconds, transactionLog, (ReferenceCollection)resourceManagers));
     }
 
-    private static TransactionManagerProxy.ConstructorParams getConstructorParams(TransactionLog transactionLog, ReferenceCollection resourceManagers) {
+    private static TransactionManagerProxy.ConstructorParams getConstructorParams(int defaultTransactionTimeoutSeconds, TransactionLog transactionLog, ReferenceCollection resourceManagers) throws SystemException {
         TransactionManagerProxy.ConstructorParams params = new TransactionManagerProxy.ConstructorParams();
         XidFactory xidFactory = new XidFactoryImpl("WHAT DO WE CALL IT?".getBytes());
         if (transactionLog == null) {
             transactionLog = new UnrecoverableLog();
         }
-        TransactionManager delegate = new TransactionManagerImpl(transactionLog, xidFactory);
+        TransactionManager delegate = new TransactionManagerImpl(defaultTransactionTimeoutSeconds, transactionLog, xidFactory);
         Recovery recovery = new RecoveryImpl(transactionLog, xidFactory);
         params.delegate = delegate;
         params.xidImporter = (XidImporter) delegate;
@@ -67,13 +66,14 @@ public class GeronimoTransactionManager extends TransactionManagerProxy {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(GeronimoTransactionManager.class);
 
+        infoFactory.addAttribute("defaultTransactionTimeoutSeconds", int.class, true);
         infoFactory.addReference("TransactionLog", TransactionLog.class);
         infoFactory.addReference("ResourceManagers", ResourceManager.class);
 
         infoFactory.addInterface(TransactionManager.class);
         infoFactory.addInterface(XidImporter.class);
 
-        infoFactory.setConstructor(new String[]{"TransactionLog", "ResourceManagers"});
+        infoFactory.setConstructor(new String[]{"defaultTransactionTimeoutSeconds", "TransactionLog", "ResourceManagers"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
