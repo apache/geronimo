@@ -65,7 +65,7 @@ import javax.enterprise.deploy.spi.exceptions.BeanNotFoundException;
 /**
  * The DConfigBean representing /ejb-jar/enterprise-beans/.../env-entry
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/27 10:33:34 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/04 05:24:21 $
  */
 public class EnvEntryBean extends BaseDConfigBean {
     final static String ENV_ENTRY_NAME_XPATH = "env-entry-name";
@@ -141,5 +141,9 @@ public class EnvEntryBean extends BaseDConfigBean {
         String old = this.envEntryValue;
         this.envEntryValue = envEntryValue;
         pcs.firePropertyChange("envEntryValue", old, this.envEntryValue);
+    }
+
+    public String toString() {
+        return envEntryName;
     }
 }

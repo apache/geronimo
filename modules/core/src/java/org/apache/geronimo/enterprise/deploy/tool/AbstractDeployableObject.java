@@ -53,58 +53,90 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.enterprise.deploy.provider.jar;
+package org.apache.geronimo.enterprise.deploy.tool;
+
+import java.io.InputStream;
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.jar.JarFile;
+import java.util.jar.JarEntry;
+import javax.enterprise.deploy.model.DeployableObject;
+import javax.enterprise.deploy.model.DDBeanRoot;
+import javax.enterprise.deploy.model.DDBean;
+import javax.enterprise.deploy.shared.ModuleType;
 
 /**
- * A regular JavaBean representing
- * /ejb-jar/enterprise-beans/.../ejb-ref/context-params/context-param
- * in the Geronimo DD.
+ * The base class for all DeployableObject implementations.  Each subclass
+ * defines how to get specific deployment descriptors.
  *
- * @version $Revision: 1.3 $ $Date: 2003/09/04 05:24:21 $
+ * @version $Revision: 1.1 $ $Date: 2003/09/04 05:24:21 $
  */
-public class ContextParam {
-    private String paramName = "";
-    private String paramValue = "";
+public abstract class AbstractDeployableObject implements DeployableObject {
+    private JarFile jar;
+    private ModuleType type;
+    private DDBeanRoot defaultRoot;
+    private ClassLoader loader;
 
-    public ContextParam() {
+    public AbstractDeployableObject(JarFile jar, ModuleType type, DDBeanRoot defaultRoot, ClassLoader loader) {
+        this.jar = jar;
+        this.type = type;
+        this.defaultRoot = defaultRoot;
+        this.loader = loader;
     }
 
-    public String getParamName() {
-        return paramName;
+    public ModuleType getType() {
+        return type;
     }
 
-    public void setParamName(String paramName) {
-        this.paramName = paramName;
+    public DDBeanRoot getDDBeanRoot() {
+        return defaultRoot;
     }
 
-    public String getParamValue() {
-        return paramValue;
+    public DDBean[] getChildBean(String xpath) {
+        return defaultRoot.getChildBean(xpath);
     }
 
-    public void setParamValue(String paramValue) {
-        this.paramValue = paramValue;
+    public String[] getText(String xpath) {
+        return defaultRoot.getText(xpath);
     }
 
-    public boolean equals(Object o) {
-        if(this == o) return true;
-        if(!(o instanceof ContextParam)) return false;
-
-        final ContextParam contextParam = (ContextParam)o;
-
-        if(paramName != null ? !paramName.equals(contextParam.paramName) : contextParam.paramName != null) return false;
-        if(paramValue != null ? !paramValue.equals(contextParam.paramValue) : contextParam.paramValue != null) return false;
-
-        return true;
+    public Class getClassFromScope(String className) {
+        try {
+            return loader.loadClass(className);
+        } catch(ClassNotFoundException e) {
+            return null;
+        }
     }
 
-    public int hashCode() {
-        int result;
-        result = (paramName != null ? paramName.hashCode() : 0);
-        result = 29 * result + (paramValue != null ? paramValue.hashCode() : 0);
-        return result;
+    public String getModuleDTDVersion() {
+        return defaultRoot.getModuleDTDVersion();
     }
 
-    public String toString() {
-        return paramName == null || paramName.equals("") ? "Empty" : paramName;
+    public Enumeration entries() {
+        return new JarEnumerator(jar.entries());
+    }
+
+    public InputStream getEntry(String name) {
+        try {
+            return jar.getInputStream(jar.getEntry(name));
+        } catch(IOException e) {
+            return null;
+        }
+    }
+
+    private static class JarEnumerator implements Enumeration {
+        private Enumeration entries;
+
+        public JarEnumerator(Enumeration entries) {
+            this.entries = entries;
+        }
+
+        public boolean hasMoreElements() {
+            return entries.hasMoreElements();
+        }
+
+        public Object nextElement() {
+            return ((JarEntry)entries.nextElement()).getName();
+        }
     }
 }

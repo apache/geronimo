@@ -65,7 +65,7 @@ import javax.enterprise.deploy.spi.exceptions.BeanNotFoundException;
 /**
  * The DConfigBean representing /ejb-jar/enterprise-beans/.../resource-env-ref
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/27 10:33:34 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/04 05:24:21 $
  */
 public class ResourceEnvRefBean extends BaseDConfigBean {
     final static String RESOURCE_ENV_REF_NAME_XPATH = "resource-env-ref-name";
@@ -129,5 +129,9 @@ public class ResourceEnvRefBean extends BaseDConfigBean {
         String old = this.jndiName;
         this.jndiName = jndiName;
         pcs.firePropertyChange("jndiName", old, jndiName);
+    }
+
+    public String toString() {
+        return resourceEnvRefName;
     }
 }

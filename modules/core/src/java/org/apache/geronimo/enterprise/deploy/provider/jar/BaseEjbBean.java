@@ -71,25 +71,22 @@ import org.apache.commons.logging.LogFactory;
  * A common base class for the DConfigBeans representing different
  * types of EJBs.
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/27 10:33:34 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/04 05:24:21 $
  */
 public class BaseEjbBean extends BaseDConfigBean {
-    private static final Log log = LogFactory.getLog(EnterpriseBeansBean.class);
+    private static final Log log = LogFactory.getLog(BaseEjbBean.class);
     final static String EJB_NAME_XPATH = "ejb-name";
     final static String ENV_ENTRY_XPATH = "env-entry";
     final static String EJB_REF_XPATH = "ejb-ref";
     final static String EJB_LOCAL_REF_XPATH = "ejb-local-ref";
-    final static String SECURITY_ROLE_REF_XPATH = "security-role-ref";
     final static String RESOURCE_REF_XPATH = "resource-ref";
     final static String RESOURCE_ENV_REF_XPATH = "resource-env-ref";
     private String ejbName;
-    private String jndiName;
     private List envEntries = new ArrayList();
     private List ejbRefs = new ArrayList();
     private List ejbLocalRefs = new ArrayList();
     private List resourceRefs = new ArrayList();
     private List resourceEnvRefs = new ArrayList();
-    private List securityRoleRefs = new ArrayList();
 
     /**
      * This is present for JavaBeans compliance, but if it is used, the
@@ -98,13 +95,12 @@ public class BaseEjbBean extends BaseDConfigBean {
      */
     public BaseEjbBean() {
         super(null);
-        ejbName = jndiName = "";
+        ejbName = "";
     }
 
     public BaseEjbBean(DDBean ddBean) {
         super(ddBean);
         ejbName = ddBean.getText(EJB_NAME_XPATH)[0];
-        jndiName = ejbName;
         ddBean.addXpathListener(EJB_NAME_XPATH, new XpathListener() {
             public void fireXpathEvent(XpathEvent xpe) {
                 if(xpe.isChangeEvent() || xpe.isAddEvent()) {
@@ -121,7 +117,6 @@ public class BaseEjbBean extends BaseDConfigBean {
             ENV_ENTRY_XPATH,
             EJB_REF_XPATH,
             EJB_LOCAL_REF_XPATH,
-            SECURITY_ROLE_REF_XPATH,
             RESOURCE_REF_XPATH,
             RESOURCE_ENV_REF_XPATH,
         }; // ejb-name is not included, since we don't have a DConfigBean for it
@@ -156,10 +151,6 @@ public class BaseEjbBean extends BaseDConfigBean {
             if(!envEntries.remove(bean)) {
                 throw new BeanNotFoundException("Could not find Env Entry "+((EnvEntryBean)bean).getEnvEntryName()+" to remove");
             }
-        } else if(bean instanceof SecurityRoleRefBean) {
-            if(!securityRoleRefs.remove(bean)) {
-                throw new BeanNotFoundException("Could not find Security Role Reference "+((SecurityRoleRefBean)bean).getRoleName()+" to remove");
-            }
         } else {
             throw new BeanNotFoundException("No such child bean "+bean.getClass().getName());
         }
@@ -192,17 +183,7 @@ public class BaseEjbBean extends BaseDConfigBean {
         pcs.firePropertyChange("ejbName", old, ejbName);
     }
 
-    public String getJndiName() {
-        return jndiName;
-    }
-
-    public void setJndiName(String jndiName) {
-        String old = this.jndiName;
-        this.jndiName = jndiName;
-        pcs.firePropertyChange("jndiName", old, jndiName);
-    }
-
-    private DConfigBean getDConfigBean(DDBean bean, boolean create) {
+    protected DConfigBean getDConfigBean(DDBean bean, boolean create) {
         if(bean.getXpath().equals(EJB_REF_XPATH)) {
             for(Iterator it = ejbRefs.iterator(); it.hasNext();) {
                 DConfigBean dcb = (DConfigBean)it.next();
@@ -263,20 +244,12 @@ public class BaseEjbBean extends BaseDConfigBean {
                 envEntries.add(entry);
                 return entry;
             }
-        } else if(bean.getXpath().equals(SECURITY_ROLE_REF_XPATH)) {
-            for(Iterator it = securityRoleRefs.iterator(); it.hasNext();) {
-                DConfigBean dcb = (DConfigBean)it.next();
-                if(dcb.getDDBean().equals(bean)) {
-                    return dcb;
-                }
-            }
-            if(create) {
-                DConfigBean ref = new SecurityRoleRefBean(bean);
-                securityRoleRefs.add(ref);
-                return ref;
-            }
         }
         return null;
+    }
+
+    public String toString() {
+        return ejbName;
     }
 
     /**
@@ -322,14 +295,5 @@ public class BaseEjbBean extends BaseDConfigBean {
      */
     List getResourceEnvRef() {
         return resourceEnvRefs;
-    }
-
-    /**
-     * Used by other classes in this package to store and restore.  A JSR-88
-     * tool implementation should get the child DConfigBeans by calling
-     * getDConfigBean for each of the DDBeans.
-     */
-    List getSecurityRoleRef() {
-        return securityRoleRefs;
     }
 }

@@ -66,7 +66,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * BeanInfo describing the BaseEjbBean class
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/27 10:33:34 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/04 05:24:21 $
  */
 public class BaseEjbBeanBeanInfo extends SimpleBeanInfo {
     private static final Log log = LogFactory.getLog(BaseEjbBeanBeanInfo.class);
@@ -84,12 +84,8 @@ public class BaseEjbBeanBeanInfo extends SimpleBeanInfo {
             name.setBound(true);
             name.setDisplayName("EJB Name");
             name.setShortDescription("The unique name for this EJB");
-            PropertyDescriptor jndi = new PropertyDescriptor("jndiName", BaseEjbBean.class);
-            jndi.setBound(true);
-            jndi.setDisplayName("JNDI Name");
-            jndi.setShortDescription("The JNDI location where this EJB should be bound");
             return new PropertyDescriptor[] {
-                name, jndi,
+                name,
             };
         } catch(IntrospectionException e) {
             log.error("Error in BeanInfo", e);

@@ -65,7 +65,7 @@ import javax.enterprise.deploy.spi.exceptions.BeanNotFoundException;
 /**
  * The DConfigBean representing /ejb-jar/enterprise-beans/.../env-entry
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/27 10:33:34 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/04 05:24:21 $
  */
 public class SecurityRoleRefBean extends BaseDConfigBean {
     final static String ROLE_NAME_XPATH = "role-name";
@@ -141,5 +141,9 @@ public class SecurityRoleRefBean extends BaseDConfigBean {
         String old = this.roleLink;
         this.roleLink = roleLink;
         pcs.firePropertyChange("roleLink", old, this.roleLink);
+    }
+
+    public String toString() {
+        return roleName;
     }
 }

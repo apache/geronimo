@@ -53,58 +53,67 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.enterprise.deploy.provider.jar;
+package org.apache.geronimo.enterprise.deploy.tool;
+
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.IOException;
+import java.util.jar.JarFile;
+import javax.enterprise.deploy.model.DDBeanRoot;
+import javax.enterprise.deploy.model.exceptions.DDBeanCreateException;
+import javax.enterprise.deploy.shared.ModuleType;
+import org.dom4j.io.SAXReader;
+import org.dom4j.DocumentException;
+import org.dom4j.Document;
+import org.dom4j.Element;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
- * A regular JavaBean representing
- * /ejb-jar/enterprise-beans/.../ejb-ref/context-params/context-param
- * in the Geronimo DD.
+ * A DeployableObject implementation for EJB JARs.  This knows how to load and
+ * validate the deployment descriptors for EJB (currently v2.1 only).
  *
- * @version $Revision: 1.3 $ $Date: 2003/09/04 05:24:21 $
+ * @version $Revision: 1.1 $ $Date: 2003/09/04 05:24:21 $
  */
-public class ContextParam {
-    private String paramName = "";
-    private String paramValue = "";
+public class EjbDeployableObject extends AbstractDeployableObject {
+    private final static Log log = LogFactory.getLog(EjbDeployableObject.class);
+    private final static String EJB_JAR_DD = "META-INF/ejb-jar.xml";
 
-    public ContextParam() {
+    public EjbDeployableObject(JarFile jar, ClassLoader loader) {
+        super(jar, ModuleType.EJB, createEjbJarRoot(jar), loader);
     }
 
-    public String getParamName() {
-        return paramName;
+    public DDBeanRoot getDDBeanRoot(String filename) throws FileNotFoundException, DDBeanCreateException {
+        if(filename.equals(EJB_JAR_DD)) {
+            return super.getDDBeanRoot();
+        } else {
+            return null; //todo: Web Services DDs
+        }
     }
 
-    public void setParamName(String paramName) {
-        this.paramName = paramName;
+    private static DDBeanRootImpl createEjbJarRoot(JarFile jar) {
+        DDBeanRootImpl beanRoot = createDDBeanRoot(jar, EJB_JAR_DD);
+        Element root = beanRoot.getDocument().getRootElement();
+        if(!root.getName().equals("ejb-jar") || !root.attribute("version").getValue().equals("2.1")) {
+            log.error("Not an EJB 2.1 deployment descriptor");
+            return null;
+        }
+        return beanRoot;
     }
 
-    public String getParamValue() {
-        return paramValue;
+    private static DDBeanRootImpl createDDBeanRoot(JarFile jar, String fileName) {
+        try {
+            InputStream in = jar.getInputStream(jar.getEntry(fileName));
+            SAXReader reader = new SAXReader();
+            Document document = reader.read(in);
+            return new DDBeanRootImpl(document);
+        } catch(IOException e) {
+            log.error("Unable to locate DD "+fileName+" in EJB JAR", e);
+            return null;
+        } catch(DocumentException e) {
+            log.error("Unable to parse DD "+fileName+" in EJB JAR", e);
+            return null;
+        }
     }
 
-    public void setParamValue(String paramValue) {
-        this.paramValue = paramValue;
-    }
-
-    public boolean equals(Object o) {
-        if(this == o) return true;
-        if(!(o instanceof ContextParam)) return false;
-
-        final ContextParam contextParam = (ContextParam)o;
-
-        if(paramName != null ? !paramName.equals(contextParam.paramName) : contextParam.paramName != null) return false;
-        if(paramValue != null ? !paramValue.equals(contextParam.paramValue) : contextParam.paramValue != null) return false;
-
-        return true;
-    }
-
-    public int hashCode() {
-        int result;
-        result = (paramName != null ? paramName.hashCode() : 0);
-        result = 29 * result + (paramValue != null ? paramValue.hashCode() : 0);
-        return result;
-    }
-
-    public String toString() {
-        return paramName == null || paramName.equals("") ? "Empty" : paramName;
-    }
 }

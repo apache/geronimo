@@ -64,16 +64,18 @@ import org.dom4j.Document;
 /**
  * The DDBeanRootImpl provides an implementation for javax.enterprise.deploy.model.DDBeanRoot.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/22 19:03:38 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/04 05:24:21 $
  */
 public class DDBeanRootImpl extends DDBeanImpl implements DDBeanRoot {
     
     private String moduleDTDVersion;
     private ModuleType type;
-    
+    private Document document;
+
     /** Creates a new instance of DDBeanRootImpl */
     DDBeanRootImpl(Document document) {
-        super(document.getRootElement());
+        super(document, "/");
+        this.document = document;
         moduleDTDVersion = document.getRootElement().valueOf("@version");
         if ("ejb-jar".equalsIgnoreCase(id)) {
             type = ModuleType.EJB;
@@ -107,5 +109,9 @@ public class DDBeanRootImpl extends DDBeanImpl implements DDBeanRoot {
     public String getFilename() {
         // @todo implement
         return null;
+    }
+
+    public Document getDocument() {
+        return document;
     }
 }

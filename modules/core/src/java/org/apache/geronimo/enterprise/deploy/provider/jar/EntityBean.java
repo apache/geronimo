@@ -55,14 +55,26 @@
  */
 package org.apache.geronimo.enterprise.deploy.provider.jar;
 
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Iterator;
 import javax.enterprise.deploy.model.DDBean;
+import javax.enterprise.deploy.spi.DConfigBean;
+import javax.enterprise.deploy.spi.exceptions.BeanNotFoundException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * The DConfigBean for /ejb-jar/enterprise-beans/entity
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/27 10:33:34 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/04 05:24:21 $
  */
 public class EntityBean extends BaseEjbBean {
+    private static final Log log = LogFactory.getLog(EntityBean.class);
+    final static String SECURITY_ROLE_REF_XPATH = "security-role-ref";
+    private String jndiName;
+    private List securityRoleRefs = new ArrayList();
+
     /**
      * This is present for JavaBeans compliance, but if it is used, the
      * DConfigBean won't be properly associated with a DDBean, so it
@@ -70,9 +82,68 @@ public class EntityBean extends BaseEjbBean {
      */
     public EntityBean() {
         super();
+        jndiName = "";
     }
 
     public EntityBean(DDBean ddBean) {
         super(ddBean);
+        jndiName = getEjbName();
+    }
+
+    public String[] getXpaths() {
+        return new String[] {
+            ENV_ENTRY_XPATH,
+            EJB_REF_XPATH,
+            EJB_LOCAL_REF_XPATH,
+            SECURITY_ROLE_REF_XPATH,
+            RESOURCE_REF_XPATH,
+            RESOURCE_ENV_REF_XPATH,
+        }; // ejb-name is not included, since we don't have a DConfigBean for it
+    }
+
+    public void removeDConfigBean(DConfigBean bean) throws BeanNotFoundException {
+        if(bean instanceof SecurityRoleRefBean) {
+            if(!securityRoleRefs.remove(bean)) {
+                throw new BeanNotFoundException("Could not find Security Role Reference "+((SecurityRoleRefBean)bean).getRoleName()+" to remove");
+            }
+        } else {
+            super.removeDConfigBean(bean);
+        }
+    }
+
+    public String getJndiName() {
+        return jndiName;
+    }
+
+    public void setJndiName(String jndiName) {
+        String old = this.jndiName;
+        this.jndiName = jndiName;
+        pcs.firePropertyChange("jndiName", old, jndiName);
+    }
+
+    protected DConfigBean getDConfigBean(DDBean bean, boolean create) {
+        if(bean.getXpath().equals(SECURITY_ROLE_REF_XPATH)) {
+            for(Iterator it = securityRoleRefs.iterator(); it.hasNext();) {
+                DConfigBean dcb = (DConfigBean)it.next();
+                if(dcb.getDDBean().equals(bean)) {
+                    return dcb;
+                }
+            }
+            if(create) {
+                DConfigBean ref = new SecurityRoleRefBean(bean);
+                securityRoleRefs.add(ref);
+                return ref;
+            }
+        }
+        return super.getDConfigBean(bean, create);
+    }
+
+    /**
+     * Used by other classes in this package to store and restore.  A JSR-88
+     * tool implementation should get the child DConfigBeans by calling
+     * getDConfigBean for each of the DDBeans.
+     */
+    List getSecurityRoleRef() {
+        return securityRoleRefs;
     }
 }

@@ -65,25 +65,24 @@ import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.enterprise.deploy.common.EjbJar;
-import org.apache.geronimo.enterprise.deploy.common.MessageDriven;
-import org.apache.geronimo.enterprise.deploy.common.EjbRef;
-import org.apache.geronimo.enterprise.deploy.common.Session;
-import org.apache.geronimo.enterprise.deploy.common.Entity;
-import org.apache.geronimo.enterprise.deploy.common.EnterpriseBeans;
-import org.apache.geronimo.enterprise.deploy.common.Ejb;
-import org.apache.geronimo.enterprise.deploy.common.EnvEntry;
-import org.apache.geronimo.enterprise.deploy.common.EjbLocalRef;
-import org.apache.geronimo.enterprise.deploy.common.ResourceRef;
-import org.apache.geronimo.enterprise.deploy.common.ResourceEnvRef;
-import org.apache.geronimo.enterprise.deploy.common.SecurityRoleRef;
-import org.apache.geronimo.enterprise.deploy.common.JndiContextParam;
-import org.apache.geronimo.enterprise.deploy.common.JndiContextParams;
+import org.apache.geronimo.deployment.model.geronimo.ejb.EjbJar;
+import org.apache.geronimo.deployment.model.geronimo.ejb.EnterpriseBeans;
+import org.apache.geronimo.deployment.model.geronimo.ejb.Ejb;
+import org.apache.geronimo.deployment.model.geronimo.ejb.MessageDriven;
+import org.apache.geronimo.deployment.model.geronimo.ejb.Entity;
+import org.apache.geronimo.deployment.model.geronimo.ejb.Session;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.EnvEntry;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.JndiContextParam;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbLocalRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceEnvRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.SecurityRoleRef;
 
 /**
  * Maps DConfigBeans to POJOs and vice versa.
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/27 10:33:34 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/04 05:24:21 $
  */
 public class EjbConverter {
     private static final Log log = LogFactory.getLog(EjbConverter.class);
@@ -92,60 +91,76 @@ public class EjbConverter {
         EjbJarRoot root = new EjbJarRoot(standard);
         EjbJarBean ejbJar = (EjbJarBean)root.getDConfigBean(standard.getChildBean(EjbJarRoot.EJB_JAR_XPATH)[0]);
         EnterpriseBeansBean beans = (EnterpriseBeansBean)ejbJar.getDConfigBean(ejbJar.getDDBean().getChildBean(EjbJarBean.ENTERPRISE_BEANS_XPATH)[0]);
-        assignSession(beans, custom.getEnterpriseBeans().getSession(), standard.getChildBean("session"));
-        assignEntity(beans, custom.getEnterpriseBeans().getEntity(), standard.getChildBean("entity"));
-        assignMessageDriven(beans, custom.getEnterpriseBeans().getMessageDriven(), standard.getChildBean("message-driven"));
+        assignSession(beans, custom.getEnterpriseBeans().getSession(), beans.getDDBean().getChildBean(EnterpriseBeansBean.SESSION_XPATH));
+        assignEntity(beans, custom.getEnterpriseBeans().getEntity(), beans.getDDBean().getChildBean(EnterpriseBeansBean.ENTITY_XPATH));
+        assignMessageDriven(beans, custom.getEnterpriseBeans().getMessageDriven(), beans.getDDBean().getChildBean(EnterpriseBeansBean.MESSAGE_DRIVEN_XPATH));
         return root;
     }
 
-    public static EjbJar storeDConfigBeans(EjbJarRoot root) {
+    public static org.apache.geronimo.deployment.model.geronimo.ejb.EjbJar storeDConfigBeans(EjbJarRoot root) throws ConfigurationException {
         EjbJar jar = new EjbJar();
         jar.setEnterpriseBeans(new EnterpriseBeans());
-        storeSession(jar.getEnterpriseBeans(), root.getEjbJar().getEnterpriseBeans().getSession().iterator());
-        storeEntity(jar.getEnterpriseBeans(), root.getEjbJar().getEnterpriseBeans().getEntity().iterator());
-        storeMessageDriven(jar.getEnterpriseBeans(), root.getEjbJar().getEnterpriseBeans().getMessageDriven().iterator());
+        if(root == null || root.getEjbJar() == null) {
+            throw new ConfigurationException("Insufficient configuration information to save.");
+        }
+        EnterpriseBeansBean beans = root.getEjbJar().getEnterpriseBeans();
+        if(beans == null) {
+            throw new ConfigurationException("Insufficient configuration information to save.");
+        }
+        storeSession(jar.getEnterpriseBeans(), beans.getSession().iterator());
+        storeEntity(jar.getEnterpriseBeans(), beans.getEntity().iterator());
+        storeMessageDriven(jar.getEnterpriseBeans(), beans.getMessageDriven().iterator());
         return jar;
     }
 
     private static void storeEjb(Ejb dest, BaseEjbBean bean) {
         dest.setEjbName(bean.getEjbName());
-        dest.setJndiName(bean.getJndiName());
         storeEnvEntries(dest, bean.getEnvEntry().iterator());
         storeEjbRefs(dest, bean.getEjbRef().iterator());
         storeEjbLocalRefs(dest, bean.getEjbLocalRef().iterator());
         storeResourceRefs(dest, bean.getResourceRef().iterator());
         storeResourceEnvRefs(dest, bean.getResourceEnvRef().iterator());
-        storeSecurityRoleRefs(dest, bean.getSecurityRoleRef().iterator());
     }
 
     private static void storeMessageDriven(EnterpriseBeans beans, Iterator iterator) {
+        List list = new ArrayList();
         while(iterator.hasNext()) {
             MessageDrivenBean bean = (MessageDrivenBean)iterator.next();
             MessageDriven md = new MessageDriven();
             storeEjb(md, bean);
-            beans.addMessageDriven(md);
+            list.add(md);
         }
+        beans.setMessageDriven((MessageDriven[])list.toArray(new MessageDriven[list.size()]));
     }
 
     private static void storeEntity(EnterpriseBeans beans, Iterator iterator) {
+        List list = new ArrayList();
         while(iterator.hasNext()) {
             EntityBean bean = (EntityBean)iterator.next();
             Entity e = new Entity();
             storeEjb(e, bean);
-            beans.addEntity(e);
+            e.setJndiName(bean.getJndiName());
+            storeSecurityRoleRefs(e, bean.getSecurityRoleRef().iterator());
+            list.add(e);
         }
+        beans.setEntity((Entity[])list.toArray(new Entity[list.size()]));
     }
 
     private static void storeSession(EnterpriseBeans beans, Iterator iterator) {
+        List list = new ArrayList();
         while(iterator.hasNext()) {
             SessionBean bean = (SessionBean)iterator.next();
             Session s = new Session();
             storeEjb(s, bean);
-            beans.addSession(s);
+            s.setJndiName(bean.getJndiName());
+            storeSecurityRoleRefs(s, bean.getSecurityRoleRef().iterator());
+            list.add(s);
         }
+        beans.setSession((Session[])list.toArray(new Session[list.size()]));
     }
 
     private static void storeEnvEntries(Ejb dest, Iterator it) {
+        List list = new ArrayList();
         while(it.hasNext()) {
             EnvEntryBean bean = (EnvEntryBean)it.next();
             String standard = bean.getDDBean().getText(EnvEntryBean.ENV_ENTRY_VALUE_XPATH)[0];
@@ -153,12 +168,14 @@ public class EjbConverter {
                 EnvEntry e = new EnvEntry();
                 e.setEnvEntryName(bean.getEnvEntryName());
                 e.setEnvEntryValue(bean.getEnvEntryValue());
-                dest.addEnvEntry(e);
+                list.add(e);
             }
         }
+        dest.setEnvEntry((EnvEntry[])list.toArray(new EnvEntry[list.size()]));
     }
 
     private static void storeEjbRefs(Ejb dest, Iterator it) {
+        List outer = new ArrayList();
         while(it.hasNext()) {
             EjbRefBean bean = (EjbRefBean)it.next();
             if(isValid(bean.getJndiName())) {
@@ -176,16 +193,16 @@ public class EjbConverter {
                     }
                 }
                 if(list.size() > 0) {
-                    JndiContextParams set = new JndiContextParams();
-                    set.setJndiContextParam((JndiContextParam[])list.toArray(new JndiContextParam[list.size()]));
-                    ref.setJndiContextParams(set);
+                    ref.setJndiContextParam((JndiContextParam[])list.toArray(new JndiContextParam[list.size()]));
                 }
-                dest.addEjbRef(ref);
+                outer.add(ref);
             }
         }
+        dest.setEjbRef((EjbRef[])outer.toArray(new EjbRef[outer.size()]));
     }
 
     private static void storeEjbLocalRefs(Ejb dest, Iterator it) {
+        List outer = new ArrayList();
         while(it.hasNext()) {
             EjbLocalRefBean bean = (EjbLocalRefBean)it.next();
             if(isValid(bean.getJndiName())) {
@@ -203,16 +220,16 @@ public class EjbConverter {
                     }
                 }
                 if(list.size() > 0) {
-                    JndiContextParams set = new JndiContextParams();
-                    set.setJndiContextParam((JndiContextParam[])list.toArray(new JndiContextParam[list.size()]));
-                    ref.setJndiContextParams(set);
+                    ref.setJndiContextParam((JndiContextParam[])list.toArray(new JndiContextParam[list.size()]));
                 }
-                dest.addEjbLocalRef(ref);
+                outer.add(ref);
             }
         }
+        dest.setEjbLocalRef((EjbLocalRef[])outer.toArray(new EjbLocalRef[outer.size()]));
     }
 
     private static void storeResourceRefs(Ejb dest, Iterator it) {
+        List outer = new ArrayList();
         while(it.hasNext()) {
             ResourceRefBean bean = (ResourceRefBean)it.next();
             if(isValid(bean.getJndiName())) {
@@ -230,28 +247,30 @@ public class EjbConverter {
                     }
                 }
                 if(list.size() > 0) {
-                    JndiContextParams set = new JndiContextParams();
-                    set.setJndiContextParam((JndiContextParam[])list.toArray(new JndiContextParam[list.size()]));
-                    ref.setJndiContextParams(set);
+                    ref.setJndiContextParam((JndiContextParam[])list.toArray(new JndiContextParam[list.size()]));
                 }
-                dest.addResourceRef(ref);
+                outer.add(ref);
             }
         }
+        dest.setResourceRef((ResourceRef[])outer.toArray(new ResourceRef[outer.size()]));
     }
 
     private static void storeResourceEnvRefs(Ejb dest, Iterator it) {
+        List list = new ArrayList();
         while(it.hasNext()) {
             ResourceEnvRefBean bean = (ResourceEnvRefBean)it.next();
             if(isValid(bean.getJndiName())) {
                 ResourceEnvRef ref = new ResourceEnvRef();
                 ref.setResourceEnvRefName(bean.getResourceEnvRefName());
                 ref.setJndiName(bean.getJndiName());
-                dest.addResourceEnvRef(ref);
+                list.add(ref);
             }
         }
+        dest.setResourceEnvRef((ResourceEnvRef[])list.toArray(new ResourceEnvRef[list.size()]));
     }
 
-    private static void storeSecurityRoleRefs(Ejb dest, Iterator it) {
+    private static void storeSecurityRoleRefs(Session dest, Iterator it) {
+        List list = new ArrayList();
         while(it.hasNext()) {
             SecurityRoleRefBean bean = (SecurityRoleRefBean)it.next();
             String standard = bean.getDDBean().getText(SecurityRoleRefBean.ROLE_LINK_XPATH)[0];
@@ -259,9 +278,25 @@ public class EjbConverter {
                 SecurityRoleRef ref = new SecurityRoleRef();
                 ref.setRoleName(bean.getRoleName());
                 ref.setRoleLink(bean.getRoleLink());
-                dest.addSecurityRoleRef(ref);
+                list.add(ref);
             }
         }
+        dest.setSecurityRoleRef((SecurityRoleRef[])list.toArray(new SecurityRoleRef[list.size()]));
+    }
+
+    private static void storeSecurityRoleRefs(Entity dest, Iterator it) {
+        List list = new ArrayList();
+        while(it.hasNext()) {
+            SecurityRoleRefBean bean = (SecurityRoleRefBean)it.next();
+            String standard = bean.getDDBean().getText(SecurityRoleRefBean.ROLE_LINK_XPATH)[0];
+            if(isValid(bean.getRoleLink()) && (standard == null || !standard.equals(bean.getRoleLink()))) {
+                SecurityRoleRef ref = new SecurityRoleRef();
+                ref.setRoleName(bean.getRoleName());
+                ref.setRoleLink(bean.getRoleLink());
+                list.add(ref);
+            }
+        }
+        dest.setSecurityRoleRef((SecurityRoleRef[])list.toArray(new SecurityRoleRef[list.size()]));
     }
 
     private static void assignMessageDriven(EnterpriseBeansBean root, MessageDriven[] messageDriven, DDBean[] childBean) throws ConfigurationException {
@@ -269,8 +304,10 @@ public class EjbConverter {
         for(int i=0; i<messageDriven.length; i++) {
             DDBean match = null;
             for(int j = 0; j < childBean.length; j++) {
-                if(childBean[j].getText(BaseEjbBean.EJB_NAME_XPATH).equals(messageDriven[i].getEjbName())) {
+                String[] names = childBean[j].getText(BaseEjbBean.EJB_NAME_XPATH);
+                if(names.length == 1 && names[0].equals(messageDriven[i].getEjbName())) {
                     match = childBean[j];
+                    break;
                 }
             }
             if(match == null) {
@@ -287,7 +324,7 @@ public class EjbConverter {
             if(found.contains(bean)) {
                 continue;
             }
-            log.info("Old DD does not contain an entry for Message-Driven EJB "+bean.getText(BaseEjbBean.EJB_NAME_XPATH)+"; adding a default entry");
+            log.info("Old DD does not contain an entry for Message-Driven EJB "+bean.getText(BaseEjbBean.EJB_NAME_XPATH)[0]+"; adding a default entry");
             root.getDConfigBean(bean);
         }
     }
@@ -297,8 +334,10 @@ public class EjbConverter {
         for(int i=0; i<sessions.length; i++) {
             DDBean match = null;
             for(int j = 0; j < childBean.length; j++) {
-                if(childBean[j].getText(BaseEjbBean.EJB_NAME_XPATH).equals(sessions[i].getEjbName())) {
+                String[] names = childBean[j].getText(BaseEjbBean.EJB_NAME_XPATH);
+                if(names.length == 1 && names[0].equals(sessions[i].getEjbName())) {
                     match = childBean[j];
+                    break;
                 }
             }
             if(match == null) {
@@ -308,14 +347,16 @@ public class EjbConverter {
             found.add(match);
             SessionBean bean = (SessionBean)root.getDConfigBean(match);
             assignEjb(bean, sessions[i], match);
-            //todo: any session-specific content
+            //session-specific content
+            bean.setJndiName(bean.getJndiName());
+            assignSecurityRoleRefs(bean, sessions[i].getSecurityRoleRef(), match.getChildBean(EntityBean.SECURITY_ROLE_REF_XPATH));
         }
         for(int i = 0; i < childBean.length; i++) {
             DDBean bean = childBean[i];
             if(found.contains(bean)) {
                 continue;
             }
-            log.info("Old DD does not contain an entry for Session EJB "+bean.getText(BaseEjbBean.EJB_NAME_XPATH)+"; adding a default entry");
+            log.info("Old DD does not contain an entry for Session EJB "+bean.getText(BaseEjbBean.EJB_NAME_XPATH)[0]+"; adding a default entry");
             root.getDConfigBean(bean);
         }
     }
@@ -325,8 +366,10 @@ public class EjbConverter {
         for(int i=0; i<entities.length; i++) {
             DDBean match = null;
             for(int j = 0; j < childBean.length; j++) {
-                if(childBean[j].getText(BaseEjbBean.EJB_NAME_XPATH).equals(entities[i].getEjbName())) {
+                String[] names = childBean[j].getText(BaseEjbBean.EJB_NAME_XPATH);
+                if(names.length == 1 && names[0].equals(entities[i].getEjbName())) {
                     match = childBean[j];
+                    break;
                 }
             }
             if(match == null) {
@@ -336,27 +379,27 @@ public class EjbConverter {
             found.add(match);
             EntityBean bean = (EntityBean)root.getDConfigBean(match);
             assignEjb(bean, entities[i], match);
-            //todo: any entity-specific content
+            //entity-specific content
+            bean.setJndiName(bean.getJndiName());
+            assignSecurityRoleRefs(bean, entities[i].getSecurityRoleRef(), match.getChildBean(EntityBean.SECURITY_ROLE_REF_XPATH));
         }
         for(int i = 0; i < childBean.length; i++) {
             DDBean bean = childBean[i];
             if(found.contains(bean)) {
                 continue;
             }
-            log.info("Old DD does not contain an entry for Entity EJB "+bean.getText(BaseEjbBean.EJB_NAME_XPATH)+"; adding a default entry");
+            log.info("Old DD does not contain an entry for Entity EJB "+bean.getText(BaseEjbBean.EJB_NAME_XPATH)[0]+"; adding a default entry");
             root.getDConfigBean(bean);
         }
     }
 
     private static void assignEjb(BaseEjbBean dest, Ejb bean, DDBean standard) throws ConfigurationException {
         dest.setEjbName(bean.getEjbName());
-        dest.setJndiName(bean.getJndiName());
         assignEnvEntries(dest, bean.getEnvEntry(), standard.getChildBean(BaseEjbBean.ENV_ENTRY_XPATH));
         assignEjbRefs(dest, bean.getEjbRef(), standard.getChildBean(BaseEjbBean.EJB_REF_XPATH));
         assignEjbLocalRefs(dest, bean.getEjbLocalRef(), standard.getChildBean(BaseEjbBean.EJB_LOCAL_REF_XPATH));
         assignResourceRefs(dest, bean.getResourceRef(), standard.getChildBean(BaseEjbBean.RESOURCE_REF_XPATH));
         assignResourceEnvRefs(dest, bean.getResourceEnvRef(), standard.getChildBean(BaseEjbBean.RESOURCE_ENV_REF_XPATH));
-        assignSecurityRoleRefs(dest, bean.getSecurityRoleRef(), standard.getChildBean(BaseEjbBean.SECURITY_ROLE_REF_XPATH));
     }
 
     private static void assignEnvEntries(BaseEjbBean dest, EnvEntry[] entries, DDBean[] beans) throws ConfigurationException {
@@ -364,7 +407,7 @@ public class EjbConverter {
         for(int i=0; i<entries.length; i++) {
             DDBean match = null;
             for(int j = 0; j < beans.length; j++) {
-                if(beans[j].getText(EnvEntryBean.ENV_ENTRY_NAME_XPATH).equals(entries[i].getEnvEntryName())) {
+                if(beans[j].getText(EnvEntryBean.ENV_ENTRY_NAME_XPATH)[0].equals(entries[i].getEnvEntryName())) {
                     match = beans[j];
                 }
             }
@@ -376,13 +419,15 @@ public class EjbConverter {
             EnvEntryBean bean = (EnvEntryBean)dest.getDConfigBean(match);
             bean.setEnvEntryName(entries[i].getEnvEntryName());
             bean.setEnvEntryValue(entries[i].getEnvEntryValue());
+            log.debug("Set env entry value for "+bean.hashCode()+" to "+bean.getEnvEntryValue()+" for "+match.hashCode());
+            log.debug("Try reload: "+dest.getDConfigBean(match).hashCode()+" value is "+((EnvEntryBean)dest.getDConfigBean(match)).getEnvEntryValue());
         }
         for(int i = 0; i < beans.length; i++) {
             DDBean bean = beans[i];
             if(found.contains(bean)) {
                 continue;
             }
-            log.info("Old DD does not contain an entry for Env Entry "+bean.getText(EnvEntryBean.ENV_ENTRY_NAME_XPATH)+"; adding a default entry");
+            log.info("Old DD does not contain an entry for Env Entry "+bean.getText(EnvEntryBean.ENV_ENTRY_NAME_XPATH)[0]+"; adding a default entry");
             dest.getDConfigBean(bean);
         }
     }
@@ -392,7 +437,7 @@ public class EjbConverter {
         for(int i=0; i<refs.length; i++) {
             DDBean match = null;
             for(int j = 0; j < beans.length; j++) {
-                if(beans[j].getText(EjbRefBean.EJB_REF_NAME_XPATH).equals(refs[i].getEjbRefName())) {
+                if(beans[j].getText(EjbRefBean.EJB_REF_NAME_XPATH)[0].equals(refs[i].getEjbRefName())) {
                     match = beans[j];
                 }
             }
@@ -404,7 +449,7 @@ public class EjbConverter {
             EjbRefBean bean = (EjbRefBean)dest.getDConfigBean(match);
             bean.setEjbRefName(refs[i].getEjbRefName());
             bean.setJndiName(refs[i].getJndiName());
-            JndiContextParam[] params = refs[i].getJndiContextParams().getJndiContextParam();
+            JndiContextParam[] params = refs[i].getJndiContextParam();
             ContextParam[] cp = new ContextParam[params.length];
             for(int j=0; j<params.length; j++) {
                 cp[j] = new ContextParam();
@@ -418,7 +463,7 @@ public class EjbConverter {
             if(found.contains(bean)) {
                 continue;
             }
-            log.info("Old DD does not contain an entry for EJB Reference "+bean.getText(EjbRefBean.EJB_REF_NAME_XPATH)+"; adding a default entry");
+            log.info("Old DD does not contain an entry for EJB Reference "+bean.getText(EjbRefBean.EJB_REF_NAME_XPATH)[0]+"; adding a default entry");
             dest.getDConfigBean(bean);
         }
     }
@@ -428,7 +473,7 @@ public class EjbConverter {
         for(int i=0; i<refs.length; i++) {
             DDBean match = null;
             for(int j = 0; j < beans.length; j++) {
-                if(beans[j].getText(EjbLocalRefBean.EJB_REF_NAME_XPATH).equals(refs[i].getEjbRefName())) {
+                if(beans[j].getText(EjbLocalRefBean.EJB_REF_NAME_XPATH)[0].equals(refs[i].getEjbRefName())) {
                     match = beans[j];
                 }
             }
@@ -440,7 +485,7 @@ public class EjbConverter {
             EjbLocalRefBean bean = (EjbLocalRefBean)dest.getDConfigBean(match);
             bean.setEjbRefName(refs[i].getEjbRefName());
             bean.setJndiName(refs[i].getJndiName());
-            JndiContextParam[] params = refs[i].getJndiContextParams().getJndiContextParam();
+            JndiContextParam[] params = refs[i].getJndiContextParam();
             ContextParam[] cp = new ContextParam[params.length];
             for(int j=0; j<params.length; j++) {
                 cp[j] = new ContextParam();
@@ -454,7 +499,7 @@ public class EjbConverter {
             if(found.contains(bean)) {
                 continue;
             }
-            log.info("Old DD does not contain an entry for EJB Reference "+bean.getText(EjbLocalRefBean.EJB_REF_NAME_XPATH)+"; adding a default entry");
+            log.info("Old DD does not contain an entry for EJB Reference "+bean.getText(EjbLocalRefBean.EJB_REF_NAME_XPATH)[0]+"; adding a default entry");
             dest.getDConfigBean(bean);
         }
     }
@@ -464,7 +509,7 @@ public class EjbConverter {
         for(int i=0; i<refs.length; i++) {
             DDBean match = null;
             for(int j = 0; j < beans.length; j++) {
-                if(beans[j].getText(ResourceEnvRefBean.RESOURCE_ENV_REF_NAME_XPATH).equals(refs[i].getResourceEnvRefName())) {
+                if(beans[j].getText(ResourceEnvRefBean.RESOURCE_ENV_REF_NAME_XPATH)[0].equals(refs[i].getResourceEnvRefName())) {
                     match = beans[j];
                 }
             }
@@ -482,7 +527,7 @@ public class EjbConverter {
             if(found.contains(bean)) {
                 continue;
             }
-            log.info("Old DD does not contain an entry for Resource Env Reference "+bean.getText(ResourceEnvRefBean.RESOURCE_ENV_REF_NAME_XPATH)+"; adding a default entry");
+            log.info("Old DD does not contain an entry for Resource Env Reference "+bean.getText(ResourceEnvRefBean.RESOURCE_ENV_REF_NAME_XPATH)[0]+"; adding a default entry");
             dest.getDConfigBean(bean);
         }
     }
@@ -492,7 +537,7 @@ public class EjbConverter {
         for(int i=0; i<refs.length; i++) {
             DDBean match = null;
             for(int j = 0; j < beans.length; j++) {
-                if(beans[j].getText(ResourceRefBean.RES_REF_NAME_XPATH).equals(refs[i].getResRefName())) {
+                if(beans[j].getText(ResourceRefBean.RES_REF_NAME_XPATH)[0].equals(refs[i].getResRefName())) {
                     match = beans[j];
                 }
             }
@@ -504,7 +549,7 @@ public class EjbConverter {
             ResourceRefBean bean = (ResourceRefBean)dest.getDConfigBean(match);
             bean.setResRefName(refs[i].getResRefName());
             bean.setJndiName(refs[i].getJndiName());
-            JndiContextParam[] params = refs[i].getJndiContextParams().getJndiContextParam();
+            JndiContextParam[] params = refs[i].getJndiContextParam();
             ContextParam[] cp = new ContextParam[params.length];
             for(int j=0; j<params.length; j++) {
                 cp[j] = new ContextParam();
@@ -518,7 +563,7 @@ public class EjbConverter {
             if(found.contains(bean)) {
                 continue;
             }
-            log.info("Old DD does not contain an entry for Resource Reference "+bean.getText(ResourceRefBean.RES_REF_NAME_XPATH)+"; adding a default entry");
+            log.info("Old DD does not contain an entry for Resource Reference "+bean.getText(ResourceRefBean.RES_REF_NAME_XPATH)[0]+"; adding a default entry");
             dest.getDConfigBean(bean);
         }
     }
@@ -528,7 +573,7 @@ public class EjbConverter {
         for(int i=0; i<refs.length; i++) {
             DDBean match = null;
             for(int j = 0; j < beans.length; j++) {
-                if(beans[j].getText(SecurityRoleRefBean.ROLE_NAME_XPATH).equals(refs[i].getRoleName())) {
+                if(beans[j].getText(SecurityRoleRefBean.ROLE_NAME_XPATH)[0].equals(refs[i].getRoleName())) {
                     match = beans[j];
                 }
             }
@@ -546,7 +591,7 @@ public class EjbConverter {
             if(found.contains(bean)) {
                 continue;
             }
-            log.info("Old DD does not contain an entry for Security Role Reference "+bean.getText(SecurityRoleRefBean.ROLE_NAME_XPATH)+"; adding a default entry");
+            log.info("Old DD does not contain an entry for Security Role Reference "+bean.getText(SecurityRoleRefBean.ROLE_NAME_XPATH)[0]+"; adding a default entry");
             dest.getDConfigBean(bean);
         }
     }

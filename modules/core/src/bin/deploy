@@ -1,0 +1,15 @@
+#!/bin/sh
+##############################################################################
+##                                                                          ##
+##  Twiddle Proxy for UN*X                                                  ##
+##                                                                          ##
+##############################################################################
+
+##
+## $Revision: 1.1 $ $Date: 2003/09/04 05:24:21 $
+##
+
+DIRNAME=`dirname "$0"`
+COMMAND_PATH="geronimo/deploy"
+
+exec "$DIRNAME/twiddle" $TWIDDLE_OPTS "$COMMAND_PATH" -- "$@"

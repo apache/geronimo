@@ -58,17 +58,38 @@ package org.apache.geronimo.enterprise.deploy.provider.jar;
 
 import java.beans.BeanDescriptor;
 import java.beans.SimpleBeanInfo;
+import java.beans.PropertyDescriptor;
+import java.beans.IntrospectionException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * BeanInfo descriptor for the SessionBean class
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/27 10:33:34 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/04 05:24:21 $
  */
 public class SessionBeanBeanInfo extends SimpleBeanInfo {
+    private static final Log log = LogFactory.getLog(SessionBeanBeanInfo.class);
+
     public BeanDescriptor getBeanDescriptor() {
         BeanDescriptor bd = new BeanDescriptor(SessionBean.class);
         bd.setDisplayName("Session Bean");
         bd.setShortDescription("A Session EJB");
         return bd;
+    }
+
+    public PropertyDescriptor[] getPropertyDescriptors() {
+        try {
+            PropertyDescriptor jndi = new PropertyDescriptor("jndiName", SessionBean.class);
+            jndi.setBound(true);
+            jndi.setDisplayName("JNDI Name");
+            jndi.setShortDescription("The JNDI location where this EJB should be bound");
+            return new PropertyDescriptor[] {
+                jndi,
+            };
+        } catch(IntrospectionException e) {
+            log.error("Error in BeanInfo", e);
+            return null;
+        }
     }
 }

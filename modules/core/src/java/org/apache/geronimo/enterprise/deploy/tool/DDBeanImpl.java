@@ -63,14 +63,17 @@ import javax.enterprise.deploy.model.DDBeanRoot;
 import javax.enterprise.deploy.model.XpathListener;
 
 import org.dom4j.Node;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * The DDBeanImpl provides an implementation for javax.enterprise.deploy.model.DDBean.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/22 19:03:38 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/04 05:24:21 $
  */
 public class DDBeanImpl implements DDBean {
-    
+    private final static Log log = LogFactory.getLog(DDBeanImpl.class);
+
     protected Node node;
     protected String id;
     protected DDBeanRoot root;
@@ -86,11 +89,11 @@ public class DDBeanImpl implements DDBean {
      * Creates a new instance of DDBeanImpl
      * @todo Grab DDBeanRoot
      */
-    DDBeanImpl(Node node) {
+    DDBeanImpl(Node node, String xpath) {
         this.node = node;
         this.id = node.getName();
         this.text = node.getText();
-        this.xPath = node.getPath();
+        this.xPath = xpath;
     }
     
     public void addXpathListener(String str, XpathListener xpathListener) {
@@ -100,26 +103,39 @@ public class DDBeanImpl implements DDBean {
     
     public DDBean[] getChildBean(String str) {
         String tempXPath = createXPath(str);
-                
-        List nodes = node.getDocument().selectNodes(tempXPath);
+
+        List nodes = node.selectNodes(tempXPath);
         int count = nodes.size();
         DDBeanImpl[] ddBeans = new DDBeanImpl[count];
         for ( int i = 0; i < count; i++ ) {
             Node node = (Node)nodes.get(i);
-            ddBeans[i] = new DDBeanImpl(node); // @todo doesn't this need a factory?
+            ddBeans[i] = new DDBeanImpl(node, str); // @todo doesn't this need a factory?
         }
         return ddBeans;
     }
     
+    public String[] getText(String str) {
+        String tempXPath = createXPath(str);
+
+        List nodes = node.selectNodes(tempXPath);
+        int count = nodes.size();
+        String[] text = new String[count];
+        for ( int i = 0; i < count; i++ ) {
+            Node node = (Node)nodes.get(i);
+            text[i] = node.getText();
+        }
+        return text;
+    }
+
     private String createXPath(String path) {
-        //*[name()='ejb-jar']/*[name()='enterprise-beans']/*[name()='session']
         StringTokenizer tokens = new StringTokenizer(path, "/");
         StringBuffer buffer = new StringBuffer(100);
-        buffer.append("/");
         while ( tokens.hasMoreTokens() ) {
-            buffer.append("/*[name()='").append(tokens.nextToken()).append("']");
+            if(buffer.length() > 0) {
+                buffer.append("/");
+            }
+            buffer.append("*[name()='").append(tokens.nextToken()).append("']");
         }
-        buffer.append("/*");
         return buffer.toString();
     }
     
@@ -133,13 +149,6 @@ public class DDBeanImpl implements DDBean {
     
     public String getText() {
         return text;
-    }
-    
-    /**
-     *  This method is not described in the specs.
-     */
-    public String[] getText(String str) {
-        return null;
     }
     
     public String getXpath() {
@@ -158,5 +167,23 @@ public class DDBeanImpl implements DDBean {
     public String getAttributeValue(String attrName) {
         // @todo implement
         return null;
+    }
+
+    /**
+     * DDBeans are the same if nodes are the same
+     */
+    public int hashCode() {
+        return node.hashCode();
+    }
+
+    /**
+     * DDBeans are the same if nodes are the same
+     */
+    public boolean equals(Object obj) {
+        try {
+            return node.equals(((DDBeanImpl)obj).node);
+        } catch(ClassCastException e) {
+            return false;
+        }
     }
 }
