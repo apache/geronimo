@@ -15,14 +15,14 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.transaction;
+package org.apache.geronimo.transaction.context;
 
-import org.apache.geronimo.transaction.TransactionContext;
+import org.apache.geronimo.transaction.context.TransactionContext;
 
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:36 $
+ * @version $Revision: 1.1 $ $Date: 2004/07/18 22:02:01 $
  */
 public abstract class InheritableTransactionContext extends TransactionContext {
 }

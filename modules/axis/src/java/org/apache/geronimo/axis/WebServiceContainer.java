@@ -24,6 +24,7 @@ import org.apache.geronimo.jetty.connector.HTTPConnector;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.transaction.GeronimoTransactionManager;
 import org.apache.geronimo.transaction.UserTransactionImpl;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
@@ -41,11 +42,13 @@ public class WebServiceContainer {
     private MBeanServer mbServer;
     private Set containerPatterns;
     private ObjectName tmName;
+    private ObjectName tcmName;
     private ObjectName tcaName;
     private ObjectName appName;
     private ObjectName connectorName;
     private String webappsUrl;
     private final boolean startJetty = true;
+    private GBeanMBean tcm;
 
     public WebServiceContainer(Kernel kernel, ObjectName axisGBeanName) {
         try {
@@ -57,6 +60,7 @@ public class WebServiceContainer {
             connectorName = new ObjectName("geronimo.jetty:role=Connector");
             appName = new ObjectName("geronimo.jetty:app=test");
             tmName = new ObjectName("geronimo.test:role=TransactionManager");
+            tcmName = new ObjectName("geronimo.test:role=TransactionContextManager");
             tcaName =
                     new ObjectName(
                             "geronimo.test:role=ConnectionTrackingCoordinator");
@@ -75,15 +79,15 @@ public class WebServiceContainer {
         URL url = Thread.currentThread().getContextClassLoader().getResource(
                 "deployables/axis/");
         GBeanMBean app = new GBeanMBean(JettyWebAppContext.GBEAN_INFO);
-        app.setAttribute("URI", URI.create(url.toString()));
+        app.setAttribute("uri", URI.create(url.toString()));
         app.setAttribute("contextPath", "/axis");
         app.setAttribute("componentContext", null);
         UserTransactionImpl userTransaction = new UserTransactionImpl();
         app.setAttribute("userTransaction", userTransaction);
         app.setReferencePatterns("Configuration", Collections.EMPTY_SET);
         app.setReferencePatterns("JettyContainer", containerPatterns);
-        app.setReferencePatterns("TransactionManager",
-                Collections.singleton(tmName));
+        app.setReferencePatterns("TransactionContextManager",
+                Collections.singleton(tcmName));
         app.setReferencePatterns("TrackedConnectionAssociator",
                 Collections.singleton(tcaName));
         start(appName, app);
@@ -91,7 +95,7 @@ public class WebServiceContainer {
 
     public void doStop() throws Exception {
         stop(tcaName);
-        stop(tmName);
+        stop(tcmName);
         stop(connectorName);
         stop(containerName);
     }
@@ -114,6 +118,9 @@ public class WebServiceContainer {
                         "geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
         tm.setReferencePatterns("ResourceManagers", patterns);
         start(tmName, tm);
+        tcm = new GBeanMBean(TransactionContextManager.GBEAN_INFO);
+        tcm.setReferencePattern("TransactionManager", tmName);
+        start(tcmName, tcm);
         ctc = new GBeanMBean(ConnectionTrackingCoordinator.GBEAN_INFO);
         start(tcaName, ctc);
     }

@@ -15,18 +15,18 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.transaction;
+package org.apache.geronimo.transaction.context;
 
 import javax.transaction.Transaction;
 
 import org.apache.geronimo.transaction.ConnectionReleaser;
-import org.apache.geronimo.transaction.TransactionContext;
+import org.apache.geronimo.transaction.context.TransactionContext;
 
 
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/05/31 23:37:05 $
+ * @version $Revision: 1.1 $ $Date: 2004/07/18 22:02:01 $
  */
 public class UnspecifiedTransactionContext extends TransactionContext {
     public void begin() {

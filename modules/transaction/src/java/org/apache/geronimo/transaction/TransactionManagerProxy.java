@@ -51,6 +51,8 @@ import org.apache.geronimo.transaction.manager.NamedXAResource;
 import org.apache.geronimo.transaction.manager.Recovery;
 import org.apache.geronimo.transaction.manager.ResourceManager;
 import org.apache.geronimo.transaction.manager.XidImporter;
+import org.apache.geronimo.transaction.context.TransactionContext;
+import org.apache.geronimo.transaction.context.UnspecifiedTransactionContext;
 
 /**
  * A wrapper for a TransactionManager that wraps all Transactions in a TransactionProxy
@@ -58,7 +60,7 @@ import org.apache.geronimo.transaction.manager.XidImporter;
  * are delegated to the wrapped TransactionManager; all other operations are delegated to the
  * wrapped Transaction.
  *
- * @version $Revision: 1.11 $ $Date: 2004/07/11 21:25:21 $
+ * @version $Revision: 1.12 $ $Date: 2004/07/18 22:02:01 $
  */
 public class TransactionManagerProxy implements TransactionManager, XATerminator, XAWork, GBeanLifecycle {
     private static final boolean NOT_IN_RECOVERY = false;

@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.transaction;
+package org.apache.geronimo.transaction.context;
 
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
@@ -27,13 +27,10 @@ import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 
-import org.apache.geronimo.transaction.UnspecifiedTransactionContext;
-import org.apache.geronimo.transaction.InheritableTransactionContext;
-
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:36 $
+ * @version $Revision: 1.1 $ $Date: 2004/07/18 22:02:01 $
  */
 public class BeanTransactionContext extends InheritableTransactionContext {
     private final TransactionManager txnManager;

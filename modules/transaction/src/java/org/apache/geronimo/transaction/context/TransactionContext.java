@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.transaction;
+package org.apache.geronimo.transaction.context;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,6 +32,9 @@ import javax.transaction.Transaction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.transaction.InstanceContext;
+import org.apache.geronimo.transaction.DoubleKeyedHashMap;
+import org.apache.geronimo.transaction.ConnectionReleaser;
 import org.tranql.cache.InTxCache;
 import org.tranql.cache.SimpleFlushStrategy;
 
@@ -39,7 +42,7 @@ import org.tranql.cache.SimpleFlushStrategy;
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/05/31 23:37:05 $
+ * @version $Revision: 1.1 $ $Date: 2004/07/18 22:02:01 $
  */
 public abstract class TransactionContext {
     protected static final Log log = LogFactory.getLog(TransactionContext.class);

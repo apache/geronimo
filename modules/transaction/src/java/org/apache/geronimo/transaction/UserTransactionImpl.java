@@ -18,29 +18,29 @@
 package org.apache.geronimo.transaction;
 
 import java.io.Serializable;
+
+import javax.resource.ResourceException;
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.NotSupportedException;
 import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
-import javax.transaction.TransactionManager;
 import javax.transaction.UserTransaction;
-import javax.resource.ResourceException;
 
-import org.apache.geronimo.transaction.TrackedConnectionAssociator;
-import org.apache.geronimo.transaction.TransactionContext;
-import org.apache.geronimo.transaction.UnspecifiedTransactionContext;
-import org.apache.geronimo.transaction.BeanTransactionContext;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.transaction.context.BeanTransactionContext;
+import org.apache.geronimo.transaction.context.TransactionContext;
+import org.apache.geronimo.transaction.context.UnspecifiedTransactionContext;
 
 /**
  * Implementation of UserTransaction for use in an EJB.
  * This adds the ability to enable or disable the operations depending on
  * the lifecycle of the EJB instance.
  *
- * @version $Revision: 1.4 $ $Date: 2004/04/08 05:22:15 $
+ * @version $Revision: 1.5 $ $Date: 2004/07/18 22:02:01 $
  */
 public class UserTransactionImpl implements UserTransaction, Serializable {
-    private transient TransactionManager txnManager;
+    private transient TransactionContextManager transactionContextManager;
     private transient TrackedConnectionAssociator trackedConnectionAssociator;
 
     private final ThreadLocal state = new StateThreadLocal();
@@ -54,9 +54,9 @@ public class UserTransactionImpl implements UserTransaction, Serializable {
         state.set(OFFLINE);
     }
 
-    public void setUp(TransactionManager txnManager, TrackedConnectionAssociator trackedConnectionAssociator) {
+    public void setUp(TransactionContextManager transactionContextManager, TrackedConnectionAssociator trackedConnectionAssociator) {
         assert !isOnline() : "Only set the tx manager when UserTransaction is offline";
-        this.txnManager = txnManager;
+        this.transactionContextManager = transactionContextManager;
         this.trackedConnectionAssociator = trackedConnectionAssociator;
     }
 
@@ -66,8 +66,8 @@ public class UserTransactionImpl implements UserTransaction, Serializable {
 
     public void setOnline(boolean online) {
         //too bad there's no implies operation
-        // online implies transactionManager != null
-        assert !online || txnManager != null : "online requires a tx manager";
+        // online implies transactionContextManager != null
+        assert !online || transactionContextManager != null : "online requires a tx manager";
         state.set(online ? ONLINE : OFFLINE);
     }
 
@@ -102,35 +102,19 @@ public class UserTransactionImpl implements UserTransaction, Serializable {
     private final UserTransaction ONLINE = new OnlineUserTransaction();
     private final class OnlineUserTransaction implements UserTransaction, Serializable {
         public int getStatus() throws SystemException {
-            return txnManager.getStatus();
+            return transactionContextManager.getStatus();
         }
 
         public void setRollbackOnly() throws IllegalStateException, SystemException {
-            txnManager.setRollbackOnly();
+            transactionContextManager.setRollbackOnly();
         }
 
         public void setTransactionTimeout(int seconds) throws SystemException {
-            txnManager.setTransactionTimeout(seconds);
+            transactionContextManager.setTransactionTimeout(seconds);
         }
 
         public void begin() throws NotSupportedException, SystemException {
-            TransactionContext ctx = TransactionContext.getContext();
-            if (ctx instanceof UnspecifiedTransactionContext == false) {
-                throw new NotSupportedException("Previous Transaction has not been committed");
-            }
-            UnspecifiedTransactionContext oldContext = (UnspecifiedTransactionContext) ctx;
-            BeanTransactionContext newContext = new BeanTransactionContext(txnManager, oldContext);
-            oldContext.suspend();
-            try {
-                newContext.begin();
-            } catch (SystemException e) {
-                oldContext.resume();
-                throw e;
-            } catch (NotSupportedException e) {
-                oldContext.resume();
-                throw e;
-            }
-            TransactionContext.setContext(newContext);
+            transactionContextManager.newBeanTransactionContext();
 
             if(trackedConnectionAssociator != null) {
                 try {
@@ -142,7 +126,7 @@ public class UserTransactionImpl implements UserTransaction, Serializable {
         }
 
         public void commit() throws HeuristicMixedException, HeuristicRollbackException, IllegalStateException, RollbackException, SecurityException, SystemException {
-            TransactionContext ctx = TransactionContext.getContext();
+            TransactionContext ctx = transactionContextManager.getContext();
             if (ctx instanceof BeanTransactionContext == false) {
                 throw new IllegalStateException("Transaction has not been started");
             }
@@ -151,13 +135,13 @@ public class UserTransactionImpl implements UserTransaction, Serializable {
                 beanContext.commit();
             } finally {
                 UnspecifiedTransactionContext oldContext = beanContext.getOldContext();
-                TransactionContext.setContext(oldContext);
+                transactionContextManager.setContext(oldContext);
                 oldContext.resume();
             }
         }
 
         public void rollback() throws IllegalStateException, SecurityException, SystemException {
-            TransactionContext ctx = TransactionContext.getContext();
+            TransactionContext ctx = transactionContextManager.getContext();
             if (ctx instanceof BeanTransactionContext == false) {
                 throw new IllegalStateException("Transaction has not been started");
             }
@@ -166,7 +150,7 @@ public class UserTransactionImpl implements UserTransaction, Serializable {
                 beanContext.rollback();
             } finally {
                 UnspecifiedTransactionContext oldContext = beanContext.getOldContext();
-                TransactionContext.setContext(oldContext);
+                transactionContextManager.setContext(oldContext);
                 oldContext.resume();
             }
         }
