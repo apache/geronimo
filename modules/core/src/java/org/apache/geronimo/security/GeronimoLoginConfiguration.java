@@ -70,17 +70,18 @@ import java.util.ArrayList;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/18 05:17:17 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/23 17:26:43 $
  */
 public class GeronimoLoginConfiguration extends Configuration {
-    private static MBeanServer mBeanServer;
+    private static ThreadLocal mBeanServer = new ThreadLocal();
     SecurityServiceMBean securityServiceMBean;
 
     public AppConfigurationEntry[] getAppConfigurationEntry(String realm) {
-        if (mBeanServer == null) throw new java.lang.IllegalStateException("MBean Server not set");
+        MBeanServer server = (MBeanServer)mBeanServer.get();
+        if (server == null) throw new java.lang.IllegalStateException("MBean Server not set");
 
         SecurityServiceMBean ss = (SecurityServiceMBean) MBeanProxyFactory.getProxy(SecurityServiceMBean.class,
-                                                                                    mBeanServer,
+                                                                                    server,
                                                                                     JMXUtil.getObjectName("geronimo.security:type=SecurityService"));
 
         ArrayList list = new ArrayList();
@@ -88,7 +89,7 @@ public class GeronimoLoginConfiguration extends Configuration {
         while (iter.hasNext()) {
             ObjectInstance instance = (ObjectInstance) iter.next();
 
-            SecurityRealm sr = (SecurityRealm) MBeanProxyFactory.getProxy(SecurityRealm.class, mBeanServer, instance.getObjectName());
+            SecurityRealm sr = (SecurityRealm) MBeanProxyFactory.getProxy(SecurityRealm.class, server, instance.getObjectName());
             if (realm.equals(sr.getRealmName())) {
                 AppConfigurationEntry[] ace = sr.getAppConfigurationEntry();
 
@@ -125,6 +126,6 @@ public class GeronimoLoginConfiguration extends Configuration {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(new AuthPermission("setLoginConfiguration"));
 
-        mBeanServer = server;
+        mBeanServer.set(server);
     }
 }
