@@ -1,14 +1,14 @@
-2003-08-18 22:01:08,277 INFO  org.apache.maven.plugin.PluginManager - Initializing Plugins!
-2003-08-18 22:01:08,323 INFO  org.apache.maven.plugin.PluginManager - Unpacking plugins from directory --> /usr/local/java/maven/DEFAULT/plugins
-2003-08-18 22:01:08,344 INFO  org.apache.maven.plugin.PluginManager - Processing unpacked plugins in /home/gregw/.maven/plugins
-2003-08-18 22:01:08,344 INFO  org.apache.maven.plugin.PluginManager - Processing Plugin: maven-deploy-plugin-1.1
-2003-08-18 22:01:08,526 INFO  org.apache.maven.plugin.PluginManager - Processing Plugin: maven-plexus-plugin-0.2
-2003-08-18 22:01:08,563 INFO  org.apache.maven.plugin.PluginManager - Processing Plugin: maven-runner-plugin-0.2
-2003-08-18 22:01:08,569 INFO  org.apache.maven.plugin.PluginManager - Processing Plugin: maven-vdoclet-plugin-1.0
-2003-08-18 22:01:08,581 INFO  org.apache.maven.plugin.PluginManager - Processing Plugin: maven-sea-plugin-1.0
-2003-08-18 22:01:08,586 INFO  org.apache.maven.plugin.PluginCacheManager - Saving caches to /home/gregw/.maven/plugins
-2003-08-18 22:01:08,651 INFO  org.apache.maven.plugin.PluginManager - Finished initializing Plugins!
-2003-08-18 22:01:15,501 WARN  org.apache.commons.jelly.expression.jexl.JexlExpression - Caught exception evaluating: org.apache.commons.jexl.ExpressionImpl@3cb075. Reason: java.lang.NumberFormatException: For input string: "includes"
+2003-08-19 23:15:33,480 INFO  org.apache.maven.plugin.PluginManager - Initializing Plugins!
+2003-08-19 23:15:34,343 INFO  org.apache.maven.plugin.PluginManager - Unpacking plugins from directory --> /usr/local/java/maven/DEFAULT/plugins
+2003-08-19 23:15:34,365 INFO  org.apache.maven.plugin.PluginManager - Processing unpacked plugins in /home/gregw/.maven/plugins
+2003-08-19 23:15:34,366 INFO  org.apache.maven.plugin.PluginManager - Processing Plugin: maven-deploy-plugin-1.1
+2003-08-19 23:15:34,553 INFO  org.apache.maven.plugin.PluginManager - Processing Plugin: maven-plexus-plugin-0.2
+2003-08-19 23:15:34,593 INFO  org.apache.maven.plugin.PluginManager - Processing Plugin: maven-runner-plugin-0.2
+2003-08-19 23:15:34,600 INFO  org.apache.maven.plugin.PluginManager - Processing Plugin: maven-vdoclet-plugin-1.0
+2003-08-19 23:15:34,611 INFO  org.apache.maven.plugin.PluginManager - Processing Plugin: maven-sea-plugin-1.0
+2003-08-19 23:15:34,617 INFO  org.apache.maven.plugin.PluginCacheManager - Saving caches to /home/gregw/.maven/plugins
+2003-08-19 23:15:34,684 INFO  org.apache.maven.plugin.PluginManager - Finished initializing Plugins!
+2003-08-19 23:15:43,567 WARN  org.apache.commons.jelly.expression.jexl.JexlExpression - Caught exception evaluating: org.apache.commons.jexl.ExpressionImpl@16089a5. Reason: java.lang.NumberFormatException: For input string: "includes"
 java.lang.NumberFormatException: For input string: "includes"
 	at java.lang.NumberFormatException.forInputString(NumberFormatException.java:48)
 	at java.lang.Integer.parseInt(Integer.java:426)
@@ -62,7 +62,7 @@ java.lang.NumberFormatException: For input string: "includes"
 	at java.lang.reflect.Method.invoke(Method.java:324)
 	at com.werken.forehead.Forehead.run(Forehead.java:543)
 	at com.werken.forehead.Forehead.main(Forehead.java:573)
-2003-08-18 22:01:15,504 WARN  org.apache.commons.jelly.expression.jexl.JexlExpression - Caught exception evaluating: org.apache.commons.jexl.ExpressionImpl@c16b18. Reason: java.lang.NumberFormatException: For input string: "excludes"
+2003-08-19 23:15:43,574 WARN  org.apache.commons.jelly.expression.jexl.JexlExpression - Caught exception evaluating: org.apache.commons.jexl.ExpressionImpl@120540c. Reason: java.lang.NumberFormatException: For input string: "excludes"
 java.lang.NumberFormatException: For input string: "excludes"
 	at java.lang.NumberFormatException.forInputString(NumberFormatException.java:48)
 	at java.lang.Integer.parseInt(Integer.java:426)
@@ -116,7 +116,7 @@ java.lang.NumberFormatException: For input string: "excludes"
 	at java.lang.reflect.Method.invoke(Method.java:324)
 	at com.werken.forehead.Forehead.run(Forehead.java:543)
 	at com.werken.forehead.Forehead.main(Forehead.java:573)
-2003-08-18 22:01:15,532 WARN  org.apache.commons.jelly.expression.jexl.JexlExpression - Caught exception evaluating: org.apache.commons.jexl.ExpressionImpl@4d2af2. Reason: java.lang.NumberFormatException: For input string: "includes"
+2003-08-19 23:15:43,598 WARN  org.apache.commons.jelly.expression.jexl.JexlExpression - Caught exception evaluating: org.apache.commons.jexl.ExpressionImpl@15b0333. Reason: java.lang.NumberFormatException: For input string: "includes"
 java.lang.NumberFormatException: For input string: "includes"
 	at java.lang.NumberFormatException.forInputString(NumberFormatException.java:48)
 	at java.lang.Integer.parseInt(Integer.java:426)
@@ -169,7 +169,7 @@ java.lang.NumberFormatException: For input string: "includes"
 	at java.lang.reflect.Method.invoke(Method.java:324)
 	at com.werken.forehead.Forehead.run(Forehead.java:543)
 	at com.werken.forehead.Forehead.main(Forehead.java:573)
-2003-08-18 22:01:15,534 WARN  org.apache.commons.jelly.expression.jexl.JexlExpression - Caught exception evaluating: org.apache.commons.jexl.ExpressionImpl@3e97df. Reason: java.lang.NumberFormatException: For input string: "excludes"
+2003-08-19 23:15:43,600 WARN  org.apache.commons.jelly.expression.jexl.JexlExpression - Caught exception evaluating: org.apache.commons.jexl.ExpressionImpl@2f2295. Reason: java.lang.NumberFormatException: For input string: "excludes"
 java.lang.NumberFormatException: For input string: "excludes"
 	at java.lang.NumberFormatException.forInputString(NumberFormatException.java:48)
 	at java.lang.Integer.parseInt(Integer.java:426)
