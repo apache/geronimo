@@ -23,7 +23,6 @@ import java.lang.reflect.Method;
 import javax.management.ObjectName;
 
 import net.sf.cglib.reflect.FastClass;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.MockGBean;
 import org.apache.geronimo.gbean.runtime.RawInvoker;
@@ -97,11 +96,11 @@ public class Speed {
         // start a kernel
         Kernel kernel = new Kernel("speed");
         kernel.boot();
-        GBeanMBean mockGBean = new GBeanMBean(MockGBean.getGBeanInfo(), Speed.class.getClassLoader());
+        ObjectName objectName = new ObjectName("speed:type=MockGBean");
+        GBeanData mockGBean = new GBeanData(objectName, MockGBean.getGBeanInfo());
         mockGBean.setAttribute("Name", "bar");
         mockGBean.setAttribute("FinalInt", new Integer(57));
-        ObjectName objectName = new ObjectName("speed:type=MockGBean");
-        kernel.loadGBean(objectName, mockGBean);
+        kernel.loadGBean(mockGBean, Speed.class.getClassLoader());
         kernel.startGBean(objectName);
 
         // reflect proxy
@@ -227,11 +226,11 @@ public class Speed {
         // start a kernel
         Kernel kernel = new Kernel("speed");
         kernel.boot();
-        GBeanMBean mockGBean = new GBeanMBean(MockGBean.getGBeanInfo(), Speed.class.getClassLoader());
+        ObjectName objectName = new ObjectName("speed:type=MockGBean");
+        GBeanData mockGBean = new GBeanData(objectName, MockGBean.getGBeanInfo());
         mockGBean.setAttribute("Name", "bar");
         mockGBean.setAttribute("FinalInt", new Integer(57));
-        ObjectName objectName = new ObjectName("speed:type=MockGBean");
-        kernel.loadGBean(objectName, mockGBean);
+        kernel.loadGBean(mockGBean, Speed.class.getClassLoader());
         kernel.startGBean(objectName);
 
         // reflect proxy

@@ -23,8 +23,9 @@ import java.util.Collections;
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;
+
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanLifecycleController;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.management.State;
 
 /**
@@ -38,10 +39,10 @@ public class GBeanTest extends TestCase {
     public void testLoad() throws Exception {
         ClassLoader cl = getClass().getClassLoader();
         ClassLoader myCl = new URLClassLoader(new URL[0], cl);
-        GBeanMBean gbean = new GBeanMBean(MockGBean.getGBeanInfo(), myCl);
+        GBeanData gbean = new GBeanData(name, MockGBean.getGBeanInfo());
         gbean.setAttribute("name", "Test");
         gbean.setAttribute("finalInt", new Integer(123));
-        kernel.loadGBean(name, gbean);
+        kernel.loadGBean(gbean, myCl);
         kernel.startGBean(name);
         assertEquals(new Integer(State.RUNNING_INDEX), kernel.getAttribute(name, "state"));
         assertEquals("Hello", kernel.invoke(name, "doSomething", new Object[]{"Hello"}, new String[]{String.class.getName()}));
@@ -67,15 +68,16 @@ public class GBeanTest extends TestCase {
     }
 
     public void testEndpoint() throws Exception {
-        GBeanMBean gbean1 = new GBeanMBean(MockGBean.getGBeanInfo());
+        ClassLoader cl = MockGBean.class.getClassLoader();
+        GBeanData gbean1 = new GBeanData(name, MockGBean.getGBeanInfo());
         gbean1.setAttribute("finalInt", new Integer(123));
-        kernel.loadGBean(name, gbean1);
+        kernel.loadGBean(gbean1, cl);
         kernel.startGBean(name);
 
-        GBeanMBean gbean2 = new GBeanMBean(MockGBean.getGBeanInfo());
+        GBeanData gbean2 = new GBeanData(name2, MockGBean.getGBeanInfo());
         gbean2.setAttribute("finalInt", new Integer(123));
         gbean2.setReferencePatterns("MockEndpoint", Collections.singleton(name));
-        kernel.loadGBean(name2, gbean2);
+        kernel.loadGBean(gbean2, cl);
         kernel.startGBean(name2);
 
         assertEquals("endpointCheck", kernel.invoke(name2, "checkEndpoint", null, null));
