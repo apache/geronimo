@@ -60,9 +60,12 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.MalformedURLException;
+import java.net.URLClassLoader;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -83,6 +86,7 @@ import org.apache.geronimo.deployment.xbeans.DependencyType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.deployment.xbeans.ReferenceType;
 import org.apache.geronimo.deployment.xbeans.ReferencesType;
+import org.apache.geronimo.deployment.xbeans.ServiceDocument;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
@@ -96,7 +100,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/12 18:27:39 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/12 23:22:19 $
  */
 public class ServiceConfigBuilder implements ConfigurationBuilder {
     private final Repository repository;
@@ -144,7 +148,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
                 throw new DeploymentException(e);
             }
             addIncludes(context, configType);
-            addDependencies(context, configType);
+            addDependencies(context, configType.getDependencyArray());
             ClassLoader cl = context.getClassLoader(repository);
             addGBeans(context, configType, cl);
             context.close();
@@ -171,27 +175,51 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
             String name = uri.toString();
             int idx = name.lastIndexOf('/');
             if (idx != -1) {
-                name = name.substring(idx+1);
+                name = name.substring(idx + 1);
             }
             URI path;
             try {
                 path = new URI(name);
             } catch (URISyntaxException e) {
-                throw new DeploymentException("Unable to generate path for include: "+uri, e);
+                throw new DeploymentException("Unable to generate path for include: " + uri, e);
             }
             try {
                 URL url = repository.getURL(uri);
                 context.addInclude(path, url);
             } catch (IOException e) {
-                throw new DeploymentException("Unable to add include: "+uri, e);
+                throw new DeploymentException("Unable to add include: " + uri, e);
             }
         }
     }
 
-    private void addDependencies(DeploymentContext context, ConfigurationType configType) throws DeploymentException {
-        DependencyType[] deps = configType.getDependencyArray();
+    private void addDependencies(DeploymentContext context, DependencyType[] deps) throws DeploymentException {
         for (int i = 0; i < deps.length; i++) {
-            context.addDependency(getDependencyURI(deps[i]));
+            URI dependencyURI = getDependencyURI(deps[i]);
+            context.addDependency(dependencyURI);
+
+            URL url;
+            try {
+                url = repository.getURL(dependencyURI);
+            } catch (MalformedURLException e) {
+                throw new DeploymentException("Unable to get URL for dependency " + dependencyURI, e);
+            }
+            ClassLoader depCL = new URLClassLoader(new URL[]{url}, ClassLoader.getSystemClassLoader());
+            InputStream is = depCL.getResourceAsStream("META-INF/geronimo-service.xml");
+            if (is != null) {
+                // it has a geronimo-service.xml file
+                ServiceDocument serviceDoc = null;
+                try {
+                    serviceDoc = ServiceDocument.Factory.parse(is);
+                } catch (org.apache.xmlbeans.XmlException e) {
+                    throw new DeploymentException("Invalid geronimo-service.xml file in " + url, e);
+                } catch (IOException e) {
+                    throw new DeploymentException("Unable to parse geronimo-service.xml file in " + url, e);
+                }
+                DependencyType[] dependencyDeps = serviceDoc.getService().getDependencyArray();
+                if (dependencyDeps != null) {
+                    addDependencies(context, dependencyDeps);
+                }
+            }
         }
     }
 
