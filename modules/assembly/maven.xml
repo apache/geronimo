@@ -16,7 +16,7 @@
     limitations under the License.
 -->
 
-<!-- $Revision: 1.16 $ $Date: 2004/07/06 17:20:47 $ -->
+<!-- $Revision: 1.17 $ $Date: 2004/07/16 06:45:48 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -206,6 +206,28 @@
             <ant:arg value="--module"/>
             <ant:arg value="${maven.repo.local}/geronimo/wars/geronimo-jmxdebug-${pom.currentVersion}.war"/>
         </ant:java>
+
+        <!-- build the cli deployer archive -->
+        <ant:echo>Building the Command Line Deployer archive</ant:echo>
+        <j:set var="cliLibDir" value="cli-deployer-lib"/>
+        <j:set var="cliLib" value="${distDir}/${cliLibDir}"/>
+        <ant:mkdir dir="${cliLib}"/>
+        <j:forEach var="artifact" items="${pom.artifacts}">
+            <j:set var="dependency" value="${artifact.dependency}"/>
+            <j:if test="${dependency.getProperty('clideployer') == 'true'}">
+                <ant:copy todir="${cliLib}" file="${artifact.path}"/>
+                <j:set var="clideployer.classpath" value="${clideployer.classpath} ../${cliLibDir}/${artifact.name}"/>
+            </j:if>
+        </j:forEach>
+        <j:set var="cliDeployer" value="${basedir}/target/geronimo-cli-deployer"/>
+        <ant:mkdir dir="${cliDeployer}/jar/META-INF"/>
+        <ant:manifest file="${cliDeployer}/MANIFEST.MF">
+            <ant:attribute name="Main-Class" value="org.apache.geronimo.console.cli.Deployer"/>
+            <ant:attribute name="Class-Path" value="${clideployer.classpath}"/>
+        </ant:manifest>
+        <ant:jar basedir="${cliDeployer}/jar" 
+            destfile="${distDir}/bin/cli-deployer.jar"
+            manifest="${cliDeployer}/MANIFEST.MF"/>
 
     </goal>
 
