@@ -251,8 +251,13 @@ public final class MBeanAttributesTag
 
                 attributeName = attributes[i].getName();
                 //value = attributes[i].toString();
-                value = server.getAttribute(name, attributeName).toString();
-                ;
+
+                Object attrObj = server.getAttribute(name, attributeName);
+                if ( attrObj == null ) {
+                    continue;
+                }
+                value = attrObj.toString();
+
                 if (i % 2 == 0) {
                     trClass = "one";
                 } else if (i % 2 == 1) {
