@@ -27,6 +27,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Date;
 import javax.management.Attribute;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
@@ -86,6 +87,7 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
 
     private Log log;
     private boolean running;
+    private Date bootTime;
     private MBeanServer mbServer;
     private LinkedList shutdownHooks = new LinkedList();
 
@@ -392,6 +394,7 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
         if (running) {
             return;
         }
+        bootTime = new Date();
         log = LogFactory.getLog(Kernel.class.getName());
         log.info("Starting boot");
 
@@ -414,6 +417,10 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
 
         running = true;
         log.info("Booted");
+    }
+
+    public Date getBootTime() {
+        return bootTime;
     }
 
     public void registerShutdownHook(Runnable hook) {

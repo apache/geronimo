@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.Set;
+import java.util.Date;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanServer;
@@ -37,6 +38,12 @@ import org.apache.geronimo.kernel.config.NoSuchStoreException;
  * @version $Rev$ $Date$
  */
 public interface KernelMBean {
+    /**
+     * Returns the time this kernel was last booted.
+     * @return the time this kernel was last booted; null if the kernel has not been 
+     */
+    Date getBootTime();
+
     /**
      * Get the MBeanServer used by this kernel
      *
