@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.10 $ $Date: 2003/08/24 20:38:05 $ -->
+<!-- $Revision: 1.11 $ $Date: 2003/08/24 21:09:37 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
@@ -37,7 +37,6 @@
   </preGoal>
 
   <postGoal name="java:compile">
-    <ant:echo message="Generating a JSR-88 Product Provider JAR" />
     <ant:jar destfile="${basedir}/target/jsr88-geronimo-plugin.jar"
              basedir="${basedir}/target/classes"
              includes="org/apache/geronimo/enterprise/deploy/provider/**/*.class"
