@@ -201,6 +201,7 @@ public class DeploymentContext {
             URI uri = (URI) i.next();
             urls[j++] = (URL) includes.get(uri);
         }
+
         return new URLClassLoader(urls, parentCL);
     }
 

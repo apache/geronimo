@@ -200,7 +200,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
     }
 
     public Module createModule(String name, JarFile moduleFile, XmlObject vendorDD) throws DeploymentException {
-        return createModule(name, URI.create("/"), moduleFile, "connector", vendorDD, null);
+        return createModule(name, URI.create("/"), moduleFile, "app-client", vendorDD, null);
     }
 
     public Module createModule(String name, URI moduleURI, JarFile moduleFile, String targetPath, XmlObject vendorDD, URL specDD) throws DeploymentException {
@@ -395,7 +395,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         Map resourceEnvRefMap = mapRefs(geronimoAppClient.getResourceEnvRefArray());
 
         return ENCConfigBuilder.buildComponentContext(earContext,
-                URI.create(appClientModule.getTargetPath()),
+                appClientModule.getModuleURI(),
                 null,
                 appClient.getEnvEntryArray(),
                 appClient.getEjbRefArray(), ejbRefMap,

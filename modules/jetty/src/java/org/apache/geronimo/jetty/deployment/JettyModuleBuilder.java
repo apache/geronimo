@@ -23,12 +23,12 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
@@ -195,7 +195,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
     }
 
     public Module createModule(String name, JarFile moduleFile, XmlObject vendorDD) throws DeploymentException {
-        return createModule(name, URI.create("/"), moduleFile, "connector", vendorDD, null);
+        return createModule(name, URI.create(""), moduleFile, "war/", vendorDD, null);
     }
 
     public Module createModule(String name, URI moduleURI, JarFile moduleFile, String targetPath, XmlObject vendorDD, URL specDD) throws DeploymentException {
@@ -229,21 +229,24 @@ public class JettyModuleBuilder implements ModuleBuilder {
         return module;
     }
 
-    public void installModule(JarFile earFile, EARContext earContext, Module webModule) throws DeploymentException {
+    public void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException {
         try {
-            URI targetURI = URI.create(webModule.getTargetPath());
+            String targetPath = module.getTargetPath();
+            if (!targetPath.endsWith("/")) {
+                targetPath += "/";
+            }
+            URI targetURI = URI.create(targetPath);
 
             // add the warfile's content to the configuration
-            JarFile warFile = webModule.getModuleFile();
+            JarFile warFile = module.getModuleFile();
             Enumeration entries = warFile.entries();
             while (entries.hasMoreElements()) {
                 ZipEntry entry = (ZipEntry) entries.nextElement();
                 URI target = targetURI.resolve(entry.getName());
-
-                if ( entry.getName().equals("WEB-INF/web.xml")) {
+                if (entry.getName().equals("WEB-INF/web.xml")) {
                     // TODO gets rid of these tests when Jetty will use the serialized Geronimo DD.
                     WebAppDocument webAppDoc = WebAppDocument.Factory.newInstance();
-                    webAppDoc.setWebApp((WebAppType) webModule.getSpecDD());
+                    webAppDoc.setWebApp((WebAppType) module.getSpecDD());
                     earContext.addFile(target, webAppDoc.newInputStream());
                 } else {
                     InputStream in = warFile.getInputStream(entry);
@@ -259,7 +262,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
             }
 
             // add the dependencies declared in the geronimo-jetty.xml file
-            JettyWebAppType jettyWebApp = (JettyWebAppType) webModule.getVendorDD();
+            JettyWebAppType jettyWebApp = (JettyWebAppType) module.getVendorDD();
             JettyDependencyType[] dependencies = jettyWebApp.getDependencyArray();
             for (int i = 0; i < dependencies.length; i++) {
                 earContext.addDependency(getDependencyURI(dependencies[i]));
@@ -351,7 +354,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
         Map resourceEnvRefMap = mapRefs(jettyWebApp.getResourceEnvRefArray());
 
         return ENCConfigBuilder.buildComponentContext(earContext,
-                URI.create(webModule.getTargetPath()),
+                webModule.getModuleURI(),
                 userTransaction,
                 webApp.getEnvEntryArray(),
                 webApp.getEjbRefArray(), ejbRefMap,

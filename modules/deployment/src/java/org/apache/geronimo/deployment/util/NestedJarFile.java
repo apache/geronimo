@@ -135,7 +135,7 @@ public class NestedJarFile extends JarFile {
             JarEntry baseEntry = (JarEntry) iterator.next();
             String path = baseEntry.getName();
             if (path.startsWith(basePath)) {
-                entries.add(new NestedJarEntry(path.substring(path.length()), baseEntry, getManifestSafe()));
+                entries.add(new NestedJarEntry(path.substring(basePath.length()), baseEntry, getManifestSafe()));
             }
         }
         return Collections.enumeration(entries);
@@ -152,7 +152,7 @@ public class NestedJarFile extends JarFile {
         if (baseEntry == null) {
             throw new IOException("Entry not found: name=" + baseEntry.getName());
         } else if (baseEntry.isDirectory()) {
-            throw new IOException("Entry is a directory: name=" + baseEntry.getName());
+            return new JarUtil.EmptyInputStream();
         }
         return baseJar.getInputStream(baseEntry);
     }
@@ -188,4 +188,5 @@ public class NestedJarFile extends JarFile {
         }
         return manifest;
     }
+
 }

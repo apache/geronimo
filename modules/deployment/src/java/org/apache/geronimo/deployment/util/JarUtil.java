@@ -22,10 +22,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Enumeration;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
-import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 
 import org.apache.geronimo.deployment.DeploymentException;
@@ -37,9 +37,8 @@ public class JarUtil {
     public static final File DUMMY_JAR_FILE;
     static {
         try {
-            DUMMY_JAR_FILE = File.createTempFile("fake", null);
+            DUMMY_JAR_FILE = FileUtil.createTempFile();
             new JarOutputStream(new FileOutputStream(DUMMY_JAR_FILE), new Manifest()).close();
-            DUMMY_JAR_FILE.deleteOnExit();
         } catch (IOException e) {
             throw new ExceptionInInitializerError(e);
         }
@@ -72,11 +71,20 @@ public class JarUtil {
             // this is a plain old jar... nothign special
             return new File(inputJar.getName());
         } else if (inputJar instanceof NestedJarFile && ((NestedJarFile)inputJar).isPacked()) {
-            JarFile nestedBaseJar = ((NestedJarFile)inputJar).getBaseJar();
-            return new File(nestedBaseJar.getName());
+            NestedJarFile nestedJarFile = (NestedJarFile)inputJar;
+            JarFile baseJar = nestedJarFile.getBaseJar();
+            String basePath = nestedJarFile.getBasePath();
+            if (baseJar instanceof UnpackedJarFile) {
+                // our target jar is just a file in upacked jar (a plain old directory)... now
+                // we just need to find where it is
+                return ((UnpackedJarFile)baseJar).getFile(basePath);
+            } else {
+                // out target is just a plain old jar file directly accessabel from the file system
+                return new File(baseJar.getName());
+            }
         } else {
             // copy out the module contents to a standalone jar file (entry by entry)
-            File jarFile = File.createTempFile("geronimo", null);
+            File jarFile = FileUtil.createTempFile();
 
             JarOutputStream out = new JarOutputStream(new FileOutputStream(jarFile));
             try {
@@ -84,7 +92,6 @@ public class JarUtil {
                 Enumeration entries = inputJar.entries();
                 while (entries.hasMoreElements()) {
                     ZipEntry entry = (ZipEntry) entries.nextElement();
-
                     InputStream in = inputJar.getInputStream(entry);
                     try {
                         out.putNextEntry(new ZipEntry(entry.getName()));
@@ -110,6 +117,41 @@ public class JarUtil {
                 } catch (IOException e) {
                 }
             }
+        }
+    }
+
+    public static final class EmptyInputStream extends InputStream {
+        public int read() {
+            return -1;
+        }
+
+        public int read(byte b[])  {
+            return -1;
+        }
+
+        public int read(byte b[], int off, int len) {
+            return -1;
+        }
+
+        public long skip(long n) {
+            return 0;
+        }
+
+        public int available() {
+            return 0;
+        }
+
+        public void close() {
+        }
+
+        public synchronized void mark(int readlimit) {
+        }
+
+        public synchronized void reset() {
+        }
+
+        public boolean markSupported() {
+            return false;
         }
     }
 }

@@ -34,6 +34,7 @@ import javax.management.ObjectName;
 
 import org.apache.geronimo.kernel.KernelMBean;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
+import org.apache.geronimo.deployment.util.FileUtil;
 
 /**
  * @version $Rev$ $Date$
@@ -72,11 +73,11 @@ public class DistributeCommand extends CommandSupport {
         try {
             if (spool) {
                 if (moduleStream != null) {
-                    moduleArchive = File.createTempFile("deployer", ".tmp");
+                    moduleArchive = FileUtil.createTempFile();
                     copyTo(moduleArchive, moduleStream);
                 }
                 if (deploymentStream != null) {
-                    deploymentPlan = File.createTempFile("deployer", ".tmp");
+                    deploymentPlan = FileUtil.createTempFile();
                     copyTo(deploymentPlan, deploymentStream);
                 }
             }

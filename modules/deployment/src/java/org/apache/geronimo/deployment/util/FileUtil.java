@@ -32,8 +32,13 @@ import java.util.LinkedList;
  * @version $Rev$ $Date$
  */
 public class FileUtil {
-
     private static int i;
+
+    public static File createTempFile() throws IOException {
+        File tempFile = File.createTempFile("geronimodeployment" + i++, "tmp");
+        tempFile.deleteOnExit();
+        return tempFile;
+    }
 
     public static File toTempFile(InputStream is) throws IOException {
         return toTempFile(is, false);
@@ -42,7 +47,7 @@ public class FileUtil {
     public static File toTempFile(InputStream in, boolean close) throws IOException {
         OutputStream out = null;
         try {
-            File tempFile = File.createTempFile("geronimodeployment" + i++, "tmp");
+            File tempFile = createTempFile();
             out = new FileOutputStream(tempFile);
 
             byte[] buffer = new byte[4096];

@@ -225,14 +225,18 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
 
     public void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException {
         try {
-            URI moduleBase = URI.create(module.getTargetPath());
+            String targetPath = module.getTargetPath();
+            if (!targetPath.endsWith("/")) {
+                targetPath += "/";
+            }
+            URI targetURI = URI.create(targetPath);
 
             JarFile moduleFile = module.getModuleFile();
 
             Enumeration entries = moduleFile.entries();
             while (entries.hasMoreElements()) {
                 ZipEntry entry = (ZipEntry) entries.nextElement();
-                URI target = moduleBase.resolve(entry.getName());
+                URI target = targetURI.resolve(entry.getName());
                 InputStream in = moduleFile.getInputStream(entry);
                 try {
                     if (entry.getName().endsWith(".jar")) {

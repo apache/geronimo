@@ -109,7 +109,7 @@ public class Deployer {
             }
         }
         try {
-            File carfile = File.createTempFile("deployer", ".car");
+            File carfile = FileUtil.createTempFile();
             try {
 
                 Manifest manifest = new Manifest();
@@ -173,7 +173,7 @@ public class Deployer {
         boolean saveOutput;
         if (cmd.carfile == null) {
             saveOutput = false;
-            cmd.carfile = File.createTempFile("deployer", ".car");
+            cmd.carfile = FileUtil.createTempFile();
         } else {
             saveOutput = true;
         }

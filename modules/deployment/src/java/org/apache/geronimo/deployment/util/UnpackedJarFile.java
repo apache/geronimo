@@ -121,7 +121,7 @@ public class UnpackedJarFile extends JarFile {
         if (file == null) {
             throw new IOException("Entry not found: name=" + file.getAbsolutePath());
         } else if (file.isDirectory()) {
-            throw new IOException("Entry is a directory: name=" + file.getAbsolutePath());
+            return new JarUtil.EmptyInputStream();
         }
         return new FileInputStream(file);
     }
@@ -144,7 +144,7 @@ public class UnpackedJarFile extends JarFile {
     protected void finalize() throws IOException {
     }
 
-    private File getFile(String name) {
+    public File getFile(String name) {
         File file = new File(baseDir, name);
         if (!file.exists()) {
             return null;
