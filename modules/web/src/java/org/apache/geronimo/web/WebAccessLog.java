@@ -59,27 +59,151 @@ package org.apache.geronimo.web;
 import java.net.URI;
 import org.apache.geronimo.core.service.ManagedComponent;
 
+/* -------------------------------------------------------------------------------------- */
+/**
+ * WebAccessLog
+ * 
+ * 
+ * @version $Revision: 1.6 $ $Date: 2003/11/20 09:10:17 $
+ */
 /**
  * WebAccessLog
  *
  * Log for web hits.
  * 
- * @version $Revision: 1.5 $ $Date: 2003/10/30 07:47:05 $
+ * @version $Revision: 1.6 $ $Date: 2003/11/20 09:10:17 $
  */
 public interface WebAccessLog extends ManagedComponent {
+    public static final String NCSA_COMMON_PATTERN = "%h %l %u %t \"%r\" %>s %b";
+    public static final String NCSA_EXTENDED_PATTERN = "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-agent}i\"";
     
+    public static final String NCSA_COMMON_NAME = "common";
+    public static final String NCSA_EXTENDED_NAME = "extended";
+    
+    
+    /* -------------------------------------------------------------------------------------- */
+    /** Set the name of a log implementation class.
+     * This is useful for containers that have a number of different
+     * log implementations that may be plugged in.
+     * @param classname fully qualified classname
+     */
+    public void setLogImpl (String classname);
+    
+    /* -------------------------------------------------------------------------------------- */
+    /** Get the name of the log implementation class.
+     * @return
+     */
+    public String getLogImpl ();
+    
+    /* -------------------------------------------------------------------------------------- */
+    /**Set directory where access log logs will be written
+     * @param uri
+     */
     public void setLogLocation(URI uri);
 
+    /* -------------------------------------------------------------------------------------- */
+    /** Get location as uri of access log directory
+     * @return
+     */
     public URI getLogLocation();
 
-    // extendedNCSAFormat
+    /* -------------------------------------------------------------------------------------- */
+    /** Set the log format in accordance with NCSA spec
+     * @param pattern
+     */
+    public void setLogPattern (String pattern);
+    
+    /* -------------------------------------------------------------------------------------- */
+    /** Get the NCSA style log format pattern
+     * @return
+     */
+    public String getLogPattern ();
+   
+    /* -------------------------------------------------------------------------------------- */
+    /** Configure the number of days before old logs are deleted.
+     * @param days
+     */
+    public void setLogRetentionDays (int days);
+    
+    /* -------------------------------------------------------------------------------------- */
+    /** Get the number of days before old logs are deleted
+     * @return
+     */
+    public int getLogRetentionDays ();
 
-    // rollover retention days
-
-    // date format
-
-    // append
-
-    // buffering
+    /* -------------------------------------------------------------------------------------- */
+    /** Number of hrs between log rotations
+     *  eg 1 = 1hr, 24=1day, 168=1week
+     * @param 0 is no rotation, otherwise it is hrs between rotations
+     */
+    public void setLogRolloverIntervalHrs (int hrs);
+    
+    /* -------------------------------------------------------------------------------------- */
+    /** Number of hrs between log rotations
+     * @return
+     */
+    public int getLogRolloverIntervalHrs ();
+    
+    /* -------------------------------------------------------------------------------------- */
+    /** Prefix to prepend to all access log filenames
+     * @param prefix
+     */
+    public void setLogPrefix (String prefix);
+    
+    /* -------------------------------------------------------------------------------------- */
+    /** Get the log filename prefix
+     * @return the prefix, or null if not set
+     */
+    public String getLogPrefix ();
+    
+    
+    /* -------------------------------------------------------------------------------------- */
+    /** Suffix to append to all access log filenames
+     * @param suffix
+     */
+    public void setLogSuffix (String suffix);
+    
+    /* -------------------------------------------------------------------------------------- */
+    /** Get the log filename suffix
+     * @return the suffix, or null if not set
+     */
+    public String getLogSuffix ();
+    
+    /* -------------------------------------------------------------------------------------- */
+    /** Set the format for the date in the log
+     * @param dateFormat 
+     * @see java.util.DateFormat
+     */
+    public void setLogDateFormat (String dateFormat);
+    
+    /* -------------------------------------------------------------------------------------- */
+    /** Get the date format string
+     * @return 
+     */
+    public String getLogDateFormat ();
+  
+    /* -------------------------------------------------------------------------------------- */
+    /** Configure DNS resolution of host addresses in the log
+     * @param state
+     */
+    public void setResolveHostNames (boolean state);
+    
+    /* -------------------------------------------------------------------------------------- */
+    /** Get state of DNS hostname resolution for the log
+     * @return true if DNS resolution is enabled, false otherwise
+     */
+    public boolean getResolveHostNames ();
+    
+    /* -------------------------------------------------------------------------------------- */
+    /** Configure if logs will be appended or created afresh
+     * @param state true if appending is enabled, false otherwise
+     */
+    public void setAppend (boolean state);
+    
+    /* -------------------------------------------------------------------------------------- */
+    /** Get whether logs will be appended
+     * @return true if appending is enabled, false otherwise
+     */
+    public boolean getAppend ();
 
 }

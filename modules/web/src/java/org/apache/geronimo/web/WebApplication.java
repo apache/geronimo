@@ -58,16 +58,18 @@ package org.apache.geronimo.web;
 import java.net.URI;
 
 import org.apache.geronimo.core.service.Component;
+import org.apache.geronimo.deployment.model.web.WebApp;
+import org.apache.geronimo.deployment.model.geronimo.web.GeronimoWebAppDocument;
 import org.apache.geronimo.kernel.management.WebModule;
-import org.apache.geronimo.naming.java.ReadOnlyContext;
-
+import javax.naming.Context;
+import org.w3c.dom.Document;
 
 /**
  * The WebApplication interface represents a web application deployable within a WebContainer.
  *
  * It supports the J2EE Management WebModule attributes
  *
- * @version  $Revision: 1.12 $ $Date: 2003/11/16 22:36:31 $
+ * @version  $Revision: 1.13 $ $Date: 2003/11/20 09:10:17 $
  */
 public interface WebApplication extends Component, WebModule {
     /**
@@ -106,6 +108,23 @@ public interface WebApplication extends Component, WebModule {
      * @return the contents of the web.xml as a string
      */
     public String getDeploymentDescriptor();
+    
+    
+    /** Configure the pojo for the web.xml
+     * @param webDDObj
+     */
+    public void setWebDDObj (WebApp webDDObj);
+    
+    //public WebApp getWebDDObj ();
+    
+
+    /** Configure the pojo for the geronimo-web.xml
+     * @param geronimoDDObj
+     */
+    public void setGeronimoDDObj (GeronimoWebAppDocument geronimoDDObj);
+    
+    public GeronimoWebAppDocument getGeronimoDDObj();
+    
 
     /**
      * Getter for the class loader delegation model for this webapp
@@ -123,11 +142,11 @@ public interface WebApplication extends Component, WebModule {
      * Gets the JNDI context for the web application.
      * @return the jndi context
      */
-    public ReadOnlyContext getComponentContext();
+    public Context getComponentContext();
 
     /**
      * Sets the JNDI context for the web application.
      * @param context the jndi context
      */
-    public void setComponentContext(ReadOnlyContext context);
+    public void setComponentContext(Context context);
 }

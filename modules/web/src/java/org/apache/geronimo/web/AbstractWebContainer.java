@@ -84,6 +84,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.core.service.AbstractManagedContainer;
 import org.apache.geronimo.core.service.Component;
 import org.apache.geronimo.deployment.model.geronimo.web.GeronimoWebAppDocument;
+import org.apache.geronimo.deployment.model.web.WebApp;
 import org.apache.geronimo.kernel.deployment.DeploymentException;
 import org.apache.geronimo.kernel.deployment.DeploymentHelper;
 import org.apache.geronimo.kernel.deployment.DeploymentInfo;
@@ -108,6 +109,7 @@ import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 import org.apache.geronimo.web.deploy.RemoveWebApplication;
 import org.apache.geronimo.xml.deployment.GeronimoWebAppLoader;
 import org.apache.geronimo.xml.deployment.LoaderUtil;
+import org.apache.geronimo.xml.deployment.WebAppLoader;
 
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -128,7 +130,7 @@ import org.xml.sax.SAXException;
  * 2. the url is a directory which contains a WEB-INF/web.xml file
  *
  * @jmx:mbean extends="org.apache.geronimo.web.WebContainer, org.apache.geronimo.kernel.management.StateManageable, javax.management.MBeanRegistration"
- * @version $Revision: 1.19 $ $Date: 2003/11/17 07:33:51 $
+ * @version $Revision: 1.20 $ $Date: 2003/11/20 09:10:17 $
  */
 public abstract class AbstractWebContainer
         extends AbstractManagedContainer
@@ -212,10 +214,11 @@ public abstract class AbstractWebContainer
 
         URL url = goal.getUrl();
         DeploymentHelper deploymentHelper = new DeploymentHelper(url, goal.getType(), "WebApplication", "web.xml", "geronimo-web.xml", "WEB-INF");
-        URL geronimoURL = deploymentHelper.locateGeronimoDD();
-
+        URL geronimoDDURL = deploymentHelper.locateGeronimoDD();
+        URL webDDURL = deploymentHelper.locateJ2eeDD();
+        
         // Is the specific URL deployable?
-        if (null == geronimoURL) {
+        if (null == geronimoDDURL) {
 //            log.info("Looking at and rejecting url " + url);
             return false;
         }
@@ -224,7 +227,7 @@ public abstract class AbstractWebContainer
         log.trace("Planning the ejb module deployment " + url);
 
         // One can deploy the specified URL. One removes it from the current goal set.
-        goals.remove(goal);
+        //goals.remove(goal);
 
         ObjectName deploymentUnitName = deploymentHelper.buildDeploymentName();
 
@@ -241,22 +244,33 @@ public abstract class AbstractWebContainer
         deploymentInfoPlan.addTask(new CreateClassSpace(server, classSpaceMetaData));
         plans.add(deploymentInfoPlan);
 
-        // Load the deployment descriptor into our POJO
-        URI geronimoWebURI = URI.create(geronimoURL.toString()).normalize();
-        log.trace("Loading deployment descriptor " + geronimoWebURI);
+        // Load the geronimo-web.xml descriptor into our POJO
+        log.trace("Loading deployment descriptor " + geronimoDDURL.toString());
 
         GeronimoWebAppDocument geronimoWebAppDoc = null;
         try {
-            Document document = LoaderUtil.parseXML(new InputStreamReader(geronimoURL.openStream()));
+            Document document = LoaderUtil.parseXML(new InputStreamReader(geronimoDDURL.openStream()));
             geronimoWebAppDoc = GeronimoWebAppLoader.load(document);
         } catch (FileNotFoundException e) {
-//            throw new DeploymentException("Deployment descriptor not found", e);
+//            throw new DeploymentException("geronimo-web.xml not found", e);
         } catch (SAXException e) {
             throw new DeploymentException("geronimo-web.xml malformed", e);
         } catch (IOException e) {
             throw new DeploymentException("Deployment descriptor not readable", e);
         }
 
+        //load the web.xml descriptor into a POJO
+        WebApp webAppDoc = null;
+        try {
+            Document doc = LoaderUtil.parseXML (new InputStreamReader (webDDURL.openStream()));
+            webAppDoc = WebAppLoader.load(doc);
+        } catch (FileNotFoundException e) {
+            throw new DeploymentException ("web.xml file not found", e);
+        }catch (SAXException e) {
+            throw new DeploymentException ("web.xml malformed", e);
+        } catch (IOException e) {
+            throw new DeploymentException ("web.xml not readable", e);
+        }
         // Create a webapp typed to the concrete type of the web container
         WebApplication webapp = createWebApplication(baseURI);
         ObjectName webappName;
@@ -266,6 +280,7 @@ public abstract class AbstractWebContainer
             throw new DeploymentException(e);
         }
 
+       
         // Create a deployment plan for the webapp
         DeploymentPlan webappPlan = new DeploymentPlan();
         webappPlan.addTask(new RegisterMBeanInstance(server, webappName, webapp));
@@ -280,6 +295,11 @@ public abstract class AbstractWebContainer
         webappMetadata.setLoaderName(classSpaceMetaData.getName());
         dependencyService.addStartDependency(webappName, deploymentUnitName);
 
+        // Set up the web.xml POJO
+        webapp.setWebDDObj (webAppDoc);
+        // Set up the geronimo-web.xml POJO
+        webapp.setGeronimoDDObj (geronimoWebAppDoc);
+        
         // Set up the ContextPath, which can come from:
         //  application.xml
         //  geronimo-web.xml

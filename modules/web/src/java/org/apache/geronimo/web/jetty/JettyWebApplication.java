@@ -1,15 +1,19 @@
 package org.apache.geronimo.web.jetty;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URI;
+import java.net.URL;
+
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
+import javax.naming.Context;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.web.AbstractWebApplication;
 import org.apache.geronimo.web.WebContainer;
-import org.apache.geronimo.naming.java.ReadOnlyContext;
-
 import org.mortbay.jetty.servlet.WebApplicationContext;
 
 
@@ -20,12 +24,13 @@ import org.mortbay.jetty.servlet.WebApplicationContext;
  * Created: Sun Sep 14 16:40:17 2003
  *
  * @jmx:mbean extends="org.apache.geronimo.web.AbstractWebApplicationMBean
- * @version $Revision: 1.5 $ $Date: 2003/11/16 22:36:31 $
+ * @version $Revision: 1.6 $ $Date: 2003/11/20 09:10:17 $
  */
 public class JettyWebApplication extends AbstractWebApplication implements JettyWebApplicationMBean {
     private JettyWebApplicationContext jettyContext;
     private final Log log = LogFactory.getLog(getClass());
 
+    
     public JettyWebApplication() {
         super();
         jettyContext = new JettyWebApplicationContext();
@@ -68,9 +73,46 @@ public class JettyWebApplication extends AbstractWebApplication implements Jetty
         return jettyContext.getContextPath();
     }
 
+   
+    /* Hacky implementation of getting the web.xm as a String.
+     * This should be handled by converting pojo->xml->string
+     * @return
+     * @see org.apache.geronimo.kernel.management.J2EEDeployedObject#getDeploymentDescriptor()
+     */
     public String getDeploymentDescriptor() {
-        //TODO
-        return null;
+        if (deploymentDescriptorStr != null)
+            return deploymentDescriptorStr;
+            
+        BufferedReader reader = null;
+        try {
+            URL url = new URL (jettyContext.getDeploymentDescriptor());
+            StringBuffer strbuff = new StringBuffer();
+            reader = new BufferedReader(new InputStreamReader (url.openStream()));
+            boolean more = true;
+            while (more) {
+                String line = reader.readLine ();
+                if (line == null)
+                    more = false;
+                else
+                    strbuff.append (line);
+            }
+            
+            deploymentDescriptorStr = strbuff.toString();
+
+            return deploymentDescriptorStr;
+            
+        } catch (IOException e) {
+            log.error (e);
+            return null;
+        }
+        finally {
+            try {
+                reader.close();
+            } catch (IOException e) {
+                log.warn("Error closing web.xml reader", e);
+            }
+            
+        }    
     }
 
     public boolean getJava2ClassloadingCompliance() {
@@ -85,11 +127,11 @@ public class JettyWebApplication extends AbstractWebApplication implements Jetty
         return jettyContext;
     }
 
-    public ReadOnlyContext getComponentContext() {
+    public Context getComponentContext() {
         return jettyContext.getComponentContext();
     }
 
-    public void setComponentContext(ReadOnlyContext context) {
+    public void setComponentContext(Context context) {
         jettyContext.setComponentContext(context);
     }
 

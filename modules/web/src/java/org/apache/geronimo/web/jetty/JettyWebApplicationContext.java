@@ -55,6 +55,7 @@
  */
 package org.apache.geronimo.web.jetty;
 
+import javax.naming.Context;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
@@ -67,10 +68,10 @@ import org.mortbay.jetty.servlet.WebApplicationContext;
 /**
  * 
  * 
- * @version $Revision: 1.1 $ $Date: 2003/11/16 07:17:29 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/20 09:10:18 $
  */
 public class JettyWebApplicationContext extends WebApplicationContext {
-    private ReadOnlyContext componentContext;
+    private Context componentContext;
     private Log log = LogFactory.getLog(JettyWebApplicationContext.class);
 
     public JettyWebApplicationContext() {
@@ -82,7 +83,7 @@ public class JettyWebApplicationContext extends WebApplicationContext {
 
     public Object enterContextScope(HttpRequest httpRequest, HttpResponse httpResponse) {
         log.info("Entering context " + httpRequest.getRequestURL());
-        RootContext.setComponentContext(componentContext);
+        RootContext.setComponentContext((ReadOnlyContext)componentContext);
         return super.enterContextScope(httpRequest, httpResponse);
     }
 
@@ -92,11 +93,11 @@ public class JettyWebApplicationContext extends WebApplicationContext {
         log.info("Leaving context " + httpRequest.getRequestURL());
     }
 
-    public ReadOnlyContext getComponentContext() {
+    public Context getComponentContext() {
         return componentContext;
     }
 
-    public void setComponentContext(ReadOnlyContext componentContext) {
+    public void setComponentContext(Context componentContext) {
         this.componentContext = componentContext;
     }
 }
