@@ -31,7 +31,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.Enumeration;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.security.auth.Subject;
@@ -44,16 +43,6 @@ import javax.security.jacc.WebUserDataPermission;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.mortbay.http.Authenticator;
-import org.mortbay.http.HttpException;
-import org.mortbay.http.HttpRequest;
-import org.mortbay.http.HttpResponse;
-import org.mortbay.http.SecurityConstraint;
-import org.mortbay.http.UserRealm;
-import org.mortbay.jetty.servlet.FormAuthenticator;
-import org.mortbay.jetty.servlet.ServletHolder;
-import org.mortbay.jetty.servlet.ServletHttpRequest;
-
 import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -75,6 +64,15 @@ import org.apache.geronimo.security.util.ConfigurationUtil;
 import org.apache.geronimo.transaction.OnlineUserTransaction;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.mortbay.http.Authenticator;
+import org.mortbay.http.HttpException;
+import org.mortbay.http.HttpRequest;
+import org.mortbay.http.HttpResponse;
+import org.mortbay.http.SecurityConstraint;
+import org.mortbay.http.UserRealm;
+import org.mortbay.jetty.servlet.FormAuthenticator;
+import org.mortbay.jetty.servlet.ServletHolder;
+import org.mortbay.jetty.servlet.ServletHttpRequest;
 
 
 /**
@@ -207,16 +205,13 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
         contextLength = index;
         chain = securityInterceptor;
 
-        Set p = new HashSet();
+        Set allRolePermissions = new HashSet();
         for (Iterator iterator = rolePermissions.entrySet().iterator(); iterator.hasNext();) {
             Map.Entry entry = (Map.Entry) iterator.next();
-            Set permissions = (Set) entry.getValue();
-            for (Iterator iterator1 = permissions.iterator(); iterator1.hasNext();) {
-                Permission permission = (Permission) iterator1.next();
-                p.add(permission);
-            }
+            Set permissionsForRole = (Set) entry.getValue();
+            allRolePermissions.addAll(permissionsForRole);
         }
-        for (Iterator iterator = p.iterator(); iterator.hasNext();) {
+        for (Iterator iterator = allRolePermissions.iterator(); iterator.hasNext();) {
             Permission permission = (Permission) iterator.next();
             checked.add(permission);
         }
