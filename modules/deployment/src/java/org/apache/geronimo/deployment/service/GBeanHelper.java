@@ -45,6 +45,6 @@ public class GBeanHelper {
             builder.setReference(gbean.getReferencesName(j), gbean.getReferencesPatternArray(j));
         }
 
-        context.addGBean(builder.getName(), builder.getGBeanData(), cl);
+        context.addGBean(builder.getGBeanData(), cl);
     }
 }

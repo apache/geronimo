@@ -684,10 +684,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
      * @return the gbean data
      */
     public GBeanData getGBeanData() {
-        GBeanData gbeanData = new GBeanData();
-
-        // add the gbean info
-        gbeanData.setGBeanInfo(gbeanInfo);
+        GBeanData gbeanData = new GBeanData(objectName, gbeanInfo);
 
         // add the attributes
         for (int i = 0; i < attributes.length; i++) {

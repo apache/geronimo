@@ -282,14 +282,14 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
         }
     }
 
-    public void loadGBean(ObjectName name, GBeanData gbeanData, ClassLoader classLoader) throws InstanceAlreadyExistsException, InvalidConfigException {
+    public void loadGBean(GBeanData gbeanData, ClassLoader classLoader) throws InstanceAlreadyExistsException, InvalidConfigException {
         try {
             GBeanMBean gbean = new GBeanMBean(gbeanData, classLoader);
-            mbServer.registerMBean(gbean, name);
+            mbServer.registerMBean(gbean, gbeanData.getName());
         } catch (MBeanRegistrationException e) {
-            throw new InvalidConfigException("Invalid GBean configuration for " + name, e);
+            throw new InvalidConfigException("Invalid GBean configuration for " + gbeanData.getName(), e);
         } catch (NotCompliantMBeanException e) {
-            throw new InvalidConfigException("Invalid GBean configuration for " + name, e);
+            throw new InvalidConfigException("Invalid GBean configuration for " + gbeanData.getName(), e);
         }
     }
 

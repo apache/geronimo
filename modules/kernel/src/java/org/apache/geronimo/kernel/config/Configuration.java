@@ -349,18 +349,15 @@ public class Configuration implements GBeanLifecycle {
      */
     private static Map loadGBeans(byte[] gbeanState, ClassLoader cl) throws InvalidConfigException {
         Map gbeans = new HashMap();
-        ObjectName objectName = null;
         try {
             ObjectInputStream ois = new ConfigInputStream(new ByteArrayInputStream(gbeanState), cl);
             try {
                 while (true) {
-                    objectName = (ObjectName) ois.readObject();
-
                     GBeanData gbeanData = new GBeanData();
                     gbeanData.readExternal(ois);
                     GBeanMBean gbean = new GBeanMBean(gbeanData, cl);
 
-                    gbeans.put(objectName, gbean);
+                    gbeans.put(gbeanData.getName(), gbean);
                 }
             } catch (EOFException e) {
                 // ok
@@ -369,8 +366,7 @@ public class Configuration implements GBeanLifecycle {
             }
             return gbeans;
         } catch (Exception e) {
-            throw new InvalidConfigException("Unable to deserialize GBeanState" +
-                    (objectName == null ? "" : " " + objectName), e);
+            throw new InvalidConfigException("Unable to deserialize GBeanState", e);
         }
     }
 
@@ -401,8 +397,11 @@ public class Configuration implements GBeanLifecycle {
             ObjectName objectName = (ObjectName) entry.getKey();
             GBeanMBean gbean = (GBeanMBean) entry.getValue();
             try {
-                oos.writeObject(objectName);
-                gbean.getGBeanData().writeExternal(oos);
+                GBeanData gbeanData = gbean.getGBeanData();
+                // todo we must explicitly set the bean name here from the gbean key because the gbean mbean may
+                // not have been brought online, so the object namve in the gbean mbean will be null
+                gbeanData.setName(objectName);
+                gbeanData.writeExternal(oos);
             } catch (Exception e) {
                 throw new InvalidConfigException("Unable to serialize GBeanState for " + objectName, e);
             }

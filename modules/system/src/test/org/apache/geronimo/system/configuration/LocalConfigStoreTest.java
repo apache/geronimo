@@ -130,10 +130,10 @@ public class LocalConfigStoreTest extends TestCase {
             root.mkdir();
 
             storeName = new ObjectName("geronimo.test:role=ConfigurationStore,name=LocalConfigStore");
-            GBeanData store = new GBeanData(LocalConfigStore.getGBeanInfo());
+            GBeanData store = new GBeanData(storeName, LocalConfigStore.getGBeanInfo());
             store.setAttribute("root", root.toURI());
 
-            kernel.loadGBean(storeName, store, getClass().getClassLoader());
+            kernel.loadGBean(store, getClass().getClassLoader());
             kernel.startGBean(storeName);
 
             GBeanMBean gbean = new GBeanMBean(Configuration.GBEAN_INFO);

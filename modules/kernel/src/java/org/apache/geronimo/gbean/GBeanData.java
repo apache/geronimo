@@ -32,6 +32,7 @@ import javax.management.ObjectName;
  * @version $Rev$ $Date$
  */
 public class GBeanData implements Externalizable {
+    private ObjectName name;
     private GBeanInfo gbeanInfo;
     private final Map attributes;
     private final Map references;
@@ -41,16 +42,26 @@ public class GBeanData implements Externalizable {
         references = new HashMap();
     }
 
-    public GBeanData(GBeanInfo gbeanInfo) {
+    public GBeanData(ObjectName name, GBeanInfo gbeanInfo) {
+        this.name = name;
         this.gbeanInfo = gbeanInfo;
         attributes = new HashMap();
         references = new HashMap();
     }
 
     public GBeanData(GBeanData gbeanData) {
+        name = gbeanData.name;
         gbeanInfo = gbeanData.gbeanInfo;
         attributes = new HashMap(gbeanData.attributes);
         references = new HashMap(gbeanData.references);
+    }
+
+    public ObjectName getName() {
+        return name;
+    }
+
+    public void setName(ObjectName name) {
+        this.name = name;
     }
 
     public GBeanInfo getGBeanInfo() {
@@ -101,6 +112,9 @@ public class GBeanData implements Externalizable {
         // write the gbean info
         out.writeObject(gbeanInfo);
 
+        // write the object name
+        out.writeObject(name);
+
         // write the attributes
         out.writeInt(attributes.size());
         for (Iterator iterator = attributes.entrySet().iterator(); iterator.hasNext();) {
@@ -135,16 +149,29 @@ public class GBeanData implements Externalizable {
         // read the gbean info
         gbeanInfo = (GBeanInfo) in.readObject();
 
-        // read the attributes
-        int attributeCount = in.readInt();
-        for (int i = 0; i < attributeCount; i++) {
-            setAttribute((String) in.readObject(), in.readObject());
+        // read the object name
+        try {
+            name = (ObjectName) in.readObject();
+        } catch (IOException e) {
+            throw (IOException) new IOException("Unable to deserialize ObjectName for GBeanData of type " + gbeanInfo.getClassName()).initCause(e);
         }
 
-        // read the references
-        int endpointCount = in.readInt();
-        for (int i = 0; i < endpointCount; i++) {
-            setReferencePatterns((String) in.readObject(), (Set) in.readObject());
+        try {
+            // read the attributes
+            int attributeCount = in.readInt();
+            for (int i = 0; i < attributeCount; i++) {
+                setAttribute((String) in.readObject(), in.readObject());
+            }
+
+            // read the references
+            int endpointCount = in.readInt();
+            for (int i = 0; i < endpointCount; i++) {
+                setReferencePatterns((String) in.readObject(), (Set) in.readObject());
+            }
+        } catch (IOException e) {
+            throw (IOException) new IOException("Unable to deserialize GBeanData " + name).initCause(e);
+        } catch (ClassNotFoundException e) {
+            throw new ClassNotFoundException("Unable to find class used in GBeanData " + name, e);
         }
     }
 }

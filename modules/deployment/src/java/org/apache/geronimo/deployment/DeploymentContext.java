@@ -155,9 +155,9 @@ public class DeploymentContext {
         gbeans.put(name, gbean);
     }
 
-    public void addGBean(ObjectName name, GBeanData gbean, ClassLoader classLoader) {
+    public void addGBean(GBeanData gbean, ClassLoader classLoader) {
         GBeanMBean gbeanMBean = new GBeanMBean(gbean, classLoader);
-        gbeans.put(name, gbeanMBean);
+        gbeans.put(gbean.getName(), gbeanMBean);
     }
 
     public void addDependency(URI uri) {

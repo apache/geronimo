@@ -35,13 +35,13 @@ import org.apache.geronimo.gbean.GAttributeInfo;
  * @version $Rev$ $Date$
  */
 public class GBeanBuilder {
-    private final ObjectName name;
     private final GBeanData gbean;
     private final ClassLoader classLoader;
 
     public GBeanBuilder(String name, ClassLoader classLoader, String className) throws DeploymentException {
+        ObjectName objectName;
         try {
-            this.name = new ObjectName(name);
+            objectName = new ObjectName(name);
         } catch (MalformedObjectNameException e) {
             throw new DeploymentException("Invalid ObjectName: " + name, e);
         }
@@ -49,7 +49,7 @@ public class GBeanBuilder {
         this.classLoader = classLoader;
 
         try {
-            gbean = new GBeanData(GBeanInfo.getGBeanInfo(className, classLoader));
+            gbean = new GBeanData(objectName, GBeanInfo.getGBeanInfo(className, classLoader));
         } catch (Exception e) {
             throw new DeploymentException("Unable to create GBean from class " + className, e);
         }
@@ -95,9 +95,5 @@ public class GBeanBuilder {
 
     public GBeanData getGBeanData() {
         return gbean;
-    }
-
-    public ObjectName getName() {
-        return name;
     }
 }
