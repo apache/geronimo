@@ -17,18 +17,18 @@
 
 package org.apache.geronimo.network.protocol.control;
 
-import EDU.oswego.cs.dl.util.concurrent.Latch;
-import EDU.oswego.cs.dl.util.concurrent.Mutex;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.geronimo.network.protocol.DownPacket;
+import org.apache.geronimo.network.protocol.Protocol;
 import org.apache.geronimo.network.protocol.ProtocolException;
 import org.apache.geronimo.network.protocol.UpPacket;
 
+import EDU.oswego.cs.dl.util.concurrent.Latch;
+
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/04/10 17:14:01 $
+ * @version $Revision: 1.6 $ $Date: 2004/04/24 06:29:01 $
  */
 public class ControlClientProtocol extends AbstractControlProtocol {
 
@@ -36,7 +36,7 @@ public class ControlClientProtocol extends AbstractControlProtocol {
 
     private ControlClientListener listener;
     private ClassLoader classLoader;
-    private Mutex sendMutex = new Mutex();  //todo: replace with something that uses no locks
+    private Latch sendLatch = new Latch();  //todo: replace with something that uses no locks
     private Latch shutdownLatch = new Latch();
     private long timeout;
 
@@ -44,6 +44,16 @@ public class ControlClientProtocol extends AbstractControlProtocol {
     private final int STOPPED = 1;
     private int state = STOPPED;
 
+    /**
+	 * @see org.apache.geronimo.network.protocol.AbstractProtocol#cloneProtocol()
+	 */
+	public Protocol cloneProtocol() throws CloneNotSupportedException {
+		ControlClientProtocol p = (ControlClientProtocol)super.cloneProtocol();
+		p.sendLatch = new Latch();
+		p.shutdownLatch = new Latch();
+		return p;
+	}
+    
     public ControlClientListener getListener() {
         return listener;
     }
@@ -69,19 +79,9 @@ public class ControlClientProtocol extends AbstractControlProtocol {
     }
 
     public void setup() throws ProtocolException {
-        try {
-            log.trace("Starting");
-
-            getDownProtocol().sendDown(new BootRequestDownPacket()); //todo: this is probably dangerous, put in thread pool
-
-            log.trace("AQUIRING " + sendMutex);
-            sendMutex.acquire();
-            log.trace("AQUIRED " + sendMutex);
-
-            state = STARTED;
-        } catch (InterruptedException e) {
-            throw new ProtocolException(e);
-        }
+        log.trace("Starting");
+        getDownProtocol().sendDown(new BootRequestDownPacket()); //todo: this is probably dangerous, put in thread pool
+        state = STARTED;
     }
 
     public void drain() throws ProtocolException {
@@ -110,9 +110,9 @@ public class ControlClientProtocol extends AbstractControlProtocol {
                 log.trace("BOOT RESPONSE");
                 listener.serveUp(((BootResponseUpPacket) p).getMenu());
                 getDownProtocol().sendDown(new BootSuccessDownPacket());
-                log.trace("RELEASING " + sendMutex);
-                sendMutex.release();
-                log.trace("RELEASED " + sendMutex);
+                log.trace("RELEASING " + sendLatch);
+                sendLatch.release();
+                log.trace("RELEASED " + sendLatch);
             } catch (ControlException e) {
                 throw new ProtocolException(e);
             }
@@ -135,18 +135,15 @@ public class ControlClientProtocol extends AbstractControlProtocol {
 
     public void sendDown(DownPacket packet) throws ProtocolException {
         try {
-            log.trace("AQUIRING " + sendMutex);
-            if (!sendMutex.attempt(timeout)) throw new ProtocolException("Send timeout");
-            log.trace("AQUIRED " + sendMutex);
+            log.trace("AQUIRING " + sendLatch);
+            if (!sendLatch.attempt(timeout)) throw new ProtocolException("Send timeout");
+            log.trace("AQUIRED " + sendLatch);
 
             PassthroughDownPacket passthtough = new PassthroughDownPacket();
             passthtough.setBuffers(packet.getBuffers());
 
             getDownProtocol().sendDown(passthtough);
 
-            log.trace("RELEASING " + sendMutex);
-            sendMutex.release();
-            log.trace("RELEASED " + sendMutex);
         } catch (InterruptedException e) {
             throw new ProtocolException(e);
         }

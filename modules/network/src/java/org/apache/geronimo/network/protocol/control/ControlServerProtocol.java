@@ -19,10 +19,8 @@ package org.apache.geronimo.network.protocol.control;
 
 import java.util.Collection;
 
-import EDU.oswego.cs.dl.util.concurrent.Mutex;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.geronimo.network.SelectorManager;
 import org.apache.geronimo.network.protocol.DownPacket;
 import org.apache.geronimo.network.protocol.ProtocolException;
@@ -30,9 +28,11 @@ import org.apache.geronimo.network.protocol.UpPacket;
 import org.apache.geronimo.system.ClockPool;
 import org.apache.geronimo.system.ThreadPool;
 
+import EDU.oswego.cs.dl.util.concurrent.Latch;
+
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/04/10 17:14:01 $
+ * @version $Revision: 1.5 $ $Date: 2004/04/24 06:29:01 $
  */
 public class ControlServerProtocol extends AbstractControlProtocol {
 
@@ -43,7 +43,7 @@ public class ControlServerProtocol extends AbstractControlProtocol {
     private ThreadPool threadPool;
     private ClockPool clockPool;
     private SelectorManager selectorManager;
-    private Mutex sendMutex = new Mutex();  //todo: replace with something that uses no locks
+    private Latch sendLatch;  //todo: replace with something that uses no locks
     private long timeout;
 
     private final int STARTED = 0;
@@ -99,13 +99,9 @@ public class ControlServerProtocol extends AbstractControlProtocol {
     }
 
     public void setup() throws ProtocolException {
-        try {
-            log.trace("Starting");
-            sendMutex.acquire();
-            state = STARTED;
-        } catch (InterruptedException e) {
-            throw new ProtocolException(e);
-        }
+        log.trace("Starting");
+        sendLatch = new Latch();
+        state = STARTED;
     }
 
     public void drain() throws ProtocolException {
@@ -129,9 +125,9 @@ public class ControlServerProtocol extends AbstractControlProtocol {
             getDownProtocol().sendDown(constructBootPacket());
         } else if (p instanceof BootSuccessUpPacket) {
             log.trace("BOOT SUCCESS");
-            log.trace("RELEASING " + sendMutex);
-            sendMutex.release();
-            log.trace("RELEASED " + sendMutex);
+            log.trace("RELEASING " + sendLatch);
+            sendLatch.release();
+            log.trace("RELEASED " + sendLatch);
         } else if (p instanceof ShutdownRequestUpPacket) {
             log.trace("SHUTDOWN_REQ");
             getDownProtocol().sendDown(new ShutdownAcknowledgeDownPacket());
@@ -142,18 +138,15 @@ public class ControlServerProtocol extends AbstractControlProtocol {
 
     public void sendDown(DownPacket packet) throws ProtocolException {
         try {
-            log.trace("AQUIRING " + sendMutex);
-            if (!sendMutex.attempt(timeout)) throw new ProtocolException("Send timeout.");
-            log.trace("AQUIRED " + sendMutex);
+            log.trace("AQUIRING " + sendLatch);
+            if (!sendLatch.attempt(timeout)) throw new ProtocolException("Send timeout.");
+            log.trace("AQUIRED " + sendLatch);
 
             PassthroughDownPacket passthtough = new PassthroughDownPacket();
             passthtough.setBuffers(packet.getBuffers());
 
             getDownProtocol().sendDown(passthtough);
 
-            log.trace("RELEASING " + sendMutex);
-            sendMutex.release();
-            log.trace("RELEASED " + sendMutex);
         } catch (InterruptedException e) {
             throw new ProtocolException(e);
         }

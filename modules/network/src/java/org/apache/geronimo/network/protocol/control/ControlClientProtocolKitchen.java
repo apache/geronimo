@@ -20,8 +20,8 @@ package org.apache.geronimo.network.protocol.control;
 import java.util.Collection;
 import java.util.Iterator;
 
-import EDU.oswego.cs.dl.util.concurrent.Mutex;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.network.SelectorManager;
 import org.apache.geronimo.network.protocol.AbstractProtocol;
 import org.apache.geronimo.network.protocol.DownPacket;
@@ -33,24 +33,35 @@ import org.apache.geronimo.network.protocol.control.commands.MenuItem;
 import org.apache.geronimo.system.ClockPool;
 import org.apache.geronimo.system.ThreadPool;
 
+import EDU.oswego.cs.dl.util.concurrent.Latch;
+
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/17 03:11:59 $
+ * @version $Revision: 1.4 $ $Date: 2004/04/24 06:29:01 $
  */
 class ControlClientProtocolKitchen extends ProtocolStack implements ControlClientListener {
 
+	final private static Log log = LogFactory.getLog(ControlClientProtocolKitchen.class);
+	
     private ClassLoader classLoader;
     private ThreadPool threadPool;
     private ClockPool clockPool;
     private SelectorManager selectorManager;
-    private Mutex sendMutex = new Mutex();  //todo: replace with something that uses no locks
-
+    private Latch sendLatch = new Latch();
 
     ControlClientProtocolKitchen() throws InterruptedException {
         push(new Dummy());
-        sendMutex.acquire();
     }
-
+    
+    /**
+	 * @see org.apache.geronimo.network.protocol.ProtocolStack#cloneProtocol()
+	 */
+	public Protocol cloneProtocol() throws CloneNotSupportedException {
+		ControlClientProtocolKitchen p = (ControlClientProtocolKitchen) super.cloneProtocol();
+		p.sendLatch = new Latch();
+		return p;
+	}
+    
     public ClassLoader getClassLoader() {
         return classLoader;
     }
@@ -84,7 +95,7 @@ class ControlClientProtocolKitchen extends ProtocolStack implements ControlClien
     }
 
     public void serveUp(Collection menu) throws ControlException {
-        System.out.println("serveUp");
+    	log.trace("serveUp");
 
         ControlContext context = new ControlContext();
         context.setClassLoader(classLoader);
@@ -105,8 +116,9 @@ class ControlClientProtocolKitchen extends ProtocolStack implements ControlClien
         } catch (ProtocolException e) {
             throw new ControlException(e);
         }
-
-        sendMutex.release();
+        
+    	log.trace("RELEASING send Latch: "+sendLatch);
+        sendLatch.release();
     }
 
     public void shutdown() {
@@ -114,9 +126,10 @@ class ControlClientProtocolKitchen extends ProtocolStack implements ControlClien
 
     public void sendDown(DownPacket packet) throws ProtocolException {
         try {
-            if (!sendMutex.attempt(1000 * 1000)) throw new ProtocolException("Send timeout.");
+        	log.trace("AQUIRING send Latch: "+sendLatch);
+            if (!sendLatch.attempt(1000 * 1000)) throw new ProtocolException("Send timeout.");
+        	log.trace("AQUIRED send Latch: "+sendLatch);
             super.sendDown(packet);
-            sendMutex.release();
         } catch (InterruptedException e) {
             throw new ProtocolException(e);
         }

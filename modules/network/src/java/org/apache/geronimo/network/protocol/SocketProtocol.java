@@ -37,7 +37,7 @@ import org.apache.geronimo.network.SelectorManager;
 
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/04/24 04:07:13 $
+ * @version $Revision: 1.7 $ $Date: 2004/04/24 06:29:01 $
  */
 public class SocketProtocol implements AcceptableProtocol, SelectionEventListner {
 
@@ -64,6 +64,9 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
     ByteBuffer[] sendBuffer;
     ByteBuffer headerBuffer;
     ByteBuffer bodyBuffer;
+    
+    Object serviceReadMutex;
+    Object serviceWriteMutex;
     
     static int nextConnectionId=0;
     synchronized static int getNextConnectionId() {
@@ -156,6 +159,8 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
     	log = LogFactory.getLog(SocketProtocol.class.getName()+":"+getNextConnectionId());
     	sendMutex = new Mutex();
     	headerBuffer = ByteBuffer.allocate(4);
+    	serviceReadMutex = new Object();
+    	serviceWriteMutex = new Object();
     	
         if (address == null && acceptedSocketChannel == null) throw new IllegalStateException("No address set");
 
@@ -166,6 +171,7 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
                 socketChannel.configureBlocking(true);
                 if (socketInterface != null) socketChannel.socket().bind(socketInterface);
                 socketChannel.socket().setReuseAddress(true);
+                socketChannel.socket().setTcpNoDelay(true);
                 socketChannel.connect(address);
             } catch (SocketException e) {
                 state = STOPPED;
@@ -244,21 +250,26 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
         }
     }
 
-    public synchronized void selectionEvent(SelectionKey selection) {
-        synchronized (this) {
-            try {
-                if (selection.isWritable())
-                    serviceWrite();
-                if (selection.isReadable())
-                    serviceRead();
-            } catch (CancelledKeyException e) {
-                // who knows, by the time we get here,
-                // the key could have been canceled.
+    public void selectionEvent(SelectionKey selection) {
+        try {
+            if (selection.isReadable()) {
+                synchronized (serviceReadMutex) {
+                	serviceRead();
+                }
             }
+            if (selection.isWritable()) {
+                synchronized (serviceWriteMutex) {
+                	serviceWrite();
+                }
+            } 
+        } catch (CancelledKeyException e) {
+        	log.trace("Key Cancelled:", e);
+            // who knows, by the time we get here,
+            // the key could have been canceled.
         }
     }
 
-    synchronized private void serviceWrite() {
+    private void serviceWrite() {
         log.trace("serviceWrite() triggered.");
         try {
 
@@ -279,13 +290,14 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
             // release old buffers
             sendBuffer = null;
 
+            log.trace("RELEASING " + sendMutex);
+            sendMutex.release();
+            log.trace("RELEASED " + sendMutex);
+
             // We are done writing.
             log.trace("OP_READ " + selectionKey);
             selectorManager.setInterestOps(selectionKey, SelectionKey.OP_READ, 0);
 
-            log.trace("RELEASING " + sendMutex);
-            sendMutex.release();
-            log.trace("RELEASED " + sendMutex);
         } catch (IOException e) {
             log.debug("Communications error, closing connection: ", e);
             close();
@@ -294,7 +306,7 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
         }
     }
 
-    synchronized public void serviceRead() {
+    public void serviceRead() {
         boolean tracing = log.isTraceEnabled();
         if (tracing) log.trace("serviceRead() triggered.");
         lastUsed = System.currentTimeMillis();
