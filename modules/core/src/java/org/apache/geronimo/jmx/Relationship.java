@@ -69,7 +69,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * 
  * 
- * @version $Revision: 1.1 $ $Date: 2003/08/12 23:26:15 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/13 04:13:58 $
  */
 public class Relationship implements MBeanRegistration, RelationshipMBean{
     private final Log log = LogFactory.getLog(getClass());
@@ -79,7 +79,7 @@ public class Relationship implements MBeanRegistration, RelationshipMBean{
 
     // left role
     private String leftRoleName = "left";
-    private String leftRoleClass = "java.lang.object";
+    private String leftRoleClass = "java.lang.Object";
     private boolean leftRoleReadable = true;
     private boolean leftRoleWritable = true;
     private int leftRoleMinimum = 0;
