@@ -141,7 +141,7 @@ public final class BlockingServer extends AbstractServer implements Runnable {
             while (running) {
                 SocketChannel socket = null;
                 try {
-                    socket = serverSocketChannel.socket().accept().getChannel();
+                    socket = serverSocketChannel.accept();
                     if (log.isTraceEnabled())
                         log.trace("Accepted connection: " + socket);
                 } catch (java.io.InterruptedIOException e) {
