@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<application-client 
+    xmlns="http://java.sun.com/xml/ns/j2ee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/applicationclient_1_4.xsd"
+    version="1.4">
+    <description>Test DD for app-client1</description>
+    <env-entry>
+        <env-entry-name>url/test1</env-entry-name>
+        <env-entry-type>java.net.URL</env-entry-type>
+        <env-entry-value>http://localhost</env-entry-value>
+    </env-entry>
+    <env-entry>
+        <env-entry-name>url/test2</env-entry-name>
+        <env-entry-type>java.net.URL</env-entry-type>
+    </env-entry>
+</application-client>
