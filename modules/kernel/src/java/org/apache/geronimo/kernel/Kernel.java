@@ -321,14 +321,27 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
     }
 
     public ObjectName startConfiguration(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException {
-        ObjectName configName = getConfigurationManager().load(configID);
         try {
-            startRecursiveGBean(configName);
-        } catch (InstanceNotFoundException e) {
-            // should not happen as we just loaded it
-            throw new InvalidConfigException(e);
-        }
-        return configName;
+			
+        	ObjectName configName = getConfigurationManager().load(configID);
+			try {
+			    startRecursiveGBean(configName);
+			} catch (InstanceNotFoundException e) {
+			    // should not happen as we just loaded it
+			    throw new InvalidConfigException(e);
+			}
+			return configName;
+			
+		} catch (NoSuchConfigException e) {
+			log.debug("Could not start configuration: "+configID, e);
+			throw e;
+		} catch (IOException e) {
+			log.debug("Could not start configuration: "+configID, e);
+			throw e;
+		} catch (InvalidConfigException e) {
+			log.debug("Could not start configuration: "+configID, e);
+			throw e;
+		}
     }
 
     public void stopConfiguration(URI configID) throws NoSuchConfigException {
