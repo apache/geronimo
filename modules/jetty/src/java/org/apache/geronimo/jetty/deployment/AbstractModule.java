@@ -75,7 +75,7 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.jetty.JettyWebApplicationContext;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.naming.deployment.ComponentContextBuilder;
-import org.apache.geronimo.naming.java.ProxyFactory;
+import org.apache.geronimo.naming.proxy.ProxyFactory;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
 import org.apache.geronimo.xbeans.j2ee.WebAppType;
 import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
@@ -85,7 +85,7 @@ import org.apache.xmlbeans.XmlException;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/02/14 18:49:43 $
+ * @version $Revision: 1.7 $ $Date: 2004/02/15 16:33:44 $
  */
 public class AbstractModule implements DeploymentModule {
 

@@ -75,13 +75,13 @@ import org.apache.geronimo.xbeans.j2ee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
 import org.apache.geronimo.xbeans.j2ee.EjbLinkType;
 import org.apache.geronimo.xbeans.j2ee.MessageDestinationLinkType;
-import org.apache.geronimo.naming.java.ProxyFactory;
+import org.apache.geronimo.naming.proxy.ProxyFactory;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/13 23:41:47 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/15 16:33:44 $
  */
 public class ComponentContextBuilder {
 

@@ -59,13 +59,13 @@ import java.io.File;
 import java.net.URI;
 
 import org.apache.geronimo.deployment.DeploymentException;
-import org.apache.geronimo.naming.java.ProxyFactory;
+import org.apache.geronimo.naming.proxy.ProxyFactory;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
 
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/02/14 01:50:15 $
+ * @version $Revision: 1.5 $ $Date: 2004/02/15 16:33:44 $
  */
 public class UnpackedModule extends AbstractModule {
 

@@ -65,13 +65,13 @@ import java.util.zip.ZipInputStream;
 
 import org.apache.geronimo.deployment.ConfigurationCallback;
 import org.apache.geronimo.deployment.DeploymentException;
-import org.apache.geronimo.naming.java.ProxyFactory;
+import org.apache.geronimo.naming.proxy.ProxyFactory;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
 
 /**
  *
  *
- * @version $Revision: 1.12 $ $Date: 2004/02/14 18:49:43 $
+ * @version $Revision: 1.13 $ $Date: 2004/02/15 16:33:44 $
  */
 public class JettyModule extends AbstractModule {
     private final File moduleDirectory;

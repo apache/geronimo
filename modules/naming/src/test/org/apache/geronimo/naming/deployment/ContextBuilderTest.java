@@ -74,7 +74,7 @@ import javax.transaction.UserTransaction;
 import junit.framework.TestCase;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.kernel.jmx.JMXKernel;
-import org.apache.geronimo.naming.java.ProxyFactory;
+import org.apache.geronimo.naming.proxy.ProxyFactory;
 import org.apache.geronimo.xbeans.geronimo.GerEjbLocalRefType;
 import org.apache.geronimo.xbeans.geronimo.GerEjbRefType;
 import org.apache.geronimo.xbeans.geronimo.GerMessageDestinationRefType;
@@ -91,7 +91,7 @@ import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
  * THIS IS A COPY OF org.apache.geronimo.naming.java.ContextBuilderTest.
  * Copied because maven doesn't share test classes.
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/13 23:41:47 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/15 16:33:44 $
  */
 public class ContextBuilderTest extends TestCase {
 
