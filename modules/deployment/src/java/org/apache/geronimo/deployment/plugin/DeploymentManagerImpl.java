@@ -82,7 +82,7 @@ import org.apache.geronimo.gbean.GConstructorInfo;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/22 00:51:09 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/22 05:47:41 $
  */
 public class DeploymentManagerImpl implements DeploymentManager {
     private final Map configurationFactories;
@@ -91,15 +91,18 @@ public class DeploymentManagerImpl implements DeploymentManager {
 
     public DeploymentManagerImpl(
             DeploymentConfigurationFactory earFactory,
-            DeploymentConfigurationFactory warFactory
+            DeploymentConfigurationFactory warFactory,
+            DeploymentConfigurationFactory ejbFactory,
+            DeploymentConfigurationFactory rarFactory,
+            DeploymentConfigurationFactory carFactory
             ) {
         connected = false;
         configurationFactories = new HashMap(5);
         configurationFactories.put(ModuleType.EAR, earFactory);
         configurationFactories.put(ModuleType.WAR, warFactory);
-        configurationFactories.put(ModuleType.EJB, null);
-        configurationFactories.put(ModuleType.RAR, null);
-        configurationFactories.put(ModuleType.CAR, null);
+        configurationFactories.put(ModuleType.EJB, ejbFactory);
+        configurationFactories.put(ModuleType.RAR, rarFactory);
+        configurationFactories.put(ModuleType.CAR, carFactory);
     }
 
     public DeploymentConfiguration createConfiguration(DeployableObject deployable) throws InvalidModuleException {
@@ -234,9 +237,12 @@ public class DeploymentManagerImpl implements DeploymentManager {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory("JSR88 Deployment Manager", DeploymentManagerImpl.class.getName());
         infoFactory.addEndpoint(new GEndpointInfo("EARFactory", DeploymentConfigurationFactory.class.getName()));
         infoFactory.addEndpoint(new GEndpointInfo("WARFactory", DeploymentConfigurationFactory.class.getName()));
+        infoFactory.addEndpoint(new GEndpointInfo("EJBFactory", DeploymentConfigurationFactory.class.getName()));
+        infoFactory.addEndpoint(new GEndpointInfo("RARFactory", DeploymentConfigurationFactory.class.getName()));
+        infoFactory.addEndpoint(new GEndpointInfo("CARFactory", DeploymentConfigurationFactory.class.getName()));
         infoFactory.setConstructor(new GConstructorInfo(
-                Arrays.asList(new Object[] {"EARFactory", "WARFactory"}),
-                Arrays.asList(new Object[] {DeploymentConfigurationFactory.class, DeploymentConfigurationFactory.class})
+                Arrays.asList(new Object[] {"EARFactory", "WARFactory", "EJBFactory", "RARFactory", "CARFactory"}),
+                Arrays.asList(new Object[] {DeploymentConfigurationFactory.class, DeploymentConfigurationFactory.class, DeploymentConfigurationFactory.class, DeploymentConfigurationFactory.class, DeploymentConfigurationFactory.class})
         ));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
