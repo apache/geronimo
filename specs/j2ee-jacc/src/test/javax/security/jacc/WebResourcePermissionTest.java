@@ -24,6 +24,11 @@
 package javax.security.jacc;
 
 import java.security.Permission;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ObjectInputStream;
+
 import junit.framework.TestCase;
 
 /**
@@ -31,6 +36,17 @@ import junit.framework.TestCase;
  * @version $Rev$ $Date$
  */
 public class WebResourcePermissionTest extends TestCase {
+
+    public void testSerialization() throws Exception {
+        WebResourcePermission permission = new WebResourcePermission("/bar/*:/bar/stool", "GET,POST");
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(baos);
+        oos.writeObject(permission);
+        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+        ObjectInputStream ois = new ObjectInputStream(bais);
+        Object o = ois.readObject();
+        assertEquals(permission, o);
+    }
 
     /*
      * Testing WebResourcePermission(java.lang.String, java.lang.String)

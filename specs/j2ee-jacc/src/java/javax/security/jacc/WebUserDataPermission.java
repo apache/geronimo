@@ -67,7 +67,7 @@ public final class WebUserDataPermission extends Permission implements Serializa
         super(request.getServletPath());
 
         urlPatternSpec = new URLPatternSpec(request.getServletPath());
-        httpMethodSpec = new HTTPMethodSpec(request.getMethod());
+        httpMethodSpec = new HTTPMethodSpec(request.getMethod(), true);
     }
 
     public WebUserDataPermission(String name, String actions) {
@@ -115,7 +115,7 @@ public final class WebUserDataPermission extends Permission implements Serializa
 
     private synchronized void readObject(ObjectInputStream in) throws IOException {
         urlPatternSpec = new URLPatternSpec(in.readUTF());
-        httpMethodSpec = new HTTPMethodSpec(in.readUTF());
+        httpMethodSpec = new HTTPMethodSpec(in.readUTF(), true);
     }
 
     private synchronized void writeObject(ObjectOutputStream out) throws IOException {

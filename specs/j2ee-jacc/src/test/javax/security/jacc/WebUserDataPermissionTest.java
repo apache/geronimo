@@ -23,6 +23,12 @@
 
 package javax.security.jacc;
 
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ObjectInputStream;
+import java.io.IOException;
+
 import junit.framework.TestCase;
 
 /**
@@ -57,6 +63,24 @@ public class WebUserDataPermissionTest extends TestCase {
             fail("Missing transportType");
         } catch(IllegalArgumentException iae) {
         }
+    }
+
+    public void testSerialization() throws Exception {
+        testSerialization(new WebUserDataPermission("/foo", "GET,POST:INTEGRAL"));
+        testSerialization(new WebUserDataPermission("/foo", "GET,POST:NONE"));
+        testSerialization(new WebUserDataPermission("/foo", ""));
+        testSerialization(new WebUserDataPermission("/foo", ":NONE"));
+        testSerialization(new WebUserDataPermission("/foo", "GET,POST"));
+    }
+
+    private void testSerialization(WebUserDataPermission permission) throws IOException, ClassNotFoundException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(baos);
+        oos.writeObject(permission);
+        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+        ObjectInputStream ois = new ObjectInputStream(bais);
+        Object o = ois.readObject();
+        assertEquals(permission, o);
     }
 
     public void testImpliesStringString() {
