@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.27 $ $Date: 2004/01/29 02:43:41 $ -->
+<!-- $Revision: 1.28 $ $Date: 2004/02/12 23:23:53 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -183,37 +183,6 @@
     <postGoal name="test:test">
         <j:if test="${context.getVariable('maven.test.failure') == null}">
             <ant:touch file="${basedir}/target/test-reports/tstamp"/>
-        </j:if>
-    </postGoal>
-
-    <!-- generate packages ready to be deployed, if appropriate -->
-    <postGoal name="jar:jar">
-        <ant:available property="geronimoServicePresent" file="${basedir}/src/etc/META-INF/geronimo-service.xml"/>
-        <j:if test="${geronimoServicePresent == 'true'}">
-            <ant:jar destfile="${basedir}/target/${pom.artifactId}-package-${pom.currentVersion}.jar">
-                <fileset dir="${basedir}/target" includes="${pom.artifactId}-${pom.currentVersion}.jar"/>
-                <fileset dir="${basedir}/src/etc" includes="META-INF/geronimo-service.xml"/>
-                <j:forEach var="artifact" items="${pom.artifacts}">
-                    <j:set var="dependency" value="${artifact.dependency}"/>
-                    <j:if test="${dependency.getProperty('package') == 'true'}">
-                        <ant:echo>Processing dependency: ${dependency.id}</ant:echo>
-                        <fileset file="${artifact.path}"/>
-                    </j:if>
-                </j:forEach>
-            </ant:jar>
-        </j:if>
-    </postGoal>
-
-    <postGoal name="jar:install">
-        <ant:available property="geronimoPackagePresent" file="${basedir}/target/${pom.artifactId}-package-${pom.currentVersion}.jar"/>
-        <j:if test="${geronimoPackagePresent == 'true'}">
-            <ant:property name="jardir__" value="${maven.repo.local}/${pom.artifactDirectory}/jars"/>
-            <ant:mkdir dir="${jardir__}"/>
-            <ant:copy
-                file="${basedir}/target/${pom.artifactId}-package-${pom.currentVersion}.jar"
-                todir="${jardir__}"
-                overwrite="true"
-                />
         </j:if>
     </postGoal>
 </project>
