@@ -44,6 +44,7 @@ import javax.security.jacc.WebResourcePermission;
 import javax.security.jacc.WebRoleRefPermission;
 import javax.security.jacc.WebUserDataPermission;
 import javax.transaction.UserTransaction;
+import javax.servlet.Servlet;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
@@ -295,7 +296,6 @@ public class JettyModuleBuilder implements ModuleBuilder {
                 ZipEntry entry = (ZipEntry) entries.nextElement();
                 URI targetPath = baseDir.resolve(entry.getName());
                 if (entry.getName().equals("WEB-INF/web.xml")) {
-                    // TODO gets rid of these tests when Jetty will use the serialized Geronimo DD.
                     earContext.addFile(targetPath, module.getOriginalSpecDD());
                 } else {
                     earContext.addFile(targetPath, warFile, entry);
@@ -328,28 +328,16 @@ public class JettyModuleBuilder implements ModuleBuilder {
         WebAppType webApp = (WebAppType) webModule.getSpecDD();
         JettyWebAppType jettyWebApp = (JettyWebAppType) webModule.getVendorDD();
 
-        // construct the webClassLoader
-        getWebClassPath(earContext, webModule);
-        URI[] webClassPath = webModule.getWebClasspath();
-        URI baseUri = earContext.getTargetFile(URI.create(webModule.getTargetPath() + "/")).toURI();
-        URL[] webClassPathURLs = new URL[webClassPath.length];
-        for (int i = 0; i < webClassPath.length; i++) {
-            URI path = baseUri.resolve(webClassPath[i]);
-            try {
-                webClassPathURLs[i] = path.toURL();
-            } catch (MalformedURLException e) {
-                throw new DeploymentException("Invalid web class path element: path=" + path + ", baseUri=" + baseUri);
-            }
-        }
-
         boolean contextPriorityClassLoader = false;
         if (jettyWebApp != null) {
             contextPriorityClassLoader = Boolean.valueOf(jettyWebApp.getContextPriorityClassloader()).booleanValue();
         }
-        ClassLoader webClassLoader = new JettyClassLoader(webClassPathURLs, cl, contextPriorityClassLoader);
+        // construct the webClassLoader
+        ClassLoader webClassLoader = getWebClassLoader(earContext, webModule, cl, contextPriorityClassLoader);
+
         if (jettyWebApp != null) {
             GbeanType[] gbeans = jettyWebApp.getGbeanArray();
-            ServiceConfigBuilder.addGBeans(gbeans, cl, moduleJ2eeContext, earContext);
+            ServiceConfigBuilder.addGBeans(gbeans, webClassLoader, moduleJ2eeContext, earContext);
         }
 
         ObjectName webModuleName = null;
@@ -426,7 +414,6 @@ public class JettyModuleBuilder implements ModuleBuilder {
             webModuleData.setAttribute("mimeMap", mimeMappingMap);
 
             WelcomeFileListType[] welcomeFileArray = webApp.getWelcomeFileListArray();
-            //not clear if the default welcome files should get added if explicit ones supplied...
             List welcomeFiles;
             if (welcomeFileArray.length > 0) {
                 welcomeFiles = new ArrayList();
@@ -680,64 +667,10 @@ public class JettyModuleBuilder implements ModuleBuilder {
 
             //set up servlet gbeans.
             ServletType[] servletTypes = webApp.getServletArray();
+
             for (int i = 0; i < servletTypes.length; i++) {
                 ServletType servletType = servletTypes[i];
-                String servletName = servletType.getServletName().getStringValue().trim();
-                ObjectName servletObjectName = NameFactory.getWebComponentName(null, null, null, null, servletName, NameFactory.SERVLET, moduleJ2eeContext);
-                GBeanData servletData = new GBeanData(servletObjectName, JettyServletHolder.GBEAN_INFO);
-                servletData.setReferencePattern("JettyServletRegistration", webModuleName);
-                servletData.setAttribute("servletName", servletName);
-                if (servletType.isSetServletClass()) {
-                    servletData.setAttribute("servletClass", servletType.getServletClass().getStringValue().trim());
-                }
-                if (servletType.isSetJspFile()) {
-                    servletData.setAttribute("jspFile", servletType.getJspFile().getStringValue().trim());
-                    //TODO MAKE THIS CONFIGURABLE!!! Jetty uses the servlet mapping set up from the default-web.xml
-                    servletData.setAttribute("servletClass", "org.apache.jasper.servlet.JspServlet");
-                }
-                //TODO in init param setter, add classpath if jspFile is not null.
-                Map initParams = new HashMap();
-                ParamValueType[] initParamArray = servletType.getInitParamArray();
-                for (int j = 0; j < initParamArray.length; j++) {
-                    ParamValueType paramValueType = initParamArray[j];
-                    initParams.put(paramValueType.getParamName().getStringValue().trim(), paramValueType.getParamValue().getStringValue().trim());
-                }
-                servletData.setAttribute("initParams", initParams);
-                if (servletType.isSetLoadOnStartup()) {
-                    Integer loadOnStartup = new Integer(servletType.getLoadOnStartup().getBigIntegerValue().intValue());
-                    servletData.setAttribute("loadOnStartup", loadOnStartup);
-                }
-
-                Set mappings = (Set) servletMappings.get(servletName);
-                servletData.setAttribute("servletMappings", mappings == null ? Collections.EMPTY_SET : mappings);
-
-
-                //WebRoleRefPermissions
-                SecurityRoleRefType[] securityRoleRefTypeArray = servletType.getSecurityRoleRefArray();
-                Map webRoleRefPermissions = new HashMap();
-                Set unmappedRoles = new HashSet(securityRoles);
-                for (int j = 0; j < securityRoleRefTypeArray.length; j++) {
-                    SecurityRoleRefType securityRoleRefType = securityRoleRefTypeArray[j];
-                    String roleName = securityRoleRefType.getRoleName().getStringValue().trim();
-                    String roleLink = securityRoleRefType.getRoleLink().getStringValue().trim();
-                    //jacc 3.1.3.2
-                    /*   The name of the WebRoleRefPermission must be the servlet-name in whose
-                    * context the security-role-ref is defined. The actions of the  WebRoleRefPermission
-                    * must be the value of the role-name (that is the  reference), appearing in the security-role-ref.
-                    * The deployment tools must  call the addToRole method on the PolicyConfiguration object to add the
-                    * WebRoleRefPermission object resulting from the translation to the role
-                    * identified in the role-link appearing in the security-role-ref.
-                    */
-                    webRoleRefPermissions.put(new WebRoleRefPermission(servletName, roleName), roleLink);
-                    unmappedRoles.remove(roleName);
-                }
-                for (Iterator iterator = unmappedRoles.iterator(); iterator.hasNext();) {
-                    String roleName = (String) iterator.next();
-                    webRoleRefPermissions.put(new WebRoleRefPermission(servletName, roleName), roleName);
-                }
-                servletData.setAttribute("webRoleRefPermissions", webRoleRefPermissions);
-
-                earContext.addGBean(servletData);
+                addServlet(webModuleName, servletType, servletMappings, securityRoles, webClassLoader, moduleJ2eeContext, earContext);
             }
         } catch (DeploymentException de) {
             throw de;
@@ -745,6 +678,99 @@ public class JettyModuleBuilder implements ModuleBuilder {
             throw new DeploymentException("Unable to initialize webapp GBean", e);
         }
         return null;
+    }
+
+    private ClassLoader getWebClassLoader(EARContext earContext, WebModule webModule, ClassLoader cl, boolean contextPriorityClassLoader) throws DeploymentException {
+        getWebClassPath(earContext, webModule);
+        URI[] webClassPath = webModule.getWebClasspath();
+        URI baseUri = earContext.getBaseDir().toURI();
+        URL[] webClassPathURLs = new URL[webClassPath.length];
+        for (int i = 0; i < webClassPath.length; i++) {
+            URI path = baseUri.resolve(webClassPath[i]);
+            try {
+                webClassPathURLs[i] = path.toURL();
+            } catch (MalformedURLException e) {
+                throw new DeploymentException("Invalid web class path element: path=" + path + ", baseUri=" + baseUri);
+            }
+        }
+
+        ClassLoader webClassLoader = new JettyClassLoader(webClassPathURLs, cl, contextPriorityClassLoader);
+        return webClassLoader;
+    }
+
+    private void addServlet(ObjectName webModuleName, ServletType servletType, Map servletMappings, Set securityRoles, ClassLoader webClassLoader, J2eeContext moduleJ2eeContext, EARContext earContext) throws MalformedObjectNameException, DeploymentException {
+        String servletName = servletType.getServletName().getStringValue().trim();
+        ObjectName servletObjectName = NameFactory.getWebComponentName(null, null, null, null, servletName, NameFactory.SERVLET, moduleJ2eeContext);
+        GBeanData servletData;
+        if (servletType.isSetServletClass()) {
+            String servletClassName = servletType.getServletClass().getStringValue().trim();
+            Class servletClass = null;
+            try {
+                servletClass = webClassLoader.loadClass(servletClassName);
+            } catch (ClassNotFoundException e) {
+                throw new DeploymentException("Could not load servlet class " + servletClassName, e);
+            }
+            if (Servlet.class.isAssignableFrom(servletClass)) {
+            servletData = new GBeanData(servletObjectName, JettyServletHolder.GBEAN_INFO);
+            servletData.setAttribute("servletClass", servletClassName);
+            } else {
+//                servletData = webServiceBuilder.buildServletGBean();
+                System.out.println("NOT DEPLOYING WEB SERVICE CLASS " + servletClassName);
+                return;
+            }
+        } else if (servletType.isSetJspFile()) {
+            servletData = new GBeanData(servletObjectName, JettyServletHolder.GBEAN_INFO);
+            servletData.setAttribute("jspFile", servletType.getJspFile().getStringValue().trim());
+            //TODO MAKE THIS CONFIGURABLE!!! Jetty uses the servlet mapping set up from the default-web.xml
+            servletData.setAttribute("servletClass", "org.apache.jasper.servlet.JspServlet");
+        } else {
+            throw new DeploymentException("Neither servlet class nor jsp file is set for " + servletName);
+        }
+        //TODO in init param setter, add classpath if jspFile is not null.
+        servletData.setReferencePattern("JettyServletRegistration", webModuleName);
+        servletData.setAttribute("servletName", servletName);
+        Map initParams = new HashMap();
+        ParamValueType[] initParamArray = servletType.getInitParamArray();
+        for (int j = 0; j < initParamArray.length; j++) {
+            ParamValueType paramValueType = initParamArray[j];
+            initParams.put(paramValueType.getParamName().getStringValue().trim(), paramValueType.getParamValue().getStringValue().trim());
+        }
+        servletData.setAttribute("initParams", initParams);
+        if (servletType.isSetLoadOnStartup()) {
+            Integer loadOnStartup = new Integer(servletType.getLoadOnStartup().getBigIntegerValue().intValue());
+            servletData.setAttribute("loadOnStartup", loadOnStartup);
+        }
+
+        Set mappings = (Set) servletMappings.get(servletName);
+        servletData.setAttribute("servletMappings", mappings == null ? Collections.EMPTY_SET : mappings);
+
+
+        //WebRoleRefPermissions
+        SecurityRoleRefType[] securityRoleRefTypeArray = servletType.getSecurityRoleRefArray();
+        Map webRoleRefPermissions = new HashMap();
+        Set unmappedRoles = new HashSet(securityRoles);
+        for (int j = 0; j < securityRoleRefTypeArray.length; j++) {
+            SecurityRoleRefType securityRoleRefType = securityRoleRefTypeArray[j];
+            String roleName = securityRoleRefType.getRoleName().getStringValue().trim();
+            String roleLink = securityRoleRefType.getRoleLink().getStringValue().trim();
+            //jacc 3.1.3.2
+            /*   The name of the WebRoleRefPermission must be the servlet-name in whose
+            * context the security-role-ref is defined. The actions of the  WebRoleRefPermission
+            * must be the value of the role-name (that is the  reference), appearing in the security-role-ref.
+            * The deployment tools must  call the addToRole method on the PolicyConfiguration object to add the
+            * WebRoleRefPermission object resulting from the translation to the role
+            * identified in the role-link appearing in the security-role-ref.
+            */
+            webRoleRefPermissions.put(new WebRoleRefPermission(servletName, roleName), roleLink);
+            unmappedRoles.remove(roleName);
+        }
+        for (Iterator iterator = unmappedRoles.iterator(); iterator.hasNext();) {
+            String roleName = (String) iterator.next();
+            webRoleRefPermissions.put(new WebRoleRefPermission(servletName, roleName), roleName);
+        }
+        servletData.setAttribute("webRoleRefPermissions", webRoleRefPermissions);
+
+        earContext.addGBean(servletData);
     }
 
     private void buildSpecSecurityConfig(WebAppType webApp, GBeanData webModuleData, Set securityRoles) {

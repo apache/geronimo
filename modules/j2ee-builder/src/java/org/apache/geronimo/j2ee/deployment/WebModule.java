@@ -52,7 +52,6 @@ public class WebModule extends Module {
 
     public void addClass(URI location, String fqcn, byte[] bytes, DeploymentContext context) throws IOException, URISyntaxException {
         context.addClass(location, fqcn, bytes, false);
-//        addToWebClasspath(new URI("../" + location.toString()));
         addToWebClasspath(location);
     }
 
