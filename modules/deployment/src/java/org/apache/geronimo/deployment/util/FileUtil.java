@@ -26,17 +26,14 @@ import java.util.Collection;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/07/23 06:06:19 $
+ * @version $Revision: 1.6 $ $Date: 2004/08/04 07:21:54 $
  */
 public class FileUtil {
 
     private static int i;
 
     public static File toTempFile(InputStream is) throws IOException {
-        File tmp;
-       // do {
-            tmp = File.createTempFile("geronimodeployment" + i++, "tmp");
-        //} while (tmp.exists());
+        File tmp = File.createTempFile("geronimodeployment" + i++, "tmp");
         FileOutputStream fos = new FileOutputStream(tmp);
         byte[] buffer = new byte[4096];
         int count;
@@ -67,6 +64,9 @@ public class FileUtil {
 
     public static void listRecursiveFiles(File aFile, Collection aColl) {
         File[] files = aFile.listFiles();
+        if ( null == files ) {
+            return;
+        }
         for (int i = 0; i < files.length; i++) {
             if ( files[i].isFile() ) {
                 aColl.add(files[i]);

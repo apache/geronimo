@@ -54,7 +54,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Implementation of ConfigurationStore using the local filesystem.
  *
- * @version $Revision: 1.11 $ $Date: 2004/06/24 02:50:13 $
+ * @version $Revision: 1.12 $ $Date: 2004/08/04 07:21:54 $
  */
 public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
     private static final String INDEX_NAME = "index.properties";
@@ -279,6 +279,9 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
 
     private static void delete(File root) throws IOException {
         File[] files = root.listFiles();
+        if ( null == files ) {
+            return;
+        }
         for (int i = 0; i < files.length; i++) {
             File file = files[i];
             if (file.isDirectory()) {
