@@ -41,7 +41,7 @@ public abstract class ConnectionFactory {
     public abstract void setProperties(Properties properties) throws JAXRException;
 
     public static ConnectionFactory newInstance() throws JAXRException {
-        String className = System.getProperty("javax.xml.registry.ConnectionFactoryClass", "org.apache.scout.registry.ConnectionFactoryImpl");
+        String className = System.getProperty("javax.xml.registry.ConnectionFactoryClass", "org.apache.ws.scout.registry.ConnectionFactoryImpl");
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         if (cl == null) {
             cl = ConnectionFactory.class.getClassLoader();
