@@ -61,7 +61,7 @@ import java.security.Principal;
 /**
  * Represents a principal in an realm.
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:07 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/25 01:47:09 $
  */
 public class RealmPrincipal implements Principal {
     private final String realm;
@@ -81,7 +81,7 @@ public class RealmPrincipal implements Principal {
         return id;
     }
 
-    public void setId(long id) {
+    void setId(long id) {
         this.id = id;
     }
 

@@ -77,7 +77,7 @@ import org.apache.geronimo.security.RealmPrincipal;
  * which, in turn, also get placed into the subject.  It is these RealmPrincipals
  * that are used in the principal to role mapping.
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:07 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/25 01:47:09 $
  */
 public class LoginModuleWrapper implements LoginModule {
     private String realm;
@@ -135,7 +135,7 @@ public class LoginModuleWrapper implements LoginModule {
         Iterator iter = set.iterator();
         while (iter.hasNext()) {
             principal = new RealmPrincipal(realm, (Principal) iter.next());
-  //+++          externalSubject.getPrincipals().add(ContextManager.registerPrincipal(principal));
+            externalSubject.getPrincipals().add(ContextManager.registerPrincipal(principal));
         }
         externalSubject.getPrincipals().addAll(internalSubject.getPrincipals());
         externalSubject.getPrivateCredentials().addAll(internalSubject.getPrivateCredentials());

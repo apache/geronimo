@@ -62,22 +62,45 @@ import java.security.AccessControlException;
 import java.security.AccessController;
 import java.security.Principal;
 import java.security.PrivilegedAction;
-import java.util.Hashtable;
 import java.util.Map;
+import java.util.IdentityHashMap;
+import java.util.Hashtable;
+import java.io.Serializable;
 
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:06 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/25 01:47:09 $
  */
 public class ContextManager {
+    private static ThreadLocal currentCallerId = new ThreadLocal();
     private static ThreadLocal currentCaller = new ThreadLocal();
     private static ThreadLocal nextCaller = new ThreadLocal();
-    private static Map subjectContexts = new Hashtable();
+    private static Map subjectContexts = new IdentityHashMap();
+    private static Map subjectIds = new Hashtable();
+    private static long nextSubjectId = System.currentTimeMillis();
+    private static Map principals = new Hashtable();
+
+    private static long nextPrincipalId = System.currentTimeMillis();
+
 
     public static final GeronimoSecurityPermission GET_CONTEXT = new GeronimoSecurityPermission("getContext");
     public static final GeronimoSecurityPermission SET_CONTEXT = new GeronimoSecurityPermission("setContext");
 
+
+    public static void setCurrentCallerId(Serializable id) {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) sm.checkPermission(SET_CONTEXT);
+
+        currentCallerId.set(id);
+    }
+
+    public static Serializable getCurrentCallerId() {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) sm.checkPermission(GET_CONTEXT);
+
+        return (Serializable) currentCallerId.get();
+    }
 
     public static void setNextCaller(Subject subject) {
         SecurityManager sm = System.getSecurityManager();
@@ -129,6 +152,26 @@ public class ContextManager {
         return context.principal;
     }
 
+    public static Long getCurrentId() {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) sm.checkPermission(GET_CONTEXT);
+
+        Context context = (Context) subjectContexts.get(currentCaller.get());
+
+        assert context != null : "No registered context";
+
+        return context.id;
+    }
+
+    public static Long getSubjectId(Subject subject) {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) sm.checkPermission(GET_CONTEXT);
+
+        Context context = (Context) subjectContexts.get(subject);
+
+        return (context != null? context.id : null);
+    }
+
     public static boolean isCallerInRole(String EJBName, String role) {
         if (EJBName == null) throw new IllegalArgumentException("EJBName must not be null");
         if (role == null) throw new IllegalArgumentException("Role must not be null");
@@ -145,7 +188,11 @@ public class ContextManager {
         return true;
     }
 
-    public static void registerSubject(Subject subject) {
+    public static Subject getRegisteredSubject(Long id) {
+        return (Subject) subjectIds.get(id);
+    }
+
+    public static synchronized Long registerSubject(Subject subject) {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(SET_CONTEXT);
 
@@ -167,19 +214,54 @@ public class ContextManager {
         } else if (!subject.getPrincipals().isEmpty()) {
             context.principal = (Principal) subject.getPrincipals().iterator().next();
         }
+
+        context.id = new Long(nextSubjectId++);
+
+        subjectIds.put(context.id, subject);
         subjectContexts.put(subject, context);
+
+        return context.id;
     }
 
-    public static void unregisterSubject(Subject subject) {
+    public static synchronized void unregisterSubject(Subject subject) {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(SET_CONTEXT);
 
         if (subject == null) throw new IllegalArgumentException("Subject must not be null");
 
+        Context context = (Context) subjectContexts.get(subject);
+        if (context == null) return;
+
+        subjectIds.remove(context.id);
         subjectContexts.remove(subject);
     }
 
+    public static RealmPrincipal registerPrincipal(RealmPrincipal principal) {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) sm.checkPermission(SET_CONTEXT);
+
+
+        if (principal == null) throw new IllegalArgumentException("Principal must not be null");
+
+        RealmPrincipal result = (RealmPrincipal) principals.get(principal);
+
+        if (result == null) {
+            synchronized (principals) {
+                result = (RealmPrincipal) principals.get(principal);
+                if (result == null) {
+                    principal.setId(nextPrincipalId++);
+                    principals.put(principal, principal);
+                    result = principal;
+                }
+            }
+        }
+
+        return result;
+    }
+
+
     private static class Context {
+        Long id;
         AccessControlContext context;
         Subject subject;
         Principal principal;
