@@ -21,14 +21,13 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.ArrayList;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.NamingException;
@@ -44,28 +43,28 @@ import org.apache.geronimo.j2ee.deployment.RefContext;
 import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.ClassLoading;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.naming.java.ComponentContextBuilder;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbLocalRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerGbeanLocatorType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerPortType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceEnvRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerPortType;
 import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
 import org.apache.geronimo.xbeans.j2ee.EjbRefType;
 import org.apache.geronimo.xbeans.j2ee.EnvEntryType;
 import org.apache.geronimo.xbeans.j2ee.MessageDestinationRefType;
+import org.apache.geronimo.xbeans.j2ee.ParamValueType;
 import org.apache.geronimo.xbeans.j2ee.PortComponentRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
 import org.apache.geronimo.xbeans.j2ee.ServiceRefHandlerType;
 import org.apache.geronimo.xbeans.j2ee.ServiceRefType;
-import org.apache.geronimo.xbeans.j2ee.XsdStringType;
-import org.apache.geronimo.xbeans.j2ee.ParamValueType;
 import org.apache.geronimo.xbeans.j2ee.XsdQNameType;
+import org.apache.geronimo.xbeans.j2ee.XsdStringType;
 
 /**
  * @version $Rev$ $Date$
@@ -502,7 +501,13 @@ public class ENCConfigBuilder {
         List handlerInfos = new ArrayList();
         for (int i = 0; i < handlers.length; i++) {
             ServiceRefHandlerType handler = handlers[i];
-            Set portNames = new HashSet(Arrays.asList(handler.getPortNameArray()));
+            org.apache.geronimo.xbeans.j2ee.String[] portNameArray = handler.getPortNameArray();
+            List portNames = new ArrayList();
+            for (int j = 0; j < portNameArray.length; j++) {
+                portNames.add(portNameArray[j].getStringValue().trim());
+
+            }
+//            Set portNames = new HashSet(Arrays.asList(portNameArray));
             String handlerClassName = handler.getHandlerClass().getStringValue().trim();
             Class handlerClass = null;
             try {
@@ -529,7 +534,7 @@ public class ENCConfigBuilder {
                 String soapRole = handler.getSoapRoleArray(j).getStringValue().trim();
                 soapRoles.add(soapRole);
             }
-            ServiceReferenceBuilder.HandlerInfoInfo handlerInfoInfo = new ServiceReferenceBuilder.HandlerInfoInfo(portNames, handlerClass, config, headerQNames, soapRoles);
+            ServiceReferenceBuilder.HandlerInfoInfo handlerInfoInfo = new ServiceReferenceBuilder.HandlerInfoInfo(new HashSet(portNames), handlerClass, config, headerQNames, soapRoles);
             handlerInfos.add(handlerInfoInfo);
         }
         return handlerInfos;
