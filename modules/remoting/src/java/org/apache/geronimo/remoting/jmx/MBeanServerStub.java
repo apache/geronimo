@@ -71,7 +71,7 @@ import org.apache.geronimo.remoting.router.JMXTarget;
 
 
 /**
- * @version $Revision: 1.9 $ $Date: 2004/01/31 20:20:44 $
+ * @version $Revision: 1.10 $ $Date: 2004/01/31 20:23:52 $
  */
 public class MBeanServerStub implements GBean, JMXTarget {
     private ProxyContainer serverContainer;
@@ -120,7 +120,6 @@ public class MBeanServerStub implements GBean, JMXTarget {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(MBeanServerStub.class.getName());
-        infoFactory.addOperation(new GOperationInfo("getName"));
         infoFactory.addOperation(new GOperationInfo("getRemotingEndpointInterceptor"));
         infoFactory.addReference(new GReferenceInfo("Router", JMXRouter.class.getName()));
         GBEAN_INFO = infoFactory.getBeanInfo();
