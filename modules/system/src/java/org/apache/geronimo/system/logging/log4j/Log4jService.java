@@ -337,32 +337,30 @@ public class Log4jService implements GBeanLifecycle {
 
     public void doStart() {
         LogFactory logFactory = LogFactory.getFactory();
-        if (!(logFactory instanceof GeronimoLogFactory)) {
-            throw new IllegalStateException("Commons log factory: " + logFactory + " is not a GeronimoLogFactory");
-        }
+        if (logFactory instanceof GeronimoLogFactory) {
+            synchronized (this) {
+                timer = new Timer(true);
 
-        synchronized (this) {
-            timer = new Timer(true);
+                // Periodically check the configuration file
+                schedule();
 
-            // Periodically check the configuration file
-            schedule();
+                // Make sure the root Logger has loaded
+                LogManager.getRootLogger();
 
-            // Make sure the root Logger has loaded
-            LogManager.getRootLogger();
+                reconfigure();
 
-            reconfigure();
-
-            File file = resolveConfigurationFile();
-            if (file != null) {
-                lastChanged = file.lastModified();
+                File file = resolveConfigurationFile();
+                if (file != null) {
+                    lastChanged = file.lastModified();
+                }
             }
-        }
 
-        // Change all of the loggers over to use log4j
-        GeronimoLogFactory geronimoLogFactory = (GeronimoLogFactory) logFactory;
-        synchronized (geronimoLogFactory) {
-            if (!(geronimoLogFactory.getLogFactory() instanceof CachingLog4jLogFactory)) {
-                geronimoLogFactory.setLogFactory(new CachingLog4jLogFactory());
+            // Change all of the loggers over to use log4j
+            GeronimoLogFactory geronimoLogFactory = (GeronimoLogFactory) logFactory;
+            synchronized (geronimoLogFactory) {
+                if (!(geronimoLogFactory.getLogFactory() instanceof CachingLog4jLogFactory)) {
+                    geronimoLogFactory.setLogFactory(new CachingLog4jLogFactory());
+                }
             }
         }
 
