@@ -21,7 +21,10 @@ import javax.naming.Reference;
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.common.AmbiguousEJBRefException;
+import org.apache.geronimo.common.UnknownEJBRefException;
+import org.apache.geronimo.common.UnresolvedEJBRefException;
 import org.apache.geronimo.gbean.GBeanData;
 
 /**

@@ -17,8 +17,8 @@
 
 package org.apache.geronimo.deployment.service;
 
+import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.deployment.DeploymentException;
 
 /**
  *

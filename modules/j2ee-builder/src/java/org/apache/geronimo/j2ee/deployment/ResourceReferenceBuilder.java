@@ -18,7 +18,7 @@
 import javax.naming.Reference;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;
 
 /**

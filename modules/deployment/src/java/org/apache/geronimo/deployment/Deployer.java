@@ -40,6 +40,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.common.DeploymentException;
 
 /**
  * Command line based deployment utility which combines multiple deployable modules

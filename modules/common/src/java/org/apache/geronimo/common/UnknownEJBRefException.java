@@ -14,9 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.j2ee.deployment;
-
-import org.apache.geronimo.deployment.DeploymentException;
+package org.apache.geronimo.common;
 
 /**
  * @version $Rev$ $Date$

@@ -30,9 +30,9 @@ import java.util.List;
 import java.util.jar.JarFile;
 import javax.management.MalformedObjectNameException;
 
+import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.xbeans.ConfigurationDocument;
 import org.apache.geronimo.deployment.xbeans.ConfigurationType;
 import org.apache.geronimo.deployment.xbeans.DependencyType;

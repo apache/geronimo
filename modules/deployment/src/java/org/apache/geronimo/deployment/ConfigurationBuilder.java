@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.jar.JarFile;
+import org.apache.geronimo.common.DeploymentException;
 
 /**
  * @version $Rev$ $Date$
@@ -32,7 +33,7 @@ public interface ConfigurationBuilder {
      * @param planFile the deployment plan to examine; can be null
      * @param module the URL of the module to examine; can be null
      * @return the deployment plan, or null if this builder can not handle the module
-     * @throws DeploymentException if there was a problem with the configuration
+     * @throws org.apache.geronimo.common.DeploymentException if there was a problem with the configuration
      */
     Object getDeploymentPlan(File planFile, JarFile module) throws DeploymentException;
 
@@ -43,7 +44,7 @@ public interface ConfigurationBuilder {
      * @param module the module to build
      * @param outfile the file to write the configuration to
      * @throws IOException if there was a problem reading or writing the files
-     * @throws DeploymentException if there was a problem with the configuration
+     * @throws org.apache.geronimo.common.DeploymentException if there was a problem with the configuration
      */
     List buildConfiguration(Object plan, JarFile module, File outfile) throws IOException, DeploymentException;
 }

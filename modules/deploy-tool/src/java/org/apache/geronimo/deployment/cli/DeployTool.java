@@ -17,7 +17,7 @@
 
 package org.apache.geronimo.deployment.cli;
 
-import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.common.DeploymentException;
 
 import java.util.*;
 import java.io.PrintWriter;

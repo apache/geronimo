@@ -37,7 +37,7 @@ import javax.management.ObjectName;
 import javax.sql.DataSource;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;

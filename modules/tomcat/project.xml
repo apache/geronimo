@@ -49,6 +49,11 @@
     <dependencies>
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-common</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-deployment</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>

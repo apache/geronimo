@@ -22,7 +22,7 @@ import java.net.URI;
 import java.util.jar.JarFile;
 
 import junit.framework.Assert;
-import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.common.DeploymentException;
 
 /**
  * @version $Rev$ $Date$

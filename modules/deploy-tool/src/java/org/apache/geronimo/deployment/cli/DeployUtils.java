@@ -19,7 +19,7 @@ package org.apache.geronimo.deployment.cli;
 
 import java.io.*;
 
-import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.common.DeploymentException;
 
 /**
  *

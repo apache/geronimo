@@ -21,7 +21,7 @@ import java.net.URL;
 import java.net.URI;
 import java.util.jar.JarFile;
 
-import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.common.DeploymentException;
 
 /**
  * @version $Rev$ $Date$

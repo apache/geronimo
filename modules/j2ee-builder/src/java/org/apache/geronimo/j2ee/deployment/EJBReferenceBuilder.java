@@ -18,7 +18,7 @@ package org.apache.geronimo.j2ee.deployment;
 
 import javax.naming.Reference;
 
-import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.common.DeploymentException;
 
 /**
  * @version $Rev$ $Date$

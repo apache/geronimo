@@ -25,7 +25,10 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.Reference;
 
-import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.common.AmbiguousEJBRefException;
+import org.apache.geronimo.common.UnknownEJBRefException;
+import org.apache.geronimo.common.UnresolvedEJBRefException;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.gbean.GBeanData;
@@ -330,7 +333,7 @@ public class RefContext {
 
         // if we didn't find any ejbs that implement that interface... give up
         if (references == null || references.isEmpty()) {
-            throw new UnresolvedEJBRefException(refName, ejbRefInfo, false);
+            throw new UnresolvedEJBRefException(refName, ejbRefInfo.isLocal(), ejbRefInfo.isSession(), ejbRefInfo.getHomeIntf(), ejbRefInfo.getBeanIntf(), false);
         }
 
         // if there is only one matching ejb, use it
@@ -345,7 +348,7 @@ public class RefContext {
         }
 
         // there is more then one ejb that implements that interface... give up
-        throw new UnresolvedEJBRefException(refName, ejbRefInfo, true);
+        throw new UnresolvedEJBRefException(refName, ejbRefInfo.isLocal(), ejbRefInfo.isSession(), ejbRefInfo.getHomeIntf(), ejbRefInfo.getBeanIntf(), true);
     }
 
     //Resource adapter/activationspec support

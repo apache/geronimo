@@ -23,7 +23,7 @@ import java.net.URL;
 
 import javax.xml.parsers.DocumentBuilder;
 
-import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.common.DeploymentException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -43,7 +43,7 @@ public class DeploymentHelper {
      * Create an helper related to the specified deployment URL with META-INF
      * as the directory with the given files
      *
-     * @see #DeploymentHelper(URLInfo, String, String, String, String)
+     * @see #DeploymentHelper(URLInfo, String, String, String)
      */
     public DeploymentHelper(URLInfo urlInfo, String j2eeDDName,
             String geronimoDDName) throws DeploymentException {

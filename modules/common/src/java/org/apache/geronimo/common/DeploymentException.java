@@ -15,9 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.deployment;
-
-
+package org.apache.geronimo.common;
 
 
 /**
