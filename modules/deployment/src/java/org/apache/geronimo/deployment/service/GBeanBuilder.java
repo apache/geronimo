@@ -18,11 +18,9 @@
 package org.apache.geronimo.deployment.service;
 
 import java.beans.PropertyEditor;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import javax.management.AttributeNotFoundException;
-import javax.management.InvalidAttributeValueException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -33,7 +31,7 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:49 $
+ * @version $Revision: 1.5 $ $Date: 2004/05/26 03:22:21 $
  */
 public class GBeanBuilder {
     private final ObjectName name;
@@ -66,8 +64,6 @@ public class GBeanBuilder {
             throw new DeploymentException("Unable to find PropertyEditor for " + type, e);
         } catch (AttributeNotFoundException e) {
             throw new DeploymentException("Unknown attribute " + name);
-        } catch (InvalidAttributeValueException e) {
-            throw new DeploymentException("Invalid value for attribute " + name + ": " + text, e);
         } catch (Exception e) {
             throw new DeploymentException("Unable to set attribute " + name + " to " + text, e);
         }

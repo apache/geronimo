@@ -36,6 +36,7 @@ import javax.management.NotificationListener;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.Kernel;
 
 /**
  * DependencyService is the record keeper of the dependencies in Geronimo.  The DependencyService
@@ -49,7 +50,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
  *
  * @jmx:mbean
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:00 $
+ * @version $Revision: 1.4 $ $Date: 2004/05/26 03:22:21 $
  */
 public class DependencyService implements MBeanRegistration, NotificationListener, DependencyServiceMBean {
     /**
@@ -75,7 +76,7 @@ public class DependencyService implements MBeanRegistration, NotificationListene
 
     public ObjectName preRegister(MBeanServer server, ObjectName objectName) throws Exception {
         if (objectName == null) {
-            objectName = JMXUtil.DEPENDENCY_SERVICE_NAME;
+            objectName = Kernel.DEPENDENCY_SERVICE;
         }
         this.server = server;
 

@@ -18,27 +18,23 @@
 package org.apache.geronimo.gbean.jmx;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.Map;
-import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanInfo;
-import javax.management.MBeanOperationInfo;
+import java.util.HashMap;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
-
-import org.apache.geronimo.kernel.jmx.InvokeMBean;
-import org.apache.geronimo.kernel.jmx.MBeanOperationSignature;
+import javax.management.MBeanInfo;
+import javax.management.MBeanAttributeInfo;
+import javax.management.MBeanOperationInfo;
 
 import net.sf.cglib.core.Signature;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 import net.sf.cglib.reflect.FastClass;
+import org.apache.geronimo.kernel.jmx.MBeanOperationSignature;
 import org.objectweb.asm.Type;
 
 /**
- *
- *
- * @version $Revision: 1.9 $ $Date: 2004/03/10 09:59:01 $
+ * @version $Revision: 1.10 $ $Date: 2004/05/26 03:22:21 $
  */
 public final class ProxyMethodInterceptor implements MethodInterceptor {
     /**
@@ -47,19 +43,14 @@ public final class ProxyMethodInterceptor implements MethodInterceptor {
     private final Class proxyType;
 
     /**
-     * The MBeanServer we are using.
-     */
-    private MBeanServer server;
-
-    /**
      * The object name to which we are connected.
      */
     private ObjectName objectName;
 
     /**
-     * Map from interface method ids to InvokeMBean objects.
+     * GBeanInvokers keyed on the proxy interface method index
      */
-    private InvokeMBean[] methodTable;
+    private GBeanInvoker[] gbeanInvokers;
 
     /**
      * Is this proxy currently stoped.  If it is invocations will not be allowed.
@@ -78,22 +69,20 @@ public final class ProxyMethodInterceptor implements MethodInterceptor {
 
     public synchronized void connect(MBeanServer server, ObjectName objectName, boolean stopped) {
         assert server != null && objectName != null;
-        this.server = server;
         this.objectName = objectName;
         this.stopped = stopped;
-        this.methodTable = ProxyMethodInterceptor.createMethodTable(server, objectName, proxyType);
+        gbeanInvokers = createGBeanInvokers(server, objectName, proxyType);
     }
 
     public synchronized void disconnect() {
         stopped = true;
-        this.server = null;
-        this.objectName = null;
-        this.methodTable = null;
+        objectName = null;
+        gbeanInvokers = null;
     }
 
     public synchronized void start() {
-        if (server == null || objectName == null) {
-            throw new IllegalStateException("Server or objectName is null");
+        if (gbeanInvokers == null) {
+            throw new IllegalStateException("Proxy is not connected");
         }
         this.stopped = false;
     }
@@ -102,30 +91,95 @@ public final class ProxyMethodInterceptor implements MethodInterceptor {
         this.stopped = true;
     }
 
-    /**
-     * Handles an invocation on a proxy
-     * @param object the proxy instance
-     * @param method java method that was invoked
-     * @param args arguments to the mentod
-     * @param proxy a CGLib method proxy of the method invoked
-     * @return the result of the invocation
-     * @throws java.lang.Throwable if any exceptions are thrown by the implementation method
-     */
     public Object intercept(Object object, Method method, Object[] args, MethodProxy proxy) throws Throwable {
+        GBeanInvoker gbeanInvoker;
+
+        int interfaceIndex = proxy.getSuperIndex();
         synchronized (this) {
             if (stopped) {
                 throw new IllegalStateException("Proxy is stopped");
             }
+            gbeanInvoker = gbeanInvokers[interfaceIndex];
         }
-        InvokeMBean invoker = methodTable[proxy.getSuperIndex()];
-        if (invoker == null) {
-            throw new NoSuchOperationError("No implementation method:" +
-                    " objectName=" + objectName + ", method=" + method);
+
+        if (gbeanInvoker == null) {
+            throw new NoSuchOperationError("No implementation method: objectName=" + objectName + ", method=" + method);
         }
-        return invoker.invoke(server, objectName, args);
+
+        return gbeanInvoker.invoke(objectName, args);
     }
 
-    public static InvokeMBean[] createMethodTable(MBeanServer server, ObjectName objectName, Class proxyType) {
+    public GBeanInvoker[] createGBeanInvokers(MBeanServer server, ObjectName objectName, Class proxyType) {
+        GBeanInvoker[] invokers;
+        try {
+            RawInvoker rawInvoker = (RawInvoker) server.getAttribute(objectName, GBeanMBean.RAW_INVOKER);
+            invokers = createRawGBeanInvokers(rawInvoker, objectName, proxyType);
+        } catch (Exception e) {
+            invokers = createJMXGBeanInvokers(server, objectName, proxyType);
+        }
+
+        // handle equals, hashCode and toString directly here
+        try {
+            invokers[getSuperIndex(proxyType, proxyType.getMethod("equals", new Class[]{Object.class}))] = new EqualsInvoke();
+            invokers[getSuperIndex(proxyType, proxyType.getMethod("hashCode", null))] = new HashCodeInvoke();
+            invokers[getSuperIndex(proxyType, proxyType.getMethod("toString", null))] = new ToStringInvoke(proxyType.getName());
+        } catch (Exception e) {
+            // this can not happen... all classes must implement equals, hashCode and toString
+            throw new AssertionError(e);
+        }
+
+        return invokers;
+    }
+
+    public GBeanInvoker[] createRawGBeanInvokers(RawInvoker rawInvoker, ObjectName objectName, Class proxyType) {
+        Map operations = rawInvoker.getOperationIndex();
+        Map attributes = rawInvoker.getAttributeIndex();
+
+        // build the method lookup table
+        FastClass fastClass = FastClass.create(proxyType);
+        GBeanInvoker[] invokers = new GBeanInvoker[fastClass.getMaxIndex() + 1];
+        Method[] methods = proxyType.getMethods();
+        for (int i = 0; i < methods.length; i++) {
+            Method method = methods[i];
+            int interfaceIndex = getSuperIndex(proxyType, method);
+            if (interfaceIndex >= 0) {
+                invokers[interfaceIndex] = createRawGBeanInvoker(rawInvoker, method, operations, attributes);
+            }
+        }
+
+        return invokers;
+    }
+
+    private GBeanInvoker createRawGBeanInvoker(RawInvoker rawInvoker, Method method, Map operations, Map attributes) {
+        if (operations.containsKey(new MBeanOperationSignature(method))) {
+            int methodIndex = ((Integer) operations.get(new MBeanOperationSignature(method))).intValue();
+            return new RawGBeanInvoker(rawInvoker, methodIndex, GBeanInvoker.OPERATION);
+        }
+
+        if (method.getName().startsWith("get")) {
+            Integer methodIndex = ((Integer) attributes.get(method.getName().substring(3)));
+            if (methodIndex != null) {
+                return new RawGBeanInvoker(rawInvoker, methodIndex.intValue(), GBeanInvoker.GETTER);
+            }
+        }
+
+        if (method.getName().startsWith("is")) {
+            Integer methodIndex = ((Integer) attributes.get(method.getName().substring(2)));
+            if (methodIndex != null) {
+                return new RawGBeanInvoker(rawInvoker, methodIndex.intValue(), GBeanInvoker.GETTER);
+            }
+        }
+
+        if (method.getName().startsWith("set")) {
+            Integer methodIndex = ((Integer) attributes.get(method.getName().substring(3)));
+            if (methodIndex != null) {
+                return new RawGBeanInvoker(rawInvoker, methodIndex.intValue(), GBeanInvoker.SETTER);
+            }
+        }
+        return null;
+    }
+
+    public GBeanInvoker[] createJMXGBeanInvokers(MBeanServer server, ObjectName objectName, Class proxyType) {
         MBeanInfo info = null;
         try {
             info = server.getMBeanInfo(objectName);
@@ -151,35 +205,36 @@ public final class ProxyMethodInterceptor implements MethodInterceptor {
 
         // build the method lookup table
         FastClass fastClass = FastClass.create(proxyType);
-        InvokeMBean[] methodTable = new InvokeMBean[fastClass.getMaxIndex() + 1];
+        GBeanInvoker[] invokers = new GBeanInvoker[fastClass.getMaxIndex() + 1];
         Method[] methods = proxyType.getMethods();
         for (int i = 0; i < methods.length; i++) {
             Method method = methods[i];
-            int index = getSuperIndex(proxyType, method);
-            if (index >= 0) {
-                if (operations.containsKey(new MBeanOperationSignature(method))) {
-                    methodTable[index] = new InvokeMBean(method, false, false);
-                } else if (method.getName().startsWith("get") && attributes.containsKey(method.getName().substring(3))) {
-                    methodTable[index] = new InvokeMBean(method, true, true);
-                } else if (method.getName().startsWith("is") && attributes.containsKey(method.getName().substring(2))) {
-                    methodTable[index] = new InvokeMBean(method, true, true);
-                } else if (method.getName().startsWith("set") && attributes.containsKey(method.getName().substring(3))) {
-                    methodTable[index] = new InvokeMBean(method, true, false);
-                }
+            int interfaceIndex = getSuperIndex(proxyType, method);
+            if (interfaceIndex >= 0) {
+                invokers[interfaceIndex] = createJMXGBeanInvoker(server, method, operations, attributes);
             }
         }
 
-        // handle equals, hashCode and toString directly here
-        try {
-            methodTable[getSuperIndex(proxyType, proxyType.getMethod("equals", new Class[]{Object.class}))] = new EqualsInvoke();
-            methodTable[getSuperIndex(proxyType, proxyType.getMethod("hashCode", null))] = new HashCodeInvoke();
-            methodTable[getSuperIndex(proxyType, proxyType.getMethod("toString", null))] = new ToStringInvoke(proxyType.getName());
-        } catch (Exception e) {
-            // this can not happen... all classes must implement equals, hashCode and toString
-            throw new AssertionError(e);
+        return invokers;
+    }
+
+    private GBeanInvoker createJMXGBeanInvoker(MBeanServer server, Method method, Map operations, Map attributes) {
+        if (operations.containsKey(new MBeanOperationSignature(method))) {
+            return new JMXGBeanInvoker(server, method, GBeanInvoker.OPERATION);
         }
 
-        return methodTable;
+        if (method.getName().startsWith("get") && attributes.containsKey(method.getName().substring(3))) {
+            return new JMXGBeanInvoker(server, method, GBeanInvoker.GETTER);
+        }
+
+        if (method.getName().startsWith("is") && attributes.containsKey(method.getName().substring(2))) {
+            return new JMXGBeanInvoker(server, method, GBeanInvoker.GETTER);
+        }
+
+        if (method.getName().startsWith("set") && attributes.containsKey(method.getName().substring(3))) {
+            return new JMXGBeanInvoker(server, method, GBeanInvoker.SETTER);
+        }
+        return null;
     }
 
     private static int getSuperIndex(Class proxyType, Method method) {
@@ -191,35 +246,27 @@ public final class ProxyMethodInterceptor implements MethodInterceptor {
         return -1;
     }
 
-    private static final class HashCodeInvoke extends InvokeMBean {
-        public HashCodeInvoke() {
-            super("hashCode", new String[0], new Class[0], false, false, 0);
-        }
-
-        public Object invoke(MBeanServer server, ObjectName objectName, Object[] arguments) throws Throwable {
+    private static final class HashCodeInvoke implements GBeanInvoker {
+        public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
             return new Integer(objectName.hashCode());
         }
     }
 
-    private static final class EqualsInvoke extends InvokeMBean {
-        public EqualsInvoke() {
-            super("hashCode", new String[]{"java.lang.Object"}, new Class[]{Object.class}, false, false, 1);
-        }
-
-        public Object invoke(MBeanServer server, ObjectName objectName, Object[] arguments) throws Throwable {
+    private static final class EqualsInvoke implements GBeanInvoker {
+        public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
+            // todo this is broken.. we need a way to extract the object name from the other proxy
             return new Boolean(objectName.equals(arguments[0]));
         }
     }
 
-    private static final class ToStringInvoke extends InvokeMBean {
+    private static final class ToStringInvoke implements GBeanInvoker {
         private final String interfaceName;
 
         public ToStringInvoke(String interfaceName) {
-            super("toString", new String[0], new Class[0], false, false, 0);
             this.interfaceName = "[" + interfaceName + ": ";
         }
 
-        public Object invoke(MBeanServer server, ObjectName objectName, Object[] arguments) throws Throwable {
+        public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
             return interfaceName + objectName + "]";
         }
     }

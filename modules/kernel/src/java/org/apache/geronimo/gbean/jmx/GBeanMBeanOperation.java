@@ -22,7 +22,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import javax.management.MBeanException;
 import javax.management.MBeanOperationInfo;
 import javax.management.MBeanParameterInfo;
 import javax.management.ReflectionException;
@@ -36,7 +35,7 @@ import org.apache.geronimo.kernel.ClassLoading;
 /**
  *
  *
- * @version $Revision: 1.8 $ $Date: 2004/03/21 22:24:39 $
+ * @version $Revision: 1.9 $ $Date: 2004/05/26 03:22:21 $
  */
 public class GBeanMBeanOperation {
     private final GBeanMBean gmbean;
@@ -142,7 +141,7 @@ public class GBeanMBeanOperation {
         return mbeanOperationInfo;
     }
 
-    public Object invoke(Object[] arguments) throws MBeanException, ReflectionException {
+    public Object invoke(Object[] arguments) throws ReflectionException {
         if (gmbean.isOffline()) {
             throw new IllegalStateException("Operations can not be called while offline");
         }

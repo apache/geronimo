@@ -25,7 +25,7 @@ import javax.management.ObjectName;
  * Helper class for JMX Operations
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:59:01 $
+ * @version $Revision: 1.6 $ $Date: 2004/05/26 03:22:21 $
  */
 public final class JMXUtil {
     private JMXUtil() {
@@ -33,7 +33,6 @@ public final class JMXUtil {
 
     /** the ObjectName of the MBeanServerDelegate */
     public static final ObjectName DELEGATE_NAME = getObjectName("JMImplementation:type=MBeanServerDelegate");
-    public static final ObjectName DEPENDENCY_SERVICE_NAME = getObjectName("geronimo.boot:role=DependencyService");
 
     /**
      * Convert a String to an ObjectName

@@ -53,7 +53,7 @@ import org.apache.geronimo.gbean.WaitingException;
  * Implementors of StateManageable may use this class and simply provide
  * {@link #doStart()}, {@link #doStop()} and {@link #sendNotification(String)} methods.
  *
- * @version $Revision: 1.8 $ $Date: 2004/04/23 07:18:04 $
+ * @version $Revision: 1.9 $ $Date: 2004/05/26 03:22:21 $
  */
 public abstract class AbstractManagedObject implements ManagedObject, StateManageable, EventProvider, NotificationListener, MBeanRegistration, NotificationEmitter {
     protected final Log log = LogFactory.getLog(getClass());
@@ -146,11 +146,7 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
     public synchronized ObjectName preRegister(MBeanServer server, ObjectName objectName) throws Exception {
         this.server = server;
         this.objectName = objectName;
-        dependencyService = (DependencyServiceMBean) MBeanProxyFactory.getProxy(
-                DependencyServiceMBean.class,
-                server,
-                new ObjectName("geronimo.boot:role=DependencyService2"));
-
+        dependencyService = new DependencyServiceProxy(server);
         return objectName;
     }
 

@@ -61,7 +61,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
  * used hold the persistent state of each Configuration. This allows
  * Configurations to restart in he event of system failure.
  *
- * @version $Revision: 1.24 $ $Date: 2004/04/23 03:02:00 $
+ * @version $Revision: 1.25 $ $Date: 2004/05/26 03:22:21 $
  */
 public class Kernel extends NotificationBroadcasterSupport implements Serializable, KernelMBean {
 
@@ -73,7 +73,7 @@ public class Kernel extends NotificationBroadcasterSupport implements Serializab
     /**
      * The JMX name of the DependencyService.
      */
-    public static final ObjectName DEPENDENCY_SERVICE = JMXUtil.getObjectName("geronimo.boot:role=DependencyService2");
+    public static final ObjectName DEPENDENCY_SERVICE = JMXUtil.getObjectName("geronimo.boot:role=DependencyService");
 
 
     private static final Map kernels = new Hashtable();

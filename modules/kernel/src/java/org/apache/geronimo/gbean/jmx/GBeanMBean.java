@@ -29,11 +29,9 @@ import javax.management.Attribute;
 import javax.management.AttributeList;
 import javax.management.AttributeNotFoundException;
 import javax.management.DynamicMBean;
-import javax.management.InvalidAttributeValueException;
 import javax.management.JMException;
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanConstructorInfo;
-import javax.management.MBeanException;
 import javax.management.MBeanInfo;
 import javax.management.MBeanNotificationInfo;
 import javax.management.MBeanOperationInfo;
@@ -53,18 +51,20 @@ import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.kernel.jmx.MBeanOperationSignature;
 import org.apache.geronimo.kernel.management.NotificationType;
 
-import net.sf.cglib.reflect.FastClass;
-
 /**
  * A GBeanMBean is a J2EE Management Managed Object, and is standard base for Geronimo services.
  * This wraps one or more target POJOs and exposes the attributes and operations according to a supplied
  * {@link GBeanInfo} instance.  The GBeanMBean also supports caching of attribute values and invocation results
  * which can reduce the number of calls to a target.
  *
- * @version $Revision: 1.14 $ $Date: 2004/03/13 23:48:56 $
+ * @version $Revision: 1.15 $ $Date: 2004/05/26 03:22:21 $
  */
 public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
-    public static final FastClass fastClass = FastClass.create(GBeanMBean.class);
+    /**
+     * Method name used to retrieve the RawInvoker for the GBean
+     */
+    static final String RAW_INVOKER = "$$RAW_INVOKER$$";
+
     private static final Log log = LogFactory.getLog(GBeanMBean.class);
 
     /**
@@ -80,19 +80,34 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     }
 
     /**
+     * Attributes lookup table
+     */
+    private final GBeanMBeanAttribute[] attributes;
+
+    /**
      * Attributes supported by this GBeanMBean by (String) name.
      */
-    private final Map attributeMap = new HashMap();
+    private final Map attributeIndex = new HashMap();
+
+    /**
+     * References lookup table
+     */
+    private final GBeanMBeanReference[] references;
 
     /**
      * References supported by this GBeanMBean by (String) name.
      */
-    private final Map referenceMap = new HashMap();
+    private final Map referenceIndex = new HashMap();
+
+    /**
+     * Operations lookup table
+     */
+    private final GBeanMBeanOperation[] operations;
 
     /**
      * Operations supported by this GBeanMBean by (MBeanOperationSignature) name.
      */
-    private final Map operationMap = new HashMap();
+    private final Map operationIndex = new HashMap();
 
     /**
      * Notifications (MBeanNotificationInfo) fired by this mbean.
@@ -104,13 +119,40 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
      */
     private final ClassLoader classLoader;
 
+    /**
+     * Metadata describing the attributes, operations and references of this GBean
+     */
     private final GBeanInfo gbeanInfo;
+
+    /**
+     * JMX sped mbeanInfo for this gbean (translation of the above gbeanInfo
+     */
     private final MBeanInfo mbeanInfo;
+
+    /**
+     * Our name
+     */
     private final String name;
+
+    /**
+     * Java type of the wrapped GBean class
+     */
     private final Class type;
 
+    /**
+     * Is this gbean off line?
+     */
     private boolean offline = true;
+
+    /**
+     * Target instance of this GBean wrapper
+     */
     private Object target;
+
+    /**
+     * A fast index based raw invoker for this GBean.
+     */
+    private RawInvoker rawInvoker;
 
     public GBeanMBean(GBeanInfo beanInfo, ClassLoader classLoader) throws InvalidConfigurationException {
         this.gbeanInfo = beanInfo;
@@ -124,49 +166,67 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
 
         name = beanInfo.getName();
 
-        // attributes
         Map constructorTypes = gbeanInfo.getConstructor().getAttributeTypeMap();
+
+        // attributes
+        Set attributesSet = new HashSet();
         for (Iterator iterator = beanInfo.getAttributes().iterator(); iterator.hasNext();) {
             GAttributeInfo attributeInfo = (GAttributeInfo) iterator.next();
-            addAttribute(new GBeanMBeanAttribute(this, attributeInfo, (Class) constructorTypes.get(attributeInfo.getName())));
+            attributesSet.add(new GBeanMBeanAttribute(this, attributeInfo, (Class) constructorTypes.get(attributeInfo.getName())));
+        }
+        addManagedObjectAttributes(attributesSet);
+        attributes = (GBeanMBeanAttribute[]) attributesSet.toArray(new GBeanMBeanAttribute[attributesSet.size()]);
+        for (int i = 0; i < attributes.length; i++) {
+            attributeIndex.put(attributes[i].getName(), new Integer(i));
         }
 
         // references
+        Set referencesSet = new HashSet();
         for (Iterator iterator = beanInfo.getReferences().iterator(); iterator.hasNext();) {
             GReferenceInfo referenceInfo = (GReferenceInfo) iterator.next();
-            addReference(new GBeanMBeanReference(this, referenceInfo, (Class) constructorTypes.get(referenceInfo.getName())));
+            referencesSet.add(new GBeanMBeanReference(this, referenceInfo, (Class) constructorTypes.get(referenceInfo.getName())));
+        }
+        references = (GBeanMBeanReference[]) referencesSet.toArray(new GBeanMBeanReference[beanInfo.getReferences().size()]);
+        for (int i = 0; i < references.length; i++) {
+            referenceIndex.put(references[i].getName(), new Integer(i));
         }
 
         // operations
+        Set operationsSet = new HashSet();
         for (Iterator iterator = beanInfo.getOperations().iterator(); iterator.hasNext();) {
             GOperationInfo operationInfo = (GOperationInfo) iterator.next();
-            addOperation(new GBeanMBeanOperation(this, operationInfo));
+            operationsSet.add(new GBeanMBeanOperation(this, operationInfo));
+        }
+        addManagedObjectOperations(operationsSet);
+        operations = (GBeanMBeanOperation[]) operationsSet.toArray(new GBeanMBeanOperation[beanInfo.getOperations().size()]);
+        for (int i = 0; i < operations.length; i++) {
+            GBeanMBeanOperation operation = operations[i];
+            MBeanOperationSignature signature = new MBeanOperationSignature(operation.getName(), operation.getParameterTypes());
+            operationIndex.put(signature, new Integer(i));
         }
 
-        // add all attributes and operations from the ManagedObject interface
-        addManagedObjectInterface();
+        // add notification type from the ManagedObject interface
+        notifications.add(new MBeanNotificationInfo(
+                NotificationType.TYPES,
+                "javax.management.Notification",
+                "J2EE Notifications"));
 
-        int idx;
-        idx = 0;
-        MBeanAttributeInfo[] mbeanAttrs = new MBeanAttributeInfo[attributeMap.size()];
-        for (Iterator i = attributeMap.values().iterator(); i.hasNext();) {
-            GBeanMBeanAttribute attr = (GBeanMBeanAttribute) i.next();
-            mbeanAttrs[idx++] = attr.getMBeanAttributeInfo();
+        MBeanAttributeInfo[] mbeanAttributes = new MBeanAttributeInfo[attributes.length];
+        for (int i = 0; i < attributes.length; i++) {
+            mbeanAttributes[i] = attributes[i].getMBeanAttributeInfo();
         }
 
-        idx = 0;
-        MBeanOperationInfo[] mbeanOps = new MBeanOperationInfo[operationMap.size()];
-        for (Iterator i = operationMap.values().iterator(); i.hasNext();) {
-            GBeanMBeanOperation op = (GBeanMBeanOperation) i.next();
-            mbeanOps[idx++] = op.getMbeanOperationInfo();
+        MBeanOperationInfo[] mbeanOperations = new MBeanOperationInfo[operations.length];
+        for (int i = 0; i < operations.length; i++) {
+            mbeanOperations[i] = operations[i].getMbeanOperationInfo();
         }
 
         mbeanInfo = new MBeanInfo(
                 beanInfo.getClassName(),
                 null,
-                mbeanAttrs,
+                mbeanAttributes,
                 new MBeanConstructorInfo[0],
-                mbeanOps,
+                mbeanOperations,
                 // Is there any way to add notifications before an instance of the class is created?
                 (MBeanNotificationInfo[]) notifications.toArray(new MBeanNotificationInfo[notifications.size()]));
     }
@@ -218,9 +278,24 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
         return target;
     }
 
+    public Map getAttributeIndex() {
+        return Collections.unmodifiableMap(new HashMap(attributeIndex));
+    }
+
+    public Map getOperationIndex() {
+        return Collections.unmodifiableMap(new HashMap(operationIndex));
+    }
+
+    public GBeanInfo getGBeanInfo() {
+        return gbeanInfo;
+    }
+
+    public MBeanInfo getMBeanInfo() {
+        return mbeanInfo;
+    }
+
     public synchronized ObjectName preRegister(MBeanServer server, ObjectName objectName) throws Exception {
         ObjectName returnValue = super.preRegister(server, objectName);
-
 
         // get the constructor
         GConstructorInfo constructorInfo = gbeanInfo.getConstructor();
@@ -233,10 +308,10 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
         Iterator assertedTypes = constructorInfo.getTypes().iterator();
         for (int i = 0; i < parameters.length; i++) {
             String name = (String) names.next();
-            if (attributeMap.containsKey(name)) {
+            if (attributeIndex.containsKey(name)) {
                 parameters[i] = getAttribute(name);
-            } else if (referenceMap.containsKey(name)) {
-                GBeanMBeanReference reference = (GBeanMBeanReference) referenceMap.get(name);
+            } else if (referenceIndex.containsKey(name)) {
+                GBeanMBeanReference reference = getReferenceByName(name);
                 reference.online();
                 parameters[i] = reference.getProxy();
             } else {
@@ -264,19 +339,22 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
         }
 
         // bring all of the attributes online
-        for (Iterator iterator = attributeMap.values().iterator(); iterator.hasNext();) {
-            GBeanMBeanAttribute attribute = (GBeanMBeanAttribute) iterator.next();
-            attribute.online();
+        for (int i = 0; i < attributes.length; i++) {
+            attributes[i].online();
         }
 
         // bring any reference not used in the constructor online
         // @todo this code sucks, but works
-        for (Iterator iterator = referenceMap.values().iterator(); iterator.hasNext();) {
-            GBeanMBeanReference reference = (GBeanMBeanReference) iterator.next();
+        for (int i = 0; i < references.length; i++) {
+            GBeanMBeanReference reference = references[i];
             if (!constructorInfo.getAttributeNames().contains(reference.getName())) {
                 reference.online();
             }
         }
+
+        // create the raw invoker for this gbean.... this MUST be closed
+        // when the gbean goes offline or we will get a memory leak
+        rawInvoker = new RawInvoker(this);
 
         return returnValue;
     }
@@ -293,9 +371,14 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
             offline = false;
         } else {
             // we need to bring the reference back off line
-            for (Iterator iterator = referenceMap.values().iterator(); iterator.hasNext();) {
-                GBeanMBeanReference reference = (GBeanMBeanReference) iterator.next();
-                reference.offline();
+            for (int i = 0; i < references.length; i++) {
+                references[i].offline();
+            }
+
+            // clean up the raw invoker... this holds a reference to this gbean (a possible memory leak)
+            if (rawInvoker != null) {
+                rawInvoker.close();
+                rawInvoker = null;
             }
 
             // well that didn't work, ditch the instance
@@ -305,20 +388,24 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
 
     public void postDeregister() {
         // take all of the attributes offline
-        for (Iterator iterator = attributeMap.values().iterator(); iterator.hasNext();) {
-            GBeanMBeanAttribute attribute = (GBeanMBeanAttribute) iterator.next();
-            attribute.offline();
+        for (int i = 0; i < attributes.length; i++) {
+            attributes[i].offline();
         }
 
         // take all of the reference offline
-        for (Iterator iterator = referenceMap.values().iterator(); iterator.hasNext();) {
-            GBeanMBeanReference reference = (GBeanMBeanReference) iterator.next();
-            reference.offline();
+        for (int i = 0; i < references.length; i++) {
+            references[i].offline();
         }
 
         if (target instanceof GBean) {
             GBean gbean = (GBean) target;
             gbean.setGBeanContext(null);
+        }
+
+        // clean up the raw invoker... this holds a reference to this gbean (a possible memory leak)
+        if (rawInvoker != null) {
+            rawInvoker.close();
+            rawInvoker = null;
         }
 
         offline = true;
@@ -327,19 +414,10 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
         super.postDeregister();
     }
 
-    public GBeanInfo getGBeanInfo() {
-        return gbeanInfo;
-    }
-
-    public MBeanInfo getMBeanInfo() {
-        return mbeanInfo;
-    }
-
     protected void doStart() throws Exception {
         // start all of the references
-        for (Iterator iterator = referenceMap.values().iterator(); iterator.hasNext();) {
-            GBeanMBeanReference reference = (GBeanMBeanReference) iterator.next();
-            reference.start();
+        for (int i = 0; i < references.length; i++) {
+            references[i].start();
         }
 
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
@@ -365,9 +443,8 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
         }
 
         // stop all of the references
-        for (Iterator iterator = referenceMap.values().iterator(); iterator.hasNext();) {
-            GBeanMBeanReference reference = (GBeanMBeanReference) iterator.next();
-            reference.stop();
+        for (int i = 0; i < references.length; i++) {
+            references[i].stop();
         }
     }
 
@@ -383,37 +460,37 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
         }
 
         // stop all of the references
-        for (Iterator iterator = referenceMap.values().iterator(); iterator.hasNext();) {
-            GBeanMBeanReference reference = (GBeanMBeanReference) iterator.next();
-            reference.stop();
+        for (int i = 0; i < references.length; i++) {
+            references[i].stop();
         }
     }
 
-    public Object getAttribute(String attributeName) throws AttributeNotFoundException, MBeanException, ReflectionException {
-        GBeanMBeanAttribute attribute = (GBeanMBeanAttribute) attributeMap.get(attributeName);
-        if (attribute == null) {
-            throw new AttributeNotFoundException("Unknown attribute " + attributeName);
-        }
-
+    public Object getAttribute(int index) throws ReflectionException {
+        GBeanMBeanAttribute attribute = attributes[index];
         return attribute.getValue();
     }
 
-    public void setAttribute(Attribute attributeValue) throws AttributeNotFoundException, InvalidAttributeValueException, MBeanException, ReflectionException {
-        GBeanMBeanAttribute attribute = (GBeanMBeanAttribute) attributeMap.get(attributeValue.getName());
-        if (attribute == null) {
-            throw new AttributeNotFoundException("Unknown attribute " + attributeValue.getName());
+    public Object getAttribute(String attributeName) throws ReflectionException, AttributeNotFoundException {
+        GBeanMBeanAttribute attribute = getAttributeByName(attributeName);
+        if (attribute == null && attributeName.equals(RAW_INVOKER)) {
+            return rawInvoker;
         }
-
-        attribute.setValue(attributeValue.getValue());
+        return attribute.getValue();
     }
 
-    public void setAttribute(String name, Object value) throws AttributeNotFoundException, InvalidAttributeValueException, MBeanException, ReflectionException {
-        GBeanMBeanAttribute attribute = (GBeanMBeanAttribute) attributeMap.get(name);
-        if (attribute == null) {
-            throw new AttributeNotFoundException("Unknown attribute " + name);
-        }
-
+    public void setAttribute(int index, Object value) throws ReflectionException, AttributeNotFoundException {
+        GBeanMBeanAttribute attribute = attributes[index];
         attribute.setValue(value);
+    }
+
+    public void setAttribute(String name, Object value) throws ReflectionException, AttributeNotFoundException {
+        GBeanMBeanAttribute attribute = getAttributeByName(name);
+        attribute.setValue(value);
+    }
+
+    public void setAttribute(Attribute attributeValue) throws ReflectionException, AttributeNotFoundException {
+        GBeanMBeanAttribute attribute = getAttributeByName(attributeValue.getName());
+        attribute.setValue(attributeValue.getValue());
     }
 
     public AttributeList getAttributes(String[] attributes) {
@@ -444,68 +521,59 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
         return results;
     }
 
-    public Object invoke(String methodName, Object[] arguments, String[] types) throws MBeanException, ReflectionException {
-        MBeanOperationSignature key = new MBeanOperationSignature(methodName, types);
-        Object operation = operationMap.get(key);
-        if (operation == null) {
-            throw new ReflectionException(new NoSuchMethodException("Unknown operation " + key));
-        }
-
-
-        // If this is an attribute accessor get call the getAttibute or setAttribute method
-        if (operation instanceof GBeanMBeanAttribute) {
-            if (arguments == null || arguments.length == 0) {
-                return ((GBeanMBeanAttribute) operation).getValue();
-            } else {
-                ((GBeanMBeanAttribute) operation).setValue(arguments[0]);
+    private GBeanMBeanAttribute getAttributeByName(String name) throws AttributeNotFoundException {
+        Integer index = (Integer) attributeIndex.get(name);
+        if (index == null) {
+            // if this is a request for the raw invoker we need to return null
+            // todo switch this to an attribute when fixing the ManagedObject interface attributes
+            if (name.equals(RAW_INVOKER)) {
                 return null;
             }
+            throw new AttributeNotFoundException("Unknown attribute " + name);
         }
+        GBeanMBeanAttribute attribute = attributes[index.intValue()];
+        return attribute;
+    }
 
-        return ((GBeanMBeanOperation) operation).invoke(arguments);
+    public Object invoke(int index, Object[] arguments) throws ReflectionException {
+        GBeanMBeanOperation operation = operations[index];
+        return operation.invoke(arguments);
+    }
+
+    public Object invoke(String methodName, Object[] arguments, String[] types) throws ReflectionException {
+        MBeanOperationSignature signature = new MBeanOperationSignature(methodName, types);
+        Integer index = (Integer) operationIndex.get(signature);
+        if (index == null) {
+            throw new ReflectionException(new NoSuchMethodException("Unknown operation " + signature));
+        }
+        GBeanMBeanOperation operation = operations[index.intValue()];
+        return operation.invoke(arguments);
     }
 
     public Set getReferencePatterns(String name) {
-        GBeanMBeanReference reference = (GBeanMBeanReference) referenceMap.get(name);
-        if (reference == null) {
-            throw new IllegalArgumentException("Unknown reference " + name);
-        }
-        return reference.getPatterns();
+        return getReferenceByName(name).getPatterns();
     }
 
     public void setReferencePatterns(String name, Set patterns) {
-        GBeanMBeanReference reference = (GBeanMBeanReference) referenceMap.get(name);
-        if (reference == null) {
+        getReferenceByName(name).setPatterns(patterns);
+    }
+
+    private GBeanMBeanReference getReferenceByName(String name) {
+        Integer index = (Integer) referenceIndex.get(name);
+        if (index == null) {
             throw new IllegalArgumentException("Unknown reference " + name);
         }
-        reference.setPatterns(patterns);
+        GBeanMBeanReference reference = references[index.intValue()];
+        return reference;
     }
 
     public MBeanNotificationInfo[] getNotificationInfo() {
         return mbeanInfo.getNotifications();
     }
 
-    private void addAttribute(GBeanMBeanAttribute mbeanAttribute) {
-        String attributeName = mbeanAttribute.getName();
-
-        // add to attribute map
-        attributeMap.put(attributeName, mbeanAttribute);
-    }
-
-    private void addReference(GBeanMBeanReference mbeanReference) {
-        String referenceName = mbeanReference.getName();
-
-        // add to reference map
-        referenceMap.put(referenceName, mbeanReference);
-    }
-
-    private void addOperation(GBeanMBeanOperation mbeanOperation) {
-        MBeanOperationSignature signature = new MBeanOperationSignature(mbeanOperation.getName(), mbeanOperation.getParameterTypes());
-        operationMap.put(signature, mbeanOperation);
-    }
-
-    private void addManagedObjectInterface() {
-        addAttribute(new GBeanMBeanAttribute(
+    private void addManagedObjectAttributes(Set attributesSet) {
+        // todo none of these are going to be handled by the rawInvoker
+        attributesSet.add(new GBeanMBeanAttribute(
                 this,
                 "state",
                 Integer.TYPE,
@@ -516,7 +584,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
                 },
                 null));
 
-        addAttribute(new GBeanMBeanAttribute(
+        attributesSet.add(new GBeanMBeanAttribute(
                 this,
                 "objectName",
                 String.class,
@@ -527,7 +595,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
                 },
                 null));
 
-        addAttribute(new GBeanMBeanAttribute(
+        attributesSet.add(new GBeanMBeanAttribute(
                 this,
                 "startTime",
                 Long.TYPE,
@@ -538,7 +606,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
                 },
                 null));
 
-        addAttribute(new GBeanMBeanAttribute(
+        attributesSet.add(new GBeanMBeanAttribute(
                 this,
                 "stateManageable",
                 Boolean.TYPE,
@@ -549,7 +617,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
                 },
                 null));
 
-        addAttribute(new GBeanMBeanAttribute(
+        attributesSet.add(new GBeanMBeanAttribute(
                 this,
                 "statisticsProvider",
                 Boolean.TYPE,
@@ -561,7 +629,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
                 null));
 
 
-        addAttribute(new GBeanMBeanAttribute(
+        attributesSet.add(new GBeanMBeanAttribute(
                 this,
                 "eventProvider",
                 Boolean.TYPE,
@@ -571,8 +639,11 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
                     }
                 },
                 null));
+    }
 
-        addOperation(new GBeanMBeanOperation(
+    private void addManagedObjectOperations(Set operationsSet) {
+        // todo none of these are going to be handled by the rawInvoker
+        operationsSet.add(new GBeanMBeanOperation(
                 this,
                 "start",
                 Collections.EMPTY_LIST,
@@ -584,7 +655,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
                     }
                 }));
 
-        addOperation(new GBeanMBeanOperation(
+        operationsSet.add(new GBeanMBeanOperation(
                 this,
                 "startRecursive",
                 Collections.EMPTY_LIST,
@@ -596,7 +667,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
                     }
                 }));
 
-        addOperation(new GBeanMBeanOperation(
+        operationsSet.add(new GBeanMBeanOperation(
                 this,
                 "stop",
                 Collections.EMPTY_LIST,
@@ -607,10 +678,5 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
                         return null;
                     }
                 }));
-
-        notifications.add(new MBeanNotificationInfo(
-                NotificationType.TYPES,
-                "javax.management.Notification",
-                "J2EE Notifications"));
     }
 }

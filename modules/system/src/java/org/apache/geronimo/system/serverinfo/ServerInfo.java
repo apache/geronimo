@@ -28,7 +28,7 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/03/10 09:59:31 $
+ * @version $Revision: 1.7 $ $Date: 2004/05/26 03:22:21 $
  */
 public class ServerInfo {
     private final File base;
@@ -99,7 +99,7 @@ public class ServerInfo {
         return ServerConstants.getCopyright();
     }
 
-    private static final GBeanInfo GBEAN_INFO;
+    public static final GBeanInfo GBEAN_INFO;
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(ServerInfo.class.getName());
