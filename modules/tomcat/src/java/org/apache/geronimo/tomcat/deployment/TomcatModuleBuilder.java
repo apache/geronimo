@@ -19,6 +19,7 @@ package org.apache.geronimo.tomcat.deployment;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.transaction.UserTransaction;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -28,6 +29,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.LinkedList;
+import java.util.Map;
+import java.util.Collections;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
@@ -54,6 +57,8 @@ import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
 import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
 import org.apache.geronimo.xbeans.j2ee.WebAppType;
+import org.apache.geronimo.transaction.OnlineUserTransaction;
+import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 
 
 /**
@@ -65,10 +70,13 @@ public class TomcatModuleBuilder implements ModuleBuilder {
 
     private static final Log log = LogFactory.getLog(TomcatModuleBuilder.class);
 
-    public TomcatModuleBuilder(URI defaultParentId) {
+    private final ObjectName tomcatContainerObjectName;
+
+    public TomcatModuleBuilder(URI defaultParentId, ObjectName tomcatContainerObjectName) {
         log.debug("TomcatModuleBuilder(" + defaultParentId + ")");
 
         this.defaultParentId = defaultParentId;
+        this.tomcatContainerObjectName = tomcatContainerObjectName;
     }
 
     public String addGBeans(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
@@ -99,6 +107,11 @@ public class TomcatModuleBuilder implements ModuleBuilder {
             throw new DeploymentException("Could not construct module name", e);
         }
 
+        UserTransaction userTransaction = new OnlineUserTransaction();
+        // TODO : Need to set up a proper compContext. Somehow need to get hands on the WebClassLoader for Tomcat
+        // Map compContext = buildComponentContext(earContext, webModule, webApp, jettyWebApp, userTransaction, webClassLoader);       
+        Map compContext = Collections.EMPTY_MAP;
+
         GBeanData gbean;
         try {
             gbean = new GBeanData(TomcatWebAppContext.GBEAN_INFO);
@@ -107,9 +120,14 @@ public class TomcatModuleBuilder implements ModuleBuilder {
             gbean.setAttribute("webAppRoot", baseUri);
             gbean.setAttribute("webClassPath", webClassPath);
 
+            gbean.setAttribute("componentContext", compContext);
+
+            gbean.setAttribute("userTransaction", userTransaction);
+            gbean.setReferencePattern("TransactionContextManager", earContext.getTransactionContextManagerObjectName());
+            gbean.setReferencePattern("TrackedConnectionAssociator", earContext.getConnectionTrackerObjectName());
             gbean.setAttribute("path", webModule.getContextRoot());
 
-            gbean.setReferencePattern("Container", new ObjectName("*:type=WebContainer,container=Tomcat"));
+            gbean.setReferencePattern("Container", tomcatContainerObjectName);
         } catch (Exception e) {
             throw new DeploymentException("Unable to initialize webapp GBean", e);
         }
@@ -171,6 +189,20 @@ public class TomcatModuleBuilder implements ModuleBuilder {
         module.setContextRoot(jettyWebApp.getContextRoot());
 
         return module;
+    }
+
+     private Map buildComponentContext(EARContext earContext, Module webModule, WebAppType webApp, JettyWebAppType jettyWebApp, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {
+        return ENCConfigBuilder.buildComponentContext(earContext,
+                webModule,
+                userTransaction,
+                webApp.getEnvEntryArray(),
+                webApp.getEjbRefArray(), jettyWebApp.getEjbRefArray(),
+                webApp.getEjbLocalRefArray(), jettyWebApp.getEjbLocalRefArray(),
+                webApp.getResourceRefArray(), jettyWebApp.getResourceRefArray(),
+                webApp.getResourceEnvRefArray(), jettyWebApp.getResourceEnvRefArray(),
+                webApp.getMessageDestinationRefArray(),
+                webApp.getServiceRefArray(),
+                cl);
     }
 
     public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, URI earConfigId)
@@ -328,9 +360,11 @@ public class TomcatModuleBuilder implements ModuleBuilder {
     static {
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(TomcatModuleBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("defaultParentId", URI.class, true);
+        infoBuilder.addAttribute("tomcatContainerObjectName", ObjectName.class, true);
         infoBuilder.addInterface(ModuleBuilder.class);
 
-        infoBuilder.setConstructor(new String[]{"defaultParentId"});
+        infoBuilder.setConstructor(new String[]{"defaultParentId",
+                                                "tomcatContainerObjectName"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
