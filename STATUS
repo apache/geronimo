@@ -1,5 +1,5 @@
 ##
-## $Revision: 1.1 $ $Date: 2003/08/30 12:39:55 $
+## $Revision: 1.2 $ $Date: 2003/09/23 00:59:45 $
 ##
 
 Exit Criteria
@@ -7,14 +7,14 @@ Exit Criteria
 
 Copyrights & Licensing
 
-  -- Do all the software in the codebase has its copyright assigned to The 
+  -- Do all the software in the codebase has its copyright assigned to The
     Apache Software Foundation?
 
-  -- Do All the software in the codebase, are licensed (or multi-licensed) under the 
+  -- Do All the software in the codebase, are licensed (or multi-licensed) under the
     Apache licence?
-    
-  -- Do all the software in the codebase,are compliant with the 
-     Specifications set by Java Community Process?(Wherever applicable)	
+
+  -- Do all the software in the codebase,are compliant with the
+     Specifications set by Java Community Process?(Wherever applicable)
 
 Distribution rights
 
@@ -32,7 +32,7 @@ Naming
 
   --  Does the codebase,mailing list,bug tracker contain the right name of the project?
      (In case,if the name geronimo is changed)
-    
+
 Infrastructure
 
   -- CVS modules created and committers added to avail file?
@@ -40,47 +40,55 @@ Infrastructure
   -- Are the developer,commit and user mailing lists set up and archived?
 
   -- Bug tracking system enabled?
-  
+
   -- wiki based documentation site enabled?
 
   -- Has the project migrated to our infrastructure?
-  
+
 Committers:
 
   -- Have all of the active long-term volunteers been identified
      and acknowledged as committers on the project?
 
+2003/09/15 vote on Aaron Mulder as committer
+     +1 jboynes, dain, jdillon, bsnyder, dblevins, chirino, gregw, janb, jules, jstrachan
+
+2003/09/16 vote on Alan Cabrera as committer
+     +1 dblevins, dain, chirino, jdillon, jules, bsnyder, janb, rmonson
+     +0.5 jboynes
+
   -- Have all the commiters signed the CLA?
-  
+
   -- Do they have accounts on cvs.apache.org?
-  
+
   -- Are there three or more independent committers?
+X    Yes
   
 Collaborative Development:
-  
+
   -- Are project decisions being made in public by the committers?
 
   -- Are the decision-making guidelines published and agreed to by
      all of the committers?
-     
-  -- Does the documentation site has enough information on the architecure,design decisions and 
-     modules?
-     
-  -- Has the community decided on a policy for the composition of its 'steering committee'?
-  
 
-  -- Has the community,the graduation/new PMC of the project to which the codebase and community 
+  -- Does the documentation site has enough information on the architecure,design decisions and
+     modules?
+
+  -- Has the community decided on a policy for the composition of its 'steering committee'?
+
+
+  -- Has the community,the graduation/new PMC of the project to which the codebase and community
      will move at the end of incubation (if any), and the Incubator PMC, decided the
      expected time frame of stay in incubator?
 
-  -- Has the community adopted the Apache voting rules and is otherwise following the Apache 
+  -- Has the community adopted the Apache voting rules and is otherwise following the Apache
      guidelines?
-  
 
-organisational acceptance: 
+
+organisational acceptance:
 
   -- Has the board accepted moving to a existing/new PMC?
-   
+
 
 Incubator sign-off:
 
