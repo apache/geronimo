@@ -62,7 +62,7 @@ import org.apache.geronimo.kernel.management.NotificationType;
  * {@link GBeanInfo} instance.  The GBeanMBean also supports caching of attribute values and invocation results
  * which can reduce the number of calls to a target.
  *
- * @version $Revision: 1.25 $ $Date: 2004/06/05 16:07:04 $
+ * @version $Revision: 1.26 $ $Date: 2004/06/15 03:00:37 $
  */
 public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     /**
@@ -769,6 +769,16 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
      */
     public Set getReferencePatterns(String name) {
         return getReferenceByName(name).getPatterns();
+    }
+
+    /**
+     * Sets a single object name pattern for a reference.
+     *
+     * @param name the reference name
+     * @param pattern the new single object name pattern for the reference
+     */
+    public void setReferencePattern(String name, ObjectName pattern) {
+        getReferenceByName(name).setPatterns(Collections.singleton(pattern));
     }
 
     /**

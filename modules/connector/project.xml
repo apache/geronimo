@@ -17,7 +17,7 @@
 -->
 
 
-<!-- $Revision: 1.22 $ $Date: 2004/06/12 18:41:47 $ -->
+<!-- $Revision: 1.23 $ $Date: 2004/06/15 03:00:37 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -77,6 +77,12 @@
 
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-j2ee</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
@@ -84,6 +90,12 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-security</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-system</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
 

@@ -16,7 +16,10 @@
     limitations under the License.
 -->
 
-<connector xmlns="http://geronimo.apache.org/xml/ns/j2ee" version="1.5" configId="test">
+<connector xmlns="http://geronimo.apache.org/xml/ns/j2ee" version="1.5"
+    configId="org/apache/geronimo/j2ee/deployment/test"
+    parentId="org/apache/geronimo/Server">
+
     <resourceadapter>
         <resourceadapter-instance>
             <resourceadapter-name>testRA</resourceadapter-name>
@@ -98,7 +101,7 @@
     </resourceadapter>
 
     <!--normally this is in the j2ee-server-plan.xml.  It is included here so the gbeans can start in unit tests-->
-    <gbean name="geronimo.server:type=ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator">
+    <gbean name="geronimo.connector:service=ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator">
     </gbean>
 
     <gbean name="geronimo.connector:service=WorkManager" class="org.apache.geronimo.connector.work.GeronimoWorkManager">

@@ -73,22 +73,21 @@
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
-    <xs:element name="connector">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element name="display-name" type="display-nameType" minOccurs="0"/>
-                <xs:element name="description" type="descriptionType" minOccurs="0"/>
-                <xs:element name="icon" type="iconType" minOccurs="0"/>
-                <xs:element name="vendor-name" type="vendor-nameType"/>
-                <xs:element name="spec-version" type="spec-versionType"/>
-                <xs:element name="eis-type" type="eis-typeType"/>
-                <xs:element name="version" type="versionType"/>
-                <xs:element name="license" type="licenseType" minOccurs="0"/>
-                <xs:element name="resourceadapter" type="resourceadapterType"/>
-            </xs:sequence>
-            <xs:attribute name="id" type="xs:ID"/>
-        </xs:complexType>
-    </xs:element>
+    <xs:element name="connector"  type="connectorType"/>
+    <xs:complexType name="connectorType">
+        <xs:sequence>
+            <xs:element name="display-name" type="display-nameType" minOccurs="0"/>
+            <xs:element name="description" type="descriptionType" minOccurs="0"/>
+            <xs:element name="icon" type="iconType" minOccurs="0"/>
+            <xs:element name="vendor-name" type="vendor-nameType"/>
+            <xs:element name="spec-version" type="spec-versionType"/>
+            <xs:element name="eis-type" type="eis-typeType"/>
+            <xs:element name="version" type="versionType"/>
+            <xs:element name="license" type="licenseType" minOccurs="0"/>
+            <xs:element name="resourceadapter" type="resourceadapterType"/>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:ID"/>
+    </xs:complexType>
     <xs:complexType name="credential-interfaceType">
         <xs:simpleContent>
             <xs:extension base="xs:string">

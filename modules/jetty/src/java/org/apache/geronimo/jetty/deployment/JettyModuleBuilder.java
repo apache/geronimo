@@ -85,27 +85,70 @@ import org.apache.xmlbeans.XmlObject;
 
 
 /**
- * @version $Revision: 1.8 $ $Date: 2004/06/11 19:18:21 $
+ * @version $Revision: 1.9 $ $Date: 2004/06/15 03:00:37 $
  */
 public class JettyModuleBuilder implements ModuleBuilder {
+    private static final String PARENT_ID = "org/apache/geronimo/Server";
 
     public XmlObject getDeploymentPlan(URL module) throws XmlException {
         try {
-            URL gerAppURL = new URL("jar:" + module.toString() + "!/WEB-INF/geronimo-jetty.xml");
-            return XmlBeansUtil.getXmlObject(gerAppURL, JettyWebAppDocument.type);
-            // todo if context root is not set we should use module url for the context root
+            URL moduleBase;
+            if (module.toString().endsWith("/")) {
+                moduleBase = module;
+            } else {
+                moduleBase = new URL("jar:" + module.toString() + "!/");
+            }
+            JettyWebAppDocument plan = (JettyWebAppDocument) XmlBeansUtil.getXmlObject(new URL(moduleBase, "WEB-INF/geronimo-jetty.xml"), JettyWebAppDocument.type);
+            if (plan == null) {
+                return createDefaultPlan(moduleBase);
+            }
+            return plan.getWebApp();
         } catch (MalformedURLException e) {
             return null;
         }
     }
 
+    private JettyWebAppType createDefaultPlan(URL moduleBase) throws XmlException {
+        // load the web.xml
+        URL webXmlUrl = null;
+        try {
+            webXmlUrl = new URL(moduleBase, "WEB-INF/web.xml");
+        } catch (MalformedURLException e) {
+            return null;
+        }
+        WebAppDocument webAppDoc = (WebAppDocument) XmlBeansUtil.getXmlObject(webXmlUrl, WebAppDocument.type);
+        if (webAppDoc == null) {
+            return null;
+        }
+
+        // construct the empty geronimo-jetty.xml
+        JettyWebAppType jettyWebApp = JettyWebAppType.Factory.newInstance();
+
+        // set the parentId, configId and context root
+        jettyWebApp.setParentId(PARENT_ID);
+        String id = webAppDoc.getWebApp().getId();
+        if (id == null) {
+            id = moduleBase.getFile();
+            if (id.endsWith("!/")) {
+                id = id.substring(0, id.length()-2);
+            }
+            if (id.endsWith(".war")) {
+                id = id.substring(0, id.length()-4);
+            }
+            id = id.substring(id.lastIndexOf('/') + 1);
+        }
+
+        jettyWebApp.setConfigId(id);
+        jettyWebApp.setContextRoot(id);
+        return jettyWebApp;
+    }
+
     public boolean canHandlePlan(XmlObject plan) {
-        return plan instanceof JettyWebAppDocument;
+        return plan instanceof JettyWebAppType;
     }
 
     public URI getParentId(XmlObject plan) throws DeploymentException {
-        JettyWebAppDocument doc = (JettyWebAppDocument) plan;
-        JettyWebAppType jettyWebApp = doc.getWebApp();
+        JettyWebAppType jettyWebApp = (JettyWebAppType) plan;
         try {
             return new URI(jettyWebApp.getParentId());
         } catch (URISyntaxException e) {
@@ -114,8 +157,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
     }
 
     public URI getConfigId(XmlObject plan) throws DeploymentException {
-        JettyWebAppDocument doc = (JettyWebAppDocument) plan;
-        JettyWebAppType jettyWebApp = doc.getWebApp();
+        JettyWebAppType jettyWebApp = (JettyWebAppType) plan;
         try {
             return new URI(jettyWebApp.getConfigId());
         } catch (URISyntaxException e) {
@@ -124,9 +166,10 @@ public class JettyModuleBuilder implements ModuleBuilder {
     }
 
     public Module createModule(String name, XmlObject plan) throws DeploymentException {
-        JettyWebAppDocument doc = (JettyWebAppDocument) plan;
-        JettyWebAppType jettyWebApp = doc.getWebApp();
-        return new WebModule(name, URI.create("/"), jettyWebApp.getContextRoot());
+        JettyWebAppType jettyWebApp = (JettyWebAppType) plan;
+        WebModule module = new WebModule(name, URI.create("/"), jettyWebApp.getContextRoot());
+        module.setVendorDD(jettyWebApp);
+        return module;
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module webModule) throws DeploymentException {
@@ -145,7 +188,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
             // add the warfile's content to the configuration
             ZipEntry src;
             WebAppType webApp = null;
-            JettyWebAppType jettyWebApp = null;
+            JettyWebAppType jettyWebApp = (JettyWebAppType) webModule.getVendorDD();
             while ((src = jarIS.getNextEntry()) != null) {
                 URI target = warRoot.resolve(src.getName());
                 if ("WEB-INF/web.xml".equals(src.getName())) {
@@ -157,7 +200,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
                     } catch (XmlException e) {
                         throw new DeploymentException("Unable to parse web.xml", e);
                     }
-                } else if ("WEB-INF/geronimo-jetty.xml".equals(src.getName())) {
+                } else if (jettyWebApp != null && "WEB-INF/geronimo-jetty.xml".equals(src.getName())) {
                     byte[] buffer = getBytes(jarIS);
                     earContext.addFile(target, new ByteArrayInputStream(buffer));
                     try {
@@ -175,14 +218,14 @@ public class JettyModuleBuilder implements ModuleBuilder {
                 throw new DeploymentException("Did not find WEB-INF/web.xml in module");
             }
             webModule.setSpecDD(webApp);
+
+            assert jettyWebApp != null: "geronimo-jetty.xml not defined";
             webModule.setVendorDD(jettyWebApp);
 
-            // add the dependencies declared in the openejb-jar.xml file
-            if (jettyWebApp != null) {
-                JettyDependencyType[] dependencies = jettyWebApp.getDependencyArray();
-                for (int i = 0; i < dependencies.length; i++) {
-                    earContext.addDependency(getDependencyURI(dependencies[i]));
-                }
+            // add the dependencies declared in the geronimo-jetty.xml file
+            JettyDependencyType[] dependencies = jettyWebApp.getDependencyArray();
+            for (int i = 0; i < dependencies.length; i++) {
+                earContext.addDependency(getDependencyURI(dependencies[i]));
             }
         } catch (IOException e) {
             throw new DeploymentException("Problem deploying war", e);

@@ -26,13 +26,14 @@ import org.apache.geronimo.naming.deployment.RefAdapter;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/03/09 18:03:11 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/15 03:00:38 $
  *
  * */
 public class JMXReferenceFactory {
 
-    public static final String BASE_MANAGED_CONNECTION_FACTORY_NAME = "geronimo.management:J2eeType=ManagedConnectionFactory,name=";
-    public static final String BASE_ADMIN_OBJECT_NAME = "geronimo.management:service=AdminObject,name=";
+    public static final String BASE_MANAGED_CONNECTION_FACTORY_NAME = "geronimo.server:J2EEServer=geronimo,j2eeType=JCAManagedConnectionFactory,name=";
+    // todo this name is wrong see ConnectionModuleBuilder
+    public static final String BASE_ADMIN_OBJECT_NAME = "geronimo.server:J2EEServer=geronimo,j2eeType=AdminObject,name=";
 
     public JMXReferenceFactory() {
     }

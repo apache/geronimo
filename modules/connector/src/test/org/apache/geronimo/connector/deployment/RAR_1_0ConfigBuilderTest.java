@@ -17,49 +17,56 @@
 
 package org.apache.geronimo.connector.deployment;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.IOException;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.net.URI;
 import java.net.URL;
+import java.net.URLClassLoader;
+import java.sql.Connection;
+import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
+import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
-import java.util.zip.ZipEntry;
-import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-
-import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.deployment.DeploymentException;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
-import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConnectorDocument;
-import org.apache.xmlbeans.XmlOptions;
+import javax.sql.DataSource;
 
 import junit.framework.TestCase;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.j2ee.deployment.EARContext;
+import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
+import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.system.configuration.LocalConfigStore;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
+import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConnectorDocument10;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
+import org.tranql.sql.jdbc.JDBCUtil;
 
 /**
- *
- *
- * @version $Revision: 1.7 $ $Date: 2004/04/23 03:08:28 $
- *
- * */
+ * @version $Revision: 1.8 $ $Date: 2004/06/15 03:00:37 $
+ */
 public class RAR_1_0ConfigBuilderTest extends TestCase {
     private URL j2eeDD;
     private URL geronimoDD;
-    private Map gbeans = new HashMap();
     XmlOptions xmlOptions;
     private List errors;
 
     public void testLoadJ2eeDeploymentDescriptor() throws Exception {
         InputStream j2eeInputStream = j2eeDD.openStream();
-        ConnectorDocument connectorDocument = ConnectorDocument.Factory.parse(j2eeInputStream);
+        ConnectorDocument10 connectorDocument = ConnectorDocument10.Factory.parse(j2eeInputStream);
         assertNotNull(connectorDocument.getConnector().getResourceadapter());
         if (!connectorDocument.validate(xmlOptions)) {
             fail(errors.toString());
@@ -76,73 +83,204 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
 
     }
 
-    public void testAddConnectorGBeans() throws Exception {
-        InputStream j2eeInputStream = j2eeDD.openStream();
-        ConnectorDocument connectorDocument = ConnectorDocument.Factory.parse(j2eeInputStream);
-        InputStream geronimoInputStream = geronimoDD.openStream();
-        GerConnectorDocument geronimoConnectorDocument = GerConnectorDocument.Factory.parse(geronimoInputStream);
-        File configStore = new File(System.getProperty("java.io.tmpdir"), "config-store");
-        configStore.mkdir();
-        Kernel kernel = new Kernel("test.kernel", "test");
-        kernel.boot();
+    public void testBuildModule() throws Exception {
+        String j2eeDomainName = "geronimo.server";
+        String j2eeServerName = "TestGeronimoServer";
+        String j2eeApplicationName = "null";
+        String j2eeModuleName = "org/apache/geronimo/j2ee/deployment/test";
+        ObjectName connectionTrackerName = new ObjectName("geronimo.connector:service=ConnectionTracker");
+
+        ModuleBuilder moduleBuilder = new ConnectorModuleBuilder();
+        File rarFile = new File("target/test-rar-10.rar");
+
+        ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
+        ClassLoader cl = new URLClassLoader(new URL[]{rarFile.toURL()}, oldCl);
+
+        Thread.currentThread().setContextClassLoader(cl);
+
+        XmlObject plan = moduleBuilder.getDeploymentPlan(rarFile.toURL());
+        URI parentId = moduleBuilder.getParentId(plan);
+        URI configId = moduleBuilder.getConfigId(plan);
+        assertEquals(j2eeModuleName, configId.toString());
+
+        Module module = moduleBuilder.createModule(configId.toString(), plan);
+
+        File carFile = File.createTempFile("RARTest", ".car");
         try {
-            RAR_1_0ConfigBuilder configBuilder = new RAR_1_0ConfigBuilder(kernel, null, new ObjectName("geronimo.server:type=ConnectionTracker"));
-            DeploymentContext context =  new MockDeploymentContext(kernel);
-            configBuilder.addConnectorGBeans(context, connectorDocument, geronimoConnectorDocument.getConnector(), this.getClass().getClassLoader());
-            for (Iterator iterator = gbeans.entrySet().iterator(); iterator.hasNext();) {
-                Map.Entry entry = (Map.Entry) iterator.next();
-                kernel.loadGBean((ObjectName)entry.getKey(), (GBeanMBean)entry.getValue());
-            }
-            for (Iterator iterator = gbeans.keySet().iterator(); iterator.hasNext();) {
-                ObjectName name = (ObjectName) iterator.next();
-                kernel.startRecursiveGBean(name);
-            }
-            for (Iterator iterator = gbeans.keySet().iterator(); iterator.hasNext();) {
-                ObjectName name = (ObjectName) iterator.next();
-                assertEquals("non started gbean: " + name, new Integer(State.RUNNING.toInt()), kernel.getAttribute(name, "state"));
-            }
+            EARContext earContext = new EARContext(new JarOutputStream(new FileOutputStream(carFile)),
+                    configId,
+                    parentId,
+                    null,
+                    j2eeDomainName,
+                    j2eeServerName,
+                    j2eeApplicationName,
+                    null,
+                    connectionTrackerName);
+
+            moduleBuilder.installModule(new JarFile(rarFile), earContext, module);
+            earContext.getClassLoader(null);
+            moduleBuilder.initContext(earContext, module, cl);
+            moduleBuilder.addGBeans(earContext, module, cl);
+            earContext.close();
+
+            File tempdir = new File(System.getProperty("java.io.tmpdir"));
+            File unpackedDir = new File(tempdir, "OpenEJBTest-Unpacked");
+            LocalConfigStore.unpack(unpackedDir, new FileInputStream(carFile));
+
+            verifyDeployment(unpackedDir, oldCl, j2eeDomainName, j2eeServerName, j2eeApplicationName, j2eeModuleName);
         } finally {
-            kernel.shutdown();
+            carFile.delete();
         }
-        assertEquals(9, gbeans.size());
-        //we could check what the gbeans are...
     }
 
-    public void testBuildConfig() throws Exception {
-        InputStream geronimoInputStream = geronimoDD.openStream();
-        GerConnectorDocument geronimoConnectorDocument = GerConnectorDocument.Factory.parse(geronimoInputStream);
-        File configStore = new File(System.getProperty("java.io.tmpdir"), "config-store");
-        configStore.mkdir();
-        File outfile = new File(System.getProperty("java.io.tmpdir"), "rar10outfile");
-        Kernel kernel = new Kernel("test.kernel", "test");
-        kernel.boot();
+    private void verifyDeployment(File unpackedDir, ClassLoader cl, String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, String j2eeModuleName) throws Exception {
+        DataSource ds = null;
+        Kernel kernel = null;
         try {
-            RAR_1_0ConfigBuilder configBuilder = new RAR_1_0ConfigBuilder(kernel, null, new ObjectName("geronimo.connector:service=ConnectionTracker"));
-            configBuilder.buildConfiguration(outfile, null, getRARInputStream(), geronimoConnectorDocument);
+            GBeanMBean config = loadConfig(unpackedDir);
+
+            kernel = new Kernel("blah");
+            kernel.boot();
+
+            GBeanMBean serverInfoGBean = new GBeanMBean(ServerInfo.GBEAN_INFO);
+            serverInfoGBean.setAttribute("BaseDirectory", ".");
+            ObjectName serverInfoObjectName = ObjectName.getInstance(j2eeDomainName + ":type=ServerInfo");
+            kernel.loadGBean(serverInfoObjectName, serverInfoGBean);
+            kernel.startGBean(serverInfoObjectName);
+            assertRunning(kernel, serverInfoObjectName);
+
+            GBeanMBean j2eeServerGBean = new GBeanMBean(J2EEServerImpl.GBEAN_INFO);
+            j2eeServerGBean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfoObjectName));
+            ObjectName j2eeServerObjectName = ObjectName.getInstance(j2eeDomainName + ":j2eeType=J2EEServer,name=" + j2eeServerName);
+            kernel.loadGBean(j2eeServerObjectName, j2eeServerGBean);
+            kernel.startGBean(j2eeServerObjectName);
+            assertRunning(kernel, j2eeServerObjectName);
+
+            // load the configuration
+            ObjectName objectName = ObjectName.getInstance("test:configuration=test-ejb-jar");
+            kernel.loadGBean(objectName, config);
+            config.setAttribute("BaseURL", unpackedDir.toURL());
+
+            // start the configuration
+            kernel.startRecursiveGBean(objectName);
+            assertRunning(kernel, objectName);
+
+            ObjectName applicationObjectName = ObjectName.getInstance(j2eeDomainName + ":j2eeType=J2EEApplication,name=" + j2eeApplicationName + ",J2EEServer=" + j2eeServerName);
+            if (!j2eeApplicationName.equals("null")) {
+                assertRunning(kernel, applicationObjectName);
+            } else {
+                Set applications = kernel.getMBeanServer().queryNames(applicationObjectName, null);
+                assertTrue("No application object should be registered for a standalone module", applications.isEmpty());
+            }
+
+            ObjectName moduleName = ObjectName.getInstance(j2eeDomainName + ":j2eeType=ResourceAdapterModule,J2EEServer=" + j2eeServerName + ",J2EEApplication=" + j2eeApplicationName + ",name=" + j2eeModuleName);
+            assertRunning(kernel, moduleName);
+
+            // FirstTestOutboundConnectionFactory
+            ObjectName firstConnectionManagerFactory = new ObjectName(j2eeDomainName +
+                    ":j2eeType=ConnectionManager" +
+                    ",J2EEServer=" + j2eeServerName +
+                    ",name=FirstTestOutboundConnectionFactory");
+            assertRunning(kernel, firstConnectionManagerFactory);
+
+
+            ObjectName firstOutCF = new ObjectName(j2eeDomainName +
+                    ":j2eeType=JCAConnectionFactory" +
+                    ",J2EEServer=" + j2eeServerName +
+                    ",JCAResource=null" +
+                    ",name=FirstTestOutboundConnectionFactory");
+            assertRunning(kernel, firstOutCF);
+
+            ObjectName firstOutSecurity = new ObjectName("geronimo.security:service=Realm,type=PasswordCredential,name=FirstTestOutboundConnectionFactory");
+            assertRunning(kernel, firstOutSecurity);
+
+            ObjectName firstOutMCF = new ObjectName(j2eeDomainName +
+                    ":j2eeType=JCAManagedConnectionFactory" +
+                    ",J2EEServer=" + j2eeServerName +
+                    ",name=FirstTestOutboundConnectionFactory");
+            assertRunning(kernel, firstOutMCF);
+
+            // SecondTestOutboundConnectionFactory
+            ObjectName secondConnectionManagerFactory = new ObjectName(j2eeDomainName +
+                    ":j2eeType=ConnectionManager" +
+                    ",J2EEServer=" + j2eeServerName +
+                    ",name=SecondTestOutboundConnectionFactory");
+            assertRunning(kernel, secondConnectionManagerFactory);
+
+
+            ObjectName secondOutCF = new ObjectName(j2eeDomainName +
+                    ":j2eeType=JCAConnectionFactory" +
+                    ",J2EEServer=" + j2eeServerName +
+                    ",JCAResource=null" +
+                    ",name=SecondTestOutboundConnectionFactory");
+            assertRunning(kernel, secondOutCF);
+
+            ObjectName secondOutMCF = new ObjectName(j2eeDomainName +
+                    ":j2eeType=JCAManagedConnectionFactory" +
+                    ",J2EEServer=" + j2eeServerName +
+                    ",name=SecondTestOutboundConnectionFactory");
+            assertRunning(kernel, secondOutMCF);
+
+            // ThirdTestOutboundConnectionFactory
+            ObjectName thirdConnectionManagerFactory = new ObjectName(j2eeDomainName +
+                    ":j2eeType=ConnectionManager" +
+                    ",J2EEServer=" + j2eeServerName +
+                    ",name=ThirdTestOutboundConnectionFactory");
+            assertRunning(kernel, thirdConnectionManagerFactory);
+
+
+            ObjectName thirdOutCF = new ObjectName(j2eeDomainName +
+                    ":j2eeType=JCAConnectionFactory" +
+                    ",J2EEServer=" + j2eeServerName +
+                    ",JCAResource=null" +
+                    ",name=ThirdTestOutboundConnectionFactory");
+            assertRunning(kernel, thirdOutCF);
+
+            ObjectName thirdOutMCF = new ObjectName(j2eeDomainName +
+                    ":j2eeType=JCAManagedConnectionFactory" +
+                    ",J2EEServer=" + j2eeServerName +
+                    ",name=ThirdTestOutboundConnectionFactory");
+            assertRunning(kernel, thirdOutMCF);
+
+            kernel.stopGBean(objectName);
         } finally {
-            kernel.shutdown();
-            outfile.delete();
+            if (ds != null) {
+                Connection connection = null;
+                Statement statement = null;
+                try {
+                    connection = ds.getConnection();
+                    statement = connection.createStatement();
+                    statement.execute("SHUTDOWN");
+                } finally {
+                    JDBCUtil.close(statement);
+                    JDBCUtil.close(connection);
+                }
+            }
+
+            if (kernel != null) {
+                kernel.shutdown();
+            }
+            Thread.currentThread().setContextClassLoader(cl);
         }
     }
 
-    private InputStream getRARInputStream() throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        JarOutputStream jarOutputStream = new JarOutputStream(baos);
-        ZipEntry entry = new ZipEntry("META-INF/ra.xml");
-        jarOutputStream.putNextEntry(entry);
-
-        InputStream j2eeInputStream = j2eeDD.openStream();
-        byte[] buffer = new byte[1024];
-        for (int length; (length = j2eeInputStream.read(buffer)) > 0; ) {
-            jarOutputStream.write(buffer, 0, length);
-        }
-        jarOutputStream.flush();
-        jarOutputStream.closeEntry();
-        jarOutputStream.close();
-
-        return new ByteArrayInputStream(baos.toByteArray());
+    private void assertRunning(Kernel kernel, ObjectName objectName) throws Exception {
+        int state = ((Integer) kernel.getAttribute(objectName, "state")).intValue();
+        assertEquals(State.RUNNING_INDEX, state);
     }
 
+    private GBeanMBean loadConfig(File unpackedCar) throws Exception {
+        InputStream in = new FileInputStream(new File(unpackedCar, "META-INF/config.ser"));
+        try {
+            ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(in));
+            GBeanInfo gbeanInfo = Configuration.GBEAN_INFO;
+            GBeanMBean config = new GBeanMBean(gbeanInfo);
+            Configuration.loadGMBeanState(config, ois);
+            return config;
+        } finally {
+            in.close();
+        }
+    }
 
     protected void setUp() throws Exception {
         File docDir = new File("src/test-data/connector_1_0");
@@ -152,16 +290,5 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
         xmlOptions.setLoadLineNumbers();
         errors = new ArrayList();
         xmlOptions.setErrorListener(errors);
-    }
-
-    private class MockDeploymentContext extends DeploymentContext {
-
-        MockDeploymentContext(Kernel kernel) throws DeploymentException, MalformedObjectNameException, IOException {
-            super(null, null, null, kernel);
-        }
-
-        public void addGBean(ObjectName name, GBeanMBean gbean) {
-            gbeans.put(name, gbean);
-        }
     }
 }

@@ -7,6 +7,7 @@
 
     <xb:namespace uri="##local">
         <xb:package>org.apache.geronimo.xbeans.j2ee.connector_1_0</xb:package>
+        <xb:suffix>10</xb:suffix>
     </xb:namespace>
 
 </xb:config>

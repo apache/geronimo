@@ -17,7 +17,7 @@
 -->
   
 
-<!-- $Revision: 1.5 $ $Date: 2004/03/10 09:58:31 $ -->
+<!-- $Revision: 1.6 $ $Date: 2004/06/15 03:00:37 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -33,5 +33,34 @@
             targetdir="${basedir}/target/xmlbeans"
             cataloglocation="${basedir}/../../specs/schema/src/catalog/resolver-catalog.xml"/>
     </preGoal>
-    <!--${basedir}/src/schema/connector_1_0.xsd,${basedir}/src/schema/connector_1_5.xsd,-->
+
+    <preGoal name="test:compile">
+        <!-- Build test-rar-10 -->
+        <ant:mkdir dir="${basedir}/target/test-rar-10/META-INF"/>
+        <copy todir="${basedir}/target/test-rar-10/META-INF">
+            <fileset dir="${basedir}/src/test-data/connector_1_0"/>
+        </copy>
+
+        <ant:jar destfile="${basedir}/target/test-rar-10.rar"
+            basedir="${basedir}/target/test-rar-10"/>
+
+        <!-- Build test-rar-15 -->
+        <ant:mkdir dir="${basedir}/target/test-rar-15/META-INF"/>
+        <copy todir="${basedir}/target/test-rar-15/META-INF">
+            <fileset dir="${basedir}/src/test-data/connector_1_5"/>
+        </copy>
+
+        <ant:jar destfile="${basedir}/target/test-rar-15.rar"
+            basedir="${basedir}/target/test-rar-15"/>
+
+        <!-- Build test-ear -->
+        <ant:jar destfile="${basedir}/target/test-ear.ear" >
+            <fileset dir="${basedir}/target">
+                <include name="test-rar-10.rar"/>
+                <include name="test-rar-15.rar"/>
+            </fileset>
+            <zipfileset dir="${basedir}/src/test-data/ear" prefix="META-INF"/>
+        </ant:jar>
+
+    </preGoal>
 </project>
