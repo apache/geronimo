@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Revision: 1.1 $ $Date: 2004/01/22 21:39:55 $ -->
+
+<project default="default"
+  xmlns:j="jelly:core"
+  xmlns:u="jelly:util"
+  xmlns:ant="jelly:ant"
+  xmlns:maven="jelly:maven"
+  xmlns:castor="common:castor">
+  
+  <preGoal name="xdoc:jelly-transform">
+    <attainGoal name="html2xdoc"/>
+  </preGoal>
+
+  <preGoal name="site">
+    <attainGoal name="generate:xmlbeans"/>
+  </preGoal>
+
+  <preGoal name="java:compile">
+    <attainGoal name="generate:xmlbeans"/>
+  </preGoal>
+
+
+  <!-- ================================= -->
+  <!-- Compile XML->Java Binding Sources -->
+  <!-- ================================= -->
+  
+  <goal name="generate:xmlbeans"
+  	    description="Generates the XML beans using XMLBeans">
+
+  	<j:jelly xmlns="jelly:ant">
+      <!-- currently there's a classloader bug with xsdconfig files with Ant task
+  	  <taskdef name="xmlbean"
+               classname="com.bea.xbean.tool.XMLBean"
+               classpathref="maven.dependency.classpath"/>
+      
+      <xmlbean
+	      schema="${basedir}/src/schema"
+	      srcgendir="${basedir}/target/src"
+        classpathref="maven.dependency.classpath" 
+        srconly="true"
+	      download="true"
+	      failonerror="true" />
+      -->
+      
+      <j:set var="uptodatePropName" value="xmlbeans.uptodate"/>
+      <j:expr value="${context.setVariable(uptodatePropName, null)}"/>
+      <j:set var="uptodateFile" value="${basedir}/target/xmlbeans/tstamp"/>
+      
+      <uptodate property="${uptodatePropName}"
+                targetfile="${uptodateFile}">
+        <srcfiles dir="${basedir}/target/xmlbeans/gen" includes="**/*.xsd*"/>
+      </uptodate>
+      
+      <j:if test="${context.getVariable(uptodatePropName) == null}">
+        <java classname="com.bea.xbean.tool.SchemaCompiler" fork="yes">
+          <classpath refid="maven.dependency.classpath"/>
+          <arg value="-src"/>
+          <arg value="${basedir}/target/xmlbeans/gen"/>
+          <arg value="-srconly"/>
+          <arg value="-dl"/>
+          <arg value="on"/>
+          <arg value="${basedir}/src"/>
+        </java>
+        
+        <touch file="${uptodateFile}"/>
+      </j:if>
+      
+    </j:jelly>
+  </goal>
+  	
+  <goal name="generate:jaxb"
+  	    description="Generates the XML beans using JAXB">
+    
+  	<j:jelly xmlns="jelly:ant">
+      
+      <!-- <j:set var="schema" value="${basedir}/src/schema/j2ee_1_4.xsd"/> -->
+      <j:set var="schema" value="${basedir}/src/schema/ejb-jar_2_1.xsd"/>
+      <j:set var="dir" value="${basedir}/target/src"/>
+      
+      <taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask">
+        <classpath refid="maven.dependency.classpath" />
+    	</taskdef>
+      
+      <ant:mkdir dir="${dir}"/>
+      
+      <xjc target="${dir}" package="org.apache.geronimo.xmlbeans.ejb" extension="true">
+        <arg value="-nv"/>
+        
+        <schema dir="${basedir}/src/schema" includes="j2ee_1*.xsd,ejb-jar*.xsd"/> 
+        <binding dir="${basedir}/src/etc" includes="*.xjb"/>
+        
+        <!--
+        <produces dir="??" includes="* impl/*" />
+        -->
+      </xjc>
+    </j:jelly>
+  </goal>
+  	
+  <goal name="generate:castor"
+        description="Generates the XML beans using Castor">
+    <castor:generate
+      schema="${basedir}/src/schema/ejb-jar_2_1.xsd"
+      binding="${basedir}/src/etc/binding-configuration.xml"
+      package="org.apache.geronimo.xbeans.ejb"
+      marshal="false"
+      types="j2"/>
+  </goal>
+</project>

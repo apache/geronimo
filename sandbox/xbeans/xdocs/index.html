@@ -1,0 +1,63 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+</head>
+<body>
+<h1>Introduction</h1>
+
+<p>
+XBeans is the generation of Java Beans for the various XML Schemas which appear in the J2EE world.
+This allows us to use simple Java objects to work with the plethora of XML config file data used in EJB, web apps, JSP and so forth.
+</p>
+
+<p>
+Currently the XBeans implementation is using BEA's XMLBeans tool to generate the code. 
+This has the following advantages
+</p>
+<ul>
+
+<li>
+generates interfaces + implementations; implementations in a separate package so cleaner javadoc - only need to look at the interfaces
+</li>
+<li>
+lossless (i.e. comments and whitespace from XML config files preserved etc)
+</li>
+<li>
+fully supports XML Schema
+</li>
+<li>
+each generated interface has an inner Factory class for doing parsing etc; so the use of xmlbeans API is hidden inside the generated beans - so there's no visible external marshalling API
+required
+</li>
+<li>
+the XmlObject API allows you to do XPath queries, schema validations at any time (useful in GUIs and such like) and various other XML related things
+</ul>
+
+<p>
+The only downside is currently the XBeans depend on the xmlbeans-1.0.jar which is quite big. 
+Hopefully we can fix this going forward to reduce the size of this jar.
+</p>
+
+<h1>Example</h1>
+
+<p>To parse some XML...</p>
+
+<pre>
+EjbJarDocument document = EjbJarDocument.Factory.parse(in);
+EjbJar jar = document.getEjbJar();
+SessionBeanType[] sessionBeans = jar.getEnterpriseBeans().getSessionArray();
+...
+</pre>
+
+<p>To manually construct some of the XBeans for EJB...</p>
+
+<pre>
+EjbJar ejbJar = EjbJar.Factory.newInstance();
+AssemblyDescriptorType assemblyDescriptor = ejbJar.addNewAssemblyDescriptor();
+SecurityRole securityRole = assemblyDescriptor.addNewSecurityRole();
+securityRole.setRoleName("foo");
+</pre>
+
+
+</body>
+</html>
