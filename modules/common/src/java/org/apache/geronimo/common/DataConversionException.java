@@ -59,10 +59,10 @@ package org.apache.geronimo.common;
 /**
  * An exception throw to indicate a problem with some type of data conversion.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/24 20:56:52 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/28 09:43:44 $
  */
 public class DataConversionException
-    extends NestedRuntimeException
+    extends RuntimeException
 {
     /**
      * Construct a <tt>DataConversionException</tt> with a specified detail message.

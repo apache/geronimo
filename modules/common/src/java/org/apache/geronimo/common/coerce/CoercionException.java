@@ -56,16 +56,14 @@
 
 package org.apache.geronimo.common.coerce;
 
-import org.apache.geronimo.common.NestedRuntimeException;
-
 /**
  * This exception is thrown to indicate that a problem has occured while
  * trying to coerce an object.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/24 20:51:22 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/28 09:43:44 $
  */
 public class CoercionException
-    extends NestedRuntimeException
+    extends RuntimeException
 {
     /**
      * Construct a <tt>CoercionException</tt> with the specified detail 

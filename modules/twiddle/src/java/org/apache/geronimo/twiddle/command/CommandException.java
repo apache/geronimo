@@ -56,15 +56,13 @@
 
 package org.apache.geronimo.twiddle.command;
 
-import org.apache.geronimo.common.NestedException;
-
 /**
  * A command exception.
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/16 15:14:12 $
+ * @version $Revision: 1.5 $ $Date: 2003/08/28 09:43:44 $
  */
 public class CommandException
-    extends NestedException
+    extends Exception
 {
     /**
      * Construct a <code>CommandException</code> with the specified detail 
