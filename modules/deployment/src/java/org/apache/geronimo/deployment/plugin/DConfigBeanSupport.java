@@ -74,12 +74,12 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/02/06 08:55:04 $
+ * @version $Revision: 1.6 $ $Date: 2004/02/09 23:11:04 $
  */
 public abstract class DConfigBeanSupport implements DConfigBean {
     protected final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
-    private final DDBean ddBean;
-    protected XmlObject xmlObject;
+    private DDBean ddBean;
+    private XmlObject xmlObject;
     private final SchemaTypeLoader schemaTypeLoader;
 
     public DConfigBeanSupport(DDBean ddBean, XmlObject xmlObject, SchemaTypeLoader schemaTypeLoader) {
@@ -88,8 +88,17 @@ public abstract class DConfigBeanSupport implements DConfigBean {
         this.schemaTypeLoader = schemaTypeLoader;
     }
 
+    protected void setParent(DDBean ddBean, XmlObject xmlObject) {
+        this.ddBean = ddBean;
+        this.xmlObject = xmlObject;
+    }
+
     public DDBean getDDBean() {
         return ddBean;
+    }
+
+    protected XmlObject getXmlObject() {
+        return xmlObject;
     }
 
     public DConfigBean getDConfigBean(DDBean bean) throws ConfigurationException {

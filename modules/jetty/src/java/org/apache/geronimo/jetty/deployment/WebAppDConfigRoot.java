@@ -73,7 +73,7 @@ import org.apache.xmlbeans.XmlException;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/02/06 08:55:49 $
+ * @version $Revision: 1.4 $ $Date: 2004/02/09 23:11:04 $
  */
 public class WebAppDConfigRoot extends DConfigBeanRootSupport {
     private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
@@ -95,7 +95,7 @@ public class WebAppDConfigRoot extends DConfigBeanRootSupport {
     }
 
     JettyWebAppDocument getWebAppDocument() {
-        return (JettyWebAppDocument)xmlObject;
+        return (JettyWebAppDocument)getXmlObject();
     }
 
     public String[] getXpaths() {

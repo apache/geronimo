@@ -69,7 +69,7 @@ import org.apache.xmlbeans.XmlBeans;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/02/08 02:06:13 $
+ * @version $Revision: 1.7 $ $Date: 2004/02/09 23:11:04 $
  */
 public class WebAppDConfigBean extends DConfigBeanSupport {
     private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
@@ -85,7 +85,7 @@ public class WebAppDConfigBean extends DConfigBeanSupport {
     }
 
     JettyWebAppType getWebApp() {
-        return (JettyWebAppType)xmlObject;
+        return (JettyWebAppType)getXmlObject();
     }
 
     public String getContextRoot() {
