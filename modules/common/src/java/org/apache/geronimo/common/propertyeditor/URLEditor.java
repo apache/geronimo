@@ -17,18 +17,16 @@
 
 package org.apache.geronimo.common.propertyeditor;
 
+import java.io.File;
 import java.net.MalformedURLException;
-
-import org.apache.geronimo.common.net.URLFactory;
+import java.net.URL;
 
 /**
  * A property editor for {@link java.net.URL}.
  *
- * @version $Revision: 1.3 $ $Date: 2004/02/25 09:57:03 $
+ * @version $Revision: 1.4 $ $Date: 2004/02/27 00:49:07 $
  */
-public class URLEditor
-    extends TextPropertyEditorSupport
-{
+public class URLEditor extends TextPropertyEditorSupport {
     /**
      * Returns a URL for the input object converted to a string.
      *
@@ -36,13 +34,27 @@ public class URLEditor
      *
      * @throws PropertyEditorException   An MalformedURLException occured.
      */
-    public Object getValue()
-    {
+    public Object getValue() {
         try {
-            return URLFactory.create(getAsText());
-        }
-        catch (MalformedURLException e) {
+            String urlspec = getAsText().trim();
+            URL url;
+            try {
+                url = new URL(urlspec);
+                if (url.getProtocol().equals("file")) {
+                    url = createFromFilespec(url.getFile());
+                }
+            } catch (Exception e) {
+                url = createFromFilespec(urlspec);
+            }
+
+            return url;
+
+        } catch (MalformedURLException e) {
             throw new PropertyEditorException(e);
         }
+    }
+
+    private static URL createFromFilespec(final String filespec) throws MalformedURLException {
+        return new File(filespec).toURI().toURL();
     }
 }
