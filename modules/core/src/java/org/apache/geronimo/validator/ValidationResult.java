@@ -53,75 +53,45 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.model.j2ee;
+package org.apache.geronimo.validator;
 
 /**
- * JavaBean for the common Web Services tag service-ref 
+ * Used to enumerate validation results.
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/02 17:04:20 $
+ * @version $Revision: 1.1 $ $Date: 2003/09/02 17:04:19 $
  */
-public class ServiceRef extends Displayable {
-    private String serviceRefName;
-    private String serviceInterface;
-    private String WSDLFile;
-    private String JAXRPCMappingFile;
-    private String serviceQName;
-    private PortComponentRef[] portComponentRef;
-    private Handler[] handler;
+public class ValidationResult {
+    /**
+     * Indicates that the validation process was completely successful.  The
+     * application module can be deployed and run.
+     */
+    public static final ValidationResult PASSED = new ValidationResult("Passed");
 
-    public String getJAXRPCMappingFile() {
-        return JAXRPCMappingFile;
+    /**
+     * Indicated that there are some issues the user should be aware of, but
+     * in general the application module can be deployed and run.
+     */
+    public static final ValidationResult PASSED_WITH_WARNINGS = new ValidationResult("Passed with warnings");
+
+    /**
+     * Indicates the presence of errors that will likely prevent the
+     * application module from being deployed and/or run successfully.
+     */
+    public static final ValidationResult FAILED = new ValidationResult("Failed");
+
+    /**
+     * Not only were there errors, they were so severe that we couldn't even
+     * finish running the validation tests.
+     */
+    public static final ValidationResult ABORTED = new ValidationResult("Aborted");
+
+    private String description;
+
+    private ValidationResult(String description) {
+        this.description = description;
     }
 
-    public void setJAXRPCMappingFile(String JAXRPCMappingFile) {
-        this.JAXRPCMappingFile = JAXRPCMappingFile;
-    }
-
-    public String getServiceInterface() {
-        return serviceInterface;
-    }
-
-    public void setServiceInterface(String serviceInterface) {
-        this.serviceInterface = serviceInterface;
-    }
-
-    public String getServiceQName() {
-        return serviceQName;
-    }
-
-    public void setServiceQName(String serviceQName) {
-        this.serviceQName = serviceQName;
-    }
-
-    public String getServiceRefName() {
-        return serviceRefName;
-    }
-
-    public void setServiceRefName(String serviceRefName) {
-        this.serviceRefName = serviceRefName;
-    }
-
-    public String getWSDLFile() {
-        return WSDLFile;
-    }
-
-    public void setWSDLFile(String WSDLFile) {
-        this.WSDLFile = WSDLFile;
-    }
-
-    public Handler[] getHandler() {
-        return handler;
-    }
-
-    public void setHandler(Handler[] handler) {
-        this.handler = handler;
-    }
-
-    public PortComponentRef[] getPortComponentRef() {
-        return portComponentRef;
-    }
-
-    public void setPortComponentRef(PortComponentRef[] portComponentRef) {
-        this.portComponentRef = portComponentRef;
+    public String toString() {
+        return description;
     }
 }

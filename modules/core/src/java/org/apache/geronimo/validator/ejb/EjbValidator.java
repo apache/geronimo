@@ -53,75 +53,52 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.model.j2ee;
+package org.apache.geronimo.validator.ejb;
+
+import java.net.URLClassLoader;
+import java.net.URL;
+import java.io.File;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.BufferedReader;
+import javax.enterprise.deploy.shared.ModuleType;
+import org.apache.geronimo.validator.AbstractValidator;
+import org.apache.geronimo.validator.Validator;
+import org.apache.geronimo.xml.deployment.LoaderUtil;
+import org.apache.geronimo.xml.deployment.EjbJarLoader;
+import org.apache.geronimo.deployment.model.ejb.EjbJarDocument;
+import org.apache.geronimo.deployment.model.DeploymentDescriptor;
+import org.w3c.dom.Document;
 
 /**
- * JavaBean for the common Web Services tag service-ref 
+ * The validator class for validating an EJB JAR.  Right now just does enough
+ * to prove that this whole thing works.
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/02 17:04:20 $
+ * @version $Revision: 1.1 $ $Date: 2003/09/02 17:04:20 $
  */
-public class ServiceRef extends Displayable {
-    private String serviceRefName;
-    private String serviceInterface;
-    private String WSDLFile;
-    private String JAXRPCMappingFile;
-    private String serviceQName;
-    private PortComponentRef[] portComponentRef;
-    private Handler[] handler;
-
-    public String getJAXRPCMappingFile() {
-        return JAXRPCMappingFile;
+public class EjbValidator extends AbstractValidator {
+    public Class[] getTestClasses() {
+        return new Class[]{
+            SessionBeanTests.class,
+        };
     }
 
-    public void setJAXRPCMappingFile(String JAXRPCMappingFile) {
-        this.JAXRPCMappingFile = JAXRPCMappingFile;
-    }
-
-    public String getServiceInterface() {
-        return serviceInterface;
-    }
-
-    public void setServiceInterface(String serviceInterface) {
-        this.serviceInterface = serviceInterface;
-    }
-
-    public String getServiceQName() {
-        return serviceQName;
-    }
-
-    public void setServiceQName(String serviceQName) {
-        this.serviceQName = serviceQName;
-    }
-
-    public String getServiceRefName() {
-        return serviceRefName;
-    }
-
-    public void setServiceRefName(String serviceRefName) {
-        this.serviceRefName = serviceRefName;
-    }
-
-    public String getWSDLFile() {
-        return WSDLFile;
-    }
-
-    public void setWSDLFile(String WSDLFile) {
-        this.WSDLFile = WSDLFile;
-    }
-
-    public Handler[] getHandler() {
-        return handler;
-    }
-
-    public void setHandler(Handler[] handler) {
-        this.handler = handler;
-    }
-
-    public PortComponentRef[] getPortComponentRef() {
-        return portComponentRef;
-    }
-
-    public void setPortComponentRef(PortComponentRef[] portComponentRef) {
-        this.portComponentRef = portComponentRef;
+    /**
+     * To try me, pass an EJB JAR file name as the only argument.
+     */
+    public static void main(String[] args) {
+        try {
+            ClassLoader loader = new URLClassLoader(new URL[]{new File(args[0]).toURL()});
+            InputStream in = loader.getResourceAsStream("META-INF/ejb-jar.xml");
+            Document doc = LoaderUtil.parseXML(new BufferedReader(new InputStreamReader(in)), "ejb-jar.xml");
+            EjbJarDocument jar = EjbJarLoader.load(doc);
+            Validator v =new EjbValidator();
+            v.initialize(new PrintWriter(new OutputStreamWriter(System.out), true), args[0], loader, ModuleType.EJB, new DeploymentDescriptor[]{jar}, null);
+            System.out.println("Validation Result: "+v.validate());
+        } catch(java.io.IOException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -53,75 +53,91 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.model.j2ee;
+package org.apache.geronimo.deployment.model.ejb;
+
+import org.apache.geronimo.deployment.model.j2ee.MessageDestination;
 
 /**
- * JavaBean for the common Web Services tag service-ref 
+ *  JavaBean for the ejb-jar.xml tag assembly-descriptor
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/02 17:04:20 $
+ * @version $Revision: 1.1 $ $Date: 2003/09/02 17:04:19 $
  */
-public class ServiceRef extends Displayable {
-    private String serviceRefName;
-    private String serviceInterface;
-    private String WSDLFile;
-    private String JAXRPCMappingFile;
-    private String serviceQName;
-    private PortComponentRef[] portComponentRef;
-    private Handler[] handler;
+public class AssemblyDescriptor {
+    private SecurityRole[] securityRole = new SecurityRole[0];
+    private MethodPermission[] methodPermission = new MethodPermission[0];
+    private ContainerTransaction[] containerTransaction = new ContainerTransaction[0];
+    private MessageDestination[] messageDestination = new MessageDestination[0];
+    private ExcludeList excludeList;
 
-    public String getJAXRPCMappingFile() {
-        return JAXRPCMappingFile;
+    public ContainerTransaction[] getContainerTransaction() {
+        return containerTransaction;
     }
 
-    public void setJAXRPCMappingFile(String JAXRPCMappingFile) {
-        this.JAXRPCMappingFile = JAXRPCMappingFile;
+    public ContainerTransaction getContainerTransaction(int i) {
+        return containerTransaction[i];
     }
 
-    public String getServiceInterface() {
-        return serviceInterface;
+    public void setContainerTransaction(ContainerTransaction[] containerTransaction) {
+        this.containerTransaction = containerTransaction;
     }
 
-    public void setServiceInterface(String serviceInterface) {
-        this.serviceInterface = serviceInterface;
+    public void setContainerTransaction(int i, ContainerTransaction containerTransaction) {
+        this.containerTransaction[i] = containerTransaction;
     }
 
-    public String getServiceQName() {
-        return serviceQName;
+    public ExcludeList getExcludeList() {
+        return excludeList;
     }
 
-    public void setServiceQName(String serviceQName) {
-        this.serviceQName = serviceQName;
+    public void setExcludeList(ExcludeList excludeList) {
+        this.excludeList = excludeList;
     }
 
-    public String getServiceRefName() {
-        return serviceRefName;
+    public MessageDestination[] getMessageDestination() {
+        return messageDestination;
     }
 
-    public void setServiceRefName(String serviceRefName) {
-        this.serviceRefName = serviceRefName;
+    public MessageDestination getMessageDestination(int i) {
+        return messageDestination[i];
     }
 
-    public String getWSDLFile() {
-        return WSDLFile;
+    public void setMessageDestination(MessageDestination[] messageDestination) {
+        this.messageDestination = messageDestination;
     }
 
-    public void setWSDLFile(String WSDLFile) {
-        this.WSDLFile = WSDLFile;
+    public void setMessageDestination(int i, MessageDestination messageDestination) {
+        this.messageDestination[i] = messageDestination;
     }
 
-    public Handler[] getHandler() {
-        return handler;
+    public MethodPermission[] getMethodPermission() {
+        return methodPermission;
     }
 
-    public void setHandler(Handler[] handler) {
-        this.handler = handler;
+    public MethodPermission getMethodPermission(int i) {
+        return methodPermission[i];
     }
 
-    public PortComponentRef[] getPortComponentRef() {
-        return portComponentRef;
+    public void setMethodPermission(MethodPermission[] methodPermission) {
+        this.methodPermission = methodPermission;
     }
 
-    public void setPortComponentRef(PortComponentRef[] portComponentRef) {
-        this.portComponentRef = portComponentRef;
+    public void setMethodPermission(int i, MethodPermission methodPermission) {
+        this.methodPermission[i] = methodPermission;
+    }
+
+    public SecurityRole[] getSecurityRole() {
+        return securityRole;
+    }
+
+    public SecurityRole getSecurityRole(int i) {
+        return securityRole[i];
+    }
+
+    public void setSecurityRole(SecurityRole[] securityRole) {
+        this.securityRole = securityRole;
+    }
+
+    public void setSecurityRole(int i, SecurityRole securityRole) {
+        this.securityRole[i] = securityRole;
     }
 }

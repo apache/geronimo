@@ -56,9 +56,9 @@
 package org.apache.geronimo.deployment.model.j2ee;
 
 /**
+ * JavaBean for the common J2EE tag resource-env-ref
  *
- *
- * @version $Revision: 1.1 $ $Date: 2003/09/01 22:12:16 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/02 17:04:20 $
  */
 public class ResourceEnvRef extends Describable {
     private String resourceEnvRefName;

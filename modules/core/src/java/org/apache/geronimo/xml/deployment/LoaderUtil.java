@@ -56,17 +56,32 @@
 package org.apache.geronimo.xml.deployment;
 
 import java.util.LinkedList;
+import java.io.Reader;
+import java.io.BufferedReader;
+import java.io.IOException;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.Document;
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.SAXParseException;
+import org.xml.sax.SAXException;
+import org.xml.sax.InputSource;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
+ * Holds utility methods for parsing a DOM tree.
  * 
- * 
- * @version $Revision: 1.1 $ $Date: 2003/09/01 22:12:16 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/02 17:04:21 $
  */
 public final class LoaderUtil {
+    private static final Log log = LogFactory.getLog(LoaderUtil.class);
+
     public static String getContent(Element element) {
         LinkedList nodes = new LinkedList();
         nodes.add(element);
@@ -114,6 +129,19 @@ public final class LoaderUtil {
         return null;
     }
 
+    public static Element[] getChildren(Element root, String childName) {
+        NodeList nodes = root.getElementsByTagName(childName);
+        if(nodes == null) {
+            return new Element[0];
+        }
+        int length = nodes.getLength();
+        Element[] result = new Element[length];
+        for (int i = 0; i < length; i++) {
+            result[i] = (Element) nodes.item(i);
+        }
+        return result;
+    }
+
     public static String getChildContent(Element element, String child) {
         Element e = getChild(element, child);
         if (e != null) {
@@ -131,5 +159,43 @@ public final class LoaderUtil {
             result[i] = getContent(e);
         }
         return result;
+    }
+
+    /**
+     * Utility method to parse the contents of a Reader into a DOM Document.
+     * NOTE: closes the reader when finished!
+     *
+     * @param reader  The reader with the XML content
+     * @param context A file name or similar context, included when any warnings
+     *                or errors are logged to help the user identify the problem
+     */
+    public static Document parseXML(Reader reader, final String context) {
+        try {
+            DocumentBuilderFactory fac = DocumentBuilderFactory.newInstance();
+            fac.setValidating(false); //todo: how does validation work with schemas?
+            DocumentBuilder parser = fac.newDocumentBuilder();
+//            parser.setEntityResolver(...); //todo: implement an EntityResolver so we don't have to be online to validate against the schemas
+            parser.setErrorHandler(new ErrorHandler() {
+                public void warning (SAXParseException exception) throws SAXException {
+                    log.warn("XML: "+context+":"+exception.getLineNumber()+","+exception.getColumnNumber()+" "+exception.getMessage());
+                }
+                public void error (SAXParseException exception) throws SAXException {
+                    log.error("XML: "+context+":"+exception.getLineNumber()+","+exception.getColumnNumber()+" "+exception.getMessage());
+                }
+                public void fatalError (SAXParseException exception) throws SAXException {
+                    log.error("XML: "+context+":"+exception.getLineNumber()+","+exception.getColumnNumber()+" "+exception.getMessage());
+                }
+            });
+            return parser.parse(new InputSource(new BufferedReader(reader)));
+        } catch(ParserConfigurationException e) {
+            log.error("XML: "+context, e);
+        } catch(IOException e) {
+            log.error("XML: "+context, e);
+        } catch(SAXException e) {
+            log.error("XML: "+context, e);
+        } finally {
+            try {reader.close();}catch(IOException e) {}
+        }
+        return null;
     }
 }

@@ -53,75 +53,52 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.model.j2ee;
+package org.apache.geronimo.validator;
+
+import java.io.PrintWriter;
+import javax.enterprise.deploy.shared.ModuleType;
+import org.apache.geronimo.deployment.model.DeploymentDescriptor;
 
 /**
- * JavaBean for the common Web Services tag service-ref 
+ * The main interface for all application validators.  To use one, you
+ * initialize it with the application module it should validate, and then
+ * call the validate method.  In general, a single validator can validate
+ * many application modules over its lifetime with repeated calls to
+ * initialize and validate, but it cannot validate two application modules
+ * simultaneously.
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/02 17:04:20 $
+ * @version $Revision: 1.1 $ $Date: 2003/09/02 17:04:19 $
  */
-public class ServiceRef extends Displayable {
-    private String serviceRefName;
-    private String serviceInterface;
-    private String WSDLFile;
-    private String JAXRPCMappingFile;
-    private String serviceQName;
-    private PortComponentRef[] portComponentRef;
-    private Handler[] handler;
+public interface Validator {
+    /**
+     * Prepares the validator to validate an application module.
+     *
+     * @param out        The writer used by the validator to present messages
+     *                   to the user.
+     * @param moduleName The display name for this module, used to identify
+     *                   where errors originated from.
+     * @param loader     The ClassLoader used to access module classes
+     * @param type       The type of module in question (WAR, EAR, etc.).  In
+     *                   general this is a sanity check as validators will be
+     *                   devoted to handling a specific module.
+     * @param standardDD The metadata representation of the standard deployment
+     *                   descriptors for the module.  There will always be at
+     *                   least one, and may be more.  Note that the file name
+     *                   is available from the XmlDocumentProperties.
+     * @param serverDD   The metadata representation of the app-server-specific
+     *                   deployment descriptors for the module.
+     *
+     * @return <tt>true</tt> if the validator is going to be able to validate
+     *         this application module.  May be false, for example, if this
+     *         validator does not handle this module type, the expected
+     *         deployment descriptors are missing, etc.
+     */
+    public boolean initialize(PrintWriter out, String moduleName, ClassLoader loader, ModuleType type, DeploymentDescriptor[] standardDD, Object[] serverDD);
 
-    public String getJAXRPCMappingFile() {
-        return JAXRPCMappingFile;
-    }
-
-    public void setJAXRPCMappingFile(String JAXRPCMappingFile) {
-        this.JAXRPCMappingFile = JAXRPCMappingFile;
-    }
-
-    public String getServiceInterface() {
-        return serviceInterface;
-    }
-
-    public void setServiceInterface(String serviceInterface) {
-        this.serviceInterface = serviceInterface;
-    }
-
-    public String getServiceQName() {
-        return serviceQName;
-    }
-
-    public void setServiceQName(String serviceQName) {
-        this.serviceQName = serviceQName;
-    }
-
-    public String getServiceRefName() {
-        return serviceRefName;
-    }
-
-    public void setServiceRefName(String serviceRefName) {
-        this.serviceRefName = serviceRefName;
-    }
-
-    public String getWSDLFile() {
-        return WSDLFile;
-    }
-
-    public void setWSDLFile(String WSDLFile) {
-        this.WSDLFile = WSDLFile;
-    }
-
-    public Handler[] getHandler() {
-        return handler;
-    }
-
-    public void setHandler(Handler[] handler) {
-        this.handler = handler;
-    }
-
-    public PortComponentRef[] getPortComponentRef() {
-        return portComponentRef;
-    }
-
-    public void setPortComponentRef(PortComponentRef[] portComponentRef) {
-        this.portComponentRef = portComponentRef;
-    }
+    /**
+     *
+     * @return An indicator of whether the validation succeeded, succeeded with
+     *         warnings, or failed.
+     */
+    public ValidationResult validate();
 }

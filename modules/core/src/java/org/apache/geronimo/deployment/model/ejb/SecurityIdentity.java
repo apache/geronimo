@@ -55,20 +55,23 @@
  */
 package org.apache.geronimo.deployment.model.ejb;
 
-/**
- * 
- *
- * @version $Revision: 1.1 $ $Date: 2003/09/01 22:12:17 $
- */
-public class SecurityIdentity {
-    private boolean useCallerIdentity;
-    private Object runAs;
+import org.apache.geronimo.deployment.model.j2ee.RunAs;
+import org.apache.geronimo.deployment.model.j2ee.Describable;
 
-    public Object getRunAs() {
+/**
+ *  JavaBean for the ejb-jar.xml tag security-identity
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/09/02 17:04:19 $
+ */
+public class SecurityIdentity extends Describable {
+    private boolean useCallerIdentity;
+    private RunAs runAs;
+
+    public RunAs getRunAs() {
         return runAs;
     }
 
-    public void setRunAs(Object runAs) {
+    public void setRunAs(RunAs runAs) {
         this.runAs = runAs;
     }
 

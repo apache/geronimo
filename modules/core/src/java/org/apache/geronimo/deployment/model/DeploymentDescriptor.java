@@ -53,75 +53,17 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.model.j2ee;
+package org.apache.geronimo.deployment.model;
 
 /**
- * JavaBean for the common Web Services tag service-ref 
+ * An interface to be implemented by the top-level of each deployment descriptor.
+ * It is useful for XPath traversal if this is a bean with an additional property
+ * that gives access to the root JavaBean for the DD.  Think of this as the
+ * JavaBean that maps to "/", in XPath terms, so you can navigate to "/ejb-jar"
+ * or whatever from here.
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/02 17:04:20 $
+ * @version $Revision: 1.1 $ $Date: 2003/09/02 17:04:20 $
  */
-public class ServiceRef extends Displayable {
-    private String serviceRefName;
-    private String serviceInterface;
-    private String WSDLFile;
-    private String JAXRPCMappingFile;
-    private String serviceQName;
-    private PortComponentRef[] portComponentRef;
-    private Handler[] handler;
-
-    public String getJAXRPCMappingFile() {
-        return JAXRPCMappingFile;
-    }
-
-    public void setJAXRPCMappingFile(String JAXRPCMappingFile) {
-        this.JAXRPCMappingFile = JAXRPCMappingFile;
-    }
-
-    public String getServiceInterface() {
-        return serviceInterface;
-    }
-
-    public void setServiceInterface(String serviceInterface) {
-        this.serviceInterface = serviceInterface;
-    }
-
-    public String getServiceQName() {
-        return serviceQName;
-    }
-
-    public void setServiceQName(String serviceQName) {
-        this.serviceQName = serviceQName;
-    }
-
-    public String getServiceRefName() {
-        return serviceRefName;
-    }
-
-    public void setServiceRefName(String serviceRefName) {
-        this.serviceRefName = serviceRefName;
-    }
-
-    public String getWSDLFile() {
-        return WSDLFile;
-    }
-
-    public void setWSDLFile(String WSDLFile) {
-        this.WSDLFile = WSDLFile;
-    }
-
-    public Handler[] getHandler() {
-        return handler;
-    }
-
-    public void setHandler(Handler[] handler) {
-        this.handler = handler;
-    }
-
-    public PortComponentRef[] getPortComponentRef() {
-        return portComponentRef;
-    }
-
-    public void setPortComponentRef(PortComponentRef[] portComponentRef) {
-        this.portComponentRef = portComponentRef;
-    }
+public interface DeploymentDescriptor {
+    public String getFileName();
 }

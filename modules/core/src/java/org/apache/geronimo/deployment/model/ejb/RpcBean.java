@@ -55,17 +55,19 @@
  */
 package org.apache.geronimo.deployment.model.ejb;
 
+import org.apache.geronimo.deployment.model.j2ee.SecurityRoleRef;
+
 /**
- * 
+ * Base class for the RPC-style EJBs (entity and session)
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/01 22:12:17 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/02 17:04:19 $
  */
-public class RpcBean {
+public class RpcBean extends Ejb {
     private String home;
     private String remote;
     private String localHome;
     private String local;
-    private Object[] securityRoleRef = new Object[0];
+    private SecurityRoleRef[] securityRoleRef = new SecurityRoleRef[0];
 
     public String getHome() {
         return home;
@@ -99,19 +101,19 @@ public class RpcBean {
         this.remote = remote;
     }
 
-    public Object[] getSecurityRoleRef() {
+    public SecurityRoleRef[] getSecurityRoleRef() {
         return securityRoleRef;
     }
 
-    public Object getSecurityRoleRef(int i) {
+    public SecurityRoleRef getSecurityRoleRef(int i) {
         return securityRoleRef[i];
     }
 
-    public void setSecurityRoleRef(Object[] securityRoleRef) {
+    public void setSecurityRoleRef(SecurityRoleRef[] securityRoleRef) {
         this.securityRoleRef = securityRoleRef;
     }
 
-    public void setSecurityRoleRef(int i, Object securityRoleRef) {
+    public void setSecurityRoleRef(int i, SecurityRoleRef securityRoleRef) {
         this.securityRoleRef[i] = securityRoleRef;
     }
 }

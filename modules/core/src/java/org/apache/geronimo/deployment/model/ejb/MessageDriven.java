@@ -59,9 +59,9 @@ import org.apache.geronimo.deployment.model.ejb.ActivationConfig;
 import org.apache.geronimo.deployment.model.ejb.Ejb;
 
 /**
- * 
+ *  JavaBean for the ejb-jar.xml tag message-driven
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/01 22:12:17 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/02 17:04:19 $
  */
 public class MessageDriven extends Ejb {
     private String messagingType;

@@ -56,23 +56,30 @@
 package org.apache.geronimo.deployment.model.ejb;
 
 import org.apache.geronimo.deployment.model.j2ee.Displayable;
+import org.apache.geronimo.deployment.model.j2ee.EJBRef;
+import org.apache.geronimo.deployment.model.j2ee.EJBLocalRef;
+import org.apache.geronimo.deployment.model.j2ee.ResourceRef;
+import org.apache.geronimo.deployment.model.j2ee.ResourceEnvRef;
+import org.apache.geronimo.deployment.model.j2ee.MessageDestinationRef;
+import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
+import org.apache.geronimo.deployment.model.j2ee.ServiceRef;
 
 /**
- * 
+ * Base class for the JavaBeans for all EJBs (entity, session, message-driven).
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/01 22:12:16 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/02 17:04:19 $
  */
 public class Ejb extends Displayable {
     private String ejbName;
     private String ejbClass;
     private SecurityIdentity securityIdentity;
-    private Object[] ejbRef = new Object[0];
-    private Object[] ejbLocalRef = new Object[0];
-    private Object[] resourceRef = new Object[0];
-    private Object[] resourceEnvRef = new Object[0];
-    private Object[] messageDestinationRef = new Object[0];
-    private Object[] envEntry = new Object[0];
-    private Object[] serviceRefGroup = new Object[0];
+    private EJBRef[] ejbRef = new EJBRef[0];
+    private EJBLocalRef[] ejbLocalRef = new EJBLocalRef[0];
+    private ResourceRef[] resourceRef = new ResourceRef[0];
+    private ResourceEnvRef[] resourceEnvRef = new ResourceEnvRef[0];
+    private MessageDestinationRef[] messageDestinationRef = new MessageDestinationRef[0];
+    private EnvEntry[] envEntry = new EnvEntry[0];
+    private ServiceRef[] serviceRef = new ServiceRef[0];
 
     public String getEjbClass() {
         return ejbClass;
@@ -90,99 +97,99 @@ public class Ejb extends Displayable {
         this.ejbName = ejbName;
     }
 
-    public Object[] getEjbLocalRef() {
+    public EJBLocalRef[] getEjbLocalRef() {
         return ejbLocalRef;
     }
 
-    public Object getEjbLocalRef(int i) {
+    public EJBLocalRef getEjbLocalRef(int i) {
         return ejbLocalRef[i];
     }
 
-    public void setEjbLocalRef(Object[] ejbLocalRef) {
+    public void setEjbLocalRef(EJBLocalRef[] ejbLocalRef) {
         this.ejbLocalRef = ejbLocalRef;
     }
 
-    public void setEjbLocalRef(int i, Object ejbLocalRef) {
+    public void setEjbLocalRef(int i, EJBLocalRef ejbLocalRef) {
         this.ejbLocalRef[i] = ejbLocalRef;
     }
 
-    public Object[] getEjbRef() {
+    public EJBRef[] getEjbRef() {
         return ejbRef;
     }
 
-    public Object getEjbRef(int i) {
+    public EJBRef getEjbRef(int i) {
         return ejbRef[i];
     }
 
-    public void setEjbRef(Object[] ejbRef) {
+    public void setEjbRef(EJBRef[] ejbRef) {
         this.ejbRef = ejbRef;
     }
 
-    public void setEjbRef(int i, Object ejbRef) {
+    public void setEjbRef(int i, EJBRef ejbRef) {
         this.ejbRef[i] = ejbRef;
     }
 
-    public Object[] getEnvEntry() {
+    public EnvEntry[] getEnvEntry() {
         return envEntry;
     }
 
-    public Object getEnvEntry(int i) {
+    public EnvEntry getEnvEntry(int i) {
         return envEntry[i];
     }
 
-    public void setEnvEntry(Object[] envEntry) {
+    public void setEnvEntry(EnvEntry[] envEntry) {
         this.envEntry = envEntry;
     }
 
-    public void setEnvEntry(int i, Object envEntry) {
+    public void setEnvEntry(int i, EnvEntry envEntry) {
         this.envEntry[i] = envEntry;
     }
 
-    public Object[] getMessageDestinationRef() {
+    public MessageDestinationRef[] getMessageDestinationRef() {
         return messageDestinationRef;
     }
 
-    public Object getMessageDestinationRef(int i) {
+    public MessageDestinationRef getMessageDestinationRef(int i) {
         return messageDestinationRef[i];
     }
 
-    public void setMessageDestinationRef(Object[] messageDestinationRef) {
+    public void setMessageDestinationRef(MessageDestinationRef[] messageDestinationRef) {
         this.messageDestinationRef = messageDestinationRef;
     }
 
-    public void setMessageDestinationRef(int i, Object messageDestinationRef) {
+    public void setMessageDestinationRef(int i, MessageDestinationRef messageDestinationRef) {
         this.messageDestinationRef[i] = messageDestinationRef;
     }
 
-    public Object[] getResourceRef() {
+    public ResourceRef[] getResourceRef() {
         return resourceRef;
     }
 
-    public Object getResourceRef(int i) {
+    public ResourceRef getResourceRef(int i) {
         return resourceRef[i];
     }
 
-    public void setResourceRef(Object[] resourceRef) {
+    public void setResourceRef(ResourceRef[] resourceRef) {
         this.resourceRef = resourceRef;
     }
 
-    public void setResourceRef(int i, Object resourceRef) {
+    public void setResourceRef(int i, ResourceRef resourceRef) {
         this.resourceRef[i] = resourceRef;
     }
 
-    public Object[] getResourceEnvRef() {
+    public ResourceEnvRef[] getResourceEnvRef() {
         return resourceEnvRef;
     }
 
-    public Object getResourceEnvRef(int i) {
+    public ResourceEnvRef getResourceEnvRef(int i) {
         return resourceEnvRef[i];
     }
 
-    public void setResourceEnvRef(Object[] resourceEnvRef) {
+    public void setResourceEnvRef(ResourceEnvRef[] resourceEnvRef) {
         this.resourceEnvRef = resourceEnvRef;
     }
 
-    public void setResourceEnvRef(int i, Object resourceEnvRef) {
+    public void setResourceEnvRef(int i, ResourceEnvRef resourceEnvRef) {
         this.resourceEnvRef[i] = resourceEnvRef;
     }
 
@@ -194,19 +201,19 @@ public class Ejb extends Displayable {
         this.securityIdentity = securityIdentity;
     }
 
-    public Object[] getServiceRefGroup() {
-        return serviceRefGroup;
+    public ServiceRef[] getServiceRef() {
+        return serviceRef;
     }
 
-    public Object getServiceRefGroup(int i) {
-        return serviceRefGroup[i];
+    public ServiceRef getServiceRef(int i) {
+        return serviceRef[i];
     }
 
-    public void setServiceRefGroup(Object[] serviceRefGroup) {
-        this.serviceRefGroup = serviceRefGroup;
+    public void setServiceRef(ServiceRef[] serviceRef) {
+        this.serviceRef = serviceRef;
     }
 
-    public void setServiceRefGroup(int i, Object serviceRefGroup) {
-        this.serviceRefGroup[i] = serviceRefGroup;
+    public void setServiceRef(int i, ServiceRef serviceRef) {
+        this.serviceRef[i] = serviceRef;
     }
 }

@@ -56,9 +56,11 @@
 package org.apache.geronimo.deployment.model.j2ee;
 
 /**
+ * Base class for all tags that have a list of descriptions, a list of
+ * display names, and a list of icons (different entries of each type for
+ * different languages).
  *
- *
- * @version $Revision: 1.1 $ $Date: 2003/09/01 22:12:16 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/02 17:04:20 $
  */
 public abstract class Displayable extends Describable {
     private DisplayName[] displayName;

@@ -56,9 +56,9 @@
 package org.apache.geronimo.deployment.model.ejb;
 
 /**
- * 
+ *  JavaBean for the ejb-jar.xml tag query-method
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/01 22:12:17 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/02 17:04:19 $
  */
 public class QueryMethod {
     private String methodName;

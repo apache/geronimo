@@ -59,9 +59,9 @@ import java.util.List;
 import java.util.ArrayList;
 
 /**
- * 
+ *  JavaBean for the ejb-jar.xml tag enterprise-beans
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/01 22:12:17 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/02 17:04:19 $
  */
 public class EnterpriseBeans {
     private Session[] session = new Session[0];

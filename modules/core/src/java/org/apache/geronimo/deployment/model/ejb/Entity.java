@@ -58,9 +58,9 @@ package org.apache.geronimo.deployment.model.ejb;
 import org.apache.geronimo.deployment.model.ejb.CmpField;
 
 /**
- * 
+ *  JavaBean for the ejb-jar.xml tag entity
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/01 22:12:17 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/02 17:04:19 $
  */
 public class Entity extends RpcBean {
     private String persistenceType;
@@ -71,7 +71,7 @@ public class Entity extends RpcBean {
     private String primkeyField;
 
     private CmpField[] cmpField;
-    private Object[] query;
+    private Query[] query;
 
     public String getAbstractSchemaName() {
         return abstractSchemaName;
@@ -119,5 +119,37 @@ public class Entity extends RpcBean {
 
     public void setReentrant(String reentrant) {
         this.reentrant = reentrant;
+    }
+
+    public CmpField[] getCmpField() {
+        return cmpField;
+    }
+
+    public CmpField getCmpField(int i) {
+        return cmpField[i];
+    }
+
+    public void setCmpField(CmpField[] cmpField) {
+        this.cmpField = cmpField;
+    }
+
+    public void setCmpField(int i, CmpField cmpField) {
+        this.cmpField[i] = cmpField;
+    }
+
+    public Query[] getQuery() {
+        return query;
+    }
+
+    public Query getQuery(int i) {
+        return query[i];
+    }
+
+    public void setQuery(Query[] query) {
+        this.query = query;
+    }
+
+    public void setQuery(int i, Query query) {
+        this.query[i] = query;
     }
 }

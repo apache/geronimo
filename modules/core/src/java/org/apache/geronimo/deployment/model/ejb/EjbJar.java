@@ -58,13 +58,15 @@ package org.apache.geronimo.deployment.model.ejb;
 import org.apache.geronimo.deployment.model.j2ee.Displayable;
 
 /**
- * 
+ *  JavaBean for the root ejb-jar.xml tag ejb-jar
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/01 22:12:17 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/02 17:04:19 $
  */
 public class EjbJar extends Displayable {
     private String version;
     private EnterpriseBeans enterpriseBeans;
+    private Relationships relationships;
+    private AssemblyDescriptor assemblyDescriptor;
 
     public String getVersion() {
         return version;
@@ -80,5 +82,21 @@ public class EjbJar extends Displayable {
 
     public void setEnterpriseBeans(EnterpriseBeans enterpriseBeans) {
         this.enterpriseBeans = enterpriseBeans;
+    }
+
+    public AssemblyDescriptor getAssemblyDescriptor() {
+        return assemblyDescriptor;
+    }
+
+    public void setAssemblyDescriptor(AssemblyDescriptor assemblyDescriptor) {
+        this.assemblyDescriptor = assemblyDescriptor;
+    }
+
+    public Relationships getRelationships() {
+        return relationships;
+    }
+
+    public void setRelationships(Relationships relationships) {
+        this.relationships = relationships;
     }
 }

@@ -53,75 +53,58 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.model.j2ee;
+package org.apache.geronimo.deployment.model.ejb;
+
+import org.apache.geronimo.deployment.model.j2ee.Describable;
 
 /**
- * JavaBean for the common Web Services tag service-ref 
+ *  JavaBean for the ejb-jar.xml tag method
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/02 17:04:20 $
+ * @version $Revision: 1.1 $ $Date: 2003/09/02 17:04:19 $
  */
-public class ServiceRef extends Displayable {
-    private String serviceRefName;
-    private String serviceInterface;
-    private String WSDLFile;
-    private String JAXRPCMappingFile;
-    private String serviceQName;
-    private PortComponentRef[] portComponentRef;
-    private Handler[] handler;
+public class Method extends Describable {
+    private String ejbName;
+    private String methodIntf;
+    private String methodName;
+    private String[] methodParam; // not initialized to 0 since null is significant here
 
-    public String getJAXRPCMappingFile() {
-        return JAXRPCMappingFile;
+    public String getEjbName() {
+        return ejbName;
     }
 
-    public void setJAXRPCMappingFile(String JAXRPCMappingFile) {
-        this.JAXRPCMappingFile = JAXRPCMappingFile;
+    public void setEjbName(String ejbName) {
+        this.ejbName = ejbName;
     }
 
-    public String getServiceInterface() {
-        return serviceInterface;
+    public String getMethodIntf() {
+        return methodIntf;
     }
 
-    public void setServiceInterface(String serviceInterface) {
-        this.serviceInterface = serviceInterface;
+    public void setMethodIntf(String methodIntf) {
+        this.methodIntf = methodIntf;
     }
 
-    public String getServiceQName() {
-        return serviceQName;
+    public String getMethodName() {
+        return methodName;
     }
 
-    public void setServiceQName(String serviceQName) {
-        this.serviceQName = serviceQName;
+    public void setMethodName(String methodName) {
+        this.methodName = methodName;
     }
 
-    public String getServiceRefName() {
-        return serviceRefName;
+    public String[] getMethodParam() {
+        return methodParam;
     }
 
-    public void setServiceRefName(String serviceRefName) {
-        this.serviceRefName = serviceRefName;
+    public String getMethodParam(int i) {
+        return methodParam[i];
     }
 
-    public String getWSDLFile() {
-        return WSDLFile;
+    public void setMethodParam(String[] methodParam) {
+        this.methodParam = methodParam;
     }
 
-    public void setWSDLFile(String WSDLFile) {
-        this.WSDLFile = WSDLFile;
-    }
-
-    public Handler[] getHandler() {
-        return handler;
-    }
-
-    public void setHandler(Handler[] handler) {
-        this.handler = handler;
-    }
-
-    public PortComponentRef[] getPortComponentRef() {
-        return portComponentRef;
-    }
-
-    public void setPortComponentRef(PortComponentRef[] portComponentRef) {
-        this.portComponentRef = portComponentRef;
+    public void setMethodParam(int i, String methodParam) {
+        this.methodParam[i] = methodParam;
     }
 }

@@ -56,72 +56,27 @@
 package org.apache.geronimo.deployment.model.j2ee;
 
 /**
- * JavaBean for the common Web Services tag service-ref 
+ *  JavaBean for the common J2EE tag security-role-ref
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/02 17:04:20 $
+ * @version $Revision: 1.1 $ $Date: 2003/09/02 17:04:20 $
  */
-public class ServiceRef extends Displayable {
-    private String serviceRefName;
-    private String serviceInterface;
-    private String WSDLFile;
-    private String JAXRPCMappingFile;
-    private String serviceQName;
-    private PortComponentRef[] portComponentRef;
-    private Handler[] handler;
+public class SecurityRoleRef extends Describable {
+    private String roleName;
+    private String roleLink;
 
-    public String getJAXRPCMappingFile() {
-        return JAXRPCMappingFile;
+    public String getRoleLink() {
+        return roleLink;
     }
 
-    public void setJAXRPCMappingFile(String JAXRPCMappingFile) {
-        this.JAXRPCMappingFile = JAXRPCMappingFile;
+    public void setRoleLink(String roleLink) {
+        this.roleLink = roleLink;
     }
 
-    public String getServiceInterface() {
-        return serviceInterface;
+    public String getRoleName() {
+        return roleName;
     }
 
-    public void setServiceInterface(String serviceInterface) {
-        this.serviceInterface = serviceInterface;
-    }
-
-    public String getServiceQName() {
-        return serviceQName;
-    }
-
-    public void setServiceQName(String serviceQName) {
-        this.serviceQName = serviceQName;
-    }
-
-    public String getServiceRefName() {
-        return serviceRefName;
-    }
-
-    public void setServiceRefName(String serviceRefName) {
-        this.serviceRefName = serviceRefName;
-    }
-
-    public String getWSDLFile() {
-        return WSDLFile;
-    }
-
-    public void setWSDLFile(String WSDLFile) {
-        this.WSDLFile = WSDLFile;
-    }
-
-    public Handler[] getHandler() {
-        return handler;
-    }
-
-    public void setHandler(Handler[] handler) {
-        this.handler = handler;
-    }
-
-    public PortComponentRef[] getPortComponentRef() {
-        return portComponentRef;
-    }
-
-    public void setPortComponentRef(PortComponentRef[] portComponentRef) {
-        this.portComponentRef = portComponentRef;
+    public void setRoleName(String roleName) {
+        this.roleName = roleName;
     }
 }

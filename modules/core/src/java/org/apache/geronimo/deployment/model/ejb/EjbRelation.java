@@ -53,75 +53,40 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.model.j2ee;
+package org.apache.geronimo.deployment.model.ejb;
+
+import org.apache.geronimo.deployment.model.j2ee.Describable;
 
 /**
- * JavaBean for the common Web Services tag service-ref 
+ *  JavaBean for the ejb-jar.xml tag ejb-relation
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/02 17:04:20 $
+ * @version $Revision: 1.1 $ $Date: 2003/09/02 17:04:19 $
  */
-public class ServiceRef extends Displayable {
-    private String serviceRefName;
-    private String serviceInterface;
-    private String WSDLFile;
-    private String JAXRPCMappingFile;
-    private String serviceQName;
-    private PortComponentRef[] portComponentRef;
-    private Handler[] handler;
+public class EjbRelation extends Describable {
+    private String ejbRelationName;
+    private EjbRelationshipRole[] ejbRelationshipRole = new EjbRelationshipRole[0]; // always should have 2 entries, but well treat it like every other array here
 
-    public String getJAXRPCMappingFile() {
-        return JAXRPCMappingFile;
+    public String getEjbRelationName() {
+        return ejbRelationName;
     }
 
-    public void setJAXRPCMappingFile(String JAXRPCMappingFile) {
-        this.JAXRPCMappingFile = JAXRPCMappingFile;
+    public void setEjbRelationName(String ejbRelationName) {
+        this.ejbRelationName = ejbRelationName;
     }
 
-    public String getServiceInterface() {
-        return serviceInterface;
+    public EjbRelationshipRole[] getEjbRelationshipRole() {
+        return ejbRelationshipRole;
     }
 
-    public void setServiceInterface(String serviceInterface) {
-        this.serviceInterface = serviceInterface;
+    public EjbRelationshipRole getEjbRelationshipRole(int i) {
+        return ejbRelationshipRole[i];
     }
 
-    public String getServiceQName() {
-        return serviceQName;
+    public void setEjbRelationshipRole(EjbRelationshipRole[] ejbRelationshipRole) {
+        this.ejbRelationshipRole = ejbRelationshipRole;
     }
 
-    public void setServiceQName(String serviceQName) {
-        this.serviceQName = serviceQName;
-    }
-
-    public String getServiceRefName() {
-        return serviceRefName;
-    }
-
-    public void setServiceRefName(String serviceRefName) {
-        this.serviceRefName = serviceRefName;
-    }
-
-    public String getWSDLFile() {
-        return WSDLFile;
-    }
-
-    public void setWSDLFile(String WSDLFile) {
-        this.WSDLFile = WSDLFile;
-    }
-
-    public Handler[] getHandler() {
-        return handler;
-    }
-
-    public void setHandler(Handler[] handler) {
-        this.handler = handler;
-    }
-
-    public PortComponentRef[] getPortComponentRef() {
-        return portComponentRef;
-    }
-
-    public void setPortComponentRef(PortComponentRef[] portComponentRef) {
-        this.portComponentRef = portComponentRef;
+    public void setEjbRelationshipRole(int i, EjbRelationshipRole ejbRelationshipRole) {
+        this.ejbRelationshipRole[i] = ejbRelationshipRole;
     }
 }

@@ -56,9 +56,9 @@
 package org.apache.geronimo.deployment.model.ejb;
 
 /**
- * 
+ *  JavaBean for the ejb-jar.xml tag activation-config-property
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/01 22:12:16 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/02 17:04:19 $
  */
 public class ActivationConfigProperty {
     private String activationConfigPropertyName;

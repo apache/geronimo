@@ -66,13 +66,20 @@ import org.apache.geronimo.deployment.model.j2ee.ResourceRef;
 import org.apache.geronimo.deployment.model.j2ee.ResourceEnvRef;
 import org.apache.geronimo.deployment.model.j2ee.MessageDestinationRef;
 import org.apache.geronimo.deployment.model.j2ee.MessageDestination;
+import org.apache.geronimo.deployment.model.j2ee.Describable;
+import org.apache.geronimo.deployment.model.j2ee.Description;
+import org.apache.geronimo.deployment.model.j2ee.Displayable;
+import org.apache.geronimo.deployment.model.j2ee.DisplayName;
+import org.apache.geronimo.deployment.model.j2ee.Icon;
+import org.apache.geronimo.deployment.model.j2ee.RunAs;
+import org.apache.geronimo.deployment.model.j2ee.SecurityRoleRef;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/01 22:12:16 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/02 17:04:21 $
  */
 public final class J2EELoader {
     public static EnvEntry[] loadEnvEntries(Element parent) {
@@ -122,6 +129,19 @@ public final class J2EELoader {
             result[i] = ejbLocalRef;
         }
         return result;
+    }
+
+    public static SecurityRoleRef[] loadSecurityRoleRefs(Element parent) {
+        Element[] roots = LoaderUtil.getChildren(parent, "security-role-ref");
+        SecurityRoleRef[] refs = new SecurityRoleRef[roots.length];
+        for(int i = 0; i < roots.length; i++) {
+            Element root = roots[i];
+            refs[i] = new SecurityRoleRef();
+            loadDescribable(root, refs[i]);
+            refs[i].setRoleName(LoaderUtil.getChildContent(root, "role-name"));
+            refs[i].setRoleLink(LoaderUtil.getChildContent(root, "role-link"));
+        }
+        return refs;
     }
 
     public static ServiceRef[] loadServiceRefs(Element parent) {
@@ -245,5 +265,50 @@ public final class J2EELoader {
             result[i] = msgDestRef;
         }
         return result;
+    }
+
+    public static void loadDescribable(Element parent, Describable desc) {
+        Element[] roots = LoaderUtil.getChildren(parent, "description");
+        Description[] ds = new Description[roots.length];
+        for(int i = 0; i < roots.length; i++) {
+            Element root = roots[i];
+            ds[i] = new Description();
+            ds[i].setLang(root.getAttribute("lang"));
+            ds[i].setContent(LoaderUtil.getContent(root));
+        }
+        desc.setDescription(ds);
+    }
+
+    public static void loadDisplayable(Element parent, Displayable disp) {
+        loadDescribable(parent, disp);
+        Element[] roots = LoaderUtil.getChildren(parent, "display-name");
+        DisplayName[] ds = new DisplayName[roots.length];
+        for(int i = 0; i < roots.length; i++) {
+            Element root = roots[i];
+            ds[i] = new DisplayName();
+            ds[i].setLang(root.getAttribute("lang"));
+            ds[i].setContent(LoaderUtil.getContent(root));
+        }
+        disp.setDisplayName(ds);
+        roots = LoaderUtil.getChildren(parent, "icon");
+        Icon[] ic = new Icon[roots.length];
+        for(int i = 0; i < roots.length; i++) {
+            Element root = roots[i];
+            ic[i] = new Icon();
+            ic[i].setLang(root.getAttribute("lang"));
+            ic[i].setLargeIcon(LoaderUtil.getChildContent(root, "large-icon"));
+            ic[i].setSmallIcon(LoaderUtil.getChildContent(root, "small-icon"));
+        }
+        disp.setIcon(ic);
+    }
+
+    public static RunAs loadRunAs(Element parent) {
+        if(parent == null) {
+            return null;
+        }
+        RunAs as = new RunAs();
+        loadDescribable(parent, as);
+        as.setRoleName(LoaderUtil.getChildContent(parent, "role-name"));
+        return as;
     }
 }

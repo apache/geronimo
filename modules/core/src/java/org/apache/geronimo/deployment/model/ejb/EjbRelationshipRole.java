@@ -53,75 +53,59 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.model.j2ee;
+package org.apache.geronimo.deployment.model.ejb;
+
+import org.apache.geronimo.deployment.model.j2ee.Describable;
 
 /**
- * JavaBean for the common Web Services tag service-ref 
+ *  JavaBean for the ejb-jar.xml tag ejb-relationship-role
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/02 17:04:20 $
+ * @version $Revision: 1.1 $ $Date: 2003/09/02 17:04:19 $
  */
-public class ServiceRef extends Displayable {
-    private String serviceRefName;
-    private String serviceInterface;
-    private String WSDLFile;
-    private String JAXRPCMappingFile;
-    private String serviceQName;
-    private PortComponentRef[] portComponentRef;
-    private Handler[] handler;
+public class EjbRelationshipRole extends Describable {
+    private String ejbRelationshipRoleName;
+    private String multiplicity;
+    private boolean cascadeDelete;
+    private RelationshipRoleSource relationshipRoleSource;
+    private CmrField cmrField;
 
-    public String getJAXRPCMappingFile() {
-        return JAXRPCMappingFile;
+    public boolean isCascadeDelete() {
+        return cascadeDelete;
     }
 
-    public void setJAXRPCMappingFile(String JAXRPCMappingFile) {
-        this.JAXRPCMappingFile = JAXRPCMappingFile;
+    public void setCascadeDelete(boolean cascadeDelete) {
+        this.cascadeDelete = cascadeDelete;
     }
 
-    public String getServiceInterface() {
-        return serviceInterface;
+    public CmrField getCmrField() {
+        return cmrField;
     }
 
-    public void setServiceInterface(String serviceInterface) {
-        this.serviceInterface = serviceInterface;
+    public void setCmrField(CmrField cmrField) {
+        this.cmrField = cmrField;
     }
 
-    public String getServiceQName() {
-        return serviceQName;
+    public String getEjbRelationshipRoleName() {
+        return ejbRelationshipRoleName;
     }
 
-    public void setServiceQName(String serviceQName) {
-        this.serviceQName = serviceQName;
+    public void setEjbRelationshipRoleName(String ejbRelationshipRoleName) {
+        this.ejbRelationshipRoleName = ejbRelationshipRoleName;
     }
 
-    public String getServiceRefName() {
-        return serviceRefName;
+    public String getMultiplicity() {
+        return multiplicity;
     }
 
-    public void setServiceRefName(String serviceRefName) {
-        this.serviceRefName = serviceRefName;
+    public void setMultiplicity(String multiplicity) {
+        this.multiplicity = multiplicity;
     }
 
-    public String getWSDLFile() {
-        return WSDLFile;
+    public RelationshipRoleSource getRelationshipRoleSource() {
+        return relationshipRoleSource;
     }
 
-    public void setWSDLFile(String WSDLFile) {
-        this.WSDLFile = WSDLFile;
-    }
-
-    public Handler[] getHandler() {
-        return handler;
-    }
-
-    public void setHandler(Handler[] handler) {
-        this.handler = handler;
-    }
-
-    public PortComponentRef[] getPortComponentRef() {
-        return portComponentRef;
-    }
-
-    public void setPortComponentRef(PortComponentRef[] portComponentRef) {
-        this.portComponentRef = portComponentRef;
+    public void setRelationshipRoleSource(RelationshipRoleSource relationshipRoleSource) {
+        this.relationshipRoleSource = relationshipRoleSource;
     }
 }

@@ -53,75 +53,32 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.model.j2ee;
+package org.apache.geronimo.validator;
 
 /**
- * JavaBean for the common Web Services tag service-ref 
+ * Used by the provided validation logic to indicate that a fatal error has
+ * occured and the validation has failed.  Typically tests should not use this,
+ * instead returning a ValidationResult to indicate an error.  This should only
+ * be used when there's an urgent need to abort.
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/02 17:04:20 $
+ * It is a runtime exception because no user-provided validation code needs to
+ * catch it; it will be trapped by the core validator implementation. 
+ *
+ * @version $Revision: 1.1 $ $Date: 2003/09/02 17:04:19 $
  */
-public class ServiceRef extends Displayable {
-    private String serviceRefName;
-    private String serviceInterface;
-    private String WSDLFile;
-    private String JAXRPCMappingFile;
-    private String serviceQName;
-    private PortComponentRef[] portComponentRef;
-    private Handler[] handler;
-
-    public String getJAXRPCMappingFile() {
-        return JAXRPCMappingFile;
+public class ValidationException extends RuntimeException {
+    public ValidationException() {
     }
 
-    public void setJAXRPCMappingFile(String JAXRPCMappingFile) {
-        this.JAXRPCMappingFile = JAXRPCMappingFile;
+    public ValidationException(Throwable cause) {
+        super(cause);
     }
 
-    public String getServiceInterface() {
-        return serviceInterface;
+    public ValidationException(String message) {
+        super(message);
     }
 
-    public void setServiceInterface(String serviceInterface) {
-        this.serviceInterface = serviceInterface;
-    }
-
-    public String getServiceQName() {
-        return serviceQName;
-    }
-
-    public void setServiceQName(String serviceQName) {
-        this.serviceQName = serviceQName;
-    }
-
-    public String getServiceRefName() {
-        return serviceRefName;
-    }
-
-    public void setServiceRefName(String serviceRefName) {
-        this.serviceRefName = serviceRefName;
-    }
-
-    public String getWSDLFile() {
-        return WSDLFile;
-    }
-
-    public void setWSDLFile(String WSDLFile) {
-        this.WSDLFile = WSDLFile;
-    }
-
-    public Handler[] getHandler() {
-        return handler;
-    }
-
-    public void setHandler(Handler[] handler) {
-        this.handler = handler;
-    }
-
-    public PortComponentRef[] getPortComponentRef() {
-        return portComponentRef;
-    }
-
-    public void setPortComponentRef(PortComponentRef[] portComponentRef) {
-        this.portComponentRef = portComponentRef;
+    public ValidationException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

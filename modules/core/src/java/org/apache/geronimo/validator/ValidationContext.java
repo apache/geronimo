@@ -53,75 +53,65 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.model.j2ee;
+package org.apache.geronimo.validator;
+
+import java.io.PrintWriter;
+import javax.enterprise.deploy.shared.ModuleType;
+import org.apache.geronimo.deployment.model.DeploymentDescriptor;
 
 /**
- * JavaBean for the common Web Services tag service-ref 
+ * Holds all the context information for the current validation process.
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/02 17:04:20 $
+ * @version $Revision: 1.1 $ $Date: 2003/09/02 17:04:19 $
  */
-public class ServiceRef extends Displayable {
-    private String serviceRefName;
-    private String serviceInterface;
-    private String WSDLFile;
-    private String JAXRPCMappingFile;
-    private String serviceQName;
-    private PortComponentRef[] portComponentRef;
-    private Handler[] handler;
+public class ValidationContext {
+    public final PrintWriter out;
+    public final String moduleName;
+    public final ClassLoader loader;
+    public final ModuleType type;
+    public final DeploymentDescriptor[] standardDD;
+    public final Object[] serverDD;
+    private Object currentStandardDD;
+    private Object currentNode;
 
-    public String getJAXRPCMappingFile() {
-        return JAXRPCMappingFile;
+    public ValidationContext(ClassLoader loader, String moduleName, PrintWriter out, Object[] serverDD, DeploymentDescriptor[] standardDD, ModuleType type) {
+        this.loader = loader;
+        this.moduleName = moduleName;
+        this.out = out;
+        this.serverDD = serverDD;
+        this.standardDD = standardDD;
+        this.type = type;
     }
 
-    public void setJAXRPCMappingFile(String JAXRPCMappingFile) {
-        this.JAXRPCMappingFile = JAXRPCMappingFile;
+    /**
+     * At the moment, this is the standard DD we're validating.
+     */
+    public Object getCurrentStandardDD() {
+        return currentStandardDD;
     }
 
-    public String getServiceInterface() {
-        return serviceInterface;
+    /**
+     * At the moment, this is the standard DD we're validating.
+     */
+    void setCurrentStandardDD(Object currentStandardDD) {
+        this.currentStandardDD = currentStandardDD;
     }
 
-    public void setServiceInterface(String serviceInterface) {
-        this.serviceInterface = serviceInterface;
+    /**
+     * At the moment, this is the node on the standard DD that we're
+     * validating.  It corresponds to the XPath that a particular
+     * test is interested in.
+     */
+    public Object getCurrentNode() {
+        return currentNode;
     }
 
-    public String getServiceQName() {
-        return serviceQName;
-    }
-
-    public void setServiceQName(String serviceQName) {
-        this.serviceQName = serviceQName;
-    }
-
-    public String getServiceRefName() {
-        return serviceRefName;
-    }
-
-    public void setServiceRefName(String serviceRefName) {
-        this.serviceRefName = serviceRefName;
-    }
-
-    public String getWSDLFile() {
-        return WSDLFile;
-    }
-
-    public void setWSDLFile(String WSDLFile) {
-        this.WSDLFile = WSDLFile;
-    }
-
-    public Handler[] getHandler() {
-        return handler;
-    }
-
-    public void setHandler(Handler[] handler) {
-        this.handler = handler;
-    }
-
-    public PortComponentRef[] getPortComponentRef() {
-        return portComponentRef;
-    }
-
-    public void setPortComponentRef(PortComponentRef[] portComponentRef) {
-        this.portComponentRef = portComponentRef;
+    /**
+     * At the moment, this is the node on the standard DD that we're
+     * validating.  It corresponds to the XPath that a particular
+     * test is interested in.
+     */
+    void setCurrentNode(Object currentNode) {
+        this.currentNode = currentNode;
     }
 }

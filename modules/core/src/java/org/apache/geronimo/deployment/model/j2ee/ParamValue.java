@@ -56,9 +56,10 @@
 package org.apache.geronimo.deployment.model.j2ee;
 
 /**
+ * JavaBean for the common Web Services tag init-param, which is defined as
+ * the "param-valueType" from the standard J2EE schema
  *
- *
- * @version $Revision: 1.1 $ $Date: 2003/09/01 22:12:16 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/02 17:04:20 $
  */
 public class ParamValue {
     private String paramName;

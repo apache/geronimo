@@ -58,9 +58,9 @@ package org.apache.geronimo.deployment.model.ejb;
 import org.apache.geronimo.deployment.model.j2ee.Describable;
 
 /**
- * 
+ *  JavaBean for the ejb-jar.xml tag cmp-field
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/01 22:12:16 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/02 17:04:19 $
  */
 public class CmpField extends Describable {
     private String fieldName;
