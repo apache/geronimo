@@ -68,7 +68,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
  * used hold the persistent state of each Configuration. This allows
  * Configurations to restart in he event of system failure.
  *
- * @version $Revision: 1.37 $ $Date: 2004/06/05 20:33:40 $
+ * @version $Revision: 1.38 $ $Date: 2004/08/01 02:06:18 $
  */
 public class Kernel extends NotificationBroadcasterSupport implements KernelMBean {
 
@@ -327,6 +327,22 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
             throw (IllegalStateException) new IllegalStateException().initCause(e);
         }
         configurationManager.unload(configID);
+    }
+
+    public int getConfigurationState(URI configID) throws NoSuchConfigException {
+        ConfigurationManager configurationManager = getConfigurationManager();
+         try {
+             ObjectName configName = configurationManager.getConfigObjectName(configID);
+             return ((Integer)getAttribute(configName, "state")).intValue();
+         } catch (MalformedObjectNameException e) {
+             throw new NoSuchConfigException(e);
+         } catch (InstanceNotFoundException e) {
+             throw new NoSuchConfigException(e);
+         } catch (InvalidConfigException e) {
+             throw (IllegalStateException) new IllegalStateException().initCause(e);
+         } catch (Exception e) {
+             throw new NoSuchConfigException(e);
+         }
     }
 
     /**

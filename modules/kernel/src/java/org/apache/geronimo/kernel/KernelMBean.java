@@ -33,7 +33,7 @@ import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
 
 /**
- * @version $Revision: 1.13 $ $Date: 2004/06/04 17:27:00 $
+ * @version $Revision: 1.14 $ $Date: 2004/08/01 02:06:18 $
  */
 public interface KernelMBean {
     /**
@@ -116,6 +116,8 @@ public interface KernelMBean {
 
     void stopConfiguration(URI configID) throws NoSuchConfigException;
 
+    int getConfigurationState(URI configId) throws NoSuchConfigException;
+
     Object getAttribute(ObjectName objectName, String attributeName) throws Exception;
 
     void setAttribute(ObjectName objectName, String attributeName, Object attributeValue) throws Exception;
@@ -136,4 +138,6 @@ public interface KernelMBean {
     void registerShutdownHook(Runnable hook);
 
     void unregisterShutdownHook(Runnable hook);
+
+    void shutdown();
 }
