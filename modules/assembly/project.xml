@@ -191,9 +191,9 @@
         </dependency>
 
         <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-interop</artifactId>
-            <version>${pom.currentVersion}</version>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-corba</artifactId>
+            <version>${geronimo_spec_corba_version}</version>
             <properties>
                 <repository>true</repository>
             </properties>
