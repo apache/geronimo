@@ -34,8 +34,8 @@
     <gbean class="org.apache.geronimo.web.jetty.JettyWebConnector" objectName="geronimo.web:type=WebConnector,container=Jetty,port=8080">
         <default attribute="Protocol" type="java.lang.String">http</default>
         <!-- IMPORTANT localhost here will result in access only from 127.0.0.1-->
-        <!--default attribute="Interface" type="java.lang.String">localhost</default-->
-        <default attribute="Interface" type="java.lang.String">192.168.1.1</default>
+        <default attribute="Interface" type="java.lang.String">localhost</default>
+        <!--default attribute="Interface" type="java.lang.String">192.168.1.1</default-->
         <default attribute="Port" type="int">8080</default>
         <default attribute="MaxConnections" type="int">10</default>
         <default attribute="MaxIdleTime" type="int">10</default>
