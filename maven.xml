@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.44 $ $Date: 2003/11/17 10:57:39 $ -->
+<!-- $Revision: 1.45 $ $Date: 2003/11/22 20:08:54 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -536,7 +536,7 @@
             <property environment="env"/>
             <java classname="org.apache.geronimo.kernel.Main"
                 fork="true"
-                maxmemory="128m"
+                maxmemory="256m"
                 failonerror="true"
                 dir="${run.dir}">
 

@@ -14,6 +14,7 @@ import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.exceptions.TargetException;
 import javax.enterprise.deploy.shared.ModuleType;
+import javax.enterprise.deploy.shared.CommandType;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import org.apache.commons.logging.Log;
@@ -24,7 +25,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
  * Knows how to execute all the relevant JSR-88 operations on a remote
  * Geronimo server via JMX.  Doesn't currently handle clusters.
  *
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public class JmxServerConnection implements ServerConnection {
     private final static Log log = LogFactory.getLog(JmxServerConnection.class);
@@ -110,7 +111,7 @@ public class JmxServerConnection implements ServerConnection {
             if(result instanceof Exception) {
                 throw (Exception)result;
             } else {
-                return new JmxProgressObject(((Integer)result).intValue(), server);
+                return new JmxProgressObject(((Integer)result).intValue(), server, CommandType.DISTRIBUTE);
             }
         } catch(UndeclaredThrowableException e) {
             throw new RemoteException("Server request failed", e.getCause());
@@ -132,7 +133,7 @@ public class JmxServerConnection implements ServerConnection {
             if(result instanceof Exception) {
                 throw (Exception)result;
             } else {
-                return new JmxProgressObject(((Integer)result).intValue(), server);
+                return new JmxProgressObject(((Integer)result).intValue(), server, CommandType.DISTRIBUTE);
             }
         } catch(UndeclaredThrowableException e) {
             throw new RemoteException("Server request failed", e.getCause());
@@ -157,7 +158,7 @@ public class JmxServerConnection implements ServerConnection {
             if(result instanceof Exception) {
                 throw (Exception)result;
             } else {
-                return new JmxProgressObject(((Integer)result).intValue(), server);
+                return new JmxProgressObject(((Integer)result).intValue(), server, CommandType.REDEPLOY);
             }
         } catch(UndeclaredThrowableException e) {
             throw new RemoteException("Server request failed", e.getCause());
@@ -174,7 +175,7 @@ public class JmxServerConnection implements ServerConnection {
             if(result instanceof Exception) {
                 throw (Exception)result;
             } else {
-                return new JmxProgressObject(((Integer)result).intValue(), server);
+                return new JmxProgressObject(((Integer)result).intValue(), server, CommandType.REDEPLOY);
             }
         } catch(UndeclaredThrowableException e) {
             throw new RemoteException("Server request failed", e.getCause());
@@ -190,7 +191,7 @@ public class JmxServerConnection implements ServerConnection {
             if(result instanceof Exception) {
                 throw (Exception)result;
             } else {
-                return new JmxProgressObject(((Integer)result).intValue(), server);
+                return new JmxProgressObject(((Integer)result).intValue(), server, CommandType.START);
             }
         } catch(UndeclaredThrowableException e) {
             throw new RemoteException("Server request failed", e.getCause());
@@ -206,7 +207,7 @@ public class JmxServerConnection implements ServerConnection {
             if(result instanceof Exception) {
                 throw (Exception)result;
             } else {
-                return new JmxProgressObject(((Integer)result).intValue(), server);
+                return new JmxProgressObject(((Integer)result).intValue(), server, CommandType.STOP);
             }
         } catch(UndeclaredThrowableException e) {
             throw new RemoteException("Server request failed", e.getCause());
@@ -222,7 +223,7 @@ public class JmxServerConnection implements ServerConnection {
             if(result instanceof Exception) {
                 throw (Exception)result;
             } else {
-                return new JmxProgressObject(((Integer)result).intValue(), server);
+                return new JmxProgressObject(((Integer)result).intValue(), server, CommandType.UNDEPLOY);
             }
         } catch(UndeclaredThrowableException e) {
             throw new RemoteException("Server request failed", e.getCause());

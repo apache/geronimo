@@ -65,26 +65,25 @@ import org.apache.geronimo.console.cli.DeploymentContext;
 /**
  * Watch the progress of a long-running operation.
  *
- * @version $Revision: 1.1 $ $Date: 2003/10/19 01:56:14 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/22 20:08:54 $
  */
 public class ProgressMonitor extends TextController implements ProgressListener {
     private ProgressObject progress;
+    private boolean started = false;
 
     public ProgressMonitor(DeploymentContext context, ProgressObject progress) {
         super(context);
         this.progress = progress;
+        progress.addProgressListener(this);
     }
 
     public void execute() {
-        println("Monitoring the progress of a "+progress.getDeploymentStatus().getCommand()+" operation.");
-        println("This operation can"+(progress.isCancelSupported() ? "" : "not")+" be canceled");
-        println("This operation can"+(progress.isStopSupported() ? "" : "not")+" be stopped");
         initialize(); //todo: allow cancel/stop
     }
 
     private synchronized void initialize() {
         if(!progress.getDeploymentStatus().isRunning()) {
-            println("--"+progress.getDeploymentStatus().getMessage());
+            message("--"+progress.getDeploymentStatus().getMessage());
             printCompletion();
             return;
         } else {
@@ -92,14 +91,30 @@ public class ProgressMonitor extends TextController implements ProgressListener 
                 wait();
             } catch(InterruptedException e) {
             }
+            printCompletion();
         }
     }
 
     public synchronized void handleProgressEvent(ProgressEvent event) {
-        println("--"+event.getDeploymentStatus().getMessage());
+        message("--"+event.getDeploymentStatus().getMessage());
         if(!event.getDeploymentStatus().isRunning()) {
             notifyAll();
         }
+    }
+
+    private void printBanner() {
+        newScreen("Progress Monitor");
+        println("Monitoring the progress of a "+progress.getDeploymentStatus().getCommand()+" operation.");
+        println("This operation can"+(progress.isCancelSupported() ? "" : "not")+" be canceled");
+        println("This operation can"+(progress.isStopSupported() ? "" : "not")+" be stopped");
+    }
+
+    private void message(String message) {
+        if(!started) {
+            printBanner();
+            started = true;
+        }
+        println(message);
     }
 
     private void printCompletion() {

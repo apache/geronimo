@@ -58,6 +58,11 @@ package org.apache.geronimo.enterprise.deploy.server;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.List;
+import java.rmi.server.RemoteObject;
+import java.rmi.Remote;
+import java.io.Serializable;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 import javax.enterprise.deploy.spi.status.DeploymentStatus;
 import javax.enterprise.deploy.spi.status.ClientConfiguration;
@@ -86,23 +91,24 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 /**
  * A ProgressObject implementation that listens for JMX notifications
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/17 20:31:07 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/22 20:08:54 $
  */
 public class JmxProgressObject implements ProgressObject {
     private final static Log log = LogFactory.getLog(JmxProgressObject.class);
     private final static ObjectName CONTROLLER = JMXUtil.getObjectName("geronimo.deployment:role=DeploymentController");
     private int jobID;
     private MBeanServer server;
-    private JobDeploymentStatus status = new JobDeploymentStatus();
+    private JobDeploymentStatus status;
     private EventListenerList listenerList = new EventListenerList();
     private NotificationListener listener;
-//todo: this class is just a beginning
-    public JmxProgressObject(int jobID, MBeanServer server) {
+
+    public JmxProgressObject(int jobID, MBeanServer server, CommandType command) {
+        status = new JobDeploymentStatus(command);
         this.jobID = jobID;
         this.server = server;
         try {
             server.addNotificationListener(CONTROLLER, listener = new PONotificationListener(),
-                    new PONotificationFilter(),null);
+                    new PONotificationFilter(jobID),null);
             server.invoke(CONTROLLER, "startDeploymentJob", new Object[]{new Integer(jobID)}, new String[]{Integer.TYPE.toString()});
         } catch(InstanceNotFoundException e) {
             throw new RuntimeException("ProgressObject unable to register with server");
@@ -129,7 +135,7 @@ public class JmxProgressObject implements ProgressObject {
      * @return a list of TargetModuleIDs.
      */
     public TargetModuleID[] getResultTargetModuleIDs() {
-        return new TargetModuleID[0]; //todo: how can we generate this list?
+        return status.getCompletedModules();
     }
 
     /**
@@ -221,7 +227,12 @@ public class JmxProgressObject implements ProgressObject {
                 // Lazily create the event:
                 if (event == null)
                     event = new ProgressEvent(this, tmid, status);
-                ((ProgressListener)listeners[i+1]).handleProgressEvent(event);
+                try {
+                    ((ProgressListener)listeners[i+1]).handleProgressEvent(event);
+                } catch(Throwable t) {
+                    log.error("Exception caught from event listener; removing listener.", t);
+                    removeProgressListener((ProgressListener)listeners[i+1]);
+                }
             }
         }
     }
@@ -230,9 +241,12 @@ public class JmxProgressObject implements ProgressObject {
         private JobDeploymentStatus parent;
         private String message;
         private StateType stateType;
+        private CommandType command;
+        private ActionType action = ActionType.EXECUTE;
 
         public TMDeploymentStatus(JobDeploymentStatus parent) {
             this.parent = parent;
+            command = parent.getCommand();
         }
 
         /**
@@ -254,7 +268,7 @@ public class JmxProgressObject implements ProgressObject {
          * @return the CommandType Object
          */
         public CommandType getCommand() {
-            return null;
+            return command;
         }
 
         /**
@@ -263,7 +277,7 @@ public class JmxProgressObject implements ProgressObject {
          * @return the ActionType Object
          */
         public ActionType getAction() {
-            return null;
+            return action;
         }
 
         /**
@@ -286,7 +300,7 @@ public class JmxProgressObject implements ProgressObject {
          * @return <tt>true</tt> if this command has completed successfully
          */
         public boolean isCompleted() {
-            return false;
+            return stateType == StateType.COMPLETED;
         }
 
         /**
@@ -295,7 +309,7 @@ public class JmxProgressObject implements ProgressObject {
          * @return <tt>true</tt> if this command has failed
          */
         public boolean isFailed() {
-            return false;
+            return stateType == StateType.FAILED;
         }
 
         /**
@@ -304,7 +318,7 @@ public class JmxProgressObject implements ProgressObject {
          * @return <tt>true</tt> if this command is still running
          */
         public boolean isRunning() {
-            return false;
+            return stateType == StateType.RUNNING;
         }
     }
 
@@ -313,6 +327,12 @@ public class JmxProgressObject implements ProgressObject {
         private Map tms = new HashMap();
         private StateType stateType = StateType.RUNNING;
         private boolean failed = false;
+        private CommandType command;
+        private ActionType action = ActionType.EXECUTE;
+
+        public JobDeploymentStatus(CommandType command) {
+            this.command = command;
+        }
 
         public TMDeploymentStatus getTargetModule(TargetModuleID id) {
             TMDeploymentStatus tm = (TMDeploymentStatus)tms.get(id);
@@ -324,7 +344,7 @@ public class JmxProgressObject implements ProgressObject {
         }
 
         public TMDeploymentStatus closeTargetModule(TargetModuleID id, boolean success, String message) {
-            TMDeploymentStatus tm = (TMDeploymentStatus)tms.get(id);
+            TMDeploymentStatus tm = getTargetModule(id);
             if(tm != null) {
                 tm.setMessage(message);
                 tm.setStateType(success ? StateType.COMPLETED : StateType.FAILED);
@@ -346,6 +366,18 @@ public class JmxProgressObject implements ProgressObject {
             return tm;
         }
 
+        public TargetModuleID[] getCompletedModules() {
+            List list = new ArrayList();
+            for(Iterator it = tms.keySet().iterator(); it.hasNext();) {
+                TargetModuleID id = (TargetModuleID)it.next();
+                TMDeploymentStatus status = (TMDeploymentStatus)tms.get(id);
+                if(status.isCompleted()) {
+                    list.add(id);
+                }
+            }
+            return (TargetModuleID[])list.toArray(new TargetModuleID[list.size()]);
+        }
+
         /**
          * Retrieve the StateType value.
          *
@@ -361,7 +393,7 @@ public class JmxProgressObject implements ProgressObject {
          * @return the CommandType Object
          */
         public CommandType getCommand() {
-            return null;
+            return command;
         }
 
         /**
@@ -370,7 +402,7 @@ public class JmxProgressObject implements ProgressObject {
          * @return the ActionType Object
          */
         public ActionType getAction() {
-            return null;
+            return action;
         }
 
         /**
@@ -392,7 +424,7 @@ public class JmxProgressObject implements ProgressObject {
          * @return <tt>true</tt> if this command has completed successfully
          */
         public boolean isCompleted() {
-            return false;
+            return stateType == StateType.COMPLETED;
         }
 
         /**
@@ -401,7 +433,7 @@ public class JmxProgressObject implements ProgressObject {
          * @return <tt>true</tt> if this command has failed
          */
         public boolean isFailed() {
-            return false;
+            return stateType == StateType.FAILED;
         }
 
         /**
@@ -410,11 +442,11 @@ public class JmxProgressObject implements ProgressObject {
          * @return <tt>true</tt> if this command is still running
          */
         public boolean isRunning() {
-            return false;
+            return stateType == StateType.RUNNING;
         }
     }
 
-    private class PONotificationListener implements NotificationListener {
+    private class PONotificationListener extends RemoteObject implements NotificationListener, Remote {
         /**
          * Called when a notification occurs.
          *
@@ -449,7 +481,13 @@ public class JmxProgressObject implements ProgressObject {
         }
     }
 
-    private static class PONotificationFilter implements NotificationFilter {
+    private static class PONotificationFilter implements NotificationFilter, Serializable {
+        private int jobID;
+
+        public PONotificationFilter(int jobID) {
+            this.jobID = jobID;
+        }
+
         /**
          * Invoked before sending the <code>Notification</code> to the listener.
          *
@@ -457,9 +495,13 @@ public class JmxProgressObject implements ProgressObject {
          *
          */
         public boolean isNotificationEnabled(Notification notification) {
-            return notification.getType().equals(DeploymentNotification.DEPLOYMENT_COMPLETED) ||
+            boolean result = notification.getType().equals(DeploymentNotification.DEPLOYMENT_COMPLETED) ||
                     notification.getType().equals(DeploymentNotification.DEPLOYMENT_FAILED) ||
                     notification.getType().equals(DeploymentNotification.DEPLOYMENT_UPDATE);
+            if(result) {
+                result = ((DeploymentNotification)notification).getDeploymentID() == jobID;
+            }
+            return result;
         }
     }
 }
