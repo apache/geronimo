@@ -17,12 +17,15 @@
 
 package org.apache.geronimo.remoting.jmx;
 
+import javax.management.ObjectName;
+
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.jmx.GBeanMBeanContext;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.proxy.ProxyContainer;
 import org.apache.geronimo.proxy.ReflexiveInterceptor;
 import org.apache.geronimo.remoting.DeMarshalingInterceptor;
@@ -31,14 +34,19 @@ import org.apache.geronimo.remoting.router.JMXTarget;
 
 
 /**
- * @version $Revision: 1.13 $ $Date: 2004/06/02 05:33:04 $
+ * @version $Revision: 1.14 $ $Date: 2004/06/04 22:31:56 $
  */
 public class MBeanServerStub implements GBean, JMXTarget {
+    private final Kernel kernel;
+    private final ObjectName objectName;
     private ProxyContainer serverContainer;
     private DeMarshalingInterceptor demarshaller;
-    private GBeanMBeanContext context;
     private JMXRouter router;
 
+    public MBeanServerStub(Kernel kernel, String objectName) {
+        this.kernel = kernel;
+        this.objectName = JMXUtil.getObjectName(objectName);
+    }
 
     public Interceptor getRemotingEndpointInterceptor() {
         return demarshaller;
@@ -53,20 +61,19 @@ public class MBeanServerStub implements GBean, JMXTarget {
     }
 
     public void setGBeanContext(GBeanContext context) {
-        this.context = (GBeanMBeanContext) context;
     }
 
     public void doStart() {
-        router.register(context.getObjectName(), this);
+        router.register(objectName, this);
 
         // Setup the server side contianer..
-        Interceptor firstInterceptor = new ReflexiveInterceptor(context.getServer());
+        Interceptor firstInterceptor = new ReflexiveInterceptor(kernel.getMBeanServer());
         demarshaller = new DeMarshalingInterceptor(firstInterceptor, getClass().getClassLoader());
         serverContainer = new ProxyContainer(firstInterceptor);
     }
 
     public void doStop() {
-        router.unRegister(context.getObjectName());
+        router.unregister(objectName);
         serverContainer = null;
         demarshaller = null;
     }
@@ -80,8 +87,11 @@ public class MBeanServerStub implements GBean, JMXTarget {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(MBeanServerStub.class);
+        infoFactory.addAttribute("kernel", Kernel.class, false);
+        infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addOperation("getRemotingEndpointInterceptor");
         infoFactory.addReference("Router", JMXRouter.class);
+        infoFactory.setConstructor(new String[]{"kernel", "objectName"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

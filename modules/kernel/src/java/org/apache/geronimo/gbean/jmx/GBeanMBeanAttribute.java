@@ -31,7 +31,7 @@ import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.kernel.ClassLoading;
 
 /**
- * @version $Revision: 1.14 $ $Date: 2004/06/03 15:27:28 $
+ * @version $Revision: 1.15 $ $Date: 2004/06/04 22:31:56 $
  */
 public class GBeanMBeanAttribute {
     private static final Log log = LogFactory.getLog(GBeanMBeanAttribute.class);
@@ -58,13 +58,69 @@ public class GBeanMBeanAttribute {
 
     private Object persistentValue;
 
-    public GBeanMBeanAttribute(GBeanMBean gmbean, String name, Class type, MethodInvoker getInvoker, MethodInvoker setInvoker) {
+    /**
+     * Is this a special attribute like objectName, classLoader or gbeanContext?
+     * Special attributes are injected at startup just like persistent attrubutes, but are
+     * otherwise unmodifiable.
+     */
+    private final boolean special;
+
+    GBeanMBeanAttribute(GBeanMBeanAttribute attribute, GBeanMBean gmbean, String name, Class type, MethodInvoker getInvoker) {
+        if (gmbean == null || name == null || type == null) {
+            throw new IllegalArgumentException("null param(s) supplied");
+        }
+
+        // if we have an attribute verify the gmbean, namd and types match
+        if (attribute != null) {
+            assert (gmbean == attribute.gmbean);
+            assert (name.equals(attribute.name));
+            if (type != attribute.type) {
+                throw new InvalidConfigurationException("Special attribute " + name +
+                        " must have the type " + type.getName() + ", but is " +
+                        attribute.type.getName() + ": targetClass=" + gmbean.getType().getName());
+            }
+            if (attribute.isPersistent()) {
+                throw new InvalidConfigurationException("Special attributes must not be persistent:" +
+                        " name=" + name + ", targetClass=" + gmbean.getType().getName());
+            }
+        }
+
+        this.gmbean = gmbean;
+        this.name = name;
+        this.type = type;
+        if (getInvoker != null) {
+            this.getInvoker = getInvoker;
+        } else if (attribute != null) {
+            this.getInvoker = attribute.getInvoker;
+        } else {
+            this.getInvoker = null;
+        }
+        this.readable = (this.getInvoker != null);
+        this.writable = false;
+        if (attribute != null) {
+            this.setInvoker = attribute.setInvoker;
+            this.isConstructorArg = attribute.isConstructorArg;
+        } else {
+            this.setInvoker = null;
+            this.isConstructorArg = false;
+        }
+        this.persistent = false;
+        this.special = true;
+        if (this.getInvoker == null) {
+            this.mbeanAttributeInfo = null;
+        } else {
+            this.mbeanAttributeInfo = new MBeanAttributeInfo(name, type.getName(), null, readable, writable, type == Boolean.TYPE);
+        }
+    }
+
+
+    GBeanMBeanAttribute(GBeanMBean gmbean, String name, Class type, MethodInvoker getInvoker, MethodInvoker setInvoker) {
         if (gmbean == null || name == null || type == null) {
             throw new IllegalArgumentException("null param(s) supplied");
         }
         if (getInvoker == null && setInvoker == null) {
             throw new InvalidConfigurationException("An attribute must be readable, writable, or persistent: +"
-                    + " name=" + name + " targetClass=" + gmbean.getType().getName());
+                    + " name=" + name + ", targetClass=" + gmbean.getType().getName());
         }
         this.gmbean = gmbean;
         this.name = name;
@@ -80,6 +136,7 @@ public class GBeanMBeanAttribute {
         } else {
             this.mbeanAttributeInfo = new MBeanAttributeInfo(name, type.getName(), null, readable, writable, type == Boolean.TYPE);
         }
+        special = false;
     }
 
     public GBeanMBeanAttribute(GBeanMBean gmbean, GAttributeInfo attributeInfo) throws InvalidConfigurationException {
@@ -179,6 +236,7 @@ public class GBeanMBeanAttribute {
                 persistentValue = new Double(0);
             }
         }
+        special = false;
     }
 
     public String getName() {
@@ -208,7 +266,7 @@ public class GBeanMBeanAttribute {
     public void online() throws Exception {
         // if this is a persistent attirubte and was not set via a constructor
         // set the value into the gbean
-        if (persistent && !isConstructorArg && setInvoker != null) {
+        if ((persistent || special) && !isConstructorArg && setInvoker != null) {
             try {
                 assert gmbean.getTarget() != null : "online() invoked, however the corresponding GBeanMBean is " +
                         "not fully initialized (perhaps online() has been called directly instead by a Kernel)";
@@ -238,7 +296,7 @@ public class GBeanMBeanAttribute {
 
     public Object getValue() throws ReflectionException {
         if (gmbean.isOffline()) {
-            if (persistent) {
+            if (persistent || special) {
                 return persistentValue;
             } else {
                 throw new IllegalStateException("Only persistent attributes can be accessed while offline");
@@ -262,7 +320,7 @@ public class GBeanMBeanAttribute {
 
     public void setValue(Object value) throws ReflectionException {
         if (gmbean.isOffline()) {
-            if (persistent) {
+            if (persistent || special) {
                 if (value == null && type.isPrimitive()) {
                     throw new IllegalArgumentException("Cannot assign null to a primitive attribute:" +
                             " name=" + name +
@@ -370,7 +428,7 @@ public class GBeanMBeanAttribute {
         } else {
             // we have an explicit name, so no searching is necessary
             try {
-                Method method = gMBean.getType().getMethod(attributeInfo.getSetterName(), new Class[] {type});
+                Method method = gMBean.getType().getMethod(attributeInfo.getSetterName(), new Class[]{type});
                 if (method.getReturnType() != Void.TYPE) {
                     throw new InvalidConfigurationException("Setter method must return VOID:" +
                             " name=" + attributeInfo.getName() +

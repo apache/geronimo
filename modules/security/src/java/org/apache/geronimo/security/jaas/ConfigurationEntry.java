@@ -18,7 +18,6 @@
 package org.apache.geronimo.security.jaas;
 
 import java.util.Properties;
-import javax.management.MBeanServer;
 import javax.security.auth.login.AppConfigurationEntry;
 
 import org.apache.geronimo.gbean.GBean;
@@ -27,6 +26,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.gbean.jmx.GBeanMBeanContext;
+import org.apache.geronimo.kernel.Kernel;
 
 
 /**
@@ -40,15 +40,20 @@ import org.apache.geronimo.gbean.jmx.GBeanMBeanContext;
  * <p>More specifically, you can only use this method or Sun's JAAS config
  * file.
  *
- * @version $Revision: 1.7 $ $Date: 2004/06/02 05:33:04 $
+ * @version $Revision: 1.8 $ $Date: 2004/06/04 22:31:56 $
  * @see org.apache.geronimo.security.jaas.GeronimoLoginConfiguration
  * @see javax.security.auth.login.Configuration
  */
 public abstract class ConfigurationEntry implements GBean {
+    protected final Kernel kernel;
     protected GBeanMBeanContext context;
     protected String applicationConfigName;
     protected LoginModuleControlFlag controlFlag;
     protected Properties options = new Properties();
+
+    protected ConfigurationEntry(Kernel kernel) {
+        this.kernel = kernel;
+    }
 
     /**
      * Get the JAAS config id for this configuration entry.
@@ -85,11 +90,6 @@ public abstract class ConfigurationEntry implements GBean {
     }
 
     public void setGBeanContext(GBeanContext context) {
-        this.context = (GBeanMBeanContext) context;
-    }
-
-    public MBeanServer getMBeanServer() {
-        return context.getServer();
     }
 
     public abstract AppConfigurationEntry[] getAppConfigurationEntry();
@@ -109,10 +109,11 @@ public abstract class ConfigurationEntry implements GBean {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(ConfigurationEntry.class);
+        infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("ApplicationConfigName", String.class, true);
         infoFactory.addAttribute("ControlFlag", LoginModuleControlFlag.class, true);
         infoFactory.addAttribute("Options", Properties.class, true);
-
+        infoFactory.setConstructor(new String[]{"kernel"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

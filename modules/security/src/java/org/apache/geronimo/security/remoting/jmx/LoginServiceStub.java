@@ -17,12 +17,14 @@
 
 package org.apache.geronimo.security.remoting.jmx;
 
+import javax.management.ObjectName;
+
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.jmx.GBeanMBeanContext;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
 import org.apache.geronimo.proxy.ProxyContainer;
@@ -34,14 +36,19 @@ import org.apache.geronimo.security.jaas.LoginServiceMBean;
 
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/06/02 05:33:04 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/04 22:31:56 $
  */
 public class LoginServiceStub implements GBean, JMXTarget {
+    private final Kernel kernel;
+    private final ObjectName objectName;
     private ProxyContainer serverContainer;
     private DeMarshalingInterceptor demarshaller;
-    private GBeanMBeanContext context;
     private JMXRouter router;
 
+    public LoginServiceStub(Kernel kernel, String objectName) {
+        this.kernel = kernel;
+        this.objectName = JMXUtil.getObjectName(objectName);
+    }
 
     public Interceptor getRemotingEndpointInterceptor() {
         return demarshaller;
@@ -56,23 +63,22 @@ public class LoginServiceStub implements GBean, JMXTarget {
     }
 
     public void setGBeanContext(GBeanContext context) {
-        this.context = (GBeanMBeanContext) context;
     }
 
     public void doStart() throws Exception {
-        router.register(context.getObjectName(), this);
+        router.register(objectName, this);
 
         // Setup the server side contianer..
         LoginServiceMBean loginService = (LoginServiceMBean) MBeanProxyFactory.getProxy(LoginServiceMBean.class,
-                                                                                        context.getServer(),
-                                                                                        JMXUtil.getObjectName("geronimo.security:type=LoginService"));
+                kernel.getMBeanServer(),
+                JMXUtil.getObjectName("geronimo.security:type=LoginService"));
         Interceptor firstInterceptor = new ReflexiveInterceptor(loginService);
         demarshaller = new DeMarshalingInterceptor(firstInterceptor, getClass().getClassLoader());
         serverContainer = new ProxyContainer(firstInterceptor);
     }
 
     public void doStop() {
-        router.unRegister(context.getObjectName());
+        router.unregister(objectName);
 
         serverContainer = null;
         demarshaller = null;
@@ -87,8 +93,11 @@ public class LoginServiceStub implements GBean, JMXTarget {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(LoginServiceStub.class);
+        infoFactory.addAttribute("kernel", Kernel.class, false);
+        infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addReference("Router", JMXRouter.class);
         infoFactory.addOperation("getRemotingEndpointInterceptor");
+        infoFactory.setConstructor(new String[]{"kernel", "objectName"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

@@ -21,39 +21,32 @@ import java.util.Hashtable;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.jmx.GBeanMBeanContext;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/06/02 05:33:02 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/04 22:31:56 $
  */
-public class J2EEServerImpl implements GBean {
+public class J2EEServerImpl {
     private static final String SERVER_VENDOR = "The Apache Software Foundation";
+    private final Kernel kernel;
+    private final String baseName;
     private final ServerInfo serverInfo;
-    private GBeanContext context;
-    private String baseName;
 
-    public J2EEServerImpl(ServerInfo serverInfo) {
+    public J2EEServerImpl(Kernel kernel, String objectName, ServerInfo serverInfo) {
+        ObjectName myObjectName = JMXUtil.getObjectName(objectName);
+        verifyObjectName(myObjectName);
+
+        // build the base name used to query the server for child modules
+        Hashtable keyPropertyList = myObjectName.getKeyPropertyList();
+        String name = (String) keyPropertyList.get("name");
+        baseName = myObjectName.getDomain() + ":J2EEServer=" + name + ",";
+
+        this.kernel = kernel;
         this.serverInfo = serverInfo;
-    }
-
-    public void setGBeanContext(GBeanContext context) {
-        this.context = context;
-        if (context != null) {
-            ObjectName objectName = context.getObjectName();
-            verifyObjectName(objectName);
-
-            // build the base name used to query the server for child modules
-            Hashtable keyPropertyList = objectName.getKeyPropertyList();
-            String name = (String) keyPropertyList.get("name");
-            baseName = objectName.getDomain() + ":J2EEServer=" + name + ",";
-        } else {
-            baseName = null;
-        }
     }
 
     /**
@@ -78,31 +71,20 @@ public class J2EEServerImpl implements GBean {
     }
 
 
-    public void doStart() {
-    }
-
-    public void doStop() {
-    }
-
-    public void doFail() {
-    }
-
     public String[] getdeployedObjects() throws MalformedObjectNameException {
-        return Util.getObjectNames(((GBeanMBeanContext) context).getServer(),
+        return Util.getObjectNames(kernel,
                 baseName,
                 new String[]{"J2EEApplication", "AppClientModule", "EJBModule", "WebModule", "ResourceAdapterModule"});
     }
 
     public String[] getresources() throws MalformedObjectNameException {
-        return Util.getObjectNames(((GBeanMBeanContext) context).getServer(),
+        return Util.getObjectNames(kernel,
                 baseName,
                 new String[]{"JavaMailResource", "JCAConnectionFactory", "JDBCResource", "JDBCDriver", "JMSResource", "JNDIResource", "JTAResource", "RMI_IIOPResource", "URLResource"});
     }
 
     public String[] getjavaVMs() throws MalformedObjectNameException {
-        return Util.getObjectNames(((GBeanMBeanContext) context).getServer(),
-                baseName,
-                new String[]{"JVM"});
+        return Util.getObjectNames(kernel, baseName, new String[]{"JVM"});
     }
 
     public String getserverVendor() {
@@ -118,6 +100,8 @@ public class J2EEServerImpl implements GBean {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(J2EEServerImpl.class);
 
+        infoFactory.addAttribute("kernel", Kernel.class, false);
+        infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("deployedObjects", String[].class, false);
         infoFactory.addAttribute("resources", String[].class, false);
         infoFactory.addAttribute("javaVMs", String[].class, false);
@@ -126,7 +110,7 @@ public class J2EEServerImpl implements GBean {
 
         infoFactory.addReference("ServerInfo", ServerInfo.class);
 
-        infoFactory.setConstructor(new String[]{"ServerInfo"});
+        infoFactory.setConstructor(new String[]{"kernel", "objectName", "ServerInfo"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

@@ -22,15 +22,22 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 
+import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 
 /**
- * @version $Revision: 1.18 $ $Date: 2004/06/03 23:12:54 $
+ * @version $Revision: 1.19 $ $Date: 2004/06/04 22:31:56 $
  */
 public class MockGBean implements MockEndpoint {
 
     private static final GBeanInfo GBEAN_INFO;
+
+    private String objectName;
+
+    private ClassLoader classLoader;
+
+    private Kernel kernel;
 
     private final String name;
 
@@ -45,6 +52,7 @@ public class MockGBean implements MockEndpoint {
     private MockEndpoint endpoint;
 
     private Collection endpointCollection = Collections.EMPTY_SET;
+    private GBeanContext gbeanContext;
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
@@ -53,23 +61,30 @@ public class MockGBean implements MockEndpoint {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory("MockGBean", MockGBean.class);
         infoFactory.addAttribute("Name", String.class, true);
+        infoFactory.addAttribute("actualObjectName", String.class, false);
+        infoFactory.addAttribute("objectName", String.class, false);
+        infoFactory.addAttribute("gbeanContext", GBeanContext.class, false);
+        infoFactory.addAttribute("actualClassLoader", ClassLoader.class, false);
+        infoFactory.addAttribute("classLoader", ClassLoader.class, false);
+        infoFactory.addAttribute("actualKernel", Kernel.class, false);
+        infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("Value", String.class, true);
         infoFactory.addAttribute("FinalInt", Integer.TYPE, true);
         infoFactory.addAttribute("MutableInt", Integer.TYPE, false);
         infoFactory.addAttribute("ExceptionMutableInt", Integer.TYPE, true);
         infoFactory.addAttribute("EndpointMutableInt", Integer.TYPE, false);
 
-        infoFactory.addOperation("echo", new Class[] {String.class});
+        infoFactory.addOperation("echo", new Class[]{String.class});
         infoFactory.addOperation("checkEndpoint");
         infoFactory.addOperation("checkEndpointCollection");
-        infoFactory.addOperation("doSomething", new Class[] { String.class});
+        infoFactory.addOperation("doSomething", new Class[]{String.class});
 
-        infoFactory.addInterface(MockEndpoint.class, new String[] { "MutableInt"});
+        infoFactory.addInterface(MockEndpoint.class, new String[]{"MutableInt"});
 
         infoFactory.addReference("MockEndpoint", MockEndpoint.class);
         infoFactory.addReference("EndpointCollection", MockEndpoint.class);
 
-        infoFactory.setConstructor(new String[] { "Name", "FinalInt"});
+        infoFactory.setConstructor(new String[]{"Name", "FinalInt", "objectName", "classLoader", "gbeanContext", "kernel"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
@@ -77,6 +92,47 @@ public class MockGBean implements MockEndpoint {
     public MockGBean(String name, int finalInt) {
         this.name = name;
         this.finalInt = finalInt;
+    }
+
+    public MockGBean(String name, int finalInt, String objectName, ClassLoader classLoader, GBeanContext gbeanContext, Kernel kernel) {
+        this.name = name;
+        this.finalInt = finalInt;
+        this.objectName = objectName;
+        this.classLoader = classLoader;
+        this.gbeanContext = gbeanContext;
+        this.kernel = kernel;
+    }
+
+    public String getActualObjectName() {
+        return objectName;
+    }
+
+    public String getObjectName() {
+        return "FakePhonyName";
+    }
+
+    public ClassLoader getActualClassLoader() {
+        return classLoader;
+    }
+
+    public ClassLoader getClassLoader() {
+        return ClassLoader.getSystemClassLoader();
+    }
+
+    public GBeanContext getGBeanContext() {
+        return gbeanContext;
+    }
+
+    public Kernel getActualKernel() {
+        return kernel;
+    }
+
+    public Kernel getKernel() {
+        return new Kernel("blah424242");
+    }
+
+    public void setKernel(Kernel kernel) {
+        this.kernel = kernel;
     }
 
     public String getName() {
@@ -96,8 +152,6 @@ public class MockGBean implements MockEndpoint {
 
     /**
      * Note the wrong return type, instead of int type.
-     * 
-     * @return
      */
     public String getAnotherFinalInt() {
         return null;
@@ -105,16 +159,12 @@ public class MockGBean implements MockEndpoint {
 
     /**
      * Parameter ignored
-     * 
-     * @param ignored
      */
     public void setAnotherFinalInt(int ignored) {
     }
 
     /**
      * Only setter for YetAnotherFinalInt
-     * 
-     * @param ignored
      */
     public void setYetAnotherFinalInt(int ignored) {
     }
@@ -151,26 +201,25 @@ public class MockGBean implements MockEndpoint {
      * @see #setYetAnotherFinalInt(int)
      */
     public void setLongAsYetAnotherFinalInt(long yetAnotherFinalInt) {
-        setYetAnotherFinalInt((int)yetAnotherFinalInt);
+        setYetAnotherFinalInt((int) yetAnotherFinalInt);
     }
 
     /**
      * @see #setYetAnotherFinalInt(int)
      */
     public void setFloatAsYetAnotherFinalInt(float yetAnotherFinalInt) {
-        setYetAnotherFinalInt((int)yetAnotherFinalInt);
+        setYetAnotherFinalInt((int) yetAnotherFinalInt);
     }
 
     /**
      * @see #setYetAnotherFinalInt(int)
      */
     public void setDoubleAsYetAnotherFinalInt(double yetAnotherFinalInt) {
-        setYetAnotherFinalInt((int)yetAnotherFinalInt);
+        setYetAnotherFinalInt((int) yetAnotherFinalInt);
     }
 
     /**
      * Getter that returns nothing
-     *  
      */
     public void getVoidGetterOfFinalInt() {
     }

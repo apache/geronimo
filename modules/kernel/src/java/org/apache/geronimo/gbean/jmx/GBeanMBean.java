@@ -46,12 +46,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBean;
+import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.GOperationSignature;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.management.NotificationType;
 
 /**
@@ -60,7 +62,7 @@ import org.apache.geronimo.kernel.management.NotificationType;
  * {@link GBeanInfo} instance.  The GBeanMBean also supports caching of attribute values and invocation results
  * which can reduce the number of calls to a target.
  *
- * @version $Revision: 1.20 $ $Date: 2004/06/03 15:27:28 $
+ * @version $Revision: 1.21 $ $Date: 2004/06/04 22:31:56 $
  */
 public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     /**
@@ -70,6 +72,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
 
     private static final Log log = LogFactory.getLog(GBeanMBean.class);
     private final Constructor constructor;
+    private GBeanMBeanContext gbeanContext;
 
     /**
      * Gets the context class loader from the thread or the system class loader if there is no context class loader.
@@ -161,10 +164,11 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
 
     /**
      * Constructa a GBeanMBean using the supplied gbeanInfo and class loader
+     *
      * @param gbeanInfo the metadata describing the attributes, operations, constructor and references of the gbean
      * @param classLoader the class loader used to load the gbean instance and attribute/reference types
      * @throws InvalidConfigurationException if the gbeanInfo is inconsistent with the actual java classes, such as
-     *  mismatched attribute types
+     * mismatched attribute types
      */
     public GBeanMBean(GBeanInfo gbeanInfo, ClassLoader classLoader) throws InvalidConfigurationException {
         this.gbeanInfo = gbeanInfo;
@@ -191,13 +195,13 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
         }
 
         // attributes
-        Set attributesSet = new HashSet();
+        Map attributesMap = new HashMap();
         for (Iterator iterator = gbeanInfo.getAttributes().iterator(); iterator.hasNext();) {
             GAttributeInfo attributeInfo = (GAttributeInfo) iterator.next();
-            attributesSet.add(new GBeanMBeanAttribute(this, attributeInfo, constructorTypes.containsKey(attributeInfo.getName())));
+            attributesMap.put(attributeInfo.getName(), new GBeanMBeanAttribute(this, attributeInfo, constructorTypes.containsKey(attributeInfo.getName())));
         }
-        addManagedObjectAttributes(attributesSet);
-        attributes = (GBeanMBeanAttribute[]) attributesSet.toArray(new GBeanMBeanAttribute[attributesSet.size()]);
+        addManagedObjectAttributes(attributesMap);
+        attributes = (GBeanMBeanAttribute[]) attributesMap.values().toArray(new GBeanMBeanAttribute[attributesMap.size()]);
         for (int i = 0; i < attributes.length; i++) {
             attributeIndex.put(attributes[i].getName(), new Integer(i));
         }
@@ -323,6 +327,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
      * Is this a valid constructor for the GBean.  This is determined based on the argument types and
      * if an argument is a reference, as determined by the boolean array, the argument may also be
      * java.util.Collection or java.util.Set.
+     *
      * @param constructor the class constructor
      * @param argumentTypes types of the attributes and references
      * @param isReference if the argument is a gbean reference
@@ -346,12 +351,12 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
                 if (!parameterType.equals(argumentTypes[i]) &&
                         !parameterType.equals(Collection.class.getName()) &&
                         !parameterType.equals(Set.class.getName())) {
-                     return false;
+                    return false;
                 }
             } else {
                 // attribute: does type match?
                 if (!parameterType.equals(argumentTypes[i])) {
-                     return false;
+                    return false;
                 }
             }
         }
@@ -389,6 +394,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
 
     /**
      * Gets the name of the GBean as defined in the gbean info.
+     *
      * @return the gbean name
      */
     public String getName() {
@@ -398,6 +404,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     /**
      * The class loader used to build this gbean.  This class loader is set into the thread context
      * class loader before callint the target instace.
+     *
      * @return the class loader used to build this gbean
      */
     public ClassLoader getClassLoader() {
@@ -407,6 +414,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     /**
      * Is this gbean offline. An offline gbean is not registered with jmx and effectivly invisible
      * to external users.
+     *
      * @return true if the gbean is offline
      */
     public boolean isOffline() {
@@ -415,6 +423,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
 
     /**
      * The java type of the wrapped gbean instance
+     *
      * @return the java type of the gbean
      */
     public Class getType() {
@@ -429,6 +438,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     /**
      * Gets an unmodifiable map from attribute names to index number (Integer).  This index number
      * can be used to efficiently set or retrieve an attribute value.
+     *
      * @return an unmodifiable map of attribute indexes by name
      */
     public Map getAttributeIndex() {
@@ -438,6 +448,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     /**
      * Gets an unmodifiable map from operation signature (GOperationSignature) to index number (Integer).
      * This index number can be used to efficciently invoke the operation.
+     *
      * @return an unmodifiable map of operation indexec by signature
      */
     public Map getOperationIndex() {
@@ -446,6 +457,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
 
     /**
      * Gets the GBeanInfo used to build this gbean.
+     *
      * @return the GBeanInfo used to build this gbean
      */
     public GBeanInfo getGBeanInfo() {
@@ -454,6 +466,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
 
     /**
      * Gets the MBeanInfo equivilent of the GBeanInfo used to construct this gbean.
+     *
      * @return the MBeanInfo for this gbean
      */
     public MBeanInfo getMBeanInfo() {
@@ -462,6 +475,18 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
 
     public synchronized ObjectName preRegister(MBeanServer server, ObjectName objectName) throws Exception {
         ObjectName returnValue = super.preRegister(server, objectName);
+
+        gbeanContext = new GBeanMBeanContext(server, this, objectName);
+        setAttribute("objectName", getObjectName());
+        setAttribute("gbeanContext", gbeanContext);
+        setAttribute("classLoader", classLoader);
+        try {
+            String kernelName = (String) server.getAttribute(Kernel.KERNEL, "KernelName");
+            Kernel kernel = Kernel.getKernel(kernelName);
+            setAttribute("kernel", kernel);
+        } catch (Exception e) {
+            setAttribute("kernel", null);
+        }
 
         GConstructorInfo constructorInfo = gbeanInfo.getConstructor();
         Class[] parameterTypes = constructor.getParameterTypes();
@@ -517,6 +542,12 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
             }
         }
 
+        // set the gbean context
+        if (target instanceof GBean) {
+            GBean gbean = (GBean) target;
+            gbean.setGBeanContext(gbeanContext);
+        }
+
         return returnValue;
     }
 
@@ -525,15 +556,17 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
 
         if (registrationDone.booleanValue()) {
             // we're now offically on line
-            if (target instanceof GBean) {
-                GBean gbean = (GBean) target;
-                gbean.setGBeanContext(new GBeanMBeanContext(server, this, objectName));
-            }
             offline = false;
         } else {
             // we need to bring the reference back off line
             for (int i = 0; i < references.length; i++) {
                 references[i].offline();
+            }
+
+            gbeanContext = null;
+            if (target instanceof GBean) {
+                GBean gbean = (GBean) target;
+                gbean.setGBeanContext(null);
             }
 
             // well that didn't work, ditch the instance
@@ -552,6 +585,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
             references[i].offline();
         }
 
+        gbeanContext = null;
         if (target instanceof GBean) {
             GBean gbean = (GBean) target;
             gbean.setGBeanContext(null);
@@ -599,6 +633,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     /**
      * Gets the attribute value using the attribute index.  This is the most efficient way to get
      * an attribute as it avoids a HashMap lookup.
+     *
      * @param index the index of the attribute
      * @return the attribute value
      * @throws ReflectionException if a problem occurs while getting the value
@@ -612,6 +647,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     /**
      * Gets an attirubte's value by name.  This get style is less efficient becuse the attribute must
      * first be looked up in a HashMap.
+     *
      * @param attributeName the name of the attribute to retrieve
      * @return the attribute value
      * @throws ReflectionException if a problem occurs while getting the value
@@ -628,6 +664,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     /**
      * Sets the attribute value using the attribute index.  This is the most efficient way to set
      * an attribute as it avoids a HashMap lookup.
+     *
      * @param index the index of the attribute
      * @param value the new value of attribute value
      * @throws ReflectionException if a problem occurs while setting the value
@@ -641,6 +678,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     /**
      * Sets an attirubte's value by name.  This set style is less efficient becuse the attribute must
      * first be looked up in a HashMap.
+     *
      * @param attributeName the name of the attribute to retrieve
      * @param value the new attribute value
      * @throws ReflectionException if a problem occurs while getting the value
@@ -654,6 +692,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     /**
      * Sets an attirubte's value by name.  This set style is generally very inefficient becuse the attribute object
      * is usually constructed first and the target attribute must be looked up in a HashMap.
+     *
      * @param attributeValue the attribute object, which contains a name and value
      * @throws ReflectionException if a problem occurs while getting the value
      * @throws AttributeNotFoundException if the attribute name is not found in the map
@@ -667,6 +706,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
      * Gets several attirubte values by name.  This set style is very inefficient becuse each attribute implementation
      * must be looked up in a HashMap by name and each value must be wrapped in an Attribute object and that requires
      * lots of object creation.  Further, any exceptions are not seen by the caller.
+     *
      * @param attributes the attribute objects, which contains a name and value
      */
     public AttributeList getAttributes(String[] attributes) {
@@ -687,6 +727,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
      * Sets several attirubte values by name.  This set style is generally very inefficient becuse each attribute object
      * is usually constructed first and the target attribute must be looked up in a HashMap.  Further
      * any exception are not seen by the caller.
+     *
      * @param attributes the attribute objects, which contains a name and value
      */
     public AttributeList setAttributes(AttributeList attributes) {
@@ -721,6 +762,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
      * Invokes an operation on the target gbean by method signature.  This style if invocation is
      * inefficient, because the target method must be looked up in a hashmap using a freshly constructed
      * GOperationSignature object.
+     *
      * @param operationName the name of the operation to invoke
      * @param arguments arguments to the operation
      * @param types types of the operation arguemtns
@@ -739,6 +781,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
 
     /**
      * Gets the object name patters for a reference.
+     *
      * @param name the reference name
      * @return the object name patterns for the reference
      */
@@ -748,6 +791,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
 
     /**
      * Sets the object name patterns for a reference.
+     *
      * @param name the reference name
      * @param patterns the new object name patterns for the reference
      */
@@ -768,77 +812,111 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
         return mbeanInfo.getNotifications();
     }
 
-    private void addManagedObjectAttributes(Set attributesSet) {
-        attributesSet.add(new GBeanMBeanAttribute(this,
-                RAW_INVOKER,
-                RawInvoker.class,
-                new MethodInvoker() {
-                    public Object invoke(Object target, Object[] arguments) throws Exception {
-                        return rawInvoker;
-                    }
-                },
-                null));
+    private void addManagedObjectAttributes(Map attributesMap) {
+        //
+        //  Special attributes
+        //
+        attributesMap.put("objectName",
+                new GBeanMBeanAttribute((GBeanMBeanAttribute) attributesMap.get("objectName"),
+                        this,
+                        "objectName",
+                        String.class,
+                        new MethodInvoker() {
+                            public Object invoke(Object target, Object[] arguments) throws Exception {
+                                return getObjectName();
+                            }
+                        }));
 
-        attributesSet.add(new GBeanMBeanAttribute(this,
-                "state",
-                Integer.TYPE,
-                new MethodInvoker() {
-                    public Object invoke(Object target, Object[] arguments) throws Exception {
-                        return new Integer(getState());
-                    }
-                },
-                null));
+        attributesMap.put("classLoader",
+                new GBeanMBeanAttribute((GBeanMBeanAttribute) attributesMap.get("classLoader"),
+                        this,
+                        "classLoader",
+                        ClassLoader.class,
+                        null));
 
-        attributesSet.add(new GBeanMBeanAttribute(this,
-                "objectName",
-                String.class,
-                new MethodInvoker() {
-                    public Object invoke(Object target, Object[] arguments) throws Exception {
-                        return getObjectName();
-                    }
-                },
-                null));
+        attributesMap.put("gbeanContext",
+                new GBeanMBeanAttribute((GBeanMBeanAttribute) attributesMap.get("gbeanContext"),
+                        this,
+                        "gbeanContext",
+                        GBeanContext.class,
+                        null));
 
-        attributesSet.add(new GBeanMBeanAttribute(this,
-                "startTime",
-                Long.TYPE,
-                new MethodInvoker() {
-                    public Object invoke(Object target, Object[] arguments) throws Exception {
-                        return new Long(getStartTime());
-                    }
-                },
-                null));
+        attributesMap.put("kernel",
+                new GBeanMBeanAttribute((GBeanMBeanAttribute) attributesMap.get("kernel"),
+                        this,
+                        "kernel",
+                        Kernel.class,
+                        null));
 
-        attributesSet.add(new GBeanMBeanAttribute(this,
-                "stateManageable",
-                Boolean.TYPE,
-                new MethodInvoker() {
-                    public Object invoke(Object target, Object[] arguments) throws Exception {
-                        return new Boolean(isStateManageable());
-                    }
-                },
-                null));
+        attributesMap.put(RAW_INVOKER,
+                new GBeanMBeanAttribute(this,
+                        RAW_INVOKER,
+                        RawInvoker.class,
+                        new MethodInvoker() {
+                            public Object invoke(Object target, Object[] arguments) throws Exception {
+                                return rawInvoker;
+                            }
+                        },
+                        null));
 
-        attributesSet.add(new GBeanMBeanAttribute(this,
-                "statisticsProvider",
-                Boolean.TYPE,
-                new MethodInvoker() {
-                    public Object invoke(Object target, Object[] arguments) throws Exception {
-                        return new Boolean(isStatisticsProvider());
-                    }
-                },
-                null));
+        //
+        // Normal attributes
+        //
+        attributesMap.put("state",
+                new GBeanMBeanAttribute(this,
+                        "state",
+                        Integer.TYPE,
+                        new MethodInvoker() {
+                            public Object invoke(Object target, Object[] arguments) throws Exception {
+                                return new Integer(getState());
+                            }
+                        },
+                        null));
+
+        attributesMap.put("startTime",
+                new GBeanMBeanAttribute(this,
+                        "startTime",
+                        Long.TYPE,
+                        new MethodInvoker() {
+                            public Object invoke(Object target, Object[] arguments) throws Exception {
+                                return new Long(getStartTime());
+                            }
+                        },
+                        null));
+
+        attributesMap.put("stateManageable",
+                new GBeanMBeanAttribute(this,
+                        "stateManageable",
+                        Boolean.TYPE,
+                        new MethodInvoker() {
+                            public Object invoke(Object target, Object[] arguments) throws Exception {
+                                return new Boolean(isStateManageable());
+                            }
+                        },
+                        null));
+
+        attributesMap.put("statisticsProvider",
+                new GBeanMBeanAttribute(this,
+                        "statisticsProvider",
+                        Boolean.TYPE,
+                        new MethodInvoker() {
+                            public Object invoke(Object target, Object[] arguments) throws Exception {
+                                return new Boolean(isStatisticsProvider());
+                            }
+                        },
+                        null));
 
 
-        attributesSet.add(new GBeanMBeanAttribute(this,
-                "eventProvider",
-                Boolean.TYPE,
-                new MethodInvoker() {
-                    public Object invoke(Object target, Object[] arguments) throws Exception {
-                        return new Boolean(isEventProvider());
-                    }
-                },
-                null));
+        attributesMap.put("eventProvider",
+                new GBeanMBeanAttribute(this,
+                        "eventProvider",
+                        Boolean.TYPE,
+                        new MethodInvoker() {
+                            public Object invoke(Object target, Object[] arguments) throws Exception {
+                                return new Boolean(isEventProvider());
+                            }
+                        },
+                        null));
     }
 
     private void addManagedObjectOperations(Set operationsSet) {

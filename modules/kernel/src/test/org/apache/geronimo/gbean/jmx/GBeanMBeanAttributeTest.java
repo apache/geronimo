@@ -28,7 +28,7 @@ import org.apache.geronimo.kernel.MockDynamicGBean;
 import org.apache.geronimo.kernel.MockGBean;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/06/02 05:33:03 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/04 22:31:56 $
  */
 public class GBeanMBeanAttributeTest extends TestCase {
 
@@ -37,6 +37,7 @@ public class GBeanMBeanAttributeTest extends TestCase {
     private static final String persistentPrimitiveAttributeName = "MutableInt";
 
     private static ObjectName name;
+
     static {
         try {
             name = new ObjectName("test:name=MyMockGBean");
@@ -59,11 +60,11 @@ public class GBeanMBeanAttributeTest extends TestCase {
     private MethodInvoker setInvoker = null;
 
     private GAttributeInfo persistentPrimitiveAttributeInfo = null, attributeInfo = null,
-            throwingExceptionAttributeInfo = null;
+    throwingExceptionAttributeInfo = null;
 
     public final void testGBeanMBeanAttributeGBeanMBeanStringClassMethodInvokerMethodInvoker() {
         try {
-            new GBeanMBeanAttribute(null, null, null, null, null);
+            new GBeanMBeanAttribute((GBeanMBean) null, null, null, null, null);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException expected) {
         }
@@ -396,8 +397,7 @@ public class GBeanMBeanAttributeTest extends TestCase {
         }
 
         {
-            final DynamicGAttributeInfo dynamicAttributeInfo = new DynamicGAttributeInfo(
-                    MockDynamicGBean.MUTABLE_INT_ATTRIBUTE_NAME, true, true, true);
+            final DynamicGAttributeInfo dynamicAttributeInfo = new DynamicGAttributeInfo(MockDynamicGBean.MUTABLE_INT_ATTRIBUTE_NAME, true, true, true);
             GBeanMBeanAttribute attribute = new GBeanMBeanAttribute(dynamicGmbean, dynamicAttributeInfo);
             final ObjectName name = new ObjectName("test:name=MyMockDynamicGBean");
 

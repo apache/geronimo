@@ -21,6 +21,7 @@ import javax.security.auth.login.AppConfigurationEntry;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.kernel.Kernel;
 
 
 /**
@@ -34,12 +35,16 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
  * <p>More specifically, you can only use this method or Sun's JAAS config
  * file.
  *
- * @version $Revision: 1.4 $ $Date: 2004/06/02 05:33:04 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/04 22:31:56 $
  * @see org.apache.geronimo.security.jaas.GeronimoLoginConfiguration
  * @see javax.security.auth.login.Configuration
  */
 public class ConfigurationEntryLocal extends ConfigurationEntry {
     private String loginModuleName;
+
+    public ConfigurationEntryLocal(Kernel kernel) {
+        super(kernel);
+    }
 
     public String getLoginModuleName() {
         return loginModuleName;

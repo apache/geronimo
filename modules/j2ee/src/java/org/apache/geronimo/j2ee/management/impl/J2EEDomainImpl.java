@@ -21,28 +21,24 @@ import java.util.Hashtable;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.jmx.GBeanMBeanContext;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/06/02 05:33:02 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/04 22:31:56 $
  */
-public class J2EEDomainImpl implements GBean {
-    private GBeanContext context;
-    private String baseName;
+public class J2EEDomainImpl {
+    private final Kernel kernel;
+    private final String baseName;
 
-    public void setGBeanContext(GBeanContext context) {
-        this.context = context;
-        if (context != null) {
-            ObjectName objectName = context.getObjectName();
-            verifyObjectName(objectName);
-            baseName = objectName.getDomain() + ":";
-        } else {
-            baseName = null;
-        }
+    public J2EEDomainImpl(Kernel kernel, String objectName) {
+        ObjectName myObjectName = JMXUtil.getObjectName(objectName);
+        verifyObjectName(myObjectName);
+        baseName = myObjectName.getDomain() + ":";
+
+        this.kernel = kernel;
     }
 
     /**
@@ -66,18 +62,7 @@ public class J2EEDomainImpl implements GBean {
 
 
     public String[] getservers() throws MalformedObjectNameException {
-        return Util.getObjectNames(((GBeanMBeanContext) context).getServer(),
-                baseName,
-                new String[]{"J2EEServer"});
-    }
-
-    public void doStart() {
-    }
-
-    public void doStop() {
-    }
-
-    public void doFail() {
+        return Util.getObjectNames(kernel, baseName, new String[]{"J2EEServer"});
     }
 
     public static final GBeanInfo GBEAN_INFO;
@@ -85,7 +70,11 @@ public class J2EEDomainImpl implements GBean {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(J2EEDomainImpl.class);
 
+        infoFactory.addAttribute("kernel", Kernel.class, false);
+        infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("servers", String[].class, false);
+
+        infoFactory.setConstructor(new String[]{"kernel", "objectName"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

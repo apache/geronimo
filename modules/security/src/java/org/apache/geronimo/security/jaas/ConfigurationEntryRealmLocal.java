@@ -36,19 +36,15 @@ import org.apache.geronimo.kernel.Kernel;
  * <p>More specifically, you can only use this method or Sun's JAAS config
  * file.
  *
- * @version $Revision: 1.4 $ $Date: 2004/06/02 05:33:04 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/04 22:31:56 $
  * @see GeronimoLoginConfiguration
  * @see javax.security.auth.login.Configuration
  */
 public class ConfigurationEntryRealmLocal extends ConfigurationEntry {
     private String realmName;
 
-    public String getKernelName() {
-        try {
-            return (String) context.getServer().getAttribute(Kernel.KERNEL, "KernelName");
-        } catch (Exception e) {
-            return null;
-        }
+    public ConfigurationEntryRealmLocal(Kernel kernel) {
+        super(kernel);
     }
 
     public String getRealmName() {
@@ -63,8 +59,8 @@ public class ConfigurationEntryRealmLocal extends ConfigurationEntry {
         try {
             return new AppConfigurationEntry[]{
                 new AppConfigurationEntry("org.apache.geronimo.security.jaas.LocalLoginModule",
-                                          getControlFlag().getFlag(),
-                                          getOptions())};
+                        getControlFlag().getFlag(),
+                        getOptions())};
         } catch (Exception e) {
         }
         return null;
@@ -74,7 +70,7 @@ public class ConfigurationEntryRealmLocal extends ConfigurationEntry {
         super.doStart();
 
         options.put("realm", realmName);
-        options.put("kernel", getKernelName());
+        options.put("kernel", kernel.getKernelName());
     }
 
     public void doStop() throws WaitingException, Exception {
@@ -86,7 +82,6 @@ public class ConfigurationEntryRealmLocal extends ConfigurationEntry {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(ConfigurationEntryRealmLocal.class, ConfigurationEntry.GBEAN_INFO);
         infoFactory.addAttribute("RealmName", String.class, true);
-        infoFactory.addOperation("getKernelName");
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

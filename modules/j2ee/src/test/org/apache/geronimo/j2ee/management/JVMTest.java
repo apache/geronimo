@@ -18,21 +18,11 @@
 package org.apache.geronimo.j2ee.management;
 
 import java.net.InetAddress;
-import javax.management.ObjectName;
-import javax.management.MBeanServer;
 
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.j2ee.management.impl.JVMImpl;
-
-import junit.framework.TestCase;
 
 /**
- * 
- * 
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:52 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/04 22:31:56 $
  */
 public class JVMTest extends Abstract77Test {
     private JVM jvm;
@@ -41,14 +31,14 @@ public class JVMTest extends Abstract77Test {
     private Runtime runtime;
 
     public void testStandardInterface() {
-        assertEquals(JVM_NAME.toString(), jvm.getobjectName());
+        assertEquals(JVM_NAME.getCanonicalName(), jvm.getobjectName());
         assertEquals(System.getProperty("java.version"), jvm.getjavaVersion());
         assertEquals(System.getProperty("java.vendor"), jvm.getjavaVendor());
         assertEquals(node, jvm.getnode());
     }
 
     public void testStandardAttributes() throws Exception {
-        assertEquals(JVM_NAME.toString(), mbServer.getAttribute(JVM_NAME, "objectName"));
+        assertEquals(JVM_NAME.getCanonicalName(), mbServer.getAttribute(JVM_NAME, "objectName"));
         assertEquals(System.getProperty("java.version"), mbServer.getAttribute(JVM_NAME, "javaVersion"));
         assertEquals(System.getProperty("java.vendor"), mbServer.getAttribute(JVM_NAME, "javaVendor"));
         assertEquals(node, mbServer.getAttribute(JVM_NAME, "node"));

@@ -20,42 +20,34 @@ import java.util.Hashtable;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.gbean.jmx.GBeanMBeanContext;
 import org.apache.geronimo.j2ee.management.J2EEServer;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/06/02 05:33:02 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/04 22:31:56 $
  */
-public class J2EEApplicationImpl implements GBean {
-    private String deploymentDescriptor;
-    private String baseName;
-    private GBeanContext context;
-    private J2EEServer server;
+public class J2EEApplicationImpl {
+    private final String deploymentDescriptor;
+    private final String baseName;
+    private final Kernel kernel;
+    private final J2EEServer server;
 
-    public J2EEApplicationImpl(J2EEServer server, String deploymentDescriptor) {
+    public J2EEApplicationImpl(Kernel kernel, String objectName, J2EEServer server, String deploymentDescriptor) {
+        ObjectName myObjectName = JMXUtil.getObjectName(objectName);
+        verifyObjectName(myObjectName);
+
+        // build the base name used to query the server for child modules
+        Hashtable keyPropertyList = myObjectName.getKeyPropertyList();
+        String name = (String) keyPropertyList.get("name");
+        String j2eeServerName = (String) keyPropertyList.get("J2EEServer");
+        baseName = myObjectName.getDomain() + ":J2EEServer=" + j2eeServerName + ",J2EEApplication=" + name + ",";
+
+        this.kernel = kernel;
         this.server = server;
         this.deploymentDescriptor = deploymentDescriptor;
-    }
-
-    public void setGBeanContext(GBeanContext context) {
-        this.context = context;
-        if (context != null) {
-            ObjectName objectName = context.getObjectName();
-            verifyObjectName(objectName);
-
-            // build the base name used to query the server for child modules
-            Hashtable keyPropertyList = objectName.getKeyPropertyList();
-            String name = (String) keyPropertyList.get("name");
-            String j2eeServerName = (String) keyPropertyList.get("J2EEServer");
-            baseName = objectName.getDomain() + ":J2EEServer=" + j2eeServerName + ",J2EEApplication=" + name + ",";
-        } else {
-            baseName = null;
-        }
     }
 
     /**
@@ -82,17 +74,8 @@ public class J2EEApplicationImpl implements GBean {
         }
     }
 
-    public void doStart() throws WaitingException, Exception {
-    }
-
-    public void doStop() throws WaitingException, Exception {
-    }
-
-    public void doFail() {
-    }
-
     public String[] getmodules() throws MalformedObjectNameException {
-        return Util.getObjectNames(((GBeanMBeanContext) context).getServer(),
+        return Util.getObjectNames(kernel,
                 baseName,
                 new String[]{"AppClientModule", "EJBModule", "WebModule", "ResourceAdapterModule"});
     }
@@ -109,12 +92,18 @@ public class J2EEApplicationImpl implements GBean {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(J2EEApplicationImpl.class);
+        infoFactory.addAttribute("kernel", Kernel.class, false);
+        infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addReference("j2eeServer", J2EEServer.class);
         infoFactory.addAttribute("deploymentDescriptor", String.class, true);
         infoFactory.addAttribute("modules", String[].class, false);
 
-        infoFactory.setConstructor(new String[]{"j2eeServer", "deploymentDescriptor"});
-        
+        infoFactory.setConstructor(new String[]{
+            "kernel",
+            "objectName",
+            "j2eeServer",
+            "deploymentDescriptor"});
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

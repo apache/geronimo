@@ -20,20 +20,20 @@ package org.apache.geronimo.j2ee.management.impl;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
+import org.apache.geronimo.kernel.Kernel;
+
 /**
- * @version $Revision: 1.4 $ $Date: 2004/05/19 20:53:59 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/04 22:31:56 $
  */
 public class Util {
-    // todo: kernel should be expanded to support name queries like the mbean server does
-    public static String[] getObjectNames(MBeanServer server, Object parentName, String[] j2eeTypes) throws MalformedObjectNameException {
+    public static String[] getObjectNames(Kernel kernel, Object parentName, String[] j2eeTypes) throws MalformedObjectNameException {
         List objectNames = new LinkedList();
         for (int i = 0; i < j2eeTypes.length; i++) {
             String j2eeType = j2eeTypes[i];
-            objectNames.addAll(server.queryNames(new ObjectName(parentName + "j2eeType=" + j2eeType + ",*"), null));
+            objectNames.addAll(kernel.listGBeans(new ObjectName(parentName + "j2eeType=" + j2eeType + ",*")));
         }
         String[] names = new String[objectNames.size()];
         Iterator iterator = objectNames.iterator();

@@ -35,7 +35,7 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
  * <p/>
  * The MBean that will receive invocations must implement the JMXTarget interface.
  *
- * @version $Revision: 1.11 $ $Date: 2004/06/02 05:33:04 $
+ * @version $Revision: 1.12 $ $Date: 2004/06/04 22:31:56 $
  */
 public class JMXRouter extends AbstractInterceptorRouter {
     private SubsystemRouter subsystemRouter;
@@ -53,7 +53,7 @@ public class JMXRouter extends AbstractInterceptorRouter {
         registered.put(objectName, target);
     }
 
-    public void unRegister(ObjectName objectName) {
+    public void unregister(ObjectName objectName) {
         registered.remove(objectName);
     }
 
@@ -82,7 +82,7 @@ public class JMXRouter extends AbstractInterceptorRouter {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(JMXRouter.class, AbstractInterceptorRouter.GBEAN_INFO);
         infoFactory.addReference("SubsystemRouter", SubsystemRouter.class);
         infoFactory.addOperation("register", new Class[]{ObjectName.class, JMXTarget.class});
-        infoFactory.addOperation("unRegister", new Class[]{ObjectName.class});
+        infoFactory.addOperation("unregister", new Class[]{ObjectName.class});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

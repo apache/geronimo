@@ -24,23 +24,23 @@ import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.kernel.management.State;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/05/27 01:05:59 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/04 22:31:56 $
  */
-public class GBeanMBeanContext implements GBeanContext {
+public final class GBeanMBeanContext implements GBeanContext {
     /**
      * The MBean server in which the Geronimo MBean is registered.
      */
-    private MBeanServer server;
+    private final MBeanServer server;
 
     /**
      * The GeronimoMBean which owns the target.
      */
-    private GBeanMBean gmbean;
+    private final GBeanMBean gmbean;
 
     /**
      * The object name of the Geronimo MBean.
      */
-    private ObjectName objectName;
+    private final ObjectName objectName;
 
     /**
      * Creates a new context for a target.

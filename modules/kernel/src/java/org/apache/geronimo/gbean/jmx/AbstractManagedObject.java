@@ -52,7 +52,7 @@ import org.apache.geronimo.kernel.management.StateManageable;
  * Implementors of StateManageable may use this class and simply provide
  * {@link #doStart()}, {@link #doStop()} and {@link #sendNotification(String)} methods.
  *
- * @version $Revision: 1.10 $ $Date: 2004/05/27 01:05:59 $
+ * @version $Revision: 1.11 $ $Date: 2004/06/04 22:31:56 $
  */
 public abstract class AbstractManagedObject implements ManagedObject, StateManageable, EventProvider, NotificationListener, MBeanRegistration, NotificationEmitter {
     protected final Log log = LogFactory.getLog(getClass());
@@ -168,7 +168,7 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
     }
 
     public final String getObjectName() {
-        return objectName.toString();
+        return objectName.getCanonicalName();
     }
 
     public final ObjectName getObjectNameObject() {

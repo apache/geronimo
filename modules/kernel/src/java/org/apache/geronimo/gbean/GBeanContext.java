@@ -24,7 +24,7 @@ import javax.management.ObjectName;
  * Context handle for a GBean which allows the bean to determin the current state, and to change the
  * current state.
  *
- * @version $Revision: 1.5 $ $Date: 2004/05/27 01:05:58 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/04 22:31:56 $
  */
 public interface GBeanContext {
     /**
@@ -33,7 +33,7 @@ public interface GBeanContext {
      *
      * @return the current state of this component
      */
-    public int getState();
+    int getState();
 
     /**
      * Attempts to bring the component into the fully running state. If an Exception occurs while
@@ -43,7 +43,7 @@ public interface GBeanContext {
      *
      * @throws Exception if a problem occurs while starting the component
      */
-    public void start() throws Exception;
+    void start() throws Exception;
 
     /**
      * Attempt to bring the component into the fully stopped state. If an exception occurs while
@@ -53,14 +53,20 @@ public interface GBeanContext {
      *
      * @throws Exception if a problem occurs while stopping the component
      */
-    public void stop() throws Exception;
+    void stop() throws Exception;
 
     /**
      * Moves this component to the FAILED state.
      * <p/>
      * The component is guaranteed to be in the failed state when the method returns.
      */
-    public void fail();
+    void fail();
 
+    /**
+     * Gets the object name of the gbean
+     *
+     * @return the objec name of the gbean
+     * @deprecated use an objectName GBeanAttribute instead
+     */
     ObjectName getObjectName();
 }

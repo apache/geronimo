@@ -34,11 +34,11 @@ import org.apache.geronimo.kernel.Kernel;
 /**
  * A Connector that supports the server sideof JSR 160 JMX Remoting.
  * 
- * @version $Revision: 1.2 $ $Date: 2004/06/02 05:33:03 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/04 22:31:56 $
  */
 public class JMXConnector implements GBean {
     private final Kernel kernel;
-    private Log log;
+    private final Log log;
     private String url;
     private String applicationConfigName;
 
@@ -46,16 +46,19 @@ public class JMXConnector implements GBean {
 
     /**
      * Constructor for creating the connector
+     *
      * @param kernel a reference to the kernel
      */
-    public JMXConnector(Kernel kernel) {
+    public JMXConnector(Kernel kernel, String objectName) {
         this.kernel = kernel;
+        log = LogFactory.getLog(objectName);
     }
 
     /**
      * Return the name of the JAAS Application Configuration Entry this
      * connector uses to authenticate users. If null, users are not
      * be authenticated (not recommended).
+     *
      * @return the authentication configuration name
      */
     public String getApplicationConfigName() {
@@ -66,6 +69,7 @@ public class JMXConnector implements GBean {
      * Set the name of the JAAS Application Configuration Entry this
      * connector should use to authenticate users. If null, users will not
      * be authenticated (not recommended).
+     *
      * @param applicationConfigName the authentication configuration name
      */
     public void setApplicationConfigName(String applicationConfigName) {
@@ -74,6 +78,7 @@ public class JMXConnector implements GBean {
 
     /**
      * Return the JMX URL for this connector.
+     *
      * @return the JMX URL for this connector
      */
     public String getURL() {
@@ -82,6 +87,7 @@ public class JMXConnector implements GBean {
 
     /**
      * Set the JMX URL for this connector
+     *
      * @param url the JMX URL for this connector
      */
     public void setURL(String url) {
@@ -89,13 +95,6 @@ public class JMXConnector implements GBean {
     }
 
     public void setGBeanContext(GBeanContext context) {
-        if (context != null) {
-            // register
-            log = LogFactory.getLog(context.getObjectName().toString());
-        } else {
-            // deregister
-            log = null;
-        }
     }
 
     public void doStart() throws WaitingException, Exception {
@@ -127,12 +126,14 @@ public class JMXConnector implements GBean {
     }
 
     public static final GBeanInfo GBEAN_INFO;
+
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(JMXConnector.class);
+        infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("URL", String.class, true);
         infoFactory.addAttribute("ApplicationConfigName", String.class, true);
         infoFactory.addReference("Kernel", Kernel.class);
-        infoFactory.setConstructor(new String[]{"Kernel"});
+        infoFactory.setConstructor(new String[]{"Kernel", "objectName"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

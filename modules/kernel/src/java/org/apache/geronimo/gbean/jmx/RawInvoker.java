@@ -22,7 +22,12 @@ import javax.management.JMRuntimeException;
 import javax.management.ReflectionException;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/06/02 20:51:51 $
+ * The raw invoker provides a raw (fast) access invoke operations, get attribute values, and set
+ * attribute values on a GBean.  This class should only be use by GBean proxy generators or carefully
+ * crafted container code, because this class maintains a hard reference to a gbean which has a huge
+ * potential for memory leaks.  USE WITH CAUTION
+ *
+ * @version $Revision: 1.4 $ $Date: 2004/06/04 22:31:56 $
  */
 public final class RawInvoker {
     private final GBeanMBean gbean;
