@@ -19,8 +19,7 @@ package org.apache.geronimo.security.jaas;
 
 import javax.management.MBeanServer;
 import javax.security.auth.login.AppConfigurationEntry;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Properties;
 
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBean;
@@ -42,7 +41,7 @@ import org.apache.geronimo.gbean.jmx.GBeanMBeanContext;
  * <p>More specifically, you can only use this method or Sun's JAAS config
  * file.
  *
- * @version $Revision: 1.3 $ $Date: 2004/05/30 01:27:35 $
+ * @version $Revision: 1.4 $ $Date: 2004/05/30 18:31:25 $
  * @see org.apache.geronimo.security.jaas.GeronimoLoginConfiguration
  * @see javax.security.auth.login.Configuration
  */
@@ -53,7 +52,7 @@ public abstract class ConfigurationEntry implements GBean {
     protected GBeanMBeanContext context;
     protected String JAASId;
     protected LoginModuleControlFlag controlFlag;
-    protected Map options = new HashMap();
+    protected Properties options = new Properties();
 
     /**
      * Get the JAAS config id for this configuration entry.
@@ -81,11 +80,11 @@ public abstract class ConfigurationEntry implements GBean {
         this.controlFlag = controlFlag;
     }
 
-    public Map getOptions() {
+    public Properties getOptions() {
         return options;
     }
 
-    public void setOptions(Map options) {
+    public void setOptions(Properties options) {
         this.options = options;
     }
 
