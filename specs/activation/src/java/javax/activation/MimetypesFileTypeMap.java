@@ -62,108 +62,40 @@
 
 package javax.activation;
 
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.UnsupportedFlavorException;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URL;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2003/08/16 18:07:45 $
- * @deprecated Don't use this for real work; just as a place-holder to compile
+ *
+ *
+ *
+ * @version $Revision: 1.1 $ $Date: 2003/08/16 18:07:45 $
  */
-public class DataHandler {
-    private DataSource _ds;
-
-    public DataHandler(DataSource ds) {
-        _ds = ds;
-    }
-
-    public DataHandler(Object obj,
-                       String mimeType) {
+public class MimetypesFileTypeMap extends FileTypeMap {
+    public MimetypesFileTypeMap() {
         /*@todo implement*/
     }
 
-    public DataHandler(URL url) {
+    public MimetypesFileTypeMap(String mimeTypeFileName) throws IOException {
         /*@todo implement*/
     }
 
-    public DataSource getDataSource() {
+    public MimetypesFileTypeMap(InputStream is) {
         /*@todo implement*/
-        return null;
     }
 
-    public String getName() {
+    public synchronized void addMimeTypes(String mime_types) {
+        /*@todo implement*/
+    }
+
+    public String getContentType(File f) {
         /*@todo implement*/
         return null;
     }
 
-    public String getContentType() {
+    public synchronized String getContentType(String filename) {
         /*@todo implement*/
         return null;
-    }
-
-    public InputStream getInputStream() throws IOException {
-        /*@todo implement*/
-        return null;
-
-    }
-
-    public void writeTo(OutputStream os) throws IOException {
-        /*@todo implement*/
-
-    }
-
-    public OutputStream getOutputStream() throws IOException {
-        /*@todo implement*/
-        return null;
-    }
-
-    public synchronized DataFlavor[] getTransferDataFlavors() {
-        /*@todo implement*/
-        return null;
-    }
-
-    public boolean isDataFlavorSupported(DataFlavor flavor) {
-        /*@todo implement*/
-        return false;
-    }
-
-    public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
-        /*@todo implement*/
-        return null;
-    }
-
-    public synchronized void setCommandMap(CommandMap commandMap) {
-        /*@todo implement*/
-    }
-
-    public CommandInfo[] getPreferredCommands() {
-        /*@todo implement*/
-        return null;
-    }
-
-    public CommandInfo[] getAllCommands() {
-        /*@todo implement*/
-        return null;
-    }
-
-    public CommandInfo getCommand(String cmdName) {
-        /*@todo implement*/
-        return null;
-    }
-
-    public Object getContent() throws IOException {
-        /*@todo implement*/
-        return null;
-    }
-
-    public Object getBean(CommandInfo cmdinfo) {
-        /*@todo implement*/
-        return null;
-    }
-
-    public static synchronized void setDataContentHandlerFactory(DataContentHandlerFactory newFactory) {
     }
 }

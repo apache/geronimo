@@ -53,17 +53,21 @@
  *
  * ====================================================================
  */
+
 //
 // This source code implements specifications defined by the Java
 // Community Process. In order to remain compliant with the specification
 // DO NOT add / change / or delete method signatures!
 //
+
 package javax.activation;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/16 01:55:47 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/16 18:07:45 $
  * @deprecated this is a placeholder for a futre javax.activation package only
  */
 public interface DataSource {
