@@ -55,6 +55,7 @@
  */
 package org.apache.geronimo.kernel;
 
+import java.util.Collections;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
@@ -64,10 +65,11 @@ import junit.framework.TestCase;
 /**
  * 
  * 
- * @version $Revision: 1.1 $ $Date: 2004/01/21 22:53:42 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/22 18:34:13 $
  */
 public class GBeanTest extends TestCase {
     private ObjectName name;
+    private ObjectName name2;
     private Kernel kernel;
 
     public void testLoad() throws Exception {
@@ -83,8 +85,26 @@ public class GBeanTest extends TestCase {
         kernel.unloadGBean(name);
     }
 
+    public void XtestEndpoint() throws Exception {
+        GBeanMBean gbean1 = new GBeanMBean(MockGBean.getGBeanInfo());
+        gbean1.setAttribute("MutableInt", new Integer(123));
+        gbean1.setAttribute("FinalInt", new Integer(123));
+        kernel.loadGBean(name, gbean1);
+        kernel.startGBean(name);
+
+        GBeanMBean gbean2 = new GBeanMBean(MockGBean.getGBeanInfo());
+        gbean2.setAttribute("MutableInt", new Integer(123));
+        gbean2.setAttribute("FinalInt", new Integer(123));
+        gbean2.setEndpointPatterns("MockEndpoint", Collections.singleton(name));
+        kernel.loadGBean(name2, gbean2);
+        kernel.startGBean(name2);
+
+        assertEquals("endpointCheck", kernel.getMBeanServer().invoke(name2, "checkEndpoint", null, null));
+    }
+
     protected void setUp() throws Exception {
         name = new ObjectName("test:name=MyMockGBean");
+        name2 = new ObjectName("test:name=MyMockGBean2");
         kernel = new Kernel("test");
         kernel.boot();
     }

@@ -69,7 +69,7 @@ import org.apache.geronimo.gbean.GOperationInfo;
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/01/19 06:35:36 $
+ * @version $Revision: 1.8 $ $Date: 2004/01/22 18:34:13 $
  */
 public class MockGBean implements MockEndpoint {
     private static final GBeanInfo GBEAN_INFO;
@@ -162,18 +162,22 @@ public class MockGBean implements MockEndpoint {
         return name;
     }
 
+    public String endpointDoSomething(String name) {
+        return name;
+    }
+
     public String checkEndpoint() {
         if (endpoint == null) {
             return "no endpoint";
         }
-        return endpoint.doSomething("endpointCheck");
+        return endpoint.endpointDoSomething("endpointCheck");
     }
 
     public int checkEndpointCollection() {
         int successCount = 0;
         for (Iterator iterator = endpointCollection.iterator(); iterator.hasNext();) {
             MockEndpoint mockEndpoint = (MockEndpoint) iterator.next();
-            String result = mockEndpoint.doSomething("endpointCheck");
+            String result = mockEndpoint.endpointDoSomething("endpointCheck");
             if ("endpointCheck".equals(result)) {
                 successCount++;
             }
