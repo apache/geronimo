@@ -66,8 +66,8 @@ import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.naming.jmx.JMXObjectFactory;
-import org.apache.geronimo.naming.jmx.JMXRefAddr;
+import org.apache.geronimo.naming.reference.RefAddrContentObjectFactory;
+import org.apache.geronimo.naming.reference.GBeanGetResourceRefAddr;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.geronimo.GerAdminobjectInstanceType;
 import org.apache.geronimo.xbeans.geronimo.GerAdminobjectType;
@@ -659,9 +659,12 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             throw new DeploymentException("Unexpected transaction support element");
         }
         PoolingSupport pooling = null;
+        //TODO configure this
+//        int idleTimeoutMinutes = 15;
         if (connectionManager.getSinglePool() != null) {
             pooling = new SinglePool(connectionManager.getSinglePool().getMaxSize(),
                     connectionManager.getSinglePool().getBlockingTimeoutMilliseconds(),
+//                    idleTimeoutMinutes,
                     connectionManager.getSinglePool().getMatchOne() != null,
                     connectionManager.getSinglePool().getMatchAll() != null,
                     connectionManager.getSinglePool().getSelectOneAssumeMatch() != null);
@@ -670,6 +673,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                     connectionManager.getPartitionedPool().getPartitionBySubject() != null,
                     connectionManager.getPartitionedPool().getMaxSize(),
                     connectionManager.getPartitionedPool().getBlockingTimeoutMilliseconds(),
+//                    idleTimeoutMinutes,
                     connectionManager.getPartitionedPool().getMatchOne() != null,
                     connectionManager.getPartitionedPool().getMatchAll() != null,
                     connectionManager.getPartitionedPool().getSelectOneAssumeMatch() != null);
@@ -770,14 +774,14 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
 
     //ResourceReferenceBuilder implementation
     public Reference createResourceRef(String containerId, Class iface) throws DeploymentException {
-        Reference ref = new Reference(null, JMXObjectFactory.class.getName(), null);
-        ref.add(new JMXRefAddr(null, containerId, iface));
+        Reference ref = new Reference(null, RefAddrContentObjectFactory.class.getName(), null);
+        ref.add(new GBeanGetResourceRefAddr(null, containerId, iface));
         return ref;
     }
 
     public Reference createAdminObjectRef(String containerId, Class iface) throws DeploymentException {
-        Reference ref = new Reference(null, JMXObjectFactory.class.getName(), null);
-        ref.add(new JMXRefAddr(null, containerId, iface));
+        Reference ref = new Reference(null, RefAddrContentObjectFactory.class.getName(), null);
+        ref.add(new GBeanGetResourceRefAddr(null, containerId, iface));
         return ref;
     }
 
