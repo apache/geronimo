@@ -47,65 +47,10 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.8 $ $Date: 2004/04/07 22:37:10 $
+ * @version $Revision: 1.9 $ $Date: 2004/04/22 17:06:30 $
  *
  * */
-public class ConnectionManagerTest extends TestCase implements DefaultInterceptor, RealmBridge {
-
-    protected boolean useConnectionRequestInfo = false;
-    protected boolean useSubject = true;
-    protected boolean useTransactionCaching = true;
-    protected boolean useLocalTransactions = false;
-    protected boolean useTransactions = true;
-    protected int maxSize = 5;
-    protected int blockingTimeout = 100;
-    protected String name = "testCF";
-    //dependencies
-    protected RealmBridge realmBridge = this;
-    protected ConnectionTrackingCoordinator connectionTrackingCoordinator;
-
-    protected TransactionManager transactionManager;
-    protected ConnectionManagerDeployment connectionManagerDeployment;
-    protected MockConnectionFactory connectionFactory;
-    protected MockManagedConnectionFactory mockManagedConnectionFactory;
-    protected DefaultComponentContext defaultComponentContext;
-    protected DefaultComponentInterceptor defaultComponentInterceptor;
-    protected Set unshareableResources = new HashSet();
-    protected MockManagedConnection mockManagedConnection;
-    protected Subject subject;
-
-    protected UserTransactionImpl userTransaction;
-
-    protected void setUp() throws Exception {
-        connectionTrackingCoordinator = new ConnectionTrackingCoordinator();
-        transactionManager = new TransactionManagerImpl();
-        mockManagedConnectionFactory = new MockManagedConnectionFactory();
-        subject = new Subject();
-        ContextManager.setCurrentCaller(subject);
-        connectionManagerDeployment = new ConnectionManagerDeployment(useConnectionRequestInfo,
-                useSubject,
-                useTransactionCaching,
-                useLocalTransactions,
-                useTransactions,
-                maxSize,
-                blockingTimeout,
-                //name,
-                realmBridge,
-                connectionTrackingCoordinator);
-        connectionManagerDeployment.doStart();
-        connectionFactory = (MockConnectionFactory) connectionManagerDeployment.createConnectionFactory(mockManagedConnectionFactory);
-        defaultComponentContext = new DefaultComponentContext();
-        defaultComponentInterceptor = new DefaultComponentInterceptor(this, connectionTrackingCoordinator, unshareableResources);
-    }
-
-    protected void tearDown() throws Exception {
-        connectionTrackingCoordinator = null;
-        transactionManager = null;
-        mockManagedConnectionFactory = null;
-        connectionManagerDeployment = null;
-        connectionFactory = null;
-        defaultComponentContext = null;
-    }
+public class ConnectionManagerTest extends ConnectionManagerTestUtils {
 
 
     public void testSingleTransactionCall() throws Throwable {
@@ -155,22 +100,5 @@ public class ConnectionManagerTest extends TestCase implements DefaultIntercepto
         assertNotNull("Should be committed", mockXAResource.getCommitted());
     }
 
-    public Object invoke(InstanceContext newInstanceContext) throws Throwable {
-        MockConnection mockConnection = (MockConnection) connectionFactory.getConnection();
-        mockManagedConnection = mockConnection.getManagedConnection();
-        if (userTransaction != null) {
-            userTransaction.begin();
-            MockXAResource mockXAResource = (MockXAResource) mockManagedConnection.getXAResource();
-            assertEquals("XAResource should know one xid", 1, mockXAResource.getKnownXids().size());
-            assertNull("Should not be committed", mockXAResource.getCommitted());
-            userTransaction.commit();
-            assertNotNull("Should be committed", mockXAResource.getCommitted());
-        }
-        mockConnection.close();
-        return null;
-    }
 
-    public Subject mapSubject(Subject sourceSubject) {
-        return subject;
-    }
 }

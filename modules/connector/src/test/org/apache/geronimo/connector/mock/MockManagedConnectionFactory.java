@@ -21,6 +21,8 @@ import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.Collections;
+
 import javax.resource.ResourceException;
 import javax.resource.spi.ConnectionManager;
 import javax.resource.spi.ConnectionRequestInfo;
@@ -32,7 +34,7 @@ import javax.security.auth.Subject;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:34 $
+ * @version $Revision: 1.5 $ $Date: 2004/04/22 17:06:30 $
  *
  * */
 public class MockManagedConnectionFactory implements ManagedConnectionFactory {
@@ -40,7 +42,7 @@ public class MockManagedConnectionFactory implements ManagedConnectionFactory {
     private MockResourceAdapter resourceAdapter;
     private PrintWriter logWriter;
 
-    private final Set managedConnections = new HashSet();
+    private final Set managedConnections = Collections.synchronizedSet(new HashSet());
 
     private boolean reauthentication;
 
