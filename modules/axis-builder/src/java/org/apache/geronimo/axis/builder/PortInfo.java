@@ -48,6 +48,10 @@ public class PortInfo {
         this.seiMapping = seiMapping;
     }
 
+    public String getPortName() {
+        return getPortComponentName();
+    }
+
     public String getPortComponentName() {
         return portName;
     }
