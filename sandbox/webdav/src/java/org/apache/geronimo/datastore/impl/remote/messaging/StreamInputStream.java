@@ -17,11 +17,10 @@
 
 package org.apache.geronimo.datastore.impl.remote.messaging;
 
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInput;
 import java.io.ObjectInputStream;
+import java.io.StreamCorruptedException;
 
 /**
  * Allows to read an InputStream from the underlying InputStream. More
@@ -29,11 +28,10 @@ import java.io.ObjectInputStream;
  * underlying InputStream. This identifier is then passed to the StreamManager,
  * which returns the InputStream having the provided identifier.
  * 
- * @version $Revision: 1.3 $ $Date: 2004/03/11 15:36:14 $
+ * @version $Revision: 1.4 $ $Date: 2004/03/16 14:48:59 $
  */
 public class StreamInputStream
-    extends DataInputStream
-    implements ObjectInput
+    extends ObjectInputStream
 {
 
     /**
@@ -50,8 +48,10 @@ public class StreamInputStream
      * @param aManager StreamManager.
      * @throws IOException If an I/O error has occured.
      */
-    public StreamInputStream(InputStream anIn, StreamManager aManager) {
+    public StreamInputStream(InputStream anIn, StreamManager aManager)
+        throws IOException {
         super(anIn);
+        enableResolveObject(true);
         if ( null == aManager ) {
             throw new IllegalArgumentException("StreamManager is required.");
         }
@@ -67,7 +67,7 @@ public class StreamInputStream
      * @throws IOException May indicates that the StreamManager does not know
      * about the encoded identifer.
      */
-    public InputStream readInputStream() throws IOException {
+    public InputStream readStream() throws IOException {
         Object id;
         try {
             id = readObject();
@@ -80,11 +80,6 @@ public class StreamInputStream
         return returned;
     }
 
-    public Object readObject() throws ClassNotFoundException, IOException {
-        CustomObjectInputStream objIn = new CustomObjectInputStream();
-        return objIn.readObject();
-    }
-    
     /**
      * Gets the StreamManager used to register InputStreams.
      * 
@@ -94,23 +89,25 @@ public class StreamInputStream
         return streamManager;
     }
 
-    public class CustomObjectInputStream extends ObjectInputStream {
-
-        public CustomObjectInputStream() throws IOException, SecurityException {
-            super(StreamInputStream.this);
-            enableResolveObject(true);
+    /**
+     * It is critical to read nothing during the creation of ObjectInputStream.
+     * <BR>
+     * Indeed, StreamInputStream and StreamOutputStream are used by
+     * StreamInInterceptor and StreamOutInterceptor respectively. It should be
+     * possible to instantiate these two objects at the same time, for instance
+     * to wrap the InputStream and OutputStream of a Socket.
+     * <BR>
+     * If ObjectInputStream reads a StreamHeader during its creation, then it
+     * is not possible to create these two classes at the same time.  
+     */
+    protected void readStreamHeader()
+        throws IOException, StreamCorruptedException {}
+    
+    protected Object resolveObject(Object obj) throws IOException {
+        if ( obj instanceof GInputStream ) {
+            return ((GInputStream)obj).getRawInputStream();
         }
-        
-        public InputStream readStream() throws IOException {
-            return StreamInputStream.this.readInputStream();
-        }
-        
-        protected Object resolveObject(Object obj) throws IOException {
-            if ( obj instanceof GInputStream ) {
-                return ((GInputStream)obj).getRawInputStream();
-            }
-            return obj;
-        }
+        return obj;
     }
     
 }

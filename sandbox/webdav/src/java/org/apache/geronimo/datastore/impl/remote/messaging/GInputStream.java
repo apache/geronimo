@@ -29,7 +29,7 @@ import java.io.ObjectOutput;
  * The serialization MUST be performed by a StreamOutputStream, which knows 
  * how to encode a stream into an OutputStream.
  *
- * @version $Revision: 1.2 $ $Date: 2004/03/11 15:36:14 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/16 14:48:58 $
  */
 public class GInputStream
     extends InputStream
@@ -72,15 +72,13 @@ public class GInputStream
      * Serializes the wrapped InputStream.
      */
     public void writeExternal(ObjectOutput anOut) throws IOException {
-        StreamOutputStream.CustomObjectOutputStream objOut =
-            (StreamOutputStream.CustomObjectOutputStream) anOut;
+        StreamOutputStream objOut = (StreamOutputStream) anOut;
         objOut.writeStream(content);
         objOut.flush();
     }
 
     public void readExternal(ObjectInput anIn) throws IOException, ClassNotFoundException {
-        StreamInputStream.CustomObjectInputStream objIn =
-            (StreamInputStream.CustomObjectInputStream) anIn;
+        StreamInputStream objIn = (StreamInputStream) anIn;
         content = objIn.readStream();
     }
 

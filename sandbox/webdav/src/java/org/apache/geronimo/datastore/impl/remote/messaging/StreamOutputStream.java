@@ -17,7 +17,6 @@
 
 package org.apache.geronimo.datastore.impl.remote.messaging;
 
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
@@ -26,16 +25,18 @@ import java.io.OutputStream;
 /**
  * This is the counterpart of StreamInputStream.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/11 15:36:14 $
+ * @version $Revision: 1.4 $ $Date: 2004/03/16 14:48:59 $
  */
 public class StreamOutputStream
-    extends DataOutputStream
+    extends ObjectOutputStream
 {
 
     private final StreamManager streamManager;
     
-    public StreamOutputStream(OutputStream anOut, StreamManager aManager) {
+    public StreamOutputStream(OutputStream anOut, StreamManager aManager)
+        throws IOException {
         super(anOut);
+        enableReplaceObject(true);
         if ( null == aManager ) {
             throw new IllegalArgumentException("StreamManager is required.");
         }
@@ -47,11 +48,6 @@ public class StreamOutputStream
         writeObject(id);
     }
 
-    public void writeObject(Object anObject) throws IOException {
-        CustomObjectOutputStream objOut = new CustomObjectOutputStream();
-        objOut.writeObject(anObject);
-    }
-    
     /**
      * Gets the StreamManager used to resolve InputStream identifiers.
      * 
@@ -60,25 +56,17 @@ public class StreamOutputStream
     public StreamManager getStreamManager() {
         return streamManager;
     }
+
+    /**
+     * It is critical to avoid to write 
+     */
+    protected void writeStreamHeader() throws IOException {}
     
-    public class CustomObjectOutputStream extends ObjectOutputStream {
-
-        public CustomObjectOutputStream() throws IOException, SecurityException {
-            super(StreamOutputStream.this);
-            enableReplaceObject(true);
+    protected Object replaceObject(Object obj) throws IOException {
+        if ( obj instanceof InputStream ) {
+            return new GInputStream((InputStream) obj);
         }
-
-        public void writeStream(InputStream aStream) throws IOException {
-            StreamOutputStream.this.writeStream(aStream);
-        }
-        
-        protected Object replaceObject(Object obj) throws IOException {
-            if ( obj instanceof InputStream ) {
-                return new GInputStream((InputStream) obj);
-            }
-            return obj;
-        }
-        
+        return obj;
     }
     
 }

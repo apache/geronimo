@@ -30,7 +30,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * This is a connection of connections.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/11 15:36:14 $
+ * @version $Revision: 1.4 $ $Date: 2004/03/16 14:48:59 $
  */
 public class MetaConnection
 {
@@ -54,6 +54,12 @@ public class MetaConnection
     private Topology topology;
     
     /**
+     * Logical compression and decompression applied on Msgs pushed and poped 
+     * by this meta-connection.
+     */
+    private LogicalCompression logicalComp;
+    
+    /**
      * Creates a meta-connection for the specified node.
      * 
      * @param aNode Node.
@@ -64,6 +70,7 @@ public class MetaConnection
         }
         node = aNode;
         connections = new HashMap();
+        logicalComp = new LogicalCompression();
     }
     
     /**
@@ -120,7 +127,6 @@ public class MetaConnection
                 "} is not reachable by {" + node.getNodeInfo() + "}");
         }
         NodeInfo tmpNode = path[0];
-        NodeInfo[] newPath = NodeInfo.pop(path);
         Connection connection;
         synchronized(connections) {
             connection = (Connection) connections.get(tmpNode);
@@ -129,14 +135,26 @@ public class MetaConnection
             throw new CommunicationException("{" + aNode +
                 "} is not reachable by {" + node.getNodeInfo() + "}");
         }
-        return
+        NodeInfo[] newPath = NodeInfo.pop(path);
+        MsgOutInterceptor out =
             new HeaderOutInterceptor(
-                MsgHeaderConstants.DEST_NODES,
-                aNode,
+                MsgHeaderConstants.SRC_NODE,
+                node.getNodeInfo(),
+                new HeaderOutInterceptor(
+                    MsgHeaderConstants.DEST_NODE,
+                    aNode,
+                    new HeaderOutInterceptor(
+                        MsgHeaderConstants.DEST_NODES,
+                        aNode,
+                        connection.out)));
+        if ( null != newPath ) {
+            out =
                 new HeaderOutInterceptor(
                     MsgHeaderConstants.DEST_NODE_PATH,
                     newPath,
-                    connection.out));
+                    out);
+        }
+        return out; 
     }
     
     /**
@@ -272,7 +290,7 @@ public class MetaConnection
             public void push(Msg aMsg) {
                 MsgHeader header = aMsg.getHeader();
                 if ( node.getNodeInfo().equals(
-                    header.getHeader(MsgHeaderConstants.DEST_NODES)) ) {
+                    header.getHeader(MsgHeaderConstants.DEST_NODE)) ) {
                     inboundOut.push(aMsg);
                 } else {
                     outboundOut.push(aMsg);
@@ -282,6 +300,86 @@ public class MetaConnection
         MsgCopier copier = new MsgCopier(
                 aConnection.in, out, aConnection.listener);
         node.processors.execute(copier);
+    }
+
+    /**
+     * Logical compression of the Msgs pushed and poped by this meta-connection.
+     * <BR>
+     * Its goal is to remove from Msgs to be serialized the information, shared
+     * by all the nodes. For instance, as a Topology is shared by all the nodes
+     * one can replace the NodeInfo instances contained by Msgs by their
+     * corresponding identifier. 
+     *
+     * @version $Revision: 1.4 $ $Date: 2004/03/16 14:48:59 $
+     */
+    private class LogicalCompression implements
+        StreamInInterceptor.PopSynchronization,
+        StreamOutInterceptor.PushSynchronization {
+        
+        /**
+         * No logical compression.
+         */
+        private final static byte NULL = 0x00;
+        
+        /**
+         * Compression based on the Topology shared knowledge.
+         */
+        private final static byte TOPOLOGY = 0x01;
+        
+        public Object beforePop(StreamInputStream anIn)
+            throws IOException {
+            byte type = anIn.readByte(); 
+            if ( type == NULL ) {
+                return null;
+            }
+            if ( null == topology ) {
+                throw new IllegalArgumentException("No topology is defined.");
+            }
+            Object[] result = new Object[2];
+            int id = anIn.readInt();
+            NodeInfo nodeInfo = topology.getNodeById(id);
+            result[0] = nodeInfo;
+            id = anIn.readInt();
+            nodeInfo = topology.getNodeById(id);
+            result[1] = nodeInfo;
+            return result;
+        }
+        public void afterPop(StreamInputStream anIn, Msg aMsg, Object anOpaque)
+            throws IOException {
+            if ( null == anOpaque ) {
+                return;
+            }
+            Object[] prePop = (Object[]) anOpaque;
+            MsgHeader header = aMsg.getHeader();
+            header.addHeader(MsgHeaderConstants.SRC_NODE, prePop[0]);
+            header.addHeader(MsgHeaderConstants.DEST_NODE, prePop[1]);
+            header.addHeader(MsgHeaderConstants.DEST_NODES, prePop[1]);
+        }
+        
+        public Object beforePush(StreamOutputStream anOut, Msg aMsg)
+            throws IOException {
+            if ( null == topology ) {
+                anOut.writeByte(NULL);
+                return null;
+            }
+            anOut.writeByte(TOPOLOGY);
+            MsgHeader header = aMsg.getHeader();
+            NodeInfo info =
+                (NodeInfo) header.resetHeader(MsgHeaderConstants.SRC_NODE);
+            int id = topology.getIDOfNode(info);
+            anOut.writeInt(id);
+            info =
+                (NodeInfo) header.resetHeader(MsgHeaderConstants.DEST_NODE);
+            id = topology.getIDOfNode(info);
+            // When pushing a Msg on the network, DEST_NODES equals to
+            // DEST_NODE.
+            header.resetHeader(MsgHeaderConstants.DEST_NODES);
+            anOut.writeInt(id);
+            return null;
+        }
+        public void afterPush(StreamOutputStream anOut, Msg aMsg,
+            Object anOpaque) throws IOException {
+        }
     }
     
     /**
@@ -330,9 +428,11 @@ public class MetaConnection
             }
             
             rawIn = anIn;
-            in = new StreamInInterceptor(rawIn, node.getStreamManager());
+            in = new StreamInInterceptor(rawIn, node.getStreamManager(),
+                logicalComp);
             rawOut = anOut;
-            out = new StreamOutInterceptor(rawOut, node.getStreamManager());
+            out = new StreamOutInterceptor(rawOut, node.getStreamManager(),
+                logicalComp);
             listener = new MsgCopier.NullCopierListener() {
                 public void onFailure() {
                     close();
@@ -354,9 +454,11 @@ public class MetaConnection
                 new Socket(aNodeInfo.getAddress(), aNodeInfo.getPort());
             
             rawIn = socket.getInputStream();
-            in = new StreamInInterceptor(rawIn, node.getStreamManager());
+            in = new StreamInInterceptor(rawIn, node.getStreamManager(),
+                logicalComp);
             rawOut = socket.getOutputStream();
-            out = new StreamOutInterceptor(rawOut, node.getStreamManager());
+            out = new StreamOutInterceptor(rawOut, node.getStreamManager(),
+                logicalComp);
             listener = new MsgCopier.NullCopierListener() {
                 public void onFailure() {
                     close();

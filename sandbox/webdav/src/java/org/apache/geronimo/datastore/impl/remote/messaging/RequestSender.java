@@ -22,8 +22,6 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -37,7 +35,7 @@ import EDU.oswego.cs.dl.util.concurrent.TimeoutException;
  * It is provided by a ServerNode to its Connectors in order to send Msgs to
  * remote Connectors.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/11 15:36:14 $
+ * @version $Revision: 1.4 $ $Date: 2004/03/16 14:48:59 $
  */
 public class RequestSender {
 
@@ -56,7 +54,7 @@ public class RequestSender {
     /**
      * Request id to FuturResult map.
      */
-    private final Map responses;
+    private final IndexedMap responses;
 
     /**
      * Node using this sender.
@@ -77,7 +75,7 @@ public class RequestSender {
             throw new IllegalArgumentException("Node is required.");
         }
         srcNode = aSrcNode;
-        responses = new HashMap();
+        responses = new IndexedMap(1024);
     }
 
     /**
@@ -106,9 +104,8 @@ public class RequestSender {
         Msg msg = new Msg();
         
         MsgHeader header = msg.getHeader();
-        Object id = createID(aTargetNodes);
+        RequestID id = createID(aTargetNodes);
         header.addHeader(MsgHeaderConstants.CORRELATION_ID, id);
-        header.addHeader(MsgHeaderConstants.SRC_NODE, srcNode);
         header.addHeader(MsgHeaderConstants.DEST_NODES, aTargetNodes);
         
         MsgBody body = msg.getBody();
@@ -130,16 +127,15 @@ public class RequestSender {
      * @param aTargetNodes Nodes to which the request is to be sent.
      * @return Request identifier.
      */
-    private Object createID(NodeInfo[] aTargetNodes) {
+    private RequestID createID(NodeInfo[] aTargetNodes) {
         RequestID id;
-        synchronized (responses) {
-            id = new RequestID(requestIDSeq++);
-            FutureResult[] results = new FutureResult[aTargetNodes.length];
-            for (int i = 0; i < results.length; i++) {
-                results[i] = new FutureResult();
-            }
-            responses.put(id, results);
+        int mapID = responses.allocateId();
+        id = new RequestID(mapID);
+        FutureResult[] results = new FutureResult[aTargetNodes.length];
+        for (int i = 0; i < results.length; i++) {
+            results[i] = new FutureResult();
         }
+        responses.put(mapID, results);
         return id;
     }
     
@@ -150,11 +146,9 @@ public class RequestSender {
      * @param aWaitTime number of milliseconds to wait for a response.
      * @return Result of the request.
      */
-    private CommandResult waitResponse(Object anID, long aWaitTime) {
-        FutureResult[] results;
-        synchronized(responses) {
-            results = (FutureResult[]) responses.get(anID);
-        }
+    private CommandResult waitResponse(RequestID anID, long aWaitTime) {
+        FutureResult[] results =
+            (FutureResult[]) responses.get(anID.id);
         Exception ex;
         try {
             CommandResult returned = null;
@@ -163,9 +157,7 @@ public class RequestSender {
                 returned = (CommandResult) results[i].get();
                 // CommandResult returned = (CommandResult) result.timedGet(aWaitTime);
             }
-            synchronized(responses) {
-                responses.remove(anID);
-            }
+            responses.remove(anID.id);
             return returned;
         } catch (TimeoutException e) {
             log.error(e);
@@ -187,10 +179,12 @@ public class RequestSender {
      * @param aResult Response
      */
     public void setResponse(Object anID, CommandResult aResult) {
-        FutureResult[] results;
-        synchronized(responses) {
-            results = (FutureResult[]) responses.get(anID);
+        if ( false == anID instanceof RequestID ) {
+            throw new IllegalArgumentException("ID is of the wrong type.");
         }
+        RequestID id = (RequestID) anID;
+        FutureResult[] results;
+        results = (FutureResult[]) responses.get(id.id);
         for (int i = 0; i < results.length; i++) {
             FutureResult result = results[i];
             if ( null == result.peek() ) {
@@ -209,23 +203,14 @@ public class RequestSender {
          * Required for Externalization.
          */
         public RequestID() {}
-        public RequestID(int anId) {
-            id = anId;
+        public RequestID(int anID) {
+            id = anID;
         }
         public void writeExternal(ObjectOutput out) throws IOException {
             out.writeInt(id);
         }
         public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
             id = in.readInt();
-        }
-        public boolean equals(Object obj) {
-            if ( false == obj instanceof RequestID ) {
-                return false;
-            }
-            return id == ((RequestID)obj).id;
-        }
-        public int hashCode() {
-            return id;
         }
     }
     

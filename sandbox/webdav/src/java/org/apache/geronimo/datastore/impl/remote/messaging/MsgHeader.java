@@ -25,7 +25,7 @@ import java.io.ObjectOutput;
 /**
  * Msg header.
  *
- * @version $Revision: 1.2 $ $Date: 2004/03/11 15:36:14 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/16 14:48:59 $
  */
 public class MsgHeader
     implements Externalizable
@@ -61,6 +61,18 @@ public class MsgHeader
             headers[i] = aHeader.headers[i];
         }
     }
+
+    /**
+     * Resets to null the value of an header.
+     * 
+     * @param aKey Header key.
+     */
+    public Object resetHeader(Object aKey) {
+        int idx = getHeaderIndex(aKey);
+        Object result = headers[idx];
+        headers[idx] = null;
+        return result;
+    }
     
     /**
      * Adds an header.
@@ -69,16 +81,10 @@ public class MsgHeader
      * @param aValue Header value.
      */
     public void addHeader(Object aKey, Object aValue) {
-        for (int i = 0; i < headerConstants.length; i++) {
-            if ( aKey == headerConstants[i] ) {
-                headers[i] = aValue;
-                return;
-            }
-        }
-        throw new IllegalArgumentException("Header {" + aKey +
-            "} is not supported.");
+        int idx = getHeaderIndex(aKey);
+        headers[idx] = aValue;
     }
-
+    
     /**
      * Gets a required header.
      *  
@@ -88,18 +94,13 @@ public class MsgHeader
      * does not exist.
      */
     public Object getHeader(Object aKey) {
-        for (int i = 0; i < headerConstants.length; i++) {
-            if ( aKey == headerConstants[i] ) {
-                Object value = headers[i];
-                if ( null == value ) {
-                    throw new IllegalArgumentException("Header {" + aKey +
-                        "} is not set.");
-                }
-                return value;
-            }
+        int idx = getHeaderIndex(aKey);
+        Object value = headers[idx];
+        if ( null == value ) {
+            throw new IllegalArgumentException("Header {" + aKey +
+            "} is not set.");
         }
-        throw new IllegalArgumentException("Header {" + aKey +
-            "} is not supported.");
+        return value;
     }
 
     /**
@@ -109,16 +110,26 @@ public class MsgHeader
      * @return Header value.
      */
     public Object getOptionalHeader(Object aKey) {
-        Object value;
+        int idx = getHeaderIndex(aKey);
+        return headers[idx];
+    }
+
+    /**
+     * Gets the index of the header having the specified key.
+     * 
+     * @param aKey Header key.
+     * @return header index.
+     */
+    private int getHeaderIndex(Object aKey) {
         for (int i = 0; i < headerConstants.length; i++) {
             if ( aKey == headerConstants[i] ) {
-                return headers[i];
+                return i;
             }
         }
         throw new IllegalArgumentException("Header {" + aKey +
-            "} is not supported.");
+        "} is not supported.");
     }
-
+    
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeObject(headers);
     }

@@ -38,7 +38,7 @@ import java.util.Map;
  * This class is intended to be send to a multicast group when a topology event
  * happens.
  *
- * @version $Revision: 1.1 $ $Date: 2004/03/11 15:36:14 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/16 14:48:59 $
  */
 public class Topology
     implements Externalizable
@@ -48,9 +48,36 @@ public class Topology
      * NodeInfo to PathWeight map.
      */
     private Map nodeToPaths;
+
+    private Object nodeAndIdLock = new Object();
+    private Map nodeToID;
+    private Map idToNode;
+    
+    private static int seqID = 0;
     
     public Topology() {
         nodeToPaths = new HashMap();
+        nodeToID = new HashMap();
+        idToNode = new HashMap();
+    }
+
+    private void registerNode(NodeInfo aNodeInfo) {
+        synchronized(nodeAndIdLock) {
+            if ( null == nodeToID.get(aNodeInfo) ) {
+                Integer id = new Integer(seqID++);
+                nodeToID.put(aNodeInfo, id);
+                idToNode.put(id, aNodeInfo);
+            }
+        }
+    }
+    
+    private void unregisterNode(NodeInfo aNodeInfo) {
+        synchronized(nodeAndIdLock) {
+            if ( null == nodeToID.remove(aNodeInfo) ) {
+                throw new IllegalArgumentException(aNodeInfo +
+                    " is not registered by this topology.");
+            }
+        }
     }
     
     /**
@@ -64,18 +91,20 @@ public class Topology
             throw new IllegalArgumentException("Path is required.");
         }
         synchronized(nodeToPaths) {
+            registerNode(aPath.nodeOne);
             Collection related = (Collection) nodeToPaths.get(aPath.nodeOne);
             if ( null == related ) {
                 related = new ArrayList();
                 nodeToPaths.put(aPath.nodeOne, related);
             }
-            related.add(new Node(aPath.nodeTwo, aPath.weigthOneToTwo));
+            related.add(new NodeWrapper(aPath.nodeTwo, aPath.weigthOneToTwo));
+            registerNode(aPath.nodeTwo);
             related = (Collection) nodeToPaths.get(aPath.nodeTwo);
             if ( null == related ) {
                 related = new ArrayList();
                 nodeToPaths.put(aPath.nodeTwo, related);
             }
-            related.add(new Node(aPath.nodeOne, aPath.weigthTwoToOne));
+            related.add(new NodeWrapper(aPath.nodeOne, aPath.weigthTwoToOne));
         }
     }
     
@@ -95,6 +124,7 @@ public class Topology
                     " is not registered by this topology.");
             }
         }
+        unregisterNode(aNode);
     }
     
     /**
@@ -112,18 +142,26 @@ public class Topology
                 throw new IllegalArgumentException(aPath.nodeOne +
                     " is not registered by this topology.");
             }
-            if ( !related.remove(new Node(aPath.nodeTwo, null)) ) {
+            if ( !related.remove(new NodeWrapper(aPath.nodeTwo, null)) ) {
                 throw new IllegalArgumentException(aPath +
                     " is not registered by this topology.");
+            }
+            if ( 0 == related.size() ) {
+                unregisterNode(aPath.nodeOne);
+                nodeToPaths.remove(aPath.nodeOne);
             }
             related = (Collection) nodeToPaths.get(aPath.nodeTwo);
             if ( null == related ) {
                 throw new IllegalArgumentException(aPath.nodeTwo +
                     " is not registered by this topology.");
             }
-            if ( !related.remove(new Node(aPath.nodeOne, null)) ) {
+            if ( !related.remove(new NodeWrapper(aPath.nodeOne, null)) ) {
                 throw new IllegalArgumentException(aPath +
                     " is not registered by this topology.");
+            }
+            if ( 0 == related.size() ) {
+                unregisterNode(aPath.nodeTwo);
+                nodeToPaths.remove(aPath.nodeTwo);
             }
         }
     }
@@ -154,10 +192,8 @@ public class Topology
         for (Iterator iter = paths.iterator(); iter.hasNext();index++) {
             int weight = 0;
             List nodeList = (List) iter.next();
-            for (Iterator iterator = nodeList.iterator();
-                iterator.hasNext();
-                ) {
-                Node node = (Node) iterator.next();
+            for (Iterator iter2 = nodeList.iterator(); iter2.hasNext();) {
+                NodeWrapper node = (NodeWrapper) iter2.next();
                 weight += node.weigth.getWeight();
             }
             if ( -1 == minWeight || weight < minWeight ) {
@@ -166,7 +202,13 @@ public class Topology
             }
         }
         List path = (List) paths.get(minPathIndex);
-        return (NodeInfo[]) path.toArray(new NodeInfo[0]);
+        NodeInfo[] result = new NodeInfo[path.size()];
+        int i = 0;
+        for (Iterator iter = path.iterator(); iter.hasNext();) {
+            NodeWrapper wrapper = (NodeWrapper) iter.next();
+            result[i++] = wrapper.node;
+        }
+        return result;
     }
 
     private List getPaths(NodeInfo aSource, NodeInfo aTarget, List aPath,
@@ -178,22 +220,55 @@ public class Topology
         }
         List returned = new ArrayList();
         for (Iterator iter = related.iterator(); iter.hasNext();) {
-            Node node = (Node) iter.next();
-            if ( aPath.contains(node) ) {
+            NodeWrapper wrapper = (NodeWrapper) iter.next();
+            if ( aPath.contains(wrapper) ) {
                 continue;
             }
-            aPath.add(node);
-            if ( node.equals(aTarget) ) {
+            aPath.add(wrapper);
+            if ( wrapper.node.equals(aTarget) ) {
                 returned.add(new ArrayList(aPath));
             } else {
-                Collection paths = getPaths(node, aTarget, aPath, aNodeToPath);
+                Collection paths =
+                    getPaths(wrapper.node, aTarget, aPath, aNodeToPath);
                 returned.addAll(paths);
             }
-            aPath.remove(node);
+            aPath.remove(wrapper);
         }
         return returned;
     }
 
+    /**
+     * Gets the identifier of the provided node.
+     * <BR>
+     * When a node added to a topology, this latter assigns it an identifier.
+     * 
+     * @param aNodeInfo Node whose identifier is to be returned.
+     * @return Node identifier.
+     */
+    public int getIDOfNode(NodeInfo aNodeInfo) {
+        Integer id;
+        synchronized(nodeAndIdLock) {
+            id = (Integer) nodeToID.get(aNodeInfo);
+        }
+        if ( null == id ) {
+            throw new IllegalArgumentException(aNodeInfo +
+                " is not registered by this topology.");
+        }
+        return id.intValue();
+    }
+    
+    public NodeInfo getNodeById(int anId) {
+        NodeInfo nodeInfo;
+        synchronized(nodeAndIdLock) {
+            nodeInfo = (NodeInfo) idToNode.get(new Integer(anId));
+        }
+        if ( null == nodeInfo ) {
+            throw new IllegalArgumentException("Identifier " + anId +
+                " is not registered by this topology.");
+        }
+        return nodeInfo;
+    }
+    
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeObject(nodeToPaths);
     }
@@ -205,7 +280,7 @@ public class Topology
     /**
      * Abstract a weight between two nodes.
      *
-     * @version $Revision: 1.1 $ $Date: 2004/03/11 15:36:14 $
+     * @version $Revision: 1.2 $ $Date: 2004/03/16 14:48:59 $
      */
     public static class PathWeight implements Externalizable {
         private int weight;
@@ -227,35 +302,30 @@ public class Topology
         }
     }
     
-    private static class Node
-        extends NodeInfo
-        implements Externalizable {
+    private static class NodeWrapper implements Externalizable {
         private PathWeight weigth;
-        /**
-         * Required for Externalization.
-         */
-        public Node() {}
-        public Node(NodeInfo aNode, PathWeight aWeight) {
-            super(aNode.getName(), aNode.getAddress(), aNode.getPort());
-            if ( null == aNode ) {
-                throw new IllegalArgumentException("Node is required");
-            }
+        private NodeInfo node;
+        public NodeWrapper(NodeInfo aNode, PathWeight aWeight) {
+            node = aNode;
             weigth = aWeight;
         }
         public boolean equals(Object obj) {
-            return super.equals(obj);
+            if ( false == obj instanceof NodeWrapper ) {
+                return false;
+            }
+            NodeWrapper other = (NodeWrapper) obj;
+            return node.equals(other.node);
         }
         public int hashCode() {
-            return super.hashCode();
+            return node.hashCode();
         }
         public void writeExternal(ObjectOutput out) throws IOException {
-            super.writeExternal(out);
             out.writeObject(weigth);
+            out.writeObject(node);
         }
-        public void readExternal(ObjectInput in)
-            throws IOException, ClassNotFoundException {
-            super.readExternal(in);
+        public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
             weigth = (PathWeight) in.readObject();
+            node = (NodeInfo) in.readObject();
         }
     }
     

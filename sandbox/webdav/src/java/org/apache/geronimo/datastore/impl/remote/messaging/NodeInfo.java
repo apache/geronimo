@@ -30,7 +30,7 @@ import java.net.InetAddress;
  * order to notify the availability of a new node to other nodes. These other
  * nodes could then decide to join it or not.
  *
- * @version $Revision: 1.2 $ $Date: 2004/03/11 15:36:14 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/16 14:48:59 $
  */
 public class NodeInfo implements Externalizable
 {
@@ -52,11 +52,15 @@ public class NodeInfo implements Externalizable
      * Pops the first element of the array and returns the resulting array.
      * 
      * @param aNodeInfo Array whose first element is to be poped.
-     * @return New array.
+     * @return New array. If the size of aNodeInfo is one, then null is
+     * returned.
      */
     public static NodeInfo[] pop(NodeInfo[] aNodeInfo) {
         if ( null == aNodeInfo || 0 == aNodeInfo.length) {
             throw new IllegalArgumentException("NodeInfo array is required.");
+        }
+        if ( 1 == aNodeInfo.length ) {
+            return null;
         }
         NodeInfo[] returned = new NodeInfo[aNodeInfo.length-1];
         for (int i = 1; i < aNodeInfo.length; i++) {
