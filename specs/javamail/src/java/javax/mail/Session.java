@@ -65,6 +65,11 @@ public final class Session {
 
     private static final WeakHashMap providersByClassLoader = new WeakHashMap();
 
+    // TODO: Replace me w/ a proper loader please
+    static {
+        addressMap.put("rfc822", "smtp");
+    }
+
     /**
      * No public constrcutor allowed.
      */
