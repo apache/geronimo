@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.43 $ $Date: 2004/02/12 08:18:21 $ -->
+<!-- $Revision: 1.44 $ $Date: 2004/02/12 18:17:17 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -153,7 +153,6 @@
             <url>http://jakarta.apache.org/log4j</url>
             <properties>
                 <runtime>false</runtime>
-                <log4j-service>true</log4j-service>
             </properties>
         </dependency>
 
