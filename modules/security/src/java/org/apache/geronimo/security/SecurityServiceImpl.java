@@ -48,13 +48,13 @@ import org.apache.geronimo.security.util.ConfigurationUtil;
  *
  * @version $Rev$ $Date$
  */
-public class SecurityServiceImpl implements SecurityServiceMBean, GBeanLifecycle {
+public class SecurityServiceImpl implements SecurityService, GBeanLifecycle {
     /**
      * The JMX name of the SecurityServiceImpl.
      */
     public static final ObjectName SECURITY = JMXUtil.getObjectName("geronimo.security:type=SecurityServiceImpl");
 
-    private final Log log = LogFactory.getLog(SecurityServiceMBean.class);
+    private final Log log = LogFactory.getLog(SecurityService.class);
 
     private String policyConfigurationFactory;
     private Collection realms = Collections.EMPTY_SET;

@@ -19,6 +19,7 @@ package org.apache.geronimo.security;
 
 import java.util.Collection;
 import org.apache.geronimo.common.GeronimoSecurityException;
+import org.apache.geronimo.security.realm.AutoMapAssistant;
 
 
 /**
@@ -26,7 +27,7 @@ import org.apache.geronimo.common.GeronimoSecurityException;
  *
  * @version $Rev$ $Date$
  */
-public interface SecurityServiceMBean {
+public interface SecurityService {
 
     String getPolicyConfigurationFactory();
 
@@ -39,4 +40,6 @@ public interface SecurityServiceMBean {
     Collection getModuleConfigurations();
 
     void setModuleConfigurations(Collection moduleConfigurations);
+
+    AutoMapAssistant getMapper(String name);
 }

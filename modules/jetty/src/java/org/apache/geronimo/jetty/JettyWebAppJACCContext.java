@@ -51,7 +51,7 @@ import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.PrimaryRealmPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.SubjectId;
-import org.apache.geronimo.security.SecurityServiceImpl;
+import org.apache.geronimo.security.SecurityService;
 import org.apache.geronimo.security.realm.SecurityRealm;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.deploy.Security;
@@ -87,7 +87,7 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
     private final Kernel kernel;
     private final String policyContextID;
     private final Security securityConfig;
-    private final SecurityServiceImpl securityService;
+    private final SecurityService securityService;
     private final JAASJettyPrincipal defaultPrincipal;
 
     private PolicyConfigurationFactory factory;
@@ -119,7 +119,7 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
             Set applicationManagedSecurityResources,
             String policyContextID,
             Security securityConfig,
-            SecurityServiceImpl securityService,
+            SecurityService securityService,
             TransactionContextManager transactionContextManager,
             TrackedConnectionAssociator trackedConnectionAssociator,
             JettyContainer jettyContainer) throws MalformedURLException {
@@ -161,7 +161,7 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
         return securityConfig;
     }
 
-    public SecurityServiceImpl getSecurityService() {
+    public SecurityService getSecurityService() {
         return securityService;
     }
 
@@ -548,7 +548,7 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("policyContextID", String.class, true);
         infoFactory.addAttribute("securityConfig", Security.class, true);
-        infoFactory.addReference("SecurityService", SecurityServiceImpl.class);
+        infoFactory.addReference("SecurityService", SecurityService.class);
 
         infoFactory.setConstructor(new String[]{
             "kernel",
