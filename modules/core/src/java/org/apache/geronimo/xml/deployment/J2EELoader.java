@@ -77,9 +77,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
+ * Knows how to load common J2EE deployment descriptor elements from a DOM
+ * into POJOs.
  *
- *
- * @version $Revision: 1.2 $ $Date: 2003/09/02 17:04:21 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/04 05:33:39 $
  */
 public final class J2EELoader {
     public static EnvEntry[] loadEnvEntries(Element parent) {
@@ -240,16 +241,15 @@ public final class J2EELoader {
     }
 
     public static MessageDestination[] loadMessageDestinations(Element parent) {
-        NodeList nodes = parent.getElementsByTagName("message-destination");
-        int length = nodes.getLength();
-        MessageDestination[] result = new MessageDestination[length];
-        for (int i = 0; i < length; i++) {
-            Element e = (Element) nodes.item(i);
-            MessageDestination msgDdest = new MessageDestination();
-            msgDdest.setMessageDestinationName(LoaderUtil.getChildContent(e, "message-destination-name"));
-            result[i] = msgDdest;
+        Element[] roots = LoaderUtil.getChildren(parent, "message-destination");
+        MessageDestination[] dest = new MessageDestination[roots.length];
+        for(int i = 0; i < roots.length; i++) {
+            Element root = roots[i];
+            dest[i] = new MessageDestination();
+            loadDisplayable(root, dest[i]);
+            dest[i].setMessageDestinationName(LoaderUtil.getChildContent(root, "message-destination-name"));
         }
-        return result;
+        return dest;
     }
 
     public static MessageDestinationRef[] loadMessageDestinationRefs(Element parent) {
