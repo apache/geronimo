@@ -66,7 +66,7 @@ import org.apache.commons.logging.LogConfigurationException;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/02/13 07:22:22 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/13 15:44:02 $
  */
 public class GeronimoLogFactory extends LogFactory {
     private final static Object factoryLock = new Object();
@@ -76,7 +76,6 @@ public class GeronimoLogFactory extends LogFactory {
     private static LogFactory logFactory = new BootstrapLogFactory();
 
     public GeronimoLogFactory() {
-        System.out.println("Created Geronimo log factory");
     }
 
     public LogFactory getLogFactory() {
