@@ -60,12 +60,12 @@ import java.io.Serializable;
 import java.net.URI;
 import java.net.URL;
 
-import org.apache.geronimo.gbean.jmx.GMBean;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
 
 /**
  * Interface to a store for Configurations.
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/12 01:39:46 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/14 22:16:38 $
  */
 public interface ConfigurationStore {
     /**
@@ -79,12 +79,12 @@ public interface ConfigurationStore {
     /**
      * Return the Configuration GBean for the specified ID
      * @param id the unique ID of a Configuration
-     * @return the GMBean for that configuration
+     * @return the GBeanMBean for that configuration
      * @throws org.apache.geronimo.kernel.config.NoSuchConfigException if the store does not contain a Configuration with that id
      * @throws java.io.IOException if there was a problem loading the Configuration from the store
      * @throws org.apache.geronimo.kernel.config.InvalidConfigException if the Configuration is invalid
      */
-    GMBean getConfig(URI id) throws NoSuchConfigException, IOException, InvalidConfigException;
+    GBeanMBean getConfig(URI id) throws NoSuchConfigException, IOException, InvalidConfigException;
 
     /**
      * Return the base URL for the specified ID

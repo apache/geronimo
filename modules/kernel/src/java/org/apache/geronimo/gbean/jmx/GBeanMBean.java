@@ -88,6 +88,7 @@ import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.GEndpointInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
+import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.jmx.AbstractManagedObject;
 
 import net.sf.cglib.reflect.FastClass;
@@ -98,11 +99,11 @@ import net.sf.cglib.reflect.FastClass;
  * GeronimoMBeanInfo instance.  The GeronimoMBean also support caching of attribute values and invocation results
  * which can reduce the number of calls to a target.
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/14 08:31:07 $
+ * @version $Revision: 1.1 $ $Date: 2004/01/14 22:16:38 $
  */
-public class GMBean extends AbstractManagedObject implements DynamicMBean {
-    public static final FastClass fastClass = FastClass.create(GMBean.class);
-    private static final Log log = LogFactory.getLog(GMBean.class);
+public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
+    public static final FastClass fastClass = FastClass.create(GBeanMBean.class);
+    private static final Log log = LogFactory.getLog(GBeanMBean.class);
 
     /**
      * Gets the context class loader from the thread or the system class loader if there is no context class loader.
@@ -117,17 +118,17 @@ public class GMBean extends AbstractManagedObject implements DynamicMBean {
     }
 
     /**
-     * Attributes supported by this GBean by (String) name.
+     * Attributes supported by this GBeanMBean by (String) name.
      */
     private final Map attributeMap = new HashMap();
 
     /**
-     * Endpoints supported by this GBean by (String) name.
+     * Endpoints supported by this GBeanMBean by (String) name.
      */
     private final Map endpointMap = new HashMap();
 
     /**
-     * Opperations supported by this GBean by (MBeanOperationSignature) name.
+     * Opperations supported by this GBeanMBean by (MBeanOperationSignature) name.
      */
     private final Map operationMap = new HashMap();
 
@@ -150,7 +151,7 @@ public class GMBean extends AbstractManagedObject implements DynamicMBean {
     private boolean offline = true;
     private Object target;
 
-    public GMBean(GBeanInfo beanInfo, ClassLoader classLoader) throws InvalidConfigurationException {
+    public GBeanMBean(GBeanInfo beanInfo, ClassLoader classLoader) throws InvalidConfigurationException {
         this.gbeanInfo = beanInfo;
         this.classLoader = classLoader;
         try {
@@ -167,19 +168,19 @@ public class GMBean extends AbstractManagedObject implements DynamicMBean {
         Map constructorTypes = gbeanInfo.getConstructor().getAttributeTypeMap();
         for (Iterator iterator = beanInfo.getAttributeSet().iterator(); iterator.hasNext();) {
             GAttributeInfo attributeInfo = (GAttributeInfo) iterator.next();
-            addAttribute(new GMBeanAttribute(this, attributeInfo, (Class) constructorTypes.get(attributeInfo.getName())));
+            addAttribute(new GBeanMBeanAttribute(this, attributeInfo, (Class) constructorTypes.get(attributeInfo.getName())));
         }
 
         // endpoints
         for (Iterator iterator = beanInfo.getEndpointsSet().iterator(); iterator.hasNext();) {
             GEndpointInfo endpointInfo = (GEndpointInfo) iterator.next();
-            addEndpoint(new GMBeanEndpoint(this, endpointInfo, (Class) constructorTypes.get(endpointInfo.getName())));
+            addEndpoint(new GBeanMBeanEndpoint(this, endpointInfo, (Class) constructorTypes.get(endpointInfo.getName())));
         }
 
         // operations
         for (Iterator iterator = beanInfo.getOperationsSet().iterator(); iterator.hasNext();) {
             GOperationInfo operationInfo = (GOperationInfo) iterator.next();
-            addOperation(new GMBeanOperation(this, operationInfo));
+            addOperation(new GBeanMBeanOperation(this, operationInfo));
         }
 
         // add all attributes and operations from the ManagedObject interface
@@ -189,14 +190,14 @@ public class GMBean extends AbstractManagedObject implements DynamicMBean {
         idx = 0;
         MBeanAttributeInfo[] mbeanAttrs = new MBeanAttributeInfo[attributeMap.size()];
         for (Iterator i = attributeMap.values().iterator(); i.hasNext();) {
-            GMBeanAttribute attr = (GMBeanAttribute) i.next();
+            GBeanMBeanAttribute attr = (GBeanMBeanAttribute) i.next();
             mbeanAttrs[idx++] = attr.getMBeanAttributeInfo();
         }
 
         idx = 0;
         MBeanOperationInfo[] mbeanOps = new MBeanOperationInfo[operationMap.size()];
         for (Iterator i = operationMap.values().iterator(); i.hasNext();) {
-            GMBeanOperation op = (GMBeanOperation) i.next();
+            GBeanMBeanOperation op = (GBeanMBeanOperation) i.next();
             mbeanOps[idx++] = op.getMbeanOperationInfo();
         }
 
@@ -209,30 +210,30 @@ public class GMBean extends AbstractManagedObject implements DynamicMBean {
                 (MBeanNotificationInfo[]) notifications.toArray(new MBeanNotificationInfo[notifications.size()]));
     }
 
-    public GMBean(GBeanInfo beanInfo) throws InvalidConfigurationException {
+    public GBeanMBean(GBeanInfo beanInfo) throws InvalidConfigurationException {
         this(beanInfo, getContextClassLoader());
     }
 
     /**
      * "Bootstrapping" constructor.  The class specified is loaded and the static method
      * "getGBeanInfo" is called to get the gbean info.  Usually one will include
-     * this static method in the class to be wrapped in the GMBean instance.
+     * this static method in the class to be wrapped in the GBeanMBean instance.
      * @param className name of the class to call getGBeanInfo on
      * @param classLoader the class loader for this GBean
      * @throws java.lang.Exception if an exception occurs while getting the GeronimoMBeanInfo from the class
      */
-    public GMBean(String className, ClassLoader classLoader) throws Exception {
+    public GBeanMBean(String className, ClassLoader classLoader) throws Exception {
         this(GBeanInfo.getGBeanInfo(className, classLoader), classLoader);
     }
 
     /**
      * "Bootstrapping" constructor.  The class specified is loaded and the static method
      * "getGBeanInfo" is called to get the gbean info.  Usually one will include
-     * this static method in the class to be wrapped in the GMBean instance.
+     * this static method in the class to be wrapped in the GBeanMBean instance.
      * @param className name of the class to call getGBeanInfo on
      * @throws java.lang.Exception if an exception occurs while getting the GeronimoMBeanInfo from the class
      */
-    public GMBean(String className) throws Exception {
+    public GBeanMBean(String className) throws Exception {
         this(className, ClassLoader.getSystemClassLoader());
     }
 
@@ -273,7 +274,7 @@ public class GMBean extends AbstractManagedObject implements DynamicMBean {
             if (attributeMap.containsKey(name)) {
                 parameters[i] = getAttribute(name);
             } else if (endpointMap.containsKey(name)) {
-                GMBeanEndpoint endpoint = (GMBeanEndpoint) endpointMap.get(name);
+                GBeanMBeanEndpoint endpoint = (GBeanMBeanEndpoint) endpointMap.get(name);
                 endpoint.online();
                 parameters[i] = endpoint.getProxy();
             } else {
@@ -284,14 +285,14 @@ public class GMBean extends AbstractManagedObject implements DynamicMBean {
 
         // bring all of the attributes online
         for (Iterator iterator = attributeMap.values().iterator(); iterator.hasNext();) {
-            GMBeanAttribute attribute = (GMBeanAttribute) iterator.next();
+            GBeanMBeanAttribute attribute = (GBeanMBeanAttribute) iterator.next();
             attribute.online();
         }
 
         // bring any endpoint not used in the constructor online
         // @todo this code sucks, but works
         for (Iterator iterator = endpointMap.values().iterator(); iterator.hasNext();) {
-            GMBeanEndpoint endpoint = (GMBeanEndpoint) iterator.next();
+            GBeanMBeanEndpoint endpoint = (GBeanMBeanEndpoint) iterator.next();
             if (!constructorInfo.getAttributeNames().contains(endpoint.getName())) {
                 endpoint.online();
             }
@@ -309,7 +310,7 @@ public class GMBean extends AbstractManagedObject implements DynamicMBean {
         } else {
             // we need to bring the endpoints back off line
             for (Iterator iterator = endpointMap.values().iterator(); iterator.hasNext();) {
-                GMBeanEndpoint endpoint = (GMBeanEndpoint) iterator.next();
+                GBeanMBeanEndpoint endpoint = (GBeanMBeanEndpoint) iterator.next();
                 endpoint.offline();
             }
 
@@ -321,13 +322,13 @@ public class GMBean extends AbstractManagedObject implements DynamicMBean {
     public void postDeregister() {
         // take all of the attributes offline
         for (Iterator iterator = attributeMap.values().iterator(); iterator.hasNext();) {
-            GMBeanAttribute attribute = (GMBeanAttribute) iterator.next();
+            GBeanMBeanAttribute attribute = (GBeanMBeanAttribute) iterator.next();
             attribute.offline();
         }
 
         // take all of the endpoints offline
         for (Iterator iterator = endpointMap.values().iterator(); iterator.hasNext();) {
-            GMBeanEndpoint endpoint = (GMBeanEndpoint) iterator.next();
+            GBeanMBeanEndpoint endpoint = (GBeanMBeanEndpoint) iterator.next();
             endpoint.offline();
         }
 
@@ -348,15 +349,15 @@ public class GMBean extends AbstractManagedObject implements DynamicMBean {
     protected void doStart() throws Exception {
         // start all of the endpoints
         for (Iterator iterator = endpointMap.values().iterator(); iterator.hasNext();) {
-            GMBeanEndpoint endpoint = (GMBeanEndpoint) iterator.next();
+            GBeanMBeanEndpoint endpoint = (GBeanMBeanEndpoint) iterator.next();
             endpoint.start();
         }
 
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(classLoader);
         try {
-            if (target instanceof GMBeanTarget) {
-                ((GMBeanTarget) target).doStart();
+            if (target instanceof GBean) {
+                ((GBean) target).doStart();
             }
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
@@ -367,8 +368,8 @@ public class GMBean extends AbstractManagedObject implements DynamicMBean {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(classLoader);
         try {
-            if (target instanceof GMBeanTarget) {
-                ((GMBeanTarget) target).doStop();
+            if (target instanceof GBean) {
+                ((GBean) target).doStop();
             }
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
@@ -376,7 +377,7 @@ public class GMBean extends AbstractManagedObject implements DynamicMBean {
 
         // stop all of the endpoints
         for (Iterator iterator = endpointMap.values().iterator(); iterator.hasNext();) {
-            GMBeanEndpoint endpoint = (GMBeanEndpoint) iterator.next();
+            GBeanMBeanEndpoint endpoint = (GBeanMBeanEndpoint) iterator.next();
             endpoint.stop();
         }
     }
@@ -385,8 +386,8 @@ public class GMBean extends AbstractManagedObject implements DynamicMBean {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(classLoader);
         try {
-            if (target instanceof GMBeanTarget) {
-                ((GMBeanTarget) target).doFail();
+            if (target instanceof GBean) {
+                ((GBean) target).doFail();
             }
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
@@ -394,13 +395,13 @@ public class GMBean extends AbstractManagedObject implements DynamicMBean {
 
         // stop all of the endpoints
         for (Iterator iterator = endpointMap.values().iterator(); iterator.hasNext();) {
-            GMBeanEndpoint endpoint = (GMBeanEndpoint) iterator.next();
+            GBeanMBeanEndpoint endpoint = (GBeanMBeanEndpoint) iterator.next();
             endpoint.stop();
         }
     }
 
     public Object getAttribute(String attributeName) throws AttributeNotFoundException, MBeanException, ReflectionException {
-        GMBeanAttribute attribute = (GMBeanAttribute) attributeMap.get(attributeName);
+        GBeanMBeanAttribute attribute = (GBeanMBeanAttribute) attributeMap.get(attributeName);
         if (attribute == null) {
             throw new AttributeNotFoundException("Unknown attribute " + attributeName);
         }
@@ -409,7 +410,7 @@ public class GMBean extends AbstractManagedObject implements DynamicMBean {
     }
 
     public void setAttribute(Attribute attributeValue) throws AttributeNotFoundException, InvalidAttributeValueException, MBeanException, ReflectionException {
-        GMBeanAttribute attribute = (GMBeanAttribute) attributeMap.get(attributeValue.getName());
+        GBeanMBeanAttribute attribute = (GBeanMBeanAttribute) attributeMap.get(attributeValue.getName());
         if (attribute == null) {
             throw new AttributeNotFoundException("Unknown attribute " + attributeValue.getName());
         }
@@ -418,7 +419,7 @@ public class GMBean extends AbstractManagedObject implements DynamicMBean {
     }
 
     public void setAttribute(String name, Object value) throws AttributeNotFoundException, InvalidAttributeValueException, MBeanException, ReflectionException {
-        GMBeanAttribute attribute = (GMBeanAttribute) attributeMap.get(name);
+        GBeanMBeanAttribute attribute = (GBeanMBeanAttribute) attributeMap.get(name);
         if (attribute == null) {
             throw new AttributeNotFoundException("Unknown attribute " + name);
         }
@@ -463,20 +464,20 @@ public class GMBean extends AbstractManagedObject implements DynamicMBean {
 
 
         // If this is an attribute accessor get call the getAttibute or setAttribute method
-        if (operation instanceof GMBeanAttribute) {
+        if (operation instanceof GBeanMBeanAttribute) {
             if (arguments == null || arguments.length == 0) {
-                return ((GMBeanAttribute) operation).getValue();
+                return ((GBeanMBeanAttribute) operation).getValue();
             } else {
-                ((GMBeanAttribute) operation).setValue(arguments[0]);
+                ((GBeanMBeanAttribute) operation).setValue(arguments[0]);
                 return null;
             }
         }
 
-        return ((GMBeanOperation) operation).invoke(arguments);
+        return ((GBeanMBeanOperation) operation).invoke(arguments);
     }
 
     public Set getEndpointPatterns(String name) {
-        GMBeanEndpoint endpoint = (GMBeanEndpoint) endpointMap.get(name);
+        GBeanMBeanEndpoint endpoint = (GBeanMBeanEndpoint) endpointMap.get(name);
         if (endpoint == null) {
             throw new IllegalArgumentException("Unknown endpoint " + name);
         }
@@ -484,7 +485,7 @@ public class GMBean extends AbstractManagedObject implements DynamicMBean {
     }
 
     public void setEndpointPatterns(String name, Set patterns) {
-        GMBeanEndpoint endpoint = (GMBeanEndpoint) endpointMap.get(name);
+        GBeanMBeanEndpoint endpoint = (GBeanMBeanEndpoint) endpointMap.get(name);
         if (endpoint == null) {
             throw new IllegalArgumentException("Unknown endpoint " + name);
         }
@@ -495,27 +496,27 @@ public class GMBean extends AbstractManagedObject implements DynamicMBean {
         return mbeanInfo.getNotifications();
     }
 
-    private void addAttribute(GMBeanAttribute mbeanAttribute) {
+    private void addAttribute(GBeanMBeanAttribute mbeanAttribute) {
         String attributeName = mbeanAttribute.getName();
 
         // add to attribute map
         attributeMap.put(attributeName, mbeanAttribute);
     }
 
-    private void addEndpoint(GMBeanEndpoint mbeanEndpoint) {
+    private void addEndpoint(GBeanMBeanEndpoint mbeanEndpoint) {
         String endpointName = mbeanEndpoint.getName();
 
         // add to endpoint map
         endpointMap.put(endpointName, mbeanEndpoint);
     }
 
-    private void addOperation(GMBeanOperation mbeanOperation) {
+    private void addOperation(GBeanMBeanOperation mbeanOperation) {
         MBeanOperationSignature signature = new MBeanOperationSignature(mbeanOperation.getName(), mbeanOperation.getParameterTypes());
         operationMap.put(signature, mbeanOperation);
     }
 
     private void addManagedObjectInterface() {
-        addAttribute(new GMBeanAttribute(
+        addAttribute(new GBeanMBeanAttribute(
                 this,
                 "state",
                 "J2EE Management State",
@@ -527,7 +528,7 @@ public class GMBean extends AbstractManagedObject implements DynamicMBean {
                 },
                 null));
 
-        addAttribute(new GMBeanAttribute(
+        addAttribute(new GBeanMBeanAttribute(
                 this,
                 "objectName",
                 "JMX Object Name",
@@ -539,7 +540,7 @@ public class GMBean extends AbstractManagedObject implements DynamicMBean {
                 },
                 null));
 
-        addAttribute(new GMBeanAttribute(
+        addAttribute(new GBeanMBeanAttribute(
                 this,
                 "startTime",
                 "Time the MBean started",
@@ -551,7 +552,7 @@ public class GMBean extends AbstractManagedObject implements DynamicMBean {
                 },
                 null));
 
-        addAttribute(new GMBeanAttribute(
+        addAttribute(new GBeanMBeanAttribute(
                 this,
                 "stateManageable",
                 "Is this MBean state manageable?",
@@ -563,7 +564,7 @@ public class GMBean extends AbstractManagedObject implements DynamicMBean {
                 },
                 null));
 
-        addAttribute(new GMBeanAttribute(
+        addAttribute(new GBeanMBeanAttribute(
                 this,
                 "statisticsProvider",
                 "Does this MBean provide statistics?",
@@ -576,7 +577,7 @@ public class GMBean extends AbstractManagedObject implements DynamicMBean {
                 null));
 
 
-        addAttribute(new GMBeanAttribute(
+        addAttribute(new GBeanMBeanAttribute(
                 this,
                 "eventProvider",
                 "Does this MBean provide events?",
@@ -588,7 +589,7 @@ public class GMBean extends AbstractManagedObject implements DynamicMBean {
                 },
                 null));
 
-        addOperation(new GMBeanOperation(
+        addOperation(new GBeanMBeanOperation(
                 this,
                 "start",
                 "Starts the MBean",
@@ -601,7 +602,7 @@ public class GMBean extends AbstractManagedObject implements DynamicMBean {
                     }
                 }));
 
-        addOperation(new GMBeanOperation(
+        addOperation(new GBeanMBeanOperation(
                 this,
                 "startRecursive",
                 "Starts the MBean and then starts all the dependent MBeans",
@@ -614,7 +615,7 @@ public class GMBean extends AbstractManagedObject implements DynamicMBean {
                     }
                 }));
 
-        addOperation(new GMBeanOperation(
+        addOperation(new GBeanMBeanOperation(
                 this,
                 "stop",
                 "Stops the MBean",

@@ -62,7 +62,7 @@ import javax.management.ObjectName;
 import org.apache.geronimo.kernel.jmx.InterfaceCallbackFilter;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.gbean.jmx.GMBean;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.gbean.jmx.Proxy;
 import org.apache.geronimo.gbean.jmx.ProxyMethodInterceptor;
 
@@ -73,13 +73,13 @@ import net.sf.cglib.proxy.SimpleCallbacks;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/12 01:38:55 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/14 22:16:38 $
  */
 public class SingleProxy implements Proxy {
     /**
-     * The GMBean to which this proxy belongs.
+     * The GBeanMBean to which this proxy belongs.
      */
-    private final GMBean gmbean;
+    private final GBeanMBean gmbean;
 
     /**
      * Name of this proxy.
@@ -101,7 +101,7 @@ public class SingleProxy implements Proxy {
      */
     private ProxyMethodInterceptor methodInterceptor;
 
-    public SingleProxy(GMBean gmbean, String name, Class type) {
+    public SingleProxy(GBeanMBean gmbean, String name, Class type) {
         this.gmbean = gmbean;
         this.name = name;
         Enhancer enhancer = new Enhancer();

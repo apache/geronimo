@@ -62,12 +62,9 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Describes an operation on a GMBean.  This extension allows the properties to be mutable during setup,
- * and once the GBean is deployed an imutable copy of will be made.  This class also adds support to
- * direct the operation to a specific target in a multi target GeronimoMBean.  It also supports caching of the
- * invocation result, which can reduce the number of calls on the target.
+ * Describes an operation on a GBean.
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/12 01:38:55 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/14 22:16:37 $
  */
 public final class GOperationInfo implements Serializable {
     /**

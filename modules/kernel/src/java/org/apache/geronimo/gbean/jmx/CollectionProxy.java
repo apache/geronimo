@@ -74,13 +74,13 @@ import net.sf.cglib.proxy.SimpleCallbacks;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/12 01:38:55 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/14 22:16:38 $
  */
 public class CollectionProxy implements Proxy {
     /**
-     * The GMBean to which this proxy belongs.
+     * The GBeanMBean to which this proxy belongs.
      */
-    private final GMBean gmbean;
+    private final GBeanMBean gmbean;
 
     /**
      * The proxy type
@@ -107,7 +107,7 @@ public class CollectionProxy implements Proxy {
      */
     private final Factory factory;
 
-    public CollectionProxy(GMBean gmbean, Class type) {
+    public CollectionProxy(GBeanMBean gmbean, Class type) {
         this.gmbean = gmbean;
         this.type = type;
         Enhancer enhancer = new Enhancer();

@@ -72,7 +72,7 @@ import javax.management.ObjectName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.jmx.GMBean;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.LocalConfigStore;
@@ -97,7 +97,7 @@ import org.apache.geronimo.kernel.service.DependencyService2;
  * used hold the persistent state of each Configuration. This allows
  * Configurations to restart in he event of system failure.
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/14 08:31:07 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/14 22:16:38 $
  */
 public class Kernel implements Serializable, KernelMBean {
     /**
@@ -122,14 +122,14 @@ public class Kernel implements Serializable, KernelMBean {
     private transient Log log;
     private transient boolean running;
     private transient MBeanServer mbServer;
-    private transient GMBean storeGBean;
+    private transient GBeanMBean storeGBean;
     private transient ConfigurationStore store;
 
     /**
      * Construct a Kernel using the specified JMX domain and supply the
      * information needed to create the ConfigurationStore.
      * @param domainName the domain name to be used for the JMX MBeanServer
-     * @param storeInfo the info for the GMBean to be used for the ConfigurationStore
+     * @param storeInfo the info for the GBeanMBean to be used for the ConfigurationStore
      * @param configStore a local directory to be used by the ConfigurationStore;
      *                    this must be present and writable when the kernel is booted
      */
@@ -159,19 +159,19 @@ public class Kernel implements Serializable, KernelMBean {
         if (!running) {
             throw new IllegalStateException("Kernel is not running");
         }
-        GMBean config = store.getConfig(configID);
+        GBeanMBean config = store.getConfig(configID);
         URL baseURL = store.getBaseURL(configID);
         return load(config, baseURL);
     }
 
     /**
      * Load the supplied Configuration into the Kernel and define its root using the specified URL.
-     * @param config the GMBean representing the Configuration
+     * @param config the GBeanMBean representing the Configuration
      * @param rootURL the URL to be used to resolve relative paths in the configuration
      * @return the JMX ObjectName the Kernel registered the Configuration under
      * @throws org.apache.geronimo.kernel.config.InvalidConfigException if the Configuration is not valid
      */
-    public ObjectName load(GMBean config, URL rootURL) throws InvalidConfigException {
+    public ObjectName load(GBeanMBean config, URL rootURL) throws InvalidConfigException {
         URI configID;
         try {
             configID = (URI) config.getAttribute("ID");
@@ -192,12 +192,12 @@ public class Kernel implements Serializable, KernelMBean {
      * Load the supplied Configuration into the Kernel and override the default JMX name.
      * This method should be used with discretion as it is possible to create
      * Configurations that cannot be located by management or monitoring tools.
-     * @param config the GMBean representing the Configuration
+     * @param config the GBeanMBean representing the Configuration
      * @param rootURL the URL to be used to resolve relative paths in the configuration
      * @param configName the JMX ObjectName to register the Configuration under
      * @throws org.apache.geronimo.kernel.config.InvalidConfigException if the Configuration is not valid
      */
-    public void load(GMBean config, URL rootURL, ObjectName configName) throws InvalidConfigException {
+    public void load(GBeanMBean config, URL rootURL, ObjectName configName) throws InvalidConfigException {
         if (!running) {
             throw new IllegalStateException("Kernel is not running");
         }
@@ -266,7 +266,7 @@ public class Kernel implements Serializable, KernelMBean {
         mbServer = MBeanServerFactory.createMBeanServer(domainName);
         mbServer.registerMBean(this, KERNEL);
         mbServer.registerMBean(new DependencyService2(), DEPENDENCY_SERVICE);
-        storeGBean = new GMBean(storeInfo);
+        storeGBean = new GBeanMBean(storeInfo);
         storeGBean.setAttribute("root", configStore);
         mbServer.registerMBean(storeGBean, CONFIG_STORE);
         storeGBean.start();

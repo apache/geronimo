@@ -66,11 +66,9 @@ import java.util.Set;
 import org.apache.geronimo.gbean.GAttributeInfo;
 
 /**
- * Describes a GBean.  This extension allows the properties to be mutable during setup,
- * and once the MBean is deployed an imutable copy of will be made.  This class also adds support for multi target
- * POJOs under the MBean.
+ * Describes a GBean.
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/14 08:31:06 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/14 22:16:37 $
  */
 public final class GBeanInfo implements Serializable {
     /**
@@ -173,7 +171,7 @@ public final class GBeanInfo implements Serializable {
     }
 
     public String toString() {
-        StringBuffer result = new StringBuffer("[GeronimoMBeanInfo: id=").append(super.toString()).append(" name=").append(name).append(" description=").append(description);
+        StringBuffer result = new StringBuffer("[GBeanInfo: id=").append(super.toString()).append(" name=").append(name).append(" description=").append(description);
         for (Iterator iterator = attributes.iterator(); iterator.hasNext();) {
             GAttributeInfo geronimoAttributeInfo = (GAttributeInfo) iterator.next();
             result.append("\n    attribute: ").append(geronimoAttributeInfo);

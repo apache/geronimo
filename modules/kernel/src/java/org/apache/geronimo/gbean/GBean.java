@@ -53,43 +53,33 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.gbean.jmx;
+package org.apache.geronimo.gbean;
 
 import org.apache.geronimo.gbean.WaitingException;
 
 
 /**
- * An optional interface for targets of a GeronimoMBean.  When a target implements this interface, the target
- * will get a regerence to the GeronimoMBeanContext, and will get life-cycle callbacks.
+ * An optional interface for a GBean.  When a GBean implements this interface, the implementation
+ * will get life-cycle callbacks.
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/12 01:38:55 $
+ * @version $Revision: 1.1 $ $Date: 2004/01/14 22:16:37 $
  */
-public interface GMBeanTarget {
+public interface GBean {
     /**
-     * Sets the GeronimoMBeanContext.  This is called before doStart and with a null context after stop.
-     *
-     * @param context the new context; will be null after stop
-     */
-//    void setMBeanContext(GeronimoMBeanContext context);
-
-    /**
-     * Starts the target.  This method is called by the GeronimoMBean to inform the target that the MBean is about to
-     * start.  This is called immediately before moving to the running state.
+     * Starts the GBean.  This informs the GBean that it is about to transition to the running state.
      * @throws org.apache.geronimo.gbean.WaitingException if the target is waiting for an external condition before it can fully start
      * @throws java.lang.Exception if the target failed to start; this will cause a transition to the failed state
      */
     void doStart() throws WaitingException, Exception;
 
     /**
-     * Stops the target.  This method is called by the GeronimoMBean to inform the target that the MBean is about to
-     * stop.  This is called immediately before moving to the stopped state.
+     * Stops the target.  This informs the GBean that it is about to transition to the stopped state.
      * @throws org.apache.geronimo.gbean.WaitingException if the target is waiting for an external condition before it can fully stop
      */
     void doStop() throws WaitingException;
 
     /**
-     * Fails the MBean.  This method is called by the GeronimoMBean to inform the target that the MBean is about to
-     * fail.  This is called immediately before moving to the failed state.
+     * Fails the GBean.  This informs the GBean that it is about to transition to the failed state.
      */
     void doFail();
 }

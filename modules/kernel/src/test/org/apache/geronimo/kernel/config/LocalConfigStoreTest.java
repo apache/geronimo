@@ -64,13 +64,14 @@ import java.net.URL;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
+
 import junit.framework.TestCase;
-import org.apache.geronimo.gbean.jmx.GMBean;
 
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/14 20:41:56 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/14 22:16:38 $
  */
 public class LocalConfigStoreTest extends TestCase {
     private File root;
@@ -83,7 +84,7 @@ public class LocalConfigStoreTest extends TestCase {
         store.install(source);
         assertTrue(new File(root, "1/META-INF/config.ser").exists());
         assertEquals(new File(root, "1").toURL(), store.getBaseURL(uri));
-        GMBean config = store.getConfig(uri);
+        GBeanMBean config = store.getConfig(uri);
         assertEquals(uri, config.getAttribute("ID"));
     }
 
@@ -94,7 +95,7 @@ public class LocalConfigStoreTest extends TestCase {
         store = new LocalConfigStore(root);
         store.doStart();
 
-        GMBean gbean = new GMBean(Configuration.GBEAN_INFO);
+        GBeanMBean gbean = new GBeanMBean(Configuration.GBEAN_INFO);
         uri = new URI("test");
         gbean.setAttribute("ID", uri);
         sourceFile = File.createTempFile("test", ".car");

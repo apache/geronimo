@@ -65,16 +65,16 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.gbean.jmx.FastMethodInvoker;
-import org.apache.geronimo.gbean.jmx.GMBean;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/12 01:38:55 $
+ * @version $Revision: 1.1 $ $Date: 2004/01/14 22:16:38 $
  */
-public class GMBeanAttribute {
-    private static final Log log = LogFactory.getLog(GMBeanAttribute.class);
-    private final GMBean gMBean;
+public class GBeanMBeanAttribute {
+    private static final Log log = LogFactory.getLog(GBeanMBeanAttribute.class);
+    private final GBeanMBean gMBean;
     private final String name;
     private final Class type;
     private final boolean readable;
@@ -87,7 +87,7 @@ public class GMBeanAttribute {
 
     private Object persistentValue;
 
-    public GMBeanAttribute(GMBean gMBean, String name, String description, Class type, MethodInvoker getInvoker, MethodInvoker setInvoker) {
+    public GBeanMBeanAttribute(GBeanMBean gMBean, String name, String description, Class type, MethodInvoker getInvoker, MethodInvoker setInvoker) {
 
         this.gMBean = gMBean;
         this.name = name;
@@ -101,7 +101,7 @@ public class GMBeanAttribute {
         mbeanAttributeInfo = new MBeanAttributeInfo(name, type.getName(), description, readable, writable, type == Boolean.TYPE);
     }
 
-    public GMBeanAttribute(GMBean gMBean, GAttributeInfo attributeInfo, Class constructorType) throws InvalidConfigurationException {
+    public GBeanMBeanAttribute(GBeanMBean gMBean, GAttributeInfo attributeInfo, Class constructorType) throws InvalidConfigurationException {
         if (attributeInfo.isReadable() == Boolean.FALSE &&
                 attributeInfo.isWritable() == Boolean.FALSE &&
                 !attributeInfo.isPersistent()) {
@@ -304,7 +304,7 @@ public class GMBeanAttribute {
         }
     }
 
-    private static Method searchForGetter(GMBean gMBean, GAttributeInfo attributeInfo) throws InvalidConfigurationException {
+    private static Method searchForGetter(GBeanMBean gMBean, GAttributeInfo attributeInfo) throws InvalidConfigurationException {
         if (attributeInfo.getGetterName() == null) {
             // no explicit name give so we must search for a name
             String getterName = "get" + attributeInfo.getName();
@@ -343,7 +343,7 @@ public class GMBeanAttribute {
         return null;
     }
 
-    private static Method searchForSetter(GMBean gMBean, GAttributeInfo attributeInfo) throws InvalidConfigurationException {
+    private static Method searchForSetter(GBeanMBean gMBean, GAttributeInfo attributeInfo) throws InvalidConfigurationException {
         if (attributeInfo.getSetterName() == null) {
             // no explicit name give so we must search for a name
             String setterName = "set" + attributeInfo.getName();

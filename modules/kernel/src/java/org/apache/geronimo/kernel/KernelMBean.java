@@ -63,17 +63,17 @@ import javax.management.ObjectName;
 
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.gbean.jmx.GMBean;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/12 01:39:46 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/14 22:16:38 $
  */
 public interface KernelMBean {
     public MBeanServer getMBeanServer();
 
-    public ObjectName load(GMBean config, URL baseURL) throws InvalidConfigException;
+    public ObjectName load(GBeanMBean config, URL baseURL) throws InvalidConfigException;
 
     public void unload(ObjectName configName) throws NoSuchConfigException;
 

@@ -81,15 +81,15 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.gbean.jmx.GMBean;
-import org.apache.geronimo.gbean.jmx.GMBeanTarget;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.gbean.GBean;
 
 /**
  * Implementation of ConfigurationStore using the local filesystem.
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/14 08:31:07 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/14 22:16:38 $
  */
-public class LocalConfigStore implements ConfigurationStore, GMBeanTarget {
+public class LocalConfigStore implements ConfigurationStore, GBean {
     private static final String INDEX_NAME = "index.properties";
     private final File root;
     private final Properties index = new Properties();
@@ -176,7 +176,7 @@ public class LocalConfigStore implements ConfigurationStore, GMBeanTarget {
                 }
             }
             try {
-                GMBean config = loadConfig(bundleRoot);
+                GBeanMBean config = loadConfig(bundleRoot);
                 index.setProperty(config.getAttribute("ID").toString(), newId);
             } catch (Exception e) {
                 throw new InvalidConfigException("Unable to get ID from downloaded configuration", e);
@@ -195,7 +195,7 @@ public class LocalConfigStore implements ConfigurationStore, GMBeanTarget {
         }
     }
 
-    public synchronized GMBean getConfig(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException {
+    public synchronized GBeanMBean getConfig(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException {
         return loadConfig(getRoot(configID));
     }
 
@@ -216,16 +216,16 @@ public class LocalConfigStore implements ConfigurationStore, GMBeanTarget {
         return new File(root, id);
     }
 
-    private GMBean loadConfig(File configRoot) throws IOException, InvalidConfigException {
+    private GBeanMBean loadConfig(File configRoot) throws IOException, InvalidConfigException {
         FileInputStream fis = new FileInputStream(new File(configRoot, "META-INF/config.ser"));
         try {
             ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(fis));
             GBeanInfo gbeanInfo = Configuration.GBEAN_INFO;
-            GMBean config;
+            GBeanMBean config;
             try {
-                config = new GMBean(gbeanInfo);
+                config = new GBeanMBean(gbeanInfo);
             } catch (InvalidConfigurationException e) {
-                throw new InvalidConfigException("Unable to instantiate Configuration GMBean", e);
+                throw new InvalidConfigException("Unable to instantiate Configuration GBeanMBean", e);
             }
             try {
                 Configuration.loadGMBeanState(config, ois);

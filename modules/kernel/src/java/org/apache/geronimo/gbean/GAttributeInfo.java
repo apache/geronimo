@@ -58,9 +58,9 @@ package org.apache.geronimo.gbean;
 import java.io.Serializable;
 
 /**
- * Describes an attibute of a GMBean.
+ * Describes an attibute of a GBean.
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/12 01:38:55 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/14 22:16:37 $
  */
 public class GAttributeInfo implements Serializable {
     /**

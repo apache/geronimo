@@ -70,21 +70,21 @@ import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.GParameterInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.gbean.jmx.FastMethodInvoker;
-import org.apache.geronimo.gbean.jmx.GMBean;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/12 01:38:55 $
+ * @version $Revision: 1.1 $ $Date: 2004/01/14 22:16:38 $
  */
-public class GMBeanOperation {
-    private final GMBean gMBean;
+public class GBeanMBeanOperation {
+    private final GBeanMBean gMBean;
     private final String name;
     private final List parameterTypes;
     private final MBeanOperationInfo mbeanOperationInfo;
     private final MethodInvoker methodInvoker;
 
-    public GMBeanOperation(GMBean gMBean, String name, String description, List parameterTypes, Class returnType, MethodInvoker methodInvoker) {
+    public GBeanMBeanOperation(GBeanMBean gMBean, String name, String description, List parameterTypes, Class returnType, MethodInvoker methodInvoker) {
         this.gMBean = gMBean;
         this.name = name;
         this.parameterTypes = parameterTypes;
@@ -109,7 +109,7 @@ public class GMBeanOperation {
 
     }
 
-    public GMBeanOperation(GMBean gMBean, GOperationInfo operationInfo) throws InvalidConfigurationException {
+    public GBeanMBeanOperation(GBeanMBean gMBean, GOperationInfo operationInfo) throws InvalidConfigurationException {
         this.gMBean = gMBean;
         this.name = operationInfo.getName();
         ClassLoader classLoader = gMBean.getClassLoader();

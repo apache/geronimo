@@ -61,22 +61,22 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-import junit.framework.TestCase;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.jmx.GMBean;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.LocalConfigStore;
 import org.apache.geronimo.kernel.management.State;
 
+import junit.framework.TestCase;
+
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/14 20:41:56 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/14 22:16:38 $
  */
 public class ConfigTest extends TestCase {
     private ObjectName gbeanName1;
@@ -89,18 +89,18 @@ public class ConfigTest extends TestCase {
     private ObjectName gbeanName2;
 
     public void testOfflineConfig() throws Exception {
-        GMBean config = new GMBean(Configuration.GBEAN_INFO);
+        GBeanMBean config = new GBeanMBean(Configuration.GBEAN_INFO);
         config.setAttribute("ID", new URI("test"));
         config.setEndpointPatterns("Parent", null);
     }
 
     public void testOnlineConfig() throws Exception {
-        GMBean config = new GMBean(Configuration.GBEAN_INFO);
+        GBeanMBean config = new GBeanMBean(Configuration.GBEAN_INFO);
         config.setAttribute("ID", new URI("test"));
         config.setEndpointPatterns("Parent", null);
         config.setAttribute("ClassPath", Collections.EMPTY_LIST);
         config.setAttribute("GBeanState", state);
-        ObjectName configName = (ObjectName) mbServer.invoke(Kernel.KERNEL, "load", new Object[]{config, null}, new String[]{GMBean.class.getName(), URL.class.getName()});
+        ObjectName configName = (ObjectName) mbServer.invoke(Kernel.KERNEL, "load", new Object[]{config, null}, new String[]{GBeanMBean.class.getName(), URL.class.getName()});
         mbServer.invoke(configName, "startRecursive", null, null);
 
         assertEquals(new Integer(State.RUNNING.toInt()), mbServer.getAttribute(configName, "state"));
@@ -119,7 +119,7 @@ public class ConfigTest extends TestCase {
             // ok
         }
         assertEquals(new Integer(State.STOPPED.toInt()), mbServer.getAttribute(configName, "state"));
-        mbServer.invoke(Kernel.KERNEL, "unload", new Object[] {configName}, new String[] {ObjectName.class.getName()});
+        mbServer.invoke(Kernel.KERNEL, "unload", new Object[]{configName}, new String[]{ObjectName.class.getName()});
         assertFalse(mbServer.isRegistered(configName));
     }
 
@@ -134,11 +134,11 @@ public class ConfigTest extends TestCase {
         mbServer = kernel.getMBeanServer();
 
         gbeanName1 = new ObjectName("geronimo.test:name=MyMockGMBean1");
-        GMBean mockBean1 = new GMBean(MockGBean.getGBeanInfo());
+        GBeanMBean mockBean1 = new GBeanMBean(MockGBean.getGBeanInfo());
         mockBean1.setAttribute("Value", "1234");
         mockBean1.setAttribute("Name", "child");
         gbeanName2 = new ObjectName("geronimo.test:name=MyMockGMBean2");
-        GMBean mockBean2 = new GMBean(MockGBean.getGBeanInfo());
+        GBeanMBean mockBean2 = new GBeanMBean(MockGBean.getGBeanInfo());
         mockBean2.setAttribute("Value", "5678");
         mockBean2.setAttribute("Name", "Parent");
         mockBean2.setEndpointPatterns("MockEndpoint", Collections.singleton(gbeanName1));

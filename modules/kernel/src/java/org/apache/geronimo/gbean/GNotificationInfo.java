@@ -60,10 +60,9 @@ import java.util.Collections;
 import java.util.Set;
 
 /**
- * Describes a notification of a GeronimoMBean.  This extension allows the properties to be mutable during setup,
- * and once the MBean is deployed an imutable copy of will be made.
+ * Describes a notification of a GBean.
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/12 01:38:55 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/14 22:16:37 $
  */
 public final class GNotificationInfo implements Serializable {
     private final String name;

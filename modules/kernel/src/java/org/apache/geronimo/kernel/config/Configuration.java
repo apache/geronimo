@@ -88,8 +88,8 @@ import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.GEndpointInfo;
-import org.apache.geronimo.gbean.jmx.GMBean;
-import org.apache.geronimo.gbean.jmx.GMBeanTarget;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.kernel.Kernel;
 
 /**
@@ -119,9 +119,9 @@ import org.apache.geronimo.kernel.Kernel;
  * a startRecursive() for all the GBeans it contains. Similarly, if the
  * Configuration is stopped then all of its GBeans will be stopped as well.
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/14 08:31:07 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/14 22:16:38 $
  */
-public class Configuration implements GMBeanTarget {
+public class Configuration implements GBean {
     private static final Log log = LogFactory.getLog(Configuration.class);
 
     private final URI id;
@@ -172,7 +172,7 @@ public class Configuration implements GMBeanTarget {
         for (Iterator i = gbeans.entrySet().iterator(); i.hasNext();) {
             Map.Entry entry = (Map.Entry) i.next();
             ObjectName name = (ObjectName) entry.getKey();
-            GMBean gbean = (GMBean) entry.getValue();
+            GBeanMBean gbean = (GBeanMBean) entry.getValue();
             mbServer.registerMBean(gbean, name);
             mbServer.invoke(Kernel.DEPENDENCY_SERVICE, "addDependency", new Object[] { name, objectName}, new String[] {ObjectName.class.getName(), ObjectName.class.getName()});
         }
@@ -273,7 +273,7 @@ public class Configuration implements GMBeanTarget {
      * Load GBeans from the supplied byte array using the supplied ClassLoader
      * @param gbeanState the serialized form of the GBeans
      * @param cl the ClassLoader used to locate classes needed during deserialization
-     * @return a Map<ObjectName, GMBean> of GBeans loaded from the persisted state
+     * @return a Map<ObjectName, GBeanMBean> of GBeans loaded from the persisted state
      * @throws org.apache.geronimo.kernel.config.InvalidConfigException if there is a problem deserializing the state
      */
     public static Map loadGBeans(byte[] gbeanState, ClassLoader cl) throws InvalidConfigException {
@@ -284,7 +284,7 @@ public class Configuration implements GMBeanTarget {
                 while (true) {
                     ObjectName objectName = (ObjectName) ois.readObject();
                     GBeanInfo info = (GBeanInfo) ois.readObject();
-                    GMBean gbean = new GMBean(info, cl);
+                    GBeanMBean gbean = new GBeanMBean(info, cl);
                     loadGMBeanState(gbean, ois);
                     gbeans.put(objectName, gbean);
                 }
@@ -299,7 +299,7 @@ public class Configuration implements GMBeanTarget {
         }
     }
 
-    static void loadGMBeanState(GMBean gbean, ObjectInputStream ois) throws IOException, AttributeNotFoundException, InvalidAttributeValueException, MBeanException, ReflectionException, ClassNotFoundException {
+    static void loadGMBeanState(GBeanMBean gbean, ObjectInputStream ois) throws IOException, AttributeNotFoundException, InvalidAttributeValueException, MBeanException, ReflectionException, ClassNotFoundException {
         int attributeCount = ois.readInt();
         for (int i = 0; i < attributeCount; i ++) {
             gbean.setAttribute((String)ois.readObject(), ois.readObject());
@@ -312,7 +312,7 @@ public class Configuration implements GMBeanTarget {
 
     /**
      * Return a byte array containing the persisted form of the supplied GBeans
-     * @param gbeans a Map<ObjectName, GMBean> of GBeans to store
+     * @param gbeans a Map<ObjectName, GBeanMBean> of GBeans to store
      * @return the persisted GBeans
      * @throws org.apache.geronimo.kernel.config.InvalidConfigException if there is a problem serializing the state
      */
@@ -324,7 +324,7 @@ public class Configuration implements GMBeanTarget {
             for (Iterator i = gbeans.entrySet().iterator(); i.hasNext();) {
                 Map.Entry entry = (Map.Entry) i.next();
                 ObjectName objectName = (ObjectName) entry.getKey();
-                GMBean gbean = (GMBean) entry.getValue();
+                GBeanMBean gbean = (GBeanMBean) entry.getValue();
                 oos.writeObject(objectName);
                 oos.writeObject(gbean.getGBeanInfo());
                 storeGMBeanState(gbean, oos);
@@ -336,7 +336,7 @@ public class Configuration implements GMBeanTarget {
         return baos.toByteArray();
     }
 
-    static void storeGMBeanState(GMBean gbean, ObjectOutputStream oos) throws IOException, AttributeNotFoundException, MBeanException, ReflectionException {
+    static void storeGMBeanState(GBeanMBean gbean, ObjectOutputStream oos) throws IOException, AttributeNotFoundException, MBeanException, ReflectionException {
         List persistentAttributes = gbean.getGBeanInfo().getPersistentAttributes();
         oos.writeInt(persistentAttributes.size());
         for (Iterator j = persistentAttributes.iterator(); j.hasNext();) {

@@ -81,21 +81,21 @@ import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.gbean.jmx.CollectionProxy;
 import org.apache.geronimo.gbean.jmx.FastMethodInvoker;
-import org.apache.geronimo.gbean.jmx.GMBean;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/14 20:41:56 $
+ * @version $Revision: 1.1 $ $Date: 2004/01/14 22:16:38 $
  */
-public class GMBeanEndpoint implements NotificationListener {
+public class GBeanMBeanEndpoint implements NotificationListener {
     /**
      * Name of this endpoint.
      */
     private final String name;
 
     /**
-     * Interface this Geronimo MBean uses to refer to the other.
+     * Interface this GBeanMBean uses to refer to the other.
      */
     private final Class type;
 
@@ -105,9 +105,9 @@ public class GMBeanEndpoint implements NotificationListener {
     private final boolean singleValued;
 
     /**
-     * The GMBean to which this endpoint belongs.
+     * The GBeanMBean to which this endpoint belongs.
      */
-    private final GMBean gmbean;
+    private final GBeanMBean gmbean;
 
     /**
      * The method that will be called to set the attribute value.  If null, the value will be set with
@@ -125,7 +125,7 @@ public class GMBeanEndpoint implements NotificationListener {
      */
     private Proxy proxy;
 
-    public GMBeanEndpoint(GMBean gmbean, GEndpointInfo endpointInfo, Class constructorType) throws InvalidConfigurationException {
+    public GBeanMBeanEndpoint(GBeanMBean gmbean, GEndpointInfo endpointInfo, Class constructorType) throws InvalidConfigurationException {
         this.gmbean = gmbean;
         this.name = endpointInfo.getName();
         try {
@@ -249,10 +249,19 @@ public class GMBeanEndpoint implements NotificationListener {
     }
 
     public synchronized void offline() {
+        try {
+            gmbean.getServer().removeNotificationListener(JMXUtil.DELEGATE_NAME, this);
+        } catch (InstanceNotFoundException ignore) {
+            // we don't care... the mbean we were listening to disapeared
+        } catch (ListenerNotFoundException ignore) {
+            // we don't care... the mbean doesn't think we were listening
+        }
+
         if (proxy == null) {
             //we weren't fully online
             return;
         }
+
         // get the targets from the proxy because we are listening to them
         Set registeredTargets = proxy.getTargets();
 
@@ -269,13 +278,6 @@ public class GMBeanEndpoint implements NotificationListener {
             } catch (ListenerNotFoundException ignore) {
                 // we don't care... the mbean doesn't think we were listening
             }
-        }
-        try {
-            gmbean.getServer().removeNotificationListener(JMXUtil.DELEGATE_NAME, this);
-        } catch (InstanceNotFoundException ignore) {
-            // we don't care... the mbean we were listening to disapeared
-        } catch (ListenerNotFoundException ignore) {
-            // we don't care... the mbean doesn't think we were listening
         }
     }
 
@@ -364,7 +366,7 @@ public class GMBeanEndpoint implements NotificationListener {
         return false;
     }
 
-    private static Method searchForSetter(GMBean gMBean, GEndpointInfo endpointInfo) throws InvalidConfigurationException {
+    private static Method searchForSetter(GBeanMBean gMBean, GEndpointInfo endpointInfo) throws InvalidConfigurationException {
         if (endpointInfo.getSetterName() == null) {
             // no explicit name give so we must search for a name
             String setterName = "set" + endpointInfo.getName();
