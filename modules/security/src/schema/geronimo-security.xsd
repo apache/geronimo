@@ -49,7 +49,7 @@
                 </xsd:documentation>
             </xsd:annotation>
         </xsd:attribute>
-        <xsd:attribute name="use-context-handler" type="xsd:boolean">
+        <xsd:attribute name="use-context-handler" type="xsd:boolean" default="false">
             <xsd:annotation>
                 <xsd:documentation>
                     Set this attribute to "true" if the installed JACC policy

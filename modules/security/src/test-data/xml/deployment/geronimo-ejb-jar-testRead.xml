@@ -22,7 +22,7 @@
          xsi:schemaLocation="http://geronimo.apache.org/xml/schema/j2ee http://geronimo.apache.org/xml/schema/1.0/j2ee14/geronimo-ejb-jar.xsd"
          version="2.1">
     <class-space name="geronimo.system:role=ClassSpace,name=Test" parent="geronimo.system:role=ClassSpace,name=System"/>
-    <security use-context-handler="true" >
+    <security>
         <default-principal realm-name="System">
             <principal class="org.apache.geronimo.security.DefaultPrincipal" name="default"/>
         </default-principal>
