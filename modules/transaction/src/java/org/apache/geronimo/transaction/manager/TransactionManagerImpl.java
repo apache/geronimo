@@ -26,16 +26,14 @@ import javax.transaction.RollbackException;
 import javax.transaction.Status;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
-import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.Xid;
 
-import org.apache.geronimo.transaction.log.UnrecoverableLog;
 import org.apache.geronimo.transaction.ExtendedTransactionManager;
+import org.apache.geronimo.transaction.log.UnrecoverableLog;
 
 /**
  * Simple implementation of a transaction manager.
- * TODO transactionTimeoutMilliseconds functionality
  * TODO shut down timer gracefully
  *
  * @version $Rev$ $Date$
@@ -44,23 +42,21 @@ public class TransactionManagerImpl implements ExtendedTransactionManager, XidIm
     private final TransactionLog txnLog;
     private final XidFactory xidFactory;
     private final int defaultTransactionTimeoutMilliseconds;
-    private volatile int transactionTimeoutMilliseconds;
+    private final ThreadLocal transactionTimeoutMilliseconds = new ThreadLocal();
     private final ThreadLocal threadTx = new ThreadLocal();
     private final Timer timeoutTimer = new Timer(true);
 
     public TransactionManagerImpl() {
         defaultTransactionTimeoutMilliseconds = 10 * 1000;
-        transactionTimeoutMilliseconds = defaultTransactionTimeoutMilliseconds;
         txnLog = new UnrecoverableLog();
         xidFactory = new XidFactoryImpl();
     }
 
-    public TransactionManagerImpl(int defaultTransactionTimeoutSeconds, TransactionLog txnLog, XidFactory xidFactory) throws SystemException {
+    public TransactionManagerImpl(int defaultTransactionTimeoutSeconds, TransactionLog txnLog, XidFactory xidFactory) {
         if (defaultTransactionTimeoutSeconds <= 0) {
             throw new IllegalArgumentException("defaultTransactionTimeoutSeconds must be positive: attempted value: " + defaultTransactionTimeoutSeconds);
         }
         this.defaultTransactionTimeoutMilliseconds = defaultTransactionTimeoutSeconds * 1000;
-        setTransactionTimeout(defaultTransactionTimeoutSeconds);
         this.txnLog = txnLog;
         this.xidFactory = xidFactory;
     }
@@ -74,9 +70,9 @@ public class TransactionManagerImpl implements ExtendedTransactionManager, XidIm
             throw new SystemException("transaction timeout must be positive or 0 to reset to default");
         }
         if (seconds == 0) {
-            transactionTimeoutMilliseconds = defaultTransactionTimeoutMilliseconds;
+            transactionTimeoutMilliseconds.set(null);
         } else {
-            transactionTimeoutMilliseconds = seconds * 1000;
+            transactionTimeoutMilliseconds.set(new Long(seconds * 1000));
         }
     }
 
@@ -86,7 +82,7 @@ public class TransactionManagerImpl implements ExtendedTransactionManager, XidIm
     }
 
     public void begin() throws NotSupportedException, SystemException {
-        begin(transactionTimeoutMilliseconds);
+        begin(getTransactionTimeoutMilliseconds(0L));
     }
 
     public Transaction begin(long transactionTimeoutMilliseconds) throws NotSupportedException, SystemException {
@@ -94,7 +90,7 @@ public class TransactionManagerImpl implements ExtendedTransactionManager, XidIm
             throw new NotSupportedException("Nested Transactions are not supported");
         }
         TransactionImpl tx = new TransactionImpl(xidFactory, txnLog);
-        timeoutTimer.schedule(tx, transactionTimeoutMilliseconds == 0? this.transactionTimeoutMilliseconds: transactionTimeoutMilliseconds);
+        timeoutTimer.schedule(tx, getTransactionTimeoutMilliseconds(transactionTimeoutMilliseconds));
         threadTx.set(tx);
         ((TransactionImpl)tx).setCurrentThread(Thread.currentThread());
         return tx;
@@ -156,11 +152,11 @@ public class TransactionManagerImpl implements ExtendedTransactionManager, XidIm
 
     //XidImporter implementation
     public Transaction importXid(Xid xid, long transactionTimeoutMilliseconds) throws XAException, SystemException {
-        TransactionImpl tx = new TransactionImpl(xid, xidFactory, txnLog);
-        if (transactionTimeoutMilliseconds == 0) {
-            transactionTimeoutMilliseconds = this.transactionTimeoutMilliseconds;
+        if (transactionTimeoutMilliseconds < 0) {
+            throw new SystemException("transaction timeout must be positive or 0 to reset to default");
         }
-        timeoutTimer.schedule(tx, transactionTimeoutMilliseconds);
+        TransactionImpl tx = new TransactionImpl(xid, xidFactory, txnLog);
+        timeoutTimer.schedule(tx, getTransactionTimeoutMilliseconds(transactionTimeoutMilliseconds));
         return tx;
     }
 
@@ -210,6 +206,17 @@ public class TransactionManagerImpl implements ExtendedTransactionManager, XidIm
         } catch (SystemException e) {
             throw (XAException) new XAException().initCause(e);
         }
+    }
+
+    private long getTransactionTimeoutMilliseconds(long transactionTimeoutMilliseconds) {
+        if (transactionTimeoutMilliseconds != 0) {
+            return transactionTimeoutMilliseconds;
+        }
+        Long timeout = (Long) this.transactionTimeoutMilliseconds.get();
+        if (timeout != null) {
+            return timeout.longValue();
+        }
+        return defaultTransactionTimeoutMilliseconds;
     }
 
 }

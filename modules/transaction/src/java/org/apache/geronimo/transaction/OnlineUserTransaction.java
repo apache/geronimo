@@ -19,7 +19,6 @@ import org.apache.geronimo.transaction.context.UnspecifiedTransactionContext;
 public final class OnlineUserTransaction implements UserTransaction, Serializable {
     private transient TransactionContextManager transactionContextManager;
     private transient TrackedConnectionAssociator trackedConnectionAssociator;
-    private long transactionTimeoutMilliseconds = 0L;
 
     boolean isActive() {
         return transactionContextManager != null;
@@ -43,11 +42,11 @@ public final class OnlineUserTransaction implements UserTransaction, Serializabl
         if (seconds < 0) {
             throw new SystemException("transaction timeout must be positive or 0, not " + seconds);
         }
-        transactionTimeoutMilliseconds = seconds * 1000;
+        transactionContextManager.setTransactionTimeout(seconds);
     }
 
     public void begin() throws NotSupportedException, SystemException {
-        transactionContextManager.newBeanTransactionContext(transactionTimeoutMilliseconds);
+        transactionContextManager.newBeanTransactionContext(0L);
 
         if(trackedConnectionAssociator != null) {
             try {

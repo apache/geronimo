@@ -69,7 +69,11 @@ public class TransactionContextManager implements XATerminator, XAWork {
     public TransactionManager getTransactionManager() {
         return transactionManager;
     }
-    
+
+    public void setTransactionTimeout(int timeoutSeconds) throws SystemException {
+        transactionManager.setTransactionTimeout(timeoutSeconds);
+    }
+
     public TransactionContext getContext() {
         return TransactionContext.getContext();
     }
@@ -121,8 +125,6 @@ public class TransactionContextManager implements XATerminator, XAWork {
 
 
     /**
-     * TODO write and use ImportedTransactionContext for this!
-     *
      * @see javax.resource.spi.XATerminator#commit(javax.transaction.xa.Xid, boolean)
      */
     public void commit(Xid xid, boolean onePhase) throws XAException {
