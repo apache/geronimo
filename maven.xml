@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.35 $ $Date: 2003/09/06 11:04:52 $ -->
+<!-- $Revision: 1.36 $ $Date: 2003/09/06 14:31:31 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
@@ -522,7 +522,6 @@
           <pathelement path="${run.dir}/etc"/>
           <fileset dir="${run.dir}/lib">
             <include name="*.jar"/>
-            <exclude name="xerces-2.4.0.jar"/>
           </fileset>
         </classpath>
 
@@ -547,7 +546,6 @@
           <pathelement path="${run.dir}/etc"/>
           <fileset dir="${run.dir}/lib">
             <include name="*.jar"/>
-            <exclude name="xerces-2.4.0.jar"/>
           </fileset>              
         </classpath>
 
