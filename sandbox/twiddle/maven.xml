@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.1 $ $Date: 2004/01/23 02:57:16 $ -->
+<!-- $Revision: 1.2 $ $Date: 2004/01/29 03:38:36 $ -->
 
 <project default="default"
-  xmlns:j="jelly:core"
-  xmlns:ant="jelly:ant"
-  xmlns:castor="common:castor">
-  
-  <!-- ================================= -->
-  <!-- Compile XML->Java Binding Sources -->
-  <!-- ================================= -->
-  
-  <preGoal name="java:compile">
-    <castor:generate
-      schema="${basedir}/src/schema/twiddle-configuration.xsd"
-      binding="${basedir}/src/etc/twiddle-configuration-binding.xml"
-      package="org.apache.geronimo.twiddle.config"
-      marshal="false"
-      types="j2"/>
-  </preGoal>
+    xmlns:j="jelly:core"
+    xmlns:ant="jelly:ant"
+    xmlns:castor="common:castor">
+
+    <!-- ================================= -->
+    <!-- Compile XML->Java Binding Sources -->
+    <!-- ================================= -->
+
+    <preGoal name="java:compile">
+        <castor:generate
+            schema="${basedir}/src/schema/twiddle-configuration.xsd"
+            binding="${basedir}/src/etc/twiddle-configuration-binding.xml"
+            package="org.apache.geronimo.twiddle.config"
+            marshal="false"
+            types="j2"/>
+    </preGoal>
 
 </project>

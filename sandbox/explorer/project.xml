@@ -1,150 +1,151 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.1 $ $Date: 2004/01/23 03:47:02 $ -->
+<!-- $Revision: 1.2 $ $Date: 2004/01/29 03:38:36 $ -->
 
 <project>
-  <pomVersion>3</pomVersion>
-  <extend>${basedir}/../../etc/project.xml</extend>
-  
-  <!-- ===================== -->
-  <!-- Module Identification -->
-  <!-- ===================== -->
-  
-  <name>Geronimo :: Explorer</name>
-  <id>geronimo-explorer</id>
-  <shortDescription></shortDescription>
-  <description></description>
-  <siteDirectory></siteDirectory>
-  <distributionDirectory></distributionDirectory>
-  
-  <package>org.apache.geronimo.explorer</package>
-  <currentVersion>DEV</currentVersion>
-  
-  
-  <!-- ============ -->
-  <!-- Dependencies -->
-  <!-- ============ -->
-  
-  <dependencies>
-  
-    <!-- Module Dependencies -->
-    
-    <dependency>
-      <groupId>geronimo</groupId>
-      <artifactId>geronimo-common</artifactId>
-      <version>DEV</version>
-      <properties>
-        <module>true</module>
-        <runtime>true</runtime>
-      </properties>
-    </dependency>
+    <pomVersion>3</pomVersion>
+    <extend>${basedir}/../../etc/project.xml</extend>
 
-    <dependency>
-      <groupId>geronimo</groupId>
-      <artifactId>geronimo-core</artifactId>
-      <version>DEV</version>
-      <properties>
-        <module>true</module>
-        <runtime>true</runtime>
-      </properties>
-    </dependency>
+    <!-- ===================== -->
+    <!-- Module Identification -->
+    <!-- ===================== -->
+
+    <name>Geronimo :: Explorer</name>
+    <groupId>geronimo-sandbox</groupId>
+    <id>geronimo-sandbox-explorer</id>
+    <shortDescription></shortDescription>
+    <description></description>
+    <siteDirectory></siteDirectory>
+    <distributionDirectory></distributionDirectory>
+
+    <package>org.apache.geronimo.explorer</package>
+    <currentVersion>DEV</currentVersion>
 
 
-    <dependency>
-      <groupId>geronimo</groupId>
-      <artifactId>geronimo-remoting</artifactId>
-      <version>DEV</version>
-      <properties>
-        <module>true</module>
-        <runtime>true</runtime>
-      </properties>
-    </dependency>
+    <!-- ============ -->
+    <!-- Dependencies -->
+    <!-- ============ -->
 
-    <!-- Thirdparty Dependencies -->
-    
-    <dependency>
-      <id>mx4j</id>
-      <version>SNAPSHOT</version>
-      <properties>
-          <bootstrap>true</bootstrap>
-      </properties>
-    </dependency>
+    <dependencies>
 
-    <dependency>
-      <id>groovy</id>
-      <version>1.0-alpha-1</version>
-      <url>http://groovy.codehaus.org</url>
-      <properties>
-        <runtime>true</runtime>
-      </properties>
-    </dependency>
+        <!-- Module Dependencies -->
 
-    <dependency>
-      <id>commons-logging</id>
-      <version>1.0.3</version>
-      <url>http://jakarta.apache.org/commons/logging</url>
-      <properties>
-        <runtime>true</runtime>
-      </properties>
-    </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-common</artifactId>
+            <version>DEV</version>
+            <properties>
+                <module>true</module>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
 
-    <dependency>
-      <id>asm</id>
-      <version>1.3.4</version>
-    </dependency>   
-    
-	<!-- temp hack - won't need this soon -->
-    <dependency>
-      <id>asm+util</id>
-      <version>1.3.4</version>
-      <url>http://asm.objectweb.org/</url>
-    </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-core</artifactId>
+            <version>DEV</version>
+            <properties>
+                <module>true</module>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
 
-    <!-- Runtime dependencies due to remoting -->
-    <dependency>
-       <id>commons-lang</id>
-       <version>SNAPSHOT</version>
-       <url>http://jakarta.apache.org/commons/lang</url>
-       <properties>
-         <runtime>false</runtime>
-       </properties>
-    </dependency>
 
-    <dependency>
-       <id>concurrent</id>
-       <version>1.3.2</version>
-       <properties>
-          <runtime>true</runtime>
-       </properties>
-    </dependency>    
-    
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-remoting</artifactId>
+            <version>DEV</version>
+            <properties>
+                <module>true</module>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
 
-  </dependencies>
-  
-  
-  <!-- =================== -->
-  <!-- Build Specification -->
-  <!-- =================== -->
-  
-  <build>
-    <unitTest>
-      <!-- For some reason this is not pulled from the global project -->
-      <includes>
-        <include>**/*Test.java</include>
-      </includes>
-      <excludes>
-        <exclude>**/Abstract*.java</exclude>
-      </excludes>
-      
-      <resources>
-        <resource>
-          <directory>${basedir}/src/test</directory>
-          <includes>
-            <include>**/*.xml</include>
-          </includes>
-        </resource>
-      </resources>
-    </unitTest>
-  </build>
+        <!-- Thirdparty Dependencies -->
+
+        <dependency>
+            <id>mx4j</id>
+            <version>SNAPSHOT</version>
+            <properties>
+                <bootstrap>true</bootstrap>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <id>groovy</id>
+            <version>1.0-alpha-1</version>
+            <url>http://groovy.codehaus.org</url>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <id>commons-logging</id>
+            <version>1.0.3</version>
+            <url>http://jakarta.apache.org/commons/logging</url>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <id>asm</id>
+            <version>1.3.4</version>
+        </dependency>
+
+        <!-- temp hack - won't need this soon -->
+        <dependency>
+            <id>asm+util</id>
+            <version>1.3.4</version>
+            <url>http://asm.objectweb.org/</url>
+        </dependency>
+
+        <!-- Runtime dependencies due to remoting -->
+        <dependency>
+            <id>commons-lang</id>
+            <version>SNAPSHOT</version>
+            <url>http://jakarta.apache.org/commons/lang</url>
+            <properties>
+                <runtime>false</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <id>concurrent</id>
+            <version>1.3.2</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+
+
+    </dependencies>
+
+
+    <!-- =================== -->
+    <!-- Build Specification -->
+    <!-- =================== -->
+
+    <build>
+        <unitTest>
+            <!-- For some reason this is not pulled from the global project -->
+            <includes>
+                <include>**/*Test.java</include>
+            </includes>
+            <excludes>
+                <exclude>**/Abstract*.java</exclude>
+            </excludes>
+
+            <resources>
+                <resource>
+                    <directory>${basedir}/src/test</directory>
+                    <includes>
+                        <include>**/*.xml</include>
+                    </includes>
+                </resource>
+            </resources>
+        </unitTest>
+    </build>
 
 </project>
