@@ -1,11 +1,11 @@
 package org.apache.geronimo.timer;
 
-import java.util.Date;
+
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/07/18 22:10:56 $
+ * @version $Revision: 1.2 $ $Date: 2004/07/20 23:36:53 $
  *
  * */
 public interface Playback {

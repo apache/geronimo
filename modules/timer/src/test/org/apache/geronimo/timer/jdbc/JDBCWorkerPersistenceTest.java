@@ -21,6 +21,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Date;
+import java.util.Collection;
 
 import javax.sql.DataSource;
 
@@ -33,7 +34,7 @@ import org.axiondb.jdbc.AxionDataSource;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/07/18 22:10:57 $
+ * @version $Revision: 1.2 $ $Date: 2004/07/20 23:36:53 $
  *
  * */
 public class JDBCWorkerPersistenceTest extends TestCase {
@@ -43,7 +44,8 @@ public class JDBCWorkerPersistenceTest extends TestCase {
 
     private final String serverUniqueId = "TestServerUniqueID";
     private final String key = "test:service=Timer";
-    private final Object userKey = "test user info";
+    private final Object userInfo = "test user info";
+    private Object userId = null;
 
     private JDBCWorkerPersistence jdbcWorkerPersistence;
     private DataSource datasource;
@@ -59,7 +61,7 @@ public class JDBCWorkerPersistenceTest extends TestCase {
         jdbcWorkerPersistence.doStart();
         time = new Date(System.currentTimeMillis());
         period = new Long(1000);
-        workInfo = new WorkInfo(key, userKey, time, period, true);
+        workInfo = new WorkInfo(key, userId, userInfo, time, period, true);
     }
 
     protected void tearDown() throws Exception {
@@ -96,6 +98,23 @@ public class JDBCWorkerPersistenceTest extends TestCase {
         jdbcWorkerPersistence.cancel(workInfo.getId());
         assertEquals(0, countRows());
     }
+
+    public void testGetByKey() throws Exception {
+        time = new Date(System.currentTimeMillis());
+        period = new Long(1000);
+        WorkInfo workInfo1 = new WorkInfo(key, new Long(1), userInfo, time, period, true);
+        WorkInfo workInfo2 = new WorkInfo(key, new Long(2), userInfo, time, period, true);
+        jdbcWorkerPersistence.save(workInfo1);
+        jdbcWorkerPersistence.save(workInfo2);
+        Collection idsAll = jdbcWorkerPersistence.getIdsByKey(key, null);
+        assertEquals(2, idsAll.size());
+        Collection ids1 = jdbcWorkerPersistence.getIdsByKey(key, new Long(1));
+        assertEquals(1, ids1.size());
+        Collection ids2 = jdbcWorkerPersistence.getIdsByKey(key, new Long(2));
+        assertEquals(1, ids2.size());
+    }
+
+
 
     private void showRows() throws Exception {
         Connection c = datasource.getConnection();

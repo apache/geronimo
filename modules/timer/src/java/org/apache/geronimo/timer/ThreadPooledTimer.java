@@ -24,6 +24,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
+import java.util.Iterator;
+import java.util.TimerTask;
 
 import javax.transaction.RollbackException;
 import javax.transaction.Status;
@@ -34,20 +36,12 @@ import javax.transaction.Transaction;
 import EDU.oswego.cs.dl.util.concurrent.Executor;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.transaction.context.TransactionContext;
-import org.apache.geronimo.timer.ExecutorFeedingTimerTask;
-import org.apache.geronimo.timer.ExecutorTask;
-import org.apache.geronimo.timer.ExecutorTaskFactory;
-import org.apache.geronimo.timer.PersistenceException;
-import org.apache.geronimo.timer.PersistentTimer;
-import org.apache.geronimo.timer.Playback;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/07/18 22:10:56 $
+ * @version $Revision: 1.2 $ $Date: 2004/07/20 23:36:53 $
  *
  * */
 public class ThreadPooledTimer implements PersistentTimer, GBeanLifecycle {
@@ -86,37 +80,37 @@ public class ThreadPooledTimer implements PersistentTimer, GBeanLifecycle {
         doStop();
     }
 
-    public WorkInfo schedule(UserTaskFactory userTaskFactory, String key, Object userInfo, long delay) throws PersistenceException, RollbackException, SystemException {
+    public WorkInfo schedule(UserTaskFactory userTaskFactory, String key, Object userId, Object userInfo, long delay) throws PersistenceException, RollbackException, SystemException {
         Date time = new Date(System.currentTimeMillis() + delay);
-        return schedule(key, userTaskFactory, userInfo, time);
+        return schedule(key, userTaskFactory, userId, userInfo, time);
     }
 
-    public WorkInfo schedule(String key, UserTaskFactory userTaskFactory, Object userInfo, Date time) throws PersistenceException, RollbackException, SystemException {
-        WorkInfo worker = createWorker(key, userTaskFactory, executorTaskFactory, false, userInfo, time, null);
+    public WorkInfo schedule(String key, UserTaskFactory userTaskFactory, Object userId, Object userInfo, Date time) throws PersistenceException, RollbackException, SystemException {
+        WorkInfo worker = createWorker(key, userTaskFactory, executorTaskFactory, userId, userInfo, time, null, false);
         registerSynchronization(new ScheduleSynchronization(worker.getExecutorFeedingTimerTask(), time));
         addWorkInfo(worker);
         return worker;
     }
 
-    public WorkInfo schedule(String key, UserTaskFactory userTaskFactory, Object userInfo, long delay, long period) throws PersistenceException, RollbackException, SystemException {
+    public WorkInfo schedule(String key, UserTaskFactory userTaskFactory, Object userInfo, long delay, long period, Object userId) throws PersistenceException, RollbackException, SystemException {
         Date time = new Date(System.currentTimeMillis() + delay);
-        return schedule(key, userTaskFactory, userInfo, time, period);
+        return schedule(key, userTaskFactory, userId, userInfo, time, period);
     }
 
-    public WorkInfo schedule(String key, UserTaskFactory userTaskFactory, Object userInfo, Date firstTime, long period) throws PersistenceException, RollbackException, SystemException {
-        WorkInfo worker = createWorker(key, userTaskFactory, executorTaskFactory, false, userInfo, firstTime, new Long(period));
+    public WorkInfo schedule(String key, UserTaskFactory userTaskFactory, Object userId, Object userInfo, Date firstTime, long period) throws PersistenceException, RollbackException, SystemException {
+        WorkInfo worker = createWorker(key, userTaskFactory, executorTaskFactory, userId, userInfo, firstTime, new Long(period), false);
         registerSynchronization(new ScheduleRepeatedSynchronization(worker.getExecutorFeedingTimerTask(), firstTime, period));
         addWorkInfo(worker);
         return worker;
     }
 
-    public WorkInfo scheduleAtFixedRate(String key, UserTaskFactory userTaskFactory, Object userInfo, long delay, long period) throws PersistenceException, RollbackException, SystemException {
+    public WorkInfo scheduleAtFixedRate(String key, UserTaskFactory userTaskFactory, Object userId, Object userInfo, long delay, long period) throws PersistenceException, RollbackException, SystemException {
         Date time = new Date(System.currentTimeMillis() + delay);
-        return scheduleAtFixedRate(key, userTaskFactory, userInfo, time, period);
+        return scheduleAtFixedRate(key, userTaskFactory, userId, userInfo, time, period);
     }
 
-    public WorkInfo scheduleAtFixedRate(String key, UserTaskFactory userTaskFactory, Object userInfo, Date firstTime, long period) throws PersistenceException, RollbackException, SystemException {
-        WorkInfo worker = createWorker(key, userTaskFactory, executorTaskFactory, true, userInfo, firstTime, new Long(period));
+    public WorkInfo scheduleAtFixedRate(String key, UserTaskFactory userTaskFactory, Object userId, Object userInfo, Date firstTime, long period) throws PersistenceException, RollbackException, SystemException {
+        WorkInfo worker = createWorker(key, userTaskFactory, executorTaskFactory, userId, userInfo, firstTime, new Long(period), true);
         registerSynchronization(new ScheduleAtFixedRateSynchronization(worker.getExecutorFeedingTimerTask(), firstTime, period));
         addWorkInfo(worker);
         return worker;
@@ -128,12 +122,28 @@ public class ThreadPooledTimer implements PersistentTimer, GBeanLifecycle {
         return playback.getWorkInfos();
     }
 
-    public Collection getIdsByKey(String key) throws PersistenceException {
-        return workerPersistence.getIdsByKey(key);
+    public Collection getIdsByKey(String key, Object userId) throws PersistenceException {
+        return workerPersistence.getIdsByKey(key, userId);
     }
 
     public WorkInfo getWorkInfo(Long id) {
         return (WorkInfo) idToWorkInfoMap.get(id);
+    }
+
+    /**
+     * Called when client, eg. ejb container, is stopped and needs to cancel its timertasks without
+     * affecting persisted timer data.
+     * @param ids list of ids to have their corresponding workInfo timertasks cancelled.
+     */
+    public void cancelTimerTasks(Collection ids) {
+        for (Iterator iterator = ids.iterator(); iterator.hasNext();) {
+            Long idLong = (Long) iterator.next();
+            WorkInfo workInfo = getWorkInfo(idLong);
+            if (workInfo != null) {
+                TimerTask timerTask = workInfo.getExecutorFeedingTimerTask();
+                timerTask.cancel();
+            }
+        }
     }
 
     private void addWorkInfo(WorkInfo worker) {
@@ -152,8 +162,7 @@ public class ThreadPooledTimer implements PersistentTimer, GBeanLifecycle {
             workInfo.nextTime();
         } else {
             workInfo.nextInterval();
-            //TODO this is wrong, need different update.
-            workerPersistence.fixedRateWorkPerformed(workInfo.getId());
+            workerPersistence.intervalWorkPerformed(workInfo.getId(), workInfo.getPeriod().longValue());
         }
     }
 
@@ -172,8 +181,8 @@ public class ThreadPooledTimer implements PersistentTimer, GBeanLifecycle {
         return executor;
     }
 
-    private WorkInfo createWorker(String key, UserTaskFactory userTaskFactory, ExecutorTaskFactory executorTaskFactory, boolean atFixedRate, Object userInfo, Date time, Long period) throws PersistenceException {
-        WorkInfo workInfo = new WorkInfo(key, userInfo, time, period, atFixedRate);
+    private WorkInfo createWorker(String key, UserTaskFactory userTaskFactory, ExecutorTaskFactory executorTaskFactory, Object userId, Object userInfo, Date time, Long period, boolean atFixedRate) throws PersistenceException {
+        WorkInfo workInfo = new WorkInfo(key, userId, userInfo, time, period, atFixedRate);
         //save and assign id
         workerPersistence.save(workInfo);
 

@@ -32,7 +32,7 @@ import org.apache.geronimo.timer.WorkInfo;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/07/18 22:10:57 $
+ * @version $Revision: 1.2 $ $Date: 2004/07/20 23:36:53 $
  *
  * */
 public abstract class AbstractThreadPooledTimerTest extends TestCase {
@@ -42,6 +42,7 @@ public abstract class AbstractThreadPooledTimerTest extends TestCase {
     private static final long SLOP = 200;
 
     private static final String key = "testThreadPooledTimer";
+    private Object userId = null;
     private ThreadPool threadPool;
     private ThreadPooledTimer timer;
 
@@ -74,7 +75,7 @@ public abstract class AbstractThreadPooledTimerTest extends TestCase {
 
     public void testTasks() throws Exception {
         for (long i = 0; i < COUNT; i++) {
-            timer.schedule(userTaskFactory, key, userKey, i);
+            timer.schedule(userTaskFactory, key, userId, userKey, i);
         }
         Thread.currentThread().sleep(COUNT + SLOP);
         assertEquals(COUNT, counter.get());
@@ -83,7 +84,7 @@ public abstract class AbstractThreadPooledTimerTest extends TestCase {
     public void testCancel() throws Exception {
         WorkInfo[] workInfos = new WorkInfo[COUNT];
         for (long i = 0; i < COUNT; i++) {
-            workInfos[(int) i] = timer.schedule(userTaskFactory, key, userKey, DELAY);
+            workInfos[(int) i] = timer.schedule(userTaskFactory, key, userId, userKey, DELAY);
         }
         for (int i = 0; i < workInfos.length; i++) {
             workInfos[i].getExecutorFeedingTimerTask().cancel();
@@ -94,7 +95,7 @@ public abstract class AbstractThreadPooledTimerTest extends TestCase {
 
     public void testPersistence() throws Exception {
         for (long i = 0; i < COUNT; i++) {
-            timer.schedule(userTaskFactory, key, userKey, DELAY);
+            timer.schedule(userTaskFactory, key, userId, userKey, DELAY);
         }
         timer.doStop();
         assertEquals(0, counter.get());
@@ -135,7 +136,7 @@ public abstract class AbstractThreadPooledTimerTest extends TestCase {
     public void testTasksInTransaction() throws Exception {
         TransactionContext transactionContext = transactionContextManager.newContainerTransactionContext();
         for (long i = 0; i < COUNT; i++) {
-            timer.schedule(userTaskFactory, key, userKey, i);
+            timer.schedule(userTaskFactory, key, userId, userKey, i);
         }
         Thread.currentThread().sleep(COUNT + SLOP);
         assertEquals(0, counter.get());
@@ -148,7 +149,7 @@ public abstract class AbstractThreadPooledTimerTest extends TestCase {
         Thread.currentThread().sleep(SLOP + DELAY);
         WorkInfo[] workInfos = new WorkInfo[COUNT];
         for (long i = 0; i < COUNT; i++) {
-            workInfos[(int) i] = timer.scheduleAtFixedRate(key, userTaskFactory, userKey, DELAY, DELAY);
+            workInfos[(int) i] = timer.scheduleAtFixedRate(key, userTaskFactory, userId, userKey, DELAY, DELAY);
         }
         Thread.currentThread().sleep(SLOP + DELAY);
         assertEquals(COUNT, counter.get());
@@ -165,7 +166,7 @@ public abstract class AbstractThreadPooledTimerTest extends TestCase {
 
     public void testRepeatCountFromPersisted() throws Exception {
         assert DELAY > 2 * SLOP;
-        timer.scheduleAtFixedRate(key, userTaskFactory, userKey, 0L, DELAY);
+        timer.scheduleAtFixedRate(key, userTaskFactory, userId, userKey, 0L, DELAY);
         Thread.currentThread().sleep(4 * DELAY + SLOP);
         timer.doStop();
         assertEquals(5, counter.get());

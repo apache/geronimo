@@ -1,15 +1,11 @@
 package org.apache.geronimo.timer;
 
-import java.util.Date;
 import java.util.Collection;
-
-import org.apache.geronimo.timer.PersistenceException;
-import org.apache.geronimo.timer.Playback;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/07/18 22:10:56 $
+ * @version $Revision: 1.2 $ $Date: 2004/07/20 23:36:53 $
  *
  * */
 public interface WorkerPersistence {
@@ -24,5 +20,5 @@ public interface WorkerPersistence {
 
     void intervalWorkPerformed(long id, long period) throws PersistenceException;
 
-    Collection getIdsByKey(String key) throws PersistenceException;
+    Collection getIdsByKey(String key, Object userId) throws PersistenceException;
 }

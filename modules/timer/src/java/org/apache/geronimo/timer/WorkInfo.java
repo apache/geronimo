@@ -25,27 +25,37 @@ import org.apache.geronimo.timer.ExecutorTask;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/07/18 22:10:56 $
+ * @version $Revision: 1.2 $ $Date: 2004/07/20 23:36:53 $
  *
  * */
 public class WorkInfo {
     //these should be persistent.
-    private final String key;
     private long id = -1;
+
+    //typically object name of ejb.
+    private final String key;
+    //typically entity pk
+    private final Object userId;
+    //typically serializable object ejb timer service supplies to users.
     private final Object userInfo;
+    //next firing
     private Date time;
+    //time between firings
     private final Long period;
+
     private final boolean atFixedRate;
 
     //these should not be persistent.
     private ExecutorFeedingTimerTask worker;
     private ExecutorTask taskWrapper;
 
+    //wrappers to this timer service can store the wrapper here.
     private Object clientHandle;
 
 
-    public WorkInfo(String key, Object userInfo, Date time, Long period, boolean atFixedRate) {
+    public WorkInfo(String key, Object userId, Object userInfo, Date time, Long period, boolean atFixedRate) {
         this.key = key;
+        this.userId = userId;
         this.userInfo = userInfo;
         this.time = time;
         this.period = period;
@@ -65,6 +75,10 @@ public class WorkInfo {
             throw new IllegalStateException("Id can be set only once!");
         }
         this.id = id;
+    }
+
+    public Object getUserId() {
+        return userId;
     }
 
     public Object getUserInfo() {

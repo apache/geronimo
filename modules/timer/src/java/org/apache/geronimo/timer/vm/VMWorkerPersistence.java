@@ -33,7 +33,7 @@ import org.apache.geronimo.timer.WorkerPersistence;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/07/18 22:10:57 $
+ * @version $Revision: 1.2 $ $Date: 2004/07/20 23:36:53 $
  *
  * */
 public class VMWorkerPersistence implements WorkerPersistence {
@@ -79,11 +79,11 @@ public class VMWorkerPersistence implements WorkerPersistence {
         //dont do anything... sharing data with WorkInfo.
     }
 
-    public Collection getIdsByKey(String key) throws PersistenceException {
+    public Collection getIdsByKey(String key, Object userId) throws PersistenceException {
         Collection ids = new ArrayList();
         for (Iterator iterator = tasks.values().iterator(); iterator.hasNext();) {
             WorkInfo workInfo = (WorkInfo) iterator.next();
-            if (key.equals(workInfo.getKey())) {
+            if (key.equals(workInfo.getKey()) && (userId == null || userId.equals(workInfo.getUserId()))) {
                 ids.add(new Long(workInfo.getId()));
             }
         }
