@@ -34,7 +34,7 @@ Significant Changes Since the M2 Release
  * The web container now supports HTTPS with configurable SSL
    certificates, etc.
 
- * The transaction system is more robust, with big fixes, transaction
+ * The transaction system is more robust, with bug fixes, transaction
    log support, etc.
 
  * An application client container is now included with Geronimo
@@ -46,7 +46,7 @@ Significant Changes Since the M2 Release
  * Manifest Class-Path entries in J2EE application modules are
    supported.
 
- * JDBS database pools and JMS connection factories, topics, and
+ * JDBC database pools and JMS connection factories, topics, and
    queues are now fully supported "out of the box".
 
  * When deploying a J2EE connector, multiple instances of the same
@@ -85,7 +85,7 @@ Significant Missing Features
 
  * Full functionality on non-Sun JVMs
 
- * Full RMI over IIOP support, including 1.4 and 1.5 JVMs
+ * Support for CORBA interoperability and distribution
 
  * Deployment tools should work from remote machines
 
