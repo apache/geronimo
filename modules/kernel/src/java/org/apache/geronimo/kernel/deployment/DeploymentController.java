@@ -88,7 +88,7 @@ import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/11/14 16:27:34 $
+ * @version $Revision: 1.4 $ $Date: 2003/11/16 02:22:58 $
  */
 public class DeploymentController implements GeronimoMBeanTarget {
 
@@ -150,7 +150,6 @@ public class DeploymentController implements GeronimoMBeanTarget {
 
 
             if (!isDeployed(url)) {
-                log.info("Considering undeployed url " + url);
                 //only add a new deployment goal if we don't already have one. One can already exist if
                 //there was no deployer available when the url was scanned
                 if ((lastScan == null) || ((lastScan != null) &&!lastScan.contains (urlInfo))){

@@ -118,7 +118,7 @@ public abstract class AbstractDeploymentPlanner implements DeploymentPlanner, Ge
         Set x = new HashSet(goals);
         for (Iterator i = x.iterator(); i.hasNext();) {
             DeploymentGoal goal = (DeploymentGoal) i.next();
-            log.info("Considering goal " + goal + " by planner " + context.getObjectName());
+//            log.info("Considering goal " + goal + " by planner " + context.getObjectName());
             if (goal instanceof DeployURL) {
                 progress = addURL((DeployURL) goal, goals, plans);
             } else if (goal instanceof RedeployURL) {
