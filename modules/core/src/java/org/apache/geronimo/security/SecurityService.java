@@ -70,19 +70,21 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanEndpoint;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
 import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
+import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
 import org.apache.geronimo.security.util.ConfigurationUtil;
 
 
 /**
  * An MBean that maintains a list of security realms.
  *
- * @version $Revision: 1.5 $ $Date: 2004/01/02 04:31:44 $
+ * @version $Revision: 1.6 $ $Date: 2004/01/04 22:59:34 $
  */
 public class SecurityService  {
 
 
     private final Log log = LogFactory.getLog(SecurityService.class);
 
+    private String policyConfigurationFactory;
     private Collection realms = Collections.EMPTY_SET;
     private Collection ejbModuleConfigurations = Collections.EMPTY_SET;
     private Collection webModuleConfigurations = Collections.EMPTY_SET;
@@ -110,9 +112,16 @@ public class SecurityService  {
                     new GeronimoParameterInfo("remove", Boolean.TYPE, "")},
                 GeronimoOperationInfo.ACTION_INFO,
                 "Get security configuration for web module identified by contextID"));
+
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("PolicyConfigurationFactory",
+                                                             true, true,
+                                                             "The PolicyConfigurationFactory to use",
+                                                             (Object)"org.apache.geronimo.security.GeronimoPolicyConfigurationFactory"));
+
         mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("Realms", SecurityRealm.class, ObjectName.getInstance(SecurityRealm.BASE_OBJECT_NAME + ",*")));
         mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("EJBModuleConfigurations", EJBModuleConfiguration.class, ObjectName.getInstance(EJBModuleConfiguration.BASE_OBJECT_NAME + ",*")));
         mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("WebModuleConfigurations", WebModuleConfiguration.class, ObjectName.getInstance(WebModuleConfiguration.BASE_OBJECT_NAME + ",*")));
+
         return mbeanInfo;
     }
 
@@ -137,6 +146,16 @@ public class SecurityService  {
 
             throw (IllegalStateException)new IllegalStateException().initCause(pce);
         }
+    }
+
+    public String getPolicyConfigurationFactory() {
+        return policyConfigurationFactory;
+    }
+
+    public void setPolicyConfigurationFactory(String policyConfigurationFactory) {
+        this.policyConfigurationFactory = policyConfigurationFactory;
+
+        System.setProperty("javax.security.jacc.PolicyConfigurationFactory.provider", policyConfigurationFactory);
     }
 
     /**
