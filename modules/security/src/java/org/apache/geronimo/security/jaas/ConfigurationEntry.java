@@ -41,7 +41,7 @@ import org.apache.geronimo.gbean.jmx.GBeanMBeanContext;
  * <p>More specifically, you can only use this method or Sun's JAAS config
  * file.
  *
- * @version $Revision: 1.4 $ $Date: 2004/05/30 18:31:25 $
+ * @version $Revision: 1.5 $ $Date: 2004/05/30 19:43:01 $
  * @see org.apache.geronimo.security.jaas.GeronimoLoginConfiguration
  * @see javax.security.auth.login.Configuration
  */
@@ -85,7 +85,7 @@ public abstract class ConfigurationEntry implements GBean {
     }
 
     public void setOptions(Properties options) {
-        this.options = options;
+        this.options = options == null ? new Properties() : options;
     }
 
     public void setGBeanContext(GBeanContext context) {
