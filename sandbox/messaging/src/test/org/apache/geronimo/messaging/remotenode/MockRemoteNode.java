@@ -29,7 +29,7 @@ import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:43 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/03 14:39:45 $
  */
 public class MockRemoteNode implements RemoteNode
 {
@@ -52,7 +52,8 @@ public class MockRemoteNode implements RemoteNode
     public void setTopology(NodeTopology aTopology) {
     }
 
-    public void connect() throws IOException, CommunicationException {
+    public RemoteNodeConnection newConnection() throws IOException, CommunicationException {
+        return null;
     }
 
     public void leave() throws IOException, CommunicationException {

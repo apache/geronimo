@@ -37,11 +37,12 @@ import org.apache.geronimo.messaging.NodeTopology;
 import org.apache.geronimo.messaging.RequestSender;
 import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
 import org.apache.geronimo.messaging.io.IOContext;
+import org.apache.geronimo.messaging.remotenode.admin.JoinRequest;
 
 /**
  * RemoteNode implementation.
  *
- * @version $Revision: 1.2 $ $Date: 2004/05/27 14:27:32 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/03 14:39:44 $
  */
 public class RemoteNodeManagerImpl
     implements RemoteNodeManager
@@ -162,27 +163,19 @@ public class RemoteNodeManagerImpl
                 return remoteNode;
             }
             remoteNode = factory.factoryNode(aNodeInfo, ioContext);
+            RemoteNodeConnection connection;
             try {
-                remoteNode.connect();
+                connection = remoteNode.newConnection();
+                connection.open();
             } catch (IOException e) {
                 throw new NodeException("Can not reach " + aNodeInfo, e);
             } catch (CommunicationException e) {
                 throw new NodeException("Can not reach " + aNodeInfo, e);
             }
-            Msg msg = new Msg();
-            MsgHeader header = msg.getHeader();
-            header.addHeader(MsgHeaderConstants.SRC_NODE, nodeInfo);
-            header.addHeader(MsgHeaderConstants.DEST_NODE, aNodeInfo);
-            
-            // Only set to comply with a valid request. 
-            header.addHeader(MsgHeaderConstants.DEST_NODES, aNodeInfo);
-            header.addHeader(MsgHeaderConstants.SRC_ENDPOINT, "");
-            header.addHeader(MsgHeaderConstants.CORRELATION_ID,
-                new RequestSender.RequestID(new Integer(0)));
-            
-            msg.getBody().setContent(nodeInfo);
-            remoteNode.getMsgConsumerOut().push(msg);
-            
+            JoinRequest joinRequest = new JoinRequest(nodeInfo, aNodeInfo);
+            joinRequest.execute(connection);
+
+            remoteNode.addConnection(connection);
             registerRemoteNode(remoteNode);
         }
         return remoteNode;
@@ -271,13 +264,13 @@ public class RemoteNodeManagerImpl
                         header2.getHeader(MsgHeaderConstants.SRC_NODE);
                     path = topology.getPath(src, target);
                     if ( null == path ) {
-                        throw new RuntimeException("{" + target +
+                        throw new CommunicationException("{" + target +
                             "} is not reachable by {" + src + "}");
                     }
                     NodeInfo tmpNode = path[0];
                     RemoteNode remoteNode = findRemoteNode(tmpNode);
                     if ( null == remoteNode ) {
-                        throw new RuntimeException("{" + target +
+                        throw new CommunicationException("{" + target +
                             "} is not reachable by {" + src + "}");
                     }
                     out = remoteNode.getMsgConsumerOut();

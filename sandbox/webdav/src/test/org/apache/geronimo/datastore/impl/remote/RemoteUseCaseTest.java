@@ -41,7 +41,7 @@ import org.apache.geronimo.system.ThreadPool;
 /**
  * This is a remote use-case.
  *
- * @version $Revision: 1.6 $ $Date: 2004/05/20 13:37:11 $
+ * @version $Revision: 1.7 $ $Date: 2004/06/03 14:39:45 $
  */
 public class RemoteUseCaseTest extends AbstractUseCaseTest {
 
@@ -101,19 +101,16 @@ public class RemoteUseCaseTest extends AbstractUseCaseTest {
         NodePath path = new NodePath(nodeInfo1, nodeInfo2, weight, weight);
         topology.addPath(path);
 
-        Thread.sleep(500);
-        
         node1.setTopology(topology);
         node2.setTopology(topology);
-        
-        Thread.sleep(500);
     }
     
     protected void tearDown() throws Exception {
-        Thread.sleep(500);
-        
         node2.doStop();
+        ctx2.stop();
+        
         node1.doStop();
+        ctx1.stop();
     }
     
     private static class  ProtocolContext {

@@ -15,29 +15,23 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.messaging.remotenode.network;
+package org.apache.geronimo.messaging.remotenode.admin;
 
-import org.apache.geronimo.messaging.NodeInfo;
-import org.apache.geronimo.messaging.io.IOContext;
-import org.apache.geronimo.messaging.remotenode.RemoteNode;
 import org.apache.geronimo.messaging.remotenode.RemoteNodeConnection;
 
 /**
+ * Command for a RemoteNodeConnection.
  * 
- * @version $Revision: 1.2 $ $Date: 2004/06/03 14:39:44 $
+ * @version $Revision: 1.1 $ $Date: 2004/06/03 14:39:44 $
  */
-public class RemoteNodeJoined
-    extends AbstractRemoteNode
-    implements RemoteNode
+public interface RemoteNodeConnectionCommand
 {
 
-    public RemoteNodeJoined(NodeInfo aNodeInfo, IOContext anIOContext) {
-        super(aNodeInfo, anIOContext);
-    }
-    
-    public RemoteNodeConnection newConnection() {
-        throw new UnsupportedOperationException(
-            "A joined node does not create connections");
-    }
+    /**
+     * Executes a command on the specified connection.
+     * 
+     * @param aConnection Connection.
+     */
+	public void execute(RemoteNodeConnection aConnection);
 
 }

@@ -34,7 +34,7 @@ import org.apache.geronimo.system.ThreadPool;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:41 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/03 14:39:44 $
  */
 public class NodeImplTest
     extends TestCase
@@ -120,33 +120,29 @@ public class NodeImplTest
         path = new NodePath(nodeInfo3, nodeInfo4, weight, weight);
         topology.addPath(path);
 
-        Thread.sleep(500);
-
         node1.setTopology(topology);
         node2.setTopology(topology);
         node3.setTopology(topology);
         node4.setTopology(topology);
-
-        Thread.sleep(500);
     }
 
     protected void tearDown() throws Exception {
-        Thread.sleep(500);
-
         endPoint41.doStop();
         node4.doStop();
+        ctx4.stop();
         
         node3.doStop();
+        ctx3.stop();
         
         endPoint22.doStop();
         endPoint21.doStop();
         node2.doStop();
+        ctx2.stop();
         
         endPoint11.doStop();
         endPoint21.doStop();
         node1.doStop();
-        
-        Thread.sleep(500);
+        ctx1.stop();
     }
     
     public void testMulticast() throws Exception {

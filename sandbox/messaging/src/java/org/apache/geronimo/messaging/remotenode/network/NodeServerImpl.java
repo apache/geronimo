@@ -25,8 +25,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.messaging.CommunicationException;
 import org.apache.geronimo.messaging.Msg;
 import org.apache.geronimo.messaging.MsgBody;
-import org.apache.geronimo.messaging.MsgHeader;
-import org.apache.geronimo.messaging.MsgHeaderConstants;
 import org.apache.geronimo.messaging.NodeInfo;
 import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
 import org.apache.geronimo.messaging.io.IOContext;
@@ -34,6 +32,7 @@ import org.apache.geronimo.messaging.remotenode.NodeServer;
 import org.apache.geronimo.messaging.remotenode.RemoteNode;
 import org.apache.geronimo.messaging.remotenode.RemoteNodeConnection;
 import org.apache.geronimo.messaging.remotenode.RemoteNodeManager;
+import org.apache.geronimo.messaging.remotenode.admin.JoinReply;
 import org.apache.geronimo.network.SelectorManager;
 import org.apache.geronimo.network.protocol.AcceptableProtocol;
 import org.apache.geronimo.network.protocol.AcceptableProtocolStack;
@@ -48,7 +47,7 @@ import org.apache.geronimo.system.ClockPool;
 /**
  * NodeServer implementation.
  *
- * @version $Revision: 1.2 $ $Date: 2004/05/27 14:27:32 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/03 14:39:44 $
  */
 public class NodeServerImpl
     implements NodeServer, AcceptedCallBack
@@ -170,16 +169,15 @@ public class NodeServerImpl
             MsgBody body = aMsg.getBody();
             NodeInfo otherNodeInfo = (NodeInfo) body.getContent();
             
+            JoinReply joinReply = new JoinReply(aMsg);
+            joinReply.execute(connection);
+            
             RemoteNode remoteNode = manager.findRemoteNode(otherNodeInfo);
             if ( null == remoteNode ) {
                 remoteNode = new RemoteNodeJoined(otherNodeInfo, ioContext);
-                manager.registerRemoteNode(remoteNode);
             }
             remoteNode.addConnection(connection);
-            
-            Msg msg = aMsg.reply();
-            msg.getBody().setContent(Boolean.TRUE);
-            connection.getMsgConsumerOut().push(msg);
+            manager.registerRemoteNode(remoteNode);
         }
 
     }

@@ -19,8 +19,6 @@ package org.apache.geronimo.messaging.remotenode.network;
 
 import java.io.IOException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.messaging.CommunicationException;
 import org.apache.geronimo.messaging.NodeInfo;
 import org.apache.geronimo.messaging.io.IOContext;
@@ -30,21 +28,14 @@ import org.apache.geronimo.messaging.remotenode.RemoteNodeConnection;
 
 /**
  * 
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:42 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/03 14:39:44 $
  */
 public class RemoteNodeJoiner
     extends AbstractRemoteNode
     implements RemoteNode
 {
 
-    private static final Log log = LogFactory.getLog(RemoteNodeJoiner.class);
-    
     private final MessagingTransportFactory connFactory;
-    
-    /**
-     * Connection to the remote node.
-     */
-    private RemoteNodeConnection connection;
     
     public RemoteNodeJoiner(NodeInfo aNodeInfo, IOContext anIOContext,
         MessagingTransportFactory aFactory) {
@@ -55,10 +46,9 @@ public class RemoteNodeJoiner
         connFactory = aFactory;
     }
 
-    public void connect() throws IOException, CommunicationException {
-        connection = connFactory.factoryNodeConnection(nodeInfo, ioContext);
-        connection.open();
-        addConnection(connection);
+    public RemoteNodeConnection newConnection()
+        throws IOException, CommunicationException {
+        return connFactory.factoryNodeConnection(nodeInfo, ioContext);
     }
     
 }

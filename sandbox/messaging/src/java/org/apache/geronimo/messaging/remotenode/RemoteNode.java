@@ -26,7 +26,7 @@ import org.apache.geronimo.messaging.NodeInfo;
 /**
  * Provides a local representation of a remote Node.
  * 
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:42 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/03 14:39:44 $
  */
 public interface RemoteNode
     extends MsgConsProd
@@ -40,12 +40,15 @@ public interface RemoteNode
     public NodeInfo getNodeInfo();
 
     /**
-     * Connects to the remote node.
+     * Returns a connection to the remote node.
+     * <BR>
+     * This connection is not opened.
      * 
      * @throws IOException Indicates an I/O problem.
      * @throws CommunicationException If a communication can not be established.
      */
-    public void connect() throws IOException, CommunicationException;
+    public RemoteNodeConnection newConnection()
+        throws IOException, CommunicationException;
 
     /**
      * Leaves the remote node.

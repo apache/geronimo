@@ -19,8 +19,6 @@ package org.apache.geronimo.messaging.remotenode.network;
 
 import java.net.InetSocketAddress;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.messaging.NodeInfo;
 import org.apache.geronimo.messaging.io.IOContext;
 import org.apache.geronimo.messaging.remotenode.RemoteNodeConnection;
@@ -28,21 +26,20 @@ import org.apache.geronimo.network.SelectorManager;
 import org.apache.geronimo.network.protocol.BufferProtocol;
 import org.apache.geronimo.network.protocol.Protocol;
 import org.apache.geronimo.network.protocol.ProtocolException;
+import org.apache.geronimo.network.protocol.ProtocolStack;
 import org.apache.geronimo.network.protocol.SocketProtocol;
 
 /**
  * 
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:42 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/03 14:39:44 $
  */
 public class RemoteNodeJoinerConnection
     extends AbstractRemoteNodeConnection
     implements RemoteNodeConnection
 {
 
-    private static final Log log = LogFactory.getLog(RemoteNodeJoinerConnection.class);
-    
     /**
-     * NodeInfo the remote node.
+     * NodeInfo of the remote node.
      */
     private final NodeInfo nodeInfo;
     
@@ -64,6 +61,8 @@ public class RemoteNodeJoinerConnection
     protected Protocol newProtocol() throws ProtocolException {
         String hostName = nodeInfo.getAddress().getHostName();
         int port = nodeInfo.getPort();
+
+        ProtocolStack stack = new ProtocolStack();
         
         SocketProtocol socketProtocol = new SocketProtocol();
         // TODO configurable.
@@ -71,17 +70,15 @@ public class RemoteNodeJoinerConnection
         socketProtocol.setInterface(new InetSocketAddress(hostName, 0));
         socketProtocol.setAddress(new InetSocketAddress(hostName, port));
         socketProtocol.setSelectorManager(selectorManager);
+        stack.push(socketProtocol);
         
         BufferProtocol buffpt = new BufferProtocol();
         buffpt.setThreadPool(selectorManager.getThreadPool());
-        
-        socketProtocol.setUpProtocol(buffpt);
-        buffpt.setDownProtocol(socketProtocol);
+        stack.push(buffpt);
 
-        socketProtocol.setup();
-        buffpt.setup();
+        stack.setup();
         
-        return buffpt;
+        return stack;
     }
 
 }
