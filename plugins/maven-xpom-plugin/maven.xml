@@ -82,4 +82,8 @@
             <fileset dir="${basedir}/src/java"/>
         </ant:jar>
     </goal>
+
+    <goal name="jar:deploy">
+        <attainGoal name="plugin:repository-deploy"/>
+    </goal>
 </project>

@@ -169,8 +169,8 @@
         <attainGoal name="multiproject:goal"/>
     </goal>
 
-    <goal name="m:eclipse" prereqs="m:init">
-        <j:set var="goal" value="eclipse"/>
+    <goal name="m:jar:deploy" prereqs="m:init">
+        <j:set var="goal" value="jar:deploy"/>
         <attainGoal name="multiproject:goal"/>
     </goal>
 
@@ -493,6 +493,10 @@
         <modules:reactor goals="eclipse"/>
     </goal>
 
+    <goal name="modules:jar:deploy">
+        <modules:reactor goals="jar:deploy"/>
+    </goal>
+
     <goal name="modules:javadoc">
         <modules:reactor goals="javadoc"/>
     </goal>
@@ -574,6 +578,10 @@
 
     <goal name="eclipse">
         <attainGoal name="modules:eclipse"/>
+    </goal>
+
+    <goal name="jar:deploy">
+        <attainGoal name="modules:jar:deploy"/>
     </goal>
 
     <goal name="java-src">
