@@ -41,6 +41,20 @@ public abstract class ConnectionFactory {
     public abstract void setProperties(Properties properties) throws JAXRException;
 
     public static ConnectionFactory newInstance() throws JAXRException {
-        throw new UnsupportedOperationException();
+        String className = System.getProperty("javax.xml.registry.ConnectionFactoryClass", "org.apache.scout.registry.ConnectionFactoryImpl");
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        if (cl == null) {
+            cl = ConnectionFactory.class.getClassLoader();
+        }
+        try {
+            Class factoryClass = cl.loadClass(className);
+            return (ConnectionFactory) factoryClass.newInstance();
+        } catch (ClassNotFoundException e) {
+            throw new JAXRException("Unable to load JAXR ConnectionFactoryClass: " + className, e);
+        } catch (InstantiationException e) {
+            throw new JAXRException("Unable to instantiate JAXR ConnectionFactoryClass: " + className, e);
+        } catch (IllegalAccessException e) {
+            throw new JAXRException("Unable to instantiate JAXR ConnectionFactoryClass: " + className, e);
+        }
     }
 }
