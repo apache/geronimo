@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.82 $ $Date: 2004/09/07 02:35:13 $ -->
+<!-- $Revision: 1.83 $ $Date: 2004/09/07 03:21:01 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -304,6 +304,17 @@
 
     <goal name="java-src">
         <attainGoal name="modules:java-src"/>
+
+        <ant:mkdir dir="${basedir}/target"/>
+        <ant:jar destfile="${basedir}/target/${pom.groupId}-${pom.currentVersion}-java-src.jar">
+            <j:forEach var="module" items="${reactorProjects}">
+                <j:set var="module.root" value="${module.file.parent}"/>
+
+                <u:available file="${module.root}/target/${module.artifactId}-${module.currentVersion}-java-src.jar">
+                    <zipfileset src="${module.root}/target/${module.artifactId}-${module.currentVersion}-java-src.jar"/>
+                </u:available>
+            </j:forEach>
+        </ant:jar>
     </goal>
 
     <goal name="plugins">
