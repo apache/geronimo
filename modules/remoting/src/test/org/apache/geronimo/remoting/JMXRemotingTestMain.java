@@ -56,16 +56,14 @@
 
 package org.apache.geronimo.remoting;
 
-import java.rmi.Remote;
 import java.io.Serializable;
-
+import java.rmi.Remote;
 import javax.management.MBeanServer;
 import javax.management.Notification;
+import javax.management.NotificationFilter;
 import javax.management.NotificationListener;
 import javax.management.ObjectName;
-import javax.management.NotificationFilter;
 
-import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.deployment.client.DeploymentNotification;
 import org.apache.geronimo.remoting.jmx.RemoteMBeanServerFactory;
 
@@ -82,53 +80,51 @@ import EDU.oswego.cs.dl.util.concurrent.Latch;
  */
 public class JMXRemotingTestMain {
 
-    Latch eventLatch = new Latch(); 
-    
+    Latch eventLatch = new Latch();
+
     public void XtestCheckClassLoaders() throws Exception {
         MBeanServer server = RemoteMBeanServerFactory.create("localhost");
         String[] strings = server.getDomains();
-        for(int i=0; i < strings.length; i++){
-            System.out.println("domain: "+strings[i]);
+        for (int i = 0; i < strings.length; i++) {
+            System.out.println("domain: " + strings[i]);
         }
     }
-    
+
     class MyListner implements NotificationListener, Remote {
         private int lookingForID = -1;
 
-        /**
-         * @see javax.management.NotificationListener#handleNotification(javax.management.Notification, java.lang.Object)
-         */
         public void handleNotification(Notification not, Object handback) {
-            if(not instanceof DeploymentNotification) {
-                int id = ((DeploymentNotification)not).getDeploymentID();
-                if(lookingForID == -1) {
+            if (not instanceof DeploymentNotification) {
+                int id = ((DeploymentNotification) not).getDeploymentID();
+                if (lookingForID == -1) {
                     lookingForID = id;
                 } else {
-                    if(id != lookingForID) {
-                        System.err.println("FAILED: should not get notification for ID "+id+" (expecting "+lookingForID+")");
+                    if (id != lookingForID) {
+                        System.err.println("FAILED: should not get notification for ID " + id + " (expecting " + lookingForID + ")");
                         return;
                     }
                 }
             }
-            System.out.println("Got notification: "+not.getType());
+            System.out.println("Got notification: " + not.getType());
             eventLatch.release();
         }
-        
+
     }
 
     static class MyFilter implements NotificationFilter, Serializable {
         public boolean isNotificationEnabled(Notification notification) {
-            System.err.println("Filtering a notification: "+notification.getType());
+            System.err.println("Filtering a notification: " + notification.getType());
             return true;
         }
-        
+
         public int hashCode() {
             return 1;
         }
+
         public boolean equals(Object obj) {
-            if( obj == null )
+            if (obj == null)
                 return false;
-            if( obj.getClass() != getClass() )
+            if (obj.getClass() != getClass())
                 return false;
             return true;
         }
@@ -137,15 +133,15 @@ public class JMXRemotingTestMain {
     public void testNotificationListner() throws Exception {
         System.out.println("adding listner..");
         MBeanServer server = RemoteMBeanServerFactory.create("localhost");
-        ObjectName name = JMXUtil.getObjectName("geronimo.deployment:role=DeploymentController");
+        ObjectName name = ObjectName.getInstance("geronimo.deployment:role=DeploymentController");
         MyListner listner = new MyListner();
         MyFilter filter = new MyFilter();
-        server.addNotificationListener(name,listner,filter,null);
+        server.addNotificationListener(name, listner, filter, null);
         eventLatch.acquire();
         System.out.println("Event received.");
         server.removeNotificationListener(name, listner, filter, null);
         System.out.println("Notifications removed.");
-        Thread.sleep(1000*60);
+        Thread.sleep(1000 * 60);
     }
 
     public static void main(String[] args) throws Exception {
