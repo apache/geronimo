@@ -100,6 +100,7 @@ import org.apache.geronimo.kernel.deployment.task.StartMBeanInstance;
 import org.apache.geronimo.kernel.deployment.task.StopMBeanInstance;
 import org.apache.geronimo.kernel.jmx.JMXKernel;
 import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.classspace.ClassSpaceUtil;
 import org.apache.geronimo.naming.java.ComponentContextBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.java.ReferenceFactory;
@@ -127,7 +128,7 @@ import org.xml.sax.SAXException;
  * 2. the url is a directory which contains a WEB-INF/web.xml file
  *
  * @jmx:mbean extends="org.apache.geronimo.web.WebContainer, org.apache.geronimo.kernel.management.StateManageable, javax.management.MBeanRegistration"
- * @version $Revision: 1.18 $ $Date: 2003/11/17 00:43:41 $
+ * @version $Revision: 1.19 $ $Date: 2003/11/17 07:33:51 $
  */
 public abstract class AbstractWebContainer
         extends AbstractManagedContainer
@@ -276,6 +277,7 @@ public abstract class AbstractWebContainer
         // webapps
         MBeanMetadata webappMetadata = new MBeanMetadata(webappName);
         webappMetadata.setParentName(deploymentUnitName);
+        webappMetadata.setLoaderName(classSpaceMetaData.getName());
         dependencyService.addStartDependency(webappName, deploymentUnitName);
 
         // Set up the ContextPath, which can come from:
@@ -290,7 +292,8 @@ public abstract class AbstractWebContainer
 
         // Set up the parent classloader for the webapp
         // @todo we need to be in the ear's classspace
-        webapp.setParentClassLoader(getClass().getClassLoader());
+//        webapp.setParentClassLoader(getClass().getClassLoader());
+        webapp.setParentClassLoader(ClassSpaceUtil.getClassLoader(server, classSpaceMetaData.getName()));
 
         // Set up the ENC etc
         if(geronimoWebAppDoc != null) {

@@ -73,7 +73,7 @@ import org.apache.geronimo.deployment.model.j2ee.EJBLocalRef;
  *
  * A better set of assumptions might be that the context params are the name/value pairs for the object name.
  *
- * @version $Revision: 1.3 $ $Date: 2003/11/16 05:24:38 $
+ * @version $Revision: 1.4 $ $Date: 2003/11/17 07:33:51 $
  *
  * */
 public class JMXReferenceFactory implements ReferenceFactory {
@@ -101,7 +101,7 @@ public class JMXReferenceFactory implements ReferenceFactory {
         }
 
         return new LinkRef(JMXContext.encode(mbeanServerId,
-                (link == null)? locator.getJndiName(): link,
+                (link == null)? locator.getJndiName(): "geronimo.j2ee:J2eeType=SessionBean,name="+link,
                 methodName));
     }
 }

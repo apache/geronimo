@@ -92,7 +92,7 @@ import net.sf.cglib.reflect.FastClass;
  * GeronimoMBeanInfo instance.  The GeronimoMBean also support caching of attribute values and invocation results
  * which can reduce the number of calls to a target.
  *
- * @version $Revision: 1.8 $ $Date: 2003/11/14 16:13:37 $
+ * @version $Revision: 1.9 $ $Date: 2003/11/17 07:33:51 $
  */
 public class GeronimoMBean extends AbstractManagedObject2 implements DynamicMBean {
     public static final FastClass fastClass = FastClass.create(GeronimoMBean.class);
@@ -289,77 +289,107 @@ public class GeronimoMBean extends AbstractManagedObject2 implements DynamicMBea
     }
 
     protected boolean canStart() {
-        for (Iterator i = mbeanInfo.getEndpointsSet().iterator(); i.hasNext();) {
-            GeronimoMBeanEndpoint endpoint = (GeronimoMBeanEndpoint) i.next();
-            if (!endpoint.canStart()) {
-                return false;
-            }
-        }
-        for (Iterator i = mbeanInfo.targets.values().iterator(); i.hasNext();) {
-            Object target = i.next();
-            if (target instanceof GeronimoMBeanTarget) {
-                if (!((GeronimoMBeanTarget) target).canStart()) {
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(classLoader);
+        try {
+            for (Iterator i = mbeanInfo.getEndpointsSet().iterator(); i.hasNext();) {
+                GeronimoMBeanEndpoint endpoint = (GeronimoMBeanEndpoint) i.next();
+                if (!endpoint.canStart()) {
                     return false;
                 }
             }
+            for (Iterator i = mbeanInfo.targets.values().iterator(); i.hasNext();) {
+                Object target = i.next();
+                if (target instanceof GeronimoMBeanTarget) {
+                    if (!((GeronimoMBeanTarget) target).canStart()) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
-        return true;
     }
 
     protected void doStart() throws Exception {
-        for (Iterator i = mbeanInfo.getEndpointsSet().iterator(); i.hasNext();) {
-            GeronimoMBeanEndpoint endpoint = (GeronimoMBeanEndpoint) i.next();
-            endpoint.doStart();
-        }
-        for (Iterator i = mbeanInfo.targets.values().iterator(); i.hasNext();) {
-            Object target = i.next();
-            if (target instanceof GeronimoMBeanTarget) {
-                ((GeronimoMBeanTarget) target).doStart();
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(classLoader);
+        try {
+            for (Iterator i = mbeanInfo.getEndpointsSet().iterator(); i.hasNext();) {
+                GeronimoMBeanEndpoint endpoint = (GeronimoMBeanEndpoint) i.next();
+                endpoint.doStart();
             }
+            for (Iterator i = mbeanInfo.targets.values().iterator(); i.hasNext();) {
+                Object target = i.next();
+                if (target instanceof GeronimoMBeanTarget) {
+                    ((GeronimoMBeanTarget) target).doStart();
+                }
+            }
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
     }
 
     protected boolean canStop() {
-        for (Iterator i = mbeanInfo.getEndpointsSet().iterator(); i.hasNext();) {
-            GeronimoMBeanEndpoint endpoint = (GeronimoMBeanEndpoint) i.next();
-            if (!endpoint.canStop()) {
-                return false;
-            }
-        }
-        for (Iterator i = mbeanInfo.targets.values().iterator(); i.hasNext();) {
-            Object target = i.next();
-            if (target instanceof GeronimoMBeanTarget) {
-                if (!((GeronimoMBeanTarget) target).canStop()) {
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(classLoader);
+        try {
+            for (Iterator i = mbeanInfo.getEndpointsSet().iterator(); i.hasNext();) {
+                GeronimoMBeanEndpoint endpoint = (GeronimoMBeanEndpoint) i.next();
+                if (!endpoint.canStop()) {
                     return false;
                 }
             }
+            for (Iterator i = mbeanInfo.targets.values().iterator(); i.hasNext();) {
+                Object target = i.next();
+                if (target instanceof GeronimoMBeanTarget) {
+                    if (!((GeronimoMBeanTarget) target).canStop()) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
-        return true;
     }
 
     protected void doStop() throws Exception {
-        for (Iterator i = mbeanInfo.getEndpointsSet().iterator(); i.hasNext();) {
-            GeronimoMBeanEndpoint endpoint = (GeronimoMBeanEndpoint) i.next();
-            endpoint.doStop();
-        }
-        for (Iterator i = mbeanInfo.targets.values().iterator(); i.hasNext();) {
-            Object target = i.next();
-            if (target instanceof GeronimoMBeanTarget) {
-                ((GeronimoMBeanTarget) target).doStop();
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(classLoader);
+        try {
+            for (Iterator i = mbeanInfo.getEndpointsSet().iterator(); i.hasNext();) {
+                GeronimoMBeanEndpoint endpoint = (GeronimoMBeanEndpoint) i.next();
+                endpoint.doStop();
             }
+            for (Iterator i = mbeanInfo.targets.values().iterator(); i.hasNext();) {
+                Object target = i.next();
+                if (target instanceof GeronimoMBeanTarget) {
+                    ((GeronimoMBeanTarget) target).doStop();
+                }
+            }
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
     }
 
     protected void doFail() {
-        for (Iterator i = mbeanInfo.getEndpointsSet().iterator(); i.hasNext();) {
-            GeronimoMBeanEndpoint endpoint = (GeronimoMBeanEndpoint) i.next();
-            endpoint.doFail();
-        }
-        for (Iterator i = mbeanInfo.targets.values().iterator(); i.hasNext();) {
-            Object target = i.next();
-            if (target instanceof GeronimoMBeanTarget) {
-                ((GeronimoMBeanTarget) target).doFail();
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(classLoader);
+        try {
+            for (Iterator i = mbeanInfo.getEndpointsSet().iterator(); i.hasNext();) {
+                GeronimoMBeanEndpoint endpoint = (GeronimoMBeanEndpoint) i.next();
+                endpoint.doFail();
             }
+            for (Iterator i = mbeanInfo.targets.values().iterator(); i.hasNext();) {
+                Object target = i.next();
+                if (target instanceof GeronimoMBeanTarget) {
+                    ((GeronimoMBeanTarget) target).doFail();
+                }
+            }
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
     }
 

@@ -56,32 +56,28 @@
 
 package org.apache.geronimo.naming.jmx;
 
-import java.util.Hashtable;
 import java.net.URI;
 import java.net.URISyntaxException;
-
-import javax.naming.Context;
-import javax.naming.Name;
-import javax.naming.NamingException;
-import javax.naming.NamingEnumeration;
-import javax.naming.NameParser;
-import javax.naming.NameNotFoundException;
-import javax.naming.OperationNotSupportedException;
-import javax.naming.CompositeName;
-import javax.naming.spi.NamingManager;
-import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
-import javax.management.MBeanServer;
+import java.util.Hashtable;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
-import javax.management.ReflectionException;
+import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
-import javax.management.AttributeNotFoundException;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.management.ReflectionException;
+import javax.naming.CompositeName;
+import javax.naming.Context;
+import javax.naming.Name;
+import javax.naming.NameParser;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.OperationNotSupportedException;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/13 22:22:30 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/17 07:33:51 $
  *
  * */
 public class JMXContext  implements Context  {
@@ -113,11 +109,7 @@ public class JMXContext  implements Context  {
 
         try {
             MBeanServer server = (MBeanServer)MBeanServerFactory.findMBeanServer(mbeanServerId).get(0);
-            if (!operation.startsWith("get")) {
                 return server.invoke(ObjectName.getInstance(objectName), operation, null, null);
-            } else {
-                return server.getAttribute(ObjectName.getInstance(objectName), operation.substring(3));
-            }
         } catch (MalformedObjectNameException e) {
             throw getNamingException("Bad object name part", e);
         } catch (InstanceNotFoundException e) {
@@ -128,8 +120,6 @@ public class JMXContext  implements Context  {
             throw getNamingException("MBean reflection problem", e);
         } catch (IndexOutOfBoundsException e) {
             throw getNamingException("MBeanServer not found", e);
-        } catch (AttributeNotFoundException e) {
-            throw getNamingException("Attribute not found", e);
         }
     }
 

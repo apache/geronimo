@@ -72,7 +72,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/11/17 00:16:43 $
+ * @version $Revision: 1.4 $ $Date: 2003/11/17 07:33:51 $
  *
  * */
 public class DeploymentHelper {
@@ -157,11 +157,13 @@ public class DeploymentHelper {
      */
     public ClassSpaceMetadata buildClassSpace() throws DeploymentException {
         ClassSpaceMetadata classSpaceMetaData = new ClassSpaceMetadata();
-        classSpaceMetaData.setName(buildClassSpaceName());
+//        classSpaceMetaData.setName(buildClassSpaceName());
+        classSpaceMetaData.setName(JMXUtil.getObjectName("geronimo.system:role=ClassSpace,name=System"));
         classSpaceMetaData.setGeronimoMBeanInfo(GeronimoMBeanInfoXMLLoader.loadMBean(
                 ClassLoader.getSystemResource("org/apache/geronimo/kernel/classspace/classspace-mbean.xml")
         ));
-        classSpaceMetaData.setParent(JMXUtil.getObjectName("geronimo.system:role=ClassSpace,name=System"));
+//        classSpaceMetaData.setParent(JMXUtil.getObjectName("geronimo.system:role=ClassSpace,name=System"));
+        classSpaceMetaData.setDeploymentName(buildDeploymentName());
 
         List archives = classSpaceMetaData.getUrls();
 
