@@ -164,30 +164,96 @@ public class DeploymentContext {
         dependencies.add(uri);
     }
 
+    /**
+     * Copy a packed jar file into the deployment context and place it into the
+     * path specified in the target path.  The newly added packed jar is added
+     * to the classpath of the configuration.
+     * <p/>
+     * NOTE: The class loader that is obtained from this deployment context
+     * may get out of sync with the newly augmented classpath; obtain a freshly
+     * minted class loader by calling <code>getClassLoader</code> method.
+     *
+     * @param targetPath where the packed jar file should be placed
+     * @param jarFile    the jar file to copy
+     * @throws IOException if there's a problem copying the jar file
+     */
     public void addIncludeAsPackedJar(URI targetPath, JarFile jarFile) throws IOException {
         File targetFile = getTargetFile(targetPath);
         DeploymentUtil.copyToPackedJar(jarFile, targetFile);
         classPath.add(targetPath);
     }
 
+    /**
+     * Copy a ZIP file entry into the deployment context and place it into the
+     * path specified in the target path.  The newly added entry is added
+     * to the classpath of the configuration.
+     * <p/>
+     * NOTE: The class loader that is obtained from this deployment context
+     * may get out of sync with the newly augmented classpath; obtain a freshly
+     * minted class loader by calling <code>getClassLoader</code> method.
+     *
+     * @param targetPath where the ZIP file entry should be placed
+     * @param zipFile    the ZIP file
+     * @param zipEntry   the ZIP file entry
+     * @throws IOException if there's a problem copying the ZIP entry
+     */
     public void addInclude(URI targetPath, ZipFile zipFile, ZipEntry zipEntry) throws IOException {
         File targetFile = getTargetFile(targetPath);
         addFile(targetFile, zipFile, zipEntry);
         classPath.add(targetPath);
     }
 
+    /**
+     * Copy a file into the deployment context and place it into the
+     * path specified in the target path.  The newly added file is added
+     * to the classpath of the configuration.
+     * <p/>
+     * NOTE: The class loader that is obtained from this deployment context
+     * may get out of sync with the newly augmented classpath; obtain a freshly
+     * minted class loader by calling <code>getClassLoader</code> method.
+     *
+     * @param targetPath where the file should be placed
+     * @param source     the URL of file to be copied
+     * @throws IOException if there's a problem copying the ZIP entry
+     */
     public void addInclude(URI targetPath, URL source) throws IOException {
         File targetFile = getTargetFile(targetPath);
         addFile(targetFile, source);
         classPath.add(targetPath);
     }
 
+    /**
+     * Copy a file into the deployment context and place it into the
+     * path specified in the target path.  The newly added file is added
+     * to the classpath of the configuration.
+     * <p/>
+     * NOTE: The class loader that is obtained from this deployment context
+     * may get out of sync with the newly augmented classpath; obtain a freshly
+     * minted class loader by calling <code>getClassLoader</code> method.
+     *
+     * @param targetPath where the file should be placed
+     * @param source     the file to be copied
+     * @throws IOException if there's a problem copying the ZIP entry
+     */
     public void addInclude(URI targetPath, File source) throws IOException {
         File targetFile = getTargetFile(targetPath);
         addFile(targetFile, source);
         classPath.add(targetPath);
     }
 
+    /**
+     * Import the classpath from a jar file's manifest.  The imported classpath
+     * is crafted relative to <code>moduleBaseUri</code>.
+     * <p/>
+     * NOTE: The class loader that is obtained from this deployment context
+     * may get out of sync with the newly augmented classpath; obtain a freshly
+     * minted class loader by calling <code>getClassLoader</code> method.
+     *
+     * @param moduleFile    the jar file from which the manifest is obtained.
+     * @param moduleBaseUri the base for the imported classpath
+     * @throws DeploymentException if there is a problem with the classpath in
+     *                             the manifest
+     */
     public void addManifestClassPath(JarFile moduleFile, URI moduleBaseUri) throws DeploymentException {
         Manifest manifest = null;
         try {
@@ -296,15 +362,6 @@ public class DeploymentContext {
     }
 
     public ClassLoader getClassLoader(Repository repository) throws DeploymentException {
-        // save the dependencies and classpath
-        try {
-            config.setReferencePatterns("Repositories", Collections.singleton(new ObjectName("*:role=Repository,*")));
-            config.setAttribute("dependencies", new ArrayList(dependencies));
-            config.setAttribute("classPath", new ArrayList(classPath));
-        } catch (Exception e) {
-            throw new DeploymentException("Unable to initialize Configuration", e);
-        }
-
         // shouldn't user classpath come before dependencies?
         URL[] urls = new URL[dependencies.size() + classPath.size()];
         try {
@@ -339,10 +396,14 @@ public class DeploymentContext {
 
     private void saveConfiguration() throws IOException, DeploymentException {
         // persist all the GBeans in this Configuration
+        // save the dependencies and classpath
         try {
             config.setAttribute("gBeanState", Configuration.storeGBeans(gbeans));
+            config.setReferencePatterns("Repositories", Collections.singleton(new ObjectName("*:role=Repository,*")));
+            config.setAttribute("dependencies", new ArrayList(dependencies));
+            config.setAttribute("classPath", new ArrayList(classPath));
         } catch (Exception e) {
-            throw new DeploymentException("Unable to persist GBeans", e);
+            throw new DeploymentException("Unable to initialize Configuration", e);
         }
 
         // save the persisted form in the archive
