@@ -109,8 +109,11 @@ Configuration for the Geronimo deployer
     <gbean name="geronimo.deployer:role=ModuleBuilder,type=Connector,config=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.connector.deployment.ConnectorModuleBuilder"/>
 
     <gbean name="geronimo.deployer:role=ModuleBuilder,type=AppClient,config=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.client.builder.AppClientModuleBuilder">
-        <reference name="Repository">*:role=Repository,*</reference>
+        <attribute name="transactionContextManagerObjectName" type="javax.management.ObjectName">geronimo.client:type=TransactionContextManager</attribute>
+        <attribute name="connectionTrackerObjectName" type="javax.management.ObjectName">geronimo.client:type=ConnectionTracker</attribute>
+        <reference name="ConnectorModuleBuilder">geronimo.deployer:role=ModuleBuilder,type=Connector,config=org/apache/geronimo/J2EEDeployer</reference>
         <reference name="Store">geronimo.deployment:role=ConfigurationStore,type=Local</reference>
+        <reference name="Repository">*:role=Repository,*</reference>
     </gbean>
 
 </configuration>

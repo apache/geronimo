@@ -20,12 +20,14 @@
     xmlns:geronimo="http://geronimo.apache.org/xml/ns/j2ee/application-client"
     targetNamespace="http://geronimo.apache.org/xml/ns/j2ee/application-client"
     xmlns:naming="http://geronimo.apache.org/xml/ns/naming"
+    xmlns:connector="http://geronimo.apache.org/xml/ns/j2ee/connector"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     elementFormDefault="qualified"
     attributeFormDefault="unqualified"
     version="1.0">
 
     <xs:import namespace="http://geronimo.apache.org/xml/ns/naming" schemaLocation="../../../naming/src/schema/geronimo-naming.xsd"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/j2ee/connector" schemaLocation="../../../connector/src/schema/geronimo-connector_1_5.xsd"/>
     <!--xs:include schemaLocation="../../../naming/src/schema/geronimo-naming.xsd"/-->
     <xs:include schemaLocation="../../../deployment/src/schema/geronimo-common.xsd"/>
 
@@ -42,24 +44,24 @@
             <!--                minOccurs="0"/>-->
 
             <xs:group ref="naming:jndiEnvironmentRefsGroup"/>
-            <!--xs:element name="ejb-ref"
-               type="geronimo:remote-refType"
-               minOccurs="0" maxOccurs="unbounded"/>
-           <xs:element name="resource-ref"
-               type="geronimo:local-refType"
-               minOccurs="0" maxOccurs="unbounded"/>
-           <xs:element name="resource-env-ref"
-               type="geronimo:local-refType"
-               minOccurs="0" maxOccurs="unbounded"/>
-           <xs:element name="message-destination-ref"
-               type="geronimo:remote-refType"
-               minOccurs="0" maxOccurs="unbounded"/-->
+
+            <xs:element name="resource" type="geronimo:resourceType" minOccurs="0" maxOccurs="unbounded"/>
 
             <xs:element name="gbean" type="geronimo:gbeanType" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
 
         <xs:attribute name="configId" type="xs:string" use="required"/>
         <xs:attribute name="parentId" type="xs:string" use="optional"/>
+    </xs:complexType>
+
+    <xs:complexType name="resourceType">
+        <xs:sequence>
+            <xs:choice>
+                <xs:element name="external-rar" type="xs:string"/>
+                <xs:element name="internal-rar" type="xs:string"/>
+            </xs:choice>
+            <xs:element name="connector" type="connector:connectorType"/>
+        </xs:sequence>
     </xs:complexType>
 
 

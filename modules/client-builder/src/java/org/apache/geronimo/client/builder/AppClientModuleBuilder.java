@@ -23,8 +23,10 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.jar.Attributes;
@@ -34,12 +36,12 @@ import java.util.jar.Manifest;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.service.GBeanHelper;
 import org.apache.geronimo.deployment.util.FileUtil;
 import org.apache.geronimo.deployment.util.IOUtil;
 import org.apache.geronimo.deployment.util.JarUtil;
+import org.apache.geronimo.deployment.util.NestedJarFile;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
@@ -59,6 +61,7 @@ import org.apache.geronimo.xbeans.geronimo.client.GerApplicationClientDocument;
 import org.apache.geronimo.xbeans.geronimo.client.GerApplicationClientType;
 import org.apache.geronimo.xbeans.geronimo.client.GerDependencyType;
 import org.apache.geronimo.xbeans.geronimo.client.GerGbeanType;
+import org.apache.geronimo.xbeans.geronimo.client.GerResourceType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerRemoteRefType;
 import org.apache.geronimo.xbeans.j2ee.ApplicationClientDocument;
 import org.apache.geronimo.xbeans.j2ee.ApplicationClientType;
@@ -76,11 +79,20 @@ public class AppClientModuleBuilder implements ModuleBuilder {
     private final ConfigurationStore store;
 
     private static final URI PARENT_ID = URI.create("org/apache/geronimo/Client");
+    private final String clientDomainName = "geronimo.client";
+    private final String clientServerName = "client";
+    private final String clientApplicationName = "client-application";
+    private final ObjectName transactionContextManagerObjectName;
+    private final ObjectName connectionTrackerObjectName;
+    private final ModuleBuilder connectorModuleBuilder;
 
-    public AppClientModuleBuilder(Kernel kernel, Repository repository, ConfigurationStore store) {
+    public AppClientModuleBuilder(ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ModuleBuilder connectorModuleBuilder, ConfigurationStore store, Repository repository, Kernel kernel) {
         this.kernel = kernel;
         this.repository = repository;
         this.store = store;
+        this.transactionContextManagerObjectName = transactionContextManagerObjectName;
+        this.connectionTrackerObjectName = connectionTrackerObjectName;
+        this.connectorModuleBuilder = connectorModuleBuilder;
     }
 
     public Module createModule(String name, Object plan, JarFile moduleFile, URL appClientXmlUrl, String targetPath) throws DeploymentException {
@@ -197,9 +209,10 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         } catch (IOException e) {
             throw new DeploymentException("Unable to copy app client module jar into configuration: " + moduleFile.getName());
         }
+        ((AppClientModule)module).setEarFile(earFile);
     }
 
-    public void initContext(EARContext earContext, Module webModule, ClassLoader cl) {
+    public void initContext(EARContext earContext, Module clientModule, ClassLoader cl) {
         // application clients do not add anything to the shared context
     }
 
@@ -255,7 +268,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         earContext.addGBean(appClientModuleName, appClientModuleGBean);
 
         // create another child configuration within the config store for the client application
-        DeploymentContext appClientDeploymentContext = null;
+        EARContext appClientDeploymentContext = null;
         File appClientConfiguration = null;
         try {
             appClientConfiguration = FileUtil.createTempFile();
@@ -264,12 +277,23 @@ public class AppClientModuleBuilder implements ModuleBuilder {
             // construct the app client deployment context... this is the same class used by the ear context
             try {
                 URI configId = URI.create(geronimoAppClient.getConfigId());
-                appClientDeploymentContext = new DeploymentContext(jos, configId, ConfigurationModuleType.APP_CLIENT, PARENT_ID, kernel);
+                appClientDeploymentContext = new EARContext(jos,
+                        configId,
+                        ConfigurationModuleType.APP_CLIENT, PARENT_ID,
+                        kernel,
+                        clientDomainName,
+                        clientServerName,
+                        clientApplicationName,
+                        transactionContextManagerObjectName,
+                        connectionTrackerObjectName,
+                        null,
+                        null,
+                        null);//not sure if EJBReferenceBuilder should be used for this.
             } catch (Exception e) {
                 throw new DeploymentException("Could not create a deployment context for the app client", e);
             }
 
-            // extract the ejbJar file into a standalone packed jar file and add the contents to the output
+            // extract the client Jar file into a standalone packed jar file and add the contents to the output
             File appClientJarFile = JarUtil.extractToPackedJar(moduleFile);
             appClientDeploymentContext.addInclude(URI.create(module.getTargetPath()), appClientJarFile.toURL());
 
@@ -312,6 +336,41 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 for (int i = 0; i < gbeans.length; i++) {
                     GBeanHelper.addGbean(new AppClientGBeanAdapter(gbeans[i]), appClientClassLoader, appClientDeploymentContext);
                 }
+                //deploy the resource adapters specified in the geronimo-application.xml
+                Collection resourceModules = appClientModule.getResourceModules();
+                GerResourceType[] resources = geronimoAppClient.getResourceArray();
+                for (int i = 0; i < resources.length; i++) {
+                    GerResourceType resource = resources[i];
+                    String path;
+                    JarFile connectorFile;
+                    if (resource.isSetExternalRar()) {
+                        path = resource.getExternalRar();
+                        URI pathURI = new URI(path);
+                        if (!repository.hasURI(pathURI)) {
+                            throw new DeploymentException("Missing rar in repository: " + path);
+                        }
+                        URL pathURL = repository.getURL(pathURI);
+                        connectorFile = new JarFile(pathURL.getFile());
+                    } else {
+                        path = resource.getInternalRar();
+                      connectorFile = new NestedJarFile(appClientModule.getEarFile(), path);
+                    }
+                    XmlObject connectorPlan = resource.getConnector();
+                    Module connectorModule = connectorModuleBuilder.createModule(path, connectorPlan, connectorFile, null, path);
+                    resourceModules.add(connectorModule);
+                    connectorModuleBuilder.installModule(connectorFile, appClientDeploymentContext, connectorModule);
+                }
+                ClassLoader cl = appClientDeploymentContext.getClassLoader(repository);
+                for (Iterator iterator = resourceModules.iterator(); iterator.hasNext();) {
+                    Module connectorModule = (Module) iterator.next();
+                    connectorModuleBuilder.initContext(appClientDeploymentContext, connectorModule, cl);
+                }
+
+                for (Iterator iterator = resourceModules.iterator(); iterator.hasNext();) {
+                    Module connectorModule = (Module) iterator.next();
+                    connectorModuleBuilder.addGBeans(appClientDeploymentContext, connectorModule, cl);
+                }
+
             }
 
             // finally add the app client container
@@ -396,11 +455,17 @@ public class AppClientModuleBuilder implements ModuleBuilder {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(AppClientModuleBuilder.class);
-        infoFactory.addAttribute("kernel", Kernel.class, false);
-        infoFactory.addReference("Repository", Repository.class);
+        infoFactory.addAttribute("transactionContextManagerObjectName", ObjectName.class, true);
+        infoFactory.addAttribute("connectionTrackerObjectName", ObjectName.class, true);
+        infoFactory.addReference("ConnectorModuleBuilder", ModuleBuilder.class);
         infoFactory.addReference("Store", ConfigurationStore.class);
-        infoFactory.setConstructor(new String[] {"kernel", "Repository", "Store"});
+        infoFactory.addReference("Repository", Repository.class);
+
+        infoFactory.addAttribute("kernel", Kernel.class, false);
+
         infoFactory.addInterface(ModuleBuilder.class);
+
+        infoFactory.setConstructor(new String[] {"transactionContextManagerObjectName", "connectionTrackerObjectName", "ConnectorModuleBuilder", "Store", "Repository", "kernel"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

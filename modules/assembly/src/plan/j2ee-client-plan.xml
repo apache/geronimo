@@ -46,8 +46,54 @@ by the app client.
         <uri>openejb/jars/openejb-core-${openejb_version}.jar</uri>
     </dependency>
 
+    <!-- client side connector support -->
+    <dependency>
+        <uri>geronimo/jars/geronimo-core-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-connector-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>concurrent/jars/concurrent-${concurrent_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-transaction-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tranql/jars/tranql-${tranql_version}.jar</uri>
+    </dependency>
+ 
     <gbean name="geronimo.client:type=JNDIContext" class="org.openejb.client.AppClientJNDIContext">
         <attribute name="host" type="java.lang.String">localhost</attribute>
         <attribute name="port" type="int">4201</attribute>
     </gbean>
+
+    <!--client connector support-->
+    <gbean name="geronimo.client:type=ThreadPool,name=DefaultThreadPool" class="org.apache.geronimo.pool.ThreadPool">
+        <attribute name="keepAliveTime" type="long">5000</attribute>
+        <attribute name="poolSize" type="int">10</attribute>
+        <attribute name="poolName" type="java.lang.String">DefaultThreadPool</attribute>
+    </gbean>
+
+    <gbean name="geronimo.client:type=ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator">
+    </gbean>
+
+    <gbean name="geronimo.client:type=WorkManager,name=DefaultWorkManager" class="org.apache.geronimo.connector.work.GeronimoWorkManager">
+        <attribute name="syncMaximumPoolSize" type="int">10</attribute>
+        <attribute name="startMaximumPoolSize" type="int">10</attribute>
+        <attribute name="scheduledMaximumPoolSize" type="int">10</attribute>
+        <reference name="XAServices">geronimo.client:type=TransactionManager</reference>
+    </gbean>
+
+    <gbean name="geronimo.client:type=TransactionManager" class="org.apache.geronimo.transaction.GeronimoTransactionManager">
+        <references name="ResourceManagers">
+            <pattern>geronimo.client:j2eeType=JCAManagedConnectionFactory,*</pattern>
+            <pattern>geronimo.client:j2eeType=ActivationSpec,*</pattern>
+        </references>
+    </gbean>
+
+    <gbean name="geronimo.client:type=TransactionContextManager" class="org.apache.geronimo.transaction.context.TransactionContextManager">
+        <reference name="TransactionManager">geronimo.client:type=TransactionManager</reference>
+    </gbean>
+
 </configuration>
