@@ -30,46 +30,46 @@ import javax.mail.MessagingException;
  * @version $Rev$ $Date$
  */
 public class MimePartDataSource implements DataSource, MessageAware {
-    private MimePart _part;
+    private final MimePart part;
 
     public MimePartDataSource(MimePart part) {
-        _part = part;
+        this.part = part;
+    }
+
+    public InputStream getInputStream() throws IOException {
+        try {
+            InputStream stream;
+            if (part instanceof MimeMessage) {
+                stream = ((MimeMessage) part).getContentStream();
+            } else if (part instanceof MimeBodyPart) {
+                stream = ((MimeBodyPart) part).getContentStream();
+            } else {
+                throw new MessagingException("Unknown part");
+            }
+            String encoding = part.getEncoding();
+            return encoding == null ? stream : MimeUtility.decode(stream, encoding);
+        } catch (MessagingException e) {
+            throw (IOException) new IOException(e.getMessage()).initCause(e);
+        }
+    }
+
+    public OutputStream getOutputStream() throws IOException {
+        throw new UnknownServiceException();
     }
 
     public String getContentType() {
         try {
-            return _part.getContentType();
+            return part.getContentType();
         } catch (MessagingException e) {
-            throw new RuntimeException(e);
+            return null;
         }
-    }
-
-    public InputStream getInputStream() throws IOException {
-        InputStream content;
-        try {
-            String encoding = _part.getEncoding();
-            if (_part instanceof MimeMessage) {
-                content = ((MimeMessage) _part).getContentStream();
-            } else if (_part instanceof MimeBodyPart) {
-                content = ((MimeBodyPart) _part).getContentStream();
-            } else {
-                throw new MessagingException("Unknown part");
-            }
-            return MimeUtility.decode(content, encoding);
-        } catch (MessagingException e) {
-            throw new IOException(e.toString());
-        }
-    }
-
-    public synchronized MessageContext getMessageContext() {
-        return new MessageContext(_part);
     }
 
     public String getName() {
         return "";
     }
 
-    public OutputStream getOutputStream() throws IOException {
-        throw new UnknownServiceException();
+    public synchronized MessageContext getMessageContext() {
+        return new MessageContext(part);
     }
 }
