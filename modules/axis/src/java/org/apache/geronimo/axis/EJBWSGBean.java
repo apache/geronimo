@@ -16,6 +16,9 @@
 
 package org.apache.geronimo.axis;
 
+import java.util.Collection;
+import java.util.Iterator;
+
 import org.apache.axis.utils.ClassUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,49 +26,32 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
 
-import javax.management.ObjectName;
-
-import java.util.Collection;
-import java.util.Iterator;
 
 /**
  * @version $Rev: $ $Date: $
  */
 public class EJBWSGBean implements GBeanLifecycle {
     private static Log log = LogFactory.getLog(EJBWSGBean.class);
-    /**
-     * Field name
-     */
-    private final String name;
-
-    /**
-     * Field GBEAN_INFO
-     */
     private static final GBeanInfo GBEAN_INFO;
 
-    /**
-     * Field objectName
-     */
-    private final ObjectName objectName;
-    private Configuration ejbConfig;
+    //GBean Attributes
+    private final String objectName;
+    private final Configuration ejbConfig;
     private Collection classList;
+    
 
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("EJBWSGBean",
                 EJBWSGBean.class);
-
-
         // attributes
-        infoFactory.addAttribute("Name", String.class, true);
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addReference("ejbConfig", Configuration.class);
         infoFactory.addAttribute("classList", Collection.class, true);
+        
         // operations
-        infoFactory.setConstructor(new String[]{"Name",
-                                                "objectName"});
+        infoFactory.setConstructor(new String[]{"objectName","ejbConfig","classList"});
+        
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
@@ -75,9 +61,10 @@ public class EJBWSGBean implements GBeanLifecycle {
      * @param name
      * @param objectName
      */
-    public EJBWSGBean(String name, String objectName) {
-        this.name = name;
-        this.objectName = JMXUtil.getObjectName(objectName);
+    public EJBWSGBean(String objectName,Configuration ejbConfig,Collection classList) {
+        this.objectName = objectName;
+        this.ejbConfig = ejbConfig;
+        this.classList = classList;
     }
 
     /**
@@ -94,7 +81,7 @@ public class EJBWSGBean implements GBeanLifecycle {
      * @throws Exception
      */
     public void doStart() throws WaitingException, Exception {
-        System.out.println(name + "has started");
+        log.info(objectName + "has started");
         ClassLoader cl = ejbConfig.getConfigurationClassLoader();
         for (Iterator it = classList.iterator(); it.hasNext();) {
             String className = (String) it.next();
@@ -123,40 +110,4 @@ public class EJBWSGBean implements GBeanLifecycle {
         return GBEAN_INFO;
     }
 
-    /**
-     * Method getName
-     *
-     * @return
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * @return
-     */
-    public Collection getClassList() {
-        return classList;
-    }
-
-    /**
-     * @return
-     */
-    public Configuration getEjbConfig() {
-        return ejbConfig;
-    }
-
-    /**
-     * @param collection
-     */
-    public void setClassList(Collection collection) {
-        classList = collection;
-    }
-
-    /**
-     * @param configuration
-     */
-    public void setEjbConfig(Configuration configuration) {
-        ejbConfig = configuration;
-    }
 }

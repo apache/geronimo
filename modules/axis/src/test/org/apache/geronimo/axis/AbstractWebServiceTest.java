@@ -26,8 +26,8 @@ import javax.management.ObjectName;
 
 import org.apache.geronimo.axis.testUtils.AxisGeronimoConstants;
 import org.apache.geronimo.axis.testUtils.TestingUtils;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
@@ -71,13 +71,13 @@ public class AbstractWebServiceTest extends AbstractTestCase {
         TestingUtils.startJ2EEContinerAndAxisServlet(kernel);
         
         //Start axis gbean        
-        GBeanMBean axisgbean = new GBeanMBean(AxisGbean.getGBeanInfo());
-        kernel.loadGBean(axisname, axisgbean);
+        GBeanData axisgbData = new GBeanData(axisname,AxisGbean.getGBeanInfo());
+        kernel.loadGBean(axisgbData, Thread.currentThread().getContextClassLoader());
         kernel.startGBean(axisname);
         
-        GBeanMBean wsConfgBuilderbean = new GBeanMBean(WSConfigBuilder.getGBeanInfo());
+        GBeanData wsConfgBuilderbean = new GBeanData(wsConfgBuilderName,WSConfigBuilder.getGBeanInfo());
         wsConfgBuilderbean.setReferencePattern("AxisGbean",axisname);
-        kernel.loadGBean(wsConfgBuilderName, wsConfgBuilderbean);
+        kernel.loadGBean(wsConfgBuilderbean,Thread.currentThread().getContextClassLoader());
         kernel.startGBean(wsConfgBuilderName);
         
         

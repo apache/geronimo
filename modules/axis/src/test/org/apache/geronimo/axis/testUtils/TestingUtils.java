@@ -154,6 +154,8 @@ public class TestingUtils {
 
         JarFile module = new JarFile(jarfile);
         File unpackedDir = store.createNewConfigurationDir();
+        System.out.println("\nHI HELLO" + unpackedDir.getAbsolutePath());
+        
         //Install the EJB
         Object ejbplan = earConfigBuilder.getDeploymentPlan(null, module);
         earConfigBuilder.buildConfiguration(ejbplan, module, unpackedDir);
@@ -162,7 +164,7 @@ public class TestingUtils {
 
         GBeanData config = store.getConfiguration(ejbURI);
         ConfigurationManager configurationManager = kernel.getConfigurationManager();
-        ObjectName configName = configurationManager.load(config, store.getBaseURL(ejbURI), Configuration.class.getClassLoader());
+        ObjectName configName = configurationManager.load(config, store.getBaseURL(ejbURI), Thread.currentThread().getContextClassLoader());
         kernel.startRecursiveGBean(configName);
         return configName;
     }

@@ -20,5 +20,5 @@ package org.apache.geronimo.axis;
  */
 
 public interface Configuration {
-    public ClassLoader getClassLoader();
+    public ClassLoader getConfigurationClassLoader();
 }

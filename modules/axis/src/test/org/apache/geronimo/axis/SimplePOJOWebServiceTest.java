@@ -28,7 +28,6 @@ import java.net.URLClassLoader;
 import org.apache.axis.utils.ClassUtils;
 import org.apache.geronimo.axis.testUtils.TestingUtils;
 import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 /**
  * 

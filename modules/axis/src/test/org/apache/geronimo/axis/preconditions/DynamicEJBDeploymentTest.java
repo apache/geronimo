@@ -18,20 +18,16 @@ package org.apache.geronimo.axis.preconditions;
 
 import java.io.File;
 import java.net.URI;
-import java.util.jar.JarFile;
 
 import javax.management.ObjectName;
 
 import org.apache.geronimo.axis.AbstractTestCase;
-import org.apache.geronimo.axis.EJBWSGBean;
 import org.apache.geronimo.axis.testUtils.AxisGeronimoConstants;
 import org.apache.geronimo.axis.testUtils.J2EEManager;
 import org.apache.geronimo.axis.testUtils.TestingUtils;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.openejb.deployment.OpenEJBModuleBuilder;
 

@@ -15,14 +15,11 @@
  */
 package org.apache.geronimo.axis;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
@@ -38,6 +35,7 @@ import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
+
 import javax.ejb.EJBHome;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -51,7 +49,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
@@ -135,16 +132,6 @@ public class AxisGeronimoUtils {
      * @param kernel
      * @throws DeploymentException
      */
-    public static void startGBean(ObjectName objectName, GBeanMBean gbean, Kernel kernel)
-            throws DeploymentException {
-        try {
-            startedGbeans.add(objectName);
-            kernel.loadGBean(objectName, gbean);
-            kernel.startGBean(objectName);
-        } catch (Exception e) {
-            throw new DeploymentException(e);
-        }
-    }
 
     public static void startGBean(GBeanData gbean, Kernel kernel, ClassLoader classLoader)
             throws DeploymentException {
@@ -164,11 +151,11 @@ public class AxisGeronimoUtils {
      * @param kernel
      * @throws DeploymentException
      */
-    public static void startGBeanOnlyIfNotStarted(ObjectName objectName, GBeanMBean gbean, Kernel kernel)
+    public static void startGBeanOnlyIfNotStarted(ObjectName objectName, GBeanData gbean, Kernel kernel,ClassLoader classLoader)
             throws DeploymentException {
         try {
             if (!checkAlreadyStarted(objectName, kernel)) {
-                startGBean(objectName, gbean, kernel);
+                startGBean(gbean, kernel,classLoader);
                 log.info("Started .. " + objectName);
             } else {
                 log.info(objectName + " GBean already started");
@@ -362,24 +349,24 @@ public class AxisGeronimoUtils {
     }
     
     
-    /**
-     * 
-     * @param unpackedCar
-     * @return
-     * @throws Exception
-     */
-    public static GBeanMBean loadConfig(File unpackedCar) throws Exception {
-        InputStream in = new FileInputStream(new File(unpackedCar, "META-INF/config.ser"));
-        try {
-            ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(in));
-            GBeanData config = new GBeanData();
-            config.readExternal(ois);
-            return new GBeanMBean(config, Thread.currentThread().getContextClassLoader());
-        } finally {
-            in.close();
-        }
-    }
-    
+//    /**
+//     * 
+//     * @param unpackedCar
+//     * @return
+//     * @throws Exception
+//     */
+//    public static GBeanMBean loadConfig(File unpackedCar) throws Exception {
+//        InputStream in = new FileInputStream(new File(unpackedCar, "META-INF/config.ser"));
+//        try {
+//            ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(in));
+//            GBeanData config = new GBeanData();
+//            config.readExternal(ois);
+//            return new GBeanMBean(config, Thread.currentThread().getContextClassLoader());
+//        } finally {
+//            in.close();
+//        }
+//    }
+//    
     /**
      * 
      * @param state

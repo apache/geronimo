@@ -16,6 +16,11 @@
 
 package org.apache.geronimo.axis;
 
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.Collection;
+import java.util.Iterator;
+
 import org.apache.axis.utils.ClassUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,20 +28,18 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.Collection;
-import java.util.Iterator;
 
 /**
  * @version $Rev: $ $Date: $
  */
 public class POJOWSGBean implements GBeanLifecycle {
     private static Log log = LogFactory.getLog(POJOWSGBean.class);
-    private final String objectName;
+
     private static final GBeanInfo GBEAN_INFO;
-    private URL moduleURL;
-    private Collection classList;
+
+    private final String objectName;
+    private final URL moduleURL;
+    private final Collection classList;
 
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("POJOWSGBean",
@@ -47,13 +50,15 @@ public class POJOWSGBean implements GBeanLifecycle {
         infoFactory.addAttribute("moduleURL", URL.class, true);
         infoFactory.addAttribute("classList", Collection.class, true);
         // operations
-        infoFactory.setConstructor(new String[]{"objectName"});
+        infoFactory.setConstructor(new String[]{"objectName","moduleURL","classList"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
     
-    public POJOWSGBean(String objectName) {
+    public POJOWSGBean(String objectName,URL moduleURL,Collection classList) {
         this.objectName = objectName;
+        this.moduleURL = moduleURL;
+        this.classList = classList;
     }
 
 
@@ -61,6 +66,7 @@ public class POJOWSGBean implements GBeanLifecycle {
     }
 
     public void doStart() throws WaitingException, Exception {
+        log.info("POJO WS starting");
         ClassLoader cl = new URLClassLoader(new URL[]{moduleURL});
         for (Iterator it = classList.iterator(); it.hasNext();) {
             String className = (String) it.next();
@@ -86,34 +92,5 @@ public class POJOWSGBean implements GBeanLifecycle {
      */
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
-    }
-
-    /**
-     * @return
-     */
-    public URL getModuleURL() {
-        return moduleURL;
-    }
-
-
-    /**
-     * @param url
-     */
-    public void setModuleURL(URL url) {
-        moduleURL = url;
-    }
-
-    /**
-     * @return
-     */
-    public Collection getClassList() {
-        return classList;
-    }
-
-    /**
-     * @param collection
-     */
-    public void setClassList(Collection collection) {
-        classList = collection;
     }
 }

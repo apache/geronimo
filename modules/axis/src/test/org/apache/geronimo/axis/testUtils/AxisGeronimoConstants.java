@@ -23,7 +23,6 @@ import org.apache.geronimo.connector.ActivationSpecWrapper;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.system.configuration.LocalConfigStore;
-import org.openejb.deployment.OpenEJBModuleBuilder;
 
 /**
  * @version $Rev: $ $Date: $

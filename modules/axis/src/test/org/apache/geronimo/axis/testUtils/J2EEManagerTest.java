@@ -41,7 +41,7 @@ public class J2EEManagerTest extends AbstractTestCase {
 
     protected void setUp() throws Exception {
         name = new ObjectName("test:name=AxisGBean");
-        kernel = new Kernel("test.kernel", "test");
+        kernel = new Kernel("test.kernel");
         kernel.boot();
     }
 

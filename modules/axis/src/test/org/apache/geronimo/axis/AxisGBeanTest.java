@@ -20,10 +20,11 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLClassLoader;
+
 import javax.management.ObjectName;
 
 import org.apache.geronimo.axis.testUtils.TestingUtils;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
 
 /**
@@ -45,8 +46,8 @@ public class AxisGBeanTest extends AbstractTestCase {
     public void testStartAxisService() throws Exception {
         ClassLoader cl = getClass().getClassLoader();
         ClassLoader myCl = new URLClassLoader(new URL[0], cl);
-        GBeanMBean gbean = new GBeanMBean(AxisGbean.getGBeanInfo(), myCl);
-        kernel.loadGBean(name, gbean);
+        GBeanData gbean = new GBeanData(name,AxisGbean.getGBeanInfo());
+        kernel.loadGBean(gbean,myCl);
         kernel.startGBean(name);
         System.out.println(kernel.getAttribute(name, "state"));
         HttpURLConnection connection = (HttpURLConnection) AxisGeronimoUtils.getURL("/axis/index.html").openConnection();
@@ -77,7 +78,7 @@ public class AxisGBeanTest extends AbstractTestCase {
     protected void setUp() throws Exception {
         
         name = new ObjectName("test:name=AxisGBean");
-        kernel = new Kernel("test.kernel", "test");
+        kernel = new Kernel("test.kernel");
         kernel.boot();
         TestingUtils.startJ2EEContinerAndAxisServlet(kernel);
     }

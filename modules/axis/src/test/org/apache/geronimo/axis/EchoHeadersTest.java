@@ -34,7 +34,7 @@ import org.apache.axis.AxisEngine;
 import org.apache.axis.client.Call;
 import org.apache.axis.client.Service;
 import org.apache.geronimo.axis.testUtils.TestingUtils;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
 
 /**
@@ -55,15 +55,15 @@ public class EchoHeadersTest extends AbstractTestCase {
 
     protected void setUp() throws Exception {
         name = new ObjectName("test:name=AxisGBean");
-        kernel = new Kernel("test.kernel", "test");
+        kernel = new Kernel("test.kernel");
         kernel.boot();
         ClassLoader cl = getClass().getClassLoader();
         ClassLoader myCl = new URLClassLoader(new URL[]{}, cl);
         
         TestingUtils.startJ2EEContinerAndAxisServlet(kernel);
-        GBeanMBean gbean = new GBeanMBean(AxisGbean.getGBeanInfo(), myCl);
+        GBeanData gbean = new GBeanData(name,AxisGbean.getGBeanInfo());
         gbean.setAttribute("Name", "Test");
-        kernel.loadGBean(name, gbean);
+        kernel.loadGBean(gbean,myCl);
         kernel.startGBean(name);
         Service service = new Service();
         service.getEngine().setOption(AxisEngine.PROP_XML_ENCODING, "UTF-8");
