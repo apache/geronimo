@@ -15,17 +15,12 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<openejb-jar
-    xmlns="http://www.openejb.org/xml/ns/openejb-jar"
-    configId="org/openejb/itests"
+
+<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application"
+    configId="org/apache/geronimo/j2ee/deployment/test"
     parentId="org/apache/geronimo/Server">
 
-    <cmp-connection-factory>DefaultDatasource</cmp-connection-factory>
+    <!-- a random gbean just to verify that the deployer doesn't die because of it -->
+    <gbean name="foo:j2eeType=J2EEDomain,name=foo" class="org.apache.geronimo.j2ee.management.impl.J2EEDomainImpl"/>
 
-    <enterprise-beans>
-        <session>
-            <ejb-name>SimpleStatelessSession</ejb-name>
-            <jndi-name>client/test/simple/SimpleStatelessSessionHome</jndi-name>
-        </session>
-    </enterprise-beans>
-</openejb-jar>
+</application>

@@ -15,16 +15,16 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<application xmlns="http://java.sun.com/xml/ns/j2ee"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/application_1_4.xsd"
-    version="1.4">
-    <description>description</description>
-    <display-name>display-name</display-name>
+  <!DOCTYPE application PUBLIC
+	"-//Sun Microsystems, Inc.//DTD J2EE Application 1.3//EN"
+	"http://java.sun.com/dtd/application_1_3.dtd">
+<application>
     <icon>
-      <small-icon>url/to/small/icon</small-icon>
-      <large-icon>url/to/large/icon</large-icon>
+        <small-icon>url/to/small/icon</small-icon>
+        <large-icon>url/to/large/icon</large-icon>
     </icon>
+    <display-name>display-name</display-name>
+    <description>description</description>
     <module>
         <web>
             <web-uri>test-war.war</web-uri>

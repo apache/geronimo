@@ -26,6 +26,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
 import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
+import org.apache.geronimo.xbeans.j2ee.ApplicationDocument;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -34,7 +35,7 @@ import org.apache.xmlbeans.XmlOptions;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/07/25 08:18:00 $
+ * @version $Revision: 1.5 $ $Date: 2004/08/01 20:14:20 $
  *
  * */
 public class SchemaConversionUtils {
@@ -55,7 +56,40 @@ public class SchemaConversionUtils {
         return parsed;
     }
 
+    public static ApplicationDocument convertToApplicationSchema(XmlObject xmlObject) throws XmlException {
+        if (ApplicationDocument.type.equals(xmlObject.schemaType())) {
+             validateDD(xmlObject);
+             return (ApplicationDocument) xmlObject;
+         }
+        XmlCursor cursor = xmlObject.newCursor();
+        XmlCursor moveable = xmlObject.newCursor();
+        String schemaLocationURL = "http://java.sun.com/xml/ns/j2ee/application_1_4.xsd";
+        String version = "1.4";
+        try {
+            convertToSchema(cursor, schemaLocationURL, version);
+            cursor.toStartDoc();
+            cursor.toChild(J2EE_NAMESPACE, "application");
+            cursor.toFirstChild();
+            convertToDescriptionGroup(cursor, moveable);
+        } finally {
+            cursor.dispose();
+            moveable.dispose();
+        }
+        XmlObject result = xmlObject.changeType(ApplicationDocument.type);
+        if (result != null) {
+            validateDD(result);
+            return (ApplicationDocument) result;
+        }
+        validateDD(xmlObject);
+        return (ApplicationDocument) xmlObject;
+
+    }
+
     public static EjbJarDocument convertToEJBSchema(XmlObject xmlObject) throws XmlException {
+        if (EjbJarDocument.type.equals(xmlObject.schemaType())) {
+            validateDD(xmlObject);
+            return (EjbJarDocument) xmlObject;
+        }
         XmlCursor cursor = xmlObject.newCursor();
         XmlCursor moveable = xmlObject.newCursor();
         String schemaLocationURL = "http://java.sun.com/xml/ns/j2ee/ejb-jar_2_1.xsd";
@@ -67,6 +101,7 @@ public class SchemaConversionUtils {
             convertBeans(cursor, moveable);
         } finally {
             cursor.dispose();
+            moveable.dispose();
         }
         XmlObject result = xmlObject.changeType(EjbJarDocument.type);
         if (result != null) {
@@ -109,6 +144,7 @@ public class SchemaConversionUtils {
 
         } finally {
             cursor.dispose();
+            moveable.dispose();
         }
         XmlObject result = xmlObject.changeType(WebAppDocument.type);
         if (result != null) {
@@ -158,6 +194,8 @@ public class SchemaConversionUtils {
                 } else if ("entity".equals(type)) {
                     //reentrant is the last required tag before jndiEnvironmentRefsGroup
                     cursor.toChild(J2EE_NAMESPACE, "reentrant");
+                    //Convert 2.0 True/False to true/false for 2.1
+                    cursor.setTextValue(cursor.getTextValue().toLowerCase());
                     cursor.toNextSibling(J2EE_NAMESPACE, "cmp-version");
                     cursor.toNextSibling(J2EE_NAMESPACE, "abstract-schema-name");
                     while (cursor.toNextSibling(J2EE_NAMESPACE, "cmp-field")) ;

@@ -83,7 +83,7 @@
             <ejb-class>org.openejb.test.simple.bmp.SimpleBMPEntityEJB</ejb-class>
             <persistence-type>Bean</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
-            <reentrant>false</reentrant>
+            <reentrant>False</reentrant>
             <env-entry>
                 <env-entry-name>envEntry</env-entry-name>
                 <env-entry-type>java.lang.String</env-entry-type>
@@ -126,7 +126,7 @@
             <ejb-class>org.openejb.test.simple.cmp.SimpleCMPEntityEJB</ejb-class>
             <persistence-type>Container</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
-            <reentrant>false</reentrant>
+            <reentrant>False</reentrant>
             <cmp-version>2.x</cmp-version>
             <abstract-schema-name>SimpleCMP</abstract-schema-name>
             <cmp-field>

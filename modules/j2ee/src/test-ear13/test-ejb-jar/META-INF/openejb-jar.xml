@@ -15,6 +15,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
+
 <openejb-jar
     xmlns="http://www.openejb.org/xml/ns/openejb-jar"
     configId="org/openejb/itests"

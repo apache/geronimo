@@ -16,11 +16,11 @@
     limitations under the License.
 -->
 
-<ejb-jar xmlns="http://java.sun.com/xml/ns/j2ee"
-	      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	      xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
-		  http://java.sun.com/xml/ns/j2ee/ejb-jar_2_1.xsd"
-	      version="2.1">
+<!DOCTYPE ejb-jar PUBLIC
+	"-//Sun Microsystems, Inc.//DTD Enterprise JavaBeans 2.0//EN"
+	"http://java.sun.com/dtd/ejb-jar_2_0.dtd">
+
+<ejb-jar>
 
     <enterprise-beans>
         <session>
@@ -52,7 +52,7 @@
             <ejb-class>org.openejb.test.simple.bmp.SimpleBMPEntityEJB</ejb-class>
             <persistence-type>Bean</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
-            <reentrant>false</reentrant>
+            <reentrant>False</reentrant>
         </entity>
         <entity>
             <ejb-name>SimpleCMPEntity</ejb-name>
@@ -63,7 +63,7 @@
             <ejb-class>org.openejb.test.simple.cmp.SimpleCMPEntityEJB</ejb-class>
             <persistence-type>Container</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
-            <reentrant>false</reentrant>
+            <reentrant>False</reentrant>
             <cmp-version>2.x</cmp-version>
             <abstract-schema-name>SimpleCMP</abstract-schema-name>
             <cmp-field><field-name>id</field-name></cmp-field>

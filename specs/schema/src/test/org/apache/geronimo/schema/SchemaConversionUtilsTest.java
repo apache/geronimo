@@ -17,20 +17,19 @@
 
 package org.apache.geronimo.schema;
 
+import junit.framework.TestCase;
+import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlObject;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.geronimo.schema.SchemaConversionUtils;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlObject;
-import junit.framework.TestCase;
 
 /**
  * ejb 1.1 dtd appears to be a subset of ejb 2.0 dtd so the same xsl should
  * work for both.
  *
- * @version $Revision: 1.1 $ $Date: 2004/07/25 08:18:00 $
+ * @version $Revision: 1.2 $ $Date: 2004/08/01 20:14:20 $
  *
  * */
 public class SchemaConversionUtilsTest extends TestCase {
@@ -54,7 +53,36 @@ public class SchemaConversionUtilsTest extends TestCase {
 
     //I've taken option (1) and fixed the schemas
 
-    public void testXMLBeansTransform() throws Exception {
+    public void testApplication13ToApplication14Transform() throws Exception {
+         File srcXml = new File("src/test-data/j2ee_1_3dtd/application-13.xml");
+         File expectedOutputXml = new File("src/test-data/j2ee_1_3dtd/application-14.xml");
+         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
+         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
+         SchemaConversionUtils.validateDD(expected);
+         xmlObject = SchemaConversionUtils.convertToApplicationSchema(xmlObject);
+//        System.out.println(xmlObject.toString());
+//        System.out.println(expected.toString());
+         List problems = new ArrayList();
+         boolean ok = compareXmlObjects(xmlObject, expected, problems);
+         assertTrue("Differences: " + problems, ok);
+         //make sure trying to convert twice has no bad effects
+         XmlCursor cursor2 = xmlObject.newCursor();
+         try {
+             String schemaLocationURL = "http://java.sun.com/xml/ns/j2ee/application_1_4.xsd";
+             String version = "1.4";
+             assertFalse(SchemaConversionUtils.convertToSchema(cursor2, schemaLocationURL, version));
+         } finally {
+             cursor2.dispose();
+         }
+         boolean ok2 = compareXmlObjects(xmlObject, expected, problems);
+         assertTrue("Differences after reconverting to schema: " + problems, ok2);
+         //do the whole transform twice...
+         xmlObject = SchemaConversionUtils.convertToApplicationSchema(xmlObject);
+         boolean ok3 = compareXmlObjects(xmlObject, expected,  problems);
+         assertTrue("Differences after reconverting to application schema: " + problems, ok3);
+     }
+
+    public void testEJB20ToEJB21Transform() throws Exception {
         File srcXml = new File("src/test-data/j2ee_1_3dtd/ejb-jar.xml");
         File expectedOutputXml = new File("src/test-data/j2ee_1_3dtd/ejb-jar-21.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
@@ -157,7 +185,7 @@ public class SchemaConversionUtilsTest extends TestCase {
         File expectedOutputXml = new File("src/test-data/j2ee_1_3dtd/web-1-24.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         xmlObject = SchemaConversionUtils.convertToServletSchema(xmlObject);
-        System.out.println(xmlObject.toString());
+//        System.out.println(xmlObject.toString());
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
         List problems = new ArrayList();
         boolean ok = compareXmlObjects(xmlObject, expected, problems);

@@ -17,7 +17,7 @@
 -->
   
 
-<!-- $Revision: 1.3 $ $Date: 2004/06/23 21:58:22 $ -->
+<!-- $Revision: 1.4 $ $Date: 2004/08/01 20:14:19 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -36,13 +36,25 @@
 
     <preGoal name="test:compile">
         <!-- Build test-ejb-jar -->
-        <ant:mkdir dir="${basedir}/target/test-ejb-jar/META-INF"/>
-        <copy todir="${basedir}/target/test-ejb-jar/META-INF">
-            <fileset dir="${basedir}/src/test-ear/test-ejb-jar/META-INF"/>
+        <j:set var="ear.src.base.dir" value="${basedir}/src/test-ear"/>
+        <j:set var="ear.target.base.dir" value="${basedir}/target/test-ear14"/>
+
+        <attainGoal name="setupEar"/>
+        <!-- Build test-ejb-jar -->
+        <j:set var="ear.src.base.dir" value="${basedir}/src/test-ear13"/>
+        <j:set var="ear.target.base.dir" value="${basedir}/target/test-ear13"/>
+
+        <attainGoal name="setupEar"/>
+    </preGoal>
+
+    <goal name="setupEar">
+        <ant:mkdir dir="${ear.target.base.dir}/test-ejb-jar/META-INF"/>
+        <copy todir="${ear.target.base.dir}/test-ejb-jar/META-INF">
+            <fileset dir="${ear.src.base.dir}/test-ejb-jar/META-INF"/>
         </copy>
 
-        <ant:javac srcdir="${basedir}/src/test-ear/test-ejb-jar"
-            destdir="${basedir}/target/test-ejb-jar"
+        <ant:javac srcdir="${ear.src.base.dir}/test-ejb-jar"
+            destdir="${ear.target.base.dir}/test-ejb-jar"
             source="${maven.compile.source}"
             target="${maven.compile.target}"
             debug="on"
@@ -52,36 +64,36 @@
                 <ant:pathelement path="${maven.build.dest}"/>
             </ant:classpath>
         </ant:javac>
-        
-        <ant:jar destfile="${basedir}/target/test-ejb-jar.jar"
-            basedir="${basedir}/target/test-ejb-jar"/>
-        
-        
+
+        <ant:jar destfile="${ear.target.base.dir}/test-ejb-jar.jar"
+            basedir="${ear.target.base.dir}/test-ejb-jar"/>
+
+
         <!-- Build test-war -->
-        <ant:jar destfile="${basedir}/target/test-war.war"
-            basedir="${basedir}/src/test-ear/test-war"/>
+        <ant:jar destfile="${ear.target.base.dir}/test-war.war"
+            basedir="${ear.src.base.dir}/test-war"/>
 
         <!-- Build test-ear -->
-        <ant:jar destfile="${basedir}/target/test-ear.ear" >
-            <fileset dir="${basedir}/target">
+        <ant:jar destfile="${ear.target.base.dir}/test-ear.ear">
+            <fileset dir="${ear.target.base.dir}">
                 <include name="test-ejb-jar.jar"/>
                 <include name="test-war.war"/>
             </fileset>
-            <fileset dir="${basedir}/src/test-ear">
+            <fileset dir="${ear.src.base.dir}">
                 <include name="META-INF/*"/>
             </fileset>
         </ant:jar>
-        
+
         <!-- Build test-naked-ear -->
-        <ant:jar destfile="${basedir}/target/test-naked-ear.ear" >
-            <fileset dir="${basedir}/target">
+        <ant:jar destfile="${ear.target.base.dir}/test-naked-ear.ear">
+            <fileset dir="${ear.target.base.dir}">
                 <include name="test-ejb-jar.jar"/>
                 <include name="test-war.war"/>
             </fileset>
-            <fileset dir="${basedir}/src/test-ear">
+            <fileset dir="${ear.src.base.dir}">
                 <include name="META-INF/*"/>
                 <exclude name="META-INF/geronimo-application.xml"/>
             </fileset>
         </ant:jar>
-    </preGoal>
+    </goal>
 </project>

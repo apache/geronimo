@@ -94,10 +94,10 @@ import org.apache.xmlbeans.XmlBeans;
 
 
 /**
- * @version $Revision: 1.17 $ $Date: 2004/07/30 00:25:13 $
+ * @version $Revision: 1.18 $ $Date: 2004/08/01 20:14:20 $
  */
 public class JettyModuleBuilder implements ModuleBuilderWithUnpack {
-    static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderUnion(new SchemaTypeLoader[] {
+    static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderUnion(new SchemaTypeLoader[]{
         XmlBeans.typeLoaderForClassLoader(org.apache.geronimo.xbeans.j2ee.String.class.getClassLoader()),
         XmlBeans.typeLoaderForClassLoader(JettyWebAppDocument.class.getClassLoader())
     });
@@ -130,13 +130,15 @@ public class JettyModuleBuilder implements ModuleBuilderWithUnpack {
         } catch (MalformedURLException e) {
             return null;
         }
-        XmlObject dd = null;
+        WebAppDocument webAppDoc = null;
         try {
-            dd = SchemaConversionUtils.parse(webXmlUrl.openStream());
+            InputStream ddInputStream = webXmlUrl.openStream();
+            webAppDoc = getWebAppDocument(ddInputStream);
         } catch (IOException e) {
             return null;
+        } catch (DeploymentException e) {
+            return null;
         }
-        WebAppDocument webAppDoc = SchemaConversionUtils.convertToServletSchema(dd);
         if (webAppDoc == null) {
             return null;
         }
@@ -151,10 +153,10 @@ public class JettyModuleBuilder implements ModuleBuilderWithUnpack {
         if (id == null) {
             id = moduleBase.getFile();
             if (id.endsWith("!/")) {
-                id = id.substring(0, id.length()-2);
+                id = id.substring(0, id.length() - 2);
             }
             if (id.endsWith(".war")) {
-                id = id.substring(0, id.length()-4);
+                id = id.substring(0, id.length() - 4);
             }
             id = id.substring(id.lastIndexOf('/') + 1);
         }
@@ -194,12 +196,12 @@ public class JettyModuleBuilder implements ModuleBuilderWithUnpack {
     }
 
     public void installModule(File earFolder, EARContext earContext,
-        Module webModule) throws DeploymentException {
+                              Module webModule) throws DeploymentException {
         try {
             File webFolder = new File(earFolder, webModule.getURI().toString());
             URI warRoot = webFolder.toURI();
             URI moduleBase;
-            if ( !webModule.getURI().equals(URI.create("/")) ) {
+            if (!webModule.getURI().equals(URI.create("/"))) {
                 moduleBase = URI.create(webModule.getURI().toString() + "/");
             } else {
                 moduleBase = URI.create("war/");
@@ -218,9 +220,8 @@ public class JettyModuleBuilder implements ModuleBuilderWithUnpack {
                 if (fileURI.toString().equals("WEB-INF/web.xml")) {
                     earContext.addFile(target, file);
                     try {
-                        XmlObject dd = SchemaConversionUtils.parse(new FileInputStream(file));
-                        WebAppDocument doc = SchemaConversionUtils.convertToServletSchema(dd);
-                        webApp = doc.getWebApp();
+                        InputStream ddInputStream = new FileInputStream(file);
+                        webApp = getWebAppDocument(ddInputStream).getWebApp();
                     } catch (XmlException e) {
                         throw new DeploymentException("Unable to parse web.xml", e);
                     }
@@ -256,7 +257,7 @@ public class JettyModuleBuilder implements ModuleBuilderWithUnpack {
             throw new DeploymentException("Problem deploying war", e);
         }
     }
-    
+
     public void installModule(JarFile earFile, EARContext earContext, Module webModule) throws DeploymentException {
         try {
             URI warRoot = null;
@@ -280,9 +281,8 @@ public class JettyModuleBuilder implements ModuleBuilderWithUnpack {
                     byte[] buffer = getBytes(jarIS);
                     earContext.addFile(target, new ByteArrayInputStream(buffer));
                     try {
-                        XmlObject dd = SchemaConversionUtils.parse(new ByteArrayInputStream(buffer));
-                        WebAppDocument doc = SchemaConversionUtils.convertToServletSchema(dd);
-                        webApp = doc.getWebApp();
+                        InputStream ddInputStream = new ByteArrayInputStream(buffer);
+                        webApp = getWebAppDocument(ddInputStream).getWebApp();
                     } catch (XmlException e) {
                         throw new DeploymentException("Unable to parse web.xml", e);
                     }
@@ -371,7 +371,7 @@ public class JettyModuleBuilder implements ModuleBuilderWithUnpack {
                 warRoot = URI.create("war/");
             }
 
-            String PolicyContextID = (earContext.getApplicationObjectName()==null? module.getName():earContext.getApplicationObjectName().toString());
+            String PolicyContextID = (earContext.getApplicationObjectName() == null ? module.getName() : earContext.getApplicationObjectName().toString());
 
             gbean.setAttribute("uri", warRoot);
             gbean.setAttribute("contextPath", webModule.getContextRoot());
@@ -394,7 +394,18 @@ public class JettyModuleBuilder implements ModuleBuilderWithUnpack {
     }
 
     public SchemaTypeLoader getSchemaTypeLoader() {
-       return SCHEMA_TYPE_LOADER;
+        return SCHEMA_TYPE_LOADER;
+    }
+
+    private WebAppDocument getWebAppDocument(InputStream ddInputStream) throws XmlException, DeploymentException {
+        XmlObject dd;
+        try {
+            dd = SchemaConversionUtils.parse(ddInputStream);
+        } catch (IOException e) {
+            throw new DeploymentException(e);
+        }
+        WebAppDocument webAppDoc = SchemaConversionUtils.convertToServletSchema(dd);
+        return webAppDoc;
     }
 
     private ReadOnlyContext buildComponentContext(EARContext earContext, WebModule webModule, WebAppType webApp, JettyWebAppType jettyWebApp, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {
