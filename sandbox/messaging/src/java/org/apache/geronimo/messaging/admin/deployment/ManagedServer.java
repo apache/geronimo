@@ -40,7 +40,6 @@ import org.apache.geronimo.deployment.plugin.local.DistributeCommand;
 import org.apache.geronimo.deployment.plugin.local.StartCommand;
 import org.apache.geronimo.deployment.plugin.local.StopCommand;
 import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelMBean;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.messaging.AbstractEndPoint;
@@ -60,7 +59,7 @@ import org.apache.xmlbeans.XmlObject;
  * result. Results are consolidated by the admin server, which provides a 
  * consistent view of the deployment operations.
  *
- * @version $Revision: 1.3 $ $Date: 2004/06/01 12:41:33 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/02 11:27:59 $
  */
 public class ManagedServer
     extends AbstractEndPoint
@@ -74,7 +73,7 @@ public class ManagedServer
 
     private final Target target;
     private final ConfigurationStore store;
-    private final Kernel kernel;
+    private final KernelMBean kernel;
     
     private final ReplacerResolver replacerResolver;
     
@@ -97,9 +96,7 @@ public class ManagedServer
         
         target = new TargetImpl(aNode.getNodeInfo().getName(), null);
         store = aStore;
-        // TODO why the various CommandSupports take as parameter a Kernel?
-        // Should be a KernelMBean
-        kernel = (Kernel) aKernel;
+        kernel = aKernel;
         
         replacerResolver = new DeploymentReplacerResolver();
     }
