@@ -73,7 +73,7 @@ import org.w3c.dom.Document;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/01/26 05:55:27 $
+ * @version $Revision: 1.6 $ $Date: 2004/01/27 06:05:43 $
  */
 public class JettyModule extends AbstractModule {
     private final File moduleDirectory;
@@ -114,12 +114,15 @@ public class JettyModule extends AbstractModule {
             contextPath = contextPath.substring(0, contextPath.length() - 4);
         }
         contextPath = XMLUtil.getChildContent(deploymentPlan.getDocumentElement(), "context-root", contextPath, contextPath);
+        if (!contextPath.startsWith("/")) {
+            contextPath = "/" + contextPath;
+        }
     }
 
     public void init() throws DeploymentException {
         super.init();
-
-        uri = URI.create(contextPath + "/");
+        assert contextPath.startsWith("/") : "Did not ensure contextPath is absolute";
+        uri = URI.create(contextPath.substring(1) + "/");
         classes = uri.resolve("WEB-INF/classes/");
         lib = uri.resolve("WEB-INF/lib/");
     }
