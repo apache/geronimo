@@ -44,7 +44,6 @@ public class GBeanConfigTest extends AbstractTestCase {
     }
 
     public void testStartAxisService() throws Exception {
-        String textFileurl = "http://localhost:" + AxisGeronimoUtils.AXIS_SERVICE_PORT + "/axis/index.html";
         ClassLoader cl = getClass().getClassLoader();
         ClassLoader myCl = new URLClassLoader(new URL[0], cl);
         ReferenceCollection rc = new ReferenceCollectionImpl();

@@ -51,15 +51,11 @@ public class AdminClientDeploymentTest extends AbstractWebServiceTest {
         ClassLoader parentClassLoder = ClassUtils.getDefaultClassLoader();
         ClassUtils.setDefaultClassLoader(cl);
         AdminClient adminClient = new AdminClient();
-        URL requestUrl = new URL("http://localhost:"
-                + AxisGeronimoUtils.AXIS_SERVICE_PORT
-                + "/axis/services/AdminService");
+        URL requestUrl = AxisGeronimoUtils.getURL("/axis/services/AdminService");
         Call call = adminClient.getCall();
         call.setTargetEndpointAddress(requestUrl);
         String result = adminClient.process(null, deplydd);
-        URL wsdlrequestUrl = new URL("http://localhost:"
-                + AxisGeronimoUtils.AXIS_SERVICE_PORT
-                + "/axis/services/echoPort?wsdl");
+        URL wsdlrequestUrl = AxisGeronimoUtils.getURL("/axis/services/echoPort?wsdl");
         //+"/axis/services/AdminService?wsdl");
         
         HttpURLConnection connection = (HttpURLConnection) wsdlrequestUrl.openConnection();

@@ -19,6 +19,7 @@ import org.apache.axis.AxisFault;
 import org.apache.axis.client.AdminClient;
 import org.apache.axis.client.Call;
 import org.apache.axis.utils.ClassUtils;
+import org.apache.axis.utils.NetworkUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.deployment.DeploymentException;
@@ -34,6 +35,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -228,16 +230,14 @@ public class AxisGeronimoUtils {
      * Number one is service is deployed only once the Axis is restarted. And it is
      * best not to do this while the Axis is running.</p>
      *
-     * @param module
+     * @param deplydd
      * @throws DeploymentException
      */
     public static void addEntryToAxisDD(InputStream deplydd) throws DeploymentException {
         try {
             if (deplydd != null) {
                 AdminClient adminClient = new AdminClient();
-                URL requestUrl = new URL("http://localhost:"
-                        + AXIS_SERVICE_PORT
-                        + "/axis/services/AdminService");
+                URL requestUrl = getURL("/axis/services/AdminService");
                 Call call = adminClient.getCall();
                 call.setTargetEndpointAddress(requestUrl);
                 String result = adminClient.process(null, deplydd);
@@ -250,6 +250,11 @@ public class AxisGeronimoUtils {
             e.printStackTrace();
             throw new DeploymentException(e);
         }
+    }
+
+    public static URL getURL(String file) throws MalformedURLException {
+        URL requestUrl = new URL("http", NetworkUtils.getLocalHostname(), AXIS_SERVICE_PORT, file);
+        return requestUrl;
     }
 
 }

@@ -60,7 +60,7 @@ public class EchoHeadersTest extends AbstractTestCase {
         Service service = new Service();
         service.getEngine().setOption(AxisEngine.PROP_XML_ENCODING, "UTF-8");
         call = (Call) service.createCall();
-        call.setTargetEndpointAddress(new URL("http://localhost:5678/axis/EchoHeaders.jws"));
+        call.setTargetEndpointAddress(AxisGeronimoUtils.getURL("/axis/EchoHeaders.jws"));
     }
 
     private void runtest(String send, String get) throws Exception {
@@ -129,7 +129,7 @@ public class EchoHeadersTest extends AbstractTestCase {
         Name name = envelope.createName("arg0");
         SOAPElement symbol = bodyElement.addChildElement(name);
         symbol.addTextNode("Hello");
-        URLEndpoint endpoint = new URLEndpoint("http://localhost:5678/axis/EchoHeaders.jws");
+        URLEndpoint endpoint = new URLEndpoint(AxisGeronimoUtils.getURL("axis/EchoHeaders.jws").toString());
         SOAPMessage response = con.call(message, endpoint);
         String responseEncoding = (String) response.getProperty(SOAPMessage.CHARACTER_SET_ENCODING);
         assertEquals(requestEncoding.toLowerCase(), responseEncoding.toLowerCase());

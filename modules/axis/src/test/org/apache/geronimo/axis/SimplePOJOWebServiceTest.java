@@ -65,9 +65,7 @@ public class SimplePOJOWebServiceTest extends AbstractWebServiceTest {
         kernel.getMBeanServer().invoke(configName, "startRecursive", null, null);
 
         //let us try to brows the WSDL of the service
-        URL wsdlrequestUrl = new URL("http://localhost:"
-                + AxisGeronimoUtils.AXIS_SERVICE_PORT
-                + "/axis/services/echoPort?wsdl");
+        URL wsdlrequestUrl = AxisGeronimoUtils.getURL("/axis/services/echoPort?wsdl");
         //+"/axis/services/AdminService?wsdl");
         
         HttpURLConnection connection = (HttpURLConnection) wsdlrequestUrl.openConnection();
@@ -81,10 +79,7 @@ public class SimplePOJOWebServiceTest extends AbstractWebServiceTest {
         Class echoLoacaterClass = ClassUtils.forName("org.apache.ws.echosample.EchoServiceLocator");
         Object echoLoacater = echoLoacaterClass.newInstance();
         Method getportMethod = echoLoacaterClass.getMethod("getechoPort", new Class[]{URL.class});
-        URL serviceURL = new URL("http://localhost:"
-                + AxisGeronimoUtils.AXIS_SERVICE_PORT
-                // + 5679
-                + "/axis/services/echoPort");
+        URL serviceURL = AxisGeronimoUtils.getURL("/axis/services/echoPort");
         Object echoPort = getportMethod.invoke(echoLoacater, new Object[]{serviceURL});
         Class echoClass = echoPort.getClass();
         Method echoStringMethod = echoClass.getMethod("echoString", new Class[]{String.class});

@@ -62,10 +62,7 @@ public class ComplexTypeWebServiceTest extends AbstractTestCase {
         Class structClass = ClassUtils.forName("org.apache.ws.echosample.EchoStruct");
         Object echoLoacater = echoLoacaterClass.newInstance();
         Method getportMethod = echoLoacaterClass.getMethod("getechoPort", new Class[]{URL.class});
-        URL serviceURL = new URL("http://localhost:"
-                + AxisGeronimoUtils.AXIS_SERVICE_PORT
-                // + 5679
-                + "/axis/services/echoPort");
+        URL serviceURL = AxisGeronimoUtils.getURL("/axis/services/echoPort");
         Object echoPort = getportMethod.invoke(echoLoacater, new Object[]{serviceURL});
         Class echoClass = echoPort.getClass();
         Method echostuctMethod = echoClass.getMethod("echoStruct", new Class[]{structClass});
