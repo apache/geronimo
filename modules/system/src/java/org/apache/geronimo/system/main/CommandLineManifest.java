@@ -39,6 +39,7 @@ public class CommandLineManifest {
     public static final Attributes.Name MAIN_GBEAN = new Attributes.Name("Main-GBean");
     public static final Attributes.Name MAIN_METHOD = new Attributes.Name("Main-Method");
     public static final Attributes.Name CONFIGURATIONS = new Attributes.Name("Configurations");
+    public static final Attributes.Name ENDORSED_DIRS = new Attributes.Name("Endorsed-Dirs");
 
     public static CommandLineManifest getManifestEntries() {
         // find the startup jar
@@ -92,18 +93,31 @@ public class CommandLineManifest {
                 }
             }
         }
-        CommandLineManifest commandLineManifest = new CommandLineManifest(mainGBean, mainMethod, configurations);
+
+        // get the list of endorsed directories
+        List endorsedDirs = new ArrayList();
+        String endorsedDirsString = mainAttributes.getValue(ENDORSED_DIRS);
+        if (endorsedDirsString != null) {
+            for (StringTokenizer tokenizer = new StringTokenizer(endorsedDirsString, " "); tokenizer.hasMoreTokens();) {
+                String configuration = tokenizer.nextToken();
+                endorsedDirs.add(configuration);
+            }
+        }
+
+        CommandLineManifest commandLineManifest = new CommandLineManifest(mainGBean, mainMethod, configurations, endorsedDirs);
         return commandLineManifest;
     }
 
     private final ObjectName mainGBean;
     private final String mainMethod;
     private final List configurations;
+    private final List endorsedDirs;
 
-    public CommandLineManifest(ObjectName mainGBean, String mainMethod, List configurations) {
+    public CommandLineManifest(ObjectName mainGBean, String mainMethod, List configurations, List endorsedDirs) {
         this.mainGBean = mainGBean;
         this.mainMethod = mainMethod;
         this.configurations = Collections.unmodifiableList(configurations);
+        this.endorsedDirs = endorsedDirs;
     }
 
     public ObjectName getMainGBean() {
@@ -116,5 +130,9 @@ public class CommandLineManifest {
 
     public List getConfigurations() {
         return configurations;
+    }
+
+    public List getEndorsedDirs() {
+        return endorsedDirs;
     }
 }

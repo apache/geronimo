@@ -19,6 +19,7 @@ package org.apache.geronimo.system.main;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -38,6 +39,7 @@ import org.apache.geronimo.kernel.jmx.JMXGBeanRegistry;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
 import org.apache.geronimo.system.url.GeronimoURLFactory;
+import org.apache.geronimo.system.serverinfo.DirectoryUtils;
 
 /**
  * @version $Rev$ $Date$
@@ -78,6 +80,34 @@ public class Daemon {
         log.info("Server startup begun");
 
         try {
+            // Determine the geronimo installation directory
+            File geronimoInstallDirectory = DirectoryUtils.getGeronimoInstallDirectory();
+            if (geronimoInstallDirectory == null) {
+                System.err.println("Could not determine geronimo installation directory");
+                System.exit(1);
+                throw new AssertionError();
+            }
+
+            // setup the endorsed dir entry
+            CommandLineManifest manifestEntries = CommandLineManifest.getManifestEntries();
+            String endorsedDirs = System.getProperty("java.endorsed.dirs", "");
+            for (Iterator iterator = manifestEntries.getEndorsedDirs().iterator(); iterator.hasNext();) {
+                String directoryName = (String) iterator.next();
+                File directory = new File(directoryName);
+                if (!directory.isAbsolute()) {
+                    directory = new File(geronimoInstallDirectory, directoryName);
+                }
+
+                if (endorsedDirs.length() > 0) {
+                    endorsedDirs += File.pathSeparatorChar;
+                }
+                endorsedDirs += directory.getAbsolutePath();
+            }
+            if (endorsedDirs.length() > 0) {
+                System.setProperty("java.endorsed.dirs", endorsedDirs);
+            }
+            log.info("java.endorsed.dirs=" + System.getProperty("java.endorsed.dirs"));
+
             // get a list of the configuration uris from the command line
             List configs = new ArrayList();
             for (int i = 0; i < args.length; i++) {

@@ -42,6 +42,7 @@ public class Bootstrap {
     private String deployerSystemPlan;
     private String j2eeDeployerPlan;
     private String deployerClassPath;
+    private String deployerEndorsedDirs;
     private String deployerGBean;
     private String deploymentFactory;
 
@@ -93,6 +94,14 @@ public class Bootstrap {
         this.deployerClassPath = deployerClassPath;
     }
 
+    public String getDeployerEndorsedDirs() {
+        return deployerEndorsedDirs;
+    }
+
+    public void setDeployerEndorsedDirs(String deployerEndorsedDirs) {
+        this.deployerEndorsedDirs = deployerEndorsedDirs;
+    }
+
     public String getDeployerGBean() {
         return deployerGBean;
     }
@@ -133,6 +142,7 @@ public class Bootstrap {
             mainAttributes.putValue(CommandLineManifest.MAIN_GBEAN.toString(), deployerGBean);
             mainAttributes.putValue(CommandLineManifest.MAIN_METHOD.toString(), "deploy");
             mainAttributes.putValue(CommandLineManifest.CONFIGURATIONS.toString(), j2eeDeployerConfig.getConfigId());
+            mainAttributes.putValue(CommandLineManifest.ENDORSED_DIRS.toString(), deployerEndorsedDirs);
 
             // attribute that indicates to a JSR-88 tool that we have a Deployment factory
             mainAttributes.putValue("J2EE-DeploymentFactory-Implementation-Class", deploymentFactory);

@@ -240,6 +240,8 @@
             <ant:arg value="${server.classpath}"/>
             <ant:arg value="--mainClass"/>
             <ant:arg value="org.apache.geronimo.system.main.Daemon"/>
+            <ant:arg value="--endorsedDirs"/>
+            <ant:arg value="${libDir}/endorsed"/>
             <ant:arg value="--install"/>
             <ant:arg value="target/plan/system-plan.xml"/>
             <ant:arg value="${distDir}/bin/server.jar"/>
@@ -278,6 +280,8 @@
             <ant:arg value="org.apache.geronimo.system.main.ClientCommandLine"/>
             <ant:arg value="--classPath"/>
             <ant:arg value="${client.classpath}"/>
+            <ant:arg value="--endorsedDirs"/>
+            <ant:arg value="${libDir}/endorsed"/>
             <ant:arg value="--install"/>
             <ant:arg value="target/plan/client-system-plan.xml"/>
             <ant:arg value="${distDir}/bin/client.jar"/>

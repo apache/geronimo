@@ -18,10 +18,7 @@
 package org.apache.geronimo.system.serverinfo;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.JarURLConnection;
 import java.net.URI;
-import java.net.URL;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -54,26 +51,19 @@ public class ServerInfo {
         // on the command line.
         baseDirectory = System.getProperty("geronimo.base.dir", baseDirectory);
         if (baseDirectory == null || baseDirectory.length() == 0) {
-            // guess from the location of the jar
-            URL url = getClass().getClassLoader().getResource("META-INF/startup-jar");
-            if (url == null) {
-                throw new IllegalArgumentException("Unable to determine location of startup jar");
+            base = DirectoryUtils.getGeronimoInstallDirectory();
+            if (base == null) {
+                throw new IllegalArgumentException("Could not determine geronimo installation directory");
             }
-            try {
-                JarURLConnection jarConnection = (JarURLConnection) url.openConnection();
-                url = jarConnection.getJarFileURL();
-            } catch (IOException e) {
-                throw new IllegalArgumentException("Unable to extract base URL from location");
-            }
-            baseURI = new URI(url.toString()).resolve("..");
-            base = new File(baseURI);
         } else {
             base = new File(baseDirectory);
-            baseURI = base.toURI();
         }
+
         if (!base.isDirectory()) {
             throw new IllegalArgumentException("Base directory is not a directory: " + baseDirectory);
         }
+
+        baseURI = base.toURI();
         System.setProperty("geronimo.base.dir", base.getAbsolutePath());
     }
 
@@ -86,9 +76,7 @@ public class ServerInfo {
      * fully-qualified it will be resolved to an absolute pathname
      * using system-dependent rules (@link java.io.File). If it's relative
      * it will be resolved relative to the base directory.
-     *
      * @return an absolute pathname
-     *
      * @see java.io.File#File(String pathname)
      * @see java.io.File#getAbsolutePath()
      */
@@ -101,7 +89,7 @@ public class ServerInfo {
      *
      * @param filename a <code>String</code> containing a pathname,
      * which will be resolved by {@link #resolvePath(String
-     * filename)}.
+            * filename)}.
      * @return a <code>File</code> value
      */
     public File resolve(final String filename) {
