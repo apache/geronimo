@@ -444,7 +444,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                     componentContext = buildComponentContext(appClientDeploymentContext, appClientModule, appClient, geronimoAppClient, earClassLoader);
                     jndiContextGBeanData.setAttribute("context", componentContext);
                 } catch (Exception e) {
-                    throw new DeploymentException("Unable to initialize AppClientModule GBean", e);
+                    throw new DeploymentException("Unable to construct jndi context for AppClientModule GBean", e);
                 }
                 appClientDeploymentContext.addGBean(jndiContextGBeanData);
 
