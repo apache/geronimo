@@ -1,7 +1,0 @@
-<xb:config xmlns:xb="http://www.bea.com/2002/09/xbean/config">
-           
-  <xb:namespace uri="http://www.w3.org/XML/1998/namespace">
-    <xb:package>org.apache.geronimo.xmlbeans.xml.namespace</xb:package>
-  </xb:namespace>
-
-</xb:config>
