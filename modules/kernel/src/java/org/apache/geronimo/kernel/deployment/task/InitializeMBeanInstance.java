@@ -77,7 +77,7 @@ import org.apache.geronimo.kernel.classspace.ClassSpaceException;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/10/27 21:32:20 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/10 20:36:32 $
  */
 public class InitializeMBeanInstance implements DeploymentTask {
     private final Log log = LogFactory.getLog(this.getClass());
@@ -164,6 +164,6 @@ public class InitializeMBeanInstance implements DeploymentTask {
     }
 
     public String toString() {
-        return "InitailizeMBeanInstance " + metadata.getName();
+        return "InitializeMBeanInstance " + metadata.getName();
     }
 }

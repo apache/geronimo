@@ -79,7 +79,7 @@ import org.w3c.dom.NodeList;
 /**
  * Loads class space metadata from xml.
  *
- * @version $Revision: 1.3 $ $Date: 2003/10/27 21:29:46 $
+ * @version $Revision: 1.4 $ $Date: 2003/11/10 20:36:32 $
  */
 public class ClassSpaceMetadataXMLLoader {
     private static final String DEFAULT_MBEAN_DESCRIPTOR = "org/apache/geronimo/kernel/classspace/classspace-mbean.xml";
@@ -116,7 +116,7 @@ public class ClassSpaceMetadataXMLLoader {
         String create = element.getAttribute("create").trim();
         if (create.length() > 0) {
             if ((new Boolean(create)).booleanValue()) {
-                md.setCreate(ClassSpaceMetadata.CREATE_ALWYAS);
+                md.setCreate(ClassSpaceMetadata.CREATE_ALWAYS);
             } else {
                 md.setCreate(ClassSpaceMetadata.CREATE_NEVER);
             }
