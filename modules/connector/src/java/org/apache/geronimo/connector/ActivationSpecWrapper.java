@@ -37,7 +37,7 @@ import org.apache.geronimo.transaction.manager.WrapperNamedXAResource;
  * The framework assumes all RequiredConfigProperties are of type String, although it
  * is unclear if this is required by the spec.
  *
- * @version $Revision: 1.1 $ $Date: 2004/06/25 21:33:26 $
+ * @version $Revision: 1.2 $ $Date: 2004/07/15 03:25:36 $
  *
  * */
 public class ActivationSpecWrapper implements ResourceManager, DynamicGBean {
@@ -177,7 +177,7 @@ public class ActivationSpecWrapper implements ResourceManager, DynamicGBean {
         infoFactory.addAttribute("activationSpecClass", Class.class, true);
         infoFactory.addAttribute("containerId", String.class, true);
 
-        infoFactory.addReference("resourceAdapterWrapper", ResourceAdapterWrapper.class);
+        infoFactory.addReference("ResourceAdapterWrapper", ResourceAdapterWrapper.class);
 
         infoFactory.addOperation("activate", new Class[] {MessageEndpointFactory.class});
         infoFactory.addOperation("deactivate", new Class[] {MessageEndpointFactory.class});
@@ -187,7 +187,7 @@ public class ActivationSpecWrapper implements ResourceManager, DynamicGBean {
         infoFactory.setConstructor(new String[]{
             "activationSpecClass",
             "containerId",
-            "resourceAdapterWrapper"});
+            "ResourceAdapterWrapper"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

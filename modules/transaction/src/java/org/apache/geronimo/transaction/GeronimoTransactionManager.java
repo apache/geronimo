@@ -38,7 +38,7 @@ import org.apache.geronimo.transaction.manager.XidImporter;
 /**
  * Class to set up the standard objects for a geronimo transaction manager.
  *
- * @version $Revision: 1.2 $ $Date: 2004/06/20 07:40:15 $
+ * @version $Revision: 1.3 $ $Date: 2004/07/15 03:25:36 $
  *
  * */
 public class GeronimoTransactionManager extends TransactionManagerProxy {
@@ -67,8 +67,8 @@ public class GeronimoTransactionManager extends TransactionManagerProxy {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(GeronimoTransactionManager.class);
 
-        infoFactory.addReference("transactionLog", TransactionLog.class);
-        infoFactory.addReference("resourceManagers", ResourceManager.class);
+        infoFactory.addReference("TransactionLog", TransactionLog.class);
+        infoFactory.addReference("ResourceManagers", ResourceManager.class);
 
         infoFactory.addOperation("setTransactionTimeout", new Class[]{int.class});
         infoFactory.addOperation("begin");
@@ -80,7 +80,7 @@ public class GeronimoTransactionManager extends TransactionManagerProxy {
         infoFactory.addOperation("rollback");
         infoFactory.addOperation("setRollbackOnly");
 
-        infoFactory.setConstructor(new String[]{"transactionLog", "resourceManagers"});
+        infoFactory.setConstructor(new String[]{"TransactionLog", "ResourceManagers"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

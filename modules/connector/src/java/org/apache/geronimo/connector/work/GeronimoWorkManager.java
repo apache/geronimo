@@ -46,7 +46,7 @@ import org.apache.geronimo.transaction.XAServices;
  * A WorkManager is a component of the JCA specifications, which allows a
  * Resource Adapter to submit tasks to an Application Server for execution.
  *
- * @version $Revision: 1.9 $ $Date: 2004/07/11 21:55:34 $
+ * @version $Revision: 1.10 $ $Date: 2004/07/15 03:25:36 $
  */
 public class GeronimoWorkManager implements WorkManager, GBeanLifecycle {
 
@@ -262,13 +262,13 @@ public class GeronimoWorkManager implements WorkManager, GBeanLifecycle {
 
         infoFactory.addOperation("getXATerminator");
 
-        infoFactory.addReference("xaServices", XAServices.class);
+        infoFactory.addReference("XAServices", XAServices.class);
 
         infoFactory.setConstructor(new String[]{
             "syncMaximumPoolSize",
             "startMaximumPoolSize",
             "scheduledMaximumPoolSize",
-            "xaServices"});
+            "XAServices"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

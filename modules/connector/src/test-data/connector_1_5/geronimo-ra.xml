@@ -108,7 +108,7 @@
         <attribute name="syncMaximumPoolSize" type="int">10</attribute>
         <attribute name="startMaximumPoolSize" type="int">10</attribute>
         <attribute name="scheduledMaximumPoolSize" type="int">10</attribute>
-        <reference name="xaServices">geronimo.server:type=TransactionManager</reference>
+        <reference name="XAServices">geronimo.server:type=TransactionManager</reference>
     </gbean>
 
     <gbean name="geronimo.server:type=TransactionManager" class="org.apache.geronimo.transaction.GeronimoTransactionManager">

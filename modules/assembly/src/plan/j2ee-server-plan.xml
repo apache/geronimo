@@ -111,14 +111,20 @@ by the server.
         <attribute name="policyConfigurationFactory" type="java.lang.String">org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory</attribute>
         <reference name="Realms">geronimo.security:type=SecurityRealm,*</reference>
     </gbean>
-    
+
     <gbean name="geronimo.security:type=LoginService" class="org.apache.geronimo.security.jaas.LoginService">
         <reference name="Realms">geronimo.security:type=SecurityRealm,*</reference>
         <attribute name="reclaimPeriod" type="long">100000</attribute>
         <attribute name="algorithm" type="java.lang.String">HmacSHA1</attribute>
         <attribute name="password" type="java.lang.String">secret</attribute>
     </gbean>
-    
+
+    <gbean name="geronimo.server:type=ThreadPool,name=DefaultThreadPool" class="org.apache.geronimo.pool.ThreadPool">
+        <attribute name="keepAliveTime" type="long">5000</attribute>
+        <attribute name="poolSize" type="int">10</attribute>
+        <attribute name="poolName" type="java.lang.String">DefaultThreadPool</attribute>
+    </gbean>
+
     <gbean name="geronimo.server:type=ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator">
     </gbean>
 
@@ -126,7 +132,7 @@ by the server.
         <attribute name="syncMaximumPoolSize" type="int">10</attribute>
         <attribute name="startMaximumPoolSize" type="int">10</attribute>
         <attribute name="scheduledMaximumPoolSize" type="int">10</attribute>
-        <reference name="xaServices">geronimo.server:type=TransactionManager</reference>
+        <reference name="XAServices">geronimo.server:type=TransactionManager</reference>
     </gbean>
 
     <gbean name="geronimo.server:type=HOWLTransactionLog" class="org.apache.geronimo.transaction.log.HOWLLog">
@@ -153,6 +159,10 @@ by the server.
         </references>
     </gbean>
 
+    <gbean name="geronimo.server:type=TransactionContextManager" class="org.apache.geronimo.transaction.context.TransactionContextManager">
+        <reference name="TransactionManager">geronimo.server:type=TransactionManager</reference>
+    </gbean>
+
 
     <!-- default WAR container using Jetty -->
     <gbean name="geronimo.server:type=WebContainer,container=Jetty" class="org.apache.geronimo.jetty.JettyContainerImpl">
@@ -177,13 +187,13 @@ by the server.
 
     <!-- EJB Protocol -->
     <gbean name="openejb:type=SocketService,name=EJB" class="org.openejb.server.SimpleSocketService">
-        <attribute name="ServiceClassName" type="java.lang.String">org.openejb.server.ejbd.EjbServer</attribute>
-        <attribute name="OnlyFrom" type="java.net.InetAddress[]">127.0.0.1</attribute>
+        <attribute name="serviceClassName" type="java.lang.String">org.openejb.server.ejbd.EjbServer</attribute>
+        <attribute name="onlyFrom" type="java.net.InetAddress[]">127.0.0.1</attribute>
         <reference name="ContainerIndex">openejb:type=ContainerIndex</reference>
     </gbean>
     <gbean name="openejb:type=ServiceDaemon,name=EJB" class="org.openejb.server.ServiceDaemon">
-        <attribute name="Port" type="int">4201</attribute>
-        <attribute name="InetAddress" type="java.net.InetAddress">127.0.0.1</attribute>
+        <attribute name="port" type="int">4201</attribute>
+        <attribute name="inetAddress" type="java.net.InetAddress">127.0.0.1</attribute>
         <reference name="SocketService">openejb:type=SocketService,name=EJB</reference>
     </gbean>
 
