@@ -24,20 +24,25 @@
     parentId="org/apache/geronimo/Server">    
 
     <dependency>
-        <uri>activemq/jars/activemq-${activemq_version}.jar</uri>
+        <uri>activemq/jars/activemq-core-${activemq_version}.jar</uri>
     </dependency>
+    <dependency>
+        <uri>activemq/jars/activemq-gbean-${activemq_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>activemq/jars/activemq-store-jdbm-${activemq_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>jdbm/jars/jdbm-0.20-dev.jar</uri>
+    </dependency>
+    <!--
     <dependency>
         <uri>emberio/jars/emberio-0.3-alpha.jar</uri>
     </dependency>
     <dependency>
         <uri>jgroups/jars/jgroups-2.2.5.jar</uri>
     </dependency>
-    <dependency>
-        <uri>jdbm/jars/jdbm-0.20-dev.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>concurrent/jars/concurrent-${concurrent_version}.jar</uri>
-    </dependency>    
+    -->
 
     <!-- message broker -->
     <gbean name="geronimo.server:type=JMSServer,container=ActiveMQ" class="org.codehaus.activemq.gbean.ActiveMQContainerGBean">
