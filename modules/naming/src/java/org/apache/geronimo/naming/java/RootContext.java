@@ -53,8 +53,12 @@ public class RootContext extends ReadOnlyContext {
                 return compCtx;
             } else if (name.startsWith("comp/")) {
                 return compCtx.lookup(name.substring(5));
+            } else if ("/comp".equals(name)) {
+                return compCtx;
+            } else if (name.startsWith("/comp/")) {
+                return compCtx.lookup(name.substring(6));
             } else {
-                throw new NameNotFoundException();
+                throw new NameNotFoundException("Unrecognized name, does not start with expected 'comp': " + name);
             }
         }
         return super.lookup(name);
