@@ -25,21 +25,21 @@ import javax.resource.ResourceException;
 import javax.resource.spi.ConnectionRequestInfo;
 import javax.security.auth.Subject;
 
+import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PoolingSupport;
+
 /**
- * MultiPoolConnectionInterceptor.java
- *
+ * MultiPoolConnectionInterceptor maps the provided subject and connection request info to a
+ * "SinglePool".  This can be used to make sure all matches will succeed, avoiding synchronization
+ * slowdowns.
  *
  * Created: Fri Oct 10 12:53:11 2003
  *
- * @version 1.0
+ * @version $Revision: 1.4 $ $Date: 2004/05/06 03:58:22 $
  */
 public class MultiPoolConnectionInterceptor implements ConnectionInterceptor {
 
     private final ConnectionInterceptor next;
-
-    private int maxSize;
-
-    private int blockingTimeout;
+    private final PoolingSupport singlePoolFactory;
 
     private final boolean useSubject;
 
@@ -49,13 +49,11 @@ public class MultiPoolConnectionInterceptor implements ConnectionInterceptor {
 
     public MultiPoolConnectionInterceptor(
             final ConnectionInterceptor next,
-            int maxSize,
-            int blockingTimeout,
+            PoolingSupport singlePoolFactory,
             final boolean useSubject,
             final boolean useCRI) {
         this.next = next;
-        this.maxSize = maxSize;
-        this.blockingTimeout = blockingTimeout;
+        this.singlePoolFactory = singlePoolFactory;
         this.useSubject = useSubject;
         this.useCRI = useCRI;
     }
@@ -66,20 +64,13 @@ public class MultiPoolConnectionInterceptor implements ConnectionInterceptor {
                 new SubjectCRIKey(
                         useSubject ? mci.getSubject() : null,
                         useCRI ? mci.getConnectionRequestInfo() : null);
-        SinglePoolConnectionInterceptor poolInterceptor = null;
+        ConnectionInterceptor poolInterceptor = null;
         synchronized (pools) {
-            poolInterceptor = (SinglePoolConnectionInterceptor) pools.get(key);
+            poolInterceptor = (ConnectionInterceptor) pools.get(key);
             if (poolInterceptor == null) {
-                poolInterceptor =
-                        new SinglePoolConnectionInterceptor(
-                                next,
-                                mci.getSubject(),
-                                mci.getConnectionRequestInfo(),
-                                maxSize,
-                                blockingTimeout);
+                poolInterceptor = singlePoolFactory.addPoolingInterceptors(next);
                 pools.put(key, poolInterceptor);
-            } // end of if ()
-
+            }
         }
         mci.setPoolInterceptor(poolInterceptor);
         poolInterceptor.getConnection(connectionInfo);
@@ -106,6 +97,10 @@ public class MultiPoolConnectionInterceptor implements ConnectionInterceptor {
             this.hashcode =
                     (subject == null ? 17 : subject.hashCode() * 17)
                     ^ (cri == null ? 1 : cri.hashCode());
+        }
+
+        public int hashCode() {
+            return hashcode;
         }
 
         public boolean equals(Object other) {

@@ -24,14 +24,13 @@ import javax.resource.spi.ManagedConnection;
  * MCFConnectionInterceptor.java
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/04/07 22:37:10 $
+ * @version $Revision: 1.5 $ $Date: 2004/05/06 03:58:22 $
  */
 public class MCFConnectionInterceptor implements ConnectionInterceptor {
 
-    private final ConnectionManagerDeployment head;
+    private ConnectionInterceptor stack;
 
-    public MCFConnectionInterceptor(ConnectionManagerDeployment head) {
-        this.head = head;
+    public MCFConnectionInterceptor() {
     }
 
     public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {
@@ -41,7 +40,7 @@ public class MCFConnectionInterceptor implements ConnectionInterceptor {
                         mci.getSubject(),
                         mci.getConnectionRequestInfo());
         mci.setManagedConnection(mc);
-        GeronimoConnectionEventListener listener = new GeronimoConnectionEventListener(head.getStack(), mci);
+        GeronimoConnectionEventListener listener = new GeronimoConnectionEventListener(stack, mci);
         mci.setConnectionEventListener(listener);
         mc.addConnectionEventListener(listener);
     }
@@ -60,6 +59,10 @@ public class MCFConnectionInterceptor implements ConnectionInterceptor {
         } catch (Throwable t) {
             //log and forget
         }
+    }
+
+    public void setStack(ConnectionInterceptor stack) {
+        this.stack = stack;
     }
 
 }

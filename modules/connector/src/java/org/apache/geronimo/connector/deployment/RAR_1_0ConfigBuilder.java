@@ -33,7 +33,6 @@ import javax.management.ReflectionException;
 import javax.resource.spi.security.PasswordCredential;
 
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
-import org.apache.geronimo.connector.outbound.ConnectionManagerDeployment;
 import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
 import org.apache.geronimo.connector.outbound.security.PasswordCredentialRealm;
 import org.apache.geronimo.deployment.DeploymentContext;
@@ -46,10 +45,10 @@ import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectionDefinitionType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectiondefinitionInstanceType;
-import org.apache.geronimo.xbeans.geronimo.GerConnectionmanagerType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorType;
 import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
@@ -57,7 +56,6 @@ import org.apache.geronimo.xbeans.geronimo.GerVersionType;
 import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConfigPropertyType;
 import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConnectorDocument;
 import org.apache.geronimo.xbeans.j2ee.connector_1_0.ResourceadapterType;
-import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
@@ -65,7 +63,7 @@ import org.apache.xmlbeans.XmlOptions;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/03/12 17:58:45 $
+ * @version $Revision: 1.7 $ $Date: 2004/05/06 03:58:22 $
  *
  * */
 public class RAR_1_0ConfigBuilder extends AbstractRARConfigBuilder {
@@ -99,69 +97,35 @@ public class RAR_1_0ConfigBuilder extends AbstractRARConfigBuilder {
         for (int i = 0; i < geronimoResourceAdapter.getOutboundResourceadapter().getConnectionDefinitionArray().length; i++) {
             GerConnectionDefinitionType geronimoConnectionDefinition = geronimoResourceAdapter.getOutboundResourceadapter().getConnectionDefinitionArray(i);
             assert geronimoConnectionDefinition != null: "Null GeronimoConnectionDefinition";
-            //ConnectionManagerFactory
+
             for (int j = 0; j < geronimoConnectionDefinition.getConnectiondefinitionInstanceArray().length; j++) {
-                GerConnectiondefinitionInstanceType gerConnectionfactoryInstance = geronimoConnectionDefinition.getConnectiondefinitionInstanceArray()[j];
+                GerConnectiondefinitionInstanceType connectionfactoryInstance = geronimoConnectionDefinition.getConnectiondefinitionInstanceArray()[j];
 
-                GerConnectionmanagerType connectionManagerFactory = gerConnectionfactoryInstance.getConnectionmanager();
-                GBeanInfo connectionManagerFactoryGBeanInfo;
-                try {
-                    connectionManagerFactoryGBeanInfo = GBeanInfo.getGBeanInfo(ConnectionManagerDeployment.class.getName(), ConnectionManagerDeployment.class.getClassLoader());
-                } catch (InvalidConfigurationException e) {
-                    throw new DeploymentException("Unable to get GBeanInfo from ConnectionManagerDeployment", e);
-                }
+                //ConnectionManager
+                ObjectName connectionManagerObjectName = configureConnectionManager(connectionfactoryInstance, context);
 
-                GBeanMBean connectionManagerFactoryGBean;
-                try {
-                    connectionManagerFactoryGBean = new GBeanMBean(connectionManagerFactoryGBeanInfo, ConnectionManagerDeployment.class.getClassLoader());
-                } catch (InvalidConfigurationException e) {
-                    throw new DeploymentException("Unable to create GMBean", e);
-                }
-                try {
-                    connectionManagerFactoryGBean.setAttribute("Name", gerConnectionfactoryInstance.getName());
-                    connectionManagerFactoryGBean.setAttribute("BlockingTimeout", new Integer(connectionManagerFactory.getBlockingTimeout().intValue()));
-                    connectionManagerFactoryGBean.setAttribute("MaxSize", new Integer(connectionManagerFactory.getMaxSize().intValue()));
-                    connectionManagerFactoryGBean.setAttribute("UseTransactions", Boolean.valueOf(connectionManagerFactory.getUseTransactions()));
-                    connectionManagerFactoryGBean.setAttribute("UseLocalTransactions", Boolean.valueOf(connectionManagerFactory.getUseLocalTransactions()));
-                    connectionManagerFactoryGBean.setAttribute("UseTransactionCaching", Boolean.valueOf(connectionManagerFactory.getUseTransactionCaching()));
-                    connectionManagerFactoryGBean.setAttribute("UseConnectionRequestInfo", Boolean.valueOf(connectionManagerFactory.getUseConnectionRequestInfo()));
-                    connectionManagerFactoryGBean.setAttribute("UseSubject", Boolean.valueOf(connectionManagerFactory.getUseSubject()));
-                    connectionManagerFactoryGBean.setReferencePatterns("ConnectionTracker", Collections.singleton(connectionTrackerNamePattern));
-                    if (connectionManagerFactory.getRealmBridge() != null) {
-                        connectionManagerFactoryGBean.setReferencePatterns("RealmBridge", Collections.singleton(ObjectName.getInstance(BASE_REALM_BRIDGE_NAME + connectionManagerFactory.getRealmBridge())));
-                    }
-                } catch (Exception e) {
-                    throw new DeploymentException("Problem setting up ConnectionManagerFactory", e);
-                }
-                ObjectName connectionManagerFactoryObjectName = null;
-                try {
-                    connectionManagerFactoryObjectName = ObjectName.getInstance(BASE_CONNECTION_MANAGER_FACTORY_NAME + gerConnectionfactoryInstance.getName());
-                } catch (MalformedObjectNameException e) {
-                    throw new DeploymentException("Could not name ConnectionManagerFactory", e);
-                }
-                context.addGBean(connectionManagerFactoryObjectName, connectionManagerFactoryGBean);
                 //ManagedConnectionFactory
                 ObjectName managedConnectionFactoryObjectName = null;
                 try {
-                    managedConnectionFactoryObjectName = ObjectName.getInstance(JMXReferenceFactory.BASE_MANAGED_CONNECTION_FACTORY_NAME + gerConnectionfactoryInstance.getName());
+                    managedConnectionFactoryObjectName = ObjectName.getInstance(JMXReferenceFactory.BASE_MANAGED_CONNECTION_FACTORY_NAME + connectionfactoryInstance.getName());
                 } catch (MalformedObjectNameException e) {
                     throw new DeploymentException("Could not construct ManagedConnectionFactory object name", e);
                 }
                 GBeanInfoFactory managedConnectionFactoryInfoFactory = new GBeanInfoFactory(ManagedConnectionFactoryWrapper.class.getName(), ManagedConnectionFactoryWrapper.getGBeanInfo());
-                GBeanMBean managedConnectionFactoryGBean = setUpDynamicGBean(managedConnectionFactoryInfoFactory, resourceAdapter.getConfigPropertyArray(), gerConnectionfactoryInstance.getConfigPropertySettingArray());
+                GBeanMBean managedConnectionFactoryGBean = setUpDynamicGBean(managedConnectionFactoryInfoFactory, resourceAdapter.getConfigPropertyArray(), connectionfactoryInstance.getConfigPropertySettingArray());
                 try {
                     managedConnectionFactoryGBean.setAttribute("ManagedConnectionFactoryClass", cl.loadClass(resourceAdapter.getManagedconnectionfactoryClass().getStringValue()));
                     managedConnectionFactoryGBean.setAttribute("ConnectionFactoryInterface", cl.loadClass(resourceAdapter.getConnectionfactoryInterface().getStringValue()));
                     managedConnectionFactoryGBean.setAttribute("ConnectionFactoryImplClass", cl.loadClass(resourceAdapter.getConnectionfactoryImplClass().getStringValue()));
                     managedConnectionFactoryGBean.setAttribute("ConnectionInterface", cl.loadClass(resourceAdapter.getConnectionInterface().getStringValue()));
                     managedConnectionFactoryGBean.setAttribute("ConnectionImplClass", cl.loadClass(resourceAdapter.getConnectionImplClass().getStringValue()));
-                    managedConnectionFactoryGBean.setAttribute("GlobalJNDIName", gerConnectionfactoryInstance.getGlobalJndiName());
-                    managedConnectionFactoryGBean.setReferencePatterns("ConnectionManagerFactory", Collections.singleton(connectionManagerFactoryObjectName));
-                    if (gerConnectionfactoryInstance.getCredentialInterface() != null && PasswordCredential.class.getName().equals(gerConnectionfactoryInstance.getCredentialInterface().getStringValue())) {
+                    managedConnectionFactoryGBean.setAttribute("GlobalJNDIName", connectionfactoryInstance.getGlobalJndiName());
+                    managedConnectionFactoryGBean.setReferencePatterns("ConnectionManagerFactory", Collections.singleton(connectionManagerObjectName));
+                    if (connectionfactoryInstance.getCredentialInterface() != null && PasswordCredential.class.getName().equals(connectionfactoryInstance.getCredentialInterface().getStringValue())) {
                         GBeanMBean realmGBean = new GBeanMBean(PasswordCredentialRealm.class.getName());
-                        realmGBean.setAttribute("RealmName", BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME + gerConnectionfactoryInstance.getName());
-                        context.addGBean(ObjectName.getInstance(BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME + gerConnectionfactoryInstance.getName()), realmGBean);
-                        managedConnectionFactoryGBean.setReferencePatterns("ManagedConnectionFactoryListener", Collections.singleton(ObjectName.getInstance(BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME + gerConnectionfactoryInstance.getName())));
+                        realmGBean.setAttribute("RealmName", BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME + connectionfactoryInstance.getName());
+                        context.addGBean(ObjectName.getInstance(BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME + connectionfactoryInstance.getName()), realmGBean);
+                        managedConnectionFactoryGBean.setReferencePatterns("ManagedConnectionFactoryListener", Collections.singleton(ObjectName.getInstance(BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME + connectionfactoryInstance.getName())));
                     }
                     managedConnectionFactoryGBean.setReferencePatterns("Kernel", Collections.singleton(Kernel.KERNEL));
                     managedConnectionFactoryGBean.setAttribute("SelfName", managedConnectionFactoryObjectName);

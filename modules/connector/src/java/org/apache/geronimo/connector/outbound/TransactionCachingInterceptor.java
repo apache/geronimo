@@ -46,11 +46,9 @@ import org.apache.geronimo.transaction.TransactionContext;
 public class TransactionCachingInterceptor implements ConnectionInterceptor, ConnectionReleaser {
 
     private final ConnectionInterceptor next;
-    private final ConnectionTracker connectionTracker;
 
-    public TransactionCachingInterceptor(final ConnectionInterceptor next, final ConnectionTracker connectionTracker) {
+    public TransactionCachingInterceptor(final ConnectionInterceptor next) {
         this.next = next;
-        this.connectionTracker = connectionTracker;
     }
 
     public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {

@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,63 +15,51 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.connector.outbound;
+package org.apache.geronimo.connector.outbound.transactionlog;
 
-import javax.resource.ResourceException;
-import javax.resource.spi.LocalTransaction;
-import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
+import javax.transaction.xa.XAException;
+import javax.resource.ResourceException;
+import javax.resource.spi.LocalTransaction;
 
 /**
- * LocalXAResource adapts a local transaction to be controlled by a
- * JTA transaction manager.  Of course, it cannot provide xa
- * semantics.
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/05/06 03:58:22 $
- */
-public class LocalXAResource implements XAResource {
+ * @version $Revision: 1.1 $ $Date: 2004/05/06 03:58:23 $
+ *
+ * */
+public class LogXAResource implements XAResource {
 
-    //accessible in package for testing
     final LocalTransaction localTransaction;
     private Xid xid;
-    private int transactionTimeout;
 
-    public LocalXAResource(LocalTransaction localTransaction) {
+    public LogXAResource(LocalTransaction localTransaction) {
         this.localTransaction = localTransaction;
     }
+    public void commit(Xid xid, boolean onePhase) throws XAException {
+    }
 
-    // Implementation of javax.transaction.xa.XAResource
-
-    public void commit(Xid xid, boolean flag) throws XAException {
-        if (this.xid == null || !this.xid.equals(xid)) {
-            throw new XAException();
-        }
-        try {
-            localTransaction.commit();
-        } catch (ResourceException e) {
-            throw (XAException)new XAException().initCause(e);
-         } finally {
-            this.xid = null;
-        }
-
+    public void end(Xid xid, int flags) throws XAException {
     }
 
     public void forget(Xid xid) throws XAException {
-        this.xid = null;
     }
 
     public int getTransactionTimeout() throws XAException {
-        return transactionTimeout;
+        return 0;
     }
 
-    public boolean isSameRM(XAResource xares) throws XAException {
-        return this == xares;
+    public boolean isSameRM(XAResource xaResource) throws XAException {
+        return this == xaResource;
     }
 
-    public Xid[] recover(int n) throws XAException {
-        return null;
+    public int prepare(Xid xid) throws XAException {
+        return 0;
+    }
+
+    public Xid[] recover(int flag) throws XAException {
+        return new Xid[0];
     }
 
     public void rollback(Xid xid) throws XAException {
@@ -87,9 +75,8 @@ public class LocalXAResource implements XAResource {
         }
     }
 
-    public boolean setTransactionTimeout(int txTimeout) throws XAException {
-        this.transactionTimeout = txTimeout;
-        return true;
+    public boolean setTransactionTimeout(int seconds) throws XAException {
+        return false;
     }
 
     public void start(Xid xid, int flag) throws XAException {
@@ -111,17 +98,5 @@ public class LocalXAResource implements XAResource {
         } else {
             throw new XAException("unknown state");
         }
-    }
-
-    public void end(Xid xid, int flag) throws XAException {
-        if (xid != this.xid) {
-            throw new XAException();
-        }
-        //we could keep track of if the flag is TMSUCCESS...
-    }
-
-    public int prepare(Xid xid) throws XAException {
-        //log warning that semantics are incorrect...
-        return XAResource.XA_OK;
-    }
+     }
 }

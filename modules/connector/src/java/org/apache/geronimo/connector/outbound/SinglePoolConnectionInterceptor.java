@@ -18,24 +18,25 @@
 package org.apache.geronimo.connector.outbound;
 
 import java.util.Collections;
-import javax.resource.ResourceException;
-import javax.resource.spi.ConnectionRequestInfo;
-import javax.resource.spi.ManagedConnection;
-import javax.security.auth.Subject;
 
+import javax.resource.ResourceException;
+import javax.resource.spi.ManagedConnection;
+
+import EDU.oswego.cs.dl.util.concurrent.FIFOSemaphore;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import EDU.oswego.cs.dl.util.concurrent.FIFOSemaphore;
-
 /**
- * SinglePoolConnectionInterceptor.java
+ * SinglePoolConnectionInterceptor chooses a single connection from the pool.  If selectOneAssumeMatch
+ * is true, it simply returns the selected connection.
+ * THIS SHOULD BE USED ONLY IF MAXIMUM SPEED IS ESSENTIAL AND YOU HAVE THOROUGLY CHECKED THAT
+ * MATCHING WOULD SUCCEED ON THE SELECTED CONNECTION. (i.e., read the docs on your connector
+ * to find out how matching works)
+ * If selectOneAssumeMatch is false, it checks with the ManagedConnectionFactory that the
+ * selected connection does match before returning it: if not it throws an exception.
  *
+ * @version $Revision: 1.5 $ $Date: 2004/05/06 03:58:22 $
  *
- * Created: Thu Oct  9 12:49:18 2003
- *
- * @author <a href="mailto:d_jencks@users.sourceforge.net">David Jencks</a>
- * @version 1.0
  */
 public class SinglePoolConnectionInterceptor implements ConnectionInterceptor {
 
@@ -48,27 +49,19 @@ public class SinglePoolConnectionInterceptor implements ConnectionInterceptor {
 
     private PoolDeque pool;
 
-    private final Subject defaultSubject;
-
-    private final ConnectionRequestInfo defaultCRI;
-
-    private int maxSize;
-
     private int blockingTimeout;
+    private boolean selectOneAssumeMatch;
 
     public SinglePoolConnectionInterceptor(
             final ConnectionInterceptor next,
-            final Subject defaultSubject,
-            final ConnectionRequestInfo defaultCRI,
             int maxSize,
-            int blockingTimeout) {
+            int blockingTimeout,
+            boolean selectOneAssumeMatch) {
         this.next = next;
-        this.defaultSubject = defaultSubject;
-        this.defaultCRI = defaultCRI;
-        this.maxSize = maxSize;
         this.blockingTimeout = blockingTimeout;
         permits = new FIFOSemaphore(maxSize);
         pool = new PoolDeque(maxSize);
+        this.selectOneAssumeMatch = selectOneAssumeMatch;
     }
 
     public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {
@@ -85,9 +78,17 @@ public class SinglePoolConnectionInterceptor implements ConnectionInterceptor {
                         return;
                     } else {
                         newMCI = pool.removeLast();
-                    } // end of else
+                    }
+                    if (selectOneAssumeMatch) {
+                        connectionInfo.setManagedConnectionInfo(newMCI);
+                        if (log.isTraceEnabled()) {
+                            log.trace("Returning pooled connection without checking matching " + connectionInfo.getManagedConnectionInfo());
+                        }
+                        return;
+                    }
                     try {
                         ManagedConnection matchedMC =
+//                                newMCI.getManagedConnection();
                                 newMCI
                                 .getManagedConnectionFactory()
                                 .matchManagedConnections(

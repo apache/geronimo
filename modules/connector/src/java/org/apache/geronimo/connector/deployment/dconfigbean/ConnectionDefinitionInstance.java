@@ -30,7 +30,7 @@ import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 
 /**
- * @version $Revision 1.0$  $Date: 2004/03/10 09:58:31 $
+ * @version $Revision 1.0$  $Date: 2004/05/06 03:58:22 $
  */
 public class ConnectionDefinitionInstance extends XmlBeanSupport {
     private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
@@ -129,77 +129,77 @@ public class ConnectionDefinitionInstance extends XmlBeanSupport {
         pcs.firePropertyChange("globalJNDIName", old, globalJNDIName);
     }
 
-    public boolean isUseConnectionRequestInfo() {
-        return getConnectionManager().getUseConnectionRequestInfo();
-    }
-
-    public void setUseConnectionRequestInfo(boolean useConnectionRequestInfo) {
-        boolean old = isUseConnectionRequestInfo();
-        getConnectionManager().setUseConnectionRequestInfo(useConnectionRequestInfo);
-        pcs.firePropertyChange("useConnectionRequestInfo", old, useConnectionRequestInfo);
-    }
-
-    public boolean isUseSubject() {
-        return getConnectionManager().getUseSubject();
-    }
-
-    public void setUseSubject(boolean useSubject) {
-        boolean old = isUseSubject();
-        getConnectionManager().setUseSubject(useSubject);
-        pcs.firePropertyChange("useSubject", old, useSubject);
-    }
-
-    public boolean isUseTransactionCaching() {
-        return getConnectionManager().getUseTransactionCaching();
-    }
-
-    public void setUseTransactionCaching(boolean useTransactionCaching) {
-        boolean old = isUseTransactionCaching();
-        getConnectionManager().setUseTransactionCaching(useTransactionCaching);
-        pcs.firePropertyChange("useTransactionCaching", old, useTransactionCaching);
-    }
-
-    public boolean isUseLocalTransactions() {
-        return getConnectionManager().getUseLocalTransactions();
-    }
-
-    public void setUseLocalTransactions(boolean useLocalTransactions) {
-        boolean old = isUseLocalTransactions();
-        getConnectionManager().setUseLocalTransactions(useLocalTransactions);
-        pcs.firePropertyChange("useLocalTransactions", old, useLocalTransactions);
-    }
-
-    public boolean isUseTransactions() {
-        return getConnectionManager().getUseTransactions();
-    }
-
-    public void setUseTransactions(boolean useTransactions) {
-        boolean old = isUseTransactions();
-        getConnectionManager().setUseTransactions(useTransactions);
-        pcs.firePropertyChange("useTransactions", old, useTransactions);
-    }
-
-    public int getMaxSize() {
-        BigInteger test = getConnectionManager().getMaxSize();
-        return test == null ? 0 : test.intValue();
-    }
-
-    public void setMaxSize(int maxSize) {
-        int old = getMaxSize();
-        getConnectionManager().setMaxSize(BigInteger.valueOf(maxSize));
-        pcs.firePropertyChange("maxSize", old, maxSize);
-    }
-
-    public int getBlockingTimeout() {
-        BigInteger test = getConnectionManager().getBlockingTimeout();
-        return test == null ? 0 : test.intValue();
-    }
-
-    public void setBlockingTimeout(int blockingTimeout) {
-        int old = getBlockingTimeout();
-        getConnectionManager().setBlockingTimeout(BigInteger.valueOf(blockingTimeout));
-        pcs.firePropertyChange("blockingTimeout", old, blockingTimeout);
-    }
+//    public boolean isUseConnectionRequestInfo() {
+//        return getConnectionManager().getUseConnectionRequestInfo();
+//    }
+//
+//    public void setUseConnectionRequestInfo(boolean useConnectionRequestInfo) {
+//        boolean old = isUseConnectionRequestInfo();
+//        getConnectionManager().setUseConnectionRequestInfo(useConnectionRequestInfo);
+//        pcs.firePropertyChange("useConnectionRequestInfo", old, useConnectionRequestInfo);
+//    }
+//
+//    public boolean isUseSubject() {
+//        return getConnectionManager().getUseSubject();
+//    }
+//
+//    public void setUseSubject(boolean useSubject) {
+//        boolean old = isUseSubject();
+//        getConnectionManager().setUseSubject(useSubject);
+//        pcs.firePropertyChange("useSubject", old, useSubject);
+//    }
+//
+//    public boolean isUseTransactionCaching() {
+//        return getConnectionManager().getUseTransactionCaching();
+//    }
+//
+//    public void setUseTransactionCaching(boolean useTransactionCaching) {
+//        boolean old = isUseTransactionCaching();
+//        getConnectionManager().setUseTransactionCaching(useTransactionCaching);
+//        pcs.firePropertyChange("useTransactionCaching", old, useTransactionCaching);
+//    }
+//
+//    public boolean isUseLocalTransactions() {
+//        return getConnectionManager().getUseLocalTransactions();
+//    }
+//
+//    public void setUseLocalTransactions(boolean useLocalTransactions) {
+//        boolean old = isUseLocalTransactions();
+//        getConnectionManager().setUseLocalTransactions(useLocalTransactions);
+//        pcs.firePropertyChange("useLocalTransactions", old, useLocalTransactions);
+//    }
+//
+//    public boolean isUseTransactions() {
+//        return getConnectionManager().getUseTransactions();
+//    }
+//
+//    public void setUseTransactions(boolean useTransactions) {
+//        boolean old = isUseTransactions();
+//        getConnectionManager().setUseTransactions(useTransactions);
+//        pcs.firePropertyChange("useTransactions", old, useTransactions);
+//    }
+//
+//    public int getMaxSize() {
+//        BigInteger test = getConnectionManager().getMaxSize();
+//        return test == null ? 0 : test.intValue();
+//    }
+//
+//    public void setMaxSize(int maxSize) {
+//        int old = getMaxSize();
+//        getConnectionManager().setMaxSize(BigInteger.valueOf(maxSize));
+//        pcs.firePropertyChange("maxSize", old, maxSize);
+//    }
+//
+//    public int getBlockingTimeout() {
+//        BigInteger test = getConnectionManager().getBlockingTimeout();
+//        return test == null ? 0 : test.intValue();
+//    }
+//
+//    public void setBlockingTimeout(int blockingTimeout) {
+//        int old = getBlockingTimeout();
+//        getConnectionManager().setBlockingTimeout(BigInteger.valueOf(blockingTimeout));
+//        pcs.firePropertyChange("blockingTimeout", old, blockingTimeout);
+//    }
 
     public String getRealmBridgeName() {
         return getConnectionManager().getRealmBridge();

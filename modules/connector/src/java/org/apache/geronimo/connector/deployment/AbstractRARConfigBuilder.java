@@ -32,6 +32,8 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
+import java.util.Collections;
+
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -45,12 +47,26 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.GReferenceInfo;
+import org.apache.geronimo.gbean.InvalidConfigurationException;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorType;
 import org.apache.geronimo.xbeans.geronimo.GerGbeanType;
 import org.apache.geronimo.xbeans.geronimo.GerDependencyType;
+import org.apache.geronimo.xbeans.geronimo.GerConnectiondefinitionInstanceType;
+import org.apache.geronimo.xbeans.geronimo.GerConnectionmanagerType;
+import org.apache.geronimo.connector.outbound.GenericConnectionManager;
+import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionSupport;
+import org.apache.geronimo.connector.outbound.connectionmanagerconfig.NoTransactions;
+import org.apache.geronimo.connector.outbound.connectionmanagerconfig.LocalTransactions;
+import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionLog;
+import org.apache.geronimo.connector.outbound.connectionmanagerconfig.XATransactions;
+import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PoolingSupport;
+import org.apache.geronimo.connector.outbound.connectionmanagerconfig.SinglePool;
+import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PartitionedPool;
+import org.apache.geronimo.connector.outbound.connectionmanagerconfig.NoPool;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
@@ -60,7 +76,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.15 $ $Date: 2004/04/23 03:08:28 $
+ * @version $Revision: 1.16 $ $Date: 2004/05/06 03:58:22 $
  *
  * */
 public abstract class AbstractRARConfigBuilder implements ConfigurationBuilder {
@@ -232,6 +248,88 @@ public abstract class AbstractRARConfigBuilder implements ConfigurationBuilder {
             }
         }
         return uri;
+    }
+
+    protected ObjectName configureConnectionManager(GerConnectiondefinitionInstanceType connectionfactoryInstance, DeploymentContext context) throws DeploymentException {
+        if (connectionfactoryInstance.getConnectionmanagerRef() != null) {
+            //we don't configure anything, just use the supplied gbean
+            try {
+                return ObjectName.getInstance(connectionfactoryInstance.getConnectionmanagerRef());
+            } catch (MalformedObjectNameException e) {
+                throw new DeploymentException("Invalid ObjectName string supplied for ConnectionManager reference", e);
+            }
+        }
+        //we configure our connection manager
+        GerConnectionmanagerType connectionManager = connectionfactoryInstance.getConnectionmanager();
+        GBeanInfo connectionManagerGBeanInfo;
+        try {
+            connectionManagerGBeanInfo = GBeanInfo.getGBeanInfo(GenericConnectionManager.class.getName(), GenericConnectionManager.class.getClassLoader());
+        } catch (InvalidConfigurationException e) {
+            throw new DeploymentException("Unable to get GBeanInfo from ConnectionManagerDeployment", e);
+        }
+
+        GBeanMBean connectionManagerGBean;
+        try {
+            connectionManagerGBean = new GBeanMBean(connectionManagerGBeanInfo, GenericConnectionManager.class.getClassLoader());
+        } catch (InvalidConfigurationException e) {
+            throw new DeploymentException("Unable to create GMBean", e);
+        }
+        TransactionSupport transactionSupport = null;
+        if (connectionManager.getNoTransaction() != null) {
+            transactionSupport = NoTransactions.INSTANCE;
+        } else if (connectionManager.getLocalTransaction() != null) {
+            transactionSupport = LocalTransactions.INSTANCE;
+        } else if (connectionManager.getTransactionLog() != null) {
+            transactionSupport = TransactionLog.INSTANCE;
+        } else if (connectionManager.getXaTransaction() != null) {
+            transactionSupport = new XATransactions(
+                    connectionManager.getXaTransaction().getTransactionCaching() != null,
+                    connectionManager.getXaTransaction().getThreadCaching() != null
+            );
+        } else {
+            throw new DeploymentException("Unexpected transaction support element");
+        }
+        PoolingSupport pooling = null;
+        if (connectionManager.getSinglePool() != null) {
+            pooling = new SinglePool(connectionManager.getSinglePool().getMaxSize(),
+                    connectionManager.getSinglePool().getBlockingTimeoutMilliseconds(),
+                    connectionManager.getSinglePool().getMatchOne() != null,
+                    connectionManager.getSinglePool().getMatchAll() != null,
+                    connectionManager.getSinglePool().getSelectOneAssumeMatch() != null
+            );
+        } else if (connectionManager.getPartitionedPool() != null) {
+            pooling = new PartitionedPool(connectionManager.getPartitionedPool().getPartitionByConnectionrequestinfo() != null,
+                    connectionManager.getPartitionedPool().getPartitionBySubject() != null,
+                    connectionManager.getPartitionedPool().getMaxSize(),
+                    connectionManager.getPartitionedPool().getBlockingTimeoutMilliseconds(),
+                    connectionManager.getPartitionedPool().getMatchOne() != null,
+                    connectionManager.getPartitionedPool().getMatchAll() != null,
+                    connectionManager.getPartitionedPool().getSelectOneAssumeMatch() != null
+            );
+        } else if (connectionManager.getNoPool() != null) {
+            pooling = new NoPool();
+        } else {
+            throw new DeploymentException("Unexpected pooling support element");
+          }
+        try {
+            connectionManagerGBean.setAttribute("Name", connectionfactoryInstance.getName());
+            connectionManagerGBean.setAttribute("TransactionSupport", transactionSupport);
+            connectionManagerGBean.setAttribute("Pooling", pooling);
+            connectionManagerGBean.setReferencePatterns("ConnectionTracker", Collections.singleton(connectionTrackerNamePattern));
+            if (connectionManager.getRealmBridge() != null) {
+                connectionManagerGBean.setReferencePatterns("RealmBridge", Collections.singleton(ObjectName.getInstance(BASE_REALM_BRIDGE_NAME + connectionManager.getRealmBridge())));
+            }
+        } catch (Exception e) {
+            throw new DeploymentException("Problem setting up ConnectionManager", e);
+        }
+        ObjectName connectionManagerFactoryObjectName = null;
+        try {
+            connectionManagerFactoryObjectName = ObjectName.getInstance(BASE_CONNECTION_MANAGER_FACTORY_NAME + connectionfactoryInstance.getName());
+        } catch (MalformedObjectNameException e) {
+            throw new DeploymentException("Could not name ConnectionManager", e);
+        }
+        context.addGBean(connectionManagerFactoryObjectName, connectionManagerGBean);
+        return connectionManagerFactoryObjectName;
     }
 
     public static final GBeanInfo GBEAN_INFO;

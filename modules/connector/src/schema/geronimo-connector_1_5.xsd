@@ -222,9 +222,12 @@
                 type="ger:config-property-settingType"
                 minOccurs="0"
                 maxOccurs="unbounded"/>
-            <xsd:element name="connectionmanager"
-                type="ger:connectionmanagerType">
-            </xsd:element>
+            <xsd:choice>
+                <xsd:element name="connectionmanager"
+                    type="ger:connectionmanagerType">
+                </xsd:element>
+                <xsd:element name="connectionmanager-ref" type="xsd:string"/>
+            </xsd:choice>
             <!-- will be bound in ger: context if present -->
             <xsd:element name="global-jndi-name"
                 type="xsd:string"
@@ -241,8 +244,7 @@
     <xsd:complexType name="connectionmanagerType">
         <xsd:annotation>
             <xsd:documentation>
-
-                Specification of factory that will construct the ConnectionManager for us.
+                The ConnectionManager configuration.
             </xsd:documentation>
         </xsd:annotation>
 
@@ -251,21 +253,48 @@
             <xsd:element name="realm-bridge"
                 type="xsd:string"
                 minOccurs="0"/>
-            <xsd:element name="blockingTimeout"
-                type="xsd:integer"/>
-            <xsd:element name="maxSize"
-                type="xsd:integer"/>
-            <xsd:element name="useTransactions"
-                type="xsd:boolean"/>
-            <xsd:element name="useLocalTransactions"
-                type="xsd:boolean"/>
-            <xsd:element name="useTransactionCaching"
-                type="xsd:boolean"/>
-            <xsd:element name="useConnectionRequestInfo"
-                type="xsd:boolean"/>
-            <xsd:element name="useSubject"
-                type="xsd:boolean"/>
+            <xsd:choice>
+                <xsd:element name="no-transaction"/>
+                <xsd:element name="local-transaction"/>
+                <xsd:element name="xa-transaction" type="ger:xatransaction-Type"/>
+                <xsd:element name="transaction-log"/>
+            </xsd:choice>
+            <xsd:choice>
+                <xsd:element name="no-pool"/>
+                <xsd:element name="single-pool" type="ger:singlepool-Type"/>
+                <xsd:element name="partitioned-pool" type="ger:partitionedpool-Type"/>
+            </xsd:choice>
         </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="xatransaction-Type">
+        <xsd:sequence>
+            <xsd:element name="transaction-caching" minOccurs="0"/>
+            <xsd:element name="thread-caching" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="singlepool-Type">
+        <xsd:sequence>
+            <xsd:element name="max-size" type="xsd:int"/>
+            <xsd:element name="blocking-timeout-milliseconds" type="xsd:int"/>
+            <xsd:choice>
+                <xsd:element name="match-one"/>
+                <xsd:element name="match-all"/>
+                <xsd:element name="select-one-assume-match"/>
+            </xsd:choice>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="partitionedpool-Type">
+        <complexContent>
+            <extension base="ger:singlepool-Type">
+                <xsd:sequence>
+                    <xsd:element name="partition-by-subject" minOccurs="0"/>
+                    <xsd:element name="partition-by-connectionrequestinfo" minOccurs="0"/>
+                </xsd:sequence>
+            </extension>
+        </complexContent>
     </xsd:complexType>
 
     <!-- **************************************************** -->
@@ -359,8 +388,6 @@
             <xsd:element name="connection-definition"
                 type="ger:connection-definitionType"
                 maxOccurs="unbounded"/>
-            <xsd:element name="transaction-support"
-                type="ger:transaction-supportType"/>
         </xsd:sequence>
     </xsd:complexType>
 
