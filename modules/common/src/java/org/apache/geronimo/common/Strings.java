@@ -67,7 +67,7 @@ import java.io.File;
 /**
  * A collection of String utilities.
  *
- * @version <code>$Revision: 1.1 $</code>
+ * @version <code>$Revision: 1.2 $</code>
  */
 public final class Strings
 {
@@ -75,7 +75,7 @@ public final class Strings
     public static final String EMPTY = "";
     
     /** New line string constant */
-    public static final String NEWLINE = org.apache.geronimo.platform.Constants.LINE_SEPARATOR;
+    public static final String NEWLINE = org.apache.geronimo.common.platform.Constants.LINE_SEPARATOR;
     
     
     /////////////////////////////////////////////////////////////////////////
