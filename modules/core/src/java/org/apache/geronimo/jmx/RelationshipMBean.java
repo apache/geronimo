@@ -55,12 +55,12 @@
  */
 package org.apache.geronimo.jmx;
 
-import org.apache.geronimo.common.StateManageable;
+import org.apache.management.j2ee.StateManageable;
 
 /**
  * 
  * 
- * @version $Revision: 1.2 $ $Date: 2003/08/16 23:16:55 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/18 13:30:19 $
  */
 public interface RelationshipMBean extends StateManageable {
     String getName();

@@ -69,14 +69,14 @@ import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.common.State;
+import org.apache.management.j2ee.State;
 import org.apache.geronimo.jmx.JMXUtil;
 import org.apache.geronimo.deployment.service.MBeanRelationship;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/17 05:40:18 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/18 13:30:19 $
  */
 public class DependencyService implements MBeanRegistration, DependencyServiceMBean {
     private Log log = LogFactory.getLog(getClass());

@@ -54,13 +54,14 @@
  * ====================================================================
  */
 package org.apache.geronimo.common;
+import org.apache.management.j2ee.StateManageable;
 
 
 /**
  * Implements the JSR 77 state model
  *
  *
- * @version $Revision: 1.5 $ $Date: 2003/08/15 14:11:26 $
+ * @version $Revision: 1.6 $ $Date: 2003/08/18 13:30:19 $
  */
 public interface Component extends StateManageable
 {

@@ -85,13 +85,16 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.deployment.dependency.DependencyServiceMBean;
 import org.apache.geronimo.deployment.service.MBeanRelationship;
 import org.apache.geronimo.jmx.JMXUtil;
+import org.apache.management.j2ee.State;
+import org.apache.management.j2ee.StateManageable;
+import org.apache.management.j2ee.NotificationType;
 
 /**
  * Abstract implementation of JSR77 StateManageable.
  * Implementors of StateManageable may use this class and simply provide
  * doStart, doStop and doNotification methods.
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/16 23:16:18 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/18 13:30:19 $
  */
 public abstract class AbstractStateManageable extends NotificationBroadcasterSupport implements StateManageable, NotificationListener, MBeanRegistration {
     protected Log log = LogFactory.getLog(getClass());
@@ -121,7 +124,7 @@ public abstract class AbstractStateManageable extends NotificationBroadcasterSup
 
     public MBeanNotificationInfo[] getNotificationInfo() {
         return new MBeanNotificationInfo[]{
-            new MBeanNotificationInfo(J2EENotification.TYPES,
+            new MBeanNotificationInfo(NotificationType.TYPES,
                     "javax.management.Notification",
                     "J2EE Notifications")
         };
@@ -157,7 +160,7 @@ public abstract class AbstractStateManageable extends NotificationBroadcasterSup
             MBeanServerNotification notification = (MBeanServerNotification) n;
             source = notification.getMBeanName();
             try {
-                server.addNotificationListener(source, this, J2EENotification.NOTIFICATION_FILTER, null);
+                server.addNotificationListener(source, this, NotificationType.NOTIFICATION_FILTER, null);
             } catch (InstanceNotFoundException e) {
                 // the instance died before we could get going... not a big deal
                 return;

@@ -60,7 +60,7 @@ import org.apache.geronimo.common.Interceptor;
 import org.apache.geronimo.common.Invocation;
 import org.apache.geronimo.common.InvocationResult;
 import org.apache.geronimo.common.RPCContainer;
-import org.apache.geronimo.common.State;
+import org.apache.management.j2ee.State;
 import org.apache.geronimo.ejb.container.EJBPlugins;
 import org.apache.geronimo.ejb.metadata.EJBMetadata;
 
@@ -68,7 +68,7 @@ import org.apache.geronimo.ejb.metadata.EJBMetadata;
  *
  *
  *
- * @version $Revision: 1.7 $ $Date: 2003/08/16 23:16:51 $
+ * @version $Revision: 1.8 $ $Date: 2003/08/18 13:30:19 $
  */
 public class TransactionInterceptor implements Interceptor {
     private Interceptor transactionInterceptor;

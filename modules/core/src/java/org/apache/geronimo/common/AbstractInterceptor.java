@@ -54,12 +54,13 @@
  * ====================================================================
  */
 package org.apache.geronimo.common;
+import org.apache.management.j2ee.State;
 
 
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/14 07:14:33 $
+ * @version $Revision: 1.5 $ $Date: 2003/08/18 13:30:19 $
  */
 public abstract class AbstractInterceptor extends AbstractComponent implements Interceptor {
     private Interceptor next;
