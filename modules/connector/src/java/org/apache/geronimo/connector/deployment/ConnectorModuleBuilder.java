@@ -17,7 +17,6 @@
 package org.apache.geronimo.connector.deployment;
 
 import java.beans.PropertyEditor;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -101,7 +100,7 @@ import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 
 /**
- * @version $Revision: 1.10 $ $Date: 2004/07/23 06:06:19 $
+ * @version $Revision: 1.11 $ $Date: 2004/08/04 12:05:34 $
  */
 public class ConnectorModuleBuilder implements ModuleBuilderWithUnpack {
 
@@ -173,150 +172,93 @@ public class ConnectorModuleBuilder implements ModuleBuilderWithUnpack {
     }
 
     public void installModule(File earFolder, EARContext earContext, Module module) throws DeploymentException {
+        File rarFolder = new File(earFolder, module.getURI().toString());
+        
+        // Unpacked EAR modules can define via application.xml either
+        // (standard) packed or unpacked modules
+        InstallCallback callback;
+        if ( rarFolder.isDirectory() ) {
+            callback = new UnPackedInstallCallback(module, rarFolder);
+        } else {
+            JarFile rarFile;
+            try {
+                rarFile = new JarFile(rarFolder);
+            } catch (IOException e) {
+                throw new DeploymentException("Can not create RAR file " + rarFolder, e);
+            }
+            callback = new PackedInstallCallback(module, rarFile);
+        }
+        installModule(callback, earContext, module);
+    }
+
+    public void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException {
+        JarFile rarFile;
         try {
-            File connectorFolder = new File(earFolder, module.getURI().toString());
-            URI connectorFolderURI = connectorFolder.toURI();
-            URI moduleBase;
-            if ( !module.getURI().equals(URI.create("/")) ) {
-                moduleBase = URI.create(module.getURI().toString() + "/");
+            if (!module.getURI().equals(URI.create("/"))) {
+                ZipEntry rarEntry = earFile.getEntry(module.getURI().toString());
+                // Unpack the nested RAR.
+                File tempFile = FileUtil.toTempFile(earFile.getInputStream(rarEntry));
+                rarFile = new JarFile(tempFile);
             } else {
-                moduleBase = URI.create("connector/");
-            }
-
-            XmlObject specConnnector = null;
-            GerConnectorType vendorConnector = (GerConnectorType) module.getVendorDD();
-            
-            Collection files = new ArrayList();
-            FileUtil.listRecursiveFiles(connectorFolder, files);
-            for (Iterator iter = files.iterator(); iter.hasNext();) {
-                File file = (File) iter.next();
-                URI fileURI = connectorFolderURI.relativize(file.toURI());
-                URI target = moduleBase.resolve(fileURI);
-                if ( fileURI.toString().equals("META-INF/ra.xml") ) {
-                    earContext.addFile(target, file);
-                    try {
-                        // try 1.0
-                        ConnectorDocument10 connectorDoc = ConnectorDocument10.Factory.parse(new FileInputStream(file));
-                        SchemaConversionUtils.validateDD(connectorDoc);
-                        specConnnector = connectorDoc.getConnector();
-                    } catch (XmlException ignore) {
-                        // that didn't work try 1.5
-                        try {
-                            ConnectorDocument connectorDoc = ConnectorDocument.Factory.parse(new FileInputStream(file));
-                            SchemaConversionUtils.validateDD(connectorDoc);
-                            specConnnector = connectorDoc.getConnector();
-                        } catch (XmlException alsoIgnore) {
-                            throw new DeploymentException("Could not parse META-INF/ra.xml");
-                        }
-                    }
-                } else if (module.getVendorDD() == null && fileURI.toString().equals("META-INF/geronimo-ra.xml") ) {
-                    earContext.addFile(target, file);
-                    GerConnectorDocument vendorConnectorDoc;
-                    try {
-                        vendorConnectorDoc = GerConnectorDocument.Factory.parse(new FileInputStream(file));
-                        SchemaConversionUtils.validateDD(vendorConnectorDoc);
-                    } catch (XmlException e) {
-                        throw new DeploymentException("Unable to parse geronimo-ra.xml");
-                    }
-                    vendorConnector = vendorConnectorDoc.getConnector();
-                } else if (file.getName().endsWith(".jar")) {
-                    earContext.addInclude(target, file.toURL());
-                } else {
-                    earContext.addFile(target, file);
-                }
-            }
-
-            if (specConnnector == null) {
-                throw new DeploymentException("Did not find META-INF/ra.xml in module");
-            }
-            module.setSpecDD(specConnnector);
-            if (vendorConnector == null) {
-                throw new DeploymentException("Did not find META-INF/geronimo-ra.xml in module");
-            }
-            module.setVendorDD(vendorConnector);
-
-            if (vendorConnector != null) {
-                GerDependencyType[] dependencies = vendorConnector.getDependencyArray();
-                for (int i = 0; i < dependencies.length; i++) {
-                    earContext.addDependency(getDependencyURI(dependencies[i]));
-                }
+                rarFile = earFile;
             }
         } catch (IOException e) {
-            throw new DeploymentException("Problem deploying connector", e);
+            throw new DeploymentException("Problem deploying rar", e);
         }
+        InstallCallback callback = new PackedInstallCallback(module, rarFile);
+        installModule(callback, earContext, module);
     }
-    
-    public void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException {
+
+    public void installModule(InstallCallback callback, EARContext earContext, Module module) throws DeploymentException {
+        URI moduleBase = null;
+        if (!module.getURI().equals(URI.create("/"))) {
+            moduleBase = URI.create(module.getURI() + "/");
+        } else {
+            moduleBase = URI.create("connector/");
+        }
+
         try {
-            URI moduleBase = null;
-            JarInputStream jarIS = null;
-            if (!module.getURI().equals(URI.create("/"))) {
-                ZipEntry connectorEntry = earFile.getEntry(module.getURI().toString());
-                jarIS = new JarInputStream(earFile.getInputStream(connectorEntry));
-                moduleBase = URI.create(module.getURI() + "/");
-            } else {
-                jarIS = new JarInputStream(new FileInputStream(earFile.getName()));
-                moduleBase = URI.create("connector/");
-            }
-
-            XmlObject specConnnector = null;
-            GerConnectorType vendorConnector = (GerConnectorType) module.getVendorDD();
-            for (JarEntry entry; (entry = jarIS.getNextJarEntry()) != null; jarIS.closeEntry()) {
-                String name = entry.getName();
-                URI target = moduleBase.resolve(name);
-                if (name.endsWith("/")) {
-                    continue;
-                } else if (name.equals("META-INF/ra.xml")) {
-                    byte[] buffer = getBytes(jarIS);
-                    earContext.addFile(target, new ByteArrayInputStream(buffer));
-
-                    try {
-                        // try 1.0
-                        ConnectorDocument10 connectorDoc = ConnectorDocument10.Factory.parse(new ByteArrayInputStream(buffer));
-                        SchemaConversionUtils.validateDD(connectorDoc);
-                        specConnnector = connectorDoc.getConnector();
-                    } catch (XmlException ignore) {
-                        // that didn't work try 1.5
-                        try {
-                            ConnectorDocument connectorDoc = ConnectorDocument.Factory.parse(new ByteArrayInputStream(buffer));
-                            SchemaConversionUtils.validateDD(connectorDoc);
-                            specConnnector = connectorDoc.getConnector();
-                        } catch (XmlException alsoIgnore) {
-                            throw new DeploymentException("Could not parse META-INF/ra.xml");
-                        }
-                    }
-                } else if (module.getVendorDD() == null && name.equals("META-INF/geronimo-ra.xml")) {
-                    byte[] buffer = getBytes(jarIS);
-                    earContext.addFile(target, new ByteArrayInputStream(buffer));
-                    GerConnectorDocument vendorConnectorDoc;
-                    try {
-                        vendorConnectorDoc = GerConnectorDocument.Factory.parse(new ByteArrayInputStream(buffer));
-                        SchemaConversionUtils.validateDD(vendorConnectorDoc);
-                    } catch (XmlException e) {
-                        throw new DeploymentException("Unable to parse geronimo-ra.xml");
-                    }
-                    vendorConnector = vendorConnectorDoc.getConnector();
-                } else if (name.endsWith(".jar")) {
-                    earContext.addStreamInclude(target, jarIS);
-                } else {
-                    earContext.addFile(target, jarIS);
+            XmlObject specConnnector;
+            try {
+                // try 1.0
+                ConnectorDocument10 connectorDoc = ConnectorDocument10.Factory.parse(callback.getRaDD());
+                SchemaConversionUtils.validateDD(connectorDoc);
+                specConnnector = connectorDoc.getConnector();
+            } catch (XmlException ignore) {
+                // that didn't work try 1.5
+                try {
+                    ConnectorDocument connectorDoc = ConnectorDocument.Factory.parse(callback.getRaDD());
+                    SchemaConversionUtils.validateDD(connectorDoc);
+                    specConnnector = connectorDoc.getConnector();
+                } catch (XmlException alsoIgnore) {
+                    throw new DeploymentException(
+                        "Could not parse META-INF/ra.xml");
                 }
-            }
-
-            if (specConnnector == null) {
-                throw new DeploymentException("Did not find META-INF/ra.xml in module");
             }
             module.setSpecDD(specConnnector);
-            if (vendorConnector == null) {
-                throw new DeploymentException("Did not find META-INF/geronimo-ra.xml in module");
-            }
-            module.setVendorDD(vendorConnector);
 
-            if (vendorConnector != null) {
-                GerDependencyType[] dependencies = vendorConnector.getDependencyArray();
-                for (int i = 0; i < dependencies.length; i++) {
-                    earContext.addDependency(getDependencyURI(dependencies[i]));
+            GerConnectorType vendorConnector = (GerConnectorType) module.getVendorDD();
+            if ( null == vendorConnector ) {
+                try {
+                    InputStream gerDDInputStream = callback.getGeronimoRaDD();
+                    GerConnectorDocument doc;
+                    if (gerDDInputStream != null) {
+                        doc = (GerConnectorDocument) XmlBeansUtil.parse(gerDDInputStream, GerConnectorDocument.type);
+                    } else {
+                        throw new DeploymentException("No geronimo-ra.xml.");
+                    }
+                    vendorConnector = doc.getConnector();
+                    module.setVendorDD(vendorConnector);
+                } catch (XmlException e) {
+                    throw new DeploymentException("Unable to parse geronimo-ra.xml");
                 }
+            }
+
+            callback.installInEARContext(earContext, moduleBase);
+
+            GerDependencyType[] dependencies = vendorConnector.getDependencyArray();
+            for (int i = 0; i < dependencies.length; i++) {
+                earContext.addDependency(getDependencyURI(dependencies[i]));
             }
         } catch (IOException e) {
             throw new DeploymentException("Problem deploying connector", e);
@@ -880,6 +822,101 @@ public class ConnectorModuleBuilder implements ModuleBuilderWithUnpack {
         }
     }
 
+    private interface InstallCallback {
+        
+        public void installInEARContext(EARContext earContext, URI moduleBase) throws DeploymentException, IOException;
+        
+        public InputStream getRaDD() throws DeploymentException, IOException;
+        
+        public InputStream getGeronimoRaDD() throws DeploymentException, IOException;
+
+    }
+    
+    private static final class UnPackedInstallCallback implements InstallCallback {
+        
+        private final File rarFolder;
+        
+        private final Module rarModule;
+        
+        private UnPackedInstallCallback(Module rarModule, File rarFolder) {
+            this.rarFolder = rarFolder;
+            this.rarModule = rarModule;
+        }
+        
+        public void installInEARContext(EARContext earContext, URI moduleBase) throws DeploymentException, IOException {
+            URI raRoot = rarFolder.toURI();
+            Collection files = new ArrayList();
+            FileUtil.listRecursiveFiles(rarFolder, files);
+            for (Iterator iter = files.iterator(); iter.hasNext();) {
+                File file = (File) iter.next();
+                URI fileURI = raRoot.relativize(file.toURI());
+                URI target = moduleBase.resolve(fileURI);
+                if (file.getName().endsWith(".jar")) {
+                    earContext.addInclude(target, file.toURL());
+                } else {
+                    earContext.addFile(target, file);
+                }
+            }
+        }
+        
+        public InputStream getRaDD() throws DeploymentException, IOException {
+            File raFile = new File(rarFolder, "META-INF/ra.xml");
+            if ( !raFile.exists() ) {
+                throw new DeploymentException("No  in module [" + rarModule.getName() + "]");
+            }
+            return new FileInputStream(raFile);
+        }
+        
+        public InputStream getGeronimoRaDD() throws DeploymentException, IOException {
+            File geronimoRaFile = new File(rarFolder, "META-INF/geronimo-ra.xml");
+            if ( geronimoRaFile.exists() ) {
+                return new FileInputStream(geronimoRaFile);
+            }
+            return null;
+        }
+        
+    }
+    
+    private static final class PackedInstallCallback implements InstallCallback {
+
+        private final Module rarModule;
+        
+        private final JarFile rarFile;
+        
+        private PackedInstallCallback(Module rarModule, JarFile rarFile) {
+            this.rarModule = rarModule;
+            this.rarFile = rarFile;
+        }
+        
+        public void installInEARContext(EARContext earContext, URI moduleBase) throws DeploymentException, IOException {
+            JarInputStream jarIS = new JarInputStream(new FileInputStream(rarFile.getName()));
+            for (JarEntry entry; (entry = jarIS.getNextJarEntry()) != null; jarIS.closeEntry()) {
+                URI target = moduleBase.resolve(entry.getName());
+                if (entry.getName().endsWith(".jar")) {
+                    earContext.addStreamInclude(target, jarIS);
+                } else {
+                    earContext.addFile(target, jarIS);
+                }
+            }
+        }
+        
+        public InputStream getRaDD() throws DeploymentException, IOException {
+            JarEntry entry = rarFile.getJarEntry("META-INF/ra.xml");
+            if (entry == null) {
+                throw new DeploymentException("No META-INF/ra.xml in module [" + rarModule.getName() + "]");
+            }
+            return rarFile.getInputStream(entry);
+        }
+        
+        public InputStream getGeronimoRaDD() throws DeploymentException, IOException {
+            JarEntry entry = rarFile.getJarEntry("META-INF/geronimo-ra.xml");
+            if (entry != null) {
+                return rarFile.getInputStream(entry);
+            }
+            return null;
+        }
+    }
+    
     public static final GBeanInfo GBEAN_INFO;
 
     static {
