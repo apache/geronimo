@@ -5,26 +5,27 @@
     <!-- ================================================================ -->
     <!-- Set up the Jetty-specific jars                                   -->
     <!-- ================================================================ -->
-    <class-space name="geronimo.system:role=ClassSpace,name=Jetty">
+    <class-space name="geronimo.system:role=ClassSpace,name=Jetty"
+        parent="geronimo.system:role=ClassSpace,name=System">
         <codebase url="file:lib/">
             <archive name="*"/>
         </codebase>
-	<codebase url="file:../../lib/">
-	    <archive name="geronimo-core-DEV.jar"/>
-	    <archive name="geronimo-common-DEV.jar"/>
-	</codebase>
+        <codebase url="file:../../lib/">
+            <archive name="geronimo-core-DEV.jar"/>
+            <archive name="geronimo-common-DEV.jar"/>
+        </codebase>
     </class-space>
 
     <!-- ================================================================ -->
     <!-- Set up a Jetty container                                         -->
     <!-- ================================================================ -->
     <mbean code="org.apache.geronimo.web.jetty.JettyWebContainer"
-           name="jetty:role=WebContainer">
-       <attribute type="java.net.URI" name="DefaultWebXmlURI">webdefault.xml</attribute>
+        name="jetty:role=WebContainer">
+        <attribute type="java.net.URI" name="DefaultWebXmlURI">webdefault.xml</attribute>
     </mbean>
-<!-- planner that delegates to the mbean above -->
+    <!-- planner that delegates to the mbean above -->
     <mbean descriptor="org.apache.geronimo.web.WebDeploymentPlanner"
-           name="geronimo.deployment:role=DeploymentPlanner,type=Jetty">
+        name="geronimo.deployment:role=DeploymentPlanner,type=Jetty">
     </mbean>
 
 
@@ -32,9 +33,9 @@
     <!-- Set up a connector to listen for http requests                   -->
     <!-- ================================================================ -->
     <mbean code="org.apache.geronimo.web.jetty.JettyWebConnector"
-           name="jetty:role=WebConnector, port=8080">
+        name="jetty:role=WebConnector, port=8080">
         <attribute name="Port">8080</attribute>
-	<attribute name="Contexts">/abc, /def, /geh</attribute>
+        <attribute name="Contexts">/abc, /def, /geh</attribute>
         <depends name="jetty:role=WebContainer"/>
     </mbean>
 </components>

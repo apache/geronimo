@@ -91,4 +91,15 @@
           <Arg type="boolean">true</Arg>
         </Call>
     </Call>
+    <Call name="addWebApplication">
+        <Arg></Arg>
+        <Arg>elba</Arg>
+        <Arg><SystemProperty name="jetty.home.dir"/>/elba-web-console.war</Arg>
+        <Call name="setDefaultsDescriptor">
+          <Arg><SystemProperty name="jetty.home.dir"/>/webdefault.xml</Arg>
+        </Call>
+        <Call name="setExtractWAR">
+          <Arg type="boolean">true</Arg>
+        </Call>
+    </Call>
 </Configure>
