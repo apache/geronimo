@@ -94,7 +94,7 @@ import org.apache.xmlbeans.XmlObject;
 public class ConnectorModuleBuilder implements ModuleBuilder {
     private static final String BASE_REALM_BRIDGE_NAME = "geronimo.security:service=RealmBridge,name=";
     private static final String BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME = "geronimo.security:service=Realm,type=PasswordCredential,name=";
-    private static final String BASE_WORK_MANAGER_NAME = "geronimo.server:type=WorkManager,name=";
+    private static final String BASE_WORK_MANAGER_NAME = ":type=WorkManager,name=";
 
     public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
         return createModule(plan, moduleFile, "war", null, true);
@@ -336,7 +336,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
             // set the work manager name
             try {
                 resourceAdapterGBean.setReferencePattern("WorkManager",
-                        ObjectName.getInstance(BASE_WORK_MANAGER_NAME + geronimoResourceAdapter.getResourceadapterInstance().getWorkmanagerName().getStringValue()));
+                        ObjectName.getInstance(earContext.getJ2EEDomainName() + BASE_WORK_MANAGER_NAME + geronimoResourceAdapter.getResourceadapterInstance().getWorkmanagerName().getStringValue()));
             } catch (MalformedObjectNameException e) {
                 throw new DeploymentException("Could not create object name for work manager", e);
             }
