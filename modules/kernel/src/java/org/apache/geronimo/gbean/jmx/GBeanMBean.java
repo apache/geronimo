@@ -48,7 +48,8 @@ import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
-import org.apache.geronimo.kernel.jmx.MBeanOperationSignature;
+import org.apache.geronimo.gbean.GOperationSignature;
+import org.apache.geronimo.gbean.GOperationSignature;
 import org.apache.geronimo.kernel.management.NotificationType;
 
 /**
@@ -57,7 +58,7 @@ import org.apache.geronimo.kernel.management.NotificationType;
  * {@link GBeanInfo} instance.  The GBeanMBean also supports caching of attribute values and invocation results
  * which can reduce the number of calls to a target.
  *
- * @version $Revision: 1.15 $ $Date: 2004/05/26 03:22:21 $
+ * @version $Revision: 1.16 $ $Date: 2004/05/26 22:58:30 $
  */
 public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     /**
@@ -105,7 +106,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     private final GBeanMBeanOperation[] operations;
 
     /**
-     * Operations supported by this GBeanMBean by (MBeanOperationSignature) name.
+     * Operations supported by this GBeanMBean by (GOperationSignature) name.
      */
     private final Map operationIndex = new HashMap();
 
@@ -201,7 +202,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
         operations = (GBeanMBeanOperation[]) operationsSet.toArray(new GBeanMBeanOperation[beanInfo.getOperations().size()]);
         for (int i = 0; i < operations.length; i++) {
             GBeanMBeanOperation operation = operations[i];
-            MBeanOperationSignature signature = new MBeanOperationSignature(operation.getName(), operation.getParameterTypes());
+            GOperationSignature signature = new GOperationSignature(operation.getName(), operation.getParameterTypes());
             operationIndex.put(signature, new Integer(i));
         }
 
@@ -541,7 +542,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     }
 
     public Object invoke(String methodName, Object[] arguments, String[] types) throws ReflectionException {
-        MBeanOperationSignature signature = new MBeanOperationSignature(methodName, types);
+        GOperationSignature signature = new GOperationSignature(methodName, types);
         Integer index = (Integer) operationIndex.get(signature);
         if (index == null) {
             throw new ReflectionException(new NoSuchMethodException("Unknown operation " + signature));

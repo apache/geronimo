@@ -30,11 +30,12 @@ import net.sf.cglib.core.Signature;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 import net.sf.cglib.reflect.FastClass;
-import org.apache.geronimo.kernel.jmx.MBeanOperationSignature;
+import org.apache.geronimo.gbean.GOperationSignature;
+import org.apache.geronimo.gbean.GOperationSignature;
 import org.objectweb.asm.Type;
 
 /**
- * @version $Revision: 1.10 $ $Date: 2004/05/26 03:22:21 $
+ * @version $Revision: 1.11 $ $Date: 2004/05/26 22:58:30 $
  */
 public final class ProxyMethodInterceptor implements MethodInterceptor {
     /**
@@ -151,8 +152,8 @@ public final class ProxyMethodInterceptor implements MethodInterceptor {
     }
 
     private GBeanInvoker createRawGBeanInvoker(RawInvoker rawInvoker, Method method, Map operations, Map attributes) {
-        if (operations.containsKey(new MBeanOperationSignature(method))) {
-            int methodIndex = ((Integer) operations.get(new MBeanOperationSignature(method))).intValue();
+        if (operations.containsKey(new GOperationSignature(method))) {
+            int methodIndex = ((Integer) operations.get(new GOperationSignature(method))).intValue();
             return new RawGBeanInvoker(rawInvoker, methodIndex, GBeanInvoker.OPERATION);
         }
 
@@ -200,7 +201,7 @@ public final class ProxyMethodInterceptor implements MethodInterceptor {
         Map operations = new HashMap(operationInfos.length);
         for (int i = 0; i < operationInfos.length; i++) {
             MBeanOperationInfo operationInfo = operationInfos[i];
-            operations.put(new MBeanOperationSignature(operationInfo), operationInfo);
+            operations.put(new GOperationSignature(operationInfo), operationInfo);
         }
 
         // build the method lookup table
@@ -219,7 +220,7 @@ public final class ProxyMethodInterceptor implements MethodInterceptor {
     }
 
     private GBeanInvoker createJMXGBeanInvoker(MBeanServer server, Method method, Map operations, Map attributes) {
-        if (operations.containsKey(new MBeanOperationSignature(method))) {
+        if (operations.containsKey(new GOperationSignature(method))) {
             return new JMXGBeanInvoker(server, method, GBeanInvoker.OPERATION);
         }
 

@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.kernel.jmx;
+package org.apache.geronimo.gbean;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -25,14 +25,14 @@ import javax.management.MBeanParameterInfo;
 /**
  * This is a key class based on a MBean operation name and parameters.
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:59:01 $
+ * @version $Revision: 1.1 $ $Date: 2004/05/26 22:58:30 $
  */
-public final class MBeanOperationSignature {
+public final class GOperationSignature {
     private final static String[] NO_TYPES = new String[0];
     private final String name;
     private final String[] argumentTypes;
 
-    public MBeanOperationSignature(Method method) {
+    public GOperationSignature(Method method) {
         name = method.getName();
         Class[] parameters = method.getParameterTypes();
         argumentTypes = new String[parameters.length];
@@ -41,7 +41,7 @@ public final class MBeanOperationSignature {
         }
     }
 
-    public MBeanOperationSignature(MBeanOperationInfo operationInfo) {
+    public GOperationSignature(MBeanOperationInfo operationInfo) {
         name = operationInfo.getName();
         MBeanParameterInfo[] parameters = operationInfo.getSignature();
         argumentTypes = new String[parameters.length];
@@ -50,7 +50,7 @@ public final class MBeanOperationSignature {
         }
     }
 
-    public MBeanOperationSignature(String name, String[] argumentTypes) {
+    public GOperationSignature(String name, String[] argumentTypes) {
         this.name = name;
         if (argumentTypes != null) {
             this.argumentTypes = argumentTypes;
@@ -59,7 +59,7 @@ public final class MBeanOperationSignature {
         }
     }
 
-    public MBeanOperationSignature(String name, List argumentTypes) {
+    public GOperationSignature(String name, List argumentTypes) {
         this.name = name;
         if (argumentTypes != null) {
             this.argumentTypes = new String[argumentTypes.size()];
@@ -72,12 +72,12 @@ public final class MBeanOperationSignature {
     }
 
     public boolean equals(Object object) {
-        if (!(object instanceof MBeanOperationSignature)) {
+        if (!(object instanceof GOperationSignature)) {
             return false;
         }
 
         // match names
-        MBeanOperationSignature methodKey = (MBeanOperationSignature) object;
+        GOperationSignature methodKey = (GOperationSignature) object;
         if (!methodKey.name.equals(name)) {
             return false;
         }

@@ -22,8 +22,6 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.geronimo.kernel.jmx.MBeanOperationSignature;
-
 import net.sf.cglib.reflect.FastClass;
 import net.sf.cglib.reflect.FastMethod;
 
@@ -31,7 +29,7 @@ import net.sf.cglib.reflect.FastMethod;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:59:00 $
+ * @version $Revision: 1.6 $ $Date: 2004/05/26 22:58:30 $
  */
 public class DynamicGBeanDelegate implements DynamicGBean {
     protected final Map getters = new HashMap();
@@ -91,7 +89,7 @@ public class DynamicGBeanDelegate implements DynamicGBean {
         for (int i = 0; i < parameters.length; i++) {
             types[i] = parameters[i].getName();
         }
-        MBeanOperationSignature key = new MBeanOperationSignature(method.getName(), types);
+        GOperationSignature key = new GOperationSignature(method.getName(), types);
         operations.put(key, new Operation(target, method));
     }
 
@@ -125,7 +123,7 @@ public class DynamicGBeanDelegate implements DynamicGBean {
     }
 
     public Object invoke(String name, Object[] arguments, String[] types) throws Exception {
-        Operation operation = (Operation) operations.get(new MBeanOperationSignature(name, types));
+        Operation operation = (Operation) operations.get(new GOperationSignature(name, types));
         if (operation == null) {
             throw new IllegalArgumentException("Unknown attribute " + name);
         }

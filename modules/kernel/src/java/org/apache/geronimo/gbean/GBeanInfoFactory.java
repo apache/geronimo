@@ -25,10 +25,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.geronimo.kernel.jmx.MBeanOperationSignature;
 
 /**
- * @version $Revision: 1.17 $ $Date: 2004/03/18 10:04:50 $
+ * @version $Revision: 1.18 $ $Date: 2004/05/26 22:58:30 $
  */
 public class GBeanInfoFactory {
 
@@ -85,7 +84,7 @@ public class GBeanInfoFactory {
             if (sourceOperations != null && !sourceOperations.isEmpty()) {
                 for (Iterator it = sourceOperations.iterator(); it.hasNext();) {
                     GOperationInfo operationInfo = (GOperationInfo) it.next();
-                    operations.put(new MBeanOperationSignature(operationInfo.getName(),
+                    operations.put(new GOperationSignature(operationInfo.getName(),
                             operationInfo.getParameterList()), operationInfo);
                 }
             }
@@ -182,7 +181,7 @@ public class GBeanInfoFactory {
     }
 
     public void addOperation(GOperationInfo operationInfo) {
-        operations.put(new MBeanOperationSignature(operationInfo.getName(), operationInfo.getParameterList()),
+        operations.put(new GOperationSignature(operationInfo.getName(), operationInfo.getParameterList()),
                        operationInfo);
     }
 
