@@ -99,5 +99,5 @@ Configuration for the Geronimo deployer
 
     <gbean name="geronimo.deployer:role=ModuleBuilder,type=Web,config=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.jetty.deployment.JettyModuleBuilder"/>
 
-    <gbean name="geronimo.deployer:role=ModuleBuilder,type=EJB,config=org/apache/geronimo/J2EEDeployer" class="org.openejb.deployment.EJBModuleBuilder"/>
+    <gbean name="geronimo.deployer:role=ModuleBuilder,type=EJB,config=org/apache/geronimo/J2EEDeployer" class="org.openejb.deployment.OpenEJBModuleBuilder"/>
 </configuration>
