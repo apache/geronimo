@@ -61,12 +61,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.management.InstanceNotFoundException;
+import javax.management.ListenerNotFoundException;
 import javax.management.MBeanNotificationInfo;
 import javax.management.MBeanRegistration;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerNotification;
 import javax.management.Notification;
 import javax.management.NotificationBroadcasterSupport;
+import javax.management.NotificationEmitter;
+import javax.management.NotificationFilter;
 import javax.management.NotificationFilterSupport;
 import javax.management.NotificationListener;
 import javax.management.ObjectName;
@@ -94,11 +97,11 @@ import org.apache.geronimo.jmx.JMXUtil;
 /**
  * Abstract implementation of JSR77 StateManageable.
  * Implementors of StateManageable may use this class and simply provide
- * doStart, doStop and doNotification methods.
+ * doStart, doStop and sendNotification methods.
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/21 14:44:25 $
+ * @version $Revision: 1.4 $ $Date: 2003/09/05 02:40:08 $
  */
-public abstract class AbstractManagedObject extends NotificationBroadcasterSupport implements ManagedObject, StateManageable, EventProvider, NotificationListener, MBeanRegistration {
+public abstract class AbstractManagedObject implements ManagedObject, StateManageable, EventProvider, NotificationListener, MBeanRegistration, NotificationEmitter {
     protected final Log log = LogFactory.getLog(getClass());
 
     /**
@@ -139,6 +142,17 @@ public abstract class AbstractManagedObject extends NotificationBroadcasterSuppo
     // This must be volatile otherwise getState must be synchronized which will result in deadlock as dependent
     // objects check if each other are in one state or another (i.e., classic A calls B while B calls A)
     private volatile State state = State.STOPPED;
+
+    public AbstractManagedObject() {
+        for (int i = 0; i < NotificationType.TYPES.length; i++) {
+            notificationTypes.add(NotificationType.TYPES[i]);
+        }
+    }
+
+    /**
+     * The broadcaster for notifications
+     */
+    protected final NotificationBroadcasterSupport notificationBroadcaster = new NotificationBroadcasterSupport();
 
     /**
      * Check if component can start.  Dependencies in the dependency service have already been
@@ -252,6 +266,18 @@ public abstract class AbstractManagedObject extends NotificationBroadcasterSuppo
         notificationTypes.add(eventType);
     }
 
+    public void addNotificationListener(NotificationListener listener, NotificationFilter filter, Object handback) {
+        notificationBroadcaster.addNotificationListener(listener, filter, handback);
+    }
+
+    public void removeNotificationListener(NotificationListener listener) throws ListenerNotFoundException {
+        notificationBroadcaster.removeNotificationListener(listener);
+    }
+
+    public void removeNotificationListener(NotificationListener listener, NotificationFilter filter, Object handback) throws ListenerNotFoundException {
+        notificationBroadcaster.removeNotificationListener(listener, filter, handback);
+    }
+
     /**
      * Sends the specified MBean notification.
      *
@@ -261,9 +287,14 @@ public abstract class AbstractManagedObject extends NotificationBroadcasterSuppo
      *
      * @param type the notification type to send
      */
-    private final void doNotification(String type) {
+    public final void sendNotification(String type) {
         assert !Thread.holdsLock(this): "This method cannot be called while holding a syncrhonized lock on this";
-        sendNotification(new Notification(type, objectName, sequenceNumber++));
+        notificationBroadcaster.sendNotification(new Notification(type, objectName, sequenceNumber++));
+    }
+
+    public void sendNotification(Notification notification) {
+        assert !Thread.holdsLock(this): "This method cannot be called while holding a syncrhonized lock on this";
+        notificationBroadcaster.sendNotification(notification);
     }
 
     public synchronized final long getStartTime() {
@@ -291,7 +322,7 @@ public abstract class AbstractManagedObject extends NotificationBroadcasterSuppo
             }
             setStateInstance(State.STARTING);
         }
-        doNotification(State.STARTING.getEventTypeValue());
+        sendNotification(State.STARTING.getEventTypeValue());
 
         State newState = null;
         try {
@@ -317,7 +348,7 @@ public abstract class AbstractManagedObject extends NotificationBroadcasterSuppo
             }
         } finally {
             if (newState != null) {
-                doNotification(newState.getEventTypeValue());
+                sendNotification(newState.getEventTypeValue());
             }
         }
     }
@@ -343,7 +374,7 @@ public abstract class AbstractManagedObject extends NotificationBroadcasterSuppo
             }
             setStateInstance(State.STOPPING);
         }
-        doNotification(State.STOPPING.getEventTypeValue());
+        sendNotification(State.STOPPING.getEventTypeValue());
 
         // Don't try to stop dependents from within a synchronized block... this should reduce deadlocks
 
@@ -389,7 +420,7 @@ public abstract class AbstractManagedObject extends NotificationBroadcasterSuppo
             }
         } finally {
             if (newState != null) {
-                doNotification(newState.getEventTypeValue());
+                sendNotification(newState.getEventTypeValue());
             }
         }
     }
@@ -475,7 +506,7 @@ public abstract class AbstractManagedObject extends NotificationBroadcasterSuppo
         }
     }
 
-    public final int getState() {
+    public int getState() {
         return state.toInt();
     }
 
@@ -615,7 +646,7 @@ public abstract class AbstractManagedObject extends NotificationBroadcasterSuppo
             }
         } finally {
             if (newState != null) {
-                doNotification(newState.getEventTypeValue());
+                sendNotification(newState.getEventTypeValue());
             }
         }
     }
@@ -734,6 +765,9 @@ public abstract class AbstractManagedObject extends NotificationBroadcasterSuppo
     }
 
     public String toString() {
+        if (objectName == null) {
+            return super.toString();
+        }
         return objectName.toString();
     }
 }
