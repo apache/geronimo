@@ -22,7 +22,6 @@ import java.security.Permission;
 import java.security.PermissionCollection;
 import java.security.Policy;
 import java.security.ProtectionDomain;
-import javax.security.jacc.PolicyConfigurationFactory;
 import javax.security.jacc.PolicyContext;
 import javax.security.jacc.PolicyContextException;
 
@@ -36,11 +35,27 @@ public class GeronimoPolicy extends Policy {
     private boolean loaded;
 
     public GeronimoPolicy() {
-        this(null);
-    }
+        String provider = System.getProperty("org.apache.geronimo.jacc.policy.provider");
 
-    public GeronimoPolicy(Policy root) {
-        this.root = root;
+        if (provider == null) {
+            root = Policy.getPolicy();
+        } else {
+            try {
+                Object obj = Class.forName(provider).newInstance();
+                if (obj instanceof Policy) {
+                    root = (Policy) obj;
+                } else {
+                    throw new RuntimeException(provider + "is not a type of java.security.Policy");
+                }
+            } catch (InstantiationException e) {
+                throw new RuntimeException("Unable to create an instance of " + provider, e);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException("Unable to create an instance of " + provider, e);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException("Unable to create an instance of " + provider, e);
+            }
+        }
+        root.refresh();
     }
 
     public PermissionCollection getPermissions(CodeSource codesource) {
@@ -53,7 +68,7 @@ public class GeronimoPolicy extends Policy {
     public boolean implies(ProtectionDomain domain, Permission permission) {
 
         if (!loaded) {
-            factory = obtainFactory();
+            factory = GeronimoPolicyConfigurationFactory.getSingleton();
             loaded = true;
         }
 
@@ -75,15 +90,5 @@ public class GeronimoPolicy extends Policy {
         if (root != null) return root.implies(domain, permission);
 
         return false;
-    }
-
-    private GeronimoPolicyConfigurationFactory obtainFactory() {
-        GeronimoPolicyConfigurationFactory result = null;
-        try {
-            result = (GeronimoPolicyConfigurationFactory) PolicyConfigurationFactory.getPolicyConfigurationFactory();
-        } catch (ClassNotFoundException e) {
-        } catch (PolicyContextException e) {
-        }
-        return result;
     }
 }
