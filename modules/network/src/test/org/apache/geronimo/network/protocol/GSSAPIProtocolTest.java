@@ -31,7 +31,7 @@ import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Properties;
 
-import EDU.oswego.cs.dl.util.concurrent.Mutex;
+import EDU.oswego.cs.dl.util.concurrent.Latch;
 import junit.framework.TestCase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -48,7 +48,7 @@ import org.apache.geronimo.system.ThreadPool;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:15 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/13 16:50:18 $
  */
 public class GSSAPIProtocolTest extends TestCase {
 
@@ -58,8 +58,9 @@ public class GSSAPIProtocolTest extends TestCase {
     private Subject clientSubject;
     private Subject serverSubject;
     private boolean hasKerberos = false;
-    private Mutex startMutex = new Mutex();
-    private Mutex shutdownMutex = new Mutex();
+    private Latch startLatch;
+    private Latch shutdownLatch;
+    private Latch stopLatch;
     private ThreadGroup threadGroup;
 
     public void testDummy() throws Exception {
@@ -68,15 +69,14 @@ public class GSSAPIProtocolTest extends TestCase {
     public void test() throws Exception {
         if (!hasKerberos) return;
 
-        shutdownMutex.acquire();
-
         new Thread(threadGroup, new ServerThread(serverSubject), "Geronimo server").start();
 
-        startMutex.acquire();
-        startMutex.release();
+        startLatch.acquire();
 
         PrivilegedExceptionAction clientAction = new ClientAction();
         Subject.doAs(clientSubject, clientAction);
+
+        stopLatch.acquire();
     }
 
     class ClientAction implements PrivilegedExceptionAction {
@@ -128,13 +128,15 @@ public class GSSAPIProtocolTest extends TestCase {
 
             clientStack.doStop();
 
-            shutdownMutex.release();
+            shutdownLatch.release();
 
             sm.doStop();
 
             cp.doStop();
 
             tp.doStop();
+
+            stopLatch.release();
 
             return null;
         }
@@ -235,9 +237,9 @@ public class GSSAPIProtocolTest extends TestCase {
             ssa.setAcceptorListener(pf);
             ssa.doStart();
 
-            startMutex.release();
+            startLatch.release();
 
-            shutdownMutex.acquire();
+            shutdownLatch.acquire();
 
             ssa.doStop();
 
@@ -249,13 +251,14 @@ public class GSSAPIProtocolTest extends TestCase {
 
             tp.doStop();
 
-            shutdownMutex.release();
-
             return null;
         }
     }
 
     public void setUp() throws Exception {
+        startLatch = new Latch();
+        shutdownLatch = new Latch();
+        stopLatch = new Latch();
         try {
             properties = new Properties();
             try {

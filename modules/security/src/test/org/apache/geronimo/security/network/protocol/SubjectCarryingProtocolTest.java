@@ -32,7 +32,7 @@ import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import EDU.oswego.cs.dl.util.concurrent.Mutex;
+import EDU.oswego.cs.dl.util.concurrent.Latch;
 import com.sun.security.auth.login.ConfigFile;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -57,7 +57,7 @@ import org.apache.geronimo.system.ThreadPool;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:27 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/13 16:49:47 $
  */
 public class SubjectCarryingProtocolTest extends AbstractTest {
 
@@ -68,8 +68,9 @@ public class SubjectCarryingProtocolTest extends AbstractTest {
 
     private Subject clientSubject;
     private Subject serverSubject;
-    private Mutex startMutex = new Mutex();
-    private Mutex shutdownMutex = new Mutex();
+    private Latch startLatch;
+    private Latch shutdownLatch;
+    private Latch stopLatch;
     private ThreadGroup threadGroup;
 
     public void testDummy() throws Exception {
@@ -77,15 +78,14 @@ public class SubjectCarryingProtocolTest extends AbstractTest {
 
     public void test() throws Exception {
 
-        shutdownMutex.acquire();
-
         new Thread(threadGroup, new ServerThread(serverSubject), "Geronimo server").start();
 
-        startMutex.acquire();
-        startMutex.release();
+        startLatch.acquire();
 
         PrivilegedExceptionAction clientAction = new ClientAction();
         Subject.doAs(clientSubject, clientAction);
+
+        stopLatch.acquire();
     }
 
     class ClientAction implements PrivilegedExceptionAction {
@@ -136,13 +136,15 @@ public class SubjectCarryingProtocolTest extends AbstractTest {
 
             clientStack.doStop();
 
-            shutdownMutex.release();
+            shutdownLatch.release();
 
             sm.doStop();
 
             cp.doStop();
 
             tp.doStop();
+
+            stopLatch.release();
 
             return null;
         }
@@ -238,9 +240,9 @@ public class SubjectCarryingProtocolTest extends AbstractTest {
             ssa.setAcceptorListener(pf);
             ssa.doStart();
 
-            startMutex.release();
+            startLatch.release();
 
-            shutdownMutex.acquire();
+            shutdownLatch.acquire();
 
             ssa.doStop();
 
@@ -252,14 +254,16 @@ public class SubjectCarryingProtocolTest extends AbstractTest {
 
             tp.doStop();
 
-            shutdownMutex.release();
-
             return null;
         }
     }
 
     public void setUp() throws Exception {
         Configuration.setConfiguration(new GeronimoLoginConfiguration());
+
+        startLatch = new Latch();
+        shutdownLatch = new Latch();
+        stopLatch = new Latch();
 
         super.setUp();
 
