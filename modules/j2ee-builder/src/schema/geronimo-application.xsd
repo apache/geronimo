@@ -25,7 +25,7 @@
     attributeFormDefault="unqualified"
     version="1.0">
 
-    <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment" schemaLocation="../../../service-builder/src/schema/geronimo-common.xsd"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment" schemaLocation="../../../service-builder/src/schema/geronimo-config.xsd"/>
 
     <xs:element name="application" type="geronimo:applicationType"/>
 
