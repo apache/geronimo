@@ -76,6 +76,7 @@ import org.apache.geronimo.remoting.router.InterceptorRegistryRouter;
 import org.apache.geronimo.remoting.router.SubsystemRouter;
 import org.apache.geronimo.remoting.transport.RemoteTransportInterceptor;
 import org.apache.geronimo.remoting.transport.URISupport;
+import org.apache.geronimo.core.service.Interceptor;
 
 import EDU.oswego.cs.dl.util.concurrent.ClockDaemon;
 import EDU.oswego.cs.dl.util.concurrent.Executor;
@@ -86,7 +87,7 @@ import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
  * An application wide registry to hold objects that
  * must be shared accross application components. 
  * 
- * @version $Revision: 1.3 $ $Date: 2003/11/23 10:56:35 $
+ * @version $Revision: 1.4 $ $Date: 2003/11/26 20:54:29 $
  */
 public class Registry {
 
@@ -226,7 +227,6 @@ public class Registry {
      * Sets the application wide server.  This gets called when running
      * in the sever and the server is explicity configured.
      * 
-     * @param server
      */
     synchronized public AbstractServer getDefaultServer() {
         return defaultServer;
@@ -256,7 +256,6 @@ public class Registry {
     }
 
     /**
-     * @param proxy
      * @return
      */
     public RemoteRef exportObject(Object object) throws IOException {
@@ -268,14 +267,11 @@ public class Registry {
         if (eo == null) {
 
             // Setup the server side contianer..
-            DeMarshalingInterceptor demarshaller = new DeMarshalingInterceptor();
-            demarshaller.setClassloader(object.getClass().getClassLoader());
-            Long dmiid = InterceptorRegistry.instance.register(demarshaller);
-
             eo = new ExportedObject();
-            eo.serverContainer = new ProxyContainer();
-            eo.serverContainer.addInterceptor(demarshaller);
-            eo.serverContainer.addInterceptor(new ReflexiveInterceptor(object));
+            Interceptor ri = new ReflexiveInterceptor(object);
+            DeMarshalingInterceptor demarshaller = new DeMarshalingInterceptor(ri, object.getClass().getClassLoader());
+            Long dmiid = InterceptorRegistry.instance.register(demarshaller);
+            eo.serverContainer = new ProxyContainer(demarshaller);
 
             // Build the RemoteRef for the object.
             eo.remoteRef = new RemoteRef();
@@ -307,7 +303,6 @@ public class Registry {
     Map importedObjects = new WeakHashMap();
 
     /**
-     * @param obj
      * @return
      */
     synchronized protected Object importObject(RemoteRef ref) {
@@ -315,13 +310,11 @@ public class Registry {
         Object object = importedObjects.get(ref);
         if (object == null) {
 
-            RemoteTransportInterceptor transport = new RemoteTransportInterceptor();
-            transport.setRemoteURI(ref.remoteURI);
+            RemoteTransportInterceptor transport = new RemoteTransportInterceptor(ref.remoteURI);
+            MarshalingInterceptor mashaller = new MarshalingInterceptor(transport);
+            IdentityInterceptor identity = new IdentityInterceptor(mashaller, ref);
 
-            ProxyContainer clientContainer = new ProxyContainer();
-            clientContainer.addInterceptor(new IdentityInterceptor(ref));
-            clientContainer.addInterceptor(new MarshalingInterceptor());
-            clientContainer.addInterceptor(transport);
+            ProxyContainer clientContainer = new ProxyContainer(identity);
 
             object = clientContainer.createProxy(Thread.currentThread().getContextClassLoader(), ref.interfaces);
             log.trace("Imported object: "+ref.remoteURI);

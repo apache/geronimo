@@ -61,20 +61,22 @@ import javax.management.NotificationFilter;
 import javax.management.NotificationListener;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.core.service.AbstractInterceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.proxy.ProxyInvocation;
 import org.apache.geronimo.remoting.transport.TransportFactory;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2003/11/19 11:15:03 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/26 20:54:29 $
  */
-public class NotificationRemoterInterceptor extends AbstractInterceptor {
+public class NotificationRemoterInterceptor implements Interceptor {
+    private final Interceptor next;
 
-    /**
-     * @see org.apache.geronimo.core.service.AbstractInterceptor#invoke(org.apache.geronimo.core.service.Invocation)
-     */
+    public NotificationRemoterInterceptor(Interceptor next) {
+        this.next = next;
+    }
+
     public InvocationResult invoke(Invocation invocation) throws Throwable {
         Method method = ProxyInvocation.getMethod(invocation);
         Object[] args = ProxyInvocation.getArguments(invocation);
@@ -94,7 +96,7 @@ public class NotificationRemoterInterceptor extends AbstractInterceptor {
             NotificationListener nl = (NotificationListener) args[1];
             TransportFactory.unexport(nl);
         }
-        return getNext().invoke(invocation);
+        return next.invoke(invocation);
     }
 
     /**

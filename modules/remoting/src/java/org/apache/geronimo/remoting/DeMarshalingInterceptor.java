@@ -63,12 +63,21 @@ import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2003/11/19 11:15:03 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/26 20:54:28 $
  */
 public class DeMarshalingInterceptor implements Interceptor {
 
     private ClassLoader classloader;
     private Interceptor next;
+
+    public DeMarshalingInterceptor(Interceptor next) {
+        this.next = next;
+    }
+
+    public DeMarshalingInterceptor(Interceptor next, ClassLoader classloader) {
+        this.next = next;
+        this.classloader = classloader;
+    }
 
     public static class ThrowableWrapper implements Serializable {
         ThrowableWrapper(Throwable exception) {
@@ -91,9 +100,6 @@ public class DeMarshalingInterceptor implements Interceptor {
         this.classloader = classloader;
     }
 
-    /**
-     * @see org.apache.geronimo.core.service.AbstractInterceptor#invoke(org.apache.geronimo.core.service.Invocation)
-     */
     public InvocationResult invoke(Invocation invocation) throws Throwable {
         Thread currentThread = Thread.currentThread();
         ClassLoader orig = currentThread.getContextClassLoader();
@@ -111,7 +117,7 @@ public class DeMarshalingInterceptor implements Interceptor {
             }
 
             try {
-                InvocationResult rc = getNext().invoke(marshalledInvocation);
+                InvocationResult rc = next.invoke(marshalledInvocation);
                 mo.set(rc.getResult());
                 return new SimpleInvocationResult(true, mo);
             } catch (Throwable e) {
@@ -130,13 +136,6 @@ public class DeMarshalingInterceptor implements Interceptor {
      */
     public Interceptor getNext() {
         return next;
-    }
-
-    /* (non-Javadoc)
-     * @see org.apache.geronimo.core.service.Interceptor#setNext(org.apache.geronimo.core.service.Interceptor)
-     */
-    public void setNext(Interceptor interceptor) throws IllegalStateException {
-        next = interceptor;
     }
 
 }

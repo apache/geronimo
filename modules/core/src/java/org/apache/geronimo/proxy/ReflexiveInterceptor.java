@@ -58,15 +58,15 @@ package org.apache.geronimo.proxy;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import org.apache.geronimo.core.service.AbstractInterceptor;
+import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2003/11/11 21:53:27 $
+ * @version $Revision: 1.5 $ $Date: 2003/11/26 20:54:28 $
  */
-public class ReflexiveInterceptor extends AbstractInterceptor {
+public class ReflexiveInterceptor implements Interceptor {
 
     Object target;
 
@@ -74,9 +74,6 @@ public class ReflexiveInterceptor extends AbstractInterceptor {
         this.target = target;
     }
 
-    /* (non-Javadoc)
-     * @see org.apache.geronimo.core.service.AbstractInterceptor#invoke(org.apache.geronimo.core.service.Invocation)
-     */
     public InvocationResult invoke(Invocation invocation) throws Throwable {
         try {
 

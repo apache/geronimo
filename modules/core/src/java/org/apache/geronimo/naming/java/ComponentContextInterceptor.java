@@ -55,7 +55,7 @@
  */
 package org.apache.geronimo.naming.java;
 
-import org.apache.geronimo.core.service.AbstractInterceptor;
+import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
 
@@ -63,16 +63,18 @@ import org.apache.geronimo.core.service.InvocationResult;
  * An interceptor that pushes the current component's java:comp context into
  * the java: JNDI namespace
  *
- * @version $Revision: 1.4 $ $Date: 2003/09/08 04:29:53 $
+ * @version $Revision: 1.5 $ $Date: 2003/11/26 20:54:28 $
  */
-public class ComponentContextInterceptor extends AbstractInterceptor {
+public class ComponentContextInterceptor implements Interceptor {
+    private final Interceptor next;
     private final ReadOnlyContext compContext;
 
     /**
      * Constructor specifying the components JNDI Context (java:comp)
      * @param compContext the component's JNDI Context
      */
-    public ComponentContextInterceptor(ReadOnlyContext compContext) {
+    public ComponentContextInterceptor(Interceptor next, ReadOnlyContext compContext) {
+        this.next = next;
         this.compContext = compContext;
     }
 
@@ -80,7 +82,7 @@ public class ComponentContextInterceptor extends AbstractInterceptor {
         ReadOnlyContext oldContext = RootContext.getComponentContext();
         try {
             RootContext.setComponentContext(compContext);
-            return getNext().invoke(invocation);
+            return next.invoke(invocation);
         } finally {
             RootContext.setComponentContext(oldContext);
         }

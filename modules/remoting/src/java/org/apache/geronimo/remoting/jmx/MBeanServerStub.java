@@ -64,7 +64,7 @@ import org.apache.geronimo.remoting.DeMarshalingInterceptor;
 import org.apache.geronimo.remoting.router.JMXTarget;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2003/11/16 06:47:52 $
+ * @version $Revision: 1.4 $ $Date: 2003/11/26 20:54:29 $
  */
 public class MBeanServerStub
         implements GeronimoMBeanTarget, JMXTarget {
@@ -79,13 +79,9 @@ public class MBeanServerStub
     public void doStart() {
 
         // Setup the server side contianer..
-        serverContainer = new ProxyContainer();
-        demarshaller = new DeMarshalingInterceptor();
-        serverContainer.addInterceptor(demarshaller);
-        serverContainer.addInterceptor(new ReflexiveInterceptor(geronimoMBeanContext.getServer()));
-
-        // Configure the server side interceptors.
-        demarshaller.setClassloader(getClass().getClassLoader());
+        Interceptor firstInterceptor = new ReflexiveInterceptor(geronimoMBeanContext.getServer());
+        firstInterceptor = new DeMarshalingInterceptor(firstInterceptor, getClass().getClassLoader());
+        serverContainer = new ProxyContainer(firstInterceptor);
     }
 
     /**
@@ -97,7 +93,7 @@ public class MBeanServerStub
     }
 
     /**
-     * @see org.apache.geronimo.remoting.router.JMXTargetMBean#getRemotingEndpointInterceptor()
+     * @see org.apache.geronimo.remoting.router.JMXTarget#getRemotingEndpointInterceptor()
      */
     public Interceptor getRemotingEndpointInterceptor() {
         return demarshaller;

@@ -68,7 +68,7 @@ import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.RPCContainer;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2003/09/08 04:31:39 $
+ * @version $Revision: 1.4 $ $Date: 2003/11/26 20:54:28 $
  */
 public class SimpleRPCContainer extends SimpleContainer implements RPCContainer {
 
@@ -77,29 +77,15 @@ public class SimpleRPCContainer extends SimpleContainer implements RPCContainer 
     private final LinkedList interceptors = new LinkedList();
     private Interceptor firstInterceptor;
 
+    public SimpleRPCContainer(Interceptor firstInterceptor) {
+        this.firstInterceptor = firstInterceptor;
+    }
+
     /**
     * @see org.apache.geronimo.core.service.RPCContainer#invoke(org.apache.geronimo.core.service.Invocation)
     */
     public final InvocationResult invoke(Invocation invocation) throws Throwable {
         return firstInterceptor.invoke(invocation);
-    }
-
-    /**
-     * Add an Interceptor to the end of the Interceptor list.
-     *
-     * @param interceptor
-     */
-    public final void addInterceptor(Interceptor interceptor) {
-        if (firstInterceptor == null) {
-            firstInterceptor = interceptor;
-            interceptors.addLast(interceptor);
-        } else {
-            Interceptor lastInterceptor = (Interceptor) interceptors.getLast();
-            lastInterceptor.setNext(interceptor);
-            interceptors.addLast(interceptor);
-        }
-        if (interceptor instanceof Component)
-            addComponent((Component) interceptor);
     }
 
     public final ObjectName getPlugin(String logicalPluginName) {

@@ -66,13 +66,19 @@ import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.remoting.transport.NullTransportInterceptor;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2003/11/19 11:15:03 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/26 20:54:28 $
  */
 public class IntraVMRoutingInterceptor implements Interceptor, Externalizable {
 
     Long deMarshalingInterceptorID;
     boolean allwaysMarshall=false;
     transient Interceptor next;
+
+    public IntraVMRoutingInterceptor(Interceptor next, Long deMarshalingInterceptorID, boolean allwaysMarshall) {
+        this.next = next;
+        this.deMarshalingInterceptorID = deMarshalingInterceptorID;
+        this.allwaysMarshall = allwaysMarshall;
+    }
 
     public IntraVMRoutingInterceptor() {
     }
@@ -82,9 +88,6 @@ public class IntraVMRoutingInterceptor implements Interceptor, Externalizable {
         this.allwaysMarshall = allwaysMarshall;
     }
 
-    /**
-     * @see org.apache.geronimo.core.service.AbstractInterceptor#invoke(org.apache.geronimo.core.service.Invocation)
-     */
     public InvocationResult invoke(Invocation invocation) throws Throwable {
         return next.invoke(invocation);
     }
@@ -111,16 +114,7 @@ public class IntraVMRoutingInterceptor implements Interceptor, Externalizable {
             // Then we can avoid demarshalling/marshalling
             next = deMarshalingInterceptor.getNext();
         } else {
-
-            // We have to marshall first..
-            next = new MarshalingInterceptor();
-
-            // Then transport...
-            NullTransportInterceptor tansport = new NullTransportInterceptor();
-            next.setNext(tansport);
-
-            // then demarshall
-            tansport.setNext(deMarshalingInterceptor);
+            next = new MarshalingInterceptor(new NullTransportInterceptor(deMarshalingInterceptor));
         }
     }
 
@@ -137,20 +131,6 @@ public class IntraVMRoutingInterceptor implements Interceptor, Externalizable {
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         deMarshalingInterceptorID = new Long(in.readLong());
         resolveNext();
-    }
-
-    /**
-     * @see org.apache.geronimo.core.service.Interceptor#getNext()
-     */
-    public Interceptor getNext() {
-        return next;
-    }
-
-    /**
-     * @see org.apache.geronimo.core.service.Interceptor#setNext(org.apache.geronimo.core.service.Interceptor)
-     */
-    public void setNext(Interceptor interceptor) throws IllegalStateException {
-        this.next = interceptor;
     }
 
     /**

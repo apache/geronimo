@@ -58,7 +58,7 @@ package org.apache.geronimo.client;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import org.apache.geronimo.core.service.AbstractInterceptor;
+import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
@@ -67,9 +67,9 @@ import org.apache.geronimo.proxy.ProxyInvocation;
 /**
  * Basic invoker for the main method of an Application Client
  * 
- * @version $Revision: 1.4 $ $Date: 2003/09/08 04:22:23 $
+ * @version $Revision: 1.5 $ $Date: 2003/11/26 20:54:27 $
  */
-public class MainInvokerInterceptor extends AbstractInterceptor {
+public class MainInvokerInterceptor implements Interceptor {
     private final Method mainMethod;
 
     public MainInvokerInterceptor(Method mainMethod) {
@@ -80,11 +80,11 @@ public class MainInvokerInterceptor extends AbstractInterceptor {
         assert (mainMethod.equals(ProxyInvocation.getMethod(invocation)));
         Object[] args = ProxyInvocation.getArguments(invocation);
         try {
-            return new SimpleInvocationResult(mainMethod.invoke(null, args));
+            return new SimpleInvocationResult(true, mainMethod.invoke(null, args));
         } catch (InvocationTargetException e) {
             Throwable cause = e.getCause();
             if (cause instanceof Exception && cause instanceof RuntimeException == false) {
-                return new SimpleInvocationResult((Exception)cause);
+                return new SimpleInvocationResult(false, cause);
             }
             throw cause;
         }

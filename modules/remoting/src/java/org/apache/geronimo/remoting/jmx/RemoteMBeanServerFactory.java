@@ -52,9 +52,10 @@ import javax.management.MBeanServer;
 import org.apache.geronimo.proxy.ProxyContainer;
 import org.apache.geronimo.remoting.MarshalingInterceptor;
 import org.apache.geronimo.remoting.transport.RemoteTransportInterceptor;
+import org.apache.geronimo.core.service.Interceptor;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2003/11/19 11:15:03 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/26 20:54:29 $
  */
 public class RemoteMBeanServerFactory extends org.apache.geronimo.enterprise.deploy.server.RemoteMBeanServerFactory {
 
@@ -75,13 +76,11 @@ public class RemoteMBeanServerFactory extends org.apache.geronimo.enterprise.dep
     static public MBeanServer create(URI target) {
 
         // Setup the client side container..
-        ProxyContainer clientContainer = new ProxyContainer();
-        clientContainer.addInterceptor(new NotificationRemoterInterceptor());
-        clientContainer.addInterceptor(new MarshalingInterceptor());
-        RemoteTransportInterceptor transport = new RemoteTransportInterceptor();
-        transport.setRemoteURI(target);
-        clientContainer.addInterceptor(transport);
+        Interceptor firstInterceptor = new RemoteTransportInterceptor(target);
+        firstInterceptor = new MarshalingInterceptor(firstInterceptor);
+        firstInterceptor = new NotificationRemoterInterceptor(firstInterceptor);
 
+        ProxyContainer clientContainer = new ProxyContainer(firstInterceptor);
         return (MBeanServer) clientContainer.createProxy(
             MBeanServer.class.getClassLoader(),
             new Class[] { MBeanServer.class });

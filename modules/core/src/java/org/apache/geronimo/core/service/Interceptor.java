@@ -60,24 +60,9 @@ package org.apache.geronimo.core.service;
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:25:19 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/26 20:54:27 $
  */
 public interface Interceptor {
-    /**
-     * Gets the next interceptor in the chain of command.
-     *
-     * @return the next interceptor in the chain or null if it is the last interceptor
-     */
-    Interceptor getNext();
-
-    /**
-     * Sets the next interceptor in the chain.  This command can not be called
-     * after the interceptor has transitioned into the created state.
-     *
-     * @param interceptor the next interceptor in the chain
-     * @throws java.lang.IllegalStateException if this interceptor is not in the not-create state
-     */
-    void setNext(Interceptor interceptor) throws IllegalStateException;
 
     /**
      * Interceptor does a little work for the invocation and then invokes the next interceptor

@@ -67,7 +67,7 @@ import org.apache.geronimo.core.service.InvocationResult;
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:25:19 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/26 20:54:27 $
  */
 public interface RPCContainer extends Container {
     //
@@ -75,12 +75,6 @@ public interface RPCContainer extends Container {
     //
     InvocationResult invoke(Invocation invocation) throws Throwable;
 
-
-    /**
-     * Add an interceptor to the interceptor stack
-     * @param interceptor
-     */
-    void addInterceptor (Interceptor interceptor);
 
     /**
      * Get the JMX object name of the logical plugin.

@@ -58,10 +58,10 @@ package org.apache.geronimo.proxy;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.lang.reflect.UndeclaredThrowableException;
 
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.core.service.Interceptor;
 
 /**
  * A local container that is a proxy for some other "real" container.
@@ -70,9 +70,13 @@ import org.apache.geronimo.core.service.InvocationResult;
  * server on every request).  For example, see
  * {@link org.apache.geronimo.remoting.jmx.RemoteMBeanServerFactory}
  *
- * @version $Revision: 1.6 $ $Date: 2003/11/16 05:26:32 $
+ * @version $Revision: 1.7 $ $Date: 2003/11/26 20:54:28 $
  */
 public class ProxyContainer extends SimpleRPCContainer implements InvocationHandler {
+
+    public ProxyContainer(Interceptor firstInterceptor) {
+        super(firstInterceptor);
+    }
 
     /**
      * @see java.lang.reflect.InvocationHandler#invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object[])

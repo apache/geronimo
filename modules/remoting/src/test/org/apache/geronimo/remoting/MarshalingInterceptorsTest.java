@@ -77,7 +77,7 @@ import org.apache.geronimo.remoting.transport.BytesMarshalledObject;
  * This test uses 2 classloaders to mock 2 seperate
  * application classloaders.
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/16 05:27:34 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/26 20:54:29 $
  */
 
 public class MarshalingInterceptorsTest extends TestCase {
@@ -278,8 +278,6 @@ public class MarshalingInterceptorsTest extends TestCase {
      * Does a reflexive call on object1 my calling method with the provided args.
      * 
      * @param object1
-     * @param string
-     * @param objects
      */
     private Object call(Object object1, String method, Object[] args) throws Throwable {
         try {
@@ -294,7 +292,6 @@ public class MarshalingInterceptorsTest extends TestCase {
     /**
      * Gets the Class[] for a given Object[] using the provided loader.
      * 
-     * @param object1
      * @param args
      * @return
      */
@@ -322,30 +319,21 @@ public class MarshalingInterceptorsTest extends TestCase {
     }
 
     /**
-      * @param object1
       * @return
       */
     private Object createProxy(Object target) throws Exception {
         
-        // Setup the server side contianer..        
-        ProxyContainer serverContainer = new ProxyContainer();        
-        DeMarshalingInterceptor demarshaller = new DeMarshalingInterceptor();
-        serverContainer.addInterceptor(demarshaller);      
-        serverContainer.addInterceptor(new ReflexiveInterceptor(target));
-        
+        // Setup the server side contianer..
+        ReflexiveInterceptor ri = new ReflexiveInterceptor(target);
+        DeMarshalingInterceptor demarshaller = new DeMarshalingInterceptor(ri, target.getClass().getClassLoader());
+        ProxyContainer serverContainer = new ProxyContainer(demarshaller);
+
         // Configure the server side interceptors.
-        demarshaller.setClassloader(target.getClass().getClassLoader());
         Long dmiid = InterceptorRegistry.instance.register(demarshaller);
         
         // Setup the client side container..        
-        ProxyContainer clientContainer = new ProxyContainer();
-        IntraVMRoutingInterceptor localRouter = new IntraVMRoutingInterceptor();
-        clientContainer.addInterceptor(localRouter);
-
-        // Configure the client side interceptors.
-        localRouter.setDeMarshalingInterceptorID(dmiid);
-        localRouter.setNext(demarshaller.getNext());
-        
+        IntraVMRoutingInterceptor localRouter = new IntraVMRoutingInterceptor(ri, dmiid, false);
+        ProxyContainer clientContainer = new ProxyContainer(localRouter);
         return clientContainer.createProxy(target.getClass().getClassLoader(), target.getClass().getInterfaces());
     }
 

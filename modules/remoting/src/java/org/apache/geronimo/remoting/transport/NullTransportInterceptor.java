@@ -62,31 +62,18 @@ import org.apache.geronimo.remoting.MarshalledObject;
 import org.apache.geronimo.remoting.TransportInterceptor;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/11/16 05:27:27 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/26 20:54:29 $
  */
 public class NullTransportInterceptor implements TransportInterceptor {
 
     private Interceptor next;
 
-    /**
-     * @see org.apache.geronimo.core.service.AbstractInterceptor#invoke(org.apache.geronimo.core.service.Invocation)
-     */
+    public NullTransportInterceptor(Interceptor next) {
+        this.next = next;
+    }
+
     public InvocationResult invoke(Invocation invocation) throws Throwable {
-        return getNext().invoke(invocation);
-    }
-
-    /**
-     * @see org.apache.geronimo.core.service.Interceptor#getNext()
-     */
-    public Interceptor getNext() {
-        return next;
-    }
-
-    /**
-     * @see org.apache.geronimo.core.service.Interceptor#setNext(org.apache.geronimo.core.service.Interceptor)
-     */
-    public void setNext(Interceptor interceptor) throws IllegalStateException {
-        next = interceptor;
+        return next.invoke(invocation);
     }
 
     /**

@@ -55,12 +55,11 @@
  */
 package org.apache.geronimo.security;
 
-import org.apache.geronimo.core.service.AbstractInterceptor;
-import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.core.service.Invocation;
-import org.apache.geronimo.ejb.EJBInvocationUtil;
-
 import javax.security.jacc.PolicyContext;
+
+import org.apache.geronimo.core.service.Interceptor;
+import org.apache.geronimo.core.service.Invocation;
+import org.apache.geronimo.core.service.InvocationResult;
 
 
 /**
@@ -70,25 +69,30 @@ import javax.security.jacc.PolicyContext;
  * seperate interceptor as a optimization for those policy providers that do
  * not need such fine grained control over method invocations.
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/08 06:26:55 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/26 20:54:28 $
  * @see PolicyContextHandlerEnterpriseBean
  * @see PolicyContextHandlerEJBArguments
  * @see EJBSecurityInterceptor
  */
-public class PolicyContextHandlerEJBInterceptor extends AbstractInterceptor {
+public class PolicyContextHandlerEJBInterceptor implements Interceptor {
+    private final Interceptor next;
+
+    public PolicyContextHandlerEJBInterceptor(Interceptor next) {
+        this.next = next;
+    }
 
     public InvocationResult invoke(final Invocation invocation) throws Throwable {
 
         PolicyContextHandlerDataEJB data = new PolicyContextHandlerDataEJB();
 
-        data.arguments = EJBInvocationUtil.getArguments(invocation);
-        data.bean = EJBInvocationUtil.getEnterpriseContext(invocation).getInstance();
+//        data.arguments = EJBInvocationUtil.getArguments(invocation);
+//        data.bean = EJBInvocationUtil.getEnterpriseContext(invocation).getInstance();
 
         PolicyContext.setHandlerData(data);
 
         InvocationResult result;
         try {
-            result = getNext().invoke(invocation);
+            result = next.invoke(invocation);
         } finally {
             PolicyContext.setHandlerData(null);
         }

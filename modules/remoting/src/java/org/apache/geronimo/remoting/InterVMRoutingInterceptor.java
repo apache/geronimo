@@ -65,7 +65,7 @@ import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/11/16 05:27:27 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/26 20:54:28 $
  */
 public class InterVMRoutingInterceptor implements Interceptor, Externalizable {
 
@@ -77,14 +77,12 @@ public class InterVMRoutingInterceptor implements Interceptor, Externalizable {
     public InterVMRoutingInterceptor() {
     }
 
-    public InterVMRoutingInterceptor(TransportInterceptor transportInterceptor, Interceptor localInterceptor) {
-        this.transportInterceptor = transportInterceptor;
+    public InterVMRoutingInterceptor(Interceptor transportInterceptor, Interceptor localInterceptor) {
+        this.transportInterceptor = (TransportInterceptor) transportInterceptor;
         this.localInterceptor = localInterceptor;
+        next = localInterceptor;
     }
 
-    /**
-     * @see org.apache.geronimo.core.service.AbstractInterceptor#invoke(org.apache.geronimo.core.service.Invocation)
-     */
     public InvocationResult invoke(Invocation invocation) throws Throwable {
         return next.invoke(invocation);
     }
@@ -110,8 +108,7 @@ public class InterVMRoutingInterceptor implements Interceptor, Externalizable {
             next = localInterceptor;
         } else {
             // We have to marshall first..
-            next = new MarshalingInterceptor();
-            next.setNext(transportInterceptor);
+            next = new MarshalingInterceptor(transportInterceptor);
         }
     }
     
@@ -160,20 +157,6 @@ public class InterVMRoutingInterceptor implements Interceptor, Externalizable {
      */
     public void setTargetVMID(String targetVMID) {
         this.targetVMID = targetVMID;
-    }
-
-    /**
-     * @see org.apache.geronimo.core.service.Interceptor#getNext()
-     */
-    public Interceptor getNext() {
-        return next;
-    }
-
-    /**
-     * @see org.apache.geronimo.core.service.Interceptor#setNext(org.apache.geronimo.core.service.Interceptor)
-     */
-    public void setNext(Interceptor interceptor) throws IllegalStateException {
-        this.next = interceptor;
     }
 
 }

@@ -55,29 +55,19 @@
  */
 package org.apache.geronimo.security;
 
-import org.apache.geronimo.core.service.AbstractInterceptor;
-import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.core.service.Invocation;
-import org.apache.geronimo.ejb.EJBInvocationUtil;
-import org.apache.geronimo.ejb.container.EJBPlugins;
-import org.apache.geronimo.ejb.metadata.EJBMetadata;
-import org.apache.geronimo.ejb.metadata.MethodMetadata;
-import org.apache.geronimo.security.util.ContextManager;
-
-import javax.security.jacc.PolicyContext;
 import javax.security.auth.Subject;
-import javax.ejb.EJBException;
-import java.lang.reflect.Method;
-import java.security.AccessControlContext;
+
+import org.apache.geronimo.core.service.Interceptor;
+import org.apache.geronimo.core.service.Invocation;
+import org.apache.geronimo.core.service.InvocationResult;
 
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/12 04:31:55 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/26 20:54:28 $
  */
-public class EJBSecurityInterceptor extends AbstractInterceptor {
+public class EJBSecurityInterceptor implements Interceptor {
     private Subject runAsSubject;
-    private EJBMetadata ejbMetadata;
     private GeronimoPolicyConfiguration policyConfiguration;
 
     public Subject getRunAsSubject() {
@@ -86,14 +76,6 @@ public class EJBSecurityInterceptor extends AbstractInterceptor {
 
     public void setRunAsSubject(Subject runAsSubject) {
         this.runAsSubject = runAsSubject;
-    }
-
-    public EJBMetadata getEjbMetadata() {
-        return ejbMetadata;
-    }
-
-    public void setEjbMetadata(EJBMetadata ejbMetadata) {
-        this.ejbMetadata = ejbMetadata;
     }
 
     public GeronimoPolicyConfiguration getPolicyConfiguration() {
@@ -105,7 +87,8 @@ public class EJBSecurityInterceptor extends AbstractInterceptor {
     }
 
     public InvocationResult invoke(Invocation invocation) throws Throwable {
-
+        throw new UnsupportedOperationException();
+/*
         AccessControlContext context;
         if (runAsSubject != null) {
             ContextManager.pushSubject(runAsSubject);
@@ -137,5 +120,6 @@ public class EJBSecurityInterceptor extends AbstractInterceptor {
             if (runAsSubject != null) ContextManager.popSubject();
         }
         return result;
+*/
     }
 }

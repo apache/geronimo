@@ -63,14 +63,15 @@ import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2003/11/19 11:15:03 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/26 20:54:28 $
  */
 public class MarshalingInterceptor implements Interceptor, Serializable {
     TransportInterceptor next;
 
-    /**
-     * @see org.apache.geronimo.core.service.AbstractInterceptor#invoke(org.apache.geronimo.core.service.Invocation)
-     */
+    public MarshalingInterceptor(Interceptor next) {
+        this.next = (TransportInterceptor) next;
+    }
+
     public InvocationResult invoke(Invocation invocation) throws Throwable {
 
         ClassLoader originalLoader = Thread.currentThread().getContextClassLoader();
@@ -107,17 +108,4 @@ public class MarshalingInterceptor implements Interceptor, Serializable {
         }
     }
 
-    /**
-     * @see org.apache.geronimo.core.service.Interceptor#getNext()
-     */
-    public Interceptor getNext() {
-        return next;
-    }
-
-    /**
-     * @see org.apache.geronimo.core.service.Interceptor#setNext(org.apache.geronimo.core.service.Interceptor)
-     */
-    public void setNext(Interceptor interceptor) throws IllegalStateException {
-        this.next = (TransportInterceptor) interceptor;
-    }
 }

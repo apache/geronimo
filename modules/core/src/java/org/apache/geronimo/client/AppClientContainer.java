@@ -59,24 +59,27 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import org.apache.geronimo.core.service.AbstractRPCContainer;
+import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.core.service.Invocation;
+import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.kernel.deployment.DeploymentException;
+import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.naming.java.ComponentContextInterceptor;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 
 /**
- *
  * @jmx.mbean
- *      extends="org.apache.geronimo.core.service.RPCContainer,org.apache.geronimo.kernel.management.StateManageable"
  *
- * @version $Revision: 1.6 $ $Date: 2003/10/15 02:53:26 $
+ * @version $Revision: 1.7 $ $Date: 2003/11/26 20:54:27 $
  */
-public class AppClientContainer extends AbstractRPCContainer implements AppClientContainerMBean {
+public class AppClientContainer implements AppClientContainerMBean {
     private static final Class[] MAIN_ARGS = {String[].class};
 
     private String mainClassName;
     private URL clientURL;
     private ReadOnlyContext compContext;
+
+    private Interceptor firstInterceptor;
 
     public AppClientContainer() {
     }
@@ -129,7 +132,7 @@ public class AppClientContainer extends AbstractRPCContainer implements AppClien
         this.compContext = compContext;
     }
 
-    protected void doStart() throws Exception {
+    public void doStart() throws Exception {
         ClassLoader clientCL = new URLClassLoader(new URL[] { clientURL }, Thread.currentThread().getContextClassLoader());
         Method mainMethod;
         try {
@@ -140,11 +143,19 @@ public class AppClientContainer extends AbstractRPCContainer implements AppClien
         } catch (NoSuchMethodException e) {
             throw new DeploymentException("Main-Class " + mainClassName + " does not have a main method", e);
         }
-        addInterceptor(new ComponentContextInterceptor(compContext));
-        addInterceptor(new MainInvokerInterceptor(mainMethod));
+
+        firstInterceptor = new MainInvokerInterceptor(mainMethod);
+        firstInterceptor = new ComponentContextInterceptor(firstInterceptor, compContext);
     }
 
-    protected void doStop() throws Exception {
-        clearInterceptors();
+    public void doStop() throws Exception {
     }
+
+    public final InvocationResult invoke(Invocation invocation) throws Throwable {
+//        if (getStateInstance() != State.RUNNING) {
+//            throw new IllegalStateException("invoke can only be called after the Container has started");
+//        }
+        return firstInterceptor.invoke(invocation);
+    }
+
 }

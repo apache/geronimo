@@ -66,7 +66,7 @@ import org.apache.geronimo.core.service.SimpleInvocationResult;
 import org.apache.geronimo.proxy.ProxyInvocation;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/11/23 10:56:35 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/26 20:54:29 $
  */
 public class IdentityInterceptor implements Interceptor, Serializable {
 
@@ -79,13 +79,11 @@ public class IdentityInterceptor implements Interceptor, Serializable {
     /**
      * @param ref
      */
-    public IdentityInterceptor(RemoteRef ref) {
+    public IdentityInterceptor(Interceptor next, RemoteRef ref) {
+        this.next = next;
         this.ref = ref;
     }
 
-    /**
-     * @see org.apache.geronimo.core.service.AbstractInterceptor#invoke(org.apache.geronimo.core.service.Invocation)
-     */
     public InvocationResult invoke(Invocation invocation) throws Throwable {
         Method method = ProxyInvocation.getMethod(invocation);
         if( method.equals(EQUALS_METHOD) ) {
@@ -98,17 +96,4 @@ public class IdentityInterceptor implements Interceptor, Serializable {
         return next.invoke(invocation);
     }
 
-    /**
-     * @see org.apache.geronimo.core.service.Interceptor#getNext()
-     */
-    public Interceptor getNext() {
-        return next;
-    }
-
-    /**
-     * @see org.apache.geronimo.core.service.Interceptor#setNext(org.apache.geronimo.core.service.Interceptor)
-     */
-    public void setNext(Interceptor interceptor) throws IllegalStateException {
-        this.next = interceptor;
-    }
 }
