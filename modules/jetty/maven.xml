@@ -31,7 +31,7 @@
             sourceschema="schema/geronimo-jetty.xsd"
             xmlconfigs="${basedir}/src/schema/xmlconfig.xml"
             targetdir="${basedir}/target/xmlbeans"
-            cataloglocation="${basedir}/../../specs/schema/src/catalog/resolver-catalog.xml"/>
+            cataloglocation="${basedir}/../j2ee-schema/src/catalog/resolver-catalog.xml"/>
     </preGoal>
 
 </project>
