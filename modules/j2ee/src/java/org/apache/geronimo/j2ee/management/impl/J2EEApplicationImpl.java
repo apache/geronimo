@@ -97,6 +97,7 @@ public class J2EEApplicationImpl {
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addReference("j2eeServer", J2EEServer.class);
         infoFactory.addAttribute("deploymentDescriptor", String.class, true);
+        infoFactory.addAttribute("server", String.class, false);
         infoFactory.addAttribute("modules", String[].class, false);
 
         infoFactory.setConstructor(new String[]{
