@@ -37,7 +37,7 @@ import org.apache.regexp.RE;
 
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/06/02 05:33:04 $
+ * @version $Revision: 1.8 $ $Date: 2004/06/22 02:07:37 $
  */
 public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
     private static Log log = LogFactory.getLog(PropertiesFileSecurityRealm.class);
@@ -111,10 +111,10 @@ public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
             throw new IllegalStateException("Cannot obtain Groups until the realm is started");
         }
         HashSet result = new HashSet();
-        Enumeration enum = groups.keys();
+        Enumeration e = groups.keys();
         String group;
-        while (enum.hasMoreElements()) {
-            group = (String) enum.nextElement();
+        while (e.hasMoreElements()) {
+            group = (String) e.nextElement();
 
             if (regexExpression.match(group)) {
                 result.add(group);
@@ -136,10 +136,10 @@ public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
             throw new IllegalStateException("Cannot obtain Users until the realm is started");
         }
         HashSet result = new HashSet();
-        Enumeration enum = users.keys();
+        Enumeration e = users.keys();
         String user;
-        while (enum.hasMoreElements()) {
-            user = (String) enum.nextElement();
+        while (e.hasMoreElements()) {
+            user = (String) e.nextElement();
 
             if (regexExpression.match(user)) {
                 result.add(user);
@@ -156,9 +156,9 @@ public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
             Properties temp = new Properties();
             temp.load(serverInfo.resolve(groupsURI).toURL().openStream());
 
-            Enumeration enum = temp.keys();
-            while (enum.hasMoreElements()) {
-                String groupName = (String) enum.nextElement();
+            Enumeration e = temp.keys();
+            while (e.hasMoreElements()) {
+                String groupName = (String) e.nextElement();
                 String[] userList = ((String) temp.get(groupName)).split(",");
 
                 Set userset = (Set) groups.get(groupName);

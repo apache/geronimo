@@ -29,16 +29,14 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-
 import javax.security.jacc.PolicyContextException;
 
-import org.apache.geronimo.security.jacc.GeronimoPolicyConfiguration;
 import org.apache.geronimo.security.RealmPrincipal;
 
 
 /**
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:25 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/22 02:07:37 $
  */
 public class PolicyConfigurationEJB implements GeronimoPolicyConfiguration {
     private final static int OPEN = 1;
@@ -106,9 +104,9 @@ public class PolicyConfigurationEJB implements GeronimoPolicyConfiguration {
     public void addToRole(String roleName, PermissionCollection permissions) throws PolicyContextException {
         if (state != OPEN) throw new UnsupportedOperationException("Not in an open state");
 
-        Enumeration enum = permissions.elements();
-        while (enum.hasMoreElements()) {
-            addToRole(roleName, (Permission) enum.nextElement());
+        Enumeration e = permissions.elements();
+        while (e.hasMoreElements()) {
+            addToRole(roleName, (Permission) e.nextElement());
         }
     }
 
@@ -126,9 +124,9 @@ public class PolicyConfigurationEJB implements GeronimoPolicyConfiguration {
     public void addToUncheckedPolicy(PermissionCollection permissions) throws PolicyContextException {
         if (state != OPEN) throw new UnsupportedOperationException("Not in an open state");
 
-        Enumeration enum = permissions.elements();
-        while (enum.hasMoreElements()) {
-            addToUncheckedPolicy((Permission) enum.nextElement());
+        Enumeration e = permissions.elements();
+        while (e.hasMoreElements()) {
+            addToUncheckedPolicy((Permission) e.nextElement());
         }
     }
 
@@ -143,9 +141,9 @@ public class PolicyConfigurationEJB implements GeronimoPolicyConfiguration {
     public void addToExcludedPolicy(PermissionCollection permissions) throws PolicyContextException {
         if (state != OPEN) throw new UnsupportedOperationException("Not in an open state");
 
-        Enumeration enum = permissions.elements();
-        while (enum.hasMoreElements()) {
-            addToUncheckedPolicy((Permission) enum.nextElement());
+        Enumeration e = permissions.elements();
+        while (e.hasMoreElements()) {
+            addToUncheckedPolicy((Permission) e.nextElement());
         }
     }
 

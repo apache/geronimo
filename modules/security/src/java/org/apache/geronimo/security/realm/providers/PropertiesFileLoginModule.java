@@ -17,6 +17,11 @@
 
 package org.apache.geronimo.security.realm.providers;
 
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -26,15 +31,9 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
-import java.io.IOException;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:26 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/22 02:07:37 $
  */
 public class PropertiesFileLoginModule implements LoginModule {
     PropertiesFileSecurityRealm realm;
@@ -73,9 +72,9 @@ public class PropertiesFileLoginModule implements LoginModule {
 
         principals.add(new PropertiesFileUserPrincipal(username));
 
-        Enumeration enum = realm.groups.keys();
-        while (enum.hasMoreElements()) {
-            String groupName = (String) enum.nextElement();
+        Enumeration e = realm.groups.keys();
+        while (e.hasMoreElements()) {
+            String groupName = (String) e.nextElement();
             Set users = (Set) realm.groups.get(groupName);
             Iterator iter = users.iterator();
             while (iter.hasNext()) {
