@@ -347,7 +347,7 @@
                 uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
                 username="system"
                 password="manager"
-		module="${basedir}/${maven.repo.local}/tranql/rars/tranql-connector-${tranql_connector_version}.rar"
+		module="${maven.repo.local}/tranql/rars/tranql-connector-${tranql_connector_version}.rar"
                 plan="target/plan/default-database-plan.xml"
                 />
             <deploy:start
