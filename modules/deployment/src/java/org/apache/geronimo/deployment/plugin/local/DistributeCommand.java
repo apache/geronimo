@@ -80,7 +80,7 @@ public class DistributeCommand extends CommandSupport {
                     copyTo(deploymentPlan, deploymentStream);
                 }
             }
-            Set deployers = kernel.listGBeans(new ObjectName("geronimo.deployment:role=Deployer,*"));
+            Set deployers = kernel.listGBeans(new ObjectName("*:role=Deployer,*"));
             if (deployers.isEmpty()) {
                 fail("No deployer present in kernel");
                 return;
@@ -93,23 +93,20 @@ public class DistributeCommand extends CommandSupport {
 
             Object[] args = {moduleArchive, deploymentPlan};
             List objectNames = (List) kernel.invoke(deployer, "deploy", args, DEPLOY_SIG);
-//            System.err.println("deploy returned id " + objectNames.get(0));
-            if (objectNames != null && !objectNames.isEmpty()) {
-                String parentName = (String) objectNames.get(0);
-                String[] childIDs = new String[objectNames.size()-1];
-                for (int j=0; j < childIDs.length; j++) {
-                    childIDs[j] = (String)objectNames.get(j+1);
-                }
-
-                TargetModuleID moduleID = new TargetModuleIDImpl(targetList[0], parentName.toString(), childIDs);
-//                System.err.println("Distributed moduleId " + moduleID);
-                addModule(moduleID);
-            } else {
+            if (objectNames == null || objectNames.isEmpty()) {
                 DeploymentException deploymentException = new DeploymentException("Got empty list");
                 deploymentException.printStackTrace();
                 throw deploymentException;
             }
-            complete("Completed");
+            String parentName = (String) objectNames.get(0);
+            String[] childIDs = new String[objectNames.size()-1];
+            for (int j=0; j < childIDs.length; j++) {
+                childIDs[j] = (String)objectNames.get(j+1);
+            }
+
+            TargetModuleID moduleID = new TargetModuleIDImpl(targetList[0], parentName.toString(), childIDs);
+            addModule(moduleID);
+            complete("Completed with id " + parentName);
         } catch (Exception e) {
             doFail(e);
         } finally {
