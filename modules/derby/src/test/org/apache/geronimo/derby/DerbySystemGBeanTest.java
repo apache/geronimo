@@ -54,13 +54,18 @@ public class DerbySystemGBeanTest extends TestCase {
     }
 
     protected void setUp() throws Exception {
-        super.setUp();
-        systemDir = File.createTempFile("derbyTest", ".tmp");
-        systemDir.delete();
-        systemDir.mkdir();
+        try {
+            super.setUp();
+            systemDir = File.createTempFile("derbyTest", ".tmp");
+            systemDir.delete();
+            systemDir.mkdir();
 
-        Properties props = System.getProperties();
-        props.remove("derby.system.home");
+            Properties props = System.getProperties();
+            props.remove("derby.system.home");
+        } catch (Exception e) {
+            delete(systemDir);
+            throw e;
+        }
     }
 
     protected void tearDown() throws Exception {
@@ -69,6 +74,10 @@ public class DerbySystemGBeanTest extends TestCase {
     }
 
     private void delete(File file) throws IOException {
+        if (file == null) {
+            return;
+        }
+
         File[] files = file.listFiles();
         if (files != null) {
             for (int i = 0; i < files.length; i++) {
