@@ -48,19 +48,22 @@ import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Implementation of ConfigurationStore using the local filesystem.
  *
- * @version $Revision: 1.10 $ $Date: 2004/06/23 22:44:49 $
+ * @version $Revision: 1.11 $ $Date: 2004/06/24 02:50:13 $
  */
 public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
     private static final String INDEX_NAME = "index.properties";
     private final String objectName;
     private final URI root;
     private final ServerInfo serverInfo;
-    private File rootDir;
     private final Properties index = new Properties();
+    private final Log log;
+    private File rootDir;
     private int maxId;
 
     /**
@@ -71,12 +74,14 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         serverInfo = null;
         this.root = null;
         this.rootDir = rootDir;
+        log = LogFactory.getLog("LocalConfigStore:"+rootDir.getName());
     }
 
     public LocalConfigStore(String objectName, URI root, ServerInfo serverInfo) {
         this.objectName = objectName;
         this.root = root;
         this.serverInfo = serverInfo;
+        log = LogFactory.getLog("LocalConfigStore:"+root.toString());
     }
 
     public String getObjectName() {
@@ -156,7 +161,28 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         synchronized (this) {
             saveIndex();
         }
+        log.info("Installed configuration " + configId + " in location " + newId);
         return configId;
+    }
+
+    public void uninstall(URI configID) throws NoSuchConfigException, IOException {
+        String id = configID.toString();
+        File configDir;
+        synchronized(this) {
+            String storeID = index.getProperty(id);
+            if (storeID == null) {
+                throw new NoSuchConfigException();
+            }
+            configDir = new File(rootDir, storeID);
+            File tempDir = new File(rootDir, storeID + ".tmp");
+            if (configDir.renameTo(tempDir)) {
+                configDir = tempDir;
+            }
+            index.remove(id);
+            saveIndex();
+        }
+        log.info("Uninstalled configuration " + configID);
+        delete(configDir);
     }
 
     public synchronized GBeanMBean getConfiguration(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException {
@@ -258,7 +284,9 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
             if (file.isDirectory()) {
                 delete(file);
             } else {
-                file.delete();
+                if (!file.delete()) {
+                    file.deleteOnExit();
+                };
             }
         }
         root.delete();

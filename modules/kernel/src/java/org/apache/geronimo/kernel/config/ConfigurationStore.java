@@ -27,7 +27,7 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 /**
  * Interface to a store for Configurations.
  *
- * @version $Revision: 1.9 $ $Date: 2004/06/23 22:44:49 $
+ * @version $Revision: 1.10 $ $Date: 2004/06/24 02:50:13 $
  */
 public interface ConfigurationStore {
     /**
@@ -38,6 +38,8 @@ public interface ConfigurationStore {
      * @throws InvalidConfigException if there is a configuration problem with the CAR
      */
     URI install(URL source) throws IOException, InvalidConfigException;
+
+    void uninstall(URI configID) throws NoSuchConfigException, IOException;
 
     /**
      * Determines if the store contains a configuration with the spedified ID.

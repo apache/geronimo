@@ -42,6 +42,8 @@ import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 import org.apache.geronimo.deployment.plugin.local.StartCommand;
 import org.apache.geronimo.deployment.plugin.local.StopCommand;
 import org.apache.geronimo.deployment.plugin.local.DistributeCommand;
+import org.apache.geronimo.deployment.plugin.local.UndeployCommand;
+import org.apache.geronimo.deployment.plugin.local.RedeployCommand;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelMBean;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
@@ -52,7 +54,7 @@ import org.apache.geronimo.kernel.management.State;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/06/23 22:44:49 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/24 02:50:13 $
  */
 public class JMXDeploymentManager implements DeploymentManager {
     private JMXConnector jmxConnector;
@@ -181,15 +183,25 @@ public class JMXDeploymentManager implements DeploymentManager {
     }
 
     public ProgressObject undeploy(TargetModuleID[] moduleIDList) {
-        throw new UnsupportedOperationException();
+        if (kernel == null) {
+            throw new IllegalStateException("Disconnected");
+        }
+        UndeployCommand command = new UndeployCommand(kernel, moduleIDList);
+        new Thread(command).start();
+        return command;
     }
 
     public boolean isRedeploySupported() {
-        return false;
+        return true;
     }
 
     public ProgressObject redeploy(TargetModuleID[] moduleIDList, File moduleArchive, File deploymentPlan) {
-        throw new UnsupportedOperationException();
+        if (kernel == null) {
+            throw new IllegalStateException("Disconnected");
+        }
+        RedeployCommand command = new RedeployCommand(kernel, moduleIDList, moduleArchive, deploymentPlan);
+        new Thread(command).start();
+        return command;
     }
 
     public ProgressObject redeploy(TargetModuleID[] moduleIDList, InputStream moduleArchive, InputStream deploymentPlan) {
