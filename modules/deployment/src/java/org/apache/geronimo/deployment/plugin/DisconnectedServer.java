@@ -56,6 +56,7 @@
 package org.apache.geronimo.deployment.plugin;
 
 import java.io.InputStream;
+import java.net.URI;
 import javax.enterprise.deploy.shared.ModuleType;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
@@ -69,7 +70,7 @@ import org.apache.geronimo.deployment.DeploymentModule;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 19:58:16 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/26 05:55:26 $
  */
 public class DisconnectedServer implements DeploymentServer {
     public boolean isLocal() {
@@ -92,7 +93,7 @@ public class DisconnectedServer implements DeploymentServer {
         throw new IllegalStateException("Disconnected");
     }
 
-    public ProgressObject distribute(Target[] targetList, DeploymentModule module) throws IllegalStateException {
+    public ProgressObject distribute(Target[] targetList, DeploymentModule module, URI configID) throws IllegalStateException {
         throw new IllegalStateException("Disconnected");
     }
 

@@ -74,18 +74,20 @@ import org.apache.geronimo.kernel.config.ConfigurationParent;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/24 21:07:44 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/26 05:55:26 $
  */
 public class DistributeCommand extends CommandSupport {
     private final Target target;
     private final ConfigurationParent parent;
+    private final URI configID;
     private final Kernel kernel;
     private final DeploymentModule module;
 
-    public DistributeCommand(Target target, ConfigurationParent parent, Kernel kernel, DeploymentModule module) {
+    public DistributeCommand(Target target, ConfigurationParent parent, URI configID, Kernel kernel, DeploymentModule module) {
         super(CommandType.DISTRIBUTE);
         this.target = target;
         this.parent = parent;
+        this.configID = configID;
         this.kernel = kernel;
         this.module = module;
     }
@@ -102,9 +104,8 @@ public class DistributeCommand extends CommandSupport {
             workDir.mkdir();
 
             // convert the module to a Configuration
-            TargetModuleID targetID = new TargetModuleIDImpl(target, "test");
-            URI moduleID = URI.create(targetID.getModuleID());
-            ModuleDeployer deployer = new ModuleDeployer(parent, moduleID, workDir);
+            TargetModuleID targetID = new TargetModuleIDImpl(target, configID.toString());
+            ModuleDeployer deployer = new ModuleDeployer(parent, configID, workDir);
             deployer.addModule(module);
             deployer.deploy();
 

@@ -57,6 +57,7 @@ package org.apache.geronimo.deployment.plugin.client;
 
 import java.io.InputStream;
 import java.io.File;
+import java.net.URI;
 import javax.enterprise.deploy.spi.DeploymentConfiguration;
 import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
 import javax.enterprise.deploy.model.DeployableObject;
@@ -69,18 +70,18 @@ import org.w3c.dom.Document;
 /**
  * 
  * 
- * @version $Revision: 1.3 $ $Date: 2004/01/24 21:07:44 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/26 05:55:26 $
  */
 public class ClientConfigurationFactory implements DeploymentConfigurationFactory {
     public DeploymentConfiguration createConfiguration(DeployableObject deployable) throws InvalidModuleException {
         return null;
     }
 
-    public DeploymentModule createModule(InputStream moduleArchive, Document deploymentPlan) throws DeploymentException {
+    public DeploymentModule createModule(InputStream moduleArchive, Document deploymentPlan, URI configID) throws DeploymentException {
         throw new UnsupportedOperationException();
     }
 
-    public DeploymentModule createModule(File moduleArchive, Document deploymentPlan) throws DeploymentException {
+    public DeploymentModule createModule(File moduleArchive, Document deploymentPlan, URI configID, boolean isLocal) throws DeploymentException {
         throw new UnsupportedOperationException();
     }
 

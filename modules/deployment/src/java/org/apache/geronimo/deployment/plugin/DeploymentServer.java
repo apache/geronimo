@@ -56,6 +56,7 @@
 package org.apache.geronimo.deployment.plugin;
 
 import java.io.InputStream;
+import java.net.URI;
 import javax.enterprise.deploy.shared.ModuleType;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
@@ -67,7 +68,7 @@ import org.apache.geronimo.deployment.DeploymentModule;
 /**
  * 
  * 
- * @version $Revision: 1.1 $ $Date: 2004/01/23 19:58:16 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/26 05:55:26 $
  */
 public interface DeploymentServer {
     public boolean isLocal();
@@ -80,7 +81,7 @@ public interface DeploymentServer {
 
     public TargetModuleID[] getAvailableModules(ModuleType moduleType, Target[] targetList) throws TargetException, IllegalStateException;
 
-    public ProgressObject distribute(Target[] targetList, DeploymentModule module) throws IllegalStateException;
+    public ProgressObject distribute(Target[] targetList, DeploymentModule module, URI configID) throws IllegalStateException;
 
     public ProgressObject start(TargetModuleID[] moduleIDList) throws IllegalStateException;
 

@@ -66,15 +66,21 @@ import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.ConfigurationCallback;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.jetty.JettyWebApplicationContext;
+import org.apache.geronimo.kernel.Kernel;
 
 /**
  * 
  * 
- * @version $Revision: 1.2 $ $Date: 2004/01/25 21:07:04 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/26 05:55:27 $
  */
 public class AbstractModule implements DeploymentModule {
+    protected final URI configID;
     protected URI uri;
     protected String contextPath;
+
+    public AbstractModule(URI configID) {
+        this.configID = configID;
+    }
 
     public void init() throws DeploymentException {
     }
@@ -97,6 +103,7 @@ public class AbstractModule implements DeploymentModule {
             app.setAttribute("ContextPath", contextPath);
             app.setAttribute("ComponentContext", null);
             app.setAttribute("PolicyContextID", null);
+            app.setReferencePatterns("Configuration", Collections.singleton(Kernel.getConfigObjectName(configID)));
             app.setReferencePatterns("JettyContainer", Collections.singleton(new ObjectName("geronimo.web:type=WebContainer,container=Jetty"))); // @todo configurable
             app.setReferencePatterns("TransactionManager", Collections.EMPTY_SET);
             app.setReferencePatterns("TrackedConnectionAssociator", Collections.EMPTY_SET);

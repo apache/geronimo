@@ -76,7 +76,7 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/25 21:07:04 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/26 05:55:27 $
  */
 public class ApplicationTest extends TestCase {
     private Kernel kernel;
@@ -95,6 +95,7 @@ public class ApplicationTest extends TestCase {
         app.setAttribute("ContextPath", "/test");
         app.setAttribute("ComponentContext", null);
         app.setAttribute("PolicyContextID", null);
+        app.setReferencePatterns("Configuration", Collections.EMPTY_SET);
         app.setReferencePatterns("JettyContainer", containerPatterns);
         app.setReferencePatterns("TransactionManager", Collections.EMPTY_SET);
         app.setReferencePatterns("TrackedConnectionAssociator", Collections.EMPTY_SET);

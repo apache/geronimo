@@ -57,10 +57,10 @@ package org.apache.geronimo.jetty.deployment;
 
 import java.io.File;
 import java.io.InputStream;
+import java.net.URI;
 import javax.enterprise.deploy.model.DeployableObject;
 import javax.enterprise.deploy.shared.ModuleType;
 import javax.enterprise.deploy.spi.DeploymentConfiguration;
-import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
 
 import org.apache.geronimo.deployment.DeploymentException;
@@ -74,7 +74,7 @@ import org.w3c.dom.Element;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/24 21:07:44 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/26 05:55:27 $
  */
 public class WARConfigurationFactory implements DeploymentConfigurationFactory {
     public DeploymentConfiguration createConfiguration(DeployableObject deployable) throws InvalidModuleException {
@@ -84,22 +84,26 @@ public class WARConfigurationFactory implements DeploymentConfigurationFactory {
         return new WARConfiguration(deployable);
     }
 
-    public DeploymentModule createModule(InputStream moduleArchive, Document deploymentPlan) throws DeploymentException {
+    public DeploymentModule createModule(InputStream moduleArchive, Document deploymentPlan, URI configID) throws DeploymentException {
         Element root = deploymentPlan.getDocumentElement();
         if (!"web-app".equals(root.getNodeName())) {
             return null;
         }
 
-        return new JettyModule(moduleArchive, deploymentPlan);
+        return new JettyModule(configID, moduleArchive, deploymentPlan);
     }
 
-    public DeploymentModule createModule(File moduleArchive, Document deploymentPlan) throws DeploymentException {
+    public DeploymentModule createModule(File moduleArchive, Document deploymentPlan, URI configID, boolean isLocal) throws DeploymentException {
         Element root = deploymentPlan.getDocumentElement();
         if (!"web-app".equals(root.getNodeName())) {
             return null;
         }
 
-       return new UnpackedModule(moduleArchive, deploymentPlan);
+        if (isLocal && moduleArchive.isDirectory()) {
+            return new UnpackedModule(configID, moduleArchive, deploymentPlan);
+        } else {
+            return new JettyModule(configID, moduleArchive, deploymentPlan);
+        }
     }
 
     public static final GBeanInfo GBEAN_INFO;

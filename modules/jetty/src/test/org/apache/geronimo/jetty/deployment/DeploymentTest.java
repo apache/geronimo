@@ -82,7 +82,7 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/24 21:07:45 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/26 05:55:27 $
  */
 public class DeploymentTest extends DeployerTestCase {
 //    private byte[] plan;
@@ -90,8 +90,7 @@ public class DeploymentTest extends DeployerTestCase {
     private Target[] targets;
 
     public void testUnpacked() throws Exception {
-        URL url = classLoader.getResource("deployables/war1/");
-        File war = new File(URI.create(url.toString()));
+        File war = new File(URI.create(classLoader.getResource("deployables/war1/").toString()));
 
         ProgressObject result = manager.distribute(targets, war, new File(war, "WEB-INF/geronimo-web.xml"));
         waitFor(result);
@@ -100,23 +99,50 @@ public class DeploymentTest extends DeployerTestCase {
 
         result = manager.start(ids);
         waitFor(result);
-
-        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:5678/test/hello.txt").openConnection();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
-        assertEquals("Hello World", reader.readLine());
-        connection.disconnect();
+        checkHaveContent();
 
         result = manager.stop(ids);
         waitFor(result);
 
+        checkNoContent();
+    }
+
+    public void testPacked() throws Exception {
+        File war1 = new File(URI.create(classLoader.getResource("deployables/war1/").toString()));
+        File war2 = new File(URI.create(classLoader.getResource("deployables/war2.war").toString()));
+
+        ProgressObject result = manager.distribute(targets, war2, new File(war1, "WEB-INF/geronimo-web.xml"));
+        waitFor(result);
+        TargetModuleID[] ids = result.getResultTargetModuleIDs();
+        assertEquals(1, ids.length);
+
+        result = manager.start(ids);
+        waitFor(result);
+        checkHaveContent();
+
+        result = manager.stop(ids);
+        waitFor(result);
+
+        checkNoContent();
+    }
+
+    private void checkNoContent() throws IOException {
+        HttpURLConnection connection;
         connection = (HttpURLConnection) new URL("http://localhost:5678/test/hello.txt").openConnection();
         try {
-            reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            connection.getInputStream();
             fail();
         } catch (IOException e) {
             assertEquals(HttpURLConnection.HTTP_NOT_FOUND, connection.getResponseCode());
         }
+        connection.disconnect();
+    }
+
+    private void checkHaveContent() throws IOException {
+        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:5678/test/hello.txt").openConnection();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
+        assertEquals("Hello World", reader.readLine());
         connection.disconnect();
     }
 
@@ -135,10 +161,6 @@ public class DeploymentTest extends DeployerTestCase {
         }
         assertEquals(StateType.COMPLETED, result.getDeploymentStatus().getState());
     }
-
-//    public void testPacked() throws Exception {
-//        manager.distribute(targets, war.openStream(), new ByteArrayInputStream(plan));
-//    }
 
     protected void setUp() throws Exception {
         super.setUp();

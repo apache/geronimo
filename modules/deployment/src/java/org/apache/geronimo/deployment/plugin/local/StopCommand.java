@@ -65,7 +65,7 @@ import org.apache.geronimo.kernel.Kernel;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/24 21:07:44 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/26 05:55:26 $
  */
 public class StopCommand extends CommandSupport {
     private final Kernel kernel;
@@ -83,7 +83,7 @@ public class StopCommand extends CommandSupport {
                 TargetModuleID module = modules[i];
 
                 URI moduleID = URI.create(module.getModuleID());
-                ObjectName name = kernel.getConfigObjectName(moduleID);
+                ObjectName name = Kernel.getConfigObjectName(moduleID);
                 kernel.getMBeanServer().invoke(name, "stop", null, null);
                 addModule(module);
             }

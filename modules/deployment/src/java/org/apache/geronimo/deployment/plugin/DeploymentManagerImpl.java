@@ -59,6 +59,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -82,7 +84,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentModule;
 import org.apache.geronimo.deployment.plugin.factories.DeploymentConfigurationFactory;
-import org.apache.geronimo.deployment.plugin.local.CommandSupport;
+import org.apache.geronimo.deployment.util.XMLUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
@@ -92,7 +94,7 @@ import org.w3c.dom.Document;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/01/25 21:07:03 $
+ * @version $Revision: 1.7 $ $Date: 2004/01/26 05:55:26 $
  */
 public class DeploymentManagerImpl implements DeploymentManager {
     private final DeploymentServer server;
@@ -188,11 +190,17 @@ public class DeploymentManagerImpl implements DeploymentManager {
         } catch (Exception e) {
             return new FailedProgressObject(CommandType.DISTRIBUTE, e.getMessage());
         }
+        URI configID;
+        try {
+            configID = getConfigID(doc);
+        } catch (URISyntaxException e) {
+            return new FailedProgressObject(CommandType.DISTRIBUTE, e.getMessage());
+        }
         DeploymentModule module = null;
         for (Iterator i = configurationFactories.values().iterator(); i.hasNext();) {
             DeploymentConfigurationFactory factory = (DeploymentConfigurationFactory) i.next();
             try {
-                module = factory.createModule(moduleArchive, doc);
+                module = factory.createModule(moduleArchive, doc, configID, server.isLocal());
             } catch (DeploymentException e) {
                 return new FailedProgressObject(CommandType.DISTRIBUTE, e.getMessage());
             }
@@ -200,7 +208,7 @@ public class DeploymentManagerImpl implements DeploymentManager {
         if (module == null) {
             return new FailedProgressObject(CommandType.DISTRIBUTE, "No deployer found for supplied plan");
         }
-        return server.distribute(targetList, module);
+        return server.distribute(targetList, module, configID);
     }
 
     public ProgressObject distribute(Target[] targetList, InputStream moduleArchive, InputStream deploymentPlan) throws IllegalStateException {
@@ -211,11 +219,17 @@ public class DeploymentManagerImpl implements DeploymentManager {
         } catch (Exception e) {
             return new FailedProgressObject(CommandType.DISTRIBUTE, e.getMessage());
         }
+        URI configID;
+        try {
+            configID = getConfigID(doc);
+        } catch (URISyntaxException e) {
+            return new FailedProgressObject(CommandType.DISTRIBUTE, e.getMessage());
+        }
         DeploymentModule module = null;
         for (Iterator i = configurationFactories.values().iterator(); i.hasNext();) {
             DeploymentConfigurationFactory factory = (DeploymentConfigurationFactory) i.next();
             try {
-                module = factory.createModule(moduleArchive, doc);
+                module = factory.createModule(moduleArchive, doc, configID);
             } catch (DeploymentException e) {
                 return new FailedProgressObject(CommandType.DISTRIBUTE, e.getMessage());
             }
@@ -223,7 +237,7 @@ public class DeploymentManagerImpl implements DeploymentManager {
         if (module == null) {
             return new FailedProgressObject(CommandType.DISTRIBUTE, "No deployer found for supplied plan");
         }
-        return server.distribute(targetList, module);
+        return server.distribute(targetList, module, configID);
     }
 
     public ProgressObject start(TargetModuleID[] moduleIDList) throws IllegalStateException {
@@ -258,6 +272,12 @@ public class DeploymentManagerImpl implements DeploymentManager {
     public void release() {
         server.release();
         // @todo shut down the deployment kernel
+    }
+
+    private URI getConfigID(Document doc) throws URISyntaxException {
+        String id = Long.toString(System.currentTimeMillis()); // unique enough one hopes
+        id = XMLUtil.getChildContent(doc.getDocumentElement(), "config-id", id, id);
+        return new URI(id);
     }
 
     public static final GBeanInfo GBEAN_INFO;

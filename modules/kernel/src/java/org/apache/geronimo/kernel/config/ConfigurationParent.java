@@ -55,11 +55,15 @@
  */
 package org.apache.geronimo.kernel.config;
 
+import java.net.URL;
+
 /**
  * 
  * 
- * @version $Revision: 1.1 $ $Date: 2004/01/12 01:39:46 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/26 05:55:27 $
  */
 public interface ConfigurationParent {
     ClassLoader getClassLoader();
+
+    URL getBaseURL();
 }

@@ -85,7 +85,7 @@ import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/24 21:07:44 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/26 05:55:26 $
  */
 public class LocalServer implements DeploymentServer,GBean {
     private final URI rootConfigID;
@@ -129,11 +129,11 @@ public class LocalServer implements DeploymentServer,GBean {
         return null;
     }
 
-    public ProgressObject distribute(Target[] targetList, DeploymentModule module) throws IllegalStateException {
+    public ProgressObject distribute(Target[] targetList, DeploymentModule module, URI configID) throws IllegalStateException {
         if (targetList.length != 1 || !target.equals(targetList[0])) {
             return new FailedProgressObject(CommandType.DISTRIBUTE, "Invalid Target");
         }
-        DistributeCommand command = new DistributeCommand(target, parent, kernel, module);
+        DistributeCommand command = new DistributeCommand(target, parent, configID, kernel, module);
         new Thread(command).start();
         return command;
     }

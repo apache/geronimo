@@ -56,28 +56,25 @@
 package org.apache.geronimo.jetty.deployment;
 
 import java.io.File;
+import java.net.URI;
 
 import org.apache.geronimo.deployment.util.XMLUtil;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 /**
  * 
  * 
- * @version $Revision: 1.1 $ $Date: 2004/01/24 21:07:44 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/26 05:55:27 $
  */
 public class UnpackedModule extends AbstractModule {
-    public UnpackedModule(File archive, Document doc) {
+    public UnpackedModule(URI configID, File archive, Document deploymentPlan) {
+        super(configID);
         this.uri = archive.toURI();
-        Element contextElement = XMLUtil.getChild(doc.getDocumentElement(), "context-root");
-        if (contextElement == null) {
-            contextPath = archive.getName();
-            if (contextPath.endsWith(".war")) {
-                contextPath = contextPath.substring(0, contextPath.length()-4);
-            }
-        } else {
-            contextPath = (String) XMLUtil.getContent(contextElement);
+        contextPath = archive.getName();
+        if (contextPath.endsWith(".war")) {
+            contextPath = contextPath.substring(0, contextPath.length() - 4);
         }
+        contextPath = XMLUtil.getChildContent(deploymentPlan.getDocumentElement(), "context-root", contextPath, contextPath);
     }
 
 }
