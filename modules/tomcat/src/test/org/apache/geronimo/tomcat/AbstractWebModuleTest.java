@@ -40,6 +40,7 @@ import org.apache.geronimo.security.jaas.JaasLoginService;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.tomcat.connector.HTTPConnector;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 
@@ -153,17 +154,13 @@ public class AbstractWebModuleTest extends TestCase {
     protected void setUpSecurity() throws Exception {
         securityServiceName = new ObjectName("geronimo.security:type=SecurityService");
         securityServiceGBean = new GBeanData(securityServiceName, SecurityServiceImpl.GBEAN_INFO);
-        securityServiceGBean.setReferencePatterns("Realms", Collections.singleton(new ObjectName(
-                "geronimo.security:type=SecurityRealm,*")));
-        securityServiceGBean.setReferencePatterns("Mappers", Collections.singleton(new ObjectName(
-                "geronimo.security:type=SecurityRealm,*")));
-        securityServiceGBean.setAttribute("policyConfigurationFactory",
-                "org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory");
+        securityServiceGBean.setReferencePatterns("Realms", Collections.singleton(new ObjectName("geronimo.security:type=SecurityRealm,*")));
+        securityServiceGBean.setReferencePatterns("Mappers", Collections.singleton(new ObjectName("geronimo.security:type=SecurityRealm,*")));
+        securityServiceGBean.setAttribute("policyConfigurationFactory", "org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory");
 
         loginServiceName = new ObjectName("geronimo.security:type=JaasLoginService");
         loginServiceGBean = new GBeanData(loginServiceName, JaasLoginService.GBEAN_INFO);
-        loginServiceGBean.setReferencePatterns("Realms", Collections.singleton(new ObjectName(
-                "geronimo.security:type=SecurityRealm,*")));
+        loginServiceGBean.setReferencePatterns("Realms", Collections.singleton(new ObjectName("geronimo.security:type=SecurityRealm,*")));
         // loginServiceGBean.setAttribute("reclaimPeriod", new Long(1000 *
         // 1000));
         loginServiceGBean.setAttribute("algorithm", "HmacSHA1");
@@ -171,8 +168,7 @@ public class AbstractWebModuleTest extends TestCase {
 
         propertiesLMName = new ObjectName("geronimo.security:type=LoginModule,name=demo-properties-login");
         propertiesLMGBean = new GBeanData(propertiesLMName, LoginModuleGBean.GBEAN_INFO);
-        propertiesLMGBean.setAttribute("loginModuleClass",
-                "org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule");
+        propertiesLMGBean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule");
         propertiesLMGBean.setAttribute("serverSide", Boolean.TRUE);
         Properties options = new Properties();
         options.setProperty("usersURI", "src/test-resources/data/users.properties");
@@ -189,8 +185,7 @@ public class AbstractWebModuleTest extends TestCase {
         propertiesRealmGBean.setAttribute("loginModuleConfiguration", config);
         // propertiesRealmGBean.setAttribute("autoMapPrincipalClasses",
         // "org.apache.geronimo.security.realm.providers.PropertiesFileGroupPrincipal");
-        propertiesRealmGBean.setAttribute("defaultPrincipal",
-                "metro=org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
+        propertiesRealmGBean.setAttribute("defaultPrincipal", "metro=org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
 
         start(securityServiceGBean);
         start(loginServiceGBean);
@@ -222,15 +217,12 @@ public class AbstractWebModuleTest extends TestCase {
 
     protected void setUp() throws Exception {
         cl = this.getClass().getClassLoader();
-        containerName = NameFactory.getWebComponentName(null, null, null, null, "tomcatContainer", "WebResource",
-                moduleContext);
-        webModuleName = NameFactory.getWebComponentName(null, null, null, null, NameFactory.WEB_MODULE, "WebResource",
-                moduleContext);
+        containerName = NameFactory.getWebComponentName(null, null, null, null, "tomcatContainer", "WebResource", moduleContext);
+        connectorName = NameFactory.getWebComponentName(null, null, null, null, "tomcatConnector", "WebResource", moduleContext);
+        webModuleName = NameFactory.getWebComponentName(null, null, null, null, NameFactory.WEB_MODULE, "WebResource", moduleContext);
 
-        tmName = NameFactory
-                .getComponentName(null, null, "TransactionManager", NameFactory.JTA_RESOURCE, moduleContext);
-        tcmName = NameFactory.getComponentName(null, null, "TransactionContextManager", NameFactory.JTA_RESOURCE,
-                moduleContext);
+        tmName = NameFactory.getComponentName(null, null, "TransactionManager", NameFactory.JTA_RESOURCE, moduleContext);
+        tcmName = NameFactory.getComponentName(null, null, "TransactionContextManager", NameFactory.JTA_RESOURCE, moduleContext);
         ctcName = new ObjectName("geronimo.test:role=ConnectionTrackingCoordinator");
 
         kernel = new Kernel("test.kernel");
@@ -245,11 +237,15 @@ public class AbstractWebModuleTest extends TestCase {
         // Need to override the constructor for unit tests
         container = new GBeanData(containerName, TomcatContainer.GBEAN_INFO);
         container.setAttribute("catalinaHome", "target/var/catalina");
-        container.setAttribute("port", new Integer(8080));
         container.setAttribute("endorsedDirs", "target/endorsed");
         container.setReferencePattern("ServerInfo", serverInfoName);
 
+        connector = new GBeanData(connectorName, HTTPConnector.GBEAN_INFO);
+        connector.setAttribute("port", new Integer(8080));
+        connector.setReferencePattern("TomcatContainer", containerName);
+
         start(container);
+        start(connector);
 
         tm = new GBeanData(tmName, TransactionManagerImpl.GBEAN_INFO);
         Set patterns = new HashSet();

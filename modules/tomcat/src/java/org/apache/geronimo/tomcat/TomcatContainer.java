@@ -16,8 +16,6 @@
  */
 package org.apache.geronimo.tomcat;
 
-import java.io.File;
-
 import org.apache.catalina.Context;
 import org.apache.catalina.Engine;
 import org.apache.catalina.Host;
@@ -49,13 +47,6 @@ public class TomcatContainer implements GBeanLifecycle {
     private static final String DEFAULT_CATALINA_HOME = "var/catalina";
 
     /**
-     * The default port the HTTP connector listens to
-     * 
-     * TODO: Move it to another GBean, e.g. HTTPConnector
-     */
-    private static final int DEFAULT_HTTP_CONNECTOR_PORT = 8090;
-
-    /**
      * Work directory
      */
     private static final String WORK_DIR = "work";
@@ -76,25 +67,11 @@ public class TomcatContainer implements GBeanLifecycle {
     private Engine engine;
 
     /**
-     * Tomcat Connector that will process requests
-     * 
-     * TODO: Make it a GBean
-     */
-    private Connector connector;
-
-    /**
      * Tomcat default Context
      * 
      * TODO: Make it a gbean
      */
     private Context defaultContext;
-
-    /**
-     * The port Tomcat's HTTP Connector listens to
-     * 
-     * TODO: Make it a part of the Listener GBean
-     */
-    private int port;
 
     /**
      * The java.endorsed.dirs directories
@@ -109,16 +86,13 @@ public class TomcatContainer implements GBeanLifecycle {
     // Required as it's referenced by deployed webapps
     public TomcatContainer() {
         setCatalinaHome(DEFAULT_CATALINA_HOME);
-        setPort(DEFAULT_HTTP_CONNECTOR_PORT);
     }
 
     /**
-     * GBean constructor (invoked dynamically when the gbean is declared in a
-     * plan)
+     * GBean constructor (invoked dynamically when the gbean is declared in a plan)
      */
-    public TomcatContainer(String catalinaHome, int port, ServerInfo serverInfo) {
+    public TomcatContainer(String catalinaHome, ServerInfo serverInfo) {
         setCatalinaHome(catalinaHome);
-        setPort(port);
         this.serverInfo = serverInfo;
     }
 
@@ -132,8 +106,7 @@ public class TomcatContainer implements GBeanLifecycle {
     /**
      * Instantiate and start up Tomcat's Embedded class
      * 
-     * See org.apache.catalina.startup.Embedded for details (TODO: provide the
-     * link to the javadoc)
+     * See org.apache.catalina.startup.Embedded for details (TODO: provide the link to the javadoc)
      */
     public void doStart() throws Exception {
         log.debug("doStart()");
@@ -151,9 +124,8 @@ public class TomcatContainer implements GBeanLifecycle {
 
         // Assemble FileLogger as a gbean
         /*
-         * FileLogger fileLog = new FileLogger(); fileLog.setDirectory(".");
-         * fileLog.setPrefix("vsjMbedTC5"); fileLog.setSuffix(".log");
-         * fileLog.setTimestamp(true);
+         * FileLogger fileLog = new FileLogger(); fileLog.setDirectory("."); fileLog.setPrefix("vsjMbedTC5");
+         * fileLog.setSuffix(".log"); fileLog.setTimestamp(true);
          */
 
         // 2. Set the relevant properties of this object itself. In particular,
@@ -198,21 +170,6 @@ public class TomcatContainer implements GBeanLifecycle {
         // Engines for this object.
         embedded.addEngine(engine);
 
-        // 7. Call createConnector() to create at least one TCP/IP connector,
-        // and then call its property setters as desired.
-
-        // It doesn't work - there's no HTTP connector created
-        // connector = embedded.createConnector((String) null, 8080, "http");
-
-        // Create an HTTP/1.1 connector manually
-        connector = new Connector("HTTP/1.1");
-        connector.setPort(this.getPort());
-
-        // 8. Call addConnector() to attach this Connector to the set of defined
-        // Connectors for this object. The added Connector will use the most
-        // recently added Engine to process its received requests.
-        embedded.addConnector(connector);
-
         // 9. Call start() to initiate normal operations of all the attached
         // components.
         embedded.start();
@@ -230,8 +187,7 @@ public class TomcatContainer implements GBeanLifecycle {
      * 
      * It simply delegates the call to Tomcat's Embedded and Host classes
      * 
-     * @param ctx
-     *            the context to be added
+     * @param ctx the context to be added
      * 
      * @see org.apache.catalina.startup.Embedded
      * @see org.apache.catalina.Host
@@ -262,14 +218,6 @@ public class TomcatContainer implements GBeanLifecycle {
         System.setProperty("catalina.home", catalinaHome);
     }
 
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
-
     public String getEndorsedDirs() {
         return endorsedDirs;
     }
@@ -278,21 +226,31 @@ public class TomcatContainer implements GBeanLifecycle {
         this.endorsedDirs = endorsedDirs;
     }
 
+    public void addConnector(Connector connector) {
+        embedded.addConnector(connector);
+    }
+
+    public void removeConnector(Connector connector) {
+        embedded.removeConnector(connector);
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Tomcat Web Container", TomcatContainer.class);
 
-        infoFactory.setConstructor(new String[] { "catalinaHome", "port", "ServerInfo" });
+        infoFactory.setConstructor(new String[] { "catalinaHome", "ServerInfo" });
 
         infoFactory.addAttribute("catalinaHome", String.class, true);
-        infoFactory.addAttribute("port", int.class, true);
         infoFactory.addAttribute("endorsedDirs", String.class, true);
 
         infoFactory.addReference("ServerInfo", ServerInfo.class);
 
         infoFactory.addOperation("addContext", new Class[] { TomcatContext.class });
         infoFactory.addOperation("removeContext", new Class[] { TomcatContext.class });
+
+        infoFactory.addOperation("addConnector", new Class[] { Connector.class });
+        infoFactory.addOperation("removeConnector", new Class[] { Connector.class });
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
