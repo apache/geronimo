@@ -95,7 +95,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/06/15 03:00:37 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/15 23:33:00 $
  */
 public class ConnectorModuleBuilder implements ModuleBuilder {
     private static final String BASE_REALM_BRIDGE_NAME = "geronimo.security:service=RealmBridge,name=";
@@ -323,9 +323,10 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
         // Resource Adapter
         //
 
-        String resourceAdapterName = geronimoResourceAdapter.getResourceadapterInstance().getResourceadapterName();
         ObjectName resourceAdapterObjectName = null;
         if (resourceadapter.isSetResourceadapterClass()) {
+            String resourceAdapterName = geronimoResourceAdapter.getResourceadapterInstance().getResourceadapterName();
+
             // Create the resource adapter gbean
             GBeanInfoFactory resourceAdapterInfoFactory = new GBeanInfoFactory(ResourceAdapterWrapper.class, ResourceAdapterWrapper.getGBeanInfo());
             ConfigProperty[] configProperties = getConfigProperties(resourceadapter.getConfigPropertyArray(), geronimoResourceAdapter.getResourceadapterInstance().getConfigPropertySettingArray());
@@ -439,7 +440,6 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
                     Properties nameProps = new Properties();
                     nameProps.put("j2eeType", "JCAAdminObject");
                     nameProps.put("name", gerAdminObjectInstance.getAdminobjectName());
-                    nameProps.put("JCAResource", resourceAdapterName);
                     nameProps.put("J2EEServer", earContext.getJ2EEServerName());
 
                     ObjectName adminObjectObjectName = new ObjectName(earContext.getJ2EEDomainName(), nameProps);

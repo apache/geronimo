@@ -17,47 +17,46 @@
 
 package org.apache.geronimo.connector.deployment;
 
-import java.io.File;
-import java.io.InputStream;
-import java.io.FileOutputStream;
-import java.io.FileInputStream;
-import java.io.ObjectInputStream;
 import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Collections;
-import java.util.Set;
-import java.util.jar.JarOutputStream;
-import java.util.jar.JarFile;
 import java.sql.Connection;
 import java.sql.Statement;
-
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.jar.JarFile;
+import java.util.jar.JarOutputStream;
 import javax.management.ObjectName;
 import javax.sql.DataSource;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
-import org.apache.geronimo.xbeans.j2ee.ConnectorDocument;
-import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
-import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARContext;
+import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
-import org.apache.geronimo.system.configuration.LocalConfigStore;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.xmlbeans.XmlOptions;
+import org.apache.geronimo.system.configuration.LocalConfigStore;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
+import org.apache.geronimo.xbeans.j2ee.ConnectorDocument;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
 import org.tranql.sql.jdbc.JDBCUtil;
 
 /**
- * @version $Revision: 1.10 $ $Date: 2004/06/15 03:00:37 $
+ * @version $Revision: 1.11 $ $Date: 2004/06/15 23:33:00 $
  */
 public class RAR_1_5ConfigBuilderTest extends TestCase {
     private URL j2eeDD;
@@ -259,14 +258,12 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
             ObjectName tweedledeeAdminObject = new ObjectName(j2eeDomainName +
                     ":j2eeType=JCAAdminObject" +
                     ",J2EEServer=" + j2eeServerName +
-                    ",JCAResource=" + resourceAdapterName +
                     ",name=tweedledee");
             assertRunning(kernel, tweedledeeAdminObject);
 
             ObjectName tweedledumAdminObject = new ObjectName(j2eeDomainName +
                     ":j2eeType=JCAAdminObject" +
                     ",J2EEServer=" + j2eeServerName +
-                    ",JCAResource=" + resourceAdapterName +
                     ",name=tweedledum");
             assertRunning(kernel, tweedledumAdminObject);
 
