@@ -73,13 +73,13 @@ import org.apache.geronimo.jmx.JMXKernel;
  *
  *
  *
- * @version $Revision: 1.7 $ $Date: 2003/08/16 19:03:08 $
+ * @version $Revision: 1.8 $ $Date: 2003/08/18 22:15:36 $
  */
 public class Main implements Runnable {
     static {
         // Add our default Commons Logger that support the trace level
-        if (System.getProperty(LogFactoryImpl.LOG_PROPERTY) == null) {
-            System.setProperty(LogFactoryImpl.LOG_PROPERTY, "org.apache.geronimo.core.log.Log4jLog");
+        if(System.getProperty(LogFactoryImpl.LOG_PROPERTY) == null) {
+            System.setProperty(LogFactoryImpl.LOG_PROPERTY, "org.apache.geronimo.core.log.CachingLog4jLog");
         }
     }
 
