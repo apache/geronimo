@@ -72,7 +72,7 @@ import java.security.PrivilegedActionException;
  * which, in turn, also get placed into the subject.  It is these RealmPrincipals
  * that are used in the principal to role mapping.
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/08 06:15:52 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/10 20:31:54 $
  */
 public class LoginModuleWrapper implements LoginModule {
     private String realm;
@@ -88,7 +88,7 @@ public class LoginModuleWrapper implements LoginModule {
                         return Thread.currentThread().getContextClassLoader();
                     }
                 });
-    };
+    }
 
     public final static String REALM = "org.apache.geronimo.security.LoginModuleWrapper.REALM";
     public final static String MODULE = "org.apache.geronimo.security.LoginModuleWrapper.MODULE";
