@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+The Apache Software License, Version 1.1
+
+Copyright (c) 2003 The Apache Software Foundation.  All rights
+reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in
+   the documentation and/or other materials provided with the
+   distribution.
+
+3. The end-user documentation included with the redistribution,
+   if any, must include the following acknowledgment:
+      "This product includes software developed by the
+       Apache Software Foundation (http://www.apache.org/)."
+   Alternately, this acknowledgment may appear in the software itself,
+   if and wherever such third-party acknowledgments normally appear.
+
+4. The names "Apache" and "Apache Software Foundation" and
+   "Apache Geronimo" must not be used to endorse or promote products
+   derived from this software without prior written permission. For
+   written permission, please contact apache@apache.org.
+
+5. Products derived from this software may not be called "Apache",
+   "Apache Geronimo", nor may "Apache" appear in their name, without
+   prior written permission of the Apache Software Foundation.
+
+THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
+WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED.  IN NO EVENT SHALL THE APACHE SOFTWARE FOUNDATION OR
+ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
+====================================================================
+
+This software consists of voluntary contributions made by many
+individuals on behalf of the Apache Software Foundation.  For more
+information on the Apache Software Foundation, please see
+http://www.apache.org/.
+
+====================================================================
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+    <xs:element name="mbean">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="target" minOccurs="0" maxOccurs="unbounded">
+                    <xs:complexType>
+                        <xs:attribute name="name" type="xs:string" use="optional" default="default"/>
+                        <xs:attribute name="class" type="className" use="required"/>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="attribute" minOccurs="0" maxOccurs="unbounded">
+                    <xs:complexType>
+                        <xs:attribute name="name" type="xs:string" use="required"/>
+                        <xs:attribute name="description" type="xs:string" use="optional"/>
+                        <xs:attribute name="targetName" type="xs:string" use="optional" default="default"/>
+                        <xs:attribute name="readable" type="xs:boolean" use="optional" default="true"/>
+                        <xs:attribute name="writable" type="xs:boolean" use="optional" default="true"/>
+                        <xs:attribute name="getterName" type="xs:string" use="optional"/>
+                        <xs:attribute name="setterName" type="xs:string" use="optional"/>
+                        <xs:attribute name="cache" type="cache" use="optional" default="-1"/>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="operation" minOccurs="0" maxOccurs="unbounded">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="parameter" minOccurs="0" maxOccurs="unbounded">
+                                <xs:complexType>
+                                    <xs:attribute name="name" type="xs:string" use="required"/>
+                                    <xs:attribute name="description" type="xs:string" use="optional"/>
+                                    <xs:attribute name="type" type="xs:string" use="required"/>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                        <xs:attribute name="name" type="xs:string" use="required"/>
+                        <xs:attribute name="description" type="xs:string" use="optional"/>
+                        <xs:attribute name="targetName" type="xs:string" use="optional" default="default"/>
+                        <xs:attribute name="methodName" type="xs:string" use="optional"/>
+                        <xs:attribute name="impact" type="impact" use="optional" default="UNKNOWN"/>
+                        <xs:attribute name="cache" type="cache" use="optional" default="-1"/>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="notification" minOccurs="0" maxOccurs="unbounded">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="type" minOccurs="1" maxOccurs="unbounded" type="xs:string">
+                            </xs:element>
+                        </xs:sequence>
+                        <xs:attribute name="class" type="className" use="required"/>
+                        <xs:attribute name="description" type="xs:string" use="optional"/>
+                    </xs:complexType>
+                    <xs:unique name="type">
+                        <xs:selector xpath="type"/>
+                        <xs:field xpath="."/>
+                    </xs:unique>
+                </xs:element>
+            </xs:sequence>
+            <xs:attribute name="name" type="xs:string" use="required"/>
+            <xs:attribute name="description" type="xs:string" use="optional"/>
+        </xs:complexType>
+        <xs:key name="attribute">
+            <xs:selector xpath="attribute"/>
+            <xs:field xpath="@name"/>
+        </xs:key>
+    </xs:element>
+    <xs:simpleType name="className">
+        <xs:restriction base="xs:string"/>
+    </xs:simpleType>
+    <xs:simpleType name="impact">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="INFO"/>
+            <xs:enumeration value="ACTION"/>
+            <xs:enumeration value="ACTION_INFO"/>
+            <xs:enumeration value="UNKNOWN"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="cache">
+        <xs:union>
+            <xs:simpleType>
+                <xs:restriction base="xs:int"/>
+            </xs:simpleType>
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="always"/>
+                    <xs:enumeration value="ALWAYS"/>
+                    <xs:enumeration value="never"/>
+                    <xs:enumeration value="NEVER"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:union>
+    </xs:simpleType>
+</xs:schema>
