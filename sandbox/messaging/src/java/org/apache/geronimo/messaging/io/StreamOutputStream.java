@@ -24,12 +24,13 @@ import java.io.ObjectStreamClass;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.WeakHashMap;
 
 
 /**
  * This is the counterpart of StreamInputStream.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:41 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/31 13:18:22 $
  */
 public class StreamOutputStream
     extends ObjectOutputStream
@@ -58,11 +59,6 @@ public class StreamOutputStream
      */
     public static final byte CACHED = 0x02;
 
-    /**
-     * Used to generate identifiers for cached ObjectStreamClasses.
-     */
-    private int seqID;
-    
     private final StreamManager streamManager;
 
     /**
@@ -71,7 +67,12 @@ public class StreamOutputStream
     private final ReplacerResolver resolver;
     
     /**
-     * ClassDescriptors to Integer map.
+     * Used to generate identifiers for cached ObjectStreamClasses.
+     */
+    private int seqID;
+    
+    /**
+     * Class name to ObjectStreamClass identifier map.
      */
     private final Map classDescCache;
     
@@ -113,10 +114,12 @@ public class StreamOutputStream
      * written, this implementation assigns it an identifier.
      * <BR>
      * This latter will be written for all the remaining requests.
+     * 
+     * @param desc Class description to be written to the stream.
      */
     protected void writeClassDescriptor(ObjectStreamClass desc)
         throws IOException {
-        Long descKey = new Long(desc.getSerialVersionUID()); 
+        String descKey = desc.getName();
         Integer id = (Integer) classDescCache.get(descKey);
         if ( null == id ) {
             id = new Integer(seqID++);
