@@ -29,7 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import sun.misc.URLClassPath;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/09/09 03:15:04 $
+ * @version $Revision: 1.2 $ $Date$
  */
 public class ToolsJarHack {
     private static boolean installed = false;
@@ -94,8 +94,8 @@ public class ToolsJarHack {
             return toolsJarFile;
         }
 
-        log.warn("Could not all find java compiler: tools.jar file not found at " + toolsJarFile.getAbsolutePath() +
-                " or " + toolsJarFile.getParentFile().getAbsolutePath());
+        log.warn("Could not all find java compiler: lib" + File.separator + "tools.jar file not found in " +
+                javaHomeDir.getAbsolutePath() + " or " + javaHomeDir.getParentFile().getAbsolutePath());
         return null;
     }
 
@@ -103,11 +103,9 @@ public class ToolsJarHack {
         File toolsJarFile;
         toolsJarFile = new File(javaHomeDir, "lib" + File.separator + "tools.jar");
         if (!toolsJarFile.exists()) {
-            log.warn("Could not all find java compiler: tools.jar file not found at " + toolsJarFile.getAbsolutePath());
             return null;
         }
         if (!toolsJarFile.isFile()) {
-            log.warn("Could not all find java compiler: tools.jar file not a regular file: " + toolsJarFile.getAbsolutePath());
             return null;
         }
         return toolsJarFile;
