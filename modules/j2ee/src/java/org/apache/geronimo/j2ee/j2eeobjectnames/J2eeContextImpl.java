@@ -47,8 +47,8 @@ public class J2eeContextImpl implements J2eeContext {
                 source.getKeyProperty(NameFactory.J2EE_APPLICATION),
                 moduleType,
                 source.getKeyProperty(moduleType),
-                source.getKeyProperty(NameFactory.J2EE_TYPE),
-                source.getKeyProperty(NameFactory.J2EE_NAME));
+                source.getKeyProperty(NameFactory.J2EE_NAME),
+                source.getKeyProperty(NameFactory.J2EE_TYPE));
     }
 
     public static J2eeContextImpl newModuleContextFromApplication(ObjectName source, String moduleType, String moduleName) {
