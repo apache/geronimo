@@ -59,6 +59,7 @@ package org.apache.geronimo;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.LocalConfigStore;
 
+import javax.management.ObjectName;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URI;
@@ -67,7 +68,7 @@ import java.net.URL;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/27 19:33:40 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/28 04:27:28 $
  *
  * */
 public class Geronimo {
@@ -148,6 +149,7 @@ public class Geronimo {
 
     public static void loadAndWait(String domain, String storeDirName, String configIDString) throws Exception {
         Kernel kernel = load(domain, storeDirName, configIDString);
+        kernel.getMBeanServer().invoke(new ObjectName("geronimo.config:name=" + ObjectName.quote(configIDString)), "startRecursive", null, null);
         while (kernel.isRunning()) {
             try {
                 synchronized (kernel) {
