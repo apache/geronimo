@@ -39,7 +39,9 @@ public class ConfigurationModuleType implements Serializable {
 
     public static final ConfigurationModuleType APP_CLIENT = new ConfigurationModuleType("APP_CLIENT", 6);
 
-    private static final ConfigurationModuleType[] fromInt = {EAR, EJB, CAR, RAR, WAR, SERVICE, APP_CLIENT};
+    public static final ConfigurationModuleType SPR = new ConfigurationModuleType("SPR", 7);
+
+    private static final ConfigurationModuleType[] fromInt = {EAR, EJB, CAR, RAR, WAR, SERVICE, APP_CLIENT, SPR};
 
     private final String name;
     

@@ -1084,6 +1084,25 @@
         </dependency>
         <!-- end corba support-->
 
+        <!-- spring support-->
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-spring-builder</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>springframework</groupId>
+            <artifactId>${spring_artifact}</artifactId>
+            <version>${spring_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+        <!-- end spring support-->
+
     </dependencies>
 
 </project>

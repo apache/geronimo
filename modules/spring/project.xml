@@ -77,7 +77,7 @@
 
       <dependency>
         <id>springframework</id>
-        <artifactId>spring-full</artifactId>
+        <artifactId>${spring_artifact}</artifactId>
         <version>${spring_version}</version>
         <url>http://www.springframework.org</url>
       </dependency>
