@@ -71,7 +71,7 @@ import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GEndpointInfo;
+import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.naming.ger.GerContextManager;
@@ -79,7 +79,7 @@ import org.apache.geronimo.naming.ger.GerContextManager;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 05:56:10 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/25 21:07:03 $
  *
  * */
 public class ManagedConnectionFactoryWrapper implements GBean, DynamicGBean {
@@ -262,9 +262,9 @@ public class ManagedConnectionFactoryWrapper implements GBean, DynamicGBean {
 
         infoFactory.addOperation(new GOperationInfo("getConnectionFactory"));
 
-        infoFactory.addEndpoint(new GEndpointInfo("ResourceAdapterWrapper", ResourceAdapterWrapper.class.getName()));
-        infoFactory.addEndpoint(new GEndpointInfo("ConnectionManagerFactory", ConnectionManagerFactory.class.getName()));
-        infoFactory.addEndpoint(new GEndpointInfo("ManagedConnectionFactoryListener", ManagedConnectionFactoryListener.class.getName()));
+        infoFactory.addReference(new GReferenceInfo("ResourceAdapterWrapper", ResourceAdapterWrapper.class.getName()));
+        infoFactory.addReference(new GReferenceInfo("ConnectionManagerFactory", ConnectionManagerFactory.class.getName()));
+        infoFactory.addReference(new GReferenceInfo("ManagedConnectionFactoryListener", ManagedConnectionFactoryListener.class.getName()));
         infoFactory.setConstructor(new GConstructorInfo(
                 new String[]{"ManagedConnectionFactoryClass", "ConnectionFactoryInterface", "ConnectionFactoryImplClass", "ConnectionInterface", "ConnectionImplClass",
                              "GlobalJNDIName", "ResourceAdapterWrapper", "ConnectionManagerFactory", "ManagedConnectionFactoryListener"},

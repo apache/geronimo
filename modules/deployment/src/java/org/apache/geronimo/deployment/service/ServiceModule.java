@@ -84,7 +84,7 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/01/24 21:07:44 $
+ * @version $Revision: 1.7 $ $Date: 2004/01/25 21:07:03 $
  */
 public class ServiceModule implements DeploymentModule {
     private final URI moduleID;
@@ -216,7 +216,7 @@ public class ServiceModule implements DeploymentModule {
             }
             for (Iterator iterator = defs.getEndpoints().entrySet().iterator(); iterator.hasNext();) {
                 Map.Entry entry = (Map.Entry) iterator.next();
-                gbean.setEndpointPatterns((String) entry.getKey(), (Set) entry.getValue());
+                gbean.setReferencePatterns((String) entry.getKey(), (Set) entry.getValue());
             }
             callback.addGBean(name, gbean);
         }

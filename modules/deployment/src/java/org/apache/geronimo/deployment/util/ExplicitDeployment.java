@@ -69,7 +69,7 @@ import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GEndpointInfo;
+import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.kernel.KernelMBean;
@@ -81,7 +81,7 @@ import org.apache.geronimo.deployment.util.URLType;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/23 19:58:17 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/25 21:07:03 $
  *
  * */
 public class ExplicitDeployment implements GBean {
@@ -179,9 +179,9 @@ public class ExplicitDeployment implements GBean {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(ExplicitDeployment.class.getName());
         infoFactory.addAttribute(new GAttributeInfo("ConfigID", true));
         infoFactory.addAttribute(new GAttributeInfo("PackageURL", true));
-        infoFactory.addEndpoint(new GEndpointInfo("ConfigurationParent", ConfigurationParent.class.getName()));
-        infoFactory.addEndpoint(new GEndpointInfo("BatchDeployerFactory", BatchDeployerFactory.class.getName()));
-        infoFactory.addEndpoint(new GEndpointInfo("Kernel", KernelMBean.class.getName()));
+        infoFactory.addReference(new GReferenceInfo("ConfigurationParent", ConfigurationParent.class.getName()));
+        infoFactory.addReference(new GReferenceInfo("BatchDeployerFactory", BatchDeployerFactory.class.getName()));
+        infoFactory.addReference(new GReferenceInfo("Kernel", KernelMBean.class.getName()));
         infoFactory.setConstructor(new GConstructorInfo(
                 new String[] {"ConfigID", "PackageURL", "ConfigurationParent", "BatchDeployerFactory", "Kernel"},
                 new Class[] {URI.class, URL.class, ConfigurationParent.class, BatchDeployerFactory.class, KernelMBean.class}));

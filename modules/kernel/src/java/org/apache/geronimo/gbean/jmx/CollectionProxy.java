@@ -69,9 +69,9 @@ import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.EndpointCollection;
-import org.apache.geronimo.gbean.EndpointCollectionEvent;
-import org.apache.geronimo.gbean.EndpointCollectionListener;
+import org.apache.geronimo.gbean.ReferenceCollection;
+import org.apache.geronimo.gbean.ReferenceCollectionEvent;
+import org.apache.geronimo.gbean.ReferenceCollectionListener;
 import org.apache.geronimo.gbean.WaitingException;
 
 import net.sf.cglib.proxy.CallbackFilter;
@@ -84,7 +84,7 @@ import net.sf.cglib.core.CodeGenerationException;
 /**
  *
  *
- * @version $Revision: 1.9 $ $Date: 2004/01/21 19:44:29 $
+ * @version $Revision: 1.10 $ $Date: 2004/01/25 21:07:04 $
  */
 public class CollectionProxy implements Proxy {
     private static final Log log = LogFactory.getLog(CollectionProxy.class);
@@ -95,7 +95,7 @@ public class CollectionProxy implements Proxy {
     private GBeanMBean gmbean;
 
     /**
-     * Name of the endpoint
+     * Name of the reference
      */
     public String name;
 
@@ -215,7 +215,7 @@ public class CollectionProxy implements Proxy {
         }
     }
 
-    private class ClientCollection implements EndpointCollection {
+    private class ClientCollection implements ReferenceCollection {
         private Set listeners = new HashSet();
 
         public boolean isStopped() {
@@ -224,13 +224,13 @@ public class CollectionProxy implements Proxy {
             }
         }
 
-        public void addEndpointCollectionListener(EndpointCollectionListener listener) {
+        public void addReferenceCollectionListener(ReferenceCollectionListener listener) {
             synchronized (CollectionProxy.this) {
                 listeners.add(listener);
             }
         }
 
-        public void removeEndpointCollectionListener(EndpointCollectionListener listener) {
+        public void removeReferenceCollectionListener(ReferenceCollectionListener listener) {
             synchronized (CollectionProxy.this) {
                 listeners.remove(listener);
             }
@@ -242,9 +242,9 @@ public class CollectionProxy implements Proxy {
                 listenerCopy = new ArrayList(listeners);
             }
             for (Iterator iterator = listenerCopy.iterator(); iterator.hasNext();) {
-                EndpointCollectionListener listener = (EndpointCollectionListener) iterator.next();
+                ReferenceCollectionListener listener = (ReferenceCollectionListener) iterator.next();
                 try {
-                    listener.memberAdded(new EndpointCollectionEvent(name, member));
+                    listener.memberAdded(new ReferenceCollectionEvent(name, member));
                 } catch (Throwable t) {
                     log.error("Listener threw exception", t);
                 }
@@ -257,9 +257,9 @@ public class CollectionProxy implements Proxy {
                 listenerCopy = new ArrayList(listeners);
             }
             for (Iterator iterator = listenerCopy.iterator(); iterator.hasNext();) {
-                EndpointCollectionListener listener = (EndpointCollectionListener) iterator.next();
+                ReferenceCollectionListener listener = (ReferenceCollectionListener) iterator.next();
                 try {
-                    listener.memberRemoved(new EndpointCollectionEvent(name, member));
+                    listener.memberRemoved(new ReferenceCollectionEvent(name, member));
                 } catch (Throwable t) {
                     log.error("Listener threw exception", t);
                 }

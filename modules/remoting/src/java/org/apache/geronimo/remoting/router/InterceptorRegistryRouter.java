@@ -60,11 +60,11 @@ import java.net.URI;
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GEndpointInfo;
+import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.remoting.InterceptorRegistry;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/01/22 06:39:23 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/25 21:07:04 $
  */
 public class InterceptorRegistryRouter extends AbstractInterceptorRouter implements Router {
     private SubsystemRouter subsystemRouter;
@@ -100,7 +100,7 @@ public class InterceptorRegistryRouter extends AbstractInterceptorRouter impleme
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(InterceptorRegistryRouter.class.getName(), AbstractInterceptorRouter.GBEAN_INFO);
-        infoFactory.addEndpoint(new GEndpointInfo("SubsystemRouter", SubsystemRouter.class.getName()));
+        infoFactory.addReference(new GReferenceInfo("SubsystemRouter", SubsystemRouter.class.getName()));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

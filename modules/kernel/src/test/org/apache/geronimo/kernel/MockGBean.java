@@ -63,13 +63,13 @@ import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GEndpointInfo;
+import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
 
 /**
  *
  *
- * @version $Revision: 1.9 $ $Date: 2004/01/22 20:10:33 $
+ * @version $Revision: 1.10 $ $Date: 2004/01/25 21:07:04 $
  */
 public class MockGBean implements MockEndpoint {
     private static final GBeanInfo GBEAN_INFO;
@@ -97,8 +97,8 @@ public class MockGBean implements MockEndpoint {
         infoFactory.addOperation(new GOperationInfo("checkEndpointCollection"));
         infoFactory.addOperation(new GOperationInfo("doSomething", new String[]{"java.lang.String"}));
         infoFactory.addInterface(MockEndpoint.class, new String[] {"MutableInt"});
-        infoFactory.addEndpoint(new GEndpointInfo("MockEndpoint", MockEndpoint.class.getName()));
-        infoFactory.addEndpoint(new GEndpointInfo("EndpointCollection", MockEndpoint.class.getName()));
+        infoFactory.addReference(new GReferenceInfo("MockEndpoint", MockEndpoint.class.getName()));
+        infoFactory.addReference(new GReferenceInfo("EndpointCollection", MockEndpoint.class.getName()));
         infoFactory.setConstructor(new GConstructorInfo(new String[]{"Name", "FinalInt"}, new Class[]{String.class, Integer.TYPE}));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

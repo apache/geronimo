@@ -71,7 +71,7 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/21 20:01:52 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/25 21:07:04 $
  */
 public class ContainerTest extends TestCase {
     private Kernel kernel;
@@ -88,7 +88,7 @@ public class ContainerTest extends TestCase {
     public void testHTTPConnector() throws Exception {
         GBeanMBean connector = new GBeanMBean(HTTPConnector.GBEAN_INFO);
         connector.setAttribute("Port", new Integer(5678));
-        connector.setEndpointPatterns("JettyContainer", containerPatterns);
+        connector.setReferencePatterns("JettyContainer", containerPatterns);
         start(connectorName, connector);
 
         assertEquals(new Integer(State.RUNNING_INDEX), kernel.getMBeanServer().getAttribute(connectorName, "state"));

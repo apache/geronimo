@@ -70,7 +70,7 @@ import org.apache.geronimo.jetty.JettyWebApplicationContext;
 /**
  * 
  * 
- * @version $Revision: 1.1 $ $Date: 2004/01/24 21:07:44 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/25 21:07:04 $
  */
 public class AbstractModule implements DeploymentModule {
     protected URI uri;
@@ -97,9 +97,9 @@ public class AbstractModule implements DeploymentModule {
             app.setAttribute("ContextPath", contextPath);
             app.setAttribute("ComponentContext", null);
             app.setAttribute("PolicyContextID", null);
-            app.setEndpointPatterns("JettyContainer", Collections.singleton(new ObjectName("geronimo.web:type=WebContainer,container=Jetty"))); // @todo configurable
-            app.setEndpointPatterns("TransactionManager", Collections.EMPTY_SET);
-            app.setEndpointPatterns("TrackedConnectionAssociator", Collections.EMPTY_SET);
+            app.setReferencePatterns("JettyContainer", Collections.singleton(new ObjectName("geronimo.web:type=WebContainer,container=Jetty"))); // @todo configurable
+            app.setReferencePatterns("TransactionManager", Collections.EMPTY_SET);
+            app.setReferencePatterns("TrackedConnectionAssociator", Collections.EMPTY_SET);
             callback.addGBean(name, app);
         } catch (Exception e) {
             throw new DeploymentException("Unable to build GBean for web application", e);

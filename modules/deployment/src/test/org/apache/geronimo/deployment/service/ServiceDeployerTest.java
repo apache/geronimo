@@ -84,7 +84,7 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/01/23 19:58:17 $
+ * @version $Revision: 1.7 $ $Date: 2004/01/25 21:07:04 $
  */
 public class ServiceDeployerTest extends TestCase {
     private static final URI MODULE_ID = URI.create("service");
@@ -216,7 +216,7 @@ public class ServiceDeployerTest extends TestCase {
                     assertEquals(new ObjectName("geronimo.test:name=MyMockGMBean"), name);
                     assertEquals("1234", gbean.getAttribute("Value"));
                     assertEquals(new Integer(1234), gbean.getAttribute("IntValue"));
-                    assertEquals(Collections.singleton(ObjectName.getInstance("geronimo.test:name=MockEndpoint")), gbean.getEndpointPatterns("MockEndpoint"));
+                    assertEquals(Collections.singleton(ObjectName.getInstance("geronimo.test:name=MockEndpoint")), gbean.getReferencePatterns("MockEndpoint"));
                 } catch (Exception e) {
                     fail(e.getMessage());
                 }

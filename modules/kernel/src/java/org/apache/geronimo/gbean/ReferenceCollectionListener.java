@@ -55,15 +55,14 @@
  */
 package org.apache.geronimo.gbean;
 
-import java.util.Collection;
+import java.util.EventListener;
 
 /**
- * An extension of collection that allows a client to register for notifications when
- * members are added to and removed from the collection.
  * 
- * @version $Revision: 1.1 $ $Date: 2004/01/15 05:36:53 $
+ * 
+ * @version $Revision: 1.1 $ $Date: 2004/01/25 21:07:04 $
  */
-public interface EndpointCollection extends Collection {
-    void addEndpointCollectionListener(EndpointCollectionListener listener);
-    void removeEndpointCollectionListener(EndpointCollectionListener listener);
+public interface ReferenceCollectionListener extends EventListener {
+    void memberAdded(ReferenceCollectionEvent event);
+    void memberRemoved(ReferenceCollectionEvent event);
 }

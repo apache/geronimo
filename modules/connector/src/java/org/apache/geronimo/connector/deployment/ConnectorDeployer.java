@@ -73,7 +73,7 @@ import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GEndpointInfo;
+import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.xml.deployment.ConnectorLoader;
 import org.apache.geronimo.xml.deployment.GeronimoConnectorLoader;
@@ -81,7 +81,7 @@ import org.apache.geronimo.xml.deployment.GeronimoConnectorLoader;
 import org.w3c.dom.Document;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/01/23 05:56:10 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/25 21:07:03 $
  *
  * */
 public class ConnectorDeployer implements ModuleFactory {
@@ -136,7 +136,7 @@ public class ConnectorDeployer implements ModuleFactory {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(ConnectorDeployer.class.getName());
         infoFactory.addAttribute(new GAttributeInfo("ConnectionTrackerNamePattern", true));
         infoFactory.addOperation(new GOperationInfo("getModule", new String[]{URLInfo.class.getName(), URI.class.getName()}));
-        infoFactory.addEndpoint(new GEndpointInfo("ParserFactory", ParserFactory.class.getName()));
+        infoFactory.addReference(new GReferenceInfo("ParserFactory", ParserFactory.class.getName()));
         infoFactory.setConstructor(new GConstructorInfo(
                 new String[]{"ConnectionTrackerNamePattern", "ParserFactory"},
                 new Class[]{ObjectName.class, ParserFactory.class}));

@@ -55,61 +55,15 @@
  */
 package org.apache.geronimo.gbean;
 
-import java.io.Serializable;
-
+import java.util.Collection;
 
 /**
- *
- *
- * @version $Revision: 1.2 $ $Date: 2004/01/16 23:31:21 $
+ * An extension of collection that allows a client to register for notifications when
+ * members are added to and removed from the collection.
+ * 
+ * @version $Revision: 1.1 $ $Date: 2004/01/25 21:07:04 $
  */
-public class GEndpointInfo implements Serializable {
-    /**
-     * Name of this endpoint.
-     */
-    private final String name;
-
-    /**
-     * Type of this endpoint.
-     */
-    private final String type;
-
-    /**
-     * Name of the setter method.
-     * The default is "set" + name.  In the case of a default value we do a caseless search for the name.
-     */
-    private final String setterName;
-
-    public GEndpointInfo() {
-        this(null, null, null);
-    }
-
-    public GEndpointInfo(String name, String type) {
-        this(name, type, null);
-    }
-
-    public GEndpointInfo(String name, String type, String setterName) {
-        this.name = name;
-        this.type = type;
-        this.setterName = setterName;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public String getSetterName() {
-        return setterName;
-    }
-
-    public String toString() {
-        return "[GEndpointInfo: name=" + name +
-                " type=" + type +
-                " setterName=" + setterName +
-                "]";
-    }
+public interface ReferenceCollection extends Collection {
+    void addReferenceCollectionListener(ReferenceCollectionListener listener);
+    void removeReferenceCollectionListener(ReferenceCollectionListener listener);
 }

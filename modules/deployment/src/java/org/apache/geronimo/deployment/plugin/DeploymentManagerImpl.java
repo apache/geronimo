@@ -86,13 +86,13 @@ import org.apache.geronimo.deployment.plugin.local.CommandSupport;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GEndpointInfo;
+import org.apache.geronimo.gbean.GReferenceInfo;
 import org.w3c.dom.Document;
 
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/01/24 21:07:44 $
+ * @version $Revision: 1.6 $ $Date: 2004/01/25 21:07:03 $
  */
 public class DeploymentManagerImpl implements DeploymentManager {
     private final DeploymentServer server;
@@ -264,12 +264,12 @@ public class DeploymentManagerImpl implements DeploymentManager {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory("JSR88 Deployment Manager", DeploymentManagerImpl.class.getName());
-        infoFactory.addEndpoint(new GEndpointInfo("Server", DeploymentServer.class.getName()));
-        infoFactory.addEndpoint(new GEndpointInfo("EARFactory", DeploymentConfigurationFactory.class.getName()));
-        infoFactory.addEndpoint(new GEndpointInfo("WARFactory", DeploymentConfigurationFactory.class.getName()));
-        infoFactory.addEndpoint(new GEndpointInfo("EJBFactory", DeploymentConfigurationFactory.class.getName()));
-        infoFactory.addEndpoint(new GEndpointInfo("RARFactory", DeploymentConfigurationFactory.class.getName()));
-        infoFactory.addEndpoint(new GEndpointInfo("CARFactory", DeploymentConfigurationFactory.class.getName()));
+        infoFactory.addReference(new GReferenceInfo("Server", DeploymentServer.class.getName()));
+        infoFactory.addReference(new GReferenceInfo("EARFactory", DeploymentConfigurationFactory.class.getName()));
+        infoFactory.addReference(new GReferenceInfo("WARFactory", DeploymentConfigurationFactory.class.getName()));
+        infoFactory.addReference(new GReferenceInfo("EJBFactory", DeploymentConfigurationFactory.class.getName()));
+        infoFactory.addReference(new GReferenceInfo("RARFactory", DeploymentConfigurationFactory.class.getName()));
+        infoFactory.addReference(new GReferenceInfo("CARFactory", DeploymentConfigurationFactory.class.getName()));
         infoFactory.setConstructor(new GConstructorInfo(
                 Arrays.asList(new Object[]{"Server", "EARFactory", "WARFactory", "EJBFactory", "RARFactory", "CARFactory"}),
                 Arrays.asList(new Object[]{DeploymentServer.class, DeploymentConfigurationFactory.class, DeploymentConfigurationFactory.class, DeploymentConfigurationFactory.class, DeploymentConfigurationFactory.class, DeploymentConfigurationFactory.class})

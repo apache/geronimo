@@ -63,14 +63,14 @@ import java.io.File;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GEndpointInfo;
+import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationParent;
 
 /**
  * TODO this does not put the deployers in any particular order.  This may be a problem.
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/23 19:58:16 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/25 21:07:03 $
  *
  * */
 public class BatchDeployerFactory {
@@ -111,7 +111,7 @@ public class BatchDeployerFactory {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(BatchDeployerFactory.class.getName());
         infoFactory.addOperation(new GOperationInfo("getBatchDeployer", new String[] {ConfigurationParent.class.getName(), URI.class.getName(), File.class.getName()}));
         infoFactory.addOperation(new GOperationInfo("createWorkDir"));
-        infoFactory.addEndpoint(new GEndpointInfo("Deployers", ModuleFactory.class.getName()));
+        infoFactory.addReference(new GReferenceInfo("Deployers", ModuleFactory.class.getName()));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

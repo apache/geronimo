@@ -70,14 +70,14 @@ import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GEndpointInfo;
+import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.WaitingException;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 05:56:10 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/25 21:07:03 $
  *
  * */
 public class ResourceAdapterWrapper implements GBean, DynamicGBean {
@@ -156,7 +156,7 @@ public class ResourceAdapterWrapper implements GBean, DynamicGBean {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(ResourceAdapterWrapper.class.getName());
         infoFactory.addAttribute(new GAttributeInfo("ResourceAdapterClass"));
-        infoFactory.addEndpoint(new GEndpointInfo("BootstrapContext", BootstrapContext.class.getName()));
+        infoFactory.addReference(new GReferenceInfo("BootstrapContext", BootstrapContext.class.getName()));
 
         infoFactory.addOperation(new GOperationInfo("registerManagedConnectionFactory", new String[]{ManagedConnectionFactory.class.getName()}));
         infoFactory.addOperation(new GOperationInfo("endpointActivation", new String[]{MessageEndpointFactory.class.getName(), ActivationSpec.class.getName()}));

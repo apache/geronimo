@@ -69,7 +69,7 @@ import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GEndpointInfo;
+import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.kernel.KernelMBean;
 import org.apache.geronimo.security.bridge.RealmBridge;
@@ -79,7 +79,7 @@ import org.apache.geronimo.security.bridge.RealmBridge;
  * and connection manager stack according to the policies described in the attributes.
  * It's used by deserialized copies of the proxy to get a reference to the actual stack.
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 05:56:10 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/25 21:07:03 $
  * */
 public class ConnectionManagerDeployment implements ConnectionManagerFactory, GBean {
 
@@ -355,9 +355,9 @@ public class ConnectionManagerDeployment implements ConnectionManagerFactory, GB
         infoFactory.addOperation(new GOperationInfo("getStack"));
         infoFactory.addOperation(new GOperationInfo("createConnectionFactory", new String[]{ManagedConnectionFactory.class.getName()}));
 
-        infoFactory.addEndpoint(new GEndpointInfo("ConnectionTracker", ConnectionTracker.class.getName()));
-        infoFactory.addEndpoint(new GEndpointInfo("RealmBridge", RealmBridge.class.getName()));
-        infoFactory.addEndpoint(new GEndpointInfo("Kernel", KernelMBean.class.getName()));
+        infoFactory.addReference(new GReferenceInfo("ConnectionTracker", ConnectionTracker.class.getName()));
+        infoFactory.addReference(new GReferenceInfo("RealmBridge", RealmBridge.class.getName()));
+        infoFactory.addReference(new GReferenceInfo("Kernel", KernelMBean.class.getName()));
 
         infoFactory.setConstructor(new GConstructorInfo(
                 new String[]{"UseConnectionRequestInfo", "UseSubject", "UseTransactionCaching", "UseLocalTransactions", "UseTransactions",

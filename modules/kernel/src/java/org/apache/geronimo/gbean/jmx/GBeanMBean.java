@@ -86,7 +86,7 @@ import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GEndpointInfo;
+import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.kernel.jmx.MBeanOperationSignature;
@@ -98,7 +98,7 @@ import org.apache.geronimo.kernel.management.NotificationType;
  * GeronimoMBeanInfo instance.  The GeronimoMBean also support caching of attribute values and invocation results
  * which can reduce the number of calls to a target.
  *
- * @version $Revision: 1.5 $ $Date: 2004/01/22 02:46:27 $
+ * @version $Revision: 1.6 $ $Date: 2004/01/25 21:07:04 $
  */
 public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     public static final FastClass fastClass = FastClass.create(GBeanMBean.class);
@@ -122,9 +122,9 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     private final Map attributeMap = new HashMap();
 
     /**
-     * Endpoints supported by this GBeanMBean by (String) name.
+     * References supported by this GBeanMBean by (String) name.
      */
-    private final Map endpointMap = new HashMap();
+    private final Map referenceMap = new HashMap();
 
     /**
      * Opperations supported by this GBeanMBean by (MBeanOperationSignature) name.
@@ -168,10 +168,10 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
             addAttribute(new GBeanMBeanAttribute(this, attributeInfo, (Class) constructorTypes.get(attributeInfo.getName())));
         }
 
-        // endpoints
-        for (Iterator iterator = beanInfo.getEndpointsSet().iterator(); iterator.hasNext();) {
-            GEndpointInfo endpointInfo = (GEndpointInfo) iterator.next();
-            addEndpoint(new GBeanMBeanEndpoint(this, endpointInfo, (Class) constructorTypes.get(endpointInfo.getName())));
+        // references
+        for (Iterator iterator = beanInfo.getReferencesSet().iterator(); iterator.hasNext();) {
+            GReferenceInfo referenceInfo = (GReferenceInfo) iterator.next();
+            addReference(new GBeanMBeanReference(this, referenceInfo, (Class) constructorTypes.get(referenceInfo.getName())));
         }
 
         // operations
@@ -271,12 +271,12 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
             String name = (String) names.next();
             if (attributeMap.containsKey(name)) {
                 parameters[i] = getAttribute(name);
-            } else if (endpointMap.containsKey(name)) {
-                GBeanMBeanEndpoint endpoint = (GBeanMBeanEndpoint) endpointMap.get(name);
-                endpoint.online();
-                parameters[i] = endpoint.getProxy();
+            } else if (referenceMap.containsKey(name)) {
+                GBeanMBeanReference reference = (GBeanMBeanReference) referenceMap.get(name);
+                reference.online();
+                parameters[i] = reference.getProxy();
             } else {
-                throw new InvalidConfigurationException("Unknown attribute or endpoint name in constructor: name=" + name);
+                throw new InvalidConfigurationException("Unknown attribute or reference name in constructor: name=" + name);
             }
             Class assertedType = (Class) assertedTypes.next();
             assert parameters[i] == null || assertedType.isPrimitive() || assertedType.isAssignableFrom(parameters[i].getClass()):
@@ -292,12 +292,12 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
             attribute.online();
         }
 
-        // bring any endpoint not used in the constructor online
+        // bring any reference not used in the constructor online
         // @todo this code sucks, but works
-        for (Iterator iterator = endpointMap.values().iterator(); iterator.hasNext();) {
-            GBeanMBeanEndpoint endpoint = (GBeanMBeanEndpoint) iterator.next();
-            if (!constructorInfo.getAttributeNames().contains(endpoint.getName())) {
-                endpoint.online();
+        for (Iterator iterator = referenceMap.values().iterator(); iterator.hasNext();) {
+            GBeanMBeanReference reference = (GBeanMBeanReference) iterator.next();
+            if (!constructorInfo.getAttributeNames().contains(reference.getName())) {
+                reference.online();
             }
         }
 
@@ -315,10 +315,10 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
             }
             offline = false;
         } else {
-            // we need to bring the endpoints back off line
-            for (Iterator iterator = endpointMap.values().iterator(); iterator.hasNext();) {
-                GBeanMBeanEndpoint endpoint = (GBeanMBeanEndpoint) iterator.next();
-                endpoint.offline();
+            // we need to bring the reference back off line
+            for (Iterator iterator = referenceMap.values().iterator(); iterator.hasNext();) {
+                GBeanMBeanReference reference = (GBeanMBeanReference) iterator.next();
+                reference.offline();
             }
 
             // well that didn't work, ditch the instance
@@ -333,10 +333,10 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
             attribute.offline();
         }
 
-        // take all of the endpoints offline
-        for (Iterator iterator = endpointMap.values().iterator(); iterator.hasNext();) {
-            GBeanMBeanEndpoint endpoint = (GBeanMBeanEndpoint) iterator.next();
-            endpoint.offline();
+        // take all of the reference offline
+        for (Iterator iterator = referenceMap.values().iterator(); iterator.hasNext();) {
+            GBeanMBeanReference reference = (GBeanMBeanReference) iterator.next();
+            reference.offline();
         }
 
         if (target instanceof GBean) {
@@ -359,10 +359,10 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     }
 
     protected void doStart() throws Exception {
-        // start all of the endpoints
-        for (Iterator iterator = endpointMap.values().iterator(); iterator.hasNext();) {
-            GBeanMBeanEndpoint endpoint = (GBeanMBeanEndpoint) iterator.next();
-            endpoint.start();
+        // start all of the reference
+        for (Iterator iterator = referenceMap.values().iterator(); iterator.hasNext();) {
+            GBeanMBeanReference reference = (GBeanMBeanReference) iterator.next();
+            reference.start();
         }
 
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
@@ -387,10 +387,10 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
 
-        // stop all of the endpoints
-        for (Iterator iterator = endpointMap.values().iterator(); iterator.hasNext();) {
-            GBeanMBeanEndpoint endpoint = (GBeanMBeanEndpoint) iterator.next();
-            endpoint.stop();
+        // stop all of the references
+        for (Iterator iterator = referenceMap.values().iterator(); iterator.hasNext();) {
+            GBeanMBeanReference reference = (GBeanMBeanReference) iterator.next();
+            reference.stop();
         }
     }
 
@@ -405,10 +405,10 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
 
-        // stop all of the endpoints
-        for (Iterator iterator = endpointMap.values().iterator(); iterator.hasNext();) {
-            GBeanMBeanEndpoint endpoint = (GBeanMBeanEndpoint) iterator.next();
-            endpoint.stop();
+        // stop all of the references
+        for (Iterator iterator = referenceMap.values().iterator(); iterator.hasNext();) {
+            GBeanMBeanReference reference = (GBeanMBeanReference) iterator.next();
+            reference.stop();
         }
     }
 
@@ -488,20 +488,20 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
         return ((GBeanMBeanOperation) operation).invoke(arguments);
     }
 
-    public Set getEndpointPatterns(String name) {
-        GBeanMBeanEndpoint endpoint = (GBeanMBeanEndpoint) endpointMap.get(name);
-        if (endpoint == null) {
-            throw new IllegalArgumentException("Unknown endpoint " + name);
+    public Set getReferencePatterns(String name) {
+        GBeanMBeanReference reference = (GBeanMBeanReference) referenceMap.get(name);
+        if (reference == null) {
+            throw new IllegalArgumentException("Unknown reference " + name);
         }
-        return endpoint.getPatterns();
+        return reference.getPatterns();
     }
 
-    public void setEndpointPatterns(String name, Set patterns) {
-        GBeanMBeanEndpoint endpoint = (GBeanMBeanEndpoint) endpointMap.get(name);
-        if (endpoint == null) {
-            throw new IllegalArgumentException("Unknown endpoint " + name);
+    public void setReferencePatterns(String name, Set patterns) {
+        GBeanMBeanReference reference = (GBeanMBeanReference) referenceMap.get(name);
+        if (reference == null) {
+            throw new IllegalArgumentException("Unknown reference " + name);
         }
-        endpoint.setPatterns(patterns);
+        reference.setPatterns(patterns);
     }
 
     public MBeanNotificationInfo[] getNotificationInfo() {
@@ -515,11 +515,11 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
         attributeMap.put(attributeName, mbeanAttribute);
     }
 
-    private void addEndpoint(GBeanMBeanEndpoint mbeanEndpoint) {
-        String endpointName = mbeanEndpoint.getName();
+    private void addReference(GBeanMBeanReference mbeanReference) {
+        String referenceName = mbeanReference.getName();
 
-        // add to endpoint map
-        endpointMap.put(endpointName, mbeanEndpoint);
+        // add to reference map
+        referenceMap.put(referenceName, mbeanReference);
     }
 
     private void addOperation(GBeanMBeanOperation mbeanOperation) {

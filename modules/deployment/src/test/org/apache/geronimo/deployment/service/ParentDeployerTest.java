@@ -79,7 +79,7 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/23 19:58:17 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/25 21:07:04 $
  */
 public class ParentDeployerTest extends TestCase {
     private DocumentBuilder parser;
@@ -111,7 +111,7 @@ public class ParentDeployerTest extends TestCase {
         batcher.addSource(new URLInfo(cl.getResource("services/service3/")));
         batcher.deploy();
         GBeanMBean childConfig = batcher.getConfiguration();
-        childConfig.setEndpointPatterns("Parent", Collections.singleton(new ObjectName("*:name=Parent")));
+        childConfig.setReferencePatterns("Parent", Collections.singleton(new ObjectName("*:name=Parent")));
         kernel.load(childConfig, cl.getResource("services/"), childName);
         kernel.getMBeanServer().invoke(childName, "start", null, null);
         ClassLoader childCL = (ClassLoader) kernel.getMBeanServer().getAttribute(childName, "ClassLoader");

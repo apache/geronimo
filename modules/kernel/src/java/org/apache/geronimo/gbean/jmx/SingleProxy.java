@@ -75,7 +75,7 @@ import net.sf.cglib.core.CodeGenerationException;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/01/21 19:43:04 $
+ * @version $Revision: 1.7 $ $Date: 2004/01/25 21:07:04 $
  */
 public class SingleProxy implements Proxy {
     private static final Log log = LogFactory.getLog(SingleProxy.class);
@@ -230,10 +230,10 @@ public class SingleProxy implements Proxy {
         //
         if (targets.size() == 0) {
             waitingForMe = true;
-            throw new WaitingException("No targets are running for " + name + " endpoint");
+            throw new WaitingException("No targets are running for " + name + " reference");
         } else if (targets.size() > 1) {
             waitingForMe = true;
-            throw new WaitingException("More then one targets are running for " + name + " endpoint");
+            throw new WaitingException("More then one targets are running for " + name + " reference");
         }
         waitingForMe = false;
         gmbean.getDependencyService().addStartHolds(gmbean.getObjectNameObject(), patterns);

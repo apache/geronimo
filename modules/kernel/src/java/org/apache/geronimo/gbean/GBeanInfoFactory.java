@@ -67,7 +67,7 @@ import java.util.Arrays;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/01/23 16:43:06 $
+ * @version $Revision: 1.7 $ $Date: 2004/01/25 21:07:04 $
  */
 public class GBeanInfoFactory {
     private final String name;
@@ -75,7 +75,7 @@ public class GBeanInfoFactory {
     private final Set attributes = new HashSet();
     private GConstructorInfo constructor;
     private final Set operations = new HashSet();
-    private final Set endpoints = new HashSet();
+    private final Set references = new HashSet();
     private final Set notifications = new HashSet();
 
     public GBeanInfoFactory(String name) {
@@ -97,7 +97,7 @@ public class GBeanInfoFactory {
         this.className = className;
         attributes.addAll(source.getAttributeSet());
         operations.addAll(source.getOperationsSet());
-        endpoints.addAll(source.getEndpointsSet());
+        references.addAll(source.getReferencesSet());
         notifications.addAll(source.getNotificationsSet());
         //in case subclass constructor has same parameters as superclass.
         constructor = source.getConstructor();
@@ -155,8 +155,8 @@ public class GBeanInfoFactory {
         operations.add(info);
     }
 
-    public void addEndpoint(GEndpointInfo info) {
-        endpoints.add(info);
+    public void addReference(GReferenceInfo info) {
+        references.add(info);
     }
 
     public void addNotification(GNotificationInfo info) {
@@ -164,6 +164,6 @@ public class GBeanInfoFactory {
     }
 
     public GBeanInfo getBeanInfo() {
-        return new GBeanInfo(name, className, attributes, constructor, operations, endpoints, notifications);
+        return new GBeanInfo(name, className, attributes, constructor, operations, references, notifications);
     }
 }

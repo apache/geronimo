@@ -77,7 +77,7 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.8 $ $Date: 2004/01/19 06:35:36 $
+ * @version $Revision: 1.9 $ $Date: 2004/01/25 21:07:04 $
  */
 public class ConfigTest extends TestCase {
     private ObjectName gbeanName1;
@@ -92,13 +92,13 @@ public class ConfigTest extends TestCase {
     public void testOfflineConfig() throws Exception {
         GBeanMBean config = new GBeanMBean(Configuration.GBEAN_INFO);
         config.setAttribute("ID", new URI("test"));
-        config.setEndpointPatterns("Parent", null);
+        config.setReferencePatterns("Parent", null);
     }
 
     public void testOnlineConfig() throws Exception {
         GBeanMBean config = new GBeanMBean(Configuration.GBEAN_INFO);
         config.setAttribute("ID", new URI("test"));
-        config.setEndpointPatterns("Parent", null);
+        config.setReferencePatterns("Parent", null);
         config.setAttribute("ClassPath", Collections.EMPTY_LIST);
         config.setAttribute("GBeanState", state);
         ObjectName configName = (ObjectName) mbServer.invoke(Kernel.KERNEL, "load", new Object[]{config, null}, new String[]{GBeanMBean.class.getName(), URL.class.getName()});
@@ -166,8 +166,8 @@ public class ConfigTest extends TestCase {
         mockBean2.setAttribute("Name", "Parent");
         mockBean2.setAttribute("FinalInt", new Integer(3));
         mockBean2.setAttribute("MutableInt", new Integer(4));
-        mockBean2.setEndpointPatterns("MockEndpoint", Collections.singleton(gbeanName1));
-        mockBean2.setEndpointPatterns("EndpointCollection", Collections.singleton(gbeanName1));
+        mockBean2.setReferencePatterns("MockEndpoint", Collections.singleton(gbeanName1));
+        mockBean2.setReferencePatterns("EndpointCollection", Collections.singleton(gbeanName1));
 
         Map gbeans = new HashMap();
         gbeans.put(gbeanName1, mockBean1);

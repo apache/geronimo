@@ -55,14 +55,61 @@
  */
 package org.apache.geronimo.gbean;
 
-import java.util.EventListener;
+import java.io.Serializable;
+
 
 /**
- * 
- * 
- * @version $Revision: 1.1 $ $Date: 2004/01/15 05:36:53 $
+ *
+ *
+ * @version $Revision: 1.1 $ $Date: 2004/01/25 21:07:04 $
  */
-public interface EndpointCollectionListener extends EventListener {
-    void memberAdded(EndpointCollectionEvent event);
-    void memberRemoved(EndpointCollectionEvent event);
+public class GReferenceInfo implements Serializable {
+    /**
+     * Name of this reference.
+     */
+    private final String name;
+
+    /**
+     * Type of this reference.
+     */
+    private final String type;
+
+    /**
+     * Name of the setter method.
+     * The default is "set" + name.  In the case of a default value we do a caseless search for the name.
+     */
+    private final String setterName;
+
+    public GReferenceInfo() {
+        this(null, null, null);
+    }
+
+    public GReferenceInfo(String name, String type) {
+        this(name, type, null);
+    }
+
+    public GReferenceInfo(String name, String type, String setterName) {
+        this.name = name;
+        this.type = type;
+        this.setterName = setterName;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public String getSetterName() {
+        return setterName;
+    }
+
+    public String toString() {
+        return "[GReferenceInfo: name=" + name +
+                " type=" + type +
+                " setterName=" + setterName +
+                "]";
+    }
 }

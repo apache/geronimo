@@ -87,7 +87,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GEndpointInfo;
+import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.gbean.jmx.GBeanMBeanContext;
 import org.apache.geronimo.gbean.GBean;
@@ -121,7 +121,7 @@ import org.apache.geronimo.kernel.Kernel;
  * a startRecursive() for all the GBeans it contains. Similarly, if the
  * Configuration is stopped then all of its GBeans will be stopped as well.
  *
- * @version $Revision: 1.6 $ $Date: 2004/01/23 16:44:52 $
+ * @version $Revision: 1.7 $ $Date: 2004/01/25 21:07:04 $
  */
 public class Configuration implements GBean {
     private static final Log log = LogFactory.getLog(Configuration.class);
@@ -302,7 +302,7 @@ public class Configuration implements GBean {
         }
         int endpointCount = ois.readInt();
         for (int i = 0; i < endpointCount; i ++) {
-            gbean.setEndpointPatterns((String)ois.readObject(), (Set)ois.readObject());
+            gbean.setReferencePatterns((String)ois.readObject(), (Set)ois.readObject());
         }
     }
 
@@ -340,12 +340,12 @@ public class Configuration implements GBean {
             oos.writeObject(attributeInfo.getName());
             oos.writeObject(gbean.getAttribute(attributeInfo.getName()));
         }
-        Set endpointsSet = gbean.getGBeanInfo().getEndpointsSet();
+        Set endpointsSet = gbean.getGBeanInfo().getReferencesSet();
         oos.writeInt(endpointsSet.size());
         for (Iterator iterator = endpointsSet.iterator(); iterator.hasNext();) {
-            GEndpointInfo gEndpointInfo = (GEndpointInfo) iterator.next();
+            GReferenceInfo gEndpointInfo = (GReferenceInfo) iterator.next();
             oos.writeObject(gEndpointInfo.getName());
-            oos.writeObject(gbean.getEndpointPatterns(gEndpointInfo.getName()));
+            oos.writeObject(gbean.getReferencePatterns(gEndpointInfo.getName()));
         }
     }
 
@@ -372,7 +372,7 @@ public class Configuration implements GBean {
         constructorTypes.add(byte[].class);
         GConstructorInfo constructor = new GConstructorInfo(constructorNames, constructorTypes);
         Set endpoints = new HashSet();
-        endpoints.add(new GEndpointInfo("Parent", ConfigurationParent.class.getName()));
+        endpoints.add(new GReferenceInfo("Parent", ConfigurationParent.class.getName()));
         Set operations = Collections.EMPTY_SET;
         GBEAN_INFO = new GBeanInfo(Configuration.class.getName(), attributes, constructor, operations, endpoints, Collections.EMPTY_SET);
     }

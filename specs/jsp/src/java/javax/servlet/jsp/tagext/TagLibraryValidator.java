@@ -58,8 +58,8 @@ package javax.servlet.jsp.tagext;
 import java.util.Map;
 
 /**
- * Translation-time validator class for a JSP page. 
- * A validator operates on the XML view associated with the JSP page.
+ * Translation-time validation class for a JSP page.
+ * A validation operates on the XML view associated with the JSP page.
  *
  * <p>
  * The TLD file associates a TagLibraryValidator class and some init
@@ -89,7 +89,7 @@ import java.util.Map;
  * <p>
  * A TagLibraryValidator instance
  * may create auxiliary objects internally to perform
- * the validation (e.g. an XSchema validator) and may reuse it for all
+ * the validation (e.g. an XSchema validation) and may reuse it for all
  * the pages in a given translation run.
  *
  * <p>
@@ -128,7 +128,7 @@ abstract public class TagLibraryValidator {
     }
     
     /**
-     * Set the init data in the TLD for this validator.
+     * Set the init data in the TLD for this validation.
      * Parameter names are keys, and parameter values are the values.
      *
      * @param map A Map describing the init parameters

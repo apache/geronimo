@@ -76,18 +76,18 @@ import javax.management.ReflectionException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.NotificationType;
 import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.gbean.GEndpointInfo;
+import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.gbean.WaitingException;
 
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/17 16:58:40 $
+ * @version $Revision: 1.1 $ $Date: 2004/01/25 21:07:04 $
  */
-public class GBeanMBeanEndpoint implements NotificationListener {
+public class GBeanMBeanReference implements NotificationListener {
     /**
-     * Name of this endpoint.
+     * Name of this reference.
      */
     private final String name;
 
@@ -97,12 +97,12 @@ public class GBeanMBeanEndpoint implements NotificationListener {
     private final Class type;
 
     /**
-     * Is this endpoint single valued or multi (collection) valued.
+     * Is this reference single valued or multi (collection) valued.
      */
     private final boolean singleValued;
 
     /**
-     * The GBeanMBean to which this endpoint belongs.
+     * The GBeanMBean to which this reference belongs.
      */
     private final GBeanMBean gmbean;
 
@@ -122,15 +122,15 @@ public class GBeanMBeanEndpoint implements NotificationListener {
      */
     private Proxy proxy;
 
-    public GBeanMBeanEndpoint(GBeanMBean gmbean, GEndpointInfo endpointInfo, Class constructorType) throws InvalidConfigurationException {
+    public GBeanMBeanReference(GBeanMBean gmbean, GReferenceInfo referenceInfo, Class constructorType) throws InvalidConfigurationException {
         this.gmbean = gmbean;
-        this.name = endpointInfo.getName();
+        this.name = referenceInfo.getName();
         try {
-            this.type = gmbean.getClassLoader().loadClass(endpointInfo.getType());
+            this.type = gmbean.getClassLoader().loadClass(referenceInfo.getType());
         } catch (ClassNotFoundException e) {
-            throw new InvalidConfigurationException("Could not load endpoint type class:" +
+            throw new InvalidConfigurationException("Could not load reference type class:" +
                     " name=" + name +
-                    " class=" + endpointInfo.getType());
+                    " class=" + referenceInfo.getType());
         }
 
         Class setterType;
@@ -138,7 +138,7 @@ public class GBeanMBeanEndpoint implements NotificationListener {
             setterType = constructorType;
             setInvoker = null;
         } else {
-            Method setterMethod = searchForSetter(gmbean, endpointInfo);
+            Method setterMethod = searchForSetter(gmbean, referenceInfo);
             setInvoker = new FastMethodInvoker(setterMethod);
             setterType = setterMethod.getParameterTypes()[0];
         }
@@ -364,10 +364,10 @@ public class GBeanMBeanEndpoint implements NotificationListener {
         return false;
     }
 
-    private static Method searchForSetter(GBeanMBean gMBean, GEndpointInfo endpointInfo) throws InvalidConfigurationException {
-        if (endpointInfo.getSetterName() == null) {
+    private static Method searchForSetter(GBeanMBean gMBean, GReferenceInfo referenceInfo) throws InvalidConfigurationException {
+        if (referenceInfo.getSetterName() == null) {
             // no explicit name give so we must search for a name
-            String setterName = "set" + endpointInfo.getName();
+            String setterName = "set" + referenceInfo.getName();
             Method[] methods = gMBean.getType().getMethods();
             for (int i = 0; i < methods.length; i++) {
                 Method method = methods[i];
@@ -381,7 +381,7 @@ public class GBeanMBeanEndpoint implements NotificationListener {
         } else {
             // even though we have an exact name we need to search the methods becaus we don't know the parameter type
             Method[] methods = gMBean.getType().getMethods();
-            String setterName = endpointInfo.getSetterName();
+            String setterName = referenceInfo.getSetterName();
             for (int i = 0; i < methods.length; i++) {
                 Method method = methods[i];
                 if (method.getParameterTypes().length == 1 &&
@@ -393,7 +393,7 @@ public class GBeanMBeanEndpoint implements NotificationListener {
             }
         }
         throw new InvalidConfigurationException("Target does not have specified method:" +
-                " name=" + endpointInfo.getName() +
+                " name=" + referenceInfo.getName() +
                 " targetClass=" + gMBean.getType().getName());
     }
 }

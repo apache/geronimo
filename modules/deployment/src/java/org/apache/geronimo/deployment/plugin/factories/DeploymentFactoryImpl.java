@@ -76,7 +76,7 @@ import org.apache.geronimo.kernel.Kernel;
  * to contain the GBeans that are responsible for deploying each module
  * type.
  * 
- * @version $Revision: 1.3 $ $Date: 2004/01/23 19:58:16 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/25 21:07:03 $
  */
 public class DeploymentFactoryImpl implements DeploymentFactory {
     public static final String URI_PREFIX = "deployer:geronimo:";
@@ -135,7 +135,7 @@ public class DeploymentFactoryImpl implements DeploymentFactory {
 
             ObjectName managerName = new ObjectName("geronimo.deployment:role=DeploymentManager");
             manager = new GBeanMBean(DeploymentManagerImpl.GBEAN_INFO);
-            manager.setEndpointPatterns("Server", Collections.singleton(serverName));
+            manager.setReferencePatterns("Server", Collections.singleton(serverName));
 
             // @todo for now lets hard code the deployers to use - ultimately this should use a predefined Configuration
             loadFactory(kernel, manager, "EARFactory", EARConfigurationFactory.class.getName());
@@ -155,6 +155,6 @@ public class DeploymentFactoryImpl implements DeploymentFactory {
         GBeanMBean earFactory = new GBeanMBean(className);
         kernel.loadGBean(earFactoryName, earFactory);
         kernel.startGBean(earFactoryName);
-        manager.setEndpointPatterns(factory, Collections.singleton(earFactoryName));
+        manager.setReferencePatterns(factory, Collections.singleton(earFactoryName));
     }
 }

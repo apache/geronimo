@@ -63,11 +63,11 @@ import javax.resource.spi.work.WorkManager;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GEndpointInfo;
+import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/01/23 05:56:10 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/25 21:07:03 $
  */
 public class BootstrapContext implements javax.resource.spi.BootstrapContext {
 
@@ -125,8 +125,8 @@ public class BootstrapContext implements javax.resource.spi.BootstrapContext {
         infoFactory.addOperation(new GOperationInfo("getWorkManager"));
         infoFactory.addOperation(new GOperationInfo("getXATerminator"));
         infoFactory.addOperation(new GOperationInfo("createTimer"));
-        infoFactory.addEndpoint(new GEndpointInfo("WorkManager", WorkManager.class.getName()));
-        infoFactory.addEndpoint(new GEndpointInfo("XATerminator", XATerminator.class.getName()));
+        infoFactory.addReference(new GReferenceInfo("WorkManager", WorkManager.class.getName()));
+        infoFactory.addReference(new GReferenceInfo("XATerminator", XATerminator.class.getName()));
         infoFactory.setConstructor(new GConstructorInfo(
                 new String[]{"WorkManager", "XATerminator"},
                 new Class[]{WorkManager.class, XATerminator.class}));

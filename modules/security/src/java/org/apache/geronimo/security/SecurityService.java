@@ -69,7 +69,7 @@ import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GEndpointInfo;
+import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.security.util.ConfigurationUtil;
 import org.apache.geronimo.security.jacc.ModuleConfiguration;
@@ -83,7 +83,7 @@ import org.apache.geronimo.security.realm.SecurityRealm;
 /**
  * An MBean that maintains a list of security realms.
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:07 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/25 21:07:04 $
  */
 public class SecurityService  {
 
@@ -222,8 +222,8 @@ public class SecurityService  {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(SecurityService.class.getName());
         infoFactory.addAttribute(new GAttributeInfo("PolicyConfigurationFactory", true));
         infoFactory.addOperation(new GOperationInfo("getModuleConfiguration", new String[] {String.class.getName(), Boolean.TYPE.getName()}));
-        infoFactory.addEndpoint(new GEndpointInfo("Realms", SecurityRealm.class.getName()));
-        infoFactory.addEndpoint(new GEndpointInfo("ModuleConfigurations", ModuleConfiguration.class.getName()));
+        infoFactory.addReference(new GReferenceInfo("Realms", SecurityRealm.class.getName()));
+        infoFactory.addReference(new GReferenceInfo("ModuleConfigurations", ModuleConfiguration.class.getName()));
         infoFactory.setConstructor(new GConstructorInfo(
                 new String[] {"PolicyConfigurationFactory"},
                 new Class[] {String.class}));

@@ -65,7 +65,7 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/22 20:58:40 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/25 21:07:04 $
  */
 public class GBeanTest extends TestCase {
     private ObjectName name;
@@ -95,7 +95,7 @@ public class GBeanTest extends TestCase {
         GBeanMBean gbean2 = new GBeanMBean(MockGBean.getGBeanInfo());
         gbean2.setAttribute("MutableInt", new Integer(123));
         gbean2.setAttribute("FinalInt", new Integer(123));
-        gbean2.setEndpointPatterns("MockEndpoint", Collections.singleton(name));
+        gbean2.setReferencePatterns("MockEndpoint", Collections.singleton(name));
         kernel.loadGBean(name2, gbean2);
         kernel.startGBean(name2);
 

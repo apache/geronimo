@@ -65,7 +65,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GOperationInfo;
-import org.apache.geronimo.gbean.GEndpointInfo;
+import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.GConstructorInfo;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.ErrorHandler;
@@ -75,7 +75,7 @@ import org.xml.sax.SAXParseException;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/19 06:40:07 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/25 21:07:03 $
  *
  * */
 public class ParserFactoryImpl implements ParserFactory {
@@ -137,7 +137,7 @@ public class ParserFactoryImpl implements ParserFactory {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory("Factory for constructing suitable configured xml parsers", ParserFactoryImpl.class.getName());
         infoFactory.addOperation(new GOperationInfo("getParser"));
-        infoFactory.addEndpoint(new GEndpointInfo("EntityResolver", EntityResolver.class.getName()));
+        infoFactory.addReference(new GReferenceInfo("EntityResolver", EntityResolver.class.getName()));
         infoFactory.setConstructor(new GConstructorInfo(
                 new String[] {"EntityResolver"},
                 new Class[] {EntityResolver.class}));

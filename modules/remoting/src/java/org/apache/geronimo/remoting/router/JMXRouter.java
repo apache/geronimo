@@ -62,7 +62,7 @@ import javax.management.ObjectName;
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GEndpointInfo;
+import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
 
 /**
@@ -74,7 +74,7 @@ import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
  *
  * The MBean that will receive invocations must implement the JMXTarget interface.
  *
- * @version $Revision: 1.5 $ $Date: 2004/01/22 06:39:23 $
+ * @version $Revision: 1.6 $ $Date: 2004/01/25 21:07:04 $
  */
 public class JMXRouter extends AbstractInterceptorRouter {
     private SubsystemRouter subsystemRouter;
@@ -107,7 +107,7 @@ public class JMXRouter extends AbstractInterceptorRouter {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(JMXRouter.class.getName(), AbstractInterceptorRouter.GBEAN_INFO);
-        infoFactory.addEndpoint(new GEndpointInfo("SubsystemRouter", SubsystemRouter.class.getName()));
+        infoFactory.addReference(new GReferenceInfo("SubsystemRouter", SubsystemRouter.class.getName()));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

@@ -87,7 +87,7 @@ import org.apache.geronimo.kernel.Kernel;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/24 21:07:44 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/25 21:07:03 $
  *
  * */
 public class ConnectorModule implements DeploymentModule {
@@ -156,10 +156,10 @@ public class ConnectorModule implements DeploymentModule {
                 throw new DeploymentException("Unable to create GMBean", e);
             }
             try {
-                connectionManagerFactoryGBean.setEndpointPatterns("Kernel", Collections.singleton(Kernel.KERNEL));
-                connectionManagerFactoryGBean.setEndpointPatterns("ConnectionTracker", Collections.singleton(connectorDeployer.getConnectionTrackerNamePattern()));
+                connectionManagerFactoryGBean.setReferencePatterns("Kernel", Collections.singleton(Kernel.KERNEL));
+                connectionManagerFactoryGBean.setReferencePatterns("ConnectionTracker", Collections.singleton(connectorDeployer.getConnectionTrackerNamePattern()));
                 if (geronimoConnectionManagerFactory.getRealmBridge() != null) {
-                    connectionManagerFactoryGBean.setEndpointPatterns("RealmBridge", Collections.singleton(ObjectName.getInstance(BASE_REALM_BRIDGE_NAME + geronimoConnectionManagerFactory.getRealmBridge())));
+                    connectionManagerFactoryGBean.setReferencePatterns("RealmBridge", Collections.singleton(ObjectName.getInstance(BASE_REALM_BRIDGE_NAME + geronimoConnectionManagerFactory.getRealmBridge())));
                 }
                 setDynamicAttributes(connectionManagerFactoryGBean, geronimoConnectionManagerFactory.getConfigProperty());
             } catch (DeploymentException e) {
@@ -186,13 +186,13 @@ public class ConnectorModule implements DeploymentModule {
                 managedConnectionFactoryGBean.setAttribute("ConnectionImplClass", cl.loadClass(geronimoConnectionDefinition.getConnectionImplClass()));
                 managedConnectionFactoryGBean.setAttribute("GlobalJNDIName", geronimoConnectionDefinition.getGlobalJndiName());
                 if (resourceAdapterClassName != null) {
-                    managedConnectionFactoryGBean.setEndpointPatterns("ResourceAdapterWrapper", Collections.singleton(resourceAdapterObjectName));
+                    managedConnectionFactoryGBean.setReferencePatterns("ResourceAdapterWrapper", Collections.singleton(resourceAdapterObjectName));
                 }
-                managedConnectionFactoryGBean.setEndpointPatterns("ConnectionManagerFactory", Collections.singleton(connectionManagerFactoryObjectName));
+                managedConnectionFactoryGBean.setReferencePatterns("ConnectionManagerFactory", Collections.singleton(connectionManagerFactoryObjectName));
                 /*
                 //TODO also set up the login module
                 if (geronimoConnectionDefinition.getAuthentication().equals("BasicUserPassword")) {
-                    managedConnectionFactoryGBean.setEndpointPatterns("ManagedConnectionFactoryListener", Collections.singleton(ObjectName.getInstance(BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME + geronimoConnectionDefinition.getName())));
+                    managedConnectionFactoryGBean.setReferencePatterns("ManagedConnectionFactoryListener", Collections.singleton(ObjectName.getInstance(BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME + geronimoConnectionDefinition.getName())));
                 }
                 */
             } catch (Exception e) {

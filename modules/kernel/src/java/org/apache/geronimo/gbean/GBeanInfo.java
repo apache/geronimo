@@ -69,7 +69,7 @@ import org.apache.geronimo.gbean.GAttributeInfo;
 /**
  * Describes a GBean.
  *
- * @version $Revision: 1.6 $ $Date: 2004/01/22 06:38:21 $
+ * @version $Revision: 1.7 $ $Date: 2004/01/25 21:07:04 $
  */
 public final class GBeanInfo implements Serializable {
     /**
@@ -105,13 +105,13 @@ public final class GBeanInfo implements Serializable {
     private final GConstructorInfo constructor;
     private final Set operations;
     private final Set notifications;
-    private final Set endpoints;
+    private final Set references;
 
-    public GBeanInfo(String className, Set attributes, GConstructorInfo constructor, Set operations, Set endpoints, Set notifications) {
-        this(className, className, attributes, constructor, operations, endpoints, notifications);
+    public GBeanInfo(String className, Set attributes, GConstructorInfo constructor, Set operations, Set references, Set notifications) {
+        this(className, className, attributes, constructor, operations, references, notifications);
     }
 
-    public GBeanInfo(String name, String className, Set attributes, GConstructorInfo constructor, Set operations, Set endpoints, Set notifications) {
+    public GBeanInfo(String name, String className, Set attributes, GConstructorInfo constructor, Set operations, Set references, Set notifications) {
         this.name = name;
         this.className = className;
         if(attributes == null) {
@@ -129,10 +129,10 @@ public final class GBeanInfo implements Serializable {
         } else {
             this.operations = Collections.unmodifiableSet(new HashSet(operations));
         }
-        if(endpoints == null) {
-            this.endpoints = Collections.EMPTY_SET;
+        if(references == null) {
+            this.references = Collections.EMPTY_SET;
         } else {
-            this.endpoints = Collections.unmodifiableSet(new HashSet(endpoints));
+            this.references = Collections.unmodifiableSet(new HashSet(references));
         }
         if (notifications == null) {
             this.notifications = Collections.EMPTY_SET;
@@ -176,8 +176,8 @@ public final class GBeanInfo implements Serializable {
         return notifications;
     }
 
-    public Set getEndpointsSet() {
-        return endpoints;
+    public Set getReferencesSet() {
+        return references;
     }
 
     public String toString() {
@@ -190,9 +190,9 @@ public final class GBeanInfo implements Serializable {
             GOperationInfo geronimoOperationInfo = (GOperationInfo) iterator.next();
             result.append("\n    operation: ").append(geronimoOperationInfo);
         }
-        for (Iterator iterator = endpoints.iterator(); iterator.hasNext();) {
-            GEndpointInfo endpointInfo = (GEndpointInfo) iterator.next();
-            result.append("\n    endpoint: ").append(endpointInfo);
+        for (Iterator iterator = references.iterator(); iterator.hasNext();) {
+            GReferenceInfo referenceInfo = (GReferenceInfo) iterator.next();
+            result.append("\n    reference: ").append(referenceInfo);
         }
         result.append("]");
         return result.toString();

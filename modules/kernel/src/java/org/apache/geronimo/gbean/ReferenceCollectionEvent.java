@@ -58,19 +58,19 @@ package org.apache.geronimo.gbean;
 /**
  * 
  * 
- * @version $Revision: 1.1 $ $Date: 2004/01/15 05:36:53 $
+ * @version $Revision: 1.1 $ $Date: 2004/01/25 21:07:04 $
  */
-public class EndpointCollectionEvent {
-    private final String endpointName;
+public class ReferenceCollectionEvent {
+    private final String referenceName;
     private final Object member;
 
-    public EndpointCollectionEvent(String endpointName, Object member) {
-        this.endpointName = endpointName;
+    public ReferenceCollectionEvent(String referenceName, Object member) {
+        this.referenceName = referenceName;
         this.member = member;
     }
 
-    public String getEndpointName() {
-        return endpointName;
+    public String getReferenceName() {
+        return referenceName;
     }
 
     public Object getMember() {

@@ -80,7 +80,7 @@ import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GEndpointInfo;
+import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
@@ -93,7 +93,7 @@ import org.mortbay.jetty.servlet.WebApplicationContext;
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/25 17:47:37 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/25 21:07:04 $
  */
 public class JettyWebApplicationContext extends WebApplicationContext implements GBean {
     private final JettyContainer container;
@@ -226,9 +226,9 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
         infoFactory.addAttribute(new GAttributeInfo("ContextPath", true));
         infoFactory.addAttribute(new GAttributeInfo("ComponentContext", true));
         infoFactory.addAttribute(new GAttributeInfo("PolicyContextID", true));
-        infoFactory.addEndpoint(new GEndpointInfo("JettyContainer", JettyContainer.class.getName()));
-        infoFactory.addEndpoint(new GEndpointInfo("TransactionManager", TransactionManager.class.getName()));
-        infoFactory.addEndpoint(new GEndpointInfo("TrackedConnectionAssociator", TrackedConnectionAssociator.class.getName()));
+        infoFactory.addReference(new GReferenceInfo("JettyContainer", JettyContainer.class.getName()));
+        infoFactory.addReference(new GReferenceInfo("TransactionManager", TransactionManager.class.getName()));
+        infoFactory.addReference(new GReferenceInfo("TrackedConnectionAssociator", TrackedConnectionAssociator.class.getName()));
         infoFactory.setConstructor(new GConstructorInfo(
                 Arrays.asList(new Object[]{"URI", "JettyContainer", "ComponentContext", "PolicyContextID", "TransactionManager", "TrackedConnectionAssociator"}),
                 Arrays.asList(new Object[]{URI.class, JettyContainer.class, ReadOnlyContext.class, String.class, TransactionManager.class, TrackedConnectionAssociator.class})));

@@ -65,7 +65,7 @@ import org.apache.geronimo.core.service.SimpleInvocation;
 import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GEndpointInfo;
+import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.jmx.GBeanMBeanContext;
 import org.apache.geronimo.remoting.InvocationSupport;
@@ -78,7 +78,7 @@ import EDU.oswego.cs.dl.util.concurrent.Sync;
 import EDU.oswego.cs.dl.util.concurrent.TimeoutSync;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/01/22 06:39:23 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/25 21:07:04 $
  */
 public abstract class AbstractInterceptorRouter implements GBean, Router {
     private long stoppedRoutingTimeout = 1000 * 60; // 1 min.

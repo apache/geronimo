@@ -76,7 +76,7 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/21 20:01:52 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/25 21:07:04 $
  */
 public class ApplicationTest extends TestCase {
     private Kernel kernel;
@@ -95,9 +95,9 @@ public class ApplicationTest extends TestCase {
         app.setAttribute("ContextPath", "/test");
         app.setAttribute("ComponentContext", null);
         app.setAttribute("PolicyContextID", null);
-        app.setEndpointPatterns("JettyContainer", containerPatterns);
-        app.setEndpointPatterns("TransactionManager", Collections.EMPTY_SET);
-        app.setEndpointPatterns("TrackedConnectionAssociator", Collections.EMPTY_SET);
+        app.setReferencePatterns("JettyContainer", containerPatterns);
+        app.setReferencePatterns("TransactionManager", Collections.EMPTY_SET);
+        app.setReferencePatterns("TrackedConnectionAssociator", Collections.EMPTY_SET);
         start(appName, app);
 
         HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:5678/test/hello.txt").openConnection();
@@ -130,7 +130,7 @@ public class ApplicationTest extends TestCase {
 
         connector = new GBeanMBean(HTTPConnector.GBEAN_INFO);
         connector.setAttribute("Port", new Integer(5678));
-        connector.setEndpointPatterns("JettyContainer", containerPatterns);
+        connector.setReferencePatterns("JettyContainer", containerPatterns);
 
         start(containerName, container);
         start(connectorName, connector);
