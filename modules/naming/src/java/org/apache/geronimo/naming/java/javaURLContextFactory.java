@@ -42,7 +42,7 @@ public class javaURLContextFactory implements ObjectFactory {
      */
     public Object getObjectInstance(Object obj, Name name, Context nameCtx, Hashtable environment) throws Exception {
         if (obj == null) {
-            return new RootContext(environment);
+            return new RootContext();
         } else {
             throw new OperationNotSupportedException();
         }

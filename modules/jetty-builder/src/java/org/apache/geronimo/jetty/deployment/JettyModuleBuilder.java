@@ -70,7 +70,6 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
-import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.security.deployment.SecurityBuilder;
@@ -349,7 +348,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
 
         UserTransaction userTransaction = new OnlineUserTransaction();
         //this may add to the web classpath with enhanced classes.
-        ReadOnlyContext compContext = buildComponentContext(earContext, webModule, webApp, jettyWebApp, userTransaction, webClassLoader);
+        Map compContext = buildComponentContext(earContext, webModule, webApp, jettyWebApp, userTransaction, webClassLoader);
 
         GBeanData webModuleData = new GBeanData(webModuleName, JettyWebAppContext.GBEAN_INFO);
         try {
@@ -427,8 +426,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
             } else {
                 welcomeFiles = new ArrayList(defaultWelcomeFiles);
             }
-
-            webModuleData.setAttribute("welcomeFiles", (String[]) welcomeFiles.toArray(new String[welcomeFiles.size()]));
+            webModuleData.setAttribute("welcomeFiles", welcomeFiles.toArray(new String[welcomeFiles.size()]));
 
             LocaleEncodingMappingListType[] localeEncodingMappingListArray = webApp.getLocaleEncodingMappingListArray();
             Map localeEncodingMappingMap = new HashMap();
@@ -989,8 +987,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
         }
     }
 
-    private ReadOnlyContext buildComponentContext(EARContext earContext, Module webModule, WebAppType webApp, JettyWebAppType jettyWebApp, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {
-
+    private Map buildComponentContext(EARContext earContext, Module webModule, WebAppType webApp, JettyWebAppType jettyWebApp, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {
         URI targetPathUri = null;
         try {
             targetPathUri = new URI(webModule.getTargetPath() + "/");

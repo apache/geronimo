@@ -41,27 +41,6 @@ public class ContextBuilderTest extends TestCase {
 
     private List proxy;
 
-    public void testFreeze() {
-        ReadOnlyContext context = builder.getContext();
-        assertTrue(context.isFrozen());
-        try {
-            builder.addEnvEntry(null, null, null, null);
-            fail();
-        } catch (IllegalStateException e) {
-            // ok
-        } catch (NamingException e) {
-            fail();
-        }
-        try {
-            builder.addUserTransaction(null);
-            fail();
-        } catch (IllegalStateException e) {
-            // ok
-        } catch (NamingException e) {
-            fail();
-        }
-    }
-
     public void testEnvEntries() throws Exception {
         String stringVal = "Hello World";
         Character charVal = new Character('H');
@@ -82,7 +61,7 @@ public class ContextBuilderTest extends TestCase {
         builder.addEnvEntry("double", Double.class.getName(), doubleVal.toString(), null);
         builder.addEnvEntry("boolean", Boolean.class.getName(), booleanVal.toString(), null);
 
-        ReadOnlyContext context = builder.getContext();
+        SimpleReadOnlyContext context = new SimpleReadOnlyContext(builder.getContext());
         Set actual = new HashSet();
         for (NamingEnumeration e = context.listBindings("env"); e.hasMore();) {
             NameClassPair pair = (NameClassPair) e.next();
@@ -105,7 +84,7 @@ public class ContextBuilderTest extends TestCase {
         proxy = new ArrayList();
 //        builder.addResourceEnvRef("resourceenvref", List.class, localRef);
 
-        ReadOnlyContext roc = builder.getContext();
+        SimpleReadOnlyContext context = new SimpleReadOnlyContext(builder.getContext());
         Kernel kernel = new Kernel("test.kernel", "test.domain");
         kernel.boot();
         try {
@@ -115,15 +94,15 @@ public class ContextBuilderTest extends TestCase {
             gbean.setAttribute("Content", proxy);
             kernel.loadGBean(proxyFactoryName, gbean);
             kernel.startGBean(proxyFactoryName);
-            Object o = roc.lookup("env/resourceenvref");
+            Object o = context.lookup("env/resourceenvref");
             assertEquals(proxy, o);
         } finally {
             kernel.shutdown();
         }
     }
 
-    public void testEmptyEnvironment() {
-        ReadOnlyContext context = builder.getContext();
+    public void testEmptyEnvironment() throws NamingException {
+        SimpleReadOnlyContext context = new SimpleReadOnlyContext(builder.getContext());
         try {
             ReadOnlyContext env = (ReadOnlyContext) context.lookup("env");
             assertNotNull(env);

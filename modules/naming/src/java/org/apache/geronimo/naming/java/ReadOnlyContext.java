@@ -37,6 +37,7 @@ import javax.naming.NamingException;
 import javax.naming.NotContextException;
 import javax.naming.OperationNotSupportedException;
 import javax.naming.Reference;
+import javax.naming.InitialContext;
 import javax.naming.spi.NamingManager;
 
 import org.apache.geronimo.naming.reference.SimpleReference;
@@ -192,13 +193,8 @@ public class ReadOnlyContext implements Context, Serializable {
         }
         Object result = treeBindings.get(name);
         if (result == null) {
-            int pos = name.indexOf(':');
-            if (pos > 0) {
-                String scheme = name.substring(0, pos);
-                Context ctx = NamingManager.getURLContext(scheme, env);
-                if (ctx == null) {
-                    throw new NamingException("scheme " + scheme + " not recognized");
-                }
+            if (name.indexOf(':') > 0) {
+                Context ctx = new InitialContext();
                 return ctx.lookup(name);
             } else {
                 // Split out the first name of the path
@@ -238,9 +234,6 @@ public class ReadOnlyContext implements Context, Serializable {
             } catch (Exception e) {
                 throw (NamingException)new NamingException("could not look up : " + name).initCause(e);
             }
-        }
-        if (result instanceof ReadOnlyContext) {
-            result = new ReadOnlyContext((ReadOnlyContext) result, env);
         }
         return result;
     }

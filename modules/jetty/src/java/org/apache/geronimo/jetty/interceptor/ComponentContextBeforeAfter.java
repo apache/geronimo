@@ -16,7 +16,8 @@
  */
 package org.apache.geronimo.jetty.interceptor;
 
-import org.apache.geronimo.naming.java.ReadOnlyContext;
+import javax.naming.Context;
+
 import org.apache.geronimo.naming.java.RootContext;
 import org.mortbay.http.HttpRequest;
 import org.mortbay.http.HttpResponse;
@@ -28,17 +29,17 @@ public class ComponentContextBeforeAfter implements BeforeAfter {
 
     private final BeforeAfter next;
     private final int index;
-    private final ReadOnlyContext readOnlyContext;
+    private final Context componentContext;
 
-    public ComponentContextBeforeAfter(BeforeAfter next, int index, ReadOnlyContext readOnlyContext) {
+    public ComponentContextBeforeAfter(BeforeAfter next, int index, Context componentContext) {
         this.next = next;
         this.index = index;
-        this.readOnlyContext = readOnlyContext;
+        this.componentContext = componentContext;
     }
 
     public void before(Object[] context, HttpRequest httpRequest, HttpResponse httpResponse) {
         context[index] = RootContext.getComponentContext();
-        RootContext.setComponentContext(readOnlyContext);
+        RootContext.setComponentContext(componentContext);
         if (next != null) {
             next.before(context, httpRequest, httpResponse);
         }
@@ -48,7 +49,7 @@ public class ComponentContextBeforeAfter implements BeforeAfter {
         if (next != null) {
             next.after(context, httpRequest, httpResponse);
         }
-        RootContext.setComponentContext((ReadOnlyContext) context[index]);
+        RootContext.setComponentContext((Context) context[index]);
     }
 
 }

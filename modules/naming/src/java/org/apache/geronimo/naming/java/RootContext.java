@@ -20,6 +20,7 @@ package org.apache.geronimo.naming.java;
 import java.util.Hashtable;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
+import javax.naming.Context;
 
 /**
  * The root context for the java: namespace.
@@ -31,10 +32,6 @@ import javax.naming.NamingException;
 public class RootContext extends ReadOnlyContext {
     private static InheritableThreadLocal compContext = new InheritableThreadLocal();
 
-    public RootContext(Hashtable env) {
-        super(env);
-    }
-
     public Object lookup(String name) throws NamingException {
         if (name.startsWith("java:")) {
             name = name.substring(5);
@@ -42,12 +39,11 @@ public class RootContext extends ReadOnlyContext {
                 return this;
             }
 
-            ReadOnlyContext compCtx = (ReadOnlyContext) compContext.get();
+            Context compCtx = (Context) compContext.get();
             if (compCtx == null) {
                 // the component context was not set for this thread
                 throw new NameNotFoundException(name);
             }
-            compCtx = new ReadOnlyContext(compCtx, getEnvironment());
 
             if ("comp".equals(name)) {
                 return compCtx;
@@ -69,7 +65,7 @@ public class RootContext extends ReadOnlyContext {
      * for all lookups of "java:comp"
      * @param ctx the current components context
      */
-    public static void setComponentContext(ReadOnlyContext ctx) {
+    public static void setComponentContext(Context ctx) {
         compContext.set(ctx);
     }
 
@@ -77,7 +73,7 @@ public class RootContext extends ReadOnlyContext {
      * Get the component context for the current thread.
      * @return the current components context
      */
-    public static ReadOnlyContext getComponentContext() {
-        return (ReadOnlyContext) compContext.get();
+    public static Context getComponentContext() {
+        return (Context) compContext.get();
     }
 }

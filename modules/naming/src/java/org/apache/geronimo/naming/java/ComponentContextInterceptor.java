@@ -17,6 +17,8 @@
 
 package org.apache.geronimo.naming.java;
 
+import javax.naming.Context;
+
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
@@ -29,19 +31,19 @@ import org.apache.geronimo.core.service.InvocationResult;
  */
 public class ComponentContextInterceptor implements Interceptor {
     private final Interceptor next;
-    private final ReadOnlyContext compContext;
+    private final Context compContext;
 
     /**
      * Constructor specifying the components JNDI Context (java:comp)
      * @param compContext the component's JNDI Context
      */
-    public ComponentContextInterceptor(Interceptor next, ReadOnlyContext compContext) {
+    public ComponentContextInterceptor(Interceptor next, Context compContext) {
         this.next = next;
         this.compContext = compContext;
     }
 
     public InvocationResult invoke(Invocation invocation) throws Throwable {
-        ReadOnlyContext oldContext = RootContext.getComponentContext();
+        Context oldContext = RootContext.getComponentContext();
         try {
             RootContext.setComponentContext(compContext);
             return next.invoke(invocation);

@@ -27,6 +27,8 @@ import java.util.Set;
 import java.security.PermissionCollection;
 import java.io.IOException;
 
+import javax.naming.Context;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mortbay.http.Authenticator;
@@ -51,12 +53,14 @@ import org.apache.geronimo.jetty.interceptor.ThreadClassloaderBeforeAfter;
 import org.apache.geronimo.jetty.interceptor.TransactionContextBeforeAfter;
 import org.apache.geronimo.jetty.interceptor.WebApplicationContextBeforeAfter;
 import org.apache.geronimo.jetty.interceptor.SecurityContextBeforeAfter;
-import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.transaction.OnlineUserTransaction;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.naming.reference.KernelAwareReference;
+import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
+import org.apache.geronimo.naming.java.SimpleReadOnlyContext;
 
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
@@ -94,7 +98,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     }
 
     public JettyWebAppContext(URI uri,
-                                  ReadOnlyContext componentContext,
+                                  Map componentContext,
                                   OnlineUserTransaction userTransaction,
                                   ClassLoader classLoader,
                                   URI[] webClassPath,
@@ -175,15 +179,25 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         setTagLibMap(tagLibMap);
         setSessionTimeoutSeconds(sessionTimeoutSeconds);
 
+        // create ReadOnlyContext
+        Context enc = null;
         if (componentContext != null) {
-            componentContext.setKernel(kernel);
-            componentContext.setClassLoader(this.webClassLoader);
+            for (Iterator iterator = componentContext.values().iterator(); iterator.hasNext();) {
+                Object value = iterator.next();
+                if (value instanceof KernelAwareReference) {
+                    ((KernelAwareReference) value).setKernel(kernel);
+                }
+                if (value instanceof ClassLoaderAwareReference) {
+                    ((ClassLoaderAwareReference) value).setClassLoader(this.webClassLoader);
+                }
+            }
+            enc = new SimpleReadOnlyContext(componentContext);
         }
 
         int index = 0;
         BeforeAfter interceptor = new InstanceContextBeforeAfter(null, index++, unshareableResources, applicationManagedSecurityResources, trackedConnectionAssociator);
         interceptor = new TransactionContextBeforeAfter(interceptor, index++, index++, transactionContextManager);
-        interceptor = new ComponentContextBeforeAfter(interceptor, index++, componentContext);
+        interceptor = new ComponentContextBeforeAfter(interceptor, index++, enc);
         interceptor = new ThreadClassloaderBeforeAfter(interceptor, index++, index++, this.webClassLoader);
         interceptor = new WebApplicationContextBeforeAfter(interceptor, index++, this);
 //JACC
@@ -394,7 +408,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
 
         infoBuilder.addAttribute("uri", URI.class, true);
-        infoBuilder.addAttribute("componentContext", ReadOnlyContext.class, true);
+        infoBuilder.addAttribute("componentContext", Map.class, true);
         infoBuilder.addAttribute("userTransaction", OnlineUserTransaction.class, true);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
         infoBuilder.addAttribute("webClassPath", URI[].class, true);

@@ -17,6 +17,8 @@
 
 package org.apache.geronimo.naming.java;
 
+import java.util.Map;
+import java.util.HashMap;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.NamingException;
@@ -33,41 +35,21 @@ import org.apache.geronimo.naming.reference.KernelReference;
  */
 public class ComponentContextBuilder {
     private static final String ENV = "env/";
-    private final ReadOnlyContext context;
+    private final Map context = new HashMap();
 
-    public ComponentContextBuilder() {
-        this.context = new ReadOnlyContext();
-        try {
-            context.internalBind("env", new ReadOnlyContext());
-        } catch (NamingException e) {
-            throw new AssertionError();
-        }
-    }
-
-    public ReadOnlyContext getContext() {
-        context.freeze();
+    public Map getContext() {
         return context;
     }
 
     public void addUserTransaction(UserTransaction userTransaction) throws NamingException {
-        if (context.isFrozen()) {
-            throw new IllegalStateException("Context has been frozen");
-        }
-        context.internalBind("UserTransaction", userTransaction);
+        context.put("UserTransaction", userTransaction);
     }
 
     public void bind(String name, Object value) throws NamingException {
-        if (context.isFrozen()) {
-            throw new IllegalStateException("Context has been frozen");
-        }
-        context.internalBind(ENV + name, value);
+        context.put(ENV + name, value);
     }
 
     public void addEnvEntry(String name, String type, String text, ClassLoader classLoader) throws NamingException, NumberFormatException {
-        if (context.isFrozen()) {
-            throw new IllegalStateException("Context has been frozen");
-        }
-
         Object value;
         if (text == null) {
             if ("org.apache.geronimo.kernel.Kernel".equals(type)) {
@@ -113,6 +95,6 @@ public class ComponentContextBuilder {
             value = new GBeanProxyReference(objectName, clazz);
 
         }
-        context.internalBind(ENV + name, value);
+        context.put(ENV + name, value);
     }
 }
