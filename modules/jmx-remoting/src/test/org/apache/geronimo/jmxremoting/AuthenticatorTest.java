@@ -36,7 +36,7 @@ import junit.framework.TestCase;
 /**
  * 
  * 
- * @version $Revision: 1.2 $ $Date: 2004/06/02 06:47:56 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/05 16:54:35 $
  */
 public class AuthenticatorTest extends TestCase {
     private static final String CONFIG_NAME = "testConfig";
@@ -67,7 +67,7 @@ public class AuthenticatorTest extends TestCase {
         Configuration.setConfiguration(loginConfig);
 
         credentials = new String[]{"username", "password"};
-        authenticator = new Authenticator(CONFIG_NAME);
+        authenticator = new Authenticator(CONFIG_NAME, getClass().getClassLoader());
     }
 
     protected void tearDown() throws Exception {

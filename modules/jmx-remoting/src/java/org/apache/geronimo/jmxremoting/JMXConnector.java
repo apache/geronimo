@@ -32,24 +32,29 @@ import org.apache.geronimo.kernel.Kernel;
 
 /**
  * A Connector that supports the server sideof JSR 160 JMX Remoting.
- * 
- * @version $Revision: 1.6 $ $Date: 2004/06/05 07:53:22 $
+ *
+ * @version $Revision: 1.7 $ $Date: 2004/06/05 16:54:35 $
  */
 public class JMXConnector implements GBeanLifecycle {
     private final Kernel kernel;
     private final Log log;
+    private final ClassLoader classLoader;
     private String url;
     private String applicationConfigName;
 
     private JMXConnectorServer server;
 
     /**
-     * Constructor for creating the connector
+     * Constructor for creating the connector. The ClassLoader must be
+     * able to load all the LoginModules used in the JAAS login
      *
      * @param kernel a reference to the kernel
+     * @param objectName this connector's object name
+     * @param classLoader the classLoader used to create this connector
      */
-    public JMXConnector(Kernel kernel, String objectName) {
+    public JMXConnector(Kernel kernel, String objectName, ClassLoader classLoader) {
         this.kernel = kernel;
+        this.classLoader = classLoader;
         log = LogFactory.getLog(objectName);
     }
 
@@ -97,7 +102,7 @@ public class JMXConnector implements GBeanLifecycle {
         JMXServiceURL serviceURL = new JMXServiceURL(url);
         Map env = new HashMap();
         if (applicationConfigName != null) {
-            env.put(JMXConnectorServer.AUTHENTICATOR, new Authenticator(applicationConfigName));
+            env.put(JMXConnectorServer.AUTHENTICATOR, new Authenticator(applicationConfigName, classLoader));
         } else {
             log.warn("Starting unauthenticating JMXConnector for " + serviceURL);
         }
@@ -125,11 +130,12 @@ public class JMXConnector implements GBeanLifecycle {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(JMXConnector.class);
-        infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("URL", String.class, true);
         infoFactory.addAttribute("ApplicationConfigName", String.class, true);
         infoFactory.addAttribute("kernel", Kernel.class, false);
-        infoFactory.setConstructor(new String[]{"kernel", "objectName"});
+        infoFactory.addAttribute("objectName", String.class, false);
+        infoFactory.addAttribute("classLoader", ClassLoader.class, false);
+        infoFactory.setConstructor(new String[]{"kernel", "objectName", "classLoader"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

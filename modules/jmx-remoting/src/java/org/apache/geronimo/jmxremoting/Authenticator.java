@@ -24,17 +24,19 @@ import javax.security.auth.login.LoginException;
 /**
  * JMX Authenticator that checks the Credentials by logging in via JAAS.
  *
- * @version $Revision: 1.2 $ $Date: 2004/06/02 06:47:56 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/05 16:54:35 $
  */
 public class Authenticator implements JMXAuthenticator {
     private final String configName;
+    private final ClassLoader cl;
 
     /**
      * Constructor indicating which JAAS Application Configuration Entry to use.
      * @param configName the JAAS config name
      */
-    public Authenticator(String configName) {
+    public Authenticator(String configName, ClassLoader cl) {
         this.configName = configName;
+        this.cl = cl;
     }
 
     public Subject authenticate(Object o) throws SecurityException {
@@ -46,8 +48,11 @@ public class Authenticator implements JMXAuthenticator {
             throw new IllegalArgumentException("Expected String[2] but length was " + params.length);
         }
 
+        Thread thread = Thread.currentThread();
+        ClassLoader oldCL = thread.getContextClassLoader();
         Credentials credentials = new Credentials(params[0], params[1]);
         try {
+            thread.setContextClassLoader(cl);
             LoginContext context = new LoginContext(configName, credentials);
             context.login();
             return context.getSubject();
@@ -56,6 +61,7 @@ public class Authenticator implements JMXAuthenticator {
             throw new SecurityException("Invalid login");
         } finally {
             credentials.clear();
+            thread.setContextClassLoader(oldCL);
         }
     }
 }
