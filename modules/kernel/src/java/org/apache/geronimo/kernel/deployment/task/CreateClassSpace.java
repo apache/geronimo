@@ -74,7 +74,7 @@ import org.apache.geronimo.kernel.service.GeronimoMBean;
 /**
  * Creates, registers, and starts a class space
  *
- * @version $Revision: 1.3 $ $Date: 2003/10/27 21:31:50 $
+ * @version $Revision: 1.4 $ $Date: 2003/11/10 20:55:01 $
  */
 public class CreateClassSpace implements DeploymentTask {
     private final Log log = LogFactory.getLog(this.getClass());
@@ -135,7 +135,7 @@ public class CreateClassSpace implements DeploymentTask {
                 try {
                     server.setAttribute(name, new Attribute("parent", metadata.getParent()));
                 } catch (Exception e) {
-                    throw new DeploymentException("A class space is already registerd with name: objectName=" + metadata.getName(), e);
+                    throw new DeploymentException("A class space is already registered with name: objectName=" + metadata.getName(), e);
                 }
             }
 
@@ -146,8 +146,8 @@ public class CreateClassSpace implements DeploymentTask {
                 throw new DeploymentException("Could not start class space: objectName=" + metadata.getName(), e);
             }
         } else {
-            if (metadata.getCreate() == ClassSpaceMetadata.CREATE_ALWYAS) {
-                throw new DeploymentException("A class space is already registerd with name: objectName=" + metadata.getName());
+            if (metadata.getCreate() == ClassSpaceMetadata.CREATE_ALWAYS) {
+                throw new DeploymentException("A class space is already registered with name: objectName=" + metadata.getName());
             }
         }
 
