@@ -68,7 +68,7 @@ import org.apache.geronimo.common.platform.Java;
 /**
  * Interface which is implemented by all the nested throwable flavors.
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/16 15:14:11 $
+ * @version $Revision: 1.5 $ $Date: 2003/08/26 10:54:39 $
  */
 public interface NestedThrowable
    extends Serializable
@@ -148,7 +148,7 @@ public interface NestedThrowable
         
         /**
          * Something is very broken with class nesting, which can sometimes
-         * leave log uninitialized durring one of the following method calls.
+         * leave log uninitialized during one of the following method calls.
          *
          * <p>
          * This is a HACK to keep those methods from NPE until this problem
