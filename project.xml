@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.18 $ $Date: 2003/08/16 17:15:11 $ -->
+<!-- $Revision: 1.19 $ $Date: 2003/10/22 02:31:13 $ -->
 
 <project>
   
@@ -10,7 +10,7 @@
   <!-- ===================== -->
   <!-- Module Identification -->
   <!-- ===================== -->
-  
+
   <name>Apache Geronimo</name>
   <id>geronimo</id>
   <currentVersion>DEV</currentVersion>
@@ -19,5 +19,4 @@
     <sourceDirectory></sourceDirectory>
     <unitTestSourceDirectory></unitTestSourceDirectory>
   </build>
-  
 </project>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.40 $ $Date: 2003/09/23 03:32:13 $ -->
+<!-- $Revision: 1.41 $ $Date: 2003/10/22 02:31:13 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -207,10 +207,14 @@
         <attainGoal name="modules:default"/>
     </goal>
 
-
     <!-- ========================= -->
     <!-- Module Output Aggregation -->
     <!-- ========================= -->
+
+    <goal name="aggregate">
+        <attainGoal name="modules:reactor"/>
+        <attainGoal name="modules:aggregate"/>
+    </goal>
 
     <!-- Helper tags for module aggregation -->
     <define:taglib uri="local:aggregate">
@@ -254,13 +258,6 @@
                 include="*.jar"/>
         </define:tag>
 
-        <define:tag name="bootlib">
-            <aggregate:copy
-                source="${module.root}/target"
-                target="${aggregate.dir}/bootlib"
-                include="*.jar"/>
-        </define:tag>
-
         <define:tag name="default">
             <j:if test="${scripts == null || scripts == 'true'}">
                 <aggregate:scripts/>
@@ -275,10 +272,6 @@
             </j:if>
 
             <j:if test="${libraries == null || libraries == 'true'}">
-                <aggregate:libraries/>
-            </j:if>
-
-            <j:if test="${bootlib == null || bootlib == 'true'}">
                 <aggregate:libraries/>
             </j:if>
         </define:tag>
@@ -318,27 +311,6 @@
                     <j:choose>
                         <j:when test="${dependency.getProperty('destinations') == null}">
                             <j:set var="destinations" value="lib"/>
-                        </j:when>
-                        <j:otherwise>
-                            <j:set var="destinations" value="${dependency.getProperty('destinations')}"/>
-                        </j:otherwise>
-                    </j:choose>
-
-                    <u:tokenize var="destinationSet" delim="," trim="true">${destinations}</u:tokenize>
-
-                    <j:forEach var="destination" items="${destinationSet}" trim="true">
-                        <j:set var="targetDir" value="${aggregate.dir}/${destination.trim()}"/>
-                        <ant:mkdir dir="${targetDir}"/>
-                        <ant:copy todir="${targetDir}" file="${artifact.path}"/>
-                    </j:forEach>
-                </j:if>
-
-                <j:if test="${dependency.getProperty('bootstrap') == 'true'}">
-                    <ant:echo>Processing bootstrap dependency: ${dependency.id}</ant:echo>
-
-                    <j:choose>
-                        <j:when test="${dependency.getProperty('destinations') == null}">
-                            <j:set var="destinations" value="bootlib"/>
                         </j:when>
                         <j:otherwise>
                             <j:set var="destinations" value="${dependency.getProperty('destinations')}"/>
@@ -417,11 +389,6 @@
             include="*.jar"/>
     </goal>
 
-    <goal name="modules:aggregate:geronimo:geronimo-core">
-        <!-- Do not do the default libraries stuff -->
-        <aggregate:default/>
-    </goal>
-
     <goal name="modules:aggregate:geronimo:geronimo-web-console">
         <!-- Do not do the default libraries stuff -->
         <aggregate:default libraries="false"/>
@@ -432,22 +399,6 @@
             target="${aggregate.dir}/deploy/jetty"
             include="*.war"/>
     </goal>
-
-    <!--
-    <goal name="modules:aggregate:geronimo:geronimo-common">
-      <aggregate:default/>
-    </goal>
-
-    <goal name="modules:aggregate:geronimo:geronimo-twiddle">
-      <aggregate:scripts/>
-      <aggregate:config/>
-      <aggregate:libraries/>
-    </goal>
-
-    <goal name="modules:aggregate:geronimo:geronimo-core">
-      <aggregate:default/>
-    </goal>
-    -->
 
 
     <!-- =============================== -->
