@@ -25,10 +25,10 @@ import javax.transaction.xa.Xid;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:34 $
+ * @version $Revision: 1.4 $ $Date: 2004/04/20 18:32:00 $
  *
  * */
-public class XAResourceInsertionInterceptorTest extends ConnectionManagerTestUtils {
+public class XAResourceInsertionInterceptorTest extends ConnectionInterceptorTestUtils {
 
     private XAResourceInsertionInterceptor xaResourceInsertionInterceptor;
     private XAResource xaResource;
