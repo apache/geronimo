@@ -61,7 +61,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
  * used hold the persistent state of each Configuration. This allows
  * Configurations to restart in he event of system failure.
  *
- * @version $Revision: 1.20 $ $Date: 2004/02/25 09:57:49 $
+ * @version $Revision: 1.21 $ $Date: 2004/03/09 17:58:49 $
  */
 public class Kernel extends NotificationBroadcasterSupport implements Serializable, KernelMBean {
 
@@ -106,7 +106,7 @@ public class Kernel extends NotificationBroadcasterSupport implements Serializab
      * @param domainName the domain name to be used for the JMX MBeanServer
      */
     public Kernel(String domainName) {
-        this(domainName, null);
+        this(null, domainName);
     }
 
     /**
