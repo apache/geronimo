@@ -54,7 +54,7 @@ import org.mortbay.jetty.servlet.WebApplicationContext;
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
  *
- * @version $Revision: 1.21 $ $Date: 2004/06/05 07:53:21 $
+ * @version $Revision: 1.22 $ $Date: 2004/06/23 07:24:33 $
  */
 public class JettyWebApplicationContext extends WebApplicationContext implements GBeanLifecycle {
 
@@ -68,6 +68,7 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
     private final TransactionManager txManager;
     private final TrackedConnectionAssociator associator;
     private final UserTransactionImpl userTransaction;
+    private final ClassLoader classLoader;
 
     // @todo get these from DD
     private final Set unshareableResources;
@@ -79,7 +80,7 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
     private PolicyConfiguration policyConfiguration;
 
     public JettyWebApplicationContext() {
-        this(null, null, null, null, null, null, null, null, null, null);
+        this(null, null, null, null, null, null, null, null, null, null, null);
     }
 
     public JettyWebApplicationContext(ConfigurationParent config,
@@ -91,7 +92,8 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
             Set applicationManagedSecurityResources,
             TransactionManager txManager,
             TrackedConnectionAssociator associator,
-            UserTransactionImpl userTransaction) {
+            UserTransactionImpl userTransaction,
+            ClassLoader classLoader) {
         super();
         this.config = config;
         this.uri = uri;
@@ -103,6 +105,7 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
         this.txManager = txManager;
         this.associator = associator;
         this.userTransaction = userTransaction;
+        this.classLoader = classLoader;
 
         setConfiguration(new JettyXMLConfiguration(this));
     }
@@ -229,7 +232,7 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
 
         ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
         try {
-            Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
+            Thread.currentThread().setContextClassLoader(classLoader);
             super.start();
         } finally {
             Thread.currentThread().setContextClassLoader(oldCL);
@@ -303,6 +306,7 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
         infoFactory.addAttribute("UnshareableResources", Set.class, true);
         infoFactory.addAttribute("ApplicationManagedSecurityResources", Set.class, true);
         infoFactory.addAttribute("UserTransaction", UserTransactionImpl.class, true);
+        infoFactory.addAttribute("classLoader", ClassLoader.class, false);
 
         infoFactory.addReference("Configuration", ConfigurationParent.class);
         infoFactory.addReference("JettyContainer", JettyContainer.class);
@@ -319,7 +323,8 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
             "ApplicationManagedSecurityResources",
             "TransactionManager",
             "TrackedConnectionAssociator",
-            "UserTransaction"});
+            "UserTransaction",
+            "classLoader"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
