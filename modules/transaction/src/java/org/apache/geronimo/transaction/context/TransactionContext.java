@@ -34,7 +34,6 @@ import org.apache.geronimo.transaction.ConnectionReleaser;
 import org.apache.geronimo.transaction.DoubleKeyedHashMap;
 import org.apache.geronimo.transaction.InstanceContext;
 import org.tranql.cache.InTxCache;
-import org.tranql.cache.SimpleFlushStrategy;
 
 
 /**
@@ -147,10 +146,11 @@ public abstract class TransactionContext {
         return (InstanceContext) associatedContexts.get(containerId, id);
     }
 
+    public final void setInTxCache(InTxCache inTxCache) {
+        this.inTxCache = inTxCache;
+    }
+    
     public final InTxCache getInTxCache() {
-        if (inTxCache == null) {
-            inTxCache = new InTxCache(new SimpleFlushStrategy());
-        }
         return inTxCache;
     }
 
