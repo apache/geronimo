@@ -63,13 +63,6 @@
                     </xs:annotation>
                 </xs:element>
                 <xs:any namespace="##other"/>
-                <!--xs:element name="module-dd" type="geronimo:module-ddType">
-                    <xs:annotation>
-                        <xs:documentation>
-                            Include the literal vendor dd in the appropriate namespace.
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:element-->
             </xs:choice>
         </xs:sequence>
     </xs:complexType>
@@ -96,17 +89,6 @@
                 <xs:attribute name="id" type="xs:ID"/>
             </xs:extension>
         </xs:simpleContent>
-    </xs:complexType>
-
-    <xs:complexType name="module-ddType">
-        <xs:annotation>
-            <xs:documentation>
-  contains a literal vendor dd
-            </xs:documentation>
-        </xs:annotation>
-        <xs:sequence>
-            <xs:any/>
-        </xs:sequence>
     </xs:complexType>
 
 </xs:schema>
