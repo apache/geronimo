@@ -25,6 +25,7 @@ import java.io.ObjectOutput;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.messaging.AbstractEndPoint;
 import org.apache.geronimo.messaging.EndPoint;
 import org.apache.geronimo.messaging.Node;
@@ -34,7 +35,7 @@ import org.apache.geronimo.messaging.Request;
 /**
  * StreamManager implementation.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:41 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/27 15:46:54 $
  */
 public class StreamManagerImpl
     extends AbstractEndPoint
@@ -66,6 +67,8 @@ public class StreamManagerImpl
      */
     private final Map inputStreams;
 
+    private final ReplacerResolver replacerResolver;
+    
     /**
      * Creates a manager owned by the specified node.
      * 
@@ -78,7 +81,24 @@ public class StreamManagerImpl
         }
         owningNode = aNode.getNodeInfo();
         inputStreams = new HashMap();
-        aNode.getReplacerResolver().append(new InputStreamReplacerResolver());
+        
+        replacerResolver = new InputStreamReplacerResolver();
+    }
+    
+    public void doStart() throws WaitingException, Exception {
+        super.doStart();
+        replacerResolver.online();
+        node.getReplacerResolver().append(replacerResolver);
+    }
+    
+    public void doStop() throws WaitingException, Exception {
+        super.doStop();
+        replacerResolver.offline();
+    }
+    
+    public void doFail() {
+        super.doFail();
+        replacerResolver.offline();
     }
     
     public Object register(InputStream anIn) {
@@ -138,7 +158,7 @@ public class StreamManagerImpl
      * InputStream calls back its StreamManager when its internal buffer is
      * empty. 
      *
-     * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:41 $
+     * @version $Revision: 1.2 $ $Date: 2004/05/27 15:46:54 $
      */
     private class ProxyInputStream extends InputStream {
         /**

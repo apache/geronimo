@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
+import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.messaging.AbstractEndPoint;
 import org.apache.geronimo.messaging.Msg;
 import org.apache.geronimo.messaging.Node;
@@ -28,11 +29,12 @@ import org.apache.geronimo.messaging.NodeInfo;
 import org.apache.geronimo.messaging.Request;
 import org.apache.geronimo.messaging.Result;
 import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
+import org.apache.geronimo.messaging.io.ReplacerResolver;
 
 /**
  * ReferenceableManager implementation.
  *
- * @version $Revision: 1.2 $ $Date: 2004/05/24 13:02:55 $
+ * @version $Revision: 1.3 $ $Date: 2004/05/27 15:46:54 $
  */
 public class ReferenceableManagerImpl
     extends AbstractEndPoint
@@ -56,6 +58,8 @@ public class ReferenceableManagerImpl
      */
     private final IdentityHashMap referenceableToID;
     
+    private final ReplacerResolver replacerResolver;
+    
     /**
      * Creates a manager mounted by the specified node and having the specified
      * identifier.
@@ -69,10 +73,25 @@ public class ReferenceableManagerImpl
         idToReferenceable = new HashMap();
         referenceableToID = new IdentityHashMap();
         
-        // Adds the ReferenceReplacerResolver to the current chain.
-        node.getReplacerResolver().append(new ReferenceReplacerResolver(this));
+        replacerResolver = new ReferenceReplacerResolver(this);
     }
 
+    public void doStart() throws WaitingException, Exception {
+        super.doStart();
+        replacerResolver.online();
+        node.getReplacerResolver().append(replacerResolver);
+    }
+    
+    public void doStop() throws WaitingException, Exception {
+        super.doStop();
+        replacerResolver.offline();
+    }
+    
+    public void doFail() {
+        super.doFail();
+        replacerResolver.offline();
+    }
+    
     public Object factoryProxy(ReferenceableInfo aReferenceInfo) {
         NodeInfo hostingNode = aReferenceInfo.getHostingNode();
         Object endPointID = aReferenceInfo.getID();

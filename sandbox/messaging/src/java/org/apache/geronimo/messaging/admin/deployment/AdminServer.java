@@ -42,9 +42,11 @@ import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.plugin.DeploymentServer;
 import org.apache.geronimo.deployment.plugin.FailedProgressObject;
 import org.apache.geronimo.deployment.plugin.TargetImpl;
+import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.messaging.AbstractEndPoint;
 import org.apache.geronimo.messaging.Node;
 import org.apache.geronimo.messaging.NodeInfo;
+import org.apache.geronimo.messaging.io.ReplacerResolver;
 import org.apache.geronimo.messaging.proxy.EndPointProxyInfo;
 import org.apache.xmlbeans.XmlObject;
 
@@ -59,7 +61,7 @@ import org.apache.xmlbeans.XmlObject;
  *
  * TODO This implementation assumes that the set of Targets is static.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/27 14:45:59 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/27 15:46:54 $
  */
 public class AdminServer
     extends AbstractEndPoint
@@ -71,6 +73,8 @@ public class AdminServer
      */
     private final Map nameToInfo;
     
+    private final ReplacerResolver replacerResolver;
+    
     /**
      * Creates an administration server mounted by the specified node and
      * having the provided identifier. 
@@ -81,7 +85,7 @@ public class AdminServer
     public AdminServer(Node aNode, Object anID) {
         super(aNode, anID);
         
-        node.getReplacerResolver().append(new DeploymentReplacerResolver());
+        replacerResolver = new DeploymentReplacerResolver();
         
         nameToInfo = new HashMap();
         NodeInfo[] nodes =
@@ -97,6 +101,22 @@ public class AdminServer
             info.target = new TargetImpl(nodeInfo.getName(), null);
             nameToInfo.put(nodeInfo.getName(), info);
         }
+    }
+    
+    public void doStart() throws WaitingException, Exception {
+        super.doStart();
+        replacerResolver.online();
+        node.getReplacerResolver().append(replacerResolver);
+    }
+    
+    public void doStop() throws WaitingException, Exception {
+        super.doStop();
+        replacerResolver.offline();
+    }
+    
+    public void doFail() {
+        super.doFail();
+        replacerResolver.offline();
     }
     
     public boolean isLocal() {

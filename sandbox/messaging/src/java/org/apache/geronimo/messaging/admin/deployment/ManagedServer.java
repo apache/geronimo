@@ -39,11 +39,13 @@ import org.apache.geronimo.deployment.plugin.TargetImpl;
 import org.apache.geronimo.deployment.plugin.local.DistributeCommand;
 import org.apache.geronimo.deployment.plugin.local.StartCommand;
 import org.apache.geronimo.deployment.plugin.local.StopCommand;
+import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelMBean;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.messaging.AbstractEndPoint;
 import org.apache.geronimo.messaging.Node;
+import org.apache.geronimo.messaging.io.ReplacerResolver;
 import org.apache.geronimo.messaging.reference.ReferenceableEnhancer;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlException;
@@ -58,7 +60,7 @@ import org.apache.xmlbeans.XmlObject;
  * result. Results are consolidated by the admin server, which provides a 
  * consistent view of the deployment operations.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/27 14:45:59 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/27 15:46:54 $
  */
 public class ManagedServer
     extends AbstractEndPoint
@@ -73,6 +75,8 @@ public class ManagedServer
     private final Target target;
     private final ConfigurationStore store;
     private final Kernel kernel;
+    
+    private final ReplacerResolver replacerResolver;
     
     /**
      * Creates a managed deployment server for the specified node.
@@ -97,7 +101,23 @@ public class ManagedServer
         // Should be a KernelMBean
         kernel = (Kernel) aKernel;
         
-        node.getReplacerResolver().append(new DeploymentReplacerResolver());
+        replacerResolver = new DeploymentReplacerResolver();
+    }
+    
+    public void doStart() throws WaitingException, Exception {
+        super.doStart();
+        replacerResolver.online();
+        node.getReplacerResolver().append(replacerResolver);
+    }
+    
+    public void doStop() throws WaitingException, Exception {
+        super.doStop();
+        replacerResolver.offline();
+    }
+    
+    public void doFail() {
+        super.doFail();
+        replacerResolver.offline();
     }
     
     public ProgressObject distribute(
