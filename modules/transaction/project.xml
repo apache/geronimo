@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- $Revision: 1.1 $ $Date: 2004/01/23 18:54:15 $ -->
+
+<project>
+    <pomVersion>3</pomVersion>
+    <extend>${basedir}/../../etc/project.xml</extend>
+
+    <!-- ===================== -->
+    <!-- Module Identification -->
+    <!-- ===================== -->
+
+    <name>Geronimo :: Transaction</name>
+    <id>geronimo-transaction</id>
+    <shortDescription>Geronimo Transaction</shortDescription>
+    <description>Geronimo Transaction</description>
+    <url>http://incubator.apache.org/projects/geronimo/transaction/</url>
+    <siteDirectory>/www/incubator.apache.org/projects/geronimo/transaction</siteDirectory>
+    <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds/transaction</distributionDirectory>
+
+    <currentVersion>DEV</currentVersion>
+
+    <!-- ============ -->
+    <!-- Dependencies -->
+    <!-- ============ -->
+
+    <dependencies>
+
+        <!-- Module Dependencies -->
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-kernel</artifactId>
+            <version>DEV</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-jta</artifactId>
+            <version>DEV</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-ejb</artifactId>
+            <version>DEV</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-j2ee-connector</artifactId>
+            <version>DEV</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
+
+        <!-- Thirdparty -->
+
+        <dependency>
+            <id>commons-logging</id>
+            <version>1.0.3</version>
+            <url>http://jakarta.apache.org/commons/logging/</url>
+            <properties>
+                <runtime>false</runtime>
+            </properties>
+        </dependency>
+
+    </dependencies>
+</project>
