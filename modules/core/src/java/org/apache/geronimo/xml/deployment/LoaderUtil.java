@@ -74,7 +74,7 @@ import org.xml.sax.SAXException;
 /**
  * Holds utility methods for parsing a DOM tree.
  *
- * @version $Revision: 1.8 $ $Date: 2003/10/01 19:02:05 $
+ * @version $Revision: 1.9 $ $Date: 2003/11/18 02:12:33 $
  */
 public final class LoaderUtil {
     private static final Log log = LogFactory.getLog(LoaderUtil.class);
@@ -137,7 +137,7 @@ public final class LoaderUtil {
         for(int i=0; i<max; i++) {
             Node n = nl.item(i);
             if(n.getNodeType() == Node.ELEMENT_NODE &&
-                    n.getNodeName().equals(childName)) {
+                    n.getLocalName().equals(childName)) {
                 list.add(n);
             }
         }
