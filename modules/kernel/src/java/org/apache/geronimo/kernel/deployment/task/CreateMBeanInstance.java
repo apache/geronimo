@@ -83,7 +83,7 @@ import org.apache.geronimo.kernel.service.ParserUtil;
 /**
  * Creates an new MBean instance and intializes it according to the specified MBeanMetadata metadata
  *
- * @version $Revision: 1.4 $ $Date: 2003/11/15 19:16:42 $
+ * @version $Revision: 1.5 $ $Date: 2003/11/16 00:49:22 $
  */
 public class CreateMBeanInstance implements DeploymentTask {
     private final Log log = LogFactory.getLog(this.getClass());
@@ -145,35 +145,18 @@ public class CreateMBeanInstance implements DeploymentTask {
 
             // Create and register the MBean
             try {
-                // Get the constructor arguments
-                String[] constructorTypeStrings = metadata.getConstructorTypes();
-                Object[] constructorValues = metadata.getConstructorArgs();
-                for (int i = 0; i < constructorTypeStrings.length; i++) {
-                    Class type = null;
-                    try {
-                        type = ParserUtil.loadClass(constructorTypeStrings[i], newCL);
-                    } catch (ClassNotFoundException e) {
-                        throw new DeploymentException(e, metadata);
-                    }
-
-                    Object value = constructorValues[i];
-                    if (value instanceof String) {
-                        value = ParserUtil.getValue(type, (String) value, baseURI);
-                        constructorValues[i] = value;
-                    }
-                }
 
                 // Create the mbean
                 if (log.isTraceEnabled()) {
                     log.trace("Creating MBean name=" + metadata.getName() + " class=" + metadata.getCode());
                 }
 
-                //Class mbeanClass = newCL.loadClass(metadata.getCode());
-                //Constructor mbeanConstructor = mbeanClass.getConstructor(constructorTypes);
-                Object mbean = server.instantiate(metadata.getCode(),
-                        metadata.getLoaderName(),
+                Object mbean = ParserUtil.instantiate(metadata.getCode(),
                         metadata.getConstructorArgs(),
-                        metadata.getConstructorTypes());
+                        metadata.getConstructorTypes(),
+                        baseURI,
+                        newCL);
+
                 actualName = server.registerMBean(mbean, metadata.getName()).getObjectName();
                 if (log.isTraceEnabled() && !actualName.equals(metadata.getName())) {
                     log.trace("Actual MBean name is " + actualName);
