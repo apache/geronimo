@@ -22,32 +22,14 @@
     <groupId>geronimo</groupId>
     <id>geronimo-packaging-plugin</id>
     <name>Geronimo Packaging Plugin</name>
-    <currentVersion>SNAPSHOT</currentVersion>
+    <currentVersion>0.1.1</currentVersion>
 
     <dependencies>
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>159810</version>
         </dependency>
-
-        <!-- todo remove these -->
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-system</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-common</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-deployment</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-        <!-- todo remove the ones above -->
 
         <dependency>
             <groupId>cglib</groupId>

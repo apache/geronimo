@@ -23,7 +23,7 @@
     <groupId>geronimo</groupId>
     <id>geronimo-gbean-deployer</id>
     <name>Geronimo Configuration for service deployments</name>
-    <currentVersion>SNAPSHOT</currentVersion>
+    <currentVersion>0.1.1</currentVersion>
 
     <dependencies>
         <!-- dependencies referenced in plan -->
@@ -69,14 +69,12 @@
 -->
 
         <!-- dependency on the bootstrap gbean deployer so I can deploy myself-->
-<!--
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-gbean-deployer</artifactId>
             <type>car</type>
-            <version>0.1</version>
+            <version>0.1.1</version>
         </dependency>
--->
     </dependencies>
 </project>
 
