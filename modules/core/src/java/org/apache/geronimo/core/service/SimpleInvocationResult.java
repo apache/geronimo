@@ -63,20 +63,37 @@ import org.apache.geronimo.core.service.InvocationResult;
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:25:19 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/05 05:03:18 $
  */
 public class SimpleInvocationResult implements InvocationResult, Serializable {
     private final Object result;
     private final boolean normal;
 
+    /**
+     * @deprecated too confusing - use SimpleInvocationResult(true, result)
+     */
     public SimpleInvocationResult(Object result) {
         this.result = result;
         normal = true;
     }
 
+    /**
+     * @deprecated too confusing - use SimpleInvocationResult(false, appException)
+     */
     public SimpleInvocationResult(Exception appException) {
         this.result = appException;
         this.normal = false;
+    }
+
+    /**
+     * Create a object representing the normal result of an Invocation
+     * @param normal true if the target returned; false if it threw an application Exception
+     * @param result the result or Exception
+     */
+    public SimpleInvocationResult(boolean normal, Object result) {
+        assert (normal || result instanceof Throwable) : "Result must be normal or a Throwable";
+        this.normal = normal;
+        this.result = result;
     }
 
     public boolean isNormal() {
