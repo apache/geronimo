@@ -57,7 +57,6 @@ package org.apache.geronimo.kernel.service;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Arrays;
 import java.util.ArrayList;
@@ -68,7 +67,6 @@ import javax.management.MBeanParameterInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 
 import net.sf.cglib.reflect.FastMethod;
-import net.sf.cglib.reflect.FastClass;
 
 /**
  * Describes an operation on a GeronimoMBean.  This extension allows the properties to be mutable during setup,
@@ -76,7 +74,7 @@ import net.sf.cglib.reflect.FastClass;
  * direct the operation to a specific target in a multi target GeronimoMBean.  It also supports caching of the
  * invocation result, which can reduce the number of calls on the target.
  *
- * @version $Revision: 1.4 $ $Date: 2003/11/14 16:16:52 $
+ * @version $Revision: 1.5 $ $Date: 2003/11/26 02:10:08 $
  */
 public final class GeronimoOperationInfo extends MBeanOperationInfo {
     /**
@@ -156,7 +154,7 @@ public final class GeronimoOperationInfo extends MBeanOperationInfo {
     private final int hashCode = System.identityHashCode(this);
 
     public GeronimoOperationInfo() {
-        this(null, new GeronimoParameterInfo[] {}, 0, null);
+        this(null);
     }
 
     public GeronimoOperationInfo(String name) {
@@ -164,12 +162,17 @@ public final class GeronimoOperationInfo extends MBeanOperationInfo {
     }
 
     public GeronimoOperationInfo(String name, GeronimoParameterInfo[] parameterInfo, int impact, String description) {
+        this(name, parameterInfo, impact, description, GeronimoMBeanInfo.DEFAULT_TARGET_NAME);
+    }
+
+    public GeronimoOperationInfo(String name, GeronimoParameterInfo[] parameterInfo, int impact, String description, String targetName) {
         super("Ignore", null, null, "Ignore", MBeanOperationInfo.UNKNOWN);
         immutable = false;
         this.name = name;
         parameters = new ArrayList(Arrays.asList(parameterInfo));
         this.impact = impact;
         this.description = description;
+        this.targetName = targetName;
         method = null;
         returnType = null;
         parameterTypes = null;

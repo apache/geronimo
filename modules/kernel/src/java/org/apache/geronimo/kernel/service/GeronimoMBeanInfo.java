@@ -85,7 +85,7 @@ import net.sf.cglib.reflect.FastClass;
  * and once the MBean is deployed an imutable copy of will be made.  This class also adds support for multi target
  * POJOs under the MBean.
  *
- * @version $Revision: 1.11 $ $Date: 2003/11/18 02:23:35 $
+ * @version $Revision: 1.12 $ $Date: 2003/11/26 02:10:08 $
  */
 public final class GeronimoMBeanInfo extends MBeanInfo {
 
@@ -321,16 +321,24 @@ public final class GeronimoMBeanInfo extends MBeanInfo {
     }
 
     public void addOperationsDeclaredIn(Class clazz) {
+        addOperationsDeclaredIn(clazz, DEFAULT_TARGET_NAME);
+    }
+
+    public void addOperationFor(Method method) {
+        addOperationFor(method, DEFAULT_TARGET_NAME);
+    }
+
+    public void addOperationsDeclaredIn(Class clazz, String targetName) {
         if (immutable) {
             throw new IllegalStateException("Data is no longer mutable");
         }
         Method[] methods = clazz.getDeclaredMethods();
         for (int i = 0; i < methods.length; i++) {
-            addOperationFor(methods[i]);
+            addOperationFor(methods[i], targetName);
         }
     }
 
-    public void addOperationFor(Method method) {
+    public void addOperationFor(Method method, String targetName) {
         if (immutable) {
             throw new IllegalStateException("Data is no longer mutable");
         }
@@ -342,7 +350,7 @@ public final class GeronimoMBeanInfo extends MBeanInfo {
         }
         GeronimoParameterInfo params[] = new GeronimoParameterInfo[l.size()];
         l.toArray(params);
-        addOperationInfo(new GeronimoOperationInfo(method.getName(), params, MBeanOperationInfo.ACTION, ""));
+        addOperationInfo(new GeronimoOperationInfo(method.getName(), params, MBeanOperationInfo.ACTION, "", targetName));
     }
 
     public Set getNotificationsSet() {
