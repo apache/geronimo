@@ -53,7 +53,7 @@ public class ServerConnection {
                 "is available there, then the Geronimo server installation that the " +
                 "deployer JAR is part of.\n" +
                 "A URI to connect to Geronimo has the form: " +
-                "geronimo:deployer:jmx:rmi://localhost/jndi/rmi:/JMXConnector");
+                "deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector");
         OPTION_HELP.put("--driver", "If you want to use this tool with a server other than Geronimo, " +
                 "then you must provide the path to its driver JAR.  Currently, manifest " +
                 "Class-Path entries in that JAR are ignored.");
