@@ -36,7 +36,7 @@ import org.apache.geronimo.security.bridge.TestRealm;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/02/25 09:58:10 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/10 02:15:50 $
  */
 public abstract class AbstractTest extends TestCase {
     protected Kernel kernel;
@@ -59,7 +59,7 @@ public abstract class AbstractTest extends TestCase {
         loginService = new ObjectName("geronimo.security:type=LoginService");
         gbean.setReferencePatterns("Realms", Collections.singleton(new ObjectName("geronimo.security:type=SecurityRealm,*")));
         gbean.setAttribute("Kernel", kernel);
-        gbean.setAttribute("ReclaimPeriod", new Long(100));
+        gbean.setAttribute("ReclaimPeriod", new Long(10 * 1000));  // todo check other tests to see if ok
         gbean.setAttribute("Algorithm", "HmacSHA1");
         gbean.setAttribute("Password", "secret");
         kernel.loadGBean(loginService, gbean);

@@ -32,7 +32,7 @@ import org.apache.geronimo.security.RealmPrincipal;
 
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/02/25 09:58:10 $
+ * @version $Revision: 1.4 $ $Date: 2004/03/10 02:15:50 $
  */
 public class LoginSQLTest extends AbstractTest {
 
@@ -137,7 +137,7 @@ public class LoginSQLTest extends AbstractTest {
         IdentificationPrincipal principal = (IdentificationPrincipal) subject.getPrincipals(IdentificationPrincipal.class).iterator().next();
         assertTrue("id of principal should be non-zero", principal.getId().getSubjectId().longValue() != 0);
 
-        Thread.sleep(2 * 1000);
+        Thread.sleep(20 * 1000);
 
         try {
             context.logout();
