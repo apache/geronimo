@@ -411,6 +411,8 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
             invoke(name, "start");
         } catch (InstanceNotFoundException e) {
             throw e;
+        } catch (GBeanNotFoundException e) {
+            throw new InstanceNotFoundException("No instance found: " + name);
         } catch (Exception e) {
             throw new InvalidConfigException("Invalid GBean configuration for " + name, unwrapJMException(e));
         }
@@ -421,6 +423,8 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
             invoke(name, "startRecursive");
         } catch (InstanceNotFoundException e) {
             throw e;
+        } catch (GBeanNotFoundException e) {
+            throw new InstanceNotFoundException("No instance found: " + name);
         } catch (Exception e) {
             throw new InvalidConfigException("Invalid GBean configuration for " + name, e);
         }
@@ -431,6 +435,8 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
             invoke(name, "stop");
         } catch (InstanceNotFoundException e) {
             throw e;
+        } catch (GBeanNotFoundException e) {
+            throw new InstanceNotFoundException("No instance found: " + name);
         } catch (Exception e) {
             throw new InvalidConfigException("Invalid GBean configuration for " + name, e);
         }
