@@ -1,8 +1,0 @@
-*.iml
-.project
-.classpath
-maven.log
-junit*.properties
-target
-howllog.csv
-howllog.xml
