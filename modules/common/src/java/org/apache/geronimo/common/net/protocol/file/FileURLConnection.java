@@ -81,10 +81,7 @@ import java.util.Collections;
 
 import java.security.Permission;
 
-//
-// HACK: The current SNAPSHOT of commons-lang is old, inlined required methods for now
-//
-// import org.apache.commons.lang.SystemUtils;
+import org.apache.commons.lang.SystemUtils;
 
 import org.apache.geronimo.common.NullArgumentException;
 import org.apache.geronimo.common.Primitives;
@@ -97,7 +94,7 @@ import sun.net.www.ParseUtil;
  *
  * <p>Correctly returns headers.
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/02 07:43:01 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/03 18:38:56 $
  */
 public class FileURLConnection
     extends URLConnection
@@ -205,34 +202,6 @@ public class FileURLConnection
         return new FilePermission(filename, perms);
     }
     
-    //
-    // HACK: The current SNAPSHOT of commons-lang is old, inlined required methods for now
-    //
-    
-    private static String getSystemProperty(String property) {
-        try {
-            return System.getProperty(property);
-        } catch (SecurityException ex) {
-            // we are not allowed to look at this property
-            System.err.println(
-                "Caught a SecurityException reading the system property '" + property 
-                + "'; the SystemUtils property value will default to null."
-            );
-            return null;
-        }
-    }
-    
-    private static final String OS_NAME = getSystemProperty("os.name");
-    
-    private static boolean getOSMatches(String osNamePrefix) {
-        if (OS_NAME == null) {
-            return false;
-        }
-        return OS_NAME.startsWith(osNamePrefix);
-    }
-    
-    private static final boolean IS_OS_WINDOWS = getOSMatches("Windows");
-    
     /**
      * Conditionaly sync the underlying file descriptor if we are running
      * on windows, so that the file details update.
@@ -240,12 +209,7 @@ public class FileURLConnection
     private void maybeSync()
     {
         if (fd != null && fd.valid()) {
-            //
-            // HACK: The current SNAPSHOT of commons-lang is old, 
-            //       inlined required methods for now
-            //
-            
-            if (IS_OS_WINDOWS) {
+            if (SystemUtils.IS_OS_WINDOWS) {
                 try {
                     fd.sync();
                 }
