@@ -31,6 +31,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.jmx.JMXGBeanRegistry;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
@@ -42,6 +44,7 @@ import org.apache.geronimo.system.url.GeronimoURLFactory;
  */
 public class Daemon {
     private static Log log;
+    private static final ObjectName PERSISTENT_CONFIGURATION_LIST_NAME_QUERY = JMXUtil.getObjectName("*:j2eeType=PersistentConfigurationList,*");
 
     static {
         // This MUST be done before the first log is acquired
@@ -126,7 +129,7 @@ public class Daemon {
 
             if (configs.isEmpty()) {
                 // nothing explicit, see what was running before
-                Set configLists = kernel.listGBeans(JMXUtil.getObjectName("*:role=PersistentConfigurationList,*"));
+                Set configLists = kernel.listGBeans(PERSISTENT_CONFIGURATION_LIST_NAME_QUERY);
                 for (Iterator i = configLists.iterator(); i.hasNext();) {
                     ObjectName configListName = (ObjectName) i.next();
                     try {
@@ -163,12 +166,24 @@ public class Daemon {
             }
 
             // Tell every persistent configuration list that the kernel is now fully started
-            Set configLists = kernel.listGBeans(JMXUtil.getObjectName("*:role=PersistentConfigurationList,*"));
+            Set configLists = kernel.listGBeans(PERSISTENT_CONFIGURATION_LIST_NAME_QUERY);
             for (Iterator i = configLists.iterator(); i.hasNext();) {
                 ObjectName configListName = (ObjectName) i.next();
                 kernel.setAttribute(configListName, "kernelFullyStarted", Boolean.TRUE);
             }
 
+            Set allGBeans = kernel.listGBeans(JMXUtil.getObjectName("*:*"));
+            for (Iterator iterator = allGBeans.iterator(); iterator.hasNext();) {
+                ObjectName objectName = (ObjectName) iterator.next();
+                try {
+                    Integer state = (Integer) kernel.getAttribute(objectName, "state");
+                    if (state.intValue() != State.RUNNING_INDEX) {
+                        log.info("GBean " + objectName + " is not running in state " + State.fromInteger(state).getName());
+                    }
+                } catch (GBeanNotFoundException e) {
+                    log.info("Alleged GBean " + objectName + " is not a GBean");
+                }
+            }
             log.info("Server startup completed");
 
             // capture this thread until the kernel is ready to exit
