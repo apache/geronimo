@@ -46,7 +46,7 @@ import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.GReferenceInfo;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
@@ -86,6 +86,7 @@ public class Configuration implements GBeanLifecycle {
     private static final Log log = LogFactory.getLog(Configuration.class);
 
     private final Kernel kernel;
+    private final String objectNameString;
     private final ObjectName objectName;
     private final URI id;
     /**
@@ -98,6 +99,7 @@ public class Configuration implements GBeanLifecycle {
     private final List dependencies;
     private final byte[] gbeanState;
     private final Collection repositories;
+    private final ConfigurationStore configurationStore;
 
     private URL baseURL;
     private Map gbeans;
@@ -117,8 +119,9 @@ public class Configuration implements GBeanLifecycle {
      * @param repositories a Collection<Repository> of repositories used to resolve dependencies
      * @param dependencies a List<URI> of dependencies
      */
-    public Configuration(Kernel kernel, String objectName, URI id, ConfigurationModuleType moduleType, URI parentID, ConfigurationParent parent, List classPath, byte[] gbeanState, Collection repositories, List dependencies) {
+    public Configuration(Kernel kernel, String objectName, URI id, ConfigurationModuleType moduleType, URI parentID, ConfigurationParent parent, List classPath, byte[] gbeanState, Collection repositories, List dependencies, ConfigurationStore configurationStore) {
         this.kernel = kernel;
+        this.objectNameString = objectName;
         this.objectName = JMXUtil.getObjectName(objectName);
         this.id = id;
         this.moduleType = moduleType;
@@ -128,6 +131,7 @@ public class Configuration implements GBeanLifecycle {
         this.classPath = classPath;
         this.dependencies = dependencies;
         this.repositories = repositories;
+        this.configurationStore = configurationStore;
     }
 
     public void doStart() throws Exception {
@@ -204,6 +208,10 @@ public class Configuration implements GBeanLifecycle {
         log.info("Started configuration " + id);
     }
 
+    public String getObjectName() {
+        return objectNameString;
+    }
+
     private static void setGBeanBaseUrl(GBeanMBean gbean, URL baseUrl) throws ReflectionException, AttributeNotFoundException {
         GBeanInfo gbeanInfo = gbean.getGBeanInfo();
         Set attributes = gbeanInfo.getAttributes();
@@ -216,7 +224,7 @@ public class Configuration implements GBeanLifecycle {
         }
     }
 
-    public void doStop() {
+    public void doStop() throws Exception {
         log.info("Stopping configuration " + id);
         if (gbeans == null) {
             return;
@@ -241,6 +249,11 @@ public class Configuration implements GBeanLifecycle {
         } catch (InvalidConfigException e) {
             log.info(e);
         }
+
+        if (configurationStore != null) {
+            configurationStore.updateConfiguration(this);
+        }
+
         gbeans = null;
     }
 
@@ -326,18 +339,19 @@ public class Configuration implements GBeanLifecycle {
      * @return a Map<ObjectName, GBeanMBean> of GBeans loaded from the persisted state
      * @throws InvalidConfigException if there is a problem deserializing the state
      */
-    public static Map loadGBeans(byte[] gbeanState, ClassLoader cl) throws InvalidConfigException {
+    private static Map loadGBeans(byte[] gbeanState, ClassLoader cl) throws InvalidConfigException {
         Map gbeans = new HashMap();
         ObjectName objectName = null;
         try {
             ObjectInputStream ois = new ConfigInputStream(new ByteArrayInputStream(gbeanState), cl);
             try {
                 while (true) {
-                    objectName = null;
                     objectName = (ObjectName) ois.readObject();
-                    GBeanInfo info = (GBeanInfo) ois.readObject();
-                    GBeanMBean gbean = new GBeanMBean(info, cl);
-                    loadGMBeanState(gbean, ois);
+
+                    GBeanData gbeanData = new GBeanData();
+                    gbeanData.readExternal(ois);
+                    GBeanMBean gbean = new GBeanMBean(gbeanData, cl);
+
                     gbeans.put(objectName, gbean);
                 }
             } catch (EOFException e) {
@@ -353,14 +367,9 @@ public class Configuration implements GBeanLifecycle {
     }
 
     public static void loadGMBeanState(GBeanMBean gbean, ObjectInputStream ois) throws IOException, AttributeNotFoundException, ReflectionException, ClassNotFoundException {
-        int attributeCount = ois.readInt();
-        for (int i = 0; i < attributeCount; i++) {
-            gbean.setAttribute((String) ois.readObject(), ois.readObject());
-        }
-        int endpointCount = ois.readInt();
-        for (int i = 0; i < endpointCount; i++) {
-            gbean.setReferencePatterns((String) ois.readObject(), (Set) ois.readObject());
-        }
+        GBeanData gbeanData = new GBeanData();
+        gbeanData.readExternal(ois);
+        gbean.setGBeanData(gbeanData);
     }
 
     /**
@@ -385,8 +394,7 @@ public class Configuration implements GBeanLifecycle {
             GBeanMBean gbean = (GBeanMBean) entry.getValue();
             try {
                 oos.writeObject(objectName);
-                oos.writeObject(gbean.getGBeanInfo());
-                storeGMBeanState(gbean, oos);
+                gbean.getGBeanData().writeExternal(oos);
             } catch (Exception e) {
                 throw new InvalidConfigException("Unable to serialize GBeanState for " + objectName, e);
             }
@@ -397,36 +405,6 @@ public class Configuration implements GBeanLifecycle {
             throw (AssertionError) new AssertionError("Unable to flush ObjectOutputStream").initCause(e);
         }
         return baos.toByteArray();
-    }
-
-    public static void storeGMBeanState(GBeanMBean gbean, ObjectOutputStream oos) throws IOException, ReflectionException {
-        List persistentAttributes = gbean.getGBeanInfo().getPersistentAttributes();
-        oos.writeInt(persistentAttributes.size());
-        for (Iterator j = persistentAttributes.iterator(); j.hasNext();) {
-            GAttributeInfo attributeInfo = (GAttributeInfo) j.next();
-            String name = attributeInfo.getName();
-            Object value = null;
-            try {
-                value = gbean.getAttribute(name);
-            } catch (ReflectionException e) {
-                throw e;
-            } catch (AttributeNotFoundException e) {
-                throw new AssertionError("Unable to get attribute " + name + " from GBean " + gbean.getObjectName());
-            }
-            try {
-                oos.writeObject(name);
-                oos.writeObject(value);
-            } catch (IOException e) {
-                throw (IOException) new IOException("Unable to write attribute: " + name).initCause(e);
-            }
-        }
-        Set endpointsSet = gbean.getGBeanInfo().getReferences();
-        oos.writeInt(endpointsSet.size());
-        for (Iterator iterator = endpointsSet.iterator(); iterator.hasNext();) {
-            GReferenceInfo gEndpointInfo = (GReferenceInfo) iterator.next();
-            oos.writeObject(gEndpointInfo.getName());
-            oos.writeObject(gbean.getReferencePatterns(gEndpointInfo.getName()));
-        }
     }
 
     public static final GBeanInfo GBEAN_INFO;
@@ -446,6 +424,7 @@ public class Configuration implements GBeanLifecycle {
 
         infoFactory.addReference("Parent", ConfigurationParent.class);
         infoFactory.addReference("Repositories", Repository.class);
+        infoFactory.addReference("ConfigurationStore", ConfigurationStore.class);
 
         infoFactory.setConstructor(new String[]{
             "kernel",
@@ -457,7 +436,8 @@ public class Configuration implements GBeanLifecycle {
             "classPath",
             "gBeanState",
             "Repositories",
-            "dependencies"});
+            "dependencies",
+            "ConfigurationStore"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

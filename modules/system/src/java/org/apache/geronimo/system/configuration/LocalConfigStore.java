@@ -26,6 +26,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -36,20 +37,24 @@ import java.util.List;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Implementation of ConfigurationStore using the local filesystem.
@@ -59,7 +64,8 @@ import org.apache.commons.logging.LogFactory;
 public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
     private static final String INDEX_NAME = "index.properties";
     private static final String BACKUP_NAME = "index.backup";
-    private final String objectName;
+    private final Kernel kernel;
+    private final ObjectName objectName;
     private final URI root;
     private final ServerInfo serverInfo;
     private final Properties index = new Properties();
@@ -71,6 +77,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
      * Constructor is only used for direct testing with out a kernel.
      */
     public LocalConfigStore(File rootDir) {
+        kernel = null;
         objectName = null;
         serverInfo = null;
         this.root = null;
@@ -78,15 +85,16 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         log = LogFactory.getLog("LocalConfigStore:"+rootDir.getName());
     }
 
-    public LocalConfigStore(String objectName, URI root, ServerInfo serverInfo) {
-        this.objectName = objectName;
+    public LocalConfigStore(Kernel kernel, String objectName, URI root, ServerInfo serverInfo) throws MalformedObjectNameException {
+        this.kernel = kernel;
+        this.objectName = new ObjectName(objectName);
         this.root = root;
         this.serverInfo = serverInfo;
         log = LogFactory.getLog("LocalConfigStore:"+root.toString());
     }
 
     public String getObjectName() {
-        return objectName;
+        return objectName.toString();
     }
 
     public void doStart() throws WaitingException, FileNotFoundException, IOException {
@@ -239,6 +247,27 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         return loadConfig(getRoot(configID));
     }
 
+    public synchronized void updateConfiguration(Configuration configuration) throws NoSuchConfigException, Exception {
+        File root = getRoot(configuration.getID());
+        File stateFile = new File(root, "META-INF/state.ser");
+        try {
+            FileOutputStream fos = new FileOutputStream(stateFile);
+            ObjectOutputStream oos;
+            try {
+                oos = new ObjectOutputStream(fos);
+                GBeanData gbeanData = kernel.getGBeanData(JMXUtil.getObjectName(configuration.getObjectName()));
+                gbeanData.writeExternal(oos);
+                oos.flush();
+            } finally {
+                fos.close();
+            }
+        } catch (Exception e) {
+            log.error("state store failed", e);
+            stateFile.delete();
+            throw e;
+        }
+    }
+
     public List listConfiguations() {
         List configs;
         synchronized (this) {
@@ -273,23 +302,30 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
     }
 
     private GBeanMBean loadConfig(File configRoot) throws IOException, InvalidConfigException {
-        FileInputStream fis = new FileInputStream(new File(configRoot, "META-INF/config.ser"));
+        File file = new File(configRoot, "META-INF/state.ser");
+        if (!file.isFile()) {
+            file = new File(configRoot, "META-INF/config.ser");
+            if (!file.isFile()) {
+                throw new InvalidConfigException("Configuration does not contain a META-INF/config.ser file");
+            }
+        }
+
+        FileInputStream fis = new FileInputStream(file);
         try {
             ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(fis));
             GBeanMBean config;
             try {
-                config = new GBeanMBean(Configuration.GBEAN_INFO);
-            } catch (InvalidConfigurationException e) {
-                throw new InvalidConfigException("Unable to instantiate Configuration GBeanMBean", e);
-            }
-            try {
-                Configuration.loadGMBeanState(config, ois);
+                GBeanData gbeanData = new GBeanData();
+                gbeanData.readExternal(ois);
+                config = new GBeanMBean(gbeanData, Configuration.class.getClassLoader());
             } catch (ClassNotFoundException e) {
                 //TODO more informative exceptions
                 throw new InvalidConfigException("Unable to read attribute ", e);
             } catch (Exception e) {
                 throw new InvalidConfigException("Unable to set attribute ", e);
             }
+
+            config.setReferencePattern("ConfigurationStore", objectName);
             return config;
         } finally {
             fis.close();
@@ -350,12 +386,13 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(LocalConfigStore.class);
 
+        infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("root", URI.class, true);
         infoFactory.addReference("ServerInfo", ServerInfo.class);
         infoFactory.addInterface(ConfigurationStore.class);
 
-        infoFactory.setConstructor(new String[]{"objectName", "root", "ServerInfo"});
+        infoFactory.setConstructor(new String[]{"kernel", "objectName", "root", "ServerInfo"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

@@ -71,6 +71,13 @@ public interface ConfigurationStore {
     GBeanMBean getConfiguration(URI id) throws NoSuchConfigException, IOException, InvalidConfigException;
 
     /**
+     * Updates the saved state of the configuration.
+     *
+     * @param configuration the configuration to update
+     */
+    void updateConfiguration(Configuration configuration) throws NoSuchConfigException, Exception;
+
+    /**
      * Return the base URL for the specified ID
      *
      * @param id the unique ID for a Configuration

@@ -69,7 +69,7 @@ public class RunTest extends TestCase {
             JarOutputStream jos = new JarOutputStream(new FileOutputStream(carFile), manifest);
             jos.putNextEntry(new ZipEntry("META-INF/config.ser"));
             ObjectOutputStream oos = new ObjectOutputStream(jos);
-            Configuration.storeGMBeanState(config, oos);
+            config.getGBeanData().writeExternal(oos);
             oos.flush();
             jos.closeEntry();
             jos.putNextEntry(new ZipEntry("org/apache/geronimo/kernel/config/MyGBean.class"));

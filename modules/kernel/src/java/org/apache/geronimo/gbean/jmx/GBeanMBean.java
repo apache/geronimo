@@ -53,6 +53,7 @@ import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.GOperationSignature;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.management.NotificationType;
 
@@ -66,9 +67,14 @@ import org.apache.geronimo.kernel.management.NotificationType;
  */
 public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     /**
-     * Method name used to retrieve the RawInvoker for the GBean
+     * Attribute name used to retrieve the RawInvoker for the GBean
      */
     static final String RAW_INVOKER = "$$RAW_INVOKER$$";
+
+    /**
+     * Attribute name used to retrieve the GBeanData for the GBean
+     */
+    public static final String GBEAN_DATA = "$$GBEAN_DATA$$";
 
     private static final Log log = LogFactory.getLog(GBeanMBean.class);
     private final Constructor constructor;
@@ -161,6 +167,23 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
      * A fast index based raw invoker for this GBean.
      */
     private final RawInvoker rawInvoker;
+
+    /**
+     * Constructa a GBeanMBean using the supplied GBeanData and class loader
+     *
+     * @param gbeanData the data for the new GBean including GBeanInfo, intial attribute values, and reference patterns
+     * @param classLoader the class loader used to load the gbean instance and attribute/reference types
+     * @throws InvalidConfigurationException if the gbeanInfo is inconsistent with the actual java classes, such as
+     * mismatched attribute types or the intial data can not be set
+     */
+    public GBeanMBean(GBeanData gbeanData, ClassLoader classLoader) throws InvalidConfigurationException {
+        this(gbeanData.getGBeanInfo(), classLoader);
+        try {
+            setGBeanData(gbeanData);
+        } catch (Exception e) {
+            throw new InvalidConfigurationException("GBeanData could not be loaded into the GBeanMBean", e);
+        }
+    }
 
     /**
      * Constructa a GBeanMBean using the supplied gbeanInfo and class loader
@@ -641,10 +664,70 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
      */
     public Object getAttribute(String attributeName) throws ReflectionException, AttributeNotFoundException {
         GBeanMBeanAttribute attribute = getAttributeByName(attributeName);
-        if (attribute == null && attributeName.equals(RAW_INVOKER)) {
+        if (attribute != null) {
+            return attribute.getValue();
+        }
+
+        if (attributeName.equals(RAW_INVOKER)) {
             return rawInvoker;
         }
-        return attribute.getValue();
+
+        if (attributeName.equals(GBEAN_DATA)) {
+            return getGBeanData();
+
+        }
+
+        throw new AttributeNotFoundException(attributeName);
+    }
+
+    /**
+     * Gets the gbean data for the gbean held by this gbean mbean.
+     * @return the gbean data
+     */
+    public GBeanData getGBeanData() {
+        GBeanData gbeanData = new GBeanData();
+
+        // add the gbean info
+        gbeanData.setGBeanInfo(gbeanInfo);
+
+        // add the attributes
+        for (int i = 0; i < attributes.length; i++) {
+            GBeanMBeanAttribute attribute = attributes[i];
+            if (attribute.isPersistent()) {
+                String name = attribute.getName();
+                Object value = attribute.getPersistentValue();
+                gbeanData.setAttribute(name, value);
+            }
+        }
+
+        // add the references
+        for (int i = 0; i < references.length; i++) {
+            GBeanMBeanReference reference = references[i];
+            String name = reference.getName();
+            Set patterns = reference.getPatterns();
+            gbeanData.setReferencePatterns(name, patterns);
+        }
+        return gbeanData;
+    }
+
+    public void setGBeanData(GBeanData gbeanData) throws ReflectionException, AttributeNotFoundException {
+        // set the attributes
+        Map attributes = gbeanData.getAttributes();
+        for (Iterator iterator = attributes.entrySet().iterator(); iterator.hasNext();) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            String name = (String) entry.getKey();
+            Object value = entry.getValue();
+            setAttribute(name, value);
+        }
+
+        // add the references
+        Map references = gbeanData.getReferences();
+        for (Iterator iterator = references.entrySet().iterator(); iterator.hasNext();) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            String name = (String) entry.getKey();
+            Set patterns = (Set) entry.getValue();
+            setReferencePatterns(name, patterns);
+        }
     }
 
     /**
@@ -860,8 +943,19 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
                         RAW_INVOKER,
                         RawInvoker.class,
                         new MethodInvoker() {
-                            public Object invoke(Object target, Object[] arguments) throws Exception {
+                            public Object invoke(Object target, Object[] arguments) {
                                 return rawInvoker;
+                            }
+                        },
+                        null));
+
+        attributesMap.put(GBEAN_DATA,
+                new GBeanMBeanAttribute(this,
+                        GBEAN_DATA,
+                        GBeanData.class,
+                        new MethodInvoker() {
+                            public Object invoke(Object target, Object[] arguments) {
+                                return getGBeanData();
                             }
                         },
                         null));

@@ -80,7 +80,7 @@ public class LocalConfigStoreTest extends TestCase {
             JarOutputStream jos = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(sourceFile)));
             jos.putNextEntry(new ZipEntry("META-INF/config.ser"));
             ObjectOutputStream oos = new ObjectOutputStream(jos);
-            Configuration.storeGMBeanState(gbean, oos);
+            gbean.getGBeanData().writeExternal(oos);
             oos.flush();
             jos.closeEntry();
             jos.close();

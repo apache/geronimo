@@ -318,6 +318,20 @@ public class GBeanMBeanAttribute {
         }
     }
 
+    public Object getPersistentValue() {
+        if (!persistent) {
+        }
+        if (getInvoker != null && gmbean.getTarget() != null) {
+            try {
+                persistentValue = getInvoker.invoke(gmbean.getTarget(), null);
+            } catch (Throwable throwable) {
+                log.error("Could not get the current value of persistent attribute.  The persistent " +
+                        "attribute will not reflect the current state attribute. " + getDescription(), throwable);
+            }
+        }
+        return persistentValue;
+    }
+
     public void setValue(Object value) throws ReflectionException {
         if (gmbean.isOffline()) {
             if (persistent || special) {

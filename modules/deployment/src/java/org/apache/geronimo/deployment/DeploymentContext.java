@@ -348,7 +348,7 @@ public class DeploymentContext {
         try {
             out = new ObjectOutputStream(new FileOutputStream(configSer));
             try {
-                Configuration.storeGMBeanState(config, out);
+                config.getGBeanData().writeExternal(out);
             } catch (IOException e) {
                 throw e;
             } catch (Exception e) {

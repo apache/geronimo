@@ -44,6 +44,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
@@ -259,6 +260,23 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
             throw e;
         } catch (Exception e) {
             throw new RuntimeException(e); 
+        }
+    }
+
+    /**
+     * Gets the gbean data for the gbean held by this gbean mbean.
+     * @return the gbean data
+     * @throws InstanceNotFoundException if no such gbean exists with the specified name
+     */
+    public GBeanData getGBeanData(ObjectName name) throws InstanceNotFoundException {
+        try {
+            return (GBeanData) getAttribute(name, GBeanMBean.GBEAN_DATA);
+        } catch (InstanceNotFoundException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw (AssertionError) new AssertionError("getGBeanData can not throw checked exceptions").initCause(e);
         }
     }
 
