@@ -27,11 +27,15 @@ import java.net.URLClassLoader;
 public class TestServer {
     private Kernel kernel;
     private ObjectName name;
+	private JettyServiceWrapper jettyService;
 
     public TestServer() throws Exception {
         name = new ObjectName("test:name=AxisGBean");
         kernel = new Kernel("test.kernel", "test");
         kernel.boot();
+
+		jettyService = new JettyServiceWrapper(kernel);
+		jettyService.doStart();
 
         ClassLoader cl = getClass().getClassLoader();
         ClassLoader myCl = new URLClassLoader(new URL[0], cl);
@@ -43,11 +47,9 @@ public class TestServer {
         System.out.println("Shutting down the kernel");
         kernel.stopGBean(name);
         kernel.unloadGBean(name);
+        
+		jettyService.doStop();
         kernel.shutdown();
-    }
-
-    public static void main(String[] args) throws Exception {
-        TestServer test = new TestServer();
     }
 
     /* (non-Javadoc)

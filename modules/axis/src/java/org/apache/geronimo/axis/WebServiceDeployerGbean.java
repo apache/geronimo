@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.geronimo.axis;
 
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -21,14 +20,11 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-
-import javax.management.ObjectName;
 
 /**
- * Class AxisGbean
+ * Class WebServiceDeployerGbean
  */
-public class AxisGbean implements GBeanLifecycle {
+public class WebServiceDeployerGbean implements GBeanLifecycle {
 
     /**
      * Field name
@@ -46,18 +42,14 @@ public class AxisGbean implements GBeanLifecycle {
     private static final GBeanInfo GBEAN_INFO;
 
     /**
-     * Field objectName
+     * Field wsdeployer
      */
-    private final ObjectName objectName;
-
-    /**
-     * Field wscontiner
-     */
-    private WebServiceContainer wscontiner;
+    private WebServiceDeployer wsdeployer;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory("AxisGbean",
-                AxisGbean.class);
+        GBeanInfoFactory infoFactory =
+                new GBeanInfoFactory("WebServiceDeployerGbean",
+                        WebServiceDeployerGbean.class);
 
         // attributes
         infoFactory.addAttribute("Name", String.class, true);
@@ -65,7 +57,9 @@ public class AxisGbean implements GBeanLifecycle {
         infoFactory.addAttribute("objectName", String.class, false);
 
         // operations
-        infoFactory.addOperation("echo", new Class[]{String.class});
+        infoFactory.addOperation("deploy", new Class[]{String.class,
+                                                       String.class,
+                                                       String.class});
         infoFactory.setConstructor(new String[]{"kernel", "Name",
                                                 "objectName"});
 
@@ -73,25 +67,32 @@ public class AxisGbean implements GBeanLifecycle {
     }
 
     /**
-     * Constructor AxisGbean
+     * Constructor WebServiceDeployerGbean
      *
      * @param kernel
      * @param name
-     * @param objectName
      */
-    public AxisGbean(Kernel kernel, String name, String objectName) {
+    public WebServiceDeployerGbean(Kernel kernel, String name) {
         this.name = name;
         this.kernel = kernel;
-        this.objectName = JMXUtil.getObjectName(objectName);
-        wscontiner = new WebServiceContainer(kernel);
     }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.geronimo.gbean.GBeanLifecycle#doFail()
+     */
 
     /**
      * Method doFail
      */
     public void doFail() {
-        System.out.println("Axis GBean has failed");
+        System.out.println("WebServiceDeployerGbean has failed");
     }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.geronimo.gbean.GBeanLifecycle#doStart()
+     */
 
     /**
      * Method doStart
@@ -100,11 +101,17 @@ public class AxisGbean implements GBeanLifecycle {
      * @throws Exception
      */
     public void doStart() throws WaitingException, Exception {
-        System.out.println("Axis GBean has started");
-        System.out.println(kernel);
-        System.out.println(objectName);
-        wscontiner.doStart();
+
+        System.out.println("WebServiceDeployerGbean has started");
+
+        wsdeployer = new WebServiceDeployer(AxisGeronimoConstants.TEMP_OUTPUT,
+                kernel);
     }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.geronimo.gbean.GBeanLifecycle#doStop()
+     */
 
     /**
      * Method doStop
@@ -113,18 +120,20 @@ public class AxisGbean implements GBeanLifecycle {
      * @throws Exception
      */
     public void doStop() throws WaitingException, Exception {
-        System.out.println("Axis GBean has stoped");
-        wscontiner.doStop();
+        System.out.println("WebServiceDeployerGbean has stoped");
     }
 
     /**
-     * Method echo
+     * Method deploy
      *
-     * @param msg
-     * @return
+     * @param module
+     * @param j2eeApplicationName
+     * @param j2eeModuleName
+     * @throws Exception
      */
-    public String echo(String msg) {
-        return msg;
+    public void deploy(String module, String j2eeApplicationName, String j2eeModuleName)
+            throws Exception {
+        wsdeployer.deploy(module, j2eeApplicationName, j2eeModuleName);
     }
 
     /**

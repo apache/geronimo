@@ -15,21 +15,13 @@
  */
 package org.apache.geronimo.axis;
 
-import junit.framework.TestCase;
+import org.apache.axis.AxisEngine;
+import org.apache.axis.client.Call;
+import org.apache.axis.client.Service;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 
 import javax.management.ObjectName;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.File;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLClassLoader;
-import org.apache.axis.AxisEngine;
-import org.apache.axis.client.Call;
-import org.apache.axis.client.Service;
-
 import javax.xml.messaging.URLEndpoint;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.Name;
@@ -40,19 +32,30 @@ import javax.xml.soap.SOAPConnectionFactory;
 import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPEnvelope;
 import javax.xml.soap.SOAPMessage;
+import java.net.URL;
+import java.net.URLClassLoader;
 
 
-public class EchoHeadersTest extends TestCase {
+public class EchoHeadersTest extends AbstractTestCase {
     private ObjectName name;
-    private ObjectName name2;
     private Kernel kernel;
     private Call call = null;
+    private JettyServiceWrapper jettyService;
+
+    /**
+     * @param testName
+     */
+    public EchoHeadersTest(String testName) {
+        super(testName);
+    }
 
     protected void setUp() throws Exception {
         name = new ObjectName("test:name=AxisGBean");
-        name2 = new ObjectName("test:name=AxisGBean2");
         kernel = new Kernel("test.kernel", "test");
         kernel.boot();
+
+		jettyService = new JettyServiceWrapper(kernel);
+		jettyService.doStart();
 
         ClassLoader cl = getClass().getClassLoader();
         ClassLoader myCl = new URLClassLoader(new URL[]{}, cl);
@@ -146,8 +149,9 @@ public class EchoHeadersTest extends TestCase {
     }
     
     protected void tearDown() throws Exception {
-        kernel.stopGBean(name);
+		kernel.stopGBean(name);
         kernel.unloadGBean(name);
+		jettyService.doStop();
         kernel.shutdown();
     }
 }

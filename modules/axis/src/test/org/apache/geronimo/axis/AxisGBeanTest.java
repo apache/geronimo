@@ -15,7 +15,6 @@
  */
 package org.apache.geronimo.axis;
 
-import junit.framework.TestCase;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 
@@ -26,13 +25,20 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-public class AxisGBeanTest extends TestCase {
+public class AxisGBeanTest extends AbstractTestCase {
     private ObjectName name;
-    private ObjectName name2;
     private Kernel kernel;
+    private JettyServiceWrapper jettyService;
+
+    /**
+     * @param testName
+     */
+    public AxisGBeanTest(String testName) {
+        super(testName);
+    }
 
     public void testLoad() throws Exception {
-        String textFileurl = "http://localhost:5678/axis/index.html";
+        String textFileurl = "http://localhost:"+AxisGeronimoConstants.AXIS_SERVICE_PORT+"/axis/index.html";
         ClassLoader cl = getClass().getClassLoader();
         ClassLoader myCl = new URLClassLoader(new URL[0], cl);
         GBeanMBean gbean = new GBeanMBean(AxisGbean.getGBeanInfo(), myCl);
@@ -60,12 +66,14 @@ public class AxisGBeanTest extends TestCase {
 
     protected void setUp() throws Exception {
         name = new ObjectName("test:name=AxisGBean");
-        name2 = new ObjectName("test:name=AxisGBean2");
         kernel = new Kernel("test.kernel", "test");
         kernel.boot();
+		jettyService = new JettyServiceWrapper(kernel);
+		jettyService.doStart();
     }
 
     protected void tearDown() throws Exception {
+		jettyService.doStop();
         kernel.shutdown();
     }
 }
