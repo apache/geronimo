@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Id: navigation.xml,v 1.1 2003/08/16 05:22:10 bsnyder Exp $ -->
+
+<project name="Apache Geronimo :: JSR-16 Specification">
+
+  <title>Apache Geronimo :: JSR-16 Specification</title>
+  
+  <body>
+    <links>
+      <item name="Apache" href="http://apache.org"/>
+      <item name="Geronimo" href="../../index.html"/>
+    </links>
+  </body>
+  
+</project>
