@@ -60,16 +60,16 @@ import javax.ejb.EJBHome;
 import javax.ejb.SessionBean;
 import org.apache.geronimo.validator.ValidationResult;
 import org.apache.geronimo.validator.ValidationContext;
-import org.apache.geronimo.deployment.model.ejb.Session;
+import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
 
 /**
  * Some basic tests for session beans.  Right now this is not exhaustive, but
  * it's an example of how the tests can be written.
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/17 01:47:15 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/12 08:19:27 $
  */
 public class SessionBeanTests extends BaseEjbJarTest {
-    protected Session bean;
+    protected SessionBeanType bean;
 
     /**
      * Get called for each session bean element in the standard DD.
@@ -82,7 +82,7 @@ public class SessionBeanTests extends BaseEjbJarTest {
      * Trap the actual bean to examine.
      */
     public ValidationResult initialize(ValidationContext context) {
-        bean = (Session) context.getCurrentNode();
+        bean = (SessionBeanType) context.getCurrentNode();
         return super.initialize(context);
     }
 
@@ -91,7 +91,7 @@ public class SessionBeanTests extends BaseEjbJarTest {
      * criteria.
      */
     public ValidationResult testBeanImplementationClass() {
-        Class cls = loadClass(bean.getEJBClass(), "Session Bean Implementation Class");
+        Class cls = loadClass(bean.getEjbClass().getStringValue(), "Session Bean Implementation Class");
         ValidationResult result = ValidationResult.PASSED;
         if(!Modifier.isPublic(cls.getModifiers())) {
             result = error("ejb.impl.not.public", result);
@@ -132,7 +132,7 @@ public class SessionBeanTests extends BaseEjbJarTest {
         if(bean.getHome() == null) {
             return result;
         }
-        Class cls = loadClass(bean.getHome(), "Session Bean Home Class");
+        Class cls = loadClass(bean.getHome().getStringValue(), "Session Bean Home Class");
         if(!EJBHome.class.isAssignableFrom(cls)) {
             result = error("ejb.home.wrong.superclass", result);
         }

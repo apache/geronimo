@@ -56,31 +56,33 @@
 package org.apache.geronimo.validator.ejb;
 
 import javax.enterprise.deploy.shared.ModuleType;
-import org.apache.geronimo.validator.ValidationTest;
-import org.apache.geronimo.validator.ValidationResult;
+
 import org.apache.geronimo.validator.ValidationContext;
-import org.apache.geronimo.deployment.model.ejb.EjbJar;
-import org.apache.geronimo.deployment.model.ejb.EjbJarDocument;
+import org.apache.geronimo.validator.ValidationResult;
+import org.apache.geronimo.validator.ValidationTest;
+import org.apache.geronimo.xbeans.j2ee.EjbJarType;
+import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
+import org.apache.xmlbeans.SchemaType;
 
 /**
  * Barely worth having, but this implements one method to return the name of
  * the deployment descriptor that its subclasses apply to.  Also tracks the
  * current EJB-JAR JavaBean tree in case someone wants to navigate it.
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/02 17:04:20 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/12 08:19:27 $
  */
 public abstract class BaseEjbJarTest extends ValidationTest {
-    protected EjbJar ejbJar;
+    protected EjbJarType ejbJar;
 
-    public String getStandardDDName() {
-        return "ejb-jar.xml";
+    public SchemaType getSchemaType() {
+        return EjbJarDocument.type;
     }
 
     public ValidationResult initialize(ValidationContext context) {
         if(context.type != ModuleType.EJB) {
             return ValidationResult.FAILED;
         } else {
-            ejbJar = ((EjbJarDocument) context.getCurrentStandardDD()).getEjbJar();
+            ejbJar = ((org.apache.geronimo.xbeans.j2ee.EjbJarDocument) context.getCurrentStandardDD()).getEjbJar();
             return ValidationResult.PASSED;
         }
     }

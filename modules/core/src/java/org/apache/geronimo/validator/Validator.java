@@ -56,8 +56,10 @@
 package org.apache.geronimo.validator;
 
 import java.io.PrintWriter;
+
 import javax.enterprise.deploy.shared.ModuleType;
-import org.apache.geronimo.deployment.model.DeploymentDescriptor;
+
+import org.apache.xmlbeans.XmlObject;
 
 /**
  * The main interface for all application validators.  To use one, you
@@ -67,7 +69,7 @@ import org.apache.geronimo.deployment.model.DeploymentDescriptor;
  * initialize and validate, but it cannot validate two application modules
  * simultaneously.
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/02 17:04:19 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/12 08:19:27 $
  */
 public interface Validator {
     /**
@@ -93,7 +95,7 @@ public interface Validator {
      *         validator does not handle this module type, the expected
      *         deployment descriptors are missing, etc.
      */
-    public boolean initialize(PrintWriter out, String moduleName, ClassLoader loader, ModuleType type, DeploymentDescriptor[] standardDD, Object[] serverDD);
+    public boolean initialize(PrintWriter out, String moduleName, ClassLoader loader, ModuleType type, XmlObject[] standardDD, Object[] serverDD);
 
     /**
      *

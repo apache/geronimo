@@ -56,25 +56,27 @@
 package org.apache.geronimo.validator;
 
 import java.io.PrintWriter;
+
 import javax.enterprise.deploy.shared.ModuleType;
-import org.apache.geronimo.deployment.model.DeploymentDescriptor;
+
+import org.apache.xmlbeans.XmlObject;
 
 /**
  * Holds all the context information for the current validation process.
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/02 17:04:19 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/12 08:19:27 $
  */
 public class ValidationContext {
     public final PrintWriter out;
     public final String moduleName;
     public final ClassLoader loader;
     public final ModuleType type;
-    public final DeploymentDescriptor[] standardDD;
+    public final XmlObject[] standardDD;
     public final Object[] serverDD;
     private Object currentStandardDD;
     private Object currentNode;
 
-    public ValidationContext(ClassLoader loader, String moduleName, PrintWriter out, Object[] serverDD, DeploymentDescriptor[] standardDD, ModuleType type) {
+    public ValidationContext(ClassLoader loader, String moduleName, PrintWriter out, Object[] serverDD, XmlObject[] standardDD, ModuleType type) {
         this.loader = loader;
         this.moduleName = moduleName;
         this.out = out;

@@ -55,6 +55,8 @@
  */
 package org.apache.geronimo.validator;
 
+import org.apache.xmlbeans.SchemaType;
+
 /**
  * The base class for all validation tests.  They will work similarly to JUnit
  * tests, in that any method beginning with "test" will be executed.  The test
@@ -67,7 +69,7 @@ package org.apache.geronimo.validator;
  * the same test class will have its tests executed multiple times with a
  * different context each time (once for each DD and/or hit on the XPath).
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/02 17:04:19 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/12 08:19:27 $
  */
 public abstract class ValidationTest {
     protected ValidationContext context;
@@ -83,7 +85,7 @@ public abstract class ValidationTest {
      *          as "ejb-jar.xml"), or <tt>null</tt> to be invoked with
      *         no particular DD context.
      */
-    public abstract String getStandardDDName();
+    public abstract SchemaType getSchemaType();
 
     /**
      * Any given test class can be associated with a specific XPath in its
@@ -95,7 +97,7 @@ public abstract class ValidationTest {
      *
      * @return An Xpath of interest to this test class, or <tt>null</tt> if
      *         the class should be invoked once on the entire deployment
-     *         descriptor or module.  If getStandardDDName returns null,
+     *         descriptor or module.  If getSchemaType returns null,
      *         this method nust return null as well.
      */
     public abstract String getXpath();

@@ -63,21 +63,17 @@ import java.net.URL;
 import java.net.URLClassLoader;
 
 import javax.enterprise.deploy.shared.ModuleType;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.apache.geronimo.deployment.model.DeploymentDescriptor;
-import org.apache.geronimo.deployment.model.ejb.EjbJarDocument;
 import org.apache.geronimo.validator.AbstractValidator;
 import org.apache.geronimo.validator.Validator;
-import org.apache.geronimo.xml.deployment.EjbJarLoader;
-import org.w3c.dom.Document;
+import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
+import org.apache.xmlbeans.XmlObject;
 
 /**
  * The validator class for validating an EJB JAR.  Right now just does enough
  * to prove that this whole thing works.
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/22 08:47:26 $
+ * @version $Revision: 1.4 $ $Date: 2004/02/12 08:19:27 $
  */
 public class EjbValidator extends AbstractValidator {
     public Class[] getTestClasses() {
@@ -93,13 +89,10 @@ public class EjbValidator extends AbstractValidator {
         try {
             ClassLoader loader = new URLClassLoader(new URL[]{new File(args[0]).toURL()});
             InputStream in = loader.getResourceAsStream("META-INF/ejb-jar.xml");
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document doc = builder.parse(in);
-            EjbJarLoader jarLoader = new EjbJarLoader();
-            EjbJarDocument jar = jarLoader.load(doc);
+
+            EjbJarDocument jar = EjbJarDocument.Factory.parse(in);
             Validator v =new EjbValidator();
-            v.initialize(new PrintWriter(new OutputStreamWriter(System.out), true), args[0], loader, ModuleType.EJB, new DeploymentDescriptor[]{jar}, null);
+            v.initialize(new PrintWriter(new OutputStreamWriter(System.out), true), args[0], loader, ModuleType.EJB, new XmlObject[]{jar}, null);
             System.out.println("Validation Result: "+v.validate());
         } catch(Exception e) {
             e.printStackTrace();

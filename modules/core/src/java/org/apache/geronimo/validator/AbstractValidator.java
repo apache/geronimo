@@ -56,22 +56,29 @@
 package org.apache.geronimo.validator;
 
 import java.io.PrintWriter;
-import java.util.*;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
 import javax.enterprise.deploy.shared.ModuleType;
+
+import org.apache.commons.jxpath.JXPathContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.jxpath.JXPathContext;
-import org.apache.geronimo.deployment.model.DeploymentDescriptor;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.SchemaType;
 
 /**
  * The base class for actual validators.  Each validator groups all the tests
  * that apply to a single module type (so we'd expect to have an EJB validator,
  * a web app validator, etc.).
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/02 17:04:19 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/12 08:19:27 $
  */
 public abstract class AbstractValidator implements Validator {
     private static final Log log = LogFactory.getLog(AbstractValidator.class);
@@ -92,7 +99,7 @@ public abstract class AbstractValidator implements Validator {
      * @return <tt>true</tt>, since this implementation doesn't actually check
      *         anything.
      */
-    public boolean initialize(PrintWriter out, String moduleName, ClassLoader loader, ModuleType type, DeploymentDescriptor[] standardDD, Object[] serverDD) {
+    public boolean initialize(PrintWriter out, String moduleName, ClassLoader loader, ModuleType type, XmlObject[] standardDD, Object[] serverDD) {
         context = new ValidationContext(loader, moduleName, out, serverDD, standardDD, type);
         return true;
     }
@@ -117,8 +124,8 @@ public abstract class AbstractValidator implements Validator {
         Class[] classes = getTestClasses();
         Map map = new HashMap();
         for(int i = 0; i < context.standardDD.length; i++) {
-            DeploymentDescriptor object = context.standardDD[i];
-            map.put(object.getFileName(), object);
+            XmlObject object = context.standardDD[i];
+            map.put(object.schemaType(), object);
         }
         Set missing = new HashSet();
         masterLoop:
@@ -129,7 +136,7 @@ public abstract class AbstractValidator implements Validator {
             }
             try {
                 ValidationTest test = (ValidationTest)cls.newInstance();
-                String dd = test.getStandardDDName();
+                SchemaType dd = test.getSchemaType();
                 String xpath = test.getXpath();
                 if(dd == null) { // Call this once per module
                     ValidationResult temp = executeTest(cls, test, context);
