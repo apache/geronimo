@@ -104,7 +104,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
                                Map rolePermissions) throws PolicyContextException, ClassNotFoundException {
 
         this.policyContextID = policyContextID;
-        this.defaultSubject = generateDefaultSubject(securityConfig, loginDomainName);
+        this.defaultSubject = generateDefaultSubject(securityConfig);
 
         /**
          * Register our default subject with the ContextManager
@@ -118,7 +118,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
 
         configure(uncheckedPermissions, excludedPermissions, rolePermissions);
         RoleMappingConfiguration roleMapper = RoleMappingConfigurationFactory.getRoleMappingFactory().getRoleMappingConfiguration(policyContextID, false);
-        addRoleMappings(securityRoles, loginDomainName, securityConfig, roleMapper);
+        addRoleMappings(securityRoles, securityConfig, roleMapper);
         policyConfiguration.commit();
         this.loginDomainName = loginDomainName;
 
@@ -134,7 +134,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
         }
     }
 
-    protected Subject generateDefaultSubject(Security securityConfig, String loginDomainName)
+    protected Subject generateDefaultSubject(Security securityConfig)
             throws GeronimoSecurityException {
         DefaultPrincipal defaultPrincipal = securityConfig.getDefaultPrincipal();
         if (defaultPrincipal == null) {
@@ -143,11 +143,11 @@ public class TomcatGeronimoRealm extends JAASRealm {
 
         Subject subject = new Subject();
 
-        RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(defaultPrincipal.getPrincipal(), loginDomainName, defaultPrincipal.getRealmName());
+        RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(defaultPrincipal.getPrincipal(), defaultPrincipal.getRealmName());
         if (realmPrincipal == null) {
             throw new GeronimoSecurityException("Unable to create realm principal");
         }
-        PrimaryRealmPrincipal primaryRealmPrincipal = ConfigurationUtil.generatePrimaryRealmPrincipal(defaultPrincipal.getPrincipal(), loginDomainName, defaultPrincipal.getRealmName());
+        PrimaryRealmPrincipal primaryRealmPrincipal = ConfigurationUtil.generatePrimaryRealmPrincipal(defaultPrincipal.getPrincipal(), defaultPrincipal.getRealmName());
         if (primaryRealmPrincipal == null) {
             throw new GeronimoSecurityException("Unable to create primary realm principal");
         }
@@ -491,7 +491,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
     }
 
 
-    public void addRoleMappings(Set securityRoles, String loginDomainName, Security security, RoleMappingConfiguration roleMapper) throws PolicyContextException, GeronimoSecurityException {
+    public void addRoleMappings(Set securityRoles, Security security, RoleMappingConfiguration roleMapper) throws PolicyContextException, GeronimoSecurityException {
 
         for (Iterator roleMappings = security.getRoleMappings().values().iterator(); roleMappings.hasNext();) {
             Role role = (Role) roleMappings.next();
@@ -510,7 +510,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
                 for (Iterator principals = realm.getPrincipals().iterator(); principals.hasNext();) {
                     org.apache.geronimo.security.deploy.Principal principal = (org.apache.geronimo.security.deploy.Principal) principals.next();
 
-                    RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(principal, loginDomainName, realm.getRealmName());
+                    RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(principal, realm.getRealmName());
                     if (realmPrincipal == null) {
                         throw new GeronimoSecurityException("Unable to create realm principal");
                     }

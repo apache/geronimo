@@ -241,7 +241,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
             //set the JAASJettyRealm as our realm.
             JAASJettyRealm realm = new JAASJettyRealm(realmName, securityRealmName);
             setRealm(realm);
-            this.securityInterceptor = new SecurityContextBeforeAfter(interceptor, index++, index++, policyContextID, securityConfig, securityRealmName, authenticator, securityRoles, uncheckedPermissions, excludedPermissions, rolePermissions, realm);
+            this.securityInterceptor = new SecurityContextBeforeAfter(interceptor, index++, index++, policyContextID, securityConfig, authenticator, securityRoles, uncheckedPermissions, excludedPermissions, rolePermissions, realm);
             interceptor = securityInterceptor;
         } else {
             securityInterceptor = null;

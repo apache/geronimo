@@ -43,19 +43,22 @@ public class ConfigurationUtil {
     /**
      * Create a RealmPrincipal from a deployment description.
      * @param principal the deployment description of the principal to be created.
-     * @param realmName the security realm that the principal belongs go
      * @return a RealmPrincipal from a deployment description
      */
-    public static RealmPrincipal generateRealmPrincipal(final Principal principal, final String loginDomain, final String realmName) {
+    public static RealmPrincipal generateRealmPrincipal(final Principal principal, final String loginDomain) {
+        return generateRealmPrincipal(principal.getClassName(), principal.getPrincipalName(), loginDomain);
+    }
+
+    public static RealmPrincipal generateRealmPrincipal(final String className, final String principalName, final String loginDomain) {
         try {
             return (RealmPrincipal) AccessController.doPrivileged(new PrivilegedExceptionAction() {
                 public Object run() throws Exception {
                     java.security.Principal p = null;
-                    Class clazz = Class.forName(principal.getClassName());
+                    Class clazz = Class.forName(className);
                     Constructor constructor = clazz.getDeclaredConstructor(new Class[]{String.class});
-                    p = (java.security.Principal) constructor.newInstance(new Object[]{principal.getPrincipalName()});
+                    p = (java.security.Principal) constructor.newInstance(new Object[]{principalName});
 
-                    return new RealmPrincipal(loginDomain, p, realmName);
+                    return new RealmPrincipal(loginDomain, p);
                 }
             });
         } catch (PrivilegedActionException e) {
@@ -70,19 +73,22 @@ public class ConfigurationUtil {
     /**
      * Create a RealmPrincipal from a deployment description.
      * @param principal the deployment description of the principal to be created.
-     * @param realmName the security realm that the principal belongs go
      * @return a RealmPrincipal from a deployment description
      */
-    public static PrimaryRealmPrincipal generatePrimaryRealmPrincipal(final Principal principal, final String loginDomain, final String realmName) {
+    public static PrimaryRealmPrincipal generatePrimaryRealmPrincipal(final Principal principal, final String loginDomain) {
+        return generatePrimaryRealmPrincipal(principal.getClassName(), principal.getPrincipalName(), loginDomain);
+    }
+
+    public static PrimaryRealmPrincipal generatePrimaryRealmPrincipal(final String className, final String principalName, final String loginDomain) {
         try {
             return (PrimaryRealmPrincipal) AccessController.doPrivileged(new PrivilegedExceptionAction() {
                 public Object run() throws Exception {
                     java.security.Principal p = null;
-                    Class clazz = Class.forName(principal.getClassName());
+                    Class clazz = Class.forName(className);
                     Constructor constructor = clazz.getDeclaredConstructor(new Class[]{String.class});
-                    p = (java.security.Principal) constructor.newInstance(new Object[]{principal.getPrincipalName()});
+                    p = (java.security.Principal) constructor.newInstance(new Object[]{principalName});
 
-                    return new PrimaryRealmPrincipal(loginDomain, p, realmName);
+                    return new PrimaryRealmPrincipal(loginDomain, p);
                 }
             });
         } catch (PrivilegedActionException e) {

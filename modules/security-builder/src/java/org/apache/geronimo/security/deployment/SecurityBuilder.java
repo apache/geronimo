@@ -98,7 +98,7 @@ public class SecurityBuilder {
         return security;
     }
 
-    private static Principal buildPrincipal(GerPrincipalType principalType) {
+    public static Principal buildPrincipal(GerPrincipalType principalType) {
         Principal principal = new Principal();
 
         principal.setClassName(principalType.getClass1());

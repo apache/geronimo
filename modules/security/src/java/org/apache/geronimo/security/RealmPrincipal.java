@@ -34,13 +34,12 @@ public class RealmPrincipal implements Principal, Serializable {
     private transient String name = null;
     private transient long id;
 
-    public RealmPrincipal(String loginDomain, Principal principal, String realmName) {
+    public RealmPrincipal(String loginDomain, Principal principal) {
         if (loginDomain == null) throw new NullArgumentException("loginDomain");
         if (principal == null) throw new NullArgumentException("principal");
 
         this.loginDomain = loginDomain;
         this.principal = principal;
-        //todo: ignoring realm name; we don't think we'll need it.
     }
 
     public long getId() {

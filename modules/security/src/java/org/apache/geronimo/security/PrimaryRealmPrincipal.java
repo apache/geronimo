@@ -25,8 +25,8 @@ import java.security.Principal;
  */
 public class PrimaryRealmPrincipal extends RealmPrincipal {
 
-    public PrimaryRealmPrincipal(String loginDomain, Principal principal, String realmName) {
-        super(loginDomain, principal, realmName);
+    public PrimaryRealmPrincipal(String loginDomain, Principal principal) {
+        super(loginDomain, principal);
     }
 
     /**
