@@ -17,7 +17,7 @@
 -->
   
 
-<!-- $Revision: 1.13 $ $Date: 2004/04/06 01:38:39 $ -->
+<!-- $Revision: 1.14 $ $Date: 2004/04/16 05:57:21 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -118,7 +118,7 @@
         <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib-full</artifactId>
-            <version>2.0-RC2</version>
+            <version>2.0</version>
             <url>http://cglib.sf.net/</url>
         </dependency>
 
