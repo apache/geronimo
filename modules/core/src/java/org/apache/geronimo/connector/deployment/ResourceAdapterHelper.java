@@ -58,14 +58,17 @@ package org.apache.geronimo.connector.deployment;
 
 import javax.resource.ResourceException;
 import javax.resource.spi.ManagedConnectionFactory;
+import javax.resource.spi.ActivationSpec;
 
 /**
  * ResourceAdapterHelper
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/13 22:22:30 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/19 02:13:04 $
  */
 public interface ResourceAdapterHelper {
 
     void registerManagedConnectionFactory(ManagedConnectionFactory mcf) throws ResourceException;
+
+    void registerActivationSpec(ActivationSpec activationSpec) throws ResourceException;
 
 }

@@ -62,6 +62,7 @@ import javax.resource.spi.ManagedConnectionFactory;
 import javax.resource.spi.ResourceAdapter;
 import javax.resource.spi.BootstrapContext;
 import javax.resource.spi.ResourceAdapterInternalException;
+import javax.resource.spi.ActivationSpec;
 
 import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
 import org.apache.geronimo.kernel.service.GeronimoMBeanEndpoint;
@@ -71,7 +72,7 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
 /**
  * ResourceAdapterHelperImpl
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/13 22:22:30 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/19 02:13:04 $
  */
 public class ResourceAdapterHelperImpl implements GeronimoMBeanTarget, ResourceAdapterHelper {
 
@@ -92,7 +93,7 @@ public class ResourceAdapterHelperImpl implements GeronimoMBeanTarget, ResourceA
      * @see org.apache.geronimo.kernel.service.GeronimoMBeanTarget#canStart()
      */
     public boolean canStart() {
-        return true;
+        return bootstrapContext != null;
     }
 
     /* (non-Javadoc)
@@ -137,6 +138,10 @@ public class ResourceAdapterHelperImpl implements GeronimoMBeanTarget, ResourceA
         mcf.setResourceAdapter(resourceAdapter);
     }
 
+    public void registerActivationSpec(ActivationSpec activationSpec) throws ResourceException {
+        activationSpec.setResourceAdapter(resourceAdapter);
+    }
+
     /**
      * @return Returns the bootstrapContext.
      */
@@ -154,6 +159,8 @@ public class ResourceAdapterHelperImpl implements GeronimoMBeanTarget, ResourceA
     public static void addMBeanInfo(GeronimoMBeanInfo mbeanInfo,
                                     ObjectName bootstrapContextName) {
         mbeanInfo.setTargetClass(TARGET_NAME, ResourceAdapterHelperImpl.class.getName());
+
+        mbeanInfo.addOperationsDeclaredIn(ResourceAdapterHelper.class);
 
         mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("BootstrapContext", BootstrapContext.class.getName(), bootstrapContextName, true, TARGET_NAME));
 
