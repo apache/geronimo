@@ -73,6 +73,7 @@ import org.apache.geronimo.axis.builder.mock.MockService;
 import org.apache.geronimo.axis.client.OperationInfo;
 import org.apache.geronimo.axis.client.SEIFactory;
 import org.apache.geronimo.axis.client.ServiceImpl;
+import org.apache.geronimo.axis.client.ServiceReference;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
@@ -83,7 +84,7 @@ import org.apache.geronimo.xbeans.j2ee.PackageMappingType;
 /**
  * @version $Rev:  $ $Date:  $
  */
-public class ServiceRefTest extends TestCase {
+public class ServiceReferenceTest extends TestCase {
     private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));
 
     public final static String NAMESPACE = "http://geronimo.apache.org/axis/mock";
@@ -111,9 +112,8 @@ public class ServiceRefTest extends TestCase {
     public void testServiceRefCreation() throws Exception {
         AxisBuilder builder = new AxisBuilder();
 
-        Reference ref = builder.createServiceReference(MockService.class, null, null, null, null, null, context, isolatedCl);
-        RefAddr refAddr = ref.get(0);
-        Object instance = refAddr.getContent();
+        ServiceReference ref = builder.createServiceReference(MockService.class, null, null, null, null, null, context, isolatedCl);
+        Object instance = ref.getContent();
         assertTrue(instance instanceof Service);
 
         ClassLoader cl = context.getClassLoader(null);

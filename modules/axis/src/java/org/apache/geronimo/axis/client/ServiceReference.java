@@ -16,26 +16,20 @@
  */
 package org.apache.geronimo.axis.client;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
-import javax.naming.RefAddr;
 
 import net.sf.cglib.proxy.Callback;
-import net.sf.cglib.proxy.CallbackFilter;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
-import net.sf.cglib.reflect.FastConstructor;
 import net.sf.cglib.reflect.FastClass;
-import org.apache.axis.client.Service;
+import net.sf.cglib.reflect.FastConstructor;
+import org.apache.geronimo.naming.reference.SimpleAwareReference;
 
 /**
  * @version $Rev:  $ $Date:  $
  */
-public class ServiceRefAddr extends RefAddr {
-
-    private final static String TYPE = "org.apache.geronimo.axis.ServiceRefType";
+public class ServiceReference extends SimpleAwareReference {
     private final static Class[] CONSTRUCTOR_TYPES = new Class[] {Map.class};
 
     private final Class serviceClass;
@@ -44,8 +38,7 @@ public class ServiceRefAddr extends RefAddr {
     //THIS IS NOT SERIALIZABLE!
     private final FastConstructor constructor;
 
-    public ServiceRefAddr(Class serviceClass, MethodInterceptor methodInterceptor, Map ports) {
-        super(TYPE);
+    public ServiceReference(Class serviceClass, MethodInterceptor methodInterceptor, Map ports) {
         this.serviceClass = serviceClass;
         this.methodInterceptors = new Callback[] {SerializableNoOp.INSTANCE,  methodInterceptor};
         this.ports = ports;
@@ -55,7 +48,7 @@ public class ServiceRefAddr extends RefAddr {
     public Object getContent() {
         try {
             Enhancer.registerCallbacks(serviceClass, methodInterceptors);
-            Object serviceInstance =  constructor.newInstance(new Object[] {ports});
+            Object serviceInstance = constructor.newInstance(new Object[] {ports});
             return serviceInstance;
         } catch (InvocationTargetException e) {
             throw new RuntimeException("Could not create instance", e);
