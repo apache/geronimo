@@ -233,7 +233,7 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
         URI configId = moduleBuilder.getConfigId(plan);
         assertEquals(j2eeModuleName, configId.toString());
 
-        Module module = moduleBuilder.createModule(configId.toString(), URI.create("/"), rarJarFile, "connector", plan, action.getSpecDD());
+        Module module = moduleBuilder.createModule(configId.toString(), rarJarFile, plan, "connector", action.getSpecDD());
 
         File carFile = File.createTempFile("RARTest", ".car");
         try {

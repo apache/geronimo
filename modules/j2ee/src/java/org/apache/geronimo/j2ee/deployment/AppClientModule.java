@@ -26,7 +26,7 @@ import org.apache.xmlbeans.XmlObject;
  */
 public class AppClientModule extends Module {
     public AppClientModule(String name, URI moduleURI, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD) {
-        super(name, moduleURI, moduleFile, targetPath, specDD, vendorDD);
+        super(name, moduleURI, moduleFile, targetPath, specDD, vendorDD, null);
     }
 }
 

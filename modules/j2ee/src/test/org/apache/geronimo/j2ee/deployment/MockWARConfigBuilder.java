@@ -54,11 +54,11 @@ public class MockWARConfigBuilder extends Assert implements ModuleBuilder {
     }
 
     public Module createModule(String name, JarFile moduleFile, XmlObject vendorDD) throws DeploymentException {
-        return createModule(name, URI.create("/"), moduleFile, "connector", vendorDD, null);
+        return createModule(name, moduleFile, vendorDD, "connector", null);
     }
 
-    public Module createModule(String name, URI moduleURI, JarFile moduleFile, String targetPath, XmlObject vendorDD, URL specDD) throws DeploymentException {
-        return new WebModule(name, moduleURI, moduleFile, targetPath, null, vendorDD);
+    public Module createModule(String name, JarFile moduleFile, XmlObject vendorDD, String targetPath, URL specDD) throws DeploymentException {
+        return new WebModule(name, URI.create(targetPath), moduleFile, targetPath, null, vendorDD, null);
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module webModule) throws DeploymentException {

@@ -27,8 +27,8 @@ import org.apache.xmlbeans.XmlObject;
 public class WebModule extends Module {
     private String contextRoot;
 
-    public WebModule(String name, URI moduleURI, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD) {
-        super(name, moduleURI, moduleFile, targetPath, specDD, vendorDD);
+    public WebModule(String name, URI moduleURI, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
+        super(name, moduleURI, moduleFile, targetPath, specDD, vendorDD, originalSpecDD);
     }
 
     public String getContextRoot() {

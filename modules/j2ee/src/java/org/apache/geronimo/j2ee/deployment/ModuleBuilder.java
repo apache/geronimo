@@ -39,7 +39,7 @@ public interface ModuleBuilder {
 
     Module createModule(String name, JarFile moduleFile, XmlObject vendorDD) throws DeploymentException;
 
-    Module createModule(String name, URI moduleURI, JarFile moduleFile, String targetPath, XmlObject vendorDD, URL specDD) throws DeploymentException;
+    Module createModule(String name, JarFile moduleFile, XmlObject vendorDD, String targetPath, URL specDD) throws DeploymentException;
 
     URI getParentId(XmlObject plan) throws DeploymentException;
 

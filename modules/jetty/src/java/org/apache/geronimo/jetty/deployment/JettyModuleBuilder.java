@@ -19,6 +19,7 @@ package org.apache.geronimo.jetty.deployment;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ByteArrayInputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -41,6 +42,7 @@ import javax.transaction.UserTransaction;
 import org.apache.geronimo.common.xml.XmlBeansUtil;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.service.GBeanHelper;
+import org.apache.geronimo.deployment.util.IOUtil;
 import org.apache.geronimo.deployment.util.JarUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
@@ -95,12 +97,24 @@ public class JettyModuleBuilder implements ModuleBuilder {
     public XmlObject parseSpecDD(URL path) throws DeploymentException {
         try {
             // check if we have an alt spec dd
-            XmlObject dd = SchemaConversionUtils.parse(path.openStream());
-            WebAppDocument webAppDoc = SchemaConversionUtils.convertToServletSchema(dd);
-            return webAppDoc.getWebApp();
+            return parseSpecDD(SchemaConversionUtils.parse(path.openStream()));
         } catch (Exception e) {
             throw new DeploymentException("Unable to parse " + path, e);
         }
+    }
+
+    public XmlObject parseSpecDD(String specDD) throws DeploymentException {
+        try {
+            // check if we have an alt spec dd
+            return parseSpecDD(SchemaConversionUtils.parse(specDD));
+        } catch (Exception e) {
+            throw new DeploymentException("Unable to parse spec dd", e);
+        }
+    }
+
+    private XmlObject parseSpecDD(XmlObject dd) throws XmlException {
+        WebAppDocument webAppDoc = SchemaConversionUtils.convertToServletSchema(dd);
+        return webAppDoc.getWebApp();
     }
 
     public XmlObject parseVendorDD(URL vendorURL) throws XmlException {
@@ -195,12 +209,31 @@ public class JettyModuleBuilder implements ModuleBuilder {
     }
 
     public Module createModule(String name, JarFile moduleFile, XmlObject vendorDD) throws DeploymentException {
-        return createModule(name, URI.create(""), moduleFile, "war/", vendorDD, null);
+        return createModule(name, moduleFile, vendorDD, "war", null);
     }
 
-    public Module createModule(String name, URI moduleURI, JarFile moduleFile, String targetPath, XmlObject vendorDD, URL specDD) throws DeploymentException {
-        if (specDD == null) {
-            specDD = JarUtil.createJarURL(moduleFile, "WEB-INF/web.xml");
+    public Module createModule(String name, JarFile moduleFile, XmlObject vendorDD, String targetPath, URL specDDUrl) throws DeploymentException {
+        URI moduleURI;
+        if (targetPath != null) {
+            moduleURI = URI.create(targetPath);
+            if (targetPath.endsWith("/")) {
+                throw new DeploymentException("targetPath must not end with a '/'");
+            }
+            targetPath += "/";
+        } else {
+            targetPath = "war/";
+            moduleURI = URI.create("");
+        }
+
+        // load the spec dd
+        if (specDDUrl == null) {
+            specDDUrl = JarUtil.createJarURL(moduleFile, "WEB-INF/web.xml");
+        }
+        String specDD;
+        try {
+            specDD = IOUtil.readAll(specDDUrl);
+        } catch (IOException e) {
+            throw new DeploymentException("Unable to read specDD: " + specDDUrl.toExternalForm());
         }
         WebAppType webApp = (WebAppType) parseSpecDD(specDD);
 
@@ -224,18 +257,14 @@ public class JettyModuleBuilder implements ModuleBuilder {
         JettyWebAppDocument jettyWebAppDoc = (JettyWebAppDocument) vendorDD;
         JettyWebAppType jettyWebApp = jettyWebAppDoc.getWebApp();
 
-        WebModule module = new WebModule(name, moduleURI, moduleFile, targetPath, webApp, jettyWebApp);
+        WebModule module = new WebModule(name, moduleURI, moduleFile, targetPath, webApp, jettyWebApp, specDD);
         module.setContextRoot(jettyWebApp.getContextRoot());
         return module;
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException {
         try {
-            String targetPath = module.getTargetPath();
-            if (!targetPath.endsWith("/")) {
-                targetPath += "/";
-            }
-            URI targetURI = URI.create(targetPath);
+            URI targetURI = URI.create(module.getTargetPath());
 
             // add the warfile's content to the configuration
             JarFile warFile = module.getModuleFile();
@@ -245,9 +274,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
                 URI target = targetURI.resolve(entry.getName());
                 if (entry.getName().equals("WEB-INF/web.xml")) {
                     // TODO gets rid of these tests when Jetty will use the serialized Geronimo DD.
-                    WebAppDocument webAppDoc = WebAppDocument.Factory.newInstance();
-                    webAppDoc.setWebApp((WebAppType) module.getSpecDD());
-                    earContext.addFile(target, webAppDoc.newInputStream());
+                    earContext.addFile(target, new ByteArrayInputStream(module.getOriginalSpecDD().getBytes()));
                 } else {
                     InputStream in = warFile.getInputStream(entry);
                     try {

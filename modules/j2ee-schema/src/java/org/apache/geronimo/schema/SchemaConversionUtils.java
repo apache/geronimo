@@ -53,6 +53,18 @@ public class SchemaConversionUtils {
         return parsed;
     }
 
+    public static XmlObject parse(String xml) throws XmlException {
+        ArrayList errors = new ArrayList();
+        XmlOptions options = new XmlOptions();
+        options.setLoadLineNumbers();
+        options.setErrorListener(errors);
+        XmlObject parsed = XmlObject.Factory.parse(xml, options);
+        if (errors.size() != 0) {
+            throw new XmlException(errors.toArray().toString());
+        }
+        return parsed;
+    }
+
     public static ApplicationDocument convertToApplicationSchema(XmlObject xmlObject) throws XmlException {
         if (ApplicationDocument.type.equals(xmlObject.schemaType())) {
             validateDD(xmlObject);

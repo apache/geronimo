@@ -31,14 +31,16 @@ public class Module {
     private final String targetPath;
     private final XmlObject specDD;
     private final XmlObject vendorDD;
+    private final String originalSpecDD;
 
-    public Module(String name, URI moduleURI, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD) {
+    public Module(String name, URI moduleURI, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
         this.name = name;
         this.moduleURI = moduleURI;
         this.moduleFile = moduleFile;
         this.targetPath = targetPath;
         this.specDD = specDD;
         this.vendorDD = vendorDD;
+        this.originalSpecDD = originalSpecDD;
     }
 
     public String getName() {
@@ -63,6 +65,10 @@ public class Module {
 
     public XmlObject getVendorDD() {
         return vendorDD;
+    }
+
+    public String getOriginalSpecDD() {
+        return originalSpecDD;
     }
 
     public int hashCode() {

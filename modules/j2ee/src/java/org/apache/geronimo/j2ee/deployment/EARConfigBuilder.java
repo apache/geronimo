@@ -467,7 +467,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                         }
                     }
 
-                    Module module = builder.createModule(modulePath, URI.create(modulePath), new NestedJarFile(earFile, modulePath), modulePath, vendorDD, altSpecDD);
+                    Module module = builder.createModule(modulePath, new NestedJarFile(earFile, modulePath), vendorDD, modulePath, altSpecDD);
                     if (module instanceof WebModule) {
                         ((WebModule)module).setContextRoot(webContextRoot);
                     }

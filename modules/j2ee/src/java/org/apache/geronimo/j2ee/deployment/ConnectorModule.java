@@ -25,8 +25,8 @@ import org.apache.xmlbeans.XmlObject;
  * @version $Rev$ $Date$
  */
 public class ConnectorModule extends Module {
-    public ConnectorModule(String name, URI moduleURI, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD) {
-        super(name, moduleURI, moduleFile, targetPath, specDD, vendorDD);
+    public ConnectorModule(String name, URI moduleURI, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
+        super(name, moduleURI, moduleFile, targetPath, specDD, vendorDD, originalSpecDD);
     }
 }
 

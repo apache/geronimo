@@ -52,6 +52,7 @@ import org.apache.geronimo.connector.outbound.security.PasswordCredentialRealm;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.service.GBeanHelper;
 import org.apache.geronimo.deployment.util.JarUtil;
+import org.apache.geronimo.deployment.util.IOUtil;
 import org.apache.geronimo.gbean.DynamicGAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
@@ -105,45 +106,35 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
     private static final String BASE_WORK_MANAGER_NAME = "geronimo.server:type=WorkManager,name=";
 
     public XmlObject parseSpecDD(URL path) throws DeploymentException {
-        InputStream in = null;
+        String specDD;
+        try {
+            specDD = IOUtil.readAll(path);
+        } catch (IOException e) {
+            throw new DeploymentException("Unable to read specDD: " + path.toExternalForm());
+        }
+        return parseSpecDD(specDD);
+    }
+
+    public XmlObject parseSpecDD(String specDD) throws DeploymentException {
         try {
             // try 1.0
-            in = path.openStream();
-            ConnectorDocument10 connectorDoc = ConnectorDocument10.Factory.parse(in);
+            ConnectorDocument10 connectorDoc = ConnectorDocument10.Factory.parse(specDD);
             SchemaConversionUtils.validateDD(connectorDoc);
             return connectorDoc.getConnector();
         } catch (Exception ignore) {
             // ignore
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    // ignore
-                }
-            }
         }
 
         // that didn't work try 1.5
-        in = null;
         try {
-            in = path.openStream();
-            ConnectorDocument connectorDoc = ConnectorDocument.Factory.parse(in);
+            ConnectorDocument connectorDoc = ConnectorDocument.Factory.parse(specDD);
             SchemaConversionUtils.validateDD(connectorDoc);
             return connectorDoc.getConnector();
         } catch (Exception e) {
             // ignore
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    // ignore
-                }
-            }
         }
 
-        throw new DeploymentException("Unable to parse " + path);
+        throw new DeploymentException("Unable to parse specDD");
     }
 
     public XmlObject parseVendorDD(URL url) throws XmlException {
@@ -191,12 +182,31 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
     }
 
     public Module createModule(String name, JarFile moduleFile, XmlObject vendorDD) throws DeploymentException {
-        return createModule(name, URI.create("/"), moduleFile, "connector", vendorDD, null);
+        return createModule(name, moduleFile, vendorDD, "connector", null);
     }
 
-    public Module createModule(String name, URI moduleURI, JarFile moduleFile, String targetPath, XmlObject vendorDD, URL specDD) throws DeploymentException {
-        if (specDD == null) {
-            specDD = JarUtil.createJarURL(moduleFile, "META-INF/ra.xml");
+    public Module createModule(String name, JarFile moduleFile, XmlObject vendorDD, String targetPath, URL specDDUrl) throws DeploymentException {
+        URI moduleURI;
+        if (targetPath != null) {
+            moduleURI = URI.create(targetPath);
+            if (targetPath.endsWith("/")) {
+                throw new DeploymentException("targetPath must not end with a '/'");
+            }
+            targetPath += "/";
+        } else {
+            targetPath = "connector/";
+            moduleURI = URI.create("");
+        }
+
+
+        if (specDDUrl == null) {
+            specDDUrl = JarUtil.createJarURL(moduleFile, "META-INF/ra.xml");
+        }
+        String specDD;
+        try {
+            specDD = IOUtil.readAll(specDDUrl);
+        } catch (IOException e) {
+            throw new DeploymentException("Unable to read specDD: " + specDDUrl.toExternalForm());
         }
         XmlObject connector = parseSpecDD(specDD);
 
@@ -220,16 +230,12 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
         GerConnectorDocument geronimoConnectorDoc = (GerConnectorDocument) vendorDD;
         GerConnectorType geronimoConnector = geronimoConnectorDoc.getConnector();
 
-        return new ConnectorModule(name, moduleURI, moduleFile, targetPath, connector, geronimoConnector);
+        return new ConnectorModule(name, moduleURI, moduleFile, targetPath, connector, geronimoConnector, specDD);
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException {
         try {
-            String targetPath = module.getTargetPath();
-            if (!targetPath.endsWith("/")) {
-                targetPath += "/";
-            }
-            URI targetURI = URI.create(targetPath);
+            URI targetURI = URI.create(module.getTargetPath());
 
             JarFile moduleFile = module.getModuleFile();
 
@@ -311,16 +317,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
                 resourceAdapterModule.setReferencePatterns("J2EEApplication", Collections.singleton(earContext.getApplicationObjectName()));
             }
 
-            XmlObject specDD = module.getSpecDD();
-            if (specDD instanceof ConnectorType10) {
-                ConnectorDocument10 connectorDoc = ConnectorDocument10.Factory.newInstance();
-                connectorDoc.setConnector((ConnectorType10) specDD);
-                resourceAdapterModule.setAttribute("deploymentDescriptor", connectorDoc.toString());
-            } else {
-                ConnectorDocument connectorDoc = ConnectorDocument.Factory.newInstance();
-                connectorDoc.setConnector((ConnectorType) specDD);
-                resourceAdapterModule.setAttribute("deploymentDescriptor", connectorDoc.toString());
-            }
+            resourceAdapterModule.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());
         } catch (Exception e) {
             throw new DeploymentException("Unable to initialize EJBModule GBean", e);
         }

@@ -43,6 +43,7 @@ import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.service.GBeanHelper;
 import org.apache.geronimo.deployment.util.FileUtil;
 import org.apache.geronimo.deployment.util.JarUtil;
+import org.apache.geronimo.deployment.util.IOUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
@@ -110,6 +111,16 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                     // ignore
                 }
             }
+        }
+    }
+
+    public XmlObject parseSpecDD(String specDD) throws DeploymentException {
+        try {
+            // check if we have an alt spec dd
+            ApplicationClientDocument applicationClientDoc = ApplicationClientDocument.Factory.parse(specDD);
+            return applicationClientDoc.getApplicationClient();
+        } catch (Exception e) {
+            throw new DeploymentException("Unable to parse specDD", e);
         }
     }
 
@@ -202,12 +213,29 @@ public class AppClientModuleBuilder implements ModuleBuilder {
     }
 
     public Module createModule(String name, JarFile moduleFile, XmlObject vendorDD) throws DeploymentException {
-        return createModule(name, URI.create("/"), moduleFile, "app-client", vendorDD, null);
+        return createModule(name, moduleFile, vendorDD, "app-client", null);
     }
 
-    public Module createModule(String name, URI moduleURI, JarFile moduleFile, String targetPath, XmlObject vendorDD, URL specDD) throws DeploymentException {
-        if (specDD == null) {
-            specDD = JarUtil.createJarURL(moduleFile, "META-INF/application-client.xml");
+    public Module createModule(String name, JarFile moduleFile, XmlObject vendorDD, String targetPath, URL specDDUrl) throws DeploymentException {
+        URI moduleURI;
+        if (targetPath != null) {
+            moduleURI = URI.create(targetPath);
+            if (targetPath.endsWith("/")) {
+                throw new DeploymentException("targetPath must not end with a '/'");
+            }
+        } else {
+            targetPath = "app-client";
+            moduleURI = URI.create("");
+        }
+
+        if (specDDUrl == null) {
+            specDDUrl = JarUtil.createJarURL(moduleFile, "META-INF/application-client.xml");
+        }
+        String specDD;
+        try {
+            specDD = IOUtil.readAll(specDDUrl);
+        } catch (IOException e) {
+            throw new DeploymentException("Unable to read specDD: " + specDDUrl.toExternalForm());
         }
         ApplicationClientType appClient = (ApplicationClientType) parseSpecDD(specDD);
 
