@@ -1,7 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema targetNamespace="http://java.sun.com/xml/ns/j2ee" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:j2ee="http://java.sun.com/xml/ns/j2ee" elementFormDefault="qualified" attributeFormDefault="unqualified">
   <xsd:include schemaLocation="geronimo-j2ee.xsd"/>
-  <xsd:element name="application-client" type="j2ee:application-clientType"/>
+    <xsd:element name="application-client" type="j2ee:application-clientType">
+      <xsd:unique name="env-entry-name-uniqueness">
+        <xsd:selector xpath="j2ee:env-entry"/>
+        <xsd:field    xpath="j2ee:env-entry-name"/>
+      </xsd:unique>
+
+      <xsd:unique name="ejb-ref-name-uniqueness">
+        <xsd:selector xpath="j2ee:ejb-ref"/>
+        <xsd:field    xpath="j2ee:ejb-ref-name"/>
+      </xsd:unique>
+
+      <xsd:unique name="res-ref-name-uniqueness">
+        <xsd:selector xpath="j2ee:resource-ref"/>
+        <xsd:field    xpath="j2ee:res-ref-name"/>
+      </xsd:unique>
+
+      <xsd:unique name="resource-env-ref-uniqueness">
+        <xsd:selector xpath="j2ee:resource-env-ref"/>
+        <xsd:field    xpath="j2ee:resource-env-ref-name"/>
+      </xsd:unique>
+
+      <xsd:unique name="message-destination-ref-uniqueness">
+        <xsd:selector xpath="j2ee:message-destination-ref"/>
+        <xsd:field    xpath="j2ee:message-destination-ref-name"/>
+      </xsd:unique>
+    </xsd:element>
+
   <xsd:complexType name="application-clientType">
     <xsd:sequence>
       <xsd:group ref="j2ee:descriptionGroup"/>
@@ -11,32 +37,10 @@
       <xsd:element name="resource-ref" type="j2ee:resource-refType" minOccurs="0" maxOccurs="unbounded"/>
       <xsd:element name="resource-env-ref" type="j2ee:resource-env-refType" minOccurs="0" maxOccurs="unbounded"/>
       <xsd:element name="message-destination-ref" type="j2ee:message-destination-refType" minOccurs="0" maxOccurs="unbounded"/>
-      <xsd:element name="callback-handler" type="j2ee:fully-qualified-classType" minOccurs="0">
-        <xsd:annotation>
-          <xsd:documentation>
-
-          The callback-handler element names a class provided by
-          the application.  The class must have a no args
-          constructor and must implement the
-          javax.security.auth.callback.CallbackHandler
-          interface.  The class will be instantiated by the
-          application client container and used by the container
-          to collect authentication information from the user.
-
-        </xsd:documentation>
-        </xsd:annotation>
-      </xsd:element>
+      <xsd:element name="callback-handler" type="j2ee:fully-qualified-classType" minOccurs="0"/>
       <xsd:element name="message-destination" type="j2ee:message-destinationType" minOccurs="0" maxOccurs="unbounded"/>
     </xsd:sequence>
-    <xsd:attribute name="version" type="j2ee:dewey-versionType" use="required" fixed="1.4">
-      <xsd:annotation>
-        <xsd:documentation>
-
-        The required value for the version is 1.4.
-
-      </xsd:documentation>
-      </xsd:annotation>
-    </xsd:attribute>
+    <xsd:attribute name="version" type="j2ee:dewey-versionType" use="required" fixed="1.4"/>
     <xsd:attribute name="id" type="xsd:ID"/>
   </xsd:complexType>
 </xsd:schema>
