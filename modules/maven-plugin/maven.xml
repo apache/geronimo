@@ -17,7 +17,7 @@
 -->
 
 
-<!-- $Revision: 1.5 $ $Date: 2004/07/25 08:22:06 $ -->
+<!-- $Revision: 1.6 $ $Date: 2004/07/28 18:31:33 $ -->
 
 <project default="default"
     xmlns:ant="jelly:ant"
@@ -39,16 +39,7 @@
     <!-- ==================== -->
 
     <goal name="default">
-        <!--attainGoal name="jar:jar"/-->
         <attainGoal name="plugin:install"/>
-        <attainGoal name="plugin:install-now"/>
-        <!--ant:property name="pluginsDir" value="${maven.repo.local}/${pom.artifactDirectory}/plugins"/>
-        <ant:mkdir dir="${pluginsDir}"/>
-        <ant:copy
-            file="${basedir}/target/${pom.artifactId}-${pom.currentVersion}.jar"
-            todir="${pluginsDir}"
-            overwrite="true"
-            /-->
     </goal>
 
     <goal name="build">
@@ -82,4 +73,5 @@
             </delete>
         </j:jelly>
     </goal>
+
 </project>
