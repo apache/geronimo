@@ -21,6 +21,9 @@
         <uri>jetty/jars/org.mortbay.jetty-5.0.RC0.jar</uri>
     </dependency>
     <dependency>
+        <uri>jetty/jars/org.mortbay.jaas-5.0.RC0.jar</uri>
+    </dependency>
+    <dependency>
         <uri>tomcat/jars/jasper-compiler-5.0.16.jar</uri>
     </dependency>
     <dependency>
