@@ -17,48 +17,36 @@
 
 package org.apache.geronimo.jmxdebug.web.beanlib;
 
-import org.apache.geronimo.jmxdebug.util.ObjectInstanceComparator;
-
-import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
-import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
-import java.util.List;
-import java.util.Collection;
-import java.util.Set;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+
+import org.apache.geronimo.jmxdebug.util.ObjectNameComparator;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.management.State;
 
 /**
  * Little helper bean to deal w/ the mbean server
  *
- * @version $Id: MBeanServerHelper.java,v 1.1 2004/02/18 15:33:09 geirm Exp $
+ * @version $Id: MBeanServerHelper.java,v 1.2 2004/07/26 17:14:48 dain Exp $
  */
 public class MBeanServerHelper {
-    final private MBeanServer server;
+    private final Kernel kernel;
 
     public MBeanServerHelper() {
-        this.server = getMBeanServer();
+        kernel = Kernel.getSingleKernel();
+    }
+
+    public Kernel getKernel() {
+        return kernel;
     }
 
     /**
-     * Returns the mbean server.  Hokey as we just take the first
-     * one...
-     *
-     * @return
-     */
-    public static MBeanServer getMBeanServer() {
-        List l = MBeanServerFactory.findMBeanServer(null);
-
-        if (l.size() > 0) {
-            return (MBeanServer) l.get(0);
-        }
-
-        return null;
-    }
-
-    /**
-     *  Returns a Collection of InstanceObjects for all mbeans in the server
+     * Returns a Collection of InstanceObjects for all mbeans in the server
      *
      * @return Collection of InstanceObjects
      */
@@ -67,35 +55,42 @@ public class MBeanServerHelper {
     }
 
     /**
-     *   Returns a Collection of InstanceObjects filtered by the input
-     *   filter
+     * Returns a Collection of InstanceObjects filtered by the input filter
      *
-     * @param filterString  filter to use.  Defaults to *:* if null
+     * @param filterString filter to use.  Defaults to *:* if null
      * @return Collection of InstanceObjects that match the filter
      */
     public Collection getMBeans(String filterString) {
+        if (filterString == null) {
+            filterString = "*:*";
+        }
 
-        if (server != null) {
-            ObjectName objectName = null;
+        if (kernel != null) {
+            ObjectName filter = null;
             try {
-                objectName = new ObjectName((filterString == null ? "*:*" : filterString));
-                Set s = server.queryMBeans(objectName, null);
+                filter = new ObjectName(filterString);
+                Set names = kernel.listGBeans(filter);
 
-                List list = new ArrayList();
-                list.addAll(s);
-                ObjectInstanceComparator comparator = new ObjectInstanceComparator();
-                Collections.sort(list, comparator);
+                List sortedNames = new ArrayList(names);
+                Collections.sort(sortedNames, ObjectNameComparator.INSTANCE);
 
-                return list;
-            }
-            catch (MalformedObjectNameException e) {
+                return sortedNames;
+            } catch (MalformedObjectNameException e) {
                 e.printStackTrace();
             }
-        }
-        else {
+        } else {
             System.out.println("MBeanServerHelper : error : no mbean server");
         }
 
         return null;
+    }
+
+    public String getState(ObjectName name) {
+        try {
+            int state = ((Integer) kernel.getAttribute(name, "state")).intValue();
+            return State.toString(state);
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

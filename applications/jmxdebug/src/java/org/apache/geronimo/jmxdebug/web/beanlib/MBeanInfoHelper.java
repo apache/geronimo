@@ -17,71 +17,55 @@
 
 package org.apache.geronimo.jmxdebug.web.beanlib;
 
-import javax.management.MBeanInfo;
-import javax.management.ObjectInstance;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
-import javax.management.ReflectionException;
-import javax.management.InstanceNotFoundException;
-import javax.management.IntrospectionException;
-import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanOperationInfo;
-import javax.management.MBeanException;
-import javax.management.AttributeNotFoundException;
-import javax.management.RuntimeMBeanException;
-import java.util.Map;
-import java.util.List;
-import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import javax.management.AttributeNotFoundException;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanAttributeInfo;
+import javax.management.MBeanException;
+import javax.management.MBeanInfo;
+import javax.management.MBeanOperationInfo;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+import javax.management.ReflectionException;
+import javax.management.RuntimeMBeanException;
 
 /**
  * Simple helper bean for dealing with MBeanInfo.  Helps dodge such
  * wacky APIs like  HashMap getKeyPropertyLIst() and wrap in
  * convenient ways for working in Velocity
  * 
- * @version $Id: MBeanInfoHelper.java,v 1.1 2004/02/18 15:33:09 geirm Exp $
+ * @version $Id: MBeanInfoHelper.java,v 1.2 2004/07/26 17:14:48 dain Exp $
  */
 public class MBeanInfoHelper {
+    private final ObjectName objectName;
+    private final MBeanInfo info;
+    private final MBeanServer server;
 
-    ObjectName oName;
-    MBeanInfo info;
-
-    public MBeanInfoHelper(String name) {
-        MBeanServer server = MBeanServerHelper.getMBeanServer();
-
+    public MBeanInfoHelper(MBeanServerHelper kernelHelper, String name) throws Exception {
+        server = kernelHelper.getKernel().getMBeanServer();
         if (server != null) {
-            init(server, name);
+            objectName = new ObjectName(name);
+            info = server.getMBeanInfo(objectName);
+        } else {
+            objectName = null;
+            info = null;
         }
-    }
 
-    void init(MBeanServer server, String name) {
-        try {
-            oName = new ObjectName(name);
-            info = server.getMBeanInfo(oName);
-        }
-        catch (MalformedObjectNameException e) {
-            e.printStackTrace();
-        }
-        catch (ReflectionException e) {
-            e.printStackTrace();
-        }
-        catch (InstanceNotFoundException e) {
-            e.printStackTrace();
-        }
-        catch (IntrospectionException e) {
-            e.printStackTrace();
-        }
     }
 
     public String getCanonicalName() {
-        return oName.getCanonicalName();
+        return objectName.getCanonicalName();
     }
 
     public String getDomain() {
-        return oName.getDomain();
+        return objectName.getDomain();
     }
 
     /**
@@ -92,11 +76,9 @@ public class MBeanInfoHelper {
      * $item.key
      * $item.value
      * #end
-     *
-     * @return
      */
     public List getKeyProperties() {
-        Hashtable h = oName.getKeyPropertyList();
+        Hashtable h = objectName.getKeyPropertyList();
 
         Iterator it = h.keySet().iterator();
 
@@ -124,48 +106,49 @@ public class MBeanInfoHelper {
         return info.getClassName();
     }
 
-    public List getAttributes() {
-        
-        List l = new ArrayList();
+    public SortedMap getAttributes() {
+        TreeMap attributes = new TreeMap();
+
         MBeanAttributeInfo[] arr = info.getAttributes();
-        MBeanServer server = MBeanServerHelper.getMBeanServer();
 
         for (int i = 0; i < arr.length; i++) {
-            MBeanAttributeInfo foo = arr[i];
-            Object value = null;
-            try {
-                value = server.getAttribute(oName, foo.getName());
-            }
-            catch (MBeanException e) {
-                e.printStackTrace();
-            }
-            catch (AttributeNotFoundException e) {
-                e.printStackTrace();
-            }
-            catch (InstanceNotFoundException e) {
-                e.printStackTrace();
-            }
-            catch (ReflectionException e) {
-                e.printStackTrace();
-            }
-            catch (RuntimeMBeanException rme) {
-                rme.printStackTrace();
+            MBeanAttributeInfo attribute = arr[i];
+            String name = attribute.getName();
+
+            if ((!attribute.isReadable() && !attribute.isWritable()) || name.startsWith("$")) {
+                // hide attributes that are not readable or writable or start with a '$'
+                continue;
             }
 
-            Map m = new HashMap();
-            m.put("info", foo);
-            m.put("value", value);
-            l.add(m);
+            Object value = null;
+            if (attribute.isReadable()) {
+                try {
+                    value = server.getAttribute(objectName, name);
+                } catch (MBeanException e) {
+                    e.printStackTrace();
+                } catch (AttributeNotFoundException e) {
+                    e.printStackTrace();
+                } catch (InstanceNotFoundException e) {
+                    e.printStackTrace();
+                } catch (ReflectionException e) {
+                    e.printStackTrace();
+                } catch (RuntimeMBeanException rme) {
+                    rme.printStackTrace();
+                }
+            }
+
+            try {
+                AttributeData attributeData = new AttributeData(attribute, value, server.getClassLoaderFor(objectName));
+                attributes.put(name, attributeData);
+            } catch (Exception e) {
+                // ignore; just hide weird attributes
+            }
         }
 
-        return l;
+        return attributes;
     }
-
 
     public MBeanOperationInfo[] getOperationInfo() {
-        MBeanOperationInfo foo;
-
         return info.getOperations();
     }
-
 }

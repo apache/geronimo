@@ -9,6 +9,7 @@
   (<a href="/geronimo-web-console/faq.jsp#objectName"/>help</a>)
 </form>
 
+#set($filterParam = $encoder.encode($ObjectNameFilter, "UTF-8"))
 #set($currentDomain = "")
 #set($i = 0)
 #set($mbeanList = $mbctx.getMBeans($ObjectNameFilter))
@@ -19,10 +20,7 @@
 
 <hr/>
 
-#foreach($instance in $mbeanList)
-
-   #set($name = $instance.getObjectName())
-
+#foreach($name in $mbeanList)
    #if (!($name.getDomain().equals($currentDomain)))
 
        #if ($i != 0)
@@ -38,9 +36,10 @@
    #set($encodedName = $encoder.encode($cName, "UTF-8"))
    #set($where = $cName.indexOf(":") + 1)
    #set($output = $cName.substring($where))
+   #set($state = $mbctx.getState($name))
 
    <li>
-     <a href="index.vm?ObjectNameFilter=$encoder.encode($ObjectNameFilter, "UTF-8")&MBeanName=$encodedName">$output</a>
+     <a href="index.vm?ObjectNameFilter=$filterParam&MBeanName=$encodedName">$output</a> [$state]
    </li>
 
    #set($i = $i + 1)

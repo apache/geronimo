@@ -23,7 +23,7 @@ import java.io.Serializable;
 /**
  * This class contains a type safe enumeration of the states from the J2EE Management specification.
  *
- * @version $Revision: 1.5 $ $Date: 2004/06/02 19:46:24 $
+ * @version $Revision: 1.6 $ $Date: 2004/07/26 17:14:49 $
  */
 public final class State implements Serializable {
     public static final int STARTING_INDEX = 0;
@@ -61,6 +61,13 @@ public final class State implements Serializable {
      */
     public static State fromInteger(Integer index) {
         return fromInt(index.intValue());
+    }
+
+    public static String toString(int state) {
+        if (state < 0 || state >= fromInt.length) {
+            throw new IllegalArgumentException("State must be between 0 and " + fromInt.length);
+        }
+        return fromInt[state].name;
     }
 
     /**

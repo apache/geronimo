@@ -1,19 +1,15 @@
-
-<b>Info for :</b> $beanInfo.getCanonicalName()
-<hr/>
-
 <table>
 <tr>
   <td>
-    <b>Description : </b>
+    <b>ObjectName: </b>
   </td>
   <td>
-    $!beanInfo.getDescription()
+    $beanInfo.getCanonicalName()
   </td>
 </tr>
 <tr>
   <td>
-    <b>ClassName : </b>
+    <b>ClassName: </b>
   </td>
   <td>
     $!beanInfo.getClassName()
@@ -21,49 +17,37 @@
 </tr>
 <tr>
   <td>
-    <b>Domain : </b>
+    <b>State: </b>
   </td>
   <td>
-    $!beanInfo.getDomain()
+    $mbctx.getState($name)
   </td>
 </tr>
 </table>
 
-<h3>Key Properties</h3>
-
-#foreach($i in $beanInfo.getKeyProperties())
-$i.key = $i.value
-<br/>
-#end
-
-<h3>MBean Attributes</h3>
+<h3>Attributes</h3>
 
 <table>
 
 <tr>
   <th>Name</th>
   <th>Value</th>
-  <th>Type</th>
-  <th>R</th>
-  <th>W</th>
-  <th>Is</th>
-  <th>Desc</th>
 </tr>
 
-#foreach($i in $beanInfo.getAttributes())
+#foreach($i in $beanInfo.getAttributes().values())
 
+#set($name = $i.name)
+#if($name != "objectName" && $name != "statisticsProvider" && $name != "stateManageable" && $name != "eventProvider" && $name != "state" && $name != "startTime")
 <tr>
-  <td>$i.info.getName()</td>
-   <td>$i.value</td>
-   <td>$i.info.getType()</td>
-   <td>$i.info.isReadable()</td>
-   <td>$i.info.isWritable()</td>
-   <td>$i.info.isIs()</td>
-   <td>$!i.info.getDescription()</td>
+  <td>$name</td>
+  <td>$!i.value</td>
 </tr>
+#end
+
 #end
 </table>
 
+<!--
 <h3>MBean Operations</h3>
 
 
@@ -81,3 +65,5 @@ $i.key = $i.value
 </tr>
 #end
 </table>
+-->
+

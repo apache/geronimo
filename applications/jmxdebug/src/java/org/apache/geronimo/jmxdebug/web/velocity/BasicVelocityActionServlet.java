@@ -17,176 +17,132 @@
 
 package org.apache.geronimo.jmxdebug.web.velocity;
 
-import org.apache.velocity.app.VelocityEngine;
-import org.apache.velocity.runtime.RuntimeConstants;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.Template;
-
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.Iterator;
+import java.util.Properties;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.ServletException;
-import javax.servlet.ServletContext;
-import java.lang.reflect.Method;
-import java.util.Properties;
-import java.util.Enumeration;
-import java.io.InputStream;
+
+import org.apache.velocity.Template;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.runtime.RuntimeConstants;
 
 /**
- *  Simple servlet to dispatch based on 'action'.  Also inits velocity in a
- *  simple way
- * 
- * @version $Id: BasicVelocityActionServlet.java,v 1.1 2004/02/18 15:33:41 geirm Exp $
+ * Simple servlet to dispatch based on 'action'.  Also inits velocity in a
+ * simple way
+ *
+ * @version $Id: BasicVelocityActionServlet.java,v 1.2 2004/07/26 17:14:48 dain Exp $
  */
 public abstract class BasicVelocityActionServlet extends HttpServlet {
+    public static final String DEFAULT_PROPS = "org/apache/geronimo/jmxdebug/web/velocity/velocity.defaults";
 
     /**
      * for dispatch purposes
      */
-    private final Class[] args =
-            {HttpServletRequest.class, HttpServletResponse.class};
+    private static final Class[] DISPATCH_ARGS = {HttpServletRequest.class, HttpServletResponse.class};
 
     /**
-     *  velocity engine for this servlet
+     * velocity engine for this servlet
      */
-    private VelocityEngine velEngine = new VelocityEngine();
-
-    public static final String DEFAULT_PROPS =
-            "org/apache/geronimo/jmxdebug/web/velocity/velocity.defaults";
+    private final VelocityEngine velocityEngine = new VelocityEngine();
 
     /**
      * for dispatching to the method specified...
-     *
-     * @param req
-     * @param res
-     * @throws ServletException
-     * @throws java.io.IOException
      */
-    public void service(HttpServletRequest req, HttpServletResponse res)
-            throws ServletException, java.io.IOException {
+    public void service(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 
-        String actionVerb = getActionVerb();
-
-        String what = req.getParameter(actionVerb);
-
-        if (what == null) {
-            what = "defaultAction";
+        // get the action
+        String action = req.getParameter(getActionVerb());
+        if (action == null || action.length() == 0) {
+            action = "defaultAction";
         }
 
+        // look up and invoke the method with the action name
         try {
-            Method method = this.getClass().getMethod(what, args);
-
-            Object[] objs = {req, res};
-            method.invoke(this, objs);
-        }
-        catch (NoSuchMethodException nsme) {
+            Method method = this.getClass().getMethod(action, DISPATCH_ARGS);
+            method.invoke(this, new Object[]{req, res});
+        } catch (NoSuchMethodException nsme) {
             unknownAction(req, res);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log("BasicVelocityActionServlet.service() : exception", e);
         }
     }
 
-    public void init()
-        throws ServletException {
-
-        /*
-         *  get the default properties from the classloader
-         */
-
+    public void init() throws ServletException {
         Properties p = new Properties();
 
+        // load the default properties file using the classloader
         try {
-            InputStream is = getClass().getClassLoader().getResourceAsStream(DEFAULT_PROPS);
-
-            p.load(is);
-        }
-        catch (Exception e) {
+            p.load(getClass().getClassLoader().getResourceAsStream(DEFAULT_PROPS));
+        } catch (Exception e) {
             log("BasicVelocityActionServlet : default " + DEFAULT_PROPS + " not found.", e);
             throw new ServletException(e);
         }
 
-        /*
-         *  run through them and use them
-         */
-
-        for (Enumeration en = p.propertyNames(); en.hasMoreElements();) {
-            String key = (String) en.nextElement();
-
-            velEngine.setProperty(key, p.getProperty(key));
+        // apply default propertis to velocitty engine
+        for (Iterator iterator = p.keySet().iterator(); iterator.hasNext();) {
+            String key = (String) iterator.next();
+            velocityEngine.setProperty(key, p.getProperty(key));
         }
 
-        /*
-         *  for now, log to the servlet log
-         */
+        // hook velocity logger up to the servlet logger
+        ServletLogger sl = new ServletLogger(getServletContext());
+        velocityEngine.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM, sl);
 
-        org.apache.geronimo.jmxdebug.web.velocity.ServletLogger sl = new org.apache.geronimo.jmxdebug.web.velocity.ServletLogger(getServletContext());
-        velEngine.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM, sl);
-
-        /*
-         * set an app context for the webapploader if we are using it
-         */
-
+        // set an app context for the webapploader if we are using it
         ServletAppContext vssac = new ServletAppContext(getServletContext());
-        velEngine.setApplicationAttribute(WebappLoader.KEY, vssac);
+        velocityEngine.setApplicationAttribute(WebappLoader.KEY, vssac);
 
+        // start the velocity engine
         try {
-            velEngine.init();
-        }
-        catch (Exception e) {
+            velocityEngine.init();
+        } catch (Exception e) {
             log("BasicVelocityActionServlet", e);
             throw new ServletException(e);
         }
     }
 
     /**
-     *  Defines the 'action verb' for the app
-     * @return
+     * Defines the 'action verb' for the app
      */
     protected abstract String getActionVerb();
 
     /**
      * Called when there is a request w/ no action verb
-     *
-     * @param req
-     * @param res
-     * @throws ServletException
-     * @throws java.io.IOException
      */
     public abstract void defaultAction(HttpServletRequest req, HttpServletResponse res)
-            throws ServletException, java.io.IOException;
+            throws ServletException, IOException;
 
     /**
      * Called when there is a request w/ invalid action verb
-     *
-     * @param req
-     * @param res
-     * @throws ServletException
-     * @throws java.io.IOException
      */
     public abstract void unknownAction(HttpServletRequest req, HttpServletResponse res)
-            throws ServletException, java.io.IOException;
+            throws ServletException, IOException;
 
     protected VelocityEngine getVelocityEngine() {
-        return this.velEngine;
+        return this.velocityEngine;
     }
 
 
     protected boolean renderTemplate(HttpServletRequest req,
-                                     HttpServletResponse res,
-                                     VelocityContext vc, String template) {
-        boolean result = false;
+            HttpServletResponse res,
+            VelocityContext velocityContext,
+            String templateName) {
 
         try {
-            Template t = getVelocityEngine().getTemplate(template);
-            t.merge(vc, res.getWriter());
-            result = true;
-        }
-        catch (Exception e) {
-            e.printStackTrace();
+            Template template = getVelocityEngine().getTemplate(templateName);
+            template.merge(velocityContext, res.getWriter());
+            return true;
+        } catch (Exception e) {
+            log("Error rendering template: " + templateName, e);
         }
 
-        return result;
+        return false;
     }
 
     /**

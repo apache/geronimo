@@ -1,3 +1,6 @@
 resource.loader = webapp
 
 webapp.resource.loader.class = org.apache.geronimo.jmxdebug.web.velocity.WebappLoader
+
+velocimacro.library.autoreload = true
+

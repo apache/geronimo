@@ -17,25 +17,23 @@
 
 package org.apache.geronimo.jmxdebug.web.velocity;
 
-import org.apache.velocity.VelocityContext;
-import org.apache.geronimo.jmxdebug.web.beanlib.MBeanServerHelper;
-import org.apache.geronimo.jmxdebug.web.beanlib.MBeanInfoHelper;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.ServletException;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.geronimo.jmxdebug.web.beanlib.MBeanInfoHelper;
+import org.apache.geronimo.jmxdebug.web.beanlib.MBeanServerHelper;
+import org.apache.velocity.VelocityContext;
 
 /**
- *  Simple servlet for looking at mbeans
- * 
- * @version $Id: DebugServlet.java,v 1.1 2004/02/18 15:33:41 geirm Exp $
+ * Simple servlet for looking at mbeans
+ *
+ * @version $Id: DebugServlet.java,v 1.2 2004/07/26 17:14:48 dain Exp $
  */
 public class DebugServlet extends BasicVelocityActionServlet {
-
     public static String OBJECT_NAME_FILTER_KEY = "ObjectNameFilter";
 
     protected String getActionVerb() {
@@ -43,14 +41,9 @@ public class DebugServlet extends BasicVelocityActionServlet {
     }
 
     /**
-     *  The only real action - just puts the mbean server helper in the
-     *  context, and if there was a mbean specified for details, shoves
-     *  a MBeanINfoHelper in the context
-     *
-     * @param req
-     * @param res
-     * @throws ServletException
-     * @throws IOException
+     * The only real action - just puts the mbean server helper in the
+     * context, and if there was a mbean specified for details, shoves
+     * a MBeanINfoHelper in the context
      */
     public void defaultAction(HttpServletRequest req, HttpServletResponse res)
             throws ServletException, IOException {
@@ -64,16 +57,20 @@ public class DebugServlet extends BasicVelocityActionServlet {
 
         VelocityContext vc = new VelocityContext();
 
-        vc.put("mbctx", new MBeanServerHelper());
+        MBeanServerHelper kernelHelper = new MBeanServerHelper();
+        vc.put("mbctx", kernelHelper);
         vc.put("encoder", new KickSunInHead());
         vc.put(OBJECT_NAME_FILTER_KEY, filterKey);
 
         if (beanName == null) {
             vc.put("template", "nobean.vm");
-        }
-        else {
+        } else {
+            try {
+                vc.put("beanInfo", new MBeanInfoHelper(kernelHelper, beanName));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             vc.put("template", "mbeaninfo.vm");
-            vc.put("beanInfo", new MBeanInfoHelper(beanName));
         }
 
         renderTemplate(req, res, vc, "index.vm");
@@ -86,23 +83,35 @@ public class DebugServlet extends BasicVelocityActionServlet {
 
 
     /**
-     *  Why oh why couldn't this be one class...
+     * Why oh why couldn't this be one class...
      */
     public class KickSunInHead {
-        public String decode(String s) {
-            return URLDecoder.decode(s);
+        public String decode(String string) {
+            return decode(string, "UTF-8");
         }
 
-        public String encode(String s) {
-            return URLEncoder.encode(s);
-        }
-
-        public String encode(String s, String encoding) {
-            try {
-                return URLEncoder.encode(s, encoding);
+        public String decode(String string, String encoding) {
+            if (string != null) {
+                try {
+                    return URLDecoder.decode(string, encoding);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
-            catch (UnsupportedEncodingException uee) {
-                uee.printStackTrace();
+            return null;
+        }
+
+        public String encode(String string) {
+            return encode(string, "UTF-8");
+        }
+
+        public String encode(String string, String encoding) {
+            if (string != null) {
+                try {
+                    return URLEncoder.encode(string, encoding);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
 
             return null;

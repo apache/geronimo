@@ -19,7 +19,6 @@ package org.apache.geronimo.jmxdebug.util;
 
 import java.util.Comparator;
 import java.util.StringTokenizer;
-import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 
 /**
@@ -29,24 +28,22 @@ import javax.management.ObjectName;
  * will not place single token domains before multiple token domains of
  * the same type (foo.bar > foo at the moment).
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/18 15:32:31 $
+ * @version $Revision: 1.1 $ $Date: 2004/07/26 17:14:48 $
  */
-public class ObjectInstanceComparator implements Comparator {
+public class ObjectNameComparator implements Comparator {
+    public static final ObjectNameComparator INSTANCE = new ObjectNameComparator();
+
     private static final int LEFT_GREATER = 1;
     private static final int RIGHT_GREATER = -1;
     private static final int EQUAL = 0;
 
     public int compare(Object o1, Object o2) {
-        ObjectName left = ((ObjectInstance) o1).getObjectName();
-        ObjectName right = ((ObjectInstance) o2).getObjectName();
-        String leftName = left.getCanonicalName();
-        String rightName = right.getCanonicalName();
+        String leftName = ((ObjectName) o1).getCanonicalName();
+        String rightName = ((ObjectName) o2).getCanonicalName();
 
-        StringTokenizer leftDomainTokenizer =
-                new StringTokenizer(leftName, ".");
+        StringTokenizer leftDomainTokenizer = new StringTokenizer(leftName, ".");
 
-        StringTokenizer rightDomainTokenizer =
-                new StringTokenizer(rightName, ".");
+        StringTokenizer rightDomainTokenizer = new StringTokenizer(rightName, ".");
 
         while (leftDomainTokenizer.hasMoreTokens()) {
             if (!rightDomainTokenizer.hasMoreTokens()) {
@@ -64,6 +61,7 @@ public class ObjectInstanceComparator implements Comparator {
         if (rightDomainTokenizer.hasMoreTokens()) {
             return LEFT_GREATER;
         }
+
         // both ran out of tokens so they are equal
         return EQUAL;
     }
