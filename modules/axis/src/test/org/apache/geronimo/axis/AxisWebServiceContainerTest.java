@@ -49,7 +49,7 @@ public class AxisWebServiceContainerTest extends AbstractTestCase {
     }
 
     public void testInvokeSOAP() throws Exception {
-	if (true) return; // TODO Get test working
+
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         JavaServiceDesc serviceDesc = new JavaServiceDesc();
         serviceDesc.setEndpointURL("http://127.0.0.1:8080/axis/services/echo");
