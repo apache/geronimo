@@ -180,7 +180,7 @@
                 <repository>true</repository>
             </properties>
         </dependency>
-
+<!-- Tomcat module still breaks a clean build
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-tomcat</artifactId>
@@ -189,7 +189,7 @@
                 <repository>true</repository>
             </properties>
         </dependency>
-
+-->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-jetty-builder</artifactId>
