@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.20 $ $Date: 2003/10/20 16:02:23 $ -->
+<!-- $Revision: 1.21 $ $Date: 2003/11/08 06:10:08 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
@@ -51,6 +51,9 @@
   <postGoal name="test:test-resources">
     
     <j:jelly xmlns="jelly:ant">
+      <!-- Create the directory where the test databases will reside -->
+      <mkdir dir="${maven.build.dir}/database"/>
+
       <!-- Compile the code for the Marshalling/Remoting tests -->
       <mkdir dir="${maven.build.dir}/mock-app"/>
       <javac
