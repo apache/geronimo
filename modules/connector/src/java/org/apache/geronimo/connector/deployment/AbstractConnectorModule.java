@@ -73,7 +73,7 @@ import org.apache.xmlbeans.XmlException;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/03 06:51:21 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/06 08:56:42 $
  *
  * */
 public abstract class AbstractConnectorModule implements DeploymentModule {
@@ -88,10 +88,10 @@ public abstract class AbstractConnectorModule implements DeploymentModule {
     protected InputStream moduleArchive;
     protected GerConnectorDocument geronimoConnectorDocument;
 
-    public AbstractConnectorModule(URI configID, InputStream moduleArchive, Object geronimoConnectorDocument, ObjectName connectionTrackerNamePattern) {
+    public AbstractConnectorModule(URI configID, InputStream moduleArchive, GerConnectorDocument geronimoConnectorDocument, ObjectName connectionTrackerNamePattern) {
         this.configID = configID;
         this.moduleArchive = moduleArchive;
-        this.geronimoConnectorDocument = (GerConnectorDocument) geronimoConnectorDocument;
+        this.geronimoConnectorDocument = geronimoConnectorDocument;
         this.connectionTrackerNamePattern = connectionTrackerNamePattern;
     }
 

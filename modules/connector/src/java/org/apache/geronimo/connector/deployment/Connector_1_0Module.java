@@ -57,7 +57,6 @@
 package org.apache.geronimo.connector.deployment;
 
 import java.beans.PropertyEditor;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -88,33 +87,26 @@ import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectionDefinitionType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectionmanagerType;
 import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
+import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
 import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConfigPropertyType;
 import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConnectorDocument;
 import org.apache.geronimo.xbeans.j2ee.connector_1_0.ResourceadapterType;
 import org.apache.xmlbeans.XmlException;
-import org.w3c.dom.Document;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/03 06:51:21 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/06 08:56:42 $
  *
  * */
 public class Connector_1_0Module extends AbstractConnectorModule implements DeploymentModule {
 
     private ConnectorDocument connectorDocument;
 
-    public Connector_1_0Module(URI configID, InputStream moduleArchive, Object geronimoConnectorDocument, ObjectName connectionTrackerNamePattern) {
+    public Connector_1_0Module(URI configID, InputStream moduleArchive, GerConnectorDocument geronimoConnectorDocument, ObjectName connectionTrackerNamePattern) {
         super(configID, moduleArchive, geronimoConnectorDocument, connectionTrackerNamePattern);
     }
 
-    public Connector_1_0Module(URI configID, InputStream moduleArchive, Document deploymentPlan, ObjectName connectionTrackerNamePattern) {
-        super(configID, moduleArchive, null, connectionTrackerNamePattern);
-    }
-
-    public Connector_1_0Module(URI configID, File moduleArchive, Document deploymentPlan, ObjectName connectionTrackerNamePattern) {
-        super(configID, null, null, connectionTrackerNamePattern);
-    }
 
     protected void getConnectorDocument(JarInputStream jarInputStream) throws XmlException, IOException {
         connectorDocument = ConnectorDocument.Factory.parse(new UnclosableInputStream(jarInputStream));

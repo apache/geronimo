@@ -56,7 +56,6 @@
 
 package org.apache.geronimo.connector.deployment;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 
@@ -67,12 +66,13 @@ import org.apache.geronimo.deployment.DeploymentModule;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
-import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.SchemaType;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/03 06:51:21 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/06 08:56:42 $
  *
  * */
 public class RAR_1_5ConfigurationFactory extends AbstractRARConfigurationFactory {
@@ -83,9 +83,14 @@ public class RAR_1_5ConfigurationFactory extends AbstractRARConfigurationFactory
         super(connectionTrackerNamePattern);
     }
 
-    public DeploymentModule createModule(InputStream moduleArchive, Object geronimoDD, URI configID, boolean isLocal) throws DeploymentException, XmlException, IOException {
+    public DeploymentModule createModule(InputStream moduleArchive, XmlObject geronimoDD, URI configID, boolean isLocal) throws DeploymentException {
         GerConnectorDocument geronimoConnectorDocument = (GerConnectorDocument) geronimoDD;
         return new Connector_1_5Module(configID, moduleArchive, geronimoConnectorDocument, getConnectionTrackerNamePattern());
+    }
+
+    //these might be temporary
+    public SchemaType getSchemaType() {
+        return GerConnectorDocument.type;
     }
 
     static {

@@ -63,12 +63,12 @@ import org.apache.geronimo.deployment.plugin.DeploymentConfigurationSupport;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/02 22:10:35 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/06 08:56:42 $
  *
  * */
 public class RARConfiguration extends DeploymentConfigurationSupport {
 
     public RARConfiguration(DeployableObject deployable) {
-        super(deployable);
+        super(deployable, null);
     }
 }

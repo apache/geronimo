@@ -57,16 +57,13 @@
 package org.apache.geronimo.connector.deployment;
 
 import java.beans.PropertyEditor;
-import java.io.File;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
-import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.jar.JarInputStream;
-import java.util.jar.JarEntry;
 
 import javax.management.AttributeNotFoundException;
 import javax.management.InvalidAttributeValueException;
@@ -82,7 +79,6 @@ import org.apache.geronimo.connector.outbound.ConnectionManagerDeployment;
 import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
 import org.apache.geronimo.deployment.ConfigurationCallback;
 import org.apache.geronimo.deployment.DeploymentException;
-import org.apache.geronimo.deployment.DeploymentModule;
 import org.apache.geronimo.deployment.util.UnclosableInputStream;
 import org.apache.geronimo.gbean.DynamicGAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -102,29 +98,21 @@ import org.apache.geronimo.xbeans.j2ee.ConnectionDefinitionType;
 import org.apache.geronimo.xbeans.j2ee.ConnectorDocument;
 import org.apache.geronimo.xbeans.j2ee.ResourceadapterType;
 import org.apache.xmlbeans.XmlException;
-import org.w3c.dom.Document;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/03 06:51:21 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/06 08:56:42 $
  *
  * */
 public class Connector_1_5Module extends AbstractConnectorModule {
 
     private ConnectorDocument connectorDocument;
 
-    public Connector_1_5Module(URI configID, InputStream moduleArchive, Object geronimoConnectorDocument, ObjectName connectionTrackerNamePattern) {
+    public Connector_1_5Module(URI configID, InputStream moduleArchive, GerConnectorDocument geronimoConnectorDocument, ObjectName connectionTrackerNamePattern) {
         super(configID, moduleArchive, geronimoConnectorDocument, connectionTrackerNamePattern);
     }
 
-    public Connector_1_5Module(URI configID, InputStream moduleArchive, Document deploymentPlan, ObjectName connectionTrackerNamePattern) {
-        super(configID, moduleArchive, null, connectionTrackerNamePattern);
-    }
-
-    public Connector_1_5Module(URI configID, File moduleArchive, Document deploymentPlan, ObjectName connectionTrackerNamePattern) {
-        super(configID, null, null, connectionTrackerNamePattern);
-    }
 
     protected void getConnectorDocument(JarInputStream jarInputStream) throws XmlException, IOException {
         connectorDocument = ConnectorDocument.Factory.parse(new UnclosableInputStream(jarInputStream));

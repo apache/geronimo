@@ -56,8 +56,6 @@
 
 package org.apache.geronimo.connector.deployment;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 
@@ -74,19 +72,20 @@ import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.xmlbeans.XmlException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.XmlBeans;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/03 06:51:21 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/06 08:56:42 $
  *
  * */
 public abstract class AbstractRARConfigurationFactory implements DeploymentConfigurationFactory {
     private final ObjectName connectionTrackerNamePattern;
     public static final GBeanInfo GBEAN_INFO;
+    private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
 
     public AbstractRARConfigurationFactory(ObjectName connectionTrackerNamePattern) {
         this.connectionTrackerNamePattern = connectionTrackerNamePattern;
@@ -103,15 +102,11 @@ public abstract class AbstractRARConfigurationFactory implements DeploymentConfi
         return new RARConfiguration(deployable);
     }
 
-    public DeploymentModule createModule(InputStream moduleArchive, Document deploymentPlan, URI configID) throws DeploymentException {
-        return null;
-    }
+    public abstract DeploymentModule createModule(InputStream moduleArchive, XmlObject geronimoDD, URI configID, boolean isLocal) throws DeploymentException;
 
-    public DeploymentModule createModule(File moduleArchive, Document deploymentPlan, URI configID, boolean isLocal) throws DeploymentException {
-        return null;
+    public SchemaTypeLoader getSchemaTypeLoader() {
+        return SCHEMA_TYPE_LOADER;
     }
-
-    public abstract DeploymentModule createModule(InputStream moduleArchive, Object geronimoDD, URI configID, boolean isLocal) throws DeploymentException, XmlException, IOException;
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory("Geronimo RAR Configuration Factory", AbstractRARConfigurationFactory.class.getName());
