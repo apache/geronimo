@@ -55,13 +55,21 @@
  */
 package org.apache.geronimo.kernel.deployment.goal;
 
+import org.apache.geronimo.kernel.deployment.GeronimoTargetModule;
+
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:38:33 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/17 10:57:40 $
  */
 public abstract class DeploymentGoal {
     private boolean attained;
+    private GeronimoTargetModule targetModule;
+
+    public DeploymentGoal(GeronimoTargetModule targetModule) {
+        this.targetModule = targetModule;
+        attained = false;
+    }
 
     public boolean isAttained() {
         return attained;
@@ -69,5 +77,9 @@ public abstract class DeploymentGoal {
 
     public void setAttained(boolean attained) {
         this.attained = attained;
+    }
+
+    public GeronimoTargetModule getTargetModule() {
+        return targetModule;
     }
 }

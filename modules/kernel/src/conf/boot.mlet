@@ -25,6 +25,13 @@
 </MLET>
 
 <MLET CODE="org.apache.geronimo.kernel.service.GeronimoMBean"
+    NAME="geronimo.deployment:role=ApplicationDeployer"
+    ARCHIVE=""
+    >
+    <ARG type="java.lang.String" value="org.apache.geronimo.kernel.deployment.ApplicationDeployer"/>
+</MLET>
+
+<MLET CODE="org.apache.geronimo.kernel.service.GeronimoMBean"
       NAME="geronimo.deployment:role=DeploymentPlanner,type=Service"
       ARCHIVE=""
       >

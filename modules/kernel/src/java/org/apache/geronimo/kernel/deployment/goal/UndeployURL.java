@@ -56,16 +56,18 @@
 package org.apache.geronimo.kernel.deployment.goal;
 
 import java.net.URL;
+import org.apache.geronimo.kernel.deployment.GeronimoTargetModule;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:38:33 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/17 10:57:40 $
  */
 public class UndeployURL extends DeploymentGoal {
     private final URL url;
 
-    public UndeployURL(URL url) {
+    public UndeployURL(final GeronimoTargetModule targetModule, URL url) {
+        super(targetModule);
         this.url = url;
     }
 

@@ -57,7 +57,6 @@ package org.apache.geronimo.kernel.deployment.scanner;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
@@ -65,29 +64,23 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-
-import javax.management.MBeanServer;
 import javax.management.ObjectName;
-import javax.management.relation.RelationServiceMBean;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.kernel.service.AbstractManagedObject;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.kernel.deployment.ApplicationDeployer;
 import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
+import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
+import org.apache.geronimo.kernel.service.GeronimoMBeanEndpoint;
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
 import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
 import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
-import org.apache.geronimo.kernel.service.GeronimoMBeanEndpoint;
-import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
-import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
-import org.apache.geronimo.kernel.deployment.DeploymentController;
 
 /**
  * An MBean that maintains a list of URLs and periodically invokes a Scanner
  * to search them for deployments.
  *
- * @version $Revision: 1.3 $ $Date: 2003/11/16 00:52:22 $
+ * @version $Revision: 1.4 $ $Date: 2003/11/17 10:57:40 $
  */
 public class DeploymentScanner implements GeronimoMBeanTarget {
 
@@ -99,7 +92,7 @@ public class DeploymentScanner implements GeronimoMBeanTarget {
     private long scanInterval;
     private boolean run;
     private Thread scanThread;
-    private DeploymentController deploymentController;
+    private ApplicationDeployer applicationDeployer;
 
     public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
         GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
@@ -123,15 +116,15 @@ public class DeploymentScanner implements GeronimoMBeanTarget {
                 new GeronimoParameterInfo[]{},
                 1,
                 "Scan all URLs now"));
-        mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("DeploymentController",
-                DeploymentController.class.getName(),
-                ObjectName.getInstance("geronimo.deployment:role=DeploymentController"),
+        mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("ApplicationDeployer",
+                ApplicationDeployer.class.getName(),
+                ObjectName.getInstance("geronimo.deployment:role=ApplicationDeployer"),
                 true));
         return mbeanInfo;
     }
 
-    public void setDeploymentController(DeploymentController deploymentController) {
-        this.deploymentController = deploymentController;
+    public void setApplicationDeployer(ApplicationDeployer applicationDeployer) {
+        this.applicationDeployer = applicationDeployer;
     }
 
     public DeploymentScanner() {
@@ -252,7 +245,7 @@ public class DeploymentScanner implements GeronimoMBeanTarget {
         }
 
         try {
-            deploymentController.planDeployment(context.getObjectName(), results);
+            applicationDeployer.planDeployment(context.getObjectName(), results);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }

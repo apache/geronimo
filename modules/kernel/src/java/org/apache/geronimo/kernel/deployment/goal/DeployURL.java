@@ -60,17 +60,19 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.apache.geronimo.kernel.deployment.scanner.URLType;
+import org.apache.geronimo.kernel.deployment.GeronimoTargetModule;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:38:33 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/17 10:57:40 $
  */
 public class DeployURL extends DeploymentGoal {
     private final URL url;
     private final URLType type;
 
-    public DeployURL(final URL url, final URLType type) {
+    public DeployURL(final GeronimoTargetModule targetModule, final URL url, final URLType type) {
+        super(targetModule);
         if (url == null) {
             throw new IllegalArgumentException("URL is null");
         }

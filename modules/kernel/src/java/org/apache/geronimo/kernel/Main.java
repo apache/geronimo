@@ -77,7 +77,7 @@ import org.apache.geronimo.kernel.jmx.JMXKernel;
 /**
  * Main entry point for the Geronimo server.
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:38:33 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/17 10:57:40 $
  */
 public class Main implements Runnable {
     static {
@@ -109,7 +109,7 @@ public class Main implements Runnable {
     private final URL mletURL;
     private final URL bootURL;
 
-    private ObjectName controllerName;
+    private ObjectName deployerName;
 
     public Main(String domainName, URL mletURL, URL bootURL) {
         this.domainName = domainName;
@@ -126,6 +126,7 @@ public class Main implements Runnable {
         Object[] deployArgs = {bootURL};
         JMXKernel kernel = null;
         ShutdownThread hook = new ShutdownThread("Shutdown-Thread", Thread.currentThread());
+        ObjectName controllerName = null;
         try {
             Runtime.getRuntime().addShutdownHook(hook);
             try {
@@ -137,6 +138,7 @@ public class Main implements Runnable {
 
                 // check they all started OK and it included a controller and service planner
                 ObjectName controllerPattern = new ObjectName("*:role=DeploymentController,*");
+                ObjectName deployerPattern = new ObjectName("*:role=ApplicationDeployer,*");
                 ObjectName plannerPattern = new ObjectName("*:role=DeploymentPlanner,type=Service,*");
                 boolean planner = false;
                 for (Iterator i = bootedMBeans.iterator(); i.hasNext();) {
@@ -152,10 +154,17 @@ public class Main implements Runnable {
                         controllerName = mletName;
                     } else if (plannerPattern.apply(mletName)) {
                         planner = true;
+                    } else if(deployerPattern.apply(mletName)) {
+                        if(deployerName != null) {
+                            throw new DeploymentException("Multiple ApplicationDeployers specified in boot mlet");
+                        }
+                        deployerName = mletName;
                     }
                 }
                 if (controllerName == null) {
                     throw new DeploymentException("Boot mlet did not load a DeploymentController");
+                } else if (deployerName == null) {
+                        throw new DeploymentException("Boot mlet did not load an ApplicationDeployer");
                 } else if (!planner) {
                     throw new DeploymentException("Boot mlet did not load a DeploymentPlanner for type=Service");
                 }
@@ -163,7 +172,7 @@ public class Main implements Runnable {
                 // start her up
                 log.info("Deploying Bootstrap Services from " + bootURL);
                 MBeanServer mbServer = kernel.getMBeanServer();
-                mbServer.invoke(controllerName, "deploy", deployArgs, DEPLOY_ARG_TYPES);
+                mbServer.invoke(deployerName, "deploy", deployArgs, DEPLOY_ARG_TYPES);
 
                 // Booted... print the startup time
                 time = (System.currentTimeMillis() - time) / 1000;
@@ -197,11 +206,11 @@ public class Main implements Runnable {
                 // we were in the process of shutting down - ignore
             }
             if (kernel != null) {
-                if (controllerName != null) {
+                if (deployerName != null) {
                     try {
                         log.info("Undeploy Bootstrap Services");
                         MBeanServer mbServer = kernel.getMBeanServer();
-                        mbServer.invoke(controllerName, "undeploy", deployArgs, DEPLOY_ARG_TYPES);
+                        mbServer.invoke(deployerName, "undeploy", deployArgs, DEPLOY_ARG_TYPES);
                     } catch (Throwable e) {
                         log.error("Error stopping Server", e);
                     }

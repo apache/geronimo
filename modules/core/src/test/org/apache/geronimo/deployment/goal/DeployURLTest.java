@@ -62,20 +62,22 @@ import java.net.URL;
 
 import org.apache.geronimo.kernel.deployment.scanner.URLType;
 import org.apache.geronimo.kernel.deployment.goal.DeployURL;
+import org.apache.geronimo.kernel.deployment.GeronimoTargetModule;
+import org.apache.geronimo.kernel.deployment.ServerTarget;
 
 import junit.framework.TestCase;
 
 /**
  * Unit tests for {@link org.apache.geronimo.kernel.deployment.goal.DeployURL} class.
  *
- * @version $Revision: 1.3 $ $Date: 2003/09/08 04:35:12 $
+ * @version $Revision: 1.4 $ $Date: 2003/11/17 10:57:40 $
  */
 public class DeployURLTest
     extends TestCase
 {
     public void testFileUrlWithSpace() {
         try {
-            DeployURL goal = new DeployURL(new URL("file:///C:/Program Files/Apache Group/Geronimo"), URLType.UNPACKED_ARCHIVE);
+            DeployURL goal = new DeployURL(new GeronimoTargetModule(new ServerTarget("localhost"), "test"), new URL("file:///C:/Program Files/Apache Group/Geronimo"), URLType.UNPACKED_ARCHIVE);
             URL url = goal.getUrl();
             URI baseURI = URI.create(url.toString()).normalize();;        
         } catch (MalformedURLException e){

@@ -53,25 +53,64 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.kernel.deployment.goal;
+package org.apache.geronimo.kernel.deployment;
 
-import java.net.URL;
-import org.apache.geronimo.kernel.deployment.GeronimoTargetModule;
+import java.io.Serializable;
+import javax.enterprise.deploy.spi.Target;
 
 /**
+ * A target representing a single (non-clustered) Geronimo server.
  *
- *
- * @version $Revision: 1.2 $ $Date: 2003/11/17 10:57:40 $
+ * @version $Revision: 1.1 $ $Date: 2003/11/17 10:57:40 $
  */
-public class RedeployURL extends DeploymentGoal {
-    private final URL url;
+public class ServerTarget implements Target, Serializable {
+    private String hostname;
+    private String homeDir;
 
-    public RedeployURL(final GeronimoTargetModule targetModule, URL url) {
-        super(targetModule);
-        this.url = url;
+    public ServerTarget(String hostname) {
+        this.hostname = hostname;
     }
 
-    public URL getUrl() {
-        return url;
+    public String getName() {
+        return hostname;
+    }
+
+    public String getHostname() {
+        return hostname;
+    }
+
+    public void setHostname(String hostname) {
+        this.hostname = hostname;
+    }
+
+    public String getHomeDir() {
+        return homeDir;
+    }
+
+    public void setHomeDir(String homeDir) {
+        this.homeDir = homeDir;
+    }
+
+    public String getDescription() {
+        return "Geronimo Server"+(homeDir == null ? "" : " at "+homeDir);
+    }
+
+    public boolean equals(Object o) {
+        if(this == o) return true;
+        if(!(o instanceof ServerTarget)) return false;
+
+        final ServerTarget serverTarget = (ServerTarget)o;
+
+        if(!homeDir.equals(serverTarget.homeDir)) return false;
+        if(!hostname.equals(serverTarget.hostname)) return false;
+
+        return true;
+    }
+
+    public int hashCode() {
+        int result;
+        result = hostname.hashCode();
+        result = 29 * result + homeDir.hashCode();
+        return result;
     }
 }

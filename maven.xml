@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.43 $ $Date: 2003/11/16 05:39:54 $ -->
+<!-- $Revision: 1.44 $ $Date: 2003/11/17 10:57:39 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -383,6 +383,17 @@
         <aggregate:default libraries="false"/>
 
         <!-- Put geronimo-kernel into deploy/bootlib -->
+        <aggregate:copy
+            source="${module.root}/target"
+            target="${aggregate.dir}/bootlib"
+            include="*.jar"/>
+    </goal>
+
+    <goal name="modules:aggregate:geronimo-spec:geronimo-spec-j2ee-deployment">
+        <!-- Do not do the default libraries stuff -->
+        <aggregate:default libraries="false"/>
+
+        <!-- Put j2ee-deployment into deploy/bootlib -->
         <aggregate:copy
             source="${module.root}/target"
             target="${aggregate.dir}/bootlib"

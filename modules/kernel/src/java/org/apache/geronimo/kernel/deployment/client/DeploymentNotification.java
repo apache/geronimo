@@ -53,25 +53,60 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.kernel.deployment.goal;
+package org.apache.geronimo.kernel.deployment.client;
 
-import java.net.URL;
-import org.apache.geronimo.kernel.deployment.GeronimoTargetModule;
+import javax.management.Notification;
+import javax.enterprise.deploy.spi.TargetModuleID;
 
 /**
+ * A notification for a deployment
  *
- *
- * @version $Revision: 1.2 $ $Date: 2003/11/17 10:57:40 $
+ * @version $Revision: 1.1 $ $Date: 2003/11/17 10:57:40 $
  */
-public class RedeployURL extends DeploymentGoal {
-    private final URL url;
+public class DeploymentNotification extends Notification {
+    public final static String DEPLOYMENT_COMPLETED = "app.deploy.completed";
+    public final static String DEPLOYMENT_FAILED = "app.deploy.failure";
+    public final static String DEPLOYMENT_UPDATE = "app.deploy.update";
+    private int deploymentID;
+    private TargetModuleID targetModuleID;
 
-    public RedeployURL(final GeronimoTargetModule targetModule, URL url) {
-        super(targetModule);
-        this.url = url;
+    public DeploymentNotification(String type, Object source, long sequenceNumber, int deploymentID, TargetModuleID targetModuleID) {
+        super(type, source, sequenceNumber);
+        this.deploymentID = deploymentID;
+        this.targetModuleID = targetModuleID;
     }
 
-    public URL getUrl() {
-        return url;
+    public DeploymentNotification(String type, Object source, long sequenceNumber, long timeStamp, int deploymentID, TargetModuleID targetModuleID) {
+        super(type, source, sequenceNumber, timeStamp);
+        this.deploymentID = deploymentID;
+        this.targetModuleID = targetModuleID;
+    }
+
+    public DeploymentNotification(String type, Object source, long sequenceNumber, String message, int deploymentID, TargetModuleID targetModuleID) {
+        super(type, source, sequenceNumber, message);
+        this.deploymentID = deploymentID;
+        this.targetModuleID = targetModuleID;
+    }
+
+    public DeploymentNotification(String type, Object source, long sequenceNumber, long timeStamp, String message, int deploymentID, TargetModuleID targetModuleID) {
+        super(type, source, sequenceNumber, timeStamp, message);
+        this.deploymentID = deploymentID;
+        this.targetModuleID = targetModuleID;
+    }
+
+    public int getDeploymentID() {
+        return deploymentID;
+    }
+
+    public void setDeploymentID(int deploymentID) {
+        this.deploymentID = deploymentID;
+    }
+
+    public TargetModuleID getTargetModuleID() {
+        return targetModuleID;
+    }
+
+    public void setTargetModuleID(TargetModuleID targetModuleID) {
+        this.targetModuleID = targetModuleID;
     }
 }

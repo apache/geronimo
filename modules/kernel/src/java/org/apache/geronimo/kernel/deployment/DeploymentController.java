@@ -55,29 +55,24 @@
  */
 package org.apache.geronimo.kernel.deployment;
 
-import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Collections;
-
-import javax.management.MalformedObjectNameException;
+import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.management.ObjectName;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.kernel.deployment.goal.DeployURL;
-import org.apache.geronimo.kernel.deployment.goal.RedeployURL;
-import org.apache.geronimo.kernel.deployment.goal.UndeployURL;
-import org.apache.geronimo.kernel.deployment.scanner.URLInfo;
-import org.apache.geronimo.kernel.deployment.scanner.URLType;
+import org.apache.geronimo.kernel.deployment.client.DeploymentNotification;
+import org.apache.geronimo.kernel.deployment.goal.DeploymentGoal;
 import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
 import org.apache.geronimo.kernel.service.GeronimoMBeanEndpoint;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
@@ -86,9 +81,10 @@ import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
 import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
 
 /**
+ * Handles the nuts & bolts of deployment -- acting on a set of goals, and
+ * providing status notifications along the way.
  *
- *
- * @version $Revision: 1.5 $ $Date: 2003/11/17 00:17:25 $
+ * @version $Revision: 1.6 $ $Date: 2003/11/17 10:57:40 $
  */
 public class DeploymentController implements GeronimoMBeanTarget {
 
@@ -96,153 +92,129 @@ public class DeploymentController implements GeronimoMBeanTarget {
 
     private GeronimoMBeanContext context;
     private Collection planners = Collections.EMPTY_LIST;
-    private final Map scanResults = new HashMap();
     private final Set goals = new HashSet();
     private final LinkedHashSet plans = new LinkedHashSet();
+    private final DeploymentWaiter waiter = new DeploymentWaiter();
+    private final DeploymentIDGenerator ids = new DeploymentIDGenerator();
+    private long notificationSequence = 0;
+    private Object notificationLock = new Object();
 
 
     public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
         GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
         mbeanInfo.setAutostart(true);
         mbeanInfo.setTargetClass(DeploymentController.class.getName());
-        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("planDeployment",
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("runDeploymentJob",
                 new GeronimoParameterInfo[] {
-                    new GeronimoParameterInfo("Source", ObjectName.class.getName(), "Good question!"),
-                    new GeronimoParameterInfo("URLInfos", Set.class.getName(), "Set of URLs to plan deployments for")
+                    new GeronimoParameterInfo("goals", "[L"+DeploymentGoal.class.getName()+";", "Goals to achieve as part of this job")
                 },
                 0,
-                "plan the set of deployments"));
-        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("isDeployed",
+                "Execute a number of deployment goals together"));
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("prepareDeploymentJob",
                 new GeronimoParameterInfo[] {
-                    new GeronimoParameterInfo("URL", URL.class.getName(), "URL to test")
+                    new GeronimoParameterInfo("goals", "[L"+DeploymentGoal.class.getName()+";", "Goals to achieve as part of this job")
                 },
                 0,
-                "Determine if the supplied URL is deployed"));
-        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("deploy",
+                "Execute a number of deployment goals together, but don't start until instructed to"));
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("startDeploymentJob",
                 new GeronimoParameterInfo[] {
-                    new GeronimoParameterInfo("URL", URL.class.getName(), "URL to deploy")
+                    new GeronimoParameterInfo("jobID", Integer.TYPE, "ID of the deployment job to start")
                 },
                 0,
-                "Deploy the URL"));
-        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("undeploy",
+                "Indicates that the specified (prepared) deployment job can be run"));
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("updateDeploymentStatus",
                 new GeronimoParameterInfo[] {
-                    new GeronimoParameterInfo("URL", URL.class.getName(), "URL to undeploy")
+                    new GeronimoParameterInfo("jobID", Integer.TYPE.getName(), "The job whose status you're updating"),
+                    new GeronimoParameterInfo("message", String.class.getName(), "A text description of or note on the deployment status"),
+                    new GeronimoParameterInfo("type", String.class.getName(), "The type of deployment message (see DeploymentNotification.java)"),
+                    new GeronimoParameterInfo("tmID", TargetModuleID.class.getName(), "The module whose status is being updated")
                 },
                 0,
-                "Undeploy the URL"));
+                "Updates the status of a deployment job"));
         mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("Planners", DeploymentPlanner.class.getName(),
                 ObjectName.getInstance("geronimo.deployment:role=DeploymentPlanner,*")));
         return mbeanInfo;
     }
 
     /**
-     * @jmx:managed-operation
+     * Registers a new deployment job.  This method will return immediately,
+     * even if the job will take a while to run.  An ID will be assigned to
+     * the deployment, and notifications will be sent, but it is assumed the
+     * caller is not interested in tracking the notifications for the job.
      */
-    public synchronized void planDeployment(ObjectName source, Set urlInfos) {
+    public void runDeploymentJob(DeploymentGoal[] goals) {
+        if(goals.length == 0) {
+            return;
+        }
+        int id = ids.nextID();
+        for(int i=0; i<goals.length; i++) {
+            goals[i].getTargetModule().setDeploymentID(id);
+        }
+        waiter.addJob(goals);
+    }
 
+    /**
+     * Registers a new deployment job.  This method will return immediately,
+     * and the job will be registered but not executed.  An ID will be
+     * assigned to the deployment, and the caller can use this ID to start
+     * the job and monitor it via the notifications emitted for the job.
+     * You must call startDeploymentJob with this ID or the job will never be
+     * run.  The purpose of this is that the caller can add a notification
+     * listener before actually starting the job and ensure that all
+     * notifications for the job will be received.
+     */
+    public int prepareDeploymentJob(DeploymentGoal[] goals) {
+        if(goals.length == 0) { //todo: throws exception or send immediate success notification?
+            return -1;
+        }
+        int id = ids.nextID();
+        for(int i=0; i<goals.length; i++) {
+            goals[i].getTargetModule().setDeploymentID(id);
+        }
+        waiter.queueJob(id, goals);
+        return id;
+    }
 
-        Set lastScan = (Set) scanResults.get(source);
+    /**
+     * Indicates that the specified job can begin execution.  The status of
+     * the job can be monitored via notifications for its deployment ID.
+     */
+    public void startDeploymentJob(int deploymentID) {
+        waiter.startJob(deploymentID);
+    }
 
-        // find new and existing urlInfos
-        for (Iterator i = urlInfos.iterator(); i.hasNext();) {
-            URLInfo urlInfo = (URLInfo) i.next();
-            URL url = urlInfo.getUrl();
-
-
-            if (!isDeployed(url)) {
-                //only add a new deployment goal if we don't already have one. One can already exist if
-                //there was no deployer available when the url was scanned
-                if ((lastScan == null) || ((lastScan != null) &&!lastScan.contains (urlInfo))){
-//                    log.info("Adding url goal for " + url);
-                    goals.add(new DeployURL(url, urlInfo.getType()));
-                }
-            } else {
-//                log.info("Redeploying url " + url);
-                goals.add(new RedeployURL(url));
+    private synchronized void executeJob(DeploymentGoal[] job) {
+        if(job.length == 0) {
+            return;
+        }
+        int id = job[0].getTargetModule().getDeploymentID();
+        try {
+            goals.addAll(Arrays.asList(job));
+            for(int i=0; i<job.length; i++) {
+                updateDeploymentStatus(id, "Starting deployment job.", DeploymentNotification.DEPLOYMENT_UPDATE, job[i].getTargetModule());
             }
-        }
-
-        // create remove goals for all urlInfos that were found last time but not now
-        if (lastScan != null) {
-            for (Iterator i = lastScan.iterator(); i.hasNext();) {
-                URLInfo urlInfo = (URLInfo) i.next();
-                URL url = urlInfo.getUrl();
-
-                if (!urlInfos.contains(urlInfo) && isDeployed(url)) {
-                    goals.add(new UndeployURL(url));
-                }
+            generatePlans();
+            executePlans();
+            for(int i=0; i<job.length; i++) {
+                updateDeploymentStatus(id, "Successfully completed deployment job.", DeploymentNotification.DEPLOYMENT_COMPLETED, job[i].getTargetModule());
             }
-        }
-        scanResults.put(source, urlInfos);
-
-        try {
-            generatePlans();
         } catch (DeploymentException e) {
-            log.warn("Unable to plan deployment", e);
-            return;
-        }
-
-        try {
-            executePlans();
-        } catch (DeploymentException e) {
-            log.warn("Unable to execute deployment plan", e);
-            return;
+            for(int i=0; i<job.length; i++) { //todo: send success for the goals that succeeded, only failure for ones that failed
+                updateDeploymentStatus(id, "Deployment job failed.", DeploymentNotification.DEPLOYMENT_FAILED, job[i].getTargetModule());
+            }
+            log.warn("Unable to complete deployment job " + id, e);
         }
     }
 
     /**
-     * @jmx:managed-operation
+     *
      */
-    public boolean isDeployed(URL url) {
-        try {
-            ObjectName pattern = new ObjectName("*:role=DeploymentUnit,url=" + ObjectName.quote(url.toString()) + ",*");
-            return !context.getServer().queryNames(pattern, null).isEmpty();
-        } catch (MalformedObjectNameException e) {
-            throw new AssertionError();
+    public void updateDeploymentStatus(int jobID, String message, String type, TargetModuleID tmID) {
+        long seq;
+        synchronized(notificationLock) {
+            seq = ++notificationSequence;
         }
-    }
-
-    /**
-     * @jmx:managed-operation
-     */
-    public synchronized void deploy(URL url) throws DeploymentException {
-        if (isDeployed(url)) {
-            return;
-        }
-
-        URLType type = null;
-        try {
-            type = URLType.getType(url);
-        } catch (IOException e) {
-            throw new DeploymentException(e);
-        }
-
-        try {
-            DeployURL goal = new DeployURL(url, type);
-            goals.add(goal);
-            generatePlans();
-            executePlans();
-        } catch (DeploymentException e) {
-            log.warn("Unable to deploy URL " + url, e);
-            throw e;
-        }
-    }
-
-    /**
-     * @jmx:managed-operation
-     */
-    public synchronized void undeploy(URL url) {
-        if (!isDeployed(url)) {
-            return;
-        }
-        try {
-            UndeployURL goal = new UndeployURL(url);
-            goals.add(goal);
-            generatePlans();
-            executePlans();
-        } catch (DeploymentException e) {
-            log.warn("Unable to undeploy URL " + url, e);
-        }
+        context.sendNotification(new DeploymentNotification(type, this, seq, message, jobID, tmID));
     }
 
     private void generatePlans() throws DeploymentException {
@@ -318,6 +290,9 @@ public class DeploymentController implements GeronimoMBeanTarget {
     }
 
     public void doStart() {
+        Thread t = new Thread(waiter, "Geronimo Deployment Queue");
+        waiter.setRunner(t);
+        t.start();
     }
 
     public boolean canStop() {
@@ -328,5 +303,84 @@ public class DeploymentController implements GeronimoMBeanTarget {
     }
 
     public void doFail() {
+    }
+
+    private class DeploymentWaiter implements Runnable {
+        private LinkedList work = new LinkedList();
+        private boolean finished = false;
+        private Thread runner;
+        private Map waiting = new HashMap();
+
+        public void run() {
+            DeploymentGoal[] job;
+            while(!finished) {
+                job = null;
+                synchronized(work) {
+                    if(work.isEmpty()) {
+                        try {
+                            work.wait();
+                        } catch(InterruptedException e) {}
+                    }
+                    job = (DeploymentGoal[])work.removeFirst();
+                }
+                if(job != null) {
+                    executeJob(job); // needs to acquire lock on DeploymentController, may take a while
+                }
+            }
+        }
+
+        public void queueJob(int jobID, DeploymentGoal[] job) {
+            waiting.put(new Integer(jobID), job);
+        }
+
+        public void startJob(int jobID) {
+            DeploymentGoal[] job = (DeploymentGoal[])waiting.remove(new Integer(jobID));
+            if(job != null) {
+                addJob(job);
+            }
+        }
+
+        public void addJob(DeploymentGoal[] job) {
+            if(job == null) {
+                log.error("Job should not be null", new RuntimeException());
+                return;
+            }
+            synchronized(work) {
+                work.addLast(job);
+                work.notify();
+            }
+        }
+
+        public void setRunner(Thread t) {
+            runner = t;
+        }
+
+        /**
+         * Prevents any future work from being done.  Does not stop a
+         * deployment job that is currently in progress.
+         */
+        public void stop() {
+            finished = true;
+            if(runner != null) {
+                runner.interrupt();
+                runner = null;
+            }
+        }
+    }
+
+    private static class DeploymentIDGenerator {
+        int counter = 0;
+
+        public void start() {
+            //todo: load the saved job ID?
+        }
+
+        public synchronized int nextID() {
+            return ++counter;
+        }
+
+        public void stop() {
+            //todo: persist the current job ID?
+        }
     }
 }
