@@ -1,0 +1,249 @@
+/* ====================================================================
+ * The Apache Software License, Version 1.1
+ *
+ * Copyright (c) 2003 The Apache Software Foundation.  All rights
+ * reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *
+ * 3. The end-user documentation included with the redistribution,
+ *    if any, must include the following acknowledgment:
+ *       "This product includes software developed by the
+ *        Apache Software Foundation (http://www.apache.org/)."
+ *    Alternately, this acknowledgment may appear in the software itself,
+ *    if and wherever such third-party acknowledgments normally appear.
+ *
+ * 4. The names "Apache" and "Apache Software Foundation" and
+ *    "Apache Geronimo" must not be used to endorse or promote products
+ *    derived from this software without prior written permission. For
+ *    written permission, please contact apache@apache.org.
+ *
+ * 5. Products derived from this software may not be called "Apache",
+ *    "Apache Geronimo", nor may "Apache" appear in their name, without
+ *    prior written permission of the Apache Software Foundation.
+ *
+ * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED.  IN NO EVENT SHALL THE APACHE SOFTWARE FOUNDATION OR
+ * ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+ * USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ * ====================================================================
+ *
+ * This software consists of voluntary contributions made by many
+ * individuals on behalf of the Apache Software Foundation.  For more
+ * information on the Apache Software Foundation, please see
+ * <http://www.apache.org/>.
+ *
+ * ====================================================================
+ */
+package org.apache.geronimo.xml.deployment;
+
+import org.apache.geronimo.deployment.model.j2ee.EJBRef;
+import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
+import org.apache.geronimo.deployment.model.j2ee.EJBLocalRef;
+import org.apache.geronimo.deployment.model.j2ee.ServiceRef;
+import org.apache.geronimo.deployment.model.j2ee.PortComponentRef;
+import org.apache.geronimo.deployment.model.j2ee.Handler;
+import org.apache.geronimo.deployment.model.j2ee.ParamValue;
+import org.apache.geronimo.deployment.model.j2ee.ResourceRef;
+import org.apache.geronimo.deployment.model.j2ee.ResourceEnvRef;
+import org.apache.geronimo.deployment.model.j2ee.MessageDestinationRef;
+import org.apache.geronimo.deployment.model.j2ee.MessageDestination;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
+/**
+ *
+ *
+ * @version $Revision: 1.1 $ $Date: 2003/09/01 22:12:16 $
+ */
+public final class J2EELoader {
+    public static EnvEntry[] loadEnvEntries(Element parent) {
+        NodeList nodes = parent.getElementsByTagName("env-entry");
+        int length = nodes.getLength();
+        EnvEntry[] result = new EnvEntry[length];
+        for (int i = 0; i < length; i++) {
+            Element e = (Element) nodes.item(i);
+            EnvEntry envEntry = new EnvEntry();
+            envEntry.setEnvEntryName(LoaderUtil.getChildContent(e, "env-entry-name"));
+            envEntry.setEnvEntryType(LoaderUtil.getChildContent(e, "env-entry-type"));
+            envEntry.setEnvEntryValue(LoaderUtil.getChildContent(e, "env-entry-value"));
+            result[i] = envEntry;
+        }
+        return result;
+    }
+
+    public static EJBRef[] loadEJBRefs(Element parent) {
+        NodeList nodes = parent.getElementsByTagName("ejb-ref");
+        int length = nodes.getLength();
+        EJBRef[] result = new EJBRef[length];
+        for (int i = 0; i < length; i++) {
+            Element e = (Element) nodes.item(i);
+            EJBRef ejbRef = new EJBRef();
+            ejbRef.setEJBRefName(LoaderUtil.getChildContent(e, "ejb-ref-name"));
+            ejbRef.setEJBRefType(LoaderUtil.getChildContent(e, "ejb-ref-type"));
+            ejbRef.setHome(LoaderUtil.getChildContent(e, "home"));
+            ejbRef.setRemote(LoaderUtil.getChildContent(e, "remote"));
+            ejbRef.setEJBLink(LoaderUtil.getChildContent(e, "ejb-link"));
+            result[i] = ejbRef;
+        }
+        return result;
+    }
+
+    public static EJBLocalRef[] loadEJBLocalRefs(Element parent) {
+        NodeList nodes = parent.getElementsByTagName("ejb-local-ref");
+        int length = nodes.getLength();
+        EJBLocalRef[] result = new EJBLocalRef[length];
+        for (int i = 0; i < length; i++) {
+            Element e = (Element) nodes.item(i);
+            EJBLocalRef ejbLocalRef = new EJBLocalRef();
+            ejbLocalRef.setEJBRefName(LoaderUtil.getChildContent(e, "ejb-ref-name"));
+            ejbLocalRef.setEJBRefType(LoaderUtil.getChildContent(e, "ejb-ref-type"));
+            ejbLocalRef.setLocalHome(LoaderUtil.getChildContent(e, "local-home"));
+            ejbLocalRef.setLocal(LoaderUtil.getChildContent(e, "local"));
+            ejbLocalRef.setEJBLink(LoaderUtil.getChildContent(e, "ejb-link"));
+            result[i] = ejbLocalRef;
+        }
+        return result;
+    }
+
+    public static ServiceRef[] loadServiceRefs(Element parent) {
+        NodeList nodes = parent.getElementsByTagName("service-ref");
+        int length = nodes.getLength();
+        ServiceRef[] result = new ServiceRef[length];
+        for (int i = 0; i < length; i++) {
+            Element e = (Element) nodes.item(i);
+            ServiceRef serviceRef = new ServiceRef();
+            serviceRef.setServiceRefName(LoaderUtil.getChildContent(e, "service-ref-name"));
+            serviceRef.setServiceInterface(LoaderUtil.getChildContent(e, "service-interface"));
+            serviceRef.setWSDLFile(LoaderUtil.getChildContent(e, "wsdl-file"));
+            serviceRef.setJAXRPCMappingFile(LoaderUtil.getChildContent(e, "jaxrpc-mapping-file"));
+            serviceRef.setServiceQName(LoaderUtil.getChildContent(e, "service-qname"));
+            serviceRef.setPortComponentRef(loadPortComponentRefs(e));
+            serviceRef.setHandler(loadHandlers(e));
+            result[i] = serviceRef;
+        }
+        return result;
+    }
+
+    private static PortComponentRef[] loadPortComponentRefs(Element parent) {
+        NodeList nodes = parent.getElementsByTagName("port-component-ref");
+        int length = nodes.getLength();
+        PortComponentRef[] result = new PortComponentRef[length];
+        for (int i = 0; i < length; i++) {
+            Element e = (Element) nodes.item(i);
+            PortComponentRef ref = new PortComponentRef();
+            ref.setServiceEndpointInterface(LoaderUtil.getChildContent(e, "service-endpoint-interface"));
+            ref.setPortComponentLink(LoaderUtil.getChildContent(e, "port-component-link"));
+            result[i] = ref;
+        }
+        return result;
+    }
+
+    private static Handler[] loadHandlers(Element parent) {
+        NodeList nodes = parent.getElementsByTagName("handler");
+        int length = nodes.getLength();
+        Handler[] result = new Handler[length];
+        for (int i = 0; i < length; i++) {
+            Element e = (Element) nodes.item(i);
+            Handler handler = new Handler();
+            handler.setHandlerName(LoaderUtil.getChildContent(e, "handler-name"));
+            handler.setHandlerClass(LoaderUtil.getChildContent(e, "handler-class"));
+            handler.setInitParam(loadInitParams(e));
+            handler.setSoapHeader(LoaderUtil.getChildrenContent(e, "soap-header"));
+            handler.setSoapRole(LoaderUtil.getChildrenContent(e, "soap-role"));
+            handler.setPortName(LoaderUtil.getChildrenContent(e, "port-name"));
+            result[i] = handler;
+        }
+        return result;
+    }
+
+    public static ParamValue[] loadInitParams(Element parent) {
+        NodeList nodes = parent.getElementsByTagName("init-param");
+        int length = nodes.getLength();
+        ParamValue[] result = new ParamValue[length];
+        for (int i = 0; i < length; i++) {
+            Element e = (Element) nodes.item(i);
+            ParamValue handler = new ParamValue();
+            handler.setParamName(LoaderUtil.getChildContent(e, "param-name"));
+            handler.setParamValue(LoaderUtil.getChildContent(e, "param-value"));
+            result[i] = handler;
+        }
+        return result;
+    }
+
+    public static ResourceRef[] loadResourceRefs(Element parent) {
+        NodeList nodes = parent.getElementsByTagName("resource-ref");
+        int length = nodes.getLength();
+        ResourceRef[] result = new ResourceRef[length];
+        for (int i = 0; i < length; i++) {
+            Element e = (Element) nodes.item(i);
+            ResourceRef resRef = new ResourceRef();
+            resRef.setResRefName(LoaderUtil.getChildContent(e, "res-ref-name"));
+            resRef.setResType(LoaderUtil.getChildContent(e, "res-type"));
+            resRef.setResAuth(LoaderUtil.getChildContent(e, "res-auth"));
+            resRef.setResSharingScope(LoaderUtil.getChildContent(e, "res-sharing-scope"));
+            result[i] = resRef;
+        }
+        return result;
+    }
+
+    public static ResourceEnvRef[] loadResourceEnvRefs(Element parent) {
+        NodeList nodes = parent.getElementsByTagName("resource-env-ref");
+        int length = nodes.getLength();
+        ResourceEnvRef[] result = new ResourceEnvRef[length];
+        for (int i = 0; i < length; i++) {
+            Element e = (Element) nodes.item(i);
+            ResourceEnvRef resEnvRef = new ResourceEnvRef();
+            resEnvRef.setResourceEnvRefName(LoaderUtil.getChildContent(e, "resource-env-ref-name"));
+            resEnvRef.setResourceEnvRefType(LoaderUtil.getChildContent(e, "resource-env-ref-type"));
+            result[i] = resEnvRef;
+        }
+        return result;
+    }
+
+    public static MessageDestination[] loadMessageDestinations(Element parent) {
+        NodeList nodes = parent.getElementsByTagName("message-destination");
+        int length = nodes.getLength();
+        MessageDestination[] result = new MessageDestination[length];
+        for (int i = 0; i < length; i++) {
+            Element e = (Element) nodes.item(i);
+            MessageDestination msgDdest = new MessageDestination();
+            msgDdest.setMessageDestinationName(LoaderUtil.getChildContent(e, "message-destination-name"));
+            result[i] = msgDdest;
+        }
+        return result;
+    }
+
+    public static MessageDestinationRef[] loadMessageDestinationRefs(Element parent) {
+        NodeList nodes = parent.getElementsByTagName("message-destination-ref");
+        int length = nodes.getLength();
+        MessageDestinationRef[] result = new MessageDestinationRef[length];
+        for (int i = 0; i < length; i++) {
+            Element e = (Element) nodes.item(i);
+            MessageDestinationRef msgDestRef = new MessageDestinationRef();
+            msgDestRef.setMessageDestinationRefName(LoaderUtil.getChildContent(e, "message-destination-ref-name"));
+            msgDestRef.setMessageDestinationType(LoaderUtil.getChildContent(e, "message-destination-type"));
+            msgDestRef.setMessageDestinationLink(LoaderUtil.getChildContent(e, "message-destination-link"));
+            result[i] = msgDestRef;
+        }
+        return result;
+    }
+}
