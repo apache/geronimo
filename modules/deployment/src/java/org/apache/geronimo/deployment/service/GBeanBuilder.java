@@ -71,7 +71,7 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/20 07:19:13 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/24 18:16:10 $
  */
 public class GBeanBuilder {
     private final ObjectName name;
@@ -112,11 +112,7 @@ public class GBeanBuilder {
     }
 
     public void setReference(String name, String pattern) throws DeploymentException {
-        try {
-            gbean.setReferencePatterns(name, Collections.singleton(new ObjectName(pattern)));
-        } catch (MalformedObjectNameException e) {
-            throw new DeploymentException("Invalid pattern for reference " + name + ": " + pattern, e);
-        }
+        setReference( name, new String[] { pattern } );
     }
 
     public void setReference(String name, String[] patterns) throws DeploymentException {
