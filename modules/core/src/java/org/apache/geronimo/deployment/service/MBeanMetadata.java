@@ -61,18 +61,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.net.URI;
 import javax.management.ObjectName;
 
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/18 22:07:50 $
+ * @version $Revision: 1.5 $ $Date: 2003/08/20 22:41:23 $
  */
 public class MBeanMetadata {
     private String code;
     private ObjectName name;
     private ObjectName loaderName;
     private ObjectName parentName;
+    private URI baseURI;
     private final List constructorTypes = new ArrayList();
     private final List constructorArgs = new ArrayList();
     private final Map attributeValues = new HashMap();
@@ -134,6 +136,14 @@ public class MBeanMetadata {
 
     public void setParentName(ObjectName parentName) {
         this.parentName = parentName;
+    }
+
+    public URI getBaseURI() {
+        return baseURI;
+    }
+
+    public void setBaseURI(URI baseURI) {
+        this.baseURI = baseURI;
     }
 
     public Map getAttributeValues() {
