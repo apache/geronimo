@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration [
+<!ENTITY version  "1.0-M2">
+]>
 <!--
 
     Copyright 2004 The Apache Software Foundation
@@ -27,36 +30,38 @@ Configuration for the Geronimo deployer
     parentId="org/apache/geronimo/DeployerSystem"
     >
 
+    
+    <!-- TODO Use parsed entities for version numbers -->
     <dependency>
         <uri>openejb/jars/openejb-core-2.0-SNAPSHOT.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-connector-1.0-SNAPSHOT.jar</uri>
+        <uri>geronimo/jars/geronimo-connector-&version;.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-core-1.0-SNAPSHOT.jar</uri>
+        <uri>geronimo/jars/geronimo-core-&version;.jar</uri>
     </dependency>
     <!-- needed to load some connector and core classes-->
     <dependency>
         <uri>concurrent/jars/concurrent-1.3.4.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-j2ee-1.0-SNAPSHOT.jar</uri>
+        <uri>geronimo/jars/geronimo-j2ee-&version;.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-security-1.0-SNAPSHOT.jar</uri>
+        <uri>geronimo/jars/geronimo-security-&version;.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-jetty-1.0-SNAPSHOT.jar</uri>
+        <uri>geronimo/jars/geronimo-jetty-&version;.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-naming-1.0-SNAPSHOT.jar</uri>
+        <uri>geronimo/jars/geronimo-naming-&version;.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-transaction-1.0-SNAPSHOT.jar</uri>
+        <uri>geronimo/jars/geronimo-transaction-&version;.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo-spec/jars/geronimo-spec-j2eeschema-1.0-SNAPSHOT.jar</uri>
+        <uri>geronimo-spec/jars/geronimo-spec-j2eeschema-&version;.jar</uri>
     </dependency>
     <!-- seems to be required to load jetty deployer - but I think this should not be here-->
     <dependency>

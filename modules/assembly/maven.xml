@@ -16,13 +16,12 @@
     limitations under the License.
 -->
 
-<!-- $Revision: 1.22 $ $Date: 2004/07/28 19:16:08 $ -->
+<!-- $Revision: 1.23 $ $Date: 2004/07/29 02:58:36 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
     xmlns:ant="jelly:ant"
     xmlns:define="jelly:define"
-    xmlns:deploy="geronimo:deploy"
     xmlns:bootstrap="geronimo:bootstrap">
 
     <!-- ================= -->
@@ -246,15 +245,9 @@
             manifest="${cliDeployer}/MANIFEST.MF"/>
 
     </goal>
-
+<!--
     <goal name="startdb">
 
-        <!--deploy:startServer
-            geronimoHome="${distDir}"
-            kernelName="geronimo.deployer"
-            domainName="geronimo"
-            configs="org/apache/geronimo/Server"
-            /-->
         <deploy:distribute
             uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
@@ -281,9 +274,6 @@
             username="system"
             password="manager"
             id="org/apache/geronimo/DefaultDatabase"/>
-        <!--deploy:stopServer
-            kernelName="geronimo.deployer"
-            /-->
-    </goal>
+    </goal-->
 
 </project>

@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration [
+<!ENTITY version  "1.0-M2">
+]>
 <!--
 
     Copyright 2004 The Apache Software Foundation
@@ -30,7 +33,7 @@ by the server.
     >
 
     <dependency>
-        <uri>geronimo/jars/geronimo-jetty-1.0-SNAPSHOT.jar</uri>
+        <uri>geronimo/jars/geronimo-jetty-&version;.jar</uri>
     </dependency>
 
     <!-- Security GBeans -->
