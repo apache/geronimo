@@ -34,7 +34,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.deployment.util.NestedJarFile; // could this be useful ?
+import org.apache.geronimo.deployment.util.NestedJarFile;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -130,15 +130,23 @@ public class SPRConfigBuilder
 				    parentId,
 				    kernel);
 
-      // not sure of the purpose behind this - nested jars ?
+      // set up classpath
+      log.info("Adding jar to classpath: "+sprFile.getName());
+      ctx.addIncludeAsPackedJar(new URI(sprFile.getName()+"-root.jar"), sprFile);
+
       for (Enumeration e=sprFile.entries(); e.hasMoreElements();)
       {
 	ZipEntry entry = (ZipEntry) e.nextElement();
-	ctx.addFile(URI.create(entry.getName()), sprFile, entry);
+	String name=entry.getName();
+	ctx.addFile(URI.create(name), sprFile, entry);
+
+	if (name.endsWith(".jar"))
+	{
+	  log.info("Adding jar to classpath: "+sprFile.getName()+"/"+name);
+	  ctx.addIncludeAsPackedJar(new URI(sprFile.getName()+"-nested-"+name), new NestedJarFile(sprFile, name));
+	}
       }
 
-      // set up classpath
-      ctx.addIncludeAsPackedJar(new URI("/tmp/foo.spr"), sprFile); // what should we pass for targetPath ?
       // now we can get ClassLoader...
       ClassLoader cl=ctx.getClassLoader(repository);
 
@@ -148,8 +156,10 @@ public class SPRConfigBuilder
       // force lazy construction of every bean described...
       DefaultListableBeanFactory dlbf=(DefaultListableBeanFactory)xbdr.getBeanFactory();
       String[] ids=dlbf.getBeanDefinitionNames();
-      for (int i=ids.length; i>0; i--)
+      int n=ids.length;
+      for (int i=n; i>0; i--)
 	dlbf.getBean(ids[i-1]);
+      log.info("Deployed: "+n+" POJO"+(n==1?"":"s"));
 
       ObjectName name=new ObjectName("geronimo.spring", "name", sprFile.getName());
       GBeanData gbeanData=new GBeanData(name, org.apache.geronimo.j2ee.management.impl.SpringApplicationImpl.GBEAN_INFO);
