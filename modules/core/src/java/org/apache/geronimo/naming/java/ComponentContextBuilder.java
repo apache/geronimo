@@ -58,15 +58,17 @@ package org.apache.geronimo.naming.java;
 import java.util.HashMap;
 import java.util.Map;
 import javax.naming.Context;
+import javax.naming.LinkRef;
 
 import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.deployment.model.j2ee.EJBRef;
 import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
 import org.apache.geronimo.deployment.model.j2ee.JNDIEnvironmentRefs;
 
 /**
- * 
- * 
- * @version $Revision: 1.1 $ $Date: 2003/09/03 16:02:05 $
+ *
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/09/04 05:16:17 $
  */
 public class ComponentContextBuilder {
     /**
@@ -78,6 +80,7 @@ public class ComponentContextBuilder {
     public static Context buildContext(JNDIEnvironmentRefs refs) throws DeploymentException {
         Map envMap = new HashMap();
         buildEnvEntries(envMap, refs.getEnvEntry());
+        buildEJBRefs(envMap, refs.getEJBRef());
 
         Map compMap = new HashMap();
         compMap.put("env", new ReadOnlyContext(envMap));
@@ -85,7 +88,7 @@ public class ComponentContextBuilder {
     }
 
     private static void buildEnvEntries(Map envMap, EnvEntry[] envEntries) throws DeploymentException {
-        for (int i=0; i < envEntries.length; i++) {
+        for (int i = 0; i < envEntries.length; i++) {
             EnvEntry entry = envEntries[i];
             String name = entry.getEnvEntryName();
             String type = entry.getEnvEntryType();
@@ -113,13 +116,24 @@ public class ComponentContextBuilder {
                 } else if ("java.lang.Double".equals(type)) {
                     mapEntry = Double.valueOf(value);
                 } else {
-                    throw new AssertionError("Invalid class for env-entry "+name+", "+type);
+                    throw new AssertionError("Invalid class for env-entry " + name + ", " + type);
                 }
             } catch (NumberFormatException e) {
-                throw new DeploymentException("Invalid numeric value for env-entry "+name+", value="+value);
+                throw new DeploymentException("Invalid numeric value for env-entry " + name + ", value=" + value);
             }
             if (envMap.put(name, mapEntry) != null) {
-                throw new AssertionError("Duplicate entry for env-entry "+name);
+                throw new AssertionError("Duplicate entry for env-entry " + name);
+            }
+        }
+    }
+
+    private static void buildEJBRefs(Map envMap, EJBRef[] ejbRefs) {
+        for (int i = 0; i < ejbRefs.length; i++) {
+            EJBRef ejbRef = ejbRefs[i];
+            String name = ejbRef.getEJBRefName();
+            LinkRef ref = new LinkRef("jnp://localhost/TestEJB");
+            if (envMap.put(name, ref) != null) {
+                throw new AssertionError("Duplicate entry for env-entry " + name);
             }
         }
     }

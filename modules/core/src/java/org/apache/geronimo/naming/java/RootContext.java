@@ -55,8 +55,7 @@
  */
 package org.apache.geronimo.naming.java;
 
-import java.util.Collections;
-import javax.naming.Context;
+import java.util.Hashtable;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 
@@ -65,13 +64,13 @@ import javax.naming.NamingException;
  * Automatically handles switching the "java:comp" sub-context to the
  * appropriate one for the current thread.
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/23 22:13:15 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/04 05:16:17 $
  */
 public class RootContext extends ReadOnlyContext {
     private static ThreadLocal compContext = new ThreadLocal();
 
-    public RootContext() {
-        super(Collections.EMPTY_MAP);
+    RootContext(Hashtable env) {
+        super(env);
     }
 
     public Object lookup(String name) throws NamingException {
@@ -81,11 +80,12 @@ public class RootContext extends ReadOnlyContext {
                 return this;
             }
 
-            Context compCtx = (Context) compContext.get();
+            ReadOnlyContext compCtx = (ReadOnlyContext) compContext.get();
             if (compCtx == null) {
                 // the component context was not set for this thread
                 throw new NameNotFoundException();
             }
+            compCtx = new ReadOnlyContext(compCtx, getEnvironment());
 
             if ("comp".equals(name)) {
                 return compCtx;
@@ -103,7 +103,7 @@ public class RootContext extends ReadOnlyContext {
      * for all lookups of "java:comp"
      * @param ctx the current components context
      */
-    public static void setComponentContext(Context ctx) {
+    public static void setComponentContext(ReadOnlyContext ctx) {
         compContext.set(ctx);
     }
 
@@ -111,7 +111,7 @@ public class RootContext extends ReadOnlyContext {
      * Get the component context for the current thread.
      * @return the current components context
      */
-    public static Context getComponentContext() {
-        return (Context) compContext.get();
+    public static ReadOnlyContext getComponentContext() {
+        return (ReadOnlyContext) compContext.get();
     }
 }

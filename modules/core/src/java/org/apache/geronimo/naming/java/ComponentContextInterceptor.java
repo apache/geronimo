@@ -55,8 +55,6 @@
  */
 package org.apache.geronimo.naming.java;
 
-import javax.naming.Context;
-
 import org.apache.geronimo.common.AbstractInterceptor;
 import org.apache.geronimo.common.Invocation;
 import org.apache.geronimo.common.InvocationResult;
@@ -64,22 +62,22 @@ import org.apache.geronimo.common.InvocationResult;
 /**
  * An interceptor that pushes the current component's java:comp context into
  * the java: JNDI namespace
- * 
- * @version $Revision: 1.2 $ $Date: 2003/08/26 22:11:24 $
+ *
+ * @version $Revision: 1.3 $ $Date: 2003/09/04 05:16:17 $
  */
 public class ComponentContextInterceptor extends AbstractInterceptor {
-    private final Context compContext;
+    private final ReadOnlyContext compContext;
 
     /**
      * Constructor specifying the components JNDI Context (java:comp)
      * @param compContext the component's JNDI Context
      */
-    public ComponentContextInterceptor(Context compContext) {
+    public ComponentContextInterceptor(ReadOnlyContext compContext) {
         this.compContext = compContext;
     }
 
     public InvocationResult invoke(Invocation invocation) throws Throwable {
-        Context oldContext = RootContext.getComponentContext();
+        ReadOnlyContext oldContext = RootContext.getComponentContext();
         try {
             RootContext.setComponentContext(compContext);
             return getNext().invoke(invocation);

@@ -58,51 +58,51 @@ package org.apache.geronimo.client;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-
 import javax.naming.Context;
 
 import org.apache.geronimo.common.AbstractRPCContainer;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.naming.java.ComponentContextInterceptor;
+import org.apache.geronimo.naming.java.ReadOnlyContext;
 
 /**
  *
  * @jmx:mbean
  *      extends="org.apache.geronimo.common.RPCContainer,org.apache.geronimo.management.StateManageable"
  *
- * @version $Revision: 1.3 $ $Date: 2003/09/03 16:02:05 $
+ * @version $Revision: 1.4 $ $Date: 2003/09/04 05:16:17 $
  */
 public class AppClientContainer extends AbstractRPCContainer implements AppClientContainerMBean {
     private static final Class[] MAIN_ARGS = {String[].class};
 
     private String mainClassName;
     private URL clientURL;
-    private Context compContext;
+    private ReadOnlyContext compContext;
 
     public AppClientContainer() throws DeploymentException {
     }
-    
+
     /**
      * @jmx:managed-attribute
      */
     public void setMainClassName(String className) {
         mainClassName = className;
     }
-    
+
     /**
      * @jmx:managed-attribute
      */
     public String getMainClassName() {
         return mainClassName;
     }
-    
+
     /**
      * @jmx:managed-attribute
      */
     public URL getClientURL() {
         return clientURL;
     }
-    
+
     /**
      * @jmx:managed-attribute
      */
@@ -113,14 +113,14 @@ public class AppClientContainer extends AbstractRPCContainer implements AppClien
     /**
      * @jmx:managed-attribute
      */
-    public Context getComponentContext() {
+    public ReadOnlyContext getComponentContext() {
         return compContext;
     }
 
     /**
      * @jmx:managed-attribute
      */
-    public void setComponentContext(Context compContext) {
+    public void setComponentContext(ReadOnlyContext compContext) {
         this.compContext = compContext;
     }
 

@@ -60,6 +60,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.NoSuchElementException;
+import java.util.Hashtable;
 
 import javax.naming.Binding;
 import javax.naming.CompositeName;
@@ -77,8 +78,8 @@ import junit.framework.TestCase;
 
 /**
 * Unit tests for basic ops on an {@link InitialContext}.
- * 
- * @version $Revision: 1.4 $ $Date: 2003/09/03 17:21:16 $
+ *
+ * @version $Revision: 1.5 $ $Date: 2003/09/04 05:16:18 $
  */
 public class BasicContextTest extends TestCase {
     private Properties syntax;
@@ -109,7 +110,7 @@ public class BasicContextTest extends TestCase {
 
         assertEquals(envContext, envContext.lookup(""));
     }
-    
+
     public void testSchemeLookup() throws NamingException {
         envContext.lookup("dns:apache.org");
         assertEquals("Hello", envContext.lookup("java:comp/env/hello"));
@@ -187,14 +188,14 @@ public class BasicContextTest extends TestCase {
     public void testSpeed() throws NamingException {
         StopWatch watch = new StopWatch();
         Context comp = (Context) initialContext.lookup("java:comp");
-        
+
         watch.start();
         for (int i=0; i < 1000000; i++) {
             // initialContext.lookup("java:comp/hello"); // this is sloooow due to scheme resolution
             // envContext.lookup("hello");
             comp.lookup("env/hello");
         }
-        
+
         System.out.println("lookup(String): " + watch.toDuration());
     }
 
@@ -208,12 +209,12 @@ public class BasicContextTest extends TestCase {
         envBinding.put("hello", "Hello");
         envBinding.put("world", "Hello World");
         envBinding.put("link", new LinkRef("java:comp/env/hello"));
-        envContext = new ReadOnlyContext(envBinding);
+        compBinding.put("env", new ReadOnlyContext(envBinding));
+        RootContext.setComponentContext(new ReadOnlyContext(compBinding));
 
-        compBinding.put("env", envContext);
-        compContext = new ReadOnlyContext(compBinding);
+        compContext = (Context) initialContext.lookup("java:comp");
+        envContext = (Context) initialContext.lookup("java:comp/env");
 
         syntax = new Properties();
-        RootContext.setComponentContext(compContext);
     }
 }

@@ -64,11 +64,9 @@ import javax.naming.spi.ObjectFactory;
 /**
  * URLContextFactory for the java: JNDI namespace.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/20 23:28:53 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/04 05:16:17 $
  */
 public class javaURLContextFactory implements ObjectFactory {
-    private static final Context ROOT_CONTEXT = new RootContext();
-
     /**
      * Return a Context that is able to resolve names in the java: namespace.
      * The root context, "java:" is always returned. This is a specific
@@ -82,7 +80,7 @@ public class javaURLContextFactory implements ObjectFactory {
      */
     public Object getObjectInstance(Object obj, Name name, Context nameCtx, Hashtable environment) throws Exception {
         if (obj == null) {
-            return ROOT_CONTEXT;
+            return new RootContext(environment);
         } else {
             throw new OperationNotSupportedException();
         }

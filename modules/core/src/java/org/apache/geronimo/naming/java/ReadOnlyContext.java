@@ -55,6 +55,7 @@
  */
 package org.apache.geronimo.naming.java;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -62,6 +63,7 @@ import java.util.Map;
 import javax.naming.Binding;
 import javax.naming.CompositeName;
 import javax.naming.Context;
+import javax.naming.LinkRef;
 import javax.naming.Name;
 import javax.naming.NameClassPair;
 import javax.naming.NameNotFoundException;
@@ -70,7 +72,6 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.NotContextException;
 import javax.naming.OperationNotSupportedException;
-import javax.naming.LinkRef;
 import javax.naming.spi.NamingManager;
 
 /**
@@ -91,15 +92,10 @@ import javax.naming.spi.NamingManager;
  *   String envEntry2 = (String) componentContext.lookup("env/myEntry2");
  * </code>
  *
- * @version $Revision: 1.3 $ $Date: 2003/09/03 17:21:16 $
+ * @version $Revision: 1.4 $ $Date: 2003/09/04 05:16:17 $
  */
 public class ReadOnlyContext implements Context {
-    private static final Hashtable ENVIRONMENT = new Hashtable();
-
-    static {
-        ENVIRONMENT.put(Context.URL_PKG_PREFIXES, "org.apache.geronimo.naming");
-    }
-
+    private final Hashtable env;        // environment for this context
     private final Map bindings;         // bindings at my level
     private final Map treeBindings;     // all bindings under me
 
@@ -108,6 +104,7 @@ public class ReadOnlyContext implements Context {
      * @param bindings the bindings for this level; may include sub-contexts
      */
     public ReadOnlyContext(Map bindings) {
+        this.env = new Hashtable();
         this.bindings = new HashMap(bindings);
         treeBindings = new HashMap(bindings);
         for (Iterator i = bindings.entrySet().iterator(); i.hasNext();) {
@@ -115,13 +112,37 @@ public class ReadOnlyContext implements Context {
             Object value = entry.getValue();
             if (value instanceof ReadOnlyContext) {
                 String key = (String) entry.getKey() + '/';
-                Map subBindings = ((ReadOnlyContext)value).treeBindings;
+                Map subBindings = ((ReadOnlyContext) value).treeBindings;
                 for (Iterator j = subBindings.entrySet().iterator(); j.hasNext();) {
                     Map.Entry subEntry = (Map.Entry) j.next();
-                    treeBindings.put(key+subEntry.getKey(), subEntry.getValue());
+                    treeBindings.put(key + subEntry.getKey(), subEntry.getValue());
                 }
             }
         }
+    }
+
+    ReadOnlyContext(Hashtable env) {
+        this.env = new Hashtable(env);
+        this.bindings = Collections.EMPTY_MAP;
+        this.treeBindings = Collections.EMPTY_MAP;
+    }
+
+    ReadOnlyContext(ReadOnlyContext clone, Hashtable env) {
+        this.bindings = clone.bindings;
+        this.treeBindings = clone.treeBindings;
+        this.env = new Hashtable(env);
+    }
+
+    public Object addToEnvironment(String propName, Object propVal) throws NamingException {
+        return env.put(propName, propVal);
+    }
+
+    public Hashtable getEnvironment() throws NamingException {
+        return (Hashtable) env.clone();
+    }
+
+    public Object removeFromEnvironment(String propName) throws NamingException {
+        return env.remove(propName);
     }
 
     public Object lookup(String name) throws NamingException {
@@ -133,7 +154,7 @@ public class ReadOnlyContext implements Context {
             int pos = name.indexOf(':');
             if (pos > 0) {
                 String scheme = name.substring(0, pos);
-                Context ctx = NamingManager.getURLContext(scheme, ENVIRONMENT);
+                Context ctx = NamingManager.getURLContext(scheme, env);
                 if (ctx == null) {
                     throw new NamingException();
                 }
@@ -143,8 +164,10 @@ public class ReadOnlyContext implements Context {
         }
         if (result instanceof LinkRef) {
             LinkRef ref = (LinkRef) result;
-            String link = (String) ref.get("LinkAddress").getContent();
-            result = lookup(link);
+            result = lookup(ref.getLinkName());
+        }
+        if (result instanceof ReadOnlyContext) {
+            result = new ReadOnlyContext((ReadOnlyContext) result, env);
         }
         return result;
     }
@@ -203,10 +226,6 @@ public class ReadOnlyContext implements Context {
         return listBindings(name.toString());
     }
 
-    public Object addToEnvironment(String propName, Object propVal) throws NamingException {
-        throw new OperationNotSupportedException();
-    }
-
     public void bind(Name name, Object obj) throws NamingException {
         throw new OperationNotSupportedException();
     }
@@ -235,10 +254,6 @@ public class ReadOnlyContext implements Context {
         throw new OperationNotSupportedException();
     }
 
-    public Hashtable getEnvironment() throws NamingException {
-        return ENVIRONMENT;
-    }
-
     public String getNameInNamespace() throws NamingException {
         throw new OperationNotSupportedException();
     }
@@ -256,10 +271,6 @@ public class ReadOnlyContext implements Context {
     }
 
     public void rebind(String name, Object obj) throws NamingException {
-        throw new OperationNotSupportedException();
-    }
-
-    public Object removeFromEnvironment(String propName) throws NamingException {
         throw new OperationNotSupportedException();
     }
 
