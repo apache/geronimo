@@ -56,20 +56,47 @@
 
 package org.apache.geronimo.system.logging.log4j.appender;
 
+import java.util.Enumeration;
+
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.Logger;
+import org.apache.log4j.Appender;
 
 /**
  * An extention of the default Log4j DailyRollingFileAppender
  * which will make the directory structure for the set log file.
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/12 18:12:52 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/25 07:53:20 $
  */
 public class ConsoleAppenderService extends AbstractAppenderService {
     public ConsoleAppenderService() {
-        super(new ConsoleAppender());
+        super(getConsoleAppender());
+    }
+
+    private static ConsoleAppender getConsoleAppender() {
+        Logger root = Logger.getRootLogger();
+        for(Enumeration enum = root.getAllAppenders(); enum.hasMoreElements();) {
+            Appender appender = (Appender)enum.nextElement();
+            if (appender instanceof ConsoleAppender) {
+                return (ConsoleAppender)appender;
+            }
+        }
+        return new ConsoleAppender();
+    }
+
+    public void doStart() {
+        appender.activateOptions();
+        Logger root = Logger.getRootLogger();
+        root.addAppender(appender);
+    }
+
+    public void doStop() {
+    }
+
+    public void doFail() {
     }
 
     public String getTarget() {
