@@ -23,11 +23,6 @@ import org.apache.geronimo.pool.ThreadPool;
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.timer.vm.VMWorkerPersistence;
-import org.apache.geronimo.timer.ExecutorTaskFactory;
-import org.apache.geronimo.timer.ThreadPooledTimer;
-import org.apache.geronimo.timer.UserTaskFactory;
-import org.apache.geronimo.timer.WorkerPersistence;
-import org.apache.geronimo.timer.WorkInfo;
 
 /**
  *
@@ -73,7 +68,7 @@ public abstract class AbstractThreadPooledTimerTest extends TestCase {
         for (long i = 0; i < COUNT; i++) {
             timer.schedule(userTaskFactory, key, userId, userKey, i);
         }
-        Thread.currentThread().sleep(COUNT + SLOP);
+        Thread.sleep(COUNT + SLOP);
         assertEquals(COUNT, counter.get());
     }
 
@@ -85,7 +80,7 @@ public abstract class AbstractThreadPooledTimerTest extends TestCase {
         for (int i = 0; i < workInfos.length; i++) {
             workInfos[i].getExecutorFeedingTimerTask().cancel();
         }
-        Thread.currentThread().sleep(SLOP + DELAY);
+        Thread.sleep(SLOP + DELAY);
         assertEquals(0, counter.get());
     }
 
@@ -98,7 +93,7 @@ public abstract class AbstractThreadPooledTimerTest extends TestCase {
 
         timer.doStart();
         timer.playback(key, userTaskFactory);
-        Thread.currentThread().sleep(2 * SLOP + DELAY);
+        Thread.sleep(2 * SLOP + DELAY);
         assertEquals(COUNT, counter.get());
     }
 
@@ -134,48 +129,48 @@ public abstract class AbstractThreadPooledTimerTest extends TestCase {
         for (long i = 0; i < COUNT; i++) {
             timer.schedule(userTaskFactory, key, userId, userKey, i);
         }
-        Thread.currentThread().sleep(COUNT + SLOP);
+        Thread.sleep(COUNT + SLOP);
         assertEquals(0, counter.get());
         transactionContext.commit();
-        Thread.currentThread().sleep(COUNT + SLOP);
+        Thread.sleep(COUNT + SLOP);
         assertEquals(COUNT, counter.get());
     }
 
     public void testCancelInCommittedTransaction() throws Exception {
-        Thread.currentThread().sleep(SLOP + DELAY);
+        Thread.sleep(SLOP + DELAY);
         WorkInfo[] workInfos = new WorkInfo[COUNT];
         for (long i = 0; i < COUNT; i++) {
             workInfos[(int) i] = timer.scheduleAtFixedRate(key, userTaskFactory, userId, userKey, DELAY, DELAY);
         }
-        Thread.currentThread().sleep(SLOP + DELAY);
+        Thread.sleep(SLOP + DELAY);
         assertEquals(COUNT, counter.get());
         TransactionContext transactionContext = transactionContextManager.newContainerTransactionContext();
         for (int i = 0; i < workInfos.length; i++) {
             workInfos[i].getExecutorFeedingTimerTask().cancel();
         }
-        Thread.currentThread().sleep(SLOP + DELAY);
+        Thread.sleep(SLOP + DELAY);
         assertEquals(COUNT, counter.get());
         transactionContext.commit();
-        Thread.currentThread().sleep(SLOP + DELAY);
+        Thread.sleep(SLOP + DELAY);
         assertEquals(COUNT, counter.get());
     }
 
     public void testCancelInRolledBackTransaction() throws Exception {
-        Thread.currentThread().sleep(SLOP + DELAY);
+        Thread.sleep(SLOP + DELAY);
         WorkInfo[] workInfos = new WorkInfo[COUNT];
         for (long i = 0; i < COUNT; i++) {
             workInfos[(int) i] = timer.scheduleAtFixedRate(key, userTaskFactory, userId, userKey, DELAY, DELAY);
         }
-        Thread.currentThread().sleep(SLOP + DELAY);
+        Thread.sleep(SLOP + DELAY);
         assertEquals(COUNT, counter.get());
         TransactionContext transactionContext = transactionContextManager.newContainerTransactionContext();
         for (int i = 0; i < workInfos.length; i++) {
             workInfos[i].getExecutorFeedingTimerTask().cancel();
         }
-        Thread.currentThread().sleep(SLOP + DELAY);
+        Thread.sleep(SLOP + DELAY);
         assertEquals(COUNT, counter.get());
         transactionContext.rollback();
-        Thread.currentThread().sleep(SLOP + DELAY);
+        Thread.sleep(SLOP + DELAY);
         // Catches up with two periods.
         assertEquals(3 * COUNT, counter.get());
     }
@@ -183,13 +178,13 @@ public abstract class AbstractThreadPooledTimerTest extends TestCase {
     public void testRepeatCountFromPersisted() throws Exception {
         assert DELAY > 2 * SLOP;
         timer.scheduleAtFixedRate(key, userTaskFactory, userId, userKey, 0L, DELAY);
-        Thread.currentThread().sleep(4 * DELAY + SLOP);
+        Thread.sleep(4 * DELAY + SLOP);
         timer.doStop();
         assertEquals(5, counter.get());
 
         timer.doStart();
         timer.playback(key, userTaskFactory);
-        Thread.currentThread().sleep(5 * DELAY + SLOP);
+        Thread.sleep(5 * DELAY + SLOP);
         assertEquals(2 * 5, counter.get());
 
     }

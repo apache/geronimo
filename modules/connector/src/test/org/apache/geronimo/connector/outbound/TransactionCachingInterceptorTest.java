@@ -127,8 +127,6 @@ public class TransactionCachingInterceptorTest extends ConnectionInterceptorTest
         transactionCachingInterceptor.getConnection(connectionInfo1);
         assertTrue("Expected to get an initial connection", obtainedConnectionInfo != null);
         assertTrue("Expected nothing returned yet", returnedConnectionInfo == null);
-        assertTrue("Expected no ManagedConnectionInfo in the TransactionContext",
-                null == transactionContextManager.getContext().getManagedConnectionInfo(transactionCachingInterceptor));
         obtainedConnectionInfo = null;
         ConnectionInfo connectionInfo2 = makeConnectionInfo();
         transactionCachingInterceptor.getConnection(connectionInfo2);
@@ -136,18 +134,12 @@ public class TransactionCachingInterceptorTest extends ConnectionInterceptorTest
         assertTrue("Expected nothing returned yet", returnedConnectionInfo == null);
         assertTrue("Expected different ManagedConnectionInfo in both ConnectionInfos",
                 connectionInfo1.getManagedConnectionInfo() != connectionInfo2.getManagedConnectionInfo());
-        assertTrue("Expected no ManagedConnectionInfo in the TransactionContext",
-                null == transactionContextManager.getContext().getManagedConnectionInfo(transactionCachingInterceptor));
         //we didn't create any handles, so the "ManagedConnection" should be returned.
-        assertTrue("Expected TransactionContext to report inactive", !transactionContextManager.getContext().isActive());
         transactionCachingInterceptor.returnConnection(connectionInfo1, ConnectionReturnAction.RETURN_HANDLE);
         assertTrue("Expected connection to be returned", returnedConnectionInfo != null);
         returnedConnectionInfo = null;
         transactionCachingInterceptor.returnConnection(connectionInfo2, ConnectionReturnAction.RETURN_HANDLE);
         assertTrue("Expected connection to be returned", returnedConnectionInfo != null);
-
-        assertTrue("Expected TransactionContext to report inactive", !transactionContextManager.getContext().isActive());
-
     }
 
     public void testTransactionIndependence() throws Exception {

@@ -29,8 +29,6 @@ import java.util.Set;
 public interface InstanceContext {
     Object getId();
 
-    void setId(Object id);
-
     Object getContainerId();
 
     void associate() throws Throwable;
@@ -40,6 +38,8 @@ public interface InstanceContext {
     void beforeCommit() throws Throwable;
 
     void afterCommit(boolean status) throws Throwable;
+
+    void unassociate() throws Throwable;
 
     /**
      * IMPORTANT INVARIANT: this should always return a map, never null.
@@ -51,4 +51,13 @@ public interface InstanceContext {
 
     Set getApplicationManagedSecurityResources();
 
+    boolean isInCall();
+
+    void enter();
+
+    void exit();
+
+    boolean isDead();
+
+    void die();
 }

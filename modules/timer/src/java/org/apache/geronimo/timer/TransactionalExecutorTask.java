@@ -17,26 +17,14 @@
 
 package org.apache.geronimo.timer;
 
-import javax.transaction.HeuristicMixedException;
-import javax.transaction.HeuristicRollbackException;
-import javax.transaction.NotSupportedException;
-import javax.transaction.RollbackException;
-import javax.transaction.SystemException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.transaction.context.ContainerTransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.timer.ExecutorTask;
-import org.apache.geronimo.timer.PersistenceException;
-import org.apache.geronimo.timer.ThreadPooledTimer;
 
 /**
- *
- *
  * @version $Rev$ $Date$
- *
- * */
+ */
 public class TransactionalExecutorTask implements ExecutorTask {
     private static final Log log = LogFactory.getLog(TransactionalExecutorTask.class);
 
@@ -54,49 +42,38 @@ public class TransactionalExecutorTask implements ExecutorTask {
         this.transactionContextManager = transactionContextManager;
         this.repeatCount = repeatCount;
     }
-
+    
     public void run() {
         ContainerTransactionContext transactionContext = null;
         for (int tries = 0; tries < repeatCount; tries++) {
             try {
                 transactionContext = transactionContextManager.newContainerTransactionContext();
-            } catch (NotSupportedException e) {
-                log.info(e);
-                break;
-            } catch (SystemException e) {
-                log.info(e);
+            } catch (Exception e) {
+                log.info("Exception occured while starting container transaction", e);
                 break;
             }
             try {
                 try {
                     userTask.run();
                 } catch (Exception e) {
-                    log.info(e);
+                    log.info("Exception occured while running user task", e);
                 }
                 try {
                     threadPooledTimer.workPerformed(workInfo);
                 } catch (PersistenceException e) {
-                    log.info(e);
+                    log.info("Exception occured while updating timer persistent state", e);
                 }
             } finally {
                 try {
-                    if (transactionContext.getRollbackOnly()) {
-                        transactionContext.rollback();
-                    } else {
-                        transactionContext.commit();
+                    if (transactionContext.commit()) {
                         if (workInfo.isOneTime()) {
                             threadPooledTimer.removeWorkInfo(workInfo);
                         }
+                        // todo this is a very weird code structure.... returning from a finally is very confusing
                         return;
                     }
-                } catch (SystemException e) {
-                    log.info(e);
-                } catch (HeuristicMixedException e) {
-                    log.info(e);
-                } catch (HeuristicRollbackException e) {
-                    log.info(e);
-                } catch (RollbackException e) {
-                    log.info(e);
+                } catch (Exception e) {
+                    log.info("Exception occured while completing container transaction", e);
                 }
             }
         }

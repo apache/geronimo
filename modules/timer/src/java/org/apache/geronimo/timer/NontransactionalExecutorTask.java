@@ -19,14 +19,12 @@ package org.apache.geronimo.timer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.timer.ExecutorTask;
+import org.apache.geronimo.transaction.context.TransactionContext;
+import org.apache.geronimo.transaction.context.UnspecifiedTransactionContext;
 
 /**
- *
- *
  * @version $Rev$ $Date$
- *
- * */
+ */
 public class NontransactionalExecutorTask implements ExecutorTask {
 
     private static final Log log = LogFactory.getLog(NontransactionalExecutorTask.class);
@@ -42,18 +40,26 @@ public class NontransactionalExecutorTask implements ExecutorTask {
     }
 
     public void run() {
+        UnspecifiedTransactionContext transactionContext = new UnspecifiedTransactionContext();
+        TransactionContext oldTransactionContext = TransactionContext.getContext();
+        TransactionContext.setContext(transactionContext);
         try {
-            userTask.run();
-        } catch (Exception e) {
-            log.info(e);
-        }
-        try {
-            threadPooledTimer.workPerformed(workInfo);
-        } catch (PersistenceException e) {
-            log.info(e);
-        }
-        if (workInfo.isOneTime()) {
-            threadPooledTimer.removeWorkInfo(workInfo);
+            try {
+                userTask.run();
+            } catch (Exception e) {
+                log.info(e);
+            }
+            try {
+                threadPooledTimer.workPerformed(workInfo);
+            } catch (PersistenceException e) {
+                log.info(e);
+            }
+            if (workInfo.isOneTime()) {
+                threadPooledTimer.removeWorkInfo(workInfo);
+            }
+        } finally {
+            transactionContext.commit();
+            TransactionContext.setContext(oldTransactionContext);
         }
     }
 

@@ -18,27 +18,21 @@
 package org.apache.geronimo.transaction.context;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.InvalidTransactionException;
 import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
-import javax.transaction.Transaction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.transaction.ConnectionReleaser;
 import org.apache.geronimo.transaction.DoubleKeyedHashMap;
 import org.apache.geronimo.transaction.InstanceContext;
 import org.tranql.cache.InTxCache;
 
 
 /**
- *
- *
  * @version $Rev$ $Date$
  */
 public abstract class TransactionContext {
@@ -56,8 +50,11 @@ public abstract class TransactionContext {
     private InstanceContext currentContext;
     private final DoubleKeyedHashMap associatedContexts = new DoubleKeyedHashMap();
     private final DoubleKeyedHashMap dirtyContexts = new DoubleKeyedHashMap();
-    private Map managedConnections;
     private InTxCache inTxCache;
+
+    public abstract boolean getRollbackOnly() throws SystemException;
+
+    public abstract void setRollbackOnly() throws SystemException;
 
     public abstract void suspend() throws SystemException;
 
@@ -73,21 +70,51 @@ public abstract class TransactionContext {
         }
     }
 
-    public final void unassociate(Object containerId, Object id) throws Exception {
-        associatedContexts.remove(containerId, id);
-        dirtyContexts.remove(containerId, id);
+    public final void unassociate(InstanceContext context) throws Throwable {
+        associatedContexts.remove(context.getContainerId(), context.getId());
+        context.unassociate();
     }
 
-    public final InstanceContext beginInvocation(InstanceContext context) {
+    public final void unassociate(Object containerId, Object id) throws Throwable {
+        InstanceContext context = (InstanceContext) associatedContexts.remove(containerId, id);
+        if (context != null) {
+            context.unassociate();
+        }
+    }
+
+    public final InstanceContext getContext(Object containerId, Object id) {
+        return (InstanceContext) associatedContexts.get(containerId, id);
+    }
+
+    protected final ArrayList getAssociatedContexts() {
+        return new ArrayList(associatedContexts.values());
+    }
+
+    protected final void unassociateAll() {
+        ArrayList toFlush = getAssociatedContexts();
+        for (Iterator i = toFlush.iterator(); i.hasNext();) {
+            InstanceContext context = (InstanceContext) i.next();
+            try {
+                context.unassociate();
+            } catch (Throwable throwable) {
+                log.warn("Error while unassociating instance from transaction context: " + context, throwable);
+            }
+        }
+    }
+
+    public final InstanceContext beginInvocation(InstanceContext context) throws Throwable {
         if (context.getId() != null) {
+            associate(context);
             dirtyContexts.put(context.getContainerId(), context.getId(), context);
         }
+        context.enter();
         InstanceContext caller = currentContext;
         currentContext = context;
         return caller;
     }
 
     public final void endInvocation(InstanceContext caller) {
+        currentContext.exit();
         currentContext = caller;
     }
 
@@ -97,7 +124,9 @@ public abstract class TransactionContext {
             dirtyContexts.clear();
             for (Iterator i = toFlush.iterator(); i.hasNext();) {
                 InstanceContext context = (InstanceContext) i.next();
-                context.flush();
+                if (!context.isDead()) {
+                    context.flush();
+                }
             }
         }
         if (currentContext != null && currentContext.getId() != null) {
@@ -108,42 +137,6 @@ public abstract class TransactionContext {
         }
     }
 
-    protected void beforeCommit() throws Throwable {
-        // @todo allow for enrollment during pre-commit
-        ArrayList toFlush = new ArrayList(associatedContexts.values());
-        for (Iterator i = toFlush.iterator(); i.hasNext();) {
-            InstanceContext context = (InstanceContext) i.next();
-            context.beforeCommit();
-        }
-    }
-
-    protected void afterCommit(boolean status) throws Throwable {
-        Throwable firstThrowable = null;
-        ArrayList toFlush = new ArrayList(associatedContexts.values());
-        for (Iterator i = toFlush.iterator(); i.hasNext();) {
-            InstanceContext context = (InstanceContext) i.next();
-            try {
-                context.afterCommit(status);
-            } catch (Throwable e) {
-                if (firstThrowable == null) {
-                    firstThrowable = e;
-                }
-            }
-        }
-
-        if (firstThrowable instanceof Error) {
-            throw (Error) firstThrowable;
-        } else if (firstThrowable instanceof Exception) {
-            throw (Exception) firstThrowable;
-        } else if (firstThrowable != null) {
-            throw (SystemException) new SystemException().initCause(firstThrowable);
-        }
-    }
-
-    public final InstanceContext getContext(Object containerId, Object id) {
-        return (InstanceContext) associatedContexts.get(containerId, id);
-    }
-
     public final void setInTxCache(InTxCache inTxCache) {
         this.inTxCache = inTxCache;
     }
@@ -151,42 +144,4 @@ public abstract class TransactionContext {
     public final InTxCache getInTxCache() {
         return inTxCache;
     }
-
-    //Geronimo connector framework support
-    public void setManagedConnectionInfo(ConnectionReleaser key, Object info) {
-        if (managedConnections == null) {
-            managedConnections = new HashMap();
-        }
-        managedConnections.put(key, info);
-    }
-
-    public Object getManagedConnectionInfo(ConnectionReleaser key) {
-        if (managedConnections == null) {
-            return null;
-        }
-        return managedConnections.get(key);
-    }
-
-    /**
-     * determines if the transaction is in a pre-prepared state
-     * of STATUS_ACTIVE or STATUS_MARKED_ROLLBACK.
-     * @return true if more work can be done in the transaction (although it might be forced to roll back)
-     */
-    public abstract boolean isActive();
-
-    public abstract Transaction getTransaction();
-
-    protected void connectorAfterCommit() {
-        if (managedConnections != null) {
-            for (Iterator entries = managedConnections.entrySet().iterator(); entries.hasNext();) {
-                Map.Entry entry = (Map.Entry) entries.next();
-                ConnectionReleaser key = (ConnectionReleaser) entry.getKey();
-                key.afterCompletion(entry.getValue());
-            }
-            //If BeanTransactionContext never reuses the same instance for sequential BMT, this
-            //clearing is unnecessary.
-            managedConnections.clear();
-        }
-    }
-
 }

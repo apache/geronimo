@@ -27,6 +27,7 @@ import javax.resource.ResourceException;
 import org.apache.geronimo.transaction.ConnectionReleaser;
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.transaction.context.InheritableTransactionContext;
 
 /**
  * TransactionCachingInterceptor.java
@@ -59,16 +60,15 @@ public class TransactionCachingInterceptor implements ConnectionInterceptor, Con
     }
 
     public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {
-        TransactionContext transactionContext = transactionContextManager.getContext();
         //There can be an inactive transaction context when a connection is requested in
         //Synchronization.afterCompletion().
-        if (transactionContext == null || !transactionContext.isActive()) {
-            next.getConnection(connectionInfo);
-        } else {
-            ManagedConnectionInfos managedConnectionInfos = (ManagedConnectionInfos) transactionContext.getManagedConnectionInfo(this);
+        TransactionContext transactionContext = transactionContextManager.getContext();
+        if ((transactionContext instanceof InheritableTransactionContext) && ((InheritableTransactionContext) transactionContext).isActive()) {
+            InheritableTransactionContext inheritableTransactionContext = ((InheritableTransactionContext) transactionContext);
+            ManagedConnectionInfos managedConnectionInfos = (ManagedConnectionInfos) inheritableTransactionContext.getManagedConnectionInfo(this);
             if (managedConnectionInfos == null) {
                 managedConnectionInfos = new ManagedConnectionInfos();
-                transactionContext.setManagedConnectionInfo(this, managedConnectionInfos);
+                inheritableTransactionContext.setManagedConnectionInfo(this, managedConnectionInfos);
             }
             if (connectionInfo.isUnshareable()) {
                 if (!managedConnectionInfos.containsUnshared(connectionInfo.getManagedConnectionInfo())) {
@@ -85,6 +85,8 @@ public class TransactionCachingInterceptor implements ConnectionInterceptor, Con
                     managedConnectionInfos.setShared(connectionInfo.getManagedConnectionInfo());
                 }
             }
+        } else {
+            next.getConnection(connectionInfo);
         }
     }
 
@@ -96,7 +98,7 @@ public class TransactionCachingInterceptor implements ConnectionInterceptor, Con
         }
 
         TransactionContext transactionContext = transactionContextManager.getContext();
-        if (transactionContext != null && transactionContext.isActive()) {
+        if ((transactionContext instanceof InheritableTransactionContext) && ((InheritableTransactionContext) transactionContext).isActive()) {
             return;
         }
         internalReturn(connectionInfo, connectionReturnAction);

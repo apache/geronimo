@@ -37,6 +37,7 @@ import EDU.oswego.cs.dl.util.concurrent.Executor;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.transaction.context.InheritableTransactionContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -243,13 +244,21 @@ public class ThreadPooledTimer implements PersistentTimer, GBeanLifecycle {
 
     void registerSynchronization(Synchronization sync) throws RollbackException, SystemException {
         TransactionContext transactionContext = transactionContextManager.getContext();
+
         //TODO move the registerSynchronization to the TransactionContext
-        Transaction transaction = transactionContext == null? null: transactionContext.getTransaction();
+        Transaction transaction;
+        if (transactionContext instanceof InheritableTransactionContext) {
+            InheritableTransactionContext inheritableTransactionContext = ((InheritableTransactionContext) transactionContext);
+            transaction = inheritableTransactionContext.getTransaction();
+            assert transaction == null || inheritableTransactionContext.isActive(): "Trying to register a sync on an inactive transaction context";
+        } else {
+            transaction = null;
+        }
+
         if (transaction == null) {
             sync.beforeCompletion();
             sync.afterCompletion(Status.STATUS_COMMITTED);
         } else {
-            assert transactionContext.isActive(): "Trying to register a sync on an inactive transaction context";
             transaction.registerSynchronization(sync);
         }
     }

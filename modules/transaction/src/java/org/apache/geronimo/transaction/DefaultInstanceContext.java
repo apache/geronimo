@@ -29,10 +29,11 @@ import java.util.Set;
  *
  * */
 public class DefaultInstanceContext implements InstanceContext {
-
     private final Map connectionManagerMap = new HashMap();
     private final Set unshareableResources;
     private final Set applicationManagedSecurityResources;
+    private int callDepth;
+    private boolean dead = false;
 
     public DefaultInstanceContext(Set unshareableResources, Set applicationManagedSecurityResources) {
         this.unshareableResources = unshareableResources;
@@ -41,9 +42,6 @@ public class DefaultInstanceContext implements InstanceContext {
 
     public Object getId() {
         return null;
-    }
-
-    public void setId(Object id) {
     }
 
     public Object getContainerId() {
@@ -62,6 +60,9 @@ public class DefaultInstanceContext implements InstanceContext {
     public void afterCommit(boolean status) throws Exception {
     }
 
+    public void unassociate() throws Throwable {
+    }
+
     public Map getConnectionManagerMap() {
         return connectionManagerMap;
     }
@@ -74,4 +75,24 @@ public class DefaultInstanceContext implements InstanceContext {
         return applicationManagedSecurityResources;
     }
 
+    public boolean isInCall() {
+        return callDepth > 0;
+    }
+
+    public void enter() {
+        callDepth++;
+    }
+
+    public void exit() {
+        assert isInCall();
+        callDepth--;
+    }
+
+    public boolean isDead() {
+        return dead;
+    }
+
+    public void die() {
+        dead = true;
+    }
 }

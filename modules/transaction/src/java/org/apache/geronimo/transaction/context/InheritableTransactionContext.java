@@ -17,6 +17,10 @@
 
 package org.apache.geronimo.transaction.context;
 
+import java.util.Iterator;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.ArrayList;
 import javax.transaction.SystemException;
 import javax.transaction.Status;
 import javax.transaction.Transaction;
@@ -27,16 +31,17 @@ import javax.transaction.HeuristicRollbackException;
 import javax.transaction.RollbackException;
 
 import org.apache.geronimo.transaction.ExtendedTransactionManager;
+import org.apache.geronimo.transaction.ConnectionReleaser;
+import org.apache.geronimo.transaction.InstanceContext;
 
 /**
- *
- *
  * @version $Rev$ $Date$
  */
 public abstract class InheritableTransactionContext extends TransactionContext {
     private final ExtendedTransactionManager txnManager;
     private Transaction transaction;
     private boolean threadAssociated = false;
+    private Map managedConnections;
 
     protected InheritableTransactionContext(ExtendedTransactionManager txnManager) {
         this.txnManager = txnManager;
@@ -55,9 +60,26 @@ public abstract class InheritableTransactionContext extends TransactionContext {
         return transaction;
     }
 
+    public void setManagedConnectionInfo(ConnectionReleaser key, Object info) {
+        if (managedConnections == null) {
+            managedConnections = new HashMap();
+        }
+        managedConnections.put(key, info);
+    }
+
+    public Object getManagedConnectionInfo(ConnectionReleaser key) {
+        if (managedConnections == null) {
+            return null;
+        }
+        return managedConnections.get(key);
+    }
+
     public boolean isActive() {
+        if (transaction == null) {
+            return false;
+        }
         try {
-            int status = txnManager.getStatus();
+            int status = transaction.getStatus();
             return status == Status.STATUS_ACTIVE || status == Status.STATUS_MARKED_ROLLBACK;
         } catch (SystemException e) {
             return false;
@@ -65,7 +87,6 @@ public abstract class InheritableTransactionContext extends TransactionContext {
     }
 
     public boolean getRollbackOnly() throws SystemException {
-        Transaction transaction = getTransaction();
         if (transaction == null) {
             throw new IllegalStateException("There is no transaction in progress.");
         }
@@ -77,7 +98,6 @@ public abstract class InheritableTransactionContext extends TransactionContext {
     }
 
     public void setRollbackOnly() throws IllegalStateException, SystemException {
-        Transaction transaction = getTransaction();
         if (transaction == null) {
             throw new IllegalStateException("There is no transaction in progress.");
         }
@@ -85,13 +105,16 @@ public abstract class InheritableTransactionContext extends TransactionContext {
     }
 
     public void begin(long transactionTimeoutMilliseconds) throws SystemException, NotSupportedException {
+        assert transaction == null:  "Already associated with a transaction";
         transaction = txnManager.begin(transactionTimeoutMilliseconds);
         threadAssociated = true;
     }
 
     public void suspend() throws SystemException {
         Transaction suspendedTransaction = txnManager.suspend();
-        assert (transaction == suspendedTransaction) : "suspend did not return our transaction. ours: " + transaction + ", suspended returned: " + suspendedTransaction;
+        if (transaction != suspendedTransaction) {
+            throw new SystemException("Suspend did not return our transaction: expectedTx=" + transaction + ", suspendedTx=" + suspendedTransaction);
+        }
         threadAssociated = false;
     }
 
@@ -101,6 +124,29 @@ public abstract class InheritableTransactionContext extends TransactionContext {
     }
 
     public boolean commit() throws HeuristicMixedException, HeuristicRollbackException, SystemException, RollbackException {
+        return complete();
+    }
+
+    public void rollback() throws SystemException {
+        setRollbackOnly();
+        try {
+            complete();
+        } catch (SystemException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Error e) {
+            throw e;
+        } catch (Exception e) {
+            throw (SystemException) new SystemException("After commit of container transaction failed").initCause(e);
+        }
+    }
+
+    private boolean complete() throws HeuristicMixedException, HeuristicRollbackException, SystemException, RollbackException {
+        if (transaction == null) {
+            throw new IllegalStateException("There is no transaction in progress.");
+        }
+
         boolean wasCommitted = false;
         try {
             if (isRolledback()) {
@@ -120,6 +166,14 @@ public abstract class InheritableTransactionContext extends TransactionContext {
                 return false;
             }
 
+            // verify our tx is the current tx associated with the thread
+            // this is really only an error case and should never happen, but just to be sure double check
+            // immedately before committing using the transaction manager
+            Transaction currentTransaction = txnManager.getTransaction();
+            if (currentTransaction != transaction) {
+                throw new SystemException("An unknown transaction is currently associated with the thread: expectedTx=" + transaction + ", currentTx=" + currentTransaction);
+            }
+
             txnManager.commit();
             wasCommitted = true;
         } catch (Throwable t) {
@@ -130,11 +184,62 @@ public abstract class InheritableTransactionContext extends TransactionContext {
             } catch (Throwable e) {
                 rollbackAndThrow("After commit of container transaction failed", e);
             } finally {
+                unassociateAll();
                 connectorAfterCommit();
                 transaction = null;
+                threadAssociated = false;
             }
         }
         return wasCommitted;
+    }
+
+    private void beforeCommit() throws Throwable {
+        // @todo allow for enrollment during pre-commit
+        ArrayList toFlush = getAssociatedContexts();
+        for (Iterator i = toFlush.iterator(); i.hasNext();) {
+            InstanceContext context = (InstanceContext) i.next();
+            if (!context.isDead()) {
+                context.beforeCommit();
+            }
+        }
+    }
+
+    private void afterCommit(boolean status) throws Throwable {
+        Throwable firstThrowable = null;
+        ArrayList toFlush = getAssociatedContexts();
+        for (Iterator i = toFlush.iterator(); i.hasNext();) {
+            InstanceContext context = (InstanceContext) i.next();
+            if (!context.isDead()) {
+                try {
+                    context.afterCommit(status);
+                } catch (Throwable e) {
+                    if (firstThrowable == null) {
+                        firstThrowable = e;
+                    }
+                }
+            }
+        }
+
+        if (firstThrowable instanceof Error) {
+            throw (Error) firstThrowable;
+        } else if (firstThrowable instanceof Exception) {
+            throw (Exception) firstThrowable;
+        } else if (firstThrowable != null) {
+            throw (SystemException) new SystemException().initCause(firstThrowable);
+        }
+    }
+
+    private void connectorAfterCommit() {
+        if (managedConnections != null) {
+            for (Iterator entries = managedConnections.entrySet().iterator(); entries.hasNext();) {
+                Map.Entry entry = (Map.Entry) entries.next();
+                ConnectionReleaser key = (ConnectionReleaser) entry.getKey();
+                key.afterCompletion(entry.getValue());
+            }
+            //If BeanTransactionContext never reuses the same instance for sequential BMT, this
+            //clearing is unnecessary.
+            managedConnections.clear();
+        }
     }
 
     private boolean isRolledback() throws SystemException {
@@ -142,11 +247,19 @@ public abstract class InheritableTransactionContext extends TransactionContext {
         try {
             status = transaction.getStatus();
         } catch (SystemException e) {
-            txnManager.rollback();
+            transaction.rollback();
             throw e;
         }
 
         if (status == Status.STATUS_MARKED_ROLLBACK) {
+            // verify our tx is the current tx associated with the thread
+            // this is really only an error case and should never happen, but just to be sure double check
+            // immedately before committing using the transaction manager
+            Transaction currentTransaction = txnManager.getTransaction();
+            if (currentTransaction != transaction) {
+                throw new SystemException("An unknown transaction is currently associated with the thread: expectedTx=" + transaction + ", currentTx=" + currentTransaction);
+            }
+
             // we need to rollback
             txnManager.rollback();
             return true;
@@ -160,9 +273,20 @@ public abstract class InheritableTransactionContext extends TransactionContext {
 
     private void rollbackAndThrow(String message, Throwable throwable) throws HeuristicMixedException, HeuristicRollbackException, SystemException, RollbackException {
         try {
-            // just incase there is a junk transaction on the thread
             if (txnManager.getStatus() != Status.STATUS_NO_TRANSACTION) {
                 txnManager.rollback();
+            }
+        } catch (Throwable t) {
+            log.error("Unable to roll back transaction", t);
+        }
+
+        try {
+            // make doubly sure our transaction was rolled back
+            // this can happen when there was a junk transaction on the thread
+            int status = transaction.getStatus();
+            if (status != Status.STATUS_ROLLEDBACK &&
+                    status != Status.STATUS_ROLLING_BACK) {
+                transaction.rollback();
             }
         } catch (Throwable t) {
             log.error("Unable to roll back transaction", t);
@@ -182,41 +306,6 @@ public abstract class InheritableTransactionContext extends TransactionContext {
             throw (RuntimeException) throwable;
         } else {
             throw (SystemException) new SystemException(message).initCause(throwable);
-        }
-    }
-
-    public void rollback() throws SystemException {
-        try {
-            try {
-                if (txnManager.getStatus() != Status.STATUS_NO_TRANSACTION) {
-                    txnManager.rollback();
-                }
-            } finally {
-                try {
-                    afterCommit(false);
-                } catch (Throwable e) {
-                    try {
-                        // just incase there is a junk transaction on the thread
-                        if (txnManager.getStatus() != Status.STATUS_NO_TRANSACTION) {
-                            txnManager.rollback();
-                        }
-                    } catch (Throwable t1) {
-                        log.error("Unable to roll back transaction", t1);
-                    }
-
-                    if (e instanceof SystemException) {
-                        throw (SystemException) e;
-                    } else if (e instanceof Error) {
-                        throw (Error) e;
-                    } else if (e instanceof RuntimeException) {
-                        throw (RuntimeException) e;
-                    }
-                    throw (SystemException) new SystemException("After commit of container transaction failed").initCause(e);
-                }
-            }
-        } finally {
-            connectorAfterCommit();
-            transaction = null;
         }
     }
 }

@@ -17,16 +17,18 @@
 
 package org.apache.geronimo.transaction.context;
 
-import javax.transaction.Transaction;
-
-import org.apache.geronimo.transaction.ConnectionReleaser;
-
-
 /**
  * @version $Rev$ $Date$
  */
 public class UnspecifiedTransactionContext extends TransactionContext {
-    public void begin() {
+    private boolean failed = false;
+
+    public boolean getRollbackOnly() {
+        return failed;
+    }
+
+    public void setRollbackOnly() {
+        this.failed = true;
     }
 
     public void suspend() {
@@ -36,33 +38,28 @@ public class UnspecifiedTransactionContext extends TransactionContext {
     }
 
     public boolean commit() {
+        complete();
+        return true;
+    }
+
+    public void rollback() {
+        setRollbackOnly();
+        complete();
+    }
+
+    private void complete() {
         try {
-            flushState();
+            if (!failed) {
+                flushState();
+            }
         } catch (Error e) {
             throw e;
         } catch (RuntimeException re) {
             throw re;
         } catch (Throwable e) {
             log.error("Unable to flush state, continuing", e);
+        } finally {
+            unassociateAll();
         }
-        return true;
-    }
-
-    public void rollback() {
-    }
-
-    public void setManagedConnectionInfo(ConnectionReleaser key, Object info) {
-    }
-
-    public Object getManagedConnectionInfo(ConnectionReleaser key) {
-        return null;
-    }
-
-    public boolean isActive() {
-        return false;
-    }
-
-    public Transaction getTransaction() {
-        return null;
     }
 }
