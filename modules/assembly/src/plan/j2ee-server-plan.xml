@@ -66,7 +66,7 @@ by the server.
         <uri>geronimo/jars/geronimo-jmxremoting-1.0-SNAPSHOT.jar</uri>
     </dependency>
     <dependency>
-      <uri>activemq/jars/activemq-SNAPSHOT.jar</uri>
+        <uri>activemq/jars/activemq-SNAPSHOT.jar</uri>
     </dependency>
 
     <!-- required for rar 1.5 to load realms -->
@@ -132,8 +132,8 @@ by the server.
     <gbean name="geronimo.server:type=WebConnector,container=Jetty,port=8080" class="org.apache.geronimo.jetty.connector.HTTPConnector">
         <attribute name="Port" type="int">8080</attribute>
         <reference name="JettyContainer">geronimo.server:type=WebContainer,container=Jetty</reference>
-<!--        <attribute name="MaxConnections" type="int">10</attribute>-->
-<!--        <attribute name="MaxIdleTime" type="int">10</attribute>-->
+        <!--        <attribute name="MaxConnections" type="int">10</attribute>-->
+        <!--        <attribute name="MaxIdleTime" type="int">10</attribute>-->
     </gbean>
 
     <!-- JMS container
@@ -180,6 +180,5 @@ by the server.
     <gbean name="geronimo.server:role=JMXService,name=localhost" class="org.apache.geronimo.jmxremoting.JMXConnector">
         <attribute name="URL" type="java.lang.String">service:jmx:rmi://localhost/jndi/rmi:/JMXConnector</attribute>
         <attribute name="ApplicationConfigName" type="java.lang.String">JMX</attribute>
-        <reference name="Kernel">geronimo.boot:role=Kernel</reference>
     </gbean>
 </configuration>

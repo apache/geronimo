@@ -73,28 +73,24 @@ Configuration for the Geronimo deployer
 
     <gbean name="geronimo.deployer:role=Builder,type=RAR_1_0,config=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.connector.deployment.RAR_1_0ConfigBuilder">
         <attribute name="ConnectionTrackerNamePattern" type="javax.management.ObjectName">geronimo.server:type=ConnectionTracker</attribute>
-        <reference name="Kernel">geronimo.boot:role=Kernel</reference>
         <reference name="Repository">*:role=Repository,*</reference>
     </gbean>
 
     <gbean name="geronimo.deployer:role=Builder,type=RAR_1_5,config=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.connector.deployment.RAR_1_5ConfigBuilder">
         <attribute name="ConnectionTrackerNamePattern" type="javax.management.ObjectName">geronimo.server:type=ConnectionTracker</attribute>
-        <reference name="Kernel">geronimo.boot:role=Kernel</reference>
         <reference name="Repository">*:role=Repository,*</reference>
     </gbean>
 
     <gbean name="geronimo.deployer:role=Builder,type=Service,config=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.deployment.service.ServiceConfigBuilder">
-        <reference name="Kernel">geronimo.boot:role=Kernel</reference>
         <reference name="Repository">*:role=Repository,*</reference>
     </gbean>
 
     <gbean name="geronimo.deployer:role=Builder,type=EAR,config=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.j2ee.deployment.EARConfigBuilder">
-        <reference name="Kernel">geronimo.boot:role=Kernel</reference>
         <reference name="Repository">*:role=Repository,*</reference>
         <attribute name="j2eeServer" type="javax.management.ObjectName">geronimo.server:type=J2EEServer,name=geronimo</attribute>
         <reference name="EJBConfigBuilder">geronimo.deployer:role=ModuleBuilder,type=EJB,config=org/apache/geronimo/J2EEDeployer</reference>
         <reference name="WebConfigBuilder">geronimo.deployer:role=ModuleBuilder,type=Web,config=org/apache/geronimo/J2EEDeployer</reference>
-<!--        <reference name="ConnectorConfigBuilder"></reference> -->
+        <!--        <reference name="ConnectorConfigBuilder"></reference> -->
     </gbean>
 
     <gbean name="geronimo.deployer:role=ModuleBuilder,type=Web,config=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.jetty.deployment.JettyModuleBuilder"/>

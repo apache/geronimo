@@ -23,7 +23,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Collections;
 import java.util.Hashtable;
-
 import javax.management.ObjectName;
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -49,11 +48,8 @@ import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- *
- *
- * @version $Revision: 1.3 $ $Date: 2004/05/24 19:10:35 $
- *
- * */
+ * @version $Revision: 1.4 $ $Date: 2004/06/05 01:40:09 $
+ */
 public class ManagedConnectionFactoryWrapperTest extends TestCase {
 
     private Kernel kernel;
@@ -81,7 +77,7 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
     }
 
     public void testSerialization() throws Exception {
-        ConnectionFactory proxy = (ConnectionFactory)kernel.invoke(selfName, "getProxy");
+        ConnectionFactory proxy = (ConnectionFactory) kernel.invoke(selfName, "getProxy");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
         oos.writeObject(proxy);
@@ -96,7 +92,7 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
         assertNotNull(connection);
         kernel.stopGBean(selfName);
         ObjectInputStream ois2 = new ObjectInputStream(new ByteArrayInputStream(bytes));
-        ConnectionFactory proxy3 = (ConnectionFactory)ois2.readObject();
+        ConnectionFactory proxy3 = (ConnectionFactory) ois2.readObject();
         try {
             proxy3.getConnection();
             fail();
@@ -114,7 +110,7 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
         env.put("java.naming.provider.url", "rmi://localhost:1099");
 
         Context ctx = new InitialContext(env);
-        ConnectionFactory cf = (ConnectionFactory)ctx.lookup("geronimo:" + GLOBAL_NAME);
+        ConnectionFactory cf = (ConnectionFactory) ctx.lookup("geronimo:" + GLOBAL_NAME);
         assertNotNull(cf);
         kernel.stopGBean(selfName);
         try {
@@ -123,7 +119,7 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
         } catch (NamingException ne) {
         }
         kernel.startGBean(selfName);
-        ConnectionFactory cf2 = (ConnectionFactory)ctx.lookup("geronimo:" + GLOBAL_NAME);
+        ConnectionFactory cf2 = (ConnectionFactory) ctx.lookup("geronimo:" + GLOBAL_NAME);
         assertNotNull(cf2);
     }
 
@@ -206,7 +202,6 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
         //"ResourceAdapterWrapper",
         mcfw.setReferencePatterns("ConnectionManagerFactory", Collections.singleton(cmfName));
         //"ManagedConnectionFactoryListener",
-        mcfw.setReferencePatterns("Kernel", Collections.singleton(Kernel.KERNEL));
         mcfw.setAttribute("SelfName", selfName);
         kernel.loadGBean(selfName, mcfw);
 
@@ -221,13 +216,11 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
     }
 
     public static class MockConnectionTrackingCoordinator implements ConnectionTracker {
-        public void handleObtained(
-                ConnectionTrackingInterceptor connectionTrackingInterceptor,
+        public void handleObtained(ConnectionTrackingInterceptor connectionTrackingInterceptor,
                 ConnectionInfo connectionInfo) {
         }
 
-        public void handleReleased(
-                ConnectionTrackingInterceptor connectionTrackingInterceptor,
+        public void handleReleased(ConnectionTrackingInterceptor connectionTrackingInterceptor,
                 ConnectionInfo connectionInfo) {
         }
 

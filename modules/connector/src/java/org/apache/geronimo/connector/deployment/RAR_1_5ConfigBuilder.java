@@ -68,11 +68,8 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 
 /**
- *
- *
- * @version $Revision: 1.15 $ $Date: 2004/06/03 07:24:16 $
- *
- * */
+ * @version $Revision: 1.16 $ $Date: 2004/06/05 01:40:09 $
+ */
 public class RAR_1_5ConfigBuilder extends AbstractRARConfigBuilder {
 
 
@@ -178,7 +175,6 @@ public class RAR_1_5ConfigBuilder extends AbstractRARConfigBuilder {
                         context.addGBean(ObjectName.getInstance(BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME + connectionfactoryInstance.getName()), realmGBean);
                         managedConnectionFactoryGBean.setReferencePatterns("ManagedConnectionFactoryListener", Collections.singleton(ObjectName.getInstance(BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME + connectionfactoryInstance.getName())));
                     }
-                    managedConnectionFactoryGBean.setReferencePatterns("Kernel", Collections.singleton(Kernel.KERNEL));
                     managedConnectionFactoryGBean.setAttribute("SelfName", managedConnectionFactoryObjectName);
                 } catch (Exception e) {
                     throw new DeploymentException(e);
@@ -205,7 +201,6 @@ public class RAR_1_5ConfigBuilder extends AbstractRARConfigBuilder {
                     ObjectName adminObjectObjectName = ObjectName.getInstance(JMXReferenceFactory.BASE_ADMIN_OBJECT_NAME + gerAdminobjectInstance.getAdminobjectName());
                     adminObjectGBean.setAttribute("AdminObjectInterface", cl.loadClass(adminobject.getAdminobjectInterface().getStringValue()));
                     adminObjectGBean.setAttribute("AdminObjectClass", cl.loadClass(adminobject.getAdminobjectClass().getStringValue()));
-                    adminObjectGBean.setReferencePatterns("Kernel", Collections.singleton(Kernel.KERNEL));
                     adminObjectGBean.setAttribute("SelfName", adminObjectObjectName);
                     context.addGBean(adminObjectObjectName, adminObjectGBean);
                 } catch (Exception e) {

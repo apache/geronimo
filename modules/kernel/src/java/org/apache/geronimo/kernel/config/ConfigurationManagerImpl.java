@@ -38,7 +38,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/06/05 00:37:16 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/05 01:40:09 $
  */
 public class ConfigurationManagerImpl implements ConfigurationManager {
     private static final Log log = LogFactory.getLog(ConfigurationManagerImpl.class);
@@ -210,10 +210,10 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(ConfigurationManagerImpl.class);
-        infoFactory.addReference("Kernel", Kernel.class);
+        infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addReference("Stores", ConfigurationStore.class);
         infoFactory.addInterface(ConfigurationManager.class);
-        infoFactory.setConstructor(new String[]{"Kernel", "Stores"});
+        infoFactory.setConstructor(new String[]{"kernel", "Stores"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

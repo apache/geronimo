@@ -59,7 +59,7 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/06/03 07:24:18 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/05 01:40:09 $
  */
 public class EARConfigBuilder implements ConfigurationBuilder {
     private final Kernel kernel;
@@ -367,7 +367,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(EARConfigBuilder.class);
-        infoFactory.addReference("Kernel", Kernel.class);
+        infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addReference("Repository", Repository.class);
         infoFactory.addAttribute("j2eeServer", ObjectName.class, true);
         infoFactory.addReference("EJBConfigBuilder", ModuleBuilder.class);
@@ -377,7 +377,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         infoFactory.addInterface(ConfigurationBuilder.class);
 
         infoFactory.setConstructor(new String[]{
-            "Kernel",
+            "kernel",
             "Repository",
             "j2eeServer",
             "EJBConfigBuilder",

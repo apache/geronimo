@@ -34,7 +34,7 @@ import org.apache.geronimo.kernel.Kernel;
 /**
  * A Connector that supports the server sideof JSR 160 JMX Remoting.
  * 
- * @version $Revision: 1.3 $ $Date: 2004/06/04 22:31:56 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/05 01:40:09 $
  */
 public class JMXConnector implements GBean {
     private final Kernel kernel;
@@ -132,8 +132,8 @@ public class JMXConnector implements GBean {
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("URL", String.class, true);
         infoFactory.addAttribute("ApplicationConfigName", String.class, true);
-        infoFactory.addReference("Kernel", Kernel.class);
-        infoFactory.setConstructor(new String[]{"Kernel", "objectName"});
+        infoFactory.addAttribute("kernel", Kernel.class, false);
+        infoFactory.setConstructor(new String[]{"kernel", "objectName"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

@@ -21,8 +21,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.Collections;
-
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;
@@ -37,11 +35,8 @@ import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- *
- *
- * @version $Revision: 1.1 $ $Date: 2004/03/09 20:15:43 $
- *
- * */
+ * @version $Revision: 1.2 $ $Date: 2004/06/05 01:40:09 $
+ */
 public class AdminObjectWrapperTest extends TestCase {
 
     private Kernel kernel;
@@ -66,7 +61,7 @@ public class AdminObjectWrapperTest extends TestCase {
     }
 
     public void testSerialization() throws Exception {
-        MockAdminObject proxy = (MockAdminObject)kernel.invoke(selfName, "getProxy");
+        MockAdminObject proxy = (MockAdminObject) kernel.invoke(selfName, "getProxy");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
         oos.writeObject(proxy);
@@ -81,7 +76,7 @@ public class AdminObjectWrapperTest extends TestCase {
         assertNotNull(mockAdminObject);
         kernel.stopGBean(selfName);
         ObjectInputStream ois2 = new ObjectInputStream(new ByteArrayInputStream(bytes));
-        MockAdminObject proxy3 = (MockAdminObject)ois2.readObject();
+        MockAdminObject proxy3 = (MockAdminObject) ois2.readObject();
         try {
             proxy3.getSomething();
             fail();
@@ -155,7 +150,6 @@ public class AdminObjectWrapperTest extends TestCase {
         GBeanMBean aow = new GBeanMBean(AdminObjectWrapper.getGBeanInfo());
         aow.setAttribute("AdminObjectInterface", MockAdminObject.class);
         aow.setAttribute("AdminObjectClass", MockAdminObjectImpl.class);
-        aow.setReferencePatterns("Kernel", Collections.singleton(Kernel.KERNEL));
         aow.setAttribute("SelfName", selfName);
         kernel.loadGBean(selfName, aow);
 

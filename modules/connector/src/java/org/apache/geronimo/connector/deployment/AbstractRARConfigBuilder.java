@@ -70,11 +70,8 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- *
- *
- * @version $Revision: 1.18 $ $Date: 2004/06/02 05:33:02 $
- *
- * */
+ * @version $Revision: 1.19 $ $Date: 2004/06/05 01:40:09 $
+ */
 public abstract class AbstractRARConfigBuilder implements ConfigurationBuilder {
 
     private static final SchemaTypeLoader[] SCHEMA_TYPE_LOADERS = new SchemaTypeLoader[]{XmlBeans.getContextTypeLoader()};
@@ -132,15 +129,15 @@ public abstract class AbstractRARConfigBuilder implements ConfigurationBuilder {
     protected abstract XmlObject getConnectorDocument(JarInputStream jarInputStream) throws XmlException, IOException, DeploymentException;
 
     public XmlObject getDeploymentPlan(URL module) throws XmlException {
-         try {
+        try {
             URL moduleBase = new URL("jar:" + module.toString() + "!/");
             XmlObject plan = XmlBeansUtil.getXmlObject(new URL(moduleBase, "META-INF/geronimo-ra.xml"), GerConnectorDocument.type);
-             if (plan != null && canConfigure(plan)) {
-                 return plan;
-             } else {
-                 return null;
-             }
-         } catch (MalformedURLException e) {
+            if (plan != null && canConfigure(plan)) {
+                return plan;
+            } else {
+                return null;
+            }
+        } catch (MalformedURLException e) {
             return null;
         }
     }
@@ -278,10 +275,8 @@ public abstract class AbstractRARConfigBuilder implements ConfigurationBuilder {
         } else if (connectionManager.getTransactionLog() != null) {
             transactionSupport = TransactionLog.INSTANCE;
         } else if (connectionManager.getXaTransaction() != null) {
-            transactionSupport = new XATransactions(
-                    connectionManager.getXaTransaction().getTransactionCaching() != null,
-                    connectionManager.getXaTransaction().getThreadCaching() != null
-            );
+            transactionSupport = new XATransactions(connectionManager.getXaTransaction().getTransactionCaching() != null,
+                    connectionManager.getXaTransaction().getThreadCaching() != null);
         } else {
             throw new DeploymentException("Unexpected transaction support element");
         }
@@ -291,8 +286,7 @@ public abstract class AbstractRARConfigBuilder implements ConfigurationBuilder {
                     connectionManager.getSinglePool().getBlockingTimeoutMilliseconds(),
                     connectionManager.getSinglePool().getMatchOne() != null,
                     connectionManager.getSinglePool().getMatchAll() != null,
-                    connectionManager.getSinglePool().getSelectOneAssumeMatch() != null
-            );
+                    connectionManager.getSinglePool().getSelectOneAssumeMatch() != null);
         } else if (connectionManager.getPartitionedPool() != null) {
             pooling = new PartitionedPool(connectionManager.getPartitionedPool().getPartitionByConnectionrequestinfo() != null,
                     connectionManager.getPartitionedPool().getPartitionBySubject() != null,
@@ -300,13 +294,12 @@ public abstract class AbstractRARConfigBuilder implements ConfigurationBuilder {
                     connectionManager.getPartitionedPool().getBlockingTimeoutMilliseconds(),
                     connectionManager.getPartitionedPool().getMatchOne() != null,
                     connectionManager.getPartitionedPool().getMatchAll() != null,
-                    connectionManager.getPartitionedPool().getSelectOneAssumeMatch() != null
-            );
+                    connectionManager.getPartitionedPool().getSelectOneAssumeMatch() != null);
         } else if (connectionManager.getNoPool() != null) {
             pooling = new NoPool();
         } else {
             throw new DeploymentException("Unexpected pooling support element");
-          }
+        }
         try {
             connectionManagerGBean.setAttribute("Name", connectionfactoryInstance.getName());
             connectionManagerGBean.setAttribute("TransactionSupport", transactionSupport);
@@ -335,12 +328,12 @@ public abstract class AbstractRARConfigBuilder implements ConfigurationBuilder {
 
         infoFactory.addInterface(ConfigurationBuilder.class);
 
+        infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("ConnectionTrackerNamePattern", ObjectName.class, true);
 
         infoFactory.addReference("Repository", Repository.class);
-        infoFactory.addReference("Kernel", Kernel.class);
 
-        infoFactory.setConstructor(new String[]{"Kernel", "Repository", "ConnectionTrackerNamePattern"});
+        infoFactory.setConstructor(new String[]{"kernel", "Repository", "ConnectionTrackerNamePattern"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

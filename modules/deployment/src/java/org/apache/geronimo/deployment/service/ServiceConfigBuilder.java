@@ -50,9 +50,7 @@ import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- *
- *
- * @version $Revision: 1.14 $ $Date: 2004/06/02 05:33:02 $
+ * @version $Revision: 1.15 $ $Date: 2004/06/05 01:40:09 $
  */
 public class ServiceConfigBuilder implements ConfigurationBuilder {
     private final Repository repository;
@@ -80,7 +78,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
     }
 
     public void buildConfiguration(File outfile, Manifest manifest, File module, XmlObject plan) throws IOException, DeploymentException {
-        buildConfiguration(outfile, manifest, (InputStream)null, plan);
+        buildConfiguration(outfile, manifest, (InputStream) null, plan);
     }
 
     public void buildConfiguration(File outfile, Manifest manifest, InputStream ignored, XmlObject plan) throws IOException, DeploymentException {
@@ -223,9 +221,9 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         infoFactory.addInterface(ConfigurationBuilder.class);
 
         infoFactory.addReference("Repository", Repository.class);
-        infoFactory.addReference("Kernel", Kernel.class);
+        infoFactory.addAttribute("kernel", Kernel.class, false);
 
-        infoFactory.setConstructor(new String[]{"Repository", "Kernel"});
+        infoFactory.setConstructor(new String[]{"Repository", "kernel"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
