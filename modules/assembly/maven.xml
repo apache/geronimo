@@ -127,7 +127,7 @@
         </ant:fileScanner>
         <j:forEach var="schema" items="${schemaScanner.iterator()}">
             <ant:replace file="${schema}" token="../../../naming-builder/src/schema/" value=""/>
-            <ant:replace file="${schema}" token="../../../deployment/src/schema/" value=""/>
+            <ant:replace file="${schema}" token="../../../service-builder/src/schema/" value=""/>
             <ant:replace file="${schema}" token="../../../security-builder/src/schema/" value=""/>
             <ant:replace file="${schema}" token="../../../connector-builder/src/schema/" value=""/>
         </j:forEach>

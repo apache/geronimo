@@ -35,9 +35,9 @@ import org.apache.geronimo.remoting.transport.async.AbstractServer;
 import org.apache.geronimo.remoting.transport.async.ChannelPool;
 /**
  * Provides a Blocking implemenation of the AsynchChannelServer interface.
- * 
+ *
  * Sets up a blocking ServerSocket to accept blocking client connections.
- * 
+ *
  * @version $Rev$ $Date$
  */
 public final class BlockingServer extends AbstractServer implements Runnable {
@@ -141,7 +141,7 @@ public final class BlockingServer extends AbstractServer implements Runnable {
             while (running) {
                 SocketChannel socket = null;
                 try {
-                    socket = serverSocketChannel.accept();
+                    socket = serverSocketChannel.socket().accept().getChannel();
                     if (log.isTraceEnabled())
                         log.trace("Accepted connection: " + socket);
                 } catch (java.io.InterruptedIOException e) {
@@ -149,14 +149,14 @@ public final class BlockingServer extends AbstractServer implements Runnable {
                     continue;
                 }
                 try {
-                    
+
                     socket.socket().setTcpNoDelay(enableTcpNoDelay);
                     BlockingChannel channel = new BlockingChannel();
                     channel.init(connectURI, socket);
                     ChannelPool pool = getChannelPool(channel.getRemoteURI());
                     pool.setBackConnectURI( channel.getRequestedURI() );
                     pool.associate(channel);
-                    
+
                 } catch (TransportException ie) {
                     log.debug("Client connection could not be accepted: ", ie);
                 } catch (IOException ie) {

@@ -26,7 +26,7 @@
     version="1.5">
 
     <xsd:import namespace="http://java.sun.com/xml/ns/j2ee" schemaLocation="j2ee_1_4.xsd"/>
-    <xsd:include schemaLocation="../../../deployment/src/schema/geronimo-common.xsd"/>
+    <xsd:include schemaLocation="../../../service-builder/src/schema/geronimo-common.xsd"/>
 
     <xsd:annotation>
         <xsd:documentation>

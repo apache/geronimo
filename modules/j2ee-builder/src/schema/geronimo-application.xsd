@@ -24,7 +24,7 @@
     attributeFormDefault="unqualified"
     version="1.0">
 
-    <xs:include schemaLocation="../../../deployment/src/schema/geronimo-common.xsd"/>
+    <xs:include schemaLocation="../../../service-builder/src/schema/geronimo-common.xsd"/>
 
     <xs:element name="application" type="geronimo:applicationType"/>
 

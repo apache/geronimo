@@ -52,6 +52,9 @@ Configuration for the Geronimo deployer
         <uri>geronimo/jars/geronimo-security-builder-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>
+        <uri>geronimo/jars/geronimo-service-builder-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
         <uri>openejb/jars/openejb-builder-${openejb_version}.jar</uri>
     </dependency>
     <dependency>

@@ -87,7 +87,19 @@
             <version>${pom.currentVersion}</version>
         </dependency> 
 
-      <dependency>
+    <!-- todo: move this once DConfigBean home is selected -->
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-deploy-tool</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency> 
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-test-ddbean</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency> 
+
+     <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-connector</artifactId>
             <version>${pom.currentVersion}</version>
@@ -115,6 +127,12 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-security</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-service-builder</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
 
