@@ -59,11 +59,10 @@ package org.apache.geronimo.connector.work.pool;
 import javax.resource.spi.work.WorkCompletedException;
 import javax.resource.spi.work.WorkException;
 
+import EDU.oswego.cs.dl.util.concurrent.Channel;
+import org.apache.geronimo.connector.work.WorkerContext;
 import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
-import org.apache.geronimo.connector.work.WorkerContext;
-
-import EDU.oswego.cs.dl.util.concurrent.Channel;
 
 /**
  * Based class for WorkExecutorPool. Sub-classes define the synchronization
@@ -72,8 +71,8 @@ import EDU.oswego.cs.dl.util.concurrent.Channel;
  *
  * @jmx:mbean
  *      extends="org.apache.geronimo.kernel.management.StateManageable,org.apache.geronimo.kernel.management.ManagedObject"
- *   
- * @version $Revision: 1.2 $ $Date: 2003/11/16 23:12:07 $
+ *
+ * @version $Revision: 1.3 $ $Date: 2003/11/26 02:15:32 $
  */
 public abstract class AbstractWorkExecutorPool implements WorkExecutorPool {
 
@@ -85,57 +84,57 @@ public abstract class AbstractWorkExecutorPool implements WorkExecutorPool {
     /**
      * Creates a pool with the specified minimum and maximum sizes. The Channel
      * used to enqueue the submitted Work instances is queueless synchronous
-     * one.  
-     * 
-     * @param aMinSize Minimum size of the work executor pool.
-     * @param aMaxSize Maximum size of the work executor pool.
+     * one.
+     *
+     * @param minSize Minimum size of the work executor pool.
+     * @param maxSize Maximum size of the work executor pool.
      */
-    public AbstractWorkExecutorPool(int aMinSize, int aMaxSize) {
+    public AbstractWorkExecutorPool(int minSize, int maxSize) {
         pooledExecutor = new TimedOutPooledExecutor();
-        pooledExecutor.setMinimumPoolSize(aMinSize);
-        pooledExecutor.setMaximumPoolSize(aMaxSize);
+        pooledExecutor.setMinimumPoolSize(minSize);
+        pooledExecutor.setMaximumPoolSize(maxSize);
         pooledExecutor.waitWhenBlocked();
     }
 
     /**
      * Creates a pool with the specified minimum and maximum sizes and using the
      * specified Channel to enqueue the submitted Work instances.
-     * 
-     * @param aChannel Queue to be used as the queueing facility of this pool.
-     * @param aMinSize Minimum size of the work executor pool.
-     * @param aMaxSize Maximum size of the work executor pool.
+     *
+     * @param channel Queue to be used as the queueing facility of this pool.
+     * @param minSize Minimum size of the work executor pool.
+     * @param maxSize Maximum size of the work executor pool.
      */
     public AbstractWorkExecutorPool(
-        Channel aChannel,
-        int aMinSize, int aMaxSize) {
-        pooledExecutor = new TimedOutPooledExecutor(aChannel);
-        pooledExecutor.setMinimumPoolSize(aMinSize);
-        pooledExecutor.setMaximumPoolSize(aMaxSize);
+        Channel channel,
+        int minSize, int maxSize) {
+        pooledExecutor = new TimedOutPooledExecutor(channel);
+        pooledExecutor.setMinimumPoolSize(minSize);
+        pooledExecutor.setMaximumPoolSize(maxSize);
         pooledExecutor.waitWhenBlocked();
     }
 
     /**
      * Delegates the work execution to the pooled executor.
-     * 
-     * @param aWork Work to be executed.
+     *
+     * @param work Work to be executed.
      */
-    protected void execute(WorkerContext aWork) throws InterruptedException {
-        pooledExecutor.execute(aWork);
+    protected void execute(WorkerContext work) throws InterruptedException {
+        pooledExecutor.execute(work);
     }
 
     /**
      * Execute the specified Work.
-     * 
-     * @param aWork Work to be executed.
-     * 
+     *
+     * @param work Work to be executed.
+     *
      * @exception WorkException Indicates that the Work execution has been
      * unsuccessful.
      */
-    public void executeWork(WorkerContext aWork) throws WorkException {
-        aWork.workAccepted(this);
+    public void executeWork(WorkerContext work) throws WorkException {
+        work.workAccepted(this);
         try {
-            doExecute(aWork);
-            WorkException exception = aWork.getWorkException();  
+            doExecute(work);
+            WorkException exception = work.getWorkException();
             if ( null != exception ) {
                 throw exception;
             }
@@ -143,7 +142,7 @@ public abstract class AbstractWorkExecutorPool implements WorkExecutorPool {
             WorkCompletedException wcj = new WorkCompletedException(
                 "The execution has been interrupted.", e);
             wcj.setErrorCode(WorkException.INTERNAL);
-            throw wcj;    
+            throw wcj;
         }
     }
 
@@ -172,10 +171,10 @@ public abstract class AbstractWorkExecutorPool implements WorkExecutorPool {
 
     /**
      * Sets the minimum size of this pool.
-     * @param aSize New minimum size of the pool.
+     * @param minSize New minimum size of the pool.
      */
-    public void setMinimumPoolSize(int aSize) {
-        pooledExecutor.setMinimumPoolSize(aSize);
+    public void setMinimumPoolSize(int minSize) {
+        pooledExecutor.setMinimumPoolSize(minSize);
     }
 
     /**
@@ -187,24 +186,24 @@ public abstract class AbstractWorkExecutorPool implements WorkExecutorPool {
 
     /**
      * Sets the maximum size of this pool.
-     * @param aSize New maximum size of this pool.
+     * @param maxSize New maximum size of this pool.
      */
-    public void setMaximumPoolSize(int aSize) {
-        pooledExecutor.setMaximumPoolSize(aSize);
+    public void setMaximumPoolSize(int maxSize) {
+        pooledExecutor.setMaximumPoolSize(maxSize);
     }
 
     /**
      * This method must be implemented by sub-classes in order to provide the
      * relevant synchronization policy. It is called by the executeWork template
      * method.
-     * 
-     * @param aWork Work to be executed.
-     * 
+     *
+     * @param work Work to be executed.
+     *
      * @throws WorkException Indicates that the work has failed.
-     * @throws InterruptedException Indicates that the thread in charge of the 
-     * execution of the specified work has been interrupted. 
+     * @throws InterruptedException Indicates that the thread in charge of the
+     * execution of the specified work has been interrupted.
      */
-    protected abstract void doExecute(WorkerContext aWork)
+    protected abstract void doExecute(WorkerContext work)
         throws WorkException, InterruptedException;
 
     /**
@@ -214,5 +213,5 @@ public abstract class AbstractWorkExecutorPool implements WorkExecutorPool {
     public void doStop() {
         pooledExecutor.shutdownAfterProcessingCurrentlyQueuedTasks();
     }
-    
+
 }

@@ -55,90 +55,136 @@
  */
 
 package org.apache.geronimo.connector.work;
-import javax.management.MBeanOperationInfo;
 import javax.resource.spi.work.ExecutionContext;
 import javax.resource.spi.work.Work;
 import javax.resource.spi.work.WorkException;
 import javax.resource.spi.work.WorkListener;
 import javax.resource.spi.work.WorkManager;
-import javax.resource.spi.work.WorkRejectedException;
 
-import org.apache.geronimo.common.Classes;
+import org.apache.geronimo.connector.work.pool.ScheduleWorkExecutorPool;
+import org.apache.geronimo.connector.work.pool.StartWorkExecutorPool;
+import org.apache.geronimo.connector.work.pool.SyncWorkExecutorPool;
 import org.apache.geronimo.connector.work.pool.WorkExecutorPool;
-import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
-import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
-import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
-import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
+import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
 
 /**
  * WorkManager implementation which uses under the cover three WorkExecutorPool
- * - one for each synchronization policy - in order to dispatch the submitted 
- * Work instances. 
+ * - one for each synchronization policy - in order to dispatch the submitted
+ * Work instances.
  * <P>
  * A WorkManager is a component of the JCA specifications, which allows a
- * Resource Adapter to submit tasks to an Application Server for execution.  
- * 
-* @version $Revision: 1.3 $ $Date: 2003/11/17 00:46:09 $
+ * Resource Adapter to submit tasks to an Application Server for execution.
+ *
+ * TODO There needs to be better lifecycle support.  The individual pools can be stopped now, but
+ * not restarted AFAIK.
+ *
+* @version $Revision: 1.4 $ $Date: 2003/11/26 02:15:32 $
  */
-public class GeronimoWorkManager implements WorkManager, GeronimoMBeanTarget {
+public class GeronimoWorkManager implements WorkManager {
+
+    private final static int DEFAULT_MIN_POOL_SIZE = 0;
+    private final static int DEFAULT_MAX_POOL_SIZE = 10;
 
     /**
      * Pool of threads used by this WorkManager in order to process
-     * the Work instances submitted via the doWork methods. 
+     * the Work instances submitted via the doWork methods.
      */
-    private WorkExecutorPool syncWorkExecutorPool; 
+    private final WorkExecutorPool syncWorkExecutorPool;
 
     /**
      * Pool of threads used by this WorkManager in order to process
-     * the Work instances submitted via the startWork methods. 
+     * the Work instances submitted via the startWork methods.
      */
-    private WorkExecutorPool startWorkExecutorPool;
-     
+    private final WorkExecutorPool startWorkExecutorPool;
+
     /**
      * Pool of threads used by this WorkManager in order to process
      * the Work instances submitted via the scheduleWork methods.
      */
-    private WorkExecutorPool scheduledWorkExecutorPool;
-    private GeronimoMBeanContext geronimoMBeanContext;
-     
+    private final WorkExecutorPool scheduledWorkExecutorPool;
+
     /**
-     * Create a WorkManager. 
+     * Create a WorkManager.
      */
     public GeronimoWorkManager() {
+        this(DEFAULT_MIN_POOL_SIZE, DEFAULT_MAX_POOL_SIZE);
     }
 
-    /**
-     * Set the executor in charge of the processing of synchronous works.
-     * @param anExecutorPool An executor.
-     */
-    public void setSyncExecutor(WorkExecutorPool anExecutorPool) {
-        syncWorkExecutorPool = anExecutorPool;
+    public GeronimoWorkManager(int minSize, int maxSize) {
+        this(minSize, maxSize, minSize, maxSize, minSize, maxSize);
     }
 
-    /**
-     * Sets the executor in charge of the processing of synchronous until start
-     * works.
-     * @param anExecutorPool An executor.
-     */
-    public void setStartExecutor(WorkExecutorPool anExecutorPool) {
-        startWorkExecutorPool = anExecutorPool;
+    public GeronimoWorkManager(int syncMinSize, int syncMaxSize, int startMinSize, int startMaxSize, int schedMinSize, int schedMaxSize) {
+        syncWorkExecutorPool = new SyncWorkExecutorPool(syncMinSize, syncMaxSize);
+        startWorkExecutorPool = new StartWorkExecutorPool(startMinSize, startMaxSize);
+        scheduledWorkExecutorPool = new ScheduleWorkExecutorPool(schedMinSize, schedMaxSize);
     }
-    
-    /**
-     * Set the executor in charge of the processing of asynchronous works.
-     * @param anExecutorPool An executor.
-     */
-    public void setAsyncExecutor(WorkExecutorPool anExecutorPool) {
-        scheduledWorkExecutorPool = anExecutorPool;
+
+    public int getSyncThreadCount() {
+        return syncWorkExecutorPool.getPoolSize();
     }
-    
+
+    public int getSyncMinimumPoolSize() {
+        return syncWorkExecutorPool.getMinimumPoolSize();
+    }
+
+    public int getSyncMaximumPoolSize() {
+        return syncWorkExecutorPool.getMaximumPoolSize();
+    }
+
+    public void setSyncMinimumPoolSize(int minSize) {
+        syncWorkExecutorPool.setMinimumPoolSize(minSize);
+    }
+
+    public void setSyncMaximumPoolSize(int maxSize) {
+        syncWorkExecutorPool.setMaximumPoolSize(maxSize);
+    }
+
+    public int getStartThreadCount() {
+        return startWorkExecutorPool.getPoolSize();
+    }
+
+    public int getStartMinimumPoolSize() {
+        return startWorkExecutorPool.getMinimumPoolSize();
+    }
+
+    public int getStartMaximumPoolSize() {
+        return startWorkExecutorPool.getMaximumPoolSize();
+    }
+
+    public void setStartMinimumPoolSize(int minSize) {
+        startWorkExecutorPool.setMinimumPoolSize(minSize);
+    }
+
+    public void setStartMaximumPoolSize(int maxSize) {
+        startWorkExecutorPool.setMaximumPoolSize(maxSize);
+    }
+
+    public int getsSheduledThreadCount() {
+        return scheduledWorkExecutorPool.getPoolSize();
+    }
+
+    public int getScheduledMinimumPoolSize() {
+        return scheduledWorkExecutorPool.getMinimumPoolSize();
+    }
+
+    public int getScheduledMaximumPoolSize() {
+        return scheduledWorkExecutorPool.getMaximumPoolSize();
+    }
+
+    public void setScheduledMinimumPoolSize(int minSize) {
+        scheduledWorkExecutorPool.setMinimumPoolSize(minSize);
+    }
+
+    public void setScheduledMaximumPoolSize(int maxSize) {
+        scheduledWorkExecutorPool.setMaximumPoolSize(maxSize);
+    }
+
     /* (non-Javadoc)
      * @see javax.resource.spi.work.WorkManager#doWork(javax.resource.spi.work.Work)
      */
     public void doWork(Work work) throws WorkException {
-        checkStateBeforeAccept(syncWorkExecutorPool, "synchronous");
         syncWorkExecutorPool.executeWork(new WorkerContext(work));
     }
 
@@ -151,7 +197,6 @@ public class GeronimoWorkManager implements WorkManager, GeronimoMBeanTarget {
         ExecutionContext execContext,
         WorkListener workListener)
         throws WorkException {
-        checkStateBeforeAccept(syncWorkExecutorPool, "synchronous");
         WorkerContext workWrapper =
             new WorkerContext(work, startTimeout, execContext, workListener);
         workWrapper.setThreadPriority(Thread.currentThread().getPriority());
@@ -162,8 +207,6 @@ public class GeronimoWorkManager implements WorkManager, GeronimoMBeanTarget {
      * @see javax.resource.spi.work.WorkManager#startWork(javax.resource.spi.work.Work)
      */
     public long startWork(Work work) throws WorkException {
-        checkStateBeforeAccept(startWorkExecutorPool,
-            "synchronous until start");
         WorkerContext workWrapper = new WorkerContext(work);
         workWrapper.setThreadPriority(Thread.currentThread().getPriority());
         startWorkExecutorPool.executeWork(workWrapper);
@@ -179,8 +222,6 @@ public class GeronimoWorkManager implements WorkManager, GeronimoMBeanTarget {
         ExecutionContext execContext,
         WorkListener workListener)
         throws WorkException {
-        checkStateBeforeAccept(startWorkExecutorPool,
-            "synchronous until start");
         WorkerContext workWrapper =
             new WorkerContext(work, startTimeout, execContext, workListener);
         workWrapper.setThreadPriority(Thread.currentThread().getPriority());
@@ -192,7 +233,6 @@ public class GeronimoWorkManager implements WorkManager, GeronimoMBeanTarget {
      * @see javax.resource.spi.work.WorkManager#scheduleWork(javax.resource.spi.work.Work)
      */
     public void scheduleWork(Work work) throws WorkException {
-        checkStateBeforeAccept(scheduledWorkExecutorPool, "asynchronous");
         WorkerContext workWrapper = new WorkerContext(work);
         workWrapper.setThreadPriority(Thread.currentThread().getPriority());
         scheduledWorkExecutorPool.executeWork(workWrapper);
@@ -207,101 +247,33 @@ public class GeronimoWorkManager implements WorkManager, GeronimoMBeanTarget {
         ExecutionContext execContext,
         WorkListener workListener)
         throws WorkException {
-        checkStateBeforeAccept(scheduledWorkExecutorPool, "asynchronous");
         WorkerContext workWrapper =
             new WorkerContext(work, startTimeout, execContext, workListener);
         workWrapper.setThreadPriority(Thread.currentThread().getPriority());
         scheduledWorkExecutorPool.executeWork(workWrapper);
     }
 
-    /**
-     * This helper method MUST be called prior to accept a Work instance. It
-     * ensures that the state of this WorkManager is running and that the
-     * provided work executor is defined.
-     *
-     * @param aPool Work executor, which will accept the Work instance.
-     * @param aType "Label" of this work executor. It is only used to
-     * create an more accurate message when the provided Work executor is not
-     * defined (null). 
-     *  
-     * @throws WorkRejectedException Indicates that this WorkManager is not
-     * running and hence that a work can not be accepted.
-     */
-    private void checkStateBeforeAccept(WorkExecutorPool aPool,
-        String aType) throws WorkRejectedException {
-        if ( !(State.RUNNING_INDEX == getState()) ) {
-            throw new WorkRejectedException(getClass() + " is not running.",
-                WorkException.INTERNAL);
-        } else if ( null == aPool ) {
-            throw new WorkRejectedException(getClass() + " is partially" +
-                " running. Its " + aType + " work facilities are unmounted.",
-                WorkException.INTERNAL);
-        }
-    }
 
-
-    public int getState() throws WorkRejectedException {
-        try {
-            return geronimoMBeanContext.getState();
-        } catch (Exception e) {
-            throw new WorkRejectedException("WorkManager is not ready.", WorkException.INTERNAL);
-        }
-    }
-    
-    /**
-     * @see org.apache.geronimo.kernel.service.GeronimoMBeanTarget#setMBeanContext(org.apache.geronimo.kernel.service.GeronimoMBeanContext)
-     */
-    public void setMBeanContext(GeronimoMBeanContext geronimoMBeanContext) {
-        this.geronimoMBeanContext = geronimoMBeanContext;
-    }
-
-    /**
-     * @see org.apache.geronimo.kernel.service.GeronimoMBeanTarget#canStart()
-     */
-    public boolean canStart() {
-        return true;
-    }
-
-    /**
-     * @see org.apache.geronimo.kernel.service.GeronimoMBeanTarget#doStart()
-     */
-    public void doStart() {
-    }
-
-    /**
-     * @see org.apache.geronimo.kernel.service.GeronimoMBeanTarget#canStop()
-     */
-    public boolean canStop() {
-        return true;
-    }
-
-    /**
-     * @see org.apache.geronimo.kernel.service.GeronimoMBeanTarget#doStop()
-     */
-    public void doStop() {
-    }
-
-    /**
-     * @see org.apache.geronimo.kernel.service.GeronimoMBeanTarget#doFail()
-     */
-    public void doFail() {
-    }
-
-    
     /**
      * Provides the GeronimoMBean description for this class
      * @return
      */
     public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
 
-        // TODO: add descriptions to all operations.
         GeronimoMBeanInfo rc = new GeronimoMBeanInfo();
         rc.setTargetClass(GeronimoWorkManager.class);
-        rc.addOperationFor( Classes.getMethod(GeronimoWorkManager.class, "setSyncExecutor") ); 
-        rc.addOperationFor( Classes.getMethod(GeronimoWorkManager.class, "setStartExecutor") ); 
-        rc.addOperationFor( Classes.getMethod(GeronimoWorkManager.class, "setAsyncExecutor") ); 
+        rc.addOperationsDeclaredIn(WorkManager.class);
+        rc.addAttributeInfo(new GeronimoAttributeInfo("SyncThreadCount", true, false, "Actual size of sync thread pool"));
+        rc.addAttributeInfo(new GeronimoAttributeInfo("SyncMinimumPoolSize", true, true, "Minimum size of sync thread pool"));
+        rc.addAttributeInfo(new GeronimoAttributeInfo("SyncMaximumPoolSize", true, true, "Maximum size of sync thread pool"));
+        rc.addAttributeInfo(new GeronimoAttributeInfo("StartThreadCount", true, false, "Actual size of sync thread pool"));
+        rc.addAttributeInfo(new GeronimoAttributeInfo("StartMinimumPoolSize", true, true, "Minimum size of sync thread pool"));
+        rc.addAttributeInfo(new GeronimoAttributeInfo("StartMaximumPoolSize", true, true, "Maximum size of sync thread pool"));
+        rc.addAttributeInfo(new GeronimoAttributeInfo("ScheduledThreadCount", true, false, "Actual size of sync thread pool"));
+        rc.addAttributeInfo(new GeronimoAttributeInfo("ScheduledMinimumPoolSize", true, true, "Minimum size of sync thread pool"));
+        rc.addAttributeInfo(new GeronimoAttributeInfo("ScheduledMaximumPoolSize", true, true, "Maximum size of sync thread pool"));
         return rc;
 
     }
-    
+
 }

@@ -56,20 +56,19 @@
 
 package org.apache.geronimo.connector.work.pool;
 
-import org.apache.geronimo.connector.work.WorkerContext;
-
 import EDU.oswego.cs.dl.util.concurrent.Channel;
 import EDU.oswego.cs.dl.util.concurrent.PooledExecutor;
+import org.apache.geronimo.connector.work.WorkerContext;
 
 /**
  * PooledExecutor enforcing a timed out "blocked execution policy". The works
  * submitted to this pooled executor MUST be a WorkWrapper.
- * 
- * @version $Revision: 1.2 $ $Date: 2003/11/16 23:12:07 $
+ *
+ * @version $Revision: 1.3 $ $Date: 2003/11/26 02:15:32 $
  */
 public class TimedOutPooledExecutor extends PooledExecutor
 {
-    
+
     /**
      * Creates a pooled executor. The Channel used to enqueue the submitted
      * Work instance is a queueless synchronous one.
@@ -81,10 +80,10 @@ public class TimedOutPooledExecutor extends PooledExecutor
     /**
      * Creates a pooled executor, which uses the provided Channel as its
      * queueing mechanism.
-     * 
+     *
      * @param aChannel Channel to be used to enqueue the submitted Work
      * intances.
-     */    
+     */
     public TimedOutPooledExecutor(Channel aChannel) {
         super(aChannel);
         setBlockedExecutionHandler(new TimedOutSpinHandler());
@@ -92,7 +91,7 @@ public class TimedOutPooledExecutor extends PooledExecutor
 
     /**
      * Executes the provided task, which MUST be an instance of WorkWrapper.
-     * 
+     *
      * @throws IllegalArgumentException Indicates that the provided task is not
      * a WorkWrapper instance.
      */
@@ -102,12 +101,12 @@ public class TimedOutPooledExecutor extends PooledExecutor
         }
         super.execute(aTask);
     }
-    
+
     /**
      * This class implements a time out policy when a work is blocked: it offers
      * the task to the pool until the work has timed out.
-     * 
-     * @version $Revision: 1.2 $ $Date: 2003/11/16 23:12:07 $
+     *
+     * @version $Revision: 1.3 $ $Date: 2003/11/26 02:15:32 $
      */
     private class TimedOutSpinHandler
         implements PooledExecutor.BlockedExecutionHandler {

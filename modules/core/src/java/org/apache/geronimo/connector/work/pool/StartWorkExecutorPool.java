@@ -56,26 +56,19 @@
 
 package org.apache.geronimo.connector.work.pool;
 
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import javax.resource.spi.work.WorkException;
-
-import org.apache.geronimo.kernel.service.GeronimoMBeanEndpoint;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
-import org.apache.geronimo.connector.work.GeronimoWorkManager;
-import org.apache.geronimo.connector.work.WorkerContext;
 
 import EDU.oswego.cs.dl.util.concurrent.Latch;
 import EDU.oswego.cs.dl.util.concurrent.LinkedQueue;
+import org.apache.geronimo.connector.work.WorkerContext;
 
 /**
- * WorkExecutorPool handling the submitted Work instances synchronously 
+ * WorkExecutorPool handling the submitted Work instances synchronously
  * until the work start. More accurately, its execute method returns when the
  * work is started.
- * 
- * @jmx:mbean extends="AbstractWorkExecutorPoolMBean"
- *  
- * @version $Revision: 1.2 $ $Date: 2003/11/16 23:12:07 $
+ *
+ *
+ * @version $Revision: 1.3 $ $Date: 2003/11/26 02:15:32 $
  */
 public class StartWorkExecutorPool
     extends AbstractWorkExecutorPool
@@ -83,40 +76,25 @@ public class StartWorkExecutorPool
 
     /**
      * Creates a pool with the specified minimum and maximum sizes.
-     * 
-     * @param aMinSize Minimum size of the work executor pool.
-     * @param aMaxSize Maximum size of the work executor pool.
+     *
+     * @param minSize Minimum size of the work executor pool.
+     * @param maxSize Maximum size of the work executor pool.
      */
-    public StartWorkExecutorPool(int aMinSize, int aMaxSize) {
-        super(new LinkedQueue(), aMinSize, aMaxSize);
-    }
-    
-    public void setGeronimoWorkManager( GeronimoWorkManager wm ) {
-        wm.setStartExecutor(this);
+    public StartWorkExecutorPool(int minSize, int maxSize) {
+        super(new LinkedQueue(), minSize, maxSize);
     }
 
     /**
      * Performs the actual work execution. This execution is synchronous until
      * the start of the submitted work.
      *
-     * @param aWork Work to be executed. 
+     * @param work Work to be executed.
      */
-    public void doExecute(WorkerContext aWork)
+    public void doExecute(WorkerContext work)
         throws WorkException, InterruptedException {
-        Latch latch = aWork.provideStartLatch();
-        execute(aWork);
+        Latch latch = work.provideStartLatch();
+        execute(work);
         latch.acquire();
     }
-    
-    public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
-        try {
-            GeronimoMBeanInfo rc =AbstractWorkExecutorPool.getGeronimoMBeanInfo();
-            rc.setTargetClass(StartWorkExecutorPool.class);
-            rc.addEndpoint(new GeronimoMBeanEndpoint("GeronimoWorkManager", GeronimoWorkManager.class, new ObjectName("geronimo.jca:role=WorkManager"), true));
-            return rc;
-        } catch (MalformedObjectNameException e) {
-            throw new RuntimeException("GeronimoMBeanInfo could not be gernerated.", e);
-        }
-    }
-    
+
 }

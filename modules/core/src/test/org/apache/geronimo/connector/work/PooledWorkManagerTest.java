@@ -77,8 +77,8 @@ import org.apache.geronimo.connector.work.pool.SyncWorkExecutorPool;
 /**
  * Timing is crucial for this test case, which focuses on the synchronization
  * specificities of the doWork, startWork and scheduleWork.
- *  
- * @version $Revision: 1.2 $ $Date: 2003/11/16 23:12:07 $
+ *
+ * @version $Revision: 1.3 $ $Date: 2003/11/26 02:15:32 $
  */
 public class PooledWorkManagerTest extends TestCase
 {
@@ -90,29 +90,8 @@ public class PooledWorkManagerTest extends TestCase
     private static final int m_timeout = 300;
     private static final int m_tempo = 200;
 
-    public PooledWorkManagerTest() throws Exception {
-        super("WorkManager");
-        initMinimalisticServer();
-        m_workManager = new GeronimoWorkManager();
-
-        // We are mocking the GeronimoMBeanContext
-        m_workManager.setMBeanContext(new GeronimoMBeanContext(null, null, null){
-            public int getState() throws Exception {
-                return State.RUNNING_INDEX;
-            }
-        });
-        
-        SyncWorkExecutorPool syncWorkExecutorPool = new SyncWorkExecutorPool(1, 1);
-        syncWorkExecutorPool.setGeronimoWorkManager(m_workManager);
-        
-        StartWorkExecutorPool startWorkExecutorPool = new StartWorkExecutorPool(1, 1);
-        startWorkExecutorPool.setGeronimoWorkManager(m_workManager);
-        
-        ScheduleWorkExecutorPool scheduleWorkExecutorPool = new ScheduleWorkExecutorPool(1, 1);
-        scheduleWorkExecutorPool.setGeronimoWorkManager(m_workManager);
-    }
-
-    public void initMinimalisticServer() throws Exception {
+    protected void setUp() throws Exception {
+        m_workManager = new GeronimoWorkManager(1, 1);
     }
 
     public void testDoWork() throws Exception {
@@ -141,7 +120,7 @@ public class PooledWorkManagerTest extends TestCase
         assertTrue("Wrong number of works in the START_TIMED_OUT state: " +
             "expected 1; retrieved " + nbTimeout, 1 == nbTimeout);
     }
-    
+
     public void testStartWork() throws Exception {
         AbstractDummyWork threads[] = helperTest(DummyStartWork.class, 2);
         int nbStopped = 0;
@@ -183,11 +162,11 @@ public class PooledWorkManagerTest extends TestCase
         assertTrue("At least one work should be in the WORK_ACCEPTED state.",
             nbAccepted > 0);
     }
-    
+
     private AbstractDummyWork[] helperTest(Class aWork, int nbThreads)
         throws Exception {
         Constructor constructor = aWork.getConstructor(
-            new Class[]{WorkManager.class, String.class}); 
+            new Class[]{WorkManager.class, String.class});
         AbstractDummyWork rarThreads[] =
             new AbstractDummyWork[nbThreads];
         for (int i = 0; i < nbThreads; i++) {
@@ -200,7 +179,7 @@ public class PooledWorkManagerTest extends TestCase
         }
         return rarThreads;
     }
-    
+
     public static abstract class AbstractDummyWork extends Thread {
         public DummyWorkListener m_listener;
         protected WorkManager m_workManager;
@@ -212,7 +191,7 @@ public class PooledWorkManagerTest extends TestCase
         }
         public void run() {
             try {
-                perform(new DummyWork(m_name), m_timeout, null, m_listener);                
+                perform(new DummyWork(m_name), m_timeout, null, m_listener);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -234,7 +213,7 @@ public class PooledWorkManagerTest extends TestCase
             m_workManager.doWork(work, startTimeout, execContext, workListener);
         }
     }
-    
+
     public static class DummyStartWork extends AbstractDummyWork {
         public DummyStartWork(WorkManager aWorkManager, String aName) {
             super(aWorkManager, aName);
@@ -246,7 +225,7 @@ public class PooledWorkManagerTest extends TestCase
             m_workManager.startWork(work, startTimeout, execContext, workListener);
         }
     }
-    
+
     public static class DummyScheduleWork extends AbstractDummyWork {
         public DummyScheduleWork(WorkManager aWorkManager, String aName) {
             super(aWorkManager, aName);
@@ -258,7 +237,7 @@ public class PooledWorkManagerTest extends TestCase
             m_workManager.scheduleWork(work, startTimeout, execContext, workListener);
         }
     }
-    
+
     public static class DummyWork implements Work {
         private String m_name;
         public DummyWork(String aName) {m_name = aName;}
@@ -272,7 +251,7 @@ public class PooledWorkManagerTest extends TestCase
         }
         public String toString() {return m_name;}
     }
-    
+
     public static class DummyWorkListener implements WorkListener {
         public WorkEvent m_event;
         public void workAccepted(WorkEvent e) {m_event = e;}
