@@ -62,6 +62,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.HashSet;
 
 import javax.resource.ResourceException;
 
@@ -82,14 +83,22 @@ import javax.resource.ResourceException;
  * @todo make sure tx enlistment on method entry works
  * @todo implement UserTransaction notifications and tx enlistment.
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/13 22:22:30 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/18 02:17:33 $
  *
  * */
 public class CachedConnectionManager {
 
-    private final ThreadLocal currentResources = new ThreadLocal();
+    private final ThreadLocal currentResources = new ThreadLocal() {
+        protected Object initialValue() {
+            return new HashMap();
+        }
+    };
 
-    private final ThreadLocal currentKeys = new ThreadLocal();
+    private final ThreadLocal currentKeys = new ThreadLocal() {
+        protected Object initialValue() {
+            return new Stack();
+        }
+    };
 
     private final Map keyToResourcesMap = new IdentityHashMap();
 
@@ -154,6 +163,10 @@ public class CachedConnectionManager {
             ConnectionInfo ci) {
         Map resources = (Map) currentResources.get();
         Set infos = (Set) resources.get(mcci);
+        if (infos == null) {
+            infos = new HashSet();
+            resources.put(mcci, infos);
+        }
         infos.add(ci);
     }
 
