@@ -64,40 +64,30 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/11/16 05:27:27 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/22 03:53:32 $
  */
 public class SubsystemRouter extends AbstractRouterRouter {
     Log log = LogFactory.getLog(SubsystemRouter.class);
     Map currentRoutingMap = new HashMap();
     Collection childRouters;
 
-    /**
-     * @see org.apache.geronimo.remoting.router.AbstractRouterRouter#lookupRouterFrom(java.net.URI)
-     */
     protected Router lookupRouterFrom(URI to) {
         String subsystem = to.getPath();
         return (Router) currentRoutingMap.get(subsystem);
     }
 
-    /**
-     */
     synchronized public void addRoute(String path, Router router) {
         Map temp = new HashMap(currentRoutingMap);
         temp.put(path, router);
         currentRoutingMap = temp;
     }
 
-    /**
-     */
     synchronized public void removeRoute(String path) {
         Map temp = new HashMap(currentRoutingMap);
         temp.remove(path);
         currentRoutingMap = temp;
     }
 
-    /**
-     * @see org.apache.geronimo.remoting.router.RouterTargetMBean#getRouter()
-     */
     public Router getRouter() {
         return this;
     }

@@ -57,8 +57,8 @@ package org.apache.geronimo.remoting.router;
 
 import java.net.URI;
 
-import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
-import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
+import org.apache.geronimo.gbean.GBean;
+import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.remoting.transport.Msg;
 import org.apache.geronimo.remoting.transport.TransportException;
 
@@ -68,59 +68,36 @@ import EDU.oswego.cs.dl.util.concurrent.TimeoutSync;
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/19 11:15:03 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/22 03:53:32 $
  */
-abstract public class AbstractRouterRouter
-    implements GeronimoMBeanTarget, Router
-{
-
+public abstract class AbstractRouterRouter implements GBean, Router {
     private long stoppedRoutingTimeout = 1000 * 60; // 1 min.
 
-    /** 
+    /**
      * Allows us to pause invocations when in the stopped state.
      */
     private Sync routerLock = createNewRouterLock();
 
-    /**
-     *
-     * @jmx:managed-attribute
-     *
-     * @return
-     */
     public long getStoppedRoutingTimeout() {
         return stoppedRoutingTimeout;
     }
 
-    /**
-     *
-     * @jmx:managed-attribute
-     *
-     * @param stoppedRoutingTimeout
-     */
     public void setStoppedRoutingTimeout(long stoppedRoutingTimeout) {
         this.stoppedRoutingTimeout = stoppedRoutingTimeout;
     }
 
-    /**
-     * @return
-     */
     private Sync createNewRouterLock() {
         Latch lock = new Latch();
         return new TimeoutSync(lock, stoppedRoutingTimeout);
     }
 
-    /**
-     *
-     *
-     * @see org.apache.geronimo.remoting.transport.Router#sendRequest(java.net.URI, org.apache.geronimo.remoting.transport.Msg)
-     */
     public Msg sendRequest(URI to, Msg msg) throws TransportException {
         try {
             routerLock.acquire();
             Router next = lookupRouterFrom(to);
-            if( next == null )
-                throw new TransportException("No route is available to: "+to);
-                
+            if (next == null)
+                throw new TransportException("No route is available to: " + to);
+
             return next.sendRequest(to, msg);
 
         } catch (Throwable e) {
@@ -129,9 +106,6 @@ abstract public class AbstractRouterRouter
         }
     }
 
-    /**
-     * @see org.apache.geronimo.remoting.transport.Router#sendDatagram(java.net.URI, org.apache.geronimo.remoting.transport.Msg)
-     */
     public void sendDatagram(URI to, Msg msg) throws TransportException {
         try {
             routerLock.acquire();
@@ -142,51 +116,21 @@ abstract public class AbstractRouterRouter
         }
     }
 
-    /**
-     * @param to
-     * @return
-     */
     abstract protected Router lookupRouterFrom(URI to);
-        
-    
-    /**
-     * @see org.apache.geronimo.kernel.service.GeronimoMBeanTarget#setMBeanContext(org.apache.geronimo.kernel.service.GeronimoMBeanContext)
-     */
-    public void setMBeanContext(GeronimoMBeanContext context) {
+
+    public void setGBeanContext(GBeanContext context) {
     }
 
-    /**
-     * @see org.apache.geronimo.core.service.AbstractManagedObject#doStart()
-     */
     public void doStart() {
         routerLock.release();
     }
 
-    /**
-     * @see org.apache.geronimo.core.service.AbstractManagedObject#doStop()
-     */
     public void doStop() {
         routerLock = createNewRouterLock();
     }
 
-    /**
-     * @see org.apache.geronimo.kernel.service.GeronimoMBeanTarget#canStart()
-     */
-    public boolean canStart() {
-        return true;
-    }
-
-    /**
-     * @see org.apache.geronimo.kernel.service.GeronimoMBeanTarget#canStop()
-     */
-    public boolean canStop() {
-        return true;
-    }
-
-    /**
-     * @see org.apache.geronimo.kernel.service.GeronimoMBeanTarget#doFail()
-     */
     public void doFail() {
+        // @todo do your best to clean up after a failure
     }
 
 }

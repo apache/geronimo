@@ -57,109 +57,60 @@ package org.apache.geronimo.remoting.transport;
 
 import java.net.URI;
 
-import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
-import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
+import org.apache.geronimo.gbean.GBean;
+import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.remoting.router.Router;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2003/12/30 21:19:22 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/22 03:53:32 $
  */
-public class TransportLoader implements GeronimoMBeanTarget {
-    URI bindURI;
-    TransportServer transportServer;
-    Router router;
+public class TransportLoader implements GBean {
+    private URI bindURI;
+    private TransportServer transportServer;
+    private Router router;
 
-    /**
-     * @return
-     */
     public URI getBindURI() {
         return bindURI;
     }
 
-    /**
-     * @param bindURI
-     */
     public void setBindURI(URI bindURI) {
         this.bindURI = bindURI;
     }
 
-    /**
-     * @return
-     */
     public Router getRouter() {
         return router;
     }
 
-    /**
-     * @param router
-     */
     public void setRouter(Router router) {
         this.router = router;
     }
 
-    /**
-     * @return
-     */
     public URI getClientConnectURI() {
         if (transportServer == null)
             return null;
         return transportServer.getClientConnectURI();
     }
 
-    /**
-     * @see org.apache.geronimo.kernel.service.GeronimoMBeanTarget#setMBeanContext(org.apache.geronimo.kernel.service.GeronimoMBeanContext)
-     */
-    public void setMBeanContext(GeronimoMBeanContext geronimoMBeanContext) {
+    public void setGBeanContext(GBeanContext context) {
     }
 
-    /**
-     */
-    public void doStart() {
-
-        try {
-
-            if (router == null) {
-                throw new IllegalStateException("Target router was not set.");
-            }
-            TransportFactory tf = TransportFactory.getTransportFactory(bindURI);
-            transportServer = tf.createSever();
-            transportServer.bind(bindURI, router);
-            transportServer.start();
-
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+    public void doStart() throws Exception {
+        if (router == null) {
+            throw new IllegalStateException("Target router was not set.");
         }
+        TransportFactory tf = TransportFactory.getTransportFactory(bindURI);
+        transportServer = tf.createSever();
+        transportServer.bind(bindURI, router);
+        transportServer.start();
     }
 
-    public void doStop() {
-        try {
-            transportServer.stop();
-            transportServer.dispose();
-            transportServer = null;
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+    public void doStop() throws Exception {
+        transportServer.stop();
+        transportServer.dispose();
+        transportServer = null;
     }
 
-    /**
-     * @see org.apache.geronimo.kernel.service.GeronimoMBeanTarget#canStart()
-     */
-    public boolean canStart() {
-        return true;
-    }
-
-    /**
-     * @see org.apache.geronimo.kernel.service.GeronimoMBeanTarget#canStop()
-     */
-    public boolean canStop() {
-        return true;
-    }
-
-    /**
-     * @see org.apache.geronimo.kernel.service.GeronimoMBeanTarget#doFail()
-     */
     public void doFail() {
+        // @todo do your best to clean up after a failure
     }
 }

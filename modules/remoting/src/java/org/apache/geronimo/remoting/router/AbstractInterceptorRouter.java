@@ -60,8 +60,9 @@ import java.net.URI;
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocation;
-import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
-import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
+import org.apache.geronimo.gbean.GBean;
+import org.apache.geronimo.gbean.GBeanContext;
+import org.apache.geronimo.gbean.jmx.GBeanMBeanContext;
 import org.apache.geronimo.remoting.InvocationSupport;
 import org.apache.geronimo.remoting.MarshalledObject;
 import org.apache.geronimo.remoting.transport.Msg;
@@ -72,58 +73,37 @@ import EDU.oswego.cs.dl.util.concurrent.Sync;
 import EDU.oswego.cs.dl.util.concurrent.TimeoutSync;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2003/11/19 11:15:03 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/22 03:53:32 $
  */
-abstract public class AbstractInterceptorRouter
-    implements GeronimoMBeanTarget, Router
-{
-    private long stoppedRoutingTimeout = 1000*60; // 1 min.
-    
-    /** 
+public abstract class AbstractInterceptorRouter implements GBean, Router {
+    private long stoppedRoutingTimeout = 1000 * 60; // 1 min.
+
+    /**
      * Allows us to pause invocations when in the stopped state.
      */
     private Sync routerLock = createNewRouterLock();
 
-    public GeronimoMBeanContext geronimoMBeanContext;
-    
-    /**
-     *
-     * @jmx:managed-attribute
-     *
-     * @return
-     */
+    protected GBeanMBeanContext context;
+
     public long getStoppedRoutingTimeout() {
         return stoppedRoutingTimeout;
     }
 
-    /**
-     *
-     * @jmx:managed-attribute
-     *
-     * @param stoppedRoutingTimeout
-     */
     public void setStoppedRoutingTimeout(long stoppedRoutingTimeout) {
         this.stoppedRoutingTimeout = stoppedRoutingTimeout;
     }
 
-    /**
-     * @return
-     */
     private Sync createNewRouterLock() {
         Latch lock = new Latch();
         return new TimeoutSync(lock, stoppedRoutingTimeout);
     }
-    
-    /**
-     *
-     * @see org.apache.geronimo.remoting.transport.Router#sendRequest(java.net.URI, org.apache.geronimo.remoting.transport.Msg)
-     */
+
     public Msg sendRequest(URI to, Msg msg) throws TransportException {
         try {
             routerLock.acquire();
 
             Interceptor interceptor = lookupInterceptorFrom(to);
-            
+
             SimpleInvocation invocation = new SimpleInvocation();
             InvocationSupport.putMarshaledValue(invocation, msg.popMarshaledObject());
             InvocationSupport.putRemoteURI(invocation, to);
@@ -132,7 +112,7 @@ abstract public class AbstractInterceptorRouter
 
             msg = msg.createMsg();
             Object rc = result.getResult();
-            msg.pushMarshaledObject((MarshalledObject)rc);
+            msg.pushMarshaledObject((MarshalledObject) rc);
             return msg;
 
         } catch (Throwable e) {
@@ -141,70 +121,36 @@ abstract public class AbstractInterceptorRouter
         }
     }
 
-    /**
-     *
-     * @see org.apache.geronimo.remoting.transport.Router#sendDatagram(java.net.URI, org.apache.geronimo.remoting.transport.Msg)
-     */
     public void sendDatagram(URI to, Msg msg) throws TransportException {
         try {
             routerLock.acquire();
             Interceptor interceptor = lookupInterceptorFrom(to);
-            
+
             SimpleInvocation invocation = new SimpleInvocation();
             InvocationSupport.putMarshaledValue(invocation, msg.popMarshaledObject());
             InvocationSupport.putRemoteURI(invocation, to);
 
-            InvocationResult result = interceptor.invoke(invocation);
-
+            interceptor.invoke(invocation);
         } catch (Throwable e) {
             throw new TransportException(e.getMessage());
         }
     }
 
-    /**
-     * @param to
-     * @return
-     */
     abstract protected Interceptor lookupInterceptorFrom(URI to) throws Throwable;
 
-    /**
-     * @see org.apache.geronimo.core.service.AbstractManagedObject#doStart()
-     */
+    public void setGBeanContext(GBeanContext context) {
+        this.context = (GBeanMBeanContext) context;
+    }
+
     public void doStart() {
         routerLock.release();
     }
 
-    /**
-     * @see org.apache.geronimo.core.service.AbstractManagedObject#doStop()
-     */
     public void doStop() {
         routerLock = createNewRouterLock();
     }
 
-    /**
-     * @see org.apache.geronimo.kernel.service.GeronimoMBeanTarget#setMBeanContext(org.apache.geronimo.kernel.service.GeronimoMBeanContext)
-     */
-    public void setMBeanContext(GeronimoMBeanContext geronimoMBeanContext) {
-        this.geronimoMBeanContext = geronimoMBeanContext;        
-    }
-
-    /**
-     * @see org.apache.geronimo.kernel.service.GeronimoMBeanTarget#canStart()
-     */
-    public boolean canStart() {
-        return true;
-    }
-
-    /**
-     * @see org.apache.geronimo.kernel.service.GeronimoMBeanTarget#canStop()
-     */
-    public boolean canStop() {
-        return true;
-    }
-
-    /**
-     * @see org.apache.geronimo.kernel.service.GeronimoMBeanTarget#doFail()
-     */
     public void doFail() {
+        // @todo do your best to clean up after a failure
     }
 }

@@ -72,46 +72,30 @@ import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
  * 
  * The MBean that will receive invocations must implement the JMXTarget interface.
  *
- * @version $Revision: 1.3 $ $Date: 2003/11/19 11:15:03 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/22 03:53:32 $
  */
 public class JMXRouter extends AbstractInterceptorRouter {
+    private SubsystemRouter subsystemRouter;
     
-    SubsystemRouter subsystemRouter;
-    
-    /**
-     * @return Returns the subsystemRouter.
-     */
     public SubsystemRouter getSubsystemRouter() {
         return subsystemRouter;
     }
 
-    /**
-     * @param subsystemRouter The subsystemRouter to set.
-     */
     public void setSubsystemRouter(SubsystemRouter subsystemRouter) {
         this.subsystemRouter = subsystemRouter;
     }
 
-    /**
-     * @see org.apache.geronimo.remoting.router.AbstractInterceptorRouter#lookupInterceptorFrom(java.net.URI)
-     */
     protected Interceptor lookupInterceptorFrom(URI to) throws MalformedObjectNameException {
         ObjectName on = new ObjectName(to.getFragment());
-        JMXTarget bean = (JMXTarget) MBeanProxyFactory.getProxy(JMXTarget.class, geronimoMBeanContext.getServer(), on);
+        JMXTarget bean = (JMXTarget) MBeanProxyFactory.getProxy(JMXTarget.class, context.getServer(), on);
         return bean.getRemotingEndpointInterceptor();
     }
     
-    /**
-     * @see org.apache.geronimo.remoting.router.AbstractInterceptorRouter#doStart()
-     */
     public void doStart() {
         subsystemRouter.addRoute("/JMX", this);
         super.doStart();
     }
     
-    /**
-     * @see org.apache.geronimo.remoting.router.AbstractInterceptorRouter#doStop()
-     */
     public void doStop() {
         super.doStop();
         subsystemRouter.removeRoute("/JMX");

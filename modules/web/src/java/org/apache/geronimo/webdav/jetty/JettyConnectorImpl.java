@@ -73,8 +73,8 @@ import org.mortbay.util.ThreadedServer;
 
 /**
  * Connector using under the cover a Jetty HttpListener.
- * 
- * @version $Revision: 1.2 $ $Date: 2004/01/22 02:46:28 $
+ *
+ * @version $Revision: 1.3 $ $Date: 2004/01/22 03:53:32 $
  */
 public class JettyConnectorImpl
     extends AbstractConnector
@@ -112,7 +112,7 @@ public class JettyConnectorImpl
         definedListenerState = new DefinedListenerState();
         setListener(null);
     }
-        
+
     public HttpListener getListener() {
         return listener;
     }
@@ -134,7 +134,7 @@ public class JettyConnectorImpl
         lifeCycleState.doStart();
     }
 
-    public void doStop() throws WaitingException {
+    public void doStop() throws WaitingException, Exception {
         log.info("Stopping Jetty Connector");
         lifeCycleState.doStop();
     }
@@ -163,7 +163,7 @@ public class JettyConnectorImpl
 
         public void doStart() throws WaitingException, Exception {
             if ( listener.isStarted() ) {
-                return;            
+                return;
             }
             listener.start();
         }
@@ -187,7 +187,7 @@ public class JettyConnectorImpl
             }
             setListener(null);
         }
-        
+
     }
 
     private class UndefinedListenerState implements GBean {
@@ -237,6 +237,6 @@ public class JettyConnectorImpl
 
         public void doFail() {
         }
-        
+
     }
 }

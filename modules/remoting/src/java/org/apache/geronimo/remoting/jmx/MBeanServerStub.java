@@ -56,27 +56,34 @@
 package org.apache.geronimo.remoting.jmx;
 
 import org.apache.geronimo.core.service.Interceptor;
-import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
-import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
+import org.apache.geronimo.gbean.GBean;
+import org.apache.geronimo.gbean.GBeanContext;
+import org.apache.geronimo.gbean.jmx.GBeanMBeanContext;
 import org.apache.geronimo.proxy.ProxyContainer;
 import org.apache.geronimo.proxy.ReflexiveInterceptor;
 import org.apache.geronimo.remoting.DeMarshalingInterceptor;
 import org.apache.geronimo.remoting.router.JMXTarget;
 
 /**
- * @version $Revision: 1.5 $ $Date: 2003/12/30 21:19:22 $
+ * @version $Revision: 1.6 $ $Date: 2004/01/22 03:53:32 $
  */
-public class MBeanServerStub
-        implements GeronimoMBeanTarget, JMXTarget {
-
+public class MBeanServerStub implements GBean, JMXTarget {
     private ProxyContainer serverContainer;
     private DeMarshalingInterceptor demarshaller;
-    private GeronimoMBeanContext geronimoMBeanContext;
+    private GBeanMBeanContext context;
+
+
+    public Interceptor getRemotingEndpointInterceptor() {
+        return demarshaller;
+    }
+
+    public void setGBeanContext(GBeanContext context) {
+        this.context = (GBeanMBeanContext) context;
+    }
 
     public void doStart() {
-
         // Setup the server side contianer..
-        Interceptor firstInterceptor = new ReflexiveInterceptor(geronimoMBeanContext.getServer());
+        Interceptor firstInterceptor = new ReflexiveInterceptor(context.getServer());
         firstInterceptor = new DeMarshalingInterceptor(firstInterceptor, getClass().getClassLoader());
         serverContainer = new ProxyContainer(firstInterceptor);
     }
@@ -86,37 +93,8 @@ public class MBeanServerStub
         demarshaller = null;
     }
 
-    /**
-     * @see org.apache.geronimo.remoting.router.JMXTarget#getRemotingEndpointInterceptor()
-     */
-    public Interceptor getRemotingEndpointInterceptor() {
-        return demarshaller;
-    }
-
-    /**
-     * @see org.apache.geronimo.kernel.service.GeronimoMBeanTarget#setMBeanContext(org.apache.geronimo.kernel.service.GeronimoMBeanContext)
-     */
-    public void setMBeanContext(GeronimoMBeanContext geronimoMBeanContext) {
-        this.geronimoMBeanContext = geronimoMBeanContext;
-    }
-
-    /**
-     * @see org.apache.geronimo.kernel.service.GeronimoMBeanTarget#canStart()
-     */
-    public boolean canStart() {
-        return true;
-    }
-
-    /**
-     * @see org.apache.geronimo.kernel.service.GeronimoMBeanTarget#canStop()
-     */
-    public boolean canStop() {
-        return true;
-    }
-
-    /**
-     * @see org.apache.geronimo.kernel.service.GeronimoMBeanTarget#doFail()
-     */
     public void doFail() {
+        serverContainer = null;
+        demarshaller = null;
     }
 }
