@@ -56,7 +56,6 @@
 package org.apache.geronimo.deployment.xml;
 
 import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -93,13 +92,12 @@ import org.xml.sax.SAXException;
  * (see http://www.oasis-open.org/committees/entity/spec-2001-08-01.html
  * and http://www.oasis-open.org/html/a401.htm)
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/19 06:40:07 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/21 22:15:58 $
  */
 public class LocalEntityResolver implements EntityResolver {
 
     private static final GBeanInfo GBEAN_INFO;
 
-    private static final String INTERNAL_CATALOG = "resolver-catalog.xml";
     /**
      * used Logger
      */
@@ -123,7 +121,7 @@ public class LocalEntityResolver implements EntityResolver {
     /**
      * Local Repository where DTDs and Schemas are located
      */
-    private String localRepository = null;
+    private URI localRepositoryURI = null;
 
     /**
      * Flag indicating if this resolver may return null to signal
@@ -133,15 +131,10 @@ public class LocalEntityResolver implements EntityResolver {
     private boolean failOnUnresolvable = false;
 
 
-    public LocalEntityResolver(URI catalogFileURI, boolean failOnUnresolvable) {
-        this(catalogFileURI, INTERNAL_CATALOG, failOnUnresolvable);
-    }
-
-    public LocalEntityResolver(URI catalogFileURI, String localRepository, boolean failOnUnresolvable) {
+    public LocalEntityResolver(URI catalogFileURI, URI localRepositoryURI, boolean failOnUnresolvable) {
         this.catalogFileURI = catalogFileURI;
-        setLocalRepository(localRepository);
+        setLocalRepositoryURI(localRepositoryURI);
         setFailOnUnresolvable(failOnUnresolvable);
-        //setCatalogFile(catalogFile);
         init();
     }
 
@@ -161,16 +154,6 @@ public class LocalEntityResolver implements EntityResolver {
 
     public void setCatalogFileURI(final URI catalogFileURI) {
         this.catalogFileURI = catalogFileURI;
-        /*
-        try {
-            URL url = new URL(catalogFile);
-            this.catalogFileURI = new URI(url.toExternalForm());
-        } catch (MalformedURLException e) {
-            throw new IllegalArgumentException("could not parse url: " + catalogFile);
-        } catch (URISyntaxException e) {
-            throw new IllegalArgumentException("could not parse url: " + catalogFile);
-        }
-        */
         init();
     }
 
@@ -178,12 +161,12 @@ public class LocalEntityResolver implements EntityResolver {
         return this.catalogFileURI;
     }
 
-    public String getLocalRepository() {
-        return localRepository;
+    public URI getLocalRepositoryURI() {
+        return localRepositoryURI;
     }
 
-    public void setLocalRepository(String string) {
-        localRepository = string;
+    public void setLocalRepositoryURI(URI string) {
+        localRepositoryURI = string;
     }
 
     public void addPublicMapping(final String publicId, final String uri) {
@@ -225,9 +208,7 @@ public class LocalEntityResolver implements EntityResolver {
             throws SAXException, IOException {
 
         if (log.isTraceEnabled()) {
-            log.trace(
-                    "start resolving for "
-                    + entityMessageString(publicId, systemId));
+            log.trace("start resolving for " + entityMessageString(publicId, systemId));
         }
 
         InputSource source = resolveWithCatalog(publicId, systemId);
@@ -245,8 +226,7 @@ public class LocalEntityResolver implements EntityResolver {
             return source;
         }
 
-        String message =
-                "could not resolve " + entityMessageString(publicId, systemId);
+        String message = "could not resolve " + entityMessageString(publicId, systemId);
 
         if (failOnUnresolvable) {
             throw new SAXException(message);
@@ -280,11 +260,7 @@ public class LocalEntityResolver implements EntityResolver {
 
         if (resolvedSystemId != null) {
             if (log.isTraceEnabled()) {
-                log.trace(
-                        "resolved "
-                        + entityMessageString(publicId, systemId)
-                        + " using the catalog file. result: "
-                        + resolvedSystemId);
+                log.trace("resolved " + entityMessageString(publicId, systemId) + " using the catalog file. result: " + resolvedSystemId);
             }
             return new InputSource(resolvedSystemId);
         }
@@ -304,7 +280,7 @@ public class LocalEntityResolver implements EntityResolver {
             final String publicId,
             final String systemId) {
 
-        if (localRepository == null) {
+        if (localRepositoryURI == null) {
             return null;
         }
 
@@ -314,9 +290,25 @@ public class LocalEntityResolver implements EntityResolver {
             return null;
         }
 
+        URI resolvedSystemIDURI = localRepositoryURI.resolve(fileName);
+        InputStream inputStream = null;
+        try {
+            inputStream = resolvedSystemIDURI.toURL().openStream();
+        } catch (IOException e) {
+            return null;
+        }
+        if (inputStream != null) {
+            if (log.isTraceEnabled()) {
+                log.trace("resolved " + entityMessageString(publicId, systemId) + "with file relative to " + localRepositoryURI + resolvedSystemIDURI);
+            }
+            return new InputSource(inputStream);
+        } else {
+            return null;
+        }
+        /*
         String resolvedSystemId = null;
 
-        File file = new File(localRepository, fileName);
+        File file = new File(localRepositoryURI, fileName);
         if (file.exists()) {
             resolvedSystemId = file.getAbsolutePath();
             if (log.isTraceEnabled()) {
@@ -324,12 +316,13 @@ public class LocalEntityResolver implements EntityResolver {
                         "resolved "
                         + entityMessageString(publicId, systemId)
                         + "with file relative to "
-                        + localRepository
+                        + localRepositoryURI
                         + resolvedSystemId);
             }
             return new InputSource(resolvedSystemId);
         }
         return null;
+        */
     }
 
     /**
@@ -354,11 +347,7 @@ public class LocalEntityResolver implements EntityResolver {
                 getClass().getClassLoader().getResourceAsStream(fileName);
         if (in != null) {
             if (log.isTraceEnabled()) {
-                log.trace(
-                        "resolved "
-                        + entityMessageString(publicId, systemId)
-                        + " via file found file on classpath: "
-                        + fileName);
+                log.trace("resolved " + entityMessageString(publicId, systemId) + " via file found file on classpath: " + fileName);
             }
             InputSource is = new InputSource(new BufferedInputStream(in));
             is.setSystemId(systemId);
@@ -442,13 +431,13 @@ public class LocalEntityResolver implements EntityResolver {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory("configurable local entity resolver", LocalEntityResolver.class.getName());
         infoFactory.addAttribute(new GAttributeInfo("CatalogFileURI", true));
-        infoFactory.addAttribute(new GAttributeInfo("LocalRepository", true));
+        infoFactory.addAttribute(new GAttributeInfo("LocalRepositoryURI", true));
         infoFactory.addAttribute(new GAttributeInfo("FailOnUnresolvable", true));
         infoFactory.addOperation(new GOperationInfo("resolveEntity", new String[]{String.class.getName(), String.class.getName()}));
         infoFactory.addOperation(new GOperationInfo("addPublicMapping", new String[]{String.class.getName(), String.class.getName()}));
         infoFactory.addOperation(new GOperationInfo("addSystemMapping", new String[]{String.class.getName(), String.class.getName()}));
-        infoFactory.setConstructor(new GConstructorInfo(new String[]{"CatalogFileURI", "LocalRepository", "FailOnUnresolvable"},
-                new Class[]{URI.class, String.class, Boolean.TYPE}));
+        infoFactory.setConstructor(new GConstructorInfo(new String[]{"CatalogFileURI", "LocalRepositoryURI", "FailOnUnresolvable"},
+                new Class[]{URI.class, URI.class, Boolean.TYPE}));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
