@@ -70,12 +70,14 @@ import org.apache.geronimo.deployment.model.geronimo.j2ee.RoleMappings;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.Role;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.Realm;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.Principal;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.DefaultPrincipal;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.BeanSecurity;
 import org.w3c.dom.Element;
 
 /**
  * Loads common Geronimo DD tags
  *
- * @version $Revision: 1.8 $ $Date: 2003/11/19 07:45:46 $
+ * @version $Revision: 1.9 $ $Date: 2004/01/18 21:16:25 $
  */
 public final class GeronimoJ2EELoader {
     public static EjbRef[] loadEJBRefs(Element e) {
@@ -213,9 +215,28 @@ public final class GeronimoJ2EELoader {
 
         J2EELoader.loadDescribable(s, security);
 
+        security.setDefaultPrincipal(loadDefaultPrincipal(s));
         security.setRoleMappings(loadRoleMappings(s));
 
+        String useEjbContextHandler = LoaderUtil.getAttribute(s, "use-context-handler");
+        if (useEjbContextHandler != null) {
+            security.setUseContextHandler(useEjbContextHandler.equalsIgnoreCase("true"));
+        }
+
         return security;
+    }
+
+    public static DefaultPrincipal loadDefaultPrincipal(Element e) {
+        Element dp = LoaderUtil.getChild(e, "default-principal");
+
+        DefaultPrincipal defaultPrincipal = new DefaultPrincipal();
+        J2EELoader.loadDescribable(dp, defaultPrincipal);
+        defaultPrincipal.setRealmName(LoaderUtil.getAttribute(dp, "realm-name"));
+
+        Element p = LoaderUtil.getChild(dp, "principal");
+        defaultPrincipal.setPrincipal(loadPrincipal(p, new Principal()));
+
+        return defaultPrincipal;
     }
 
     public static RoleMappings loadRoleMappings(Element e) {
@@ -279,5 +300,15 @@ public final class GeronimoJ2EELoader {
         principal.setClassName(LoaderUtil.getAttribute(e, "class"));
 
         return principal;
+    }
+    public static BeanSecurity loadBeanSecurity(Element e) {
+        Element bs = LoaderUtil.getChild(e, "bean-security");
+
+        if (bs == null) return null;
+
+        BeanSecurity beanSecurity = new BeanSecurity();
+        beanSecurity.setUseIdentity(LoaderUtil.getBoolean(bs, "use-identity"));
+
+        return beanSecurity;
     }
 }

@@ -76,7 +76,7 @@ import org.apache.geronimo.deployment.model.geronimo.ejb.EjbRelation;
 /**
  * Loads a Geronimo ejb-jar.xml file into POJOs
  *
- * @version $Revision: 1.14 $ $Date: 2003/11/19 11:07:57 $
+ * @version $Revision: 1.15 $ $Date: 2004/01/18 21:16:25 $
  */
 public class GeronimoEjbJarLoader {
     public static GeronimoEjbJarDocument load(Document doc) {
@@ -166,6 +166,7 @@ public class GeronimoEjbJarLoader {
             mdbs[i].setMessagingType(LoaderUtil.getChildContent(root, "messaging-type"));
             mdbs[i].setTransactionType(LoaderUtil.getChildContent(root, "transaction-type"));
             mdbs[i].setActivationConfig(loadActivationConfig(LoaderUtil.getChild(root, "activation-config")));
+            mdbs[i].setBeanSecurity(GeronimoJ2EELoader.loadBeanSecurity(root));
         }
         return mdbs;
     }
@@ -193,6 +194,7 @@ public class GeronimoEjbJarLoader {
             sessions[i].setServiceEndpoint(LoaderUtil.getChildContent(root, "service-endpoint"));
             sessions[i].setSessionType(LoaderUtil.getChildContent(root, "session-type"));
             sessions[i].setTransactionType(LoaderUtil.getChildContent(root, "transaction-type"));
+            sessions[i].setBeanSecurity(GeronimoJ2EELoader.loadBeanSecurity(root));
         }
         return sessions;
     }
@@ -223,6 +225,7 @@ public class GeronimoEjbJarLoader {
             entities[i].setUpdate(GeronimoEjbJarLoader.loadQueries(update));
             Element[] call = LoaderUtil.getChildren(root, "call");
             entities[i].setCall(GeronimoEjbJarLoader.loadQueries(call));
+            entities[i].setBeanSecurity(GeronimoJ2EELoader.loadBeanSecurity(root));
         }
         return entities;
     }

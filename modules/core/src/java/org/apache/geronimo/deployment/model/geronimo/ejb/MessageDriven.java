@@ -62,13 +62,16 @@ import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceEnvRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ServiceRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.JNDIEnvironmentRefs;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.BeanSecurity;
 
 /**
  * JavaBean for the geronimo-ejb-jar.xml tag message-driven
  *
- * @version $Revision: 1.4 $ $Date: 2003/11/19 00:33:59 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/18 21:14:35 $
  */
 public class MessageDriven extends org.apache.geronimo.deployment.model.ejb.MessageDriven implements JNDIEnvironmentRefs {
+
+    private BeanSecurity beanSecurity;
 
     public MessageDriven() {
         super.setEJBRef(new EjbRef[0]);
@@ -240,4 +243,11 @@ public class MessageDriven extends org.apache.geronimo.deployment.model.ejb.Mess
         return (ActivationConfig) super.getActivationConfig();
     }
 
+    public BeanSecurity getBeanSecurity() {
+        return beanSecurity;
+    }
+
+    public void setBeanSecurity(BeanSecurity beanSecurity) {
+        this.beanSecurity = beanSecurity;
+    }
 }

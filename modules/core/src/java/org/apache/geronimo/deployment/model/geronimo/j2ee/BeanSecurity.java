@@ -19,7 +19,7 @@
  * 3. The end-user documentation included with the redistribution,
  *    if any, must include the following acknowledgment:
  *       "This product includes software developed by the
- *        Apache Software Foundation (http:www.apache.org/)."
+ *        Apache Software Foundation (http://www.apache.org/)."
  *    Alternately, this acknowledgment may appear in the software itself,
  *    if and wherever such third-party acknowledgments normally appear.
  *
@@ -49,7 +49,7 @@
  * This software consists of voluntary contributions made by many
  * individuals on behalf of the Apache Software Foundation.  For more
  * information on the Apache Software Foundation, please see
- * <http:www.apache.org/>.
+ * <http://www.apache.org/>.
  *
  * ====================================================================
  */
@@ -59,36 +59,25 @@ import org.apache.geronimo.deployment.model.j2ee.Describable;
 
 
 /**
- * JavaBean for the Geronimo DD tag security
- *
- * @version $Revision: 1.2 $ $Date: 2004/01/18 21:14:35 $
+ * Security information that is specific to a particular bean is placed in here.
+ * @version $Revision: 1.1 $ $Date: 2004/01/18 21:14:35 $
  */
-public class Security extends Describable {
-    private boolean useContextHandler;
-    private DefaultPrincipal defaultPrincipal;
-    private RoleMappings roleMappings = new RoleMappings();
+public class BeanSecurity extends Describable {
+    private boolean useIdentity;
 
-    public boolean useContextHandler() {
-        return useContextHandler;
+    /**
+     * Perform the bean call as the caller's Subject
+     * @return true if the bean call is to be performed as the caller's Subject
+     */
+    public boolean useIdentity() {
+        return useIdentity;
     }
 
-    public void setUseContextHandler(boolean useContextHandler) {
-        this.useContextHandler = useContextHandler;
-    }
-
-    public DefaultPrincipal getDefaultPrincipal() {
-        return defaultPrincipal;
-    }
-
-    public void setDefaultPrincipal(DefaultPrincipal defaultPrincipal) {
-        this.defaultPrincipal = defaultPrincipal;
-    }
-
-    public RoleMappings getRoleMappings() {
-        return roleMappings;
-    }
-
-    public void setRoleMappings(RoleMappings roleMappings) {
-        this.roleMappings = roleMappings;
+    /**
+     * Perform the bean call as the caller's Subject
+     * @param useIdentity true if the bean call is to be performed as the caller's Subject
+     */
+    public void setUseIdentity(boolean useIdentity) {
+        this.useIdentity = useIdentity;
     }
 }

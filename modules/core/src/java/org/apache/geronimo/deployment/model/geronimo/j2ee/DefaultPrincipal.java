@@ -59,36 +59,26 @@ import org.apache.geronimo.deployment.model.j2ee.Describable;
 
 
 /**
- * JavaBean for the Geronimo DD tag security
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/18 21:14:35 $
+ * @version $Revision: 1.1 $ $Date: 2004/01/18 21:14:35 $
  */
-public class Security extends Describable {
-    private boolean useContextHandler;
-    private DefaultPrincipal defaultPrincipal;
-    private RoleMappings roleMappings = new RoleMappings();
+public class DefaultPrincipal extends Describable {
+    private String realmName;
+    private Principal principal;
 
-    public boolean useContextHandler() {
-        return useContextHandler;
+    public String getRealmName() {
+        return realmName;
     }
 
-    public void setUseContextHandler(boolean useContextHandler) {
-        this.useContextHandler = useContextHandler;
+    public void setRealmName(String realmName) {
+        this.realmName = realmName;
     }
 
-    public DefaultPrincipal getDefaultPrincipal() {
-        return defaultPrincipal;
+    public Principal getPrincipal() {
+        return principal;
     }
 
-    public void setDefaultPrincipal(DefaultPrincipal defaultPrincipal) {
-        this.defaultPrincipal = defaultPrincipal;
-    }
-
-    public RoleMappings getRoleMappings() {
-        return roleMappings;
-    }
-
-    public void setRoleMappings(RoleMappings roleMappings) {
-        this.roleMappings = roleMappings;
+    public void setPrincipal(Principal principal) {
+        this.principal = principal;
     }
 }

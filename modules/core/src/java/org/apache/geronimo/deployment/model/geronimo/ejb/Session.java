@@ -63,13 +63,16 @@ import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceEnvRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ServiceRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.JNDIEnvironmentRefs;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.BeanSecurity;
 
 /**
  * JavaBean for the geronimo-ejb-jar.xml tag session
  *
- * @version $Revision: 1.5 $ $Date: 2003/11/18 22:22:28 $
+ * @version $Revision: 1.6 $ $Date: 2004/01/18 21:14:35 $
  */
 public class Session extends org.apache.geronimo.deployment.model.ejb.Session implements JNDIEnvironmentRefs {
+
+    private BeanSecurity beanSecurity;
 
     public Session() {
         super.setSecurityRoleRef(new SecurityRoleRef[0]);
@@ -261,5 +264,13 @@ public class Session extends org.apache.geronimo.deployment.model.ejb.Session im
 
     public void setGeronimoServiceRef(int i, ServiceRef ref) {
         super.setServiceRef(i, ref);
+    }
+    
+    public BeanSecurity getBeanSecurity() {
+        return beanSecurity;
+    }
+
+    public void setBeanSecurity(BeanSecurity beanSecurity) {
+        this.beanSecurity = beanSecurity;
     }
 }

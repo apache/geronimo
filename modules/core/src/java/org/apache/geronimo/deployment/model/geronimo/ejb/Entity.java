@@ -63,16 +63,18 @@ import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceEnvRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.SecurityRoleRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ServiceRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.BeanSecurity;
 
 /**
  * JavaBean for the geronimo-ejb-jar.xml tag entity
  *
- * @version $Revision: 1.7 $ $Date: 2003/11/19 11:07:57 $
+ * @version $Revision: 1.8 $ $Date: 2004/01/18 21:14:35 $
  */
 public class Entity extends org.apache.geronimo.deployment.model.ejb.Entity implements JNDIEnvironmentRefs {
 
     private Query[] update;
     private Query[] call;
+    private BeanSecurity beanSecurity;
 
     public Entity() {
         super.setSecurityRoleRef(new SecurityRoleRef[0]);
@@ -281,6 +283,14 @@ public class Entity extends org.apache.geronimo.deployment.model.ejb.Entity impl
 
     public Query getGeronimoQuery(int i) {
         return (Query)super.getQuery(i);
+    }
+
+    public BeanSecurity getBeanSecurity() {
+        return beanSecurity;
+    }
+
+    public void setBeanSecurity(BeanSecurity beanSecurity) {
+        this.beanSecurity = beanSecurity;
     }
 
     public Query[] getUpdate() {

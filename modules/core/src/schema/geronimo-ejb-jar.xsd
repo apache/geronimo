@@ -238,6 +238,7 @@
             <xsd:group ref="j2ee:jndiEnvironmentRefsGroup"/>
             <xsd:element name="security-role-ref" type="j2ee:security-role-refType" minOccurs="0" maxOccurs="unbounded"/>
             <xsd:element name="security-identity" type="j2ee:security-identityType" minOccurs="0"/>
+            <xsd:element name="bean-security" type="j2ee:bean-securityType" minOccurs="0"/>
             <xsd:element name="query" type="j2ee:queryType" minOccurs="0" maxOccurs="unbounded"/>
             <xsd:element name="update" type="j2ee:queryType" minOccurs="0" maxOccurs="unbounded"/>
             <xsd:element name="call" type="j2ee:queryType" minOccurs="0" maxOccurs="unbounded"/>
@@ -270,6 +271,7 @@
             <xsd:element name="activation-config" type="activation-configType" minOccurs="0"/>
             <xsd:group ref="j2ee:jndiEnvironmentRefsGroup"/>
             <xsd:element name="security-identity" type="j2ee:security-identityType" minOccurs="0"/>
+            <xsd:element name="bean-security" type="j2ee:bean-securityType" minOccurs="0"/>
         </xsd:sequence>
         <xsd:attribute name="id" type="xsd:ID"/>
     </xsd:complexType>
@@ -413,6 +415,12 @@
         </xsd:sequence>
         <xsd:attribute name="id" type="xsd:ID"/>
     </xsd:complexType>
+    <xsd:complexType name="bean-securityType">
+        <xsd:sequence>
+            <xsd:element name="description" type="j2ee:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+        <xsd:attribute name="use-identity" type="xs:boolean"/>
+    </xsd:complexType>
     <xsd:complexType name="session-beanType">
         <xsd:sequence>
             <xsd:group ref="j2ee:descriptionGroup"/>
@@ -428,6 +436,7 @@
             <xsd:group ref="j2ee:jndiEnvironmentRefsGroup"/>
             <xsd:element name="security-role-ref" type="j2ee:security-role-refType" minOccurs="0" maxOccurs="unbounded"/>
             <xsd:element name="security-identity" type="j2ee:security-identityType" minOccurs="0"/>
+            <xsd:element name="bean-security" type="j2ee:bean-securityType" minOccurs="0"/>
         </xsd:sequence>
         <xsd:attribute name="id" type="xsd:ID"/>
     </xsd:complexType>

@@ -2,11 +2,13 @@
 <ejb-jar xmlns="http://java.sun.com/xml/ns/j2ee"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns:ger="http://geronimo.apache.org/xml/schema/j2ee"
-         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
-         http://geronimo.apache.org/xml/schema/1.0/j2ee14/geronimo-ejb-jar.xsd"
+         xsi:schemaLocation="http://geronimo.apache.org/xml/schema/j2ee http://geronimo.apache.org/xml/schema/1.0/j2ee14/geronimo-ejb-jar.xsd"
          version="2.1">
     <class-space name="geronimo.system:role=ClassSpace,name=Test" parent="geronimo.system:role=ClassSpace,name=System"/>
-    <security>
+    <security use-context-handler="true" >
+        <default-principal realm-name="System">
+            <principal class="org.apache.geronimo.security.DefaultPrincipal" name="default"/>
+        </default-principal>
         <role-mappings>
             <role role-name="ONE">
                 <realm realm-name="Foo">
@@ -20,8 +22,9 @@
         <entity>
             <ejb-name>EJB1</ejb-name>
             <security-identity>
-                <run-as>FOOBAR</run-as>
+                <run-as>ONE</run-as>
             </security-identity>
+            <bean-security use-identity="true"/>
         </entity>
 
         <entity>
@@ -30,13 +33,17 @@
                 <role-name>RoleCheck</role-name>
                 <role-link>ONE</role-link>
             </security-role-ref>
+            <bean-security use-identity="true"/>
         </entity>
 
         <entity>
             <ejb-name>EJB3</ejb-name>
+            <bean-security use-identity="true"/>
         </entity>
+
         <entity>
             <ejb-name>EJB4</ejb-name>
+            <bean-security use-identity="true"/>
         </entity>
     </enterprise-beans>
 
