@@ -17,18 +17,20 @@
 
 package org.apache.geronimo.security.jacc;
 
-import java.security.AccessController;
-
-import javax.security.auth.Subject;
 import javax.security.jacc.PolicyContextException;
 import javax.security.jacc.PolicyContextHandler;
 
+import org.apache.geronimo.security.ContextManager;
+
 
 /**
+ * Container Subject Policy Context Handler
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:25 $
+ * @version $Revision: 1.4 $ $Date: 2004/07/14 03:23:01 $
+ * @see "JACC v1.0" section 4.6.1.1
  */
 public class PolicyContextHandlerContainerSubject implements PolicyContextHandler {
+
     public static final String HANDLER_KEY = "javax.security.auth.Subject.container";
 
     public boolean supports(String key) throws PolicyContextException {
@@ -41,7 +43,7 @@ public class PolicyContextHandlerContainerSubject implements PolicyContextHandle
 
     public Object getContext(String key, Object data) throws PolicyContextException {
         try {
-            return Subject.getSubject(AccessController.getContext());
+            return ContextManager.getCurrentCaller();
         } catch (Exception e) {
             throw new PolicyContextException(e);
         }
