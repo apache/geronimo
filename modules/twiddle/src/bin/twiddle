@@ -1,12 +1,12 @@
 #!/bin/sh
 ##############################################################################
 ##                                                                          ##
-##  Twiddle JVM Bootstrap                                                   ##
+##  Twiddle JVM Bootstrap for UN*X                                          ##
 ##                                                                          ##
 ##############################################################################
 
 ##
-## $Revision: 1.1 $ $Date: 2003/08/24 09:27:44 $
+## $Revision: 1.2 $ $Date: 2003/08/25 15:44:54 $
 ##
 
 PROGNAME=`basename $0`
@@ -15,8 +15,8 @@ DIRNAME=`dirname $0`
 # Use the maximum available, or set MAX_FD != -1 to use that
 MAX_FD="maximum"
 
-# The version of forehead to boot with
-FOREHEAD_VERSION="SNAPSHOT"
+# The version of classworlds to boot with
+CLASSWORLDS_VERSION="SNAPSHOT"
 
 warn() {
     echo "${PROGNAME}: $*"
@@ -55,11 +55,11 @@ if [ "x$TWIDDLE_HOME" = "x" ]; then
     TWIDDLE_HOME=`cd $DIRNAME/..; pwd`
 fi
 
-# Use default forehead config
-if [ -z "$FOREHEAD_CONF" ]; then
-    FOREHEAD_CONF="$TWIDDLE_HOME/etc/forehead.conf"
+# Use default classworlds config
+if [ -z "$CLASSWORLDS_CONF" ]; then
+    CLASSWORLDS_CONF="$TWIDDLE_HOME/etc/classworlds.conf"
 fi
-FOREHEAD_CLASSPATH="$TWIDDLE_HOME/lib/forehead-${FOREHEAD_VERSION}.jar"
+CLASSWORLDS_CLASSPATH="$TWIDDLE_HOME/lib/classworlds-${CLASSWORLDS_VERSION}.jar"
 
 # Determine the Java command to use to start the JVM
 if [ -z "$JAVACMD" ]; then
@@ -74,11 +74,9 @@ if [ -z "$JAVACMD" ]; then
         JAVACMD="java"
     fi
 fi
-
 if [ ! -x "$JAVACMD" ]; then
     die "JAVA_HOME is not defined correctly; can not execute: $JAVACMD"
 fi
-
 if [ -z "$JAVA_HOME" ] ; then
     warn "JAVA_HOME environment variable is not set"
 fi
@@ -122,8 +120,8 @@ fi
 if $cygwin; then
     TWIDDLE_HOME=`cygpath --path --windows "$TWIDDLE_HOME"`
     JAVA_HOME=`cygpath --path --windows "$JAVA_HOME"`
-    FOREHEAD_CONF=`cygpath --path --windows "$FOREHEAD_CONF"`
-    FOREHEAD_CLASSPATH=`cygpath --path --windows "$FOREHEAD_CLASSPATH"`
+    CLASSWORLDS_CONF=`cygpath --path --windows "$CLASSWORLDS_CONF"`
+    CLASSWORLDS_CLASSPATH=`cygpath --path --windows "$CLASSWORLDS_CLASSPATH"`
     TOOLS_JAR=`cygpath --path --windows "$TOOLS_JAR"`
 fi
 
@@ -132,10 +130,10 @@ if $useprofiler; then
     runProfiler
 else
     exec $JAVACMD $JAVA_OPTS \
-        -classpath "$FOREHEAD_CLASSPATH" \
+        -classpath "$CLASSWORLDS_CLASSPATH" \
         -Dprogram.name="$PROGNAME" \
-        -Dforehead.conf.file="$FOREHEAD_CONF" \
+        -Dclassworlds.conf="$CLASSWORLDS_CONF" \
         -Dtwiddle.home="$TWIDDLE_HOME" \
         -Dtools.jar="$TOOLS_JAR" \
-        com.werken.forehead.Forehead "$@"
+        com.werken.classworlds.Launcher "$@"
 fi

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.8 $ $Date: 2003/08/24 20:09:25 $ -->
+<!-- $Revision: 1.9 $ $Date: 2003/08/25 15:44:54 $ -->
 
 <project>
   <pomVersion>3</pomVersion>
@@ -54,18 +54,9 @@
     -->
     
     <dependency>
-      <id>forehead</id>
-      <version>SNAPSHOT</version>
-      <url>http://forehead.werken.com</url>
-      <properties>
-        <runtime>true</runtime>
-      </properties>
-    </dependency>
-    
-    <dependency>
       <id>classworlds</id>
       <version>SNAPSHOT</version>
-      <url>http://werken.com</url>
+      <url>http://classworlds.codehaus.org</url>
       <properties>
         <runtime>true</runtime>
       </properties>
@@ -93,7 +84,7 @@
       <id>xml-apis</id>
       <version>1.0.b2</version>
       <properties>
-        <runtime>true</runtime>
+        <runtime>false</runtime>
       </properties>
     </dependency>
     
@@ -106,16 +97,23 @@
       </properties>
     </dependency>
     
-    <!-- Will need this soon
     <dependency>
       <id>commons-beanutils</id>
-      <version>1.6.1</version>
+      <version>SNAPSHOT</version>
       <url>http://jakarta.apache.org/commons/beanutils.html</url>
       <properties>
         <runtime>true</runtime>
       </properties>
     </dependency>
-    -->
+    
+    <dependency>
+      <id>commons-collections</id>
+      <version>SNAPSHOT</version>
+      <url>http://jakarta.apache.org/commons/collections.html</url>
+      <properties>
+        <runtime>true</runtime>
+      </properties>
+    </dependency>
     
     <dependency>
       <id>commons-logging</id>
