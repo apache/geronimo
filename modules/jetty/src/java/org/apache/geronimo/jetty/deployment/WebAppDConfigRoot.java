@@ -73,7 +73,7 @@ import org.apache.xmlbeans.XmlException;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/02/09 23:11:04 $
+ * @version $Revision: 1.5 $ $Date: 2004/02/11 08:02:21 $
  */
 public class WebAppDConfigRoot extends DConfigBeanRootSupport {
     private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
@@ -91,7 +91,7 @@ public class WebAppDConfigRoot extends DConfigBeanRootSupport {
 
     private void replaceWebAppDConfigBean(JettyWebAppType webApp) {
         DDBean ddBean = getDDBean();
-        webAppBean = new WebAppDConfigBean(ddBean.getChildBean("/web-app")[0], webApp);
+        webAppBean = new WebAppDConfigBean(ddBean.getChildBean(XPATHS[0])[0], webApp);
     }
 
     JettyWebAppDocument getWebAppDocument() {
@@ -103,7 +103,7 @@ public class WebAppDConfigRoot extends DConfigBeanRootSupport {
     }
 
     public DConfigBean getDConfigBean(DDBean bean) throws ConfigurationException {
-        if ("/web-app".equals(bean.getXpath())) {
+        if (XPATHS[0].equals(bean.getXpath())) {
             return webAppBean;
         }
         return null;

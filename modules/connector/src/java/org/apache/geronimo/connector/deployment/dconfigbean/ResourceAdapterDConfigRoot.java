@@ -74,7 +74,7 @@ import org.apache.xmlbeans.XmlException;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/10 08:04:21 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/11 08:02:20 $
  *
  * */
 public class ResourceAdapterDConfigRoot extends DConfigBeanRootSupport {
@@ -105,9 +105,8 @@ public class ResourceAdapterDConfigRoot extends DConfigBeanRootSupport {
         return XPATHS;
     }
 
-    //TODO should the xpath start with /??
     public DConfigBean getDConfigBean(DDBean bean) throws ConfigurationException {
-        if (("/" + XPATHS[0]).equals(bean.getXpath())) {
+        if (XPATHS[0].equals(bean.getXpath())) {
             return resourceAdapterDConfigBean;
         }
         return null;

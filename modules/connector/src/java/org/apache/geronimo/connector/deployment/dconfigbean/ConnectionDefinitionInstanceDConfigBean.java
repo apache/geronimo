@@ -74,7 +74,7 @@ import org.apache.xmlbeans.XmlBeans;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/10 19:59:14 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/11 08:02:20 $
  *
  * */
 public class ConnectionDefinitionInstanceDConfigBean extends DConfigBeanSupport {
@@ -205,7 +205,7 @@ public class ConnectionDefinitionInstanceDConfigBean extends DConfigBeanSupport 
 
     public DConfigBean getDConfigBean(DDBean bean) throws ConfigurationException {
         String xpath = bean.getXpath();
-        if (xpath.endsWith("/config-property")) {
+        if (xpath.equals(CONNECTION_DEFINITION_INSTANCE_XPATHS[0])) {
             String configPropertyName = bean.getText("config-property-name")[0];
             ConfigPropertySettingDConfigBean configPropertySetting = (ConfigPropertySettingDConfigBean) configPropertiesMap.get(configPropertyName);
             assert configPropertySetting != null;

@@ -71,9 +71,9 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Document;
 
 /**
- * 
- * 
- * @version $Revision: 1.1 $ $Date: 2004/01/21 20:37:29 $
+ *
+ *
+ * @version $Revision: 1.2 $ $Date: 2004/02/11 08:02:21 $
  */
 public class DDBeanRootImpl implements DDBeanRoot {
     private final DeployableObject deployable;
@@ -158,9 +158,13 @@ public class DDBeanRootImpl implements DDBeanRoot {
         String childName = (index == -1) ? xpath : xpath.substring(0, index);
         if (childName.equals(doc.getDocumentElement().getNodeName())) {
             if (index == -1) {
-                return new DDBean[] {docBean };
+                return new DDBean[] {new DDBeanImpl((DDBeanImpl)docBean, xpath)};
             } else {
-                return docBean.getChildBean(xpath.substring(index+1));
+                DDBean[] newDDBeans = docBean.getChildBean(xpath.substring(index+1));
+                for (int i = 0; i < newDDBeans.length; i++) {
+                    newDDBeans[i] = new DDBeanImpl((DDBeanImpl)newDDBeans[i], xpath);
+                }
+                return newDDBeans;
             }
         } else {
             return null;

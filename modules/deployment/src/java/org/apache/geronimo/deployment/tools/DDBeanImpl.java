@@ -60,6 +60,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.model.DDBeanRoot;
 import javax.enterprise.deploy.model.XpathListener;
@@ -73,7 +74,7 @@ import org.w3c.dom.Node;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/23 19:58:17 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/11 08:02:21 $
  */
 public class DDBeanImpl implements DDBean {
     protected final DDBeanRoot root;
@@ -97,6 +98,13 @@ public class DDBeanImpl implements DDBean {
                 childs.add(new DDBeanImpl(root, xpath + "/" + child.getNodeName(), child));
             }
         }
+    }
+
+    DDBeanImpl(DDBeanImpl source, String xpath) {
+        this.xpath = xpath;
+        this.root = source.root;
+        this.children = source.children;
+        this.element = source.element;
     }
 
     public DDBeanRoot getRoot() {
@@ -146,7 +154,11 @@ public class DDBeanImpl implements DDBean {
             if (beans == null) {
                 return null;
             }
-            return (DDBean[]) beans.toArray(new DDBean[beans.size()]);
+            DDBean[] newDDBeans = (DDBean[]) beans.toArray(new DDBean[beans.size()]);
+            for (int i = 0; i < newDDBeans.length; i++) {
+                newDDBeans[i] = new DDBeanImpl((DDBeanImpl) newDDBeans[i], xpath);
+            }
+            return newDDBeans;
         } else {
             List childBeans = (List) children.get(xpath.substring(0, index));
             if (childBeans == null) {
@@ -159,7 +171,7 @@ public class DDBeanImpl implements DDBean {
                 DDBean[] childs = bean.getChildBean(path);
                 if (childs != null) {
                     for (int j = 0; j < childs.length; j++) {
-                        beans.add(childs[j]);
+                        beans.add(new DDBeanImpl((DDBeanImpl) childs[j], xpath));
                     }
                 }
             }
@@ -181,5 +193,19 @@ public class DDBeanImpl implements DDBean {
     }
 
     public void removeXpathListener(String xpath, XpathListener xpl) {
+    }
+
+    public boolean equals(Object other) {
+        if (other.getClass() != DDBeanImpl.class) {
+            return false;
+        }
+        DDBeanImpl otherdd = (DDBeanImpl)other;
+        return xpath.equals(otherdd.xpath)
+        && element.equals(otherdd.element)
+        && root.equals(otherdd.root);
+    }
+
+    public int hashCode() {
+        return xpath.hashCode() ^ element.hashCode() ^ root.hashCode();
     }
 }

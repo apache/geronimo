@@ -75,7 +75,7 @@ import org.apache.xmlbeans.XmlBeans;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/10 08:04:21 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/11 08:02:20 $
  *
  * */
 public class ResourceAdapterDConfigBean extends DConfigBeanSupport {
@@ -177,21 +177,21 @@ public class ResourceAdapterDConfigBean extends DConfigBeanSupport {
 
     public DConfigBean getDConfigBean(DDBean bean) throws ConfigurationException {
         String xpath = bean.getXpath();
-        if (xpath.endsWith("/" + RESOURCE_ADAPTER_XPATHS[0])) {
+        if (xpath.equals(RESOURCE_ADAPTER_XPATHS[0])) {
             //resource adapter config property
             String configPropertyName = bean.getText("config-property-name")[0];
             ConfigPropertySettingDConfigBean configPropertySetting = (ConfigPropertySettingDConfigBean) configPropertiesMap.get(configPropertyName);
             assert configPropertySetting != null;
             return configPropertySetting;
         }
-        if (xpath.endsWith("/" + RESOURCE_ADAPTER_XPATHS[1])) {
+        if (xpath.equals(RESOURCE_ADAPTER_XPATHS[1])) {
             //connection definition
             String connectionFactoryInterface = bean.getText("connectionfactory-interface")[0];
             ConnectionDefinitionDConfigBean connectionDefinition = (ConnectionDefinitionDConfigBean) connectionDefinitionsMap.get(connectionFactoryInterface);
             assert connectionDefinition != null;
             return connectionDefinition;
         }
-        if (xpath.endsWith("/" + RESOURCE_ADAPTER_XPATHS[2])) {
+        if (xpath.equals(RESOURCE_ADAPTER_XPATHS[2])) {
             //admin objects
             String adminObjectInterface = bean.getText("adminobject-interface")[0];
             String adminObjectClass = bean.getText("adminobject-class")[0];

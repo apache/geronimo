@@ -59,7 +59,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 import javax.enterprise.deploy.spi.DConfigBeanRoot;
-import javax.enterprise.deploy.spi.DeploymentConfiguration;
 
 import org.apache.geronimo.deployment.tools.loader.WebDeployable;
 import org.apache.geronimo.xbeans.geronimo.deployment.jetty.JettyContextRootType;
@@ -71,7 +70,7 @@ import org.w3c.dom.Element;
 /**
  *
  *
- * @version $Revision: 1.8 $ $Date: 2004/02/09 00:01:20 $
+ * @version $Revision: 1.9 $ $Date: 2004/02/11 08:02:21 $
  */
 public class WARConfigurationFactoryTest extends DeployerTestCase {
 
@@ -94,7 +93,7 @@ public class WARConfigurationFactoryTest extends DeployerTestCase {
         WebDeployable deployable = new WebDeployable(classLoader.getResource("deployables/war1/"));
         WARConfiguration config = new WARConfiguration(deployable);
         DConfigBeanRoot configRoot = config.getDConfigBeanRoot(deployable.getDDBeanRoot());
-        WebAppDConfigBean contextBean = (WebAppDConfigBean) configRoot.getDConfigBean(deployable.getChildBean("/web-app")[0]);
+        WebAppDConfigBean contextBean = (WebAppDConfigBean) configRoot.getDConfigBean(deployable.getChildBean(configRoot.getXpaths()[0])[0]);
         contextBean.setContextRoot("/test");
         contextBean.setContextPriorityClassLoader(false);
 
@@ -114,7 +113,7 @@ public class WARConfigurationFactoryTest extends DeployerTestCase {
         WebDeployable deployable = new WebDeployable(classLoader.getResource("deployables/war1/"));
         WARConfiguration config = new WARConfiguration(deployable);
         DConfigBeanRoot configRoot = config.getDConfigBeanRoot(deployable.getDDBeanRoot());
-        WebAppDConfigBean contextBean = (WebAppDConfigBean) configRoot.getDConfigBean(deployable.getChildBean("/web-app")[0]);
+        WebAppDConfigBean contextBean = (WebAppDConfigBean) configRoot.getDConfigBean(deployable.getChildBean(configRoot.getXpaths()[0])[0]);
         contextBean.setContextRoot("/test");
         contextBean.setContextPriorityClassLoader(true);
         checkContents(((WebAppDConfigRoot)configRoot).getWebAppDocument());
@@ -127,7 +126,7 @@ public class WARConfigurationFactoryTest extends DeployerTestCase {
 
         config = new WARConfiguration(deployable);
         configRoot = config.getDConfigBeanRoot(deployable.getDDBeanRoot());
-        contextBean = (WebAppDConfigBean) configRoot.getDConfigBean(deployable.getChildBean("/web-app")[0]);
+        contextBean = (WebAppDConfigBean) configRoot.getDConfigBean(deployable.getChildBean(configRoot.getXpaths()[0])[0]);
 
         assertEquals("", contextBean.getContextRoot());
 
@@ -136,7 +135,7 @@ public class WARConfigurationFactoryTest extends DeployerTestCase {
         checkContents(((WebAppDConfigRoot)configRoot).getWebAppDocument());
 
 
-        contextBean = (WebAppDConfigBean) configRoot.getDConfigBean(deployable.getChildBean("/web-app")[0]);
+        contextBean = (WebAppDConfigBean) configRoot.getDConfigBean(deployable.getChildBean(configRoot.getXpaths()[0])[0]);
         assertEquals("/test", contextBean.getContextRoot());
         assertEquals(true, contextBean.getContextPriorityClassLoader());
     }

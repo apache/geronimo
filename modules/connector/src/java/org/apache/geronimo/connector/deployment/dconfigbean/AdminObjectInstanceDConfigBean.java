@@ -72,7 +72,7 @@ import org.apache.xmlbeans.XmlBeans;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/10 08:04:21 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/11 08:02:20 $
  *
  * */
 public class AdminObjectInstanceDConfigBean extends DConfigBeanSupport{
@@ -123,7 +123,7 @@ public class AdminObjectInstanceDConfigBean extends DConfigBeanSupport{
 
     public DConfigBean getDConfigBean(DDBean bean) throws ConfigurationException {
         String xpath = bean.getXpath();
-        if (xpath.endsWith("/config-property")) {
+        if (xpath.equals(ADMIN_OBJECT_INSTANCE_XPATHS[0])) {
             String configPropertyName = bean.getText("config-property-name")[0];
             ConfigPropertySettingDConfigBean configPropertySetting = (ConfigPropertySettingDConfigBean) configPropertiesMap.get(configPropertyName);
             assert configPropertySetting != null;

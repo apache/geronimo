@@ -69,9 +69,9 @@ import javax.enterprise.deploy.shared.ModuleType;
 import junit.framework.TestCase;
 
 /**
- * 
- * 
- * @version $Revision: 1.1 $ $Date: 2004/01/21 20:37:28 $
+ *
+ *
+ * @version $Revision: 1.2 $ $Date: 2004/02/11 08:02:21 $
  */
 public class DDBeanRootTest extends TestCase {
     private DDBeanRoot root;
@@ -93,7 +93,7 @@ public class DDBeanRootTest extends TestCase {
 
         DDBean description = root.getChildBean("application-client/description")[0];
         assertEquals("Test DD for app-client1", description.getText());
-        assertEquals("/application-client/description", description.getXpath());
+        assertEquals("application-client/description", description.getXpath());
         assertEquals(description, description.getChildBean("/application-client/description")[0]);
     }
 
