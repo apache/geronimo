@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.33 $ $Date: 2003/09/01 10:05:06 $ -->
+<!-- $Revision: 1.34 $ $Date: 2003/09/05 21:19:03 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
@@ -255,10 +255,21 @@
     </define:tag>
     
     <define:tag name="default">
-      <aggregate:scripts/>
-      <aggregate:config/>
-      <aggregate:deploy/>
-      <aggregate:libraries/>
+      <j:if test="${scripts == null || scripts == 'true'}">
+        <aggregate:scripts/>
+      </j:if>
+      
+      <j:if test="${config == null || config == 'true'}">
+        <aggregate:config/>
+      </j:if>
+      
+      <j:if test="${deploy == null || deploy == 'true'}">
+        <aggregate:deploy/>
+      </j:if>
+      
+      <j:if test="${libraries == null || libraries == 'true'}">
+        <aggregate:libraries/>
+      </j:if>
     </define:tag>
     
   </define:taglib>
@@ -279,12 +290,13 @@
       <j:set var="module.root" value="${module.file.parent}"/>
       
       <!-- Invoke the aggregation hook -->
-      <j:set var="hook.name" value="modules:aggregate:${module.id}"/>
+      <j:set var="hook_name" value="modules:aggregate:${module.id}"/>
       <!-- If there is no goal defined then use the default -->
-      <j:if test="${org.apache.commons.jelly.werkz.Project.getGoal(hook.name) == null}">
-        <j:set var="hook.name" value="modules:aggregate:default"/>
+      <j:set var="werkzProject" value="${org.apache.commons.jelly.werkz.Project}"/>
+      <j:if test="${werkzProject.getGoal(hook_name) == null}">
+        <j:set var="hook_name" value="modules:aggregate:default"/>
       </j:if>
-      <attainGoal name="${hook.name}"/>
+      <attainGoal name="${hook_name}"/>
       
       <!-- Process dependencies -->
       <j:forEach var="artifact" items="${module.artifacts}">
@@ -292,13 +304,22 @@
         <j:if test="${dependency.getProperty('runtime') == 'true'}">
           <ant:echo>Processing dependency: ${dependency.id}</ant:echo>
           
-          <!--
-             | TODO: Figure out a better way to allow artifact destination
-             |       to vary, but for now just dump them into lib
-           -->
+          <j:choose>
+            <j:when test="${dependency.getProperty('destinations') == null}">
+              <j:set var="destinations" value="lib"/>
+            </j:when>
+            <j:otherwise>
+              <j:set var="destinations" value="${dependency.getProperty('destinations')}"/>
+            </j:otherwise>
+          </j:choose>
           
-          <ant:mkdir dir="${aggregate.dir}/lib"/>
-          <ant:copy todir="${aggregate.dir}/lib" file="${artifact.path}"/>
+          <u:tokenize var="destinationSet" delim="," trim="true">${destinations}</u:tokenize>
+          
+          <j:forEach var="destination" items="${destinationSet}" trim="true">
+            <j:set var="targetDir" value="${aggregate.dir}/${destination.trim()}"/>
+            <ant:mkdir dir="${targetDir}"/>
+            <ant:copy todir="${targetDir}" file="${artifact.path}"/>
+          </j:forEach>
         </j:if>
       </j:forEach>
     </j:forEach>
@@ -340,6 +361,17 @@
   
   <goal name="modules:aggregate:default">
     <aggregate:default/>
+  </goal>
+  
+  <goal name="modules:aggregate:geronimo:geronimo-web">
+    <!-- Do not do the default libraries stuff -->
+    <aggregate:default libraries="false"/>
+    
+    <!-- Put geronimo-web into deploy/jetty/lib -->
+    <aggregate:copy
+      source="${module.root}/target"
+      target="${aggregate.dir}/deploy/jetty/lib"
+      include="*.jar"/>
   </goal>
   
   <!--
