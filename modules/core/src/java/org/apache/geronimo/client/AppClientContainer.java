@@ -60,17 +60,17 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import javax.naming.Context;
 
-import org.apache.geronimo.common.AbstractRPCContainer;
-import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.core.service.AbstractRPCContainer;
+import org.apache.geronimo.kernel.deployment.DeploymentException;
 import org.apache.geronimo.naming.java.ComponentContextInterceptor;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 
 /**
  *
  * @jmx:mbean
- *      extends="org.apache.geronimo.common.RPCContainer,org.apache.geronimo.management.StateManageable"
+ *      extends="org.apache.geronimo.core.service.RPCContainer,org.apache.geronimo.kernel.management.StateManageable"
  *
- * @version $Revision: 1.4 $ $Date: 2003/09/04 05:16:17 $
+ * @version $Revision: 1.5 $ $Date: 2003/09/08 04:19:54 $
  */
 public class AppClientContainer extends AbstractRPCContainer implements AppClientContainerMBean {
     private static final Class[] MAIN_ARGS = {String[].class};
