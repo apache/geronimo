@@ -1,5 +1,5 @@
 ======================================================
-Apache Geronimo milestone build M1  (Apr 28, 2004)
+Apache Geronimo milestone build M2  (Aug 4, 2004)
 
 http://wiki.apache.org/geronimo
 http://geronimo.apache.org
@@ -17,7 +17,12 @@ Documentation
    
  Those are wiki pages that will be updated as we collect feedback from
  this release.
- 
+
+ O'Reilly has released two chapters of the forthcoming Geronimo Developer's 
+ Notebook by David Blevins (O'Reilly 2004-ish) to help Geronimo reach its M2 
+ goals and to grow the community.  The chapters are located at:
+  
+ http://today.java.net/pub/a/today/2004/08/04/geronimo.html
 ___________________
 Release Notes
 ===================
