@@ -58,54 +58,53 @@ package org.apache.geronimo.remoting.router;
 import java.net.URI;
 
 import org.apache.geronimo.core.service.Interceptor;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GEndpointInfo;
 import org.apache.geronimo.remoting.InterceptorRegistry;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2003/11/19 11:30:51 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/22 06:39:23 $
  */
 public class InterceptorRegistryRouter extends AbstractInterceptorRouter implements Router {
+    private SubsystemRouter subsystemRouter;
 
-    SubsystemRouter subsystemRouter;
-    
-    /**
-     * @return Returns the subsystemRouter.
-     */
     public SubsystemRouter getSubsystemRouter() {
         return subsystemRouter;
     }
 
-    /**
-     * @param subsystemRouter The subsystemRouter to set.
-     */
     public void setSubsystemRouter(SubsystemRouter subsystemRouter) {
         this.subsystemRouter = subsystemRouter;
     }
 
-    /**
-     * @see org.apache.geronimo.remoting.router.AbstractInterceptorRouter#lookupInterceptorFrom(java.net.URI)
-     */
     protected Interceptor lookupInterceptorFrom(URI to) throws Throwable {
-        Long x = new Long(to.getFragment());
-        return InterceptorRegistry.instance.lookup(x);
+        Long identifier = new Long(to.getFragment());
+        return InterceptorRegistry.instance.lookup(identifier);
     }
-    
-    /**
-     * @see org.apache.geronimo.remoting.router.AbstractInterceptorRouter#doStart()
-     */
+
     public void doStart() {
-        if(subsystemRouter!=null)
+        if (subsystemRouter != null) {
             subsystemRouter.addRoute("/Remoting", this);
+        }
         super.doStart();
     }
-    
-    /**
-     * @see org.apache.geronimo.remoting.router.AbstractInterceptorRouter#doStop()
-     */
+
     public void doStop() {
         super.doStop();
-        if(subsystemRouter!=null)
+        if (subsystemRouter != null) {
             subsystemRouter.removeRoute("/Remoting");
+        }
     }
-    
 
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(InterceptorRegistryRouter.class.getName(), AbstractInterceptorRouter.GBEAN_INFO);
+        infoFactory.addEndpoint(new GEndpointInfo("SubsystemRouter", SubsystemRouter.class.getName()));
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
 }

@@ -56,12 +56,17 @@
 package org.apache.geronimo.remoting.router;
 
 import java.net.URI;
+import java.util.Set;
+import java.util.HashSet;
 
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocation;
 import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanContext;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GEndpointInfo;
+import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.jmx.GBeanMBeanContext;
 import org.apache.geronimo.remoting.InvocationSupport;
 import org.apache.geronimo.remoting.MarshalledObject;
@@ -73,7 +78,7 @@ import EDU.oswego.cs.dl.util.concurrent.Sync;
 import EDU.oswego.cs.dl.util.concurrent.TimeoutSync;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/01/22 03:53:32 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/22 06:39:23 $
  */
 public abstract class AbstractInterceptorRouter implements GBean, Router {
     private long stoppedRoutingTimeout = 1000 * 60; // 1 min.
@@ -152,5 +157,18 @@ public abstract class AbstractInterceptorRouter implements GBean, Router {
 
     public void doFail() {
         // @todo do your best to clean up after a failure
+    }
+
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        Set operations = new HashSet();
+        operations.add(new GOperationInfo("sendRequest", new String[]{"java.net.URI", "org.apache.geronimo.remoting.transport.Msg"}));
+        operations.add(new GOperationInfo("sendDatagram", new String[]{"java.net.URI", "org.apache.geronimo.remoting.transport.Msg"}));
+        GBEAN_INFO = new GBeanInfo(AbstractInterceptorRouter.class.getName(), null, null, operations, null, null);
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
     }
 }

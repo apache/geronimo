@@ -56,13 +56,18 @@
 package org.apache.geronimo.remoting.transport;
 
 import java.net.URI;
+import java.util.HashSet;
+import java.util.Set;
 
+import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanContext;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GEndpointInfo;
 import org.apache.geronimo.remoting.router.Router;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/01/22 03:53:32 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/22 06:39:24 $
  */
 public class TransportLoader implements GBean {
     private URI bindURI;
@@ -112,5 +117,20 @@ public class TransportLoader implements GBean {
 
     public void doFail() {
         // @todo do your best to clean up after a failure
+    }
+
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        Set attributes = new HashSet();
+        attributes.add(new GAttributeInfo("ClientConnectURI"));
+        attributes.add(new GAttributeInfo("BindURI", true));
+        Set endpoints = new HashSet();
+        endpoints.add(new GEndpointInfo("Router", "org.apache.geronimo.remoting.router.Router"));
+        GBEAN_INFO = new GBeanInfo(TransportLoader.class.getName(), attributes, null, null, endpoints, null);
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
     }
 }

@@ -56,27 +56,29 @@
 package org.apache.geronimo.remoting.router;
 
 import java.net.URI;
-
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.core.service.Interceptor;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GEndpointInfo;
 import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
 
 /**
- * Uses JMX Object names to route the request to a JMX object that implements the 
+ * Uses JMX Object names to route the request to a JMX object that implements the
  * JMXTargetMBean interface.
- * 
+ *
  * This allows you to route invocations to MBeans using URIs like:
  * async://localhost:3434/JMX#geronimo.jmx:target=MBeanServerStub
- * 
+ *
  * The MBean that will receive invocations must implement the JMXTarget interface.
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/22 03:53:32 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/22 06:39:23 $
  */
 public class JMXRouter extends AbstractInterceptorRouter {
     private SubsystemRouter subsystemRouter;
-    
+
     public SubsystemRouter getSubsystemRouter() {
         return subsystemRouter;
     }
@@ -90,15 +92,26 @@ public class JMXRouter extends AbstractInterceptorRouter {
         JMXTarget bean = (JMXTarget) MBeanProxyFactory.getProxy(JMXTarget.class, context.getServer(), on);
         return bean.getRemotingEndpointInterceptor();
     }
-    
+
     public void doStart() {
         subsystemRouter.addRoute("/JMX", this);
         super.doStart();
     }
-    
+
     public void doStop() {
         super.doStop();
         subsystemRouter.removeRoute("/JMX");
     }
-        
+
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(JMXRouter.class.getName(), AbstractInterceptorRouter.GBEAN_INFO);
+        infoFactory.addEndpoint(new GEndpointInfo("SubsystemRouter", SubsystemRouter.class.getName()));
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
 }

@@ -55,17 +55,23 @@
  */
 package org.apache.geronimo.remoting.jmx;
 
+import java.util.Set;
+import java.util.HashSet;
+
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanContext;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.jmx.GBeanMBeanContext;
 import org.apache.geronimo.proxy.ProxyContainer;
 import org.apache.geronimo.proxy.ReflexiveInterceptor;
 import org.apache.geronimo.remoting.DeMarshalingInterceptor;
 import org.apache.geronimo.remoting.router.JMXTarget;
+import org.apache.geronimo.remoting.router.AbstractInterceptorRouter;
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/01/22 03:53:32 $
+ * @version $Revision: 1.7 $ $Date: 2004/01/22 06:39:23 $
  */
 public class MBeanServerStub implements GBean, JMXTarget {
     private ProxyContainer serverContainer;
@@ -96,5 +102,17 @@ public class MBeanServerStub implements GBean, JMXTarget {
     public void doFail() {
         serverContainer = null;
         demarshaller = null;
+    }
+
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        Set operations = new HashSet();
+        operations.add(new GOperationInfo("getRemotingEndpointInterceptor"));
+        GBEAN_INFO = new GBeanInfo(MBeanServerStub.class.getName(), null, null, operations, null, null);
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
     }
 }
