@@ -129,6 +129,16 @@ public class ContextBuilderTest extends TestCase {
         }
     }
 
+    public void testEmptyEnvironment() {
+        ReadOnlyContext context = builder.getContext();
+        try {
+            ReadOnlyContext env = (ReadOnlyContext) context.lookup("env");
+            assertNotNull(env);
+        } catch (NamingException e) {
+            fail();
+        }
+    }
+
     protected void setUp() throws Exception {
         super.setUp();
         ReferenceFactory referenceFactory = new JMXReferenceFactory("geronimo.server", "geronimo");

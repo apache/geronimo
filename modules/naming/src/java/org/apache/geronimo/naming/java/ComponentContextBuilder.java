@@ -40,6 +40,11 @@ public class ComponentContextBuilder {
     public ComponentContextBuilder(ReferenceFactory referenceFactory) {
         this.referenceFactory = referenceFactory;
         this.context = new ReadOnlyContext();
+        try {
+            context.internalBind("env", new ReadOnlyContext());
+        } catch (NamingException e) {
+            throw new AssertionError();
+        }
     }
 
     public ReadOnlyContext getContext() {
