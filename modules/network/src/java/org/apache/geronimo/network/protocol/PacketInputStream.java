@@ -24,12 +24,21 @@ import EDU.oswego.cs.dl.util.concurrent.BoundedLinkedQueue;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/20 20:39:11 $
+ * @version $Revision: 1.3 $ $Date: 2004/04/19 16:29:31 $
  */
 public class PacketInputStream extends InputStream {
 
-    ProtocolBuffer buffer;
+    /**
+     * Null AvailableCallBack.
+     */
+    private static final AvailableCallBack NULL_CALLBACK =
+        new AvailableCallBack() {
+            public void execute() {}
+        };
+    
+    private final ProtocolBuffer buffer;
     private final Protocol up;
+    private final AvailableCallBack callBack;
     private ByteBuffer currentBuffer;
     private boolean closed;
 
@@ -39,14 +48,31 @@ public class PacketInputStream extends InputStream {
     }
 
     public PacketInputStream(Protocol up, short queueSize) {
+        this(up, queueSize, null);
+    }
+    
+    /**
+     * Creates an InputStream on top of the provided protocol.
+     * 
+     * @param up Protocol.
+     * @param queueSize Size of the queue used to buffer UpPackets coming from
+     * up.
+     * @param aCallBack Callback when an UpPacket is received from up.
+     */
+    public PacketInputStream(Protocol up, short queueSize,
+        AvailableCallBack aCallBack) {
         this.buffer = new ProtocolBuffer(queueSize);
+        if ( null == aCallBack ) {
+            this.callBack = NULL_CALLBACK;
+        } else {
+            this.callBack = aCallBack;
+        }
         this.up = up;
         this.currentBuffer = ByteBuffer.allocate(0);
         this.closed = false;
 
         this.up.setUpProtocol(buffer);
         buffer.setDownProtocol(this.up);
-
     }
 
     public int read() throws IOException {
@@ -70,7 +96,7 @@ public class PacketInputStream extends InputStream {
         }
 
         int length = len;
-        while (length > 0) {
+        while (length > 0 && 0 < available() ) {
             check();
             int remaining = currentBuffer.remaining();
             int segment = Math.min(remaining, length);
@@ -78,7 +104,7 @@ public class PacketInputStream extends InputStream {
             off += segment;
             length -= segment;
         }
-        return len;
+        return len - length;
     }
 
     public long skip(long n) throws IOException {
@@ -100,7 +126,7 @@ public class PacketInputStream extends InputStream {
     }
 
     public int available() throws IOException {
-        return currentBuffer.remaining();
+        return currentBuffer.remaining() + buffer.available();
     }
 
     public void close() throws IOException {
@@ -132,13 +158,20 @@ public class PacketInputStream extends InputStream {
 
         BoundedLinkedQueue queue;
         Protocol down;
+        volatile int available;
 
         ProtocolBuffer(short size) {
             queue = new BoundedLinkedQueue(size);
         }
 
+        int available() {
+            return available;
+        }
+        
         UpPacket getPacket() throws InterruptedException {
-            return (UpPacket) queue.take();
+            UpPacket packet = (UpPacket) queue.take();
+            available -= packet.getBuffer().remaining();
+            return packet;
         }
 
         public Protocol getUpProtocol() {
@@ -176,10 +209,12 @@ public class PacketInputStream extends InputStream {
 
         public void sendUp(UpPacket packet) throws ProtocolException {
             try {
+                available += packet.getBuffer().remaining();
                 queue.put(packet);
             } catch (InterruptedException e) {
                 throw new ProtocolException(e);
             }
+            callBack.execute();
         }
 
         public void sendDown(DownPacket packet) throws ProtocolException {
@@ -187,4 +222,15 @@ public class PacketInputStream extends InputStream {
         }
 
     }
+
+    /**
+     * When an UpPacket has been received by the protocol from which this
+     * instance is reading, the execute method is called.
+     * <BR>
+     * It allows reading from the InputStream without having to poll it.
+     */
+    public interface AvailableCallBack {
+        public void execute() throws ProtocolException;
+    }
+    
 }
