@@ -37,7 +37,6 @@ import java.util.Map;
 import java.util.Set;
 import javax.management.AttributeNotFoundException;
 import javax.management.JMRuntimeException;
-import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
@@ -81,7 +80,7 @@ import org.apache.geronimo.kernel.repository.Repository;
  * a startRecursive() for all the GBeans it contains. Similarly, if the
  * Configuration is stopped then all of its GBeans will be stopped as well.
  *
- * @version $Revision: 1.25 $ $Date: 2004/06/10 02:26:30 $
+ * @version $Revision: 1.26 $ $Date: 2004/07/06 17:11:29 $
  */
 public class Configuration implements GBeanLifecycle {
     private static final Log log = LogFactory.getLog(Configuration.class);
@@ -168,14 +167,13 @@ public class Configuration implements GBeanLifecycle {
             gbeans = loadGBeans(gbeanState, classLoader);
 
             // register all the GBeans
-            MBeanServer mbServer = kernel.getMBeanServer();
             for (Iterator i = gbeans.entrySet().iterator(); i.hasNext();) {
                 Map.Entry entry = (Map.Entry) i.next();
                 ObjectName name = (ObjectName) entry.getKey();
                 GBeanMBean gbean = (GBeanMBean) entry.getValue();
                 log.trace("Registering GBean " + name);
                 try {
-                    mbServer.registerMBean(gbean, name);
+                    kernel.loadGBean(name, gbean);
                 } catch (JMRuntimeException e) {
                     Throwable cause = e.getCause();
                     if (cause instanceof Exception) {
@@ -201,13 +199,12 @@ public class Configuration implements GBeanLifecycle {
         }
 
         // unregister all GBeans
-        MBeanServer mbServer = kernel.getMBeanServer();
         for (Iterator i = gbeans.keySet().iterator(); i.hasNext();) {
             ObjectName name = (ObjectName) i.next();
             kernel.getDependencyManager().removeDependency(name, objectName);
             try {
                 log.trace("Unregistering GBean " + name);
-                mbServer.unregisterMBean(name);
+                kernel.unloadGBean(name);
             } catch (Exception e) {
                 // ignore
                 log.warn("Could not unregister child " + name, e);
