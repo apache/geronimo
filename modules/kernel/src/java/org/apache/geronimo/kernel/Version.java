@@ -59,8 +59,7 @@ package org.apache.geronimo.kernel;
 /**
  * ???
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/01 07:05:25 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/08 04:39:13 $
  */
-public class Version
-{
+public class Version {
 }
