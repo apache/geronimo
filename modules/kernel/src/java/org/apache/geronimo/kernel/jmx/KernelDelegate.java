@@ -156,6 +156,12 @@ public class KernelDelegate implements KernelMBean {
     public ObjectName startConfiguration(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException {
         try {
             return (ObjectName) invokeKernel("startConfiguration", new Object[]{configID}, new String[]{URI.class.getName()});
+        } catch (NoSuchConfigException e) {
+            throw e;
+        } catch (IOException e) {
+            throw e;
+        } catch (InvalidConfigException e) {
+            throw e;
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
@@ -166,6 +172,8 @@ public class KernelDelegate implements KernelMBean {
     public void stopConfiguration(URI configID) throws NoSuchConfigException {
         try {
             invokeKernel("stopConfiguration", new Object[]{configID}, new String[]{URI.class.getName()});
+        } catch (NoSuchConfigException e) {
+            throw e;
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
@@ -176,6 +184,8 @@ public class KernelDelegate implements KernelMBean {
     public int getConfigurationState(URI configID) throws NoSuchConfigException {
         try {
             return ((Integer) invokeKernel("getConfigurationState", new Object[]{configID}, new String[]{URI.class.getName()})).intValue();
+        } catch (NoSuchConfigException e) {
+            throw e;
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
