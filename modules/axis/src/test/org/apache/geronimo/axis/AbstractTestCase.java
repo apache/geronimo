@@ -16,9 +16,9 @@
  
 package org.apache.geronimo.axis;
 
-import junit.framework.TestCase;
-
 import java.io.File;
+
+import junit.framework.TestCase;
 
 /**
  * Abstract base class for test cases.

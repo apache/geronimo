@@ -16,11 +16,20 @@
 
 package org.apache.geronimo.axis;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.management.ObjectName;
+
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.ews.ws4j2ee.toWs.Ws4J2ee;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
-import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
@@ -30,15 +39,6 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.transaction.GeronimoTransactionManager;
 import org.apache.xmlbeans.XmlObject;
 import org.openejb.deployment.OpenEJBModuleBuilder;
-
-import javax.management.ObjectName;
-import java.io.File;
-import java.io.FileInputStream;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * <p>This test case show the infomation about openEJB that we assumed. And the
@@ -105,7 +105,7 @@ public class DynamicEJBDeploymentTest extends AbstractTestCase{
 
 	}
 	public void testEJBJarDeploy() throws Exception {
-		OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(kernel);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(kernel);
 	
 		File earFile =  new File(outDir + "/echo-ewsimpl.jar");
 		if(!earFile.exists()){
@@ -169,3 +169,4 @@ public class DynamicEJBDeploymentTest extends AbstractTestCase{
 
 
 }
+

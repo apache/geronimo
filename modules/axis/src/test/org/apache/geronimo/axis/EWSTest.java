@@ -15,9 +15,9 @@
  */
 package org.apache.geronimo.axis;
 
-import org.apache.geronimo.ews.ws4j2ee.toWs.Ws4J2ee;
-
 import java.io.File;
+
+import org.apache.geronimo.ews.ws4j2ee.toWs.Ws4J2ee;
 /**
  * <p>This test case represents the code generation with the EWS module. 
  * This test case needed the $JAVA_HOME/lib.tools.jar at the classapth.</p>

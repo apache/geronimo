@@ -15,28 +15,30 @@
  */
 package org.apache.geronimo.axis;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.jetty.JettyWebAppContext;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.transaction.UserTransactionImpl;
-
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import java.io.File;
 import java.io.FileInputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Properties;
 import java.util.Set;
-import java.util.Vector;
+import java.util.zip.ZipFile;
+
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+
+import org.apache.axis.utils.ClassUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.jetty.JettyWebAppContext;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.transaction.UserTransactionImpl;
 
 /**
  * Class WebServiceContainer
@@ -124,38 +126,42 @@ public class WebServiceContainer {
     public void doStart() throws Exception {
         ejbManager = new DependancyEJBManager(kernel);
         
-        //The code needed a axis.properties file. If it is not there it is created.
-        //the ideal case is this information should be in the server-config.wsdd file
-        //but still the Axis is stanalone. I do not like the idea of yet another 
-        //deployment discrypter.    
-        File axisPopertiesfile =
-                new File(new File(AxisGeronimoConstants.AXIS_CONFIG_STORE),
-                        "axis.properties");
-        Properties axisProperties = new Properties();
-
-        if (axisPopertiesfile.exists()) {
-            axisProperties.load(new FileInputStream(axisPopertiesfile));
-            log.debug(axisPopertiesfile.getAbsoluteFile() + " file found and loaded");
-        } else {
-            axisPopertiesfile.getParentFile().mkdirs();
-            axisPopertiesfile.createNewFile();
-            log.debug(" axis.properties file not found and created");
-        }
+//        //The code needed a axis.properties file. If it is not there it is created.
+//        //the ideal case is this information should be in the server-config.wsdd file
+//        //but still the Axis is stanalone. I do not like the idea of yet another 
+//        //deployment discrypter.    
+//        File axisPopertiesfile =
+//                new File(new File(AxisGeronimoConstants.AXIS_CONFIG_STORE),
+//                        "axis.properties");
+//        Properties axisProperties = new Properties();
+//
+//        if (axisPopertiesfile.exists()) {
+//            axisProperties.load(new FileInputStream(axisPopertiesfile));
+//            log.debug(axisPopertiesfile.getAbsoluteFile() + " file found and loaded");
+//        } else {
+//            axisPopertiesfile.getParentFile().mkdirs();
+//            axisPopertiesfile.createNewFile();
+//            log.debug(" axis.properties file not found and created");
+//        }
 
         // TODO deployed webservices should be stored in the local config store
         // This is a hack till it is found out how to do it
-        ClassLoader myCl =
-                new URLClassLoader(loadDeployedWebservices(axisProperties));
-
-        // Start the EJB's that depend on the webservices
-        ejbManager.startDependancies(axisProperties);
-        log.debug("start dependent EJBs ");
+//        ClassLoader myCl =
+//                new URLClassLoader(loadDeployedWebservices(axisProperties));
+//        ClassUtils.setDefaultClassLoader(myCl);   
+//        System.out.println("Calss Utils class lader set at WS continaer start ="+myCl);     
+//
+//        // Start the EJB's that depend on the webservices
+//        ejbManager.startDependancies(axisProperties);
+//        log.debug("start dependent EJBs ");
         
         //This code is taken from the org.apache.geronimo.jetty.ApplicationTest in the 
-        //jetty module tests .. If something is not working we got to test weather the 
+        //jetty module tests .. If something is not working we got to test wheather the 
         //test has changed
+        ClassUtils.setDefaultClassLoader(Thread.currentThread().getContextClassLoader());
+        loadDeployedWebservices();
         
-        GBeanMBean app = new GBeanMBean(JettyWebAppContext.GBEAN_INFO, myCl);
+        GBeanMBean app = new GBeanMBean(JettyWebAppContext.GBEAN_INFO);
         URL url =
                 Thread.currentThread().getContextClassLoader().getResource("deployables/axis/");
 
@@ -226,37 +232,57 @@ public class WebServiceContainer {
      * @return
      * @throws MalformedURLException
      */
-    public URL[] loadDeployedWebservices(Hashtable properties)
-            throws MalformedURLException {
-        if (properties == null) {
-            return new URL[0];
-        }
+    public void loadDeployedWebservices()
+            throws MalformedURLException,DeploymentException {
+        try{
+            File configStroe = new File(AxisGeronimoConstants.AXIS_CONFIG_STORE);
+            File[] apps = configStroe.listFiles();
+            ClassLoader classloader;
+            if(apps != null){
+                for(int i = 0;i<apps.length;i++){
+                    File f = new File(apps[i],"axis.properties");
+                    if(f.exists()){
+                      Properties p = new Properties();
+                      FileInputStream in = new FileInputStream(f);
+                      p.load(in);
+                      in.close();  
+                        //that mean this a Web Service
+                      String dir = f.getName();
+                      String serviceName = (String) p.get(dir);
+                      String style = (String)p.get("style");
+                      File module = null;
 
-        Vector urls = new Vector();
-        Enumeration enu = properties.keys();
-        File configStroe =
-                new File(AxisGeronimoConstants.AXIS_CONFIG_STORE);
+                      File[] jars = f.listFiles();
+                      if (jars != null) {
+                          for (int j = 0; j < jars.length; j++) {
+                              if (jars[i].getAbsolutePath().endsWith(".jar")) {
+                                  module = jars[i];
+                                  log.debug("found a jar" + jars[i].getAbsolutePath());
+                                  break;
+                              }
+                          }
+                      }
 
-        while (enu.hasMoreElements()) {
-            File libfile = new File(configStroe, enu.nextElement().toString());
-            if (libfile.exists()) {
-                File[] jars = libfile.listFiles();
-                if (jars != null) {
-                    for (int i = 0; i < jars.length; i++) {
-                        if (jars[i].getAbsolutePath().endsWith(".jar")) {
-                            urls.add(jars[i].toURL());
-                            log.debug("found a jar" + jars[i].getAbsolutePath());
-                        }
+                      
+                      if("ejb".equals(style)){
+                          ObjectName serviceobjectName = ObjectName.getInstance("test:configuration="
+                                  + serviceName);
+                          classloader = DependancyEJBManager.startDependancy(apps[i], serviceobjectName,configStroe,kernel);
+                      }else{
+                          classloader = new URLClassLoader(new URL[]{module.toURL()});
+                      }
+                      
+                      ArrayList classList = AxisGeronimoUtils.getClassFileList(new ZipFile(module));
+                      for(int j = 0;j<classList.size();j++){
+                          String className = (String)classList.get(i);
+                          System.out.println(className);
+                          ClassUtils.setClassLoader(className,classloader);                
+                      }
                     }
                 }
             }
-        }
-
-        URL[] urlList = new URL[urls.size()];
-        for (int i = 0; i < urls.size(); i++) {
-            urlList[i] = (URL) urls.get(i);
-            System.out.println(urlList[i]);
-        }
-        return urlList;
+        }catch(Exception e){
+            throw new DeploymentException(e);       
+        }    
     }
 }

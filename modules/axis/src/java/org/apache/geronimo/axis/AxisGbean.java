@@ -16,14 +16,14 @@
 
 package org.apache.geronimo.axis;
 
+import javax.management.ObjectName;
+
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
-
-import javax.management.ObjectName;
 
 /**
  * Class AxisGbean

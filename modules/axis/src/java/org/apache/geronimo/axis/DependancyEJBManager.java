@@ -20,10 +20,8 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
@@ -31,6 +29,7 @@ import java.util.Vector;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
+import org.apache.axis.utils.ClassUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.connector.ActivationSpecWrapper;
@@ -105,7 +104,7 @@ public class DependancyEJBManager {
     /**
      * Field dependedEJBs
      */
-    private Vector dependedEJBs;
+    private static Vector dependedEJBs;
 
     /**
      * Field kernel
@@ -117,11 +116,17 @@ public class DependancyEJBManager {
      *
      * @param kernel
      */
-    public DependancyEJBManager(Kernel kernel) {
+    public DependancyEJBManager(Kernel kernel) throws MalformedObjectNameException, DeploymentException{
         this.kernel = kernel;
         configStore = new File(AxisGeronimoConstants.AXIS_CONFIG_STORE);
         log.debug("configuration Store is "+configStore.getAbsolutePath());
         dependedEJBs = new Vector();
+        //start the J2EE server        
+        startJ2EEServer();
+        log.debug("start the J2ee server");
+        //start the ContinerIndex
+        startContainerIndex();
+        log.debug("start the Continer Index");
     }
 
     /**
@@ -131,23 +136,21 @@ public class DependancyEJBManager {
      * @throws MalformedObjectNameException
      * @throws DeploymentException
      */
-    public void startDependancies(Hashtable properites)
-            throws MalformedObjectNameException, DeploymentException {
-        //start the J2EE server        
-        startJ2EEServer();
-        log.debug("start the J2ee server");
-        //start the ContinerIndex
-        startContainerIndex();
-        log.debug("start the Continer Index");
-        
-        //start the each dependent EJB
-        Enumeration enu = properites.keys();
-        while (enu.hasMoreElements()) {
-            String dir = (String) enu.nextElement();
-            String serviceName = (String) properites.get(dir);
-            startDependancy(dir, serviceName);
-        }
-    }
+//    public void startDependancies(Hashtable properites)
+//            throws MalformedObjectNameException, DeploymentException {
+//        
+//        //start the each dependent EJB
+//        Enumeration enu = properites.keys();
+//        while (enu.hasMoreElements()) {
+//            String dir = (String) enu.nextElement();
+//            String serviceName = (String) properites.get(dir);
+//            ObjectName serviceobjectName = ObjectName.getInstance("test:configuration="
+//                    + serviceName);
+//            String wsimpl = (String)properites.get("impl");
+//            File unpackedDir = new File(configStore, dir);
+//            startDependancy(unpackedDir, serviceobjectName,configStore,kernel,wsimpl);
+//        }
+//    }
 
     /**
      * Method stopDependancies
@@ -178,15 +181,16 @@ public class DependancyEJBManager {
      * @param service
      * @throws DeploymentException
      */
-    private void startDependancy(String outDir, String service)
+    public static ClassLoader startDependancy(File unpackedDir, 
+        ObjectName service,
+        File configStore,
+        Kernel kernel)
             throws DeploymentException {
         try {
-            File unpackedDir = new File(configStore, outDir);
-
             // load the configuration
             GBeanMBean config = loadConfig(unpackedDir);
-            ObjectName objectName = ObjectName.getInstance("test:configuration="
-                    + service);
+            System.out.println("Context Loader "+Thread.currentThread().getContextClassLoader());
+            ObjectName objectName = service;
 
             dependedEJBs.add(objectName);
             kernel.loadGBean(objectName, config);
@@ -195,10 +199,13 @@ public class DependancyEJBManager {
             // start the configuration
             kernel.startRecursiveGBean(objectName);
             
+            ClassLoader cl = (ClassLoader)kernel.getAttribute(objectName,"classLoader");
+            //ClassUtils.setClassLoader(wsimpl,cl);
+            //ClassUtils.setDefaultClassLoader(cl);
+            
             System.out.println("start dependent EJB name="+objectName
-            +" dir="+unpackedDir.getAbsolutePath());
-            log.debug("start dependent EJB name="+objectName
-                +" dir="+unpackedDir.getAbsolutePath());
+            +" dir="+unpackedDir.getAbsolutePath()+ "the config CL ="+cl);
+            return cl;
         } catch (DeploymentException e) {
            throw e;
         }catch (Exception e) {
@@ -360,7 +367,7 @@ public class DependancyEJBManager {
      * @return
      * @throws Exception
      */
-    private GBeanMBean loadConfig(File unpackedCar) throws Exception {
+    private static GBeanMBean loadConfig(File unpackedCar) throws Exception {
         InputStream in = new FileInputStream(new File(unpackedCar,
                 "META-INF/config.ser"));
 
@@ -368,12 +375,15 @@ public class DependancyEJBManager {
             ObjectInputStream ois =
                     new ObjectInputStream(new BufferedInputStream(in));
             GBeanInfo gbeanInfo = Configuration.GBEAN_INFO;
-            GBeanMBean config = new GBeanMBean(gbeanInfo);
-
+            GBeanMBean config = new GBeanMBean(gbeanInfo,ClassUtils.getDefaultClassLoader());
             Configuration.loadGMBeanState(config, ois);
             return config;
         } finally {
             in.close();
         }
+    }
+    
+    public static void addDependentEJB(ObjectName serviceName){
+        dependedEJBs.add(serviceName);
     }
 }

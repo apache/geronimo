@@ -20,8 +20,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
@@ -29,13 +31,15 @@ import java.util.zip.ZipFile;
 
 import javax.management.ObjectName;
 
+import org.apache.axis.client.AdminClient;
+import org.apache.axis.client.Call;
+import org.apache.axis.utils.ClassUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.ews.ws4j2ee.toWs.Ws4J2ee;
 import org.apache.geronimo.ews.ws4j2ee.utils.packager.load.PackageModule;
 import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
-import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.system.configuration.LocalConfigStore;
@@ -120,6 +124,8 @@ public class WebServiceDeployer {
      * Field hasEJB
      */
     private boolean hasEJB = false;
+    
+    private  File axisPopertiesfile;
 
     /**
      * Constructor WebServiceDeployer
@@ -181,8 +187,14 @@ public class WebServiceDeployer {
         }
 
         File file = findTheImpl();
+        
+//        ZipFile zipfile = new ZipFile(module);
+//        ZipEntry pentry = new ZipEntry("ws.properties");
+//        Properties p = new Properties();
+//        InputStream in = zipfile.getInputStream(pentry);
+//        p.load(in);
+//        in.close();
         deployTheWebService(file);
-        addEntryToAxisDDStatically(file);
     }
 
     /**
@@ -211,10 +223,9 @@ public class WebServiceDeployer {
                 break;
             } 
         }
-
+        
         File file = new File(module);
         deployTheWebService(file);
-        addEntryToAxisDDStatically(file);
         
     }
 
@@ -240,14 +251,9 @@ public class WebServiceDeployer {
         }
 
         outDir = String.valueOf(index);
-
-        File axisPopertiesfile = new File(configStore, "axis.properties");
-
-        if (axisPopertiesfile.exists()) {
-            axisProperties.load(new FileInputStream(axisPopertiesfile));
-        } else {
-            axisPopertiesfile.createNewFile();
-        }
+        axisPopertiesfile = new File(configStore, outDir+"/axis.properties");
+        axisPopertiesfile.getParentFile().mkdirs();
+        axisPopertiesfile.createNewFile();
     }
 
     /**
@@ -261,10 +267,7 @@ public class WebServiceDeployer {
 
         properites.store(new FileOutputStream(popertiesfile),
                 "ws configuration");
-
-        File axispopertiesfile = new File(configStore, "axis.properties");
-
-        axisProperties.store(new FileOutputStream(axispopertiesfile),
+        axisProperties.store(new FileOutputStream(axisPopertiesfile),
                 "ws configuration");
     }
 
@@ -274,10 +277,14 @@ public class WebServiceDeployer {
      * @param earFile
      * @throws DeploymentException
      */
-    public void deployTheWebService(File earFile) throws DeploymentException {
+    public void deployTheWebService(File module) throws DeploymentException {
         File unpackedDir = null;
 
         try {
+            ClassLoader parentClassLoder = ClassUtils.getDefaultClassLoader();
+            ClassLoader classloader 
+                = new URLClassLoader(new URL[]{module.toURL()},parentClassLoder);
+
             loadPropertyFiles();
             properites.setProperty(j2eeModuleName, outDir);
             axisProperties.setProperty(outDir, j2eeModuleName);
@@ -286,12 +293,30 @@ public class WebServiceDeployer {
 
             unpackedDir.mkdirs();
 
+
             if (hasEJB) {
-                deployEJB(earFile, unpackedDir);
+                classloader = deployEJB(module, unpackedDir,classloader);
+                axisProperties.setProperty("style","ejb");
             } else {
-                File out = new File(unpackedDir, earFile.getName());
-                copyTheFile(earFile, out);
+                File out = new File(unpackedDir, module.getName());
+                copyTheFile(module, out);
+                axisProperties.setProperty("style","web");
             }
+            
+            //right now class name is not avalible here So we set the default
+            //classloader
+            ArrayList classList = AxisGeronimoUtils.getClassFileList(new ZipFile(module));
+            for(int i = 0;i<classList.size();i++){
+                String className = (String)classList.get(i);
+                System.out.println(className);
+                ClassUtils.setClassLoader(className,classloader);                
+            }
+
+            System.out.println("Calss Utils class lader set at deployment ="+classloader);
+
+            //This must come after the Classloader set as axis try to load the
+            //Classes at the deployment 
+            addEntryToAxisDD(module);
         } catch (Exception e) {
             // if something goes wrong make sure nothing leaves in a middle
             // state
@@ -309,7 +334,7 @@ public class WebServiceDeployer {
      * @param unpackedDir
      * @throws DeploymentException
      */
-    private void deployEJB(File earFile, File unpackedDir)
+    private ClassLoader deployEJB(File earFile, File unpackedDir,ClassLoader cl)
             throws DeploymentException {
         try {
 /////////////////////////////////////////////////////////////////////////////////////////////            
@@ -321,12 +346,12 @@ public class WebServiceDeployer {
            * But this can quickly fix looking at it.      
            */
 
-            OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(kernel);
-            ClassLoader oldCl =
-                    Thread.currentThread().getContextClassLoader();
-            ClassLoader cl =
-                    new URLClassLoader(new URL[]{earFile.toURL()}, oldCl);
-
+          OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(kernel);
+//            ClassLoader oldCl =
+//                    Thread.currentThread().getContextClassLoader();
+//            ClassLoader cl =
+//                    new URLClassLoader(new URL[]{earFile.toURL()}, oldCl);
+//
             Thread.currentThread().setContextClassLoader(cl);
 
             File carFile = File.createTempFile("OpenEJBTest", ".car");
@@ -340,7 +365,7 @@ public class WebServiceDeployer {
                         AxisGeronimoConstants.TRACKEDCONNECTIONASSOCIATOR_NAME, 
                         AxisGeronimoConstants.TRANSACTIONALTIMER_NAME, 
                         AxisGeronimoConstants.NONTRANSACTIONALTIMER_NAME, 
-                        null, moduleBuilder, moduleBuilder, null, null, null);
+                        null, moduleBuilder,moduleBuilder, null, null, null);
                 XmlObject plan =
                         earConfigBuilder.getDeploymentPlan(earFile.toURL());
 
@@ -351,6 +376,10 @@ public class WebServiceDeployer {
 /////////////////////////////////////////////////////////////////////////////////
                 // store the property IFF all goes well
                 storeProperties();
+                //start the ejb                
+                ObjectName serviceobjectName = ObjectName.getInstance("test:configuration="
+                        + j2eeModuleName);
+                return DependancyEJBManager.startDependancy(unpackedDir,serviceobjectName,configStore,kernel); 
             } finally {
                 carFile.delete();
             }
@@ -415,44 +444,29 @@ public class WebServiceDeployer {
      * @param module
      * @throws DeploymentException
      */
-    private void addEntryToAxisDDStatically(File module)throws DeploymentException{
-//        try {
-//            InputStream wsddconf = null;
-//            File file = null;
-//            ClassLoader contextLoader = Thread.currentThread().getContextClassLoader(); 
-//            URL url = contextLoader.getResource("deployables/axis/WEB-INF/server-config.wsdd");
-//            if(url != null){
-//                file = new File(url.getFile());
-//                if(!url.sameFile(file.toURL()))
-//                    throw new DeploymentException("can not load the configuaration");
-//                wsddconf = new FileInputStream(file);
-//            }
-//            
-//            if(wsddconf == null){
-//                wsddconf = contextLoader.getResourceAsStream("org/apache/axis/server/server-config.wsdd");            
-//            }
-//        
-//            ZipFile zipfile = new ZipFile(module);
-//            ZipEntry zentry = zipfile.getEntry("deploy.wsdd");
-//            InputStream deplydd = zipfile.getInputStream(zentry);
-//            
-//            Admin admin = new Admin();
-//
-//            WSDDDocument wsddDoc = new WSDDDocument(XMLUtils.newDocument(wsddconf));
-//            WSDDDeployment deployment = wsddDoc.getDeployment();
-//            AxisEngine engine = new AxisServer(deployment);
-//            engine.setShouldSaveConfig(true);
-//            engine.init();
-//            MessageContext msgContext = new MessageContext(engine);
-//            
-//            Document doc = XMLUtils.newDocument(deplydd);
-//            Document result = admin.process(msgContext, doc.getDocumentElement());
-//            System.out.println(XMLUtils.DocumentToString(result));
-//            PrintWriter w = new PrintWriter(new FileWriter(file));
-//            deployment.writeToContext(new SerializationContextImpl(w));
-//            w.close();
-//        } catch (Exception e) {
-//            throw new DeploymentException(e);
-//        } 
+    private void addEntryToAxisDD(File module)throws DeploymentException{
+        try {
+          ZipFile jarmodule = new ZipFile(module);
+          ZipEntry deployentry = jarmodule.getEntry("deploy.wsdd");
+          if(deployentry != null){
+              InputStream deplydd = jarmodule.getInputStream(deployentry);
+              AdminClient adminClient = new AdminClient();
+              URL requestUrl = new URL("http://localhost:"
+                   +AxisGeronimoConstants.AXIS_SERVICE_PORT
+                   +"/axis/services/AdminService");
+              Call call = adminClient.getCall();
+              call.setTargetEndpointAddress(requestUrl);
+              String result = adminClient.process(null,deplydd);
+              System.out.println(result);
+          }else{
+              throw new DeploymentException("the deploy.wsdd can not be found");
+          }
+            
+        }catch (DeploymentException e) {
+            throw e;
+        }  catch (Exception e) {
+            e.printStackTrace();
+            throw new DeploymentException(e);
+        } 
     }
 }

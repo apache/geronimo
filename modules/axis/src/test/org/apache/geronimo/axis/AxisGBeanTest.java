@@ -15,15 +15,16 @@
  */
 package org.apache.geronimo.axis;
 
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.kernel.Kernel;
-
-import javax.management.ObjectName;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLClassLoader;
+
+import javax.management.ObjectName;
+
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.kernel.Kernel;
 /**
  * <p> This test case start the AxisGbean and test retiving the index.html of the 
  * Axis Service</p>   

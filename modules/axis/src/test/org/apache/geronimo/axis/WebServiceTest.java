@@ -16,14 +16,19 @@
 package org.apache.geronimo.axis;
 
 
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.kernel.Kernel;
-
-import javax.management.ObjectName;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
+import java.lang.reflect.Method;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
+
+import javax.management.ObjectName;
+
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.kernel.Kernel;
 
 public class WebServiceTest extends AbstractTestCase {
     private ObjectName axisname;
@@ -59,17 +64,23 @@ public class WebServiceTest extends AbstractTestCase {
 //        GBeanMBean deploygbean =
 //            new GBeanMBean(WebServiceDeployerGbean.getGBeanInfo(), myCl);
   
-      GBeanMBean deploygbean =
+        //axis gbean        
+        GBeanMBean axisgbean = new GBeanMBean(AxisGbean.getGBeanInfo(), myCl);
+        kernel.loadGBean(axisname, axisgbean);
+        kernel.startGBean(axisname);
+
+        GBeanMBean deploygbean =
           new GBeanMBean(WebServiceDeployerGbean.getGBeanInfo(), cl);
         kernel.loadGBean(deployGbeanName, deploygbean);
         kernel.startGBean(deployGbeanName);
         System.out.println(
             kernel.getMBeanServer().getAttribute(deployGbeanName, "state"));
+        File jarfile = new File(getTestFile("target/generated/samples/echo-ewsimpl.jar"));    
         kernel.getMBeanServer().invoke(
             deployGbeanName,
             "deployEWSModule",
             new Object[] {
-                getTestFile("target/generated/samples/echo-ewsimpl.jar"),
+                jarfile.getAbsolutePath(),
                 null,
                 "ws/apache/axis/echo" },
             new String[] {
@@ -79,10 +90,22 @@ public class WebServiceTest extends AbstractTestCase {
         kernel.stopGBean(deployGbeanName);
         kernel.unloadGBean(deployGbeanName);
 
-        //axis gbean        
-        GBeanMBean axisgbean = new GBeanMBean(AxisGbean.getGBeanInfo(), myCl);
-        kernel.loadGBean(axisname, axisgbean);
-        kernel.startGBean(axisname);
+        //let us try to brows the WSDL of the service
+        URL wsdlrequestUrl = new URL("http://localhost:"
+                     +AxisGeronimoConstants.AXIS_SERVICE_PORT
+                     +"/axis/services/echoPort?wsdl");
+                    //+"/axis/services/AdminService?wsdl");
+        
+        HttpURLConnection connection = (HttpURLConnection)wsdlrequestUrl.openConnection();
+        BufferedReader reader = new BufferedReader(
+                new InputStreamReader(connection.getInputStream()));
+        connection.getResponseCode();
+        String line = reader.readLine();
+        while (line != null) {
+            System.out.println(line);
+            line = reader.readLine();
+        }
+
 
         //invoke the ejb just in the same way it is invoked by the webservice 
         String msg = "Hi Hello";
@@ -161,6 +184,64 @@ public class WebServiceTest extends AbstractTestCase {
                 new Class[] { byte[].class },
                 new Object[] { byteVal });
         assertTrue(Arrays.equals(byteVal,byteValreturn));
+
+
+
+
+//        
+//        //check the real web service invocations 
+        ClassLoader ocl = Thread.currentThread().getContextClassLoader();
+        URLClassLoader jarclassloder = new URLClassLoader(new URL[]{jarfile.toURL()});
+        Thread.currentThread().setContextClassLoader(jarclassloder);
+        
+        
+        
+        Class echoLoacaterClass =  Class.forName("org.apache.ws.echosample.EchoServiceLocator",true,jarclassloder);
+        Object echoLoacater = echoLoacaterClass.newInstance();
+        Method getportMethod = echoLoacaterClass.getMethod("getechoPort",new Class[]{URL.class});
+        
+        URL serviceURL = new URL("http://localhost:"
+                +AxisGeronimoConstants.AXIS_SERVICE_PORT
+               // + 5679
+                +"/axis/services/echoPort");
+        Object echoPort = getportMethod.invoke(echoLoacater,new Object[]{serviceURL});        
+        Class echoClass = echoPort.getClass();
+        
+        Method echoStringMethod = echoClass.getMethod("echoString",new Class[]{String.class});
+        String val = "Hi";
+        assertEquals(val,echoStringMethod.invoke(echoPort,new Object[]{val}));
+        
+        Class structClass = Class.forName("org.apache.ws.echosample.EchoStruct",true,jarclassloder);
+        Method echostuctMethod = echoClass.getMethod("echoStruct",new Class[]{structClass});
+        Object structval = structClass.newInstance();
+        
+//        //try invoke from this class
+//        ContainerIndex index = ContainerIndex.getInstance();
+//        int length = index.length();
+//        System.out.println("number of continers "+length);
+//        for(int i = 0;i<length;i++){
+//            EJBContainer contianer = index.getContainer(i);
+//            if(contianer!= null){
+//                String name = contianer.getEJBName();
+//                System.out.println("found the ejb "+name);
+//                if("echo".equals(name)){
+//                    EJBHome statelessHome = contianer.getEJBHome();
+//                    Object stateless = statelessHome.getClass().getMethod("create", null).invoke(statelessHome, null);
+//                    Method[] methods = stateless.getClass().getMethods();
+//                    
+//                    for(int j = 0;j< methods.length;j++){
+//                        if(methods[j].getName().equals("echoStruct")){
+//                                Class[] classes = methods[j].getParameterTypes();
+//                                System.out.println(classes[0]);
+//                                methods[j].invoke(stateless, new Object[]{null});
+//                                methods[j].invoke(stateless, new Object[]{classes[0].newInstance()});
+//                        }
+//                    }
+//                }
+//            }
+//        }                                                    
+        Thread.currentThread().setContextClassLoader(ocl); 
+         
         kernel.stopGBean(axisname);
         kernel.unloadGBean(axisname);
 

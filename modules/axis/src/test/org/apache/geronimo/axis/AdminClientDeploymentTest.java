@@ -15,29 +15,23 @@
  */
 package org.apache.geronimo.axis;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
-import java.io.PrintWriter;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
 import javax.management.ObjectName;
 
-import org.apache.axis.AxisEngine;
-import org.apache.axis.MessageContext;
 import org.apache.axis.client.AdminClient;
 import org.apache.axis.client.Call;
-import org.apache.axis.deployment.wsdd.WSDDDeployment;
-import org.apache.axis.deployment.wsdd.WSDDDocument;
-//import org.apache.axis.encoding.SerializationContextImpl;
-import org.apache.axis.server.AxisServer;
-import org.apache.axis.utils.Admin;
-import org.apache.axis.utils.XMLUtils;
+import org.apache.axis.utils.ClassUtils;
 import org.apache.geronimo.ews.ws4j2ee.toWs.Ws4J2ee;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
-import org.w3c.dom.Document;
 /**
  * <p>This test case shows the possible two ways of add a entry to the Axis 
  * server-config.wsdd Deployment Discrypter.</p>
@@ -55,42 +49,63 @@ public class AdminClientDeploymentTest extends AbstractTestCase {
     public AdminClientDeploymentTest(String testName) {
         super(testName);
     }
+//I leave it like this .. this feature is not used now. 
+    public void XtestDeployWithAdminClientStatically() throws Exception{
+//      URLClassLoader cl = new  URLClassLoader(new URL[]{jarFile.toURL()});
+//      InputStream deplydd = cl.getResourceAsStream("deploy.wsdd");
+//      assertNotNull(deplydd);
+//
+//      Admin admin = new Admin();
+//      InputStream wsddconf = getClass().getClassLoader().getResourceAsStream("org/apache/axis/server/server-config.wsdd");
+//      assertNotNull(wsddconf);
+//      WSDDDocument wsddDoc = new WSDDDocument(XMLUtils.newDocument(wsddconf));
+//      WSDDDeployment deployment = wsddDoc.getDeployment();
+//      AxisEngine engine = new AxisServer(deployment);
+//      engine.setShouldSaveConfig(true);
+//      engine.init();
+//      MessageContext msgContext = new MessageContext(engine);
+//
+//      Document doc = XMLUtils.newDocument(deplydd);
+//      Document result = admin.process(msgContext, doc.getDocumentElement());
+//      System.out.println(XMLUtils.DocumentToString(result));
+//      PrintWriter w = new PrintWriter(System.out);
+//      deployment.writeToContext(new SerializationContextImpl(w));
+//      w.close();
+    }
 
-	public void XtestDeployWithAdminClientStatically() throws Exception{
-//		URLClassLoader cl = new  URLClassLoader(new URL[]{jarFile.toURL()});
-//		InputStream deplydd = cl.getResourceAsStream("deploy.wsdd");
-//		assertNotNull(deplydd);
-//
-//		Admin admin = new Admin();
-//		InputStream wsddconf = getClass().getClassLoader().getResourceAsStream("org/apache/axis/server/server-config.wsdd");
-//		assertNotNull(wsddconf);
-//		WSDDDocument wsddDoc = new WSDDDocument(XMLUtils.newDocument(wsddconf));
-//		WSDDDeployment deployment = wsddDoc.getDeployment();
-//		AxisEngine engine = new AxisServer(deployment);
-//		engine.setShouldSaveConfig(true);
-//		engine.init();
-//		MessageContext msgContext = new MessageContext(engine);
-//
-//		Document doc = XMLUtils.newDocument(deplydd);
-//		Document result = admin.process(msgContext, doc.getDocumentElement());
-//		System.out.println(XMLUtils.DocumentToString(result));
-//		PrintWriter w = new PrintWriter(System.out);
-//		deployment.writeToContext(new SerializationContextImpl(w));
-//		w.close();
-   	}
     public void testDeployWithAdminClientDinamically() throws Exception{
         URLClassLoader cl = new  URLClassLoader(new URL[]{jarFile.toURL()});
         InputStream deplydd = cl.getResourceAsStream("deploy.wsdd");
         assertNotNull(deplydd);  
 
+        ClassLoader parentClassLoder = ClassUtils.getDefaultClassLoader();
+        ClassUtils.setDefaultClassLoader(cl);
         AdminClient adminClient = new AdminClient();
+        
         URL requestUrl = new URL("http://localhost:"
-             +AxisGeronimoConstants.AXIS_SERVICE_PORT
-             +"/axis/services/AdminService");
+             + AxisGeronimoConstants.AXIS_SERVICE_PORT
+             + "/axis/services/AdminService");
         Call call = adminClient.getCall();
         call.setTargetEndpointAddress(requestUrl);
         String result = adminClient.process(null,deplydd);
         System.out.println(result);
+        
+        URL wsdlrequestUrl = new URL("http://localhost:"
+                     +AxisGeronimoConstants.AXIS_SERVICE_PORT
+                    
+                     +"/axis/services/echoPort?wsdl");
+                    //+"/axis/services/AdminService?wsdl");
+        
+        HttpURLConnection connection = (HttpURLConnection)wsdlrequestUrl.openConnection();
+        BufferedReader reader = new BufferedReader(
+                new InputStreamReader(connection.getInputStream()));
+        connection.getResponseCode();
+        String line = reader.readLine();
+        while (line != null) {
+            System.out.println(line);
+            line = reader.readLine();
+        }
+
     }
 
 

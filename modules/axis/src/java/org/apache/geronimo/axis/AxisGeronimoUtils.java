@@ -17,6 +17,10 @@ package org.apache.geronimo.axis;
 
 import java.io.File;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import javax.ejb.EJBHome;
 import javax.management.ObjectName;
@@ -25,7 +29,6 @@ import org.apache.axis.AxisFault;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.deployment.DeploymentException;
-import org.apache.geronimo.ews.ws4j2ee.wsutils.GeronimoUtils;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.openejb.ContainerIndex;
@@ -36,7 +39,7 @@ import org.openejb.EJBContainer;
  */
 public class AxisGeronimoUtils {
     
-    public static final Log log = LogFactory.getLog(GeronimoUtils.class);
+    public static final Log log = LogFactory.getLog(AxisGeronimoUtils.class);
     public static Object invokeEJB(
         String ejbName,
         String methodName,
@@ -55,27 +58,48 @@ public class AxisGeronimoUtils {
                         if(ejbName.equals(name)){
                             EJBHome statelessHome = contianer.getEJBHome();
                             Object stateless = statelessHome.getClass().getMethod("create", null).invoke(statelessHome, null);
-                            if(parmClasses!= null){
-                                Object obj = stateless.getClass().getMethod(methodName,parmClasses).invoke(stateless, parameters);
-                                return obj; 
-                            }else{
-                                Method[] methods = stateless.getClass().getMethods();
-                                for(int j = 0;i< methods.length;j++){
-                                    if(methods[j].getName().equals(methodName)){
+                            Method[] methods = stateless.getClass().getMethods();
+                            for(int j = 0;j< methods.length;j++){
+                                if(methods[j].getName().equals(methodName)){
+                                    try{
                                         return methods[j].invoke(stateless, parameters);
+                                    }catch(Exception e){
+                                        Class[] classes = methods[j].getParameterTypes();
+                                        System.out.print(methodName+"("); 
+                                        if(parameters == null || classes== null){
+                                            System.out.println("both or one is null");
+                                        }else{
+                                            if(parameters.length != classes.length)
+                                                System.out.println("parameter length do not match expected parametes");
+                                            for(int k = 0;k<classes.length;k++){
+                                                Object obj = parameters[k];
+                                                Class theClass = classes[k];
+                                                if(theClass != obj.getClass()){
+                                                    System.out.println("calsses are differant");
+                                                }
+                                                System.out.println("ejb class loader "+theClass.getClassLoader());                                                        
+                                                System.out.println("parameter class loader = "+obj.getClass().getClassLoader());
+                                            }
+                                        }
+                                        throw e;                         
                                     }
+
                                 }
-                                throw new NoSuchMethodException(methodName+" not found");
                             }
-                        }                   
+                            throw new NoSuchMethodException(methodName+" not found");
+                        }           
                     }else{
                         System.out.println("Continer is null");
                         log.debug("Continer is null");
                     }
                 }
                 throw new AxisFault("Dependancy ejb "+ejbName+" not found ");
-            } catch (Exception e) {
-                throw AxisFault.makeFault(e);
+            } catch (Throwable e) {
+                e.printStackTrace();
+                if(e instanceof Exception)
+                    throw AxisFault.makeFault((Exception)e);
+                else
+                    throw AxisFault.makeFault(new Exception(e));    
             } 
     
     }
@@ -133,5 +157,21 @@ public class AxisGeronimoUtils {
             }
             file.delete();
         }
+    }
+    
+    public static ArrayList getClassFileList(ZipFile file){
+        ArrayList list = new ArrayList();
+        if(file != null){
+            Enumeration entires = file.entries();
+            while(entires.hasMoreElements()){
+                ZipEntry zipe = (ZipEntry)entires.nextElement();
+                String name = zipe.getName();
+                if(name.endsWith(".class")){
+                    int index = name.lastIndexOf('.');
+                    list.add(name.substring(0,index).replace('/','.'));
+               } 
+           }
+        }
+        return list;    
     }
 }
