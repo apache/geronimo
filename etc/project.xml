@@ -246,6 +246,12 @@
             <email>jlaskowski@apache.org</email>
             <organization></organization>
         </developer>
+        <developer>
+            <name>Srinath Perera</name>
+            <id>hemapani</id>
+            <email>hemapani@apache.org</email>
+            <organization></organization>
+        </developer>
     </developers>
 
 
