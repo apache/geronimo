@@ -54,14 +54,14 @@
  * ====================================================================
  */
 
-package org.apache.geronimo.kernel.service;
+package org.apache.geronimo.gbean.jmx;
 
 /**
- * JMX MBean interface for {@link org.apache.geronimo.kernel.service.DependencyService2}.
+ * JMX MBean interface for {@link org.apache.geronimo.gbean.jmx.DependencyService}.
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/22 08:44:22 $
+ * @version $Revision: 1.1 $ $Date: 2004/01/22 20:58:40 $
  */
-public interface DependencyService2MBean
+public interface DependencyServiceMBean
 {
 
     /**

@@ -63,45 +63,45 @@ import java.beans.PropertyEditor;
 import junit.framework.TestCase;
 
 /**
- * Unit test for {@link org.apache.geronimo.kernel.service.ArrayPropertyEditorAdapter} class.
+ * Unit test for {@link org.apache.geronimo.common.propertyeditor.ArrayPropertyEditorAdapter} class.
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/08 04:10:57 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/22 20:58:40 $
  */
 public class ArrayPropertyEditorAdapterTest
     extends TestCase
 {
     PropertyEditor editor;
-    
+
     protected void setUp()
     {
         editor = PropertyEditors.findEditor(URL[].class);
     }
-    
+
     public void testGetValue_Simple()
     {
         String input = "http://apache.org";
-        
+
         editor.setAsText(input);
         Object output = editor.getValue();
-        
+
         assertNotNull(output);
         assertEquals(URL[].class, output.getClass());
-        
+
         URL[] urls = (URL[])output;
         assertEquals(1, urls.length);
         assertEquals(input, urls[0].toString());
     }
-    
+
     public void testGetValue_2URLs()
     {
         String input = "http://apache.org, http://google.com";
-        
+
         editor.setAsText(input);
         Object output = editor.getValue();
-        
+
         assertNotNull(output);
         assertEquals(URL[].class, output.getClass());
-        
+
         URL[] urls = (URL[])output;
         assertEquals(2, urls.length);
         assertEquals("http://apache.org", urls[0].toString());

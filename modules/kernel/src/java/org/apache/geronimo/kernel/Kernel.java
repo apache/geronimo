@@ -87,7 +87,7 @@ import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.LocalConfigStore;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.kernel.service.DependencyService2;
+import org.apache.geronimo.gbean.jmx.DependencyService;
 
 /**
  * The core of a Geronimo instance.
@@ -106,7 +106,7 @@ import org.apache.geronimo.kernel.service.DependencyService2;
  * used hold the persistent state of each Configuration. This allows
  * Configurations to restart in he event of system failure.
  *
- * @version $Revision: 1.7 $ $Date: 2004/01/22 02:46:27 $
+ * @version $Revision: 1.8 $ $Date: 2004/01/22 20:58:40 $
  */
 public class Kernel implements Serializable, KernelMBean, NotificationBroadcaster {
 
@@ -340,7 +340,7 @@ public class Kernel implements Serializable, KernelMBean, NotificationBroadcaste
         log.info("Starting boot");
         mbServer = MBeanServerFactory.createMBeanServer(domainName);
         mbServer.registerMBean(this, KERNEL);
-        mbServer.registerMBean(new DependencyService2(), DEPENDENCY_SERVICE);
+        mbServer.registerMBean(new DependencyService(), DEPENDENCY_SERVICE);
         if (storeInfo != null) {
             storeGBean = new GBeanMBean(storeInfo);
             storeGBean.setAttribute("root", configStore);

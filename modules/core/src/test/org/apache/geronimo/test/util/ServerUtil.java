@@ -69,7 +69,7 @@ import java.util.Set;
 
 /**
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/22 08:10:26 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/22 20:58:40 $
  */
 
 public class ServerUtil {
@@ -86,7 +86,7 @@ public class ServerUtil {
         MBeanServer mbServer = MBeanServerFactory.createMBeanServer("LocalTestServer");
         mbServer.createMBean("javax.management.relation.RelationService", RELATION_SERVICE, new Object[]{Boolean.TRUE}, new String[]{"boolean"});
         mbServer.createMBean("org.apache.geronimo.kernel.deployment.DependencyService", DEPENDS_SERVICE);
-        mbServer.createMBean("org.apache.geronimo.kernel.service.DependencyService2", DEPENDS_SERVICE2);
+        mbServer.createMBean("org.apache.geronimo.gbean.jmx.DependencyService2", DEPENDS_SERVICE2);
 
         return mbServer;
     }

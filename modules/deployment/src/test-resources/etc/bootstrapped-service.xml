@@ -1,7 +1,6 @@
 <gbeans>
 
     <gbean class="org.apache.geronimo.deployment.xml.LocalEntityResolver" objectName="geronimo.system:type=EntityResolver">
-        <!--default attribute="CatalogFileURI" type="java.net.URI">file:/Users/david/geronimo/head2/incubator-geronimo/modules/core/src/conf/resolver-catalog.xml</default-->
         <default attribute="CatalogFileURI" type="java.net.URI">core/src/conf/resolver-catalog.xml</default>
         <default attribute="FailOnUnresolvable" type="boolean">false</default>
     </gbean>
@@ -98,6 +97,28 @@
             <pattern>geronimo.boot:role=Kernel</pattern>
         </endpoint>
     </gbean>
+
+    <gbean class="org.apache.geronimo.connector.deployment.ConnectorDeployer" objectName="geronimo.deployment:type=connector">
+        <default attribute="ConnectionTrackerNamePattern" type="javax.management.ObjectName">geronimo.connector:service=ConnectionTrackingCoordinator</default>
+        <endpoint name="ParserFactory">
+            <pattern>geronimo.system:type=ParserFactory</pattern>
+        </endpoint>
+    </gbean>
+
+    <!-- uncomment and set the packageURL to deploy the openjca adapter -->
+    <!--gbean class="org.apache.geronimo.deployment.util.ExplicitDeployment" objectName="geronimo.app:name=OpenJCAAdapter">
+        <default attribute="ConfigID" type="java.net.URI">org/apache/geronimo/OpenJCA</default>
+        <default attribute="PackageURL" type="java.net.URL">file:/Users/david/.maven/repository/openejb-jca/jars/openejb-jca-DEV.jar</default>
+        <endpoint name="ConfigurationParent">
+            <pattern>geronimo.config:name="org/apache/geronimo/Bootstrap"</pattern>
+        </endpoint>
+        <endpoint name="BatchDeployerFactory">
+            <pattern>geronimo.system:type=BatchDeployerFactory</pattern>
+        </endpoint>
+        <endpoint name="Kernel">
+            <pattern>geronimo.boot:role=Kernel</pattern>
+        </endpoint>
+    </gbean-->
 
     <!-- web -->
 

@@ -53,7 +53,7 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.kernel.service;
+package org.apache.geronimo.gbean.jmx;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -87,9 +87,9 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
  *
  * @jmx:mbean
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/15 05:33:09 $
+ * @version $Revision: 1.1 $ $Date: 2004/01/22 20:58:40 $
  */
-public class DependencyService2 implements MBeanRegistration, NotificationListener, DependencyService2MBean {
+public class DependencyService implements MBeanRegistration, NotificationListener, DependencyServiceMBean {
     /**
      * The mbean server we are registered with.
      */
@@ -209,7 +209,7 @@ public class DependencyService2 implements MBeanRegistration, NotificationListen
 
     /**
      * Adds dependencies from the child to every parent in the parents set
-     * 
+     *
      * @param child the dependent component
      * @param parents the set of components the child is depending on
      *
@@ -237,7 +237,7 @@ public class DependencyService2 implements MBeanRegistration, NotificationListen
 
     /**
      * Gets the set of parents that the child is depending on
-     * 
+     *
      * @param child the dependent component
      * @return a collection containing all of the components the child depends on; will never be null
      *
@@ -253,7 +253,7 @@ public class DependencyService2 implements MBeanRegistration, NotificationListen
 
     /**
      * Gets all of the MBeans that have a dependency on the specified startParent.
-     * 
+     *
      * @param parent the component the returned childen set depend on
      * @return a collection containing all of the components that depend on the parent; will never be null
      *

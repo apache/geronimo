@@ -11,7 +11,7 @@
       >
 </MLET>
 
-<MLET CODE="org.apache.geronimo.kernel.service.DependencyService2"
+<MLET CODE="org.apache.geronimo.gbean.jmx.DependencyService2"
       NAME="geronimo.boot:role=DependencyService2"
       ARCHIVE=""
       >

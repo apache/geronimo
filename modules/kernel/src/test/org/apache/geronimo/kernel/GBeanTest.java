@@ -63,9 +63,9 @@ import org.apache.geronimo.kernel.management.State;
 import junit.framework.TestCase;
 
 /**
- * 
- * 
- * @version $Revision: 1.2 $ $Date: 2004/01/22 18:34:13 $
+ *
+ *
+ * @version $Revision: 1.3 $ $Date: 2004/01/22 20:58:40 $
  */
 public class GBeanTest extends TestCase {
     private ObjectName name;
@@ -85,7 +85,7 @@ public class GBeanTest extends TestCase {
         kernel.unloadGBean(name);
     }
 
-    public void XtestEndpoint() throws Exception {
+    public void testEndpoint() throws Exception {
         GBeanMBean gbean1 = new GBeanMBean(MockGBean.getGBeanInfo());
         gbean1.setAttribute("MutableInt", new Integer(123));
         gbean1.setAttribute("FinalInt", new Integer(123));

@@ -64,19 +64,18 @@ import java.beans.PropertyEditorManager;
 
 import org.apache.geronimo.common.Classes;
 import org.apache.geronimo.common.NullArgumentException;
-import org.apache.geronimo.kernel.service.ArrayPropertyEditorAdapter;
 
 /**
  * A collection of PropertyEditor utilities.
  *
  * <p>Allows editors to be nested sub-classes named PropertyEditor.
  *
- * @version $Revision: 1.5 $ $Date: 2003/09/08 04:08:10 $
+ * @version $Revision: 1.6 $ $Date: 2004/01/22 20:58:40 $
  */
 public class PropertyEditors
 {
     /**
-     * Augment the PropertyEditorManager search path to incorporate the 
+     * Augment the PropertyEditorManager search path to incorporate the
      * Geronimo specific editors.
      */
     static
@@ -84,7 +83,7 @@ public class PropertyEditors
         // Append our package to the serach path
         appendEditorSearchPath("org.apache.geronimo.common.propertyeditor");
     }
-    
+
     /**
      * Locate a value editor for a given target type.
      *
@@ -96,9 +95,9 @@ public class PropertyEditors
         if (type == null) {
             throw new NullArgumentException("type");
         }
-        
+
         PropertyEditor editor = PropertyEditorManager.findEditor(type);
-        
+
         // Try to use adapter for array types
         if (editor == null && type.isArray()) {
             Class ctype = type.getComponentType();
@@ -107,10 +106,10 @@ public class PropertyEditors
                 editor = new ArrayPropertyEditorAdapter(ctype, editor);
             }
         }
-        
+
         return editor;
     }
-    
+
     /**
      * Locate a value editor for a given target type.
      *
@@ -123,7 +122,7 @@ public class PropertyEditors
         if (typeName == null) {
             throw new NullArgumentException("typeName");
         }
-        
+
         Class type = null;
         try {
             type = Classes.loadClass(typeName);
@@ -132,10 +131,10 @@ public class PropertyEditors
             // look for a nested class
             type = Classes.loadClass(typeName + "$PropertyEditor");
         }
-        
+
         return findEditor(type);
     }
-    
+
     /**
      * Get a value editor for a given target type.
      *
@@ -150,10 +149,10 @@ public class PropertyEditors
         if (editor == null) {
             throw new PropertyEditorException("No property editor for type: " + type);
         }
-        
+
         return editor;
     }
-    
+
     /**
      * Get a value editor for a given target type.
      *
@@ -169,10 +168,10 @@ public class PropertyEditors
         if (editor == null) {
             throw new PropertyEditorException("No property editor for type: " + typeName);
         }
-        
+
         return editor;
     }
-    
+
     /**
      * Register an editor class to be used to editor values of a given target class.
      *
@@ -187,10 +186,10 @@ public class PropertyEditors
         if (editorType == null) {
             throw new NullArgumentException("editorType");
         }
-        
+
         PropertyEditorManager.registerEditor(type, editorType);
     }
-    
+
     /**
      * Register an editor class to be used to editor values of a given target class.
      *
@@ -207,13 +206,13 @@ public class PropertyEditors
         if (editorTypeName == null) {
             throw new NullArgumentException("editorTypeName");
         }
-        
+
         Class type = Classes.loadClass(typeName);
         Class editorType = Classes.loadClass(editorTypeName);
-        
+
         registerEditor(type, editorType);
     }
-    
+
     /**
      * Gets the package names that will be searched for property editors.
      *
@@ -222,15 +221,15 @@ public class PropertyEditors
     public static List getEditorSearchPath()
     {
         String[] path = PropertyEditorManager.getEditorSearchPath();
-        
+
         List list = new ArrayList(path.length);
         for (int i=0; i<path.length; i++) {
             list.add(path[i]);
         }
-        
+
         return list;
     }
-    
+
     /**
      * Sets the package names that will be searched for property editors.
      *
@@ -241,11 +240,11 @@ public class PropertyEditors
         if (path == null) {
             throw new NullArgumentException("path");
         }
-        
+
         String[] elements = (String[])path.toArray(new String[path.size()]);
         PropertyEditorManager.setEditorSearchPath(elements);
     }
-    
+
     /**
      * Append package names to the property editor search path.
      *
@@ -257,13 +256,13 @@ public class PropertyEditors
             throw new NullArgumentException("names");
         }
         if (names.size() == 0) return;
-        
+
         List path = getEditorSearchPath();
         path.addAll(names);
-        
+
         setEditorSearchPath(path);
     }
-    
+
     /**
      * Append package names to the property editor search path.
      *
@@ -275,15 +274,15 @@ public class PropertyEditors
             throw new NullArgumentException("names");
         }
         if (names.length == 0) return;
-        
+
         List list = new ArrayList(names.length);
         for (int i=0; i<names.length; i++) {
             list.add(names[i]);
         }
-        
+
         appendEditorSearchPath(list);
     }
-    
+
     /**
      * Append a package name to the property editor search path.
      *
@@ -294,7 +293,7 @@ public class PropertyEditors
         if (name == null) {
             throw new NullArgumentException("name");
         }
-        
+
         appendEditorSearchPath(new String[] { name });
     }
 }

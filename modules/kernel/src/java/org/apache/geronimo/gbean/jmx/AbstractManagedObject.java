@@ -84,7 +84,6 @@ import org.apache.geronimo.kernel.management.ManagedObject;
 import org.apache.geronimo.kernel.management.NotificationType;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.management.StateManageable;
-import org.apache.geronimo.kernel.service.DependencyService2MBean;
 import org.apache.geronimo.gbean.WaitingException;
 
 /**
@@ -92,7 +91,7 @@ import org.apache.geronimo.gbean.WaitingException;
  * Implementors of StateManageable may use this class and simply provide
  * doStart, doStop and sendNotification methods.
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/15 00:45:54 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/22 20:58:40 $
  */
 public abstract class AbstractManagedObject implements ManagedObject, StateManageable, EventProvider, NotificationListener, MBeanRegistration, NotificationEmitter {
     protected final Log log = LogFactory.getLog(getClass());
@@ -115,7 +114,7 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
     /**
      * A dynamic proxy to the dependency service.
      */
-    private DependencyService2MBean dependencyService;
+    private DependencyServiceMBean dependencyService;
 
     /**
      * The sequence number of the events.
@@ -185,8 +184,8 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
     public synchronized ObjectName preRegister(MBeanServer server, ObjectName objectName) throws Exception {
         this.server = server;
         this.objectName = objectName;
-        dependencyService = (DependencyService2MBean) MBeanProxyFactory.getProxy(
-                DependencyService2MBean.class,
+        dependencyService = (DependencyServiceMBean) MBeanProxyFactory.getProxy(
+                DependencyServiceMBean.class,
                 server,
                 new ObjectName("geronimo.boot:role=DependencyService2"));
 
@@ -223,7 +222,7 @@ public abstract class AbstractManagedObject implements ManagedObject, StateManag
         return objectName;
     }
 
-    public DependencyService2MBean getDependencyService() {
+    public DependencyServiceMBean getDependencyService() {
         return dependencyService;
     }
 
