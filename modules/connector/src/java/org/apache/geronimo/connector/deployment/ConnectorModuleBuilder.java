@@ -16,6 +16,10 @@
  */
 package org.apache.geronimo.connector.deployment;
 
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.beans.PropertyEditor;
 import java.io.File;
 import java.io.IOException;
@@ -76,10 +80,9 @@ import org.apache.geronimo.xbeans.j2ee.ConfigPropertyType;
 import org.apache.geronimo.xbeans.j2ee.ConnectionDefinitionType;
 import org.apache.geronimo.xbeans.j2ee.ConnectorDocument;
 import org.apache.geronimo.xbeans.j2ee.ConnectorType;
-import org.apache.geronimo.xbeans.j2ee.MessagelistenerType;
-import org.apache.geronimo.xbeans.j2ee.RequiredConfigPropertyType;
-import org.apache.geronimo.xbeans.j2ee.ResourceadapterType;
 import org.apache.geronimo.xbeans.j2ee.FullyQualifiedClassType;
+import org.apache.geronimo.xbeans.j2ee.MessagelistenerType;
+import org.apache.geronimo.xbeans.j2ee.ResourceadapterType;
 import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConfigPropertyType10;
 import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConnectorDocument10;
 import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConnectorType10;
@@ -96,7 +99,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
     private static final String BASE_WORK_MANAGER_NAME = ":type=WorkManager,name=";
 
     public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
-        return createModule(plan, moduleFile, "war", null, true);
+        return createModule(plan, moduleFile, "rar", null, true);
     }
 
     public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, URI earConfigId) throws DeploymentException {
@@ -140,14 +143,13 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
             // load the geronimo-application-client.xml from either the supplied plan or from the earFile
             try {
                 if (plan instanceof XmlObject) {
-                    gerConnector = (GerConnectorType) SchemaConversionUtils.getNestedObjectAsType(
-                            (XmlObject) plan,
+                    gerConnector = (GerConnectorType) SchemaConversionUtils.getNestedObjectAsType((XmlObject) plan,
                             "connector",
                             GerConnectorType.type);
                 } else {
                     GerConnectorDocument gerConnectorDoc = null;
                     if (plan != null) {
-                        gerConnectorDoc = GerConnectorDocument.Factory.parse((File)plan);
+                        gerConnectorDoc = GerConnectorDocument.Factory.parse((File) plan);
                     } else {
                         URL path = DeploymentUtil.createJarURL(moduleFile, "META-INF/geronimo-ra.xml");
                         gerConnectorDoc = GerConnectorDocument.Factory.parse(path);
@@ -228,16 +230,17 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
         addResourceAdapterModuleGBean(earContext, module, cl);
 
         GerConnectorType geronimoConnector = (GerConnectorType) module.getVendorDD();
+
+        GerGbeanType[] gbeans = geronimoConnector.getGbeanArray();
+        for (int i = 0; i < gbeans.length; i++) {
+            GBeanHelper.addGbean(new RARGBeanAdapter(gbeans[i]), cl, earContext);
+        }
+
         XmlObject specDD = module.getSpecDD();
         if (specDD instanceof ConnectorType10) {
             addConnectorGBeans(earContext, (ConnectorType10) specDD, geronimoConnector, cl);
         } else {
             addConnectorGBeans(earContext, (ConnectorModule) module, (ConnectorType) specDD, geronimoConnector, cl);
-        }
-
-        GerGbeanType[] gbeans = geronimoConnector.getGbeanArray();
-        for (int i = 0; i < gbeans.length; i++) {
-            GBeanHelper.addGbean(new RARGBeanAdapter(gbeans[i]), cl, earContext);
         }
 
         return null;
@@ -451,11 +454,32 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
             ActivationspecType activationspec = messagelistenerType.getActivationspec();
             String activationSpecClassName = activationspec.getActivationspecClass().getStringValue();
             GBeanInfoFactory infoFactory = new GBeanInfoFactory("org.apache.geronimo.connector.ActivationSpecWrapper", cl);
-            for (int j = 0; j < activationspec.getRequiredConfigPropertyArray().length; j++) {
-                RequiredConfigPropertyType requiredConfigPropertyType = activationspec.getRequiredConfigPropertyArray()[j];
-                String propertyName = requiredConfigPropertyType.getConfigPropertyName().getStringValue();
-                infoFactory.addAttribute(new DynamicGAttributeInfo(propertyName, true));
+//            for (int j = 0; j < activationspec.getRequiredConfigPropertyArray().length; j++) {
+//                RequiredConfigPropertyType requiredConfigPropertyType = activationspec.getRequiredConfigPropertyArray()[j];
+//                String propertyName = requiredConfigPropertyType.getConfigPropertyName().getStringValue();
+//                infoFactory.addAttribute(new DynamicGAttributeInfo(propertyName, true));
+//            }
+
+            //add all javabean properties that have both getter and setter.  Ignore the "required" flag from the dd.
+            BeanInfo beanInfo;
+            try {
+                Class activationSpecClass = cl.loadClass(activationSpecClassName);
+                beanInfo = Introspector.getBeanInfo(activationSpecClass);
+            } catch (IntrospectionException e) {
+                throw new DeploymentException("Can not introspect activation spec class", e);
+            } catch (ClassNotFoundException e) {
+                throw new DeploymentException("Can not load activation spec class", e);
             }
+
+            PropertyDescriptor[] attDescriptors = beanInfo.getPropertyDescriptors();
+            for (int j = 0; j < attDescriptors.length; j++) {
+                PropertyDescriptor desc = attDescriptors[j];
+                if (desc.getName().equals("resourceAdapter") || desc.getReadMethod() == null || desc.getWriteMethod() == null) {
+                    continue;
+                }
+                infoFactory.addAttribute(new DynamicGAttributeInfo(desc.getName(), true));
+            }
+
             GBeanInfo gbeanInfo = infoFactory.getBeanInfo();
             Class activationSpecClass = null;
             try {
@@ -678,7 +702,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
             }
             //additional interfaces implemented by connection factory
             FullyQualifiedClassType[] implementedInterfaceElements = connectionfactoryInstance.getImplementedInterfaceArray();
-            Class[] implementedInterfaces = new Class[implementedInterfaceElements == null? 0:implementedInterfaceElements.length];
+            Class[] implementedInterfaces = new Class[implementedInterfaceElements == null ? 0 : implementedInterfaceElements.length];
             for (int i = 0; i < implementedInterfaceElements.length; i++) {
                 FullyQualifiedClassType additionalInterfaceType = implementedInterfaceElements[i];
                 implementedInterfaces[i] = cl.loadClass(additionalInterfaceType.getStringValue());
