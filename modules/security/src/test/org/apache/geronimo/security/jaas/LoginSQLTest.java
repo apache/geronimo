@@ -81,6 +81,7 @@ public class LoginSQLTest extends AbstractTest {
         gbean.setAttribute("realmName", "sql-realm");
         gbean.setAttribute("maxLoginModuleAge", new Long(1 * 1000));
         gbean.setAttribute("connectionURL", hsqldbURL);
+        gbean.setAttribute("driver","org.hsqldb.jdbcDriver");
         gbean.setAttribute("user", "loginmodule");
         gbean.setAttribute("password", "password");
         gbean.setAttribute("userSelect", "SELECT UserName, Password FROM Users");

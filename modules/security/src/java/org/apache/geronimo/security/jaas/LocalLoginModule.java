@@ -31,7 +31,7 @@ import java.util.Map;
 
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
-import org.apache.geronimo.security.GeronimoSecurityException;
+import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.security.RealmPrincipal;
 
 

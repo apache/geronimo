@@ -46,7 +46,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.security.ContextManager;
-import org.apache.geronimo.security.GeronimoSecurityException;
+import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.PrimaryRealmPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;

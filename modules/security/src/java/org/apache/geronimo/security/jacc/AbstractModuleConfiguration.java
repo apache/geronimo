@@ -26,7 +26,7 @@ import javax.security.jacc.PolicyContextException;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.security.GeronimoSecurityException;
+import org.apache.geronimo.common.GeronimoSecurityException;
 
 
 /**

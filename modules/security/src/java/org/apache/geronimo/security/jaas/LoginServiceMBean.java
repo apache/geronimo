@@ -20,8 +20,7 @@ package org.apache.geronimo.security.jaas;
 import java.util.Collection;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginException;
-
-import org.apache.geronimo.security.GeronimoSecurityException;
+import org.apache.geronimo.common.GeronimoSecurityException;
 
 
 /**

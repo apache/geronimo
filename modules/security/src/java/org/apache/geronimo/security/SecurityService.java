@@ -32,6 +32,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.security.jacc.ModuleConfiguration;
 import org.apache.geronimo.security.jacc.PolicyContextHandlerContainerSubject;
 import org.apache.geronimo.security.jacc.PolicyContextHandlerHttpServletRequest;

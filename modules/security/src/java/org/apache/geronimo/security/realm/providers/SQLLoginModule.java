@@ -18,15 +18,8 @@
 package org.apache.geronimo.security.realm.providers;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.sql.*;
+import java.util.*;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -47,8 +40,8 @@ public class SQLLoginModule implements LoginModule {
     private String cbUsername;
     private String cbPassword;
     private String connectionURL;
-    private String sqlUser;
-    private String sqlPassword;
+    private Properties properties;
+    private Driver driver;
     private String userSelect;
     private String groupSelect;
     Set groups = new HashSet();
@@ -58,10 +51,10 @@ public class SQLLoginModule implements LoginModule {
         this.handler = callbackHandler;
 
         connectionURL = (String) options.get(SQLSecurityRealm.CONNECTION_URL);
-        sqlUser = (String) options.get(SQLSecurityRealm.USERNAME);
-        sqlPassword = (String) options.get(SQLSecurityRealm.PASSWORD);
+        properties = (Properties) options.get(SQLSecurityRealm.PROPERTIES);
         userSelect = (String) options.get(SQLSecurityRealm.USER_SELECT);
         groupSelect = (String) options.get(SQLSecurityRealm.GROUP_SELECT);
+        driver = (Driver) options.get(SQLSecurityRealm.DRIVER);
     }
 
     public boolean login() throws LoginException {
@@ -81,7 +74,7 @@ public class SQLLoginModule implements LoginModule {
 
         boolean found = false;
         try {
-            Connection conn = DriverManager.getConnection(connectionURL, sqlUser, sqlPassword);
+            Connection conn = driver.connect(connectionURL, properties);
 
             try {
                 PreparedStatement statement = conn.prepareStatement(userSelect);

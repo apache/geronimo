@@ -55,7 +55,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.security.ContextManager;
-import org.apache.geronimo.security.GeronimoSecurityException;
+import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.SubjectId;

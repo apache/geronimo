@@ -18,17 +18,8 @@
 package org.apache.geronimo.security.realm.providers;
 
 import javax.security.auth.login.AppConfigurationEntry;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.sql.*;
+import java.util.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,7 +27,7 @@ import org.apache.regexp.RE;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.security.GeronimoSecurityException;
+import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.security.deploy.Principal;
 import org.apache.geronimo.security.realm.AutoMapAssistant;
 
@@ -51,15 +42,15 @@ public class SQLSecurityRealm extends AbstractSecurityRealm implements AutoMapAs
     public final static String USER_SELECT = "org.apache.geronimo.security.realm.providers.SQLSecurityRealm.USER_SELECT";
     public final static String GROUP_SELECT = "org.apache.geronimo.security.realm.providers.SQLSecurityRealm.GROUP_SELECT";
     public final static String CONNECTION_URL = "org.apache.geronimo.security.realm.providers.SQLSecurityRealm.CONNECTION_URL";
-    public final static String USERNAME = "org.apache.geronimo.security.realm.providers.SQLSecurityRealm.USERNAME";
-    public final static String PASSWORD = "org.apache.geronimo.security.realm.providers.SQLSecurityRealm.PASSWORD";
+    public final static String PROPERTIES = "org.apache.geronimo.security.realm.providers.SQLSecurityRealm.PROPERTIES";
+    public final static String DRIVER = "org.apache.geronimo.security.realm.providers.SQLSecurityRealm.DRIVER";
 
     private boolean running = false;
     private String connectionURL;
-    private String user = "";
-    private String password = "";
     private String userSelect = "SELECT UserName, Password FROM Users";
     private String groupSelect = "SELECT GroupName, UserName FROM Groups";
+    private Driver driver;
+    private Properties properties;
     private final Map users = new HashMap();
     private final Map groups = new HashMap();
     private String defaultPrincipal;
@@ -70,13 +61,21 @@ public class SQLSecurityRealm extends AbstractSecurityRealm implements AutoMapAs
     public SQLSecurityRealm() {
     }
 
-    public SQLSecurityRealm(String realmName, String connectionURL, String user, String password, String userSelect, String groupSelect) {
+    public SQLSecurityRealm(String realmName, String driver, String connectionURL, String user, String password, String userSelect, String groupSelect, ClassLoader classLoader) {
         super(realmName);
         this.connectionURL = connectionURL;
-        this.user = user;
-        this.password = password;
+        properties = new Properties();
+        properties.setProperty("user", user);
+        properties.setProperty("password", password);
         this.userSelect = userSelect;
         this.groupSelect = groupSelect;
+        try {
+            this.driver = (Driver) classLoader.loadClass(driver).newInstance();
+        } catch (ClassNotFoundException e) {
+            throw new IllegalArgumentException("Driver class "+driver+" is not available.  Perhaps you need to add it as a dependency in your deployment plan?");
+        } catch(Exception e) {
+            throw new IllegalArgumentException("Unable to load, instantiate, register driver "+driver+": "+e.getMessage());
+        }
     }
 
     public void doStart() {
@@ -101,66 +100,24 @@ public class SQLSecurityRealm extends AbstractSecurityRealm implements AutoMapAs
         return connectionURL;
     }
 
-    public void setConnectionURL(String connectionURL) {
-        if (running) {
-            throw new IllegalStateException("Cannot change the Connection URI after the realm is started");
-        }
-        this.connectionURL = connectionURL;
-    }
-
     public String getUser() {
-        return user;
-    }
-
-    public void setPassword(String password) {
-        if (running) {
-            throw new IllegalStateException("Cannot change the connection password after the realm is started");
-        }
-        this.password = password;
+        return properties.getProperty("user");
     }
 
     public String getPassword() {
-        return password;
-    }
-
-    public void setUser(String user) {
-        if (running) {
-            throw new IllegalStateException("Cannot change the connection user after the realm is started");
-        }
-        this.user = user;
+        return properties.getProperty("password");
     }
 
     public String getUserSelect() {
         return userSelect;
     }
 
-    public void setUserSelect(String userSelect) {
-        if (running) {
-            throw new IllegalStateException("Cannot change the user SQL select statement after the realm is started");
-        }
-        this.userSelect = userSelect;
-    }
-
     public String getGroupSelect() {
         return groupSelect;
     }
 
-    public void setGroupSelect(String groupSelect) {
-        if (running) {
-            throw new IllegalStateException("Cannot change the group SQL select statement after the realm is started");
-        }
-        this.groupSelect = groupSelect;
-    }
-
     public String getDefaultPrincipal() {
         return defaultPrincipal;
-    }
-
-    public void setDefaultPrincipal(String defaultPrincipal) {
-        if (running) {
-            throw new IllegalStateException("Cannot change the default principal after the realm is started");
-        }
-        this.defaultPrincipal = defaultPrincipal;
     }
 
     public Set getGroupPrincipals() throws GeronimoSecurityException {
@@ -214,12 +171,15 @@ public class SQLSecurityRealm extends AbstractSecurityRealm implements AutoMapAs
     }
 
     public void refresh() throws GeronimoSecurityException {
+        java.util.Enumeration e = DriverManager.getDrivers();
+        while(e.hasMoreElements()) {System.err.println("Refresh Driver: "+e.nextElement().getClass().getName());}
+
         users.clear();
         groups.clear();
         Map users = new HashMap();
         Map groups = new HashMap();
         try {
-            Connection conn = DriverManager.getConnection(connectionURL, user, password);
+            Connection conn = driver.connect(connectionURL, properties);
 
             try {
                 PreparedStatement statement = conn.prepareStatement(userSelect);
@@ -288,8 +248,8 @@ public class SQLSecurityRealm extends AbstractSecurityRealm implements AutoMapAs
         options.put(USER_SELECT, userSelect);
         options.put(GROUP_SELECT, groupSelect);
         options.put(CONNECTION_URL, connectionURL);
-        options.put(USERNAME, user);
-        options.put(PASSWORD, password);
+        options.put(PROPERTIES, properties);
+        options.put(DRIVER, driver);
 
         AppConfigurationEntry entry = new AppConfigurationEntry("org.apache.geronimo.security.realm.providers.SQLLoginModule",
                                                                 AppConfigurationEntry.LoginModuleControlFlag.SUFFICIENT,
@@ -339,18 +299,22 @@ public class SQLSecurityRealm extends AbstractSecurityRealm implements AutoMapAs
         infoFactory.addInterface(AutoMapAssistant.class);
         infoFactory.addAttribute("connectionURL", String.class, true);
         infoFactory.addAttribute("user", String.class, true);
+        infoFactory.addAttribute("driver", String.class, true);
         infoFactory.addAttribute("password", String.class, true);
         infoFactory.addAttribute("userSelect", String.class, true);
         infoFactory.addAttribute("groupSelect", String.class, true);
         infoFactory.addAttribute("defaultPrincipal", String.class, true);
+        infoFactory.addAttribute("classLoader", ClassLoader.class, false);
 
         infoFactory.setConstructor(new String[]{
             "realmName",
+            "driver",
             "connectionURL",
             "user",
             "password",
             "userSelect",
-            "groupSelect"});
+            "groupSelect",
+            "classLoader"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

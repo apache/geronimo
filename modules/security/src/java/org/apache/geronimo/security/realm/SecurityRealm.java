@@ -21,7 +21,7 @@ import javax.security.auth.login.AppConfigurationEntry;
 
 import java.util.Set;
 
-import org.apache.geronimo.security.GeronimoSecurityException;
+import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.regexp.RE;
 
 

@@ -26,7 +26,7 @@ import javax.security.auth.login.AppConfigurationEntry;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.security.GeronimoSecurityException;
+import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.security.realm.SecurityRealm;
 import org.apache.geronimo.security.realm.providers.AbstractSecurityRealm;
 import org.apache.regexp.RE;

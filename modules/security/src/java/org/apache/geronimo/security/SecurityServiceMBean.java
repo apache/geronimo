@@ -18,6 +18,7 @@
 package org.apache.geronimo.security;
 
 import java.util.Collection;
+import org.apache.geronimo.common.GeronimoSecurityException;
 
 
 /**

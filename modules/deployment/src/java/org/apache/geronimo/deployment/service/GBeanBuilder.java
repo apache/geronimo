@@ -56,6 +56,9 @@ public class GBeanBuilder {
     }
 
     public void setAttribute(String name, String type, String text) throws DeploymentException {
+        if(text != null) {
+            text = text.trim(); // avoid formatting errors due to extra whitespace in XML configuration file
+        }
         try {
             // @todo we should not need all of common just for this
             if (type == null) {

@@ -38,7 +38,7 @@ import org.mortbay.xml.XmlParser;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.geronimo.security.GeronimoSecurityException;
+import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.deploy.AutoMapAssistant;
 import org.apache.geronimo.security.deploy.Principal;

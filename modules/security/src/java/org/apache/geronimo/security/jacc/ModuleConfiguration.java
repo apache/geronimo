@@ -20,7 +20,7 @@ package org.apache.geronimo.security.jacc;
 import java.util.Collection;
 import java.util.HashSet;
 
-import org.apache.geronimo.security.GeronimoSecurityException;
+import org.apache.geronimo.common.GeronimoSecurityException;
 
 
 /**
@@ -47,7 +47,7 @@ public interface ModuleConfiguration {
      * will cause a <code>PolicyContextException</code> to be thrown.
      * @param role The role that is to be mapped to a set of principals.
      * @param principals The set of principals that are to be mapped to to role.
-     * @throws org.apache.geronimo.security.GeronimoSecurityException if the mapping principals to the same role twice occurs.
+     * @throws org.apache.geronimo.common.GeronimoSecurityException if the mapping principals to the same role twice occurs.
      */
     public void addRoleMapping(String role, Collection principals) throws GeronimoSecurityException;
 
@@ -70,7 +70,7 @@ public interface ModuleConfiguration {
      * <code>EjbModuleConfigurationMBean</code> Object is "deleted" or "inService" when this method is called.
      * @throws java.lang.IllegalArgumentException if called with an argument <code>EjbModuleConfigurationMBean</code>
      * whose Policy context is equivalent to that of this <code>EjbModuleConfigurationMBean</code>.
-     * @throws org.apache.geronimo.security.GeronimoSecurityException if the implementation throws a checked exception that has not been accounted for by
+     * @throws org.apache.geronimo.common.GeronimoSecurityException if the implementation throws a checked exception that has not been accounted for by
      * the linkConfiguration method signature. The exception thrown by the implementation class will be encapsulated
      * (during construction) in the thrown <code>GeronimoSecurityException</code>.
      */
@@ -86,7 +86,7 @@ public interface ModuleConfiguration {
      * involving the deleted <code>PolicyConfiguration<code>.</p>
      * @throws java.lang.SecurityException if called by an <code>AccessControlContext</code> that has not been granted
      * the "setPolicy" <code>SecurityPermission</code>.
-     * @throws org.apache.geronimo.security.GeronimoSecurityException if the implementation throws a checked exception that has not been accounted for by
+     * @throws org.apache.geronimo.common.GeronimoSecurityException if the implementation throws a checked exception that has not been accounted for by
      * the delete method signature. The exception thrown by the implementation class will be encapsulated (during
      * construction) in the thrown <code>GeronimoSecurityException</code>.
      */
@@ -106,7 +106,7 @@ public interface ModuleConfiguration {
      * the "setPolicy" <code>SecurityPermission</code>.
      * @throws java.lang.UnsupportedOperationException if the state of the policy context whose interface is this
      * <code>PolicyConfiguration</code> Object is "deleted" when this method is called.
-     * @throws org.apache.geronimo.security.GeronimoSecurityException if the implementation throws a checked exception that has not been accounted for by
+     * @throws org.apache.geronimo.common.GeronimoSecurityException if the implementation throws a checked exception that has not been accounted for by
      * the commit method signature. The exception thrown by the implementation class will be encapsulated (during
      * construction) in the thrown <code>GeronimoSecurityException</code>.
      */
@@ -119,7 +119,7 @@ public interface ModuleConfiguration {
      * otherwise.
      * @throws java.lang.SecurityException if called by an <code>AccessControlContext</code> that has not been granted
      * the "setPolicy" <code>SecurityPermission</code>.
-     * @throws org.apache.geronimo.security.GeronimoSecurityException if the implementation throws a checked exception that has not been accounted for by the
+     * @throws org.apache.geronimo.common.GeronimoSecurityException if the implementation throws a checked exception that has not been accounted for by the
      * <code>inService</code> method signature. The exception thrown by the implementation class will be encapsulated
      * (during construction) in the thrown <code>GeronimoSecurityException</code>.
      */

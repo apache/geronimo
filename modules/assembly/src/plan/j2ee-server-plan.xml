@@ -36,6 +36,9 @@ by the server.
         <uri>geronimo-spec/jars/geronimo-spec-j2ee-${geronimo_spec_j2ee_version}.jar</uri>
     </dependency>
     <dependency>
+        <uri>geronimo-spec/jars/geronimo-spec-j2ee-jacc-${geronimo_spec_j2ee_jacc_version}.jar</uri>
+    </dependency>
+    <dependency>
         <uri>geronimo/jars/geronimo-j2ee-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>
