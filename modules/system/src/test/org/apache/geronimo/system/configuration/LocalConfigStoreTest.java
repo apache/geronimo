@@ -50,6 +50,20 @@ public class LocalConfigStoreTest extends TestCase {
         assertEquals(uri, config.getAttribute("ID"));
     }
 
+    public void testReInstall() throws Exception {
+        store.install(source);
+        store.install(source);
+        assertTrue(new File(root, "2/META-INF/config.ser").exists());
+        store.install(source);
+        assertTrue(new File(root, "3/META-INF/config.ser").exists());
+        store.install(source);
+        assertTrue(new File(root, "4/META-INF/config.ser").exists());
+        store.install(source);
+        assertTrue(new File(root, "5/META-INF/config.ser").exists());
+        store.install(source);
+        assertTrue(new File(root, "6/META-INF/config.ser").exists());
+    }
+
     protected void setUp() throws Exception {
         try {
             root = new File(System.getProperty("java.io.tmpdir") + "/config-store");

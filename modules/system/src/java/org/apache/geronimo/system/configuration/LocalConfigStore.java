@@ -58,6 +58,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
     private static final String INDEX_NAME = "index.properties";
+    private static final String BACKUP_NAME = "index.backup";
     private final String objectName;
     private final URI root;
     private final ServerInfo serverInfo;
@@ -117,31 +118,26 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
     }
 
     private void saveIndex() throws IOException {
+        // todo provide a backout mechanism
         File indexFile = new File(rootDir, INDEX_NAME);
-        File tmpFile = File.createTempFile("index", ".tmp", rootDir);
-        FileOutputStream fos = new FileOutputStream(tmpFile);
+        File backupFile = new File(rootDir, BACKUP_NAME);
+        if (backupFile.exists()) {
+            backupFile.delete();
+        }
+        indexFile.renameTo(backupFile);
+
+        FileOutputStream fos = new FileOutputStream(indexFile);
         try {
             BufferedOutputStream os = new BufferedOutputStream(fos);
             index.store(os, null);
             os.close();
             fos = null;
-            if ( indexFile.exists() && false == indexFile.delete() ) {
-                throw new IOException("Can not delete file " + indexFile);
-            }
-            if ( false == tmpFile.renameTo(indexFile) ) {
-                fos = new FileOutputStream(indexFile);
-                os = new BufferedOutputStream(fos);
-                index.store(os, null);
-                os.close();
-                if ( false == tmpFile.delete() ) {
-                    log.warn("Can not delete temporary file " + tmpFile);
-                }
-            }
         } catch (IOException e) {
             if (fos != null) {
                 fos.close();
             }
-            tmpFile.delete();
+            indexFile.delete();
+            backupFile.renameTo(indexFile);
             throw e;
         }
     }
