@@ -41,7 +41,7 @@ import org.apache.geronimo.transaction.UserTransactionImpl;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/07/12 06:07:50 $
+ * @version $Revision: 1.3 $ $Date: 2004/07/15 17:57:56 $
  */
 public class SecurityTest extends TestCase {
 
@@ -172,7 +172,7 @@ public class SecurityTest extends TestCase {
         tm = new GBeanMBean(GeronimoTransactionManager.GBEAN_INFO);
         Set patterns = new HashSet();
         patterns.add(ObjectName.getInstance("geronimo.management:J2eeType=ManagedConnectionFactory,*"));
-        tm.setReferencePatterns("resourceManagers", patterns);
+        tm.setReferencePatterns("ResourceManagers", patterns);
         start(tmName, tm);
         ctc = new GBeanMBean(ConnectionTrackingCoordinator.GBEAN_INFO);
         start(tcaName, ctc);
