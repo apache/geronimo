@@ -56,12 +56,10 @@
 
 package org.apache.geronimo.common.mutable;
 
-import org.apache.geronimo.common.coerce.NotCoercibleException;
-
 /**
  * A mutable byte class.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/24 20:51:22 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/26 18:30:12 $
  */
 public class MuByte
     extends MuNumber
@@ -302,15 +300,15 @@ public class MuByte
     /**
      * Compares this object with the specified object for order.
      *
-     * @param other   Value to compare with.
-     * @return        A negative integer, zero, or a positive integer as
-     *                this object is less than, equal to, or greater than
-     *                the specified object.
+     * @param obj   Value to compare with.
+     * @return      A negative integer, zero, or a positive integer as
+     *              this object is less than, equal to, or greater than
+     *              the specified object.
      *
      * @throws ClassCastException    Object is not a MuByte.
      */
     public int compareTo(Object obj) throws ClassCastException {
-        return compareTo((MuByte)obj);
+        return compareTo(((MuByte)obj).get());
     }
     
     /**
@@ -358,7 +356,7 @@ public class MuByte
      * @return   <code>byte</code> value.
      */
     public byte byteValue() {
-        return (byte)value;
+        return value;
     }
 
     /**
