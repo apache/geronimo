@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.22 $ $Date: 2003/11/16 05:26:32 $ -->
+<!-- $Revision: 1.23 $ $Date: 2003/11/18 05:19:03 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
@@ -52,6 +52,7 @@
     
     <j:jelly xmlns="jelly:ant">
       <!-- Create the directory where the test databases will reside -->
+      <delete dir="${maven.build.dir}/database"/>
       <mkdir dir="${maven.build.dir}/database"/>
     </j:jelly>
     
