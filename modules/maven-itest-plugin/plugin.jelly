@@ -24,7 +24,7 @@
         description="Compile the Integration Tests"
         prereqs="java:compile,java:jar-resources,itest:prepare-filesystem,itest:test-resources">
 
-        <j:if test="${maven.itest.skip != 'true'}">
+        <j:if test="${context.getVariable('maven.itest.skip') != 'true'}">
 
             <javac
                 destdir="${maven.itest.dest}"
@@ -98,7 +98,7 @@
         description="Run Application Integration Tests"
         prereqs="itest:compile">
 
-        <j:if test="${maven.itest.skip != 'true'}">
+        <j:if test="${context.getVariable('maven.itest.skip') != 'true'}">
 
             <!-- call our setup code -->
             <attainGoal name="itest:setup"/>
@@ -183,7 +183,8 @@
         description="Copy any resources that must be present for the integration tests to run"
         prereqs="itest:prepare-filesystem">
 
-        <j:if test="${maven.itest.skip != 'true' and context.getVariable('maven.itest.resources') != ''}">
+        <j:if test="${context.getVariable('maven.itest.skip') != 'true'
+                     and context.getVariable('maven.itest.resources') != ''}">
             <ant:copy todir="${maven.itest.dest}">
                 <u:tokenize var="resources" delim=", ">${maven.itest.resources}</u:tokenize>
                 <j:forEach var="resource" items="${resources}">
