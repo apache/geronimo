@@ -16,34 +16,33 @@
  */
 package org.apache.geronimo.jmxremoting;
 
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Arrays;
 import java.util.Set;
-import java.security.Principal;
 import javax.security.auth.Subject;
+import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
-import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.UnsupportedCallbackException;
-import javax.security.auth.spi.LoginModule;
 import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginException;
+import javax.security.auth.spi.LoginModule;
 
 import junit.framework.TestCase;
 
 /**
  * 
  * 
- * @version $Revision: 1.1 $ $Date: 2004/05/30 19:48:01 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/02 06:47:56 $
  */
 public class AuthenticatorTest extends TestCase {
     private static final String CONFIG_NAME = "testConfig";
     private Configuration oldConfiguration;
     private Configuration loginConfig;
-    private Credentials credentials;
+    private String[] credentials;
     private Authenticator authenticator;
 
     public void testAuthenticateWithValidPassword() {
@@ -67,7 +66,7 @@ public class AuthenticatorTest extends TestCase {
         loginConfig = new MockConfiguration();
         Configuration.setConfiguration(loginConfig);
 
-        credentials = new Credentials("username", "password");
+        credentials = new String[]{"username", "password"};
         authenticator = new Authenticator(CONFIG_NAME);
     }
 

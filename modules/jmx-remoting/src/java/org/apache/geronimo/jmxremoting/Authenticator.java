@@ -24,7 +24,7 @@ import javax.security.auth.login.LoginException;
 /**
  * JMX Authenticator that checks the Credentials by logging in via JAAS.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/30 19:48:01 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/02 06:47:56 $
  */
 public class Authenticator implements JMXAuthenticator {
     private final String configName;
@@ -38,11 +38,15 @@ public class Authenticator implements JMXAuthenticator {
     }
 
     public Subject authenticate(Object o) throws SecurityException {
-        if (o instanceof Credentials == false) {
-            throw new IllegalArgumentException("Expected Credentials, got " + o == null ? null : o.getClass().getName());
+        if (o instanceof String[] == false) {
+            throw new IllegalArgumentException("Expected String[2], got " + o == null ? null : o.getClass().getName());
+        }
+        String[] params = (String[]) o;
+        if (params.length != 2) {
+            throw new IllegalArgumentException("Expected String[2] but length was " + params.length);
         }
 
-        Credentials credentials = (Credentials) o;
+        Credentials credentials = new Credentials(params[0], params[1]);
         try {
             LoginContext context = new LoginContext(configName, credentials);
             context.login();
