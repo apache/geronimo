@@ -53,12 +53,12 @@
         </dependency>
 
         <dependency>
-            <groupId>derby</groupId>
+            <groupId>incubator-derby</groupId>
             <artifactId>derby</artifactId>
             <version>${derby_version}</version>
         </dependency>
         <dependency>
-            <groupId>derby</groupId>
+            <groupId>incubator-derby</groupId>
             <artifactId>derbynet</artifactId>
             <version>${derby_version}</version>
         </dependency>

@@ -444,7 +444,7 @@
         </dependency>
 
         <dependency>
-            <groupId>derby</groupId>
+            <groupId>incubator-derby</groupId>
             <artifactId>derby</artifactId>
             <version>${derby_version}</version>
             <properties>
@@ -453,7 +453,7 @@
         </dependency>
 
         <dependency>
-            <groupId>derby</groupId>
+            <groupId>incubator-derby</groupId>
             <artifactId>derbynet</artifactId>
             <version>${derby_version}</version>
             <properties>
