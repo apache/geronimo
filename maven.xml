@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.20 $ $Date: 2003/08/22 11:20:43 $ -->
+<!-- $Revision: 1.21 $ $Date: 2003/08/24 06:16:30 $ -->
 
 <project default="default"
   xmlns:j="jelly:core" 
@@ -163,10 +163,10 @@
   </preGoal>
   
   <goal name="modules:copy-site" prereqs="modules:site"
-  	description="Copy the generated websites of all the modules into the root project">
-  	
-  	<!-- a dummy scope tag to change XML namespace to ant -->
-  	<j:scope xmlns="jelly:ant">
+    description="Copy the generated websites of all the modules into the root project">
+    
+    <!-- a dummy scope tag to change XML namespace to ant -->
+    <j:scope xmlns="jelly:ant">
       
       <fileScanner var="scanner">
         <fileset dir="${basedir}"
@@ -183,28 +183,28 @@
         <mkdir dir="${outDir}"/>
         <copy todir="${outDir}">
           <fileset dir="${basedir}/${type}/${name}/target/docs"/>
-   	    </copy>
+        </copy>
       </j:forEach>
       
     </j:scope>
   </goal>
   
   <goal name="site:tocvs" prereqs=""
-  	description="Creates the entire website and copies it to the local CVS repository so that it can be checked in to update the Incubator site">
-  	
-  	<!-- a dummy scope tag to change XML namespace to ant -->
-  	<j:scope xmlns="jelly:ant">
+    description="Creates the entire website and copies it to the local CVS repository so that it can be checked in to update the Incubator site">
     
-  	  <j:if test="${empty(geronimo.cvs.docdir)}">
-  	    <j:set var="geronimo.cvs.docdir" value="../incubator-site/build/site/projects/geronimo"/>
-  	  </j:if>
+    <!-- a dummy scope tag to change XML namespace to ant -->
+    <j:scope xmlns="jelly:ant">
+    
+      <j:if test="${empty(geronimo.cvs.docdir)}">
+        <j:set var="geronimo.cvs.docdir" value="../incubator-site/build/site/projects/geronimo"/>
+      </j:if>
       
       <mkdir dir="${geronimo.cvs.docdir}"/>
       <copy todir="${geronimo.cvs.docdir}">
         <fileset dir="${basedir}/target/docs"/>
-   	  </copy>
+      </copy>
       
-  	</j:scope>
+    </j:scope>
   </goal>
   
   
