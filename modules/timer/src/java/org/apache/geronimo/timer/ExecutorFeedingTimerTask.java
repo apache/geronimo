@@ -17,7 +17,6 @@
 
 package org.apache.geronimo.timer;
 
-import java.util.Date;
 import java.util.TimerTask;
 
 import javax.transaction.RollbackException;
@@ -31,7 +30,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/07/21 03:53:44 $
+ * @version $Revision: 1.3 $ $Date: 2004/08/04 07:17:13 $
  *
  * */
 public class ExecutorFeedingTimerTask extends TimerTask {
@@ -55,8 +54,6 @@ public class ExecutorFeedingTimerTask extends TimerTask {
     }
 
     public boolean cancel() {
-        // TODO double-check if this is indeed the mechanism use to raise
-        // a NoSuchObjectLocalException exception.
         threadPooledTimer.removeWorkInfo(workInfo);
         try {
             threadPooledTimer.registerSynchronization(new CancelSynchronization(this));
