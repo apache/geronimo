@@ -351,6 +351,10 @@ public class TransactionImpl implements Transaction {
             } catch (XAException e) {
                 synchronized (this) {
                     status = Status.STATUS_MARKED_ROLLBACK;
+                    //TODO document why this is true from the spec.
+                    //XAException during prepare means we can assume resource is rolled back.
+                    rms.remove();
+                    break;
                 }
             }
         }
