@@ -23,12 +23,19 @@ import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
+import javax.management.ObjectName;
 
 import junit.framework.TestCase;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.management.State;
 
 /**
  *
@@ -37,44 +44,104 @@ import org.apache.geronimo.kernel.config.Configuration;
  */
 public class LocalConfigStoreTest extends TestCase {
     private File root;
-    private LocalConfigStore store;
     private URL source;
     private File sourceFile;
     private URI uri;
+    private Kernel kernel;
+    private byte[] state;
+    private ObjectName gbeanName1;
+    private ObjectName storeName;
 
     public void testInstall() throws Exception {
-        store.install(source);
+        kernel.invoke(storeName, "install", new Object[] {source}, new String[] {"java.net.URL"});
         assertTrue(new File(root, "1/META-INF/config.ser").exists());
-        assertEquals(new File(root, "1").toURL(), store.getBaseURL(uri));
-        GBeanMBean config = store.getConfiguration(uri);
+        assertEquals(new File(root, "1").toURL(),
+            kernel.invoke(storeName, "getBaseURL", new Object[] {uri}, new String[] {"java.net.URI"}));
+
+        GBeanMBean config = (GBeanMBean) kernel.invoke(storeName, "getConfiguration", new Object[] {uri}, new String[] {"java.net.URI"});
         assertEquals(uri, config.getAttribute("ID"));
     }
 
     public void testReInstall() throws Exception {
-        store.install(source);
-        store.install(source);
+        kernel.invoke(storeName, "install", new Object[] {source}, new String[] {"java.net.URL"});
+        kernel.invoke(storeName, "install", new Object[] {source}, new String[] {"java.net.URL"});
         assertTrue(new File(root, "2/META-INF/config.ser").exists());
-        store.install(source);
+        kernel.invoke(storeName, "install", new Object[] {source}, new String[] {"java.net.URL"});
         assertTrue(new File(root, "3/META-INF/config.ser").exists());
-        store.install(source);
+        kernel.invoke(storeName, "install", new Object[] {source}, new String[] {"java.net.URL"});
         assertTrue(new File(root, "4/META-INF/config.ser").exists());
-        store.install(source);
+        kernel.invoke(storeName, "install", new Object[] {source}, new String[] {"java.net.URL"});
         assertTrue(new File(root, "5/META-INF/config.ser").exists());
-        store.install(source);
+        kernel.invoke(storeName, "install", new Object[] {source}, new String[] {"java.net.URL"});
         assertTrue(new File(root, "6/META-INF/config.ser").exists());
+    }
+
+    public void testUpdateConfig() throws Exception {
+        // install the config
+        kernel.invoke(storeName, "install", new Object[] {source}, new String[] {"java.net.URL"});
+
+        // load and start the config
+        ConfigurationManager configurationManager = kernel.getConfigurationManager();
+        ObjectName configName = configurationManager.load(uri);
+        kernel.invoke(configName, "startRecursive", null, null);
+
+        // make sure the config and the gbean are running
+        assertEquals(new Integer(State.RUNNING_INDEX), kernel.getAttribute(configName, "state"));
+        assertEquals(new Integer(State.RUNNING_INDEX), kernel.getAttribute(gbeanName1, "state"));
+
+        // set the value
+        kernel.setAttribute(gbeanName1, "value", "9900990099");
+        assertEquals("9900990099", kernel.getAttribute(gbeanName1, "value"));
+
+        // stop and unload the config
+        kernel.stopGBean(configName);
+        configurationManager.unload(configName);
+
+        // assure it was unloaded
+        assertFalse(kernel.isLoaded(configName));
+
+        // now reload and restart the config
+        configName = configurationManager.load(uri);
+        kernel.invoke(configName, "startRecursive", null, null);
+
+        // make sure the value was reloaded correctly
+        assertEquals("9900990099", kernel.getAttribute(gbeanName1, "value"));
+
+        // stop and unload the config
+        kernel.stopGBean(configName);
+        configurationManager.unload(configName);
     }
 
     protected void setUp() throws Exception {
         try {
+            kernel = new Kernel("test.kernel", "geronimo");
+            kernel.boot();
+
+            gbeanName1 = new ObjectName("geronimo.test:name=MyMockGMBean1");
+            GBeanMBean mockBean1 = new GBeanMBean(MockGBean.getGBeanInfo());
+            mockBean1.setAttribute("value", "1234");
+
+            Map gbeans = new HashMap();
+            gbeans.put(gbeanName1, mockBean1);
+            state = Configuration.storeGBeans(gbeans);
+
             root = new File(System.getProperty("java.io.tmpdir") + "/config-store");
+            recursiveDelete(root);
             root.mkdir();
 
-            store = new LocalConfigStore(root);
-            store.doStart();
+            storeName = new ObjectName("geronimo.test:role=ConfigurationStore,name=LocalConfigStore");
+            GBeanData store = new GBeanData(LocalConfigStore.getGBeanInfo());
+            store.setAttribute("root", root.toURI());
+
+            kernel.loadGBean(storeName, store, getClass().getClassLoader());
+            kernel.startGBean(storeName);
 
             GBeanMBean gbean = new GBeanMBean(Configuration.GBEAN_INFO);
             uri = new URI("test");
             gbean.setAttribute("ID", uri);
+            gbean.setAttribute("gBeanState", state);
+
+
             sourceFile = File.createTempFile("test", ".car");
             source = sourceFile.toURL();
             JarOutputStream jos = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(sourceFile)));
@@ -96,9 +163,8 @@ public class LocalConfigStoreTest extends TestCase {
         if (sourceFile != null) {
             sourceFile.delete();
         }
-        store.doStop();
-        store = null;
         recursiveDelete(root);
+        kernel.shutdown();
     }
 
     private static void recursiveDelete(File root) throws Exception {

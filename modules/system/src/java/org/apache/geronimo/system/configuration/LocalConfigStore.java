@@ -100,7 +100,11 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
     public void doStart() throws WaitingException, FileNotFoundException, IOException {
         // resolve the root dir if not alredy resolved
         if (rootDir == null) {
-            rootDir = new File(serverInfo.resolve(root));
+            if (serverInfo == null) {
+                rootDir = new File(root);
+            } else {
+                rootDir = new File(serverInfo.resolve(root));
+            }
             if (!rootDir.isDirectory()) {
                 throw new FileNotFoundException("Store root does not exist or is not a directory: " + rootDir);
             }

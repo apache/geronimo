@@ -35,6 +35,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Collections;
 import javax.management.AttributeNotFoundException;
 import javax.management.JMRuntimeException;
 import javax.management.ObjectName;
@@ -97,7 +98,7 @@ public class Configuration implements GBeanLifecycle {
     private final ConfigurationParent parent;
     private final List classPath;
     private final List dependencies;
-    private final byte[] gbeanState;
+    private byte[] gbeanState;
     private final Collection repositories;
     private final ConfigurationStore configurationStore;
 
@@ -105,7 +106,6 @@ public class Configuration implements GBeanLifecycle {
     private Map gbeans;
 
     private ClassLoader classLoader;
-    private byte[] savedState;
 
     /**
      * Constructor that can be used to create an offline Configuration, typically
@@ -128,8 +128,16 @@ public class Configuration implements GBeanLifecycle {
         this.parentID = parentID;
         this.parent = parent;
         this.gbeanState = gbeanState;
-        this.classPath = classPath;
-        this.dependencies = dependencies;
+        if (classPath == null) {
+            this.classPath = Collections.EMPTY_LIST;
+        } else {
+            this.classPath = classPath;
+        }
+        if (dependencies == null) {
+            this.dependencies = Collections.EMPTY_LIST;
+        } else {
+            this.dependencies = dependencies;
+        }
         this.repositories = repositories;
         this.configurationStore = configurationStore;
     }
@@ -245,7 +253,7 @@ public class Configuration implements GBeanLifecycle {
 
         // save state
         try {
-            savedState = storeGBeans(gbeans);
+            gbeanState = storeGBeans(gbeans);
         } catch (InvalidConfigException e) {
             log.info(e);
         }
@@ -305,12 +313,12 @@ public class Configuration implements GBeanLifecycle {
         this.baseURL = baseURL;
     }
 
-    public ClassLoader getClassLoader() {
-        return classLoader;
+    public byte[] getGbeanState() {
+        return gbeanState;
     }
 
-    public byte[] getSavedState() {
-        return savedState;
+    public ClassLoader getClassLoader() {
+        return classLoader;
     }
 
     private static class ConfigInputStream extends ObjectInputStream {

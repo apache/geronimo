@@ -320,6 +320,7 @@ public class GBeanMBeanAttribute {
 
     public Object getPersistentValue() {
         if (!persistent) {
+            throw new IllegalStateException("Attribute is not persistent " + getDescription());
         }
         if (getInvoker != null && gmbean.getTarget() != null) {
             try {
