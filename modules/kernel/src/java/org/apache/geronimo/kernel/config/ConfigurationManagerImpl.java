@@ -42,7 +42,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
 
 /**
- * @version $Revision: 1.11 $ $Date: 2004/07/22 03:22:53 $
+ * @version $Revision: 1.12 $ $Date: 2004/09/02 11:03:18 $
  */
 public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLifecycle {
     private static final Log log = LogFactory.getLog(ConfigurationManagerImpl.class);
@@ -152,7 +152,7 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
         } catch (InvalidConfigException e) {
             throw e;
         } catch (Exception e) {
-            throw new InvalidConfigException("Unable to register configuraton", e);
+            throw new InvalidConfigException("Unable to register configuration", e);
         }
 
         try {

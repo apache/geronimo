@@ -34,7 +34,7 @@ import org.apache.geronimo.system.url.GeronimoURLFactory;
 
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/07/31 15:05:12 $
+ * @version $Revision: 1.8 $ $Date: 2004/09/02 11:03:18 $
  */
 public class CommandLine {
     private static Log log;
@@ -80,7 +80,7 @@ public class CommandLine {
             ObjectName configName = configurationManager.load(config, classLoader.getResource("/"));
             kernel.startRecursiveGBean(configName);
 
-            // load and start the configurations listested in the manifest
+            // load and start the configurations listed in the manifest
             for (Iterator iterator = manifest.getConfigurations().iterator(); iterator.hasNext();) {
                 URI configurationID = (URI) iterator.next();
                 ObjectName configurationName = configurationManager.load(configurationID);

@@ -33,7 +33,7 @@ import javax.management.MalformedObjectNameException;
 /**
  * 
  * 
- * @version $Revision: 1.1 $ $Date: 2004/04/05 05:54:11 $
+ * @version $Revision: 1.2 $ $Date: 2004/09/02 11:03:18 $
  */
 public class CommandLineManifest {
     public static final Attributes.Name MAIN_GBEAN = new Attributes.Name("Main-GBean");
@@ -63,7 +63,7 @@ public class CommandLineManifest {
         // get the main gbean class
         String mainGBeanString = mainAttributes.getValue(MAIN_GBEAN);
         if (mainGBeanString == null) {
-            System.err.println("Manifest does not conatin a Main-GBean entry");
+            System.err.println("Manifest does not contain a Main-GBean entry");
             System.exit(1);
             throw new AssertionError();
         }
@@ -80,7 +80,7 @@ public class CommandLineManifest {
         // get the main method
         String mainMethod = mainAttributes.getValue(MAIN_METHOD);
         if (mainGBeanString == null) {
-            System.err.println("Manifest does not conatin a Main-Method entry");
+            System.err.println("Manifest does not contain a Main-Method entry");
             System.exit(1);
             throw new AssertionError();
         }
