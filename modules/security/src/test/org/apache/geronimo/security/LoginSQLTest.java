@@ -75,7 +75,7 @@ import org.apache.geronimo.security.realm.providers.SQLSecurityRealm;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:08 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/25 01:47:30 $
  */
 public class LoginSQLTest extends TestCase {
 
@@ -145,7 +145,6 @@ public class LoginSQLTest extends TestCase {
 
     public void testLogin() throws Exception {
 
-        Subject subject = new Subject();
         CallbackHandler handler = new CallbackHandler() {
             public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
                 for (int i = 0; i < callbacks.length; i++) {
@@ -158,11 +157,20 @@ public class LoginSQLTest extends TestCase {
             }
 
         };
-        LoginContext context = new LoginContext("Foo", subject, handler);
+        LoginContext context = new LoginContext("Foo", handler);
 
         context.login();
-        Subject rSubject = context.getSubject();
-        assertTrue("expected non-null subject", rSubject != null);
+        Subject subject = context.getSubject();
+
+        assertTrue("expected non-null subject", subject != null);
+        assertTrue("id of subject should be non-null", ContextManager.getSubjectId(subject) != null);
+        assertTrue("subject should have two principals", subject.getPrincipals().size() == 2);
+        assertTrue("subject should have one realm principal", subject.getPrincipals(RealmPrincipal.class).size() == 1);
+        RealmPrincipal principal = (RealmPrincipal)subject.getPrincipals(RealmPrincipal.class).iterator().next();
+        assertTrue("id of principal should be non-zero", principal.getId() != 0);
+
         context.logout();
+
+        assertTrue("id of subject should be null", ContextManager.getSubjectId(subject) == null);
     }
 }
