@@ -67,7 +67,7 @@ import org.apache.xmlbeans.XmlBeans;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/18 20:57:07 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/21 16:40:00 $
  *
  * */
 public class AdminObjectDConfigBean extends DConfigBeanSupport {
@@ -137,7 +137,7 @@ public class AdminObjectDConfigBean extends DConfigBeanSupport {
                 instance.dispose();
             }
         }
-        pcs.firePropertyChange("connectionDefinitionInstance", old, instances);
+        pcs.firePropertyChange("adminObjectInstance", old, instances);
     }
 
 }
