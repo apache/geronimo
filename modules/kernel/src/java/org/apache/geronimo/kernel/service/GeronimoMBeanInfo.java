@@ -63,6 +63,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanConstructorInfo;
 import javax.management.MBeanInfo;
@@ -83,7 +84,7 @@ import net.sf.cglib.reflect.FastClass;
  * and once the MBean is deployed an imutable copy of will be made.  This class also adds support for multi target
  * POJOs under the MBean.
  *
- * @version $Revision: 1.7 $ $Date: 2003/11/14 16:15:37 $
+ * @version $Revision: 1.8 $ $Date: 2003/11/16 00:44:26 $
  */
 public final class GeronimoMBeanInfo extends MBeanInfo {
 
@@ -149,20 +150,20 @@ public final class GeronimoMBeanInfo extends MBeanInfo {
             for (Iterator i = targetClasses.entrySet().iterator(); i.hasNext();) {
                 Map.Entry entry = (Map.Entry) i.next();
                 Object key = entry.getKey();
+                className = (String) entry.getValue();
+                Class clazz = ParserUtil.loadClass(className);
+
+                if (Modifier.isFinal(clazz.getModifiers())) {
+                    throw new IllegalArgumentException("Target class cannot be final: " + className);
+                }
+
+                // Insert Magic Here
                 if (!targets.containsKey(key)) {
-                    className = (String) entry.getValue();
-                    Class clazz = ParserUtil.loadClass(className);
-
-                    if (Modifier.isFinal(clazz.getModifiers())) {
-                        throw new IllegalArgumentException("Target class cannot be final: " + className);
-                    }
-
-                    // Insert Magic Here
                     GeronimoMBeanTarget target = createTarget(clazz);
                     targets.put(key, target);
-                    FastClass fastClass = FastClass.create(clazz);
-                    targetFastClasses.put(key, fastClass);
                 }
+                FastClass fastClass = FastClass.create(clazz);
+                targetFastClasses.put(key, fastClass);
             }
         } catch (ClassNotFoundException e) {
             throw new IllegalArgumentException("Target class could not be loaded: className=" + className);
@@ -236,6 +237,10 @@ public final class GeronimoMBeanInfo extends MBeanInfo {
             throw new IllegalStateException("Data is no longer mutable");
         }
         targets.put(name, target);
+    }
+
+    public void setTarget(Object target) {
+        setTarget(DEFAULT_TARGET_NAME, target);
     }
 
     FastClass getTargetFastClass() {
