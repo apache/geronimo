@@ -68,11 +68,11 @@ import java.io.ObjectStreamClass;
 import java.io.OutputStream;
 import java.lang.reflect.Proxy;
 
-import org.apache.geronimo.core.util.ClassUtil;
+import org.apache.geronimo.common.Classes;
 import org.apache.geronimo.remoting.MarshalledObject;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/22 02:23:26 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/28 09:09:25 $
  */
 public class BytesMarshalledObject implements MarshalledObject, Externalizable {
 
@@ -89,7 +89,7 @@ public class BytesMarshalledObject implements MarshalledObject, Externalizable {
          * @see java.io.ObjectInputStream#resolveClass(java.io.ObjectStreamClass)
          */
         protected Class resolveClass(ObjectStreamClass classDesc) throws IOException, ClassNotFoundException {
-            return ClassUtil.resolveObjectStreamClass(classloader, classDesc.getName());
+            return Classes.loadClass(classDesc.getName(), classloader);
         }
 
         /**

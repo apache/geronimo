@@ -73,15 +73,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.apache.geronimo.common.StringValueParser;
+import org.apache.geronimo.common.Classes;
 
-import org.apache.geronimo.core.util.ClassUtil;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.service.MBeanMetadata;
 
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/24 22:40:24 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/28 09:09:24 $
  */
 public class InitializeMBeanInstance implements DeploymentTask {
     private final Log log = LogFactory.getLog(this.getClass());
@@ -172,7 +172,7 @@ public class InitializeMBeanInstance implements DeploymentTask {
         
         Class attrType = null;
         try {
-            attrType = ClassUtil.getClassForName(cl, typeName);
+            attrType = Classes.loadClass(typeName, cl);
         } catch (ClassNotFoundException e) {
             throw new DeploymentException(e);
         }
