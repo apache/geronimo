@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: project.xml,v 1.1 2003/08/16 05:22:08 bsnyder Exp $ -->
+<!-- $Revision: 1.2 $ $Date: 2003/08/16 05:37:57 $ -->
 
 <project>
   <pomVersion>3</pomVersion>
   <extend>${basedir}/../../etc/project.xml</extend>
   
-  <name>Geronimo :: JSR 16 Specification</name>
+  <name>Geronimo :: J2EE Connector Architecure Specification</name>
   <groupId>geronimo-spec</groupId>
-  <id>geronimo-spec-jsr16</id>
+  <id>geronimo-spec-j2ee-connector</id>
   <shortDescription>J2EE Connector Architecture</shortDescription>
   <description></description>
   <siteDirectory></siteDirectory>
