@@ -20,11 +20,12 @@ import java.io.Serializable;
 
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/05/30 18:37:27 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/27 18:17:07 $
  */
 public class Principal implements Serializable {
     private String className;
     private String principalName;
+    private boolean designatedRunAs;
 
     public String getClassName() {
         return className;
@@ -40,5 +41,13 @@ public class Principal implements Serializable {
 
     public void setPrincipalName(String principalName) {
         this.principalName = principalName;
+    }
+
+    public boolean isDesignatedRunAs() {
+        return designatedRunAs;
+    }
+
+    public void setDesignatedRunAs(boolean designatedRunAs) {
+        this.designatedRunAs = designatedRunAs;
     }
 }
