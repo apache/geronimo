@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.4 $ $Date: 2004/02/12 19:47:35 $ -->
+<!-- $Revision: 1.5 $ $Date: 2004/02/18 22:09:58 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -20,81 +20,54 @@
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-ejb</artifactId>
             <version>DEV</version>
-            <properties>
-                <module>true</module>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-connector</artifactId>
             <version>DEV</version>
-            <properties>
-                <module>true</module>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-deployment</artifactId>
             <version>DEV</version>
-            <properties>
-                <module>true</module>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-jacc</artifactId>
             <version>DEV</version>
-            <properties>
-                <module>true</module>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-management</artifactId>
             <version>DEV</version>
-            <properties>
-                <module>true</module>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jms</artifactId>
             <version>DEV</version>
-            <properties>
-                <module>true</module>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jsp</artifactId>
             <version>DEV</version>
-            <properties>
-                <module>true</module>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jta</artifactId>
             <version>DEV</version>
-            <properties>
-                <module>true</module>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-servlet</artifactId>
             <version>DEV</version>
-            <properties>
-                <module>true</module>
-            </properties>
         </dependency>
 
     </dependencies>

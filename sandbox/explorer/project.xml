@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.3 $ $Date: 2004/02/17 07:26:47 $ -->
+<!-- $Revision: 1.4 $ $Date: 2004/02/18 22:09:57 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -34,20 +34,12 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-common</artifactId>
             <version>DEV</version>
-            <properties>
-                <module>true</module>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-core</artifactId>
             <version>DEV</version>
-            <properties>
-                <module>true</module>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
 
@@ -55,10 +47,6 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-remoting</artifactId>
             <version>DEV</version>
-            <properties>
-                <module>true</module>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <!-- Thirdparty Dependencies -->
@@ -66,27 +54,18 @@
         <dependency>
             <artifactId>mx4j</artifactId>
             <version>SNAPSHOT</version>
-            <properties>
-                <bootstrap>true</bootstrap>
-            </properties>
         </dependency>
 
         <dependency>
             <artifactId>groovy</artifactId>
             <version>1.0-alpha-1</version>
             <url>http://groovy.codehaus.org</url>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <artifactId>commons-logging</artifactId>
             <version>1.0.3</version>
             <url>http://jakarta.apache.org/commons/logging</url>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
@@ -106,18 +85,12 @@
             <artifactId>commons-lang</artifactId>
             <version>SNAPSHOT</version>
             <url>http://jakarta.apache.org/commons/lang</url>
-            <properties>
-                <runtime>false</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <artifactId>concurrent</artifactId>
             <version>1.3.2</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
-        </dependency>
+        </dependency>   s
 
 
     </dependencies>

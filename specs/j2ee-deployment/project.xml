@@ -1,33 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.3 $ $Date: 2003/08/30 02:24:38 $ -->
+<!-- $Revision: 1.4 $ $Date: 2004/02/18 22:09:58 $ -->
 
 <project>
-  <pomVersion>3</pomVersion>
-  <extend>${basedir}/../../etc/project.xml</extend>
-  
-  <name>Geronimo :: J2EE Application Deployment Specification</name>
-  <groupId>geronimo-spec</groupId>
-  <id>geronimo-spec-j2ee-deployment</id>
-  <shortDescription>J2EE Application Deployment Specification</shortDescription>
-  <description>
-    This spec is based on the API originally defined by JSR-88.  It is an
-    API which tools can use to configure server-specific information for
-    a J2EE archive (that is, edit the server-specific deployment descriptors)
-    and deploy, undeploy, or redeploy archives to servers (or clusters, etc.).
-    It is heavily based on JavaBeans for editing the deployment descriptors.
+    <pomVersion>3</pomVersion>
+    <extend>${basedir}/../../etc/project.xml</extend>
 
-    This API will be included in J2EE 1.4.  The version on the JSR web site
-    is version 1.0, and there's a version 1.1 which corresponds to J2EE 1.4,
-    but all you can download right now is 1,0 and a changelog with the
-    differences between 1.0 and 1.1.  This Geronimo project defines all the
-    classes necessary for v1.1 support.  Elsewhere in Geronimo you can find
-    server-side and tool-side implementations of this API.
-  </description>
-  <siteDirectory></siteDirectory>
-  <distributionDirectory></distributionDirectory>
-  
-  <package>javax.enterprise.deploy</package>
-  <currentVersion>DEV</currentVersion>
+    <name>Geronimo :: J2EE Application Deployment Specification</name>
+    <groupId>geronimo-spec</groupId>
+    <id>geronimo-spec-j2ee-deployment</id>
+    <shortDescription>J2EE Application Deployment Specification</shortDescription>
+    <description>
+        This spec is based on the API originally defined by JSR-88.  It is an
+        API which tools can use to configure server-specific information for
+        a J2EE archive (that is, edit the server-specific deployment descriptors)
+        and deploy, undeploy, or redeploy archives to servers (or clusters, etc.).
+        It is heavily based on JavaBeans for editing the deployment descriptors.
+
+        This API will be included in J2EE 1.4.  The version on the JSR web site
+        is version 1.0, and there's a version 1.1 which corresponds to J2EE 1.4,
+        but all you can download right now is 1,0 and a changelog with the
+        differences between 1.0 and 1.1.  This Geronimo project defines all the
+        classes necessary for v1.1 support.  Elsewhere in Geronimo you can find
+        server-side and tool-side implementations of this API.
+    </description>
+    <siteDirectory></siteDirectory>
+    <distributionDirectory></distributionDirectory>
+
+    <package>javax.enterprise.deploy</package>
+    <currentVersion>DEV</currentVersion>
 
 </project>

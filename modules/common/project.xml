@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.19 $ $Date: 2004/02/17 07:26:46 $ -->
+<!-- $Revision: 1.20 $ $Date: 2004/02/18 22:09:56 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -32,9 +32,6 @@
             <artifactId>commons-logging</artifactId>
             <version>1.0.3</version>
             <url>http://jakarta.apache.org/commons/logging</url>
-            <properties>
-                <runtime>false</runtime>
-            </properties>
         </dependency>
 
         <dependency>
@@ -42,9 +39,6 @@
             <artifactId>commons-lang</artifactId>
             <version>SNAPSHOT</version>
             <url>http://jakarta.apache.org/commons/lang</url>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
@@ -52,9 +46,6 @@
             <artifactId>commons-collections</artifactId>
             <version>SNAPSHOT</version>
             <url>http://jakarta.apache.org/commons/collections</url>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
@@ -62,9 +53,6 @@
             <artifactId>commons-jexl</artifactId>
             <version>SNAPSHOT</version>
             <url>http://jakarta.apache.org/commons/jexl</url>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
@@ -72,9 +60,6 @@
             <artifactId>log4j</artifactId>
             <version>1.2.8</version>
             <url>http://jakarta.apache.org/log4j</url>
-            <properties>
-                <runtime>false</runtime>
-            </properties>
         </dependency>
 
         <dependency>
@@ -82,9 +67,6 @@
             <artifactId>mx4j-jmx</artifactId>
             <version>SNAPSHOT</version>
             <url>http://mx4j.sourceforge.net</url>
-            <properties>
-                <runtime>false</runtime>
-            </properties>
         </dependency>
     </dependencies>
 

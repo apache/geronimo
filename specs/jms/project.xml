@@ -1,38 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.4 $ $Date: 2004/02/17 07:26:47 $ -->
+<!-- $Revision: 1.5 $ $Date: 2004/02/18 22:09:58 $ -->
 
 <project>
-	<pomVersion>3</pomVersion>
-	<extend>${basedir}/../../etc/project.xml</extend>
-	<name>Geronimo :: JMS Specification</name>
-	<groupId>geronimo-spec</groupId>
-	<id>geronimo-spec-jms</id>
-	<shortDescription>J2EE JMS Specification</shortDescription>
-	<description>J2EE Java Message Service Specification</description>
-	<package>javax.jms</package>
-	<currentVersion>DEV</currentVersion>
+    <pomVersion>3</pomVersion>
+    <extend>${basedir}/../../etc/project.xml</extend>
+    <name>Geronimo :: JMS Specification</name>
+    <groupId>geronimo-spec</groupId>
+    <id>geronimo-spec-jms</id>
+    <shortDescription>J2EE JMS Specification</shortDescription>
+    <description>J2EE Java Message Service Specification</description>
+    <package>javax.jms</package>
+    <currentVersion>DEV</currentVersion>
 
-	<dependencies>
-		<!-- Plugin Dependencies -->
-		<dependency>
+    <dependencies>
+        <!-- Plugin Dependencies -->
+        <dependency>
             <groupId>mockobjects</groupId>
-			<artifactId>mockobjects-jdk1.4-j2ee1.3</artifactId>
-			<version>0.09</version>
-			<properties>
-				<runtime>false</runtime>
-			</properties>
-		</dependency>
+            <artifactId>mockobjects-jdk1.4-j2ee1.3</artifactId>
+            <version>0.09</version>
+        </dependency>
 
-		<dependency>
+        <dependency>
             <groupId>mockobjects</groupId>
-			<artifactId>mockobjects-core</artifactId>
-			<version>0.09</version>
-			<properties>
-				<runtime>false</runtime>
-			</properties>
-		</dependency>
-		
-	</dependencies>
-	
+            <artifactId>mockobjects-core</artifactId>
+            <version>0.09</version>
+        </dependency>
+
+    </dependencies>
 </project>

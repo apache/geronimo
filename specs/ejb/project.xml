@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.4 $ $Date: 2003/08/16 19:31:46 $ -->
+<!-- $Revision: 1.5 $ $Date: 2004/02/18 22:09:58 $ -->
 
 <project>
   <pomVersion>3</pomVersion>
@@ -22,18 +22,11 @@
   <!-- ============ -->
   
   <dependencies>
-    
-    <!-- Module Dependencies -->
-    
     <dependency>
       <groupId>geronimo-spec</groupId>
       <artifactId>geronimo-spec-jta</artifactId>
       <version>DEV</version>
-      <properties>
-        <module>true</module>
-      </properties>
     </dependency>
-    
   </dependencies>
   
 </project>

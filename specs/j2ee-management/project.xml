@@ -1,52 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.5 $ $Date: 2003/08/31 06:11:10 $ -->
+<!-- $Revision: 1.6 $ $Date: 2004/02/18 22:09:58 $ -->
 
 <project>
-  <pomVersion>3</pomVersion>
-  <extend>${basedir}/../../etc/project.xml</extend>
-  
-  <name>Geronimo :: J2EE Application Management Specification</name>
-  <groupId>geronimo-spec</groupId>
-  <id>geronimo-spec-j2ee-management</id>
-  <shortDescription>J2EE Application Management Specification</shortDescription>
-  <description></description>
-  <siteDirectory></siteDirectory>
-  <distributionDirectory></distributionDirectory>
-  
-  <package>javax.management</package>
-  <currentVersion>DEV</currentVersion>
-  
-  
-  <!-- ============ -->
-  <!-- Dependencies -->
-  <!-- ============ -->
-  
-  <dependencies>
-    
-    <!-- Module Dependencies -->
-    
-    <dependency>
-      <groupId>geronimo-spec</groupId>
-      <artifactId>geronimo-spec-ejb</artifactId>
-      <version>DEV</version>
-      <properties>
-        <module>true</module>
-      </properties>
-    </dependency>
-    
-    <!-- Thirdparty -->
-    
-    <dependency>
-      <groupId>mx4j</groupId>
-      <artifactId>mx4j-jmx</artifactId>
-      <version>SNAPSHOT</version>
-      <url>http://mx4j.sourceforge.net</url>
-      <properties>
-        <runtime>false</runtime>
-      </properties>
-    </dependency>
-    
-  </dependencies>
-  
+    <pomVersion>3</pomVersion>
+    <extend>${basedir}/../../etc/project.xml</extend>
+
+    <name>Geronimo :: J2EE Application Management Specification</name>
+    <groupId>geronimo-spec</groupId>
+    <id>geronimo-spec-j2ee-management</id>
+    <shortDescription>J2EE Application Management Specification</shortDescription>
+    <description></description>
+    <siteDirectory></siteDirectory>
+    <distributionDirectory></distributionDirectory>
+
+    <package>javax.management</package>
+    <currentVersion>DEV</currentVersion>
+
+
+    <!-- ============ -->
+    <!-- Dependencies -->
+    <!-- ============ -->
+
+    <dependencies>
+
+        <!-- Module Dependencies -->
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-ejb</artifactId>
+            <version>DEV</version>
+        </dependency>
+
+        <!-- Thirdparty -->
+
+        <dependency>
+            <groupId>mx4j</groupId>
+            <artifactId>mx4j-jmx</artifactId>
+            <version>SNAPSHOT</version>
+            <url>http://mx4j.sourceforge.net</url>
+        </dependency>
+
+    </dependencies>
 </project>

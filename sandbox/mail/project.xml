@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.1 $ $Date: 2004/01/29 04:07:42 $ -->
+<!-- $Revision: 1.2 $ $Date: 2004/02/18 22:09:57 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -39,18 +39,12 @@
             <groupId>geronimo-sandbox</groupId>
             <artifactId>geronimo-sandbox-activation</artifactId>
             <version>DEV</version>
-            <properties>
-                <module>true</module>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo-sandbox</groupId>
             <artifactId>geronimo-sandbox-javamail</artifactId>
             <version>DEV</version>
-            <properties>
-                <module>true</module>
-            </properties>
         </dependency>
 
     </dependencies>

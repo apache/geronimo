@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.4 $ $Date: 2004/02/17 07:26:47 $ -->
+<!-- $Revision: 1.5 $ $Date: 2004/02/18 22:09:58 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -32,98 +32,65 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
             <version>DEV</version>
-            <properties>
-                <module>true</module>
-            </properties>
         </dependency>
 
         <dependency>
             <artifactId>commons-logging</artifactId>
             <version>1.0.3</version>
             <url>http://jakarta.apache.org/commons/logging/</url>
-            <properties>
-                <runtime>false</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <artifactId>jetty</artifactId>
             <version>SNAPSHOT</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>catalina</artifactId>
             <version>5.0.16</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>catalina-optional</artifactId>
             <version>5.0.16</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>naming-common</artifactId>
             <version>5.0.16</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>naming-resources</artifactId>
             <version>5.0.16</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>servlets-common</artifactId>
             <version>5.0.16</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>servlets-default</artifactId>
             <version>5.0.16</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>servlets-webdav</artifactId>
             <version>5.0.16</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>tomcat-util</artifactId>
             <version>5.0.16</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
     </dependencies>

@@ -1,42 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.2 $ $Date: 2003/09/29 02:47:30 $ -->
+<!-- $Revision: 1.3 $ $Date: 2004/02/18 22:09:58 $ -->
 
 <project>
-  <pomVersion>3</pomVersion>
-  <extend>${basedir}/../../etc/project.xml</extend>
-  
-  <name>Geronimo :: Servlet Specification</name>
-  <groupId>geronimo-spec</groupId>
-  <id>geronimo-spec-servlet</id>
-  <shortDescription>
-  </shortDescription>
-  <description>
-  </description>
-  <siteDirectory></siteDirectory>
-  <distributionDirectory></distributionDirectory>
-  
-  <package>javax.servlet</package>
-  <currentVersion>DEV</currentVersion>
+    <pomVersion>3</pomVersion>
+    <extend>${basedir}/../../etc/project.xml</extend>
 
-  <build>
-    <resources>
-      <resource>
-        <directory>${basedir}/src/java/javax/servlet</directory>
-        <targetPath>javax/servlet</targetPath>
-        <includes>
-          <include>**/*.properties</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>${basedir}/src/schema</directory>
-        <targetPath>javax/servlet/resources</targetPath>
-        <includes>
-          <include>*.dtd</include>
-          <include>*.xsd</include>
-        </includes>
-      </resource>
-    </resources>
-  </build>
+    <name>Geronimo :: Servlet Specification</name>
+    <groupId>geronimo-spec</groupId>
+    <id>geronimo-spec-servlet</id>
+    <shortDescription>
+    </shortDescription>
+    <description>
+    </description>
+    <siteDirectory></siteDirectory>
+    <distributionDirectory></distributionDirectory>
+
+    <package>javax.servlet</package>
+    <currentVersion>DEV</currentVersion>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/java/javax/servlet</directory>
+                <targetPath>javax/servlet</targetPath>
+                <includes>
+                    <include>**/*.properties</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>${basedir}/src/schema</directory>
+                <targetPath>javax/servlet/resources</targetPath>
+                <includes>
+                    <include>*.dtd</include>
+                    <include>*.xsd</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
 
 </project>

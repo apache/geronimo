@@ -1,40 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.5 $ $Date: 2004/01/01 09:55:09 $ -->
+<!-- $Revision: 1.6 $ $Date: 2004/02/18 22:09:58 $ -->
 
 <project>
-  <pomVersion>3</pomVersion>
-  <extend>${basedir}/../../etc/project.xml</extend>
-  
-  <name>Geronimo :: J2EE Connector Architecture Specification</name>
-  <groupId>geronimo-spec</groupId>
-  <id>geronimo-spec-j2ee-connector</id>
-  <shortDescription>J2EE Connector Architecture</shortDescription>
-  <description></description>
-  <siteDirectory></siteDirectory>
-  <distributionDirectory></distributionDirectory>
-  
-  <package>javax.resource</package>
-  <currentVersion>DEV</currentVersion>
-  
-  
-  <!-- ============ -->
-  <!-- Dependencies -->
-  <!-- ============ -->
-  
-  <dependencies>
-    
-    <!-- Module Dependencies -->
-    
-    <dependency>
-      <groupId>geronimo-spec</groupId>
-      <artifactId>geronimo-spec-jta</artifactId>
-      <version>DEV</version>
-      <properties>
-        <module>true</module>
-      </properties>
-    </dependency>
-    
-  </dependencies>
-  
+    <pomVersion>3</pomVersion>
+    <extend>${basedir}/../../etc/project.xml</extend>
+
+    <name>Geronimo :: J2EE Connector Architecture Specification</name>
+    <groupId>geronimo-spec</groupId>
+    <id>geronimo-spec-j2ee-connector</id>
+    <shortDescription>J2EE Connector Architecture</shortDescription>
+    <description></description>
+    <siteDirectory></siteDirectory>
+    <distributionDirectory></distributionDirectory>
+
+    <package>javax.resource</package>
+    <currentVersion>DEV</currentVersion>
+
+
+    <!-- ============ -->
+    <!-- Dependencies -->
+    <!-- ============ -->
+
+    <dependencies>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-jta</artifactId>
+            <version>DEV</version>
+        </dependency>
+
+    </dependencies>
 </project>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.1 $ $Date: 2004/02/17 07:21:02 $ -->
+<!-- $Revision: 1.2 $ $Date: 2004/02/18 22:09:56 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -46,7 +46,6 @@
             <properties>
                 <lib>true</lib>
                 <deploy>true</deploy>
-                <module>true</module>
             </properties>
         </dependency>
 
@@ -69,7 +68,6 @@
             <properties>
                 <lib>true</lib>
                 <deploy>true</deploy>
-                <module>true</module>
             </properties>
         </dependency>
 
@@ -87,7 +85,6 @@
                 <lib>true</lib>
                 <server>true</server>
                 <deploy>true</deploy>
-                <module>true</module>
             </properties>
         </dependency>
 

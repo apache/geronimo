@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.19 $ $Date: 2004/02/17 21:43:56 $ -->
+<!-- $Revision: 1.20 $ $Date: 2004/02/18 22:09:57 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -124,9 +124,6 @@
             <groupId>jetty</groupId>
             <artifactId>org.mortbay.jetty</artifactId>
             <version>5.0.beta0</version>
-            <properties>
-                <package>true</package>
-            </properties>
         </dependency>
 
         <dependency>
@@ -140,18 +137,12 @@
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-servlet</artifactId>
             <version>DEV</version>
-            <properties>
-                <package>true</package>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jsp</artifactId>
             <version>DEV</version>
-            <properties>
-                <package>true</package>
-            </properties>
         </dependency>
 
         <dependency>
@@ -165,18 +156,12 @@
             <groupId>tomcat</groupId>
             <artifactId>jasper-compiler</artifactId>
             <version>5.0.16</version>
-            <properties>
-                <package>true</package>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>jasper-runtime</artifactId>
             <version>5.0.16</version>
-            <properties>
-                <package>true</package>
-            </properties>
         </dependency>
 
         <dependency>
@@ -184,18 +169,12 @@
             <artifactId>commons-el</artifactId>
             <version>1.0</version>
             <url>http://jakarta.apache.org/commons/el/</url>
-            <properties>
-                <package>true</package>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>ant</groupId>
             <artifactId>ant</artifactId>
             <version>1.5</version>
-            <properties>
-                <package>true</package>
-            </properties>
         </dependency>
 
         <dependency>

@@ -1,38 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: project.xml,v 1.3 2003/09/05 23:06:46 jdillon Exp $ -->
+<!-- $Id: project.xml,v 1.4 2004/02/18 22:09:58 dain Exp $ -->
 
 <project>
-  <pomVersion>3</pomVersion>
-  <extend>${basedir}/../../etc/project.xml</extend>
-  
-  <name>Geronimo :: Java Authorization Contract for Containers Specification</name>
-  <groupId>geronimo-spec</groupId>
-  <id>geronimo-spec-j2ee-jacc</id>
-  <shortDescription>Java Authorization Contract for Containers</shortDescription>
-  <description>
-    See http://www.jcp.org/en/jsr/detail?id=115
-  </description>
-  <siteDirectory></siteDirectory>
-  <distributionDirectory></distributionDirectory>
-  
-  <package>javax.security.jacc</package>
-  <currentVersion>DEV</currentVersion>
+    <pomVersion>3</pomVersion>
+    <extend>${basedir}/../../etc/project.xml</extend>
 
-  <!-- ============ -->
-  <!-- Dependencies -->
-  <!-- ============ -->
-  
-  <dependencies>
-    
-    <dependency>
-      <groupId>geronimo-spec</groupId>
-      <artifactId>geronimo-spec-servlet</artifactId>
-      <version>DEV</version>
-      <properties>
-        <runtime>true</runtime>
-      </properties>
-    </dependency>
-    
-  </dependencies>
+    <name>Geronimo :: Java Authorization Contract for Containers Specification</name>
+    <groupId>geronimo-spec</groupId>
+    <id>geronimo-spec-j2ee-jacc</id>
+    <shortDescription>Java Authorization Contract for Containers</shortDescription>
+    <description>
+        See http://www.jcp.org/en/jsr/detail?id=115
+    </description>
+    <siteDirectory></siteDirectory>
+    <distributionDirectory></distributionDirectory>
+
+    <package>javax.security.jacc</package>
+    <currentVersion>DEV</currentVersion>
+
+    <!-- ============ -->
+    <!-- Dependencies -->
+    <!-- ============ -->
+
+    <dependencies>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-servlet</artifactId>
+            <version>DEV</version>
+        </dependency>
+
+    </dependencies>
 </project>

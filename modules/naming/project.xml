@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.4 $ $Date: 2004/02/18 20:58:43 $ -->
+<!-- $Revision: 1.5 $ $Date: 2004/02/18 22:09:57 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -32,8 +32,6 @@
             <groupId>xmlbeans</groupId>
             <artifactId>xbean-apache</artifactId>
             <version>1.0-DEV</version>
-            <properties>
-            </properties>
         </dependency>
 
         <!-- Module Dependencies -->
@@ -42,27 +40,18 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-core</artifactId>
             <version>DEV</version>
-            <properties>
-                <module>true</module>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
             <version>DEV</version>
-            <properties>
-                <module>true</module>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-deployment</artifactId>
             <version>DEV</version>
-            <properties>
-                <module>true</module>
-            </properties>
         </dependency>
 
         <dependency>
@@ -84,21 +73,7 @@
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jta</artifactId>
             <version>DEV</version>
-            <properties>
-                <module>true</module>
-            </properties>
         </dependency>
-
-        <!-- Thirdparty Dependencies -->
-        <!--dependency>
-            <groupId>mx4j</groupId>
-            <artifactId>mx4j</artifactId>
-            <version>SNAPSHOT</version>
-            <properties>
-                <runtime>false</runtime>
-            </properties>
-        </dependency-->
-
     </dependencies>
 
     <build>
