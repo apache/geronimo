@@ -65,7 +65,7 @@ import junit.framework.TestCase;
 /**
  * Unit test for {@link MBeanProxyFactory} class.
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/30 20:38:46 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/01 15:12:36 $
  */
 public class MBeanProxyFactoryTest
     extends TestCase
@@ -137,6 +137,19 @@ public class MBeanProxyFactoryTest
         assertEquals(targetObject.setPoorlyNameOperation(), value);
     }
     
+    public void testOperation_SameNameDiffArgs() throws Exception
+    {
+        MockObjectMBean bean = (MockObjectMBean)
+            MBeanProxyFactory.create(MockObjectMBean.class, server, target);
+        assertNotNull(bean);
+        
+        String value = bean.someOperation();
+        assertEquals(targetObject.someOperation(), value);
+        
+        value = bean.someOperation("foo");
+        assertEquals(targetObject.someOperation("foo"), value);
+    }
+    
     public void testMBeanProxyContext() throws Exception
     {
         MockObjectMBean bean = (MockObjectMBean)
@@ -166,6 +179,10 @@ public class MBeanProxyFactoryTest
         String doIt();
         
         String setPoorlyNameOperation();
+        
+        String someOperation();
+        
+        String someOperation(Object arg);
     }
     
     public static class MockObject
@@ -202,6 +219,16 @@ public class MBeanProxyFactoryTest
         public String setPoorlyNameOperation()
         {
             return "bad";
+        }
+        
+        public String someOperation()
+        {
+            return "someop";
+        }
+        
+        public String someOperation(Object arg)
+        {
+            return "someop" + arg;
         }
     }
 }
