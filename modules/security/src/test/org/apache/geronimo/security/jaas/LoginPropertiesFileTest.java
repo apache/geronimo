@@ -19,13 +19,10 @@ package org.apache.geronimo.security.jaas;
 
 import javax.management.ObjectName;
 import javax.security.auth.Subject;
-import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 import java.io.File;
 import java.util.Collections;
 import java.util.Properties;
-
-import com.sun.security.auth.login.ConfigFile;
 
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.security.AbstractTest;
@@ -36,17 +33,16 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/05/31 00:05:40 $
+ * @version $Revision: 1.8 $ $Date: 2004/06/27 18:07:14 $
  */
 public class LoginPropertiesFileTest extends AbstractTest {
 
     protected ObjectName serverInfo;
+    protected ObjectName loginConfiguration;
     protected ObjectName propertiesRealm;
     protected ObjectName propertiesCE;
 
     public void setUp() throws Exception {
-        Configuration.setConfiguration(new GeronimoLoginConfiguration());
-
         super.setUp();
 
         GBeanMBean gbean;
@@ -56,6 +52,10 @@ public class LoginPropertiesFileTest extends AbstractTest {
         gbean.setAttribute("BaseDirectory", ".");
         kernel.loadGBean(serverInfo, gbean);
         kernel.startGBean(serverInfo);
+
+        gbean = new GBeanMBean("org.apache.geronimo.security.jaas.GeronimoLoginConfiguration");
+        loginConfiguration = new ObjectName("geronimo.security:type=LoginConfiguration");
+        kernel.loadGBean(loginConfiguration, gbean);
 
         gbean = new GBeanMBean("org.apache.geronimo.security.realm.providers.PropertiesFileSecurityRealm");
         propertiesRealm = new ObjectName("geronimo.security:type=SecurityRealm,realm=properties-realm");
@@ -74,6 +74,7 @@ public class LoginPropertiesFileTest extends AbstractTest {
         gbean.setAttribute("Options", new Properties());
         kernel.loadGBean(propertiesCE, gbean);
 
+        kernel.startGBean(loginConfiguration);
         kernel.startGBean(propertiesRealm);
         kernel.startGBean(propertiesCE);
     }
@@ -81,14 +82,15 @@ public class LoginPropertiesFileTest extends AbstractTest {
     public void tearDown() throws Exception {
         kernel.stopGBean(propertiesCE);
         kernel.stopGBean(propertiesRealm);
+        kernel.stopGBean(loginConfiguration);
         kernel.stopGBean(serverInfo);
+
         kernel.unloadGBean(propertiesRealm);
         kernel.unloadGBean(propertiesCE);
+        kernel.unloadGBean(loginConfiguration);
         kernel.unloadGBean(serverInfo);
 
         super.tearDown();
-
-        Configuration.setConfiguration(new ConfigFile());
     }
 
     public void testLogin() throws Exception {

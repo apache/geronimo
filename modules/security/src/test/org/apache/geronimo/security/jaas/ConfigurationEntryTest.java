@@ -39,12 +39,13 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/05/31 00:05:40 $
+ * @version $Revision: 1.8 $ $Date: 2004/06/27 18:07:14 $
  */
 public class ConfigurationEntryTest extends TestCase {
 
     protected Kernel kernel;
     protected ObjectName serverInfo;
+    protected ObjectName loginConfiguration;
     protected ObjectName loginService;
     protected ObjectName testCE;
     protected ObjectName testRealm;
@@ -88,6 +89,10 @@ public class ConfigurationEntryTest extends TestCase {
         gbean.setAttribute("BaseDirectory", ".");
         kernel.loadGBean(serverInfo, gbean);
         kernel.startGBean(serverInfo);
+
+        gbean = new GBeanMBean("org.apache.geronimo.security.jaas.GeronimoLoginConfiguration");
+        loginConfiguration = new ObjectName("geronimo.security:type=LoginConfiguration");
+        kernel.loadGBean(loginConfiguration, gbean);
 
         gbean = new GBeanMBean("org.apache.geronimo.security.jaas.LoginService");
         loginService = new ObjectName("geronimo.security:type=LoginService");
@@ -134,6 +139,7 @@ public class ConfigurationEntryTest extends TestCase {
         serverStub = new ObjectName("geronimo.remoting:target=LoginServiceStub");
         kernel.loadGBean(serverStub, gbean);
 
+        kernel.startGBean(loginConfiguration);
         kernel.startGBean(loginService);
         kernel.startGBean(testCE);
         kernel.startGBean(testRealm);
@@ -151,6 +157,7 @@ public class ConfigurationEntryTest extends TestCase {
         kernel.stopGBean(testRealm);
         kernel.stopGBean(testCE);
         kernel.stopGBean(loginService);
+        kernel.stopGBean(loginConfiguration);
         kernel.stopGBean(serverInfo);
 
         kernel.unloadGBean(loginService);
@@ -160,6 +167,7 @@ public class ConfigurationEntryTest extends TestCase {
         kernel.unloadGBean(asyncTransport);
         kernel.unloadGBean(jmxRouter);
         kernel.unloadGBean(serverStub);
+        kernel.unloadGBean(loginConfiguration);
         kernel.unloadGBean(serverInfo);
 
         kernel.shutdown();

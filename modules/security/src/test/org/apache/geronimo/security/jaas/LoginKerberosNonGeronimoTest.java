@@ -19,12 +19,9 @@ package org.apache.geronimo.security.jaas;
 
 import javax.management.ObjectName;
 import javax.security.auth.Subject;
-import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import java.util.Properties;
-
-import com.sun.security.auth.login.ConfigFile;
 
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.security.AbstractTest;
@@ -36,13 +33,14 @@ import org.apache.geronimo.security.RealmPrincipal;
  * An example of how to setup non-Geronimo login modules when the
  * <code>GeronimoLoginConfiguration</code> has been installed in the JVM.
  *
- * @version $Revision: 1.5 $ $Date: 2004/05/31 00:05:40 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/27 18:07:14 $
  * @see org.apache.geronimo.security.jaas.GeronimoLoginConfiguration
  * @see javax.security.auth.login.Configuration
  */
 public class LoginKerberosNonGeronimoTest extends AbstractTest {
 
     protected ObjectName kerberosCE;
+    protected ObjectName loginConfiguration;
 
     /**
      * Install the <code>GeronimoLoginConfiguration</code> but setup a non-Geronimo
@@ -52,16 +50,18 @@ public class LoginKerberosNonGeronimoTest extends AbstractTest {
      * @throws Exception
      */
     public void setUp() throws Exception {
-        Configuration.setConfiguration(new GeronimoLoginConfiguration());
-
         super.setUp();
+
+        GBeanMBean gbean = new GBeanMBean("org.apache.geronimo.security.jaas.GeronimoLoginConfiguration");
+        loginConfiguration = new ObjectName("geronimo.security:type=LoginConfiguration");
+        kernel.loadGBean(loginConfiguration, gbean);
 
         Properties options = new Properties();
         options.put("debug", "true");
         options.put("useTicketCache", "true");
         options.put("doNotPrompt", "true");
 
-        GBeanMBean gbean = new GBeanMBean("org.apache.geronimo.security.jaas.ConfigurationEntryLocal");
+        gbean = new GBeanMBean("org.apache.geronimo.security.jaas.ConfigurationEntryLocal");
         kerberosCE = new ObjectName("geronimo.security:type=ConfigurationEntry,jaasId=kerberos-foobar");
         gbean.setAttribute("ApplicationConfigName", "kerberos-foobar");
         gbean.setAttribute("LoginModuleName", "com.sun.security.auth.module.Krb5LoginModule");
@@ -69,6 +69,7 @@ public class LoginKerberosNonGeronimoTest extends AbstractTest {
         gbean.setAttribute("Options", options);
         kernel.loadGBean(kerberosCE, gbean);
 
+        kernel.startGBean(loginConfiguration);
         kernel.startGBean(kerberosCE);
     }
 
@@ -80,11 +81,12 @@ public class LoginKerberosNonGeronimoTest extends AbstractTest {
      */
     public void tearDown() throws Exception {
         kernel.stopGBean(kerberosCE);
+        kernel.stopGBean(loginConfiguration);
+
         kernel.unloadGBean(kerberosCE);
+        kernel.unloadGBean(loginConfiguration);
 
         super.tearDown();
-
-        Configuration.setConfiguration(new ConfigFile());
     }
 
     /**
