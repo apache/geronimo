@@ -65,7 +65,7 @@ import net.sf.cglib.proxy.MethodProxy;
 /**
  * This class handles invocations for MBean proxies.  Normally only the getObjectName method is necessary.
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/07 17:32:11 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/10 00:22:34 $
  */
 public final class MBeanProxyCallback implements MethodInterceptor {
     private final InvokeMBean[] methodTable;
@@ -79,6 +79,6 @@ public final class MBeanProxyCallback implements MethodInterceptor {
     }
 
     public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
-        return methodTable[proxy.getIndex()].invoke(server, objectName, args);
+        return methodTable[proxy.getSuperIndex()].invoke(server, objectName, args);
     }
 }

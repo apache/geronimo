@@ -68,13 +68,14 @@ import javax.management.ObjectName;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.Factory;
 import net.sf.cglib.proxy.SimpleCallbacks;
+import net.sf.cglib.proxy.MethodProxy;
 import net.sf.cglib.reflect.FastClass;
 
 /**
  * MBeanProxyFactory creates a dynamic proxy to an MBean by ObjectName.
  * The interface type and object existance are enforced during construction.
  *
- * @version $Revision: 1.3 $ $Date: 2003/11/09 19:56:55 $
+ * @version $Revision: 1.4 $ $Date: 2003/11/10 00:22:34 $
  */
 public final class MBeanProxyFactory {
 
@@ -99,8 +100,6 @@ public final class MBeanProxyFactory {
                 new SimpleCallbacks());
 
         // build the method table
-        FastClass fastClass = FastClass.create(iface);
-
         if (objectName.isPattern()) {
             Set names = server.queryNames(objectName, null);
             if (names.isEmpty()) {
@@ -130,19 +129,23 @@ public final class MBeanProxyFactory {
             operations.put(new MBeanOperationSignature(operationInfo), operationInfo);
         }
 
+        FastClass fastClass = FastClass.create(factory.newInstance(new SimpleCallbacks()).getClass());
         InvokeMBean[] methodTable = new InvokeMBean[fastClass.getMaxIndex() + 1];
         Method[] methods = fastClass.getJavaClass().getMethods();
         for (int i = 0; i < methods.length; i++) {
             Method method = methods[i];
-            int index = fastClass.getIndex(method.getName(), method.getParameterTypes());
-            if (operations.containsKey(new MBeanOperationSignature(method))) {
-                methodTable[index] = new InvokeMBean(method, false, false);
-            } else if (method.getName().startsWith("get") && attributes.containsKey(method.getName().substring(3))) {
-                methodTable[index] = new InvokeMBean(method, true, true);
-            } else if (method.getName().startsWith("is") && attributes.containsKey(method.getName().substring(2))) {
-                methodTable[index] = new InvokeMBean(method, true, true);
-            } else if (method.getName().startsWith("set") && attributes.containsKey(method.getName().substring(3))) {
-                methodTable[index] = new InvokeMBean(method, true, false);
+            String superName = MethodProxy.getSuperName(fastClass.getJavaClass(), method);
+            if (superName != null) {
+                int index = fastClass.getIndex(superName, method.getParameterTypes());
+                if (operations.containsKey(new MBeanOperationSignature(method))) {
+                    methodTable[index] = new InvokeMBean(method, false, false);
+                } else if (method.getName().startsWith("get") && attributes.containsKey(method.getName().substring(3))) {
+                    methodTable[index] = new InvokeMBean(method, true, true);
+                } else if (method.getName().startsWith("is") && attributes.containsKey(method.getName().substring(2))) {
+                    methodTable[index] = new InvokeMBean(method, true, true);
+                } else if (method.getName().startsWith("set") && attributes.containsKey(method.getName().substring(3))) {
+                    methodTable[index] = new InvokeMBean(method, true, false);
+                }
             }
         }
         return factory.newInstance(new MBeanProxyCallback(methodTable, server, objectName));
