@@ -74,12 +74,12 @@ import org.apache.geronimo.kernel.deployment.scanner.URLType;
  * Connector deployment helper. It allows to compute various information of
  * a URL to be deployed.
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/15 07:37:37 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/17 00:18:13 $
  */
 public class ConnectorDeploymentHelper extends DeploymentHelper {
 
     public ConnectorDeploymentHelper(URL url, URLType urlType) throws DeploymentException {
-        super(url, urlType, "Connector", ".rar", "ra.xml", "geronimo-ra.xml");
+        super(url, urlType, "Connector", "ra.xml", "geronimo-ra.xml");
     }
 
     protected void findUnpackedArchives(List archives) throws DeploymentException {
