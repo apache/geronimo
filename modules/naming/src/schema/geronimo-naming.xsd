@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns="http://www.w3.org/2001/XMLSchema"
+    xmlns:ger="http://geronimo.apache.org/xml/ns/j2ee"
+    targetNamespace="http://geronimo.apache.org/xml/ns/j2ee"
+    xmlns:j2ee="http://java.sun.com/xml/ns/j2ee"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified"
+    version="1.0">
+    <xsd:import namespace="http://java.sun.com/xml/ns/j2ee" schemaLocation="j2ee_1_4.xsd"/>
+
+    <xsd:group name="jndiEnvironmentRefsGroup">
+        <xsd:annotation>
+            <xsd:documentation>
+
+                This group keeps the usage of the contained JNDI environment
+                reference elements consistent across J2EE deployment descriptors.
+
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="env-entry"
+                type="ger:env-entryType"
+                minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="ejb-ref"
+                type="ger:ejb-refType"
+                minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="ejb-local-ref"
+                type="ger:ejb-local-refType"
+                minOccurs="0" maxOccurs="unbounded"/>
+            <!-- leave web services out until I know what they do -->
+            <!--xsd:group ref="ger:service-refGroup"/-->
+            <xsd:element name="resource-ref"
+                type="ger:resource-refType"
+                minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="resource-env-ref"
+                type="ger:resource-env-refType"
+                minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="message-destination-ref"
+                type="ger:message-destination-refType"
+                minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:group>
+
+    <xsd:complexType name="ejb-refType">
+        <xsd:sequence>
+            <xsd:element name="ejb-ref-name" type="j2ee:ejb-ref-nameType"/>
+            <xsd:element name="uri" type="xsd:string"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <!-- has exactly same content as ejb-refType, might not be needed -->
+    <xsd:complexType name="ejb-local-refType">
+        <xsd:sequence>
+            <xsd:element name="ejb-ref-name" type="j2ee:ejb-ref-nameType"/>
+            <xsd:element name="uri" type="xsd:string"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="message-destination-refType">
+        <xsd:sequence>
+            <xsd:element name="message-destination-ref-name"
+                type="j2ee:jndi-nameType"/>
+            <xsd:element name="uri" type="xsd:string"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="resource-env-refType">
+        <xsd:sequence>
+            <xsd:element name="resource-env-ref-name"
+                type="j2ee:jndi-nameType"/>
+            <xsd:element name="uri" type="xsd:string"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="resource-refType">
+        <xsd:sequence>
+            <xsd:element name="res-ref-name"
+                type="j2ee:jndi-nameType"/>
+            <xsd:element name="uri" type="xsd:string"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+</xsd:schema>

@@ -60,22 +60,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.LinkRef;
 import javax.naming.NamingException;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.naming.jmx.TestObject;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/12 20:38:19 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/13 23:41:47 $
  *
  * */
 public class AbstractContextTest extends TestCase {
@@ -116,10 +111,4 @@ public class AbstractContextTest extends TestCase {
         readOnlyContext.internalBind(name, value);
     }
 
-    public static TestObject registerTestObject(MBeanServer server, ObjectName objectName) throws Exception {
-        GBeanInfo gbeanInfo = TestObject.getGBeanInfo();
-        GBeanMBean gbean = new GBeanMBean(gbeanInfo);
-        server.registerMBean(gbean, objectName);
-        return (TestObject) gbean.getTarget();
-    }
 }

@@ -93,14 +93,16 @@ import javax.naming.spi.NamingManager;
  *   String envEntry2 = (String) componentContext.lookup("env/myEntry2");
  * </code>
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/12 20:38:18 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/13 23:41:47 $
  */
 public class ReadOnlyContext implements Context {
     protected final Hashtable env;        // environment for this context
     protected final Map bindings;         // bindings at my level
     protected final Map treeBindings;     // all bindings under me
 
-    protected ReadOnlyContext() {
+    private boolean fixed = false;
+
+    public ReadOnlyContext() {
         env = new Hashtable();
         bindings = new HashMap();
         treeBindings = new HashMap();
@@ -120,6 +122,17 @@ public class ReadOnlyContext implements Context {
         this.bindings = clone.bindings;
         this.treeBindings = clone.treeBindings;
         this.env = new Hashtable(env);
+    }
+
+    public void freeze() {
+        fixed = true;
+    }
+
+    public void externalBind(String name, Object value) throws NamingException {
+        if (fixed) {
+            throw new NamingException("ReadOnlyContext has been frozen");
+        }
+        internalBind(name, value);
     }
 
     /**

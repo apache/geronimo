@@ -53,7 +53,7 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.naming.java;
+package org.apache.geronimo.naming.deployment;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -62,27 +62,35 @@ import javax.naming.NamingException;
 import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.xbeans.geronimo.GerEjbLocalRefType;
+import org.apache.geronimo.xbeans.geronimo.GerEjbRefType;
+import org.apache.geronimo.xbeans.geronimo.GerMessageDestinationRefType;
+import org.apache.geronimo.xbeans.geronimo.GerResourceEnvRefType;
+import org.apache.geronimo.xbeans.geronimo.GerResourceRefType;
 import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
 import org.apache.geronimo.xbeans.j2ee.EjbRefType;
 import org.apache.geronimo.xbeans.j2ee.EnvEntryType;
+import org.apache.geronimo.xbeans.j2ee.MessageDestinationRefType;
+import org.apache.geronimo.xbeans.j2ee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
 import org.apache.geronimo.xbeans.j2ee.EjbLinkType;
+import org.apache.geronimo.xbeans.j2ee.MessageDestinationLinkType;
+import org.apache.geronimo.naming.java.ProxyFactory;
+import org.apache.geronimo.naming.java.ReadOnlyContext;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/13 05:48:40 $
+ * @version $Revision: 1.1 $ $Date: 2004/02/13 23:41:47 $
  */
 public class ComponentContextBuilder {
 
     private static final String ENV = "env/";
 
     private final ProxyFactory proxyFactory;
-    private final UserTransaction userTransaction;
     private final ClassLoader cl;
 
-    public ComponentContextBuilder(ProxyFactory proxyFactory, UserTransaction userTransaction, ClassLoader cl) {
-        this.userTransaction = userTransaction;
+    public ComponentContextBuilder(ProxyFactory proxyFactory, ClassLoader cl) {
         this.proxyFactory = proxyFactory;
         this.cl = cl;
     }
@@ -92,24 +100,36 @@ public class ComponentContextBuilder {
      * a deployment descriptor.
      * @return a Context that can be bound to java:comp
      */
-    public ReadOnlyContext buildContext(EjbRefType[] ejbRefs, EjbLocalRefType[] ejbLocalRefs, EnvEntryType[] envEntries, ResourceRefType[] resourceRefs) throws DeploymentException {
+    public ReadOnlyContext buildContext(EjbRefType[] ejbRefs, GerEjbRefType[] gerEjbRefs,
+                                        EjbLocalRefType[] ejbLocalRefs, GerEjbLocalRefType[] gerEjbLocalRefs,
+                                        EnvEntryType[] envEntries,
+                                        MessageDestinationRefType[] messageDestinationRefs, GerMessageDestinationRefType[] gerMessageDestinationRefs ,
+                                        ResourceEnvRefType[] resourceEnvRefs, GerResourceEnvRefType[] gerResourceEnvRefs,
+                                        ResourceRefType[] resourceRefs, GerResourceRefType[] gerResourceRefs,
+                                        UserTransaction userTransaction) throws DeploymentException {
         ReadOnlyContext readOnlyContext = new ReadOnlyContext();
         buildEnvEntries(readOnlyContext, envEntries);
-        buildEJBRefs(readOnlyContext, ejbRefs);
-        buildEJBLocalRefs(readOnlyContext, ejbLocalRefs);
-        buildResourceRefs(readOnlyContext, resourceRefs);
+        buildEJBRefs(readOnlyContext, ejbRefs, gerEjbRefs);
+        buildEJBLocalRefs(readOnlyContext, ejbLocalRefs, gerEjbLocalRefs);
+        buildMessageDestinationRefs(readOnlyContext, messageDestinationRefs, gerMessageDestinationRefs);
+        buildResourceEnvRefs(readOnlyContext, resourceEnvRefs, gerResourceEnvRefs);
+        buildResourceRefs(readOnlyContext, resourceRefs, gerResourceRefs);
 
         if (userTransaction != null) {
             try {
-                readOnlyContext.internalBind("UserTransaction", userTransaction);
+                readOnlyContext.externalBind("UserTransaction", userTransaction);
             } catch (NamingException e) {
                 throw new DeploymentException("could not bind UserTransaction", e);
             }
         }
+        readOnlyContext.freeze();
         return readOnlyContext;
     }
 
-    private static void buildEnvEntries(ReadOnlyContext readOnlyContext, EnvEntryType[] envEntries) throws DeploymentException {
+    private void buildEnvEntries(ReadOnlyContext readOnlyContext, EnvEntryType[] envEntries) throws DeploymentException {
+        if (envEntries == null) {
+            return;
+        }
         for (int i = 0; i < envEntries.length; i++) {
             EnvEntryType entry = envEntries[i];
             String name = entry.getEnvEntryName().getStringValue();
@@ -144,33 +164,155 @@ public class ComponentContextBuilder {
                 throw new DeploymentException("Invalid numeric value for env-entry " + name + ", value=" + value);
             }
             try {
-                readOnlyContext.internalBind(ENV + name, mapEntry);
+                readOnlyContext.externalBind(ENV + name, mapEntry);
             } catch (NamingException e) {
                 throw new DeploymentException("Could not bind", e);
             }
         }
     }
 
-    private void buildEJBRefs(ReadOnlyContext readOnlyContext, EjbRefType[] ejbRefs) throws DeploymentException {
+    private void buildEJBRefs(ReadOnlyContext readOnlyContext, EjbRefType[] ejbRefs, GerEjbRefType[] gerEjbRefs) throws DeploymentException {
+        if (ejbRefs == null) {
+            return;
+        }
+        assert ejbRefs.length == gerEjbRefs.length;
         for (int i = 0; i < ejbRefs.length; i++) {
             EjbRefType ejbRef = ejbRefs[i];
             String name = ejbRef.getEjbRefName().getStringValue();
+            assert name.equals(gerEjbRefs[i].getEjbRefName().getStringValue());
             Object proxy = null;
             try {
-                proxy = proxyFactory.getProxy(loadClass(ejbRef.getHome().getStringValue()), loadClass(ejbRef.getRemote().getStringValue()), getLink(ejbRef.getEjbLink()));
+                proxy = proxyFactory.getProxy(loadClass(ejbRef.getHome().getStringValue()), loadClass(ejbRef.getRemote().getStringValue()), getLink(gerEjbRefs[i].getUri(), ejbRef.getEjbLink()));
             } catch (NamingException e) {
                 throw new DeploymentException("Could not construct proxy for " + ejbRef + ", " + e.getMessage());
             }
             try {
-                readOnlyContext.internalBind(ENV + name, proxy);
+                readOnlyContext.externalBind(ENV + name, proxy);
             } catch (NamingException e) {
                 throw new DeploymentException("could not bind", e);
             }
         }
     }
 
-    private Object getLink(EjbLinkType link) {
-        return null;
+    private void buildEJBLocalRefs(ReadOnlyContext readOnlyContext, EjbLocalRefType[] ejbLocalRefs, GerEjbLocalRefType[] gerEjbLocalRefs) throws DeploymentException {
+        if (ejbLocalRefs == null) {
+            return;
+        }
+        assert ejbLocalRefs.length == gerEjbLocalRefs.length;
+        for (int i = 0; i < ejbLocalRefs.length; i++) {
+            EjbLocalRefType ejbLocalRef = ejbLocalRefs[i];
+            String name = ejbLocalRef.getEjbRefName().getStringValue();
+            assert name.equals(gerEjbLocalRefs[i].getEjbRefName().getStringValue());
+            Object proxy = null;
+            try {
+                proxy = proxyFactory.getProxy(loadClass(ejbLocalRef.getLocalHome().getStringValue()), loadClass(ejbLocalRef.getLocal().getStringValue()), getLink(gerEjbLocalRefs[i].getUri(), ejbLocalRef.getEjbLink()));
+            } catch (NamingException e) {
+                throw new DeploymentException("Could not construct reference to " + ejbLocalRef + ", " + e.getMessage());
+            }
+            try {
+                readOnlyContext.externalBind(ENV + name, proxy);
+            } catch (NamingException e) {
+                throw new DeploymentException("Could not bind", e);
+            }
+        }
+    }
+
+    private void buildMessageDestinationRefs(ReadOnlyContext readOnlyContext, MessageDestinationRefType[] messageDestinationRefs, GerMessageDestinationRefType[] gerMessageDestinationRefs) throws DeploymentException {
+        if (messageDestinationRefs == null) {
+            return;
+        }
+        assert messageDestinationRefs.length == gerMessageDestinationRefs.length;
+        for (int i = 0; i < messageDestinationRefs.length; i++) {
+            MessageDestinationRefType messageDestination = messageDestinationRefs[i];
+            String name = messageDestination.getMessageDestinationRefName().getStringValue();
+            assert name.equals(gerMessageDestinationRefs[i].getMessageDestinationRefName().getStringValue());
+            Object proxy = null;
+            try {
+                proxy = proxyFactory.getProxy(loadClass(messageDestination.getMessageDestinationType().getStringValue()), getLink(gerMessageDestinationRefs[i].getUri(), messageDestination.getMessageDestinationLink()));
+            } catch (NamingException e) {
+                throw new DeploymentException("Could not construct reference to " + messageDestination + ", " + e.getMessage());
+            }
+            try {
+                readOnlyContext.externalBind(ENV + name, proxy);
+            } catch (NamingException e) {
+                throw new DeploymentException("Could not bind", e);
+            }
+        }
+    }
+
+    private void buildResourceEnvRefs(ReadOnlyContext readOnlyContext, ResourceEnvRefType[] resourceEnvRefs, GerResourceEnvRefType[] gerResourceEnvRefs) throws DeploymentException {
+        if (resourceEnvRefs == null) {
+            return;
+        }
+        assert resourceEnvRefs.length == gerResourceEnvRefs.length;
+        for (int i = 0; i < resourceEnvRefs.length; i++) {
+            ResourceEnvRefType resEnvRef = resourceEnvRefs[i];
+            String name = resEnvRef.getResourceEnvRefName().getStringValue();
+            assert name.equals(gerResourceEnvRefs[i].getResourceEnvRefName().getStringValue());
+            Object proxy = null;
+            try {
+                proxy = proxyFactory.getProxy(loadClass(resEnvRef.getResourceEnvRefType().getStringValue()), getLink(gerResourceEnvRefs[i].getUri()));
+            } catch (NamingException e) {
+                throw new DeploymentException("Could not construct reference to " + resEnvRef + ", " + e.getMessage());
+            }
+            try {
+                readOnlyContext.externalBind(ENV + name, proxy);
+            } catch (NamingException e) {
+                throw new DeploymentException("Could not bind", e);
+            }
+        }
+    }
+
+    private void buildResourceRefs(ReadOnlyContext readOnlyContext, ResourceRefType[] resRefs, GerResourceRefType[] gerResRefs) throws DeploymentException {
+        if (resRefs == null) {
+            return;
+        }
+        assert resRefs.length == gerResRefs.length;
+        for (int i=0; i < resRefs.length; i++) {
+            ResourceRefType resRef = resRefs[i];
+            String name = resRef.getResRefName().getStringValue();
+            assert name.equals(gerResRefs[i].getResRefName().getStringValue());
+            String type = resRef.getResType().getStringValue();
+            Object proxy;
+            if ("java.net.URL".equals(type)) {
+                //for some reason the spec regards URL as a connection factory...
+                try {
+                    proxy = new URL(gerResRefs[i].getUri());
+                } catch (MalformedURLException e) {
+                    throw new DeploymentException("Invalid URL for resource-proxy "+name, e);
+                }
+            } else {
+                try {
+                    proxy = proxyFactory.getProxy(loadClass(resRef.getResType().getStringValue()), getLink(gerResRefs[i].getUri()));
+                } catch (NamingException e) {
+                    throw new DeploymentException("Could not construct reference to " + resRef);
+                }
+            }
+            try {
+                readOnlyContext.externalBind(ENV + name, proxy);
+            } catch (NamingException e) {
+                throw new DeploymentException("Could not bind", e);
+            }
+        }
+    }
+
+    //TODO figure out how to use the link properly.
+    private Object getLink(String uri, EjbLinkType link) {
+        if (link != null) {
+            return link.getStringValue();
+        }
+        return uri;
+    }
+
+    private Object getLink(String uri, MessageDestinationLinkType link) {
+        if (link != null) {
+            return link.getStringValue();
+        }
+        return uri;
+    }
+
+    private Object getLink(String uri) {
+        return uri;
     }
 
     private Class loadClass(String stringValue) throws DeploymentException {
@@ -178,51 +320,6 @@ public class ComponentContextBuilder {
             return cl.loadClass(stringValue);
         } catch (ClassNotFoundException e) {
             throw new DeploymentException("Could not load interface class: " + stringValue, e);
-        }
-    }
-
-    private void buildEJBLocalRefs(ReadOnlyContext readOnlyContext, EjbLocalRefType[] ejbLocalRefs) throws DeploymentException {
-        for (int i = 0; i < ejbLocalRefs.length; i++) {
-            EjbLocalRefType ejbLocalRef = ejbLocalRefs[i];
-            String name = ejbLocalRef.getEjbRefName().getStringValue();
-            Object proxy = null;
-            try {
-                proxy = proxyFactory.getProxy(loadClass(ejbLocalRef.getLocalHome().getStringValue()), loadClass(ejbLocalRef.getLocal().getStringValue()), getLink(ejbLocalRef.getEjbLink()));
-            } catch (NamingException e) {
-                throw new DeploymentException("Could not construct reference to " + ejbLocalRef + ", " + e.getMessage());
-            }
-            try {
-                readOnlyContext.internalBind(ENV + name, proxy);
-            } catch (NamingException e) {
-                throw new DeploymentException("Could not bind", e);
-            }
-        }
-    }
-
-    private void buildResourceRefs(ReadOnlyContext readOnlyContext, ResourceRefType[] resRefs) throws DeploymentException {
-        for (int i=0; i < resRefs.length; i++) {
-            ResourceRefType resRef = resRefs[i];
-            String name = resRef.getResRefName().getStringValue();
-            String type = resRef.getResType().getStringValue();
-            Object ref;
-            if ("java.net.URL".equals(type)) {
-                try {
-                    ref = new URL("http://thisisnotaurlyousupplied" /*resRef.geturl().getStringValue()*/);
-                } catch (MalformedURLException e) {
-                    throw new DeploymentException("Invalid URL for resource-ref "+name, e);
-                }
-            } else {
-                try {
-                    ref = proxyFactory.getProxy(loadClass(resRef.getResType().getStringValue()), null);
-                } catch (NamingException e) {
-                    throw new DeploymentException("Could not construct reference to " + resRef);
-                }
-            }
-            try {
-                readOnlyContext.internalBind(ENV + name, ref);
-            } catch (NamingException e) {
-                throw new DeploymentException("Could not bind", e);
-            }
         }
     }
 }
