@@ -68,7 +68,7 @@ import javax.enterprise.deploy.spi.Target;
  * well as the ObjectName of the MBean for the specified Target where this
  * module can be found.
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/17 10:57:40 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/22 20:01:46 $
  */
 public class GeronimoTargetModule implements TargetModuleID, Serializable {
     private Target target;
@@ -192,5 +192,9 @@ public class GeronimoTargetModule implements TargetModuleID, Serializable {
         result = 29 * result + moduleID.hashCode();
         result = 29 * result + deploymentID;
         return result;
+    }
+
+    public String toString() {
+        return getModuleID()+"@"+target;
     }
 }

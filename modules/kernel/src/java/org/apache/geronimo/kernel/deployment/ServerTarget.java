@@ -61,7 +61,7 @@ import javax.enterprise.deploy.spi.Target;
 /**
  * A target representing a single (non-clustered) Geronimo server.
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/17 10:57:40 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/22 20:01:46 $
  */
 public class ServerTarget implements Target, Serializable {
     private String hostname;
@@ -112,5 +112,9 @@ public class ServerTarget implements Target, Serializable {
         result = hostname.hashCode();
         result = 29 * result + homeDir.hashCode();
         return result;
+    }
+
+    public String toString() {
+        return hostname+(homeDir == null ? "" : ":"+homeDir);
     }
 }
