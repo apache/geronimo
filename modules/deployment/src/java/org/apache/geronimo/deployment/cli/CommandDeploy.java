@@ -33,7 +33,7 @@ import java.io.File;
  */
 public class CommandDeploy extends CommandDistribute {
     public CommandDeploy() {
-        super("deploy", "1. Common Commands", "[--targets target,target,...] [module] [plan]",
+        super("deploy", "1. Common Commands", "[--targets target;target;...] [module] [plan]",
                 "Normally both a module and plan are passed to the deployer.  " +
                 "Sometimes the module contains a plan, or requires no plan, in which case " +
                 "the plan may be omitted.  Sometimes the plan references a module already " +

@@ -34,7 +34,7 @@ import java.util.*;
  */
 public class CommandDistribute extends AbstractCommand {
     public CommandDistribute() {
-        super("distribute", "2. Other Commands", "[--targets target,target,...] [module] [plan]",
+        super("distribute", "2. Other Commands", "[--targets target;target;...] [module] [plan]",
                 "Processes a module and adds it to the server environment, but does "+
                 "not start it or mark it to be started in the future." +
                 "Normally both a module and plan are passed to the deployer.  " +
@@ -146,7 +146,7 @@ public class CommandDistribute extends AbstractCommand {
     private String[] processTargets(String[] args, List targets) {
         if(args.length >= 2 && args[0].equals("--targets")) {
             String value = args[1];
-            StringTokenizer tok = new StringTokenizer(value, ",", false);
+            StringTokenizer tok = new StringTokenizer(value, ";", false);
             while(tok.hasMoreTokens()) {
                 targets.add(tok.nextToken());
             }
