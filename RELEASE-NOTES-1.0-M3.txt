@@ -46,6 +46,7 @@ remaining open issues.
     * [GERONIMO-401] - J2EEApplication name can be specified distinct from the configId
     * [GERONIMO-412] - More deploy/runtime options for connection pools
     * [GERONIMO-427] - HTTPS access to (Jetty) web container
+    * [GERONIMO-429] - Foreign key constraints are not enforced for CMP 2.x EntityBean
 
 
 ** Improvements
