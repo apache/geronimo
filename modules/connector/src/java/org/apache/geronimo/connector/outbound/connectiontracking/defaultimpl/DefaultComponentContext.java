@@ -19,6 +19,7 @@ package org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.geronimo.transaction.InstanceContext;
 
@@ -26,12 +27,19 @@ import org.apache.geronimo.transaction.InstanceContext;
 /**
  * Simple implementation of ComponentContext satisfying invariant.
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/21 22:24:39 $
+ * @version $Revision: 1.6 $ $Date: 2004/05/31 16:27:44 $
  *
  * */
 public class DefaultComponentContext implements InstanceContext {
 
     private final Map connectionManagerMap = new HashMap();
+    private final Set unshareableResources;
+    private final Set applicationManagedSecurityResources;
+
+    public DefaultComponentContext(Set unshareableResources, Set applicationManagedSecurityResources) {
+        this.unshareableResources = unshareableResources;
+        this.applicationManagedSecurityResources = applicationManagedSecurityResources;
+    }
 
     public Object getId() {
         return null;
@@ -58,6 +66,14 @@ public class DefaultComponentContext implements InstanceContext {
 
     public Map getConnectionManagerMap() {
         return connectionManagerMap;
+    }
+
+    public Set getUnshareableResources() {
+        return unshareableResources;
+    }
+
+    public Set getApplicationManagedSecurityResources() {
+        return applicationManagedSecurityResources;
     }
 
 }

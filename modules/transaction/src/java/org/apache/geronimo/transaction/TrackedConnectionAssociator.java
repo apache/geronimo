@@ -17,48 +17,22 @@
 
 package org.apache.geronimo.transaction;
 
-import java.util.Set;
-
 import javax.resource.ResourceException;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/05/24 19:11:14 $
+ * @version $Revision: 1.3 $ $Date: 2004/05/31 16:27:44 $
  *
  * */
 public interface TrackedConnectionAssociator {
 
-    ConnectorContextInfo enter(InstanceContext newInstanceContext,
-                               Set unshareableResources, Set applicationManagedSecurityResources)
+    InstanceContext enter(InstanceContext newInstanceContext)
             throws ResourceException;
 
     void newTransaction() throws ResourceException;
 
-    void exit(ConnectorContextInfo connectorContext)
+    void exit(InstanceContext instanceContext)
             throws ResourceException;
 
-    class ConnectorContextInfo {
-        private final InstanceContext instanceContext;
-        private final Set unshareableResources;
-        private final Set applicationManagedSecurityResources;
-
-        public ConnectorContextInfo(InstanceContext instanceContext, Set unshareableResources, Set applicationManagedSecurityResources) {
-            this.instanceContext = instanceContext;
-            this.unshareableResources = unshareableResources;
-            this.applicationManagedSecurityResources = applicationManagedSecurityResources;
-        }
-
-        public InstanceContext getInstanceContext() {
-            return instanceContext;
-        }
-
-        public Set getUnshareableResources() {
-            return unshareableResources;
-        }
-
-        public Set getApplicationManagedSecurityResources() {
-            return applicationManagedSecurityResources;
-        }
-    }
 }

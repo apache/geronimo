@@ -18,11 +18,12 @@
 package org.apache.geronimo.transaction;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/21 22:24:39 $
+ * @version $Revision: 1.5 $ $Date: 2004/05/31 16:27:44 $
  *
  * */
 public interface InstanceContext {
@@ -45,5 +46,9 @@ public interface InstanceContext {
      * @return map of ConnectionManager to (list of ) managed connection info objects.
      */
     Map getConnectionManagerMap();
+
+    Set getUnshareableResources();
+
+    Set getApplicationManagedSecurityResources();
 
 }

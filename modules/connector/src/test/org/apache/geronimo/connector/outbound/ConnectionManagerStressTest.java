@@ -17,6 +17,8 @@
 
 package org.apache.geronimo.connector.outbound;
 
+import java.util.HashSet;
+
 import org.apache.geronimo.transaction.TransactionContext;
 import org.apache.geronimo.transaction.UnspecifiedTransactionContext;
 import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.DefaultComponentContext;
@@ -26,7 +28,7 @@ import org.apache.commons.logging.Log;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/05/06 03:59:56 $
+ * @version $Revision: 1.3 $ $Date: 2004/05/31 16:27:44 $
  *
  * */
 public class ConnectionManagerStressTest extends ConnectionManagerTestUtils {
@@ -73,7 +75,7 @@ public class ConnectionManagerStressTest extends ConnectionManagerTestUtils {
                         for (int i = 0; i < repeatCount; i++) {
                             try {
                                 long start = System.currentTimeMillis();
-                                defaultComponentInterceptor.invoke(new DefaultComponentContext());
+                                defaultComponentInterceptor.invoke(new DefaultComponentContext(new HashSet(), new HashSet()));
                                 long duration = System.currentTimeMillis() - start;
                                 if (duration > 100) {
                                     localSlowCount++;

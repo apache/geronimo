@@ -17,12 +17,6 @@
 
 package org.apache.geronimo.jetty;
 
-import javax.resource.ResourceException;
-import javax.security.jacc.PolicyConfiguration;
-import javax.security.jacc.PolicyConfigurationFactory;
-import javax.security.jacc.PolicyContext;
-import javax.security.jacc.PolicyContextException;
-import javax.transaction.TransactionManager;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -30,13 +24,15 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Set;
 
-import org.mortbay.http.HttpException;
-import org.mortbay.http.HttpRequest;
-import org.mortbay.http.HttpResponse;
-import org.mortbay.jetty.servlet.WebApplicationContext;
+import javax.resource.ResourceException;
+import javax.security.jacc.PolicyConfiguration;
+import javax.security.jacc.PolicyConfigurationFactory;
+import javax.security.jacc.PolicyContext;
+import javax.security.jacc.PolicyContextException;
+import javax.transaction.TransactionManager;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.DefaultComponentContext;
 import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanContext;
@@ -49,16 +45,20 @@ import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.java.RootContext;
 import org.apache.geronimo.security.GeronimoSecurityException;
 import org.apache.geronimo.security.deploy.Security;
+import org.apache.geronimo.transaction.InstanceContext;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.TransactionContext;
 import org.apache.geronimo.transaction.UnspecifiedTransactionContext;
 import org.apache.geronimo.transaction.UserTransactionImpl;
-
+import org.mortbay.http.HttpException;
+import org.mortbay.http.HttpRequest;
+import org.mortbay.http.HttpResponse;
+import org.mortbay.jetty.servlet.WebApplicationContext;
 
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
  *
- * @version $Revision: 1.15 $ $Date: 2004/05/30 19:09:57 $
+ * @version $Revision: 1.16 $ $Date: 2004/05/31 16:27:44 $
  */
 public class JettyWebApplicationContext extends WebApplicationContext implements GBean {
 
@@ -172,7 +172,7 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
         ReadOnlyContext oldComponentContext = RootContext.getComponentContext();
         String oldPolicyContextID = PolicyContext.getContextID();
 
-        TrackedConnectionAssociator.ConnectorContextInfo oldConnectorContext = null;
+        InstanceContext oldInstanceContext = null;
 
         try {
             // set up java:comp JNDI Context
@@ -188,7 +188,7 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
                 TransactionContext.setContext(new UnspecifiedTransactionContext());
             }
             try {
-                oldConnectorContext = associator.enter(new DefaultComponentContext(), unshareableResources, applicationManagedSecurityResources);
+                oldInstanceContext = associator.enter(new DefaultComponentContext(unshareableResources, applicationManagedSecurityResources));
             } catch (ResourceException e) {
                 throw new RuntimeException(e);
             }
@@ -196,9 +196,7 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
             super.handle(pathInContext, pathParams, httpRequest, httpResponse);
         } finally {
             try {
-                if (txManager != null) {
-                    associator.exit(oldConnectorContext);
-                }
+                associator.exit(oldInstanceContext);
             } catch (ResourceException e) {
                 throw new RuntimeException(e);
             } finally {

@@ -17,36 +17,35 @@
 
 package org.apache.geronimo.connector.outbound;
 
-import java.util.Set;
 import java.util.HashSet;
+import java.util.Set;
 
 import javax.security.auth.Subject;
 import javax.transaction.TransactionManager;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.connector.outbound.connectiontracking.DefaultInterceptor;
+import org.apache.geronimo.connector.mock.MockConnection;
+import org.apache.geronimo.connector.mock.MockConnectionFactory;
+import org.apache.geronimo.connector.mock.MockManagedConnection;
+import org.apache.geronimo.connector.mock.MockManagedConnectionFactory;
+import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PartitionedPool;
+import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PoolingSupport;
+import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionSupport;
+import org.apache.geronimo.connector.outbound.connectionmanagerconfig.XATransactions;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.connector.outbound.connectiontracking.DefaultComponentInterceptor;
+import org.apache.geronimo.connector.outbound.connectiontracking.DefaultInterceptor;
 import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.DefaultComponentContext;
-import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionSupport;
-import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PoolingSupport;
-import org.apache.geronimo.connector.outbound.connectionmanagerconfig.XATransactions;
-import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PartitionedPool;
-import org.apache.geronimo.connector.mock.MockManagedConnectionFactory;
-import org.apache.geronimo.connector.mock.MockConnectionFactory;
-import org.apache.geronimo.connector.mock.MockConnection;
-import org.apache.geronimo.connector.mock.MockXAResource;
-import org.apache.geronimo.connector.mock.MockManagedConnection;
-import org.apache.geronimo.security.bridge.RealmBridge;
 import org.apache.geronimo.security.ContextManager;
-import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
+import org.apache.geronimo.security.bridge.RealmBridge;
 import org.apache.geronimo.transaction.InstanceContext;
 import org.apache.geronimo.transaction.UserTransactionImpl;
+import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 
 /**
  *
  *
- * @version $Revision: 1.10 $ $Date: 2004/05/24 22:36:13 $
+ * @version $Revision: 1.11 $ $Date: 2004/05/31 16:27:44 $
  *
  * */
 public class ConnectionManagerTestUtils extends TestCase implements DefaultInterceptor, RealmBridge {
@@ -102,8 +101,8 @@ public class ConnectionManagerTestUtils extends TestCase implements DefaultInter
                 connectionTrackingCoordinator);
         connectionManagerDeployment.doStart();
         connectionFactory = (MockConnectionFactory) connectionManagerDeployment.createConnectionFactory(mockManagedConnectionFactory);
-        defaultComponentContext = new DefaultComponentContext();
-        defaultComponentInterceptor = new DefaultComponentInterceptor(this, connectionTrackingCoordinator, unshareableResources, applicationManagedSecurityResources);
+        defaultComponentContext = new DefaultComponentContext(unshareableResources, applicationManagedSecurityResources);
+        defaultComponentInterceptor = new DefaultComponentInterceptor(this, connectionTrackingCoordinator);
     }
 
     protected void tearDown() throws Exception {

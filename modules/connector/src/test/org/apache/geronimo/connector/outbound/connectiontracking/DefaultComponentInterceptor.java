@@ -17,44 +17,38 @@
 
 package org.apache.geronimo.connector.outbound.connectiontracking;
 
-import java.util.Set;
-
 import org.apache.geronimo.transaction.InstanceContext;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.TransactionContext;
 import org.apache.geronimo.transaction.UnspecifiedTransactionContext;
 
 /**
+ * Sample functionality for an interceptor that enables connection caching and obtaining
+ * connections outside a UserTransaction.
  *
- *
- * @version $Revision: 1.2 $ $Date: 2004/05/24 19:10:35 $
+ * @version $Revision: 1.3 $ $Date: 2004/05/31 16:27:44 $
  *
  * */
 public class DefaultComponentInterceptor implements DefaultInterceptor {
 
     private final DefaultInterceptor next;
-    private final TrackedConnectionAssociator cachedConnectionAssociator;
-    private final Set unshareableResources;
-    private final Set applicationManagedSecurityResources;
+    private final TrackedConnectionAssociator trackedConnectionAssociator;
 
     public DefaultComponentInterceptor(DefaultInterceptor next,
-            TrackedConnectionAssociator cachedConnectionManager,
-            Set unshareableResources, Set applicationManagedSecurityResources) {
+            TrackedConnectionAssociator trackedConnectionAssociator) {
         this.next = next;
-        this.cachedConnectionAssociator = cachedConnectionManager;
-        this.unshareableResources = unshareableResources;
-        this.applicationManagedSecurityResources = applicationManagedSecurityResources;
+        this.trackedConnectionAssociator = trackedConnectionAssociator;
     }
 
     public Object invoke(InstanceContext newInstanceContext) throws Throwable {
         if (TransactionContext.getContext() == null) {
             TransactionContext.setContext(new UnspecifiedTransactionContext());
         }
-        TrackedConnectionAssociator.ConnectorContextInfo oldConnectorContext = cachedConnectionAssociator.enter(newInstanceContext, unshareableResources, applicationManagedSecurityResources);
+        InstanceContext oldInstanceContext = trackedConnectionAssociator.enter(newInstanceContext);
         try {
             return next.invoke(newInstanceContext);
         } finally {
-            cachedConnectionAssociator.exit(oldConnectorContext);
+            trackedConnectionAssociator.exit(oldInstanceContext);
         }
     }
 }
