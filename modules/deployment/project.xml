@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.6 $ $Date: 2004/02/03 06:47:56 $ -->
+<!-- $Revision: 1.7 $ $Date: 2004/02/03 16:41:59 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -25,17 +25,6 @@
     <!-- ============ -->
 
     <dependencies>
-
-        <!-- the maven-xmlbeans-plugin dependency is here
-        to force it to be built (and installed) before it is needed-->
-
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-maven-xmlbeans-plugin</artifactId>
-            <version>DEV</version>
-            <properties>
-            </properties>
-        </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
