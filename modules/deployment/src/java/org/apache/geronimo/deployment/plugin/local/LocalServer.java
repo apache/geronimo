@@ -58,6 +58,7 @@ package org.apache.geronimo.deployment.plugin.local;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URI;
+import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.shared.ModuleType;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
@@ -67,6 +68,7 @@ import javax.management.ObjectName;
 
 import org.apache.geronimo.deployment.DeploymentModule;
 import org.apache.geronimo.deployment.plugin.DeploymentServer;
+import org.apache.geronimo.deployment.plugin.FailedProgressObject;
 import org.apache.geronimo.deployment.plugin.TargetImpl;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBean;
@@ -81,9 +83,9 @@ import org.apache.geronimo.kernel.config.LocalConfigStore;
 import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
 
 /**
- * 
- * 
- * @version $Revision: 1.1 $ $Date: 2004/01/23 19:58:16 $
+ *
+ *
+ * @version $Revision: 1.2 $ $Date: 2004/01/24 21:07:44 $
  */
 public class LocalServer implements DeploymentServer,GBean {
     private final URI rootConfigID;
@@ -129,20 +131,23 @@ public class LocalServer implements DeploymentServer,GBean {
 
     public ProgressObject distribute(Target[] targetList, DeploymentModule module) throws IllegalStateException {
         if (targetList.length != 1 || !target.equals(targetList[0])) {
-            // @todo progress object ?
-            throw new IllegalStateException();
+            return new FailedProgressObject(CommandType.DISTRIBUTE, "Invalid Target");
         }
-        DistributeCommand command = new DistributeCommand(parent, kernel, module);
+        DistributeCommand command = new DistributeCommand(target, parent, kernel, module);
         new Thread(command).start();
         return command;
     }
 
     public ProgressObject start(TargetModuleID[] moduleIDList) throws IllegalStateException {
-        throw new UnsupportedOperationException();
+        StartCommand command = new StartCommand(kernel, moduleIDList);
+        new Thread(command).start();
+        return command;
     }
 
     public ProgressObject stop(TargetModuleID[] moduleIDList) throws IllegalStateException {
-        throw new UnsupportedOperationException();
+        StopCommand command = new StopCommand(kernel, moduleIDList);
+        new Thread(command).start();
+        return command;
     }
 
     public boolean isRedeploySupported() {
@@ -166,11 +171,13 @@ public class LocalServer implements DeploymentServer,GBean {
     public void doStart() throws WaitingException, Exception {
         kernel.boot();
         configName = kernel.load(rootConfigID);
+        kernel.getMBeanServer().invoke(configName, "startRecursive", null, null);
         parent = (ConfigurationParent) MBeanProxyFactory.getProxy(ConfigurationParent.class, kernel.getMBeanServer(), configName);
     }
 
     public void doStop() throws WaitingException, Exception {
         parent = null;
+        kernel.getMBeanServer().invoke(configName, "stop", null, null);
         kernel.unload(configName);
         kernel.shutdown();
     }

@@ -55,41 +55,90 @@
  */
 package org.apache.geronimo.jetty.deployment;
 
-import java.net.URL;
-import java.net.URI;
-import java.io.ByteArrayOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URL;
+import java.net.HttpURLConnection;
 import java.util.Collections;
 import java.util.jar.JarOutputStream;
-import javax.enterprise.deploy.spi.DeploymentConfiguration;
-import javax.enterprise.deploy.spi.DConfigBeanRoot;
 import javax.enterprise.deploy.spi.Target;
+import javax.enterprise.deploy.spi.TargetModuleID;
+import javax.enterprise.deploy.spi.status.ProgressEvent;
+import javax.enterprise.deploy.spi.status.ProgressListener;
+import javax.enterprise.deploy.spi.status.ProgressObject;
+import javax.enterprise.deploy.shared.StateType;
 
-import org.apache.geronimo.deployment.tools.loader.WebDeployable;
-import org.apache.geronimo.deployment.plugin.local.LocalServer;
-import org.apache.geronimo.deployment.util.FileUtil;
-import org.apache.geronimo.deployment.util.URLInfo;
 import org.apache.geronimo.deployment.URLDeployer;
+import org.apache.geronimo.deployment.plugin.local.LocalServer;
 import org.apache.geronimo.deployment.service.ServiceDeployer;
+import org.apache.geronimo.deployment.util.URLInfo;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 
 /**
- * 
- * 
- * @version $Revision: 1.1 $ $Date: 2004/01/23 19:58:17 $
+ *
+ *
+ * @version $Revision: 1.2 $ $Date: 2004/01/24 21:07:45 $
  */
 public class DeploymentTest extends DeployerTestCase {
-    private URL war;
-    private byte[] plan;
+//    private byte[] plan;
     private File configFile;
+    private Target[] targets;
 
-    public void testDistribute() throws Exception {
-//        Target[] targets = manager.getTargets();
-//        manager.distribute(targets, war.openStream(), new ByteArrayInputStream(plan));
+    public void testUnpacked() throws Exception {
+        URL url = classLoader.getResource("deployables/war1/");
+        File war = new File(URI.create(url.toString()));
+
+        ProgressObject result = manager.distribute(targets, war, new File(war, "WEB-INF/geronimo-web.xml"));
+        waitFor(result);
+        TargetModuleID[] ids = result.getResultTargetModuleIDs();
+        assertEquals(1, ids.length);
+
+        result = manager.start(ids);
+        waitFor(result);
+
+        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:5678/test/hello.txt").openConnection();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
+        assertEquals("Hello World", reader.readLine());
+        connection.disconnect();
+
+        result = manager.stop(ids);
+        waitFor(result);
+
+        connection = (HttpURLConnection) new URL("http://localhost:5678/test/hello.txt").openConnection();
+        try {
+            reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            fail();
+        } catch (IOException e) {
+            assertEquals(HttpURLConnection.HTTP_NOT_FOUND, connection.getResponseCode());
+        }
+        connection.disconnect();
     }
+
+    private void waitFor(ProgressObject result) throws InterruptedException {
+        result.addProgressListener(new ProgressListener() {
+            public void handleProgressEvent(ProgressEvent event) {
+                synchronized (DeploymentTest.this) {
+                    DeploymentTest.this.notify();
+                }
+            }
+        });
+        synchronized (this) {
+            while (result.getDeploymentStatus().isRunning()) {
+                wait();
+            }
+        }
+        assertEquals(StateType.COMPLETED, result.getDeploymentStatus().getState());
+    }
+
+//    public void testPacked() throws Exception {
+//        manager.distribute(targets, war.openStream(), new ByteArrayInputStream(plan));
+//    }
 
     protected void setUp() throws Exception {
         super.setUp();
@@ -112,16 +161,17 @@ public class DeploymentTest extends DeployerTestCase {
         kernel.loadGBean(serverName, serverGBean);
         kernel.startGBean(serverName);
 
-        war = classLoader.getResource("deployables/war2.war");
-        WebDeployable deployable = new WebDeployable(war);
-        DeploymentConfiguration config = manager.createConfiguration(deployable);
-        DConfigBeanRoot configRoot = config.getDConfigBeanRoot(deployable.getDDBeanRoot());
-        WebAppDConfigBean contextBean = (WebAppDConfigBean) configRoot.getDConfigBean(deployable.getChildBean("/web-app")[0]);
-        contextBean.setContextRoot("/war2");
+//        WebDeployable deployable = new WebDeployable(war);
+//        DeploymentConfiguration config = manager.createConfiguration(deployable);
+//        DConfigBeanRoot configRoot = config.getDConfigBeanRoot(deployable.getDDBeanRoot());
+//        WebAppDConfigBean contextBean = (WebAppDConfigBean) configRoot.getDConfigBean(deployable.getChildBean("/web-app")[0]);
+//        contextBean.setContextRoot("/war2");
+//
+//        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//        config.save(baos);
+//        plan = baos.toByteArray();
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        config.save(baos);
-        plan = baos.toByteArray();
+        targets = manager.getTargets();
     }
 
     protected void tearDown() throws Exception {

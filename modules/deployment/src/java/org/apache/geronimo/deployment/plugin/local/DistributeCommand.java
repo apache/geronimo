@@ -62,9 +62,11 @@ import java.net.URI;
 import java.util.jar.JarOutputStream;
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.spi.TargetModuleID;
+import javax.enterprise.deploy.spi.Target;
 
 import org.apache.geronimo.deployment.DeploymentModule;
 import org.apache.geronimo.deployment.ModuleDeployer;
+import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 import org.apache.geronimo.deployment.util.FileUtil;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationParent;
@@ -72,15 +74,17 @@ import org.apache.geronimo.kernel.config.ConfigurationParent;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 19:58:16 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/24 21:07:44 $
  */
 public class DistributeCommand extends CommandSupport {
+    private final Target target;
     private final ConfigurationParent parent;
     private final Kernel kernel;
     private final DeploymentModule module;
 
-    public DistributeCommand(ConfigurationParent parent, Kernel kernel, DeploymentModule module) {
+    public DistributeCommand(Target target, ConfigurationParent parent, Kernel kernel, DeploymentModule module) {
         super(CommandType.DISTRIBUTE);
+        this.target = target;
         this.parent = parent;
         this.kernel = kernel;
         this.module = module;
@@ -98,7 +102,7 @@ public class DistributeCommand extends CommandSupport {
             workDir.mkdir();
 
             // convert the module to a Configuration
-            TargetModuleID targetID = module.getModuleID();
+            TargetModuleID targetID = new TargetModuleIDImpl(target, "test");
             URI moduleID = URI.create(targetID.getModuleID());
             ModuleDeployer deployer = new ModuleDeployer(parent, moduleID, workDir);
             deployer.addModule(module);
@@ -109,17 +113,15 @@ public class DistributeCommand extends CommandSupport {
             try {
                 JarOutputStream jos = new JarOutputStream(new BufferedOutputStream(os));
                 deployer.saveConfiguration(jos);
+                jos.flush();
             } finally {
                 os.close();
             }
 
             // install in our local server
             kernel.install(configFile.toURL());
-
-            // load configuration
-            kernel.load(moduleID);
-
-            complete();
+            addModule(targetID);
+            complete("Completed");
         } catch (Exception e) {
             fail(e.getMessage());
         } finally {

@@ -55,6 +55,11 @@
  */
 package org.apache.geronimo.deployment.plugin.local;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 import javax.enterprise.deploy.shared.ActionType;
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.shared.StateType;
@@ -62,29 +67,40 @@ import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.exceptions.OperationUnsupportedException;
 import javax.enterprise.deploy.spi.status.ClientConfiguration;
 import javax.enterprise.deploy.spi.status.DeploymentStatus;
+import javax.enterprise.deploy.spi.status.ProgressEvent;
 import javax.enterprise.deploy.spi.status.ProgressListener;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 19:58:16 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/24 21:07:44 $
  */
 public abstract class CommandSupport implements ProgressObject, Runnable {
     private final CommandType command;
-    private final Status status;
+    private ActionType action;
+    private StateType state;
+    private String message;
+    private final Set listeners = new HashSet();
+    private final List moduleIDs = new ArrayList();
 
     protected CommandSupport(CommandType command) {
         this.command = command;
-        this.status = new Status();
+        this.action = ActionType.EXECUTE;
+        this.state = StateType.RUNNING;
+        this.message = null;
     }
 
-    public TargetModuleID[] getResultTargetModuleIDs() {
-        return new TargetModuleID[0];
+    protected synchronized void addModule(TargetModuleID moduleID) {
+        moduleIDs.add(moduleID);
+    }
+
+    public synchronized TargetModuleID[] getResultTargetModuleIDs() {
+        return (TargetModuleID[]) moduleIDs.toArray(new TargetModuleID[moduleIDs.size()]);
     }
 
     public DeploymentStatus getDeploymentStatus() {
-        return status;
+        return new Status(command, action, state, message);
     }
 
     public ClientConfiguration getClientConfiguration(TargetModuleID id) {
@@ -107,33 +123,70 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
         throw new OperationUnsupportedException("stop not supported");
     }
 
-    public void addProgressListener(ProgressListener pol) {
+    public synchronized void addProgressListener(ProgressListener pol) {
+        listeners.add(pol);
     }
 
-    public void removeProgressListener(ProgressListener pol) {
+    public synchronized void removeProgressListener(ProgressListener pol) {
+        listeners.remove(pol);
     }
 
     protected void setState(StateType state) {
-        status.state = state;
+        Set toNotify;
+        DeploymentStatus newStatus;
+        synchronized (this) {
+            this.state = state;
+            newStatus = getDeploymentStatus();
+            toNotify = listeners;
+        }
+        sendEvent(toNotify, newStatus);
     }
 
     protected void fail(String message) {
-        status.message = message;
-        status.state = StateType.FAILED;
+        Set toNotify;
+        DeploymentStatus newStatus;
+        synchronized (this) {
+            this.message = message;
+            this.state = StateType.FAILED;
+            newStatus = getDeploymentStatus();
+            toNotify = listeners;
+        }
+        sendEvent(toNotify, newStatus);
     }
 
-    protected void complete() {
-        status.state = StateType.COMPLETED;
+    protected synchronized void complete(String message) {
+        Set toNotify;
+        DeploymentStatus newStatus;
+        synchronized (this) {
+            this.message = message;
+            this.state = StateType.COMPLETED;
+            newStatus = getDeploymentStatus();
+            toNotify = listeners;
+        }
+        sendEvent(toNotify, newStatus);
     }
 
-    protected void setMessage(String message) {
-        status.message = message;
+    private void sendEvent(Set toNotify, DeploymentStatus newStatus) {
+        assert !Thread.holdsLock(this) : "Trying to send event whilst holding lock";
+        ProgressEvent event = new ProgressEvent(this, null, newStatus);
+        for (Iterator i = toNotify.iterator(); i.hasNext();) {
+            ProgressListener listener = (ProgressListener) i.next();
+            listener.handleProgressEvent(event);
+        }
     }
 
-    private class Status implements DeploymentStatus {
-        private volatile ActionType action = ActionType.EXECUTE;
-        private volatile StateType state = StateType.RUNNING;
-        private volatile String message;
+    private static class Status implements DeploymentStatus {
+        private final CommandType command;
+        private final ActionType action;
+        private final StateType state;
+        private final String message;
+
+        public Status(CommandType command, ActionType action, StateType state, String message) {
+            this.command = command;
+            this.action = action;
+            this.state = state;
+            this.message = message;
+        }
 
         public CommandType getCommand() {
             return command;
@@ -161,6 +214,18 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
 
         public boolean isFailed() {
             return StateType.FAILED.equals(state);
+        }
+
+        public String toString() {
+            StringBuffer buf = new StringBuffer();
+            buf.append("DeploymentStatus[").append(command).append(',');
+            buf.append(action).append(',');
+            buf.append(state);
+            if (message != null) {
+                buf.append(',').append(message);
+            }
+            buf.append(']');
+            return buf.toString();
         }
     }
 }

@@ -53,28 +53,31 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.plugin.factories;
+package org.apache.geronimo.jetty.deployment;
 
-import java.io.InputStream;
 import java.io.File;
-import javax.enterprise.deploy.model.DeployableObject;
-import javax.enterprise.deploy.spi.DeploymentConfiguration;
-import javax.enterprise.deploy.spi.Target;
-import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
 
-import org.apache.geronimo.deployment.DeploymentModule;
-import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.deployment.util.XMLUtil;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
- *
- *
- * @version $Revision: 1.3 $ $Date: 2004/01/24 21:07:44 $
+ * 
+ * 
+ * @version $Revision: 1.1 $ $Date: 2004/01/24 21:07:44 $
  */
-public interface DeploymentConfigurationFactory {
-    public DeploymentConfiguration createConfiguration(DeployableObject deployable) throws InvalidModuleException;
+public class UnpackedModule extends AbstractModule {
+    public UnpackedModule(File archive, Document doc) {
+        this.uri = archive.toURI();
+        Element contextElement = XMLUtil.getChild(doc.getDocumentElement(), "context-root");
+        if (contextElement == null) {
+            contextPath = archive.getName();
+            if (contextPath.endsWith(".war")) {
+                contextPath = contextPath.substring(0, contextPath.length()-4);
+            }
+        } else {
+            contextPath = (String) XMLUtil.getContent(contextElement);
+        }
+    }
 
-    public DeploymentModule createModule(InputStream moduleArchive, Document deploymentPlan) throws DeploymentException;
-
-    public DeploymentModule createModule(File moduleArchive, Document deploymentPlan) throws DeploymentException;
 }

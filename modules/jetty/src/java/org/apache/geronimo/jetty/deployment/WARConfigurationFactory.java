@@ -55,15 +55,16 @@
  */
 package org.apache.geronimo.jetty.deployment;
 
+import java.io.File;
 import java.io.InputStream;
 import javax.enterprise.deploy.model.DeployableObject;
 import javax.enterprise.deploy.shared.ModuleType;
 import javax.enterprise.deploy.spi.DeploymentConfiguration;
+import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
 
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentModule;
-import org.apache.geronimo.deployment.util.XMLUtil;
 import org.apache.geronimo.deployment.plugin.factories.DeploymentConfigurationFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
@@ -73,7 +74,7 @@ import org.w3c.dom.Element;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/23 19:58:17 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/24 21:07:44 $
  */
 public class WARConfigurationFactory implements DeploymentConfigurationFactory {
     public DeploymentConfiguration createConfiguration(DeployableObject deployable) throws InvalidModuleException {
@@ -90,6 +91,15 @@ public class WARConfigurationFactory implements DeploymentConfigurationFactory {
         }
 
         return new JettyModule(moduleArchive, deploymentPlan);
+    }
+
+    public DeploymentModule createModule(File moduleArchive, Document deploymentPlan) throws DeploymentException {
+        Element root = deploymentPlan.getDocumentElement();
+        if (!"web-app".equals(root.getNodeName())) {
+            return null;
+        }
+
+       return new UnpackedModule(moduleArchive, deploymentPlan);
     }
 
     public static final GBeanInfo GBEAN_INFO;

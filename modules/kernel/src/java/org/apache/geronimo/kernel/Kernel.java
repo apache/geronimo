@@ -106,7 +106,7 @@ import org.apache.geronimo.gbean.jmx.DependencyService;
  * used hold the persistent state of each Configuration. This allows
  * Configurations to restart in he event of system failure.
  *
- * @version $Revision: 1.9 $ $Date: 2004/01/23 16:45:48 $
+ * @version $Revision: 1.10 $ $Date: 2004/01/24 21:07:45 $
  */
 public class Kernel implements Serializable, KernelMBean, NotificationBroadcaster {
 
@@ -216,12 +216,16 @@ public class Kernel implements Serializable, KernelMBean, NotificationBroadcaste
         }
         ObjectName configName;
         try {
-            configName = new ObjectName("geronimo.config:name=" + ObjectName.quote(configID.toString()));
+            configName = getConfigObjectName(configID);
         } catch (MalformedObjectNameException e) {
             throw new InvalidConfigException("Cannot convert ID to ObjectName: ", e);
         }
         load(config, rootURL, configName);
         return configName;
+    }
+
+    public ObjectName getConfigObjectName(URI configID) throws MalformedObjectNameException {
+        return new ObjectName("geronimo.config:name=" + ObjectName.quote(configID.toString()));
     }
 
     /**

@@ -69,24 +69,22 @@ import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import javax.enterprise.deploy.spi.TargetModuleID;
 
 import org.apache.geronimo.deployment.ConfigurationCallback;
+import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentModule;
+import org.apache.geronimo.deployment.util.URLInfo;
+import org.apache.geronimo.deployment.util.URLType;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.deployment.DeploymentException;
-import org.apache.geronimo.deployment.util.URLInfo;
-import org.apache.geronimo.deployment.util.URLType;
 
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/01/23 19:58:17 $
+ * @version $Revision: 1.6 $ $Date: 2004/01/24 21:07:44 $
  */
 public class ServiceModule implements DeploymentModule {
     private final URI moduleID;
@@ -101,9 +99,6 @@ public class ServiceModule implements DeploymentModule {
         this.gbeanDefaults = gbeanDefaults;
     }
 
-    public TargetModuleID getModuleID() {
-        throw new UnsupportedOperationException();
-    }
     public void init() throws DeploymentException {
     }
 

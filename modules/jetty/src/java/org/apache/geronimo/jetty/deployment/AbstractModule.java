@@ -53,28 +53,59 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.plugin.factories;
+package org.apache.geronimo.jetty.deployment;
 
-import java.io.InputStream;
-import java.io.File;
-import javax.enterprise.deploy.model.DeployableObject;
-import javax.enterprise.deploy.spi.DeploymentConfiguration;
-import javax.enterprise.deploy.spi.Target;
-import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
+import java.util.Properties;
+import java.util.Collections;
+import java.net.URI;
+import javax.enterprise.deploy.spi.TargetModuleID;
+import javax.management.ObjectName;
 
 import org.apache.geronimo.deployment.DeploymentModule;
 import org.apache.geronimo.deployment.DeploymentException;
-import org.w3c.dom.Document;
+import org.apache.geronimo.deployment.ConfigurationCallback;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.jetty.JettyWebApplicationContext;
 
 /**
- *
- *
- * @version $Revision: 1.3 $ $Date: 2004/01/24 21:07:44 $
+ * 
+ * 
+ * @version $Revision: 1.1 $ $Date: 2004/01/24 21:07:44 $
  */
-public interface DeploymentConfigurationFactory {
-    public DeploymentConfiguration createConfiguration(DeployableObject deployable) throws InvalidModuleException;
+public class AbstractModule implements DeploymentModule {
+    protected URI uri;
+    protected String contextPath;
 
-    public DeploymentModule createModule(InputStream moduleArchive, Document deploymentPlan) throws DeploymentException;
+    public void init() throws DeploymentException {
+    }
 
-    public DeploymentModule createModule(File moduleArchive, Document deploymentPlan) throws DeploymentException;
+    public void generateClassPath(ConfigurationCallback callback) throws DeploymentException {
+    }
+
+    public void defineGBeans(ConfigurationCallback callback, ClassLoader cl) throws DeploymentException {
+        try {
+            // @todo tie name to configuration
+            Properties nameProps = new Properties();
+            nameProps.put("J2EEServer", "null");
+            nameProps.put("J2EEApplication", "null");
+            nameProps.put("J2EEType", "WebModule");
+            nameProps.put("Path", contextPath);
+            ObjectName name = new ObjectName("geronimo.jetty", nameProps);
+
+            GBeanMBean app = new GBeanMBean(JettyWebApplicationContext.GBEAN_INFO);
+            app.setAttribute("URI", uri);
+            app.setAttribute("ContextPath", contextPath);
+            app.setAttribute("ComponentContext", null);
+            app.setAttribute("PolicyContextID", null);
+            app.setEndpointPatterns("JettyContainer", Collections.singleton(new ObjectName("geronimo.web:type=WebContainer,container=Jetty"))); // @todo configurable
+            app.setEndpointPatterns("TransactionManager", Collections.EMPTY_SET);
+            app.setEndpointPatterns("TrackedConnectionAssociator", Collections.EMPTY_SET);
+            callback.addGBean(name, app);
+        } catch (Exception e) {
+            throw new DeploymentException("Unable to build GBean for web application", e);
+        }
+    }
+
+    public void complete() {
+    }
 }

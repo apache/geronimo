@@ -65,7 +65,6 @@ import javax.management.MBeanException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
-import javax.enterprise.deploy.spi.TargetModuleID;
 
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 import org.apache.geronimo.connector.ResourceAdapterWrapper;
@@ -88,7 +87,7 @@ import org.apache.geronimo.kernel.Kernel;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/23 19:58:16 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/24 21:07:44 $
  *
  * */
 public class ConnectorModule implements DeploymentModule {
@@ -107,10 +106,6 @@ public class ConnectorModule implements DeploymentModule {
         this.moduleID = moduleID;
         this.geronimoConnectorDocument = geronimoConnectorDocument;
         this.connectorDeployer = connectorDeployer;
-    }
-
-    public TargetModuleID getModuleID() {
-        throw new UnsupportedOperationException();
     }
 
     public void init() throws DeploymentException {

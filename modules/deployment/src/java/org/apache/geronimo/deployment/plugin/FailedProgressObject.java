@@ -53,28 +53,23 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.plugin.factories;
+package org.apache.geronimo.deployment.plugin;
 
-import java.io.InputStream;
-import java.io.File;
-import javax.enterprise.deploy.model.DeployableObject;
-import javax.enterprise.deploy.spi.DeploymentConfiguration;
-import javax.enterprise.deploy.spi.Target;
-import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
+import javax.enterprise.deploy.shared.CommandType;
 
-import org.apache.geronimo.deployment.DeploymentModule;
-import org.apache.geronimo.deployment.DeploymentException;
-import org.w3c.dom.Document;
+import org.apache.geronimo.deployment.plugin.local.CommandSupport;
 
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/24 21:07:44 $
+ * @version $Revision: 1.1 $ $Date: 2004/01/24 21:07:44 $
  */
-public interface DeploymentConfigurationFactory {
-    public DeploymentConfiguration createConfiguration(DeployableObject deployable) throws InvalidModuleException;
+public class FailedProgressObject extends CommandSupport {
+    public FailedProgressObject(CommandType command, String message) {
+        super(command);
+        fail(message);
+    }
 
-    public DeploymentModule createModule(InputStream moduleArchive, Document deploymentPlan) throws DeploymentException;
-
-    public DeploymentModule createModule(File moduleArchive, Document deploymentPlan) throws DeploymentException;
+    public void run() {
+    }
 }

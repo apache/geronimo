@@ -66,24 +66,33 @@ import org.apache.geronimo.deployment.DeploymentException;
 /**
  * A module representing a resource being deployed. The deployer will call each
  * method once in the sequence:
- * <li>init</li>
- * <li>generateClassPath</li>
- * <li>defineGBeans</li>
- * <li>complete</li>
+ * <code>
+ * try {
+ *   foreach module {
+ *       module.init();
+ *   }
+ *   foreach module {
+ *       module.generateClassPath(this);
+ *   }
+ *   ClassLoader parent = ... ; // get classloader from parent config
+ *   ClassLoader cl = new ClassLoader(classPathURLs, parent);
+ *   foreach module {
+ *       module.defineGBeans(this, cl);
+ *   }
+ * } finally {
+ *   foreach module {
+ *       module.complete();
+ *   }
+ * }
+ * </code>
  *
  * Once deployment starts, complete() method must always be called even if
  * problems in the deployment process prevent the other methods being called.
  * complete() may be called without a prior call to init().
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/23 19:58:16 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/24 21:07:44 $
  */
 public interface DeploymentModule {
-    /**
-     * Get the JSR88 TargetModuleID for this module
-     * @return the moduleID
-     */
-    TargetModuleID getModuleID();
-
     /**
      * Indication to this module that the deployment process is starting.
      */

@@ -65,6 +65,7 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import javax.enterprise.deploy.model.DeployableObject;
+import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.shared.DConfigBeanVersionType;
 import javax.enterprise.deploy.shared.ModuleType;
 import javax.enterprise.deploy.spi.DeploymentConfiguration;
@@ -81,6 +82,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentModule;
 import org.apache.geronimo.deployment.plugin.factories.DeploymentConfigurationFactory;
+import org.apache.geronimo.deployment.plugin.local.CommandSupport;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
@@ -90,7 +92,7 @@ import org.w3c.dom.Document;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/23 19:58:16 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/24 21:07:44 $
  */
 public class DeploymentManagerImpl implements DeploymentManager {
     private final DeploymentServer server;
@@ -179,12 +181,26 @@ public class DeploymentManagerImpl implements DeploymentManager {
     }
 
     public ProgressObject distribute(Target[] targetList, File moduleArchive, File deploymentPlan) throws IllegalStateException {
+        Document doc;
         try {
-            return distribute(targetList, new FileInputStream(moduleArchive), new FileInputStream(deploymentPlan));
-        } catch (FileNotFoundException e) {
-            // @todo should this return a "failed" progress object?
-            throw new IllegalStateException();
+            DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            doc = parser.parse(deploymentPlan);
+        } catch (Exception e) {
+            return new FailedProgressObject(CommandType.DISTRIBUTE, e.getMessage());
         }
+        DeploymentModule module = null;
+        for (Iterator i = configurationFactories.values().iterator(); i.hasNext();) {
+            DeploymentConfigurationFactory factory = (DeploymentConfigurationFactory) i.next();
+            try {
+                module = factory.createModule(moduleArchive, doc);
+            } catch (DeploymentException e) {
+                return new FailedProgressObject(CommandType.DISTRIBUTE, e.getMessage());
+            }
+        }
+        if (module == null) {
+            return new FailedProgressObject(CommandType.DISTRIBUTE, "No deployer found for supplied plan");
+        }
+        return server.distribute(targetList, module);
     }
 
     public ProgressObject distribute(Target[] targetList, InputStream moduleArchive, InputStream deploymentPlan) throws IllegalStateException {
@@ -193,8 +209,7 @@ public class DeploymentManagerImpl implements DeploymentManager {
             DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             doc = parser.parse(deploymentPlan);
         } catch (Exception e) {
-            // @todo failed ProgressObject?
-            throw new IllegalStateException();
+            return new FailedProgressObject(CommandType.DISTRIBUTE, e.getMessage());
         }
         DeploymentModule module = null;
         for (Iterator i = configurationFactories.values().iterator(); i.hasNext();) {
@@ -202,13 +217,11 @@ public class DeploymentManagerImpl implements DeploymentManager {
             try {
                 module = factory.createModule(moduleArchive, doc);
             } catch (DeploymentException e) {
-                // @todo failed ProgressObject?
-                throw new IllegalStateException();
+                return new FailedProgressObject(CommandType.DISTRIBUTE, e.getMessage());
             }
         }
         if (module == null) {
-            // @todo failed ProgressObject?
-            throw new IllegalStateException();
+            return new FailedProgressObject(CommandType.DISTRIBUTE, "No deployer found for supplied plan");
         }
         return server.distribute(targetList, module);
     }

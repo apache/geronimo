@@ -56,6 +56,7 @@
 package org.apache.geronimo.deployment.plugin.application;
 
 import java.io.InputStream;
+import java.io.File;
 import javax.enterprise.deploy.model.DeployableObject;
 import javax.enterprise.deploy.spi.DeploymentConfiguration;
 import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
@@ -72,7 +73,7 @@ import org.w3c.dom.Document;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/23 19:58:16 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/24 21:07:44 $
  */
 public class EARConfigurationFactory implements DeploymentConfigurationFactory {
     public DeploymentConfiguration createConfiguration(DeployableObject deployable) throws InvalidModuleException {
@@ -83,6 +84,10 @@ public class EARConfigurationFactory implements DeploymentConfigurationFactory {
     }
 
     public DeploymentModule createModule(InputStream moduleArchive, Document deploymentPlan) throws DeploymentException {
+        throw new UnsupportedOperationException();
+    }
+
+    public DeploymentModule createModule(File moduleArchive, Document deploymentPlan) throws DeploymentException {
         throw new UnsupportedOperationException();
     }
 
