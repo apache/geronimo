@@ -56,21 +56,21 @@
 
 package org.apache.geronimo.test.protocol.mockproto;
 
-import java.io.StringBufferInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 /**
  * A mock input stream for mockproto urls.
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/01 20:38:49 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/01 21:08:34 $
  */
 public final class MockInputStream
-    extends StringBufferInputStream
+    extends ByteArrayInputStream
 {
     private MockURLConnection conn;
 
     public MockInputStream(MockURLConnection conn, String s) {
-        super(s);
+        super(s.getBytes());
         this.conn = conn;
     }
 
