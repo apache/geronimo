@@ -65,7 +65,7 @@ import java.util.Map;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/12 01:38:55 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/16 02:18:06 $
  */
 public class GConstructorInfo implements Serializable {
     private final List attributeNames;
@@ -73,6 +73,7 @@ public class GConstructorInfo implements Serializable {
     private final Map attributeTypeMap;
 
     public GConstructorInfo(List attributeNames, List types) {
+        assert attributeNames.size() == types.size(): "name count: " + attributeNames.size() + " does not match type count: " + types.size();
         // todo check of null types and names
         // todo check that is a name is listed twice that is has the same type each time
         this.attributeNames = Collections.unmodifiableList(attributeNames);
