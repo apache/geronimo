@@ -4,6 +4,28 @@
     version="1.5"
     configId="org/apache/geronimo/DefaultDatabase"
     parentId="org/apache/geronimo/Server">
+
+    <dependency>
+        <uri>axion/jars/axion-1.0-M3-dev.jar</uri>
+    </dependency>
+
+    <!--used by geronimo directly
+    <dependency>
+        <uri>commons-logging/jars/commons-logging-1.0.3.jar</uri>
+    </dependency>-->
+
+    <dependency>
+        <uri>commons-collections/jars/commons-collections-2.1.jar</uri>
+    </dependency>
+
+    <dependency>
+        <uri>commons-primitives/jars/commons-primitives-1.0.jar</uri>
+    </dependency>
+
+    <dependency>
+        <uri>regexp/jars/regexp-1.3.jar</uri>
+    </dependency>
+
     <resourceadapter>
         <outbound-resourceadapter>
             <connection-definition>
