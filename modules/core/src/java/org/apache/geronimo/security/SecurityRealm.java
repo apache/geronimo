@@ -64,9 +64,11 @@ import java.util.Set;
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2003/12/28 19:34:05 $
+ * @version $Revision: 1.3 $ $Date: 2003/12/28 20:13:06 $
  */
 public interface SecurityRealm {
+
+    static final String BASE_OBJECT_NAME="geronimo.security:type=SecurityRealm";
 
     public String getRealmName();
 

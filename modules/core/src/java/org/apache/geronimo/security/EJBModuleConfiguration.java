@@ -76,9 +76,11 @@ import java.lang.reflect.InvocationTargetException;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/12/28 19:34:05 $
+ * @version $Revision: 1.4 $ $Date: 2003/12/28 20:13:06 $
  */
 public class EJBModuleConfiguration extends AbstractModuleConfiguration {
+
+    public static final String BASE_OBJECT_NAME = "geronimo.security:type=EJBModuleConfiguration";
 
     public EJBModuleConfiguration(String contextId, EjbJar ejbJar) throws GeronimoSecurityException {
         super(contextId);

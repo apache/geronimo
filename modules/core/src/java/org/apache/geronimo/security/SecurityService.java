@@ -76,7 +76,7 @@ import org.apache.geronimo.security.util.ConfigurationUtil;
 /**
  * An MBean that maintains a list of security realms.
  *
- * @version $Revision: 1.3 $ $Date: 2003/12/28 19:34:05 $
+ * @version $Revision: 1.4 $ $Date: 2003/12/28 20:13:06 $
  */
 public class SecurityService  {
 
@@ -110,9 +110,9 @@ public class SecurityService  {
                     new GeronimoParameterInfo("remove", Boolean.TYPE, "")},
                 GeronimoOperationInfo.ACTION_INFO,
                 "Get security configuration for web module identified by contextID"));
-        mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("Realms", SecurityRealm.class, ObjectName.getInstance("geronimo.security:type=SecurityRealm,*")));
-        mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("EJBModuleConfigurations", EJBModuleConfiguration.class, ObjectName.getInstance("geronimo.security:Type=EJBModuleConfiguration,*")));
-        mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("WebModuleConfigurations", WebModuleConfiguration.class, ObjectName.getInstance("geronimo.security:Type=WebModuleConfiguration,*")));
+        mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("Realms", SecurityRealm.class, ObjectName.getInstance(SecurityRealm.BASE_OBJECT_NAME + ",*")));
+        mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("EJBModuleConfigurations", EJBModuleConfiguration.class, ObjectName.getInstance(EJBModuleConfiguration.BASE_OBJECT_NAME + ",*")));
+        mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("WebModuleConfigurations", WebModuleConfiguration.class, ObjectName.getInstance(WebModuleConfiguration.BASE_OBJECT_NAME + ",*")));
         return mbeanInfo;
     }
 
