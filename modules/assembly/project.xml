@@ -17,7 +17,7 @@
 -->
 
 
-<!-- $Revision: 1.28 $ $Date: 2004/06/25 21:29:34 $ -->
+<!-- $Revision: 1.29 $ $Date: 2004/07/06 17:20:47 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -206,7 +206,7 @@
         </dependency>
 
         <dependency>
-             <groupId>howl</groupId>
+            <groupId>howl</groupId>
             <artifactId>howl-logger</artifactId>
             <version>0.1.3</version>
             <url>http://forge.objectweb.org/projects/howl</url>
@@ -474,22 +474,14 @@
             </properties>
         </dependency>
 
-      <dependency>
-          <groupId>tranql</groupId>
-          <artifactId>tranql</artifactId>
-          <version>1.0-SNAPSHOT</version>
-          <properties>
-              <repository>true</repository>
-          </properties>
-      </dependency>
+        <dependency>
+            <groupId>tranql</groupId>
+            <artifactId>tranql</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
 
-      <dependency>
-          <groupId>activemq</groupId>
-          <artifactId>activemq</artifactId>
-          <version>1.0-SNAPSHOT</version>
-          <properties>
-              <repository>true</repository>
-          </properties>
-      </dependency>
     </dependencies>
 </project>
