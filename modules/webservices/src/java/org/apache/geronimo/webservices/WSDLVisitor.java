@@ -19,6 +19,7 @@ package org.apache.geronimo.webservices;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import javax.wsdl.*;
 import javax.wsdl.extensions.soap.SOAPBody;
 import javax.wsdl.extensions.soap.SOAPBinding;
@@ -35,10 +36,14 @@ public class WSDLVisitor {
         begin();
         try {
             visit(definition);
-            Collection imports = definition.getImports().values();
-            for (Iterator iterator = imports.iterator(); iterator.hasNext();) {
-                Import wsdlImport = (Import) iterator.next();
-                visit(wsdlImport);
+            for (Iterator iterator = definition.getImports().entrySet().iterator(); iterator.hasNext();) {
+                Map.Entry entry = (Map.Entry) iterator.next();
+                String namespaceURI = (String) entry.getKey();
+                List importsForNamespace = (List) entry.getValue();
+                for (Iterator iterator1 = importsForNamespace.iterator(); iterator1.hasNext();) {
+                    Import anImport = (Import) iterator1.next();
+                    visit(anImport);
+                }
             }
             visit(definition.getTypes());
             Collection messages = definition.getMessages().values();
