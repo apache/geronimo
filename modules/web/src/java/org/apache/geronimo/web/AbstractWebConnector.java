@@ -12,8 +12,8 @@ import java.util.List;
  *
  * Created: Mon Sep  8 20:39:02 2003
  * @jmx:mbean extends="org.apache.geronimo.web.WebConnector, org.apache.geronimo.kernel.management.StateManageable"
- * @author <a href="mailto:janb@mortbay.com">Jan Bartel</a>
- * @version 1.0
+ * 
+ * @version $Revision: 1.2 $ $Date: 2003/09/29 13:12:45 $
  */
 public abstract class AbstractWebConnector extends AbstractComponent implements WebConnector, AbstractWebConnectorMBean
 {
