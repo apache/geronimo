@@ -63,13 +63,13 @@ import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.common.State;
 import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.management.j2ee.State;
 
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/18 22:05:55 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/18 22:31:23 $
  */
 public class DestroyMBeanInstance implements DeploymentTask {
     private final Log log = LogFactory.getLog(this.getClass());
