@@ -25,7 +25,7 @@ import java.io.File;
 import java.security.cert.Certificate;
 
 /**
- * @version $Revision$ $Date$
+ * @version $Rev$ $Date$
  */
 public class UnpackedJarEntry extends JarEntry {
     private final File file;

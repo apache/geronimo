@@ -44,6 +44,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.deployment.util.FileUtil;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlObject;
@@ -192,16 +193,17 @@ public class Deployer {
 
         try {
             if (cmd.module == null) {
-                builder.buildConfiguration(cmd.carfile, manifest, (InputStream) null, plan);
+                builder.buildConfiguration(cmd.carfile, manifest, null, plan);
             } else if ("file".equals(cmd.module.getProtocol())) {
                 File module = new File(new URI(cmd.module.toString()));
                 builder.buildConfiguration(cmd.carfile, manifest, module, plan);
             } else if (cmd.module.toString().endsWith("/")) {
                 throw new DeploymentException("Unpacked modules must be files");
             } else {
+                File tempFile;
                 InputStream moduleStream = cmd.module.openStream();
                 try {
-                    builder.buildConfiguration(cmd.carfile, manifest, moduleStream, plan);
+                    tempFile = FileUtil.toTempFile(moduleStream);
                 } finally {
                     try {
                         moduleStream.close();
@@ -209,6 +211,7 @@ public class Deployer {
                         // ignore
                     }
                 }
+                builder.buildConfiguration(cmd.carfile, manifest, tempFile, plan);
             }
 
             try {

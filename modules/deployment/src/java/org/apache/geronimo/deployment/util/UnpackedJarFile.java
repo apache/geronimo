@@ -34,7 +34,7 @@ import java.util.zip.ZipEntry;
 import java.net.URI;
 
 /**
- * @version $Revision$ $Date$
+ * @version $Rev$ $Date$
  */
 public class UnpackedJarFile extends JarFile {
     private static final File dummyJarFile;
@@ -64,6 +64,10 @@ public class UnpackedJarFile extends JarFile {
         }
     }
 
+    public File getBaseDir() {
+        return baseDir;
+    }
+
     public Manifest getManifest() throws IOException {
         if (manifestLoaded) {
             File manifestFile = getFile("META-INF/MANIFEST.MF");
@@ -88,7 +92,7 @@ public class UnpackedJarFile extends JarFile {
         return manifest;
     }
 
-    public JarEntry getJarEntry(String name) {
+    public UnpackedJarEntry getUnpackedJarEntry(String name) {
         File file = getFile(name);
         if (file == null) {
             return null;
@@ -96,8 +100,12 @@ public class UnpackedJarFile extends JarFile {
         return new UnpackedJarEntry(name, file, getManifestSafe());
     }
 
+    public JarEntry getJarEntry(String name) {
+        return getUnpackedJarEntry(name);
+    }
+
     public ZipEntry getEntry(String name) {
-        return getJarEntry(name);
+        return getUnpackedJarEntry(name);
     }
 
     public Enumeration entries() {

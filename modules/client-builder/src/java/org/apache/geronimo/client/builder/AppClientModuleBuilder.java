@@ -25,11 +25,8 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.jar.Attributes;
@@ -43,6 +40,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.client.AppClientContainer;
+import org.apache.geronimo.client.AppClientJNDIProvider;
 import org.apache.geronimo.common.xml.XmlBeansUtil;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.DeploymentException;
@@ -198,19 +196,13 @@ public class AppClientModuleBuilder implements ModuleBuilder {
     public void installModule(File earFolder, EARContext earContext, Module appClientModule) throws DeploymentException {
         File appClientFolder = new File(earFolder, appClientModule.getURI().toString());
 
-        InstallCallback callback;
-        if (appClientFolder.isDirectory()) {
-            callback = new UnPackedInstallCallback(appClientModule, appClientFolder);
-        } else {
-            JarFile appClientFile;
-            try {
-                appClientFile = new JarFile(appClientFolder);
-            } catch (IOException e) {
-                throw new DeploymentException("Can not create application File file " + appClientFolder, e);
-            }
-            callback = new PackedInstallCallback(appClientModule, appClientFile);
+        JarFile appClientFile;
+        try {
+            appClientFile = new JarFile(appClientFolder);
+        } catch (IOException e) {
+            throw new DeploymentException("Can not create application File file " + appClientFolder, e);
         }
-        installModule(callback, earContext, appClientModule);
+        installModule(appClientFile, appClientModule);
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module appClientModule) throws DeploymentException {
@@ -230,24 +222,30 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         } catch (IOException e) {
             throw new DeploymentException("Problem deploying applicaiton client", e);
         }
-        InstallCallback callback = new PackedInstallCallback(appClientModule, appClientFile);
-        installModule(callback, earContext, appClientModule);
+        installModule(appClientFile, appClientModule);
     }
 
-    private void installModule(InstallCallback callback, EARContext earContext, Module appClientModule) throws DeploymentException {
+    private void installModule(JarFile appClientFile, Module appClientModule) throws DeploymentException {
         URI moduleBase;
         if (!appClientModule.getURI().equals(URI.create("/"))) {
             moduleBase = URI.create(appClientModule.getURI() + "/");
         } else {
-            moduleBase = URI.create("war/");
+            moduleBase = URI.create("client/");
         }
         try {
             // load the application-client.xml file
             ApplicationClientType appClient;
             try {
-                // todo what is this install callback stuff
-                InputStream ddInputStream = callback.getWebDD();
-                appClient = getAppClientDocument(ddInputStream).getApplicationClient();
+                // check if we have an alt spec dd
+                InputStream in = appClientModule.openAltSpecDD();
+                if (in == null) {
+                    JarEntry entry = appClientFile.getJarEntry("META-INF/application-client.xml");
+                    if (entry == null) {
+                        throw new DeploymentException("No META-INF/application-client.xml in module [" + appClientModule.getName() + "]");
+                    }
+                    in = appClientFile.getInputStream(entry);
+                }
+                appClient = getAppClientDocument(in).getApplicationClient();
                 appClientModule.setSpecDD(appClient);
             } catch (XmlException e) {
                 throw new DeploymentException("Unable to parse " +
@@ -260,11 +258,17 @@ public class AppClientModuleBuilder implements ModuleBuilder {
             GerApplicationClientType geronimoAppClient = (GerApplicationClientType) appClientModule.getVendorDD();
             if (geronimoAppClient == null) {
                 try {
-                    // todo what is this install callback stuff
-                    InputStream geronimoAppClientDDInputStream = callback.getGeronimoJettyDD();
+                    InputStream in = appClientModule.openAltVendorDD();
+                    if (null == in) {
+                        JarEntry entry = appClientFile.getJarEntry("META-INF/geronimo-application-client.xml");
+                        if (entry == null) {
+                            throw new DeploymentException("No META-INF/geronimo-application-client.xml in module [" + appClientModule.getName() + "]");
+                        }
+                        in = appClientFile.getInputStream(entry);
+                    }
                     GerApplicationClientDocument geronimoAppClientDoc;
-                    if (geronimoAppClientDDInputStream != null) {
-                        geronimoAppClientDoc = (GerApplicationClientDocument) XmlBeansUtil.parse(geronimoAppClientDDInputStream, GerApplicationClientDocument.type);
+                    if (in != null) {
+                        geronimoAppClientDoc = (GerApplicationClientDocument) XmlBeansUtil.parse(in, GerApplicationClientDocument.type);
                     } else {
                         geronimoAppClientDoc = newGerApplicationClientDocument(appClient, moduleBase.toString());
                     }
@@ -277,15 +281,6 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                             appClientModule.getAltVendorDD().toString()), e);
                 }
             }
-
-            // add the applicationClient's content to the configuration
-            callback.installInEARContext(earContext, moduleBase);
-
-            // add the dependencies declared in the geronimo-jetty.xml file
-            GerDependencyType[] dependencies = geronimoAppClient.getDependencyArray();
-            for (int i = 0; i < dependencies.length; i++) {
-                earContext.addDependency(getDependencyURI(dependencies[i]));
-            }
         } catch (IOException e) {
             throw new DeploymentException("Problem deploying war", e);
         }
@@ -295,8 +290,12 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         // application clients do not add anything to the shared context
     }
 
-    public void addGBeans(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
+    public void addGBeans(EARContext earContext, Module module, ClassLoader earClassLoader) throws DeploymentException {
         AppClientModule appClientModule = (AppClientModule) module;
+
+        ApplicationClientType appClient = (ApplicationClientType) appClientModule.getSpecDD();
+        GerApplicationClientType geronimoAppClient = (GerApplicationClientType) appClientModule.getVendorDD();
+
         URI appClientModuleLocation;
         if (!appClientModule.getURI().equals(URI.create("/"))) {
             appClientModuleLocation = appClientModule.getURI();
@@ -310,36 +309,36 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         nameProps.put("J2EEApplication", earContext.getJ2EEApplicationName());
         nameProps.put("j2eeType", "AppClientModule");
         nameProps.put("name", appClientModule.getName());
-        ObjectName appClientModuleObjectName;
+        ObjectName appClientModuleName;
         try {
-            appClientModuleObjectName = new ObjectName(earContext.getJ2EEDomainName(), nameProps);
+            appClientModuleName = new ObjectName(earContext.getJ2EEDomainName(), nameProps);
         } catch (MalformedObjectNameException e) {
             throw new DeploymentException("Unable to construct ObjectName", e);
         }
 
-        GBeanMBean appClientModuleGBean = new GBeanMBean(J2EEAppClientModuleImpl.GBEAN_INFO, cl);
+        GBeanMBean appClientModuleGBean = new GBeanMBean(J2EEAppClientModuleImpl.GBEAN_INFO, earClassLoader);
         try {
             appClientModuleGBean.setReferencePatterns("J2EEServer", Collections.singleton(earContext.getServerObjectName()));
             if (!earContext.getJ2EEApplicationName().equals("null")) {
                 appClientModuleGBean.setReferencePatterns("J2EEApplication", Collections.singleton(earContext.getApplicationObjectName()));
             }
             appClientModuleGBean.setAttribute("deploymentDescriptor", null);
+
+            ReadOnlyContext componentContext = buildComponentContext(earContext, appClientModule, appClient, geronimoAppClient, earClassLoader);
+            appClientModuleGBean.setAttribute("componentContext", componentContext);
         } catch (Exception e) {
             throw new DeploymentException("Unable to initialize AppClientModule GBean", e);
         }
-        earContext.addGBean(appClientModuleObjectName, appClientModuleGBean);
+        earContext.addGBean(appClientModuleName, appClientModuleGBean);
 
-        // Create a new executable jar within the earcontext
-        ApplicationClientType appClient = (ApplicationClientType) appClientModule.getSpecDD();
-        GerApplicationClientType geronimoAppClient = (GerApplicationClientType) appClientModule.getVendorDD();
-
+        // Create a new executable jar within the ear context
         JarOutputStream earOutputStream = earContext.getJos();
         try {
             Manifest manifest = new Manifest();
             Attributes mainAttributes = manifest.getMainAttributes();
             mainAttributes.putValue(Attributes.Name.MANIFEST_VERSION.toString(), "1.0");
             mainAttributes.putValue(Attributes.Name.MAIN_CLASS.toString(), "org.apache.geronimo.system.main.CommandLine");
-            mainAttributes.putValue(CommandLineManifest.MAIN_GBEAN.toString(), appClientModuleObjectName.getCanonicalName());
+            mainAttributes.putValue(CommandLineManifest.MAIN_GBEAN.toString(), appClientModuleName.getCanonicalName());
             mainAttributes.putValue(CommandLineManifest.MAIN_METHOD.toString(), "deploy");
             mainAttributes.putValue(CommandLineManifest.CONFIGURATIONS.toString(), CONFIG_ID.toString());
 
@@ -387,6 +386,10 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 appClientDeploymentContext.addDependency(getDependencyURI(dependencies[i]));
             }
 
+//            // add the application client jar content to the configuration
+//            callback.installInEARContext(earContext, moduleBase);
+
+
             ClassLoader appClientClassLoader = appClientDeploymentContext.getClassLoader(repository);
 
             if (geronimoAppClient != null) {
@@ -396,17 +399,29 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 }
             }
 
-            ReadOnlyContext componentContext = buildComponentContext(earContext, appClientModule, appClient, geronimoAppClient, appClientClassLoader);
-            GBeanMBean appClienContainerGBean = new GBeanMBean(AppClientContainer.GBEAN_INFO, cl);
+            ObjectName jndiProviderName = ObjectName.getInstance("client:type=JNDIProvider");
+            GBeanMBean jndiProvicerGBean = new GBeanMBean(AppClientJNDIProvider.GBEAN_INFO, earClassLoader);
             try {
-                appClientModuleGBean.setAttribute("componentContext", componentContext);
+                jndiProvicerGBean.setAttribute("host", "localhost");
+                jndiProvicerGBean.setAttribute("port", new Integer(4201));
             } catch (Exception e) {
                 throw new DeploymentException("Unable to initialize AppClientModule GBean", e);
             }
-            appClientDeploymentContext.addGBean(appClientModuleObjectName, appClienContainerGBean);
+            appClientDeploymentContext.addGBean(jndiProviderName, jndiProvicerGBean);
+
+            ObjectName appClienContainerName = ObjectName.getInstance("client:type=ClientContainer");
+            GBeanMBean appClienContainerGBean = new GBeanMBean(AppClientContainer.GBEAN_INFO, earClassLoader);
+            try {
+                appClienContainerGBean.setAttribute("mainClassName", null);
+                appClienContainerGBean.setAttribute("appClientModuleName", appClientModuleName);
+                appClienContainerGBean.setReferencePattern("JNDIProvider", jndiProviderName);
+            } catch (Exception e) {
+                throw new DeploymentException("Unable to initialize AppClientModule GBean", e);
+            }
+            appClientDeploymentContext.addGBean(appClienContainerName, appClienContainerGBean);
 
             appClientDeploymentContext.close();
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new DeploymentException(e);
         } finally {
             try {
@@ -484,131 +499,51 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         return uri;
     }
 
-    private static abstract class InstallCallback {
+    private static final class PackedInstallCallback {
 
-        protected final Module webModule;
+        private final JarFile appClientFile;
+        private final Module appClientModule;
 
-        private InstallCallback(Module webModule) {
-            this.webModule = webModule;
-        }
-
-        public abstract void installInEARContext(EARContext earContext, URI moduleBase) throws DeploymentException, IOException;
-
-        public InputStream getWebDD() throws DeploymentException, IOException {
-            if (null == webModule.getAltSpecDD()) {
-                return null;
-            }
-            return webModule.getAltSpecDD().openStream();
-        }
-
-        public InputStream getGeronimoJettyDD() throws DeploymentException, IOException {
-            if (null == webModule.getAltVendorDD()) {
-                return null;
-            }
-            return webModule.getAltVendorDD().openStream();
-        }
-
-    }
-
-    private static final class UnPackedInstallCallback extends InstallCallback {
-
-        private final File webFolder;
-
-        private UnPackedInstallCallback(Module webModule, File webFolder) {
-            super(webModule);
-            this.webFolder = webFolder;
-        }
-
-        public void installInEARContext(EARContext earContext, URI moduleBase) throws IOException {
-            URI warRoot = webFolder.toURI();
-            // add the warfile's content to the configuration
-            Collection files = new ArrayList();
-            FileUtil.listRecursiveFiles(webFolder, files);
-            for (Iterator iter = files.iterator(); iter.hasNext();) {
-                File file = (File) iter.next();
-                URI fileURI = warRoot.relativize(file.toURI());
-                URI target = moduleBase.resolve(fileURI);
-                // TODO gets rid of these tests when Jetty will use the
-                // serialized Geronimo DD.
-                if (fileURI.equals("WEB-INF/web.xml") &&
-                        null != webModule.getAltSpecDD()) {
-                } else {
-                    earContext.addFile(target, file);
-                }
-            }
-        }
-
-        public InputStream getWebDD() throws DeploymentException, IOException {
-            InputStream in = super.getWebDD();
-            if (null != in) {
-                return in;
-            }
-            File webAppFile = new File(webFolder, "WEB-INF/web.xml");
-            if (!webAppFile.exists()) {
-                throw new DeploymentException("No WEB-INF/web.xml in module [" + webModule.getName() + "]");
-            }
-            return new FileInputStream(webAppFile);
-        }
-
-        public InputStream getGeronimoJettyDD() throws DeploymentException, IOException {
-            InputStream in = super.getGeronimoJettyDD();
-            if (null != in) {
-                return in;
-            }
-            File jettyWebAppFile = new File(webFolder, "WEB-INF/geronimo-jetty.xml");
-            if (jettyWebAppFile.exists()) {
-                return new FileInputStream(jettyWebAppFile);
-            }
-            return null;
-        }
-
-    }
-
-    private static final class PackedInstallCallback extends InstallCallback {
-
-        private final JarFile webAppFile;
 
         private PackedInstallCallback(Module webModule, JarFile webAppFile) {
-            super(webModule);
-            this.webAppFile = webAppFile;
+            this.appClientModule = webModule;
+            this.appClientFile = webAppFile;
         }
 
         public void installInEARContext(EARContext earContext, URI moduleBase) throws IOException {
-            JarInputStream jarIS = new JarInputStream(new FileInputStream(webAppFile.getName()));
+            JarInputStream jarIS = new JarInputStream(new FileInputStream(appClientFile.getName()));
+
             for (JarEntry entry; (entry = jarIS.getNextJarEntry()) != null; jarIS.closeEntry()) {
                 URI target = moduleBase.resolve(entry.getName());
-                // TODO gets rid of these tests when Jetty will use the
-                // serialized Geronimo DD.
-                if (entry.getName().equals("WEB-INF/web.xml") &&
-                        null != webModule.getAltSpecDD()) {
-                } else {
-                    earContext.addFile(target, jarIS);
-                }
+                earContext.addFile(target, jarIS);
             }
         }
 
-        public InputStream getWebDD() throws DeploymentException, IOException {
-            InputStream in = super.getWebDD();
-            if (null != in) {
+        public InputStream openSpecDD() throws DeploymentException, IOException {
+            // check if we have an alt spec dd
+            InputStream in = appClientModule.openAltSpecDD();
+            if (in != null) {
                 return in;
             }
-            JarEntry entry = webAppFile.getJarEntry("WEB-INF/web.xml");
+
+            JarEntry entry = appClientFile.getJarEntry("META-INF/application-client.xml");
             if (entry == null) {
-                throw new DeploymentException("No WEB-INF/web.xml in module [" + webModule.getName() + "]");
+                throw new DeploymentException("No META-INF/application-client.xml in module [" + appClientModule.getName() + "]");
             }
-            return webAppFile.getInputStream(entry);
+            return appClientFile.getInputStream(entry);
         }
 
-        public InputStream getGeronimoJettyDD() throws DeploymentException, IOException {
-            InputStream in = super.getGeronimoJettyDD();
+        public InputStream openVendoDD() throws DeploymentException, IOException {
+            InputStream in = appClientModule.openAltVendorDD();
             if (null != in) {
                 return in;
             }
-            JarEntry entry = webAppFile.getJarEntry("WEB-INF/geronimo-jetty.xml");
-            if (entry != null) {
-                return webAppFile.getInputStream(entry);
+
+            JarEntry entry = appClientFile.getJarEntry("META-INF/geronimo-application-client.xml");
+            if (entry == null) {
+                throw new DeploymentException("No META-INF/geronimo-application-client.xml in module [" + appClientModule.getName() + "]");
             }
-            return null;
+            return appClientFile.getInputStream(entry);
         }
     }
 

@@ -20,7 +20,6 @@ package org.apache.geronimo.deployment;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.util.jar.Attributes;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
@@ -160,7 +159,7 @@ public class Bootstrap {
             // build and install the j2ee-deployer configuration
             File tempFile = File.createTempFile("j2ee-deployer", ".car");
             try {
-                builder.buildConfiguration(tempFile, manifest, (InputStream)null, j2eeDeployerXML);
+                builder.buildConfiguration(tempFile, manifest, null, j2eeDeployerXML);
                 configStore.install(tempFile.toURL());
             } finally {
                 tempFile.delete();

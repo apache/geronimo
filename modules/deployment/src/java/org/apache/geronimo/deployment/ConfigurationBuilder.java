@@ -19,8 +19,8 @@ package org.apache.geronimo.deployment;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
+import java.util.jar.Manifest;
 
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlException;
@@ -57,15 +57,5 @@ public interface ConfigurationBuilder {
      * @throws IOException if there was a problem reading or writing the files
      * @throws DeploymentException if there was a problem with the configuration
      */
-    void buildConfiguration(File outfile, java.util.jar.Manifest manifest, File module, XmlObject plan) throws IOException, DeploymentException;
-
-    /**
-     * Build a configuration from an arbitrary input stream
-     * @param outfile the file to write the configuration to
-     * @param module the module to build
-     * @param plan the deployment plan
-     * @throws IOException if there was a problem reading or writing the files
-     * @throws DeploymentException if there was a problem with the configuration
-     */
-    void buildConfiguration(File outfile, java.util.jar.Manifest manifest, InputStream module, XmlObject plan) throws IOException, DeploymentException;
+    void buildConfiguration(File outfile, Manifest manifest, File module, XmlObject plan) throws IOException, DeploymentException;
 }

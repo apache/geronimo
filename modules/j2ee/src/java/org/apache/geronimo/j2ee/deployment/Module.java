@@ -18,6 +18,8 @@ package org.apache.geronimo.j2ee.deployment;
 
 import java.net.URI;
 import java.net.URL;
+import java.io.InputStream;
+import java.io.IOException;
 
 import org.apache.xmlbeans.XmlObject;
 
@@ -49,7 +51,11 @@ public class Module {
     public URL getAltSpecDD() {
         return altSpecDD;
     }
-    
+
+    public InputStream openAltSpecDD() throws IOException {
+        return openURL(altSpecDD);
+    }
+
     public void setAltSpecDD(URL altSpecDD) {
         this.altSpecDD = altSpecDD;
     }
@@ -66,6 +72,10 @@ public class Module {
         return altVendorDD;
     }
     
+    public InputStream openAltVendorDD() throws IOException {
+        return openURL(altVendorDD);
+    }
+
     public void setAltVendorDD(URL altVendorDD) {
         this.altVendorDD = altVendorDD;
     }
@@ -93,4 +103,13 @@ public class Module {
         return false;
     }
     
+    private InputStream openURL(URL url) throws IOException {
+        if (url != null) {
+            InputStream in = url.openStream();
+            if (in != null) {
+                return in;
+            }
+        }
+        return null;
+    }
 }

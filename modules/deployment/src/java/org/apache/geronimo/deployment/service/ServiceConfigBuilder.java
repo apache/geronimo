@@ -78,11 +78,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         return null;
     }
 
-    public void buildConfiguration(File outfile, Manifest manifest, File module, XmlObject plan) throws IOException, DeploymentException {
-        buildConfiguration(outfile, manifest, (InputStream) null, plan);
-    }
-
-    public void buildConfiguration(File outfile, Manifest manifest, InputStream ignored, XmlObject plan) throws IOException, DeploymentException {
+    public void buildConfiguration(File outfile, Manifest manifest, File unused, XmlObject plan) throws IOException, DeploymentException {
         FileOutputStream fos = new FileOutputStream(outfile);
         try {
             JarOutputStream os = new JarOutputStream(new BufferedOutputStream(fos), manifest);
