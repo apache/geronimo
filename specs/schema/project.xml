@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- $Revision: 1.1 $ $Date: 2004/02/05 20:51:55 $ -->
+
+<project>
+    <pomVersion>3</pomVersion>
+    <extend>${basedir}/../../etc/project.xml</extend>
+
+    <!-- ===================== -->
+    <!-- Module Identification -->
+    <!-- ===================== -->
+
+    <name>Geronimo :: J2eeSchema</name>
+    <id>geronimo-j2eeschema</id>
+    <shortDescription>Geronimo XMLBeans Schema</shortDescription>
+    <description>Geronimo XMLBeans schema</description>
+    <url>http://incubator.apache.org/projects/geronimo/schema/</url>
+    <siteDirectory>/www/incubator.apache.org/projects/geronimo/schema</siteDirectory>
+    <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds/schema</distributionDirectory>
+
+    <package>org.apache.geronimo.j2ee</package>
+    <currentVersion>DEV</currentVersion>
+
+    <!-- ============ -->
+    <!-- Dependencies -->
+    <!-- ============ -->
+
+    <dependencies>
+
+        <!-- needed for xmlbeans runtime-->
+        <dependency>
+            <groupId>xmlbeans</groupId>
+            <artifactId>xbean-apache</artifactId>
+            <version>1.0-DEV</version>
+            <properties>
+            </properties>
+        </dependency>
+
+        <!--dependency>
+            <groupId>maven</groupId>
+            <artifactId>geronimo-maven-xmlbeans-plugin</artifactId>
+            <version>DEV</version>
+            <properties>
+            </properties>
+        </dependency-->
+
+    </dependencies>
+</project>

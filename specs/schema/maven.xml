@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- $Revision: 1.1 $ $Date: 2004/02/05 20:51:55 $ -->
+
+<project default="default"
+    xmlns:j="jelly:core"
+    xmlns:ant="jelly:ant"
+    xmlns:maven="jelly:maven"
+    xmlns:xmlbeans="geronimo:xmlbeans">
+
+    <preGoal name="java:compile">
+        <xmlbeans:schema2java
+            sourceschema="${basedir}/src/j2ee_1_3schema/connector_1_0.xsd,${basedir}/src/j2ee_1_4schema/j2ee_web_services_client_1_1.xsd,${basedir}/src/j2ee_1_4schema/j2ee_1_4.xsd,${basedir}/src/j2ee_1_4schema/connector_1_5.xsd"
+            xmlconfigs="${basedir}/src/conf/xmlconfig.xml"
+            targetdir="${basedir}/target/xmlbeans"/>
+    </preGoal>
+
+</project>
