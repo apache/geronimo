@@ -80,6 +80,7 @@ import org.apache.geronimo.xbeans.j2ee.ServletMappingType;
 import org.apache.geronimo.xbeans.j2ee.FilterMappingType;
 import org.apache.geronimo.xbeans.j2ee.SecurityConstraintType;
 import org.apache.geronimo.xbeans.j2ee.WebResourceCollectionType;
+import org.apache.geronimo.xbeans.j2ee.UrlPatternType;
 
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -544,12 +545,16 @@ public class JettyModuleBuilder implements ModuleBuilder {
         for (int i = 0; i < constraints.length; i++) {
             WebResourceCollectionType[] collections = constraints[i].getWebResourceCollectionArray();
             for (int j = 0; j < collections.length; j++) {
-                checkString(collections[j].addNewUrlPattern().getStringValue());
+                UrlPatternType[] patterns = collections[j].getUrlPatternArray();
+                for (int k = 0; k < patterns.length; k++) {
+                    checkString(patterns[k].getStringValue());
+                }
             }
         }
     }
 
     private static void checkString(String pattern) throws DeploymentException {
+        //j2ee_1_4.xsd explicitly requires preserving all whitespace. Do not trim.
         if (pattern.indexOf(0x0D) >= 0) throw new DeploymentException("<url-pattern> must not contain CR(#xD)");
         if (pattern.indexOf(0x0A) >= 0) throw new DeploymentException("<url-pattern> must not contain LF(#xA)");
     }
