@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.8 $ $Date: 2003/10/22 02:27:45 $ -->
+<!-- $Revision: 1.9 $ $Date: 2003/11/06 13:13:11 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -219,7 +219,7 @@
 
         <dependency>
             <id>jetty</id>
-            <version>4.2.12</version>
+            <version>SNAPSHOT</version>
             <properties>
                 <runtime>true</runtime>
                 <destinations>

@@ -1,15 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <components>
-    <class-space name="geronimo.system:role=ClassSpace,name=Jetty"
-        create="true" parent="geronimo.system:role=ClassSpace,name=System">
+
+
+    <!-- ================================================================ -->
+    <!-- Set up the Jetty-specific jars                                   -->
+    <!-- ================================================================ -->
+    <class-space name="geronimo.system:role=ClassSpace,name=Jetty">
         <codebase url="file:lib/">
             <archive name="*"/>
         </codebase>
+	<codebase url="file:../../lib/">
+	    <archive name="geronimo-core-DEV.jar"/>
+	    <archive name="geronimo-common-DEV.jar"/>
+	</codebase>
     </class-space>
 
-    <mbean code="org.apache.geronimo.web.hack.Jetty" name="jetty:role=WebContainer">
-        <constructor>
-            <arg type="java.net.URL">./jetty-config.xml</arg>
-        </constructor>
+    <!-- ================================================================ -->
+    <!-- Set up a Jetty container                                         -->
+    <!-- ================================================================ -->
+    <mbean code="org.apache.geronimo.web.jetty.JettyWebContainer" 
+           name="jetty:role=WebContainer">
+       <attribute type="java.net.URI" name="DefaultWebXmlURI">webdefault.xml</attribute>
+    </mbean>
+
+
+    <!-- ================================================================ -->
+    <!-- Set up a connector to listen for http requests                   -->
+    <!-- ================================================================ -->
+    <mbean code="org.apache.geronimo.web.jetty.JettyWebConnector" 
+           name="jetty:role=WebConnector, port=8080">
+        <attribute name="Port">8088</attribute>
+	<attribute name="Contexts">/abc, /def, /geh</attribute>
+        <depends name="jetty:role=WebContainer"/>
     </mbean>
 </components>
