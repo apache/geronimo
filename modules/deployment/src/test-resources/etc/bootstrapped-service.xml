@@ -122,30 +122,17 @@
 
     <!-- web -->
 
-    <gbean class="org.apache.geronimo.web.jetty.JettyWebContainer" objectName="geronimo.web:type=WebContainer,container=Jetty">
-        <default attribute="DefaultWebXmlURI" type="java.net.URI">web/src/deploy/jetty/webdefault.xml</default>
-        <endpoint name="WebAccessLogs">
-            <pattern>geronimo.web:type=WebAccessLog,container=Jetty,*</pattern>
-        </endpoint>
-        <endpoint name="WebApplications">
-            <pattern>geronimo.web:type=WebApplication,container=Jetty,*</pattern>
-        </endpoint>
-        <endpoint name="WebConnectors">
-            <pattern>geronimo.web:type=WebConnector,container=Jetty,*</pattern>
-        </endpoint>
+    <gbean class="org.apache.geronimo.jetty.JettyContainer" objectName="geronimo.web:type=WebContainer,container=Jetty">
     </gbean>
 
-    <gbean class="org.apache.geronimo.web.jetty.JettyWebConnector" objectName="geronimo.web:type=WebConnector,container=Jetty,port=8080">
-        <default attribute="Protocol" type="java.lang.String">http</default>
-        <!-- IMPORTANT localhost here will result in access only from 127.0.0.1-->
-        <!-- leaving the Interface attribute out will bind to all interfaces-->
-        <!--default attribute="Interface" type="java.lang.String">localhost</default-->
+    <gbean class="org.apache.geronimo.jetty.connector.HTTPConnector" objectName="geronimo.web:type=WebConnector,container=Jetty,port=8080">
         <default attribute="Port" type="int">8080</default>
-        <default attribute="MaxConnections" type="int">10</default>
-        <default attribute="MaxIdleTime" type="int">10</default>
+<!--        <default attribute="MaxConnections" type="int">10</default>-->
+<!--        <default attribute="MaxIdleTime" type="int">10</default>-->
         <!--default attribute="Contexts" type="java.lang.String[]"></default-->
     </gbean>
 
+<!--
     <gbean class="org.apache.geronimo.web.deployment.WebDeployer" objectName="geronimo.deployment:type=Web">
         <default attribute="Type" type="java.lang.String">Jetty</default>
         <default attribute="WebApplicationClass" type="java.lang.String">org.apache.geronimo.web.jetty.JettyWebApplication</default>
@@ -156,8 +143,10 @@
             <pattern>geronimo.system:type=ParserFactory</pattern>
         </endpoint>
     </gbean>
+-->
 
 
+<!--
     <gbean class="org.apache.geronimo.deployment.util.ExplicitDeployment" objectName="geronimo.app:name=WebConsole">
         <default attribute="ConfigID" type="java.net.URI">org/apache/geronimo/WebConsole</default>
         <default attribute="PackageURL" type="java.net.URL">console-web/target/geronimo-web-console.war</default>
@@ -171,5 +160,6 @@
             <pattern>geronimo.boot:role=Kernel</pattern>
         </endpoint>
     </gbean>
+-->
 
 </gbeans>
