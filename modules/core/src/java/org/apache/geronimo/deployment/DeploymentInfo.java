@@ -62,12 +62,14 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.management.ObjectName;
 
+import org.apache.geronimo.common.AbstractStateManageable;
+
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 17:59:10 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/18 22:14:26 $
  */
-public class DeploymentInfo implements DeploymentInfoMBean {
+public class DeploymentInfo extends AbstractStateManageable implements DeploymentInfoMBean {
     private final URL url;
     private final ObjectName name;
     private final ObjectName parent;
@@ -77,6 +79,12 @@ public class DeploymentInfo implements DeploymentInfoMBean {
         this.name = name;
         this.parent = parent;
         this.url = url;
+    }
+
+    protected void doStart() throws Exception {
+    }
+
+    protected void doStop() throws Exception {
     }
 
     public URL getURL() {

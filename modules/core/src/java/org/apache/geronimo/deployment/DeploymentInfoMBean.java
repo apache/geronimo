@@ -59,12 +59,14 @@ import java.net.URL;
 import java.util.Collection;
 import javax.management.ObjectName;
 
+import org.apache.geronimo.common.StateManageable;
+
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/11 17:59:10 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/18 22:14:26 $
  */
-public interface DeploymentInfoMBean {
+public interface DeploymentInfoMBean extends StateManageable {
     URL getURL();
 
     ObjectName getParent();
