@@ -41,6 +41,14 @@
       </auth-constraint>
     </security-constraint>
 
+    <security-constraint>
+      <web-resource-collection>
+        <web-resource-name>NO ACCESS</web-resource-name>
+        <url-pattern>/auth/logon.html</url-pattern>
+      </web-resource-collection>
+      <auth-constraint/>
+    </security-constraint>
+
     <login-config>
       <auth-method>FORM</auth-method>
       <realm-name>Test JAAS Realm</realm-name>
