@@ -1,17 +1,20 @@
 Welcome to Geronimo
 ===================
 
-To build me please install Maven from
+To build me please install Maven from here - version b10 or later.
 
 	http://maven.apache.org/
-	
-then just type
+
+In addition you should have JDK 1.4.x installed with JAVA_HOME
+environment defined to point to this JDK.
+
+Then just type
 
 	maven
 	
 to get the javadocs type
 
-	maven javadocs
+	maven javadoc
 
 or for the HTML website
 
