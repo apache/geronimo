@@ -67,7 +67,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/02/15 17:46:21 $
+ * @version $Revision: 1.8 $ $Date: 2004/02/18 20:55:31 $
  */
 public abstract class DConfigBeanSupport extends XmlBeanSupport implements DConfigBean {
     private DDBean ddBean;
@@ -91,7 +91,7 @@ public abstract class DConfigBeanSupport extends XmlBeanSupport implements DConf
     }
 
     public String[] getXpaths() {
-        return new String[0];
+        return null;
     }
 
     public void removeDConfigBean(DConfigBean bean) throws BeanNotFoundException {
