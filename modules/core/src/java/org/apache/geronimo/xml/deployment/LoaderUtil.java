@@ -76,7 +76,7 @@ import org.xml.sax.SAXException;
 /**
  * Holds utility methods for parsing a DOM tree.
  *
- * @version $Revision: 1.4 $ $Date: 2003/09/08 06:08:04 $
+ * @version $Revision: 1.5 $ $Date: 2003/09/23 05:11:25 $
  */
 public final class LoaderUtil {
     private static final Log log = LogFactory.getLog(LoaderUtil.class);
@@ -171,11 +171,11 @@ public final class LoaderUtil {
 
     /**
      * Utility method to parse the contents of a Reader into a DOM Document.
-     * NOTE: closes the reader when finished!
      *
      * @param reader  The reader with the XML content
-     * @param context A file name or similar context, included when any warnings
-     *                or errors are logged to help the user identify the problem
+     * @return the Document read from the Reader
+     * @throws SAXException if there was a parsing problem
+     * @throws IOException if there was a problem reading the input
      */
     public static Document parseXML(Reader reader) throws SAXException, IOException {
         DocumentBuilderFactory factory = new org.apache.xerces.jaxp.DocumentBuilderFactoryImpl();
