@@ -60,7 +60,7 @@ import org.apache.xmlbeans.XmlOptions;
 import org.tranql.sql.jdbc.JDBCUtil;
 
 /**
- * @version $Revision: 1.18 $ $Date: 2004/08/06 22:44:36 $
+ * @version $Revision: 1.19 $ $Date: 2004/08/09 04:08:19 $
  */
 public class RAR_1_5ConfigBuilderTest extends TestCase {
     private URL j2eeDD;
@@ -93,9 +93,7 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
                 return rarFile;
             }
             public void install(ModuleBuilder moduleBuilder, EARContext earContext, Module module) throws Exception {
-                // TODO gets rid of this cast when all the ModuleBuilder
-                // will implement this method.
-                ((ConnectorModuleBuilder) moduleBuilder).installModule(rarFile, earContext, module);
+                moduleBuilder.installModule(rarFile, earContext, module);
             }
         };
         executeTestBuildModule(action);
