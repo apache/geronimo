@@ -61,23 +61,26 @@ import java.util.Timer;
 
 import org.apache.geronimo.common.NullArgumentException;
 import org.apache.geronimo.common.task.URLMonitorTask;
-import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
-import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
-import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
-import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
-import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
+import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GBean;
+import org.apache.geronimo.gbean.GBeanContext;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GConstructorInfo;
+import org.apache.geronimo.gbean.GOperationInfo;
 
 /**
  * An abstract logging service.
  *
  * <p>Sub-classes only need to provide a {@link #configure(URL)}.
  *
- * @version $Revision: 1.4 $ $Date: 2003/12/30 21:17:14 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/22 04:24:57 $
  */
 public abstract class AbstractLoggingService
-    implements LoggingService, GeronimoMBeanTarget
-{
+        implements LoggingService, GBean {
+
+    private static final GBeanInfo GBEAN_INFO;
+
     /** The default refresh period (60 seconds) */
     public static final int DEFAULT_REFRESH_PERIOD = 60;
 
@@ -99,8 +102,7 @@ public abstract class AbstractLoggingService
      * @param url       The configuration URL.
      * @param period    The refresh period (in seconds).
      */
-    protected AbstractLoggingService(final URL url, final int period)
-    {
+    protected AbstractLoggingService(final URL url, final int period) {
         setRefreshPeriod(period);
         setConfigurationURL(url);
     }
@@ -111,18 +113,15 @@ public abstract class AbstractLoggingService
      *
      * @param url   The configuration URL.
      */
-    protected AbstractLoggingService(final URL url)
-    {
+    protected AbstractLoggingService(final URL url) {
         this(url, DEFAULT_REFRESH_PERIOD);
     }
 
-    public int getRefreshPeriod()
-    {
+    public int getRefreshPeriod() {
         return refreshPeriod;
     }
 
-    public void setRefreshPeriod(final int period)
-    {
+    public void setRefreshPeriod(final int period) {
         if (period < 1) {
             throw new IllegalArgumentException("Refresh period must be > 0");
         }
@@ -130,13 +129,11 @@ public abstract class AbstractLoggingService
         this.refreshPeriod = period;
     }
 
-    public URL getConfigurationURL()
-    {
+    public URL getConfigurationURL() {
         return configURL;
     }
 
-    public void setConfigurationURL(final URL url)
-    {
+    public void setConfigurationURL(final URL url) {
         if (url == null) {
             throw new NullArgumentException("url");
         }
@@ -144,22 +141,15 @@ public abstract class AbstractLoggingService
         this.configURL = url;
     }
 
-    public void reconfigure()
-    {
+    public void reconfigure() {
         configure(configURL);
     }
 
 
-    //GeronimoMBeanTarget
-    public void setMBeanContext(GeronimoMBeanContext context) {
+    public void setGBeanContext(GBeanContext context) {
     }
 
-    public boolean canStart() {
-        return true;
-    }
-
-    public void doStart()
-    {
+    public void doStart() {
         monitor = new URLMonitorTask(configURL);
         monitor.addListener(new URLMonitorTask.Listener() {
             public void doURLChanged(final URLMonitorTask.Event event) {
@@ -170,28 +160,27 @@ public abstract class AbstractLoggingService
         timer.schedule(monitor, 1000 * refreshPeriod, 1000 * refreshPeriod);
     }
 
-    public void doStop()
-    {
+    public void doStop() {
         monitor.cancel();
         monitor = null;
-    }
-
-    public boolean canStop() {
-        return true;
     }
 
     public void doFail() {
     }
 
-    public static GeronimoMBeanInfo getGeronimoMBeanInfo() {
-        GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
-        //set class in caller
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("RefreshPeriod", true, true, "Period in seconds at which configuration refreshes"));
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ConfigurationURL", true, true, "Location of the logging configuration"));
-        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("reconfigure", new GeronimoParameterInfo[] {}, GeronimoOperationInfo.ACTION, "reconfigure now from previously set url"));
-        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("configure",
-                new GeronimoParameterInfo[] {new GeronimoParameterInfo("url", URL.class, "URL to read configuration from")}, GeronimoOperationInfo.ACTION, "configure now from supplied url"));
-        return mbeanInfo;
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(AbstractLoggingService.class.getName());
+        infoFactory.addAttribute(new GAttributeInfo("RefreshPeriod", true));
+        infoFactory.addAttribute(new GAttributeInfo("ConfigurationURL", true));
+        infoFactory.addOperation(new GOperationInfo("reconfigure"));
+        infoFactory.setConstructor(new GConstructorInfo(
+                new String[]{"ConfigurationURL", "RefreshPeriod"},
+                new Class[]{URL.class, int.class}));
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
     }
 
 }

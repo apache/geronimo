@@ -63,12 +63,13 @@ import java.net.Socket;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
-import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
-import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
-import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
-import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
+import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GBean;
+import org.apache.geronimo.gbean.GBeanContext;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GConstructorInfo;
+import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.net.SocketNode;
 import org.apache.log4j.spi.LoggerRepository;
@@ -84,9 +85,12 @@ import org.apache.log4j.spi.LoggerRepository;
  * will simply return the current repository.
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/12/30 21:17:14 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/22 04:24:57 $
  */
-public class Log4jSocketServer implements GeronimoMBeanTarget {
+public class Log4jSocketServer implements GBean {
+
+    private static final GBeanInfo GBEAN_INFO;
+
     /** The port number where the server listens. */
     protected int port = -1;
 
@@ -108,64 +112,59 @@ public class Log4jSocketServer implements GeronimoMBeanTarget {
     /** The factory to create LoggerRepository's for client connections. */
     protected LoggerRepositoryFactory loggerRepositoryFactory;
 
+    public Log4jSocketServer(InetAddress bindAddr, int port, int backlog, boolean listenerEnabled, Class loggerRepositoryFactoryType) throws InstantiationException, IllegalAccessException {
+        this.bindAddress = bindAddr;
+        this.port = port;
+        this.backlog = backlog;
+        this.listenerEnabled = listenerEnabled;
+        setLoggerRepositoryFactoryType(loggerRepositoryFactoryType);
+    }
 
-    public void setPort(final int port)
-    {
+    public void setPort(final int port) {
         this.port = port;
     }
 
-    public int getPort()
-    {
+    public int getPort() {
         return port;
     }
 
-    public void setBacklog(final int backlog)
-    {
+    public void setBacklog(final int backlog) {
         this.backlog = backlog;
     }
 
-    public int getBacklog()
-    {
+    public int getBacklog() {
         return backlog;
     }
 
-    public void setBindAddress(final InetAddress addr)
-    {
+    public void setBindAddress(final InetAddress addr) {
         this.bindAddress = addr;
     }
 
-    public InetAddress getBindAddress()
-    {
+    public InetAddress getBindAddress() {
         return bindAddress;
     }
 
-    public void setListenerEnabled(final boolean enabled)
-    {
+    public void setListenerEnabled(final boolean enabled) {
         listenerEnabled = enabled;
     }
 
-    public boolean getListenerEnabled()
-    {
+    public boolean getListenerEnabled() {
         return listenerEnabled;
     }
 
     public void setLoggerRepositoryFactoryType(final Class type)
-        throws InstantiationException, IllegalAccessException, ClassCastException
-    {
-        this.loggerRepositoryFactory = (LoggerRepositoryFactory)type.newInstance();
+            throws InstantiationException, IllegalAccessException, ClassCastException {
+        this.loggerRepositoryFactory = type == null ? null : (LoggerRepositoryFactory) type.newInstance();
     }
 
-    public Class getLoggerRepositoryFactoryType()
-    {
+    public Class getLoggerRepositoryFactoryType() {
         if (loggerRepositoryFactory == null) {
             return null;
         }
-
         return loggerRepositoryFactory.getClass();
     }
 
-    public LoggerRepository getLoggerRepository(final InetAddress addr)
-    {
+    public LoggerRepository getLoggerRepository(final InetAddress addr) {
         return loggerRepositoryFactory.create(addr);
     }
 
@@ -175,77 +174,63 @@ public class Log4jSocketServer implements GeronimoMBeanTarget {
     ///////////////////////////////////////////////////////////////////////////
 
     protected class SocketListenerThread
-        extends Thread
-    {
+            extends Thread {
         protected Log log = LogFactory.getLog(SocketListenerThread.class);
         protected boolean enabled;
         protected boolean shuttingDown;
         protected Object lock = new Object();
 
-        public SocketListenerThread(final boolean enabled)
-        {
+        public SocketListenerThread(final boolean enabled) {
             super("SocketListenerThread");
-
             this.enabled = enabled;
         }
 
-        public void setEnabled(boolean enabled)
-        {
+        public void setEnabled(boolean enabled) {
             this.enabled = enabled;
-
             synchronized (lock) {
                 lock.notifyAll();
             }
-
             if (log.isDebugEnabled()) {
                 log.debug("Notified that enabled: " + enabled);
             }
         }
 
-        public void shutdown()
-        {
+        public void shutdown() {
             enabled = false;
             shuttingDown = true;
 
             synchronized (lock) {
                 lock.notifyAll();
             }
-
-            if (log.isDebugEnabled()) {
-                log.debug("Notified to shutdown");
-            }
+            log.debug("Notified to shutdown");
         }
 
-        public void run()
-        {
+        public void run() {
             while (!shuttingDown) {
-
                 if (!enabled) {
                     try {
                         log.debug("Disabled, waiting for notification");
                         synchronized (lock) {
                             lock.wait();
                         }
+                    } catch (InterruptedException ignore) {
                     }
-                    catch (InterruptedException ignore) {}
                 }
 
                 try {
                     doRun();
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     log.error("Exception caught from main loop; ignoring", e);
                 }
             }
         }
 
-        protected void doRun() throws Exception
-        {
+        protected void doRun() throws Exception {
             while (enabled) {
                 boolean debug = log.isDebugEnabled();
 
                 Socket socket = serverSocket.accept();
-                InetAddress addr =  socket.getInetAddress();
+                InetAddress addr = socket.getInetAddress();
                 if (debug) {
                     log.debug("Connected to client: " + addr);
                 }
@@ -273,8 +258,7 @@ public class Log4jSocketServer implements GeronimoMBeanTarget {
     //                         LoggerRepositoryFactory                       //
     ///////////////////////////////////////////////////////////////////////////
 
-    public static interface LoggerRepositoryFactory
-    {
+    public static interface LoggerRepositoryFactory {
         public LoggerRepository create(InetAddress addr);
     }
 
@@ -283,12 +267,10 @@ public class Log4jSocketServer implements GeronimoMBeanTarget {
      * the current repository from the LogManager.
      */
     public static class DefaultLoggerRepositoryFactory
-        implements LoggerRepositoryFactory
-    {
+            implements LoggerRepositoryFactory {
         private LoggerRepository repo;
 
-        public LoggerRepository create(final InetAddress addr)
-        {
+        public LoggerRepository create(final InetAddress addr) {
             if (repo == null) {
                 repo = LogManager.getLoggerRepository();
             }
@@ -297,26 +279,14 @@ public class Log4jSocketServer implements GeronimoMBeanTarget {
     }
 
 
-    ///////////////////////////////////////////////////////////////////////////
-    //                    AbstractManagedObject Overrides                    //
-    ///////////////////////////////////////////////////////////////////////////
-
-    public void setMBeanContext(GeronimoMBeanContext context) {
+    public void setGBeanContext(GBeanContext context) {
     }
 
-    public boolean canStart() {
-        return true;
-    }
-
-    public void doStart()
-    {
+    public void doStart() {
         listenerThread = new SocketListenerThread(false);
         listenerThread.setDaemon(true);
         listenerThread.start();
-        //log.debug("Socket listener thread started");
-
         if (loggerRepositoryFactory == null) {
-            //log.debug("Using default logger repository factory");
             loggerRepositoryFactory = new DefaultLoggerRepositoryFactory();
         }
 
@@ -324,8 +294,7 @@ public class Log4jSocketServer implements GeronimoMBeanTarget {
         try {
             if (bindAddress == null) {
                 serverSocket = new ServerSocket(port, backlog);
-            }
-            else {
+            } else {
                 serverSocket = new ServerSocket(port, backlog, bindAddress);
             }
         } catch (IOException e) {
@@ -336,12 +305,7 @@ public class Log4jSocketServer implements GeronimoMBeanTarget {
         listenerThread.setEnabled(listenerEnabled);
     }
 
-    public boolean canStop() {
-        return true;
-    }
-
-    public void doStop()
-    {
+    public void doStop() {
         listenerThread.shutdown();
         listenerThread = null;
         serverSocket = null;
@@ -350,17 +314,22 @@ public class Log4jSocketServer implements GeronimoMBeanTarget {
     public void doFail() {
     }
 
-    public static GeronimoMBeanInfo getGeronimoMBeanInfo() {
-        GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
-        mbeanInfo.setTargetClass(Log4jSocketServer.class.getName());
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Port", true, true, "Port to listen on"));
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Backlog", true, true, "Backlog"));
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("BindAddress", true, true, "BindAddress to listen on"));
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ListenerEnabled", true, true, "whether Listener is enabled"));
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("LoggerRepositoryFactoryType", true, true, "Class for constructing LoggerRepository instances"));
-        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("getLoggerRepository", new GeronimoParameterInfo[] {
-            new GeronimoParameterInfo("address", InetAddress.class, "address to get the repository for")},
-                GeronimoOperationInfo.INFO, "Get the logger repository for the supplied address"));
-        return mbeanInfo;
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(Log4jSocketServer.class.getName());
+        infoFactory.addAttribute(new GAttributeInfo("Port", true));
+        infoFactory.addAttribute(new GAttributeInfo("Backlog", true));
+        infoFactory.addAttribute(new GAttributeInfo("BindAddress", true));
+        infoFactory.addAttribute(new GAttributeInfo("ListenerEnabled", true));
+        infoFactory.addAttribute(new GAttributeInfo("LoggerRepositoryFactoryType", true));
+        infoFactory.addOperation(new GOperationInfo("getLoggerRepository", new String[]{InetAddress.class.getName()}));
+        infoFactory.setConstructor(new GConstructorInfo(
+                new String[]{"BindAddress", "Port", "Backlog", "ListenerEnabled", "LoggerRepositoryFactoryType"},
+                new Class[]{InetAddress.class, int.class, int.class, boolean.class, Class.class}));
+        GBEAN_INFO = infoFactory.getBeanInfo();
     }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
+
 }

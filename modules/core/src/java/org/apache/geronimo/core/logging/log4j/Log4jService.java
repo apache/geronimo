@@ -65,10 +65,10 @@ import org.apache.geronimo.common.log.log4j.URLConfigurator;
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 import org.apache.geronimo.common.propertyeditor.TextPropertyEditorSupport;
 import org.apache.geronimo.core.logging.AbstractLoggingService;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.kernel.log.XLevel;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
-import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
-import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -76,11 +76,12 @@ import org.apache.log4j.Logger;
  * A Log4j logging service.
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/12/30 21:17:14 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/22 04:24:57 $
  */
-public class Log4jService
-    extends AbstractLoggingService
-{
+public class Log4jService extends AbstractLoggingService {
+
+    private static final GBeanInfo GBEAN_INFO;
+
     private static final Log log = LogFactory.getLog(Log4jService.class);
 
     /**
@@ -90,8 +91,7 @@ public class Log4jService
      * @param period    The refresh period (in seconds).
      *
      */
-    public Log4jService(final URL url, final int period)
-    {
+    public Log4jService(final URL url, final int period) {
         super(url, period);
     }
 
@@ -101,8 +101,7 @@ public class Log4jService
      * @param url   The configuration URL.
      *
      */
-    public Log4jService(final URL url)
-    {
+    public Log4jService(final URL url) {
         super(url);
     }
 
@@ -111,8 +110,7 @@ public class Log4jService
      *
      * @param url   The URL to configure from.
      */
-    public void configure(final URL url)
-    {
+    public void configure(final URL url) {
         if (url == null) {
             throw new NullArgumentException("url");
         }
@@ -129,10 +127,8 @@ public class Log4jService
      * A property editor for Log4j Levels.
      */
     public static class LevelEditor
-        extends TextPropertyEditorSupport
-    {
-        public Object getValue()
-        {
+        extends TextPropertyEditorSupport {
+        public Object getValue() {
             return XLevel.toLevel(getAsText().trim());
         }
     }
@@ -141,17 +137,14 @@ public class Log4jService
      * A property editor for Log4j Loggers.
      */
     public static class LoggerEditor
-        extends TextPropertyEditorSupport
-    {
-        public Object getValue()
-        {
+        extends TextPropertyEditorSupport {
+        public Object getValue() {
             return Logger.getLogger(getAsText().trim());
         }
     }
 
     /** Install property editors for Logger and Level. */
-    static
-    {
+    static {
         PropertyEditors.registerEditor(Logger.class, LoggerEditor.class);
         PropertyEditors.registerEditor(Level.class, LevelEditor.class);
     }
@@ -163,8 +156,7 @@ public class Log4jService
      * @param level     The level to change the logger to.
      *
      */
-    public void setLoggerLevel(final Logger logger, final Level level)
-    {
+    public void setLoggerLevel(final Logger logger, final Level level) {
         if (logger == null) {
             throw new NullArgumentException("logger");
         }
@@ -182,8 +174,7 @@ public class Log4jService
      * @param logger    The logger to inspect.
      *
      */
-    public String getLoggerLevel(final Logger logger)
-    {
+    public String getLoggerLevel(final Logger logger) {
         if (logger == null) {
             throw new NullArgumentException("logger");
         }
@@ -198,25 +189,23 @@ public class Log4jService
     }
 
 
-    //GeronimoMBeanTarget
-    public void doStart()
-    {
+    //GBean
+    public void doStart() {
         super.doStart();
 
         // Make sure the root Logger has loaded
         Logger.getRootLogger();
     }
 
-    public static GeronimoMBeanInfo getGeronimoMBeanInfo() {
-        GeronimoMBeanInfo mbeanInfo = AbstractLoggingService.getGeronimoMBeanInfo();
-        mbeanInfo.setTargetClass(Log4jService.class.getName());
-        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("setLoggerLevel", new GeronimoParameterInfo[] {
-            new GeronimoParameterInfo("logger", Logger.class, "Logger to configure"),
-            new GeronimoParameterInfo("level", Level.class, "Level to set the Logger to")},
-                GeronimoOperationInfo.ACTION, "Configure the logger to the level"));
-        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("getLoggerLevel", new GeronimoParameterInfo[] {
-            new GeronimoParameterInfo("logger", Logger.class, "Logger to configure")},
-                GeronimoOperationInfo.INFO, "Get the level the logger is configured to"));
-        return mbeanInfo;
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(Log4jService.class.getName(), AbstractLoggingService.getGBeanInfo());
+        infoFactory.addOperation(new GOperationInfo("setLoggerLevel", new String[] {Logger.class.getName(), Level.class.getName()}));
+        infoFactory.addOperation(new GOperationInfo("getLoggerLevel", new String[] {Logger.class.getName()}));
+        GBEAN_INFO = infoFactory.getBeanInfo();
     }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
+
 }
