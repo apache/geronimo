@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<connector  version="1.5">
-<!--xmlns="http://java.sun.com/xml/ns/j2ee"
- xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee file:/connector_1_5.xsd"
--->
+<connector xmlns="http://java.sun.com/xml/ns/j2ee"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
+     http://java.sun.com/xml/ns/j2ee/connector_1_5.xsd"
+  version="1.5">
+
   <description>test ra.xml for jca 1.5</description>
   <display-name>test 1.5 adapter spec</display-name>
 
@@ -43,7 +44,7 @@
         <connectionfactory-impl-class>org.apache.geronimo.test.ConnectionFactory</connectionfactory-impl-class>
         <connection-interface>javax.resource.cci.Connection</connection-interface>
         <connection-impl-class>org.apache.geronimo.test.Connection</connection-impl-class>
-            
+
       </connection-definition>
       <connection-definition>
         <managedconnectionfactory-class>org.apache.geronimo.test.ManagedConnectionFactory</managedconnectionfactory-class>
@@ -55,16 +56,15 @@
         <connectionfactory-impl-class>org.apache.geronimo.test.ConnectionFactory</connectionfactory-impl-class>
         <connection-interface>javax.resource.cci.Connection</connection-interface>
         <connection-impl-class>org.apache.geronimo.test.Connection</connection-impl-class>
-            
+
       </connection-definition>
-      <transaction-support></transaction-support>
+      <transaction-support>LocalTransaction</transaction-support>
       <authentication-mechanism>
         <description>description</description>
         <authentication-mechanism-type>BasicPassword</authentication-mechanism-type>
         <credential-interface>javax.resource.spi.security.PasswordCredential</credential-interface>
       </authentication-mechanism>
       <reauthentication-support>false</reauthentication-support>
-      <security-permission></security-permission>
     </outbound-resourceadapter>
     <inbound-resourceadapter>
       <!--0 or one-->
@@ -80,7 +80,7 @@
           </activationspec>
         </messagelistener>
       </messageadapter>
-        
+
     </inbound-resourceadapter>
     <adminobject>
       <adminobject-interface>org.apache.geronimo.jca.test.AdminObject</adminobject-interface>
