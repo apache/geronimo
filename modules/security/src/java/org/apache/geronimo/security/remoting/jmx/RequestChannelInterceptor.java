@@ -27,12 +27,10 @@ import org.activeio.Packet;
 import org.activeio.RequestChannel;
 import org.activeio.Service;
 import org.activeio.SynchChannel;
-import org.activeio.adapter.ASynchToSynchChannelAdapter;
 import org.activeio.adapter.AsynchChannelToClientRequestChannel;
 import org.activeio.adapter.PacketInputStream;
-import org.activeio.adapter.SynchToAsynchChannelAdapter;
-import org.activeio.filter.PacketAggregatingAsynchChannel;
-import org.activeio.net.TcpSynchChannelFactory;
+import org.activeio.filter.PacketAggregatingSynchChannel;
+import org.activeio.net.SocketSynchChannelFactory;
 import org.activeio.packet.ByteArrayPacket;
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
@@ -88,12 +86,11 @@ public class RequestChannelInterceptor implements Interceptor {
     }
     
     private static RequestChannel createRequestChannel(URI target) throws IOException, URISyntaxException {
-        TcpSynchChannelFactory factory = new TcpSynchChannelFactory();
+        SocketSynchChannelFactory factory = new SocketSynchChannelFactory();
         SynchChannel channel = factory.openSynchChannel(target);
         return new AsynchChannelToClientRequestChannel(
-                new ASynchToSynchChannelAdapter(
-                        new PacketAggregatingAsynchChannel( 
-                                new SynchToAsynchChannelAdapter(channel))));        
+	               new PacketAggregatingSynchChannel(
+                       channel));        
     }
 
     /**

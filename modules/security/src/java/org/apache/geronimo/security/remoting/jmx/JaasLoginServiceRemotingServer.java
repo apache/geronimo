@@ -31,7 +31,7 @@ import org.activeio.adapter.AsynchChannelToServerRequestChannel;
 import org.activeio.adapter.SynchToAsynchChannelAdapter;
 import org.activeio.adapter.SynchToAsynchChannelServerAdapter;
 import org.activeio.filter.PacketAggregatingAsynchChannel;
-import org.activeio.net.TcpSynchChannelFactory;
+import org.activeio.net.SocketSynchChannelFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -94,7 +94,7 @@ public class JaasLoginServiceRemotingServer implements GBeanLifecycle {
     }
     
     private AsynchChannelServer createAsynchChannelServer() throws IOException, URISyntaxException {
-        TcpSynchChannelFactory factory = new TcpSynchChannelFactory();
+        SocketSynchChannelFactory factory = new SocketSynchChannelFactory();
         SynchChannelServer server = factory.bindSynchChannel(bindURI);
         return new SynchToAsynchChannelServerAdapter(server);        
     }

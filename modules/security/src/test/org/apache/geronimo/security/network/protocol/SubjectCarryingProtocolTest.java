@@ -43,7 +43,7 @@ import org.activeio.adapter.AsynchChannelToServerRequestChannel;
 import org.activeio.adapter.SynchToAsynchChannelAdapter;
 import org.activeio.adapter.SynchToAsynchChannelServerAdapter;
 import org.activeio.filter.PacketAggregatingAsynchChannel;
-import org.activeio.net.TcpSynchChannelFactory;
+import org.activeio.net.SocketSynchChannelFactory;
 import org.activeio.packet.ByteArrayPacket;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -78,7 +78,7 @@ public class SubjectCarryingProtocolTest extends AbstractTest implements Request
      */
     public void disabledtest() throws Exception {
         
-        TcpSynchChannelFactory factory = new TcpSynchChannelFactory();
+        SocketSynchChannelFactory factory = new SocketSynchChannelFactory();
         final RequestChannel channel = 
             new AsynchChannelToClientRequestChannel(
                 new ASynchToSynchChannelAdapter(
@@ -151,9 +151,8 @@ public class SubjectCarryingProtocolTest extends AbstractTest implements Request
         context.login();
         serverSubject = context.getSubject();
         
-        TcpSynchChannelFactory factory = new TcpSynchChannelFactory();
-        server = 
-            new SynchToAsynchChannelServerAdapter(
+        SocketSynchChannelFactory factory = new SocketSynchChannelFactory();
+        server = new SynchToAsynchChannelServerAdapter(
                 factory.bindSynchChannel(new URI("tcp://localhost:0")));
         
         server.setAcceptListener(new AcceptListener() {
