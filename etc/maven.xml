@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.13 $ $Date: 2003/09/01 16:29:47 $ -->
+<!-- $Revision: 1.14 $ $Date: 2003/09/01 16:46:34 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
   xmlns:u="jelly:util"
   xmlns:ant="jelly:ant"
   xmlns:maven="jelly:maven"
-  xmlns:define="jelly:define">
+  xmlns:define="jelly:define"
+  xmlns:xdoclet="common:xdoclet">
   
   <!-- ================= -->
   <!-- Global Properties -->
@@ -190,5 +191,19 @@
       
     </define:tag>
   </define:taglib>
+  
+  <goal name="xdoclet:jmxdoclet:compile">
+    <xdoclet:jmxdoclet
+      srcdir="${basedir}/src/java"
+      destdir="${basedir}/target/xdoclet/jmx"
+      appendSet="maven.compile.src.set"/>
+  </goal>
+  
+  <goal name="xdoclet:jmxdoclet:test-compile">
+    <xdoclet:jmxdoclet
+      srcdir="${basedir}/src/test"
+      destdir="${basedir}/target/test-xodclet/jmx"
+      appendSet="maven.test.compile.src.set"/>
+  </goal>
   
 </project>
