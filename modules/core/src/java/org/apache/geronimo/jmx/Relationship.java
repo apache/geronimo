@@ -73,11 +73,15 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  *
+ * @jmx:mbean
  *
- * @version $Revision: 1.5 $ $Date: 2003/08/18 22:19:28 $
+ * @version $Revision: 1.6 $ $Date: 2003/09/01 20:38:49 $
  */
-public class Relationship implements MBeanRegistration, RelationshipMBean {
-    private final Log log = LogFactory.getLog(getClass());
+public class Relationship
+    implements MBeanRegistration, RelationshipMBean
+{
+    private static final Log log = LogFactory.getLog(Relationship.class);
+    
     private RelationServiceMBean relationService;
 
     private final String name;
@@ -99,7 +103,10 @@ public class Relationship implements MBeanRegistration, RelationshipMBean {
     private final int rightRoleMinimum;
     private final int rightRoleMaximum;
     private final String rightRoleDescription;
-
+    
+    /**
+     * @jmx:managed-constructor
+     */
     public Relationship(String propertiesString) {
         Properties properties = new Properties();
         try {
@@ -189,63 +196,108 @@ public class Relationship implements MBeanRegistration, RelationshipMBean {
             return Collections.EMPTY_LIST;
         }
     }
-
+    
+    /**
+     * @jmx:managed-attribute
+     */
     public String getName() {
         return name;
     }
-
+    
+    /**
+     * @jmx:managed-attribute
+     */
     public String getLeftRoleName() {
         return leftRoleName;
     }
-
+    
+    /**
+     * @jmx:managed-attribute
+     */
     public String getLeftRoleClass() {
         return leftRoleClass;
     }
-
+    
+    /**
+     * @jmx:managed-attribute
+     */
     public boolean isLeftRoleReadable() {
         return leftRoleReadable;
     }
-
+    
+    /**
+     * @jmx:managed-attribute
+     */
     public boolean isLeftRoleWritable() {
         return leftRoleWritable;
     }
-
+    
+    /**
+     * @jmx:managed-attribute
+     */
     public int getLeftRoleMinimum() {
         return leftRoleMinimum;
     }
-
+    
+    /**
+     * @jmx:managed-attribute
+     */
     public int getLeftRoleMaximum() {
         return leftRoleMaximum;
     }
-
+    
+    /**
+     * @jmx:managed-attribute
+     */
     public String getLeftRoleDescription() {
         return leftRoleDescription;
     }
-
+    
+    /**
+     * @jmx:managed-attribute
+     */
     public String getRightRoleName() {
         return rightRoleName;
     }
-
+    
+    /**
+     * @jmx:managed-attribute
+     */
     public String getRightRoleClass() {
         return rightRoleClass;
     }
-
+    
+    /**
+     * @jmx:managed-attribute
+     */
     public boolean isRightRoleReadable() {
         return rightRoleReadable;
     }
-
+    
+    /**
+     * @jmx:managed-attribute
+     */
     public boolean isRightRoleWritable() {
         return rightRoleWritable;
     }
-
+    
+    /**
+     * @jmx:managed-attribute
+     */
     public int getRightRoleMinimum() {
         return rightRoleMinimum;
     }
-
+    
+    /**
+     * @jmx:managed-attribute
+     */
     public int getRightRoleMaximum() {
         return rightRoleMaximum;
     }
-
+    
+    /**
+     * @jmx:managed-attribute
+     */
     public String getRightRoleDescription() {
         return rightRoleDescription;
     }

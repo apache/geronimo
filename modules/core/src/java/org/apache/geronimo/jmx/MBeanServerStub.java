@@ -62,9 +62,16 @@ import org.apache.geronimo.proxy.ReflexiveInterceptor;
 import org.apache.geronimo.remoting.DeMarshalingInterceptor;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/29 19:16:54 $
+ *
+ * @jmx:mbean
+ *      extends="org.apache.geronimo.management.ManagedObject,org.apache.geronimo.management.StateManageable,org.apache.geronimo.remoting.router.JMXTargetMBean"
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/09/01 20:38:49 $
  */
-public class MBeanServerStub extends AbstractManagedObject implements MBeanServerStubMBean  {
+public class MBeanServerStub
+    extends AbstractManagedObject
+    implements MBeanServerStubMBean
+{
     
     private ProxyContainer serverContainer;
     private DeMarshalingInterceptor demarshaller;
@@ -82,7 +89,6 @@ public class MBeanServerStub extends AbstractManagedObject implements MBeanServe
         
         // Configure the server side interceptors.
         demarshaller.setClassloader(getClass().getClassLoader());
-        
     }
     
     /**
@@ -99,5 +105,4 @@ public class MBeanServerStub extends AbstractManagedObject implements MBeanServe
     public Interceptor getRemotingEndpointInterceptor() {
         return demarshaller;
     }
-
 }

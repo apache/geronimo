@@ -59,10 +59,14 @@ import java.util.Set;
 
 /**
  *
+ * @jmx:mbean
  *
- *
- * @version $Revision: 1.1 $ $Date: 2003/08/16 19:03:09 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/01 20:38:49 $
  */
-public interface DeploymentPlanner {
+public interface DeploymentPlanner
+{
+    /**
+     * @jmx:managed-operation
+     */
     boolean plan(Set goals, Set plans) throws DeploymentException;
 }

@@ -83,10 +83,15 @@ import org.apache.geronimo.jmx.JMXUtil;
  * A proxy for a repository of components that can accessed remotely and
  * downloaded to the local machine.
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/14 08:41:10 $
+ * @jmx:mbean
+ *
+ * @version $Revision: 1.3 $ $Date: 2003/09/01 20:38:49 $
  */
-public class ComponentRepository implements ComponentRepositoryMBean,MBeanRegistration {
-    private final Log log = LogFactory.getLog(getClass().getName());
+public class ComponentRepository
+    implements ComponentRepositoryMBean,MBeanRegistration
+{
+    private final static Log log = LogFactory.getLog(ComponentRepository.class);
+    
     private final File localRoot;
     private MBeanServer server;
     private Set remoteRoots = new HashSet();
@@ -94,6 +99,9 @@ public class ComponentRepository implements ComponentRepositoryMBean,MBeanRegist
     /**
      * Construct a repository using the specified local directory as root.
      * It will be created if it does not exists
+     *
+     * @jmx:managed-constructor
+     *
      * @param localRoot the local root directory
      */
     public ComponentRepository(File localRoot) {
@@ -118,29 +126,47 @@ public class ComponentRepository implements ComponentRepositoryMBean,MBeanRegist
 
     public void postDeregister() {
     }
-
+    
+    /**
+     * @jmx:managed-attribute
+     */
     public File getLocalRoot() {
         return localRoot;
     }
-
+    
+    /**
+     * @jmx:managed-attribute
+     */
     public Set getRemoteRoots() {
         return Collections.unmodifiableSet(remoteRoots);
     }
-
+    
+    /**
+     * @jmx:managed-operation
+     */
     public void addRemoteRoot(URL root) {
         remoteRoots.add(root);
     }
-
+    
+    /**
+     * @jmx:managed-operation
+     */
     public void removeRemoteRoot(URL root) {
         remoteRoots.remove(root);
     }
-
+    
+    /**
+     * @jmx:managed-operation
+     */
     public void ensureLocal(String name, String version, String location) {
         // @todo get rid of this and use a property editor
         ComponentDescription desc = new ComponentDescription(name, version, location);
         ensureLocal(desc);
     }
-
+    
+    /**
+     * @jmx:managed-operation
+     */
     public boolean ensureLocal(ComponentDescription desc) {
         String location = desc.getLocation();
         File localFile = new File(localRoot, location);
@@ -204,13 +230,19 @@ public class ComponentRepository implements ComponentRepositoryMBean,MBeanRegist
         }
         return false;
     }
-
+    
+    /**
+     * @jmx:managed-operation
+     */
     public void removeLocal(String name, String version, String location) {
         // @todo get rid of this and use a property editor
         ComponentDescription desc = new ComponentDescription(name, version, location);
         removeLocal(desc);
     }
-
+    
+    /**
+     * @jmx:managed-operation
+     */
     public void removeLocal(ComponentDescription desc) {
         String location = desc.getLocation();
         File localFile = new File(localRoot, location);
@@ -218,13 +250,19 @@ public class ComponentRepository implements ComponentRepositoryMBean,MBeanRegist
             localFile.delete();
         }
     }
-
+    
+    /**
+     * @jmx:managed-operation
+     */
     public void deploy(String name, String version, String location) throws DeploymentException {
         // @todo get rid of this and use a property editor
         ComponentDescription desc = new ComponentDescription(name, version, location);
         deploy(desc);
     }
-
+    
+    /**
+     * @jmx:managed-operation
+     */
     public void deploy(ComponentDescription desc) throws DeploymentException {
         if (!ensureLocal(desc)) {
             throw new DeploymentException("Could not obtain local copy of "+desc.getName()+" "+desc.getVersion());

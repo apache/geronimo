@@ -87,11 +87,13 @@ import org.apache.geronimo.jmx.JMXUtil;
 
 /**
  *
+ * @jmx:mbean
  *
- *
- * @version $Revision: 1.6 $ $Date: 2003/08/16 19:03:09 $
+ * @version $Revision: 1.7 $ $Date: 2003/09/01 20:38:49 $
  */
-public class DeploymentController implements MBeanRegistration, DeploymentControllerMBean {
+public class DeploymentController
+    implements MBeanRegistration, DeploymentControllerMBean
+{
     private static final ObjectName DEFAULT_NAME = JMXUtil.getObjectName("geronimo.deployment:role=DeploymentController");
 
     private static final Log log = LogFactory.getLog(DeploymentController.class);
@@ -144,7 +146,10 @@ public class DeploymentController implements MBeanRegistration, DeploymentContro
 
     public void postDeregister() {
     }
-
+    
+    /**
+     * @jmx:managed-operation
+     */
     public synchronized void planDeployment(ObjectName source, Set urlInfos) {
         // find new and existing urlInfos
         for (Iterator i = urlInfos.iterator(); i.hasNext();) {
@@ -184,8 +189,11 @@ public class DeploymentController implements MBeanRegistration, DeploymentContro
             return;
         }
     }
-
-    private boolean isDeployed(URL url) {
+    
+    /**
+     * @jmx:managed-operation
+     */
+    public boolean isDeployed(URL url) {
         try {
             ObjectName pattern = new ObjectName("*:role=DeploymentUnit,url=" + ObjectName.quote(url.toString()) + ",*");
             return !server.queryNames(pattern, null).isEmpty();
@@ -193,7 +201,10 @@ public class DeploymentController implements MBeanRegistration, DeploymentContro
             throw new AssertionError();
         }
     }
-
+    
+    /**
+     * @jmx:managed-operation
+     */
     public synchronized void deploy(URL url) throws DeploymentException {
         if (isDeployed(url)) {
             return;
@@ -216,7 +227,10 @@ public class DeploymentController implements MBeanRegistration, DeploymentContro
             throw e;
         }
     }
-
+    
+    /**
+     * @jmx:managed-operation
+     */
     public synchronized void undeploy(URL url) {
         if (!isDeployed(url)) {
             return;

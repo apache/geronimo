@@ -66,11 +66,16 @@ import EDU.oswego.cs.dl.util.concurrent.Sync;
 import EDU.oswego.cs.dl.util.concurrent.TimeoutSync;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/29 19:16:54 $
+ *
+ * @jmx:mbean
+ *      extends="org.apache.geronimo.management.ManagedObject,org.apache.geronimo.management.StateManageable"
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/09/01 20:38:49 $
  */
 abstract public class AbstractRouterRouter
     extends AbstractManagedObject
-    implements Router, AbstractInterceptorRouterMBean {
+    implements Router, AbstractInterceptorRouterMBean
+{
 
     private long stoppedRoutingTimeout = 1000 * 60; // 1 min.
 
@@ -80,6 +85,9 @@ abstract public class AbstractRouterRouter
     private Sync routerLock = createNewRouterLock();
 
     /**
+     *
+     * @jmx:managed-attribute
+     *
      * @return
      */
     public long getStoppedRoutingTimeout() {
@@ -87,6 +95,9 @@ abstract public class AbstractRouterRouter
     }
 
     /**
+     *
+     * @jmx:managed-attribute
+     *
      * @param stoppedRoutingTimeout
      */
     public void setStoppedRoutingTimeout(long stoppedRoutingTimeout) {

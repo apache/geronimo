@@ -65,10 +65,16 @@ import org.apache.geronimo.management.AbstractManagedObject;
 import org.apache.geronimo.remoting.router.*;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2003/08/29 19:16:53 $
+ *
+ * @jmx:mbean
+ *      extends="org.apache.geronimo.management.ManagedObject,org.apache.geronimo.management.StateManageable"
+ *
+ * @version $Revision: 1.4 $ $Date: 2003/09/01 20:38:49 $
  */
-public class TransportLoader extends AbstractManagedObject implements TransportLoaderMBean {
-
+public class TransportLoader
+    extends AbstractManagedObject
+    implements TransportLoaderMBean
+{
     URI bindURI;
     TransportServer transportServer;
     Router dispatchingRouter;
@@ -107,6 +113,9 @@ public class TransportLoader extends AbstractManagedObject implements TransportL
 
     }
     /**
+     *
+     * @jmx:managed-attribute
+     *
      * @return
      */
     public URI getBindURI() {
@@ -114,6 +123,9 @@ public class TransportLoader extends AbstractManagedObject implements TransportL
     }
 
     /**
+     *
+     * @jmx:managed-attribute
+     *
      * @param bindURI
      */
     public void setBindURI(URI bindURI) {
@@ -121,6 +133,9 @@ public class TransportLoader extends AbstractManagedObject implements TransportL
     }
 
     /**
+     *
+     * @jmx:managed-attribute
+     *
      * @return
      */
     public Router getDispatchingRouter() {
@@ -128,6 +143,9 @@ public class TransportLoader extends AbstractManagedObject implements TransportL
     }
 
     /**
+     *
+     * @jmx:managed-attribute
+     *
      * @param dispatchingRouter
      */
     public void setDispatchingRouter(Router dispatchingRouter) {
@@ -135,6 +153,9 @@ public class TransportLoader extends AbstractManagedObject implements TransportL
     }
 
     /**
+     *
+     * @jmx:managed-attribute
+     *
      * @param dispatchingRouter
      */
     public void setRouterTarget(String ob) throws MalformedObjectNameException {
@@ -142,6 +163,9 @@ public class TransportLoader extends AbstractManagedObject implements TransportL
     }
 
     /**
+     *
+     * @jmx:managed-attribute
+     *
      * @return
      */
     public URI getClientConnectURI() {

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.16 $ $Date: 2003/09/01 19:47:39 $ -->
+<!-- $Revision: 1.17 $ $Date: 2003/09/01 20:38:48 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
@@ -11,6 +11,10 @@
 
   <preGoal name="xdoc:jelly-transform">
     <attainGoal name="html2xdoc"/>
+  </preGoal>
+  
+  <preGoal name="test:compile">
+    <attainGoal name="xdoclet:jmxdoclet:test-compile"/>
   </preGoal>
   
   <preGoal name="java:compile">

@@ -66,15 +66,22 @@ import org.apache.geronimo.management.AbstractManagedObject;
 
 /**
  *
+ * @jmx:mbean
+ *      extends="org.apache.geronimo.management.StateManageable,org.apache.geronimo.management.ManagedObject"
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/21 04:32:41 $
+ * @version $Revision: 1.5 $ $Date: 2003/09/01 20:38:49 $
  */
-public class DeploymentInfo extends AbstractManagedObject implements DeploymentInfoMBean {
+public class DeploymentInfo
+    extends AbstractManagedObject implements DeploymentInfoMBean
+{
     private final URL url;
     private final ObjectName name;
     private final ObjectName parent;
     private final Set children = new HashSet();
-
+    
+    /**
+     * @jmx:managed-constructor
+     */
     public DeploymentInfo(ObjectName name, ObjectName parent, URL url) {
         this.name = name;
         this.parent = parent;
@@ -87,26 +94,44 @@ public class DeploymentInfo extends AbstractManagedObject implements DeploymentI
     protected void doStop() throws Exception {
     }
 
+    /**
+     * @jmx:managed-attribute
+     */
     public URL getURL() {
         return url;
     }
-
+    
+    /**
+     * @jmx:managed-attribute
+     */
     public ObjectName getName() {
         return name;
     }
-
+    
+    /**
+     * @jmx:managed-attribute
+     */
     public ObjectName getParent() {
         return parent;
     }
-
+    
+    /**
+     * @jmx:managed-attribute
+     */
     public Collection getChildren() {
         return Collections.unmodifiableCollection(children);
     }
-
+    
+    /**
+     * @jmx:managed-attribute
+     */
     public synchronized void addChild(ObjectName childName) {
         children.add(childName);
     }
-
+    
+    /**
+     * @jmx:managed-attribute
+     */
     public synchronized void removeChild(ObjectName childName) {
         children.remove(childName);
     }

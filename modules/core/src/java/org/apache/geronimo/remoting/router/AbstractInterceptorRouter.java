@@ -71,10 +71,16 @@ import EDU.oswego.cs.dl.util.concurrent.Sync;
 import EDU.oswego.cs.dl.util.concurrent.TimeoutSync;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/29 19:16:54 $
+ *
+ * @jmx:mbean
+ *      extends="org.apache.geronimo.management.ManagedObject,org.apache.geronimo.management.StateManageable"
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/09/01 20:38:49 $
  */
-abstract public class AbstractInterceptorRouter extends AbstractManagedObject implements Router, AbstractInterceptorRouterMBean {
-
+public abstract class AbstractInterceptorRouter
+    extends AbstractManagedObject
+    implements Router, AbstractInterceptorRouterMBean
+{
     private long stoppedRoutingTimeout = 1000*60; // 1 min.
     
     /** 
@@ -83,6 +89,9 @@ abstract public class AbstractInterceptorRouter extends AbstractManagedObject im
     private Sync routerLock = createNewRouterLock();
     
     /**
+     *
+     * @jmx:managed-attribute
+     *
      * @return
      */
     public long getStoppedRoutingTimeout() {
@@ -90,6 +99,9 @@ abstract public class AbstractInterceptorRouter extends AbstractManagedObject im
     }
 
     /**
+     *
+     * @jmx:managed-attribute
+     *
      * @param stoppedRoutingTimeout
      */
     public void setStoppedRoutingTimeout(long stoppedRoutingTimeout) {
@@ -105,7 +117,6 @@ abstract public class AbstractInterceptorRouter extends AbstractManagedObject im
     }
     
     /**
-     *
      *
      * @see org.apache.geronimo.remoting.transport.Router#sendRequest(java.net.URI, org.apache.geronimo.remoting.transport.Msg)
      */
@@ -132,6 +143,7 @@ abstract public class AbstractInterceptorRouter extends AbstractManagedObject im
     }
 
     /**
+     *
      * @see org.apache.geronimo.remoting.transport.Router#sendDatagram(java.net.URI, org.apache.geronimo.remoting.transport.Msg)
      */
     public void sendDatagram(URI to, Msg msg) throws TransportException {
@@ -169,5 +181,4 @@ abstract public class AbstractInterceptorRouter extends AbstractManagedObject im
     protected void doStop() throws Exception {
         routerLock = createNewRouterLock();
     }
-
 }

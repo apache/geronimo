@@ -102,11 +102,16 @@ import org.w3c.dom.NodeList;
 
 /**
  *
+ * @jmx:mbean
+ *      extends="org.apache.geronimo.deployment.DeploymentPlanner"
  *
- * @version $Revision: 1.9 $ $Date: 2003/08/27 03:43:36 $
+ * @version $Revision: 1.10 $ $Date: 2003/09/01 20:38:49 $
  */
-public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, MBeanRegistration {
-    private Log log = LogFactory.getLog(getClass());
+public class ServiceDeploymentPlanner
+    implements ServiceDeploymentPlannerMBean, MBeanRegistration
+{
+    private static final Log log = LogFactory.getLog(ServiceDeploymentPlanner.class);
+    
     private MBeanServer server;
     private ObjectName objectName;
     private RelationServiceMBean relationService;

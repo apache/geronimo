@@ -67,7 +67,7 @@ import junit.framework.TestCase;
 /**
  * Unit tests for {@link DeployURL} class.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/27 11:40:01 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/01 20:38:49 $
  */
 public class DeployURLTest
     extends TestCase

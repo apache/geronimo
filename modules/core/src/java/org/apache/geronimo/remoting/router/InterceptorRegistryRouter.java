@@ -61,9 +61,16 @@ import org.apache.geronimo.common.Interceptor;
 import org.apache.geronimo.remoting.InterceptorRegistry;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/29 19:16:54 $
+ *
+ * @jmx:mbean
+ *      extends="org.apache.geronimo.remoting.router.AbstractInterceptorRouterMBean,org.apache.geronimo.remoting.router.RouterTargetMBean"
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/09/01 20:38:49 $
  */
-public class InterceptorRegistryRouter extends AbstractInterceptorRouter implements Router, InterceptorRegistryRouterMBean {
+public class InterceptorRegistryRouter
+    extends AbstractInterceptorRouter
+    implements Router, InterceptorRegistryRouterMBean
+{
 
     /**
      * @see org.apache.geronimo.remoting.router.AbstractInterceptorRouter#lookupInterceptorFrom(java.net.URI)

@@ -71,10 +71,16 @@ import org.apache.geronimo.jmx.JMXUtil;
 import org.apache.geronimo.jmx.MBeanProxyFactory;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/29 19:16:54 $
+ *
+ * @jmx:mbean
+ *      extends="org.apache.geronimo.remoting.router.AbstractRouterRouterMBean,org.apache.geronimo.remoting.router.RouterTargetMBean"
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/09/01 20:38:49 $
  */
-public class SubsystemRouter extends AbstractRouterRouter implements SubsystemRouterMBean {
-
+public class SubsystemRouter
+    extends AbstractRouterRouter
+    implements SubsystemRouterMBean
+{
     String relationshipID = "Route";
     Map currentRoutingMap = new HashMap();
 
@@ -127,7 +133,10 @@ public class SubsystemRouter extends AbstractRouterRouter implements SubsystemRo
             }
         }
     }
-
+    
+    /**
+     * @jmx:managed-operation
+     */
     public void restart() throws Exception {
         doStop();
         doStart();

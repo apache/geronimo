@@ -61,8 +61,10 @@ import org.apache.geronimo.deployment.DeploymentException;
 
 /**
  *
+ * @jmx:mbean
+ *      extends="org.apache.geronimo.deployment.DeploymentPlanner"
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/27 03:43:36 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/01 20:38:49 $
  */
 public class ClientDeploymentPlanner implements ClientDeploymentPlannerMBean {
     public boolean plan(Set goals, Set plans) throws DeploymentException {

@@ -76,8 +76,9 @@ import org.apache.geronimo.management.State;
 
 /**
  *
+ * @jmx:mbean
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/20 07:13:26 $
+ * @version $Revision: 1.5 $ $Date: 2003/09/01 20:38:49 $
  */
 public class DependencyService implements MBeanRegistration, DependencyServiceMBean {
     private Log log = LogFactory.getLog(getClass());
@@ -106,7 +107,10 @@ public class DependencyService implements MBeanRegistration, DependencyServiceMB
 
     public void postDeregister() {
     }
-
+    
+    /**
+     * @jmx:managed-operation
+     */
     public synchronized void addStartDependency(ObjectName startChild, ObjectName startParent) {
         Set startParents = (Set) startChildToParentMap.get(startChild);
         if (startParents == null) {
@@ -122,7 +126,10 @@ public class DependencyService implements MBeanRegistration, DependencyServiceMB
         }
         startChildren.add(startChild);
     }
-
+    
+    /**
+     * @jmx:managed-operation
+     */
     public synchronized void removeStartDependency(ObjectName startChild, ObjectName startParent) {
         Set startParents = (Set) startChildToParentMap.get(startChild);
         if (startParents != null) {
@@ -134,7 +141,10 @@ public class DependencyService implements MBeanRegistration, DependencyServiceMB
             startChildren.remove(startChild);
         }
     }
-
+    
+    /**
+     * @jmx:managed-operation
+     */
     public synchronized void addStartDependencies(ObjectName startChild, Set startParents) {
         Set existingStartParents = (Set) startChildToParentMap.get(startChild);
         if (existingStartParents == null) {
@@ -154,7 +164,10 @@ public class DependencyService implements MBeanRegistration, DependencyServiceMB
             startChildren.add(startChild);
         }
     }
-
+    
+    /**
+     * @jmx:managed-operation
+     */
     public synchronized Set getStartParents(ObjectName startChild) {
         Set startParents = (Set) startChildToParentMap.get(startChild);
         if (startParents == null) {
@@ -165,6 +178,8 @@ public class DependencyService implements MBeanRegistration, DependencyServiceMB
 
     /**
      * Gets all of the MBeans that have a dependency on the specificed startParent.
+     * 
+     * @jmx:managed-operation
      */
     public synchronized Set getStartChildren(ObjectName startParent) {
         Set startChildren = (Set) startParentToChildMap.get(startParent);
@@ -174,7 +189,9 @@ public class DependencyService implements MBeanRegistration, DependencyServiceMB
         return startChildren;
     }
 
-
+    /**
+     * @jmx:managed-operation
+     */
     public synchronized void addRelationships(ObjectName child, Set relationships) {
         Set existingRelationships = (Set) relationshipMap.get(child);
         if (existingRelationships == null) {
@@ -204,7 +221,10 @@ public class DependencyService implements MBeanRegistration, DependencyServiceMB
             }
         }
     }
-
+    
+    /**
+     * @jmx:managed-operation
+     */
     public synchronized Set getRelationships(ObjectName child) {
         Set relationships = (Set) relationshipMap.get(child);
         if (relationships == null) {
@@ -212,7 +232,10 @@ public class DependencyService implements MBeanRegistration, DependencyServiceMB
         }
         return relationships;
     }
-
+    
+    /**
+     * @jmx:managed-operation
+     */
     public synchronized Set getCreateParents(ObjectName createChild) {
         Set createParents = (Set) createChildToParentMap.get(createChild);
         if (createParents == null) {
@@ -220,7 +243,10 @@ public class DependencyService implements MBeanRegistration, DependencyServiceMB
         }
         return createParents;
     }
-
+    
+    /**
+     * @jmx:managed-operation
+     */
     public synchronized Set getCreateChildren(ObjectName createParent) {
         Set createChildren = (Set) createParentToChildMap.get(createParent);
         if (createChildren == null) {
@@ -228,7 +254,10 @@ public class DependencyService implements MBeanRegistration, DependencyServiceMB
         }
         return createChildren;
     }
-
+    
+    /**
+     * @jmx:managed-operation
+     */
     public boolean canStart(ObjectName child) {
         Set createParents = null;
         synchronized (this) {
@@ -283,7 +312,10 @@ public class DependencyService implements MBeanRegistration, DependencyServiceMB
         }
         return true;
     }
-
+    
+    /**
+     * @jmx:managed-operation
+     */
     public boolean canStop(ObjectName dependency) {
         Set dependents;
         synchronized (this) {
@@ -319,7 +351,10 @@ public class DependencyService implements MBeanRegistration, DependencyServiceMB
         }
         return true;
     }
-
+    
+    /**
+     * @jmx:managed-operation
+     */
     public State shouldChangeState(ObjectName child) {
         Set relationships = null;
         synchronized (this) {

@@ -65,8 +65,10 @@ import org.apache.geronimo.naming.java.ComponentContextInterceptor;
 
 /**
  *
+ * @jmx:mbean
+ *      extends="org.apache.geronimo.common.RPCContainer,org.apache.geronimo.management.StateManageable"
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/23 22:14:20 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/01 20:38:48 $
  */
 public class AppClientContainer extends AbstractRPCContainer implements AppClientContainerMBean {
     private static final Class[] MAIN_ARGS = {String[].class};
@@ -76,19 +78,31 @@ public class AppClientContainer extends AbstractRPCContainer implements AppClien
 
     public AppClientContainer() throws DeploymentException {
     }
-
+    
+    /**
+     * @jmx:managed-attribute
+     */
     public void setMainClassName(String className) {
         mainClassName = className;
     }
-
+    
+    /**
+     * @jmx:managed-attribute
+     */
     public String getMainClassName() {
         return mainClassName;
     }
-
+    
+    /**
+     * @jmx:managed-attribute
+     */
     public URL getClientURL() {
         return clientURL;
     }
-
+    
+    /**
+     * @jmx:managed-attribute
+     */
     public void setClientURL(URL clientURL) {
         this.clientURL = clientURL;
     }

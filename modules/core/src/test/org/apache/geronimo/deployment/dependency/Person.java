@@ -59,30 +59,50 @@ import org.apache.geronimo.management.AbstractManagedObject;
 
 /**
  *
+ * @jmx:mbean
+ *      extends="org.apache.geronimo.management.StateManageable,org.apache.geronimo.management.ManagedObject"
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/21 04:33:32 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/01 20:38:49 $
  */
-public class Person extends AbstractManagedObject implements PersonMBean {
+public class Person
+    extends AbstractManagedObject
+    implements PersonMBean
+{
     private String name;
     private boolean doStartCalled = false;
     private boolean doStopCalled = false;
 
+    /**
+     * @jmx:managed-attribute
+     */
     public String getName() {
         return name;
     }
-
+    
+    /**
+     * @jmx:managed-attribute
+     */
     public void setName(String name) {
         this.name = name;
     }
-
+    
+    /**
+     * @jmx:managed-attribute
+     */
     public boolean isDoStartCalled() {
         return doStartCalled;
     }
-
+    
+    /**
+     * @jmx:managed-attribute
+     */
     public boolean isDoStopCalled() {
         return doStopCalled;
     }
-
+    
+    /**
+     * @jmx:managed-operation
+     */
     public void reset() {
         doStartCalled = false;
         doStopCalled = false;

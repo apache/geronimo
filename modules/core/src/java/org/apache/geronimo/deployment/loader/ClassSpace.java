@@ -65,12 +65,21 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  *
+ * @jmx:mbean
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/20 22:36:35 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/01 20:38:49 $
  */
-public class ClassSpace extends URLClassLoader implements ClassSpaceMBean {
-    private final Log log = LogFactory.getLog(getClass());
+public class ClassSpace
+    extends URLClassLoader
+    implements ClassSpaceMBean
+{
+    private final static Log log = LogFactory.getLog(ClassSpace.class);
+    
     private final String name;
+    
+    /**
+     * @jmx:managed-constructor
+     */
     public ClassSpace(String name, URL[] urls) {
         super(urls);
         this.name = name;
@@ -79,14 +88,20 @@ public class ClassSpace extends URLClassLoader implements ClassSpaceMBean {
             log.debug("Added url to class-space: name=" + name + " url=" +url);
         }
     }
-
+    
+    /**
+     * @jmx:managed-operation
+     */
     public void addURLs(List urls) {
         for (Iterator i = urls.iterator(); i.hasNext();) {
             URL url = (URL) i.next();
             addURL(url);
         }
     }
-
+    
+    /**
+     * @jmx:managed-attribute
+     */
     public String getName() {
         return name;
     }

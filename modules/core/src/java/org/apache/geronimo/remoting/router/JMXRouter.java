@@ -68,10 +68,15 @@ import org.apache.geronimo.jmx.MBeanProxyFactory;
  * Uses JMX Object names to route the request to a JMX object that implements the 
  * JMXTargetMBean interface.
  * 
- * @version $Revision: 1.1 $ $Date: 2003/08/29 19:16:54 $
+ * @jmx:mbean
+ *      extends="org.apache.geronimo.remoting.router.AbstractInterceptorRouterMBean,org.apache.geronimo.remoting.router.RouterTargetMBean"
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/09/01 20:38:49 $
  */
-public class JMXRouter extends AbstractInterceptorRouter implements JMXRouterMBean {
-
+public class JMXRouter
+    extends AbstractInterceptorRouter
+    implements JMXRouterMBean
+{
     /**
      * @see org.apache.geronimo.remoting.router.AbstractInterceptorRouter#lookupInterceptorFrom(java.net.URI)
      */
@@ -87,6 +92,4 @@ public class JMXRouter extends AbstractInterceptorRouter implements JMXRouterMBe
     public Router getRouter() {
         return this;
     }
-
-
 }

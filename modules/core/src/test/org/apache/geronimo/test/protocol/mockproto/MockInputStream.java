@@ -62,7 +62,7 @@ import java.io.IOException;
 /**
  * A mock input stream for mockproto urls.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/30 12:32:32 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/01 20:38:49 $
  */
 public final class MockInputStream
     extends StringBufferInputStream

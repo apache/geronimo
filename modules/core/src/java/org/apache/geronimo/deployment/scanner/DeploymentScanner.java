@@ -84,19 +84,32 @@ import org.apache.geronimo.management.AbstractManagedObject;
  * An MBean that maintains a list of URLs and periodically invokes a Scanner
  * to search them for deployments.
  *
- * @version $Revision: 1.13 $ $Date: 2003/08/28 11:19:17 $
+ * @jmx:mbean
+ *      extends="org.apache.geronimo.management.StateManageable,org.apache.geronimo.management.ManagedObject"
+ *
+ * @version $Revision: 1.14 $ $Date: 2003/09/01 20:38:49 $
  */
-public class DeploymentScanner extends AbstractManagedObject implements DeploymentScannerMBean {
+public class DeploymentScanner
+    extends AbstractManagedObject
+    implements DeploymentScannerMBean
+{
     private static final Log log = LogFactory.getLog(DeploymentScanner.class);
+
     private RelationServiceMBean relationService;
     private final Map scanners = new HashMap();
     private long scanInterval;
     private boolean run;
     private Thread scanThread;
 
+    /**
+     * @jmx:managed-constructor
+     */
     public DeploymentScanner() {
     }
     
+    /**
+     * @jmx:managed-constructor
+     */
     public DeploymentScanner(final URL[] urls, final boolean recurse) 
     {
         for (int i=0; i<urls.length; i++ ) {
@@ -108,30 +121,45 @@ public class DeploymentScanner extends AbstractManagedObject implements Deployme
         relationService = JMXUtil.getRelationService(server);
         return super.preRegister(server, objectName);
     }
-
+    
+    /**
+     * @jmx:managed-attribute
+     */
     public synchronized long getScanInterval() {
         return scanInterval;
     }
-
+    
+    /**
+     * @jmx:managed-attribute
+     */
     public synchronized void setScanInterval(long scanInterval) {
         this.scanInterval = scanInterval;
     }
-
+    
+    /**
+     * @jmx:managed-attribute
+     */
     public synchronized Set getWatchedURLs() {
         return Collections.unmodifiableSet(new HashSet(scanners.keySet()));
     }
-
+    
+    /**
+     * @jmx:managed-operation
+     */
     public void addURL(String url, boolean recurse) throws MalformedURLException {
         addURL(Strings.toURL(url), recurse);
     }
-
+    
+    /**
+     * @jmx:managed-operation
+     */
     public synchronized void addURL(URL url, boolean recurse) {
         if (!scanners.containsKey(url)) {
             Scanner scanner = getScannerForURL(url, recurse);
             scanners.put(url, scanner);
         }
     }
-
+    
     private Scanner getScannerForURL(URL url, boolean recurse) {
         String protocol = url.getProtocol();
         if ("file".equals(protocol)) {
@@ -142,20 +170,26 @@ public class DeploymentScanner extends AbstractManagedObject implements Deployme
             throw new IllegalArgumentException("Unknown protocol " + protocol);
         }
     }
-
+    
+    /**
+     * @jmx:managed-operation
+     */
     public void removeURL(String url) throws MalformedURLException {
         removeURL(new URL(url));
     }
-
+    
+    /**
+     * @jmx:managed-operation
+     */
     public synchronized void removeURL(URL url) {
         scanners.remove(url);
     }
-
+    
     private synchronized boolean shouldScannerThreadRun() {
         return run;
     }
 
-    public synchronized void doStart() throws Exception {
+    protected synchronized void doStart() throws Exception {
         if (scanThread == null) {
             run = true;
             scanThread = new Thread("DeploymentScanner: ObjectName=" + objectName) {
@@ -173,14 +207,17 @@ public class DeploymentScanner extends AbstractManagedObject implements Deployme
         }
     }
 
-    public synchronized void doStop() throws Exception {
+    protected synchronized void doStop() throws Exception {
         run = false;
         if (scanThread != null) {
             scanThread.interrupt();
             scanThread = null;
         }
     }
-
+    
+    /**
+     * @jmx:managed-operation
+     */
     public void scanNow() {
         boolean logTrace = log.isTraceEnabled();
 

@@ -62,10 +62,15 @@ import org.apache.geronimo.deployment.DeploymentInfo;
 
 /**
  *
+ * @jmx:mbean
+ *      extends="org.apache.geronimo.deployment.DeploymentInfoMBean"
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/11 17:59:11 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/01 20:38:49 $
  */
-public class ServiceDeployment extends DeploymentInfo implements ServiceDeploymentMBean {
+public class ServiceDeployment
+    extends DeploymentInfo
+    implements ServiceDeploymentMBean
+{
     public ServiceDeployment(ObjectName name, ObjectName parent, URL url) {
         super(name, parent, url);
     }
