@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.13 $ $Date: 2003/08/24 21:44:02 $ -->
+<!-- $Revision: 1.14 $ $Date: 2003/08/25 15:43:20 $ -->
 
 <project>
   <pomVersion>3</pomVersion>
@@ -176,7 +176,7 @@
       <id>xml-apis</id>
       <version>1.0.b2</version>
       <properties>
-        <runtime>true</runtime>
+        <runtime>false</runtime>
       </properties>
     </dependency>
     
