@@ -271,12 +271,18 @@ public class MailcapCommandMap extends CommandMap {
     }
 
     public synchronized CommandInfo getCommand(String mimeType, String cmdName) {
+        // strip any parameters from the supplied mimeType
+        int i = mimeType.indexOf(';');
+        if (i != -1) {
+            mimeType = mimeType.substring(0, i).trim();
+        }
+
         // search for an exact match
         Map commands = (Map) preferredCommands.get(mimeType.toLowerCase());
         if(commands != null) {
             return (CommandInfo) commands.get(cmdName.toLowerCase());
         }
-        int i = mimeType.indexOf('/');
+        i = mimeType.indexOf('/');
         if (i == -1) {
             mimeType = mimeType + "/*";
         } else {

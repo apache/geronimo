@@ -71,6 +71,13 @@ public class MailcapCommandMapTest extends TestCase {
         assertEquals("Star", info.getCommandClass());
     }
 
+    public void testParameterizedMimeType() {
+        map.addMailcap("foo/bar ;; x-java-view=Bar");
+        CommandInfo info = map.getCommand("foo/bar ; type=\"text/plain\"", "view");
+        assertEquals("view", info.getCommandName());
+        assertEquals("Bar", info.getCommandClass());
+    }
+
     protected void setUp() throws Exception {
         super.setUp();
         map = new MailcapCommandMap();
