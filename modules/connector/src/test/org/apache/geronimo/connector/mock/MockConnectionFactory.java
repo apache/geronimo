@@ -30,10 +30,10 @@ import javax.resource.spi.ConnectionManager;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:34 $
+ * @version $Revision: 1.4 $ $Date: 2004/03/12 17:58:45 $
  *
  * */
-public class MockConnectionFactory implements ConnectionFactory {
+public class MockConnectionFactory implements ConnectionFactoryExtension {
 
     private ConnectionManager connectionManager;
     private MockManagedConnectionFactory managedConnectionFactory;
@@ -66,5 +66,8 @@ public class MockConnectionFactory implements ConnectionFactory {
 
     public Reference getReference() throws NamingException {
         return reference;
+    }
+
+    public void doSomethingElse() {
     }
 }

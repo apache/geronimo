@@ -38,6 +38,7 @@ import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
 import org.apache.geronimo.xbeans.j2ee.ConnectorDocument;
 import org.apache.xmlbeans.XmlOptions;
@@ -47,7 +48,7 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/03/10 19:21:17 $
+ * @version $Revision: 1.7 $ $Date: 2004/03/12 17:58:45 $
  *
  * */
 public class RAR_1_5ConfigBuilderTest extends TestCase {
@@ -86,7 +87,7 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
         Kernel kernel = new Kernel("test.kernel", "test");
         kernel.boot();
         try {
-            RAR_1_5ConfigBuilder configBuilder = new RAR_1_5ConfigBuilder(kernel, null, new ObjectName("geronimo.connector:service=ConnectionTracker"));
+            RAR_1_5ConfigBuilder configBuilder = new RAR_1_5ConfigBuilder(kernel, null, new ObjectName("geronimo.server:type=ConnectionTracker"));
             DeploymentContext context =  new MockDeploymentContext(kernel);
             configBuilder.addConnectorGBeans(context, connectorDocument, geronimoConnectorDocument.getConnector(), this.getClass().getClassLoader());
             for (Iterator iterator = gbeans.entrySet().iterator(); iterator.hasNext();) {
@@ -95,12 +96,16 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
             }
             for (Iterator iterator = gbeans.keySet().iterator(); iterator.hasNext();) {
                 ObjectName name = (ObjectName) iterator.next();
-                kernel.startGBean(name);
+                kernel.startRecursiveGBean(name);
+            }
+            for (Iterator iterator = gbeans.keySet().iterator(); iterator.hasNext();) {
+                ObjectName name = (ObjectName) iterator.next();
+                assertEquals("non started gbean: " + name, new Integer(State.RUNNING.toInt()), kernel.getAttribute(name, "state"));
             }
         } finally {
             kernel.shutdown();
         }
-        assertEquals(10, gbeans.size());
+        assertEquals(15, gbeans.size());
         //we could check what the gbeans are...
     }
 

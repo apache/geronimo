@@ -39,7 +39,6 @@ import org.apache.geronimo.connector.AdminObjectWrapper;
 import org.apache.geronimo.connector.ResourceAdapterWrapper;
 import org.apache.geronimo.connector.outbound.ConnectionManagerDeployment;
 import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
-import org.apache.geronimo.connector.outbound.security.PasswordCredentialLoginModule;
 import org.apache.geronimo.connector.outbound.security.PasswordCredentialRealm;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.DeploymentException;
@@ -51,6 +50,7 @@ import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 import org.apache.geronimo.xbeans.geronimo.GerAdminobjectInstanceType;
 import org.apache.geronimo.xbeans.geronimo.GerAdminobjectType;
 import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
@@ -67,7 +67,6 @@ import org.apache.geronimo.xbeans.j2ee.ConnectionDefinitionType;
 import org.apache.geronimo.xbeans.j2ee.ConnectorDocument;
 import org.apache.geronimo.xbeans.j2ee.ConnectorType;
 import org.apache.geronimo.xbeans.j2ee.ResourceadapterType;
-import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
@@ -75,7 +74,7 @@ import org.apache.xmlbeans.XmlOptions;
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/03/10 19:21:17 $
+ * @version $Revision: 1.8 $ $Date: 2004/03/12 17:58:45 $
  *
  * */
 public class RAR_1_5ConfigBuilder extends AbstractRARConfigBuilder {
@@ -102,6 +101,9 @@ public class RAR_1_5ConfigBuilder extends AbstractRARConfigBuilder {
     }
 
     void addConnectorGBeans(DeploymentContext context, XmlObject genericConnectorDocument, GerConnectorType geronimoConnector, ClassLoader cl) throws DeploymentException {
+        //addGBeans called from here so it is included in tests.
+        addGBeans(geronimoConnector, cl, context);
+
         ConnectorType connector = ((ConnectorDocument) genericConnectorDocument).getConnector();
         ResourceadapterType resourceadapter = connector.getResourceadapter();
         GerResourceadapterType geronimoResourceAdapter = geronimoConnector.getResourceadapter();
@@ -143,7 +145,9 @@ public class RAR_1_5ConfigBuilder extends AbstractRARConfigBuilder {
             assert geronimoConnectionDefinition != null: "Null GeronimoConnectionDefinition";
             String connectionFactoryInterfaceName = geronimoConnectionDefinition.getConnectionfactoryInterface().getStringValue();
             ConnectionDefinitionType connectionDefinition = (ConnectionDefinitionType) connectionDefinitions.get(connectionFactoryInterfaceName);
-            assert connectionDefinition != null: "No connection definition for ConnectionFactory class: " + connectionFactoryInterfaceName;
+            if (connectionDefinition == null) {
+                throw new DeploymentException("No connection definition for ConnectionFactory class: " + connectionFactoryInterfaceName);
+            }
             for (int j = 0; j < geronimoConnectionDefinition.getConnectiondefinitionInstanceArray().length; j++) {
                 GerConnectiondefinitionInstanceType connectionfactoryInstance = geronimoConnectionDefinition.getConnectiondefinitionInstanceArray()[j];
 

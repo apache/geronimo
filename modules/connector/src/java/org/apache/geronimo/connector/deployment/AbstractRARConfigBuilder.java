@@ -37,6 +37,7 @@ import javax.management.ObjectName;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.deployment.service.GBeanHelper;
 import org.apache.geronimo.deployment.util.XmlBeansUtil;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -47,6 +48,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorType;
+import org.apache.geronimo.xbeans.geronimo.GerGbeanType;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
@@ -56,7 +58,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.9 $ $Date: 2004/03/10 19:21:17 $
+ * @version $Revision: 1.10 $ $Date: 2004/03/12 17:58:45 $
  *
  * */
 public abstract class AbstractRARConfigBuilder implements ConfigurationBuilder {
@@ -184,6 +186,13 @@ public abstract class AbstractRARConfigBuilder implements ConfigurationBuilder {
         } finally {
             fos.close();
 
+        }
+    }
+
+    protected void addGBeans(GerConnectorType geronimoConnector, ClassLoader cl, DeploymentContext context) throws DeploymentException {
+        GerGbeanType[] gbeans = geronimoConnector.getGbeanArray();
+        for (int i = 0; i < gbeans.length; i++) {
+            GBeanHelper.addGbean(new RARGBeanAdapter(gbeans[i]), cl, context);
         }
     }
 

@@ -6,16 +6,16 @@
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
-  
+
        http://www.apache.org/licenses/LICENSE-2.0
-  
+
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-  
+
 <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee" version="1.0" configId="test">
     <resourceadapter>
         <outbound-resourceadapter>
@@ -36,6 +36,7 @@
                         <useSubject>true</useSubject>
                     </connectionmanager>
                     <global-jndi-name>connectionfactories/testcf</global-jndi-name>
+                    <credential-interface>javax.resource.spi.security.PasswordCredential</credential-interface>
                 </connectiondefinition-instance>
                 <connectiondefinition-instance>
                     <name>SecondTestOutboundConnectionFactory</name>
@@ -70,4 +71,15 @@
             <transaction-support>XATransaction</transaction-support>
         </outbound-resourceadapter>
     </resourceadapter>
+
+    <!--normally this is in the j2ee-server-plan.xml.  It is included here so the gbeans can start in unit tests-->
+    <gbean name="geronimo.server:type=ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator">
+    </gbean>
+
+    <gbean name="geronimo.security:service=RealmBridge,name=TargetRealm" class="org.apache.geronimo.security.bridge.ConfiguredIdentityUserPasswordRealmBridge">
+        <attribute name="TargetRealm" type="java.lang.String">TargetRealm</attribute>
+        <attribute name="ConfiguredUser" type="java.lang.String">testUser</attribute>
+        <attribute name="ConfiguredPassword" type="java.lang.String">testPassword</attribute>
+    </gbean>
+
 </connector>

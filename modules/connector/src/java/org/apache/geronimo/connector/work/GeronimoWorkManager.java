@@ -43,7 +43,7 @@ import org.apache.geronimo.transaction.XAWork;
  * TODO There needs to be better lifecycle support.  The individual pools can be stopped now, but
  * not restarted AFAIK.
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:58:33 $
+ * @version $Revision: 1.6 $ $Date: 2004/03/12 17:58:45 $
  */
 public class GeronimoWorkManager implements WorkManager {
 
@@ -224,7 +224,15 @@ public class GeronimoWorkManager implements WorkManager {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(GeronimoWorkManager.class.getName());
-        infoFactory.addInterface(WorkManager.class, new String[]{"SyncMinimumPoolSize", "SyncMaximumPoolSize", "StartMinimumPoolSize", "StartMaximumPoolSize", "ScheduledMinimumPoolSize", "ScheduledMaximumPoolSize"});
+        infoFactory.addInterface(WorkManager.class);
+
+        infoFactory.addAttribute("SyncMinimumPoolSize", true);
+        infoFactory.addAttribute("SyncMaximumPoolSize", true);
+        infoFactory.addAttribute("StartMinimumPoolSize", true);
+        infoFactory.addAttribute("StartMaximumPoolSize", true);
+        infoFactory.addAttribute("ScheduledMinimumPoolSize", true);
+        infoFactory.addAttribute("ScheduledMaximumPoolSize", true);
+
         infoFactory.addReference("XAWork", XAWork.class);
         infoFactory.setConstructor(new GConstructorInfo(
                 new String[]{"SyncMinimumPoolSize", "SyncMaximumPoolSize", "StartMinimumPoolSize", "StartMaximumPoolSize", "ScheduledMinimumPoolSize", "ScheduledMaximumPoolSize", "XAWork"},

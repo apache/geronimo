@@ -30,10 +30,12 @@ import javax.management.MBeanException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
+import javax.resource.spi.security.PasswordCredential;
 
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 import org.apache.geronimo.connector.outbound.ConnectionManagerDeployment;
 import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
+import org.apache.geronimo.connector.outbound.security.PasswordCredentialRealm;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.util.UnclosableInputStream;
@@ -63,7 +65,7 @@ import org.apache.xmlbeans.XmlOptions;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:58:31 $
+ * @version $Revision: 1.6 $ $Date: 2004/03/12 17:58:45 $
  *
  * */
 public class RAR_1_0ConfigBuilder extends AbstractRARConfigBuilder {
@@ -89,6 +91,9 @@ public class RAR_1_0ConfigBuilder extends AbstractRARConfigBuilder {
     }
 
     void addConnectorGBeans(DeploymentContext context, XmlObject genericConnectorDocument, GerConnectorType geronimoConnector, ClassLoader cl) throws DeploymentException {
+        //addGBeans called from here so it is included in tests.
+        addGBeans(geronimoConnector, cl, context);
+
         ResourceadapterType resourceAdapter = ((ConnectorDocument) genericConnectorDocument).getConnector().getResourceadapter();
         GerResourceadapterType geronimoResourceAdapter = geronimoConnector.getResourceadapter();
         for (int i = 0; i < geronimoResourceAdapter.getOutboundResourceadapter().getConnectionDefinitionArray().length; i++) {
@@ -152,12 +157,12 @@ public class RAR_1_0ConfigBuilder extends AbstractRARConfigBuilder {
                     managedConnectionFactoryGBean.setAttribute("ConnectionImplClass", cl.loadClass(resourceAdapter.getConnectionImplClass().getStringValue()));
                     managedConnectionFactoryGBean.setAttribute("GlobalJNDIName", gerConnectionfactoryInstance.getGlobalJndiName());
                     managedConnectionFactoryGBean.setReferencePatterns("ConnectionManagerFactory", Collections.singleton(connectionManagerFactoryObjectName));
-                    //TODO also set up the login module
-                    /*
-                    if (geronimoConnectionDefinition.getAuthentication().equals("BasicUserPassword")) {
-                        managedConnectionFactoryGBean.setReferencePatterns("ManagedConnectionFactoryListener", Collections.singleton(ObjectName.getInstance(BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME + geronimoConnectionDefinition.getName())));
+                    if (gerConnectionfactoryInstance.getCredentialInterface() != null && PasswordCredential.class.getName().equals(gerConnectionfactoryInstance.getCredentialInterface().getStringValue())) {
+                        GBeanMBean realmGBean = new GBeanMBean(PasswordCredentialRealm.class.getName());
+                        realmGBean.setAttribute("RealmName", BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME + gerConnectionfactoryInstance.getName());
+                        context.addGBean(ObjectName.getInstance(BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME + gerConnectionfactoryInstance.getName()), realmGBean);
+                        managedConnectionFactoryGBean.setReferencePatterns("ManagedConnectionFactoryListener", Collections.singleton(ObjectName.getInstance(BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME + gerConnectionfactoryInstance.getName())));
                     }
-                    */
                     managedConnectionFactoryGBean.setReferencePatterns("Kernel", Collections.singleton(Kernel.KERNEL));
                     managedConnectionFactoryGBean.setAttribute("SelfName", managedConnectionFactoryObjectName);
                 } catch (Exception e) {
