@@ -52,20 +52,11 @@ import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.schema.SchemaConversionUtils;
-import org.apache.geronimo.security.deploy.DefaultPrincipal;
-import org.apache.geronimo.security.deploy.Principal;
-import org.apache.geronimo.security.deploy.Realm;
-import org.apache.geronimo.security.deploy.Role;
 import org.apache.geronimo.security.deploy.Security;
+import org.apache.geronimo.security.deployment.SecurityBuilder;
 import org.apache.geronimo.transaction.OnlineUserTransaction;
-import org.apache.geronimo.xbeans.geronimo.jetty.JettyDefaultPrincipalType;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyDependencyType;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyGbeanType;
-import org.apache.geronimo.xbeans.geronimo.jetty.JettyPrincipalType;
-import org.apache.geronimo.xbeans.geronimo.jetty.JettyRealmType;
-import org.apache.geronimo.xbeans.geronimo.jetty.JettyRoleMappingsType;
-import org.apache.geronimo.xbeans.geronimo.jetty.JettyRoleType;
-import org.apache.geronimo.xbeans.geronimo.jetty.JettySecurityType;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
 import org.apache.geronimo.xbeans.j2ee.FilterMappingType;
@@ -180,6 +171,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
             // if we got one extract and validate it otherwise create a default one
             if (jettyWebApp != null) {
                 jettyWebApp = (JettyWebAppType) SchemaConversionUtils.convertToGeronimoNamingSchema(jettyWebApp);
+                jettyWebApp = (JettyWebAppType) SchemaConversionUtils.convertToGeronimoSecuritySchema(jettyWebApp);
                 SchemaConversionUtils.validateDD(jettyWebApp);
             } else {
                 String path;
@@ -304,7 +296,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
         UserTransaction userTransaction = new OnlineUserTransaction();
         ReadOnlyContext compContext = buildComponentContext(earContext, webModule, webApp, jettyWebApp, userTransaction, webClassLoader);
 
-        Security security = buildSecurityConfig(jettyWebApp);
+        Security security = SecurityBuilder.buildSecurityConfig(jettyWebApp.getSecurity());
 
         GBeanMBean gbean;
         try {
@@ -386,63 +378,6 @@ public class JettyModuleBuilder implements ModuleBuilder {
                 webApp.getResourceEnvRefArray(), jettyWebApp.getResourceEnvRefArray(),
                 webApp.getMessageDestinationRefArray(),
                 cl);
-    }
-
-
-    private static Security buildSecurityConfig(JettyWebAppType jettyWebApp) {
-        Security security = null;
-
-        JettySecurityType securityType = jettyWebApp.getSecurity();
-        if (securityType != null) {
-            security = new Security();
-
-            security.setUseContextHandler(securityType.getUseContextHandler());
-
-            JettyDefaultPrincipalType defaultPrincipalType = securityType.getDefaultPrincipal();
-            DefaultPrincipal defaultPrincipal = new DefaultPrincipal();
-
-            defaultPrincipal.setRealmName(defaultPrincipalType.getRealmName());
-            defaultPrincipal.setPrincipal(buildPrincipal(defaultPrincipalType.getPrincipal()));
-
-            security.setDefaultPrincipal(defaultPrincipal);
-
-            JettyRoleMappingsType roleMappingsType = securityType.getRoleMappings();
-            if (roleMappingsType != null) {
-                for (int i = 0; i < roleMappingsType.sizeOfRoleArray(); i++) {
-                    JettyRoleType roleType = roleMappingsType.getRoleArray(i);
-                    Role role = new Role();
-
-                    role.setRoleName(roleType.getRoleName());
-
-                    for (int j = 0; j < roleType.sizeOfRealmArray(); j++) {
-                        JettyRealmType realmType = roleType.getRealmArray(j);
-                        Realm realm = new Realm();
-
-                        realm.setRealmName(realmType.getRealmName());
-
-                        for (int k = 0; k < realmType.sizeOfPrincipalArray(); k++) {
-                            realm.getPrincipals().add(buildPrincipal(realmType.getPrincipalArray(k)));
-                        }
-
-                        role.getRealms().add(realm);
-                    }
-
-                    security.getRoleMappings().add(role);
-                }
-            }
-        }
-
-        return security;
-    }
-
-    private static Principal buildPrincipal(JettyPrincipalType principalType) {
-        Principal principal = new Principal();
-
-        principal.setClassName(principalType.getClass1());
-        principal.setPrincipalName(principalType.getName());
-        principal.setDesignatedRunAs(principalType.isSetDesignatedRunAs());
-
-        return principal;
     }
 
 

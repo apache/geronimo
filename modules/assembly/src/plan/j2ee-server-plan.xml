@@ -54,6 +54,12 @@ by the server.
         <uri>geronimo/jars/geronimo-client-builder-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>
+        <uri>geronimo/jars/geronimo-security-builder-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>openejb/jars/openejb-builder-${openejb_version}.jar</uri>
+    </dependency>
+    <dependency>
         <uri>xmlbeans/jars/xbean-apache-${xmlbeans_version}.jar</uri>
     </dependency>
  

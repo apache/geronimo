@@ -19,13 +19,15 @@
 <xsd:schema
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     xmlns:j2ee="http://java.sun.com/xml/ns/j2ee"
+    xmlns:geronimo="http://geronimo.apache.org/xml/ns/security"
+    targetNamespace="http://geronimo.apache.org/xml/ns/security"
     elementFormDefault="qualified"
     attributeFormDefault="unqualified"
     version="1.0">
 
     <xsd:import namespace="http://java.sun.com/xml/ns/j2ee" schemaLocation="j2ee_1_4.xsd"/>
 
-    <xsd:element name="security" type="securityType"/>
+    <xsd:element name="security" type="geronimo:securityType"/>
 
     <xsd:complexType name="securityType">
         <xsd:annotation>
@@ -38,8 +40,8 @@
         </xsd:annotation>
         <xsd:sequence>
             <xsd:element name="description" type="j2ee:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
-            <xsd:element name="default-principal" type="default-principalType"/>
-            <xsd:element name="role-mappings" type="role-mappingsType" minOccurs="0"/>
+            <xsd:element name="default-principal" type="geronimo:default-principalType"/>
+            <xsd:element name="role-mappings" type="geronimo:role-mappingsType" minOccurs="0"/>
         </xsd:sequence>
         <xsd:attribute name="doas-current-caller" type="xsd:boolean" default="false">
             <xsd:annotation>
@@ -57,30 +59,41 @@
                 </xsd:documentation>
             </xsd:annotation>
         </xsd:attribute>
+        <xsd:attribute name="default-role" type="xsd:string">
+            <xsd:annotation>
+                <xsd:documentation>
+                    Used by the the Deployer to assign method permissions for
+                    all of the unspecified methods, either by assigning them
+                    to security roles, or by marking them as unchecked.  If
+                    the value of default-role is empty, then the unspecified
+                    methods are marked unchec
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
     </xsd:complexType>
     <xsd:complexType name="default-principalType">
         <xsd:sequence>
             <xsd:element name="description" type="j2ee:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
-            <xsd:element name="principal" type="principalType"/>
+            <xsd:element name="principal" type="geronimo:principalType"/>
         </xsd:sequence>
         <xsd:attribute name="realm-name" type="xsd:string" use="required"/>
     </xsd:complexType>
     <xsd:complexType name="role-mappingsType">
         <xsd:sequence>
-            <xsd:element name="role" type="roleType" minOccurs="1" maxOccurs="unbounded"/>
+            <xsd:element name="role" type="geronimo:roleType" minOccurs="1" maxOccurs="unbounded"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="roleType">
         <xsd:sequence>
             <xsd:element name="description" type="j2ee:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
-            <xsd:element name="realm" type="realmType" minOccurs="1" maxOccurs="unbounded"/>
+            <xsd:element name="realm" type="geronimo:realmType" minOccurs="1" maxOccurs="unbounded"/>
         </xsd:sequence>
         <xsd:attribute name="role-name" type="xsd:string" use="required"/>
     </xsd:complexType>
     <xsd:complexType name="realmType">
         <xsd:sequence>
             <xsd:element name="description" type="j2ee:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
-            <xsd:element name="principal" type="principalType" minOccurs="1" maxOccurs="unbounded"/>
+            <xsd:element name="principal" type="geronimo:principalType" minOccurs="1" maxOccurs="unbounded"/>
         </xsd:sequence>
         <xsd:attribute name="realm-name" type="xsd:string" use="required"/>
     </xsd:complexType>

@@ -110,6 +110,12 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-security</artifactId>
             <version>${pom.currentVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-security-builder</artifactId>
+            <version>${pom.currentVersion}</version>
             <properties>
                 <xmlbeans>true</xmlbeans>
             </properties>

@@ -331,7 +331,15 @@
                 <module>true</module>
             </properties>
         </dependency>
-    </dependencies>
+        <dependency>
+            <groupId>openejb</groupId>
+            <artifactId>openejb-builder</artifactId>
+            <version>&openejb-version;</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
+     </dependencies>
 
 
     <!-- =================== -->
