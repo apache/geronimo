@@ -30,11 +30,11 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
+//import org.apache.commons.cli.CommandLine;
+//import org.apache.commons.cli.HelpFormatter;
+//import org.apache.commons.cli.Options;
+//import org.apache.commons.cli.ParseException;
+//import org.apache.commons.cli.PosixParser;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -84,11 +84,11 @@ public class Deployer {
         }
     }
 
-    /**
+    /*
      * GBean entry point invoked from an executable CAR.
      *
      * @param args command line args
-     */
+     *
     public void deploy(String[] args) throws Exception {
         Command cmd = parseArgs(args);
         try {
@@ -121,6 +121,7 @@ public class Deployer {
             }
         }
     }
+    */
 
     public List deploy(File planFile, File moduleFile, File targetFile, boolean install, String mainClass, String classPath) throws DeploymentException {
         if (planFile == null && moduleFile == null) {
@@ -241,7 +242,7 @@ public class Deployer {
             DeploymentUtil.close(module);
         }
     }
-
+    /*
     private static Command parseArgs(String[] args) throws ParseException, DeploymentException {
         Options options = new Options();
         options.addOption("h", "help", false, "print this message");
@@ -349,7 +350,7 @@ public class Deployer {
         private String mainClass;
         private String classPath;
     }
-
+*/
     public static final GBeanInfo GBEAN_INFO;
 
     static {
