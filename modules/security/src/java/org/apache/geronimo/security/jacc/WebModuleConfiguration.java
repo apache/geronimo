@@ -17,26 +17,25 @@
 
 package org.apache.geronimo.security.jacc;
 
+import javax.security.jacc.PolicyConfiguration;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 
-import javax.security.jacc.PolicyConfiguration;
+import noNamespace.PrincipalType;
+import noNamespace.RealmType;
+import noNamespace.RoleMappingsType;
+import noNamespace.RoleType;
+import noNamespace.SecurityType;
 
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.security.util.ConfigurationUtil;
-import org.apache.geronimo.security.jacc.AbstractModuleConfiguration;
-import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.GeronimoSecurityException;
+import org.apache.geronimo.security.RealmPrincipal;
+import org.apache.geronimo.security.util.ConfigurationUtil;
 import org.apache.geronimo.xbeans.j2ee.WebAppType;
-import org.apache.geronimo.xbeans.geronimo.security.GerSecurityType;
-import org.apache.geronimo.xbeans.geronimo.security.GerRoleMappingsType;
-import org.apache.geronimo.xbeans.geronimo.security.GerRoleType;
-import org.apache.geronimo.xbeans.geronimo.security.GerRealmType;
-import org.apache.geronimo.xbeans.geronimo.security.GerPrincipalType;
 
 
 /**
@@ -45,11 +44,12 @@ import org.apache.geronimo.xbeans.geronimo.security.GerPrincipalType;
  * into equivalent security permissions.  These permissions are placed into
  * the appropriate <code>PolicyConfiguration</code> object as defined in the
  * JAAC spec.
- *
+ * <p/>
  * <p>It is expected that deployment tools will configure modules through
  * these utility MBeans and not directly access the
  * <code>PolicyConfiguration</code> objects.
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:25 $
+ *
+ * @version $Revision: 1.5 $ $Date: 2004/05/30 01:26:23 $
  * @see javax.security.jacc.PolicyConfiguration
  * @see "Java Authorization Contract for Containers", section 3.1.3
  */
@@ -58,9 +58,9 @@ public class WebModuleConfiguration extends AbstractModuleConfiguration {
     private static final GBeanInfo GBEAN_INFO;
 
     private WebAppType webApp;
-    private GerSecurityType security;
+    private SecurityType security;
 
-    public WebModuleConfiguration(String contextId, WebAppType webApp, GerSecurityType security) {
+    public WebModuleConfiguration(String contextId, WebAppType webApp, SecurityType security) {
         super(contextId);
         this.webApp = webApp;
         this.security = security;
@@ -70,8 +70,10 @@ public class WebModuleConfiguration extends AbstractModuleConfiguration {
      * Translate the web deployment descriptors into equivalent security
      * permissions.  These permissions are placed into the appropriate
      * <code>PolicyConfiguration</code> object as defined in the JAAC spec.
-     * @throws org.apache.geronimo.security.GeronimoSecurityException if there is any violation of the semantics of
-     * the security descriptor or the state of the module configuration.
+     *
+     * @throws org.apache.geronimo.security.GeronimoSecurityException
+     *          if there is any violation of the semantics of
+     *          the security descriptor or the state of the module configuration.
      * @see javax.security.jacc.PolicyConfiguration
      * @see "Java Authorization Contract for Containers", section 3.1.3
      */
@@ -84,18 +86,18 @@ public class WebModuleConfiguration extends AbstractModuleConfiguration {
 
         //TODO not clear if schema allows/should allow security == null
         if (security != null) {
-            GerRoleMappingsType roleMappings = security.getRoleMappings();
+            RoleMappingsType roleMappings = security.getRoleMappings();
             if (roleMappings != null) {
-                GerRoleType[] roles = roleMappings.getRoleArray();
+                RoleType[] roles = roleMappings.getRoleArray();
                 for (int i = 0; i < roles.length; i++) {
-                    GerRoleType role = roles[i];
-                    GerRealmType[] realms = role.getRealmArray();
+                    RoleType role = roles[i];
+                    RealmType[] realms = role.getRealmArray();
                     for (int j = 0; j < realms.length; j++) {
-                        GerRealmType realm = realms[j];
-                        GerPrincipalType[] principals = realm.getPrincipalArray();
+                        RealmType realm = realms[j];
+                        PrincipalType[] principals = realm.getPrincipalArray();
                         HashSet set = new HashSet();
                         for (int k = 0; k < principals.length; k++) {
-                            GerPrincipalType principal = principals[k];
+                            PrincipalType principal = principals[k];
                             java.security.Principal p = null;
                             try {
                                 Class clazz = Class.forName(principal.getClass1());
@@ -126,9 +128,8 @@ public class WebModuleConfiguration extends AbstractModuleConfiguration {
         //TODO make sure this attribute not backed by a getter or setter works.
         infoFactory.addAttribute(new GAttributeInfo("WebApp", true));
         infoFactory.addAttribute(new GAttributeInfo("Security", true));
-        infoFactory.setConstructor(new GConstructorInfo(
-                new String[] {"ContextID", "WebApp", "Security"},
-                new Class[] {String.class, WebAppType.class, GerSecurityType.class}));
+        infoFactory.setConstructor(new GConstructorInfo(new String[]{"ContextID", "WebApp", "Security"},
+                                                        new Class[]{String.class, WebAppType.class, SecurityType.class}));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
