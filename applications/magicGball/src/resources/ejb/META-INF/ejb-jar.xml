@@ -9,7 +9,6 @@
 			<remote>org.acme.MagicGBall</remote>
 			<local-home>org.acme.MagicGBallLocalHome</local-home>
 			<local>org.acme.MagicGBallLocal</local>
-			<service-endpoint>org.acme.MagicGBallEndpoint</service-endpoint>
 			<ejb-class>org.acme.MagicGBallBean</ejb-class>
 			<session-type>Stateless</session-type>
 			<transaction-type>Container</transaction-type>
