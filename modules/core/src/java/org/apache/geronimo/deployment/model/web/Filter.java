@@ -56,16 +56,17 @@
 package org.apache.geronimo.deployment.model.web;
 
 import org.apache.geronimo.deployment.model.j2ee.Displayable;
+import org.apache.geronimo.deployment.model.j2ee.ParamValue;
 
 /**
  * JavaBean for the web.xml tag filter
  *
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class Filter extends Displayable {
     private String filterName;
     private String filterClass;
-    private InitParam[] initParam = new InitParam[0];
+    private ParamValue[] initParam = new ParamValue[0];
 
     public String getFilterClass() {
         return filterClass;
@@ -83,19 +84,19 @@ public class Filter extends Displayable {
         this.filterName = filterName;
     }
 
-    public InitParam[] getInitParam() {
+    public ParamValue[] getInitParam() {
         return initParam;
     }
 
-    public InitParam getInitParam(int i) {
+    public ParamValue getInitParam(int i) {
         return initParam[i];
     }
 
-    public void setInitParam(InitParam[] initParam) {
+    public void setInitParam(ParamValue[] initParam) {
         this.initParam = initParam;
     }
 
-    public void setInitParam(int i, InitParam initParam) {
+    public void setInitParam(int i, ParamValue initParam) {
         this.initParam[i] = initParam;
     }
 }
