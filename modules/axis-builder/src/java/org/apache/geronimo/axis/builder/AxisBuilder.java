@@ -27,6 +27,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -323,6 +324,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
 
         ServiceEndpointMethodMappingType[] methodMappings = endpointMapping.getServiceEndpointMethodMappingArray();
         int i = 0;
+        Set wrapperElementQNames = new HashSet();
         for (Iterator ops = operations.iterator(); ops.hasNext();) {
             Operation operation = (Operation) ops.next();
             String operationName = operation.getName();
@@ -344,11 +346,12 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
             HeavyweightOperationDescBuilder operationDescBuilder = new HeavyweightOperationDescBuilder(bindingOperation, mapping, methodMapping, portStyle, exceptionMap, complexTypeMap, elementMap, classLoader, enhancedServiceEndpointClass);
             OperationInfo operationInfo = operationDescBuilder.buildOperationInfo(soapVersion);
             operationInfos[i++] = operationInfo;
+            wrapperElementQNames.addAll(operationDescBuilder.getWrapperElementQNames());
         }
         JavaXmlTypeMappingType[] javaXmlTypeMappings = mapping.getJavaXmlTypeMappingArray();
         List typeMappings = new ArrayList();
         Map typeDescriptors = new HashMap();
-        buildTypeInfoHeavyweight(javaXmlTypeMappings, schemaTypeKeyToSchemaTypeMap, classLoader, typeMappings, typeDescriptors);
+        buildTypeInfoHeavyweight(wrapperElementQNames, javaXmlTypeMappings, schemaTypeKeyToSchemaTypeMap, classLoader, typeMappings, typeDescriptors);
         seiFactory = createSEIFactory(serviceName, portName, enhancedServiceEndpointClass, serviceImpl, typeMappings, typeDescriptors, location, operationInfos, handlerInfos, credentialsName, context, classLoader);
         seiPortNameToFactoryMap.put(portName, seiFactory);
         seiClassNameToFactoryMap.put(serviceEndpointInterface.getName(), seiFactory);
@@ -413,9 +416,44 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
         }
     }
 
-    public static void buildTypeInfoHeavyweight(JavaXmlTypeMappingType[] javaXmlTypeMappings, Map schemaTypeKeyToSchemaTypeMap, ClassLoader classLoader, List typeMappings, Map typeDescriptors) throws DeploymentException {
+    public static void buildTypeInfoHeavyweight(Set wrapperElementQNames, JavaXmlTypeMappingType[] javaXmlTypeMappings, Map schemaTypeKeyToSchemaTypeMap, ClassLoader classLoader, List typeMappings, Map typeDescriptors) throws DeploymentException {
         for (int j = 0; j < javaXmlTypeMappings.length; j++) {
             JavaXmlTypeMappingType javaXmlTypeMapping = javaXmlTypeMappings[j];
+
+            QName typeName;
+            SchemaTypeKey key;
+            boolean isElement = javaXmlTypeMapping.getQnameScope().getStringValue().equals("element");
+            boolean isSimpleType = javaXmlTypeMapping.getQnameScope().getStringValue().equals("simpleType");
+            if (javaXmlTypeMapping.isSetRootTypeQname()) {
+                typeName = javaXmlTypeMapping.getRootTypeQname().getQNameValue();
+                key = new SchemaTypeKey(typeName, isElement, isSimpleType, false);
+                
+                // Skip the wrapper elements.
+                if (wrapperElementQNames.contains(typeName)) {
+                    continue;
+                }
+            } else if (javaXmlTypeMapping.isSetAnonymousTypeQname()) {
+                String anonTypeQNameString = javaXmlTypeMapping.getAnonymousTypeQname().getStringValue();
+                int pos = anonTypeQNameString.lastIndexOf(":");
+                if (pos == -1) {
+                    throw new DeploymentException("anon QName is invalid, no final ':' " + anonTypeQNameString);
+                }
+                //this appears to be ignored...
+                typeName = new QName(anonTypeQNameString.substring(0, pos), anonTypeQNameString.substring(pos + 1));
+                key = new SchemaTypeKey(typeName, isElement, isSimpleType, true);
+                
+                // Skip the wrapper elements.
+                if (wrapperElementQNames.contains(new QName(anonTypeQNameString.substring(0, pos), anonTypeQNameString.substring(pos + 2)))) {
+                    continue;
+                }
+            } else {
+                throw new DeploymentException("either root type qname or anonymous type qname must be set");
+            }
+            SchemaType schemaType = (SchemaType) schemaTypeKeyToSchemaTypeMap.get(key);
+            if (schemaType == null) {
+                throw new DeploymentException("Schema type key " + key + " not found in analyzed schema: " + schemaTypeKeyToSchemaTypeMap);
+            }
+            
             //default settings
             Class serializerFactoryClass = BeanSerializerFactory.class;
             Class deserializerFactoryClass = BeanDeserializerFactory.class;
@@ -433,29 +471,6 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
                 deserializerFactoryClass = ArrayDeserializerFactory.class;
             }
 
-            QName typeName;
-            SchemaTypeKey key;
-            boolean isElement = javaXmlTypeMapping.getQnameScope().getStringValue().equals("element");
-            boolean isSimpleType = javaXmlTypeMapping.getQnameScope().getStringValue().equals("simpleType");
-            if (javaXmlTypeMapping.isSetRootTypeQname()) {
-                typeName = javaXmlTypeMapping.getRootTypeQname().getQNameValue();
-                key = new SchemaTypeKey(typeName, isElement, isSimpleType, false);
-            } else if (javaXmlTypeMapping.isSetAnonymousTypeQname()) {
-                String anonTypeQNameString = javaXmlTypeMapping.getAnonymousTypeQname().getStringValue();
-                int pos = anonTypeQNameString.lastIndexOf(":");
-                if (pos == -1) {
-                    throw new DeploymentException("anon QName is invalid, no final ':' " + anonTypeQNameString);
-                }
-                //this appears to be ignored...
-                typeName = new QName(anonTypeQNameString.substring(0, pos), anonTypeQNameString.substring(pos + 1));
-                key = new SchemaTypeKey(typeName, isElement, isSimpleType, true);
-            } else {
-                throw new DeploymentException("either root type qname or anonymous type qname must be set");
-            }
-            SchemaType schemaType = (SchemaType) schemaTypeKeyToSchemaTypeMap.get(key);
-            if (schemaType == null) {
-                throw new DeploymentException("Schema type key " + key + " not found in analyzed schema: " + schemaTypeKeyToSchemaTypeMap);
-            }
             TypeDesc typeDesc = getTypeDescriptor(clazz, typeName, javaXmlTypeMapping, schemaType);
 
             TypeMappingInfo typeMappingInfo = new TypeMappingInfo(clazz, typeName, serializerFactoryClass, deserializerFactoryClass);

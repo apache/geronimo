@@ -180,7 +180,7 @@ public class AxisServiceBuilder {
             validateLightweightMapping(portInfo.getDefinition());
         }
 
-        buildOperations(binding, serviceEndpointInterface, isLightweight, portInfo, exceptionMap, complexTypeMap, elementMap, classLoader, serviceDesc);
+        Set wrapperElementQNames = buildOperations(binding, serviceEndpointInterface, isLightweight, portInfo, exceptionMap, complexTypeMap, elementMap, classLoader, serviceDesc);
 
         TypeMappingRegistryImpl tmr = new TypeMappingRegistryImpl();
         tmr.doRegisterFromVersion("1.3");
@@ -190,20 +190,57 @@ public class AxisServiceBuilder {
         serviceDesc.setTypeMappingRegistry(tmr);
         serviceDesc.setTypeMapping(typeMapping);
 
-        JavaXmlTypeMappingType[] javaXmlTypeMappings = portInfo.getJavaWsdlMapping().getJavaXmlTypeMappingArray();
         if (isLightweight) {
             buildLightweightTypes(schemaTypeKeyToSchemaTypeMap, portInfo, classLoader, typeMapping);
         } else {
-            buildHeavyweightTypes(javaXmlTypeMappings, classLoader, schemaTypeKeyToSchemaTypeMap, typeMapping);
+            JavaXmlTypeMappingType[] javaXmlTypeMappings = portInfo.getJavaWsdlMapping().getJavaXmlTypeMappingArray();
+            buildHeavyweightTypes(wrapperElementQNames, javaXmlTypeMappings, classLoader, schemaTypeKeyToSchemaTypeMap, typeMapping);
         }
 
         serviceDesc.getOperations();
         return new ReadOnlyServiceDesc(serviceDesc);
     }
 
-    private static void buildHeavyweightTypes(JavaXmlTypeMappingType[] javaXmlTypeMappings, ClassLoader classLoader, Map schemaTypeKeyToSchemaTypeMap, TypeMapping typeMapping) throws DeploymentException {
+    private static void buildHeavyweightTypes(Set wrapperElementQNames, JavaXmlTypeMappingType[] javaXmlTypeMappings, ClassLoader classLoader, Map schemaTypeKeyToSchemaTypeMap, TypeMapping typeMapping) throws DeploymentException {
         for (int j = 0; j < javaXmlTypeMappings.length; j++) {
             JavaXmlTypeMappingType javaXmlTypeMapping = javaXmlTypeMappings[j];
+
+            QName typeQName;
+            SchemaTypeKey key;
+            boolean isElement = javaXmlTypeMapping.getQnameScope().getStringValue().equals("element");
+            boolean isSimpleType = javaXmlTypeMapping.getQnameScope().getStringValue().equals("simpleType");
+            if (javaXmlTypeMapping.isSetRootTypeQname()) {
+                typeQName = javaXmlTypeMapping.getRootTypeQname().getQNameValue();
+                key = new SchemaTypeKey(typeQName, isElement, isSimpleType, false);
+                
+                // Skip the wrapper elements.
+                if (wrapperElementQNames.contains(typeQName)) {
+                    continue;
+                }
+            } else if (javaXmlTypeMapping.isSetAnonymousTypeQname()) {
+                String anonTypeQNameString = javaXmlTypeMapping.getAnonymousTypeQname().getStringValue();
+                int pos = anonTypeQNameString.lastIndexOf(":");
+                if (pos == -1) {
+                    throw new DeploymentException("anon QName is invalid, no final ':' " + anonTypeQNameString);
+                }
+
+                //this appears to be ignored...
+                typeQName = new QName(anonTypeQNameString.substring(0, pos), anonTypeQNameString.substring(pos + 1));
+                key = new SchemaTypeKey(typeQName, isElement, isSimpleType, true);
+
+                // Skip the wrapper elements.
+                if (wrapperElementQNames.contains(new QName(anonTypeQNameString.substring(0, pos), anonTypeQNameString.substring(pos + 2)))) {
+                    continue;
+                }
+            } else {
+                throw new DeploymentException("either root type qname or anonymous type qname must be set");
+            }
+
+            SchemaType schemaType = (SchemaType) schemaTypeKeyToSchemaTypeMap.get(key);
+            if (schemaType == null) {
+                throw new DeploymentException("Schema type key " + key + " not found in analyzed schema: " + schemaTypeKeyToSchemaTypeMap);
+            }
+
             //default settings
             Class serializerFactoryClass = BeanSerializerFactory.class;
             Class deserializerFactoryClass = BeanDeserializerFactory.class;
@@ -221,32 +258,7 @@ public class AxisServiceBuilder {
                 serializerFactoryClass = ArraySerializerFactory.class;
                 deserializerFactoryClass = ArrayDeserializerFactory.class;
             }
-
-            QName typeQName;
-            SchemaTypeKey key;
-            boolean isElement = javaXmlTypeMapping.getQnameScope().getStringValue().equals("element");
-            boolean isSimpleType = javaXmlTypeMapping.getQnameScope().getStringValue().equals("simpleType");
-            if (javaXmlTypeMapping.isSetRootTypeQname()) {
-                typeQName = javaXmlTypeMapping.getRootTypeQname().getQNameValue();
-                key = new SchemaTypeKey(typeQName, isElement, isSimpleType, false);
-            } else if (javaXmlTypeMapping.isSetAnonymousTypeQname()) {
-                String anonTypeQNameString = javaXmlTypeMapping.getAnonymousTypeQname().getStringValue();
-                int pos = anonTypeQNameString.lastIndexOf(":");
-                if (pos == -1) {
-                    throw new DeploymentException("anon QName is invalid, no final ':' " + anonTypeQNameString);
-                }
-                //this appears to be ignored...
-                typeQName = new QName(anonTypeQNameString.substring(0, pos), anonTypeQNameString.substring(pos + 1));
-                key = new SchemaTypeKey(typeQName, isElement, isSimpleType, true);
-            } else {
-                throw new DeploymentException("either root type qname or anonymous type qname must be set");
-            }
-
-            SchemaType schemaType = (SchemaType) schemaTypeKeyToSchemaTypeMap.get(key);
-            if (schemaType == null) {
-                throw new DeploymentException("Schema type key " + key + " not found in analyzed schema: " + schemaTypeKeyToSchemaTypeMap);
-            }
-
+            
             TypeDesc typeDesc = TypeDescBuilder.getTypeDescriptor(clazz, typeQName, javaXmlTypeMapping, schemaType);
 
             SerializerFactory ser = BaseSerializerFactory.createFactory(serializerFactoryClass, clazz, typeQName);
@@ -297,7 +309,9 @@ public class AxisServiceBuilder {
         }
     }
 
-    private static void buildOperations(Binding binding, Class serviceEndpointInterface, boolean lightweight, PortInfo portInfo, Map exceptionMap, Map complexTypeMap, Map elementMap, ClassLoader classLoader, JavaServiceDesc serviceDesc) throws DeploymentException {
+    private static Set buildOperations(Binding binding, Class serviceEndpointInterface, boolean lightweight, PortInfo portInfo, Map exceptionMap, Map complexTypeMap, Map elementMap, ClassLoader classLoader, JavaServiceDesc serviceDesc) throws DeploymentException {
+        Set wrappedElementQNames = new HashSet();
+        
         List bindingOperations = binding.getBindingOperations();
         for (int i = 0; i < bindingOperations.size(); i++) {
             BindingOperation bindingOperation = (BindingOperation) bindingOperations.get(i);
@@ -311,10 +325,14 @@ public class AxisServiceBuilder {
                 ServiceEndpointMethodMappingType[] methodMappings = portInfo.getServiceEndpointInterfaceMapping().getServiceEndpointMethodMappingArray();
                 ServiceEndpointMethodMappingType methodMapping = WSDescriptorParser.getMethodMappingForOperation(operationName, methodMappings);
                 operationDescBuilder = new HeavyweightOperationDescBuilder(bindingOperation, portInfo.getJavaWsdlMapping(), methodMapping, Style.RPC, exceptionMap, complexTypeMap, elementMap, classLoader, serviceEndpointInterface);
+                Set wrappedElementQNamesForOper = ((HeavyweightOperationDescBuilder) operationDescBuilder).getWrapperElementQNames();
+                wrappedElementQNames.addAll(wrappedElementQNamesForOper);
             }
 
             serviceDesc.addOperationDesc(operationDescBuilder.buildOperationDesc());
         }
+        
+        return wrappedElementQNames;
     }
 
 

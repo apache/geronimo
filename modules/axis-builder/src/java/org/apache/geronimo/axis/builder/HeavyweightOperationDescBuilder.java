@@ -16,36 +16,27 @@
  */
 package org.apache.geronimo.axis.builder;
 
-import java.lang.String;
 import java.lang.reflect.Method;
-import java.util.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
-import javax.wsdl.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
+import javax.wsdl.BindingInput;
+import javax.wsdl.BindingOperation;
+import javax.wsdl.Fault;
+import javax.wsdl.Message;
+import javax.wsdl.Part;
 import javax.wsdl.extensions.soap.SOAPBody;
 import javax.xml.namespace.QName;
-import javax.xml.rpc.holders.BigDecimalHolder;
-import javax.xml.rpc.holders.BigIntegerHolder;
-import javax.xml.rpc.holders.BooleanHolder;
-import javax.xml.rpc.holders.BooleanWrapperHolder;
-import javax.xml.rpc.holders.ByteArrayHolder;
-import javax.xml.rpc.holders.ByteHolder;
-import javax.xml.rpc.holders.ByteWrapperHolder;
-import javax.xml.rpc.holders.CalendarHolder;
-import javax.xml.rpc.holders.DoubleHolder;
-import javax.xml.rpc.holders.DoubleWrapperHolder;
-import javax.xml.rpc.holders.FloatHolder;
-import javax.xml.rpc.holders.FloatWrapperHolder;
-import javax.xml.rpc.holders.IntHolder;
-import javax.xml.rpc.holders.IntegerWrapperHolder;
-import javax.xml.rpc.holders.LongHolder;
-import javax.xml.rpc.holders.LongWrapperHolder;
-import javax.xml.rpc.holders.ObjectHolder;
-import javax.xml.rpc.holders.QNameHolder;
-import javax.xml.rpc.holders.ShortHolder;
-import javax.xml.rpc.holders.ShortWrapperHolder;
-import javax.xml.rpc.holders.StringHolder;
 
 import org.apache.axis.constants.Style;
 import org.apache.axis.constants.Use;
@@ -56,7 +47,14 @@ import org.apache.axis.soap.SOAPConstants;
 import org.apache.geronimo.axis.client.OperationInfo;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.kernel.ClassLoading;
-import org.apache.geronimo.xbeans.j2ee.*;
+import org.apache.geronimo.xbeans.j2ee.ConstructorParameterOrderType;
+import org.apache.geronimo.xbeans.j2ee.ExceptionMappingType;
+import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingType;
+import org.apache.geronimo.xbeans.j2ee.MethodParamPartsMappingType;
+import org.apache.geronimo.xbeans.j2ee.ServiceEndpointMethodMappingType;
+import org.apache.geronimo.xbeans.j2ee.WsdlMessageMappingType;
+import org.apache.geronimo.xbeans.j2ee.WsdlReturnValueMappingType;
+import org.apache.xmlbeans.SchemaParticle;
 import org.apache.xmlbeans.SchemaProperty;
 import org.apache.xmlbeans.SchemaType;
 import org.objectweb.asm.Type;
@@ -73,7 +71,8 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
     private final Map complexTypeMap;
     private final Map elementMap;
     private final ClassLoader classLoader;
-
+    private final boolean wrappedStype;
+    
     /* Keep track of in and out parameter names so we can verify that
      * everything has been mapped and mapped correctly
      */
@@ -81,6 +80,11 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
     private final Set outParamNames = new HashSet();
     private final Class serviceEndpointInterface;
 
+    /**
+     * Track the wrapper elements
+     */
+    private final Set wrapperElementQNames = new HashSet();
+    
     public HeavyweightOperationDescBuilder(BindingOperation bindingOperation, JavaWsdlMappingType mapping, ServiceEndpointMethodMappingType methodMapping, Style defaultStyle, Map exceptionMap, Map complexTypeMap, Map elementMap, ClassLoader classLoader, Class serviceEndpointInterface) throws DeploymentException {
         super(bindingOperation);
         this.mapping = mapping;
@@ -93,8 +97,14 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
         this.serviceEndpointInterface = serviceEndpointInterface;
         BindingInput bindingInput = bindingOperation.getBindingInput();
         this.soapBody = (SOAPBody) WSDescriptorParser.getExtensibilityElement(SOAPBody.class, bindingInput.getExtensibilityElements());
+        this.wrappedStype = methodMapping.isSetWrappedElement();
     }
 
+    public Set getWrapperElementQNames() throws DeploymentException {
+        buildOperationDesc();
+        
+        return Collections.unmodifiableSet(wrapperElementQNames);
+    }
 
     public OperationInfo buildOperationInfo(SOAPConstants soapVersion) throws DeploymentException {
         buildOperationDesc();
@@ -127,15 +137,18 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
 
         operationDesc.setName(operationName);
         
-        // Set to 'document' or 'rpc'
-        Style style = Style.getStyle(soapOperation.getStyle(), defaultStyle);
-        operationDesc.setStyle(style);
+        // Set to 'document', 'rpc' or 'wrapped'
+        if (wrappedStype) {
+            operationDesc.setStyle(Style.WRAPPED);
+        } else {
+            Style style = Style.getStyle(soapOperation.getStyle(), defaultStyle);
+            operationDesc.setStyle(style);
+        }
 
         // Set to 'encoded' or 'literal'
         Use use = Use.getUse(soapBody.getUse());
         operationDesc.setUse(use);
 
-        boolean isWrappedElement = methodMapping.isSetWrappedElement();
 
         MethodParamPartsMappingType[] paramMappings = methodMapping.getMethodParamPartsMappingArray();
 
@@ -150,14 +163,36 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
             MethodParamPartsMappingType paramMapping = paramMappings[i];
             int position = paramMapping.getParamPosition().getBigIntegerValue().intValue();
 
-            ParameterDesc parameterDesc = mapParameter(paramMapping, isWrappedElement);
+            ParameterDesc parameterDesc = mapParameter(paramMapping);
 
             parameterDescriptions[position] = parameterDesc;
         }
 
-        //check that all input message parts are mapped
-        if (!inParamNames.equals(input.getParts().keySet())) {
-            throw new DeploymentException("Not all input message parts were mapped for operation name" + operationName);
+        if (wrappedStype) {
+            Part inputPart = getWrappedPart(input);
+            QName name = inputPart.getElementName();
+            SchemaType operationType = (SchemaType) complexTypeMap.get(name);
+
+            Set expectedInParams = new HashSet();
+
+            // schemaType should be complex using xsd:sequence compositor
+            SchemaParticle parametersType = operationType.getContentModel();
+            if (SchemaParticle.ELEMENT == parametersType.getParticleType()) {
+                expectedInParams.add(parametersType.getName().getLocalPart());
+            } else if (SchemaParticle.SEQUENCE == parametersType.getParticleType()) {
+                SchemaParticle[] parameters = parametersType.getParticleChildren();
+                for (int i = 0; i < parameters.length; i++) {
+                    expectedInParams.add(parameters[i].getName().getLocalPart());
+                }
+            }
+            if (!inParamNames.equals(expectedInParams)) {
+                throw new DeploymentException("Not all wrapper children were mapped for operation name" + operationName);
+            }
+        } else {
+            //check that all input message parts are mapped
+            if (!inParamNames.equals(input.getParts().keySet())) {
+                throw new DeploymentException("Not all input message parts were mapped for operation name" + operationName);
+            }
         }
 
         Class[] paramTypes = new Class[parameterDescriptions.length];
@@ -192,11 +227,32 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
         // MAP RETURN TYPE
         if (methodMapping.isSetWsdlReturnValueMapping()) {
             mapReturnType();
-
         }
 
-        if (output != null && !outParamNames.equals(output.getParts().keySet())) {
-            throw new DeploymentException("Not all output message parts were mapped to parameters or a return value for operation " + operationName);
+        if (null != output && wrappedStype) {
+            Part inputPart = getWrappedPart(output);
+            QName name = inputPart.getElementName();
+            SchemaType operationType = (SchemaType) complexTypeMap.get(name);
+
+            Set expectedOutParams = new HashSet();
+
+            // schemaType should be complex using xsd:sequence compositor
+            SchemaParticle parametersType = operationType.getContentModel();
+            if (SchemaParticle.ELEMENT == parametersType.getParticleType()) {
+                expectedOutParams.add(parametersType.getName().getLocalPart());
+            } else if (SchemaParticle.SEQUENCE == parametersType.getParticleType()) {
+                SchemaParticle[] parameters = parametersType.getParticleChildren();
+                for (int i = 0; i < parameters.length; i++) {
+                    expectedOutParams.add(parameters[i].getName().getLocalPart());
+                }
+            }
+            if (!outParamNames.equals(expectedOutParams)) {
+                throw new DeploymentException("Not all wrapper children were mapped to parameters or a return value for operation " + operationName);
+            }
+        } else if (null != output) {
+            if (!outParamNames.equals(output.getParts().keySet())) {
+                throw new DeploymentException("Not all output message parts were mapped to parameters or a return value for operation " + operationName);
+            }
         }
 
         Map faultMap = operation.getFaults();
@@ -350,12 +406,24 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
             if (outParamNames.contains(wsdlMessagePartName)) {
                 throw new DeploymentException("output message part " + wsdlMessagePartName + " has both an INOUT or OUT mapping and a return value mapping for operation " + operationName);
             }
-            Part part = output.getPart(wsdlMessagePartName);
-            returnQName = part.getElementName();
-            returnType = part.getTypeName();
+            
+            if (wrappedStype) {
+                Part outPart = getWrappedPart(output);
+                SchemaParticle returnParticle = getWrapperChild(outPart, wsdlMessagePartName);
+                //TODO this makes little sense but may be correct, see comments in axis Parameter class
+                //the part name qname is really odd.
+                returnQName = new QName("", returnParticle.getName().getLocalPart());
+                returnType = returnParticle.getType().getName();
+            } else {
+                Part part = output.getPart(wsdlMessagePartName);
+                if (part == null) {
+                    throw new DeploymentException("No part for wsdlMessagePartName " + wsdlMessagePartName + " in output message for operation " + operationName);
+                }
+                returnQName = part.getElementName();
+                returnType = part.getTypeName();
+            }
 
             outParamNames.add(wsdlMessagePartName);
-
         } else {
             //what does this mean????
         }
@@ -365,7 +433,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
         operationDesc.setReturnClass(returnClass);
     }
 
-    private ParameterDesc mapParameter(MethodParamPartsMappingType paramMapping, boolean wrappedElement) throws DeploymentException {
+    private ParameterDesc mapParameter(MethodParamPartsMappingType paramMapping) throws DeploymentException {
         WsdlMessageMappingType wsdlMessageMappingType = paramMapping.getWsdlMessageMapping();
         QName wsdlMessageQName = wsdlMessageMappingType.getWsdlMessage().getQNameValue();
         String wsdlMessagePartName = wsdlMessageMappingType.getWsdlMessagePartName().getStringValue().trim();
@@ -382,31 +450,64 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
         boolean inHeader = isSoapHeader && isInParam;
         boolean outHeader = isSoapHeader && isOutParam;
 
-        Part part;
+        QName paramQName;
+        QName paramTypeQName;
+        
+        Part part = null;
+        SchemaParticle inParameter = null;
         if (isInParam) {
             if (!wsdlMessageQName.equals(input.getQName())) {
                 throw new DeploymentException("QName of input message: " + input.getQName() +
                         " does not match mapping message QName: " + wsdlMessageQName + " for operation " + operationName);
             }
-            part = input.getPart(wsdlMessagePartName);
-            if (part == null) {
-                throw new DeploymentException("No part for wsdlMessagePartName " + wsdlMessagePartName + " in input message for operation " + operationName);
+            if (wrappedStype) {
+                Part inPart = getWrappedPart(input);
+                // the local name of the global element refered by the part is equal to the operation name
+                QName name = inPart.getElementName();
+                if (false == name.getLocalPart().equals(operationName)) {
+                    throw new DeploymentException("message " + input.getQName() + " refers to a global element named " +  
+                            name.getLocalPart() + ", which is not equal to the operation name " + operationName);
+                }
+                inParameter = getWrapperChild(inPart, wsdlMessagePartName);
+                //TODO this makes little sense but may be correct, see comments in axis Parameter class
+                //the part name qname is really odd.
+                paramQName = new QName("", inParameter.getName().getLocalPart());
+                paramTypeQName = inParameter.getType().getName();
+            } else {
+                part = input.getPart(wsdlMessagePartName);
+                if (part == null) {
+                    throw new DeploymentException("No part for wsdlMessagePartName " + wsdlMessagePartName + " in input message for operation " + operationName);
+                }
+                //TODO this makes little sense but may be correct, see comments in axis Parameter class
+                //the part name qname is really odd.
+                paramQName = new QName("", part.getName());
+                paramTypeQName = part.getTypeName();
             }
             inParamNames.add(wsdlMessagePartName);
             if (isOutParam) {
-                //inout, check that part of same name and type is in output message
-                Part outPart = output.getPart(wsdlMessagePartName);
-                if (outPart == null) {
-                    throw new DeploymentException("No part for wsdlMessagePartName " + wsdlMessagePartName + " in output message for INOUT parameter of operation " + operationName);
-                }
-                if (!part.getName().equals(outPart.getName())) {
-                    throw new DeploymentException("Mismatched input part name: " + part.getName() + " and output part name: " + outPart.getName() + " for INOUT parameter for wsdlMessagePartName " + wsdlMessagePartName + " for operation " + operationName);
-                }
-                if (!(part.getElementName() == null ? outPart.getElementName() == null : part.getElementName().equals(outPart.getElementName()))) {
-                    throw new DeploymentException("Mismatched input part element name: " + part.getElementName() + " and output part element name: " + outPart.getElementName() + " for INOUT parameter for wsdlMessagePartName " + wsdlMessagePartName + " for operation " + operationName);
-                }
-                if (!(part.getTypeName() == null ? outPart.getTypeName() == null : part.getTypeName().equals(outPart.getTypeName()))) {
-                    throw new DeploymentException("Mismatched input part type name: " + part.getTypeName() + " and output part type name: " + outPart.getTypeName() + " for INOUT parameter for wsdlMessagePartName " + wsdlMessagePartName + " for operation " + operationName);
+                if (wrappedStype) {
+                    Part outPart = getWrappedPart(input);
+                    SchemaParticle outParameter = getWrapperChild(outPart, wsdlMessagePartName);
+                    if (inParameter.getType() != outParameter.getType()) {
+                        throw new DeploymentException("The wrapper children " + wsdlMessagePartName + 
+                                " do not have the same type for operation " + operationName);
+                    }
+                } else {
+                    //inout, check that part of same name and type is in output message
+                    Part outPart = output.getPart(wsdlMessagePartName);
+                    if (outPart == null) {
+                        throw new DeploymentException("No part for wsdlMessagePartName " + wsdlMessagePartName + " in output message for INOUT parameter of operation " + operationName);
+                    }
+                    // TODO this cannot happen.
+                    if (!part.getName().equals(outPart.getName())) {
+                        throw new DeploymentException("Mismatched input part name: " + part.getName() + " and output part name: " + outPart.getName() + " for INOUT parameter for wsdlMessagePartName " + wsdlMessagePartName + " for operation " + operationName);
+                    }
+                    if (!(part.getElementName() == null ? outPart.getElementName() == null : part.getElementName().equals(outPart.getElementName()))) {
+                        throw new DeploymentException("Mismatched input part element name: " + part.getElementName() + " and output part element name: " + outPart.getElementName() + " for INOUT parameter for wsdlMessagePartName " + wsdlMessagePartName + " for operation " + operationName);
+                    }
+                    if (!(part.getTypeName() == null ? outPart.getTypeName() == null : part.getTypeName().equals(outPart.getTypeName()))) {
+                        throw new DeploymentException("Mismatched input part type name: " + part.getTypeName() + " and output part type name: " + outPart.getTypeName() + " for INOUT parameter for wsdlMessagePartName " + wsdlMessagePartName + " for operation " + operationName);
+                    }
                 }
                 outParamNames.add(wsdlMessagePartName);
             }
@@ -415,30 +516,86 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
                 throw new DeploymentException("QName of output message: " + output.getQName() +
                         " does not match mapping message QName: " + wsdlMessageQName + " for operation " + operationName);
             }
-            part = output.getPart(wsdlMessagePartName);
-            if (part == null) {
-                throw new DeploymentException("No part for wsdlMessagePartName " + wsdlMessagePartName + " in output message for operation " + operationName);
+            if (wrappedStype) {
+                Part outPart = getWrappedPart(output);
+                SchemaParticle outParameter = getWrapperChild(outPart, wsdlMessagePartName);
+                //TODO this makes little sense but may be correct, see comments in axis Parameter class
+                //the part name qname is really odd.
+                paramQName = new QName("", outParameter.getName().getLocalPart());
+                paramTypeQName = outParameter.getType().getName();
+            } else {
+                part = output.getPart(wsdlMessagePartName);
+                if (part == null) {
+                    throw new DeploymentException("No part for wsdlMessagePartName " + wsdlMessagePartName + " in output message for operation " + operationName);
+                }
+                //TODO this makes little sense but may be correct, see comments in axis Parameter class
+                //the part name qname is really odd.
+                paramQName = new QName("", part.getName());
+                paramTypeQName = part.getTypeName();
             }
             outParamNames.add(wsdlMessagePartName);
         } else {
             throw new AssertionError("a param mapping has to be IN or OUT or INOUT");
         }
 
-        //TODO this makes little sense but may be correct, see comments in axis Parameter class
-        //the part name qname is really odd.
-        QName partQName = wrappedElement ? part.getElementName() : new QName("", part.getName());
-        QName partTypeQName = part.getTypeName();
-
         //use complexTypeMap
-        boolean isComplexType = complexTypeMap.containsKey(partTypeQName);
+        boolean isComplexType = complexTypeMap.containsKey(paramTypeQName);
         String paramJavaTypeName = paramMapping.getParamType().getStringValue().trim();
         boolean isInOnly = mode == ParameterDesc.IN;
-        Class actualParamJavaType = WSDescriptorParser.getHolderType(paramJavaTypeName, isInOnly, partTypeQName, isComplexType, mapping, classLoader);
+        Class actualParamJavaType = WSDescriptorParser.getHolderType(paramJavaTypeName, isInOnly, paramTypeQName, isComplexType, mapping, classLoader);
 
-        ParameterDesc parameterDesc = new ParameterDesc(partQName, mode, partTypeQName, actualParamJavaType, inHeader, outHeader);
+        ParameterDesc parameterDesc = new ParameterDesc(paramQName, mode, paramTypeQName, actualParamJavaType, inHeader, outHeader);
         return parameterDesc;
     }
 
+    private Part getWrappedPart(Message message) throws DeploymentException {
+        // in case of wrapped element, the message has only one part.
+        Collection parts = message.getParts().values();
+        if (1 != parts.size()) {
+            throw new DeploymentException("message " + message.getQName() + " has " + parts.size() + 
+                    " parts and should only have one as wrapper style mapping is specified for operation " + 
+                    operationName);
+        }
+        return (Part) parts.iterator().next();
+    }
+    
+    private SchemaParticle getWrapperChild(Part part, String wsdlMessagePartName) throws DeploymentException {
+        QName name = part.getElementName();
+        
+        wrapperElementQNames.add(name);
+        
+        SchemaType operationType = (SchemaType) complexTypeMap.get(name);
+        if (null == operationType) {
+            throw new DeploymentException("No global element named " + name + " for operation " + operationName);
+        }
+        
+        // schemaType should be complex using xsd:sequence compositor
+        SchemaParticle parametersType = operationType.getContentModel();
+        if (SchemaParticle.ELEMENT == parametersType.getParticleType()) {
+            if (parametersType.getName().getLocalPart().equals(wsdlMessagePartName)) {
+                return parametersType;
+            }
+            throw new DeploymentException("Global element named " + name +
+                    " does not define a child element named " + wsdlMessagePartName +
+                    " required by the operation " + operationName);
+        } else if (SchemaParticle.SEQUENCE == parametersType.getParticleType()) {
+            SchemaParticle[] parameters = parametersType.getParticleChildren();
+            for (int i = 0; i < parameters.length; i++) {
+                SchemaParticle parameter = parameters[i];
+                QName element = parameter.getName();
+                if (element.getLocalPart().equals(wsdlMessagePartName)) {
+                    return parameter;
+                }
+            }
+            throw new DeploymentException("Global element named " + name +
+                    " does not define a child element named " + wsdlMessagePartName + 
+                    " required by the operation " + operationName);
+        } else {
+            throw new DeploymentException("Global element named " + name +
+                    " is not a sequence for operation " + operationName);
+        }
+    }
+    
     /**
      * Supporting the Document/Literal Wrapped pattern
      *
@@ -449,6 +606,4 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
      * part uses the 'element' attribute to point to an elemement in the types section
      * the element type and the element's name match the operation name
      */
-
-
 }
