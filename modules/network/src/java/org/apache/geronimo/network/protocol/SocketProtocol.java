@@ -37,7 +37,7 @@ import org.apache.geronimo.network.SelectorManager;
 
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/04/24 06:29:01 $
+ * @version $Revision: 1.8 $ $Date: 2004/04/24 17:56:32 $
  */
 public class SocketProtocol implements AcceptableProtocol, SelectionEventListner {
 
@@ -240,9 +240,10 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
             sendBuffer[0].putInt(size);
             sendBuffer[0].flip();
 
-            log.trace("OP_READ, OP_WRITE " + selectionKey);
-            selectorManager.setInterestOps(selectionKey, SelectionKey.OP_READ | SelectionKey.OP_WRITE, 0);
-
+            // This is non blocking call anyways, push out
+            // the buffer now if we can.
+            serviceWrite();
+            
         } catch (InterruptedException e) {
             log.debug("Communications error, closing connection: ", e);
             close();
@@ -272,7 +273,11 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
     private void serviceWrite() {
         log.trace("serviceWrite() triggered.");
         try {
-
+        	if( sendBuffer == null ) {
+                log.trace("Write had allready been serviced.");
+                return;
+        	}
+        	
             long count = socketChannel.write(sendBuffer);
             log.trace("Wrote " + count);
 
@@ -280,8 +285,8 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
                 if (sendBuffer[i].hasRemaining()) {
                     // not all was delivered in this call setup selector
                     // so we setup to finish sending async.
-                    log.trace("OP_READ, OP_WRITE " + selectionKey);
-                    selectorManager.setInterestOps(selectionKey, SelectionKey.OP_READ | SelectionKey.OP_WRITE, 0);
+                    log.trace("OP_WRITE " + selectionKey);
+                    selectorManager.setInterestOps(selectionKey, SelectionKey.OP_WRITE, 0);
 
                     return;
                 }
@@ -292,11 +297,7 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
 
             log.trace("RELEASING " + sendMutex);
             sendMutex.release();
-            log.trace("RELEASED " + sendMutex);
-
-            // We are done writing.
-            log.trace("OP_READ " + selectionKey);
-            selectorManager.setInterestOps(selectionKey, SelectionKey.OP_READ, 0);
+            log.trace("RELEASED " + sendMutex);            
 
         } catch (IOException e) {
             log.debug("Communications error, closing connection: ", e);
