@@ -276,6 +276,7 @@
             <version>&javacc-version;</version>
             <jar>JavaCC.zip</jar>
         </dependency>
+<!-- AMM: Axis module does not seem to use JAXB any more
         <dependency>
             <groupId>jaxb-ri</groupId>
             <artifactId>jaxb-api</artifactId>
@@ -306,6 +307,7 @@
             <artifactId>xsdlib</artifactId>
             <version>&jaxb-ri-version;</version>
         </dependency>
+-->
         <dependency>
             <groupId>jdbm</groupId>
             <artifactId>jdbm</artifactId>
@@ -407,6 +409,11 @@
             <groupId>openorb</groupId>
             <artifactId>openorb-tools</artifactId>
             <version>&openorb-version;</version>
+        </dependency>
+        <dependency>
+            <groupId>oro</groupId>
+            <artifactId>oro</artifactId>
+            <version>&oro-version;</version>
         </dependency>
         <dependency>
             <groupId>p2psockets</groupId>

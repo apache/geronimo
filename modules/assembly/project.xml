@@ -675,6 +675,23 @@
 	    </properties>
 	</dependency>
 
+        <dependency>
+            <groupId>axis</groupId>
+            <artifactId>axis</artifactId>
+            <version>&axis-version;</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>axis</groupId>
+            <artifactId>commons-discovery</artifactId>
+            <version>&axis-commons-discovery-version;</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
     </dependencies>
 
 </project>
