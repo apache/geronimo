@@ -32,19 +32,17 @@ import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
+
 import javax.management.MalformedObjectNameException;
 
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.DeploymentException;
-import org.apache.geronimo.deployment.xbeans.AttributeType;
 import org.apache.geronimo.deployment.xbeans.ConfigurationDocument;
 import org.apache.geronimo.deployment.xbeans.ConfigurationType;
 import org.apache.geronimo.deployment.xbeans.DependencyType;
 import org.apache.geronimo.deployment.xbeans.ExecutableType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
-import org.apache.geronimo.deployment.xbeans.ReferenceType;
-import org.apache.geronimo.deployment.xbeans.ReferencesType;
 import org.apache.geronimo.deployment.xbeans.ServiceDocument;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
@@ -59,7 +57,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.9 $ $Date: 2004/02/25 09:57:38 $
+ * @version $Revision: 1.10 $ $Date: 2004/03/09 18:00:57 $
  */
 public class ServiceConfigBuilder implements ConfigurationBuilder {
     private final Repository repository;
@@ -152,7 +150,11 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         addIncludes(context, configType);
         addDependencies(context, configType.getDependencyArray());
         ClassLoader cl = context.getClassLoader(repository);
-        addGBeans(context, configType.getGbeanArray(), cl);
+        GbeanType[] gbeans = configType.getGbeanArray();
+        for (int i = 0; i < gbeans.length; i++) {
+            GBeanHelper.addGbean(new ServiceGBeanAdapter(gbeans[i]), cl, context);
+
+        }
         context.close();
         os.flush();
     }
@@ -231,36 +233,6 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
             }
         }
         return uri;
-    }
-
-    private void addGBeans(DeploymentContext context, GbeanType[] gbeans, ClassLoader cl) throws DeploymentException {
-        for (int i = 0; i < gbeans.length; i++) {
-            GbeanType gbean = gbeans[i];
-            GBeanBuilder builder = new GBeanBuilder(gbean.getName(), cl, gbean.getClass1());
-
-            // set up attributes
-            AttributeType[] attrs = gbean.getAttributeArray();
-            for (int j = 0; j < attrs.length; j++) {
-                AttributeType attr = attrs[j];
-                builder.setAttribute(attr.getName(), attr.getType(), attr.getStringValue());
-            }
-
-            // set up all single pattern references
-            ReferenceType[] refs = gbean.getReferenceArray();
-            for (int j = 0; j < refs.length; j++) {
-                ReferenceType ref = refs[j];
-                builder.setReference(ref.getName(), ref.getStringValue());
-            }
-
-            // set up app multi-patterned references
-            ReferencesType[] refs2 = gbean.getReferencesArray();
-            for (int j = 0; j < refs2.length; j++) {
-                ReferencesType type = refs2[j];
-                builder.setReference(type.getName(), type.getPatternArray());
-            }
-
-            context.addGBean(builder.getName(), builder.getGBean());
-        }
     }
 
     public static final GBeanInfo GBEAN_INFO;
