@@ -56,6 +56,7 @@
 package org.apache.geronimo.deployment;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -66,6 +67,7 @@ import java.util.Properties;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.jar.JarInputStream;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -91,7 +93,7 @@ import org.apache.xmlbeans.XmlObject;
  * Command line based deployment utility which combines multiple deployable modules
  * into a single configuration.
  *
- * @version $Revision: 1.7 $ $Date: 2004/02/20 19:20:59 $
+ * @version $Revision: 1.8 $ $Date: 2004/02/20 21:04:02 $
  */
 public class Deployer {
     static {
@@ -140,27 +142,48 @@ public class Deployer {
             throw new DeploymentException("No plan or module supplied");
         }
 
-        boolean saveOutput;
-        if (cmd.carfile == null) {
-            saveOutput = false;
-            cmd.carfile = File.createTempFile("deployer", ".car");
-        } else {
-            saveOutput = true;
-        }
-        try {
-            builder.buildConfiguration(cmd.carfile, null, plan);
-
+        JarInputStream moduleStream;
+        if (cmd.module != null) {
             try {
-                if (cmd.install) {
-                    kernel.install(cmd.carfile.toURL());
+                moduleStream = new JarInputStream(cmd.module.openStream());
+            } catch (IOException e) {
+                throw new DeploymentException("Unable to open module", e);
+            }
+        } else {
+            moduleStream = null;
+        }
+
+        try {
+            boolean saveOutput;
+            if (cmd.carfile == null) {
+                saveOutput = false;
+                cmd.carfile = File.createTempFile("deployer", ".car");
+            } else {
+                saveOutput = true;
+            }
+            try {
+                builder.buildConfiguration(cmd.carfile, moduleStream, plan);
+
+                try {
+                    if (cmd.install) {
+                        kernel.install(cmd.carfile.toURL());
+                    }
+                } catch (InvalidConfigException e) {
+                    // unlikely as we just built this
+                    throw new DeploymentException(e);
                 }
-            } catch (InvalidConfigException e) {
-                // unlikely as we just built this
-                throw new DeploymentException(e);
+            } finally {
+                if (!saveOutput) {
+                    cmd.carfile.delete();
+                }
             }
         } finally {
-            if (!saveOutput) {
-                cmd.carfile.delete();
+            if (moduleStream != null) {
+                try {
+                    moduleStream.close();
+                } catch (IOException e) {
+                    // ignore to allow cause through
+                }
             }
         }
     }
