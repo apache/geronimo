@@ -71,19 +71,38 @@ import java.io.ByteArrayOutputStream;
 import java.io.ByteArrayInputStream;
 
 import javax.management.ObjectName;
+import javax.enterprise.deploy.model.DDBeanRoot;
+import javax.enterprise.deploy.model.DDBean;
+import javax.enterprise.deploy.spi.DeploymentConfiguration;
+import javax.enterprise.deploy.spi.DConfigBeanRoot;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
+import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
+import org.apache.geronimo.xbeans.geronimo.GerResourceadapterInstanceType;
+import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
+import org.apache.geronimo.xbeans.geronimo.GerAdminobjectType;
+import org.apache.geronimo.xbeans.geronimo.GerAdminobjectInstanceType;
+import org.apache.geronimo.xbeans.geronimo.GerConnectionDefinitionType;
+import org.apache.geronimo.xbeans.geronimo.GerConnectiondefinitionInstanceType;
+import org.apache.geronimo.xbeans.geronimo.GerConnectionmanagerType;
 import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConnectorDocument;
 import org.apache.geronimo.deployment.DeploymentModule;
 import org.apache.geronimo.deployment.ConfigurationCallback;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.connector.deployment.dconfigbean.ResourceAdapterDConfigBean;
+import org.apache.geronimo.connector.deployment.dconfigbean.ConfigPropertySettingDConfigBean;
+import org.apache.geronimo.connector.deployment.dconfigbean.AdminObjectDConfigBean;
+import org.apache.geronimo.connector.deployment.dconfigbean.AdminObjectInstance;
+import org.apache.geronimo.connector.deployment.dconfigbean.ConfigPropertySettings;
+import org.apache.geronimo.connector.deployment.dconfigbean.ConnectionDefinitionDConfigBean;
+import org.apache.geronimo.connector.deployment.dconfigbean.ConnectionDefinitionInstance;
 import org.apache.xmlbeans.XmlOptions;
 
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/02/08 20:21:57 $
+ * @version $Revision: 1.4 $ $Date: 2004/02/20 18:10:29 $
  *
  * */
 public class Connector_1_0Test extends TestCase implements ConfigurationCallback {
@@ -110,6 +129,59 @@ public class Connector_1_0Test extends TestCase implements ConfigurationCallback
         if (!connectorDocument.validate(xmlOptions)) {
             fail(errors.toString());
         }
+
+    }
+
+    public void testDConfigBeans() throws Exception {
+        MockRARDeployable deployable = new MockRARDeployable(j2eeDD);
+        DDBeanRoot ddroot = deployable.getDDBeanRoot();
+        DeploymentConfiguration rarConfiguration = new RARConfigurer().createConfiguration(deployable);
+        DConfigBeanRoot root = rarConfiguration.getDConfigBeanRoot(ddroot);
+        assertNotNull(root);
+
+        //outbound
+        DDBean[] connectionDefinitiondds = ddroot.getChildBean(root.getXpaths()[0]);
+        assertEquals(1, connectionDefinitiondds.length);
+        ConnectionDefinitionDConfigBean connectionDefinitionDConfigBean = (ConnectionDefinitionDConfigBean)root.getDConfigBean(connectionDefinitiondds[0]);
+        assertNotNull(connectionDefinitionDConfigBean);
+        ConnectionDefinitionInstance connectionDefinitionInstance1 = new ConnectionDefinitionInstance();
+        connectionDefinitionDConfigBean.setConnectionDefinitionInstance(new ConnectionDefinitionInstance[] {connectionDefinitionInstance1});
+        DDBean[] connectionDefinitionConfigPropDDs = connectionDefinitiondds[0].getChildBean("config-property");
+        assertEquals(4, connectionDefinitionConfigPropDDs.length);
+        ConfigPropertySettings connectionDefinitionSetting1 = connectionDefinitionInstance1.getConfigProperty()[0];
+        connectionDefinitionSetting1.setConfigPropertyValue("TestCDValue1");
+        //connection manager properties
+        connectionDefinitionInstance1.setBlockingTimeout(3000);
+
+        //check the results
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        rarConfiguration.save(baos);
+        baos.flush();
+        byte[] bytes = baos.toByteArray();
+        baos.close();
+        InputStream is = new ByteArrayInputStream(bytes);
+        GerConnectorDocument gcDoc = GerConnectorDocument.Factory.parse(is);
+        GerResourceadapterType ra = gcDoc.getConnector().getResourceadapter();
+
+        //connection definition
+        GerConnectionDefinitionType connectionDefinitionType = ra.getOutboundResourceadapter().getConnectionDefinitionArray(0);
+        GerConnectiondefinitionInstanceType connectiondefinitionInstanceType = connectionDefinitionType.getConnectiondefinitionInstanceArray(0);
+        assertEquals("TestCDValue1", connectiondefinitionInstanceType.getConfigPropertySettingArray(0).getStringValue());
+        //connection manager
+        GerConnectionmanagerType connectionmanagerType = connectiondefinitionInstanceType.getConnectionmanager();
+        assertEquals(3000, connectionmanagerType.getBlockingTimeout().intValue());
+
+        //and read back into dconfigbeans
+        rarConfiguration.restore(new ByteArrayInputStream(bytes));
+
+        //outbound
+        connectionDefinitionDConfigBean = (ConnectionDefinitionDConfigBean)root.getDConfigBean(connectionDefinitiondds[0]);
+        assertNotNull(connectionDefinitionDConfigBean);
+        ConnectionDefinitionInstance[] connectionDefinitionInstances = connectionDefinitionDConfigBean.getConnectionDefinitionInstance();
+        connectionDefinitionSetting1 = connectionDefinitionInstances[0].getConfigProperty()[0];
+        assertEquals("TestCDValue1", connectionDefinitionSetting1.getConfigPropertyValue());
+        //connection manager
+        assertEquals(3000, connectionDefinitionInstances[0].getBlockingTimeout());
 
     }
 

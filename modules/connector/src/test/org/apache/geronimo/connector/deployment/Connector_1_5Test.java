@@ -59,13 +59,11 @@ package org.apache.geronimo.connector.deployment;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,9 +72,6 @@ import java.util.zip.ZipEntry;
 
 import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.model.DDBeanRoot;
-import javax.enterprise.deploy.model.DeployableObject;
-import javax.enterprise.deploy.model.exceptions.DDBeanCreateException;
-import javax.enterprise.deploy.shared.ModuleType;
 import javax.enterprise.deploy.spi.DConfigBeanRoot;
 import javax.enterprise.deploy.spi.DeploymentConfiguration;
 import javax.management.ObjectName;
@@ -91,7 +86,6 @@ import org.apache.geronimo.connector.deployment.dconfigbean.ConnectionDefinition
 import org.apache.geronimo.connector.deployment.dconfigbean.ResourceAdapterDConfigBean;
 import org.apache.geronimo.deployment.ConfigurationCallback;
 import org.apache.geronimo.deployment.DeploymentModule;
-import org.apache.geronimo.deployment.tools.DDBeanRootImpl;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.xbeans.geronimo.GerAdminobjectInstanceType;
 import org.apache.geronimo.xbeans.geronimo.GerAdminobjectType;
@@ -100,15 +94,15 @@ import org.apache.geronimo.xbeans.geronimo.GerConnectionDefinitionType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectiondefinitionInstanceType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectionmanagerType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
-import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
 import org.apache.geronimo.xbeans.geronimo.GerResourceadapterInstanceType;
+import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
 import org.apache.geronimo.xbeans.j2ee.ConnectorDocument;
 import org.apache.xmlbeans.XmlOptions;
 
 /**
  *
  *
- * @version $Revision: 1.10 $ $Date: 2004/02/20 08:14:12 $
+ * @version $Revision: 1.11 $ $Date: 2004/02/20 18:10:29 $
  *
  * */
 public class Connector_1_5Test extends TestCase implements ConfigurationCallback {
@@ -138,14 +132,13 @@ public class Connector_1_5Test extends TestCase implements ConfigurationCallback
     }
 
     public void testDConfigBeans() throws Exception {
-        RARDeployable deployable = new RARDeployable(j2eeDD);
+        MockRARDeployable deployable = new MockRARDeployable(j2eeDD);
         DDBeanRoot ddroot = deployable.getDDBeanRoot();
         DeploymentConfiguration rarConfiguration = new RARConfigurer().createConfiguration(deployable);
         DConfigBeanRoot root = rarConfiguration.getDConfigBeanRoot(ddroot);
         assertNotNull(root);
 
         //resource adapter
-        String path = root.getXpaths()[0];
         DDBean resourceAdapterdd = ddroot.getChildBean(root.getXpaths()[0])[0];
         ResourceAdapterDConfigBean resourceAdapterDConfigBean = (ResourceAdapterDConfigBean) root.getDConfigBean(resourceAdapterdd);
         assertNotNull(resourceAdapterDConfigBean);
@@ -300,49 +293,4 @@ public class Connector_1_5Test extends TestCase implements ConfigurationCallback
         gbeans.put(name, gbean);
     }
 
-    private class RARDeployable implements DeployableObject {
-
-        private DDBeanRoot root;
-
-        public RARDeployable(URL dd) throws DDBeanCreateException {
-            root =  new DDBeanRootImpl(this, dd);
-        }
-
-        public ModuleType getType() {
-            return ModuleType.RAR;
-        }
-
-        public DDBeanRoot getDDBeanRoot() {
-            return root;
-        }
-
-        public DDBean[] getChildBean(String xpath) {
-            return root.getChildBean(xpath);
-        }
-
-        public String[] getText(String xpath) {
-            return root.getText(xpath);
-        }
-
-        public Class getClassFromScope(String className) {
-            return null;
-        }
-
-        public String getModuleDTDVersion() {
-            return null;
-        }
-
-        public DDBeanRoot getDDBeanRoot(String filename) throws FileNotFoundException, DDBeanCreateException {
-            return null;
-        }
-
-        public Enumeration entries() {
-            return null;
-        }
-
-        public InputStream getEntry(String name) {
-            return null;
-        }
-
-    }
 }

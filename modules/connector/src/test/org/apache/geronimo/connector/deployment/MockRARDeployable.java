@@ -53,49 +53,69 @@
  *
  * ====================================================================
  */
+
 package org.apache.geronimo.connector.deployment;
 
-import javax.enterprise.deploy.model.DeployableObject;
-import javax.enterprise.deploy.shared.ModuleType;
-import javax.enterprise.deploy.spi.DeploymentConfiguration;
+import java.net.URL;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.util.Enumeration;
 
-import org.apache.geronimo.deployment.ModuleConfigurer;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.connector.deployment.dconfigbean.ResourceAdapterDConfigRoot;
-import org.apache.geronimo.connector.deployment.dconfigbean.ResourceAdapter_1_0DConfigRoot;
+import javax.enterprise.deploy.model.DeployableObject;
+import javax.enterprise.deploy.model.DDBeanRoot;
+import javax.enterprise.deploy.model.DDBean;
+import javax.enterprise.deploy.model.exceptions.DDBeanCreateException;
+import javax.enterprise.deploy.shared.ModuleType;
+
+import org.apache.geronimo.deployment.tools.DDBeanRootImpl;
 
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/02/20 18:10:29 $
- */
-public class RARConfigurer implements ModuleConfigurer {
+ * @version $Revision: 1.1 $ $Date: 2004/02/20 18:10:29 $
+ *
+ * */
+public class MockRARDeployable implements DeployableObject {
 
-    public DeploymentConfiguration createConfiguration(DeployableObject deployable) {
-        if (ModuleType.RAR.equals(deployable.getType())) {
-            if (deployable.getDDBeanRoot().getDDBeanRootVersion().equals("1.5")) {
-                return new RARConfiguration(deployable, new ResourceAdapterDConfigRoot(deployable.getDDBeanRoot()));
-            }
-            String[] specVersion = deployable.getDDBeanRoot().getText("connector/spec-version");
-            if (specVersion.length > 0 && "1.0".equals(specVersion[0])) {
-                return new RARConfiguration(deployable, new ResourceAdapter_1_0DConfigRoot(deployable.getDDBeanRoot()));
-            }
-            throw new IllegalArgumentException("Unknown resource adapter version: " + deployable.getDDBeanRoot().getDDBeanRootVersion());
-        } else {
+        private DDBeanRoot root;
+
+        public MockRARDeployable(URL dd) throws DDBeanCreateException {
+            root =  new DDBeanRootImpl(this, dd);
+        }
+
+        public ModuleType getType() {
+            return ModuleType.RAR;
+        }
+
+        public DDBeanRoot getDDBeanRoot() {
+            return root;
+        }
+
+        public DDBean[] getChildBean(String xpath) {
+            return root.getChildBean(xpath);
+        }
+
+        public String[] getText(String xpath) {
+            return root.getText(xpath);
+        }
+
+        public Class getClassFromScope(String className) {
             return null;
         }
-    }
 
-    public static final GBeanInfo GBEAN_INFO;
+        public String getModuleDTDVersion() {
+            return null;
+        }
 
-    static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(RARConfigurer.class);
-        infoFactory.addInterface(ModuleConfigurer.class);
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
+        public DDBeanRoot getDDBeanRoot(String filename) throws FileNotFoundException, DDBeanCreateException {
+            return null;
+        }
 
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
+        public Enumeration entries() {
+            return null;
+        }
+
+        public InputStream getEntry(String name) {
+            return null;
+        }
 }

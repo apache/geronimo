@@ -20,6 +20,20 @@
         <config-property>
             <config-property-name>OutboundStringProperty1</config-property-name>
             <config-property-type>java.lang.String</config-property-type>
+            <config-property-value>originalvalue1</config-property-value>
+        </config-property>
+        <config-property>
+            <config-property-name>OutboundStringProperty2</config-property-name>
+            <config-property-type>java.lang.String</config-property-type>
+            <config-property-value>originalvalue2</config-property-value>
+        </config-property>
+        <config-property>
+            <config-property-name>OutboundStringProperty3</config-property-name>
+            <config-property-type>java.lang.String</config-property-type>
+        </config-property>
+        <config-property>
+            <config-property-name>OutboundStringProperty4</config-property-name>
+            <config-property-type>java.lang.String</config-property-type>
         </config-property>
 
         <authentication-mechanism>
