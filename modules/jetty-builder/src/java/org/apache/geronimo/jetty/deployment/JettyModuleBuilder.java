@@ -58,6 +58,7 @@ import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
+import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -67,6 +68,7 @@ import org.apache.geronimo.jetty.JettyFilterMapping;
 import org.apache.geronimo.jetty.JettyServletHolder;
 import org.apache.geronimo.jetty.JettyWebAppContext;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
@@ -102,6 +104,9 @@ import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
 import org.apache.geronimo.xbeans.j2ee.WebAppType;
 import org.apache.geronimo.xbeans.j2ee.WebResourceCollectionType;
 import org.apache.geronimo.xbeans.j2ee.WelcomeFileListType;
+import org.apache.geronimo.xbeans.j2ee.WebservicesDocument;
+import org.apache.geronimo.axis.builder.WSDescriptorParser;
+import org.apache.geronimo.axis.builder.PortInfo;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.mortbay.http.BasicAuthenticator;
@@ -119,6 +124,9 @@ public class JettyModuleBuilder implements ModuleBuilder {
     private final ObjectName defaultServlets;
     private final ObjectName defaultFilters;
     private final ObjectName defaultFilterMappings;
+    private final ObjectName pojoWebServiceTemplate;
+
+    private final WebServiceBuilder webServiceBuilder;
 
     private final List defaultWelcomeFiles;
     private final Integer defaultSessionTimeoutSeconds;
@@ -133,6 +141,8 @@ public class JettyModuleBuilder implements ModuleBuilder {
                               ObjectName defaultServlets,
                               ObjectName defaultFilters,
                               ObjectName defaultFilterMappings,
+                              ObjectName pojoWebServiceTemplate,
+                              WebServiceBuilder webServiceBuilder,
                               Repository repository,
                               Kernel kernel) {
         this.defaultParentId = defaultParentId;
@@ -141,6 +151,8 @@ public class JettyModuleBuilder implements ModuleBuilder {
         this.defaultServlets = defaultServlets;
         this.defaultFilters = defaultFilters;
         this.defaultFilterMappings = defaultFilterMappings;
+        this.pojoWebServiceTemplate = pojoWebServiceTemplate;
+        this.webServiceBuilder = webServiceBuilder;
         this.repository = repository;
         this.kernel = kernel;
 
@@ -188,6 +200,15 @@ public class JettyModuleBuilder implements ModuleBuilder {
         }
         check(webApp);
 
+        //look for a webservices dd
+        Map portMap = Collections.EMPTY_MAP;
+        try {
+            URL wsDDUrl = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/webservices.xml");
+            portMap = WSDescriptorParser.parseWebServiceDescriptor(wsDDUrl, moduleFile, false);
+        } catch (MalformedURLException e) {
+            //no descriptor
+        }
+
         // parse vendor dd
         JettyWebAppType jettyWebApp = getJettyWebApp(plan, moduleFile, standAlone, targetPath, webApp);
 
@@ -210,7 +231,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
             parentId = defaultParentId;
         }
 
-        WebModule module = new WebModule(standAlone, configId, parentId, moduleFile, targetPath, webApp, jettyWebApp, specDD);
+        WebModule module = new WebModule(standAlone, configId, parentId, moduleFile, targetPath, webApp, jettyWebApp, specDD, portMap);
         module.setContextRoot(jettyWebApp.getContextRoot());
         return module;
     }
@@ -673,10 +694,11 @@ public class JettyModuleBuilder implements ModuleBuilder {
 
             //set up servlet gbeans.
             ServletType[] servletTypes = webApp.getServletArray();
+            Map portMap = ((WebModule)module).getPortMap();
 
             for (int i = 0; i < servletTypes.length; i++) {
                 ServletType servletType = servletTypes[i];
-                addServlet(webModuleName, servletType, servletMappings, securityRoles, webClassLoader, moduleJ2eeContext, earContext);
+                addServlet(webModuleName, servletType, servletMappings, securityRoles, portMap, webClassLoader, moduleJ2eeContext, earContext);
             }
         } catch (DeploymentException de) {
             throw de;
@@ -704,7 +726,13 @@ public class JettyModuleBuilder implements ModuleBuilder {
         return webClassLoader;
     }
 
-    private void addServlet(ObjectName webModuleName, ServletType servletType, Map servletMappings, Set securityRoles, ClassLoader webClassLoader, J2eeContext moduleJ2eeContext, EARContext earContext) throws MalformedObjectNameException, DeploymentException {
+    private void addServlet(ObjectName webModuleName,
+                            ServletType servletType,
+                            Map servletMappings,
+                            Set securityRoles,
+                            Map portMap, ClassLoader webClassLoader,
+                            J2eeContext moduleJ2eeContext,
+                            EARContext earContext) throws MalformedObjectNameException, DeploymentException {
         String servletName = servletType.getServletName().getStringValue().trim();
         ObjectName servletObjectName = NameFactory.getWebComponentName(null, null, null, null, servletName, NameFactory.SERVLET, moduleJ2eeContext);
         GBeanData servletData;
@@ -726,9 +754,18 @@ public class JettyModuleBuilder implements ModuleBuilder {
                 servletData = new GBeanData(servletObjectName, JettyServletHolder.GBEAN_INFO);
                 servletData.setAttribute("servletClass", servletClassName);
             } else {
-//                servletData = webServiceBuilder.buildServletGBean();
-                System.out.println("NOT DEPLOYING WEB SERVICE CLASS " + servletClassName);
-                return;
+                try {
+                    servletData = kernel.getGBeanData(pojoWebServiceTemplate);
+                } catch (GBeanNotFoundException e) {
+                    throw new DeploymentException("No POJO web service template gbean found at object name: " + pojoWebServiceTemplate, e);
+                }
+                servletData.setName(servletObjectName);
+                //let the web service builder deal with configuring the gbean with the web service stack
+                PortInfo portInfo = (PortInfo) portMap.get(servletName);
+                if (portInfo == null) {
+                    throw new DeploymentException("No web service deployment info for servlet name " + servletName);
+                }
+                webServiceBuilder.configurePOJO(servletData, portInfo, servletClassName);
             }
         } else if (servletType.isSetJspFile()) {
             servletData = new GBeanData(servletObjectName, JettyServletHolder.GBEAN_INFO);
@@ -1070,6 +1107,8 @@ public class JettyModuleBuilder implements ModuleBuilder {
         infoBuilder.addAttribute("defaultServlets", ObjectName.class, true);
         infoBuilder.addAttribute("defaultFilters", ObjectName.class, true);
         infoBuilder.addAttribute("defaultFilterMappings", ObjectName.class, true);
+        infoBuilder.addAttribute("pojoWebServiceTemplate", ObjectName.class, true);
+        infoBuilder.addReference("WebServiceBuilder", WebServiceBuilder.class);
         infoBuilder.addReference("Repository", Repository.class);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
         infoBuilder.addInterface(ModuleBuilder.class);
@@ -1082,6 +1121,8 @@ public class JettyModuleBuilder implements ModuleBuilder {
             "defaultServlets",
             "defaultFilters",
             "defaultFilterMappings",
+            "pojoWebServiceTemplate",
+            "WebServiceBuilder",
             "Repository",
             "kernel"});
         GBEAN_INFO = infoBuilder.getBeanInfo();

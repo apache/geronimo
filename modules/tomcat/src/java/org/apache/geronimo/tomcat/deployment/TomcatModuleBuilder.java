@@ -181,8 +181,9 @@ public class TomcatModuleBuilder implements ModuleBuilder {
         // webapp to Jetty- or TomcatModuleBuilder based on parentId.
         log.warn("Assigning defaultParentId [" + defaultParentId + "] to webapp [" + configId + "]");
         parentId = defaultParentId;
+        Map portMap = null;
 
-        WebModule module = new WebModule(false, configId, parentId, moduleFile, "war", webApp, jettyWebApp, specDD);
+        WebModule module = new WebModule(false, configId, parentId, moduleFile, "war", webApp, jettyWebApp, specDD, portMap);
         module.setContextRoot(jettyWebApp.getContextRoot());
 
         return module;

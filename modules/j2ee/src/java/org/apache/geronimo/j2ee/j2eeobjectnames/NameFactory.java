@@ -95,6 +95,7 @@ public class NameFactory {
     public static final String PERSISTENT_CONFIGURATION_LIST = "PersistentConfigurationList"; //duplicated in FileConfigurationList
 //    public static final String URL_PATTERN = "URLPattern";
     public static String DEFAULT_SERVLET = "DefaultServlet";
+    public static final String SERVLET_WEB_SERVICE_TEMPLATE = "ServletWebServiceTemplate";
 
     public static ObjectName getDomainName(String j2eeDomainName, J2eeContext context) throws MalformedObjectNameException {
         Properties props = new Properties();

@@ -17,6 +17,8 @@
 package org.apache.geronimo.jetty;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Map;
 import java.util.Set;
 import java.util.Collections;
@@ -25,6 +27,8 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.UnavailableException;
+import javax.servlet.Servlet;
+import javax.servlet.ServletConfig;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -34,32 +38,25 @@ import org.mortbay.jetty.servlet.ServletHttpRequest;
 
 
 /**
- * This ServletHolder's sole purpose is to provide the thread's current
- * ServletHolder for realms that are interested in the current servlet, e.g.
- * current servlet name.
+ * This is intended to hold the web service stack for an axis POJO web service.
+ * It is starting life as a copy of JettyServletHolder.
  *
- * It is also being our servlet gbean for now.  We could gbean-ize the superclass to avoid the thread local access.
- *
- * @version $Rev$ $Date$
- * @see org.apache.geronimo.jetty.JAASJettyRealm#isUserInRole(java.security.Principal, java.lang.String)
+ * @version $Rev: 154436 $ $Date: 2005-02-19 10:22:02 -0800 (Sat, 19 Feb 2005) $
  */
-public class JettyServletHolder extends ServletHolder {
-    static final ThreadLocal currentServletHolder = new ThreadLocal();
+public class JettyAxisPOJOWebService extends ServletHolder {
 
     //todo consider interface instead of this constructor for endpoint use.
-    public JettyServletHolder() {
+    public JettyAxisPOJOWebService() {
 
     }
 
-    public JettyServletHolder(String servletName,
-                              String servletClassName,
-                              String jspFile,
+    public JettyAxisPOJOWebService(String servletName,
                               Map initParams,
                               Integer loadOnStartup,
                               Set servletMappings,
                               Map webRoleRefPermissions,
                               JettyServletRegistration context) throws Exception {
-        super(context == null? null: context.getServletHandler(), servletName, servletClassName, jspFile);
+        super(context == null? null: context.getServletHandler(), servletName, DummyServlet.class.getName(), null);
         //context will be null only for use as "default servlet info holder" in deployer.
 
         if (context != null) {
@@ -87,32 +84,50 @@ public class JettyServletHolder extends ServletHolder {
     public void handle(ServletRequest request, ServletResponse response)
             throws ServletException, UnavailableException, IOException {
 
-        currentServletHolder.set(this);
+        JettyServletHolder.currentServletHolder.set(this);
         PolicyContext.setHandlerData(ServletHttpRequest.unwrap(request));
 
         super.handle(request, response);
     }
 
-    /**
-     * Provide the thread's current JettyServletHolder
-     *
-     * @return the thread's current JettyServletHolder
-     * @see org.apache.geronimo.jetty.JAASJettyRealm#isUserInRole(java.security.Principal, java.lang.String)
-     */
-    static JettyServletHolder getJettyServletHolder() {
-        return (JettyServletHolder) currentServletHolder.get();
+    public static class DummyServlet implements Servlet {
+
+        public void init(ServletConfig config) throws ServletException {
+
+        }
+
+        public ServletConfig getServletConfig() {
+            return null;
+        }
+
+        public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
+           //just for fun, copy input into output
+            InputStream in = req.getInputStream();
+            OutputStream out = res.getOutputStream();
+            byte[] buf = new byte[1024];
+            int i;
+            while ((i = in.read(buf)) > 0) {
+                out.write(buf, 0, i);
+            }
+        }
+
+        public String getServletInfo() {
+            return null;
+        }
+
+        public void destroy() {
+
+        }
     }
 
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(JettyServletHolder.class, NameFactory.DEFAULT_SERVLET);
+        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(JettyAxisPOJOWebService.class, NameFactory.SERVLET_WEB_SERVICE_TEMPLATE);
         //todo replace with interface
         infoBuilder.addInterface(ServletHolder.class);
         
         infoBuilder.addAttribute("servletName", String.class, true);
-        infoBuilder.addAttribute("servletClass", String.class, true);
-        infoBuilder.addAttribute("jspFile", String.class, true);
         infoBuilder.addAttribute("initParams", Map.class, true);
         infoBuilder.addAttribute("loadOnStartup", Integer.class, true);
         infoBuilder.addAttribute("servletMappings", Set.class, true);
@@ -120,9 +135,7 @@ public class JettyServletHolder extends ServletHolder {
         infoBuilder.addReference("JettyServletRegistration", JettyServletRegistration.class);
 
         infoBuilder.setConstructor(new String[] {"servletName",
-                                                 "servletClass",
-                                                 "jspFile",
-                                                 "initParams", 
+                                                 "initParams",
                                                  "loadOnStartup", 
                                                  "servletMappings",
                                                  "webRoleRefPermissions",

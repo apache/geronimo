@@ -20,6 +20,7 @@ import java.io.File;
 import java.net.URL;
 import java.net.URI;
 import java.util.jar.JarFile;
+import java.util.Map;
 
 import javax.management.ObjectName;
 
@@ -34,13 +35,14 @@ public class MockWARConfigBuilder extends Assert implements ModuleBuilder {
     public WebModule webModule;
     public ClassLoader cl;
     public String contextRoot;
+    private Map portMap = null;
 
     public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
-        return new WebModule(true, null, null, moduleFile, "war", null, null, null);
+        return new WebModule(true, null, null, moduleFile, "war", null, null, null, portMap);
     }
 
     public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, URI earConfigId) throws DeploymentException {
-        return new WebModule(false, null, null, moduleFile, targetPath, null, null, null);
+        return new WebModule(false, null, null, moduleFile, targetPath, null, null, null, portMap);
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module webModule) throws DeploymentException {

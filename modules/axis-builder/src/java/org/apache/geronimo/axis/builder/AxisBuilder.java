@@ -18,18 +18,14 @@ package org.apache.geronimo.axis.builder;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -47,41 +43,12 @@ import javax.wsdl.Operation;
 import javax.wsdl.Part;
 import javax.wsdl.Port;
 import javax.wsdl.PortType;
-import javax.wsdl.Types;
-import javax.wsdl.WSDLException;
-import javax.wsdl.extensions.ExtensibilityElement;
-import javax.wsdl.extensions.UnknownExtensibilityElement;
-import javax.wsdl.extensions.schema.Schema;
 import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.wsdl.extensions.soap.SOAPBinding;
 import javax.wsdl.extensions.soap.SOAPBody;
 import javax.wsdl.extensions.soap.SOAPOperation;
-import javax.wsdl.factory.WSDLFactory;
-import javax.wsdl.xml.WSDLLocator;
-import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
 import javax.xml.rpc.handler.HandlerInfo;
-import javax.xml.rpc.holders.BigDecimalHolder;
-import javax.xml.rpc.holders.BigIntegerHolder;
-import javax.xml.rpc.holders.BooleanHolder;
-import javax.xml.rpc.holders.BooleanWrapperHolder;
-import javax.xml.rpc.holders.ByteArrayHolder;
-import javax.xml.rpc.holders.ByteHolder;
-import javax.xml.rpc.holders.ByteWrapperHolder;
-import javax.xml.rpc.holders.CalendarHolder;
-import javax.xml.rpc.holders.DoubleHolder;
-import javax.xml.rpc.holders.DoubleWrapperHolder;
-import javax.xml.rpc.holders.FloatHolder;
-import javax.xml.rpc.holders.FloatWrapperHolder;
-import javax.xml.rpc.holders.IntHolder;
-import javax.xml.rpc.holders.IntegerWrapperHolder;
-import javax.xml.rpc.holders.LongHolder;
-import javax.xml.rpc.holders.LongWrapperHolder;
-import javax.xml.rpc.holders.ObjectHolder;
-import javax.xml.rpc.holders.QNameHolder;
-import javax.xml.rpc.holders.ShortHolder;
-import javax.xml.rpc.holders.ShortWrapperHolder;
-import javax.xml.rpc.holders.StringHolder;
 
 import net.sf.cglib.core.DefaultGeneratorStrategy;
 import net.sf.cglib.proxy.Callback;
@@ -109,101 +76,61 @@ import org.apache.geronimo.axis.client.SEIFactoryImpl;
 import org.apache.geronimo.axis.client.SerializableNoOp;
 import org.apache.geronimo.axis.client.ServiceImpl;
 import org.apache.geronimo.axis.client.ServiceMethodInterceptor;
-import org.apache.geronimo.axis.client.ServiceReference;
 import org.apache.geronimo.axis.client.TypeMappingInfo;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
+import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.naming.reference.DeserializingReference;
-import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.j2ee.ConstructorParameterOrderType;
 import org.apache.geronimo.xbeans.j2ee.ExceptionMappingType;
-import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingDocument;
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingType;
 import org.apache.geronimo.xbeans.j2ee.JavaXmlTypeMappingType;
 import org.apache.geronimo.xbeans.j2ee.MethodParamPartsMappingType;
-import org.apache.geronimo.xbeans.j2ee.PackageMappingType;
 import org.apache.geronimo.xbeans.j2ee.ServiceEndpointInterfaceMappingType;
 import org.apache.geronimo.xbeans.j2ee.ServiceEndpointMethodMappingType;
 import org.apache.geronimo.xbeans.j2ee.WsdlMessageMappingType;
 import org.apache.geronimo.xbeans.j2ee.WsdlReturnValueMappingType;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlObject;
 import org.objectweb.asm.Type;
 import org.w3.x2001.xmlSchema.ComplexType;
 import org.w3.x2001.xmlSchema.ExplicitGroup;
 import org.w3.x2001.xmlSchema.LocalElement;
-import org.w3.x2001.xmlSchema.SchemaDocument;
-import org.w3c.dom.Element;
-import org.xml.sax.InputSource;
 
 /**
  * @version $Rev:  $ $Date:  $
  */
-public class AxisBuilder implements ServiceReferenceBuilder {
+public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
     private static final Class[] SERVICE_CONSTRUCTOR_TYPES = new Class[]{Map.class, Map.class};
 
-    private static final URI ENHANCED_LOCATION = URI.create("cglib/");
     private static final SOAPConstants SOAP_VERSION = SOAPConstants.SOAP11_CONSTANTS;
 
-    public ServiceReference createServiceReference(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlers, DeploymentContext deploymentContext, ClassLoader classLoader) throws DeploymentException {
 
-        Enhancer enhancer = new Enhancer();
-        enhancer.setClassLoader(classLoader);
-        enhancer.setSuperclass(ServiceImpl.class);
-        enhancer.setInterfaces(new Class[]{serviceInterface});
-        enhancer.setCallbackFilter(new NoOverrideCallbackFilter(Service.class));
-        enhancer.setCallbackTypes(new Class[]{NoOp.class, MethodInterceptor.class});
-        enhancer.setUseFactory(false);
-        ByteArrayRetrievingGeneratorStrategy strategy = new ByteArrayRetrievingGeneratorStrategy();
-        enhancer.setStrategy(strategy);
-        Class enhanced = enhancer.createClass();
-
-        saveClass(deploymentContext, enhanced.getName(), strategy.getClassBytes());
-        return new ServiceReference(enhanced, null, null, null);
+    //WebServiceBuilder
+    public void configurePOJO(GBeanData targetGBean, Object portInfoObject, String seiClassName) throws DeploymentException {
+        PortInfo portInfo = (PortInfo)portInfoObject;
+        System.out.println("NOT CONFIGURING WEB SERVICE " + portInfo.getPortName());
     }
 
+    public void configureEJB(GBeanData targetGBean, Object portInfoObject, String seiClassName) throws DeploymentException {
+
+    }
+
+
+    //ServicereferenceBuilder
     public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlerInfos, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException {
         JarFile moduleFile = module.getModuleFile();
         Definition definition = null;
         JavaWsdlMappingType mapping = null;
         if (wsdlURI != null) {
-            JarWSDLLocator wsdlLocator = new JarWSDLLocator(moduleFile, wsdlURI);
-            WSDLFactory wsdlFactory = null;
-            try {
-                wsdlFactory = WSDLFactory.newInstance();
-            } catch (WSDLException e) {
-                throw new DeploymentException("Could not create WSDLFactory", e);
-            }
-            WSDLReader wsdlReader = wsdlFactory.newWSDLReader();
-            definition = null;
-            try {
-                definition = wsdlReader.readWSDL(wsdlLocator);
-            } catch (WSDLException e) {
-                throw new DeploymentException("Failed to read wsdl document", e);
-            }
+            definition = WSDescriptorParser.readWsdl(moduleFile, wsdlURI);
 
-            InputStream jaxrpcInputStream = null;
-            try {
-                jaxrpcInputStream = moduleFile.getInputStream(moduleFile.getEntry(jaxrpcMappingURI.toString()));
-            } catch (IOException e) {
-                throw new DeploymentException("Could not open stream to jaxrpc mapping document", e);
-            }
-            JavaWsdlMappingDocument mappingDocument = null;
-            try {
-                mappingDocument = JavaWsdlMappingDocument.Factory.parse(jaxrpcInputStream);
-            } catch (XmlException e) {
-                throw new DeploymentException("Could not parse jaxrpc mapping document", e);
-            } catch (IOException e) {
-                throw new DeploymentException("Could not read jaxrpc mapping document", e);
-            }
-            mapping = mappingDocument.getJavaWsdlMapping();
+            mapping = WSDescriptorParser.readJaxrpcMapping(moduleFile, jaxrpcMappingURI);
         }
 
         Object service = createService(serviceInterface, definition, mapping, serviceQName, SOAP_VERSION, handlerInfos, deploymentContext, module, classLoader);
@@ -282,15 +209,15 @@ public class AxisBuilder implements ServiceReferenceBuilder {
 
         Map wsdlPortMap = service.getPorts();
 
-        Map complexTypeMap = getComplexTypesInWsdl(definition);
-        Map exceptionMap = getExceptionMap(mapping);
+        Map complexTypeMap = WSDescriptorParser.getComplexTypesInWsdl(definition);
+        Map exceptionMap = WSDescriptorParser.getExceptionMap(mapping);
 
         for (Iterator iterator = wsdlPortMap.entrySet().iterator(); iterator.hasNext();) {
             Map.Entry entry = (Map.Entry) iterator.next();
             String portName = (String) entry.getKey();
             Port port = (Port) entry.getValue();
 
-            SOAPAddress soapAddress = (SOAPAddress) getExtensibilityElement(SOAPAddress.class, port.getExtensibilityElements());
+            SOAPAddress soapAddress = (SOAPAddress) WSDescriptorParser.getExtensibilityElement(SOAPAddress.class, port.getExtensibilityElements());
             String locationURIString = soapAddress.getLocationURI();
             URL location = null;
             try {
@@ -300,7 +227,7 @@ public class AxisBuilder implements ServiceReferenceBuilder {
             }
 
             Binding binding = port.getBinding();
-            SOAPBinding soapBinding = (SOAPBinding) getExtensibilityElement(SOAPBinding.class, binding.getExtensibilityElements());
+            SOAPBinding soapBinding = (SOAPBinding) WSDescriptorParser.getExtensibilityElement(SOAPBinding.class, binding.getExtensibilityElements());
 //            String transportURI = soapBinding.getTransportURI();
             String portStyleString = soapBinding.getStyle();
             Style portStyle = Style.getStyle(portStyleString);
@@ -332,7 +259,7 @@ public class AxisBuilder implements ServiceReferenceBuilder {
             } else {
                 //complete jaxrpc mapping file supplied
                 QName portTypeQName = portType.getQName();
-                ServiceEndpointInterfaceMappingType endpointMapping = getServiceEndpointInterfaceMapping(endpointMappings, portTypeQName);
+                ServiceEndpointInterfaceMappingType endpointMapping = WSDescriptorParser.getServiceEndpointInterfaceMapping(endpointMappings, portTypeQName);
                 String fqcn = endpointMapping.getServiceEndpointInterface().getStringValue();
                 try {
                     serviceEndpointInterface = classLoader.loadClass(fqcn);
@@ -345,8 +272,9 @@ public class AxisBuilder implements ServiceReferenceBuilder {
                 int i = 0;
                 for (Iterator ops = operations.iterator(); ops.hasNext();) {
                     Operation operation = (Operation) ops.next();
-                    BindingOperation bindingOperation = binding.getBindingOperation(operation.getName(), operation.getInput().getName(), operation.getOutput() == null ? null : operation.getOutput().getName());
-                    ServiceEndpointMethodMappingType methodMapping = getMethodMappingForOperation(operation, methodMappings);
+                    String operationName = operation.getName();
+                    BindingOperation bindingOperation = binding.getBindingOperation(operationName, operation.getInput().getName(), operation.getOutput() == null ? null : operation.getOutput().getName());
+                    ServiceEndpointMethodMappingType methodMapping = WSDescriptorParser.getMethodMappingForOperation(operationName, methodMappings);
                     OperationInfo operationInfo = buildOperationInfoHeavyweight(methodMapping, bindingOperation, portStyle, soapVersion, exceptionMap, complexTypeMap, mapping, classLoader);
                     operationInfos[i++] = operationInfo;
                 }
@@ -396,30 +324,6 @@ public class AxisBuilder implements ServiceReferenceBuilder {
         }
     }
 
-    private Map getExceptionMap(JavaWsdlMappingType mapping) {
-        Map exceptionMap = new HashMap();
-        if (mapping != null) {
-            ExceptionMappingType[] exceptionMappings = mapping.getExceptionMappingArray();
-            for (int i = 0; i < exceptionMappings.length; i++) {
-                ExceptionMappingType exceptionMapping = exceptionMappings[i];
-                QName exceptionMessageQName = exceptionMapping.getWsdlMessage().getQNameValue();
-                exceptionMap.put(exceptionMessageQName, exceptionMapping);
-            }
-        }
-        return exceptionMap;
-    }
-
-    private ServiceEndpointMethodMappingType getMethodMappingForOperation(Operation operation, ServiceEndpointMethodMappingType[] methodMappings) throws DeploymentException {
-        String operationName = operation.getName();
-        for (int i = 0; i < methodMappings.length; i++) {
-            ServiceEndpointMethodMappingType methodMapping = methodMappings[i];
-            if (operationName.equals(methodMapping.getWsdlOperation().getStringValue())) {
-                return methodMapping;
-            }
-        }
-        throw new DeploymentException("No method found for operation named " + operationName);
-    }
-
     private Method getMethodForOperation(Class enhancedServiceEndpointClass, Operation operation) throws DeploymentException {
         Method[] methods = enhancedServiceEndpointClass.getMethods();
         String opName = operation.getName();
@@ -442,7 +346,7 @@ public class AxisBuilder implements ServiceReferenceBuilder {
     private Class getServiceEndpointInterfaceLightweight(PortType portType, JavaWsdlMappingType mappings, ClassLoader classLoader) throws DeploymentException {
         QName portTypeQName = portType.getQName();
         String portTypeNamespace = portTypeQName.getNamespaceURI();
-        String portTypePackage = getPackageFromNamespace(portTypeNamespace, mappings);
+        String portTypePackage = WSDescriptorParser.getPackageFromNamespace(portTypeNamespace, mappings);
         StringBuffer shortInterfaceName = new StringBuffer(portTypeQName.getLocalPart());
         shortInterfaceName.setCharAt(0, Character.toUpperCase(shortInterfaceName.charAt(0)));
         //TODO just use one buffer!
@@ -455,37 +359,6 @@ public class AxisBuilder implements ServiceReferenceBuilder {
 
     }
 
-    private ServiceEndpointInterfaceMappingType getServiceEndpointInterfaceMapping(ServiceEndpointInterfaceMappingType[] endpointMappings, QName portTypeQName) throws DeploymentException {
-        for (int i = 0; i < endpointMappings.length; i++) {
-            ServiceEndpointInterfaceMappingType endpointMapping = endpointMappings[i];
-            QName testPortQName = endpointMapping.getWsdlPortType().getQNameValue();
-            if (portTypeQName.equals(testPortQName)) {
-                return endpointMapping;
-            }
-        }
-        throw new DeploymentException("Could not find service endpoint interface for port named " + portTypeQName);
-    }
-
-    private ExtensibilityElement getExtensibilityElement(Class clazz, List extensibilityElements) throws DeploymentException {
-        for (Iterator iterator = extensibilityElements.iterator(); iterator.hasNext();) {
-            ExtensibilityElement extensibilityElement = (ExtensibilityElement) iterator.next();
-            if (clazz.isAssignableFrom(extensibilityElement.getClass())) {
-                return extensibilityElement;
-            }
-        }
-        throw new DeploymentException("No element of class " + clazz.getName() + " found");
-    }
-
-    private String getPackageFromNamespace(String namespace, JavaWsdlMappingType mapping) throws DeploymentException {
-        PackageMappingType[] packageMappings = mapping.getPackageMappingArray();
-        for (int i = 0; i < packageMappings.length; i++) {
-            PackageMappingType packageMapping = packageMappings[i];
-            if (namespace.equals(packageMapping.getNamespaceURI().getStringValue().trim())) {
-                return packageMapping.getPackageType().getStringValue().trim();
-            }
-        }
-        throw new DeploymentException("Namespace " + namespace + " was not mapped in jaxrpc mapping file");
-    }
 
     public SEIFactory createSEIFactory(String portName, Class enhancedServiceEndpointClass, Object serviceImpl, List typeMappings, URL location, OperationInfo[] operationInfos, List handlerInfoInfos, DeploymentContext deploymentContext, ClassLoader classLoader) throws DeploymentException {
         List handlerInfos = buildHandlerInfosForPort(portName, handlerInfoInfos);
@@ -583,12 +456,12 @@ public class AxisBuilder implements ServiceReferenceBuilder {
         Class returnClass = method.getReturnType();
         operationDesc.setReturnClass(returnClass);
 
-        SOAPOperation soapOperation = (SOAPOperation) getExtensibilityElement(SOAPOperation.class, bindingOperation.getExtensibilityElements());
+        SOAPOperation soapOperation = (SOAPOperation) WSDescriptorParser.getExtensibilityElement(SOAPOperation.class, bindingOperation.getExtensibilityElements());
         String soapActionURI = soapOperation.getSoapActionURI();
         String styleString = soapOperation.getStyle();
         Style style = Style.getStyle(styleString, defaultStyle);
         BindingInput bindingInput = bindingOperation.getBindingInput();
-        SOAPBody soapBody = (SOAPBody) getExtensibilityElement(SOAPBody.class, bindingInput.getExtensibilityElements());
+        SOAPBody soapBody = (SOAPBody) WSDescriptorParser.getExtensibilityElement(SOAPBody.class, bindingInput.getExtensibilityElements());
         String useString = soapBody.getUse();
         Use use = Use.getUse(useString);
         operationDesc.setStyle(style);
@@ -700,7 +573,8 @@ public class AxisBuilder implements ServiceReferenceBuilder {
             //use complexTypeMap
             boolean isComplexType = complexTypeMap.containsKey(partTypeQName);
             String paramJavaTypeName = paramMapping.getParamType().getStringValue().trim();
-            Class actualParamJavaType = getHolderType(paramJavaTypeName, mode, partTypeQName, isComplexType, mapping, classLoader);
+            boolean isInOnly = mode == ParameterDesc.IN;
+            Class actualParamJavaType = WSDescriptorParser.getHolderType(paramJavaTypeName, isInOnly, partTypeQName, isComplexType, mapping, classLoader);
 
             ParameterDesc parameterDesc = new ParameterDesc(partQName, mode, partTypeQName, actualParamJavaType, inHeader, outHeader);
             parameterDescriptions[position] = parameterDesc;
@@ -771,12 +645,12 @@ public class AxisBuilder implements ServiceReferenceBuilder {
         operationDesc.setReturnType(returnType);
         operationDesc.setReturnClass(returnClass);
 
-        SOAPOperation soapOperation = (SOAPOperation) getExtensibilityElement(SOAPOperation.class, bindingOperation.getExtensibilityElements());
+        SOAPOperation soapOperation = (SOAPOperation) WSDescriptorParser.getExtensibilityElement(SOAPOperation.class, bindingOperation.getExtensibilityElements());
         String soapActionURI = soapOperation.getSoapActionURI();
         String styleString = soapOperation.getStyle();
         Style style = Style.getStyle(styleString, defaultStyle);
         BindingInput bindingInput = bindingOperation.getBindingInput();
-        SOAPBody soapBody = (SOAPBody) getExtensibilityElement(SOAPBody.class, bindingInput.getExtensibilityElements());
+        SOAPBody soapBody = (SOAPBody) WSDescriptorParser.getExtensibilityElement(SOAPBody.class, bindingInput.getExtensibilityElements());
         String useString = soapBody.getUse();
         Use use = Use.getUse(useString);
         operationDesc.setStyle(style);
@@ -831,7 +705,7 @@ public class AxisBuilder implements ServiceReferenceBuilder {
                     QName elementType = (QName) elementMap.get(elementName);
                     String javaElementTypeName;
                     if (complexTypeMap.containsKey(elementType)) {
-                        String packageName = getPackageFromNamespace(elementType.getNamespaceURI(), mapping);
+                        String packageName = WSDescriptorParser.getPackageFromNamespace(elementType.getNamespaceURI(), mapping);
                         javaElementTypeName = packageName + "." + elementType.getLocalPart();
                     } else {
                         //TODO finish this
@@ -866,188 +740,6 @@ public class AxisBuilder implements ServiceReferenceBuilder {
         return operationInfo;
     }
 
-    /**
-     * Find all the top level complex types in the schemas in the definitions' types.
-     * Put them in a map from complex type QName to schema fragment.
-     * TODO it is not clear what happens with included schemas.
-     *
-     * @param definition
-     * @return
-     * @throws DeploymentException
-     */
-    Map getComplexTypesInWsdl(Definition definition) throws DeploymentException {
-        Map complexTypeMap = new HashMap();
-        Types types = definition.getTypes();
-        Map namespaceMap = definition.getNamespaces();
-        if (types != null) {
-            List schemas = types.getExtensibilityElements();
-            for (Iterator iterator = schemas.iterator(); iterator.hasNext();) {
-                Object o = iterator.next();
-                if (o instanceof Schema) {
-                    Schema unknownExtensibilityElement = (Schema) o;
-                    QName elementType = unknownExtensibilityElement.getElementType();
-                    if (new QName("http://www.w3.org/2001/XMLSchema", "schema").equals(elementType)) {
-                        Element element = unknownExtensibilityElement.getElement();
-                        try {
-                            XmlObject xmlObject = SchemaConversionUtils.parse(element);
-                            XmlCursor cursor = xmlObject.newCursor();
-                            try {
-                                cursor.toFirstContentToken();
-                                for (Iterator namespaces = namespaceMap.entrySet().iterator(); namespaces.hasNext();) {
-                                    Map.Entry entry = (Map.Entry) namespaces.next();
-                                    cursor.insertNamespace((String) entry.getKey(), (String) entry.getValue());
-                                }
-                            } finally {
-                                cursor.dispose();
-                            }
-                            SchemaDocument schemaDoc = (SchemaDocument) xmlObject.changeType(SchemaDocument.type);
-                            SchemaConversionUtils.validateDD(schemaDoc);
-                            SchemaDocument.Schema schema = schemaDoc.getSchema();
-                            String targetNamespace = schema.getTargetNamespace();
-                            ComplexType[] complexTypes = schema.getComplexTypeArray();
-                            for (int j = 0; j < complexTypes.length; j++) {
-                                ComplexType complexType = complexTypes[j];
-                                String complexTypeName = complexType.getName();
-                                QName complexTypeQName = new QName(targetNamespace, complexTypeName);
-                                complexTypeMap.put(complexTypeQName, complexType);
-                            }
-                        } catch (XmlException e) {
-                            throw new DeploymentException("Invalid schema in wsdl", e);
-                        }
-                    } else {
-                        //problems??
-                    }
-                } else if (o instanceof UnknownExtensibilityElement) {
-                    //This is apparently obsolete as of axis-wsdl4j-1.2-RC3.jar which includes the Schema extension above.
-                    //I'm leaving this in in case this Schema class is not really part of a spec, even though its in javax.
-                    UnknownExtensibilityElement unknownExtensibilityElement = (UnknownExtensibilityElement) o;
-                    QName elementType = unknownExtensibilityElement.getElementType();
-                    if (new QName("http://www.w3.org/2001/XMLSchema", "schema").equals(elementType)) {
-                        Element element = unknownExtensibilityElement.getElement();
-                        try {
-                            XmlObject xmlObject = SchemaConversionUtils.parse(element);
-                            XmlCursor cursor = xmlObject.newCursor();
-                            try {
-                                cursor.toFirstContentToken();
-                                for (Iterator namespaces = namespaceMap.entrySet().iterator(); namespaces.hasNext();) {
-                                    Map.Entry entry = (Map.Entry) namespaces.next();
-                                    cursor.insertNamespace((String) entry.getKey(), (String) entry.getValue());
-                                }
-                            } finally {
-                                cursor.dispose();
-                            }
-                            SchemaDocument schemaDoc = (SchemaDocument) xmlObject.changeType(SchemaDocument.type);
-                            SchemaConversionUtils.validateDD(schemaDoc);
-                            SchemaDocument.Schema schema = schemaDoc.getSchema();
-                            String targetNamespace = schema.getTargetNamespace();
-                            ComplexType[] complexTypes = schema.getComplexTypeArray();
-                            for (int j = 0; j < complexTypes.length; j++) {
-                                ComplexType complexType = complexTypes[j];
-                                String complexTypeName = complexType.getName();
-                                QName complexTypeQName = new QName(targetNamespace, complexTypeName);
-                                complexTypeMap.put(complexTypeQName, complexType);
-                            }
-                        } catch (XmlException e) {
-                            throw new DeploymentException("Invalid schema in wsdl", e);
-                        }
-                    } else {
-                        //problems??
-                    }
-                }
-            }
-        }
-        return complexTypeMap;
-    }
-
-    private static final Map rpcHolderClasses = new HashMap();
-
-    static {
-        rpcHolderClasses.put(BigDecimal.class, BigDecimalHolder.class);
-        rpcHolderClasses.put(BigInteger.class, BigIntegerHolder.class);
-        rpcHolderClasses.put(boolean.class, BooleanHolder.class);
-        rpcHolderClasses.put(Boolean.class, BooleanWrapperHolder.class);
-        rpcHolderClasses.put(byte[].class, ByteArrayHolder.class);
-        rpcHolderClasses.put(byte.class, ByteHolder.class);
-        rpcHolderClasses.put(Byte.class, ByteWrapperHolder.class);
-        rpcHolderClasses.put(Calendar.class, CalendarHolder.class);
-        rpcHolderClasses.put(double.class, DoubleHolder.class);
-        rpcHolderClasses.put(Double.class, DoubleWrapperHolder.class);
-        rpcHolderClasses.put(float.class, FloatHolder.class);
-        rpcHolderClasses.put(Float.class, FloatWrapperHolder.class);
-        rpcHolderClasses.put(int.class, IntHolder.class);
-        rpcHolderClasses.put(Integer.class, IntegerWrapperHolder.class);
-        rpcHolderClasses.put(long.class, LongHolder.class);
-        rpcHolderClasses.put(Long.class, LongWrapperHolder.class);
-        rpcHolderClasses.put(Object.class, ObjectHolder.class);
-        rpcHolderClasses.put(QName.class, QNameHolder.class);
-        rpcHolderClasses.put(short.class, ShortHolder.class);
-        rpcHolderClasses.put(Short.class, ShortWrapperHolder.class);
-        rpcHolderClasses.put(String.class, StringHolder.class);
-    }
-
-    private Class getHolderType(String paramJavaTypeName, byte mode, QName typeQName, boolean isComplexType, JavaWsdlMappingType mapping, ClassLoader classLoader) throws DeploymentException {
-        Class paramJavaType = null;
-        if (mode == ParameterDesc.IN) {
-            //IN parameters just use their own type
-            try {
-                paramJavaType = ClassLoading.loadClass(paramJavaTypeName, classLoader);
-            } catch (ClassNotFoundException e) {
-                throw new DeploymentException("could not load parameter type", e);
-            }
-            return paramJavaType;
-        } else {
-            //INOUT and OUT parameters use holders.  See jaxrpc spec 4.3.5
-            String holderName;
-            if (isComplexType) {
-                //complex types get mapped:
-                //package is determined from the namespace to package map + ".holders"
-                //class name is the complex type QNMAne local part + "Holder", with the initial character uppercased.
-                String namespace = typeQName.getNamespaceURI();
-                String packageName = getPackageFromNamespace(namespace, mapping);
-                StringBuffer buf = new StringBuffer(packageName.length() + typeQName.getLocalPart().length() + 14);
-                buf.append(packageName).append(".holders.").append(typeQName.getLocalPart()).append("Holder");
-                buf.setCharAt(packageName.length() + 9, Character.toUpperCase(typeQName.getLocalPart().charAt(0)));
-                holderName = buf.toString();
-            } else {
-                //see if it is in the primitive type and simple type mapping
-                try {
-                    paramJavaType = ClassLoading.loadClass(paramJavaTypeName, classLoader);
-                } catch (ClassNotFoundException e) {
-                    throw new DeploymentException("could not load parameter type", e);
-                }
-                Class holder = (Class) rpcHolderClasses.get(paramJavaType);
-                if (holder != null) {
-                    return holder;
-                }
-                //Otherwise, the holder must be in:
-                //package same as type's package + ".holders"
-                //class name same as type name + "Holder"
-                String paramTypeName = paramJavaType.getName();
-                StringBuffer buf = new StringBuffer(paramTypeName.length() + 14);
-                int dot = paramTypeName.lastIndexOf(".");
-                //foo.Bar >>> foo.holders.BarHolder
-                buf.append(paramTypeName.substring(0, dot)).append(".holders").append(paramTypeName.substring(dot)).append("Holder");
-                holderName = buf.toString();
-            }
-            try {
-                Class holder = ClassLoading.loadClass(holderName, classLoader);
-                return holder;
-            } catch (ClassNotFoundException e) {
-                throw new DeploymentException("Could not load holder class", e);
-            }
-        }
-    }
-
-
-    private void saveClass(DeploymentContext deploymentContext, String className, byte[] classBytes) throws DeploymentException {
-        try {
-            deploymentContext.addClass(ENHANCED_LOCATION, className, classBytes, true);
-        } catch (IOException e) {
-            throw new DeploymentException("Could not save enhanced class bytes", e);
-        } catch (URISyntaxException e) {
-            throw new DeploymentException("Could not construct URI for class file", e);
-        }
-    }
 
     private static class ByteArrayRetrievingGeneratorStrategy extends DefaultGeneratorStrategy {
 
@@ -1063,53 +755,13 @@ public class AxisBuilder implements ServiceReferenceBuilder {
         }
     }
 
-    static class JarWSDLLocator implements WSDLLocator {
-
-        private final JarFile moduleFile;
-        private final URI wsdlURI;
-        private URI latestImportURI;
-
-        public JarWSDLLocator(JarFile moduleFile, URI wsdlURI) {
-            this.moduleFile = moduleFile;
-            this.wsdlURI = wsdlURI;
-        }
-
-        public InputSource getBaseInputSource() {
-            InputStream wsdlInputStream = null;
-            try {
-                wsdlInputStream = moduleFile.getInputStream(moduleFile.getEntry(wsdlURI.toString()));
-            } catch (IOException e) {
-                throw new RuntimeException("Could not open stream to wsdl file", e);
-            }
-            return new InputSource(wsdlInputStream);
-        }
-
-        public String getBaseURI() {
-            return wsdlURI.toString();
-        }
-
-        public InputSource getImportInputSource(String parentLocation, String relativeLocation) {
-            URI parentURI = URI.create(parentLocation);
-            latestImportURI = parentURI.resolve(relativeLocation);
-            InputStream importInputStream = null;
-            try {
-                importInputStream = moduleFile.getInputStream(moduleFile.getEntry(latestImportURI.toString()));
-            } catch (IOException e) {
-                throw new RuntimeException("Could not open stream to import file", e);
-            }
-            return new InputSource(importInputStream);
-        }
-
-        public String getLatestImportURI() {
-            return latestImportURI.toString();
-        }
-    }
 
     public static final GBeanInfo GBEAN_INFO;
 
     static {
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(AxisBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addInterface(ServiceReferenceBuilder.class);
+        infoBuilder.addInterface(WebServiceBuilder.class);
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

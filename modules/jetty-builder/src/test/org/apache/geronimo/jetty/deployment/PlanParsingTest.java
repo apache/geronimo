@@ -9,12 +9,15 @@ import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
+import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 
 /**
  */
 public class PlanParsingTest extends TestCase {
     ObjectName jettyContainerObjectName = JMXUtil.getObjectName("test:type=JettyContainer");
-    private JettyModuleBuilder builder = new JettyModuleBuilder(null, new Integer(1800), null, jettyContainerObjectName, null, null, null, null, null);
+    ObjectName pojoWebServiceTemplate = null;
+    WebServiceBuilder webServiceBuilder = null;
+    private JettyModuleBuilder builder = new JettyModuleBuilder(null, new Integer(1800), null, jettyContainerObjectName, null, null, null, pojoWebServiceTemplate, webServiceBuilder, null, null);
     private File basedir = new File(System.getProperty("basedir", "."));
 
     public void testResourceRef() throws Exception {

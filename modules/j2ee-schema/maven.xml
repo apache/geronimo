@@ -28,7 +28,7 @@
     <preGoal name="java:compile">
         <xmlbeans:schema2java
             sourcedir="${basedir}/src"
-            sourceschema="j2ee_1_4schema/application_1_4.xsd,j2ee_1_4schema/j2ee_jaxrpc_mapping_1_1.xsd,j2ee_1_3schema/connector_1_0.xsd,j2ee_1_4schema/j2ee_1_4.xsd,j2ee_1_4schema/connector_1_5.xsd,j2ee_1_4schema/ejb-jar_2_1.xsd,j2ee_1_4schema/web-app_2_4.xsd,j2ee_1_4schema/application-client_1_4.xsd"
+            sourceschema="j2ee_1_4schema/application_1_4.xsd,j2ee_1_4schema/j2ee_jaxrpc_mapping_1_1.xsd,j2ee_1_3schema/connector_1_0.xsd,j2ee_1_4schema/j2ee_1_4.xsd,j2ee_1_4schema/connector_1_5.xsd,j2ee_1_4schema/ejb-jar_2_1.xsd,j2ee_1_4schema/web-app_2_4.xsd,j2ee_1_4schema/application-client_1_4.xsd,j2ee_1_4schema/j2ee_web_services_1_1.xsd"
             xmlconfigs="${basedir}/src/conf/xmlconfig.xml"
             targetdir="${basedir}/target/xmlbeans"
             cataloglocation="${basedir}/src/catalog/resolver-catalog.xml"/>

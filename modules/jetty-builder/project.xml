@@ -172,6 +172,13 @@
             <version>${pom.currentVersion}</version>
         </dependency>
 
+        <!--todo put WSDescriptorParser somewhere else and remove this dependency-->
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-axis-builder</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jta</artifactId>
@@ -228,6 +235,18 @@
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jsp</artifactId>
             <version>${geronimo_spec_jsp_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-jaxrpc</artifactId>
+            <version>${geronimo_spec_jaxrpc_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-saaj</artifactId>
+            <version>${geronimo_spec_saaj_version}</version>
         </dependency>
 
         <dependency>
@@ -294,6 +313,13 @@
             <version>${tranql_version}</version>
             <url>http://tranql.codehaus.org</url>
         </dependency>
+
+        <dependency>
+            <groupId>axis</groupId>
+            <artifactId>axis-wsdl4j</artifactId>
+            <version>${axis_wsdl4j_version}</version>
+        </dependency>
+
     </dependencies>
 
 

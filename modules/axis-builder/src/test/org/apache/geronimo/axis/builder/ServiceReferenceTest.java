@@ -48,11 +48,10 @@ import javax.wsdl.extensions.soap.SOAPOperation;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
-import javax.xml.rpc.Service;
 
 import junit.framework.TestCase;
-import org.apache.axis.soap.SOAPConstants;
 import org.apache.axis.constants.Style;
+import org.apache.axis.soap.SOAPConstants;
 import org.apache.geronimo.axis.builder.bookquote.BookQuote;
 import org.apache.geronimo.axis.builder.bookquote.BookQuoteService;
 import org.apache.geronimo.axis.builder.interop.InteropLab;
@@ -63,7 +62,6 @@ import org.apache.geronimo.axis.builder.mock.MockService;
 import org.apache.geronimo.axis.client.OperationInfo;
 import org.apache.geronimo.axis.client.SEIFactory;
 import org.apache.geronimo.axis.client.ServiceImpl;
-import org.apache.geronimo.axis.client.ServiceReference;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.util.UnpackedJarFile;
@@ -110,19 +108,6 @@ public class ServiceReferenceTest extends TestCase {
 
     protected void tearDown() throws Exception {
         recursiveDelete(tmpbasedir);
-    }
-
-    public void testServiceRefCreation() throws Exception {
-        AxisBuilder builder = new AxisBuilder();
-
-        ServiceReference ref = builder.createServiceReference(MockService.class, null, null, null, null, null, context, isolatedCl);
-        Object instance = ref.getContent();
-        assertTrue(instance instanceof Service);
-
-        ClassLoader cl = context.getClassLoader(null);
-        Class loadedType = cl.loadClass(instance.getClass().getName());
-        assertTrue(Service.class.isAssignableFrom(loadedType));
-        assertTrue(instance.getClass() != loadedType);
     }
 
     public void testServiceProxy() throws Exception {
@@ -263,8 +248,7 @@ public class ServiceReferenceTest extends TestCase {
         WSDLFactory factory = WSDLFactory.newInstance();
         WSDLReader reader = factory.newWSDLReader();
         Definition definition = reader.readWSDL(wsdlFile.toURI().toString());
-        AxisBuilder builder = new AxisBuilder();
-        Map complexTypeMap = builder.getComplexTypesInWsdl(definition);
+        Map complexTypeMap = WSDescriptorParser.getComplexTypesInWsdl(definition);
         assertEquals(7, complexTypeMap.size());
     }
 
