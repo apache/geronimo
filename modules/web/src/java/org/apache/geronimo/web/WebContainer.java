@@ -65,7 +65,7 @@ import org.w3c.dom.Document;
  * WebContainer
  *  
  * 
- * @version $Revision: 1.2 $  $Date: 2003/08/23 09:38:04 $
+ * @version $Revision: 1.3 $  $Date: 2003/08/24 10:12:46 $
  */
 public interface WebContainer extends Container
 {
@@ -77,6 +77,8 @@ public interface WebContainer extends Container
     * @throws Exception
     */
     public void deploy(String uri) throws Exception;
+
+
 
     /*-------------------------------------------------------------------------------- */
     /** Set up a web.xml descriptor for the Container to use as
@@ -104,14 +106,16 @@ public interface WebContainer extends Container
     /* -------------------------------------------------------------------------------------- */
     /** Control if wars will be unpacked to temporary location or not
      * @param state
+     * @todo this might be handled by the deployer instead
      */
-    public void setUnpackWars (boolean state);
+    //public void setUnpackWars (boolean state);
     
     /* -------------------------------------------------------------------------------------- */
     /**Getter for whether wars will be unpacked to temporary location or not
      * @return
+     * @todo this might be handled by the deployer instead
      */
-    public boolean getUnpackWars ();
+    //public boolean getUnpackWars ();
     
 
 }

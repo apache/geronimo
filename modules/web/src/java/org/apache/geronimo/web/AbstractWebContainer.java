@@ -70,9 +70,9 @@ import org.w3c.dom.Document;
  * 
  * Base class for web containers.
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/23 22:06:23 $
+ * @version $Revision: 1.5 $ $Date: 2003/08/24 10:12:45 $
  */
-public class AbstractWebContainer
+public abstract class AbstractWebContainer
     extends AbstractContainer
     implements WebContainer
 {
@@ -120,11 +120,36 @@ public class AbstractWebContainer
     * @param url the location of the web application to deploy
     * @throws Exception
     * @see org.apache.geronimo.web.WebContainer#deploy(java.lang.String)
+    * @todo this is likely to change when the deployment interface becomes available
     */
-    public void deploy(String url) throws Exception
+    public void deploy(String uri) throws Exception
     {
+        //TODO what will be the interface to the deployer?
+        
+        //sort out the contextPath  - if the geronimo web descriptor doesn't
+        //provide one, and there is no application descriptor, then it will be
+        //the name of the webapp. NOTE, we need to somehow access
+        //these descriptors - is it by JSR88 beans or by xml?
+        String contextPath = null;
+        
+        //this is only necessary for compilation, the interface to the deployer will change
+        URI location = new URI(uri);
+        
+        WebApplication webapp = createWebApplication ();
+        webapp.setURI(location);
+        webapp.setContextPath(contextPath);
+        addComponent (webapp);
     }
 
+
+    /* -------------------------------------------------------------------------------------- */
+    /** Create a WebApplication suitable to the container's type.
+     * @return WebApplication instance, preferably derived from AbstractWebApplication suitable to the container
+     */
+    public abstract WebApplication createWebApplication ();
+    
+    
+    
     /* -------------------------------------------------------------------------------------- */
     /**
      * Get the URI of the web defaults.
@@ -171,20 +196,20 @@ public class AbstractWebContainer
      * @return
      * @see org.apache.geronimo.web.WebContainer#getUnpackWars()
      */
-    public boolean getUnpackWars()
-    {
-        return unpackWars;
-    }
+    //public boolean getUnpackWars()
+    //{
+    //    return unpackWars;
+    //}
 
     /* -------------------------------------------------------------------------------------- */
     /* 
      * @param state
      * @see org.apache.geronimo.web.WebContainer#setUnpackWars(boolean)
      */
-    public void setUnpackWars(boolean state)
-    {
-        unpackWars = state;
-    }
+    //public void setUnpackWars(boolean state)
+    //{
+    //    unpackWars = state;
+    //}
 
     /* -------------------------------------------------------------------------------------- */
     /* Add a component to this container's containment hierarchy

@@ -55,13 +55,22 @@
 */
 package org.apache.geronimo.web.jetty;
 
+import java.net.URI;
+
 import org.apache.geronimo.web.AbstractWebContainer;
+import org.apache.geronimo.web.WebApplication;
 import org.mortbay.jetty.Server;
 
 /**
  * Base class for jetty web containers.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/20 05:37:03 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/24 10:12:46 $
  */
 public class JettyWebContainer extends AbstractWebContainer {
+    
+    public WebApplication createWebApplication ()
+    {
+        //TODO
+        return null;
+    }
 }

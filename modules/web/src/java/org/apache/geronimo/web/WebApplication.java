@@ -69,7 +69,7 @@ import org.w3c.dom.Document;
  * 
  * It supports the JSR077 WebModule attribute servlets[]
  *
- * @version  $Revision: 1.3 $ $Date: 2003/08/23 09:38:04 $
+ * @version  $Revision: 1.4 $ $Date: 2003/08/24 10:12:46 $
  */
 public interface WebApplication extends Component {
 
@@ -78,6 +78,9 @@ public interface WebApplication extends Component {
      * @return
      */
     public URI getURI();
+    
+    public void setURI(URI uri);
+    
     
     /*-------------------------------------------------------------------------------- */
     /** JSR077 WebModule method to expose the
@@ -88,6 +91,8 @@ public interface WebApplication extends Component {
     public String[] getServlets();
     
     public String getContextPath();
+    
+    public void setContextPath(String path);
     
     public String getDeploymentDescriptor();
     

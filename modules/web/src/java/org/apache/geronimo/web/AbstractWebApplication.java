@@ -78,9 +78,9 @@ import org.w3c.dom.Document;
  * WebContainer and associates it with the WebApplication.
  * 
  * 
- * @version $Revision: 1.3 $ $Date: 2003/08/23 09:38:04 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/24 10:12:45 $
  */
-public class AbstractWebApplication
+public abstract class AbstractWebApplication
     extends AbstractComponent
     implements WebApplication
 {
@@ -89,8 +89,8 @@ public class AbstractWebApplication
      */
     private boolean java2ClassloadingCompliance = false;
 
-    private URI warURI = null;
     private URI webXmlURI = null;
+
     private Document webXmlDoc = null;
     private DocumentBuilder parser = null;
 
@@ -99,9 +99,9 @@ public class AbstractWebApplication
     private Context initialContext = null;
 
     /* -------------------------------------------------------------------------------------- */
-    /**
-     * Constructor
-     *
+    /** Constructor
+     * @param location uri of webapp war or dir
+     * @param context context path for webapp
      */
     public AbstractWebApplication()
     {
@@ -136,8 +136,11 @@ public class AbstractWebApplication
         if (getContainer() == null)
             throw new IllegalStateException("WebApplication must have a container set before START can be called");
 
-        // set up the JNDI context for this webapp
-        setupENC();
+        //probably not necessary if deployer wil do this on our behalf
+        // set up the JNDI context for this webapp 
+        //setupENC();
+        
+        //setupClassLoader();
     }
 
     /* -------------------------------------------------------------------------------------- */
@@ -158,17 +161,7 @@ public class AbstractWebApplication
      */
     public String[] getServlets()
     {
-        return null;
-    }
-
-    /* -------------------------------------------------------------------------------------- */
-    /* Get the context path of this webapp
-     * @return
-     * @see org.apache.geronimo.web.WebApplication#getContextName()
-     */
-    public String getContextPath()
-    {
-        // TODO
+        Document doc = getDeploymentDescriptorDocument();
         return null;
     }
 
@@ -209,6 +202,7 @@ public class AbstractWebApplication
      */
     public Document getDeploymentDescriptorDocument()
     {
+        //TODO - may not be required depending on deployer interface
         try
         {
             parseWebXml();
@@ -221,6 +215,8 @@ public class AbstractWebApplication
 
     }
 
+
+    //the geronimo methods may not be required, depending on the interface to the deployer
     public URI getGeronimoDeploymentDescriptorURI()
     {
         return geronimoXmlURI;
@@ -236,15 +232,8 @@ public class AbstractWebApplication
         //TODO
         return null;
     }
-    /* -------------------------------------------------------------------------------------- */
-    /* Get the URI of the webapp itself
-     * @return
-     * @see org.apache.geronimo.web.WebApplication#getURI()
-     */
-    public URI getURI()
-    {
-        return warURI;
-    }
+  
+  
     /* -------------------------------------------------------------------------------------- */
     /** Setter for classloading compliance. If true, then classloading will
      * delegate first to parent classloader a la Java2 spec. If false, then
@@ -292,28 +281,30 @@ public class AbstractWebApplication
         geronimoXmlDoc = parser.parse(geronimoXmlURI.toString());
     }
 
-    protected void setupENC() throws Exception
-    {
-        //parse the standard descriptor
-        parseWebXml();
-
-        //parse the geronimo web descriptor?
-        parseGeronimoXml();
-
-        //create the java:comp/env context
-        Context enc = null;
-        
-        //populate the resources
-
-        //populate the ejbs
-
-        //populate the UserTransaction
-        enc.bind ("UserTransaction",  new LinkRef ("javax.transaction.UserTransaction"));
-        
-        //populate the security
-
-        //secure the context as read-only (if necessary)
-
-    }
+    /*
+        protected void setupENC() throws Exception
+        {
+            //parse the standard descriptor
+            parseWebXml();
+    
+            //parse the geronimo web descriptor?
+            parseGeronimoXml();
+    
+            //create the java:comp/env context
+            Context enc = null;
+            
+            //populate the resources
+    
+            //populate the ejbs
+    
+            //populate the UserTransaction
+            enc.bind ("UserTransaction",  new LinkRef ("javax.transaction.UserTransaction"));
+            
+            //populate the security
+    
+            //secure the context as read-only (if necessary)
+    
+        }
+        */
 
 }
