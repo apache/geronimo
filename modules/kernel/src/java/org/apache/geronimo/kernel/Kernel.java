@@ -55,39 +55,38 @@
  */
 package org.apache.geronimo.kernel;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.Serializable;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-
+import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.management.ListenerNotFoundException;
+import javax.management.MBeanException;
 import javax.management.MBeanNotificationInfo;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.MalformedObjectNameException;
+import javax.management.NotCompliantMBeanException;
 import javax.management.NotificationBroadcaster;
 import javax.management.NotificationFilter;
 import javax.management.NotificationListener;
 import javax.management.ObjectName;
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.NotCompliantMBeanException;
-import javax.management.MBeanException;
 import javax.management.ReflectionException;
+import java.io.File;
+import java.io.IOException;
+import java.io.Serializable;
+import java.net.URI;
+import java.net.URL;
+import java.util.Hashtable;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.jmx.DependencyService;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.config.LocalConfigStore;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.gbean.jmx.DependencyService;
 
 /**
  * The core of a Geronimo instance.
@@ -106,7 +105,7 @@ import org.apache.geronimo.gbean.jmx.DependencyService;
  * used hold the persistent state of each Configuration. This allows
  * Configurations to restart in he event of system failure.
  *
- * @version $Revision: 1.12 $ $Date: 2004/01/26 18:02:15 $
+ * @version $Revision: 1.13 $ $Date: 2004/02/04 05:42:57 $
  */
 public class Kernel implements Serializable, KernelMBean, NotificationBroadcaster {
 
@@ -125,6 +124,8 @@ public class Kernel implements Serializable, KernelMBean, NotificationBroadcaste
      */
     public static final ObjectName CONFIG_STORE = JMXUtil.getObjectName("geronimo.boot:role=ConfigurationStore");
 
+    private static final Map kernels = new Hashtable();
+    private final String kernelName;
     private final String domainName;
     private final GBeanInfo storeInfo;
     private final File configStore;
@@ -138,23 +139,28 @@ public class Kernel implements Serializable, KernelMBean, NotificationBroadcaste
     /**
      * Construct a Kernel using the specified JMX domain and supply the
      * information needed to create the ConfigurationStore.
+     * @param kernelName the name of the kernel that uniquely indentifies the kernel in a VM
      * @param domainName the domain name to be used for the JMX MBeanServer
      * @param storeInfo the info for the GBeanMBean to be used for the ConfigurationStore
      * @param configStore a local directory to be used by the ConfigurationStore;
      *                    this must be present and writable when the kernel is booted
      */
-    public Kernel(String domainName, GBeanInfo storeInfo, File configStore) {
+    public Kernel(String kernelName, String domainName, GBeanInfo storeInfo, File configStore) {
+        this.kernelName = kernelName;
         this.domainName = domainName;
         this.storeInfo = storeInfo;
         this.configStore = configStore;
+
+        kernels.put(kernelName, this);
     }
 
     /**
      * Construct a Kernel which does not have a config store.
-     * @param domainName
+     * @param kernelName the name of the kernel that uniquely indentifies the kernel in a VM
+     * @param domainName the domain name to be used for the JMX MBeanServer
      */
-    public Kernel(String domainName) {
-        this(domainName, null, null);
+    public Kernel(String kernelName, String domainName) {
+        this(kernelName, domainName, null, null);
     }
 
     /**
@@ -163,6 +169,38 @@ public class Kernel implements Serializable, KernelMBean, NotificationBroadcaste
      */
     public MBeanServer getMBeanServer() {
         return mbServer;
+    }
+
+    /**
+     * Get the name of this kernel
+     * @return the name of this kernel
+     */
+    public String getKernelName() {
+        return kernelName;
+    }
+
+    /**
+     * Get a particular kernel indexed by a name
+     * @param name the name of the kernel to be obtained
+     * @return the kernel that was registered with that name
+     */
+    public static Kernel getKernel(String name) {
+        return (Kernel) kernels.get(name);
+    }
+
+    /**
+     * Obtain the single kernel that's registered.
+     *
+     * <p>This method assumes that there is only one kernel registered and will throw an
+     * <code>IllegalStateException</code> if more than one has been registered.
+     * @return the single kernel that's registered
+     * @throws IllegalStateException if more than one
+     */
+    public static Kernel getSingleKernel() {
+        int size = kernels.size();
+        if (size > 1) throw new IllegalStateException("More than one kernel has been registered.");
+        if (size < 1) return null;
+        return (Kernel) kernels.values().iterator().next();
     }
 
     public static ObjectName getConfigObjectName(URI configID) throws MalformedObjectNameException {

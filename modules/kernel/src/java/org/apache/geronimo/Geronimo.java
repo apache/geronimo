@@ -68,7 +68,7 @@ import org.apache.geronimo.kernel.Kernel;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/01/29 14:00:12 $
+ * @version $Revision: 1.6 $ $Date: 2004/02/04 05:42:57 $
  *
  * */
 public class Geronimo {
@@ -143,7 +143,7 @@ public class Geronimo {
             }
         }
 
-        final Kernel kernel = new Kernel(domain, LocalConfigStore.GBEAN_INFO, storeDir);
+        final Kernel kernel = new Kernel("geronimo.kernel", domain, LocalConfigStore.GBEAN_INFO, storeDir);
         Runtime.getRuntime().addShutdownHook(new Thread("Shutdown Thread") {
             public void run() {
                 kernel.shutdown();

@@ -73,7 +73,7 @@ import junit.framework.TestCase;
  * Base class for web deployer test.
  * Handles setting up the deployment environment.
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/25 21:07:04 $
+ * @version $Revision: 1.4 $ $Date: 2004/02/04 05:45:11 $
  */
 public class DeployerTestCase extends TestCase {
     protected File configStore;
@@ -94,7 +94,7 @@ public class DeployerTestCase extends TestCase {
         configStore = new File(System.getProperty("java.io.tmpdir"), "config-store");
         configStore.mkdir();
 
-        kernel = new Kernel("test", LocalConfigStore.GBEAN_INFO, configStore);
+        kernel = new Kernel("test.kernel", "test", LocalConfigStore.GBEAN_INFO, configStore);
         kernel.boot();
 
         serverName = new ObjectName("geronimo.deployment:role=Server");

@@ -67,7 +67,7 @@ import org.apache.geronimo.kernel.Kernel;
 /**
  * 
  * 
- * @version $Revision: 1.1 $ $Date: 2004/01/30 20:11:18 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/04 05:42:57 $
  */
 public class Run {
     private final static String[] MAIN_ARGS = { String[].class.getName()};
@@ -91,7 +91,7 @@ public class Run {
             throw new AssertionError();
         }
 
-        final Kernel kernel = new Kernel("geronimo");
+        final Kernel kernel = new Kernel("geronimo.kernel", "geronimo");
         try {
             kernel.boot();
 

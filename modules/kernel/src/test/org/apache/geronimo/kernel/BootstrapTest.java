@@ -68,7 +68,7 @@ import org.apache.geronimo.kernel.config.LocalConfigStore;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/14 08:31:07 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/04 05:42:57 $
  */
 public class BootstrapTest extends TestCase {
     private File configRoot;
@@ -77,13 +77,13 @@ public class BootstrapTest extends TestCase {
     private GBeanInfo storeInfo;
 
     public void testCreate() throws Exception {
-        Kernel kernel = new Kernel("geronimo", storeInfo, configRoot);
+        Kernel kernel = new Kernel("test.kernel", "geronimo", storeInfo, configRoot);
         kernel.boot();
         kernel.shutdown();
     }
 
     public void testPersist() throws Exception {
-        Kernel kernel = new Kernel("geronimo", storeInfo, configRoot);
+        Kernel kernel = new Kernel("test.kernel", "geronimo", storeInfo, configRoot);
         kernel.boot();
         ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(kernelState));
         oos.writeObject(kernel);

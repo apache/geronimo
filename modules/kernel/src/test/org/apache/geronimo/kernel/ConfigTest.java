@@ -77,7 +77,7 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.9 $ $Date: 2004/01/25 21:07:04 $
+ * @version $Revision: 1.10 $ $Date: 2004/02/04 05:42:57 $
  */
 public class ConfigTest extends TestCase {
     private ObjectName gbeanName1;
@@ -150,7 +150,7 @@ public class ConfigTest extends TestCase {
         storeInfo = LocalConfigStore.getGBeanInfo();
         configRoot.mkdir();
 
-        kernel = new Kernel("geronimo", storeInfo, configRoot);
+        kernel = new Kernel("test.kernel", "geronimo", storeInfo, configRoot);
         kernel.boot();
         mbServer = kernel.getMBeanServer();
 

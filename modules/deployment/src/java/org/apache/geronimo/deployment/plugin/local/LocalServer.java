@@ -85,7 +85,7 @@ import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/26 05:55:26 $
+ * @version $Revision: 1.4 $ $Date: 2004/02/04 05:43:31 $
  */
 public class LocalServer implements DeploymentServer,GBean {
     private final URI rootConfigID;
@@ -97,7 +97,7 @@ public class LocalServer implements DeploymentServer,GBean {
     public LocalServer(URI rootConfigID, File configStore) {
         this.rootConfigID = rootConfigID;
         target = new TargetImpl(this.rootConfigID.toString(), null);
-        kernel = new Kernel("geronimo.localserver", LocalConfigStore.GBEAN_INFO, configStore);
+        kernel = new Kernel(this.rootConfigID.toString(), "geronimo.localserver", LocalConfigStore.GBEAN_INFO, configStore);
     }
 
     public boolean isLocal() {

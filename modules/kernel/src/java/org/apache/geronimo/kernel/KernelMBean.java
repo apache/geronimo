@@ -68,10 +68,12 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/14 22:16:38 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/04 05:42:57 $
  */
 public interface KernelMBean {
     public MBeanServer getMBeanServer();
+
+    public String getKernelName();
 
     public ObjectName load(GBeanMBean config, URL baseURL) throws InvalidConfigException;
 

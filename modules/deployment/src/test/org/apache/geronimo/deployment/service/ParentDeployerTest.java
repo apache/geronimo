@@ -79,7 +79,7 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/25 21:07:04 $
+ * @version $Revision: 1.5 $ $Date: 2004/02/04 05:43:31 $
  */
 public class ParentDeployerTest extends TestCase {
     private DocumentBuilder parser;
@@ -126,7 +126,7 @@ public class ParentDeployerTest extends TestCase {
         workDir = new File(tmpDir, "test.car.work");
         workDir.mkdir();
 
-        kernel = new Kernel("geronimo");
+        kernel = new Kernel("test.kernel", "geronimo");
         kernel.boot();
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();

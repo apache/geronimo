@@ -71,7 +71,7 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/25 21:07:04 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/04 05:45:11 $
  */
 public class ContainerTest extends TestCase {
     private Kernel kernel;
@@ -120,7 +120,7 @@ public class ContainerTest extends TestCase {
         containerPatterns = new HashSet();
         containerPatterns.add(containerName);
         connectorName = new ObjectName("geronimo.jetty:role=Connector");
-        kernel = new Kernel("test");
+        kernel = new Kernel("test.kernel", "test");
         kernel.boot();
         mbServer = kernel.getMBeanServer();
         container = new GBeanMBean(JettyContainerImpl.GBEAN_INFO);

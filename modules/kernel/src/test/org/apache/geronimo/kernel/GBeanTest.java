@@ -65,7 +65,7 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/25 21:07:04 $
+ * @version $Revision: 1.5 $ $Date: 2004/02/04 05:42:57 $
  */
 public class GBeanTest extends TestCase {
     private ObjectName name;
@@ -105,7 +105,7 @@ public class GBeanTest extends TestCase {
     protected void setUp() throws Exception {
         name = new ObjectName("test:name=MyMockGBean");
         name2 = new ObjectName("test:name=MyMockGBean2");
-        kernel = new Kernel("test");
+        kernel = new Kernel("test.kernel", "test");
         kernel.boot();
     }
 

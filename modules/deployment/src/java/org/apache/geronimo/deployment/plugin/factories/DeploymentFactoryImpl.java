@@ -76,7 +76,7 @@ import org.apache.geronimo.kernel.Kernel;
  * to contain the GBeans that are responsible for deploying each module
  * type.
  * 
- * @version $Revision: 1.4 $ $Date: 2004/01/25 21:07:03 $
+ * @version $Revision: 1.5 $ $Date: 2004/02/04 05:43:31 $
  */
 public class DeploymentFactoryImpl implements DeploymentFactory {
     public static final String URI_PREFIX = "deployer:geronimo:";
@@ -120,7 +120,7 @@ public class DeploymentFactoryImpl implements DeploymentFactory {
     }
 
     private DeploymentManager createManager(GBeanMBean server) throws DeploymentManagerCreationException {
-        Kernel kernel = new Kernel("geronimo.deployment");
+        Kernel kernel = new Kernel("geronimo.deployment", "geronimo.deployment");
         try {
             kernel.boot();
         } catch (Exception e) {

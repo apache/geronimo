@@ -78,7 +78,7 @@ import org.apache.geronimo.deployment.util.URLType;
  * and then creates a Kernel to run that configuration. This allows someone
  * to boot a Kernel without pre-deploying and installing the Configuration.
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/23 19:58:16 $
+ * @version $Revision: 1.5 $ $Date: 2004/02/04 05:43:31 $
  */
 public class Bootstrap {
     public static final URI CONFIG_ID = URI.create("org/apache/geronimo/Bootstrap");
@@ -119,7 +119,7 @@ public class Bootstrap {
 
         File storeDir = new File(tmpDir, "config");
         storeDir.mkdir();
-        final Kernel kernel = new Kernel("geronimo", LocalConfigStore.GBEAN_INFO, storeDir);
+        final Kernel kernel = new Kernel("geronimo.kernel", "geronimo", LocalConfigStore.GBEAN_INFO, storeDir);
         Runtime.getRuntime().addShutdownHook(new Thread("Shutdown Thread") {
             public void run() {
                 kernel.shutdown();
