@@ -59,7 +59,7 @@ package org.apache.geronimo.kernel.service;
 /**
  * 
  *
- * @version $VERSION$ Nov 13, 2003$
+ * @version $Revision: 1.2 $ $Date: 2003/11/14 16:05:26 $
  * 
  * */
 public class BootstrapTestObject {
