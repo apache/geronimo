@@ -255,12 +255,14 @@ public class TransactionManagerProxyTest extends TestCase {
     public void testSimpleRecovery() throws Exception {
         //create a transaction in our own transaction manager
         Xid xid = xidFactory.createXid();
-        tm.importXid(xid);
-        Transaction tx = tm.getTransaction();
+        Transaction tx = tm.importXid(xid);
+        tm.resume(tx);
+        assertSame(tx, tm.getTransaction());
         tx.enlistResource(r1_2);
         tx.enlistResource(r2_2);
         tx.delistResource(r1_2, XAResource.TMSUCCESS);
         tx.delistResource(r2_2, XAResource.TMSUCCESS);
+        tm.suspend();
         tm.prepare(tx);
         //recover
         resourceManagers.add(rm1);
@@ -276,12 +278,14 @@ public class TransactionManagerProxyTest extends TestCase {
         //create a transaction from an external transaction manager.
         XidFactory xidFactory2 = new XidFactoryImpl("tm2".getBytes());
         Xid xid = xidFactory2.createXid();
-        tm.importXid(xid);
-        Transaction tx = tm.getTransaction();
+        Transaction tx = tm.importXid(xid);
+        tm.resume(tx);
+        assertSame(tx, tm.getTransaction());
         tx.enlistResource(r1_2);
         tx.enlistResource(r2_2);
         tx.delistResource(r1_2, XAResource.TMSUCCESS);
         tx.delistResource(r2_2, XAResource.TMSUCCESS);
+        tm.suspend();
         tm.prepare(tx);
         //recover
         resourceManagers.add(rm1);

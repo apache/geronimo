@@ -215,12 +215,13 @@ public class TransactionManagerProxy implements TransactionManager, XidImporter,
 
 
     //XidImporter implementation. Wrap and unwrap TransactionProxy.
+    //the importer functions should not affect the thread context.
     public Transaction importXid(Xid xid) throws XAException, SystemException {
         if (threadTx.get() != null) {
             throw new IllegalStateException("Transaction already associated with current thread");
         }
         TransactionProxy transactionProxy = new TransactionProxy(importer.importXid(xid));
-        threadTx.set(transactionProxy);
+//        threadTx.set(transactionProxy);
         return transactionProxy;
     }
 
@@ -293,15 +294,8 @@ public class TransactionManagerProxy implements TransactionManager, XidImporter,
         infoFactory.addReference("recovery", Recovery.class);
         infoFactory.addReference("resourceManagers", ResourceManager.class);
 
-        infoFactory.addOperation("setTransactionTimeout", new Class[]{int.class});
-        infoFactory.addOperation("begin");
-        infoFactory.addOperation("getStatus");
-        infoFactory.addOperation("getTransaction");
-        infoFactory.addOperation("suspend");
-        infoFactory.addOperation("resume", new Class[]{Transaction.class});
-        infoFactory.addOperation("commit");
-        infoFactory.addOperation("rollback");
-        infoFactory.addOperation("setRollbackOnly");
+        infoFactory.addInterface(TransactionManager.class);
+        infoFactory.addInterface(XidImporter.class);
 
         infoFactory.setConstructor(new String[]{"delegate", "xidImporter", "recovery", "resourceManagers"});
 

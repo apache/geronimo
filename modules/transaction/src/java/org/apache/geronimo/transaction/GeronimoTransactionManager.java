@@ -70,15 +70,8 @@ public class GeronimoTransactionManager extends TransactionManagerProxy {
         infoFactory.addReference("TransactionLog", TransactionLog.class);
         infoFactory.addReference("ResourceManagers", ResourceManager.class);
 
-        infoFactory.addOperation("setTransactionTimeout", new Class[]{int.class});
-        infoFactory.addOperation("begin");
-        infoFactory.addOperation("getStatus");
-        infoFactory.addOperation("getTransaction");
-        infoFactory.addOperation("suspend");
-        infoFactory.addOperation("resume", new Class[]{Transaction.class});
-        infoFactory.addOperation("commit");
-        infoFactory.addOperation("rollback");
-        infoFactory.addOperation("setRollbackOnly");
+        infoFactory.addInterface(TransactionManager.class);
+        infoFactory.addInterface(XidImporter.class);
 
         infoFactory.setConstructor(new String[]{"TransactionLog", "ResourceManagers"});
 

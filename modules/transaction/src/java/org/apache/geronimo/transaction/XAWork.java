@@ -29,6 +29,6 @@ import javax.transaction.InvalidTransactionException;
  *
  * */
 public interface XAWork {
-    void begin(Xid xid, long txTimeout) throws XAException, InvalidTransactionException, SystemException;
+    void begin(Xid xid, long txTimeout) throws XAException, InvalidTransactionException, SystemException, ImportedTransactionActiveException;
     void end(Xid xid) throws XAException, SystemException;
 }

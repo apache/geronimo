@@ -34,10 +34,13 @@ public class ContainerTransactionContext extends InheritableTransactionContext {
     private final TransactionManager txnManager;
     private Transaction transaction;
 
+    private boolean threadAssociated = false;
+
     public ContainerTransactionContext(TransactionManager txnManager) throws SystemException, NotSupportedException {
         this.txnManager = txnManager;
         txnManager.begin();
         transaction = txnManager.getTransaction();
+        threadAssociated = true;
     }
 
     public ContainerTransactionContext(TransactionManager txnManager, Transaction transaction) {
@@ -47,11 +50,13 @@ public class ContainerTransactionContext extends InheritableTransactionContext {
 
     public void suspend() throws SystemException {
         Transaction suspendedTransaction = txnManager.suspend();
-        assert (transaction == suspendedTransaction) : "suspend did not return our transaction";
+        assert (transaction == suspendedTransaction) : "suspend did not return our transaction. ours: " + transaction + ", suspended returned: " + suspendedTransaction;
+        threadAssociated = false;
     }
 
     public void resume() throws SystemException, InvalidTransactionException {
         txnManager.resume(transaction);
+        threadAssociated = true;
     }
 
     /**
@@ -113,6 +118,10 @@ public class ContainerTransactionContext extends InheritableTransactionContext {
             connectorAfterCommit();
             transaction = null;
         }
+    }
+
+    public boolean isThreadAssociated() {
+        return threadAssociated;
     }
 
     //Geronimo connector framework support
