@@ -68,6 +68,7 @@ public class MockConnectionFactory implements ConnectionFactoryExtension {
         return reference;
     }
 
-    public void doSomethingElse() {
+    public String doSomethingElse() {
+        return "SomethingElse";
     }
 }

@@ -219,6 +219,18 @@
         <xsd:sequence>
             <xsd:element name="name"
                 type="xsd:string"/>
+
+            <xsd:element name="implemented-interface"
+                type="j2ee:fully-qualified-classType"
+                minOccurs="0"
+                maxOccurs="unbounded">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[Additional interfaces implemented by the connectionfactory, used by the application]]>
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+
             <xsd:element name="config-property-setting"
                 type="ger:config-property-settingType"
                 minOccurs="0"

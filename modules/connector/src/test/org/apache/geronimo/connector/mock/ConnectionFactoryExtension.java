@@ -10,5 +10,5 @@ import javax.resource.cci.ConnectionFactory;
  * */
 public interface ConnectionFactoryExtension extends ConnectionFactory{
 
-    void doSomethingElse();
+    String doSomethingElse();
 }

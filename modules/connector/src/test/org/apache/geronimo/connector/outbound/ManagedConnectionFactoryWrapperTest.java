@@ -21,6 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Hashtable;
 import javax.management.ObjectName;
@@ -34,6 +35,7 @@ import junit.framework.TestCase;
 import org.apache.geronimo.connector.mock.MockConnection;
 import org.apache.geronimo.connector.mock.MockConnectionFactory;
 import org.apache.geronimo.connector.mock.MockManagedConnectionFactory;
+import org.apache.geronimo.connector.mock.ConnectionFactoryExtension;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.NoPool;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.NoTransactions;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
@@ -74,6 +76,10 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
         }
         kernel.startGBean(managedConnectionFactoryName);
         ((ConnectionFactory) proxy).getConnection();
+        //check implemented interfaces
+        assertTrue(proxy instanceof Serializable);
+        assertTrue(proxy instanceof ConnectionFactoryExtension);
+        assertEquals("SomethingElse", ((ConnectionFactoryExtension)proxy).doSomethingElse());
     }
 
     public void testSerialization() throws Exception {
@@ -157,6 +163,7 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
         GBeanMBean mcfw = new GBeanMBean(ManagedConnectionFactoryWrapper.getGBeanInfo());
         mcfw.setAttribute("managedConnectionFactoryClass", MockManagedConnectionFactory.class);
         mcfw.setAttribute("connectionFactoryInterface", ConnectionFactory.class);
+        mcfw.setAttribute("implementedInterfaces", new Class[] {Serializable.class, ConnectionFactoryExtension.class});
         mcfw.setAttribute("connectionFactoryImplClass", MockConnectionFactory.class);
         mcfw.setAttribute("connectionInterface", Connection.class);
         mcfw.setAttribute("connectionImplClass", MockConnection.class);

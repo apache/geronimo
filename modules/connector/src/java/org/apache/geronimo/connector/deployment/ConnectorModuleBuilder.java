@@ -79,6 +79,7 @@ import org.apache.geronimo.xbeans.j2ee.ConnectorType;
 import org.apache.geronimo.xbeans.j2ee.MessagelistenerType;
 import org.apache.geronimo.xbeans.j2ee.RequiredConfigPropertyType;
 import org.apache.geronimo.xbeans.j2ee.ResourceadapterType;
+import org.apache.geronimo.xbeans.j2ee.FullyQualifiedClassType;
 import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConfigPropertyType10;
 import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConnectorDocument10;
 import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConnectorType10;
@@ -675,6 +676,15 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
                 earContext.addGBean(realmObjectNam, realmGBean);
                 managedConnectionFactoryGBean.setReferencePattern("ManagedConnectionFactoryListener", realmObjectNam);
             }
+            //additional interfaces implemented by connection factory
+            FullyQualifiedClassType[] implementedInterfaceElements = connectionfactoryInstance.getImplementedInterfaceArray();
+            Class[] implementedInterfaces = new Class[implementedInterfaceElements == null? 0:implementedInterfaceElements.length];
+            for (int i = 0; i < implementedInterfaceElements.length; i++) {
+                FullyQualifiedClassType additionalInterfaceType = implementedInterfaceElements[i];
+                implementedInterfaces[i] = cl.loadClass(additionalInterfaceType.getStringValue());
+            }
+            managedConnectionFactoryGBean.setAttribute("implementedInterfaces", implementedInterfaces);
+
         } catch (Exception e) {
             throw new DeploymentException(e);
         }

@@ -52,10 +52,12 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
 
     private final Class managedConnectionFactoryClass;
     private final Class connectionFactoryInterface;
+    private final Class[] implementedInterfaces;
     private final Class connectionFactoryImplClass;
     private final Class connectionInterface;
     private final Class connectionImplClass;
 
+    private final Class[] allImplementedInterfaces;
 
     private String globalJNDIName;
 
@@ -80,15 +82,18 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
     public ManagedConnectionFactoryWrapper() {
         managedConnectionFactoryClass = null;
         connectionFactoryInterface = null;
+        implementedInterfaces = null;
         connectionFactoryImplClass = null;
         connectionInterface = null;
         connectionImplClass = null;
         kernel = null;
         objectName = null;
+        allImplementedInterfaces = null;
     }
 
     public ManagedConnectionFactoryWrapper(Class managedConnectionFactoryClass,
             Class connectionFactoryInterface,
+            Class[] implementedInterfaces,
             Class connectionFactoryImplClass,
             Class connectionInterface,
             Class connectionImplClass,
@@ -100,9 +105,14 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
             String objectName) throws InstantiationException, IllegalAccessException {
         this.managedConnectionFactoryClass = managedConnectionFactoryClass;
         this.connectionFactoryInterface = connectionFactoryInterface;
+        this.implementedInterfaces = implementedInterfaces;
         this.connectionFactoryImplClass = connectionFactoryImplClass;
         this.connectionInterface = connectionInterface;
         this.connectionImplClass = connectionImplClass;
+
+        allImplementedInterfaces = new Class[1 + implementedInterfaces.length];
+        allImplementedInterfaces[0]= connectionFactoryInterface;
+        System.arraycopy(implementedInterfaces, 0, allImplementedInterfaces, 1, implementedInterfaces.length);
 
         this.globalJNDIName = globalJNDIName;
         this.resourceAdapterWrapper = resourceAdapterWrapper;
@@ -124,6 +134,10 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
 
     public Class getConnectionFactoryInterface() {
         return connectionFactoryInterface;
+    }
+
+    public Class[] getImplementedInterfaces() {
+        return implementedInterfaces;
     }
 
     public Class getConnectionFactoryImplClass() {
@@ -178,7 +192,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         //build proxy
         if (proxy == null) {
             Enhancer enhancer = new Enhancer();
-            enhancer.setSuperclass(connectionFactoryInterface);
+            enhancer.setInterfaces(allImplementedInterfaces);
             enhancer.setCallbackType(net.sf.cglib.proxy.MethodInterceptor.class);
             enhancer.setUseFactory(false);//????
             interceptor = new ConnectorMethodInterceptor(kernel.getKernelName(), ObjectName.getInstance(objectName));
@@ -255,6 +269,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
 
         infoFactory.addAttribute("managedConnectionFactoryClass", Class.class, true);
         infoFactory.addAttribute("connectionFactoryInterface", Class.class, true);
+        infoFactory.addAttribute("implementedInterfaces", Class[].class, true);
         infoFactory.addAttribute("connectionFactoryImplClass", Class.class, true);
         infoFactory.addAttribute("connectionInterface", Class.class, true);
         infoFactory.addAttribute("connectionImplClass", Class.class, true);
@@ -274,6 +289,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         infoFactory.setConstructor(new String[]{
             "managedConnectionFactoryClass",
             "connectionFactoryInterface",
+            "implementedInterfaces",
             "connectionFactoryImplClass",
             "connectionInterface",
             "connectionImplClass",
