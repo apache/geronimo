@@ -24,7 +24,7 @@ import EDU.oswego.cs.dl.util.concurrent.BoundedLinkedQueue;
 
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/03/18 04:05:27 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/20 20:39:11 $
  */
 public class PacketInputStream extends InputStream {
 
@@ -45,7 +45,7 @@ public class PacketInputStream extends InputStream {
         this.closed = false;
 
         this.up.setUpProtocol(buffer);
-        buffer.setDownProtocol(up);
+        buffer.setDownProtocol(this.up);
 
     }
 
@@ -67,8 +67,6 @@ public class PacketInputStream extends InputStream {
         } else if ((off < 0) || (off > b.length) || (len < 0) ||
                 ((off + len) > b.length) || ((off + len) < 0)) {
             throw new IndexOutOfBoundsException();
-        } else if (len == 0) {
-            return 0;
         }
 
         int length = len;

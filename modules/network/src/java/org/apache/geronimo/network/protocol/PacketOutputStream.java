@@ -23,7 +23,7 @@ import java.util.Collections;
 
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/03/18 04:05:27 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/20 20:39:11 $
  */
 public class PacketOutputStream extends OutputStream {
 
@@ -69,20 +69,15 @@ public class PacketOutputStream extends OutputStream {
         } else if ((off < 0) || (off > b.length) || (len < 0) ||
                 ((off + len) > b.length) || ((off + len) < 0)) {
             throw new IndexOutOfBoundsException();
-        } else if (len == 0) {
-            return;
         }
-        if (currentBuffer.remaining() <= len) {
-            while (len > 0) {
-                int remaining = currentBuffer.remaining();
-                int segment = Math.min(remaining, len);
-                currentBuffer.put(b, off, segment);
-                off += segment;
-                len -= remaining;
-                if (!currentBuffer.hasRemaining()) flush();
-            }
-        } else {
-            currentBuffer.put(b, off, len);
+
+        while (len > 0) {
+            int remaining = currentBuffer.remaining();
+            int segment = Math.min(remaining, len);
+            currentBuffer.put(b, off, segment);
+            off += segment;
+            len -= remaining;
+            if (!currentBuffer.hasRemaining()) flush();
         }
     }
 
