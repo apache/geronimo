@@ -18,7 +18,6 @@
 package org.apache.geronimo.jetty;
 
 import javax.management.ObjectName;
-import java.io.File;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -126,8 +125,8 @@ public class BaseSecurityTest extends TestCase {
         propertiesLMGBean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule");
         propertiesLMGBean.setAttribute("serverSide", Boolean.TRUE);
         Properties options = new Properties();
-        options.setProperty("usersURI", new File(new File("."), "src/test-resources/data/users.properties").toString());
-        options.setProperty("groupsURI", new File(new File("."), "src/test-resources/data/groups.properties").toString());
+        options.setProperty("usersURI", "src/test-resources/data/users.properties");
+        options.setProperty("groupsURI", "src/test-resources/data/groups.properties");
         propertiesLMGBean.setAttribute("options", options);
 
         propertiesRealmGBean = new GBeanMBean("org.apache.geronimo.security.realm.GenericSecurityRealm");
