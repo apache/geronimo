@@ -30,25 +30,27 @@ import org.apache.geronimo.naming.reference.SimpleAwareReference;
  * @version $Rev:  $ $Date:  $
  */
 public class ServiceReference extends SimpleAwareReference {
-    private final static Class[] CONSTRUCTOR_TYPES = new Class[] {Map.class};
+    private final static Class[] CONSTRUCTOR_TYPES = new Class[] {Map.class, Map.class};
 
     private final Class serviceClass;
     private final Callback[] methodInterceptors;
-    private final Map ports;
+    private final Map portNameToFactoryMap;
+    private final Map seiClassNameToFactoryMap;
     //THIS IS NOT SERIALIZABLE!
     private final FastConstructor constructor;
 
-    public ServiceReference(Class serviceClass, MethodInterceptor methodInterceptor, Map ports) {
+    public ServiceReference(Class serviceClass, MethodInterceptor methodInterceptor, Map portNameToFactoryMap, Map seiClassNameToFactoryMap) {
         this.serviceClass = serviceClass;
         this.methodInterceptors = new Callback[] {SerializableNoOp.INSTANCE,  methodInterceptor};
-        this.ports = ports;
+        this.portNameToFactoryMap = portNameToFactoryMap;
+        this.seiClassNameToFactoryMap = seiClassNameToFactoryMap;
         this.constructor = FastClass.create(serviceClass).getConstructor(CONSTRUCTOR_TYPES);
     }
 
     public Object getContent() {
         try {
             Enhancer.registerCallbacks(serviceClass, methodInterceptors);
-            Object serviceInstance = constructor.newInstance(new Object[] {ports});
+            Object serviceInstance = constructor.newInstance(new Object[] {portNameToFactoryMap, seiClassNameToFactoryMap});
             return serviceInstance;
         } catch (InvocationTargetException e) {
             throw new RuntimeException("Could not create instance", e);

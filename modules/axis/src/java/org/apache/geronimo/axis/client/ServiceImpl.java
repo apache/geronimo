@@ -33,15 +33,17 @@ import org.apache.axis.client.Service;
 
 
 /**
- * @version $Rev$ $Date$
+ * @version $Revision:$ $Date:$
  */
 public class ServiceImpl implements javax.xml.rpc.Service, Serializable {
 
     private transient Service delegate;
+    private Map seiClassNameToFactoryMap;
     private final Map portToImplementationMap;
 
-    public ServiceImpl(Map portToImplementationMap) {
+    public ServiceImpl(Map portToImplementationMap, Map seiClassNameToFactoryMap) {
         this.portToImplementationMap = portToImplementationMap;
+        this.seiClassNameToFactoryMap = seiClassNameToFactoryMap;
         this.delegate = new Service();
     }
 
@@ -49,27 +51,15 @@ public class ServiceImpl implements javax.xml.rpc.Service, Serializable {
         if (qName != null) {
             String portName = qName.getLocalPart();
             Remote port = internalGetPort(portName);
-            if (port != null) {
-                return port;
-            }
-        }
-        String fqcn = portClass.getName();
-        String portName = fqcn.substring(fqcn.lastIndexOf('.'));
-        Remote port = internalGetPort(portName);
-        if (port != null) {
             return port;
         }
-        return delegate.getPort(qName, portClass);
+        return getPort(portClass);
     }
 
     public Remote getPort(Class portClass) throws ServiceException {
         String fqcn = portClass.getName();
-        String portName = fqcn.substring(fqcn.lastIndexOf('.'));
-        Remote port = internalGetPort(portName);
-        if (port != null) {
-            return port;
-        }
-        return delegate.getPort(portClass);
+        Remote port = internalGetPortFromClassName(fqcn);
+        return port;
     }
 
     public Call[] getCalls(QName qName) throws ServiceException {
@@ -81,7 +71,7 @@ public class ServiceImpl implements javax.xml.rpc.Service, Serializable {
     }
 
     public Call createCall(QName qName, QName qName1) throws ServiceException {
-        return delegate.createCall(qName,  qName1);
+        return delegate.createCall(qName, qName1);
     }
 
     public Call createCall(QName qName, String s) throws ServiceException {
@@ -114,9 +104,20 @@ public class ServiceImpl implements javax.xml.rpc.Service, Serializable {
 
     Remote internalGetPort(String portName) throws ServiceException {
         if (portToImplementationMap.containsKey(portName)) {
-            return (Remote) portToImplementationMap.get(portName);
+            SEIFactory seiFactory = (SEIFactory) portToImplementationMap.get(portName);
+            Remote port = seiFactory.createServiceEndpoint();
+            return port;
         }
-        return null;
+        throw new ServiceException("No port for portname: " + portName);
+    }
+
+    Remote internalGetPortFromClassName(String className) throws ServiceException {
+        if (seiClassNameToFactoryMap.containsKey(className)) {
+            SEIFactory seiFactory = (SEIFactory) seiClassNameToFactoryMap.get(className);
+            Remote port = seiFactory.createServiceEndpoint();
+            return port;
+        }
+        throw new ServiceException("no port for class " + className);
     }
 
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {

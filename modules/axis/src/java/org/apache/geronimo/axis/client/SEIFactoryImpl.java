@@ -20,6 +20,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.rmi.Remote;
 import java.io.Serializable;
 import java.io.ObjectStreamException;
+import java.io.InvalidClassException;
 import java.util.List;
 import java.net.URL;
 import javax.xml.rpc.ServiceException;
@@ -39,21 +40,23 @@ public class SEIFactoryImpl implements SEIFactory, Serializable {
     private final Class serviceEndpointClass;
     private final OperationInfo[] operationInfos;
     private transient final FastConstructor constructor;
-    private final ServiceImpl serviceImpl;
+    private final Object serviceImpl;
     private final List typeMappings;
     private final URL location;
 
-    public SEIFactoryImpl(Class serviceEndpointClass, OperationInfo[] operationInfos, ServiceImpl serviceImpl, List typeMappings, URL location) {
+    public SEIFactoryImpl(Class serviceEndpointClass, OperationInfo[] operationInfos, Object serviceImpl, List typeMappings, URL location, ClassLoader classLoader) throws ClassNotFoundException {
         this.serviceEndpointClass = serviceEndpointClass;
         this.operationInfos = operationInfos;
-        this.constructor = FastClass.create(serviceEndpointClass).getConstructor(SERVICE_ENDPOINT_CONSTRUCTOR_TYPES);
+        Class[] constructorTypes = new java.lang.Class[0];
+            constructorTypes = classLoader == null? SERVICE_ENDPOINT_CONSTRUCTOR_TYPES: new Class[] {classLoader.loadClass(GenericServiceEndpoint.class.getName())};
+        this.constructor = FastClass.create(serviceEndpointClass).getConstructor(constructorTypes);
         this.serviceImpl = serviceImpl;
         this.typeMappings = typeMappings;
         this.location = location;
     }
 
     public Remote createServiceEndpoint() throws ServiceException {
-        Service service = serviceImpl.getService();
+        Service service = ((ServiceImpl)serviceImpl).getService();
         GenericServiceEndpoint serviceEndpoint = new GenericServiceEndpoint(service, typeMappings, location);
         Callback callback = new ServiceEndpointMethodInterceptor(serviceEndpoint, operationInfos);
         Callback[] callbacks = new Callback[]{SerializableNoOp.INSTANCE, callback};
@@ -67,6 +70,10 @@ public class SEIFactoryImpl implements SEIFactory, Serializable {
     }
 
     private Object readResolve() throws ObjectStreamException {
-        return new SEIFactoryImpl(serviceEndpointClass, operationInfos, serviceImpl, typeMappings, location);
+        try {
+            return new SEIFactoryImpl(serviceEndpointClass, operationInfos, serviceImpl, typeMappings, location, null);
+        } catch (ClassNotFoundException e) {
+            throw new InvalidClassException(GenericServiceEndpoint.class.getName(), "this is impossible");
+        }
     }
 }

@@ -127,9 +127,12 @@ public class ServiceReferenceTest extends TestCase {
     public void testServiceProxy() throws Exception {
         //construct the SEI proxy
         Map portMap = new HashMap();
-        portMap.put("MockPort", new MockSEIFactory());
+        MockSEIFactory factory = new MockSEIFactory();
+        portMap.put("MockPort", factory);
+        Map seiClassNameToFactoryMap = new HashMap();
+        seiClassNameToFactoryMap.put(MockPort.class.getName(), factory);
         AxisBuilder builder = new AxisBuilder();
-        Service service = builder.createService(MockService.class, portMap, context, module, isolatedCl);
+        Object service = builder.createService(MockService.class, portMap, seiClassNameToFactoryMap, context, module, isolatedCl);
         assertTrue(service instanceof MockService);
         MockService mockService = (MockService) service;
         MockPort mockPort = mockService.getMockPort();
@@ -139,7 +142,7 @@ public class ServiceReferenceTest extends TestCase {
     public void testServiceEndpointProxy() throws Exception {
         AxisBuilder builder = new AxisBuilder();
 
-        ServiceImpl serviceInstance = new ServiceImpl(null);
+        ServiceImpl serviceInstance = new ServiceImpl(null, null);
         List typeMappings = new ArrayList();
 
         URL location = new URL("http://geronimo.apache.org/ws");
@@ -204,6 +207,10 @@ public class ServiceReferenceTest extends TestCase {
         assertTrue(proxy instanceof InteropLab);
         InteropTestPortType interopTestPort = ((InteropLab) proxy).getinteropTestPort();
         assertNotNull(interopTestPort);
+        testInteropPort(interopTestPort);
+    }
+
+    private void testInteropPort(InteropTestPortType interopTestPort) throws java.rmi.RemoteException {
         if (runExternalWSTest) {
             System.out.println("Running external ws test");
             int result = interopTestPort.echoInteger(1);
@@ -231,16 +238,25 @@ public class ServiceReferenceTest extends TestCase {
         Object proxy = reference.getContent();
         assertNotNull(proxy);
         assertTrue(proxy instanceof InteropLab);
-        InteropTestPortType interopTestPort = ((InteropLab) proxy).getinteropTestPort();
+
+        InteropLab interopLab = ((InteropLab) proxy);
+        InteropTestPortType interopTestPort = interopLab.getinteropTestPort();
         assertNotNull(interopTestPort);
-        if (runExternalWSTest) {
-            System.out.println("Running external ws test");
-            int result = interopTestPort.echoInteger(1);
-            assertEquals(result, 1);
-        } else {
-            System.out.println("Skipping external ws test");
-        }
+        testInteropPort(interopTestPort);
+
+        //test more dynamically
+        Remote sei = interopLab.getPort(InteropTestPortType.class);
+        assertNotNull(sei);
+        assertTrue(sei instanceof InteropTestPortType);
+        testInteropPort((InteropTestPortType) sei);
+
+        Remote sei2 = interopLab.getPort(new QName("http://tempuri.org/4s4c/1/3/wsdl/def/interopLab", "interopTestPort"), null);
+        assertNotNull(sei2);
+        assertTrue(sei2 instanceof InteropTestPortType);
+        testInteropPort((InteropTestPortType) sei2);
     }
+
+
 
     private OperationInfo buildOperationInfoForMockOperation(AxisBuilder builder) throws NoSuchMethodException, DeploymentException, WSDLException {
         Class portClass = MockPort.class;
