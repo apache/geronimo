@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2003-2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import org.apache.commons.logging.LogFactory;
  * We may need to consider running more than one thread to check the selector
  * if servicing the selector takes too long.
  * 
- * @version $Revision: 1.2 $ $Date: 2004/02/25 09:58:04 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:20 $
  */
 public class SelectorManager implements Runnable {
 

@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2003-2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import org.apache.geronimo.console.cli.DeploymentContext;
 /**
  * Select targets or view, start, stop, or undeploy modules from the targets.
  *
- * @version $Revision: 1.3 $ $Date: 2004/02/25 09:57:26 $
+ * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:41 $
  */
 public class ControlDeployments extends TextController {
     private static final Log log = LogFactory.getLog(ControlDeployments.class);

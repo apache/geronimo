@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2003-2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import javax.naming.NamingException;
  * Automatically handles switching the "java:comp" sub-context to the
  * appropriate one for the current thread.
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/25 09:57:57 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:08 $
  */
 public class RootContext extends ReadOnlyContext {
     private static InheritableThreadLocal compContext = new InheritableThreadLocal();

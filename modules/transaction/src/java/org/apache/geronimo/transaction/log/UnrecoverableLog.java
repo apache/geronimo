@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2003-2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import org.apache.geronimo.transaction.manager.TransactionLog;
  * Not recommended for production use as heuristic recovery will be needed if
  * the transaction coordinator dies.
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/25 09:58:19 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:37 $
  */
 public class UnrecoverableLog implements TransactionLog {
     public void begin(Xid xid) throws IOException {

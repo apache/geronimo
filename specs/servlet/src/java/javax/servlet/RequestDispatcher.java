@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2003-2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ import java.io.IOException;
  * @see ServletContext#getNamedDispatcher(java.lang.String)
  * @see ServletRequest#getRequestDispatcher(java.lang.String)
  *
- * @version $Revision: 1.3 $ $Date: 2004/02/25 09:58:57 $
+ * @version $Revision: 1.4 $ $Date: 2004/03/10 10:00:19 $
  */
 public interface RequestDispatcher {
     /**

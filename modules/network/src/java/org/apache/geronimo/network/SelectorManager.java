@@ -14,6 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package org.apache.geronimo.network;
 
 import java.io.IOException;
@@ -40,7 +41,7 @@ import org.apache.geronimo.system.ThreadPool;
  * The SelectorManager will manage one Selector and the thread that checks
  * the selector.
  *
- * @version $Revision: 1.1 $ $Date: 2004/03/10 02:14:27 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:12 $
  */
 public class SelectorManager implements Runnable, GBean {
 

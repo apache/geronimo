@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2003-2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ package org.apache.geronimo.j2ee.management;
  * Identifies a J2EE application EAR that has been deployed.
  * @see "JSR77.3.6"
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/25 09:57:41 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:52 $
  */
 public interface J2EEApplication extends J2EEDeployedObject {
     /**

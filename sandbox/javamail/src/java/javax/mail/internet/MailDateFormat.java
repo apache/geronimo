@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2003-2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import java.util.Locale;
  * <code>Wed, 02 Jan 2003 23:59:59 -0100 (GMT)</code>
  *
  * <code>EEE,  d MMM yyyy HH:mm:ss Z (z)</code>
- * @version $Revision: 1.2 $ $Date: 2004/02/25 09:59:09 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:28 $
  */
 public class MailDateFormat extends SimpleDateFormat {
     static final MailDateFormat INSTANCE = new MailDateFormat(); // @todo jboynes: this does not seem to be used

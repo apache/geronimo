@@ -14,6 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package org.apache.geronimo.system.url;
 
 import java.lang.reflect.Field;
@@ -39,7 +40,7 @@ import org.apache.geronimo.gbean.WaitingException;
  * complete control over the URLs creted in the server.  This allows us to replace the
  * broken implementation of the "file" protocol.
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/27 00:43:44 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:31 $
  */
 public class GeronimoURLFactory implements GBean {
     private static final URLStreamHandlerFactory factory = new URLStreamHandlerFactory();

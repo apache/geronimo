@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2003-2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import org.codehaus.groovy.runtime.InvokerHelper;
  * A temporary bootstap mechanism for the Groovy script until
  * Groovy reaches beta-1 and can support static main(String[]) methods
  * 
- * @version <code>$Revision: 1.2 $ $Date: 2004/02/25 09:59:04 $</code>
+ * @version <code>$Revision: 1.3 $ $Date: 2004/03/10 10:00:24 $</code>
  */
 public class ExplorerMain {
     public static void main(String[] args) {

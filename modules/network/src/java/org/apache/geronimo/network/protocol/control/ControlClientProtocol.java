@@ -14,6 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package org.apache.geronimo.network.protocol.control;
 
 import EDU.oswego.cs.dl.util.concurrent.Latch;
@@ -27,7 +28,7 @@ import org.apache.geronimo.network.protocol.UpPacket;
 
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/03/10 02:14:28 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:14 $
  */
 public class ControlClientProtocol extends AbstractControlProtocol {
 

@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2003-2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ import org.apache.commons.logging.LogFactory;
  * A DeployableObject implementation for EJB JARs.  This knows how to load and
  * validate the deployment descriptors for EJB (currently v2.1 only).
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/25 09:57:28 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:43 $
  */
 public class WebDeployableObject extends AbstractDeployableObject {
     private final static Log log = LogFactory.getLog(WebDeployableObject.class);

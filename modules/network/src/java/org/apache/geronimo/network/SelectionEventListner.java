@@ -14,6 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package org.apache.geronimo.network;
 
 import java.nio.channels.SelectionKey;
@@ -24,7 +25,7 @@ import java.nio.channels.SelectionKey;
  * that are registed with the Selector of the SelectorManager manager
  * must implement.
  *
- * @version $Revision: 1.1 $ $Date: 2004/03/10 02:14:27 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:12 $
  */
 public interface SelectionEventListner {
 

@@ -14,6 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package org.apache.geronimo.security.network.protocol;
 
 import javax.security.auth.Subject;
@@ -37,7 +38,7 @@ import org.apache.geronimo.security.ContextManager;
 
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/03/10 02:15:50 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:26 $
  */
 public class SubjectCarryingServerProtocol extends AbstractProtocol implements BootstrapCook {
 

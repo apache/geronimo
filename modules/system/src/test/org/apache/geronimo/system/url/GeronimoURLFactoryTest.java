@@ -14,6 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package org.apache.geronimo.system.url;
 
 import java.net.URL;
@@ -25,7 +26,7 @@ import junit.framework.TestCase;
 /**
  * 
  * 
- * @version $Revision: 1.1 $ $Date: 2004/02/27 00:43:45 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:31 $
  */
 public class GeronimoURLFactoryTest extends TestCase {
     public void testForceInstall() throws Exception{

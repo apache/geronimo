@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2003-2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import javax.ejb.EJBHome;
  *
  *
  *
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public interface ManagementHome extends EJBHome {
     public Management create() throws CreateException, RemoteException;

@@ -14,6 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package org.apache.geronimo.network.protocol;
 
 import java.nio.channels.SocketChannel;
@@ -32,7 +33,7 @@ import org.apache.geronimo.system.ClockPool;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/10 02:20:08 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:13 $
  */
 public class ProtocolFactory implements ServerSocketAcceptorListener, GBean {
 

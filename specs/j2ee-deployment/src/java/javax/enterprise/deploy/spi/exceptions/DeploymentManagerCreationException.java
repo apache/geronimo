@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2003-2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ package javax.enterprise.deploy.spi.exceptions;
  * This exception is to report problems in returning a DeploymentManager object
  * caused by such things as server down, unable to authenticate and the like.
  *
- * @version $Revision: 1.3 $ $Date: 2004/02/25 09:58:35 $
+ * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:51 $
  */
 public class DeploymentManagerCreationException extends Exception {
     /**

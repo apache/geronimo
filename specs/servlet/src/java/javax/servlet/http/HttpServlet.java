@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2003-2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -77,7 +77,7 @@ import javax.servlet.ServletResponse;
  * Java Tutorial on Multithreaded Programming</a> for more
  * information on handling multiple threads in a Java program.
  *
- * @version $Revision: 1.3 $ $Date: 2004/02/25 09:58:58 $
+ * @version $Revision: 1.4 $ $Date: 2004/03/10 10:00:20 $
  */
 public abstract class HttpServlet extends GenericServlet
         implements java.io.Serializable {

@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2003-2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ import org.apache.commons.logging.LogFactory;
  * clusterable services, but incur a little more synchronisation
  * overhead on lookups, consider...
  *
- * @version $Revision: 1.4 $ $Date: 2004/02/25 09:56:55 $
+ * @version $Revision: 1.5 $ $Date: 2004/03/10 09:58:21 $
  */
 public class
   Data

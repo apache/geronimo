@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2003-2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import junit.framework.TestCase;
 /**
  * Unit test for {@link org.apache.geronimo.kernel.jmx.MBeanProxyFactory} class.
  *
- * @version $Revision: 1.7 $ $Date: 2004/02/25 09:57:04 $
+ * @version $Revision: 1.8 $ $Date: 2004/03/10 09:58:27 $
  */
 public class MBeanProxyFactoryTest extends TestCase {
     public void testNothing() {

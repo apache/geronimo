@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2003-2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ import org.apache.geronimo.security.bridge.RealmBridge;
  * and connection manager stack according to the policies described in the attributes.
  * It's used by deserialized copies of the proxy to get a reference to the actual stack.
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/09 18:02:03 $
+ * @version $Revision: 1.6 $ $Date: 2004/03/10 09:58:32 $
  * */
 public class ConnectionManagerDeployment implements ConnectionManagerFactory, GBean, ConnectionManager, LazyAssociatableConnectionManager {
 

@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2003-2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ package org.apache.geronimo.kernel.management;
 /**
  * This is a representation of the J2EEManagedObject type defined in the J2EE Management specification
  *
- * @version $Revision: 1.3 $ $Date: 2004/02/25 09:57:50 $
+ * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:02 $
  */
 public interface ManagedObject {
     /**

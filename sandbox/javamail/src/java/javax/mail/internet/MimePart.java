@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2003-2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import java.util.Enumeration;
 import javax.mail.MessagingException;
 import javax.mail.Part;
 /**
- * @version $Revision: 1.2 $ $Date: 2004/02/25 09:59:09 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:28 $
  */
 public interface MimePart extends Part {
     public abstract void addHeaderLine(String line) throws MessagingException;

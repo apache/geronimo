@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2003-2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/03/09 18:03:11 $
+ * @version $Revision: 1.7 $ $Date: 2004/03/10 09:59:08 $
  */
 public class ComponentContextBuilder {
     private static final String ENV = "env/";

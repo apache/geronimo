@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2003-2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ import org.apache.geronimo.kernel.repository.Repository;
 /**
  *
  *
- * @version $Revision: 1.8 $ $Date: 2004/03/01 20:50:07 $
+ * @version $Revision: 1.9 $ $Date: 2004/03/10 09:58:48 $
  */
 public class DeploymentContext {
     private final URI configID;

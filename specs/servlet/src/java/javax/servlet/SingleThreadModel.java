@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2003-2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ package javax.servlet;
  * @deprecated As of Java Servlet API 2.4, with no direct
  * replacement.
  *
- * @version $Revision: 1.3 $ $Date: 2004/02/25 09:58:57 $
+ * @version $Revision: 1.4 $ $Date: 2004/03/10 10:00:20 $
  */
 public interface SingleThreadModel {
 }

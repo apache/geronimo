@@ -14,6 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package org.apache.geronimo.network.protocol;
 
 import javax.security.auth.Subject;
@@ -23,7 +24,7 @@ import java.io.Serializable;
 
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/03/10 02:14:27 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:13 $
  */
 public class MetadataSupport implements Serializable {
 

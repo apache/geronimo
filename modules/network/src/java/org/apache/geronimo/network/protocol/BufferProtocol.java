@@ -14,6 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package org.apache.geronimo.network.protocol;
 
 import java.util.ArrayList;
@@ -31,7 +32,7 @@ import org.apache.geronimo.system.ThreadPool;
 
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/03/10 02:14:27 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:13 $
  */
 public class BufferProtocol extends AbstractProtocol implements BootstrapCook {
 

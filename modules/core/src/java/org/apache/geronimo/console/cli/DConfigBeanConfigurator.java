@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2003-2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ import org.apache.geronimo.common.propertyeditor.PropertyEditors;
  * edit one tree at a time, either the whole DDBean tree, or the whole
  * DConfigBean tree.
  * </p>
- * @version $Revision: 1.2 $ $Date: 2004/02/25 09:57:25 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:41 $
  */
 public class DConfigBeanConfigurator {
     private final static Log log = LogFactory.getLog(DConfigBeanConfigurator.class);

@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2003-2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import javax.transaction.xa.Xid;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/02/25 18:05:51 $
+ * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:37 $
  */
 public class MockResource implements XAResource {
     private Xid xid;

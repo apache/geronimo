@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2003-2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import javax.resource.spi.ManagedConnectionFactory;
 /**
  * ConnectionManagerFactory
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/09 18:02:03 $
+ * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:32 $
  */
 public interface ConnectionManagerFactory {
 

@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2003-2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ import org.apache.geronimo.transaction.manager.XidImporter;
  * are delegated to the wrapped TransactionManager; all other operations are delegated to the
  * wrapped Transaction.
  *
- * @version $Revision: 1.5 $ $Date: 2004/02/25 18:05:51 $
+ * @version $Revision: 1.6 $ $Date: 2004/03/10 09:59:36 $
  */
 public class TransactionManagerProxy implements TransactionManager, XATerminator, XAWork {
 

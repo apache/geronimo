@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2003-2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ package org.apache.geronimo.common;
  * Thrown to indicate that a method argument was <code>null</code> and 
  * should <b>not</b> have been.
  *
- * @version $Revision: 1.10 $ $Date: 2004/02/25 09:57:02 $
+ * @version $Revision: 1.11 $ $Date: 2004/03/10 09:58:25 $
  */
 public class NullArgumentException
     extends InvalidArgumentException

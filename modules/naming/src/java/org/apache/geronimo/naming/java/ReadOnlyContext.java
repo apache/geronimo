@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2003-2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ import javax.naming.spi.NamingManager;
  *   String envEntry2 = (String) componentContext.lookup("env/myEntry2");
  * </code>
  *
- * @version $Revision: 1.6 $ $Date: 2004/03/09 18:03:11 $
+ * @version $Revision: 1.7 $ $Date: 2004/03/10 09:59:08 $
  */
 public class ReadOnlyContext implements Context,Serializable {
     protected final Hashtable env;        // environment for this context

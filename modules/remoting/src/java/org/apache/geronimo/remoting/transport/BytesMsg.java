@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2003-2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import org.apache.geronimo.remoting.MarshalledObject;
 import org.apache.geronimo.remoting.TransportContext;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/02/25 09:58:03 $
+ * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:19 $
  */
 public class BytesMsg implements Msg {
 

@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2003-2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Vector;
 /**
- * @version $Revision: 1.2 $ $Date: 2004/02/25 09:59:07 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:27 $
  */
 public abstract class Multipart {
     protected String contentType;

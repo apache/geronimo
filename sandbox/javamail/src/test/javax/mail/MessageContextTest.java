@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2003-2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import javax.activation.DataHandler;
 import javax.mail.internet.MimeMessage;
 import junit.framework.TestCase;
 /**
- * @version $Revision: 1.2 $ $Date: 2004/02/25 09:59:10 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/10 10:00:29 $
  */
 public class MessageContextTest extends TestCase {
     public void testNothing() {

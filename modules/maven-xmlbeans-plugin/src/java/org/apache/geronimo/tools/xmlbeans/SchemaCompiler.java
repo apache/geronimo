@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2003-2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ import com.bea.x2002.x09.xbean.config.ConfigDocument;
  * This is a slightly modified version of the xmlbeans v1 SchemaCompiler, enhanced to allow specification of
  * an EntityResolver.  Some parts not used in the maven plugin have also been removed.
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/25 09:57:54 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:06 $
  *
  * */
 public class SchemaCompiler {

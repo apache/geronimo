@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2003-2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import javax.enterprise.deploy.shared.ModuleType;
  * J2eeApplicationObject is an interface that represents a J2EE application (EAR);
  * it maintains a DeployableObject for each module in the archive.
  *
- * @version $Revision: 1.3 $ $Date: 2004/02/25 09:58:34 $
+ * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:50 $
  */
 public interface J2eeApplicationObject extends DeployableObject {
     /**
