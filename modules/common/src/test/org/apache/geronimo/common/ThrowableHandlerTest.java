@@ -64,7 +64,7 @@ import junit.framework.TestCase;
 /**
  * Unit test for {@link ThrowableHandler} class.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/18 16:54:41 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/30 20:59:16 $
  */
 
 public class ThrowableHandlerTest extends TestCase {

@@ -61,7 +61,7 @@ import junit.framework.TestCase;
 /**
  * Unit test for {@link MuByte} class.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/27 09:02:12 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/30 20:59:16 $
  */
 public class MuByteTest
     extends TestCase

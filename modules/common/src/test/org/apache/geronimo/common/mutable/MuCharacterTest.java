@@ -62,7 +62,7 @@ import org.apache.geronimo.common.coerce.NotCoercibleException;
 /**
  * Unit test for {@link MuCharacter} class.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/30 08:00:10 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/30 20:59:16 $
  */
 public class MuCharacterTest extends TestCase {
 

@@ -61,7 +61,7 @@ import junit.framework.TestCase;
 /**
  * Unit test for {@link MuBoolean} class.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/26 08:53:51 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/30 20:59:16 $
  */
 public class MuBooleanTest
     extends TestCase
