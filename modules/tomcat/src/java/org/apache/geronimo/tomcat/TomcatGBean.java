@@ -97,6 +97,7 @@ public class TomcatGBean implements GBeanLifecycle {
             shell.setConfig(catalinaConfig);
         }
         shell.setParentClassLoader(this.getClass().getClassLoader());
+        shell.setUseNaming(false);
         shell.start();
     }
 

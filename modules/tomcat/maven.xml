@@ -61,16 +61,9 @@
 		  -->
 		<copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/geronimo/jars"
 		      file="target/${maven.final.name}.jar"/>
-		<copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/tomcat/jars"
-		      file="${maven.repo.local}/tomcat/jars/catalina-&tomcat-version;.jar"/>
-		<copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/tomcat/jars"
-		      file="${maven.repo.local}/tomcat/jars/tomcat-coyote-&tomcat-version;.jar"/>
-		<copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/tomcat/jars"
-		      file="${maven.repo.local}/tomcat/jars/tomcat-http11-&tomcat-version;.jar"/>
-		<copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/tomcat/jars"
-		      file="${maven.repo.local}/tomcat/jars/tomcat-util-&tomcat-version;.jar"/>
-		<copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/tomcat/jars"
-		      file="${maven.repo.local}/tomcat/jars/naming-common-&tomcat-version;.jar"/>
+                <copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/tomcat/jars">
+		      <fileset dir="${maven.repo.local}/tomcat/jars" includes="*-&tomcat-version;.jar"/>
+		</copy>
 		<copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/commons-beanutils/jars"
 		      file="${maven.repo.local}/commons-beanutils/jars/commons-beanutils-&commons-beanutils-version;.jar"/>
 		<copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/commons-collections/jars"
@@ -79,6 +72,8 @@
 		      file="${maven.repo.local}/commons-digester/jars/commons-digester-&commons-digester-version;.jar"/>
 		<copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/commons-modeler/jars"
 		      file="${maven.repo.local}/commons-modeler/jars/commons-modeler-&commons-modeler-version;.jar"/>
+		<copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/xerces/jars"
+		      file="${maven.repo.local}/xerces/jars/xercesImpl-&xerces-version;.jar"/>
 
         <!-- Pre-load the server's repository (copied from assembly's maven.xml) -->
         <!--
@@ -96,7 +91,8 @@
         </ant:copy>
         -->
         
-        <copy todir="${geronimoHome}/var/catalina" file="src/var/server.xml"/>
+        <copy todir="${geronimoHome}/var/catalina/conf" file="src/var/server.xml"/>
+        <copy todir="${geronimoHome}/var/catalina/conf" file="src/var/web.xml"/>
         
         <echo>Deploying Apache Tomcat configuration</echo>
         <java fork="true" jar="../assembly/target/geronimo-${pom.currentVersion}/bin/deployer.jar"

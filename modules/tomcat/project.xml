@@ -89,6 +89,24 @@
         </dependency>
         <dependency>
             <groupId>tomcat</groupId>
+            <artifactId>jasper-compiler</artifactId>
+            <version>&tomcat-version;</version>
+            <url>http://jakarta.apache.org/tomcat/</url>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>tomcat</groupId>
+            <artifactId>jasper-runtime</artifactId>
+            <version>&tomcat-version;</version>
+            <url>http://jakarta.apache.org/tomcat/</url>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>tomcat</groupId>
             <artifactId>tomcat-util</artifactId>
             <version>&tomcat-version;</version>
             <url>http://jakarta.apache.org/tomcat/</url>
@@ -104,6 +122,47 @@
             <properties>
                 <repository>true</repository>
             </properties>
+        </dependency>
+        <dependency>
+            <groupId>tomcat</groupId>
+            <artifactId>naming-resources</artifactId>
+            <version>&tomcat-version;</version>
+            <url>http://jakarta.apache.org/tomcat/</url>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>tomcat</groupId>
+            <artifactId>servlets-common</artifactId>
+            <version>&tomcat-version;</version>
+            <url>http://jakarta.apache.org/tomcat/</url>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>tomcat</groupId>
+            <artifactId>servlets-default</artifactId>
+            <version>&tomcat-version;</version>
+            <url>http://jakarta.apache.org/tomcat/</url>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>tomcat</groupId>
+            <artifactId>servlets-invoker</artifactId>
+            <version>&tomcat-version;</version>
+            <url>http://jakarta.apache.org/tomcat/</url>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <version>&xerces-version;</version>
         </dependency>
         <dependency>
             <groupId>commons-beanutils</groupId>
@@ -128,6 +187,15 @@
             <artifactId>commons-digester</artifactId>
             <version>&commons-digester-version;</version>
             <url>http://jakarta.apache.org/commons/digester</url>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>commons-el</groupId>
+            <artifactId>commons-el</artifactId>
+            <version>&commons-el-version;</version>
+            <url>http://jakarta.apache.org/commons/el</url>
             <properties>
                 <repository>true</repository>
             </properties>

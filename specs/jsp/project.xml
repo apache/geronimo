@@ -72,6 +72,17 @@
                     <include>jsp_2_0.xsd</include>
                 </includes>
             </resource>
+            <!-- 
+               - Tomcat 5.0.28 needs the web-jsptaglibrary_2_0.xsd file 
+               - located at javax/servlet/resources/web-jsptaglibrary_2_0.xsd
+               -->
+            <resource>
+                <directory>${basedir}/src/schema</directory>
+                <targetPath>javax/servlet/resources</targetPath>
+                <includes>
+                    <include>web-jsptaglibrary_2_0.xsd</include>
+                </includes>
+            </resource>
         </resources>
     </build>
 </project>
