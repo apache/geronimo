@@ -55,12 +55,9 @@
  */
 package org.apache.geronimo.ejb.context;
 
-import org.apache.geronimo.common.Container;
-import org.apache.geronimo.common.Interceptor;
+import org.apache.geronimo.common.AbstractInterceptor;
 import org.apache.geronimo.common.Invocation;
 import org.apache.geronimo.common.InvocationResult;
-import org.apache.geronimo.common.RPCContainer;
-import org.apache.geronimo.management.State;
 import org.apache.geronimo.ejb.container.EJBPlugins;
 import org.apache.geronimo.ejb.metadata.EJBMetadata;
 
@@ -68,78 +65,30 @@ import org.apache.geronimo.ejb.metadata.EJBMetadata;
  *
  *
  *
- * @version $Revision: 1.10 $ $Date: 2003/08/22 02:08:41 $
+ * @version $Revision: 1.11 $ $Date: 2003/08/23 22:09:39 $
  */
-public class TransactionInterceptor implements Interceptor {
+public class TransactionInterceptor extends AbstractInterceptor {
     private ExecutionContextInterceptor transactionInterceptor;
-    private Container container;
-    private Interceptor nextInterceptor;
 
-    public int getState() {
-        return transactionInterceptor.getState();
-    }
-    
-    public State getStateInstance() {
-        return transactionInterceptor.getStateInstance();
-    }
-
-    public long getStartTime(){
-        return transactionInterceptor.getStartTime();
-    }
-
-    public final Container getContainer() {
-        return container;
-    }
-
-    public final void setContainer(Container container) {
-        this.container = container;
-    }
-
-    public final Interceptor getNext() {
-        return nextInterceptor;
-    }
-
-    public final void setNext(Interceptor nextInterceptor) {
-        this.nextInterceptor = nextInterceptor;
-    }
-
-    public void start() throws Exception {
-        EJBMetadata ejbMetadata = EJBPlugins.getEJBMetadata((RPCContainer)container);
+    public void doStart() throws Exception {
+        EJBMetadata ejbMetadata = EJBPlugins.getEJBMetadata(getContainer());
         if (ejbMetadata.getTransactionDemarcation().isContainer()) {
             transactionInterceptor = new CMTInterceptor();
         } else {
             transactionInterceptor = new StatelessBMTInterceptor();
         }
-        transactionInterceptor.setContainer(container);
-        transactionInterceptor.setNext(nextInterceptor);
-        transactionInterceptor.start();
-    }
-    
-    public void startRecursive() throws Exception {
-        transactionInterceptor.startRecursive();
+        transactionInterceptor.setContainer(getContainer());
+        transactionInterceptor.setNext(getNext());
+        transactionInterceptor.doStart();
     }
 
-    public void stop() throws Exception {
-        transactionInterceptor.stop();
+    public void doStop() throws Exception {
+        transactionInterceptor.doStop();
         transactionInterceptor.setContainer(null);
         transactionInterceptor = null;
     }
 
     public InvocationResult invoke(Invocation invocation) throws Exception {
         return transactionInterceptor.invoke(invocation);
-    }
-
-
-    /**
-     * For compliance with Component interface.
-     * NOTE: This Interceptor should probably implement
-     * AbstractComponent!
-     *
-     * @todo need to return a decent name if Interceptors are Components
-     * @return a <code>String</code> value
-     */
-    public String getObjectName ()
-    {
-        return transactionInterceptor.getObjectName();
     }
 }

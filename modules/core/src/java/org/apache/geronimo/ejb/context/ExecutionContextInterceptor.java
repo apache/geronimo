@@ -62,26 +62,23 @@ import javax.transaction.TransactionManager;
 import org.apache.geronimo.common.AbstractInterceptor;
 import org.apache.geronimo.common.Invocation;
 import org.apache.geronimo.common.InvocationResult;
-import org.apache.geronimo.common.RPCContainer;
 import org.apache.geronimo.ejb.container.EJBPlugins;
 
 /**
  *
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/16 23:16:51 $
+ * @version $Revision: 1.5 $ $Date: 2003/08/23 22:09:39 $
  */
 public abstract class ExecutionContextInterceptor extends AbstractInterceptor {
     protected TransactionManager tm;
 
     protected void doStart() throws Exception {
-        super.doStart();
-        tm = EJBPlugins.getTransactionManager((RPCContainer)getContainer());
+        tm = EJBPlugins.getTransactionManager(getContainer());
     }
 
     protected void doStop() throws Exception {
         tm = null;
-        super.doStop();
     }
 
     /**

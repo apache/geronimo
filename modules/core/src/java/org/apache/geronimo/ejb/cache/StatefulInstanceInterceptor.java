@@ -76,7 +76,7 @@ import org.apache.geronimo.lock.LockReentranceException;
  *
  *
  *
- * @version $Revision: 1.6 $ $Date: 2003/08/23 09:07:11 $
+ * @version $Revision: 1.7 $ $Date: 2003/08/23 22:09:39 $
  */
 public final class StatefulInstanceInterceptor extends AbstractInterceptor {
     private InstancePool pool;
@@ -84,8 +84,7 @@ public final class StatefulInstanceInterceptor extends AbstractInterceptor {
     private LockDomain lockDomain;
 
     protected void doStart() throws Exception {
-        super.doStart();
-        RPCContainer container = (RPCContainer)getContainer();
+        RPCContainer container = getContainer();
         lockDomain = EJBPlugins.getLockDomain(container);
         pool = EJBPlugins.getInstancePool(container);
         cache = EJBPlugins.getInstanceCache(container);
@@ -95,7 +94,6 @@ public final class StatefulInstanceInterceptor extends AbstractInterceptor {
         lockDomain = null;
         cache = null;
         pool = null;
-        super.doStop();
     }
 
     public InvocationResult invoke(Invocation invocation) throws Exception {

@@ -54,26 +54,34 @@
  * ====================================================================
  */
 package org.apache.geronimo.common;
-import org.apache.geronimo.management.State;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2003/08/20 07:13:25 $
+ * @version $Revision: 1.7 $ $Date: 2003/08/23 22:09:39 $
  */
-public abstract class AbstractInterceptor extends AbstractComponent implements Interceptor {
+public abstract class AbstractInterceptor implements Interceptor {
+    private RPCContainer container;
     private Interceptor next;
+    protected Log log = LogFactory.getLog(getClass());
+
+    public RPCContainer getContainer() {
+        return container;
+    }
+
+    public void setContainer(RPCContainer container) {
+        this.container = container;
+    }
 
     public final Interceptor getNext() {
         return next;
     }
 
     public final void setNext(Interceptor nextInterceptor) {
-        State state = getStateInstance();
-        if (state != State.STOPPED) {
-            throw new IllegalStateException("setNext can only be called while in the stopped state: state=" + state);
-        }
         next = nextInterceptor;
     }
 

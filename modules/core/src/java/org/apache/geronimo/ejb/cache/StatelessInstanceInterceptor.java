@@ -72,20 +72,18 @@ import org.apache.geronimo.ejb.container.EJBPlugins;
  * and returns it to the pools after invocation.
  *
  *
- * @version $Revision: 1.5 $ $Date: 2003/08/16 23:16:43 $
+ * @version $Revision: 1.6 $ $Date: 2003/08/23 22:09:39 $
  */
 public final class StatelessInstanceInterceptor extends AbstractInterceptor {
     private InstancePool pool;
 
     protected void doStart() throws Exception {
-        super.doStart();
-        RPCContainer container = (RPCContainer)getContainer();
+        RPCContainer container = getContainer();
         pool = EJBPlugins.getInstancePool(container);
     }
 
     protected void doStop() throws Exception {
         pool = null;
-        super.doStop();
     }
 
     public InvocationResult invoke(final Invocation invocation) throws Exception {

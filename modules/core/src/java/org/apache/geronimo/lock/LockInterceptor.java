@@ -70,20 +70,18 @@ import org.apache.geronimo.ejb.context.ExecutionContext;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2003/08/23 09:07:11 $
+ * @version $Revision: 1.7 $ $Date: 2003/08/23 22:09:39 $
  */
 public final class LockInterceptor extends AbstractInterceptor {
     private LockDomain lockDomain;
 
     protected void doStart() throws Exception {
-        super.doStart();
-        RPCContainer container = (RPCContainer) getContainer();
+        RPCContainer container = getContainer();
         lockDomain = EJBPlugins.getLockDomain(container);
     }
 
     protected void doStop() throws Exception {
         lockDomain = null;
-        super.doStop();
     }
 
     public InvocationResult invoke(Invocation invocation) throws Exception {

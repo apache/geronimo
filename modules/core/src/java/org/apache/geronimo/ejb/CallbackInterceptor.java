@@ -74,7 +74,7 @@ import org.apache.geronimo.ejb.metadata.MethodMetadata;
  * object.  This should be the last interceptor in the chain.
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/15 14:12:19 $
+ * @version $Revision: 1.5 $ $Date: 2003/08/23 22:09:39 $
  */
 public final class CallbackInterceptor extends AbstractInterceptor {
     public InvocationResult invoke(Invocation invocation) throws Exception {
@@ -89,7 +89,7 @@ public final class CallbackInterceptor extends AbstractInterceptor {
         }
 
         // Method metadata
-        EJBMetadata ejbMetadata = EJBPlugins.getEJBMetadata((RPCContainer)getContainer());
+        EJBMetadata ejbMetadata = EJBPlugins.getEJBMetadata(getContainer());
         Method interfaceMethod = EJBInvocationUtil.getMethod(invocation);
         MethodMetadata methodMetadata = ejbMetadata.getMethodMetadata(interfaceMethod);
 

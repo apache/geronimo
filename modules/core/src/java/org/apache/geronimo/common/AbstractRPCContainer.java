@@ -63,9 +63,9 @@ import javax.management.ObjectName;
 import org.apache.geronimo.management.State;
 
 /**
- * Base class for a Container that can be accecpt invocation.
+ * Base class for a Container that can accept invocations.
  *
- * @version $Revision: 1.6 $ $Date: 2003/08/23 05:04:57 $
+ * @version $Revision: 1.7 $ $Date: 2003/08/23 22:09:39 $
  */
 public class AbstractRPCContainer extends AbstractContainer implements RPCContainer {
     // @todo access to these objects must be synchronized
@@ -113,8 +113,8 @@ public class AbstractRPCContainer extends AbstractContainer implements RPCContai
      * @param interceptor
      */
     public final void addInterceptor(Interceptor interceptor) {
-        if (getStateInstance() != State.STOPPED) {
-            throw new IllegalStateException("Interceptors cannot be added unless the Container is stopped");
+        if (getStateInstance() == State.RUNNING) {
+            throw new IllegalStateException("Interceptors cannot be added if the Container is running");
         }
 
         if (firstInterceptor == null) {
@@ -125,8 +125,17 @@ public class AbstractRPCContainer extends AbstractContainer implements RPCContai
             lastInterceptor.setNext(interceptor);
             interceptors.addLast(interceptor);
         }
-        if( interceptor instanceof Component)
-            super.addComponent((Component) interceptor);
+    }
+
+    /**
+     * Clear the interceptor stack
+     */
+    public final void clearInterceptors() {
+        if (getStateInstance() == State.RUNNING) {
+            throw new IllegalStateException("Interceptors cannot be cleared is the Container is running");
+        }
+        interceptors.clear();
+        firstInterceptor = null;
     }
 
     public final ObjectName getPlugin(String logicalPluginName) {

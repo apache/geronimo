@@ -67,10 +67,10 @@ import javax.transaction.TransactionManager;
 
 import org.apache.geronimo.cache.InstanceCache;
 import org.apache.geronimo.common.AbstractInterceptor;
-import org.apache.geronimo.common.RPCContainer;
 import org.apache.geronimo.common.Invocation;
 import org.apache.geronimo.common.InvocationResult;
 import org.apache.geronimo.common.InvocationType;
+import org.apache.geronimo.common.RPCContainer;
 import org.apache.geronimo.ejb.EJBInvocationUtil;
 import org.apache.geronimo.ejb.EnterpriseContext;
 import org.apache.geronimo.ejb.container.EJBPlugins;
@@ -82,7 +82,7 @@ import org.apache.geronimo.ejb.metadata.EJBMetadata;
  *
  *
  *
- * @version $Revision: 1.5 $ $Date: 2003/08/16 23:16:43 $
+ * @version $Revision: 1.6 $ $Date: 2003/08/23 22:09:39 $
  */
 public final class StatefulSessionSynchronizationInterceptor extends AbstractInterceptor {
     protected TransactionManager tm;
@@ -90,8 +90,7 @@ public final class StatefulSessionSynchronizationInterceptor extends AbstractInt
     private boolean hasSynchronization;
 
     protected void doStart() throws Exception {
-        super.doStart();
-        RPCContainer container = (RPCContainer)getContainer();
+        RPCContainer container = getContainer();
         tm = EJBPlugins.getTransactionManager(container);
         cache = EJBPlugins.getInstanceCache(container);
         EJBMetadata ejbMetadata = EJBPlugins.getEJBMetadata(container);
@@ -101,7 +100,6 @@ public final class StatefulSessionSynchronizationInterceptor extends AbstractInt
     protected void doStop() throws Exception {
         cache = null;
         tm = null;
-        super.doStop();
     }
 
     public InvocationResult invoke(Invocation invocation) throws Exception {

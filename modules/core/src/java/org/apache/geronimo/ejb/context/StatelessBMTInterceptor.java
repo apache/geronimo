@@ -71,14 +71,14 @@ import org.apache.geronimo.ejb.container.EJBPlugins;
  *
  *
  *
- * @version $Revision: 1.6 $ $Date: 2003/08/23 09:07:11 $
+ * @version $Revision: 1.7 $ $Date: 2003/08/23 22:09:39 $
  */
 public final class StatelessBMTInterceptor extends ExecutionContextInterceptor {
     private String ejbName;
 
     protected void doStart() throws Exception {
         super.doStart();
-        ejbName = EJBPlugins.getEJBMetadata((RPCContainer)getContainer()).getName();
+        ejbName = EJBPlugins.getEJBMetadata(getContainer()).getName();
     }
 
     public InvocationResult invoke(Invocation invocation) throws Exception {
