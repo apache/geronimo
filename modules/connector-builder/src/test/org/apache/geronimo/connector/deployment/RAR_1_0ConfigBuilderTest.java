@@ -54,7 +54,6 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
-import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConnectorDocument10;
 import org.apache.xmlbeans.XmlOptions;
 import org.tranql.sql.jdbc.JDBCUtil;
 
@@ -75,15 +74,6 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
     private int defaultidleTimeoutMinutes = 15;
     private URI defaultParentId;
 
-
-    public void testLoadJ2eeDeploymentDescriptor() throws Exception {
-        InputStream j2eeInputStream = j2eeDD.openStream();
-        ConnectorDocument10 connectorDocument = ConnectorDocument10.Factory.parse(j2eeInputStream);
-        assertNotNull(connectorDocument.getConnector().getResourceadapter());
-        if (!connectorDocument.validate(xmlOptions)) {
-            fail(errors.toString());
-        }
-    }
 
     public void testLoadGeronimoDeploymentDescriptor() throws Exception {
         InputStream geronimoInputStream = geronimoDD.openStream();
@@ -175,10 +165,6 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
     }
 
     private void executeTestBuildModule(InstallAction action) throws Exception {
-//        String j2eeDomainName = "geronimo.server";
-//        String j2eeServerName = "TestGeronimoServer";
-//        String j2eeModuleName = "org/apache/geronimo/j2ee/deployment/test";
-//        String j2eeApplicationName = "null";
         J2eeContext j2eeContext = new J2eeContextImpl("test.domain", "testServer", "null", "org/apache/geronimo/j2ee/deployment/test", null, null);
         ObjectName connectionTrackerName = new ObjectName("geronimo.connector:service=ConnectionTracker");
 

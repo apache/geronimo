@@ -60,7 +60,7 @@
                 </connectiondefinition-instance>
                 <connectiondefinition-instance>
                     <name>ThirdTestOutboundConnectionFactory</name>
-                    <config-property-setting name="OutboundStringProperty">StringValue3</config-property-setting>
+                    <config-property-setting name="OutboundStringProperty1">StringValue3</config-property-setting>
                     <connectionmanager>
                         <realm-bridge>TargetRealm</realm-bridge>
                         <xa-transaction>

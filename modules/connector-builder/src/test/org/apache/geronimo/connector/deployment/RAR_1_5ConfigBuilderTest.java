@@ -22,9 +22,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.net.URI;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -36,7 +36,6 @@ import javax.management.ObjectName;
 import javax.sql.DataSource;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.connector.ActivationSpecInfo;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -49,9 +48,6 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
@@ -192,7 +188,6 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
             GBeanMBean j2eeServerGBean = new GBeanMBean(J2EEServerImpl.GBEAN_INFO);
             j2eeServerGBean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfoObjectName));
             ObjectName j2eeServerObjectName = NameFactory.getServerName(null, null, j2eeContext);
-//                    ObjectName.getInstance(j2eeDomainName + ":j2eeType=J2EEServer,name=" + j2eeServerName);
             kernel.loadGBean(j2eeServerObjectName, j2eeServerGBean);
             kernel.startGBean(j2eeServerObjectName);
             assertRunning(kernel, j2eeServerObjectName);
@@ -206,19 +201,6 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
             kernel.startGBean(objectName);
             //verify that activationSpecInfoMap is accessible and correct while ResourceAdapterGBean is stopped.
             ObjectName resourceAdapterObjectName = NameFactory.getResourceComponentName(null, null, null, null, resourceAdapterName, NameFactory.JCA_RESOURCE_ADAPTER, j2eeContext);
-//                    new ObjectName(j2eeDomainName +
-//                    ":j2eeType=ResourceAdapter" +
-//                    ",name=testRA" +
-//                    ",J2EEServer=" + j2eeServerName +
-//                    ",J2EEApplication=" + j2eeApplicationName +
-//                    ",ResourceAdapterModule=" + j2eeModuleName);
-            Map activationSpecInfoMap = (Map) kernel.getAttribute(resourceAdapterObjectName, "activationSpecInfoMap");
-            assertEquals(1, activationSpecInfoMap.size());
-            ActivationSpecInfo activationSpecInfo = (ActivationSpecInfo) activationSpecInfoMap.get("javax.jms.MessageListener");
-            assertNotNull(activationSpecInfo);
-            GBeanInfo activationSpecGBeanInfo = activationSpecInfo.getActivationSpecGBeanInfo();
-            List attributes = activationSpecGBeanInfo.getPersistentAttributes();
-            assertEquals(2, attributes.size());
 
             //startRecursive can only be invoked if GBean is stopped.
             kernel.stopGBean(objectName);
@@ -228,7 +210,6 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
             assertRunning(kernel, objectName);
 
             ObjectName applicationObjectName = NameFactory.getApplicationName(null, null, null, j2eeContext);
-//            ObjectName.getInstance(j2eeDomainName + ":j2eeType=J2EEApplication,name=" + j2eeApplicationName + ",J2EEServer=" + j2eeServerName);
             if (!j2eeContext.getJ2eeApplicationName().equals("null")) {
                 assertRunning(kernel, applicationObjectName);
             } else {
@@ -237,38 +218,47 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
             }
 
             ObjectName moduleName = NameFactory.getModuleName(null, null, null, null, NameFactory.RESOURCE_ADAPTER_MODULE, j2eeContext);
-//            ObjectName.getInstance(j2eeDomainName + ":j2eeType=ResourceAdapterModule,J2EEServer=" + j2eeServerName + ",J2EEApplication=" + j2eeApplicationName + ",name=" + j2eeModuleName);
             assertRunning(kernel, moduleName);
+            Map activationSpecInfoMap = (Map) kernel.getAttribute(moduleName, "activationSpecInfoMap");
+            assertEquals(1, activationSpecInfoMap.size());
+            GBeanData activationSpecInfo = (GBeanData) activationSpecInfoMap.get("javax.jms.MessageListener");
+            assertNotNull(activationSpecInfo);
+            GBeanInfo activationSpecGBeanInfo = activationSpecInfo.getGBeanInfo();
+            List attributes1 = activationSpecGBeanInfo.getPersistentAttributes();
+            assertEquals(2, attributes1.size());
 
-            // ResourceAdapter
+            Map adminObjectInfoMap = (Map) kernel.getAttribute(moduleName, "adminObjectInfoMap");
+            assertEquals(1, adminObjectInfoMap.size());
+            GBeanData adminObjectInfo = (GBeanData) adminObjectInfoMap.get("org.apache.geronimo.connector.mock.MockAdminObject");
+            assertNotNull(adminObjectInfo);
+            GBeanInfo adminObjectGBeanInfo = adminObjectInfo.getGBeanInfo();
+            List attributes2 = adminObjectGBeanInfo.getPersistentAttributes();
+            assertEquals(3, attributes2.size());
+
+            Map managedConnectionFactoryInfoMap = (Map) kernel.getAttribute(moduleName, "managedConnectionFactoryInfoMap");
+            assertEquals(2, managedConnectionFactoryInfoMap.size());
+            GBeanData managedConnectionFactoryInfo = (GBeanData) managedConnectionFactoryInfoMap.get("javax.resource.cci.ConnectionFactory");
+            assertNotNull(managedConnectionFactoryInfo);
+            GBeanInfo managedConnectionFactoryGBeanInfo = managedConnectionFactoryInfo.getGBeanInfo();
+            List attributes3 = managedConnectionFactoryGBeanInfo.getPersistentAttributes();
+            assertEquals(11, attributes3.size());
+
+              // ResourceAdapter
             assertRunning(kernel, resourceAdapterObjectName);
             assertAttributeValue(kernel, resourceAdapterObjectName, "RAStringProperty", "NewStringValue");
 
             // FirstTestOutboundConnectionFactory
             ObjectName firstConnectionManagerFactory = NameFactory.getResourceComponentName(null, null, null, null, "FirstTestOutboundConnectionFactory", NameFactory.JCA_CONNECTION_MANAGER, j2eeContext);
-//                    new ObjectName(j2eeDomainName +
-//                    ":j2eeType=ConnectionManager" +
-//                    ",J2EEServer=" + j2eeServerName +
-//                    ",name=FirstTestOutboundConnectionFactory");
             assertRunning(kernel, firstConnectionManagerFactory);
 
 
             ObjectName firstOutCF = NameFactory.getResourceComponentName(null, null, null, null, "FirstTestOutboundConnectionFactory", NameFactory.JCA_CONNECTION_FACTORY, j2eeContext);
-//            new ObjectName(j2eeDomainName +
-//                    ":j2eeType=JCAConnectionFactory" +
-//                    ",J2EEServer=" + j2eeServerName +
-//                    ",JCAResource=" + resourceAdapterName +
-//                    ",name=FirstTestOutboundConnectionFactory");
             assertRunning(kernel, firstOutCF);
 
             ObjectName firstOutSecurity = new ObjectName("geronimo.security:service=Realm,type=PasswordCredential,name=FirstTestOutboundConnectionFactory");
             assertRunning(kernel, firstOutSecurity);
 
             ObjectName firstOutMCF = NameFactory.getResourceComponentName(null, null, null, null, "FirstTestOutboundConnectionFactory", NameFactory.JCA_MANAGED_CONNECTION_FACTORY, j2eeContext);
-//            new ObjectName(j2eeDomainName +
-//                    ":j2eeType=JCAManagedConnectionFactory" +
-//                    ",J2EEServer=" + j2eeServerName +
-//                    ",name=FirstTestOutboundConnectionFactory");
             assertRunning(kernel, firstOutMCF);
             assertAttributeValue(kernel, firstOutMCF, "OutboundStringProperty1", "newvalue1");
             assertAttributeValue(kernel, firstOutMCF, "OutboundStringProperty2", "originalvalue2");
@@ -276,50 +266,24 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
 
             // SecondTestOutboundConnectionFactory
             ObjectName secondConnectionManagerFactory = NameFactory.getResourceComponentName(null, null, null, null, "SecondTestOutboundConnectionFactory", NameFactory.JCA_CONNECTION_MANAGER, j2eeContext);
-//new ObjectName(j2eeDomainName +
-//                    ":j2eeType=ConnectionManager" +
-//                    ",J2EEServer=" + j2eeServerName +
-//                    ",name=SecondTestOutboundConnectionFactory");
             assertRunning(kernel, secondConnectionManagerFactory);
 
 
             ObjectName secondOutCF = NameFactory.getResourceComponentName(null, null, null, null, "SecondTestOutboundConnectionFactory", NameFactory.JCA_CONNECTION_FACTORY, j2eeContext);
-// new ObjectName(j2eeDomainName +
-//                    ":j2eeType=JCAConnectionFactory" +
-//                    ",J2EEServer=" + j2eeServerName +
-//                    ",JCAResource=" + resourceAdapterName +
-//                    ",name=SecondTestOutboundConnectionFactory");
             assertRunning(kernel, secondOutCF);
 
             ObjectName secondOutMCF = NameFactory.getResourceComponentName(null, null, null, null, "SecondTestOutboundConnectionFactory", NameFactory.JCA_MANAGED_CONNECTION_FACTORY, j2eeContext);
-// new ObjectName(j2eeDomainName +
-//                    ":j2eeType=JCAManagedConnectionFactory" +
-//                    ",J2EEServer=" + j2eeServerName +
-//                    ",name=SecondTestOutboundConnectionFactory");
             assertRunning(kernel, secondOutMCF);
 
             // ThirdTestOutboundConnectionFactory
             ObjectName thirdConnectionManagerFactory = NameFactory.getResourceComponentName(null, null, null, null, "ThirdTestOutboundConnectionFactory", NameFactory.JCA_CONNECTION_MANAGER, j2eeContext);
-// new ObjectName(j2eeDomainName +
-//                    ":j2eeType=ConnectionManager" +
-//                    ",J2EEServer=" + j2eeServerName +
-//                    ",name=ThirdTestOutboundConnectionFactory");
             assertRunning(kernel, thirdConnectionManagerFactory);
 
 
             ObjectName thirdOutCF = NameFactory.getResourceComponentName(null, null, null, null, "ThirdTestOutboundConnectionFactory", NameFactory.JCA_CONNECTION_FACTORY, j2eeContext);
-// new ObjectName(j2eeDomainName +
-//                    ":j2eeType=JCAConnectionFactory" +
-//                    ",J2EEServer=" + j2eeServerName +
-//                    ",JCAResource=" + resourceAdapterName +
-//                    ",name=ThirdTestOutboundConnectionFactory");
             assertRunning(kernel, thirdOutCF);
 
             ObjectName thirdOutMCF = NameFactory.getResourceComponentName(null, null, null, null, "ThirdTestOutboundConnectionFactory", NameFactory.JCA_MANAGED_CONNECTION_FACTORY, j2eeContext);
-// new ObjectName(j2eeDomainName +
-//                    ":j2eeType=JCAManagedConnectionFactory" +
-//                    ",J2EEServer=" + j2eeServerName +
-//                    ",name=ThirdTestOutboundConnectionFactory");
             assertRunning(kernel, thirdOutMCF);
 
             //
@@ -327,17 +291,9 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
             //
 
             ObjectName tweedledeeAdminObject = NameFactory.getResourceComponentName(null, null, null, null, "tweedledee", NameFactory.JCA_ADMIN_OBJECT, j2eeContext);
-// new ObjectName(j2eeDomainName +
-//                    ":j2eeType=JCAAdminObject" +
-//                    ",J2EEServer=" + j2eeServerName +
-//                    ",name=tweedledee");
             assertRunning(kernel, tweedledeeAdminObject);
 
             ObjectName tweedledumAdminObject = NameFactory.getResourceComponentName(null, null, null, null, "tweedledum", NameFactory.JCA_ADMIN_OBJECT, j2eeContext);
-// new ObjectName(j2eeDomainName +
-//                    ":j2eeType=JCAAdminObject" +
-//                    ",J2EEServer=" + j2eeServerName +
-//                    ",name=tweedledum");
             assertRunning(kernel, tweedledumAdminObject);
 
 

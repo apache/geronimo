@@ -38,11 +38,8 @@ import org.apache.geronimo.transaction.manager.WrapperNamedXAResource;
  * is unclear if this is required by the spec.
  *
  * @version $Rev$ $Date$
- *
- * */
+ */
 public class ActivationSpecWrapper implements ResourceManager, DynamicGBean {
-
-    private final Class activationSpecClass;
 
     private final DynamicGBeanDelegate delegate;
     private final ActivationSpec activationSpec;
@@ -54,7 +51,6 @@ public class ActivationSpecWrapper implements ResourceManager, DynamicGBean {
      * Default constructor required when a class is used as a GBean Endpoint.
      */
     public ActivationSpecWrapper() {
-        activationSpecClass = null;
         activationSpec = null;
         delegate = null;
         containerId = null;
@@ -68,11 +64,12 @@ public class ActivationSpecWrapper implements ResourceManager, DynamicGBean {
      * @throws IllegalAccessException
      * @throws InstantiationException
      */
-    public ActivationSpecWrapper(final Class activationSpecClass,
+    public ActivationSpecWrapper(final String activationSpecClass,
                                  final String containerId,
-                                 final ResourceAdapterWrapper resourceAdapterWrapper) throws IllegalAccessException, InstantiationException {
-        this.activationSpecClass = activationSpecClass;
-        activationSpec = (ActivationSpec) activationSpecClass.newInstance();
+                                 final ResourceAdapterWrapper resourceAdapterWrapper,
+                                 final ClassLoader cl) throws IllegalAccessException, InstantiationException, ClassNotFoundException {
+        Class clazz = cl.loadClass(activationSpecClass);
+        activationSpec = (ActivationSpec) clazz.newInstance();
         delegate = new DynamicGBeanDelegate();
         delegate.addAll(activationSpec);
         this.containerId = containerId;
@@ -81,11 +78,12 @@ public class ActivationSpecWrapper implements ResourceManager, DynamicGBean {
 
     /**
      * Returns class of wrapped ActivationSpec.
+     *
      * @return class of wrapped ActivationSpec
      */
-    public Class getActivationSpecClass() {
-        return activationSpecClass;
-    }
+//    public String getActivationSpecClass() {
+//        return activationSpecClass;
+//    }
 
     public String getContainerId() {
         return containerId;
@@ -99,6 +97,7 @@ public class ActivationSpecWrapper implements ResourceManager, DynamicGBean {
 
     /**
      * Delegating DynamicGBean getAttribute method.
+     *
      * @param name of attribute.
      * @return attribute value.
      * @throws Exception
@@ -109,7 +108,8 @@ public class ActivationSpecWrapper implements ResourceManager, DynamicGBean {
 
     /**
      * Delegating DynamicGBean setAttribute method.
-     * @param name of attribute.
+     *
+     * @param name  of attribute.
      * @param value of attribute to be set.
      * @throws Exception
      */
@@ -119,6 +119,7 @@ public class ActivationSpecWrapper implements ResourceManager, DynamicGBean {
 
     /**
      * no-op DynamicGBean method
+     *
      * @param name
      * @param arguments
      * @param types
@@ -173,23 +174,25 @@ public class ActivationSpecWrapper implements ResourceManager, DynamicGBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ActivationSpecWrapper.class);
-        infoFactory.addAttribute("activationSpecClass", Class.class, true);
-        infoFactory.addAttribute("containerId", String.class, true);
+        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(ActivationSpecWrapper.class);
+        infoBuilder.addAttribute("activationSpecClass", String.class, true);
+        infoBuilder.addAttribute("containerId", String.class, true);
+        infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
 
-        infoFactory.addReference("ResourceAdapterWrapper", ResourceAdapterWrapper.class);
+        infoBuilder.addReference("ResourceAdapterWrapper", ResourceAdapterWrapper.class);
 
-        infoFactory.addOperation("activate", new Class[] {MessageEndpointFactory.class});
-        infoFactory.addOperation("deactivate", new Class[] {MessageEndpointFactory.class});
+        infoBuilder.addOperation("activate", new Class[]{MessageEndpointFactory.class});
+        infoBuilder.addOperation("deactivate", new Class[]{MessageEndpointFactory.class});
 
-        infoFactory.addInterface(ResourceManager.class);
+        infoBuilder.addInterface(ResourceManager.class);
 
-        infoFactory.setConstructor(new String[]{
+        infoBuilder.setConstructor(new String[]{
             "activationSpecClass",
             "containerId",
-            "ResourceAdapterWrapper"});
+            "ResourceAdapterWrapper",
+            "classLoader"});
 
-        GBEAN_INFO = infoFactory.getBeanInfo();
+        GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 
     public static GBeanInfo getGBeanInfo() {

@@ -98,7 +98,7 @@ public class NameFactory {
 
     public static ObjectName getModuleName(String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, String j2eeModuleName, String j2eeType, J2eeContext context) throws MalformedObjectNameException {
         Properties props = new Properties();
-        props.put(J2EE_TYPE, j2eeType);
+        props.put(J2EE_TYPE, context.getJ2eeType(j2eeType));
         props.put(J2EE_SERVER, context.getJ2eeServerName(j2eeServerName));
         props.put(J2EE_APPLICATION, context.getJ2eeApplicationName(j2eeApplicationName));
         props.put(J2EE_NAME, context.getJ2eeModuleName(j2eeModuleName));

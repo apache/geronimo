@@ -159,12 +159,12 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
         managedConnectionFactoryName = NameFactory.getResourceComponentName(null, null, null, null, null, null, j2eeContext);
 
         GBeanMBean mcfw = new GBeanMBean(ManagedConnectionFactoryWrapper.getGBeanInfo());
-        mcfw.setAttribute("managedConnectionFactoryClass", MockManagedConnectionFactory.class);
-        mcfw.setAttribute("connectionFactoryInterface", ConnectionFactory.class);
-        mcfw.setAttribute("implementedInterfaces", new Class[] {Serializable.class, ConnectionFactoryExtension.class});
-        mcfw.setAttribute("connectionFactoryImplClass", MockConnectionFactory.class);
-        mcfw.setAttribute("connectionInterface", Connection.class);
-        mcfw.setAttribute("connectionImplClass", MockConnection.class);
+        mcfw.setAttribute("managedConnectionFactoryClass", MockManagedConnectionFactory.class.getName());
+        mcfw.setAttribute("connectionFactoryInterface", ConnectionFactory.class.getName());
+        mcfw.setAttribute("implementedInterfaces", new String[] {Serializable.class.getName(), ConnectionFactoryExtension.class.getName()});
+        mcfw.setAttribute("connectionFactoryImplClass", MockConnectionFactory.class.getName());
+        mcfw.setAttribute("connectionInterface", Connection.class.getName());
+        mcfw.setAttribute("connectionImplClass", MockConnection.class.getName());
         mcfw.setAttribute("globalJNDIName", GLOBAL_NAME);
         //"ResourceAdapterWrapper",
         mcfw.setReferencePatterns("ConnectionManagerFactory", Collections.singleton(cmfName));

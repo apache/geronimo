@@ -30,8 +30,8 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
  */
 public class AdminObjectWrapper implements DynamicGBean {
 
-    private final Class adminObjectInterface;
-    private final Class adminObjectClass;
+    private final String adminObjectInterface;
+    private final String adminObjectClass;
 
     private final DynamicGBeanDelegate delegate;
     private final Object adminObject;
@@ -54,16 +54,18 @@ public class AdminObjectWrapper implements DynamicGBean {
      * @throws IllegalAccessException
      * @throws InstantiationException
      */
-    public AdminObjectWrapper(final Class adminObjectInterface,
-                              final Class adminObjectClass) throws IllegalAccessException, InstantiationException {
+    public AdminObjectWrapper(final String adminObjectInterface,
+                              final String adminObjectClass,
+                              final ClassLoader cl) throws IllegalAccessException, InstantiationException, ClassNotFoundException {
         this.adminObjectInterface = adminObjectInterface;
         this.adminObjectClass = adminObjectClass;
-        adminObject = adminObjectClass.newInstance();
+        Class clazz = cl.loadClass(adminObjectClass);
+        adminObject = clazz.newInstance();
         delegate = new DynamicGBeanDelegate();
         delegate.addAll(adminObject);
     }
 
-    public Class getAdminObjectInterface() {
+    public String getAdminObjectInterface() {
         return adminObjectInterface;
     }
 
@@ -71,7 +73,7 @@ public class AdminObjectWrapper implements DynamicGBean {
      * Returns class of wrapped AdminObject.
      * @return class of wrapped AdminObject
      */
-    public Class getAdminObjectClass() {
+    public String getAdminObjectClass() {
         return adminObjectClass;
     }
 
@@ -122,18 +124,20 @@ public class AdminObjectWrapper implements DynamicGBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(AdminObjectWrapper.class);
-        infoFactory.addAttribute("adminObjectInterface", Class.class, true);
-        infoFactory.addAttribute("adminObjectClass", Class.class, true);
+        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(AdminObjectWrapper.class);
+        infoBuilder.addAttribute("adminObjectInterface", String.class, true);
+        infoBuilder.addAttribute("adminObjectClass", String.class, true);
+        infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
 
-        infoFactory.addOperation("$getResource");
+        infoBuilder.addOperation("$getResource");
 
-        infoFactory.setConstructor(new String[]{
+        infoBuilder.setConstructor(new String[]{
             "adminObjectInterface",
             "adminObjectClass",
+            "classLoader"
         });
 
-        GBEAN_INFO = infoFactory.getBeanInfo();
+        GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 
     public static GBeanInfo getGBeanInfo() {

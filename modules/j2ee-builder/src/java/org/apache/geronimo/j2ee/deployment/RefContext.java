@@ -28,6 +28,7 @@ import javax.naming.Reference;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.gbean.GBeanData;
 
 /**
  * @version $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $
@@ -45,7 +46,8 @@ public class RefContext {
     private final Map connectionFactoryIndex;
     private final Map adminObjectIndex;
 
-    private final Map activationSpecInfos;
+    private final Map resourceModuleDataMap;
+
 
     public RefContext(EJBReferenceBuilder ejbReferenceBuilder, ResourceReferenceBuilder resourceReferenceBuilder) {
         assert ejbReferenceBuilder != null: "ejbReferenceBuilder is null";
@@ -57,7 +59,7 @@ public class RefContext {
         resourceAdapterIndex = new HashMap();
         connectionFactoryIndex = new HashMap();
         adminObjectIndex = new HashMap();
-        activationSpecInfos = new HashMap();
+        resourceModuleDataMap = new HashMap();
         this.ejbReferenceBuilder = ejbReferenceBuilder;
         this.resourceReferenceBuilder = resourceReferenceBuilder;
     }
@@ -79,7 +81,7 @@ public class RefContext {
         resourceAdapterIndex = new HashMap();
         this.connectionFactoryIndex = new HashMap();
         this.adminObjectIndex = new HashMap();
-        this.activationSpecInfos = new HashMap();
+        this.resourceModuleDataMap = new HashMap();
     }
 
     public EJBReferenceBuilder getEjbReferenceBuilder() {
@@ -348,19 +350,49 @@ public class RefContext {
 
     //Resource adapter/activationspec support
 
-    public void addActivationSpecInfos(ObjectName resourceAdapterName, Map activationSpecInfoMap) throws DeploymentException {
-        Object old = activationSpecInfos.put(resourceAdapterName, activationSpecInfoMap);
+    public void addResourceAdapterModuleInfo(ObjectName resourceModuleName, GBeanData resourceModuleData) throws DeploymentException {
+        Object old = resourceModuleDataMap.put(resourceModuleName, resourceModuleData);
         if (old != null) {
-            throw new DeploymentException("Duplicate resource adapter name: " + resourceAdapterName);
+            throw new DeploymentException("Duplicate resource adapter module name: " + resourceModuleName);
         }
     }
-
-    public Object getActivationSpecInfo(ObjectName resourceAdapterName, String messageListenerInterfaceName) throws DeploymentException {
-        Map activationSpecInfoMap = (Map) activationSpecInfos.get(resourceAdapterName);
-        if (activationSpecInfoMap != null) {
-            return activationSpecInfoMap.get(messageListenerInterfaceName);
+    
+    public GBeanData getResourceAdapterGBeanData(ObjectName resourceAdapterModuleName) throws DeploymentException {
+        GBeanData resourceModuleData = (GBeanData) resourceModuleDataMap.get(resourceAdapterModuleName);
+        if (resourceModuleData != null) {
+            return (GBeanData) resourceModuleData.getAttribute("resourceAdapterGBeanData");
         }
-        return resourceReferenceBuilder.locateActivationSpecInfo(resourceAdapterName, messageListenerInterfaceName);
+        return resourceReferenceBuilder.locateResourceAdapterGBeanData(resourceAdapterModuleName);
     }
 
+    public GBeanData getActivationSpecInfo(ObjectName resourceAdapterModuleName, String messageListenerInterfaceName) throws DeploymentException {
+        GBeanData resourceModuleData = (GBeanData) resourceModuleDataMap.get(resourceAdapterModuleName);
+        if (resourceModuleData != null) {
+            Map activationSpecInfoMap = (Map) resourceModuleData.getAttribute("activationSpecInfoMap");
+            return (GBeanData) activationSpecInfoMap.get(messageListenerInterfaceName);
+        }
+        return resourceReferenceBuilder.locateActivationSpecInfo(resourceAdapterModuleName, messageListenerInterfaceName);
+    }
+
+    public GBeanData getAdminObjectInfo(ObjectName resourceAdapterModuleName, String adminObjectInterfaceName) throws DeploymentException {
+        GBeanData resourceModuleData = (GBeanData) resourceModuleDataMap.get(resourceAdapterModuleName);
+        if (resourceModuleData != null) {
+            Map adminObjectInfoMap = (Map) resourceModuleData.getAttribute("adminObjectInfoMap");
+            return (GBeanData) adminObjectInfoMap.get(adminObjectInterfaceName);
+        }
+        return resourceReferenceBuilder.locateAdminObjectInfo(resourceAdapterModuleName, adminObjectInterfaceName);
+    }
+
+    public GBeanData getConnectionFactoryInfo(ObjectName resourceAdapterModuleName, String connectionFactoryInterfaceName) throws DeploymentException {
+        GBeanData resourceModuleData = (GBeanData) resourceModuleDataMap.get(resourceAdapterModuleName);
+        if (resourceModuleData != null) {
+            Map managedConnectionFactoryInfoMap = (Map) resourceModuleData.getAttribute("managedConnectionFactoryInfoMap");
+            return (GBeanData) managedConnectionFactoryInfoMap.get(connectionFactoryInterfaceName);
+        }
+        return resourceReferenceBuilder.locateConnectionFactoryInfo(resourceAdapterModuleName, connectionFactoryInterfaceName);
+    }
+
+    public GBeanData getResourceAdapterModuleData(ObjectName resourceAdapterModuleName) {
+        return (GBeanData) resourceModuleDataMap.get(resourceAdapterModuleName);
+    }
 }

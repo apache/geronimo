@@ -22,6 +22,7 @@ import javax.management.ObjectName;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.gbean.GBeanData;
 
 /**
  * @version $Rev$ $Date$
@@ -175,7 +176,19 @@ public class EJBRefContextTest extends TestCase {
                 return null;
             }
 
-            public Object locateActivationSpecInfo(ObjectName resourceAdapterName, String messageListenerInterface) throws DeploymentException {
+            public GBeanData locateActivationSpecInfo(ObjectName resourceAdapterName, String messageListenerInterface) throws DeploymentException {
+                return null;
+            }
+
+            public GBeanData locateResourceAdapterGBeanData(ObjectName resourceAdapterModuleName) throws DeploymentException {
+                return null;
+            }
+
+            public GBeanData locateAdminObjectInfo(ObjectName resourceAdapterModuleName, String adminObjectInterfaceName) throws DeploymentException {
+                return null;
+            }
+
+            public GBeanData locateConnectionFactoryInfo(ObjectName resourceAdapterModuleName, String connectionFactoryInterfaceName) throws DeploymentException {
                 return null;
             }
         });

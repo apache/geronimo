@@ -46,15 +46,13 @@ public class ResourceAdapterWrapper implements GBeanLifecycle, DynamicGBean, Res
 
     public static final GBeanInfo GBEAN_INFO;
 
-    private final Class resourceAdapterClass;
+    private final String resourceAdapterClass;
 
     private final BootstrapContext bootstrapContext;
 
     private final ResourceAdapter resourceAdapter;
 
     private final DynamicGBeanDelegate delegate;
-
-    private final Map activationSpecInfoMap;
 
     /**
      *  default constructor for enhancement proxy endpoint
@@ -64,26 +62,21 @@ public class ResourceAdapterWrapper implements GBeanLifecycle, DynamicGBean, Res
         this.bootstrapContext = null;
         this.resourceAdapter = null;
         this.delegate = null;
-        this.activationSpecInfoMap = null;
     }
 
-    public ResourceAdapterWrapper(final Class resourceAdapterClass,
-                                  final Map activationSpecInfoMap,
-                                  final GeronimoWorkManager workManager) throws InstantiationException, IllegalAccessException {
+    public ResourceAdapterWrapper(final String resourceAdapterClass,
+                                  final GeronimoWorkManager workManager,
+                                  ClassLoader cl) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         this.resourceAdapterClass = resourceAdapterClass;
         this.bootstrapContext = new BootstrapContextImpl(workManager);
-        this.activationSpecInfoMap = activationSpecInfoMap;
-        resourceAdapter = (ResourceAdapter) resourceAdapterClass.newInstance();
+        Class clazz = cl.loadClass(resourceAdapterClass);
+        resourceAdapter = (ResourceAdapter) clazz.newInstance();
         delegate = new DynamicGBeanDelegate();
         delegate.addAll(resourceAdapter);
     }
 
-    public Class getResourceAdapterClass() {
+    public String getResourceAdapterClass() {
         return resourceAdapterClass;
-    }
-
-    public Map getActivationSpecInfoMap() {
-        return activationSpecInfoMap;
     }
 
     public void registerResourceAdapterAssociation(final ResourceAdapterAssociation resourceAdapterAssociation) throws ResourceException {
@@ -137,19 +130,19 @@ public class ResourceAdapterWrapper implements GBeanLifecycle, DynamicGBean, Res
     }
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ResourceAdapterWrapper.class);
-        infoFactory.addAttribute("resourceAdapterClass", Class.class, true);
-        infoFactory.addAttribute("activationSpecInfoMap", Map.class, true);
+        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(ResourceAdapterWrapper.class);
+        infoBuilder.addAttribute("resourceAdapterClass", String.class, true);
+        infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
 
-        infoFactory.addReference("WorkManager", GeronimoWorkManager.class);
+        infoBuilder.addReference("WorkManager", GeronimoWorkManager.class);
 
-        infoFactory.addOperation("registerResourceAdapterAssociation", new Class[]{ResourceAdapterAssociation.class});
+        infoBuilder.addOperation("registerResourceAdapterAssociation", new Class[]{ResourceAdapterAssociation.class});
 
-        infoFactory.addInterface(ResourceAdapter.class);
+        infoBuilder.addInterface(ResourceAdapter.class);
 
-        infoFactory.setConstructor(new String[]{"resourceAdapterClass", "activationSpecInfoMap", "WorkManager"});
+        infoBuilder.setConstructor(new String[]{"resourceAdapterClass", "WorkManager", "classLoader"});
 
-        GBEAN_INFO = infoFactory.getBeanInfo();
+        GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 
     public static GBeanInfo getGBeanInfo() {

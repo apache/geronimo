@@ -19,6 +19,7 @@ import javax.naming.Reference;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.gbean.GBeanData;
 
 /**
  * @version $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $
@@ -31,6 +32,11 @@ public interface ResourceReferenceBuilder {
 
     ObjectName locateResourceName(ObjectName query) throws DeploymentException;
 
-    Object locateActivationSpecInfo(ObjectName resourceAdapterName, String messageListenerInterface) throws DeploymentException;
+    GBeanData locateActivationSpecInfo(ObjectName resourceAdapterName, String messageListenerInterface) throws DeploymentException;
 
+    GBeanData locateResourceAdapterGBeanData(ObjectName resourceAdapterModuleName) throws DeploymentException;
+
+    GBeanData locateAdminObjectInfo(ObjectName resourceAdapterModuleName, String adminObjectInterfaceName) throws DeploymentException;
+
+    GBeanData locateConnectionFactoryInfo(ObjectName resourceAdapterModuleName, String connectionFactoryInterfaceName) throws DeploymentException;
 }

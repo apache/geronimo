@@ -17,11 +17,13 @@
 package org.apache.geronimo.connector;
 
 import java.util.Hashtable;
+import java.util.Map;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.management.J2EEApplication;
 import org.apache.geronimo.j2ee.management.J2EEServer;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
@@ -39,7 +41,20 @@ public class ResourceAdapterModuleImpl {
     private final J2EEApplication application;
     private final String deploymentDescriptor;
 
-    public ResourceAdapterModuleImpl(Kernel kernel, String objectName, J2EEServer server, J2EEApplication application, String deploymentDescriptor) {
+    private final GBeanData resourceAdapterGBeanData;
+    private final Map activationSpecInfoMap;
+    private final Map adminObjectInfoMap;
+    private final Map managedConnectionFactoryInfoMap;
+
+    public ResourceAdapterModuleImpl(Kernel kernel,
+                                     String objectName, 
+                                     J2EEServer server, 
+                                     J2EEApplication application, 
+                                     String deploymentDescriptor,
+                                     GBeanData resourceAdapterGBeanData,
+                                     Map activationSpecInfoMap,
+                                     Map adminObjectInfoMap,
+                                     Map managedConnectionFactoryInfoMap) {
         ObjectName myObjectName = JMXUtil.getObjectName(objectName);
         verifyObjectName(myObjectName);
 
@@ -54,6 +69,11 @@ public class ResourceAdapterModuleImpl {
         this.server = server;
         this.application = application;
         this.deploymentDescriptor = deploymentDescriptor;
+
+        this.resourceAdapterGBeanData = resourceAdapterGBeanData;
+        this.activationSpecInfoMap = activationSpecInfoMap;
+        this.adminObjectInfoMap = adminObjectInfoMap;
+        this.managedConnectionFactoryInfoMap = managedConnectionFactoryInfoMap;
     }
 
     public String getDeploymentDescriptor() {
@@ -77,6 +97,22 @@ public class ResourceAdapterModuleImpl {
 
     public String[] getResourceAdapters() throws MalformedObjectNameException {
         return Util.getObjectNames(kernel, baseName, new String[]{"ResourceAdapter"});
+    }
+
+    public GBeanData getResourceAdapterGBeanData() {
+        return resourceAdapterGBeanData;
+    }
+
+    public Map getActivationSpecInfoMap() {
+        return activationSpecInfoMap;
+    }
+
+    public Map getAdminObjectInfoMap() {
+        return adminObjectInfoMap;
+    }
+
+    public Map getManagedConnectionFactoryInfoMap() {
+        return managedConnectionFactoryInfoMap;
     }
 
     /**
@@ -109,27 +145,37 @@ public class ResourceAdapterModuleImpl {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ResourceAdapterModuleImpl.class);
-        infoFactory.addReference("J2EEServer", J2EEServer.class);
-        infoFactory.addReference("J2EEApplication", J2EEApplication.class);
+        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(ResourceAdapterModuleImpl.class);
+        infoBuilder.addReference("J2EEServer", J2EEServer.class);
+        infoBuilder.addReference("J2EEApplication", J2EEApplication.class);
 
-        infoFactory.addAttribute("deploymentDescriptor", String.class, true);
+        infoBuilder.addAttribute("deploymentDescriptor", String.class, true);
 
-        infoFactory.addAttribute("kernel", Kernel.class, false);
-        infoFactory.addAttribute("objectName", String.class, false);
-        infoFactory.addAttribute("server", String.class, false);
-        infoFactory.addAttribute("application", String.class, false);
-        infoFactory.addAttribute("javaVMs", String[].class, false);
-        infoFactory.addAttribute("resourceAdapters", String[].class, false);
+        infoBuilder.addAttribute("kernel", Kernel.class, false);
+        infoBuilder.addAttribute("objectName", String.class, false);
+        infoBuilder.addAttribute("server", String.class, false);
+        infoBuilder.addAttribute("application", String.class, false);
+        infoBuilder.addAttribute("javaVMs", String[].class, false);
+        infoBuilder.addAttribute("resourceAdapters", String[].class, false);
 
-        infoFactory.setConstructor(new String[]{
+        infoBuilder.addAttribute("resourceAdapterGBeanData", GBeanData.class, true);
+        infoBuilder.addAttribute("activationSpecInfoMap", Map.class, true);
+         infoBuilder.addAttribute("adminObjectInfoMap", Map.class, true);
+        infoBuilder.addAttribute("managedConnectionFactoryInfoMap", Map.class, true);
+
+        infoBuilder.setConstructor(new String[]{
             "kernel",
             "objectName",
             "J2EEServer",
             "J2EEApplication",
-            "deploymentDescriptor"});
+            "deploymentDescriptor",
+            "resourceAdapterGBeanData",
+            "activationSpecInfoMap",
+            "adminObjectInfoMap",
+            "managedConnectionFactoryInfoMap"
+        });
 
-        GBEAN_INFO = infoFactory.getBeanInfo();
+        GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 
     public static GBeanInfo getGBeanInfo() {
