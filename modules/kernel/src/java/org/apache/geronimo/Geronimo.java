@@ -56,19 +56,18 @@
 
 package org.apache.geronimo;
 
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.LocalConfigStore;
-
-import javax.management.ObjectName;
-import java.io.File;
-import java.lang.reflect.Method;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.io.File;
+
+import org.apache.geronimo.kernel.config.LocalConfigStore;
+import org.apache.geronimo.kernel.Kernel;
 
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/28 04:27:28 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/28 23:03:22 $
  *
  * */
 public class Geronimo {
@@ -79,34 +78,55 @@ public class Geronimo {
     /**
      * Static entry point allowing a Kernel to be run from the command line.
      * Arguments are:
-     * <li>the id of a configuation to load</li>
-     * <li>deploy output file</li>
-     * <li>deploy urls</li>
-     * <li>domain</li>
      * <li>the filename of the directory to use for the configuration store.
      *     This will be created if it does not exist.</li>
+     * <li>the id of a configuation to load</li>
      * Once the Kernel is booted and the configuration is loaded, the process
      * will remain running until the shutdown() method on the kernel is
      * invoked or until the JVM exits.
      * @param args
      */
-    public static void main(String[] args) throws Exception {
-        if (args.length < 5) {
-            System.err.println("usage: " + Geronimo.class.getName() + " <config-id> <deploy-out-file> <deploy-urls> <domain> <config-store>");
+    public static void main(String[] args) {
+        if (args.length < 2) {
+            System.err.println("usage: " + Geronimo.class.getName() + " <config-store-dir> <config-id>");
             System.exit(1);
         }
-        String configIDString = args[0];
-        String outfile = args[1];
-        String urlsString = args[2];
-        String domain = args[3];
-        String storeDirName = args[4];
+        String storeDirName = args[0];
+        URI configID = null;
+        try {
+            configID = new URI(args[1]);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+        String domain = "geronimo";
 
-        Class clazz = Class.forName("org.apache.geronimo.deployment.tools.DeployCommand");
-        Method m = clazz.getMethod("deploy", new Class[]{String.class,String.class,String.class});
-        m.invoke(null, new Object[]{configIDString, outfile, urlsString});
-
-        installPackage(domain, storeDirName, outfile);
-        loadAndWait(domain, storeDirName, configIDString);
+        Kernel kernel = null;
+        try {
+            kernel = createKernel(domain, storeDirName);
+        } catch (IllegalArgumentException e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(2);
+        }
+        try {
+            kernel.load(configID);
+        } catch (Exception e) {
+            kernel.shutdown();
+            e.printStackTrace();
+            System.exit(3);
+        }
+        while (kernel.isRunning()) {
+            try {
+                synchronized (kernel) {
+                    kernel.wait();
+                }
+            } catch (InterruptedException e) {
+                // continue
+            }
+        }
     }
 
     public static Kernel createKernel(String domain, String storeDirName) throws Exception {
@@ -149,7 +169,6 @@ public class Geronimo {
 
     public static void loadAndWait(String domain, String storeDirName, String configIDString) throws Exception {
         Kernel kernel = load(domain, storeDirName, configIDString);
-        kernel.getMBeanServer().invoke(new ObjectName("geronimo.config:name=" + ObjectName.quote(configIDString)), "startRecursive", null, null);
         while (kernel.isRunning()) {
             try {
                 synchronized (kernel) {

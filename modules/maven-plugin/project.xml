@@ -51,6 +51,15 @@
                 <classloader>root</classloader>
             </properties>
         </dependency>
+<!-- TODO remove this stupid dependency -->
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-core</artifactId>
+            <version>DEV</version>
+            <properties>
+                <classloader>root</classloader>
+            </properties>
+        </dependency>
 
         <dependency>
             <id>commons-logging</id>
@@ -79,7 +88,8 @@
         </dependency>
 
         <dependency>
-            <id>cglib+full</id>
+            <groupId>cglib</groupId>
+            <artifactId>cglib-full</artifactId>
             <version>2.0-RC2</version>
             <url>http://cglib.sourceforge.net</url>
             <properties>
