@@ -59,22 +59,15 @@ package org.apache.geronimo.connector.deployment;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.jar.JarOutputStream;
-import java.util.zip.ZipEntry;
 
 import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.model.DDBeanRoot;
 import javax.enterprise.deploy.spi.DConfigBeanRoot;
 import javax.enterprise.deploy.spi.DeploymentConfiguration;
-import javax.management.ObjectName;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.connector.deployment.dconfigbean.AdminObjectDConfigBean;
@@ -84,9 +77,6 @@ import org.apache.geronimo.connector.deployment.dconfigbean.ConfigPropertySettin
 import org.apache.geronimo.connector.deployment.dconfigbean.ConnectionDefinitionDConfigBean;
 import org.apache.geronimo.connector.deployment.dconfigbean.ConnectionDefinitionInstance;
 import org.apache.geronimo.connector.deployment.dconfigbean.ResourceAdapterDConfigBean;
-import org.apache.geronimo.deployment.ConfigurationCallback;
-import org.apache.geronimo.deployment.DeploymentModule;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.xbeans.geronimo.GerAdminobjectInstanceType;
 import org.apache.geronimo.xbeans.geronimo.GerAdminobjectType;
 import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
@@ -96,40 +86,19 @@ import org.apache.geronimo.xbeans.geronimo.GerConnectionmanagerType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
 import org.apache.geronimo.xbeans.geronimo.GerResourceadapterInstanceType;
 import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
-import org.apache.geronimo.xbeans.j2ee.ConnectorDocument;
 import org.apache.xmlbeans.XmlOptions;
 
 /**
  *
  *
- * @version $Revision: 1.11 $ $Date: 2004/02/20 18:10:29 $
+ * @version $Revision: 1.1 $ $Date: 2004/02/21 01:10:50 $
  *
  * */
-public class Connector_1_5Test extends TestCase implements ConfigurationCallback {
+public class RAR_1_5DConfigBeanTest extends TestCase {
     private URL j2eeDD;
-    private URL geronimoDD;
-    private URI configID = URI.create("geronimo/connector15/test");
-    private Map gbeans = new HashMap();
     XmlOptions xmlOptions;
     private List errors;
 
-    public void testLoadJ2eeDeploymentDescriptor() throws Exception {
-        InputStream j2eeInputStream = j2eeDD.openStream();
-        ConnectorDocument connectorDocument = ConnectorDocument.Factory.parse(j2eeInputStream);
-        assertNotNull(connectorDocument.getConnector().getResourceadapter());
-        if (!connectorDocument.validate(xmlOptions)) {
-            fail(errors.toString());
-        }
-    }
-
-    public void testLoadGeronimoDeploymentDescriptor() throws Exception {
-        InputStream geronimoInputStream = geronimoDD.openStream();
-        GerConnectorDocument connectorDocument = GerConnectorDocument.Factory.parse(geronimoInputStream);
-        assertNotNull(connectorDocument.getConnector().getResourceadapter());
-        if (!connectorDocument.validate(xmlOptions)) {
-            fail(errors.toString());
-        }
-    }
 
     public void testDConfigBeans() throws Exception {
         MockRARDeployable deployable = new MockRARDeployable(j2eeDD);
@@ -242,55 +211,15 @@ public class Connector_1_5Test extends TestCase implements ConfigurationCallback
 
     }
 
-    public void testCreateConnector_1_5Module() throws Exception {
-        InputStream moduleArchive = getRARInputStream();
 
-        InputStream geronimoInputStream = geronimoDD.openStream();
-        GerConnectorDocument connectorDocument = GerConnectorDocument.Factory.parse(geronimoInputStream);
-        RARConfigurationFactory rarConfigurationFactory = new RARConfigurationFactory(ObjectName.getInstance("geronimo.test:role=ConnectionTracker"));
-        DeploymentModule connector_1_5Module = rarConfigurationFactory.createModule(moduleArchive, connectorDocument, configID, true);
-        connector_1_5Module.init();
-        connector_1_5Module.generateClassPath(this);
-        connector_1_5Module.defineGBeans(this, this.getClass().getClassLoader());
-    }
-
-    private InputStream getRARInputStream() throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        JarOutputStream jarOutputStream = new JarOutputStream(baos);
-        ZipEntry entry = new ZipEntry("META-INF/ra.xml");
-        jarOutputStream.putNextEntry(entry);
-
-        InputStream j2eeInputStream = j2eeDD.openStream();
-        byte[] buffer = new byte[1024];
-        for (int length; (length = j2eeInputStream.read(buffer)) > 0; ) {
-            jarOutputStream.write(buffer, 0, length);
-        }
-        jarOutputStream.flush();
-        jarOutputStream.closeEntry();
-        jarOutputStream.close();
-
-        InputStream moduleArchive = new ByteArrayInputStream(baos.toByteArray());
-        return moduleArchive;
-    }
 
     protected void setUp() throws Exception {
         File docDir = new File("src/test-data/connector_1_5");
         j2eeDD = new File(docDir, "ra.xml").toURL();
-        geronimoDD = new File(docDir, "geronimo-ra.xml").toURL();
         xmlOptions = new XmlOptions();
         xmlOptions.setLoadLineNumbers();
         errors = new ArrayList();
         xmlOptions.setErrorListener(errors);
-    }
-
-    public void addFile(URI path, InputStream source) throws IOException {
-    }
-
-    public void addToClasspath(URI uri) {
-    }
-
-    public void addGBean(ObjectName name, GBeanMBean gbean) {
-        gbeans.put(name, gbean);
     }
 
 }

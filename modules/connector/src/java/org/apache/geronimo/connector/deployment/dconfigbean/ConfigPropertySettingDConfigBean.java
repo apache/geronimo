@@ -66,7 +66,7 @@ import org.apache.xmlbeans.XmlBeans;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/02/20 08:14:11 $
+ * @version $Revision: 1.4 $ $Date: 2004/02/21 01:10:50 $
  *
  * */
 public class ConfigPropertySettingDConfigBean extends DConfigBeanSupport {
@@ -87,7 +87,7 @@ public class ConfigPropertySettingDConfigBean extends DConfigBeanSupport {
     }
 
     GerConfigPropertySettingType getConfigPropertySetting() {
-        return (GerConfigPropertySettingType)getXmlObject();
+        return (GerConfigPropertySettingType) getXmlObject();
     }
 
     public String getConfigPropertyName() {

@@ -68,10 +68,10 @@ import org.apache.xmlbeans.XmlBeans;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/20 08:14:11 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/21 01:10:50 $
  *
  * */
-public class AdminObjectInstance extends XmlBeanSupport{
+public class AdminObjectInstance extends XmlBeanSupport {
     private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
     private AdminObjectDConfigBean parent;
     private ConfigPropertySettings[] configs;
@@ -114,12 +114,12 @@ public class AdminObjectInstance extends XmlBeanSupport{
     }
 
     void dispose() {
-        if(configs != null) {
+        if (configs != null) {
             for (int i = 0; i < configs.length; i++) {
                 configs[i].dispose();
             }
         }
-        if(parent != null) {
+        if (parent != null) {
             parent.getDDBean().removeXpathListener("config-property", configListener);
         }
         configs = null;
@@ -129,7 +129,7 @@ public class AdminObjectInstance extends XmlBeanSupport{
 
 // JavaBean properties for this object (with a couple helper methods)
     GerAdminobjectInstanceType getAdminobjectInstance() {
-        return (GerAdminobjectInstanceType)getXmlObject();
+        return (GerAdminobjectInstanceType) getXmlObject();
     }
 
     public ConfigPropertySettings[] getConfigProperty() {

@@ -75,7 +75,7 @@ import org.apache.xmlbeans.XmlException;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/02/20 08:14:11 $
+ * @version $Revision: 1.5 $ $Date: 2004/02/21 01:10:50 $
  *
  * */
 public class ResourceAdapterDConfigRoot extends DConfigBeanRootSupport {
@@ -100,7 +100,7 @@ public class ResourceAdapterDConfigRoot extends DConfigBeanRootSupport {
     }
 
     GerConnectorDocument getConnectorDocument() {
-        return (GerConnectorDocument)getXmlObject();
+        return (GerConnectorDocument) getXmlObject();
     }
 
     public String[] getXpaths() {

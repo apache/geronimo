@@ -76,7 +76,7 @@ import org.apache.xmlbeans.XmlBeans;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/02/20 08:14:11 $
+ * @version $Revision: 1.7 $ $Date: 2004/02/21 01:10:50 $
  *
  * */
 public class ResourceAdapterDConfigBean extends DConfigBeanSupport {
@@ -167,7 +167,7 @@ public class ResourceAdapterDConfigBean extends DConfigBeanSupport {
             assert adminObjecDdBeans.length == adminobjectTypes.length;
             for (int i = 0; i < adminObjecDdBeans.length; i++) {
                 DDBean adminObjectDdBean = adminObjecDdBeans[i];
-                              GerAdminobjectType adminobjectType =  adminobjectTypes[i];
+                GerAdminobjectType adminobjectType = adminobjectTypes[i];
                 String adminObjectInterface = adminObjectDdBean.getText("adminobject-interface")[0];
                 assert(adminObjectInterface.equals(adminobjectType.getAdminobjectInterface().getStringValue()));
                 String adminObjectClass = adminObjectDdBean.getText("adminobject-class")[0];
@@ -181,7 +181,7 @@ public class ResourceAdapterDConfigBean extends DConfigBeanSupport {
     }
 
     GerResourceadapterType getResourceadapter() {
-        return (GerResourceadapterType)getXmlObject();
+        return (GerResourceadapterType) getXmlObject();
     }
 
     private GerResourceadapterInstanceType getResourceadapterInstance() {

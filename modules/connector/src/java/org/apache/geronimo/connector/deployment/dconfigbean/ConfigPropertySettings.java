@@ -65,7 +65,7 @@ import javax.enterprise.deploy.model.XpathListener;
 import javax.enterprise.deploy.model.XpathEvent;
 
 /**
- * @version $Revision 1.0$  $Date: 2004/02/15 17:53:22 $
+ * @version $Revision 1.0$  $Date: 2004/02/21 01:10:50 $
  */
 public class ConfigPropertySettings extends XmlBeanSupport {
     private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
@@ -82,28 +82,28 @@ public class ConfigPropertySettings extends XmlBeanSupport {
         setXmlObject(xmlObject);
         ddBean = configPropertyBean;
         DDBean[] child = configPropertyBean.getChildBean("config-property-type");
-        if(child.length == 1) {
+        if (child.length == 1) {
             setConfigPropertyType(child[0]);
         }
         child = configPropertyBean.getChildBean("config-property-name");
-        if(child.length == 1) {
+        if (child.length == 1) {
             setConfigPropertyName(child[0]);
         }
         configPropertyBean.addXpathListener("config-property-type", typeListener = new XpathListener() {
             public void fireXpathEvent(XpathEvent xpe) {
-                if(xpe.isChangeEvent() || xpe.isAddEvent()) {
+                if (xpe.isChangeEvent() || xpe.isAddEvent()) {
                     setConfigPropertyType(xpe.getBean());
-                } else if(xpe.isRemoveEvent()) {
-                    setConfigPropertyType((String)null);
+                } else if (xpe.isRemoveEvent()) {
+                    setConfigPropertyType((String) null);
                 }
             }
         });
         configPropertyBean.addXpathListener("config-property-name", nameListener = new XpathListener() {
             public void fireXpathEvent(XpathEvent xpe) {
-                if(xpe.isChangeEvent() || xpe.isAddEvent()) {
+                if (xpe.isChangeEvent() || xpe.isAddEvent()) {
                     setConfigPropertyName(xpe.getBean());
-                } else if(xpe.isRemoveEvent()) {
-                    setConfigPropertyName((String)null);
+                } else if (xpe.isRemoveEvent()) {
+                    setConfigPropertyName((String) null);
                 }
             }
         });
@@ -114,7 +114,7 @@ public class ConfigPropertySettings extends XmlBeanSupport {
     }
 
     void dispose() {
-        if(ddBean != null) {
+        if (ddBean != null) {
             ddBean.removeXpathListener("config-property-type", typeListener);
             ddBean.removeXpathListener("config-property-name", nameListener);
         }
@@ -124,7 +124,7 @@ public class ConfigPropertySettings extends XmlBeanSupport {
     }
 
     GerConfigPropertySettingType getConfigPropertySetting() {
-        return (GerConfigPropertySettingType)getXmlObject();
+        return (GerConfigPropertySettingType) getXmlObject();
     }
 
     public String getConfigPropertyName() {
@@ -132,8 +132,8 @@ public class ConfigPropertySettings extends XmlBeanSupport {
     }
 
     private void setConfigPropertyName(DDBean configPropertyBean) {
-        if(configPropertyBean == null) {
-            setConfigPropertyName((String)null);
+        if (configPropertyBean == null) {
+            setConfigPropertyName((String) null);
         } else {
             setConfigPropertyName(configPropertyBean.getText());
         }
@@ -150,8 +150,8 @@ public class ConfigPropertySettings extends XmlBeanSupport {
     }
 
     private void setConfigPropertyType(DDBean configPropertyBean) {
-        if(configPropertyBean == null) {
-            setConfigPropertyType((String)null);
+        if (configPropertyBean == null) {
+            setConfigPropertyType((String) null);
         } else {
             setConfigPropertyType(configPropertyBean.getText());
         }

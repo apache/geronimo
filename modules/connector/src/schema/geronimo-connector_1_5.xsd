@@ -262,6 +262,8 @@
 
         </xsd:sequence>
         <xsd:attribute name="version" type="ger:versionType" use="required"/>
+        <xsd:attribute name="configId" type="xsd:string" use="required"/>
+        <xsd:attribute name="parentId" type="xsd:string" use="optional"/>
     </xsd:complexType>
 
     <xsd:simpleType name="versionType">

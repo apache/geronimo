@@ -58,11 +58,11 @@ package org.apache.geronimo.connector.deployment;
 
 import java.beans.PropertyEditor;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.jar.JarInputStream;
 
 import javax.management.AttributeNotFoundException;
@@ -73,11 +73,12 @@ import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
+import org.apache.geronimo.connector.AdminObjectWrapper;
+import org.apache.geronimo.connector.ResourceAdapterWrapper;
 import org.apache.geronimo.connector.outbound.ConnectionManagerDeployment;
 import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
-import org.apache.geronimo.deployment.ConfigurationCallback;
+import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.DeploymentException;
-import org.apache.geronimo.deployment.DeploymentModule;
 import org.apache.geronimo.deployment.util.UnclosableInputStream;
 import org.apache.geronimo.gbean.DynamicGAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -85,35 +86,42 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.xbeans.geronimo.GerAdminobjectInstanceType;
+import org.apache.geronimo.xbeans.geronimo.GerAdminobjectType;
 import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectionDefinitionType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectiondefinitionInstanceType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectionmanagerType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
+import org.apache.geronimo.xbeans.geronimo.GerConnectorType;
 import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
-import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConfigPropertyType;
-import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConnectorDocument;
-import org.apache.geronimo.xbeans.j2ee.connector_1_0.ResourceadapterType;
+import org.apache.geronimo.xbeans.geronimo.GerVersionType;
+import org.apache.geronimo.xbeans.j2ee.AdminobjectType;
+import org.apache.geronimo.xbeans.j2ee.ConfigPropertyType;
+import org.apache.geronimo.xbeans.j2ee.ConnectionDefinitionType;
+import org.apache.geronimo.xbeans.j2ee.ConnectorDocument;
+import org.apache.geronimo.xbeans.j2ee.ConnectorType;
+import org.apache.geronimo.xbeans.j2ee.ResourceadapterType;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/02/10 19:59:14 $
+ * @version $Revision: 1.1 $ $Date: 2004/02/21 01:10:49 $
  *
  * */
-public class Connector_1_0Module extends AbstractConnectorModule implements DeploymentModule {
+public class RAR_1_5ConfigBuilder extends AbstractRARConfigBuilder {
 
-    private ConnectorDocument connectorDocument;
 
-    public Connector_1_0Module(URI configID, InputStream moduleArchive, GerConnectorDocument geronimoConnectorDocument, ObjectName connectionTrackerNamePattern) {
-        super(configID, moduleArchive, geronimoConnectorDocument, connectionTrackerNamePattern);
+    public RAR_1_5ConfigBuilder(Kernel kernel, Repository repository, ObjectName connectionTrackerNamePattern) {
+        super(kernel, repository, connectionTrackerNamePattern);
     }
 
-
-    protected void getConnectorDocument(JarInputStream jarInputStream) throws XmlException, IOException, DeploymentException {
-        connectorDocument = ConnectorDocument.Factory.parse(new UnclosableInputStream(jarInputStream));
+    protected XmlObject getConnectorDocument(JarInputStream jarInputStream) throws XmlException, IOException, DeploymentException {
+        ConnectorDocument connectorDocument = ConnectorDocument.Factory.parse(new UnclosableInputStream(jarInputStream));
         XmlOptions xmlOptions = new XmlOptions();
         xmlOptions.setLoadLineNumbers();
         Collection errors = new ArrayList();
@@ -121,19 +129,61 @@ public class Connector_1_0Module extends AbstractConnectorModule implements Depl
         if (!connectorDocument.validate(xmlOptions)) {
             throw new DeploymentException("Invalid deployment descriptor: errors: " + errors);
         }
+        return connectorDocument;
     }
 
-    public void defineGBeans(ConfigurationCallback callback, ClassLoader cl) throws DeploymentException {
-        ResourceadapterType resourceAdapter = connectorDocument.getConnector().getResourceadapter();
-        GerResourceadapterType geronimoResourceAdapter = geronimoConnectorDocument.getConnector().getResourceadapter();
+    public boolean canConfigure(XmlObject plan) {
+        return plan.schemaType() == TYPE && GerVersionType.X_1_5.equals(((GerConnectorDocument) plan).getConnector().getVersion());
+    }
+
+    void addConnectorGBeans(DeploymentContext context, XmlObject genericConnectorDocument, GerConnectorType geronimoConnector, ClassLoader cl) throws DeploymentException {
+        ConnectorType connector = ((ConnectorDocument) genericConnectorDocument).getConnector();
+        ResourceadapterType resourceadapter = connector.getResourceadapter();
+        GerResourceadapterType geronimoResourceAdapter = geronimoConnector.getResourceadapter();
+        //ResourceAdapter setup
+        String resourceAdapterClassName = resourceadapter.getResourceadapterClass().getStringValue();
+        if (resourceAdapterClassName == null) {
+            throw new DeploymentException("No resource adapter class provided for J2ee Connector Architecture 1.5 adapter");
+        }
+        ObjectName resourceAdapterObjectName = null;
+        GBeanInfoFactory resourceAdapterInfoFactory = new GBeanInfoFactory(ResourceAdapterWrapper.class.getName(), ResourceAdapterWrapper.getGBeanInfo());
+        GBeanMBean resourceAdapterGBean = setUpDynamicGBean(resourceAdapterInfoFactory, resourceadapter.getConfigPropertyArray(), geronimoResourceAdapter.getResourceadapterInstance().getConfigPropertySettingArray());
+        try {
+            resourceAdapterGBean.setAttribute("ResourceAdapterClass", cl.loadClass(resourceAdapterClassName));
+        } catch (Exception e) {
+            throw new DeploymentException(e);
+        }
+        ObjectName bootstrapContextObjectName = null;
+        try {
+            bootstrapContextObjectName = ObjectName.getInstance(geronimoResourceAdapter.getResourceadapterInstance().getBootstrapcontextName().getStringValue());
+        } catch (MalformedObjectNameException e) {
+            throw new DeploymentException("Could not create object name for bootstrap context", e);
+        }
+        resourceAdapterGBean.setReferencePatterns("BootstrapContext", Collections.singleton(bootstrapContextObjectName));
+        try {
+            resourceAdapterObjectName = ObjectName.getInstance(BASE_RESOURCE_ADAPTER_NAME + geronimoResourceAdapter.getResourceadapterInstance().getResourceadapterName() + ",configID=" + context.getConfigID());
+        } catch (MalformedObjectNameException e) {
+            throw new DeploymentException("Could not construct resource adapter object name", e);
+        }
+        context.addGBean(resourceAdapterObjectName, resourceAdapterGBean);
+
+        Map connectionDefinitions = new HashMap();
+        for (int j = 0; j < resourceadapter.getOutboundResourceadapter().getConnectionDefinitionArray().length; j++) {
+            ConnectionDefinitionType connectionDefinition = resourceadapter.getOutboundResourceadapter().getConnectionDefinitionArray(j);
+            connectionDefinitions.put(connectionDefinition.getConnectionfactoryInterface().getStringValue(), connectionDefinition);
+        }
+        //ManagedConnectionFactory setup
         for (int i = 0; i < geronimoResourceAdapter.getOutboundResourceadapter().getConnectionDefinitionArray().length; i++) {
             GerConnectionDefinitionType geronimoConnectionDefinition = geronimoResourceAdapter.getOutboundResourceadapter().getConnectionDefinitionArray(i);
             assert geronimoConnectionDefinition != null: "Null GeronimoConnectionDefinition";
-            //ConnectionManagerFactory
+            String connectionFactoryInterfaceName = geronimoConnectionDefinition.getConnectionfactoryInterface().getStringValue();
+            ConnectionDefinitionType connectionDefinition = (ConnectionDefinitionType) connectionDefinitions.get(connectionFactoryInterfaceName);
+            assert connectionDefinition != null: "No connection definition for ConnectionFactory class: " + connectionFactoryInterfaceName;
             for (int j = 0; j < geronimoConnectionDefinition.getConnectiondefinitionInstanceArray().length; j++) {
-                GerConnectiondefinitionInstanceType gerConnectionfactoryInstance = geronimoConnectionDefinition.getConnectiondefinitionInstanceArray()[j];
+                GerConnectiondefinitionInstanceType connectionfactoryInstance = geronimoConnectionDefinition.getConnectiondefinitionInstanceArray()[j];
 
-                GerConnectionmanagerType connectionManagerFactory = gerConnectionfactoryInstance.getConnectionmanager();
+                //ConnectionManagerFactory
+                GerConnectionmanagerType connectionManagerFactory = connectionfactoryInstance.getConnectionmanager();
                 GBeanInfo connectionManagerFactoryGBeanInfo;
                 try {
                     connectionManagerFactoryGBeanInfo = GBeanInfo.getGBeanInfo(ConnectionManagerDeployment.class.getName(), cl);
@@ -148,7 +198,7 @@ public class Connector_1_0Module extends AbstractConnectorModule implements Depl
                     throw new DeploymentException("Unable to create GMBean", e);
                 }
                 try {
-                    connectionManagerFactoryGBean.setAttribute("Name", gerConnectionfactoryInstance.getName());
+                    connectionManagerFactoryGBean.setAttribute("Name", connectionfactoryInstance.getName());
                     connectionManagerFactoryGBean.setAttribute("BlockingTimeout", new Integer(connectionManagerFactory.getBlockingTimeout().intValue()));
                     connectionManagerFactoryGBean.setAttribute("MaxSize", new Integer(connectionManagerFactory.getMaxSize().intValue()));
                     connectionManagerFactoryGBean.setAttribute("UseTransactions", Boolean.valueOf(connectionManagerFactory.getUseTransactions()));
@@ -166,24 +216,28 @@ public class Connector_1_0Module extends AbstractConnectorModule implements Depl
                 }
                 ObjectName connectionManagerFactoryObjectName = null;
                 try {
-                    connectionManagerFactoryObjectName = ObjectName.getInstance(BASE_CONNECTION_MANAGER_FACTORY_NAME + gerConnectionfactoryInstance.getName());
+                    connectionManagerFactoryObjectName = ObjectName.getInstance(BASE_CONNECTION_MANAGER_FACTORY_NAME + connectionfactoryInstance.getName());
                 } catch (MalformedObjectNameException e) {
                     throw new DeploymentException("Could not name ConnectionManagerFactory", e);
                 }
-                callback.addGBean(connectionManagerFactoryObjectName, connectionManagerFactoryGBean);
+                context.addGBean(connectionManagerFactoryObjectName, connectionManagerFactoryGBean);
                 //ManagedConnectionFactory
+
                 GBeanInfoFactory managedConnectionFactoryInfoFactory = new GBeanInfoFactory(ManagedConnectionFactoryWrapper.class.getName(), ManagedConnectionFactoryWrapper.getGBeanInfo());
-                GBeanMBean managedConnectionFactoryGBean = setUpDynamicGBean(managedConnectionFactoryInfoFactory, resourceAdapter.getConfigPropertyArray(), gerConnectionfactoryInstance.getConfigPropertySettingArray());
+                GBeanMBean managedConnectionFactoryGBean = setUpDynamicGBean(managedConnectionFactoryInfoFactory, connectionDefinition.getConfigPropertyArray(), connectionfactoryInstance.getConfigPropertySettingArray());
                 try {
-                    managedConnectionFactoryGBean.setAttribute("ManagedConnectionFactoryClass", cl.loadClass(resourceAdapter.getManagedconnectionfactoryClass().getStringValue()));
-                    managedConnectionFactoryGBean.setAttribute("ConnectionFactoryInterface", cl.loadClass(resourceAdapter.getConnectionfactoryInterface().getStringValue()));
-                    managedConnectionFactoryGBean.setAttribute("ConnectionFactoryImplClass", cl.loadClass(resourceAdapter.getConnectionfactoryImplClass().getStringValue()));
-                    managedConnectionFactoryGBean.setAttribute("ConnectionInterface", cl.loadClass(resourceAdapter.getConnectionInterface().getStringValue()));
-                    managedConnectionFactoryGBean.setAttribute("ConnectionImplClass", cl.loadClass(resourceAdapter.getConnectionImplClass().getStringValue()));
-                    managedConnectionFactoryGBean.setAttribute("GlobalJNDIName", gerConnectionfactoryInstance.getGlobalJndiName());
+                    managedConnectionFactoryGBean.setAttribute("ManagedConnectionFactoryClass", cl.loadClass(connectionDefinition.getManagedconnectionfactoryClass().getStringValue()));
+                    managedConnectionFactoryGBean.setAttribute("ConnectionFactoryInterface", cl.loadClass(connectionDefinition.getConnectionfactoryInterface().getStringValue()));
+                    managedConnectionFactoryGBean.setAttribute("ConnectionFactoryImplClass", cl.loadClass(connectionDefinition.getConnectionfactoryImplClass().getStringValue()));
+                    managedConnectionFactoryGBean.setAttribute("ConnectionInterface", cl.loadClass(connectionDefinition.getConnectionInterface().getStringValue()));
+                    managedConnectionFactoryGBean.setAttribute("ConnectionImplClass", cl.loadClass(connectionDefinition.getConnectionImplClass().getStringValue()));
+                    managedConnectionFactoryGBean.setAttribute("GlobalJNDIName", connectionfactoryInstance.getGlobalJndiName());
+                    if (resourceAdapterClassName != null) {
+                        managedConnectionFactoryGBean.setReferencePatterns("ResourceAdapterWrapper", Collections.singleton(resourceAdapterObjectName));
+                    }
                     managedConnectionFactoryGBean.setReferencePatterns("ConnectionManagerFactory", Collections.singleton(connectionManagerFactoryObjectName));
-                    //TODO also set up the login module
                     /*
+                    //TODO also set up the login module
                     if (geronimoConnectionDefinition.getAuthentication().equals("BasicUserPassword")) {
                         managedConnectionFactoryGBean.setReferencePatterns("ManagedConnectionFactoryListener", Collections.singleton(ObjectName.getInstance(BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME + geronimoConnectionDefinition.getName())));
                     }
@@ -193,11 +247,35 @@ public class Connector_1_0Module extends AbstractConnectorModule implements Depl
                 }
                 ObjectName managedConnectionFactoryObjectName = null;
                 try {
-                    managedConnectionFactoryObjectName = ObjectName.getInstance(BASE_MANAGED_CONNECTION_FACTORY_NAME + gerConnectionfactoryInstance.getName());
+                    managedConnectionFactoryObjectName = ObjectName.getInstance(BASE_MANAGED_CONNECTION_FACTORY_NAME + connectionfactoryInstance.getName());
                 } catch (MalformedObjectNameException e) {
                     throw new DeploymentException("Could not construct ManagedConnectionFactory object name", e);
                 }
-                callback.addGBean(managedConnectionFactoryObjectName, managedConnectionFactoryGBean);
+                context.addGBean(managedConnectionFactoryObjectName, managedConnectionFactoryGBean);
+            }
+
+        }
+        //admin objects
+        Map adminObjectInterfaceMap = new HashMap();
+        for (int i = 0; i < resourceadapter.getAdminobjectArray().length; i++) {
+            AdminobjectType adminobject = resourceadapter.getAdminobjectArray()[i];
+            adminObjectInterfaceMap.put(adminobject.getAdminobjectInterface().getStringValue(), adminobject);
+        }
+        for (int i = 0; i < geronimoResourceAdapter.getAdminobjectArray().length; i++) {
+            GerAdminobjectType gerAdminObject = geronimoResourceAdapter.getAdminobjectArray()[i];
+            AdminobjectType adminobject = (AdminobjectType) adminObjectInterfaceMap.get(gerAdminObject.getAdminobjectInterface().getStringValue());
+            assert adminobject != null;
+            for (int j = 0; j < gerAdminObject.getAdminobjectInstanceArray().length; j++) {
+                GerAdminobjectInstanceType gerAdminobjectInstance = gerAdminObject.getAdminobjectInstanceArray()[j];
+                GBeanInfoFactory adminObjectInfoFactory = new GBeanInfoFactory(AdminObjectWrapper.class.getName(), AdminObjectWrapper.getGBeanInfo());
+                GBeanMBean adminObjectGBean = setUpDynamicGBean(adminObjectInfoFactory, adminobject.getConfigPropertyArray(), gerAdminobjectInstance.getConfigPropertySettingArray());
+                ObjectName adminObjectObjectName = null;
+                try {
+                    adminObjectObjectName = ObjectName.getInstance(BASE_ADMIN_OBJECT_NAME + gerAdminobjectInstance.getAdminobjectName());
+                } catch (MalformedObjectNameException e) {
+                    throw new DeploymentException("Could not construct ManagedConnectionFactory object name", e);
+                }
+                context.addGBean(adminObjectObjectName, adminObjectGBean);
 
             }
         }
@@ -228,7 +306,7 @@ public class Connector_1_0Module extends AbstractConnectorModule implements Depl
     private void setDynamicAttributes(GBeanMBean gBean, ConfigPropertyType[] configProperties, GerConfigPropertySettingType[] configPropertySettings) throws DeploymentException, ReflectionException, MBeanException, InvalidAttributeValueException, AttributeNotFoundException {
         for (int i = 0; i < configProperties.length; i++) {
             ConfigPropertyType configProperty = configProperties[i];
-            if (configProperty.getConfigPropertyType() == null) {
+            if (configProperty.getConfigPropertyValue() == null) {
                 continue;
             }
             Object value;
@@ -256,10 +334,10 @@ public class Connector_1_0Module extends AbstractConnectorModule implements Depl
                         gBean.setAttribute(configProperty.getConfigPropertyName().getStringValue(), value);
                     }
                 } else {
-                    throw new DeploymentException("No property editor for type: " + configProperty.getConfigPropertyType().getStringValue());
+                    throw new DeploymentException("No property editor for type: " + configProperty.getConfigPropertyType());
                 }
             } catch (ClassNotFoundException e) {
-                throw new DeploymentException("Could not load attribute class: attribute: " + configProperty.getConfigPropertyName().getStringValue() + ", type: " + configProperty.getConfigPropertyType().getStringValue(), e);
+                throw new DeploymentException("Could not load attribute class: attribute: " + configProperty.getConfigPropertyName() + ", type: " + configProperty.getConfigPropertyType(), e);
             }
 
         }
@@ -272,4 +350,15 @@ public class Connector_1_0Module extends AbstractConnectorModule implements Depl
         }
     }
 
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Geronimo RAR 1.5 Configuration Builder", RAR_1_5ConfigBuilder.class.getName(), AbstractRARConfigBuilder.GBEAN_INFO);
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return RAR_1_5ConfigBuilder.GBEAN_INFO;
+    }
 }
+

@@ -68,7 +68,7 @@ import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 
 /**
- * @version $Revision 1.0$  $Date: 2004/02/20 08:14:11 $
+ * @version $Revision 1.0$  $Date: 2004/02/21 01:10:50 $
  */
 public class ConnectionDefinitionInstance extends XmlBeanSupport {
     private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
@@ -114,12 +114,12 @@ public class ConnectionDefinitionInstance extends XmlBeanSupport {
     }
 
     void dispose() {
-        if(configs != null) {
+        if (configs != null) {
             for (int i = 0; i < configs.length; i++) {
                 configs[i].dispose();
             }
         }
-        if(parent != null) {
+        if (parent != null) {
             parent.getDDBean().removeXpathListener("config-property", configListener);
         }
         configs = null;
@@ -130,7 +130,7 @@ public class ConnectionDefinitionInstance extends XmlBeanSupport {
 // JavaBean properties for this object (with a couple helper methods)
 
     GerConnectiondefinitionInstanceType getConnectiondefinitionInstance() {
-        return (GerConnectiondefinitionInstanceType)getXmlObject();
+        return (GerConnectiondefinitionInstanceType) getXmlObject();
     }
 
     GerConnectionmanagerType getConnectionManager() {

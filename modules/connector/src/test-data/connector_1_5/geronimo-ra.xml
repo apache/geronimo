@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<connector xmlns="http://geronimo.apache.org/xml/ns/j2ee" version="1.5">
+<connector xmlns="http://geronimo.apache.org/xml/ns/j2ee" version="1.5" configId="test">
     <resourceadapter>
         <resourceadapter-instance>
             <resourceadapter-name>testRA</resourceadapter-name>

@@ -68,7 +68,7 @@ import org.apache.xmlbeans.XmlBeans;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/02/18 20:57:07 $
+ * @version $Revision: 1.4 $ $Date: 2004/02/21 01:10:50 $
  *
  **/
 public class ConnectionDefinitionDConfigBean extends DConfigBeanSupport {
@@ -92,7 +92,7 @@ public class ConnectionDefinitionDConfigBean extends DConfigBeanSupport {
     }
 
     GerConnectionDefinitionType getConnectionDefinition() {
-        return (GerConnectionDefinitionType)getXmlObject();
+        return (GerConnectionDefinitionType) getXmlObject();
     }
 
     public ConnectionDefinitionInstance[] getConnectionDefinitionInstance() {
@@ -104,7 +104,7 @@ public class ConnectionDefinitionDConfigBean extends DConfigBeanSupport {
         this.instances = instances;
         for (int i = 0; i < instances.length; i++) { // catch additions
             ConnectionDefinitionInstance instance = instances[i];
-            if(!instance.hasParent()) {
+            if (!instance.hasParent()) {
                 GerConnectiondefinitionInstanceType xmlObject = getConnectionDefinition().addNewConnectiondefinitionInstance();
                 xmlObject.setConnectionmanager(GerConnectionmanagerType.Factory.newInstance());
                 instance.initialize(xmlObject, this);
@@ -114,16 +114,16 @@ public class ConnectionDefinitionDConfigBean extends DConfigBeanSupport {
             ConnectionDefinitionInstance instance = old[i];
             boolean found = false;
             for (int j = 0; j < instances.length; j++) {
-                if(instances[j] == instance) {
+                if (instances[j] == instance) {
                     found = true;
                     break;
                 }
             }
-            if(!found) {
+            if (!found) {
                 // remove the XmlBean
                 for (int j = 0; j < getConnectionDefinition().getConnectiondefinitionInstanceArray().length; j++) {
                     GerConnectiondefinitionInstanceType test = getConnectionDefinition().getConnectiondefinitionInstanceArray(j);
-                    if(test == instance.getConnectiondefinitionInstance()) {
+                    if (test == instance.getConnectiondefinitionInstance()) {
                         getConnectionDefinition().removeConnectiondefinitionInstance(j);
                         break;
                     }
