@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.9 $ $Date: 2003/08/24 13:56:50 $ -->
+<!-- $Revision: 1.10 $ $Date: 2003/08/24 20:38:05 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
@@ -14,7 +14,7 @@
   <preGoal name="java:compile">
     <attainGoal name="castor:prepare-filesystem"/>
 
-    <j:set var="schema" value="${basedir}/src/xml/geronimo-ejb-jar.xsd"/>
+    <j:set var="schema" value="${basedir}/src/schema/geronimo-ejb-jar.xsd"/>
     <j:set var="gen" value="${pom.getPluginContext('maven-castor-plugin').getVariable('maven.castor.dest')}"/>
 
     <ant:java className="org.exolab.castor.builder.SourceGenerator"
@@ -41,7 +41,7 @@
     <ant:jar destfile="${basedir}/target/jsr88-geronimo-plugin.jar"
              basedir="${basedir}/target/classes"
              includes="org/apache/geronimo/enterprise/deploy/provider/**/*.class"
-             manifest="${basedir}/src/conf/jsr88-product-provider-manifest.mf" />
+             manifest="${basedir}/src/etc/jsr88-product-provider-manifest.mf" />
   </postGoal>
 
   <preGoal name="java:compile">
