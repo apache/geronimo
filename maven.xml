@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.46 $ $Date: 2003/11/25 04:17:04 $ -->
+<!-- $Revision: 1.47 $ $Date: 2003/12/10 12:53:41 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -41,7 +41,7 @@
         </j:if>
 
         <j:if test="${context.getVariable('modules') == null}">
-            <!-- The default it to build everything -->
+            <!-- The default is to build everything -->
             <j:set var="modules" value="*"/>
         </j:if>
 
@@ -93,7 +93,7 @@
         <j:forEach var="file" items="${scanner.iterator()}">
             <!--
                | Would be nice if reactor would take a file set, but for now just remove
-               | the baseddir portion of the file's name.  So this will essential strip off
+               | the baseddir portion of the file's name.  So this will essentially strip off
                | ${basedir}
              -->
             <j:set var="filename"
