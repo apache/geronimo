@@ -74,7 +74,7 @@ import org.apache.geronimo.kernel.service.GeronimoMBean;
 /**
  * Creates, registers, and starts a class space
  *
- * @version $Revision: 1.4 $ $Date: 2003/11/10 20:55:01 $
+ * @version $Revision: 1.5 $ $Date: 2003/12/10 13:00:09 $
  */
 public class CreateClassSpace implements DeploymentTask {
     private final Log log = LogFactory.getLog(this.getClass());
@@ -94,8 +94,7 @@ public class CreateClassSpace implements DeploymentTask {
     }
 
     /**
-     * This task can always run
-     * @return always true
+     * @return false if the parent class space exists and is not registered in MBeanServer; otherwise true
      */
     public boolean canRun() {
         final ObjectName parent = metadata.getParent();
