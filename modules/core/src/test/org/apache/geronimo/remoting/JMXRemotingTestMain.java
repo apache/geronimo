@@ -58,7 +58,7 @@ package org.apache.geronimo.remoting;
 
 import javax.management.MBeanServer;
 
-import org.apache.geronimo.jmx.RemoteMBeanServerFactory;
+import org.apache.geronimo.remoting.jmx.RemoteMBeanServerFactory;
 
 /**
  * this test needs for a geronimo instance to be running and
