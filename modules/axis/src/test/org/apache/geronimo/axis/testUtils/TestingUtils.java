@@ -20,10 +20,13 @@ import java.net.URI;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.Map;
+import java.util.List;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import javax.management.ObjectName;
 import javax.naming.Reference;
+import javax.xml.namespace.QName;
 
 import org.apache.geronimo.axis.AxisGeronimoUtils;
 import org.apache.geronimo.axis.WSPlan;
@@ -31,49 +34,31 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
+import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
+import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.transaction.OnlineUserTransaction;
+import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.jetty.JettyWebAppContext;
+import org.openejb.deployment.OpenEJBModuleBuilder;
 
 /**
  * @version $Rev: $ $Date: $
  */
 public class TestingUtils {
 
+    private static final String j2eeDomainName = "openejb.server";
+    private static final String j2eeServerName = "TestOpenEJBServer";
+
+    private static final ObjectName transactionManagerObjectName = JMXUtil.getObjectName(j2eeDomainName + ":type=TransactionManager");
+    private static final ObjectName connectionTrackerObjectName = JMXUtil.getObjectName(j2eeDomainName + ":type=ConnectionTracker");
     protected static J2EEManager j2eeManager = new J2EEManager();
-
-
-    public static void startJ2EEContinerAndAxisServlet(Kernel kernel) throws Exception {
-        //This does the work need to be done by plan
-        j2eeManager.startJ2EEContainer(kernel);
-        //start the Axis Serverlet which would be started by the service plan
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        GBeanInfo gbeanInfo = GBeanInfo.getGBeanInfo("org.apache.geronimo.jetty.JettyWebAppContext", classLoader);
-        GBeanData app = new GBeanData(AxisGeronimoConstants.APPLICATION_NAME, gbeanInfo);
-        URL url = classLoader.getResource("deployables/axis/");
-        System.out.print(url);
-        app.setAttribute("uri", URI.create(url.toString()));
-        app.setAttribute("contextPath", "/axis");
-        app.setAttribute("componentContext", null);
-        OnlineUserTransaction userTransaction = new OnlineUserTransaction();
-        app.setAttribute("userTransaction", userTransaction);
-        app.setAttribute("webClassPath", new URI[0]);
-        app.setAttribute("contextPriorityClassLoader", Boolean.FALSE);
-        app.setReferencePatterns("JettyContainer", Collections.singleton(AxisGeronimoConstants.WEB_CONTAINER_NAME));
-        app.setAttribute("configurationBaseUrl", Thread.currentThread().getContextClassLoader().getResource("deployables/"));
-        app.setReferencePattern("TransactionContextManager", AxisGeronimoConstants.TRANSACTION_CONTEXT_MANAGER_NAME);
-        app.setReferencePattern("TrackedConnectionAssociator", AxisGeronimoConstants.TRACKED_CONNECTION_ASSOCIATOR_NAME);
-        AxisGeronimoUtils.startGBean(app, kernel, classLoader);
-
-    }
-
-    public static void stopJ2EEContinerAndAxisServlet(Kernel kernel) throws Exception {
-        j2eeManager.stopJ2EEContainer(kernel);
-    }
-
-    public static ResourceReferenceBuilder RESOURCE_REFERANCE_BUILDER = new ResourceReferenceBuilder() {
+    public static ResourceReferenceBuilder resourceReferenceBuilder = new ResourceReferenceBuilder() {
 
         public Reference createResourceRef(String containerId, Class iface) {
             return null;
@@ -104,12 +89,70 @@ public class TestingUtils {
         }
     };
 
+    private static ServiceReferenceBuilder serviceReferenceBuilder = new ServiceReferenceBuilder() {
+
+        //it could return a Service or a Reference, we don't care
+        public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlers, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException {
+            return null;
+        }
+    };
+
+
+    public static void startJ2EEContainerAndAxisServlet(Kernel kernel) throws Exception {
+        //This does the work need to be done by plan
+        j2eeManager.startJ2EEContainer(kernel);
+        //start the Axis Serverlet which would be started by the service plan
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        GBeanData app = new GBeanData(AxisGeronimoConstants.APPLICATION_NAME, JettyWebAppContext.GBEAN_INFO);
+        URL url = classLoader.getResource("deployables/axis/");
+        System.out.print(url);
+        app.setAttribute("uri", URI.create(url.toString()));
+        app.setAttribute("contextPath", "/axis");
+        app.setAttribute("componentContext", Collections.EMPTY_MAP);
+        OnlineUserTransaction userTransaction = new OnlineUserTransaction();
+        app.setAttribute("userTransaction", userTransaction);
+        app.setAttribute("webClassPath", new URI[0]);
+        app.setAttribute("contextPriorityClassLoader", Boolean.FALSE);
+        app.setReferencePatterns("JettyContainer", Collections.singleton(AxisGeronimoConstants.WEB_CONTAINER_NAME));
+        app.setAttribute("configurationBaseUrl", Thread.currentThread().getContextClassLoader().getResource("deployables/"));
+        app.setReferencePattern("TransactionContextManager", AxisGeronimoConstants.TRANSACTION_CONTEXT_MANAGER_NAME);
+        app.setReferencePattern("TrackedConnectionAssociator", AxisGeronimoConstants.TRACKED_CONNECTION_ASSOCIATOR_NAME);
+        AxisGeronimoUtils.startGBean(app, kernel, classLoader);
+
+    }
+
+    public static void stopJ2EEContinerAndAxisServlet(Kernel kernel) throws Exception {
+        j2eeManager.stopJ2EEContainer(kernel);
+    }
+
+
+    protected static EARConfigBuilder getEARConfigBuilder() throws Exception {
+        URI defaultParentId = new URI("org/apache/geronimo/Server");
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, null, null);
+
+       EARConfigBuilder earConfigBuilder =
+                new EARConfigBuilder(defaultParentId,
+                        transactionManagerObjectName,
+                        connectionTrackerObjectName,
+                        null,
+                        null,
+                        null,
+                        moduleBuilder,
+                        moduleBuilder,
+                        null,
+                        null,
+                        resourceReferenceBuilder,
+                        null,
+                        serviceReferenceBuilder,
+                        null);
+        return earConfigBuilder;
+    }
 
     public static void buildConfiguration(File jarfile,
             ConfigurationStore store,
-            EARConfigBuilder earConfigBuilder,
             Kernel kernel,
             ObjectName wsConfgBuilderName) throws Exception {
+        EARConfigBuilder earConfigBuilder = getEARConfigBuilder();
 
         ObjectName wsconf = new ObjectName("geronimo.test:name=" + jarfile.getName() + ",value=check");
         URI wsURI = new URI("new");

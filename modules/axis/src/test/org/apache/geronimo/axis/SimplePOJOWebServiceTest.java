@@ -42,8 +42,7 @@ public class SimplePOJOWebServiceTest extends AbstractWebServiceTest {
         ClassLoader myCl = new URLClassLoader(new URL[]{}, cl);
         File jarfile = new File(getTestFile("target/generated/samples/echo-war/echo-ewsimpl.jar"));
   
-        EARConfigBuilder earConfigBuilder = getEARConfigBuilder();
-        TestingUtils.buildConfiguration(jarfile,store,earConfigBuilder,kernel,wsConfgBuilderName);
+        TestingUtils.buildConfiguration(jarfile,store,kernel,wsConfgBuilderName);
 
         //let us try to brows the WSDL of the service
         URL wsdlrequestUrl = AxisGeronimoUtils.getURL("/axis/services/echoPort?wsdl");

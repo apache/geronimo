@@ -42,8 +42,7 @@ public class SimpleEJBWebServiceTest extends AbstractWebServiceTest {
 
         File jarfile = new File(getTestFile("target/generated/samples/echo-jar/echo-ewsimpl.jar"));
         
-        EARConfigBuilder earConfigBuilder = getEARConfigBuilder();
-        TestingUtils.buildConfiguration(jarfile,store,earConfigBuilder,kernel,wsConfgBuilderName);        
+        TestingUtils.buildConfiguration(jarfile,store,kernel,wsConfgBuilderName);
 
         URL wsdlrequestUrl = AxisGeronimoUtils.getURL("/axis/services/echoPort?wsdl");
         //+"/axis/services/AdminService?wsdl");

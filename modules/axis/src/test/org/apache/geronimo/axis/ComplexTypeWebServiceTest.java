@@ -46,8 +46,7 @@ public class ComplexTypeWebServiceTest extends AbstractWebServiceTest {
   
         File jarfile = new File(getTestFile("target/generated/samples/echo-ewsimpl.jar"));
         
-        EARConfigBuilder earConfigBuilder = getEARConfigBuilder();
-        TestingUtils.buildConfiguration(jarfile,store,earConfigBuilder,kernel,wsConfgBuilderName);        
+        TestingUtils.buildConfiguration(jarfile,store,kernel,wsConfgBuilderName);        
 
         //check the real web service invocations 
         Class echoLoacaterClass = ClassUtils.forName("org.apache.ws.echosample.EchoServiceLocator");

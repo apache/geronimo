@@ -37,11 +37,6 @@ import org.openejb.deployment.OpenEJBModuleBuilder;
  */
 public class AbstractWebServiceTest extends AbstractTestCase {
 
-    private static final String j2eeDomainName = "openejb.server";
-    private static final String j2eeServerName = "TestOpenEJBServer";
-    private static final ObjectName transactionManagerObjectName = JMXUtil.getObjectName(j2eeDomainName + ":type=TransactionManager");
-    private static final ObjectName connectionTrackerObjectName = JMXUtil.getObjectName(j2eeDomainName + ":type=ConnectionTracker");
-
     protected ObjectName axisname;
     protected ObjectName wsConfgBuilderName;
     protected Kernel kernel;
@@ -65,7 +60,7 @@ public class AbstractWebServiceTest extends AbstractTestCase {
         kernel.boot();
         //start the J2EE server which would be started by the server plan
         //in the real case 
-        TestingUtils.startJ2EEContinerAndAxisServlet(kernel);
+        TestingUtils.startJ2EEContainerAndAxisServlet(kernel);
         
         //Start axis gbean        
         GBeanData axisgbData = new GBeanData(axisname,AxisGbean.getGBeanInfo());
@@ -90,57 +85,4 @@ public class AbstractWebServiceTest extends AbstractTestCase {
     
      
     
-    protected EARConfigBuilder getEARConfigBuilder() throws Exception {
-        URI defaultParentId = new URI("org/apache/geronimo/Server");
-//        GBeanMBean moduleBuilder = new GBeanMBean(OpenEJBModuleBuilder.GBEAN_INFO);
-//        moduleBuilder.setAttribute("defaultParentId",defaultParentId);
-//        kernel.loadGBean(AxisGeronimoConstants.OPENEJB_MODULE_BUILDER_NAME,moduleBuilder);
-//        
-//        
-//        //<gbean name="geronimo.deployer:role=Builder,type=EAR,config=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.j2ee.deployment.EARConfigBuilder">
-//        //    <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
-//        //    <attribute name="j2eeServer" type="javax.management.ObjectName">geronimo.server:j2eeType=J2EEServer,name=geronimo</attribute>
-//        //    <attribute name="transactionContextManagerObjectName" type="javax.management.ObjectName">geronimo.server:type=TransactionContextManager</attribute>
-//        //    <attribute name="connectionTrackerObjectName" type="javax.management.ObjectName">geronimo.server:type=ConnectionTracker</attribute>
-//        //    <attribute name="transactionalTimerObjectName" type="javax.management.ObjectName">geronimo.server:type=ThreadPooledTimer,name=TransactionalThreadPooledTimer</attribute>
-//        //    <attribute name="nonTransactionalTimerObjectName" type="javax.management.ObjectName">geronimo.server:type=ThreadPooledTimer,name=NonTransactionalThreadPooledTimer</attribute>
-//        //    <reference name="Repository">*:role=Repository,*</reference>
-//        //    <reference name="EJBConfigBuilder">geronimo.deployer:role=ModuleBuilder,type=EJB,config=org/apache/geronimo/J2EEDeployer</reference>
-//        //    <reference name="EJBReferenceBuilder">geronimo.deployer:role=ModuleBuilder,type=EJB,config=org/apache/geronimo/J2EEDeployer</reference>
-//        //    <reference name="WebConfigBuilder">geronimo.deployer:role=ModuleBuilder,type=Web,config=org/apache/geronimo/J2EEDeployer</reference>
-//        //    <reference name="ConnectorConfigBuilder">geronimo.deployer:role=ModuleBuilder,type=Connector,config=org/apache/geronimo/J2EEDeployer</reference>
-//        //    <reference name="ResourceReferenceBuilder">geronimo.deployer:role=ModuleBuilder,type=Connector,config=org/apache/geronimo/J2EEDeployer</reference>
-//        //    <reference name="AppClientConfigBuilder">geronimo.deployer:role=ModuleBuilder,type=AppClient,config=org/apache/geronimo/J2EEDeployer</reference>
-//        //</gbean>
-//        
-//        GBeanMBean earmoduleBuilder = new GBeanMBean(EARConfigBuilder.GBEAN_INFO);
-//        moduleBuilder.setAttribute("defaultParentId",defaultParentId);
-//        moduleBuilder.setAttribute("transactionContextManagerObjectName",AxisGeronimoConstants.TRANSACTION_CONTEXT_MANAGER_NAME);
-//        moduleBuilder.setAttribute("connectionTrackerObjectName",AxisGeronimoConstants.CONNECTION_TRACKER_NAME);
-//        moduleBuilder.setReferencePattern("EJBConfigBuilder",AxisGeronimoConstants.OPENEJB_MODULE_BUILDER_NAME);
-//        moduleBuilder.setReferencePattern("EJBReferenceBuilder",AxisGeronimoConstants.OPENEJB_MODULE_BUILDER_NAME);
-//        moduleBuilder.setReferencePattern("ResourceReferenceBuilder",AxisGeronimoConstants.OPENEJB_MODULE_BUILDER_NAME);
-//        
-//        
-//        kernel.loadGBean(AxisGeronimoConstants.EAR_CONF_BUILDER_NAME,moduleBuilder);
-//        
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, null, null);
-        
-       EARConfigBuilder earConfigBuilder =
-                new EARConfigBuilder(defaultParentId,
-                        transactionManagerObjectName,
-                        connectionTrackerObjectName,
-                        null,
-                        null,
-                        null,
-                        moduleBuilder,
-                        moduleBuilder,
-                        null,
-                        null,
-                        TestingUtils.RESOURCE_REFERANCE_BUILDER,
-                        null,
-                        null,
-                        null);
-        return earConfigBuilder;
-    }
 }

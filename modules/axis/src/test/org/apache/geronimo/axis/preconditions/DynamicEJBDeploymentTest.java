@@ -64,10 +64,10 @@ public class DynamicEJBDeploymentTest extends AbstractTestCase {
         System.setProperty(javax.naming.Context.URL_PKG_PREFIXES, str);
         kernel = new Kernel("blah");
         kernel.boot();
-       // TestingUtils.startJ2EEContinerAndAxisServlet(kernel);
+       // TestingUtils.startJ2EEContainerAndAxisServlet(kernel);
     }
 
-    private ResourceReferenceBuilder resourceReferenceBuilder = TestingUtils.RESOURCE_REFERANCE_BUILDER;
+    private ResourceReferenceBuilder resourceReferenceBuilder = TestingUtils.resourceReferenceBuilder;
     public void testEJBJarDeploy() throws Exception {
         File jarFile = new File(outDir , "echo-jar/echo-ewsimpl.jar");
         

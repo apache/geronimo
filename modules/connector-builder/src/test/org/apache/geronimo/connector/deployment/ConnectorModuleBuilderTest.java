@@ -32,18 +32,20 @@ import java.net.URLClassLoader;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Iterator;
 import java.util.jar.JarFile;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.sql.DataSource;
 import javax.xml.namespace.QName;
+import javax.naming.Reference;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanData;
@@ -55,21 +57,22 @@ import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.RefContext;
 import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
+import org.apache.geronimo.j2ee.deployment.EJBReferenceBuilder;
+import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.kernel.registry.BasicGBeanRegistry;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.registry.BasicGBeanRegistry;
+import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
-import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.tranql.sql.jdbc.JDBCUtil;
 
 /**
@@ -84,6 +87,64 @@ public class ConnectorModuleBuilderTest extends TestCase {
     private int defaultBlockingTimeoutMilliseconds = 5000;
     private int defaultidleTimeoutMinutes = 15;
     private URI defaultParentId;
+    private Repository repository = new Repository() {
+
+                public boolean hasURI(URI uri) {
+                    return false;
+                }
+
+                public URL getURL(URI uri) throws MalformedURLException {
+                    return null;
+                }
+            };
+
+    private EJBReferenceBuilder ejbReferenceBuilder = new EJBReferenceBuilder() {
+
+        public Reference createEJBLocalReference(String objectName, boolean isSession, String localHome, String local) throws DeploymentException {
+            return null;
+        }
+
+        public Reference createEJBRemoteReference(String objectName, boolean isSession, String home, String remote) throws DeploymentException {
+            return null;
+        }
+    };
+
+    private ResourceReferenceBuilder resourceReferenceBuilder = new ResourceReferenceBuilder() {
+
+        public Reference createResourceRef(String containerId, Class iface) throws DeploymentException {
+            return null;
+        }
+
+        public Reference createAdminObjectRef(String containerId, Class iface) throws DeploymentException {
+            return null;
+        }
+
+        public ObjectName locateResourceName(ObjectName query) throws DeploymentException {
+            return null;
+        }
+
+        public GBeanData locateActivationSpecInfo(ObjectName resourceAdapterName, String messageListenerInterface) throws DeploymentException {
+            return null;
+        }
+
+        public GBeanData locateResourceAdapterGBeanData(ObjectName resourceAdapterModuleName) throws DeploymentException {
+            return null;
+        }
+
+        public GBeanData locateAdminObjectInfo(ObjectName resourceAdapterModuleName, String adminObjectInterfaceName) throws DeploymentException {
+            return null;
+        }
+
+        public GBeanData locateConnectionFactoryInfo(ObjectName resourceAdapterModuleName, String connectionFactoryInterfaceName) throws DeploymentException {
+            return null;
+        }
+    };
+    private ServiceReferenceBuilder serviceReferenceBuilder = new ServiceReferenceBuilder() {
+                                        //it could return a Service or a Reference, we don't care
+                                        public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlers, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) {
+                                            return null;
+                                        }
+                                    };
 
 
     public void testBuildEar() throws Exception {
@@ -98,7 +159,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
             kernel.startGBean(store.getName());
 
             rarFile = DeploymentUtil.createJarFile(new File(basedir, "target/test-ear-noger.ear"));
-            EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, null, connectionTrackerName, null, null, null, null, null, null, new ConnectorModuleBuilder(defaultParentId, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, null, kernel), null, null, null, kernel);
+            EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, null, connectionTrackerName, null, null, null, null, ejbReferenceBuilder, null, new ConnectorModuleBuilder(defaultParentId, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, repository, kernel), resourceReferenceBuilder, null, serviceReferenceBuilder, kernel);
             File tempDir = null;
             try {
                 tempDir = DeploymentUtil.createTempDir();
@@ -233,7 +294,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
             GBeanData store = new GBeanData(JMXUtil.getObjectName("foo:j2eeType=ConfigurationStore,name=mock"), MockConfigStore.GBEAN_INFO);
             kernel.loadGBean(store, this.getClass().getClassLoader());
             kernel.startGBean(store.getName());
-            ConnectorModuleBuilder moduleBuilder = new ConnectorModuleBuilder(defaultParentId, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, null, kernel);
+            ConnectorModuleBuilder moduleBuilder = new ConnectorModuleBuilder(defaultParentId, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, repository, kernel);
             File rarFile = action.getRARFile();
 
             ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
@@ -261,14 +322,9 @@ public class ConnectorModuleBuilderTest extends TestCase {
                         connectionTrackerName,
                         null,
                         null,
-                        new RefContext(null,
+                        new RefContext(ejbReferenceBuilder,
                                 moduleBuilder,
-                                new ServiceReferenceBuilder() {
-                                    //it could return a Service or a Reference, we don't care
-                                    public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlers, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) {
-                                        return null;
-                                    }
-                                }));
+                                serviceReferenceBuilder));
 
                 action.install(moduleBuilder, earContext, module);
                 earContext.getClassLoader(null);

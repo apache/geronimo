@@ -60,7 +60,7 @@ public class EchoHeadersTest extends AbstractTestCase {
         ClassLoader cl = getClass().getClassLoader();
         ClassLoader myCl = new URLClassLoader(new URL[]{}, cl);
         
-        TestingUtils.startJ2EEContinerAndAxisServlet(kernel);
+        TestingUtils.startJ2EEContainerAndAxisServlet(kernel);
         GBeanData gbean = new GBeanData(name,AxisGbean.getGBeanInfo());
         gbean.setAttribute("Name", "Test");
         kernel.loadGBean(gbean,myCl);
