@@ -17,6 +17,7 @@
 
 package org.apache.geronimo.transaction;
 
+import java.io.Serializable;
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.NotSupportedException;
@@ -36,12 +37,14 @@ import org.apache.geronimo.transaction.BeanTransactionContext;
  * This adds the ability to enable or disable the operations depending on
  * the lifecycle of the EJB instance.
  *
- * @version $Revision: 1.1 $ $Date: 2004/04/06 00:21:20 $
+ * @version $Revision: 1.2 $ $Date: 2004/04/06 18:33:36 $
  */
-public class UserTransactionImpl implements UserTransaction {
-    private TransactionManager txnManager;
-    private TrackedConnectionAssociator trackedConnectionAssociator;
-    private final ThreadLocal state = new ThreadLocal() {
+public class UserTransactionImpl implements UserTransaction, Serializable {
+    private transient TransactionManager txnManager;
+    private transient TrackedConnectionAssociator trackedConnectionAssociator;
+
+    private final ThreadLocal state = new StateThreadLocal();
+    private static class StateThreadLocal extends ThreadLocal implements Serializable {
         protected Object initialValue() {
             return OFFLINE;
         }
@@ -96,7 +99,8 @@ public class UserTransactionImpl implements UserTransaction {
         getUserTransaction().setTransactionTimeout(timeout);
     }
 
-    private final UserTransaction ONLINE = new UserTransaction() {
+    private final UserTransaction ONLINE = new OnlineUserTransaction();
+    private final class OnlineUserTransaction implements UserTransaction, Serializable {
         public int getStatus() throws SystemException {
             return txnManager.getStatus();
         }
@@ -165,7 +169,8 @@ public class UserTransactionImpl implements UserTransaction {
         }
     };
 
-    private static final UserTransaction OFFLINE = new UserTransaction() {
+    private static final UserTransaction OFFLINE = new OfflineUserTransaction();
+    private static final class OfflineUserTransaction implements UserTransaction, Serializable {
         public void begin() throws NotSupportedException, SystemException {
             throw new IllegalStateException("Cannot use UserTransaction methods in this state");
         }
