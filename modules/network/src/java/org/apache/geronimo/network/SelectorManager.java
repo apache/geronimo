@@ -26,6 +26,7 @@ import java.nio.channels.Selector;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Stack;
+import java.util.HashSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -40,7 +41,7 @@ import org.apache.geronimo.pool.ThreadPool;
  * The SelectorManager will manage one Selector and the thread that checks
  * the selector.
  *
- * @version $Revision: 1.18 $ $Date: 2004/08/03 12:53:10 $
+ * @version $Revision: 1.19 $ $Date: 2004/08/03 20:09:27 $
  */
 public class SelectorManager implements Runnable, GBeanLifecycle {
 
@@ -153,7 +154,7 @@ public class SelectorManager implements Runnable, GBeanLifecycle {
                     if (selector.select(timeout) == 0) {
                         log.trace("timeout == 0");
 
-                        Iterator list = selector.keys().iterator();
+                        Iterator list = new HashSet(selector.keys()).iterator();
                         while (list.hasNext()) {
                             SelectionKey key = (SelectionKey) list.next();
                             log.trace("Still watching " + key + " key is "
@@ -190,7 +191,7 @@ public class SelectorManager implements Runnable, GBeanLifecycle {
                         continue;
                     }
 
-                    Iterator list = selector.keys().iterator();
+                    Iterator list = new HashSet(selector.keys()).iterator();
                     while (list.hasNext()) {
                         SelectionKey key = (SelectionKey) list.next();
                         log.trace("Still watching " + key + " key is "
