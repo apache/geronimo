@@ -15,11 +15,6 @@
  */
 package org.apache.geronimo.axis;
 
-import org.apache.geronimo.axis.testUtils.AxisGeronimoConstants;
-import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
-
-import javax.management.ObjectName;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -30,6 +25,11 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
+import javax.management.ObjectName;
+
+import org.apache.geronimo.axis.testUtils.AxisGeronimoConstants;
+import org.apache.geronimo.gbean.WaitingException;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
 
 public class SimpleEJBWebServiceTest extends AbstractWebServiceTest {
     public SimpleEJBWebServiceTest(String testName) throws FileNotFoundException, WaitingException, IOException {
@@ -59,7 +59,7 @@ public class SimpleEJBWebServiceTest extends AbstractWebServiceTest {
         File out = new File("target/temp");
         out.mkdirs();
         File ws = wsconfBuilder.installWebService(jarfile, out, Thread.currentThread().getContextClassLoader());
-        GBeanMBean[] gbeans = wsconfBuilder.loadtheWSConfigurations(ws, jarfile);
+        GBeanMBean[] gbeans = wsconfBuilder.loadtheWSConfigurations(ws, jarfile, cl);
         ObjectName wsName = ObjectName.getInstance("test:configuration=" + "echo");
         ObjectName wsEJBName = ObjectName.getInstance("test:configuration=" + "echoEJB");
         AxisGeronimoUtils.startGBean(wsName, gbeans[0], kernel);

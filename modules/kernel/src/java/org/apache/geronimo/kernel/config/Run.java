@@ -24,6 +24,7 @@ import java.util.jar.Manifest;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
 
@@ -61,10 +62,12 @@ public class Run {
         try {
             kernel.boot();
 
-            GBeanMBean config = new GBeanMBean(Configuration.GBEAN_INFO, cl);
+            GBeanMBean config;
             ObjectInputStream ois = new ObjectInputStream(cl.getResourceAsStream("META-INF/config.ser"));
             try {
-                Configuration.loadGMBeanState(config, ois);
+                GBeanData gbeanData = new GBeanData();
+                gbeanData.readExternal(ois);
+                config = new GBeanMBean(gbeanData, cl);
             } finally {
                 ois.close();
             }

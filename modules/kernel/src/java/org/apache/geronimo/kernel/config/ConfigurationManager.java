@@ -20,9 +20,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.util.List;
-import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 
 /**
@@ -47,11 +47,11 @@ public interface ConfigurationManager {
      */
     List listConfigurations(ObjectName store) throws NoSuchStoreException;
 
-    ObjectName getConfigObjectName(URI configID) throws MalformedObjectNameException;
-
     ObjectName load(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException;
 
     ObjectName load(GBeanMBean config, URL rootURL) throws InvalidConfigException;
+
+    void load(GBeanData config, URL rootURL, ClassLoader classLoader) throws InvalidConfigException;
 
     /**
      * Load the supplied Configuration into the Kernel and override the default JMX name.
@@ -70,4 +70,5 @@ public interface ConfigurationManager {
     void unload(URI configID) throws NoSuchConfigException;
 
     void unload(ObjectName configName) throws NoSuchConfigException;
+
 }

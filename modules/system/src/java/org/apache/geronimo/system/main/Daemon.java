@@ -28,9 +28,8 @@ import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.PersistentConfigurationList;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
@@ -89,10 +88,10 @@ public class Daemon {
 
             // load this configuration
             ClassLoader classLoader = Daemon.class.getClassLoader();
-            GBeanMBean configuration = new GBeanMBean(Configuration.GBEAN_INFO);
+            GBeanData configuration = new GBeanData();
             ObjectInputStream ois = new ObjectInputStream(classLoader.getResourceAsStream("META-INF/config.ser"));
             try {
-                Configuration.loadGMBeanState(configuration, ois);
+                configuration.readExternal(ois);
             } finally {
                 ois.close();
             }
@@ -111,7 +110,7 @@ public class Daemon {
 
             // add our shutdown hook
             ConfigurationManager configurationManager = kernel.getConfigurationManager();
-            final ObjectName configName = configurationManager.load(configuration, classLoader.getResource("/"));
+            configurationManager.load(configuration, classLoader.getResource("/"), classLoader);
             Runtime.getRuntime().addShutdownHook(new Thread("Shutdown Thread") {
                 public void run() {
                     log.info("Server shutdown begun");
@@ -121,7 +120,7 @@ public class Daemon {
             });
 
             // start this configuration
-            kernel.startRecursiveGBean(configName);
+            kernel.startRecursiveGBean(configuration.getName());
 
             if (configs.isEmpty()) {
                 // nothing explicit, see what was running before

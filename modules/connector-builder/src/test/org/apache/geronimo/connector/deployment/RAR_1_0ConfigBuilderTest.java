@@ -38,7 +38,7 @@ import javax.sql.DataSource;
 import junit.framework.TestCase;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
-import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
@@ -50,7 +50,6 @@ import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
@@ -257,7 +256,7 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
         DataSource ds = null;
         Kernel kernel = null;
         try {
-            GBeanMBean config = loadConfig(unpackedDir);
+            GBeanMBean config = loadConfig(unpackedDir, cl);
 
             kernel = new Kernel("blah");
             kernel.boot();
@@ -399,14 +398,13 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
         assertEquals(State.RUNNING_INDEX, state);
     }
 
-    private GBeanMBean loadConfig(File unpackedCar) throws Exception {
+    private GBeanMBean loadConfig(File unpackedCar, ClassLoader classLoader) throws Exception {
         InputStream in = new FileInputStream(new File(unpackedCar, "META-INF/config.ser"));
         try {
             ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(in));
-            GBeanInfo gbeanInfo = Configuration.GBEAN_INFO;
-            GBeanMBean config = new GBeanMBean(gbeanInfo);
-            Configuration.loadGMBeanState(config, ois);
-            return config;
+            GBeanData config = new GBeanData();
+            config.readExternal(ois);
+            return new GBeanMBean(config, classLoader);
         } finally {
             in.close();
         }

@@ -15,13 +15,13 @@
  */
 package org.apache.geronimo.axis;
 
+import java.io.File;
+import javax.management.ObjectName;
+
 import org.apache.geronimo.axis.testUtils.AxisGeronimoConstants;
 import org.apache.geronimo.axis.testUtils.J2EEManager;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
-
-import javax.management.ObjectName;
-import java.io.File;
 
 public class WSConfigBuilderTest extends AbstractTestCase {
     private ObjectName configBuilderName;

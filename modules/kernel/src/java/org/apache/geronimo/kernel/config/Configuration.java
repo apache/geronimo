@@ -40,6 +40,7 @@ import javax.management.AttributeNotFoundException;
 import javax.management.JMRuntimeException;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
+import javax.management.MalformedObjectNameException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -85,6 +86,10 @@ import org.apache.geronimo.kernel.repository.Repository;
  */
 public class Configuration implements GBeanLifecycle {
     private static final Log log = LogFactory.getLog(Configuration.class);
+
+    public static ObjectName getConfigurationObjectName(URI configID) throws MalformedObjectNameException {
+        return new ObjectName("geronimo.config:name=" + ObjectName.quote(configID.toString()));
+    }
 
     private final Kernel kernel;
     private final String objectNameString;
@@ -177,6 +182,8 @@ public class Configuration implements GBeanLifecycle {
             classLoader = new URLClassLoader(urls, parent.getClassLoader());
         }
 
+        // DSS: why exactally are we doing this?  I bet there is a reason, but
+        // we should state why here.
         ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(classLoader);
@@ -368,12 +375,6 @@ public class Configuration implements GBeanLifecycle {
         } catch (Exception e) {
             throw new InvalidConfigException("Unable to deserialize GBeanState", e);
         }
-    }
-
-    public static void loadGMBeanState(GBeanMBean gbean, ObjectInputStream ois) throws IOException, AttributeNotFoundException, ReflectionException, ClassNotFoundException {
-        GBeanData gbeanData = new GBeanData();
-        gbeanData.readExternal(ois);
-        gbean.setGBeanData(gbeanData);
     }
 
     /**

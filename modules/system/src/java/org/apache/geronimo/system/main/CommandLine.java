@@ -17,20 +17,19 @@
 
 package org.apache.geronimo.system.main;
 
-import java.util.List;
-import java.util.Iterator;
 import java.io.ObjectInputStream;
 import java.net.URI;
+import java.util.Iterator;
+import java.util.List;
 import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.kernel.log.GeronimoLogging;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.log.GeronimoLogging;
 import org.apache.geronimo.system.url.GeronimoURLFactory;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
 
 
 /**
@@ -79,16 +78,16 @@ public class CommandLine {
 
         // load and start the configuration in this jar
         ConfigurationManager configurationManager = kernel.getConfigurationManager();
-        GBeanMBean config = new GBeanMBean(Configuration.GBEAN_INFO);
+        GBeanData config = new GBeanData();
         ClassLoader classLoader = CommandLine.class.getClassLoader();
         ObjectInputStream ois = new ObjectInputStream(classLoader.getResourceAsStream("META-INF/config.ser"));
         try {
-            Configuration.loadGMBeanState(config, ois);
+            config.readExternal(ois);
         } finally {
             ois.close();
         }
-        ObjectName configName = configurationManager.load(config, classLoader.getResource("/"));
-        kernel.startRecursiveGBean(configName);
+        configurationManager.load(config, classLoader.getResource("/"), classLoader);
+        kernel.startRecursiveGBean(config.getName());
 
         // load and start the configurations 
         for (Iterator i = configurations.iterator(); i.hasNext();) {
@@ -112,7 +111,7 @@ public class CommandLine {
         log.info("Server shutdown begun");
 
         // stop this configuration
-        kernel.stopGBean(configName);
+        kernel.stopGBean(config.getName());
 
         // shutdown the kernel
         kernel.shutdown();

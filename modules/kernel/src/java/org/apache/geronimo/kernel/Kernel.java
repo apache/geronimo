@@ -22,35 +22,34 @@ import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.net.URI;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Date;
 import javax.management.Attribute;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.management.JMException;
 import javax.management.JMRuntimeException;
-import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.MalformedObjectNameException;
-import javax.management.NotCompliantMBeanException;
 import javax.management.NotificationBroadcasterSupport;
 import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 
@@ -193,11 +192,8 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
     public Object getAttribute(ObjectName objectName, String attributeName) throws Exception {
         try {
             return mbServer.getAttribute(objectName, attributeName);
-        } catch (JMException e) {
-            Throwable cause = e;
-            while ((cause instanceof JMException || cause instanceof JMRuntimeException) && cause.getCause() != null) {
-                cause = cause.getCause();
-            }
+        } catch (Exception e) {
+            Throwable cause = unwrapJMException(e);
             if (cause instanceof Error) {
                 throw (Error) cause;
             } else if (cause instanceof Exception) {
@@ -211,11 +207,8 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
     public void setAttribute(ObjectName objectName, String attributeName, Object attributeValue) throws Exception {
         try {
             mbServer.setAttribute(objectName, new Attribute(attributeName, attributeValue));
-        } catch (JMException e) {
-            Throwable cause = e;
-            while ((cause instanceof JMException || cause instanceof JMRuntimeException) && cause.getCause() != null) {
-                cause = cause.getCause();
-            }
+        } catch (Exception e) {
+            Throwable cause = unwrapJMException(e);
             if (cause instanceof Error) {
                 throw (Error) cause;
             } else if (cause instanceof Exception) {
@@ -233,11 +226,8 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
     public Object invoke(ObjectName objectName, String methodName, Object[] args, String[] types) throws Exception {
         try {
             return mbServer.invoke(objectName, methodName, args, types);
-        } catch (JMException e) {
-            Throwable cause = e;
-            while ((cause instanceof JMException || cause instanceof JMRuntimeException) && cause.getCause() != null) {
-                cause = cause.getCause();
-            }
+        } catch (Exception e) {
+            Throwable cause = unwrapJMException(e);
             if (cause instanceof Error) {
                 throw (Error) cause;
             } else if (cause instanceof Exception) {
@@ -246,6 +236,13 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
                 throw new AssertionError(cause);
             }
         }
+    }
+
+    private Throwable unwrapJMException(Throwable cause) {
+        while ((cause instanceof JMException || cause instanceof JMRuntimeException) && cause.getCause() != null) {
+            cause = cause.getCause();
+        }
+        return cause;
     }
 
 
@@ -286,34 +283,38 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
         try {
             GBeanMBean gbean = new GBeanMBean(gbeanData, classLoader);
             mbServer.registerMBean(gbean, gbeanData.getName());
-        } catch (MBeanRegistrationException e) {
-            throw new InvalidConfigException("Invalid GBean configuration for " + gbeanData.getName(), e);
-        } catch (NotCompliantMBeanException e) {
-            throw new InvalidConfigException("Invalid GBean configuration for " + gbeanData.getName(), e);
+        } catch (JMRuntimeException e) {
+            throw new InvalidConfigException("Invalid GBean configuration for " + gbeanData.getName(), unwrapJMException(e));
+        } catch (JMException e) {
+            throw new InvalidConfigException("Invalid GBean configuration for " + gbeanData.getName(), unwrapJMException(e));
         }
     }
 
     public void loadGBean(ObjectName name, GBeanMBean gbean) throws InstanceAlreadyExistsException, InvalidConfigException {
         try {
             mbServer.registerMBean(gbean, name);
-        } catch (MBeanRegistrationException e) {
-            throw new InvalidConfigException("Invalid GBean configuration for " + name, e);
-        } catch (NotCompliantMBeanException e) {
-            throw new InvalidConfigException("Invalid GBean configuration for " + name, e);
+        } catch (InstanceAlreadyExistsException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InvalidConfigException("Invalid GBean configuration for " + name, unwrapJMException(e));
         }
     }
 
     public void startGBean(ObjectName name) throws InstanceNotFoundException, InvalidConfigException {
         try {
             invoke(name, "start");
+        } catch (InstanceNotFoundException e) {
+            throw e;
         } catch (Exception e) {
-            throw new InvalidConfigException("Invalid GBean configuration for " + name, e);
+            throw new InvalidConfigException("Invalid GBean configuration for " + name, unwrapJMException(e));
         }
     }
 
     public void startRecursiveGBean(ObjectName name) throws InstanceNotFoundException, InvalidConfigException {
         try {
             invoke(name, "startRecursive");
+        } catch (InstanceNotFoundException e) {
+            throw e;
         } catch (Exception e) {
             throw new InvalidConfigException("Invalid GBean configuration for " + name, e);
         }
@@ -324,19 +325,19 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
             invoke(name, "stop");
         } catch (InstanceNotFoundException e) {
             throw e;
-        } catch (InvalidConfigException e) {
-            throw e;
         } catch (Exception e) {
             throw new InvalidConfigException("Invalid GBean configuration for " + name, e);
         }
     }
 
     public void unloadGBean(ObjectName name) throws InstanceNotFoundException {
-        try {
+       try {
             mbServer.unregisterMBean(name);
-        } catch (MBeanRegistrationException e) {
-            throw (IllegalStateException) new IllegalStateException("Error unloading GBean " + name).initCause(e);
-        }
+       } catch (InstanceNotFoundException e) {
+           throw e;
+       } catch (JMException e) {
+            throw (IllegalStateException) new IllegalStateException("Error unloading GBean " + name).initCause(unwrapJMException(e));
+       }
     }
 
     public Set listGBeans(ObjectName query) {
@@ -352,8 +353,7 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
     }
 
     public ObjectName startConfiguration(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException {
-			
-        	ObjectName configName = getConfigurationManager().load(configID);
+        ObjectName configName = getConfigurationManager().load(configID);
 		try {
 		    startRecursiveGBean(configName);
 		} catch (InstanceNotFoundException e) {
@@ -367,7 +367,7 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
     public void stopConfiguration(URI configID) throws NoSuchConfigException {
         ConfigurationManager configurationManager = getConfigurationManager();
         try {
-            ObjectName configName = configurationManager.getConfigObjectName(configID);
+            ObjectName configName = Configuration.getConfigurationObjectName(configID);
             stopGBean(configName);
         } catch (MalformedObjectNameException e) {
             throw new NoSuchConfigException(e);
@@ -382,7 +382,7 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
     public int getConfigurationState(URI configID) throws NoSuchConfigException {
         ConfigurationManager configurationManager = getConfigurationManager();
          try {
-             ObjectName configName = configurationManager.getConfigObjectName(configID);
+             ObjectName configName = Configuration.getConfigurationObjectName(configID);
              return ((Integer)getAttribute(configName, "state")).intValue();
          } catch (MalformedObjectNameException e) {
              throw new NoSuchConfigException(e);

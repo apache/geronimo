@@ -107,7 +107,7 @@ public class DeploymentContext {
 
         if (kernel != null && parentID != null) {
             ConfigurationManager configurationManager = kernel.getConfigurationManager();
-            ObjectName parentName = configurationManager.getConfigObjectName(parentID);
+            ObjectName parentName = Configuration.getConfigurationObjectName(parentID);
             config.setReferencePatterns("Parent", Collections.singleton(parentName));
             try {
                 ancestors = configurationManager.loadRecursive(parentID);
@@ -354,7 +354,9 @@ public class DeploymentContext {
         try {
             out = new ObjectOutputStream(new FileOutputStream(configSer));
             try {
-                config.getGBeanData().writeExternal(out);
+                GBeanData gbeanData = config.getGBeanData();
+                gbeanData.setName(Configuration.getConfigurationObjectName(configID));
+                gbeanData.writeExternal(out);
             } catch (IOException e) {
                 throw e;
             } catch (Exception e) {

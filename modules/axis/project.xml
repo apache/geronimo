@@ -44,6 +44,14 @@
     <!-- ============ -->
     <dependencies>
         <dependency>
+            <groupId>ews</groupId>
+            <artifactId>ews</artifactId>
+            <version>&ews-version;</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
+         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-xmlbeans-plugin</artifactId>
             <version>${pom.currentVersion}</version>
@@ -254,15 +262,7 @@
         </dependency>
 
         <!-- Module Dependencies -->
-        <dependency>
-            <groupId>ews</groupId>
-            <artifactId>ews</artifactId>
-            <version>&ews-version;</version>
-            <properties>
-                <module>true</module>
-            </properties>
-        </dependency>
-        <dependency>
+       <dependency>
             <groupId>xmlbeans</groupId>
             <artifactId>xbean-apache-1.0</artifactId>
             <version>DEV</version>

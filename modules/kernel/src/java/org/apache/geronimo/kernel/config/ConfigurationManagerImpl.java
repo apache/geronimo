@@ -36,6 +36,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
@@ -75,7 +76,7 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
                     URI configID = (URI) ids.get(j);
                     ObjectName configName;
                     try {
-                        configName = getConfigObjectName(configID);
+                        configName = Configuration.getConfigurationObjectName(configID);
                     } catch (MalformedObjectNameException e) {
                         throw new AssertionError("Store returned invalid configID: " + configID);
                     }
@@ -108,7 +109,7 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
 
     public boolean isLoaded(URI configID) {
         try {
-            ObjectName name = getConfigObjectName(configID);
+            ObjectName name = Configuration.getConfigurationObjectName(configID);
             return kernel.isLoaded(name);
         } catch (MalformedObjectNameException e) {
             return false;
@@ -138,12 +139,17 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
         }
         ObjectName configName;
         try {
-            configName = getConfigObjectName(configID);
+            configName = Configuration.getConfigurationObjectName(configID);
         } catch (MalformedObjectNameException e) {
             throw new InvalidConfigException("Cannot convert ID to ObjectName: ", e);
         }
         load(config, rootURL, configName);
         return configName;
+    }
+
+    public void load(GBeanData config, URL rootURL, ClassLoader classLoader) throws InvalidConfigException {
+        GBeanMBean mbean = new GBeanMBean(config, classLoader);
+        load(mbean, rootURL, config.getName());
     }
 
     public void load(GBeanMBean config, URL rootURL, ObjectName configName) throws InvalidConfigException {
@@ -191,7 +197,7 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
     public void unload(URI configID) throws NoSuchConfigException {
         ObjectName configName;
         try {
-            configName = getConfigObjectName(configID);
+            configName = Configuration.getConfigurationObjectName(configID);
         } catch (MalformedObjectNameException e) {
             throw new NoSuchConfigException("Cannot convert ID to ObjectName: ", e);
         }
@@ -209,10 +215,6 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
 
     private List getStores() {
         return new ArrayList(stores);
-    }
-
-    public ObjectName getConfigObjectName(URI configID) throws MalformedObjectNameException {
-        return new ObjectName("geronimo.config:name=" + ObjectName.quote(configID.toString()));
     }
 
     public void doStart() {

@@ -16,22 +16,6 @@
 
 package org.apache.geronimo.axis;
 
-import org.apache.axis.utils.ClassUtils;
-import org.apache.geronimo.deployment.ConfigurationBuilder;
-import org.apache.geronimo.deployment.DeploymentException;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
-import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.repository.Repository;
-import org.openejb.deployment.OpenEJBModuleBuilder;
-
-import javax.management.ObjectName;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -54,6 +38,23 @@ import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import javax.management.ObjectName;
+
+import org.apache.axis.utils.ClassUtils;
+import org.apache.geronimo.deployment.ConfigurationBuilder;
+import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.WaitingException;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
+import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.repository.Repository;
+import org.openejb.deployment.OpenEJBModuleBuilder;
 
 /**
  * @author Srinath Perera(hemapani@opensource.lk)
@@ -119,12 +120,16 @@ public class WSConfigBuilder implements ConfigurationBuilder {
                 break;
             }
         }
+
+        // TODO DSS: it is a bad idea to use the thread context classloader. Most of geronimo does not set
+        // the thread context classloader (because of speed) and it is likely to be null.
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         GBeanMBean[] confBeans = null;
         if (hasEJB) {
-            File file = installEJBWebService(earFile, outfile, Thread.currentThread().getContextClassLoader());
-            confBeans = loadEJBWebService(file, earFile);
+            File file = installEJBWebService(earFile, outfile, classLoader);
+            confBeans = loadEJBWebService(file, earFile, classLoader);
         } else {
-            File file = installPOJOWebService(earFile, outfile, Thread.currentThread().getContextClassLoader());
+            File file = installPOJOWebService(earFile, outfile, classLoader);
             confBeans = loadPOJOWebService(file);
         }
         
@@ -163,9 +168,9 @@ public class WSConfigBuilder implements ConfigurationBuilder {
         }
     }
 
-    public GBeanMBean[] loadtheWSConfigurations(File installedLocation, File module) throws Exception {
+    public GBeanMBean[] loadtheWSConfigurations(File installedLocation, File module, ClassLoader classLoader) throws Exception {
         if (hasEJB) {
-            return loadEJBWebService(installedLocation, module);
+            return loadEJBWebService(installedLocation, module, classLoader);
         } else {
             return loadPOJOWebService(installedLocation);
         }
@@ -278,8 +283,8 @@ public class WSConfigBuilder implements ConfigurationBuilder {
         return new GBeanMBean[]{gbean};
     }
 
-    private GBeanMBean[] loadEJBWebService(File installLocation, File module) throws Exception {
-        GBeanMBean config = loadConfig(installLocation);
+    private GBeanMBean[] loadEJBWebService(File installLocation, File module, ClassLoader classLoader) throws Exception {
+        GBeanMBean config = loadConfig(installLocation, classLoader);
         config.setAttribute("baseURL", installLocation.toURL());
         GBeanMBean gbean = new GBeanMBean(EJBWSGBean.getGBeanInfo());
         ArrayList classList = AxisGeronimoUtils.getClassFileList(new ZipFile(module));
@@ -298,16 +303,13 @@ public class WSConfigBuilder implements ConfigurationBuilder {
 //        throw new DeploymentException("can not found the ews module in " + installLocation);
     }
 
-    private static GBeanMBean loadConfig(File unpackedCar) throws Exception {
-        InputStream in = new FileInputStream(new File(unpackedCar,
-                "META-INF/config.ser"));
+    private GBeanMBean loadConfig(File unpackedCar, ClassLoader classLoader) throws Exception {
+        InputStream in = new FileInputStream(new File(unpackedCar, "META-INF/config.ser"));
         try {
-            ObjectInputStream ois =
-                    new ObjectInputStream(new BufferedInputStream(in));
-            GBeanInfo gbeanInfo = Configuration.GBEAN_INFO;
-            GBeanMBean config = new GBeanMBean(gbeanInfo);
-            Configuration.loadGMBeanState(config, ois);
-            return config;
+            ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(in));
+            GBeanData config = new GBeanData();
+            config.readExternal(ois);
+            return new GBeanMBean(config, classLoader);
         } finally {
             in.close();
         }

@@ -19,19 +19,18 @@ package org.apache.geronimo.deployment.mavenplugin;
 
 import java.io.File;
 import java.io.ObjectInputStream;
-import java.net.URL;
 import java.net.URI;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.StringTokenizer;
-
 import javax.management.ObjectName;
 
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
 import org.apache.geronimo.system.url.GeronimoURLFactory;
 
@@ -98,10 +97,12 @@ public class StartServer {
         URL systemURL = new File(root, "bin/server.jar").toURL();
 //        System.out.println("systemURL = " + systemURL);
         URL configURL = new URL("jar:" + systemURL.toString() + "!/META-INF/config.ser");
-        GBeanMBean configuration = new GBeanMBean(Configuration.GBEAN_INFO, this.getClass().getClassLoader());
+        GBeanMBean configuration;
         ObjectInputStream ois = new ObjectInputStream(configURL.openStream());
         try {
-            Configuration.loadGMBeanState(configuration, ois);
+            GBeanData gbeanData = new GBeanData();
+            gbeanData.readExternal(ois);
+            configuration = new GBeanMBean(gbeanData, this.getClass().getClassLoader());
         } finally {
             ois.close();
         }
