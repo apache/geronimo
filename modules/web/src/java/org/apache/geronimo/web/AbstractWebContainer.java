@@ -70,7 +70,7 @@ import org.w3c.dom.Document;
  * 
  * Base class for web containers.
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/23 09:38:04 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/23 22:06:23 $
  */
 public class AbstractWebContainer
     extends AbstractContainer
@@ -129,7 +129,6 @@ public class AbstractWebContainer
     /**
      * Get the URI of the web defaults.
      * @return the location of the default web.xml file for this container
-     * @see org.apache.geronimo.web.WebContainer#getDefaultWebXmlURL()
      */
     public URI getDefaultWebXmlURI()
     {
@@ -139,7 +138,6 @@ public class AbstractWebContainer
     /* -------------------------------------------------------------------------------------- */
     /**Set a uri of a web.xml containing defaults for this container.
      * @param uri the location of the default web.xml file
-     * @see org.apache.geronimo.web.WebContainer#setDefaultWebXmlURL(java.lang.String)
      */
     public void setDefaultWebXmlURI(URI uri)
     {
@@ -208,7 +206,7 @@ public class AbstractWebContainer
     /* Remove a component from this container's hierarchy
      * @see org.apache.geronimo.common.Container#removeComponent(org.apache.geronimo.common.Component)
      */
-    public void removeComponent(Component component) throws Exception
+    public void removeComponent(Component component)
     {
         if (component instanceof WebConnector)
             webConnectorRemoval((WebConnector)component);

@@ -68,7 +68,7 @@ import org.apache.geronimo.jmx.JMXUtil;
 /**
  * Abstract implementation of Container interface.
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/18 13:38:52 $
+ * @version $Revision: 1.5 $ $Date: 2003/08/23 22:06:23 $
  *
  */
 public abstract class AbstractContainer extends AbstractComponent implements Container {
@@ -128,7 +128,7 @@ public abstract class AbstractContainer extends AbstractComponent implements Con
      *
      * @param component the Component to remove
      */
-    public void removeComponent(Component component) throws Exception {
+    public void removeComponent(Component component) {
         if (component == null) {
             throw new NullArgumentException("component");
         }
