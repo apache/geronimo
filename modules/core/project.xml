@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.11 $ $Date: 2003/08/22 19:03:37 $ -->
+<!-- $Revision: 1.12 $ $Date: 2003/08/24 11:23:14 $ -->
 
 <project>
   <pomVersion>3</pomVersion>
@@ -37,6 +37,15 @@
       </properties>
     </dependency>
 
+    <dependency>
+      <groupId>geronimo</groupId>
+      <artifactId>geronimo-twiddle</artifactId>
+      <version>DEV</version>
+      <properties>
+        <module>true</module>
+      </properties>
+    </dependency>
+    
     <dependency>
       <groupId>geronimo-spec</groupId>
       <artifactId>geronimo-spec-jta</artifactId>
@@ -158,6 +167,16 @@
       <id>dom4j</id>
       <version>1.4</version>
     </dependency>
+    
+    <dependency>
+      <id>commons-cli</id>
+      <version>1.0</version>
+      <url>http://jakarta.apache.org/commons/cli</url>
+      <properties>
+        <runtime>true</runtime>
+      </properties>
+    </dependency>
+    
   </dependencies>
 
 

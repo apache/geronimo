@@ -1,0 +1,21 @@
+#!/bin/sh
+##############################################################################
+##                                                                          ##
+##  Twiddle Proxy                                                           ##
+##                                                                          ##
+##############################################################################
+
+##
+## $Revision: 1.1 $ $Date: 2003/08/24 11:23:14 $
+##
+
+PROGNAME=`basename $0`
+DIRNAME=`dirname $0`
+
+COMMAND_PATH="geronimo/start"
+
+if [ -n "$TWIDDLE_OPTS" ]; then
+    TWIDDLE_OPTS=""
+fi
+
+exec $DIRNAME/twiddle $TWIDDLE_OPTS $COMMAND_PATH -- "$@"

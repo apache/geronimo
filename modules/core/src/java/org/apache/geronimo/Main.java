@@ -73,7 +73,7 @@ import org.apache.geronimo.jmx.JMXKernel;
  *
  *
  *
- * @version $Revision: 1.8 $ $Date: 2003/08/18 22:15:36 $
+ * @version $Revision: 1.9 $ $Date: 2003/08/24 11:23:14 $
  */
 public class Main implements Runnable {
     static {
@@ -186,27 +186,6 @@ public class Main implements Runnable {
             }
 
             log.info("Shutdown complete");
-        }
-    }
-
-    /**
-     * Command line entry point.
-     * Starts a new ThreadGroup so that all owned threads can be identified.
-     * @param args command line arguments
-     */
-    public static void main(String[] args) {
-        try {
-            // @todo get these from somewhere a little more flexible
-            URL mletURL = new URL("file:src/conf/boot.mlet");
-            URL deployURL = new URL("file:src/conf/boot-service.xml");
-            Main main = new Main("geronimo", mletURL, deployURL);
-
-            ThreadGroup group = new ThreadGroup("Geronimo");
-            Thread mainThread = new Thread(group, main, "Main-Thread");
-            mainThread.start();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-            return;
         }
     }
 
