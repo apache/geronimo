@@ -20,6 +20,7 @@ import java.beans.Introspector;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Iterator;
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanInfo;
 import javax.management.MBeanOperationInfo;
@@ -37,7 +38,7 @@ import org.objectweb.asm.Type;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/07/27 02:14:14 $
+ * @version $Revision: 1.6 $ $Date: 2004/08/27 12:26:49 $
  */
 public class CGLibMethodInterceptor implements ProxyMethodInterceptor, MethodInterceptor {
     /**
@@ -164,8 +165,7 @@ public class CGLibMethodInterceptor implements ProxyMethodInterceptor, MethodInt
             if (methodIndex != null) {
                 return new RawGetAttributeInvoker(rawInvoker, methodIndex.intValue());
             }
-            attributeName = Introspector.decapitalize(attributeName);
-            methodIndex = ((Integer) attributes.get(attributeName));
+            methodIndex = getMethodIndex(attributes, attributeName);
             if (methodIndex != null) {
                 return new RawGetAttributeInvoker(rawInvoker, methodIndex.intValue());
             }
@@ -177,8 +177,7 @@ public class CGLibMethodInterceptor implements ProxyMethodInterceptor, MethodInt
             if (methodIndex != null) {
                 return new RawGetAttributeInvoker(rawInvoker, methodIndex.intValue());
             }
-            attributeName = Introspector.decapitalize(attributeName);
-            methodIndex = ((Integer) attributes.get(attributeName));
+            methodIndex = getMethodIndex(attributes, attributeName);
             if (methodIndex != null) {
                 return new RawGetAttributeInvoker(rawInvoker, methodIndex.intValue());
             }
@@ -190,8 +189,7 @@ public class CGLibMethodInterceptor implements ProxyMethodInterceptor, MethodInt
             if (methodIndex != null) {
                 return new RawSetAttributeInvoker(rawInvoker, methodIndex.intValue());
             }
-            attributeName = Introspector.decapitalize(attributeName);
-            methodIndex = ((Integer) attributes.get(attributeName));
+            methodIndex = getMethodIndex(attributes, attributeName);
             if (methodIndex != null) {
                 return new RawSetAttributeInvoker(rawInvoker, methodIndex.intValue());
             }
@@ -282,5 +280,16 @@ public class CGLibMethodInterceptor implements ProxyMethodInterceptor, MethodInt
             return methodProxy.getSuperIndex();
         }
         return -1;
+    }
+
+    private static Integer getMethodIndex(Map attributes, String attributeName) {
+        Iterator iter = attributes.keySet().iterator();
+        while (iter.hasNext()) {
+            String key = (String) iter.next();
+            if (key.equalsIgnoreCase(attributeName)) {
+                return (Integer) attributes.get(key);
+            }
+        }
+        return null;
     }
 }
