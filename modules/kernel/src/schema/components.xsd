@@ -12,7 +12,8 @@
                             <xs:element name="codebase" type="codebaseType"/>
                         </xs:sequence>
                         <xs:attribute name="name" type="objectName" use="required"/>
-                        <xs:attribute name="code" type="className" use="optional"/>
+<!--                        <xs:attribute name="code" type="className" use="optional"/>-->
+                        <xs:attribute name="descriptor" type="xs:anyURI" use="optional"/>
                         <xs:attribute name="create" type="xs:boolean" use="optional"/>
                         <xs:attribute name="parent" type="objectName" use="optional"/>
                     </xs:complexType>
@@ -50,7 +51,8 @@
                                 </xs:complexType>
                             </xs:element>
                         </xs:sequence>
-                        <xs:attribute name="code" type="className" use="required"/>
+                        <xs:attribute name="code" type="className" use="optional"/>
+                        <xs:attribute name="descriptor" type="xs:anyURI" use="optional"/>
                         <xs:attribute name="name" type="objectName" use="optional"/>
                     </xs:complexType>
                 </xs:element>
