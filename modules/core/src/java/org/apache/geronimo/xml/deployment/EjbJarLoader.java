@@ -86,7 +86,7 @@ import org.w3c.dom.Element;
  * Knows how to load a set of POJOs from a DOM representing an ejb-jar.xml
  * deployment descriptor.
  *
- * @version $Revision: 1.6 $ $Date: 2003/09/27 16:52:06 $
+ * @version $Revision: 1.7 $ $Date: 2003/09/29 15:14:19 $
  */
 public class EjbJarLoader {
     public static EjbJarDocument load(Document doc) {
@@ -95,6 +95,8 @@ public class EjbJarLoader {
             throw new IllegalArgumentException("Document is not an ejb-jar instance");
         }
         EjbJar jar = new EjbJar();
+        jar.setVersion(root.getAttribute("version"));
+        J2EELoader.loadDisplayable(root, jar);
         Element ebe = LoaderUtil.getChild(root, "enterprise-beans");
         if(ebe != null) {
             EnterpriseBeans eb = new EnterpriseBeans();
