@@ -32,7 +32,7 @@ import org.apache.geronimo.system.ClockPool;
 
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/03/10 02:14:27 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/10 02:20:08 $
  */
 public class ProtocolFactory implements ServerSocketAcceptorListener, GBean {
 
@@ -127,6 +127,10 @@ public class ProtocolFactory implements ServerSocketAcceptorListener, GBean {
             }
             connectionCache.clear();
         }
+    }
+
+    public void doFail() {
+
     }
 
     /**
