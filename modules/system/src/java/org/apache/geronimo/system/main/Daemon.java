@@ -37,7 +37,7 @@ import org.apache.geronimo.system.url.GeronimoURLFactory;
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/06/05 19:30:43 $
+ * @version $Revision: 1.8 $ $Date: 2004/07/13 02:29:36 $
  */
 public class Daemon {
     static {
@@ -137,7 +137,11 @@ public class Daemon {
                     }
                 }
             } catch (Exception e) {
-                kernel.shutdown();
+                try {
+                    kernel.shutdown();
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                }
                 e.printStackTrace();
                 System.exit(3);
                 throw new AssertionError();
