@@ -24,9 +24,11 @@ import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Abstracts the topology of a set of nodes.
@@ -38,7 +40,7 @@ import java.util.Map;
  * This class is intended to be sent to a multicast group when a topology event
  * happens.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:41 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/27 14:13:40 $
  */
 public class NodeTopology
     implements Externalizable
@@ -52,17 +54,17 @@ public class NodeTopology
     /**
      * Used to perform atomic operations on nodeToID and idToNode.
      */
-    private final Object nodeAndIdLock = new Object();
+    private Object nodeAndIdLock = new Object();
     
     /**
      * NodeInfo to Integer (node identifier) mapping.
      */
-    private final Map nodeToID;
+    private Map nodeToID;
     
     /**
      * Integer (node identifier) to NodeInfo mapping.
      */
-    private final Map idToNode;
+    private Map idToNode;
 
     /**
      * TwoNodeInfo to NodeInfo[] mapping. It is a cache of the shortest path
@@ -320,7 +322,10 @@ public class NodeTopology
      * @return NodeInfo having this identifier.
      */
     public NodeInfo getNodeById(int anId) {
-        NodeInfo nodeInfo = (NodeInfo) idToNode.get(new Integer(anId));
+        NodeInfo nodeInfo;
+        synchronized(nodeAndIdLock) {
+            nodeInfo = (NodeInfo) idToNode.get(new Integer(anId));
+        }
         if ( null == nodeInfo ) {
             throw new IllegalArgumentException("Identifier " + anId +
                 " is not registered by this topology.");
@@ -328,18 +333,36 @@ public class NodeTopology
         return nodeInfo;
     }
     
+    /**
+     * Gets the NodeInfo registered by this topology.
+     * 
+     * @return Set of NodeInfo.
+     */
+    public Set getNodes() {
+        Set nodes;
+        synchronized(nodeAndIdLock) {
+            nodes = new HashSet(nodeToID.keySet());
+        }
+        return nodes;
+    }
+    
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeObject(nodeToPaths);
+        out.writeObject(nodeToID);
+        out.writeObject(idToNode);
     }
 
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        nodeAndIdLock = new Object();
         nodeToPaths = (Map) in.readObject();
+        nodeToID = (Map) in.readObject();
+        idToNode = (Map) in.readObject();
     }
     
     /**
      * Abstract a weight between two nodes.
      *
-     * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:41 $
+     * @version $Revision: 1.2 $ $Date: 2004/05/27 14:13:40 $
      */
     public static class PathWeight implements Externalizable {
         private int weight;
