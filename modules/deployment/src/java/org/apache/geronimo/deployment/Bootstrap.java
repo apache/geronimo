@@ -55,108 +55,126 @@
  */
 package org.apache.geronimo.deployment;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
-import java.net.MalformedURLException;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.URI;
-import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
+import java.util.Map;
+import java.util.jar.JarEntry;
+import java.util.jar.JarOutputStream;
+import java.util.zip.ZipEntry;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.deployment.service.ServiceDeployer;
-import org.apache.geronimo.deployment.util.FileUtil;
+import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.LocalConfigStore;
-import org.apache.geronimo.deployment.util.URLInfo;
-import org.apache.geronimo.deployment.util.URLType;
+import org.apache.geronimo.system.repository.ReadOnlyRepository;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
- * Helper class to bootstrap a Geronimo instance from a service archive.
- * This deploys the service definition to create a bootstrap Configuration,
- * and then creates a Kernel to run that configuration. This allows someone
- * to boot a Kernel without pre-deploying and installing the Configuration.
+ * Helper class to bootstrap the Geronimo deployer.
  *
- * @version $Revision: 1.5 $ $Date: 2004/02/04 05:43:31 $
+ * @version $Revision: 1.6 $ $Date: 2004/02/12 18:27:39 $
  */
 public class Bootstrap {
-    public static final URI CONFIG_ID = URI.create("org/apache/geronimo/Bootstrap");
+    public static final URI CONFIG_ID = URI.create("org/apache/geronimo/ServiceDeployer");
 
     /**
-     * Entry point. Arguments are:
-     * <li>directory to use for the ConfigurationStore</li>
-     * <li>URL for initial service to deploy</li>
-     *
-     * @param args command line arguments
+     * Invoked from maven.xml during the build to create the first Deployment Configuration
+     * @param car the configuration file to generate
+     * @param store the store to install the configuration into
      */
-    public static void main(String[] args) {
-        if (args.length < 1) {
-            System.err.println("usage: " + Bootstrap.class.getName() + " <service-url>");
-            System.exit(1);
-        }
-        URL serviceURL;
+    public static void bootstrap(String car, String store, String systemJar) {
+        File carfile = new File(car);
+        File storeDir = new File(store);
+        File system = new File(systemJar);
+
+        ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(Bootstrap.class.getClassLoader());
         try {
-            serviceURL = new URL(args[0]);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-            System.exit(1);
-            throw new AssertionError();
-        }
+            Map gbeans = new HashMap();
 
-        List deployers = new ArrayList();
-        try {
-            deployers.add(new ServiceDeployer(DocumentBuilderFactory.newInstance().newDocumentBuilder()));
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-            System.exit(2);
-            throw new AssertionError();
-        }
+            // Install ServerInfo GBean
+            ObjectName serverName = new ObjectName("geronimo.deployer:role=ServerInfo");
+            GBeanMBean server = new GBeanMBean(ServerInfo.getGBeanInfo());
+            gbeans.put(serverName, server);
 
-        File tmpDir = new File(System.getProperty("java.io.tmpdir"), "geronimo");
-        FileUtil.recursiveDelete(tmpDir);
-        tmpDir.mkdir();
+            // Install default local Repository
+            ObjectName repoName = new ObjectName("geronimo.deployer:role=Repository,root=repository");
+            GBeanMBean localRepo = new GBeanMBean(ReadOnlyRepository.GBEAN_INFO);
+            localRepo.setAttribute("Root", URI.create("repository/"));
+            localRepo.setReferencePatterns("ServerInfo", Collections.singleton(serverName));
+            gbeans.put(repoName, localRepo);
 
-        File storeDir = new File(tmpDir, "config");
-        storeDir.mkdir();
-        final Kernel kernel = new Kernel("geronimo.kernel", "geronimo", LocalConfigStore.GBEAN_INFO, storeDir);
-        Runtime.getRuntime().addShutdownHook(new Thread("Shutdown Thread") {
-            public void run() {
-                kernel.shutdown();
-            }
-        });
-        try {
-            kernel.boot();
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(2);
-            throw new AssertionError();
-        }
+            // Install ServiceConfigBuilder
+            ObjectName builderName = new ObjectName("geronimo.deployer:role=Builder,type=Service,id=" + CONFIG_ID.toString());
+            GBeanMBean serviceBuilder = new GBeanMBean(ServiceConfigBuilder.GBEAN_INFO);
+            serviceBuilder.setReferencePatterns("Repository", Collections.singleton(repoName));
+            serviceBuilder.setReferencePatterns("Kernel", Collections.singleton(Kernel.KERNEL));
+            gbeans.put(builderName, serviceBuilder);
 
-        try {
-            File workDir = new File(tmpDir, "deployment");
-            workDir.mkdir();
-            URLDeployer deployer = new URLDeployer(null, CONFIG_ID, deployers, workDir);
-            deployer.addSource(new URLInfo(serviceURL, URLType.getType(serviceURL)));
-            deployer.deploy();
+            // Install Deployer
+            ObjectName deployerName = Deployer.getDeployerName(CONFIG_ID);
+            GBeanMBean deployer = new GBeanMBean(Deployer.GBEAN_INFO);
+            deployer.setReferencePatterns("Builders", Collections.singleton(new ObjectName("geronimo.deployer:role=Builder,id=" + CONFIG_ID.toString() + ",*")));
+            gbeans.put(deployerName, deployer);
 
-            ObjectName configName = kernel.load(deployer.getConfiguration(), workDir.toURL());
-            kernel.getMBeanServer().invoke(configName, "startRecursive", null, null);
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(2);
-            throw new AssertionError();
-        }
+            List classPath = new ArrayList();
 
-        // loop to keep the kernel alive
-        while (kernel.isRunning()) {
+            JarOutputStream jos = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(carfile)));
             try {
-                synchronized (kernel) {
-                    kernel.wait();
-                }
-            } catch (InterruptedException e) {
-                // continue
+                URI path = URI.create(system.getName());
+                addFile(jos, path, system);
+                classPath.add(path);
+
+                GBeanMBean config = new GBeanMBean(Configuration.GBEAN_INFO);
+                config.setAttribute("ID", CONFIG_ID);
+                config.setReferencePatterns("Parent", null);
+                config.setAttribute("ClassPath", classPath);
+                config.setAttribute("GBeanState", Configuration.storeGBeans(gbeans));
+                config.setAttribute("Dependencies", Collections.EMPTY_LIST);
+
+                jos.putNextEntry(new ZipEntry("META-INF/config.ser"));
+                ObjectOutputStream ois = new ObjectOutputStream(jos);
+                Configuration.storeGMBeanState(config, ois);
+                ois.flush();
+                jos.closeEntry();
+            } finally {
+                jos.close();
             }
+
+            LocalConfigStore configStore = new LocalConfigStore(storeDir);
+            configStore.install(carfile.toURL());
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(2);
+            throw new AssertionError();
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldCL);
+        }
+    }
+
+    private static void addFile(JarOutputStream jos, URI path, File file) throws IOException {
+        FileInputStream fis = new FileInputStream(file);
+        try {
+            jos.putNextEntry(new JarEntry(path.toString()));
+            byte[] buffer = new byte[4096];
+            int count;
+            while ((count = fis.read(buffer)) > 0) {
+                jos.write(buffer, 0, count);
+            }
+            jos.closeEntry();
+        } finally {
+            fis.close();
         }
     }
 }

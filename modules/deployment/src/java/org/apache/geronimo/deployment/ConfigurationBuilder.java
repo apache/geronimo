@@ -55,61 +55,17 @@
  */
 package org.apache.geronimo.deployment;
 
-import org.apache.geronimo.deployment.util.URLInfo;
-import org.apache.geronimo.deployment.util.URLType;
-
-import java.net.URI;
-import java.net.URL;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.File;
+
+import org.apache.xmlbeans.XmlObject;
 
 /**
  * 
  * 
- * @version $Revision: 1.1 $ $Date: 2004/02/06 02:57:24 $
+ * @version $Revision: 1.1 $ $Date: 2004/02/12 18:27:39 $
  */
-public class JARDeployer implements ModuleFactory {
-    public DeploymentModule getModule(URLInfo urlInfo, URI moduleID) throws DeploymentException {
-        if (urlInfo.getType() == URLType.PACKED_ARCHIVE) {
-            return new JARModule(urlInfo.getUrl());
-        }
-        return null;
-    }
-
-    private static class JARModule implements DeploymentModule {
-        private final URL url;
-
-        public JARModule(URL url) {
-            this.url = url;
-        }
-
-        public void init() throws DeploymentException {
-        }
-
-        public void generateClassPath(ConfigurationCallback callback) throws DeploymentException {
-            String name = url.toString();
-            int idx = name.lastIndexOf('/');
-            if (idx != -1) {
-                name = name.substring(idx+1);
-            }
-            URI path = URI.create(name);
-            try {
-                InputStream source = url.openStream();
-                try {
-                    callback.addFile(path, source);
-                } finally {
-                    source.close();
-                }
-                callback.addToClasspath(path);
-            } catch (IOException e) {
-                throw new DeploymentException("Unable to add URL "+url, e);
-            }
-        }
-
-        public void defineGBeans(ConfigurationCallback callback, ClassLoader cl) throws DeploymentException {
-        }
-
-        public void complete() {
-        }
-    }
+public interface ConfigurationBuilder {
+    boolean canConfigure(XmlObject plan);
+    void buildConfiguration(File outfile, XmlObject plan, boolean install) throws IOException, DeploymentException;
 }

@@ -16,11 +16,14 @@
     </xs:annotation>
 
     <xs:complexType name="dependencyType">
-        <xs:sequence>
-            <xs:element name="groupId" type="xs:string"/>
-            <xs:element name="artifactId" type="xs:string"/>
-            <xs:element name="version" type="xs:string"/>
-        </xs:sequence>
+        <xs:choice>
+            <xs:sequence>
+                <xs:element name="groupId" type="xs:string"/>
+                <xs:element name="artifactId" type="xs:string"/>
+                <xs:element name="version" type="xs:string"/>
+            </xs:sequence>
+            <xs:element name="uri" type="xs:string"/> 
+        </xs:choice>
     </xs:complexType>
 
     <xs:complexType name="gbeanType">
@@ -37,6 +40,7 @@
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute name="name" type="xs:string"/>
+                <xs:attribute name="type" type="xs:string"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -53,5 +57,6 @@
         <xs:sequence>
             <xs:element name="pattern" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
+        <xs:attribute name="name" type="xs:string"/>
     </xs:complexType>
 </xs:schema>

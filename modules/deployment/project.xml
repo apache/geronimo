@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.9 $ $Date: 2004/02/09 07:17:31 $ -->
+<!-- $Revision: 1.10 $ $Date: 2004/02/12 18:27:39 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -46,6 +46,14 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-common</artifactId>
+            <version>DEV</version>
+            <properties>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-system</artifactId>
             <version>DEV</version>
             <properties>
             </properties>

@@ -11,8 +11,8 @@
     </dependency>
     
     <gbean name="geronimo.test:name=MyMockGMBean" class="org.apache.geronimo.deployment.MockGBean">
-        <attribute name="Value">1234</attribute>
-        <attribute name="IntValue">1234</attribute>
+        <attribute name="Value" type="java.lang.String">1234</attribute>
+        <attribute name="IntValue" type="int">1234</attribute>
         <reference name="MockEndpoint">geronimo.test:name=MyMockGMBean</reference>
     </gbean>
 </configuration>
