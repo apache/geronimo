@@ -43,7 +43,7 @@ import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.ClassLoading;
 
 /**
- * @version $Revision: 1.8 $ $Date: 2004/06/02 05:33:03 $
+ * @version $Revision: 1.9 $ $Date: 2004/06/03 15:27:28 $
  */
 public class GBeanMBeanReference implements NotificationListener {
     private static final Log log = LogFactory.getLog(GBeanMBeanReference.class);
@@ -197,13 +197,7 @@ public class GBeanMBeanReference implements NotificationListener {
 
             // set the proxy into the instance
             if (setInvoker != null && patterns.size() > 0) {
-                ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-                try {
-                    Thread.currentThread().setContextClassLoader(gmbean.getClassLoader());
-                    setInvoker.invoke(gmbean.getTarget(), new Object[]{proxy.getProxy()});
-                } finally {
-                    Thread.currentThread().setContextClassLoader(oldClassLoader);
-                }
+                setInvoker.invoke(gmbean.getTarget(), new Object[]{proxy.getProxy()});
             }
         } catch (Exception e) {
             // clean up if we got an exception

@@ -60,7 +60,7 @@ import org.apache.geronimo.kernel.management.NotificationType;
  * {@link GBeanInfo} instance.  The GBeanMBean also supports caching of attribute values and invocation results
  * which can reduce the number of calls to a target.
  *
- * @version $Revision: 1.19 $ $Date: 2004/06/02 20:51:51 $
+ * @version $Revision: 1.20 $ $Date: 2004/06/03 15:27:28 $
  */
 public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     /**
@@ -569,26 +569,14 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
             references[i].start();
         }
 
-        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(classLoader);
-        try {
-            if (target instanceof GBean) {
-                ((GBean) target).doStart();
-            }
-        } finally {
-            Thread.currentThread().setContextClassLoader(oldClassLoader);
+        if (target instanceof GBean) {
+            ((GBean) target).doStart();
         }
     }
 
     protected void doStop() throws Exception {
-        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(classLoader);
-        try {
-            if (target instanceof GBean) {
-                ((GBean) target).doStop();
-            }
-        } finally {
-            Thread.currentThread().setContextClassLoader(oldClassLoader);
+        if (target instanceof GBean) {
+            ((GBean) target).doStop();
         }
 
         // stop all of the references
@@ -598,14 +586,8 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     }
 
     protected void doFail() {
-        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(classLoader);
-        try {
-            if (target instanceof GBean) {
-                ((GBean) target).doFail();
-            }
-        } finally {
-            Thread.currentThread().setContextClassLoader(oldClassLoader);
+        if (target instanceof GBean) {
+            ((GBean) target).doFail();
         }
 
         // stop all of the references

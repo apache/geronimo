@@ -31,7 +31,7 @@ import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.kernel.ClassLoading;
 
 /**
- * @version $Revision: 1.13 $ $Date: 2004/06/02 05:33:03 $
+ * @version $Revision: 1.14 $ $Date: 2004/06/03 15:27:28 $
  */
 public class GBeanMBeanAttribute {
     private static final Log log = LogFactory.getLog(GBeanMBeanAttribute.class);
@@ -209,9 +209,7 @@ public class GBeanMBeanAttribute {
         // if this is a persistent attirubte and was not set via a constructor
         // set the value into the gbean
         if (persistent && !isConstructorArg && setInvoker != null) {
-            ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
             try {
-                Thread.currentThread().setContextClassLoader(gmbean.getClassLoader());
                 assert gmbean.getTarget() != null : "online() invoked, however the corresponding GBeanMBean is " +
                         "not fully initialized (perhaps online() has been called directly instead by a Kernel)";
                 setInvoker.invoke(gmbean.getTarget(), new Object[]{persistentValue});
@@ -223,23 +221,17 @@ public class GBeanMBeanAttribute {
                     throw (Error) targetException;
                 }
                 throw e;
-            } finally {
-                Thread.currentThread().setContextClassLoader(oldClassLoader);
             }
         }
     }
 
     public void offline() {
         if (persistent && getInvoker != null) {
-            ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
             try {
-                Thread.currentThread().setContextClassLoader(gmbean.getClassLoader());
                 persistentValue = getInvoker.invoke(gmbean.getTarget(), null);
             } catch (Throwable throwable) {
                 log.error("Could not get the current value of persistent attribute while going offline.  The "
                         + "persistent attribute will not reflect the current state attribute: name=" + name, throwable);
-            } finally {
-                Thread.currentThread().setContextClassLoader(oldClassLoader);
             }
         }
     }
@@ -259,15 +251,11 @@ public class GBeanMBeanAttribute {
                     throw new IllegalArgumentException("This attribute is not readable");
                 }
             }
-            ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
             try {
-                Thread.currentThread().setContextClassLoader(gmbean.getClassLoader());
                 Object value = getInvoker.invoke(gmbean.getTarget(), null);
                 return value;
             } catch (Throwable throwable) {
                 throw new ReflectionException(new InvocationTargetException(throwable));
-            } finally {
-                Thread.currentThread().setContextClassLoader(oldClassLoader);
             }
         }
     }
@@ -305,14 +293,10 @@ public class GBeanMBeanAttribute {
                         ", type=" + type.getName());
             }
             // @todo actually check type
-            ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
             try {
-                Thread.currentThread().setContextClassLoader(gmbean.getClassLoader());
                 setInvoker.invoke(gmbean.getTarget(), new Object[]{value});
             } catch (Throwable throwable) {
                 throw new ReflectionException(new InvocationTargetException(throwable));
-            } finally {
-                Thread.currentThread().setContextClassLoader(oldClassLoader);
             }
         }
     }
