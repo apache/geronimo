@@ -247,7 +247,17 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
            /**
             * JACC v1.0 secion 4.1.1
             */
-           acc.checkPermission(new WebUserDataPermission(servletHttpRequest));
+
+           String transportType;
+           if (request.isConfidential()) {
+               transportType = "CONFIDENTIAL";
+           } else if (request.isIntegral()) {
+               transportType = "INTEGRAL";
+           } else {
+               transportType = null;
+           }
+           WebUserDataPermission wudp = new WebUserDataPermission(servletHttpRequest.getServletPath(), new String[] {servletHttpRequest.getMethod()}, transportType);
+           acc.checkPermission(wudp);
 
            /**
             * JACC v1.0 secion 4.1.2
