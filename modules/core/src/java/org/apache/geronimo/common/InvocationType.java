@@ -62,14 +62,14 @@ import java.io.Serializable;
  *
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/23 09:07:11 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/24 06:07:35 $
  */
 public final class InvocationType implements Serializable {
     private static final String INVOCATION_TYPE_KEY = "INVOCATION_TYPE_KEY";
 
-    // Be careful here.  If you change the oridnals, this class must be changed on evey client.
-    private static int MAX_ORIDNAL = 3;
-    private static final InvocationType[] values = new InvocationType[MAX_ORIDNAL + 1];
+    // Be careful here.  If you change the ordinals, this class must be changed on evey client.
+    private static int MAX_ORDINAL = 3;
+    private static final InvocationType[] values = new InvocationType[MAX_ORDINAL + 1];
     public static final InvocationType REMOTE = new InvocationType("REMOTE", 0, false, false);
     public static final InvocationType HOME = new InvocationType("HOME", 1, false, true);
     public static final InvocationType LOCAL = new InvocationType("LOCAL", 2, true, false);
@@ -89,7 +89,7 @@ public final class InvocationType implements Serializable {
     private final int ordinal;
 
     private InvocationType(String name, int ordinal, boolean local, boolean home) {
-        assert ordinal < MAX_ORIDNAL;
+        assert ordinal < MAX_ORDINAL;
         assert values[ordinal] == null;
         this.name = name;
         this.local = local;

@@ -66,12 +66,12 @@ import org.apache.geronimo.common.Invocation;
  *
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/23 09:07:11 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/24 06:07:36 $
  */
 public final class EJBContainerUtil implements Serializable {
-    // Be careful here.  If you change the oridnals, this class must be changed on evey client.
-    private static int MAX_ORIDNAL = 4;
-    private static final EJBContainerUtil[] values = new EJBContainerUtil[MAX_ORIDNAL + 1];
+    // Be careful here.  If you change the ordinals, this class must be changed on evey client.
+    private static int MAX_ORDINAL = 4;
+    private static final EJBContainerUtil[] values = new EJBContainerUtil[MAX_ORDINAL + 1];
     private static final EJBContainerUtil METHOD = new EJBContainerUtil("METHOD", 0);
     private static final EJBContainerUtil ID = new EJBContainerUtil("ID", 1);
     private static final EJBContainerUtil ARGUMENTS = new EJBContainerUtil("ARGUMENTS", 2);
@@ -122,7 +122,7 @@ public final class EJBContainerUtil implements Serializable {
     private final int ordinal;
 
     private EJBContainerUtil(String name, int ordinal) {
-        assert ordinal < MAX_ORIDNAL;
+        assert ordinal < MAX_ORDINAL;
         assert values[ordinal] == null;
         this.name = name;
         this.ordinal = ordinal;

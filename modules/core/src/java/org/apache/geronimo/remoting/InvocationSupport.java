@@ -59,13 +59,13 @@ import java.io.Serializable;
 import java.net.URI;
 import org.apache.geronimo.common.Invocation;
 /**
- * @version $Revision: 1.2 $ $Date: 2003/08/23 09:07:12 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/24 06:07:36 $
  */
 public final class InvocationSupport implements Serializable {
 
-    // Be careful here.  If you change the oridnals, this class must be changed on evey client.
-    private static int MAX_ORIDNAL = 3;
-    private static final InvocationSupport[] values = new InvocationSupport[MAX_ORIDNAL + 1];
+    // Be careful here.  If you change the ordinals, this class must be changed on evey client.
+    private static int MAX_ORDINAL = 3;
+    private static final InvocationSupport[] values = new InvocationSupport[MAX_ORDINAL + 1];
     private static final InvocationSupport MARSAHLLED_VALUE = new InvocationSupport("MARSHALED_VALUE", 0);
     private static final InvocationSupport REMOTE_URI = new InvocationSupport("REMOTE_URI", 1);
     private static final InvocationSupport INVOCATION_TYPE = new InvocationSupport("INVOCATION_TYPE", 2);
@@ -92,7 +92,7 @@ public final class InvocationSupport implements Serializable {
     private final int ordinal;
 
     private InvocationSupport(String name, int ordinal) {
-        assert ordinal < MAX_ORIDNAL;
+        assert ordinal < MAX_ORDINAL;
         assert values[ordinal] == null;
         this.name = name;
         this.ordinal = ordinal;

@@ -57,13 +57,13 @@ package org.apache.geronimo.remoting;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 /**
- * @version $Revision: 1.2 $ $Date: 2003/08/23 09:07:12 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/24 06:07:36 $
  */
 public final class InvocationType implements Serializable {
 
-    // Be careful here.  If you change the oridnals, this class must be changed on evey client.
-    private static int MAX_ORIDNAL = 2;
-    private static final InvocationType[] values = new InvocationType[MAX_ORIDNAL + 1];
+    // Be careful here.  If you change the ordinals, this class must be changed on evey client.
+    private static int MAX_ORDINAL = 2;
+    private static final InvocationType[] values = new InvocationType[MAX_ORDINAL + 1];
     public static final InvocationType REQUEST = new InvocationType("REQUEST", 0);
     public static final InvocationType DATAGRAM = new InvocationType("DATAGRAM", 1);
 
@@ -71,7 +71,7 @@ public final class InvocationType implements Serializable {
     private final int ordinal;
 
     private InvocationType(String name, int ordinal) {
-        assert ordinal < MAX_ORIDNAL;
+        assert ordinal < MAX_ORDINAL;
         assert values[ordinal] == null;
         this.name = name;
         this.ordinal = ordinal;

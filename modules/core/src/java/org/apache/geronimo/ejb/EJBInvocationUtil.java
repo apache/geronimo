@@ -66,12 +66,12 @@ import org.apache.geronimo.common.Invocation;
  *
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/23 09:07:11 $
+ * @version $Revision: 1.5 $ $Date: 2003/08/24 06:07:36 $
  */
 public final class EJBInvocationUtil implements Serializable {
-    // Be careful here.  If you change the oridnals, this class must be changed on evey client.
-    private static int MAX_ORIDNAL = 5;
-    private static final EJBInvocationUtil[] values = new EJBInvocationUtil[MAX_ORIDNAL + 1];
+    // Be careful here.  If you change the ordinals, this class must be changed on evey client.
+    private static int MAX_ORDINAL = 5;
+    private static final EJBInvocationUtil[] values = new EJBInvocationUtil[MAX_ORDINAL + 1];
     private static final EJBInvocationUtil METHOD = new EJBInvocationUtil("METHOD", 0);
     private static final EJBInvocationUtil ID = new EJBInvocationUtil("ID", 1);
     private static final EJBInvocationUtil ARGUMENTS = new EJBInvocationUtil("ARGUMENTS", 2);
@@ -131,7 +131,7 @@ public final class EJBInvocationUtil implements Serializable {
     private final int ordinal;
 
     private EJBInvocationUtil(String name, int ordinal) {
-        assert ordinal < MAX_ORIDNAL;
+        assert ordinal < MAX_ORDINAL;
         assert values[ordinal] == null;
         this.name = name;
         this.ordinal = ordinal;
