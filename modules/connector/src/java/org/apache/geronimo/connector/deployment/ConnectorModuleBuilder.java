@@ -19,6 +19,7 @@ package org.apache.geronimo.connector.deployment;
 import java.beans.PropertyEditor;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.jar.JarEntry;
@@ -57,6 +59,7 @@ import org.apache.geronimo.connector.outbound.connectionmanagerconfig.XATransact
 import org.apache.geronimo.connector.outbound.security.PasswordCredentialRealm;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.service.GBeanHelper;
+import org.apache.geronimo.deployment.util.FileUtil;
 import org.apache.geronimo.gbean.DynamicGAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
@@ -66,6 +69,7 @@ import org.apache.geronimo.j2ee.deployment.ConnectorModule;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
+import org.apache.geronimo.j2ee.deployment.ModuleBuilderWithUnpack;
 import org.apache.geronimo.xbeans.geronimo.GerAdminobjectInstanceType;
 import org.apache.geronimo.xbeans.geronimo.GerAdminobjectType;
 import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
@@ -93,14 +97,13 @@ import org.apache.geronimo.xbeans.j2ee.connector_1_0.ResourceadapterType10;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 
 /**
- * @version $Revision: 1.9 $ $Date: 2004/07/18 22:04:26 $
+ * @version $Revision: 1.10 $ $Date: 2004/07/23 06:06:19 $
  */
-public class ConnectorModuleBuilder implements ModuleBuilder {
+public class ConnectorModuleBuilder implements ModuleBuilderWithUnpack {
 
     private static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderUnion(new SchemaTypeLoader[]{
         XmlBeans.typeLoaderForClassLoader(org.apache.geronimo.xbeans.j2ee.String.class.getClassLoader()),
@@ -169,6 +172,80 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
         return configID;
     }
 
+    public void installModule(File earFolder, EARContext earContext, Module module) throws DeploymentException {
+        try {
+            File connectorFolder = new File(earFolder, module.getURI().toString());
+            URI connectorFolderURI = connectorFolder.toURI();
+            URI moduleBase;
+            if ( !module.getURI().equals(URI.create("/")) ) {
+                moduleBase = URI.create(module.getURI().toString() + "/");
+            } else {
+                moduleBase = URI.create("connector/");
+            }
+
+            XmlObject specConnnector = null;
+            GerConnectorType vendorConnector = (GerConnectorType) module.getVendorDD();
+            
+            Collection files = new ArrayList();
+            FileUtil.listRecursiveFiles(connectorFolder, files);
+            for (Iterator iter = files.iterator(); iter.hasNext();) {
+                File file = (File) iter.next();
+                URI fileURI = connectorFolderURI.relativize(file.toURI());
+                URI target = moduleBase.resolve(fileURI);
+                if ( fileURI.toString().equals("META-INF/ra.xml") ) {
+                    earContext.addFile(target, file);
+                    try {
+                        // try 1.0
+                        ConnectorDocument10 connectorDoc = ConnectorDocument10.Factory.parse(new FileInputStream(file));
+                        SchemaConversionUtils.validateDD(connectorDoc);
+                        specConnnector = connectorDoc.getConnector();
+                    } catch (XmlException ignore) {
+                        // that didn't work try 1.5
+                        try {
+                            ConnectorDocument connectorDoc = ConnectorDocument.Factory.parse(new FileInputStream(file));
+                            SchemaConversionUtils.validateDD(connectorDoc);
+                            specConnnector = connectorDoc.getConnector();
+                        } catch (XmlException alsoIgnore) {
+                            throw new DeploymentException("Could not parse META-INF/ra.xml");
+                        }
+                    }
+                } else if (module.getVendorDD() == null && fileURI.toString().equals("META-INF/geronimo-ra.xml") ) {
+                    earContext.addFile(target, file);
+                    GerConnectorDocument vendorConnectorDoc;
+                    try {
+                        vendorConnectorDoc = GerConnectorDocument.Factory.parse(new FileInputStream(file));
+                        SchemaConversionUtils.validateDD(vendorConnectorDoc);
+                    } catch (XmlException e) {
+                        throw new DeploymentException("Unable to parse geronimo-ra.xml");
+                    }
+                    vendorConnector = vendorConnectorDoc.getConnector();
+                } else if (file.getName().endsWith(".jar")) {
+                    earContext.addInclude(target, file.toURL());
+                } else {
+                    earContext.addFile(target, file);
+                }
+            }
+
+            if (specConnnector == null) {
+                throw new DeploymentException("Did not find META-INF/ra.xml in module");
+            }
+            module.setSpecDD(specConnnector);
+            if (vendorConnector == null) {
+                throw new DeploymentException("Did not find META-INF/geronimo-ra.xml in module");
+            }
+            module.setVendorDD(vendorConnector);
+
+            if (vendorConnector != null) {
+                GerDependencyType[] dependencies = vendorConnector.getDependencyArray();
+                for (int i = 0; i < dependencies.length; i++) {
+                    earContext.addDependency(getDependencyURI(dependencies[i]));
+                }
+            }
+        } catch (IOException e) {
+            throw new DeploymentException("Problem deploying connector", e);
+        }
+    }
+    
     public void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException {
         try {
             URI moduleBase = null;
@@ -808,6 +885,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(ConnectorModuleBuilder.class);
         infoFactory.addInterface(ModuleBuilder.class);
+        infoFactory.addInterface(ModuleBuilderWithUnpack.class);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

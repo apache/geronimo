@@ -21,11 +21,12 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.FileOutputStream;
+import java.util.Collection;
 
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:49 $
+ * @version $Revision: 1.5 $ $Date: 2004/07/23 06:06:19 $
  */
 public class FileUtil {
 
@@ -62,5 +63,16 @@ public class FileUtil {
             }
         }
         root.delete();
+    }
+
+    public static void listRecursiveFiles(File aFile, Collection aColl) {
+        File[] files = aFile.listFiles();
+        for (int i = 0; i < files.length; i++) {
+            if ( files[i].isFile() ) {
+                aColl.add(files[i]);
+            } else {
+                listRecursiveFiles(files[i], aColl);
+            }
+        }
     }
 }

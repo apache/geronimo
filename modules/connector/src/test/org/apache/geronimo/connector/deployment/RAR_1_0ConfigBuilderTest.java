@@ -38,6 +38,7 @@ import javax.management.ObjectName;
 import javax.sql.DataSource;
 
 import junit.framework.TestCase;
+
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARContext;
@@ -57,7 +58,7 @@ import org.apache.xmlbeans.XmlOptions;
 import org.tranql.sql.jdbc.JDBCUtil;
 
 /**
- * @version $Revision: 1.11 $ $Date: 2004/07/22 03:22:53 $
+ * @version $Revision: 1.12 $ $Date: 2004/07/23 06:06:19 $
  */
 public class RAR_1_0ConfigBuilderTest extends TestCase {
     private URL j2eeDD;
@@ -84,7 +85,36 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
 
     }
 
-    public void testBuildModule() throws Exception {
+    public void testBuildUnpackedModule() throws Exception {
+        InstallAction action = new InstallAction() {
+            private File rarFile = new File("target/test-rar-10");
+            public File getRARFile() {
+                return rarFile;
+            }
+            public void install(ModuleBuilder moduleBuilder, EARContext earContext, Module module) throws Exception {
+                // TODO gets rid of this cast when all the ModuleBuilder
+                // will implement this method.
+                ((ConnectorModuleBuilder) moduleBuilder).installModule(rarFile, earContext, module);
+            }
+        };
+        executeTestBuildModule(action);
+    }
+    
+    
+    public void testBuildPackedModule() throws Exception {
+        InstallAction action = new InstallAction() {
+            private File rarFile = new File("target/test-rar-10.rar");
+            public File getRARFile() {
+                return rarFile;
+            }
+            public void install(ModuleBuilder moduleBuilder, EARContext earContext, Module module) throws Exception {
+                moduleBuilder.installModule(new JarFile(rarFile), earContext, module);
+            }
+        };
+        executeTestBuildModule(action);
+    }
+
+    private void executeTestBuildModule(InstallAction action) throws Exception {
         String j2eeDomainName = "geronimo.server";
         String j2eeServerName = "TestGeronimoServer";
         String j2eeApplicationName = "null";
@@ -92,7 +122,7 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
         ObjectName connectionTrackerName = new ObjectName("geronimo.connector:service=ConnectionTracker");
 
         ModuleBuilder moduleBuilder = new ConnectorModuleBuilder();
-        File rarFile = new File("target/test-rar-10.rar");
+        File rarFile = action.getRARFile();
 
         ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
         ClassLoader cl = new URLClassLoader(new URL[]{rarFile.toURL()}, oldCl);
@@ -121,7 +151,7 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
                     null,
                     null);
 
-            moduleBuilder.installModule(new JarFile(rarFile), earContext, module);
+            action.install(moduleBuilder, earContext, module);
             earContext.getClassLoader(null);
             moduleBuilder.initContext(earContext, module, cl);
             moduleBuilder.addGBeans(earContext, module, cl);
@@ -136,7 +166,7 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
             carFile.delete();
         }
     }
-
+    
     private void verifyDeployment(File unpackedDir, ClassLoader cl, String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, String j2eeModuleName) throws Exception {
         DataSource ds = null;
         Kernel kernel = null;
@@ -295,4 +325,10 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
         errors = new ArrayList();
         xmlOptions.setErrorListener(errors);
     }
+
+    private interface InstallAction {
+        public File getRARFile();
+        public void install(ModuleBuilder moduleBuilder, EARContext earContext, Module module) throws Exception;
+    }
+
 }

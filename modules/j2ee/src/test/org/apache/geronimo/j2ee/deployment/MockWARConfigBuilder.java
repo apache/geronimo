@@ -16,6 +16,7 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
+import java.io.File;
 import java.net.URI;
 import java.net.URL;
 import java.util.jar.JarFile;
@@ -26,9 +27,9 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.SchemaTypeLoader;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/07/18 22:04:27 $
+ * @version $Revision: 1.3 $ $Date: 2004/07/23 06:06:19 $
  */
-public class MockWARConfigBuilder extends Assert implements ModuleBuilder {
+public class MockWARConfigBuilder extends Assert implements ModuleBuilderWithUnpack {
     public EARContext earContext;
     public WebModule webModule;
     public ClassLoader cl;
@@ -54,6 +55,14 @@ public class MockWARConfigBuilder extends Assert implements ModuleBuilder {
         return null;
     }
 
+    public void installModule(File earFolder, EARContext earContext,
+        Module module) throws DeploymentException {
+        assertNotNull(earFolder);
+        assertNotNull(earContext);
+        this.earContext = earContext;
+        assertEquals(this.webModule, webModule);
+    }
+    
     public void installModule(JarFile earFile, EARContext earContext, Module webModule) throws DeploymentException {
         assertNotNull(earFile);
         assertNotNull(earContext);

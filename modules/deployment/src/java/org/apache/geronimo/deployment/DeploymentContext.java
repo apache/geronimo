@@ -18,6 +18,7 @@
 package org.apache.geronimo.deployment;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
@@ -51,7 +52,7 @@ import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Repository;
 
 /**
- * @version $Revision: 1.14 $ $Date: 2004/07/22 03:22:53 $
+ * @version $Revision: 1.15 $ $Date: 2004/07/23 06:06:19 $
  */
 public class DeploymentContext {
     private final URI configID;
@@ -170,10 +171,7 @@ public class DeploymentContext {
         }
     }
 
-    //This method was once public.  It appears to be useless in most cases so I made it private.
-    //Deploying from a stream (usual jsr 88 case) there is no URL to map unless the stream
-    //contents are copied to a temp file.
-    private void addToClassPath(URI path, URL url) {
+    protected void addToClassPath(URI path, URL url) {
         classPath.add(path);
         includes.put(path, url);
     }
@@ -225,6 +223,15 @@ public class DeploymentContext {
         }
     }
 
+    public void addFile(URI path, File source) throws IOException {
+        InputStream in = new FileInputStream(source);
+        try {
+            addFile(path, in);
+        } finally {
+            in.close();
+        }
+    }
+    
     public void addFile(URI path, InputStream source) throws IOException {
         JarOutputStream jos = getJos();
         jos.putNextEntry(new ZipEntry(path.getPath()));

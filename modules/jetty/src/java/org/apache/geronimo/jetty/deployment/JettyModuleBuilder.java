@@ -19,6 +19,7 @@ package org.apache.geronimo.jetty.deployment;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,9 +27,11 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -45,12 +48,14 @@ import javax.transaction.UserTransaction;
 import org.apache.geronimo.common.xml.XmlBeansUtil;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.service.GBeanHelper;
+import org.apache.geronimo.deployment.util.FileUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
+import org.apache.geronimo.j2ee.deployment.ModuleBuilderWithUnpack;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.jetty.JettyWebAppContext;
 import org.apache.geronimo.jetty.JettyWebAppJACCContext;
@@ -89,9 +94,9 @@ import org.apache.xmlbeans.XmlBeans;
 
 
 /**
- * @version $Revision: 1.15 $ $Date: 2004/07/18 22:04:27 $
+ * @version $Revision: 1.16 $ $Date: 2004/07/23 06:06:19 $
  */
-public class JettyModuleBuilder implements ModuleBuilder {
+public class JettyModuleBuilder implements ModuleBuilderWithUnpack {
     static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderUnion(new SchemaTypeLoader[] {
         XmlBeans.typeLoaderForClassLoader(org.apache.geronimo.xbeans.j2ee.String.class.getClassLoader()),
         XmlBeans.typeLoaderForClassLoader(JettyWebAppDocument.class.getClassLoader())
@@ -188,6 +193,70 @@ public class JettyModuleBuilder implements ModuleBuilder {
         return module;
     }
 
+    public void installModule(File earFolder, EARContext earContext,
+        Module webModule) throws DeploymentException {
+        try {
+            File webFolder = new File(earFolder, webModule.getURI().toString());
+            URI warRoot = webFolder.toURI();
+            URI moduleBase;
+            if ( !webModule.getURI().equals(URI.create("/")) ) {
+                moduleBase = URI.create(webModule.getURI().toString() + "/");
+            } else {
+                moduleBase = URI.create("war/");
+            }
+
+            WebAppType webApp = null;
+            JettyWebAppType jettyWebApp = (JettyWebAppType) webModule.getVendorDD();
+
+            // add the warfile's content to the configuration
+            Collection files = new ArrayList();
+            FileUtil.listRecursiveFiles(webFolder, files);
+            for (Iterator iter = files.iterator(); iter.hasNext();) {
+                File file = (File) iter.next();
+                URI fileURI = warRoot.relativize(file.toURI());
+                URI target = moduleBase.resolve(fileURI);
+                if (fileURI.toString().equals("WEB-INF/web.xml")) {
+                    earContext.addFile(target, file);
+                    try {
+                        XmlObject dd = SchemaConversionUtils.parse(new FileInputStream(file));
+                        WebAppDocument doc = SchemaConversionUtils.convertToServletSchema(dd);
+                        webApp = doc.getWebApp();
+                    } catch (XmlException e) {
+                        throw new DeploymentException("Unable to parse web.xml", e);
+                    }
+                } else if (jettyWebApp == null && fileURI.toString().equals("WEB-INF/geronimo-jetty.xml")) {
+                    earContext.addFile(target, file);
+                    try {
+                        JettyWebAppDocument doc = (JettyWebAppDocument) XmlBeansUtil.parse(new FileInputStream(file), JettyWebAppDocument.type);
+                        jettyWebApp = doc.getWebApp();
+                    } catch (XmlException e) {
+                        throw new DeploymentException("Unable to parse geronimo-jetty.xml", e);
+                    }
+                } else {
+                    earContext.addFile(target, file);
+                }
+            }
+
+            if (webApp == null) {
+                throw new DeploymentException("Did not find WEB-INF/web.xml in module");
+            }
+            webModule.setSpecDD(webApp);
+
+            if (jettyWebApp == null) {
+                throw new DeploymentException("No plan or WEB-INF/jetty-web.xml found");
+            }
+            webModule.setVendorDD(jettyWebApp);
+
+            // add the dependencies declared in the geronimo-jetty.xml file
+            JettyDependencyType[] dependencies = jettyWebApp.getDependencyArray();
+            for (int i = 0; i < dependencies.length; i++) {
+                earContext.addDependency(getDependencyURI(dependencies[i]));
+            }
+        } catch (IOException e) {
+            throw new DeploymentException("Problem deploying war", e);
+        }
+    }
+    
     public void installModule(JarFile earFile, EARContext earContext, Module webModule) throws DeploymentException {
         try {
             URI warRoot = null;
@@ -590,6 +659,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(JettyModuleBuilder.class);
         infoFactory.addInterface(ModuleBuilder.class);
+        infoFactory.addInterface(ModuleBuilderWithUnpack.class);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
