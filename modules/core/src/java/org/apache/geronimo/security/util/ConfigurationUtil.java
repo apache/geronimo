@@ -89,7 +89,7 @@ import org.apache.geronimo.security.GeronimoSecurityException;
  * A collection of utility functions that assist with the configuration of
  * <code>PolicyConfiguration</code>s.
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/03 01:09:31 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/04 22:52:28 $
  * @see javax.security.jacc.PolicyConfiguration
  *  @see "JSR 115" Java Authorization Contract for Containers
  */
@@ -342,17 +342,19 @@ public class ConfigurationUtil {
         /**
          * Section 3.1.5.2
          */
-        Method[] methods = excludeList.getMethod();
-        try {
-            for (int i = 0; i < methods.length; i++) {
-                EJBMethodPermission permission = new EJBMethodPermission(methods[i].getEjbName(),
-                        methods[i].getMethodName(),
-                        methods[i].getMethodIntf(),
-                        methods[i].getMethodParam());
-                configuration.addToExcludedPolicy(permission);
+        if (excludeList != null) {
+            Method[] methods = excludeList.getMethod();
+            try {
+                for (int i = 0; i < methods.length; i++) {
+                    EJBMethodPermission permission = new EJBMethodPermission(methods[i].getEjbName(),
+                            methods[i].getMethodName(),
+                            methods[i].getMethodIntf(),
+                            methods[i].getMethodParam());
+                    configuration.addToExcludedPolicy(permission);
+                }
+            } catch (PolicyContextException e) {
+                throw new GeronimoSecurityException(e);
             }
-        } catch (PolicyContextException e) {
-            throw new GeronimoSecurityException(e);
         }
 
         /**
