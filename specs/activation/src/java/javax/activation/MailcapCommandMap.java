@@ -279,19 +279,19 @@ public class MailcapCommandMap extends CommandMap {
 
         // search for an exact match
         Map commands = (Map) preferredCommands.get(mimeType.toLowerCase());
-        if(commands != null) {
-            return (CommandInfo) commands.get(cmdName.toLowerCase());
+        if (commands == null) {
+            i = mimeType.indexOf('/');
+            if (i == -1) {
+                mimeType = mimeType + "/*";
+            } else {
+                mimeType = mimeType.substring(0, i + 1) + "*";
+            }
+            commands = (Map) preferredCommands.get(mimeType.toLowerCase());
         }
-        i = mimeType.indexOf('/');
-        if (i == -1) {
-            mimeType = mimeType + "/*";
-        } else {
-            mimeType = mimeType.substring(0, i + 1) + "*";
+        if (commands == null) {
+            return null;
         }
-        commands = (Map) preferredCommands.get(mimeType.toLowerCase());
-        if(commands != null)
-            return (CommandInfo) commands.get(cmdName.toLowerCase());
-        return null;
+        return (CommandInfo) commands.get(cmdName.toLowerCase());
     }
 
     public synchronized DataContentHandler createDataContentHandler(String mimeType) {
