@@ -56,12 +56,11 @@
 
 package org.apache.geronimo.connector.outbound;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.resource.spi.ConnectionEvent;
 import javax.resource.spi.ConnectionEventListener;
-import javax.transaction.Synchronization;
 
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
@@ -79,43 +78,43 @@ public class GeronimoConnectionEventListener
 
     private static Log log = LogFactory.getLog(GeronimoConnectionEventListener.class.getName());
 
-    private final ManagedConnectionInfo mci;
+    private final ManagedConnectionInfo managedConnectionInfo;
     private final ConnectionInterceptor stack;
-    private final Set connectionHandles = new HashSet();
+    private final List connectionInfos = new ArrayList();
 
     public GeronimoConnectionEventListener(
             final ConnectionInterceptor stack,
-            final ManagedConnectionInfo mci) {
+            final ManagedConnectionInfo managedConnectionInfo) {
         this.stack = stack;
-        this.mci = mci;
+        this.managedConnectionInfo = managedConnectionInfo;
     }
 
     public void connectionClosed(ConnectionEvent connectionEvent) {
-        if (connectionEvent.getSource() != mci.getManagedConnection()) {
+        if (connectionEvent.getSource() != managedConnectionInfo.getManagedConnection()) {
             throw new IllegalArgumentException(
                     "ConnectionClosed event received from wrong ManagedConnection. Expected "
-                    + mci.getManagedConnection()
+                    + managedConnectionInfo.getManagedConnection()
                     + ", actual "
                     + connectionEvent.getSource());
         }
         if (log.isTraceEnabled()) {
             log.trace("connectionClosed called with " + connectionEvent.getConnectionHandle());
         }
-        ConnectionInfo ci = new ConnectionInfo(mci);
+        ConnectionInfo ci = new ConnectionInfo(managedConnectionInfo);
         ci.setConnectionHandle(connectionEvent.getConnectionHandle());
         stack.returnConnection(ci, ConnectionReturnAction.RETURN_HANDLE);
     }
 
     public void connectionErrorOccurred(ConnectionEvent connectionEvent) {
-        if (connectionEvent.getSource() != mci.getManagedConnection()) {
+        if (connectionEvent.getSource() != managedConnectionInfo.getManagedConnection()) {
             throw new IllegalArgumentException(
                     "ConnectionError event received from wrong ManagedConnection. Expected "
-                    + mci.getManagedConnection()
+                    + managedConnectionInfo.getManagedConnection()
                     + ", actual "
                     + connectionEvent.getSource());
         }
         log.info("connectionErrorOccurred called with " + connectionEvent.getConnectionHandle(),connectionEvent.getException());
-        ConnectionInfo ci = new ConnectionInfo(mci);
+        ConnectionInfo ci = new ConnectionInfo(managedConnectionInfo);
         ci.setConnectionHandle(connectionEvent.getConnectionHandle());
         stack.returnConnection(ci, ConnectionReturnAction.DESTROY);
     }
@@ -142,20 +141,30 @@ public class GeronimoConnectionEventListener
     public void localTransactionRolledback(ConnectionEvent event) {
     }
 
-    public void addConnectionHandle(Object handle) {
-        connectionHandles.add(handle);
+    public void addConnectionInfo(ConnectionInfo connectionInfo) {
+        assert connectionInfo.getConnectionHandle() != null;
+        connectionInfos.add(connectionInfo);
     }
 
-    public void removeConnectionHandle(Object handle) {
-        connectionHandles.remove(handle);
+    public void removeConnectionInfo(ConnectionInfo connectionInfo) {
+        assert connectionInfo.getConnectionHandle() != null;
+        connectionInfos.remove(connectionInfo);
     }
 
-    public boolean hasConnectionHandles() {
-        return !connectionHandles.isEmpty();
+    public boolean hasConnectionInfos() {
+        return !connectionInfos.isEmpty();
     }
 
-    public void clearConnectionHandles() {
-        connectionHandles.clear();
+    public void clearConnectionInfos() {
+        connectionInfos.clear();
+    }
+
+    public boolean hasConnectionInfo(ConnectionInfo connectionInfo) {
+        return connectionInfos.contains(connectionInfo);
+    }
+
+    public boolean isFirstConnectionInfo(ConnectionInfo connectionInfo) {
+        return !connectionInfos.isEmpty() && connectionInfos.get(0) == connectionInfo;
     }
 
 }

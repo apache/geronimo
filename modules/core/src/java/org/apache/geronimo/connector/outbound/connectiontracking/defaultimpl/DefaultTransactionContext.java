@@ -73,7 +73,7 @@ import org.apache.geronimo.connector.outbound.ConnectionReleaser;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/12/09 04:13:20 $
+ * @version $Revision: 1.2 $ $Date: 2003/12/13 23:33:54 $
  *
  * */
 public class DefaultTransactionContext implements ConnectorTransactionContext, Synchronization {
@@ -122,6 +122,10 @@ public class DefaultTransactionContext implements ConnectorTransactionContext, S
         } catch (SystemException e) {
             return false; //this is doubtful
         }
+    }
+
+    public Transaction getTransaction() {
+        return transaction;
     }
 
     public void beforeCompletion() {

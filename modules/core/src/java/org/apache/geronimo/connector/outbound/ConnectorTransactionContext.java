@@ -1,5 +1,6 @@
 package org.apache.geronimo.connector.outbound;
 
+import javax.transaction.Transaction;
 
 
 /**
@@ -12,7 +13,7 @@ package org.apache.geronimo.connector.outbound;
  *
  * The TransactionContext implementation is responsible for notifying all keys after completion.
  *
- * @version $Revision: 1.1 $ $Date: 2003/12/09 04:15:20 $
+ * @version $Revision: 1.2 $ $Date: 2003/12/13 23:33:53 $
  *
  * */
 public interface ConnectorTransactionContext {
@@ -22,5 +23,7 @@ public interface ConnectorTransactionContext {
     ManagedConnectionInfo getManagedConnectionInfo(ConnectionReleaser key);
 
     boolean isActive();
+
+    Transaction getTransaction();
 
 }

@@ -68,7 +68,7 @@ import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrack
  * TODO test unshareable resources.
  * TODO test repeat calls with null/non-null Subject
  *
- * @version $Revision: 1.2 $ $Date: 2003/12/10 07:48:12 $
+ * @version $Revision: 1.3 $ $Date: 2003/12/13 23:33:54 $
  *
  * */
 public class ConnectionTrackingInterceptorTest extends ConnectionManagerTestUtils
@@ -198,6 +198,7 @@ public class ConnectionTrackingInterceptorTest extends ConnectionManagerTestUtil
         managedConnectionInfo.setConnectionEventListener(new GeronimoConnectionEventListener(null, managedConnectionInfo));
         managedConnectionInfo.setSubject(subject);
         managedConnectionInfo.setManagedConnection(managedConnection);
+        managedConnectionInfo.addConnectionHandle(connectionInfo);
     }
 
 }

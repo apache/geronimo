@@ -57,6 +57,7 @@
 package org.apache.geronimo.connector.outbound;
 
 import javax.resource.ResourceException;
+import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
@@ -67,14 +68,13 @@ import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/12/10 07:48:12 $
+ * @version $Revision: 1.3 $ $Date: 2003/12/13 23:33:54 $
  *
  * */
 public class TransactionEnlistingInterceptorTest extends ConnectionManagerTestUtils
     implements XAResource {
 
     private TransactionEnlistingInterceptor transactionEnlistingInterceptor;
-    private TransactionManager transactionManager;
     private boolean started;
     private boolean ended;
     private boolean returned;
@@ -82,13 +82,11 @@ public class TransactionEnlistingInterceptorTest extends ConnectionManagerTestUt
 
     protected void setUp() throws Exception {
         super.setUp();
-        transactionManager = new TransactionManagerImpl();
-        transactionEnlistingInterceptor = new TransactionEnlistingInterceptor(this, transactionManager);
+        transactionEnlistingInterceptor = new TransactionEnlistingInterceptor(this);
     }
 
     protected void tearDown() throws Exception {
         super.tearDown();
-        transactionManager = null;
         transactionEnlistingInterceptor = null;
         started = false;
         ended = false;
@@ -97,7 +95,7 @@ public class TransactionEnlistingInterceptorTest extends ConnectionManagerTestUt
     }
 
     public void testNoTransaction() throws Exception {
-        ConnectionInfo connectionInfo = makeConnectionInfo();
+        ConnectionInfo connectionInfo = makeConnectionInfo(null);
         transactionEnlistingInterceptor.getConnection(connectionInfo);
         assertTrue("Expected not started", !started);
         assertTrue("Expected not ended", !ended);
@@ -107,8 +105,10 @@ public class TransactionEnlistingInterceptorTest extends ConnectionManagerTestUt
     }
 
     public void testTransaction() throws Exception {
-        ConnectionInfo connectionInfo = makeConnectionInfo();
+        TransactionManager transactionManager = new TransactionManagerImpl();
         transactionManager.begin();
+        Transaction transaction = transactionManager.getTransaction();
+        ConnectionInfo connectionInfo = makeConnectionInfo(transaction);
         transactionEnlistingInterceptor.getConnection(connectionInfo);
         assertTrue("Expected started", started);
         assertTrue("Expected not ended", !ended);

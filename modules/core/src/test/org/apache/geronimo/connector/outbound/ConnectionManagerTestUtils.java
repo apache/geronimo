@@ -68,14 +68,17 @@ import javax.resource.spi.ConnectionEventListener;
 import javax.resource.spi.LocalTransaction;
 import javax.resource.spi.ManagedConnectionMetaData;
 import javax.resource.spi.DissociatableManagedConnection;
+import javax.transaction.Transaction;
 import javax.transaction.xa.XAResource;
 
 import junit.framework.TestCase;
 
+import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.DefaultTransactionContext;
+
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/12/10 07:48:12 $
+ * @version $Revision: 1.2 $ $Date: 2003/12/13 23:33:54 $
  *
  * */
 public class ConnectionManagerTestUtils extends TestCase implements SecurityDomain, ConnectionInterceptor {
@@ -121,6 +124,13 @@ public class ConnectionManagerTestUtils extends TestCase implements SecurityDoma
 
     protected ConnectionInfo makeConnectionInfo() {
         ManagedConnectionInfo managedConnectionInfo = new ManagedConnectionInfo(null, null);
+        return new ConnectionInfo(managedConnectionInfo);
+    }
+
+    protected ConnectionInfo makeConnectionInfo(Transaction transaction) throws Exception {
+        DefaultTransactionContext transactionContext = new DefaultTransactionContext(transaction);
+        ManagedConnectionInfo managedConnectionInfo = new ManagedConnectionInfo(null, null);
+        managedConnectionInfo.setTransactionContext(transactionContext);
         return new ConnectionInfo(managedConnectionInfo);
     }
 

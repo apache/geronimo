@@ -60,7 +60,6 @@ import javax.resource.spi.ConnectionRequestInfo;
 import javax.resource.spi.ManagedConnection;
 import javax.resource.spi.ManagedConnectionFactory;
 import javax.security.auth.Subject;
-import javax.transaction.Transaction;
 import javax.transaction.xa.XAResource;
 
 /**
@@ -73,11 +72,11 @@ import javax.transaction.xa.XAResource;
  */
 public class ManagedConnectionInfo {
 
-    private ManagedConnectionFactory mcf;
-    private ConnectionRequestInfo cri;
+    private ManagedConnectionFactory managedConnectionFactory;
+    private ConnectionRequestInfo connectionRequestInfo;
     private Subject subject;
-    private Transaction tx;
-    private ManagedConnection mc;
+    private ConnectorTransactionContext transactionContext;
+    private ManagedConnection managedConnection;
     private XAResource xares;
     private long lastUsed;
     private ConnectionInterceptor poolInterceptor;
@@ -85,104 +84,56 @@ public class ManagedConnectionInfo {
     private GeronimoConnectionEventListener listener;
 
     public ManagedConnectionInfo(
-            ManagedConnectionFactory mcf,
-            ConnectionRequestInfo cri) {
-        this.mcf = mcf;
-        this.cri = cri;
-    } // ManagedConnectionInfo constructor
+            ManagedConnectionFactory managedConnectionFactory,
+            ConnectionRequestInfo connectionRequestInfo) {
+        this.managedConnectionFactory = managedConnectionFactory;
+        this.connectionRequestInfo = connectionRequestInfo;
+    }
 
-    /**
-     * Get the Mcf value.
-     * @return the Mcf value.
-     */
     public ManagedConnectionFactory getManagedConnectionFactory() {
-        return mcf;
+        return managedConnectionFactory;
     }
 
-    /**
-     * Set the Mcf value.
-     * @param newMcf The new Mcf value.
-     */
-    public void setManagedConnectionFactory(ManagedConnectionFactory mcf) {
-        this.mcf = mcf;
+    public void setManagedConnectionFactory(ManagedConnectionFactory managedConnectionFactory) {
+        this.managedConnectionFactory = managedConnectionFactory;
     }
 
-    /**
-     * Get the Cri value.
-     * @return the Cri value.
-     */
     public ConnectionRequestInfo getConnectionRequestInfo() {
-        return cri;
+        return connectionRequestInfo;
     }
 
-    /**
-     * Set the Cri value.
-     * @param newCri The new Cri value.
-     */
     public void setConnectionRequestInfo(ConnectionRequestInfo cri) {
-        this.cri = cri;
+        this.connectionRequestInfo = cri;
     }
 
-    /**
-     * Get the Subject value.
-     * @return the Subject value.
-     */
     public Subject getSubject() {
         return subject;
     }
 
-    /**
-     * Set the Subject value.
-     * @param newSubject The new Subject value.
-     */
     public void setSubject(Subject subject) {
         this.subject = subject;
     }
 
-    /**
-     * Get the Tx value.
-     * @return the Tx value.
-     */
-    public Transaction getTransaction() {
-        return tx;
+    public ConnectorTransactionContext getTransactionContext() {
+        return transactionContext;
     }
 
-    /**
-     * Set the Tx value.
-     * @param newTx The new Tx value.
-     */
-    public void setTransaction(Transaction tx) {
-        this.tx = tx;
+    public void setTransactionContext(ConnectorTransactionContext transactionContext) {
+        this.transactionContext = transactionContext;
     }
 
-    /**
-     * Get the Mc value.
-     * @return the Mc value.
-     */
     public ManagedConnection getManagedConnection() {
-        return mc;
+        return managedConnection;
     }
 
-    /**
-     * Set the Mc value.
-     * @param newMc The new Mc value.
-     */
-    public void setManagedConnection(ManagedConnection mc) {
-        this.mc = mc;
+    public void setManagedConnection(ManagedConnection managedConnection) {
+        this.managedConnection = managedConnection;
     }
 
-    /**
-     * Get the Xares value.
-     * @return the Xares value.
-     */
     public XAResource getXAResource() {
         return xares;
     }
 
-    /**
-     * Set the Xares value.
-     * @param newXares The new Xares value.
-     */
     public void setXAResource(XAResource xares) {
         this.xares = xares;
     }
@@ -207,20 +158,20 @@ public class ManagedConnectionInfo {
         this.listener = listener;
     }
 
-    public void addConnectionHandle(Object handle) {
-        listener.addConnectionHandle(handle);
+    public void addConnectionHandle(ConnectionInfo connectionInfo) {
+        listener.addConnectionInfo(connectionInfo);
     }
 
-    public void removeConnectionHandle(Object handle) {
-        listener.removeConnectionHandle(handle);
+    public void removeConnectionHandle(ConnectionInfo connectionInfo) {
+        listener.removeConnectionInfo(connectionInfo);
     }
 
     public boolean hasConnectionHandles() {
-        return listener.hasConnectionHandles();
+        return listener.hasConnectionInfos();
     }
 
     public void clearConnectionHandles() {
-        listener.clearConnectionHandles();
+        listener.clearConnectionInfos();
     }
 
     public boolean securityMatches(ManagedConnectionInfo other) {
@@ -228,9 +179,17 @@ public class ManagedConnectionInfo {
                 subject == null
                 ? other.getSubject() == null
                 : subject.equals(other.getSubject()))
-                && (cri == null
+                && (connectionRequestInfo == null
                 ? other.getConnectionRequestInfo() == null
-                : cri.equals(other.getConnectionRequestInfo()));
+                : connectionRequestInfo.equals(other.getConnectionRequestInfo()));
+    }
+
+    public boolean hasConnectionInfo(ConnectionInfo connectionInfo) {
+        return listener.hasConnectionInfo(connectionInfo);
+    }
+
+    public boolean isFirstConnectionInfo(ConnectionInfo connectionInfo) {
+        return listener.isFirstConnectionInfo(connectionInfo);
     }
 
 }

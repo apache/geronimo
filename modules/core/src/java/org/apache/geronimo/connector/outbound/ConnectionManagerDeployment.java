@@ -57,14 +57,20 @@
 package org.apache.geronimo.connector.outbound;
 
 import javax.management.ObjectName;
+import javax.management.MBeanOperationInfo;
 import javax.resource.ResourceException;
 import javax.resource.spi.ManagedConnectionFactory;
-import javax.transaction.TransactionManager;
 
 import org.apache.geronimo.connector.deployment.ConnectionManagerFactory;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
+import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
+import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
+
 import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
+import org.apache.geronimo.kernel.service.GeronimoMBeanEndpoint;
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
 
 /**
@@ -72,7 +78,7 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
  * and connection manager stack according to the policies described in the attributes.
  * It's used by deserialized copies of the proxy to get a reference to the actual stack.
  *
- * @version $Revision: 1.4 $ $Date: 2003/12/10 07:48:12 $
+ * @version $Revision: 1.5 $ $Date: 2003/12/13 23:33:53 $
  * */
 public class ConnectionManagerDeployment
 
@@ -105,11 +111,6 @@ public class ConnectionManagerDeployment
     private SecurityDomain securityDomain;
 
     /**
-     * The actual TransactionManager we get
-     */
-    private TransactionManager transactionManager;
-
-    /**
      * Identifying string used by unshareable resource detection
      */
     private String jndiName;
@@ -130,12 +131,20 @@ public class ConnectionManagerDeployment
         return true;
     }
 
-    /* (non-Javadoc)
-         * @see org.apache.geronimo.core.service.AbstractStateManageable#doStart()
-         */
+    /**
+     * Order of constructed interceptors:
+     *
+     * ConnectionTrackingInterceptor (connectionTracker != null)
+     * ConnectionHandleInterceptor
+     * TransactionCachingInterceptor (useTransactions & useTransactionCaching)
+     * TransactionEnlistingInterceptor (useTransactions)
+     * SubjectInterceptor (securityDomain != null)
+     * SinglePoolConnectionInterceptor or MultiPoolConnectionInterceptor
+     * LocalXAResourceInsertionInterceptor or XAResourceInsertionInterceptor (useTransactions (&localTransactions))
+     * MCFConnectionInterceptor
+     */
     public void doStart() {
         //check for consistency between attributes
-        useTransactions = (transactionManager != null);
         if (securityDomain == null) {
             assert useSubject == false: "To use Subject in pooling, you need a SecurityDomain";
         }
@@ -151,24 +160,24 @@ public class ConnectionManagerDeployment
         }
         if (useSubject || useConnectionRequestInfo) {
             stack = new MultiPoolConnectionInterceptor(
-                            stack,
-                            maxSize,
-                            blockingTimeout,
-                            useSubject,
-                            useConnectionRequestInfo);
+                    stack,
+                    maxSize,
+                    blockingTimeout,
+                    useSubject,
+                    useConnectionRequestInfo);
         } else {
             stack = new SinglePoolConnectionInterceptor(
-                            stack,
-                            null,
-                            null,
-                            maxSize,
-                            blockingTimeout);
+                    stack,
+                    null,
+                    null,
+                    maxSize,
+                    blockingTimeout);
         }
         if (securityDomain != null) {
             stack = new SubjectInterceptor(stack, securityDomain);
         }
         if (useTransactions) {
-            stack = new TransactionEnlistingInterceptor(stack, transactionManager);
+            stack = new TransactionEnlistingInterceptor(stack);
             if (useTransactionCaching) {
                 stack = new TransactionCachingInterceptor(stack, connectionTracker);
             }
@@ -176,10 +185,10 @@ public class ConnectionManagerDeployment
         stack = new ConnectionHandleInterceptor(stack);
         if (connectionTracker != null) {
             stack = new ConnectionTrackingInterceptor(
-                            stack,
-                            jndiName,
-                            connectionTracker,
-                            securityDomain);
+                    stack,
+                    jndiName,
+                    connectionTracker,
+                    securityDomain);
         }
 
         ObjectName name = JMXUtil.getObjectName(MBEAN_SERVER_DELEGATE);
@@ -202,7 +211,6 @@ public class ConnectionManagerDeployment
     public void doStop() {
         cm = null;
         securityDomain = null;
-        transactionManager = null;
         connectionTracker = null;
 
     }
@@ -210,182 +218,119 @@ public class ConnectionManagerDeployment
     public void doFail() {
     }
 
-    /**
-     * @return
-     * @jmx.managed-attribute
-     */
     public ConnectionInterceptor getStack() {
         return cm.getStack();
     }
 
 
-    /**
-     * @return
-     * @jmx.managed-operation
-     */
     public Object createConnectionFactory(ManagedConnectionFactory mcf) throws ResourceException {
         return mcf.createConnectionFactory(cm);
     }
 
-    /**
-     * @return
-     * @jmx.managed-attribute
-     */
     public int getBlockingTimeout() {
         return blockingTimeout;
     }
 
-    /**
-     * @param blockingTimeout
-     * @jmx.managed-attribute
-     */
     public void setBlockingTimeout(int blockingTimeout) {
         this.blockingTimeout = blockingTimeout;
     }
 
-    /**
-     * @return
-     * @jmx.managed-attribute
-     */
     public ConnectionTracker getConnectionTracker() {
         return connectionTracker;
     }
 
-    /**
-     * @param connectionTracker
-     * @jmx.managed-attribute
-     */
     public void setConnectionTracker(ConnectionTracker connectionTracker) {
         this.connectionTracker = connectionTracker;
     }
 
-    /**
-     * @return
-     * @jmx.managed-attribute
-     */
     public String getJndiName() {
         return jndiName;
     }
 
-    /**
-     * @param jndiName
-     * @jmx.managed-attribute
-     */
     public void setJndiName(String jndiName) {
         this.jndiName = jndiName;
     }
 
-    /**
-     * @return
-     * @jmx.managed-attribute
-     */
     public int getMaxSize() {
         return maxSize;
     }
 
-    /**
-     * @param maxSize
-     * @jmx.managed-attribute
-     */
     public void setMaxSize(int maxSize) {
         this.maxSize = maxSize;
     }
 
-    /**
-     * @return
-     * @jmx.managed-attribute
-     */
     public SecurityDomain getSecurityDomain() {
         return securityDomain;
     }
 
-    /**
-     * @param securityDomain
-     * @jmx.managed-attribute
-     */
     public void setSecurityDomain(SecurityDomain securityDomain) {
         this.securityDomain = securityDomain;
     }
 
-    /**
-     * @return
-     * @jmx.managed-attribute
-     */
-    public TransactionManager getTransactionManager() {
-        return transactionManager;
-    }
-
-    /**
-     * @param transactionManager
-     * @jmx.managed-attribute
-     */
-    public void setTransactionManager(TransactionManager transactionManager) {
-        this.transactionManager = transactionManager;
-    }
-
-    /**
-     * @return
-     * @jmx.managed-attribute
-     */
     public boolean isUseConnectionRequestInfo() {
         return useConnectionRequestInfo;
     }
 
-    /**
-     * @param useConnectionRequestInfo
-     * @jmx.managed-attribute
-     */
     public void setUseConnectionRequestInfo(boolean useConnectionRequestInfo) {
         this.useConnectionRequestInfo = useConnectionRequestInfo;
     }
 
-    /**
-     * @return
-     * @jmx.managed-attribute
-     */
+    //TODO determine this from [geronimo-]ra.xml transaction attribute.
+    public boolean isUseTransactions() {
+        return useTransactions;
+    }
+
+    public void setUseTransactions(boolean useTransactions) {
+        this.useTransactions = useTransactions;
+    }
+
     public boolean isUseLocalTransactions() {
         return useLocalTransactions;
     }
 
-    /**
-     * @param useLocalTransactions
-     * @jmx.managed-attribute
-     */
     public void setUseLocalTransactions(boolean useLocalTransactions) {
         this.useLocalTransactions = useLocalTransactions;
     }
 
-    /**
-     * @return
-     * @jmx.managed-attribute
-     */
     public boolean isUseSubject() {
         return useSubject;
     }
 
-    /**
-     * @param useSubject
-     * @jmx.managed-attribute
-     */
     public void setUseSubject(boolean useSubject) {
         this.useSubject = useSubject;
     }
 
-    /**
-     * @return
-     * @jmx.managed-attribute
-     */
     public boolean isUseTransactionCaching() {
         return useTransactionCaching;
     }
 
-    /**
-     * @param useTransactionCaching
-     * @jmx.managed-attribute
-     */
     public void setUseTransactionCaching(boolean useTransactionCaching) {
         this.useTransactionCaching = useTransactionCaching;
     }
 
+    public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
+        GeronimoMBeanInfo mBeanInfo = new GeronimoMBeanInfo();
+
+        mBeanInfo.setTargetClass(ConnectionManagerDeployment.class);
+        mBeanInfo.addEndpoint(new GeronimoMBeanEndpoint("ConnectionTracker", ConnectionTracker.class, ObjectName.getInstance("geronimo.connector:role=ConnectionTrackingCoordinator"), true));
+        mBeanInfo.addEndpoint(new GeronimoMBeanEndpoint("SecurityDomain", SecurityDomain.class, ObjectName.getInstance("geronimo.connector:role=SecurityDomain"), false));
+
+        mBeanInfo.addAttributeInfo(new GeronimoAttributeInfo("BlockingTimeout", true, true, "Milliseconds to wait for a connection to be returned"));
+        mBeanInfo.addAttributeInfo(new GeronimoAttributeInfo("JndiName", true, true, "Name to use to identify this guy (needs refactoring of naming conventions)"));
+        mBeanInfo.addAttributeInfo(new GeronimoAttributeInfo("MaxSize", true, true, "Maximum number of ManagedConnections to create in each pool"));
+        mBeanInfo.addAttributeInfo(new GeronimoAttributeInfo("UseConnectionRequestInfo", true, true, "Select pool using app-supplied ConnectionRequestInfo"));
+        mBeanInfo.addAttributeInfo(new GeronimoAttributeInfo("UseTransactions", true, true, "Use local or xa transactions vs. no transactions"));
+        mBeanInfo.addAttributeInfo(new GeronimoAttributeInfo("UseLocalTransactions", true, true, "Use local rather than xa transactions"));
+        mBeanInfo.addAttributeInfo(new GeronimoAttributeInfo("UseTransactionCaching", true, true, "Always use the same connection in a transaction"));
+        mBeanInfo.addAttributeInfo(new GeronimoAttributeInfo("UseSubject", true, true, "Select pool using SecurityDomain supplied subject"));
+
+        mBeanInfo.addOperationInfo(new GeronimoOperationInfo("getStack"));
+
+        mBeanInfo.addOperationInfo(new GeronimoOperationInfo("createConnectionFactory",
+                new GeronimoParameterInfo[] {new GeronimoParameterInfo("ManagedConnectionFactory", ManagedConnectionFactory.class, "ManagedConnectionFactory that will create the ConnectionFactory")},
+                MBeanOperationInfo.ACTION,
+                "PRIVATE OPERATION. Have the supplied ManagedConnectionFactory create a connection factory"));
+        return mBeanInfo;
+    }
 
 }

@@ -68,14 +68,14 @@ import java.util.Iterator;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
 
 /**
- * MetaCallConnectionInterceptor.java handles communication with the
+ * ConnectionTrackingInterceptor.java handles communication with the
  * CachedConnectionManager.  On method call entry, cached handles are
  * checked for the correct Subject.  On method call exit, cached
  * handles are disassociated if possible. On getting or releasing
  * a connection the CachedConnectionManager is notified.
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/12/10 07:48:12 $
+ * @version $Revision: 1.3 $ $Date: 2003/12/13 23:33:53 $
  */
 public class ConnectionTrackingInterceptor implements ConnectionInterceptor {
 
@@ -95,11 +95,30 @@ public class ConnectionTrackingInterceptor implements ConnectionInterceptor {
         this.securityDomain = securityDomain;
     }
 
+    /**
+     * called by: ProxyConnectionManager.allocateConnection, ProxyConnectionManager.associateConnection, and enter.
+     * in: connectionInfo is non-null, and has non-null ManagedConnectionInfo with non-null managedConnectionfactory.
+     * connection handle may or may not be null.
+     * out: connectionInfo has non-null connection handle, non null ManagedConnectionInfo with non-null ManagedConnection and GeronimoConnectionEventListener.
+     * connection tracker has been notified of handle-managed connection association.
+     * @param connectionInfo
+     * @throws ResourceException
+     */
     public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {
+        ManagedConnectionInfo managedConnectionInfo = connectionInfo.getManagedConnectionInfo();
+        managedConnectionInfo.setTransactionContext(connectionTracker.getConnectorTransactionContext());
         next.getConnection(connectionInfo);
         connectionTracker.handleObtained(this, connectionInfo);
     }
 
+    /**
+     * called by: GeronimoConnectionEventListener.connectionClosed, GeronimoConnectionEventListener.connectionErrorOccurred, exit
+     * in: handle has already been dissociated from ManagedConnection. connectionInfo not null, has non-null ManagedConnectionInfo, ManagedConnectionInfo has non-null ManagedConnection
+     * handle can be null if called from error in ManagedConnection in pool.
+     * out: connectionTracker has been notified, ManagedConnectionInfo null.
+     * @param connectionInfo
+     * @param connectionReturnAction
+     */
     public void returnConnection(
             ConnectionInfo connectionInfo,
             ConnectionReturnAction connectionReturnAction) {
@@ -132,30 +151,6 @@ public class ConnectionTrackingInterceptor implements ConnectionInterceptor {
         for (Iterator i = connectionInfos.iterator(); i.hasNext();) {
             ConnectionInfo connectionInfo = (ConnectionInfo) i.next();
             getConnection(connectionInfo);
-            /*
-            ManagedConnectionInfo originalManagedConnectionInfo = connectionInfo.getManagedConnectionInfo();
-            //Is this check correct?  perhaps more credentials got
-            //added without changing the relevant credential we use.
-            if (!currentSubject.equals(originalManagedConnectionInfo.getSubject())) {
-                //make a ConnectionInfo to process removing the handle from the old mc
-                ConnectionInfo returningConnectionInfo = new ConnectionInfo();
-                returningConnectionInfo.setManagedConnectionInfo(originalManagedConnectionInfo);
-                //This should decrement handle count, but not close the handle, when returnConnection is called
-                //I'm not sure how to test/assure this.
-                returningConnectionInfo.setConnectionHandle(connectionInfo.getConnectionHandle());
-
-                //make a new originalManagedConnectionInfo for the mc we will ask for
-                ManagedConnectionInfo newManagedConnectionInfo =
-                        new ManagedConnectionInfo(
-                                originalManagedConnectionInfo.getManagedConnectionFactory(),
-                                originalManagedConnectionInfo.getConnectionRequestInfo());
-                newManagedConnectionInfo.setSubject(currentSubject);
-                connectionInfo.setManagedConnectionInfo(newManagedConnectionInfo);
-                next.getConnection(connectionInfo);
-                //process the removal of the handle from the previous mc
-                returnConnection(returningConnectionInfo, ConnectionReturnAction.RETURN_HANDLE);
-            }
-            */
         }
 
     }
@@ -169,7 +164,8 @@ public class ConnectionTrackingInterceptor implements ConnectionInterceptor {
             ConnectionInfo connectionInfo = (ConnectionInfo) i.next();
             ManagedConnectionInfo managedConnectionInfo = connectionInfo.getManagedConnectionInfo();
             ManagedConnection managedConnection = managedConnectionInfo.getManagedConnection();
-            if (managedConnection instanceof DissociatableManagedConnection) {
+            if (managedConnection instanceof DissociatableManagedConnection
+            && managedConnectionInfo.isFirstConnectionInfo(connectionInfo)) {
                 i.remove();
                 ((DissociatableManagedConnection) managedConnection).dissociateConnections();
                 managedConnectionInfo.clearConnectionHandles();

@@ -58,7 +58,6 @@ package org.apache.geronimo.connector.outbound;
 
 import java.io.Serializable;
 
-import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
 import javax.management.MBeanServer;
@@ -90,7 +89,7 @@ public class ProxyConnectionManager
     private final String agentID;
 
     /**
-     * The field <code>CMName</code> holds the object name of
+     * The field <code>ConnectionManagerName</code> holds the object name of
      * the ConnectionManagerDeployment that sets us up.
      *
      */
@@ -100,31 +99,48 @@ public class ProxyConnectionManager
 
     public ProxyConnectionManager(
             String agentID,
-            ObjectName CMName,
+            ObjectName ConnectionManagerName,
             ConnectionInterceptor stack) {
         this.agentID = agentID;
-        this.CMName = CMName;
+        this.CMName = ConnectionManagerName;
         this.stack = stack;
-    } // ProxyConnectionManager constructor
+    }
 
+    /**
+     * in: mcf != null, is a deployed mcf
+     * out: useable connection object.
+     * @param managedConnectionFactory
+     * @param connectionRequestInfo
+     * @return
+     * @throws ResourceException
+     */
     public Object allocateConnection(
-            ManagedConnectionFactory mcf,
-            ConnectionRequestInfo cri)
+            ManagedConnectionFactory managedConnectionFactory,
+            ConnectionRequestInfo connectionRequestInfo)
             throws ResourceException {
         internalGetStack();
-        ManagedConnectionInfo mci = new ManagedConnectionInfo(mcf, cri);
+        ManagedConnectionInfo mci = new ManagedConnectionInfo(managedConnectionFactory, connectionRequestInfo);
         ConnectionInfo ci = new ConnectionInfo(mci);
         stack.getConnection(ci);
         return ci.getConnectionHandle();
     }
 
+    /**
+     * in: non-null connection object, from non-null mcf.
+     * connection object is not associated with a managed connection
+     * out: supplied connection object is assiciated with a non-null ManagedConnection from mcf.
+     * @param connection
+     * @param managedConnectionFactory
+     * @param connectionRequestInfo
+     * @throws ResourceException
+     */
     public void associateConnection(
             Object connection,
-            ManagedConnectionFactory mcf,
-            ConnectionRequestInfo cri)
+            ManagedConnectionFactory managedConnectionFactory,
+            ConnectionRequestInfo connectionRequestInfo)
             throws ResourceException {
         internalGetStack();
-        ManagedConnectionInfo mci = new ManagedConnectionInfo(mcf, cri);
+        ManagedConnectionInfo mci = new ManagedConnectionInfo(managedConnectionFactory, connectionRequestInfo);
         ConnectionInfo ci = new ConnectionInfo(mci);
         ci.setConnectionHandle(connection);
         stack.getConnection(ci);
@@ -137,20 +153,15 @@ public class ProxyConnectionManager
                             0);
             try {
                 this.stack =
-                        (ConnectionInterceptor) server.getAttribute(
-                                this.CMName,
-                                "Stack");
+                        (ConnectionInterceptor) server.invoke(CMName, "getStack", null, null);
             } catch (InstanceNotFoundException e) {
                 throw new ResourceException("Could not get stack from jmx", e);
             } catch (MBeanException e) {
                 throw new ResourceException("Could not get stack from jmx", e);
             } catch (ReflectionException e) {
                 throw new ResourceException("Could not get stack from jmx", e);
-            } catch (AttributeNotFoundException e) {
-                throw new ResourceException("Could not get stack from jmx", e);
             }
-
-        } // end of if ()
+        }
     }
 
     /**
@@ -159,11 +170,9 @@ public class ProxyConnectionManager
      * of this object.
      *
      * @return a <code>ConnectionInterceptor</code> value
-     *
-     * @jmx.managed-operation
      */
     public ConnectionInterceptor getStack() {
         return stack;
     }
 
-} // ProxyConnectionManager
+}

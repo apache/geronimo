@@ -62,7 +62,7 @@ import javax.resource.ResourceException;
  * ConnectionHandleInterceptor.java
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/12/09 04:16:25 $
+ * @version $Revision: 1.4 $ $Date: 2003/12/13 23:33:53 $
  */
 public class ConnectionHandleInterceptor implements ConnectionInterceptor {
 
@@ -72,6 +72,12 @@ public class ConnectionHandleInterceptor implements ConnectionInterceptor {
         this.next = next;
     }
 
+    /**
+     * in: connectionInfo not null, managedConnectionInfo not null. ManagedConnection may or may not be null.  ConnectionHandle may or may not be null
+     * out: managedConnection not null. connection handle not null. managedConnectionInfo has connection handle registered.  Connection handle is associated with ManagedConnection.
+     * @param connectionInfo
+     * @throws ResourceException
+     */
     public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {
         next.getConnection(connectionInfo);
         ManagedConnectionInfo mci = connectionInfo.getManagedConnectionInfo();
@@ -81,19 +87,23 @@ public class ConnectionHandleInterceptor implements ConnectionInterceptor {
                             mci.getSubject(),
                             mci.getConnectionRequestInfo()));
 
-        } else {
+        } else if (!mci.hasConnectionInfo(connectionInfo)) {
             mci.getManagedConnection().associateConnection(
                     connectionInfo.getConnectionHandle());
         }
-        mci.addConnectionHandle(connectionInfo.getConnectionHandle());
+        mci.addConnectionHandle(connectionInfo);
     }
 
-    public void returnConnection(
-            ConnectionInfo connectionInfo,
-            ConnectionReturnAction connectionReturnAction) {
+    /**
+     *  in: connectionInfo not null, managedConnectionInfo not null, managedConnection not null.  Handle can be null if mc is being destroyed from pool.
+     * out: managedCOnnectionInfo null, handle not in mci.handles.
+     * @param connectionInfo
+     * @param connectionReturnAction
+     */
+    public void returnConnection(ConnectionInfo connectionInfo, ConnectionReturnAction connectionReturnAction) {
         if (connectionInfo.getConnectionHandle() != null) {
             connectionInfo.getManagedConnectionInfo().removeConnectionHandle(
-                    connectionInfo.getConnectionHandle());
+                    connectionInfo);
         }
         next.returnConnection(connectionInfo, connectionReturnAction);
     }
