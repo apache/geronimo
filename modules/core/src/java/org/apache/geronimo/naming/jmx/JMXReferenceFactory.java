@@ -56,15 +56,11 @@
 
 package org.apache.geronimo.naming.jmx;
 
-import javax.naming.Reference;
-import javax.naming.NamingException;
 import javax.naming.LinkRef;
+import javax.naming.NamingException;
+import javax.naming.Reference;
 
 import org.apache.geronimo.naming.java.ReferenceFactory;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.JNDILocator;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceRef;
-import org.apache.geronimo.deployment.model.j2ee.EJBRef;
-import org.apache.geronimo.deployment.model.j2ee.EJBLocalRef;
 
 /**
  * This is a preliminary implementation that makes several unwarranted and redundant assumptions such as:
@@ -73,7 +69,7 @@ import org.apache.geronimo.deployment.model.j2ee.EJBLocalRef;
  *
  * A better set of assumptions might be that the context params are the name/value pairs for the object name.
  *
- * @version $Revision: 1.4 $ $Date: 2003/11/17 07:33:51 $
+ * @version $Revision: 1.5 $ $Date: 2004/02/12 08:18:21 $
  *
  * */
 public class JMXReferenceFactory implements ReferenceFactory {
@@ -88,8 +84,9 @@ public class JMXReferenceFactory implements ReferenceFactory {
         this.mbeanServerId = mbeanServerId;
     }
 
-    public Reference getReference(String link, JNDILocator locator) throws NamingException {
-        String methodName;
+    public Reference getReference(String link, Object locator) throws NamingException {
+        String methodName = null;
+        /*
         if (locator instanceof EJBRef) {
             methodName = "getEJBHome";
         } else if (locator instanceof EJBLocalRef) {
@@ -99,9 +96,9 @@ public class JMXReferenceFactory implements ReferenceFactory {
         } else {
             throw new NamingException("Invalid type: " + locator);
         }
-
+        */
         return new LinkRef(JMXContext.encode(mbeanServerId,
-                (link == null)? locator.getJndiName(): "geronimo.j2ee:J2eeType=SessionBean,name="+link,
+                (link == null)? /*locator.getJndiName()*/ null: "geronimo.j2ee:J2eeType=SessionBean,name="+link,
                 methodName));
     }
 }

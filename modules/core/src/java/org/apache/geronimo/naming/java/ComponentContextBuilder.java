@@ -62,17 +62,16 @@ import javax.naming.NamingException;
 import javax.naming.Reference;
 import javax.transaction.UserTransaction;
 
-import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbLocalRef;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbRef;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.JNDIEnvironmentRefs;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceRef;
-import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
 import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
+import org.apache.geronimo.xbeans.j2ee.EjbRefType;
+import org.apache.geronimo.xbeans.j2ee.EnvEntryType;
+import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
 
 /**
  *
  *
- * @version $Revision: 1.12 $ $Date: 2004/01/22 08:10:26 $
+ * @version $Revision: 1.13 $ $Date: 2004/02/12 08:18:21 $
  */
 public class ComponentContextBuilder {
 
@@ -88,15 +87,14 @@ public class ComponentContextBuilder {
     /**
      * Build a component context from definitions contained in POJOs read from
      * a deployment descriptor.
-     * @param refs the source reference definitions
      * @return a Context that can be bound to java:comp
      */
-    public ReadOnlyContext buildContext(JNDIEnvironmentRefs refs) throws DeploymentException {
+    public ReadOnlyContext buildContext(EjbRefType[] ejbRefs, EjbLocalRefType[] ejbLocalRefs, EnvEntryType[] envEntries, ResourceRefType[] resourceRefs) throws DeploymentException {
         ReadOnlyContext readOnlyContext = new ReadOnlyContext();
-        buildEnvEntries(readOnlyContext, refs.getEnvEntry());
-        buildEJBRefs(readOnlyContext, refs.getGeronimoEJBRef());
-        buildEJBLocalRefs(readOnlyContext, refs.getGeronimoEJBLocalRef());
-        buildResourceRefs(readOnlyContext, refs.getGeronimoResourceRef());
+        buildEnvEntries(readOnlyContext, envEntries);
+        buildEJBRefs(readOnlyContext, ejbRefs);
+        buildEJBLocalRefs(readOnlyContext, ejbLocalRefs);
+        buildResourceRefs(readOnlyContext, resourceRefs);
 
         if (userTransaction != null) {
             try {
@@ -108,12 +106,12 @@ public class ComponentContextBuilder {
         return readOnlyContext;
     }
 
-    private static void buildEnvEntries(ReadOnlyContext readOnlyContext, EnvEntry[] envEntries) throws DeploymentException {
+    private static void buildEnvEntries(ReadOnlyContext readOnlyContext, EnvEntryType[] envEntries) throws DeploymentException {
         for (int i = 0; i < envEntries.length; i++) {
-            EnvEntry entry = envEntries[i];
-            String name = entry.getEnvEntryName();
-            String type = entry.getEnvEntryType();
-            String value = entry.getEnvEntryValue();
+            EnvEntryType entry = envEntries[i];
+            String name = entry.getEnvEntryName().getStringValue();
+            String type = entry.getEnvEntryType().getStringValue();
+            String value = entry.getEnvEntryValue().getStringValue();
             Object mapEntry;
             try {
                 if (value == null) {
@@ -150,15 +148,15 @@ public class ComponentContextBuilder {
         }
     }
 
-    private void buildEJBRefs(ReadOnlyContext readOnlyContext, EjbRef[] ejbRefs) throws DeploymentException {
+    private void buildEJBRefs(ReadOnlyContext readOnlyContext, EjbRefType[] ejbRefs) throws DeploymentException {
         for (int i = 0; i < ejbRefs.length; i++) {
-            EjbRef ejbRef = ejbRefs[i];
-            String name = ejbRef.getEJBRefName();
+            EjbRefType ejbRef = ejbRefs[i];
+            String name = ejbRef.getEjbRefName().getStringValue();
             Reference ref = null;
             try {
-                ref = referenceFactory.getReference(ejbRef.getEJBLink(), ejbRef);
+                ref = referenceFactory.getReference(ejbRef.getEjbLink().getStringValue(), ejbRef);
             } catch (NamingException e) {
-                throw new DeploymentException("Could not construct reference to " + ejbRef.getJndiName() + ", " + e.getMessage());
+                throw new DeploymentException("Could not construct reference to " + ejbRef + ", " + e.getMessage());
             }
             try {
                 readOnlyContext.internalBind(ENV + name, ref);
@@ -168,15 +166,15 @@ public class ComponentContextBuilder {
         }
     }
 
-    private void buildEJBLocalRefs(ReadOnlyContext readOnlyContext, EjbLocalRef[] ejbLocalRefs) throws DeploymentException {
+    private void buildEJBLocalRefs(ReadOnlyContext readOnlyContext, EjbLocalRefType[] ejbLocalRefs) throws DeploymentException {
         for (int i = 0; i < ejbLocalRefs.length; i++) {
-            EjbLocalRef ejbLocalRef = ejbLocalRefs[i];
-            String name = ejbLocalRef.getEJBRefName();
+            EjbLocalRefType ejbLocalRef = ejbLocalRefs[i];
+            String name = ejbLocalRef.getEjbRefName().getStringValue();
             Reference ref = null;
             try {
-                ref = referenceFactory.getReference(ejbLocalRef.getEJBLink(), ejbLocalRef);
+                ref = referenceFactory.getReference(ejbLocalRef.getEjbLink().getStringValue(), ejbLocalRef);
             } catch (NamingException e) {
-                throw new DeploymentException("Could not construct reference to " + ejbLocalRef.getJndiName() + ", " + e.getMessage());
+                throw new DeploymentException("Could not construct reference to " + ejbLocalRef + ", " + e.getMessage());
             }
             try {
                 readOnlyContext.internalBind(ENV + name, ref);
@@ -186,15 +184,15 @@ public class ComponentContextBuilder {
         }
     }
 
-    private void buildResourceRefs(ReadOnlyContext readOnlyContext, ResourceRef[] resRefs) throws DeploymentException {
+    private void buildResourceRefs(ReadOnlyContext readOnlyContext, ResourceRefType[] resRefs) throws DeploymentException {
         for (int i=0; i < resRefs.length; i++) {
-            ResourceRef resRef = resRefs[i];
-            String name = resRef.getResRefName();
-            String type = resRef.getResType();
+            ResourceRefType resRef = resRefs[i];
+            String name = resRef.getResRefName().getStringValue();
+            String type = resRef.getResType().getStringValue();
             Object ref;
             if ("java.net.URL".equals(type)) {
                 try {
-                    ref = new URL(resRef.getURLRef());
+                    ref = new URL(null /*resRef.geturl().getStringValue()*/);
                 } catch (MalformedURLException e) {
                     throw new DeploymentException("Invalid URL for resource-ref "+name, e);
                 }
@@ -202,7 +200,7 @@ public class ComponentContextBuilder {
                 try {
                     ref = referenceFactory.getReference(null, resRef);
                 } catch (NamingException e) {
-                    throw new DeploymentException("Could not construct reference to " + resRef.getJndiName());
+                    throw new DeploymentException("Could not construct reference to " + resRef);
                 }
             }
             try {

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.42 $ $Date: 2004/02/11 03:14:10 $ -->
+<!-- $Revision: 1.43 $ $Date: 2004/02/12 08:18:21 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -25,6 +25,16 @@
     <!-- ============ -->
 
     <dependencies>
+
+        <!-- needed for xmlbeans runtime-->
+        <dependency>
+            <groupId>xmlbeans</groupId>
+            <artifactId>xbean-apache</artifactId>
+            <version>1.0-DEV</version>
+            <properties>
+            </properties>
+        </dependency>
+
 
         <dependency>
             <id>commons-logging</id>
@@ -61,6 +71,14 @@
             <version>DEV</version>
             <properties>
                 <module>true</module>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-j2eeschema</artifactId>
+            <version>DEV</version>
+            <properties>
             </properties>
         </dependency>
 
