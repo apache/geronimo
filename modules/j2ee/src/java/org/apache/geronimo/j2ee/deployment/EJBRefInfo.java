@@ -16,10 +16,12 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
+import java.io.Serializable;
+
 /**
  * @version $Revision$ $Date$
  */
-public final class EJBRefInfo {
+public final class EJBRefInfo implements Serializable {
     private final boolean isLocal;
     private final boolean isSession;
     private final String homeIntf;
