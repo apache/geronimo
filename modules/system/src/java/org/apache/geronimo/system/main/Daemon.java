@@ -209,7 +209,7 @@ public class Daemon {
                 try {
                     Integer state = (Integer) kernel.getAttribute(objectName, "state");
                     if (state.intValue() != State.RUNNING_INDEX) {
-                        log.info("GBean " + objectName + " is not running in state " + State.fromInteger(state).getName());
+                        log.info("GBean " + objectName + " is not running. Current state: " + State.fromInteger(state).getName());
                     }
                 } catch (GBeanNotFoundException e) {
                     log.info("Alleged GBean " + objectName + " is not a GBean");
