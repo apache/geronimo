@@ -18,20 +18,12 @@
 package org.apache.geronimo.deployment.plugin.local;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.spi.Target;
-import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.kernel.jmx.KernelMBean;
 

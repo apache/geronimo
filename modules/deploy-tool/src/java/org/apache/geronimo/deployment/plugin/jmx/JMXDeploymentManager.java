@@ -60,7 +60,7 @@ public class JMXDeploymentManager implements DeploymentManager {
     private JMXConnector jmxConnector;
     private MBeanServerConnection mbServerConnection;
     private KernelMBean kernel;
-	private boolean logErrors;
+	private CommandContext commandContext;
 
     public JMXDeploymentManager(JMXConnector jmxConnector) throws IOException {
         this.jmxConnector = jmxConnector;
@@ -157,7 +157,7 @@ public class JMXDeploymentManager implements DeploymentManager {
             throw new IllegalStateException("Disconnected");
         }
         DistributeCommand command = new DistributeCommand(kernel, targetList, moduleArchive, deploymentPlan);
-        command.setLogErrors(logErrors);
+        command.setCommandContext(commandContext);
         new Thread(command).start();
         return command;
     }
@@ -167,7 +167,7 @@ public class JMXDeploymentManager implements DeploymentManager {
             throw new IllegalStateException("Disconnected");
         }
         DistributeCommand command = new DistributeCommand(kernel, targetList, moduleArchive, deploymentPlan);
-        command.setLogErrors(logErrors);
+        command.setCommandContext(commandContext);
         new Thread(command).start();
         return command;
     }
@@ -177,7 +177,7 @@ public class JMXDeploymentManager implements DeploymentManager {
             throw new IllegalStateException("Disconnected");
         }
         StartCommand command = new StartCommand(kernel, moduleIDList);
-        command.setLogErrors(logErrors);
+        command.setCommandContext(commandContext);
         new Thread(command).start();
         return command;
     }
@@ -187,7 +187,7 @@ public class JMXDeploymentManager implements DeploymentManager {
             throw new IllegalStateException("Disconnected");
         }
         StopCommand command = new StopCommand(kernel, moduleIDList);
-        command.setLogErrors(logErrors);
+        command.setCommandContext(commandContext);
         new Thread(command).start();
         return command;
     }
@@ -197,7 +197,7 @@ public class JMXDeploymentManager implements DeploymentManager {
             throw new IllegalStateException("Disconnected");
         }
         UndeployCommand command = new UndeployCommand(kernel, moduleIDList);
-        command.setLogErrors(logErrors);
+        command.setCommandContext(commandContext);
         new Thread(command).start();
         return command;
     }
@@ -211,7 +211,7 @@ public class JMXDeploymentManager implements DeploymentManager {
             throw new IllegalStateException("Disconnected");
         }
         RedeployCommand command = new RedeployCommand(kernel, moduleIDList, moduleArchive, deploymentPlan);
-        command.setLogErrors(logErrors);
+        command.setCommandContext(commandContext);
         new Thread(command).start();
         return command;
     }
@@ -221,7 +221,7 @@ public class JMXDeploymentManager implements DeploymentManager {
             throw new IllegalStateException("Disconnected");
         }
         RedeployCommand command = new RedeployCommand(kernel, moduleIDList, moduleArchive, deploymentPlan);
-        command.setLogErrors(logErrors);
+        command.setCommandContext(commandContext);
         new Thread(command).start();
         return command;
     }
@@ -264,7 +264,31 @@ public class JMXDeploymentManager implements DeploymentManager {
         throw new InvalidModuleException("Not supported");
     }
 
-	public void setLogErrors(boolean logErrors) {
-		this.logErrors = logErrors;
+	public void setCommandContext(CommandContext commandContext) {
+		this.commandContext = commandContext;
 	}
+    
+    public static class CommandContext {
+        private boolean logErrors;
+        private boolean verbose;
+        
+        public CommandContext() {
+        }
+        
+        public boolean isLogErrors() {
+            return logErrors;
+        }
+
+        public void setLogErrors(boolean logErrors) {
+            this.logErrors = logErrors;
+        }
+        
+        public boolean isVerbose() {
+            return verbose;
+        }
+        
+        public void setVerbose(boolean verbose) {
+            this.verbose = verbose;
+        }
+    }
 }

@@ -18,10 +18,10 @@
 package org.apache.geronimo.deployment.plugin.local;
 
 import java.net.URI;
+
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.spi.TargetModuleID;
 
-import org.apache.geronimo.kernel.jmx.KernelMBean;
 import org.apache.geronimo.kernel.jmx.KernelMBean;
 
 /**
@@ -45,7 +45,6 @@ public class StartCommand extends CommandSupport {
                 TargetModuleID module = modules[i];
 
                 URI moduleID = URI.create(module.getModuleID());
-//                System.err.println("Starting module " + moduleID);
                 kernel.startConfiguration(moduleID);
                 addModule(module);
             }

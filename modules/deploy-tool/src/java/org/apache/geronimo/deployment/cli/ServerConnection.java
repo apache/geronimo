@@ -34,6 +34,7 @@ import javax.management.ObjectName;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.plugin.factories.AuthenticationFailedException;
 import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl;
+import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
 import org.apache.geronimo.system.main.CommandLine;
 import org.apache.geronimo.system.main.CommandLineManifest;
 
@@ -63,13 +64,17 @@ public class ServerConnection {
                 "deployer will attempt to connect to the server with no password, and if " +
                 "that fails, will prompt you for a password.");
         OPTION_HELP.put("--password", "Specifies a password to use to authenticate to the server.");
+        OPTION_HELP.put("--syserr", "Log errors to syserr. Can be either true or false." +
+                " The default value is false.");
+        OPTION_HELP.put("--verbose", "Verbose execution mode. Can be either true or false." +
+                " The default value is false.");
     }
     public static Map getOptionHelp() {
         return OPTION_HELP;
     }
 
     private final static String DEFAULT_URI = "deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector";
-
+    
     private DeploymentManager manager;
     private KernelWrapper kernel;
     private PrintWriter out;
@@ -77,6 +82,7 @@ public class ServerConnection {
 
     public ServerConnection(String[] args, boolean forceLocal, PrintWriter out, BufferedReader in) throws DeploymentException {
         String uri = null, driver = null, user = null, password = null;
+        JMXDeploymentManager.CommandContext commandContext = new JMXDeploymentManager.CommandContext();
         this.out = out;
         this.in = in;
         for(int i = 0; i < args.length; i++) {
@@ -109,6 +115,24 @@ public class ServerConnection {
                     throw new DeploymentSyntaxException("Must specify a password (--password password)");
                 }
                 password = args[++i];
+            } else if (arg.equals("--verbose")) {
+                String value = args[++i];
+                if (value.equals("true")) {
+                    commandContext.setVerbose(true);
+                } else if (value.equals("false")) {
+                    commandContext.setVerbose(false);
+                } else {
+                    throw new DeploymentSyntaxException("--quiet must be either true or false.");
+                }
+            } else if (arg.equals("--syserr")) {
+                String value = args[++i];
+                if (value.equals("true")) {
+                    commandContext.setLogErrors(true);
+                } else if (value.equals("false")) {
+                    commandContext.setLogErrors(false);
+                } else {
+                    throw new DeploymentSyntaxException("--syserr must be either true or false.");
+                }
             } else {
                 throw new DeploymentException("Invalid option "+arg);
             }
@@ -120,7 +144,7 @@ public class ServerConnection {
             throw new DeploymentSyntaxException("This command does not use normal server connectivity.  No standard options are allowed.");
         }
         if(!forceLocal) {
-            tryToConnect(uri, driver, user, password, true);
+            tryToConnect(uri, commandContext, driver, user, password, true);
             if(manager == null) { // uri must be null too or we'd have thrown an exception
                 initializeKernel();
             }
@@ -146,18 +170,19 @@ public class ServerConnection {
         }
     }
 
-    private void tryToConnect(String uri, String driver, String user, String password, boolean authPrompt) throws DeploymentException {
+    private void tryToConnect(String uri, JMXDeploymentManager.CommandContext commandContext, String driver, String user, String password, boolean authPrompt) throws DeploymentException {
         DeploymentFactoryManager mgr = DeploymentFactoryManager.getInstance();
         if(driver != null) {
             loadDriver(driver, mgr);
         } else {
             mgr.registerDeploymentFactory(new DeploymentFactoryImpl());
         }
+        
         try {
             manager = mgr.getDeploymentManager(uri == null ? DEFAULT_URI : uri, user, password);
         } catch(AuthenticationFailedException e) { // server's there, you just can't talk to it
             if(authPrompt && (user == null || password == null)) {
-                doAuthPromptAndRetry(uri, user, password);
+                doAuthPromptAndRetry(uri, commandContext, user, password);
             } else {
                 throw new DeploymentException("Unable to connect to server", e);
             }
@@ -165,6 +190,11 @@ public class ServerConnection {
             if(uri != null) {
                 throw new DeploymentException("Unable to connect to server at "+uri+" -- "+e.getMessage());
             } //else, fall through and try local access
+        }
+        
+        if (manager instanceof JMXDeploymentManager) {
+            JMXDeploymentManager deploymentManager = (JMXDeploymentManager) manager;
+            deploymentManager.setCommandContext(commandContext);
         }
     }
 
@@ -190,7 +220,7 @@ public class ServerConnection {
         }
     }
 
-    private void doAuthPromptAndRetry(String uri, String user, String password) throws DeploymentException {
+    private void doAuthPromptAndRetry(String uri, JMXDeploymentManager.CommandContext commandContext, String user, String password) throws DeploymentException {
         try {
             if(user == null) {
                 out.print("Username: ");
@@ -205,7 +235,7 @@ public class ServerConnection {
         } catch(IOException e) {
             throw new DeploymentException("Unable to prompt for login", e);
         }
-        tryToConnect(uri, null, user, password, false);
+        tryToConnect(uri, commandContext, null, user, password, false);
     }
 
     public DeploymentManager getDeploymentManager() {

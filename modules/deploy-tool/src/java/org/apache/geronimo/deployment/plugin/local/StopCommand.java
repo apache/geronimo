@@ -18,6 +18,7 @@
 package org.apache.geronimo.deployment.plugin.local;
 
 import java.net.URI;
+
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.spi.TargetModuleID;
 

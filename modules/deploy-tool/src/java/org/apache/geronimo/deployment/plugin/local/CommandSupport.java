@@ -35,6 +35,8 @@ import javax.enterprise.deploy.spi.status.ProgressListener;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 import javax.management.MBeanException;
 
+import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager.CommandContext;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -45,7 +47,7 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
     private String message;
     private final Set listeners = new HashSet();
     private final List moduleIDs = new ArrayList();
-    private boolean logErrors;
+    private CommandContext commandContext;
 
     private ProgressEvent event = null;
 
@@ -117,15 +119,24 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
             e = ((MBeanException) e).getTargetException();
         }
 
-        if (logErrors) {
+        if (commandContext.isLogErrors()) {
             System.err.println("Deployer operation failed: " + e.getMessage());
-            e.printStackTrace(System.err);
+            if (commandContext.isVerbose()) {
+                e.printStackTrace(System.err);
+            }
         }
 
         StringWriter writer = new StringWriter();
         PrintWriter printWriter = new PrintWriter(writer);
         printWriter.println(e.getMessage());
-        e.printStackTrace(printWriter);
+        if (commandContext.isVerbose()) {
+            e.printStackTrace(printWriter);
+        } else {
+            Throwable throwable = e;
+            while (null != (throwable = throwable.getCause())) {
+                printWriter.println("\t" + throwable.getMessage());
+            }
+        }
         fail(writer.toString());
     }
 
@@ -201,11 +212,11 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
         }
     }
 
-    public boolean isLogErrors() {
-        return logErrors;
+    public CommandContext getCommandContext() {
+        return commandContext;
     }
 
-    public void setLogErrors(boolean logErrors) {
-        this.logErrors = logErrors;
+    public void setCommandContext(CommandContext commandContext) {
+        this.commandContext = commandContext;
     }
 }

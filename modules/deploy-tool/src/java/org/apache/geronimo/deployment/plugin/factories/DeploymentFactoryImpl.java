@@ -76,17 +76,10 @@ public class DeploymentFactoryImpl implements DeploymentFactory {
                 String[] credentials = new String[]{username, password};
                 environment.put(JMXConnector.CREDENTIALS, credentials);
                 
-                boolean logErrors=false;
-				if( uri.endsWith("/debug") ) {
-					logErrors=true;
-					uri = uri.substring(0, uri.length() - "/debug".length());
-				}
-
                 try {
                     JMXServiceURL address = new JMXServiceURL("service:" + uri);
                     JMXConnector jmxConnector = JMXConnectorFactory.connect(address, environment);
                     JMXDeploymentManager manager = new JMXDeploymentManager(jmxConnector);
-                    manager.setLogErrors(logErrors);
                     return manager;
                 } catch (IOException e) {
                     throw (DeploymentManagerCreationException)new DeploymentManagerCreationException(e.getMessage()).initCause(e);

@@ -17,14 +17,15 @@
 package org.apache.geronimo.deployment.plugin.local;
 
 import java.net.URI;
+
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.deployment.plugin.TargetImpl;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
-import org.apache.geronimo.kernel.jmx.KernelMBean;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.jmx.KernelMBean;
 
 /**
  * @version $Rev$ $Date$

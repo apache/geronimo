@@ -19,9 +19,9 @@ package org.apache.geronimo.deployment.plugin.local;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URI;
+
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.spi.TargetModuleID;
-import javax.enterprise.deploy.spi.Target;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.deployment.plugin.TargetImpl;
@@ -33,7 +33,6 @@ import org.apache.geronimo.kernel.jmx.KernelMBean;
  * @version $Rev$ $Date$
  */
 public class RedeployCommand extends AbstractDeployCommand {
-    private static final String[] DEPLOY_SIG = {File.class.getName(), File.class.getName()};
     private static final String[] UNINSTALL_SIG = {URI.class.getName()};
     private final TargetModuleID[] modules;
 
