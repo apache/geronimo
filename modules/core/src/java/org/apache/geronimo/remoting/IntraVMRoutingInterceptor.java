@@ -66,7 +66,7 @@ import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.remoting.transport.NullTransportInterceptor;
 
 /**
- * @version $Revision: 1.5 $ $Date: 2003/10/31 06:59:46 $
+ * @version $Revision: 1.6 $ $Date: 2003/10/31 17:03:22 $
  */
 public class IntraVMRoutingInterceptor implements Interceptor, Externalizable {
 
@@ -82,7 +82,7 @@ public class IntraVMRoutingInterceptor implements Interceptor, Externalizable {
     }
 
     /**
-     * 
+     *
      */
     synchronized private void resolveNext() {
         // Get the demarshaling interceptor to find out the classloader scope that the target
@@ -93,7 +93,7 @@ public class IntraVMRoutingInterceptor implements Interceptor, Externalizable {
         ClassLoader child = Thread.currentThread().getContextClassLoader();
 
         // Did we deserialize with the same app classloader that
-        // the target belongs to??  
+        // the target belongs to??
         if (InvocationSupport.isAncestor(parent, child) && !allwaysMarshall) {
             // Then we can avoid demarshalling/marshalling
             next = deMarshalingInterceptor.getNext();
@@ -154,11 +154,11 @@ public class IntraVMRoutingInterceptor implements Interceptor, Externalizable {
         this.deMarshalingInterceptorID = deMarshalingInterceptorID;
     }
 
-    public boolean getAllwaysMarshall() {
+    public boolean getAlwaysMarshall() {
         return allwaysMarshall;
     }
 
-    public void setAllwaysMarshall(boolean value) {
+    public void setAlwaysMarshall(boolean value) {
         allwaysMarshall=value;
     }
 }
