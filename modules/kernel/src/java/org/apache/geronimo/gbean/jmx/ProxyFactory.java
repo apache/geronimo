@@ -64,7 +64,7 @@ import net.sf.cglib.proxy.MethodInterceptor;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/26 06:50:46 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/12 05:42:14 $
  */
 public class ProxyFactory {
     private final Class type;
@@ -88,6 +88,7 @@ public class ProxyFactory {
 
     public synchronized Object create(MethodInterceptor methodInterceptor, Class[] types, Object[] arguments) throws InvocationTargetException {
         enhancer.setCallbacks(new Callback[]{methodInterceptor});
+        // @todo trap CodeGenerationException indicating missing no-arg ctr
         return enhancer.create(types, arguments);
     }
 }
