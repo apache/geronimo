@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.13 $ $Date: 2003/09/27 15:50:51 $ -->
+<!-- $Revision: 1.14 $ $Date: 2003/11/22 23:30:50 $ -->
 
 <project>
   
@@ -195,6 +195,13 @@
     </developer>
 
     <developer>
+      <name>Aaron Mulder</name>
+      <id>ammulder</id>
+      <email>ammulder@apache.org</email>
+      <organization></organization>
+    </developer>
+    
+    <developer>
       <name>Alan D. Cabrera</name>
       <id>adc</id>
       <email>adc@apache.org</email>
@@ -208,10 +215,6 @@
   <!-- ============ -->
   
   <contributors>
-    <contributor>
-      <name>Aaron Mulder</name>
-      <email>ammulder@alumni.princeton.edu</email>
-    </contributor>
     <contributor>
       <name>Alex Blewitt</name>
       <email>Alex.Blewitt@ioshq.com</email>
