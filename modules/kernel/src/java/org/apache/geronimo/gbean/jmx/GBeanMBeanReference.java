@@ -251,7 +251,7 @@ public class GBeanMBeanReference implements NotificationListener {
 
     public synchronized void start() throws WaitingException {
         if (proxy == null) {
-            log.debug("Stop should not be called on an offline reference");
+            log.debug("Start should not be called on an offline reference");
             return;
         }
 
