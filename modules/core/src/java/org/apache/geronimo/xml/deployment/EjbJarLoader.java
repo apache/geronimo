@@ -79,7 +79,6 @@ import org.apache.geronimo.deployment.model.ejb.Relationships;
 import org.apache.geronimo.deployment.model.ejb.RpcBean;
 import org.apache.geronimo.deployment.model.ejb.SecurityIdentity;
 import org.apache.geronimo.deployment.model.ejb.Session;
-import org.apache.geronimo.deployment.model.j2ee.SecurityRole;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -87,7 +86,7 @@ import org.w3c.dom.Element;
  * Knows how to load a set of POJOs from a DOM representing an ejb-jar.xml
  * deployment descriptor.
  *
- * @version $Revision: 1.5 $ $Date: 2003/09/17 01:47:14 $
+ * @version $Revision: 1.6 $ $Date: 2003/09/27 16:52:06 $
  */
 public class EjbJarLoader {
     public static EjbJarDocument load(Document doc) {
@@ -118,7 +117,7 @@ public class EjbJarLoader {
             ad.setExcludeList(loadExcludeList(LoaderUtil.getChild(ade, "exclude-list")));
             ad.setMessageDestination(J2EELoader.loadMessageDestinations(ade));
             ad.setMethodPermission(loadMethodPermissions(ade));
-            ad.setSecurityRole(loadSecurityRoles(ade));
+            ad.setSecurityRole(J2EELoader.loadSecurityRoles(ade));
             jar.setAssemblyDescriptor(ad);
         }
         EjbJarDocument result = new EjbJarDocument();
@@ -148,18 +147,6 @@ public class EjbJarLoader {
             perms[i].setMethod(loadMethods(root));
         }
         return perms;
-    }
-
-    private static SecurityRole[] loadSecurityRoles(Element parent) {
-        Element[] roots = LoaderUtil.getChildren(parent, "security-role");
-        SecurityRole[] roles = new SecurityRole[roots.length];
-        for(int i = 0; i < roots.length; i++) {
-            Element root = roots[i];
-            roles[i] = new SecurityRole();
-            J2EELoader.loadDescribable(root, roles[i]);
-            roles[i].setRoleName(LoaderUtil.getChildContent(root, "role-name"));
-        }
-        return roles;
     }
 
     private static ContainerTransaction[] loadContainerTransactions(Element parent) {

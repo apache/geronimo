@@ -73,6 +73,7 @@ import org.apache.geronimo.deployment.model.j2ee.DisplayName;
 import org.apache.geronimo.deployment.model.j2ee.Icon;
 import org.apache.geronimo.deployment.model.j2ee.RunAs;
 import org.apache.geronimo.deployment.model.j2ee.SecurityRoleRef;
+import org.apache.geronimo.deployment.model.j2ee.SecurityRole;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -80,7 +81,7 @@ import org.w3c.dom.NodeList;
  * Knows how to load common J2EE deployment descriptor elements from a DOM
  * into POJOs.
  *
- * @version $Revision: 1.5 $ $Date: 2003/09/17 01:47:14 $
+ * @version $Revision: 1.6 $ $Date: 2003/09/27 16:52:06 $
  */
 public final class J2EELoader {
     public static EnvEntry[] loadEnvEntries(Element parent) {
@@ -152,6 +153,18 @@ public final class J2EELoader {
             refs[i].setRoleLink(LoaderUtil.getChildContent(root, "role-link"));
         }
         return refs;
+    }
+
+    public static SecurityRole[] loadSecurityRoles(Element parent) {
+        Element[] roots = LoaderUtil.getChildren(parent, "security-role");
+        SecurityRole[] roles = new SecurityRole[roots.length];
+        for(int i = 0; i < roots.length; i++) {
+            Element root = roots[i];
+            roles[i] = new SecurityRole();
+            loadDescribable(root, roles[i]);
+            roles[i].setRoleName(LoaderUtil.getChildContent(root, "role-name"));
+        }
+        return roles;
     }
 
     public static ServiceRef[] loadServiceRefs(Element parent) {
