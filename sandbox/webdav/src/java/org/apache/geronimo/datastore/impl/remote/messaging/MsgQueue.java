@@ -26,7 +26,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * A named queue. It is a staging repository for Msgs.
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:15 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/03 15:27:33 $
  */
 public class MsgQueue
 {
@@ -91,6 +91,10 @@ public class MsgQueue
         }
         log.trace("Message removed from queue {" + name + "}");
         return message;
+    }
+    
+    public String toString() {
+        return "MsgQueue {" + name + "}";
     }
     
 }

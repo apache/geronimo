@@ -23,7 +23,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Processors associated to a server.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/03 13:10:07 $
+ * @version $Revision: 1.4 $ $Date: 2004/03/03 15:27:33 $
  */
 class ServerProcessors
 {
@@ -101,13 +101,19 @@ class ServerProcessors
                 Msg msg = in.pop();
                 Object destNode = in.getHeader();
                 MsgOutInterceptor out;
-                try {
-                    out = server.getOutForNode((String) destNode);
-                } catch (CommunicationException e) {
-                    log.error(e);
-                    continue;
+                if ( destNode instanceof String ) {
+                    destNode = new String[] {(String) destNode};
                 }
-                out.push(msg);
+                String[] dests = (String[]) destNode;
+                for (int i = 0; i < dests.length; i++) {
+                    try {
+                        out = server.getOutForNode(dests[i]);
+                    } catch (CommunicationException e) {
+                        log.error(e);
+                        continue;
+                    }
+                    out.push(msg);
+                }
             }
         }
 
