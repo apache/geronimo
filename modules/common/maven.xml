@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Id: maven.xml,v 1.1 2003/08/12 15:33:05 jdillon Exp $ -->
+
+<project
+  xmlns:j="jelly:core"
+  xmlns:u="jelly:util"
+  xmlns:ant="jelly:ant">
+  
+  <!-- ===================== -->
+  <!-- Module Initialization -->
+  <!-- ===================== -->
+  
+  <ant:property file="${basedir}/../../etc/project.properties"/>
+   
+</project>

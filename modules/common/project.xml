@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Id: project.xml,v 1.1 2003/08/12 15:33:05 jdillon Exp $ -->
+
+<project>
+  <pomVersion>3</pomVersion>
+  <extend>${basedir}/../../etc/project.xml</extend>
+  
+  <!-- ===================== -->
+  <!-- Module Identification -->
+  <!-- ===================== -->
+  
+  <name>Geronimo/Common</name>
+  <id>geronimo-common</id>
+  <shortDescription></shortDescription>
+  <description></description>
+  <siteDirectory></siteDirectory>
+  <distributionDirectory></distributionDirectory>
+  
+  <package>org.apache.geronimo.common</package>
+  <currentVersion>DEV</currentVersion>
+  
+  
+  <!-- ============ -->
+  <!-- Dependencies -->
+  <!-- ============ -->
+  
+  <dependencies>
+  
+    <!-- Thirdparty Dependencies -->
+    
+    <dependency>
+      <id>commons-logging</id>
+      <version>1.0.3</version>
+      <url>http://jakarta.apache.org/commons/logging</url>
+    </dependency>
+    
+    <dependency>
+      <id>log4j</id>
+      <version>1.2.8</version>
+      <url>http://jakarta.apache.org/log4j</url>
+    </dependency>
+    
+    <dependency>
+      <groupId>mx4j</groupId>
+      <artifactId>mx4j-jmx</artifactId>
+      <version>1.1.1</version>
+      <url>http://mx4j.sourceforge.net</url>
+    </dependency>
+    
+    <dependency>
+      <groupId>mx4j</groupId>
+      <artifactId>mx4j-tools</artifactId>
+      <version>1.1.1</version>
+      <url>http://mx4j.sourceforge.net</url>
+    </dependency>
+  
+  </dependencies>
+
+</project>
