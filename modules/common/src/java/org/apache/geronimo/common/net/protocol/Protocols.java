@@ -81,7 +81,7 @@ import org.apache.geronimo.common.ThrowableHandler;
 /**
  * Protocol utilties.
  *
- * @version $Revision: 1.6 $ $Date: 2003/09/03 17:54:20 $
+ * @version $Revision: 1.7 $ $Date: 2003/09/05 04:47:45 $
  */
 public class Protocols
 {
@@ -118,7 +118,12 @@ public class Protocols
     
     public static List getHandlerPackages()
     {
-        return parseHandlerPackages(System.getProperty(HANDLER_PACKAGES));
+        String handlersProperty = System.getProperty(HANDLER_PACKAGES);
+        if (handlersProperty != null) {
+            return parseHandlerPackages(handlersProperty);
+        } else {
+            return new LinkedList();
+        }
     }
     
     public static void setHandlerPackages(final List packages)
