@@ -32,10 +32,10 @@
     <!-- Module Identification -->
     <!-- ===================== -->
 
-    <name>Geronimo :: Connector</name>
-    <id>geronimo-connector</id>
-    <shortDescription>Geronimo Connector</shortDescription>
-    <description>Geronimo Connector</description>
+    <name>Geronimo :: Connector :: Builder</name>
+    <id>geronimo-connector-builder</id>
+    <shortDescription>Geronimo Connector Builder</shortDescription>
+    <description>Geronimo Connector Builder</description>
     <url>http://geronimo.apache.org/modules/connector/</url>
     <siteDirectory>/www/geronimo.apache.org/modules/connector</siteDirectory>
     <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds/connector</distributionDirectory>
@@ -47,18 +47,46 @@
     <!-- ============ -->
 
     <dependencies>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-xmlbeans-plugin</artifactId>
+            <version>${pom.currentVersion}</version>
+            <type>plugin</type>
+        </dependency>
 
-       <dependency>
+        <!-- needed for xmlbeans runtime-->
+        <dependency>
+            <groupId>xmlbeans</groupId>
+            <artifactId>xbean-apache</artifactId>
+            <version>&xmlbeans-version;</version>
+        </dependency>
+
+
+        <!-- real stuff -->
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-common</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+
+        <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-naming</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
-<!-- Needed only for DeploymentException in a test, from NameFactory which probably shouldn't be throwing it in the first place-->
+
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-deployment</artifactId>
             <version>${pom.currentVersion}</version>
+        </dependency> 
+
+      <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-connector</artifactId>
+            <version>${pom.currentVersion}</version>
         </dependency>
+ 
 
         <dependency>
             <groupId>geronimo</groupId>
@@ -78,23 +106,39 @@
             <version>${pom.currentVersion}</version>
         </dependency>
 
+        <!-- test only-->
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-system</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+
+        <!-- test only-->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-transaction</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
 
-        <!--  test only -->
         <dependency>
-            <groupId>geronimo-spec</groupId>
-            <artifactId>geronimo-spec-j2ee-jacc</artifactId>
-            <version>&geronimo-spec-j2ee-jacc-version;</version>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-j2ee-schema</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <xmlbeans>true</xmlbeans>
+            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-connector</artifactId>
             <version>&geronimo-spec-j2ee-connector-version;</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-j2ee-deployment</artifactId>
+            <version>&geronimo-spec-j2ee-deployment-version;</version>
         </dependency>
 
         <dependency>
@@ -129,7 +173,6 @@
             <version>&mx4j-version;</version>
         </dependency>
 
-<!--  test only -->
         <dependency>
             <groupId>tranql</groupId>
             <artifactId>tranql</artifactId>

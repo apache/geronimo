@@ -43,6 +43,9 @@ by the server.
         <uri>geronimo/jars/geronimo-connector-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>
+        <uri>geronimo/jars/geronimo-connector-builder-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
         <uri>concurrent/jars/concurrent-${concurrent_version}.jar</uri>
     </dependency>
     <dependency>

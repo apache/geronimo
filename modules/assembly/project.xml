@@ -115,6 +115,15 @@
 
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-connector-builder</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-core</artifactId>
             <version>${pom.currentVersion}</version>
             <properties>

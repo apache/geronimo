@@ -34,6 +34,9 @@ Configuration for the Geronimo deployer
         <uri>geronimo/jars/geronimo-connector-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>
+        <uri>geronimo/jars/geronimo-connector-builder-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
         <uri>geronimo/jars/geronimo-core-${geronimo_version}.jar</uri>
     </dependency>
     <!-- needed to load some connector and core classes-->
