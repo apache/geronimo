@@ -59,12 +59,12 @@ package org.apache.geronimo.common.mutable;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import org.apache.geronimo.common.Primitives;
-import org.apache.geronimo.common.coerce.NotCoercibleException;
+import org.apache.geronimo.common.NotCoercibleException;
 
 /**
  * A mutable float class.
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/27 09:08:10 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/03 17:39:07 $
  */
 public class MuFloat
     extends MuNumber

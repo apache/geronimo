@@ -54,60 +54,52 @@
  * ====================================================================
  */
 
-package org.apache.geronimo.common.coerce;
+package org.apache.geronimo.common;
 
 /**
- * This exception is thrown to indicate that an object was not coercible.
+ * This exception is thrown to indicate that a problem has occured while
+ * trying to coerce an object.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/24 20:51:22 $
+ * @version $Revision: 1.1 $ $Date: 2003/09/03 17:39:07 $
  */
-public class NotCoercibleException
-    extends CoercionException
+public class CoercionException
+    extends RuntimeException
 {
     /**
-     * Construct a <tt>NotCoercibleException</tt> with the specified detail 
+     * Construct a <tt>CoercionException</tt> with the specified detail 
      * message.
      *
      * @param msg  Detail message.
      */
-    public NotCoercibleException(String msg) {
+    public CoercionException(String msg) {
         super(msg);
     }
     
     /**
-     * Construct a <tt>NotCoercibleException</tt> with the specified detail 
+     * Construct a <tt>CoercionException</tt> with the specified detail 
      * message and nested <tt>Throwable</tt>.
      *
      * @param msg     Detail message.
      * @param nested  Nested <tt>Throwable</tt>.
      */
-    public NotCoercibleException(String msg, Throwable nested) {
+    public CoercionException(String msg, Throwable nested) {
         super(msg, nested);
     }
     
     /**
-     * Construct a <tt>NotCoercibleException</tt> with the specified
+     * Construct a <tt>CoercionException</tt> with the specified
      * nested <tt>Throwable</tt>.
      *
      * @param nested  Nested <tt>Throwable</tt>.
      */
-    public NotCoercibleException(Throwable nested) {
+    public CoercionException(Throwable nested) {
         super(nested);
     }
     
     /**
-     * Construct a <tt>NotCoercibleException</tt> with no detail.
+     * Construct a <tt>CoercionException</tt> with no detail.
      */
-    public NotCoercibleException() {
+    public CoercionException() {
         super();
-    }
-    
-    /**
-     * Construct a <tt>NotCoercibleException</tt> with an object detail.
-     *
-     * @param obj     Object detail.
-     */
-    public NotCoercibleException(Object obj) {
-        super(String.valueOf(obj));
     }
 }
