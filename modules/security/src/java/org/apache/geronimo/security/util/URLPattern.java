@@ -20,13 +20,14 @@ package org.apache.geronimo.security.util;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 
 /**
  * Utility class for <code>WebModuleConfiguration</code>.  This class is used to generate qualified patterns, HTTP
  * method sets, complements of HTTP method sets, and HTTP method sets w/ transport restrictions for URL patterns that
  * are found in the web deployment descriptor.
- * @version $Revision: 1.4 $ $Date: 2004/05/30 01:25:21 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/27 18:12:48 $
  * @see org.apache.geronimo.security.jacc.WebModuleConfiguration
  */
 public class URLPattern {
@@ -70,7 +71,7 @@ public class URLPattern {
      * @param patterns the set of possible URL patterns that could be used to qualify this pattern
      * @return a qualifed URL pattern
      */
-    public String getQualifiedPattern(HashSet patterns) {
+    public String getQualifiedPattern(Set patterns) {
         if (type == EXACT) {
             return pattern;
         } else {
