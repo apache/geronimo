@@ -106,8 +106,11 @@ public class AppClientModuleBuilder implements ModuleBuilder {
             specDD = IOUtil.readAll(appClientXmlUrl);
 
             // check if we have an alt spec dd
-            ApplicationClientDocument appClientDoc = SchemaConversionUtils.convertToApplicationClientSchema(SchemaConversionUtils.parse(specDD));
+            XmlObject xmlObject = SchemaConversionUtils.parse(specDD);
+            ApplicationClientDocument appClientDoc = SchemaConversionUtils.convertToApplicationClientSchema(xmlObject);
             appClient = appClientDoc.getApplicationClient();
+        } catch (XmlException e) {
+            throw new DeploymentException("Unable to parse application-client.xml", e);
         } catch (Exception e) {
             return null;
         }

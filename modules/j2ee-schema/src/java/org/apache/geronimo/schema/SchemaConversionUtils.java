@@ -123,7 +123,7 @@ public class SchemaConversionUtils {
         } finally {
             cursor.dispose();
         }
-        XmlObject result = xmlObject.changeType(ApplicationDocument.type);
+        XmlObject result = xmlObject.changeType(ApplicationClientDocument.type);
         if (result != null) {
             validateDD(result);
             return (ApplicationClientDocument) result;

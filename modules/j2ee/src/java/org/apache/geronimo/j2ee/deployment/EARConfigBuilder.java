@@ -131,7 +131,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             module = appClientConfigBuilder.createModule(name, planFile, jarFile, null, null);
         }
         if (module == null) {
-            throw new DeploymentException("Could not build module list; Unknown plan type");
+            return null;
         }
 
         // in the case of a stand alone module we actually want the name to be the
@@ -384,30 +384,35 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             String modulePath;
             ModuleBuilder builder;
 
+            String moduleTypeName;
             if (moduleXml.isSetEjb()) {
                 modulePath = moduleXml.getEjb().getStringValue();
                 if (ejbConfigBuilder == null) {
                     throw new DeploymentException("Can not deploy ejb application; No ejb deployer defined: " + modulePath);
                 }
                 builder = ejbConfigBuilder;
+                moduleTypeName = "an EJB";
             } else if (moduleXml.isSetWeb()) {
                 modulePath = moduleXml.getWeb().getWebUri().getStringValue();
                 if (webConfigBuilder == null) {
                     throw new DeploymentException("Can not deploy web application; No war deployer defined: " + modulePath);
                 }
                 builder = webConfigBuilder;
+                moduleTypeName = "a war";
             } else if (moduleXml.isSetConnector()) {
                 modulePath = moduleXml.getConnector().getStringValue();
                 if (connectorConfigBuilder == null) {
                     throw new DeploymentException("Can not deploy resource adapter; No rar deployer defined: " + modulePath);
                 }
                 builder = connectorConfigBuilder;
+                moduleTypeName = "a connector";
             } else if (moduleXml.isSetJava()) {
                 modulePath = moduleXml.getJava().getStringValue();
                 if (appClientConfigBuilder == null) {
                     throw new DeploymentException("Can not deploy app client; No app client deployer defined: " + modulePath);
                 }
                 builder = appClientConfigBuilder;
+                moduleTypeName = "an application client";
             } else {
                 throw new DeploymentException("Could not find a module builder for module: " + moduleXml);
             }
@@ -424,6 +429,10 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                     new NestedJarFile(earFile, modulePath),
                     altSpecDD,
                     modulePath);
+
+            if (module == null) {
+                throw new DeploymentException("Module was not " + moduleTypeName + ": " + modulePath);
+            }
 
             if (module instanceof WebModule) {
                 ((WebModule) module).setContextRoot(moduleXml.getWeb().getContextRoot().getStringValue());
