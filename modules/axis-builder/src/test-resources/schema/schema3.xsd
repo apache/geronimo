@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<schema targetNamespace="http://arraytest"
+    xmlns="http://www.w3.org/2001/XMLSchema">
+    <complexType name="StringArray">
+        <sequence>
+            <element name="value" type="string" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+        </sequence>
+    </complexType>
+</schema>

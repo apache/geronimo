@@ -17,6 +17,7 @@
 package org.apache.geronimo.axis.builder;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.ArrayList;
 import java.util.Map;
@@ -40,6 +41,26 @@ public class ParsingTest extends TestCase {
 
     public void testSchema1() throws Exception {
         File schema1 = new File(basedir, "src/test-resources/schema/schema1.xsd");
+        System.out.println("SCHEMA 1");
+        Map map = parse(schema1);
+        assertEquals(13, map.size());
+    }
+
+    public void testSchema2() throws Exception {
+        File schema1 = new File(basedir, "src/test-resources/schema/schema2.xsd");
+        System.out.println("SCHEMA 2");
+        Map map = parse(schema1);
+        assertEquals(4, map.size());
+    }
+
+    public void testSchema3() throws Exception {
+        File schema1 = new File(basedir, "src/test-resources/schema/schema3.xsd");
+        System.out.println("SCHEMA 3");
+        Map map = parse(schema1);
+        assertEquals(3, map.size());
+    }
+
+    private Map parse(File schema1) throws IOException, XmlException, DeploymentException {
         XmlObject xmlObject = SchemaConversionUtils.parse(schema1.toURL());
         Collection errors = new ArrayList();
         XmlOptions xmlOptions = new XmlOptions();
@@ -60,6 +81,7 @@ public class ParsingTest extends TestCase {
             Map.Entry entry = (Map.Entry) iterator.next();
             System.out.println(entry.getKey() + " --> " + entry.getValue());
         }
-        assertEquals(9, map.size());
+        return map;
     }
+
 }

@@ -18,20 +18,32 @@ package org.apache.geronimo.axis.builder;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.MalformedURLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.jar.JarFile;
-import java.lang.reflect.Method;
-import javax.wsdl.*;
+import javax.wsdl.Definition;
+import javax.wsdl.Import;
+import javax.wsdl.Operation;
+import javax.wsdl.Port;
+import javax.wsdl.Service;
+import javax.wsdl.Types;
+import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.UnknownExtensibilityElement;
-import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.wsdl.extensions.schema.Schema;
+import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLLocator;
 import javax.wsdl.xml.WSDLReader;
@@ -59,6 +71,7 @@ import javax.xml.rpc.holders.ShortWrapperHolder;
 import javax.xml.rpc.holders.StringHolder;
 
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.j2ee.ExceptionMappingType;
@@ -73,7 +86,9 @@ import org.apache.geronimo.xbeans.j2ee.ServiceImplBeanType;
 import org.apache.geronimo.xbeans.j2ee.WebserviceDescriptionType;
 import org.apache.geronimo.xbeans.j2ee.WebservicesDocument;
 import org.apache.geronimo.xbeans.j2ee.WebservicesType;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
+import org.apache.xmlbeans.SchemaField;
+import org.apache.xmlbeans.SchemaGlobalElement;
+import org.apache.xmlbeans.SchemaParticle;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.XmlBeans;
@@ -81,11 +96,6 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.SchemaField;
-import org.apache.xmlbeans.SchemaParticle;
-import org.apache.xmlbeans.SchemaGlobalElement;
-import org.w3.x2001.xmlSchema.ComplexType;
-import org.w3.x2001.xmlSchema.SchemaDocument;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 
@@ -134,6 +144,7 @@ public class WSDescriptorParser {
     /**
      * Parses a webservice.xml file and returns a map PortInfo instances indexed by the
      * corresponding ejb-link or servlet-link element .
+     *
      * @param webservicesType
      * @param moduleFile
      * @param isEJB
@@ -191,13 +202,13 @@ public class WSDescriptorParser {
                     throw new DeploymentException("No WSDL Port definition for port-component " + portComponentName);
                 }
 
-                ServiceEndpointInterfaceMappingType seiMapping = (ServiceEndpointInterfaceMappingType)seiMappings.get(seiInterfaceName);
+                ServiceEndpointInterfaceMappingType seiMapping = (ServiceEndpointInterfaceMappingType) seiMappings.get(seiInterfaceName);
 
                 URL wsdlURL = null;
                 try {
                     wsdlURL = DeploymentUtil.createJarURL(moduleFile, webserviceDescription.getWsdlFile().getStringValue().trim());
                 } catch (MalformedURLException e) {
-                    throw new DeploymentException("Invalid WSDL URL: "+webserviceDescription.getWsdlFile().getStringValue().trim(), e);
+                    throw new DeploymentException("Invalid WSDL URL: " + webserviceDescription.getWsdlFile().getStringValue().trim(), e);
                 }
 
                 PortInfo portInfo = new PortInfo(portComponentName, portQName, definition, javaWsdlMapping, seiInterfaceName, handlers, port, seiMapping, wsdlURL);
@@ -213,15 +224,14 @@ public class WSDescriptorParser {
 
     /**
      * Gets a map of all the javax.wsdl.Port instance in the WSDL definition keyed by the port's QName
-     *
+     * <p/>
      * WSDL 1.1 spec: 2.6 "The name attribute provides a unique name among all ports defined within in the enclosing WSDL document."
      *
      * @param definition
      * @return
-     * @throws DeploymentException
      */
 
-    public static Map getPortMap(Definition definition) throws DeploymentException {
+    public static Map getPortMap(Definition definition) {
         HashMap ports = new HashMap();
         Collection services = definition.getServices().values();
         for (Iterator iterator = services.iterator(); iterator.hasNext();) {
@@ -409,16 +419,13 @@ public class WSDescriptorParser {
         }
         SchemaType schemaType = element.getType();
         qnameMap.put(elementKey, schemaType);
-        //check if it's an array
-        if (element.getMaxOccurs() != null && element.getMaxOccurs().intValue() > 1) {
-            //this is at least rule 3.a.  If refs get the element name from the ref, it will handle 3.b also.
-            int minOccurs = element.getMinOccurs() == null ? 1 : element.getMinOccurs().intValue();
-            int maxOccurs = element.getMaxOccurs().intValue();
-            String arrayQNameLocalName = elementQNameLocalName + "[" + minOccurs + "," + maxOccurs + "]";
-            QName arrayName = new QName(elementNamespace, arrayQNameLocalName);
-            SchemaTypeKey arrayKey = new SchemaTypeKey(arrayName, true, false, true);
-            //TODO not clear we want the schemaType as the value
-            qnameMap.put(arrayKey, schemaType);
+//        new Exception("Adding: " + elementKey.getqName().getLocalPart()).printStackTrace();
+        //check if it's an array. maxOccurs is null if unbounded
+        //element should always be a SchemaParticle... this is a workaround for XMLBEANS-137
+        if (element instanceof SchemaParticle) {
+            addArrayForms((SchemaParticle) element, elementKey.getqName(), qnameMap, schemaType);
+        } else {
+            System.out.println("element is not a schemaParticle! " + element);
         }
         //now, name for type.  Rule 1.b, type inside an element
         String typeQNameLocalPart = ">" + elementQNameLocalName;
@@ -430,6 +437,7 @@ public class WSDescriptorParser {
     private static void addSchemaType(QName typeQName, SchemaType schemaType, boolean anonymous, Map qnameMap) {
         SchemaTypeKey typeKey = new SchemaTypeKey(typeQName, false, schemaType.isSimpleType(), anonymous);
         qnameMap.put(typeKey, schemaType);
+//        new Exception("Adding: " + typeKey.getqName().getLocalPart()).printStackTrace();
         //TODO xmlbeans recommends using summary info from getElementProperties and getAttributeProperties instead of traversing the content model by hand.
         SchemaParticle schemaParticle = schemaType.getContentModel();
         if (schemaParticle != null) {
@@ -446,21 +454,16 @@ public class WSDescriptorParser {
             if (element != null) {
                 addElement(element, key, qnameMap);
             } else {
-                //it may be a ref or a built in type.  If it's an array (maxOccurs >1) form a type for it.
-                int maxOccurs = schemaParticle.getMaxOccurs() == null ? 1 : schemaParticle.getMaxOccurs().intValue();
-                if (maxOccurs > 1) {
-                    int minOccurs = schemaParticle.getMinOccurs() == null ? 1 : schemaParticle.getMinOccurs().intValue();
-                    QName elementName = schemaParticle.getName();
-                    String arrayQNameLocalName = elementName.getLocalPart() + "[" + minOccurs + "," + maxOccurs + "]";
-                    String elementNamespace = elementName.getNamespaceURI();
-                    if (elementNamespace == null || elementNamespace.equals("")) {
-                        elementNamespace = key.getqName().getNamespaceURI();
-                    }
-                    QName arrayName = new QName(elementNamespace, arrayQNameLocalName);
-                    SchemaTypeKey arrayKey = new SchemaTypeKey(arrayName, true, false, true);
-                    //TODO not clear we want the schemaType as the value
-                    qnameMap.put(arrayKey, elementType);
-                }
+                QName keyQName = key.getqName();
+                //TODO I can't distinguish between 3.a and 3.b, so generate names both ways.
+                //3.b
+                String localPart = schemaParticle.getName().getLocalPart();
+                QName elementName = new QName(keyQName.getNamespaceURI(), localPart);
+                addArrayForms(schemaParticle, elementName, qnameMap, elementType);
+                //3.a
+                localPart = keyQName.getLocalPart() + ">" + schemaParticle.getName().getLocalPart();
+                elementName = new QName(keyQName.getNamespaceURI(), localPart);
+                addArrayForms(schemaParticle, elementName, qnameMap, elementType);
             }
         } else {
             SchemaParticle[] children = schemaParticle.getParticleChildren();
@@ -471,9 +474,36 @@ public class WSDescriptorParser {
         }
     }
 
+    private static void addArrayForms(SchemaParticle schemaParticle, QName keyName, Map qnameMap, SchemaType elementType) {
+        //it may be a ref or a built in type.  If it's an array (maxOccurs >1) form a type for it.
+        if (schemaParticle.getIntMaxOccurs() > 1) {
+            String maxOccurs = schemaParticle.getMaxOccurs() == null ? "unbounded" : "" + schemaParticle.getIntMaxOccurs();
+            int minOccurs = schemaParticle.getIntMinOccurs();
+            QName elementName = schemaParticle.getName();
+            String arrayQNameLocalName = keyName.getLocalPart() + "[" + minOccurs + "," + maxOccurs + "]";
+            String elementNamespace = elementName.getNamespaceURI();
+            if (elementNamespace == null || elementNamespace.equals("")) {
+                elementNamespace = keyName.getNamespaceURI();
+            }
+            QName arrayName = new QName(elementNamespace, arrayQNameLocalName);
+            SchemaTypeKey arrayKey = new SchemaTypeKey(arrayName, false, false, true);
+            //TODO not clear we want the schemaType as the value
+            qnameMap.put(arrayKey, elementType);
+//            new Exception("Adding: " + arrayKey.getqName().getLocalPart()).printStackTrace();
+            if (minOccurs == 1) {
+                arrayQNameLocalName = keyName.getLocalPart() + "[," + maxOccurs + "]";
+                arrayName = new QName(elementNamespace, arrayQNameLocalName);
+                arrayKey = new SchemaTypeKey(arrayName, false, false, true);
+                //TODO not clear we want the schemaType as the value
+                qnameMap.put(arrayKey, elementType);
+            }
+        }
+    }
+
     /**
      * Find all the complex types in the previously constructed schema analysis.
      * Put them in a map from complex type QName to schema fragment.
+     *
      * @param schemaTypeKeyToSchemaTypeMap
      * @return
      */
@@ -573,6 +603,12 @@ public class WSDescriptorParser {
                 }
                 Class holder = (Class) rpcHolderClasses.get(paramJavaType);
                 if (holder != null) {
+                    try {
+                        //TODO use class names in map or make sure we are in the correct classloader to start with.
+                        holder = ClassLoading.loadClass(holder.getName(), classLoader);
+                    } catch (ClassNotFoundException e) {
+                        throw new DeploymentException("could not load holder type in correct classloader", e);
+                    }
                     return holder;
                 }
                 //Otherwise, the holder must be in:

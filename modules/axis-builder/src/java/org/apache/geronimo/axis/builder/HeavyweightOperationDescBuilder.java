@@ -176,13 +176,13 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
             String args = "(";
             for (int i = 0; i < paramTypes.length; i++) {
                 args += paramTypes[i].getName();
-                if (i < paramTypes.length-1){
+                if (i < paramTypes.length - 1){
                     args += ",";
                 }
             }
             args += ")";
             
-            throw new DeploymentException("Mapping references non-existent method in service-endpoint: " + methodName+ args);
+            throw new DeploymentException("Mapping references non-existent method in service-endpoint: " + methodName + args);
         }
 
         operationDesc.setMethod(method);
