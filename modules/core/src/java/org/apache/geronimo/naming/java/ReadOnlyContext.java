@@ -92,7 +92,7 @@ import javax.naming.spi.NamingManager;
  *   String envEntry2 = (String) componentContext.lookup("env/myEntry2");
  * </code>
  *
- * @version $Revision: 1.4 $ $Date: 2003/09/04 05:16:17 $
+ * @version $Revision: 1.5 $ $Date: 2003/11/13 04:30:56 $
  */
 public class ReadOnlyContext implements Context {
     private final Hashtable env;        // environment for this context
@@ -215,7 +215,7 @@ public class ReadOnlyContext implements Context {
     }
 
     public Object lookupLink(Name name) throws NamingException {
-        return lookupLink(name);
+        return lookupLink(name.toString());
     }
 
     public NamingEnumeration list(Name name) throws NamingException {

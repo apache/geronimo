@@ -91,6 +91,8 @@ import org.apache.geronimo.kernel.jmx.JMXKernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.naming.java.ComponentContextBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
+import org.apache.geronimo.naming.java.ReferenceFactory;
+import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 import org.apache.geronimo.proxy.ProxyInvocation;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.apache.geronimo.transaction.manager.UserTransactionImpl;
@@ -100,7 +102,7 @@ import org.apache.geronimo.xml.deployment.LoaderUtil;
 /**
  * Launcher for J2EE Application Clients.
  *
- * @version $Revision: 1.8 $ $Date: 2003/10/19 01:56:13 $
+ * @version $Revision: 1.9 $ $Date: 2003/11/13 04:30:56 $
  */
 public class Launcher {
     static {
@@ -206,7 +208,9 @@ public class Launcher {
 
         UserTransaction userTransaction = txnManager == null ? null : new UserTransactionImpl(txnManager);
         ApplicationClient appClient = loadAppClientDescriptor();
-        ReadOnlyContext compContext = new ComponentContextBuilder(userTransaction).buildContext(appClient);
+        ReferenceFactory referenceFactory = new JMXReferenceFactory(kernel.getMBeanServerId());
+
+        ReadOnlyContext compContext = new ComponentContextBuilder(referenceFactory, userTransaction).buildContext(appClient);
 
         AppClientContainer clientMBean = new AppClientContainer(clientURL, mainClassName, compContext);
         clientName = JMXUtil.getObjectName("geronimo.client:url=" + ObjectName.quote(clientURL.toString()));

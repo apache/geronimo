@@ -60,28 +60,30 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import javax.naming.LinkRef;
+import javax.naming.Reference;
+import javax.naming.NamingException;
 import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.JNDIEnvironmentRefs;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.JNDILocator;
 import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
 import org.apache.geronimo.kernel.deployment.DeploymentException;
 
 /**
  *
  *
- * @version $Revision: 1.8 $ $Date: 2003/10/15 02:53:26 $
+ * @version $Revision: 1.9 $ $Date: 2003/11/13 04:30:56 $
  */
 public class ComponentContextBuilder {
+
+    private final ReferenceFactory referenceFactory;
     private final UserTransaction userTransaction;
 
-    public ComponentContextBuilder() {
-        userTransaction = null;
-    }
-
-    public ComponentContextBuilder(UserTransaction userTransaction) {
+    public ComponentContextBuilder(ReferenceFactory referenceFactory, UserTransaction userTransaction) {
         this.userTransaction = userTransaction;
+        this.referenceFactory = referenceFactory;
     }
 
     /**
@@ -144,19 +146,23 @@ public class ComponentContextBuilder {
         }
     }
 
-    private static void buildEJBRefs(Map envMap, EjbRef[] ejbRefs) {
+    private void buildEJBRefs(Map envMap, EjbRef[] ejbRefs) throws DeploymentException {
         for (int i = 0; i < ejbRefs.length; i++) {
             EjbRef ejbRef = ejbRefs[i];
             String name = ejbRef.getEJBRefName();
-            String jndiName = ejbRef.getJndiName();
-            LinkRef ref = new LinkRef(jndiName);
+            Reference ref = null;
+            try {
+                ref = referenceFactory.getReference(ejbRef, ejbRef.getEJBRefType());
+            } catch (NamingException e) {
+                throw new DeploymentException("Could not construct reference to " + ejbRef.getJndiName());
+            }
             if (envMap.put(name, ref) != null) {
                 throw new AssertionError("Duplicate entry for env-entry " + name);
             }
         }
     }
 
-    private static void buildResourceRefs(Map envMap, ResourceRef[] resRefs) throws DeploymentException {
+    private void buildResourceRefs(Map envMap, ResourceRef[] resRefs) throws DeploymentException {
         for (int i=0; i < resRefs.length; i++) {
             ResourceRef resRef = resRefs[i];
             String name = resRef.getResRefName();
@@ -169,7 +175,11 @@ public class ComponentContextBuilder {
                     throw new DeploymentException("Invalid URL for resource-ref "+name, e);
                 }
             } else {
-                throw new DeploymentException("Cannot create resource-ref for "+name+", unknown type "+type);
+                try {
+                    ref = referenceFactory.getReference(resRef, "ConnectionFactory");
+                } catch (NamingException e) {
+                    throw new DeploymentException("Could not construct reference to " + resRef.getJndiName());
+                }
             }
             if (envMap.put(name, ref) != null) {
                 throw new AssertionError("Duplicate entry for resource-ref " + name);
