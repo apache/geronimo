@@ -66,19 +66,13 @@ import javax.resource.spi.work.WorkListener;
 import javax.resource.spi.work.WorkManager;
 
 import junit.framework.TestCase;
-
 import org.apache.geronimo.kernel.jmx.JMXKernel;
-import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
-import org.apache.geronimo.connector.work.pool.ScheduleWorkExecutorPool;
-import org.apache.geronimo.connector.work.pool.StartWorkExecutorPool;
-import org.apache.geronimo.connector.work.pool.SyncWorkExecutorPool;
 
 /**
  * Timing is crucial for this test case, which focuses on the synchronization
  * specificities of the doWork, startWork and scheduleWork.
  *
- * @version $Revision: 1.3 $ $Date: 2003/11/26 02:15:32 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/22 09:14:15 $
  */
 public class PooledWorkManagerTest extends TestCase
 {

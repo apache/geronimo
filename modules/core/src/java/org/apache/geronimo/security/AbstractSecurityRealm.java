@@ -55,21 +55,20 @@
  */
 package org.apache.geronimo.security;
 
-import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
-import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
+import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBean;
+import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GAttributeInfo;
-import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GBeanContext;
+import org.apache.geronimo.gbean.GOperationInfo;
+import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
 import org.apache.regexp.RE;
 
 
 /**
  *
- * @version $Revision: 1.7 $ $Date: 2004/01/22 07:29:56 $
+ * @version $Revision: 1.8 $ $Date: 2004/01/22 09:14:15 $
  */
 public abstract class AbstractSecurityRealm  implements SecurityRealm, GBean {
 

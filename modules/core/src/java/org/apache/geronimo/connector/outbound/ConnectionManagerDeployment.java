@@ -72,8 +72,6 @@ import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.GEndpointInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.kernel.KernelMBean;
-import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
-import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
 import org.apache.geronimo.security.bridge.RealmBridge;
 
 /**
@@ -81,9 +79,9 @@ import org.apache.geronimo.security.bridge.RealmBridge;
  * and connection manager stack according to the policies described in the attributes.
  * It's used by deserialized copies of the proxy to get a reference to the actual stack.
  *
- * @version $Revision: 1.15 $ $Date: 2004/01/22 06:39:24 $
+ * @version $Revision: 1.16 $ $Date: 2004/01/22 09:14:14 $
  * */
-public class ConnectionManagerDeployment implements GeronimoMBeanTarget, ConnectionManagerFactory, GBean {
+public class ConnectionManagerDeployment implements ConnectionManagerFactory, GBean {
 
     private static final GBeanInfo GBEAN_INFO;
 
@@ -113,10 +111,7 @@ public class ConnectionManagerDeployment implements GeronimoMBeanTarget, Connect
     private ConnectionTracker connectionTracker;
     private KernelMBean kernel;
 
-    //GeronimoMBeanTarget support.
-    private GeronimoMBeanContext context;
-
-    //default constructor for normal use as mbean
+    //default constructor for use as endpoint
     public ConnectionManagerDeployment() {
     }
 
@@ -147,20 +142,10 @@ public class ConnectionManagerDeployment implements GeronimoMBeanTarget, Connect
     public void setGBeanContext(GBeanContext context) {
     }
 
-    public void setMBeanContext(GeronimoMBeanContext context) {
-        this.context = context;
-    }
-
-    public boolean canStart() {
-        return true;
-    }
-
     public void doStart() {
         MBeanServer mbeanServer = null;
         if (kernel != null) {
             mbeanServer = kernel.getMBeanServer();
-        } else if (context != null) {
-            mbeanServer = context.getServer();
         } else {
             throw new IllegalStateException("Neither kernel nor context is set, but you're trying to start");
         }
@@ -246,18 +231,10 @@ public class ConnectionManagerDeployment implements GeronimoMBeanTarget, Connect
         cm = new ProxyConnectionManager(agentID, connectionManagerName, stack);
     }
 
-    public boolean canStop() {
-        return true;
-    }
-
-    /* (non-Javadoc)
-         * @see org.apache.geronimo.core.service.AbstractStateManageable#doStop()
-         */
     public void doStop() {
         cm = null;
         realmBridge = null;
         connectionTracker = null;
-
     }
 
     public void doFail() {
