@@ -67,7 +67,7 @@ import java.io.File;
 /**
  * A collection of String utilities.
  *
- * @version $Revision: 1.9 $ $Date: 2003/08/26 07:51:06 $
+ * @version $Revision: 1.10 $ $Date: 2003/08/26 11:02:43 $
  */
 public final class Strings
 {
@@ -690,6 +690,10 @@ public final class Strings
      */
     public static URL toURL(String urlspec, final String relativePrefix) throws MalformedURLException
     {
+        if (urlspec == null) {
+            throw new NullArgumentException("urlspec");
+        }
+        
         urlspec = urlspec.trim();
         URL url;
         
