@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.17 $ $Date: 2004/01/23 06:44:21 $ -->
+<!-- $Revision: 1.18 $ $Date: 2004/01/23 13:26:48 $ -->
 
 <project name="Apache Geronimo">
 
@@ -9,16 +9,16 @@
 
   <body>
     <search/>
-    
+
     <links>
       <item name="Apache" href="http://apache.org"/>
     </links>
-    
+
     <menu name="Geronimo">
       <item name="Overview"                href="/index.html"/>
       <item name="FAQ"                     href="/faq.html"/>
       <item name="Wiki"                    href="http://wiki.apache.org/geronimo"/>
-      
+
       <!--
       <item name="To Do List"              href="/todo.html"/>
       <item name="Getting Started"         href="/gettingstarted.html"/>
@@ -26,26 +26,24 @@
       <item name="Detail"                  href="/overview.html"/>
       <item name="Download"                href="/builds/distributions/"/>
       -->
-      
+
       <item name="Related Projects"        href="/reuse.html"/>
     </menu>
-    
+
     <menu name="Modules">
       <item name="Clustering"               href="/modules/clustering/index.html"/>
       <item name="Common"                   href="/modules/common/index.html"/>
+      <item name="Connector"                href="/modules/connector/index.html"/>
       <item name="Web Console"              href="/modules/console-web/index.html"/>
       <item name="Core Container"           href="/modules/core/index.html"/>
       <item name="Deployment"               href="/modules/deployment/index.html"/>
-      <item name="Explorer"                 href="/modules/explorer/index.html"/>
+      <item name="Jetty"                    href="/modules/jetty/index.html"/>
       <item name="Kernel"                   href="/modules/kernel/index.html"/>
       <item name="Mail"                     href="/modules/mail/index.html"/>
       <item name="Remoting"                 href="/modules/remoting/index.html"/>
       <item name="Security"                 href="/modules/security/index.html"/>
-      <item name="Twiddle"                  href="/modules/twiddle/index.html"/>
-      <item name="Web Container"            href="/modules/web/index.html"/>
-      <item name="XML Beans"                href="/modules/xbeans/index.html"/>
     </menu>
-    
+
     <menu name="Specifications">
       <item name="Java Activation Framework"                  href="/specs/activation/index.html"/>
       <item name="Enterprise Java Beans"                      href="/specs/ejb/index.html"/>
@@ -59,7 +57,7 @@
       <item name="Java Transaction API"                       href="/specs/jta/index.html"/>
       <item name="Java Servlet Specification"                 href="/specs/servelet/index.html"/>
     </menu>
-    
+
     <menu name="Apache Community">
   	  <item name="Get Involved"            href="http://jakarta.apache.org/site/getinvolved.html"/>
   	  <item name="Contributors"            href="http://www.apache.org/dev/contributors.html"/>
@@ -68,9 +66,9 @@
       <item name="Source"                  href="http://jakarta.apache.org/site/source.html"/>
       <item name="CVS Repositories"        href="http://jakarta.apache.org/site/cvsindex.html"/>
     </menu>
-    
+
     <footer><div>Java, J2EE, and JCP are trademarks or registered trademarks of
       Sun Microsystems, Inc. in the United States and other countries.</div></footer>
-      
+
   </body>
 </project>
