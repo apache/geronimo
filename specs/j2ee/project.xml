@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.3 $ $Date: 2004/02/12 03:17:54 $ -->
+<!-- $Revision: 1.4 $ $Date: 2004/02/12 19:47:35 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
 
     <name>Geronimo :: J2EE Specification</name>
-    <groupId>geronimo-j2ee</groupId>
+    <groupId>geronimo-spec</groupId>
     <id>geronimo-spec-j2ee</id>
 
     <currentVersion>DEV</currentVersion>
