@@ -262,14 +262,6 @@
         </dependency>
 
         <!-- Module Dependencies -->
-       <dependency>
-            <groupId>xmlbeans</groupId>
-            <artifactId>xbean-apache-1.0</artifactId>
-            <version>DEV</version>
-            <properties>
-                <module>true</module>
-            </properties>
-        </dependency>
         <dependency>
             <groupId>axis</groupId>
             <artifactId>axis</artifactId>
