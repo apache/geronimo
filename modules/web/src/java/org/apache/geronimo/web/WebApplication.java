@@ -53,77 +53,81 @@
  *
  * ====================================================================
  */
-
 package org.apache.geronimo.web;
 
 import java.net.URI;
+
 import org.apache.geronimo.core.service.Component;
 import org.apache.geronimo.kernel.management.WebModule;
-
+import org.apache.geronimo.naming.java.ReadOnlyContext;
 
 
 /**
  * The WebApplication interface represents a web application deployable within a WebContainer.
  *
- * It supports the J2EE Management WebModule attributes 
+ * It supports the J2EE Management WebModule attributes
  *
- * @version  $Revision: 1.10 $ $Date: 2003/10/30 07:47:05 $
+ * @version  $Revision: 1.11 $ $Date: 2003/11/16 07:18:26 $
  */
 public interface WebApplication extends Component, WebModule {
- 
-    /*-------------------------------------------------------------------------------- */
-    /**Get the uri of the webapp
+    /**
+     * Get the uri of the webapp
      * @return the URI of the webapp deployment
      */
     public URI getURI();
 
-    
-    /* -------------------------------------------------------------------------------------- */
-    /** Setter for the parent classloader for this webapp
+    /**
+     * Setter for the parent classloader for this webapp
      * @param loader
      */
-    public void setParentClassLoader (ClassLoader loader);
+    public void setParentClassLoader(ClassLoader loader);
 
-    /* -------------------------------------------------------------------------------------- */
-    /** Getter for the parent classloader for this webapp
-     * @param loader
+    /**
+     * Getter for the parent classloader for this webapp
      */
-    public ClassLoader getParentClassLoader ();
+    public ClassLoader getParentClassLoader();
 
-    
-
-
-    /* -------------------------------------------------------------------------------------- */
-    /**Get the context path for the webapp
-     * @return 
+    /**
+     * Get the context path for the webapp
+     * @return
      */
     public String getContextPath();
 
 
-    /* -------------------------------------------------------------------------------------- */
-    /**Set the context path for the webapp
-     * @return 
+    /**
+     * Set the context path for the webapp
+     * @param path the context path of the web application
      */
     public void setContextPath(String path);
 
-
-    /*-------------------------------------------------------------------------------- */
-     /** JSR077 WebModule method to expose the
-      *  contents of the webapp's web.xml file
-      *
-      * @return the contents of the web.xml as a string
-      */
+    /**
+     * JSR077 WebModule method to expose the
+     * contents of the webapp's web.xml file
+     * @return the contents of the web.xml as a string
+     */
     public String getDeploymentDescriptor();
-    
-    /* -------------------------------------------------------------------------------------- */
-     /**Getter for the class loader delegation model for this webapp
-      * @return
-      */
-     public boolean getJava2ClassloadingCompliance ();
-     
-    /* -------------------------------------------------------------------------------------- */
-    /**Set the class loading delegation model for this web application
+
+    /**
+     * Getter for the class loader delegation model for this webapp
+     * @return
+     */
+    public boolean getJava2ClassloadingCompliance();
+
+    /**
+     * Set the class loading delegation model for this web application
      * @param state
      */
     public void setJava2ClassloadingCompliance(boolean state);
+
+    /**
+     * Gets the JNDI context for the web application.
+     * @return the jndi context
+     */
+    public ReadOnlyContext getContext();
+
+    /**
+     * Sets the JNDI context for the web application.
+     * @param context the jndi context
+     */
+    public void setContext(ReadOnlyContext context);
 }
