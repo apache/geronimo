@@ -57,6 +57,8 @@
 package org.apache.geronimo.common.log.log4j;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.BufferedReader;
 
 import java.net.URL;
 import java.net.URLConnection;
@@ -75,7 +77,7 @@ import org.apache.geronimo.common.NullArgumentException;
 /**
  * Handles the details of configuring Log4j from a URL.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/29 20:08:45 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/29 20:33:00 $
  */
 public class URLConfigurator
     implements Configurator
@@ -87,13 +89,14 @@ public class URLConfigurator
         new URLConfigurator().doConfigure(url, LogManager.getLoggerRepository());
     }
     
-    private boolean isContentXML(final URL url)
+    private Configurator getConfigurator(final URL url)
     {
         String contentType = null;
         
         // Get the content type to see if it is XML or not
+        URLConnection connection = null;
         try {
-            URLConnection connection = url.openConnection();
+            connection = url.openConnection();
             contentType = connection.getContentType();
             if (log.isTraceEnabled()) {
                 log.trace("Content type: " + contentType);
@@ -102,24 +105,41 @@ public class URLConfigurator
         catch (IOException e) {
             log.warn("Could not determine content type from URL; ignoring", e);
         }
-        
         if (contentType != null) {
-            return contentType.toLowerCase().endsWith("/xml");
+            if (contentType.toLowerCase().endsWith("/xml")) {
+                return new DOMConfigurator();
+            }
         }
         
-        return url.getFile().toLowerCase().endsWith(".xml");
-        
-        //
-        // TODO: Add check for <?xml in content
-        //
-    }
-    
-    private Configurator getConfigurator(final URL url)
-    {
-        if (isContentXML(url)) {
+        // Check thr file name
+        String filename = url.getFile().toLowerCase();
+        if (filename.endsWith(".xml")) {
             return new DOMConfigurator();
         }
+        else if (filename.endsWith(".properties")) {
+            return new PropertyConfigurator();
+        }
         
+        // Check for <?xml in content
+        if (connection != null) {
+            try {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                try {
+                    String head = reader.readLine();
+                    if (head.startsWith("<?xml")) {
+                        return new DOMConfigurator();
+                    }
+                }
+                finally {
+                    reader.close();
+                }
+            }
+            catch (IOException e) {
+                log.warn("Failed to check content header; ignoring", e);
+            }
+        }
+        
+        log.warn("Unable to determine content type, using property configurator");
         return new PropertyConfigurator();
     }
     
