@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Revision: 1.1 $ $Date: 2004/01/23 02:57:17 $ -->
+
+<project name="Apache Geronimo :: Twiddle">
+
+  <title>Apache Geronimo :: Twiddle</title>
+  
+  <body>
+    <links>
+      <item name="Apache" href="http://apache.org"/>
+      <item name="Geronimo" href="../../index.html"/>
+    </links>
+
+    <footer><div>Java, J2EE, and JCP are trademarks or registered trademarks of
+      Sun Microsystems, Inc. in the United States and other countries.</div></footer>
+
+  </body>
+  
+</project>

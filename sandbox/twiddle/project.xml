@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Revision: 1.1 $ $Date: 2004/01/23 02:57:16 $ -->
+
+<project>
+  <pomVersion>3</pomVersion>
+  <extend>${basedir}/../../etc/project.xml</extend>
+  
+  <!-- ===================== -->
+  <!-- Module Identification -->
+  <!-- ===================== -->
+  
+  <name>Geronimo :: Twiddle</name>
+  <id>geronimo-twiddle</id>
+  <shortDescription></shortDescription>
+  <description></description>
+  <siteDirectory></siteDirectory>
+  <distributionDirectory></distributionDirectory>
+  
+  <package>org.apache.geronimo.twiddle</package>
+  <currentVersion>DEV</currentVersion>
+  
+  
+  <!-- ============ -->
+  <!-- Dependencies -->
+  <!-- ============ -->
+  
+  <dependencies>
+  
+    <!-- Module Dependencies -->
+    
+    <dependency>
+      <groupId>geronimo</groupId>
+      <artifactId>geronimo-common</artifactId>
+      <version>DEV</version>
+      <properties>
+        <module>true</module>
+        <runtime>true</runtime>
+      </properties>
+    </dependency>
+    
+    <!-- Thirdparty Dependencies -->
+    
+    <!-- Will need this for the expression parser generation
+    <dependency>
+      <id>javacc</id>
+      <jar>JavaCC.zip</jar>
+      <properties>
+        <runtime>false</runtime>
+      </properties>
+    </dependency>
+    -->
+    
+    <dependency>
+      <id>classworlds</id>
+      <version>SNAPSHOT</version>
+      <url>http://classworlds.codehaus.org</url>
+      <properties>
+        <runtime>true</runtime>
+      </properties>
+    </dependency>
+    
+    <dependency>
+      <id>castor</id>
+      <version>0.9.5</version>
+      <url>http://castor.exolab.org</url>
+      <properties>
+        <runtime>true</runtime>
+      </properties>
+    </dependency>
+    
+    <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+      <version>2.6.0</version>
+      <url>http://xml.apache.org</url>
+      <properties>
+        <runtime>false</runtime>
+      </properties>
+    </dependency>
+    
+    <dependency>
+      <id>xml-apis</id>
+      <version>1.0.b2</version>
+      <properties>
+        <runtime>false</runtime>
+      </properties>
+    </dependency>
+    
+    <dependency>
+      <id>log4j</id>
+      <version>1.2.8</version>
+      <url>http://jakarta.apache.org/log4j</url>
+      <properties>
+        <runtime>false</runtime>
+      </properties>
+    </dependency>
+    
+    <dependency>
+      <id>commons-beanutils</id>
+      <version>SNAPSHOT</version>
+      <url>http://jakarta.apache.org/commons/beanutils</url>
+      <properties>
+        <runtime>true</runtime>
+      </properties>
+    </dependency>
+    
+    <dependency>
+      <id>commons-collections</id>
+      <version>SNAPSHOT</version>
+      <url>http://jakarta.apache.org/commons/collections</url>
+      <properties>
+        <runtime>false</runtime>
+      </properties>
+    </dependency>
+    
+    <dependency>
+      <id>commons-lang</id>
+      <version>SNAPSHOT</version>
+      <url>http://jakarta.apache.org/commons/lang</url>
+      <properties>
+        <runtime>false</runtime>
+      </properties>
+    </dependency>
+    
+    <dependency>
+      <id>commons-logging</id>
+      <version>1.0.3</version>
+      <url>http://jakarta.apache.org/commons/logging</url>
+      <properties>
+        <runtime>false</runtime>
+      </properties>
+    </dependency>
+    
+    <dependency>
+      <id>commons-cli</id>
+      <version>1.0</version>
+      <url>http://jakarta.apache.org/commons/cli</url>
+      <properties>
+        <runtime>true</runtime>
+      </properties>
+    </dependency>
+    
+  </dependencies>
+  
+  
+  <!-- =================== -->
+  <!-- Build Specification -->
+  <!-- =================== -->
+  
+  <build>
+    <unitTest>
+      <!-- For some reason this is not pulled from the global project -->
+      <includes>
+        <include>**/*Test.java</include>
+      </includes>
+      <excludes>
+        <exclude>**/Abstract*.java</exclude>
+      </excludes>
+      
+      <resources>
+        <resource>
+          <directory>${basedir}/src/test</directory>
+          <includes>
+            <include>**/*.xml</include>
+          </includes>
+        </resource>
+      </resources>
+    </unitTest>
+  </build>
+
+</project>

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Revision: 1.1 $ $Date: 2004/01/23 02:57:16 $ -->
+
+<binding xmlns="http://www.castor.org/SourceGenerator/Binding"
+         defaultBindingType="element">
+
+  <!-- Define the {namespace,package} binding -->
+  
+  <package>
+    <name>org.apache.geronimo.twiddle.config</name>
+    <namespace>http://geronimo.apache.org/xml/schema/Twiddle/Configuration</namespace>
+  </package>
+  
+  <!-- Use custom class naming -->
+  
+  <!-- This seems to be problematic, resulting in *ConfigConfig instances and such
+  <namingXML>
+    <elementName>
+      <suffix>Config</suffix>
+    </elementName>
+    
+    <complexTypeName>
+      <suffix>Type</suffix>
+    </complexTypeName>
+    
+    <modelGroupName>
+      <suffix>Group</suffix>
+    </modelGroupName>
+  </namingXML>
+  -->
+  
+  <!-- Custom element binding -->
+  
+  <elementBinding name="/properties">
+    <java-class name="PropertiesConfig"/>
+  </elementBinding>
+  
+  <elementBinding name="/property">
+    <java-class name="PropertyConfig"/>
+  </elementBinding>
+  
+  <elementBinding name="/includes">
+    <java-class name="IncludesConfig"/>
+  </elementBinding>
+  
+  <elementBinding name="/class-worlds">
+    <java-class
+      name="ClassWorldsConfig"
+      package="org.apache.geronimo.twiddle.config.classworlds"/>
+  </elementBinding>
+  
+  <elementBinding name="/class-realm">
+    <java-class
+      name="ClassRealmConfig"
+      package="org.apache.geronimo.twiddle.config.classworlds"/>
+  </elementBinding>
+  
+  <elementBinding name="/class-realm/load">
+    <java-class
+      name="LoadURLConfig"
+      package="org.apache.geronimo.twiddle.config.classworlds"/>
+  </elementBinding>
+  
+  <elementBinding name="/class-realm/import">
+    <java-class
+      name="ImportPackageConfig"
+      package="org.apache.geronimo.twiddle.config.classworlds"/>
+  </elementBinding>
+  
+  <elementBinding name="/search-path">
+    <java-class name="SearchPathConfig"/>
+  </elementBinding>
+  
+  <elementBinding name="/environment">
+    <java-class name="EnvironmentConfig"/>
+  </elementBinding>
+  
+  <elementBinding name="/commands">
+    <java-class name="CommandsConfig"/>
+  </elementBinding>
+  
+  <elementBinding name="/command">
+    <java-class name="CommandConfig"/>
+  </elementBinding>
+  
+  <elementBinding name="/command-set">
+    <java-class name="CommandSetConfig"/>
+  </elementBinding>
+  
+</binding>
