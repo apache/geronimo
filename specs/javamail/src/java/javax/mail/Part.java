@@ -16,52 +16,79 @@
  */
 
 package javax.mail;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Enumeration;
 import javax.activation.DataHandler;
+
 /**
  * @version $Rev$ $Date$
  */
 public interface Part {
     public static final String ATTACHMENT = "attachment";
     public static final String INLINE = "inline";
+
     public abstract void addHeader(String name, String value)
-        throws MessagingException;
+            throws MessagingException;
+
     public abstract Enumeration getAllHeaders() throws MessagingException;
+
     public abstract Object getContent() throws IOException, MessagingException;
+
     public abstract String getContentType() throws MessagingException;
+
     public abstract DataHandler getDataHandler() throws MessagingException;
+
     public abstract String getDescription() throws MessagingException;
+
     public abstract String getDisposition() throws MessagingException;
+
     public abstract String getFileName() throws MessagingException;
+
     public abstract String[] getHeader(String name) throws MessagingException;
+
     public abstract InputStream getInputStream()
-        throws IOException, MessagingException;
+            throws IOException, MessagingException;
+
     public abstract int getLineCount() throws MessagingException;
+
     public abstract Enumeration getMatchingHeaders(String[] names)
-        throws MessagingException;
+            throws MessagingException;
+
     public abstract Enumeration getNonMatchingHeaders(String[] names)
-        throws MessagingException;
+            throws MessagingException;
+
     public abstract int getSize() throws MessagingException;
+
     public abstract boolean isMimeType(String mimeType)
-        throws MessagingException;
+            throws MessagingException;
+
     public abstract void removeHeader(String name) throws MessagingException;
+
     public abstract void setContent(Multipart content)
-        throws MessagingException;
+            throws MessagingException;
+
     public abstract void setContent(Object content, String type)
-        throws MessagingException;
+            throws MessagingException;
+
     public abstract void setDataHandler(DataHandler handler)
-        throws MessagingException;
+            throws MessagingException;
+
     public abstract void setDescription(String description)
-        throws MessagingException;
+            throws MessagingException;
+
     public abstract void setDisposition(String disposition)
-        throws MessagingException;
+            throws MessagingException;
+
     public abstract void setFileName(String name) throws MessagingException;
+
     public abstract void setHeader(String name, String value)
-        throws MessagingException;
+            throws MessagingException;
+
     public abstract void setText(String content) throws MessagingException;
+
     public abstract void writeTo(OutputStream out)
-        throws IOException, MessagingException;
+            throws IOException, MessagingException;
 }

@@ -16,16 +16,20 @@
  */
 
 package javax.mail.search;
+
 import java.io.Serializable;
 import javax.mail.Message;
+
 /**
  * @version $Rev$ $Date$
  */
 public abstract class SearchTerm implements Serializable {
     public abstract boolean match(Message message);
+
     public boolean equals(Object other) {
         return (other != null && other.getClass() == this.getClass());
     }
+
     public int hashCode() {
         // need to provide a default, so that other terms
         // doing 'super.hashCode' don't get an instance-specific hash.

@@ -16,6 +16,7 @@
  */
 
 package javax.mail;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -23,6 +24,7 @@ public class MethodNotSupportedException extends MessagingException {
     public MethodNotSupportedException() {
         super();
     }
+
     public MethodNotSupportedException(String message) {
         super(message);
     }

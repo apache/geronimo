@@ -16,23 +16,28 @@
  */
 
 package javax.mail.internet;
+
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.StringTokenizer;
+
 // Represents lists in things like
 // Content-Type: text/plain;charset=klingon
 //
 // The ;charset=klingon is the parameter list, may have more of them with ';'
+
 /**
  * @version $Rev$ $Date$
  */
 public class ParameterList {
     private Map _parameters = new HashMap();
+
     public ParameterList() {
     }
+
     public ParameterList(String list) throws ParseException {
         if (list == null) {
             return;
@@ -51,21 +56,27 @@ public class ParameterList {
             }
         }
     }
+
     public int size() {
         return _parameters.size();
     }
+
     public String get(String name) {
         return (String) _parameters.get(name);
     }
+
     public void set(String name, String value) {
         _parameters.put(name.trim(), value.trim());
     }
+
     public void remove(String name) {
         _parameters.remove(name);
     }
+
     public Enumeration getNames() {
         return Collections.enumeration(_parameters.keySet());
     }
+
     public String toString() {
         Iterator it = _parameters.entrySet().iterator();
         StringBuffer result = new StringBuffer();
@@ -79,6 +90,7 @@ public class ParameterList {
         return result.toString();
         // TODO Return in same list as parsed format
     }
+
     public String toString(int lineBreak) {
         // figure out where to break the line
         String answer = toString();

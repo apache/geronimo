@@ -16,8 +16,10 @@
  */
 
 package javax.mail.event;
+
 import javax.mail.Folder;
 import javax.mail.Message;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -27,16 +29,17 @@ public class MessageCountEvent extends MailEvent {
     protected transient Message msgs[];
     protected boolean removed;
     protected int type;
-    public MessageCountEvent(
-        Folder folder,
-        int type,
-        boolean removed,
-        Message messages[]) {
+
+    public MessageCountEvent(Folder folder,
+                             int type,
+                             boolean removed,
+                             Message messages[]) {
         super(folder);
         msgs = messages;
         this.type = type;
         this.removed = removed;
     }
+
     public void dispatch(Object listener) {
         // assume that it is the right listener type
         MessageCountListener l = (MessageCountListener) listener;
@@ -48,12 +51,15 @@ public class MessageCountEvent extends MailEvent {
             throw new IllegalArgumentException("Unknown type " + type);
         }
     }
+
     public Message[] getMessages() {
         return msgs;
     }
+
     public int getType() {
         return type;
     }
+
     public boolean isRemoved() {
         return removed;
     }

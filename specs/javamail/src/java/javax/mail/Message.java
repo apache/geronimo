@@ -16,12 +16,14 @@
  */
 
 package javax.mail;
+
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import javax.mail.search.SearchTerm;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -31,9 +33,11 @@ public abstract class Message implements Part {
         public static final RecipientType CC = new RecipientType("Cc");
         public static final RecipientType TO = new RecipientType("To");
         protected String type;
+
         protected RecipientType(String type) {
             this.type = type;
         }
+
         protected Object readResolve() throws ObjectStreamException {
             if (type.equals("To")) {
                 return TO;
@@ -45,32 +49,41 @@ public abstract class Message implements Part {
                 return this;
             }
         }
+
         public String toString() {
             return type;
         }
     }
+
     private static final Address[] ADDRESS_ARRAY = new Address[0];
     protected boolean expunged;
     protected Folder folder;
     protected int msgnum;
     protected Session session;
+
     protected Message() {
     }
+
     protected Message(Folder folder, int number) {
         this.folder = folder;
         this.msgnum = number;
     }
+
     protected Message(Session session) {
         this.session = session;
     }
+
     public abstract void addFrom(Address[] addresses)
-        throws MessagingException;
+            throws MessagingException;
+
     public void addRecipient(RecipientType type, Address address)
-        throws MessagingException {
-        addRecipients(type, new Address[] { address });
+            throws MessagingException {
+        addRecipients(type, new Address[]{address});
     }
+
     public abstract void addRecipients(RecipientType type, Address[] addresses)
-        throws MessagingException;
+            throws MessagingException;
+
     public Address[] getAllRecipients() throws MessagingException {
         Address[] to = getRecipients(RecipientType.TO);
         Address[] cc = getRecipients(RecipientType.CC);
@@ -87,39 +100,55 @@ public abstract class Message implements Part {
         }
         return (Address[]) result.toArray(ADDRESS_ARRAY);
     }
+
     public abstract Flags getFlags() throws MessagingException;
+
     public Folder getFolder() {
         return folder;
     }
+
     public abstract Address[] getFrom() throws MessagingException;
+
     public int getMessageNumber() {
         return msgnum;
     }
+
     public abstract Date getReceivedDate() throws MessagingException;
+
     public abstract Address[] getRecipients(RecipientType type)
-        throws MessagingException;
+            throws MessagingException;
+
     public Address[] getReplyTo() throws MessagingException {
         return getFrom();
     }
+
     public abstract Date getSentDate() throws MessagingException;
+
     public abstract String getSubject() throws MessagingException;
+
     public boolean isExpunged() {
         return expunged;
     }
+
     public boolean isSet(Flags.Flag flag) throws MessagingException {
         return getFlags().contains(flag);
     }
+
     public boolean match(SearchTerm term) throws MessagingException {
         return term.match(this);
     }
+
     public abstract Message reply(boolean replyToAll)
-        throws MessagingException;
+            throws MessagingException;
+
     public abstract void saveChanges() throws MessagingException;
+
     protected void setExpunged(boolean expunged) {
         this.expunged = expunged;
     }
+
     public void setFlag(Flags.Flag flag, boolean set)
-        throws MessagingException {
+            throws MessagingException {
         Flags flags = getFlags();
         if (set) {
             flags.add(flag);
@@ -127,22 +156,31 @@ public abstract class Message implements Part {
             flags.remove(flag);
         }
     }
+
     public abstract void setFlags(Flags flags, boolean set)
-        throws MessagingException;
+            throws MessagingException;
+
     public abstract void setFrom() throws MessagingException;
+
     public abstract void setFrom(Address address) throws MessagingException;
+
     protected void setMessageNumber(int number) {
         msgnum = number;
     }
+
     public void setRecipient(RecipientType type, Address address)
-        throws MessagingException {
-        setRecipients(type, new Address[] { address });
+            throws MessagingException {
+        setRecipients(type, new Address[]{address});
     }
+
     public abstract void setRecipients(RecipientType type, Address[] addresses)
-        throws MessagingException;
+            throws MessagingException;
+
     public void setReplyTo(Address[] addresses) throws MessagingException {
         throw new MethodNotSupportedException("setReplyTo not implemented");
     }
+
     public abstract void setSentDate(Date sent) throws MessagingException;
+
     public abstract void setSubject(String subject) throws MessagingException;
 }

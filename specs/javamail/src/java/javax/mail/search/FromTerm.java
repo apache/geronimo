@@ -16,9 +16,11 @@
  */
 
 package javax.mail.search;
+
 import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.MessagingException;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -26,6 +28,7 @@ public final class FromTerm extends AddressTerm {
     public FromTerm(Address match) {
         super(match);
     }
+
     public boolean match(Message message) {
         try {
             Address from[] = message.getFrom();

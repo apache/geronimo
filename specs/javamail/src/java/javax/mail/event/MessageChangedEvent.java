@@ -16,7 +16,9 @@
  */
 
 package javax.mail.event;
+
 import javax.mail.Message;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -25,6 +27,7 @@ public class MessageChangedEvent extends MailEvent {
     public static final int FLAGS_CHANGED = 1;
     protected transient Message msg;
     protected int type;
+
     public MessageChangedEvent(Object source, int type, Message message) {
         super(source);
         msg = message;
@@ -33,14 +36,17 @@ public class MessageChangedEvent extends MailEvent {
             throw new IllegalArgumentException("Unknown type " + type);
         }
     }
+
     public void dispatch(Object listener) {
         // assume that it is the right listener type
         MessageChangedListener l = (MessageChangedListener) listener;
         l.messageChanged(this);
     }
+
     public Message getMessage() {
         return msg;
     }
+
     public int getMessageChangeType() {
         return type;
     }

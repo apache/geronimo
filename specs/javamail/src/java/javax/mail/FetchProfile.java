@@ -16,8 +16,10 @@
  */
 
 package javax.mail;
+
 import java.util.HashMap;
 import java.util.Map;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -30,34 +32,43 @@ public class FetchProfile {
         // Can't find any standards for this?
         public static final Item FLAGS = new Item("X-Flags");
         private String _header;
+
         protected Item(String header) {
             if (header == null) {
                 throw new IllegalArgumentException("Header cannot be null");
             }
             _header = header;
         }
+
         String getHeader() {
             return _header;
         }
     }
+
     private static final String[] headersType = new String[0];
     private static final Item[] itemsType = new Item[0];
     private Map _items = new HashMap();
+
     public void add(Item item) {
         _items.put(item._header, item);
     }
+
     public void add(String header) {
         _items.put(header, new Item(header));
     }
+
     public boolean contains(Item item) {
         return _items.containsKey(item._header);
     }
+
     public boolean contains(String header) {
         return _items.containsKey(header);
     }
+
     public String[] getHeaderNames() {
         return (String[]) _items.keySet().toArray(headersType);
     }
+
     public Item[] getItems() {
         return (Item[]) _items.values().toArray(itemsType);
     }

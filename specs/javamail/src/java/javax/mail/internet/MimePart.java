@@ -16,30 +16,44 @@
  */
 
 package javax.mail.internet;
+
 import java.util.Enumeration;
 import javax.mail.MessagingException;
 import javax.mail.Part;
+
 /**
  * @version $Rev$ $Date$
  */
 public interface MimePart extends Part {
     public abstract void addHeaderLine(String line) throws MessagingException;
+
     public abstract Enumeration getAllHeaderLines() throws MessagingException;
+
     public abstract String getContentID() throws MessagingException;
+
     public abstract String[] getContentLanguage() throws MessagingException;
+
     public abstract String getContentMD5() throws MessagingException;
+
     public abstract String getEncoding() throws MessagingException;
+
     public abstract String getHeader(String header, String delimiter)
-        throws MessagingException;
+            throws MessagingException;
+
     public abstract Enumeration getMatchingHeaderLines(String[] names)
-        throws MessagingException;
+            throws MessagingException;
+
     public abstract Enumeration getNonMatchingHeaderLines(String[] names)
-        throws MessagingException;
+            throws MessagingException;
+
     public abstract void setContentLanguage(String[] languages)
-        throws MessagingException;
+            throws MessagingException;
+
     public abstract void setContentMD5(String content)
-        throws MessagingException;
+            throws MessagingException;
+
     public abstract void setText(String text) throws MessagingException;
+
     public abstract void setText(String text, String charset)
-        throws MessagingException;
+            throws MessagingException;
 }

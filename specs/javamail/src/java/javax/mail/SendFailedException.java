@@ -16,6 +16,7 @@
  */
 
 package javax.mail;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -23,32 +24,38 @@ public class SendFailedException extends MessagingException {
     protected transient Address invalid[];
     protected transient Address validSent[];
     protected transient Address validUnsent[];
+
     public SendFailedException() {
         super();
     }
+
     public SendFailedException(String message) {
         super(message);
     }
+
     public SendFailedException(String message, Exception cause) {
         super(message, cause);
     }
-    public SendFailedException(
-        String message,
-        Exception cause,
-        Address[] validSent,
-        Address[] validUnsent,
-        Address[] invalid) {
+
+    public SendFailedException(String message,
+                               Exception cause,
+                               Address[] validSent,
+                               Address[] validUnsent,
+                               Address[] invalid) {
         this(message, cause);
         this.invalid = invalid;
         this.validSent = validSent;
         this.validUnsent = validUnsent;
     }
+
     public Address[] getValidSentAddresses() {
         return validSent;
     }
+
     public Address[] getValidUnsentAddresses() {
         return validUnsent;
     }
+
     public Address[] getInvalidAddresses() {
         return invalid;
     }

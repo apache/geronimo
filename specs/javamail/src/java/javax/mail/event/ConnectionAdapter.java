@@ -16,14 +16,17 @@
  */
 
 package javax.mail.event;
+
 /**
  * @version $Rev$ $Date$
  */
 public abstract class ConnectionAdapter implements ConnectionListener {
     public void closed(ConnectionEvent event) {
     }
+
     public void disconnected(ConnectionEvent event) {
     }
+
     public void opened(ConnectionEvent event) {
     }
 }

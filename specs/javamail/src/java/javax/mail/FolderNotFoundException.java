@@ -16,24 +16,30 @@
  */
 
 package javax.mail;
+
 /**
  * @version $Rev$ $Date$
  */
 public class FolderNotFoundException extends MessagingException {
     private transient Folder _folder;
+
     public FolderNotFoundException() {
         super();
     }
+
     public FolderNotFoundException(Folder folder) {
         this(folder, "Folder not found: " + folder.getName());
     }
+
     public FolderNotFoundException(Folder folder, String message) {
         super(message);
         _folder = folder;
     }
+
     public FolderNotFoundException(String message, Folder folder) {
         this(folder, message);
     }
+
     public Folder getFolder() {
         return _folder;
     }

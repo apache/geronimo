@@ -16,11 +16,13 @@
  */
 
 package javax.mail;
+
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import javax.mail.event.TransportEvent;
 import javax.mail.event.TransportListener;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -28,42 +30,47 @@ public abstract class Transport extends Service {
     public static void send(Message message) throws MessagingException {
         send(message, message.getAllRecipients());
     }
+
     public static void send(Message message, Address[] addresses)
-        throws MessagingException {
+            throws MessagingException {
         // TODO Implement
         Transport transport = null; // Lookup based on protocol?
         transport.sendMessage(message, addresses);
     }
+
     private List _listeners = new LinkedList();
+
     public Transport(Session session, URLName name) {
-        super(session,name);
+        super(session, name);
     }
+
     public void addTransportListener(TransportListener listener) {
         _listeners.add(listener);
     }
-    protected void notifyTransportListeners(
-        int type,
-        Address[] validSent,
-        Address[] validUnsent,
-        Address[] invalid,
-        Message message) {
+
+    protected void notifyTransportListeners(int type,
+                                            Address[] validSent,
+                                            Address[] validUnsent,
+                                            Address[] invalid,
+                                            Message message) {
         TransportEvent event =
-            new TransportEvent(
-                this,
-                type,
-                validSent,
-                validUnsent,
-                invalid,
-                message);
+                new TransportEvent(this,
+                        type,
+                        validSent,
+                        validUnsent,
+                        invalid,
+                        message);
         Iterator it = _listeners.iterator();
         while (it.hasNext()) {
             TransportListener listener = (TransportListener) it.next();
             event.dispatch(listener);
         }
     }
+
     public void removeTransportListener(TransportListener listener) {
         _listeners.remove(listener);
     }
+
     public abstract void sendMessage(Message message, Address[] addresses)
-        throws MessagingException;
+            throws MessagingException;
 }

@@ -30,6 +30,7 @@ import java.net.URL;
  */
 public class DataHandler implements Transferable {
     private DataSource _ds;
+
     public DataHandler(DataSource ds) {
         _ds = ds;
     }
@@ -42,11 +43,14 @@ public class DataHandler implements Transferable {
 
         private Object _data;
         private String _type;
+
         public Object getContent() {
             return _data;
         }
+
         /**
          * Store an object as a data source type
+         *
          * @param data the object
          * @param type the mimeType
          */
@@ -88,6 +92,7 @@ public class DataHandler implements Transferable {
         }
 
     }
+
     public DataHandler(URL url) {
         /*@todo implement*/
     }
@@ -128,7 +133,7 @@ public class DataHandler implements Transferable {
     }
 
     public Object getTransferData(DataFlavor flavor)
-        throws UnsupportedFlavorException, IOException {
+            throws UnsupportedFlavorException, IOException {
         /*@todo implement*/
         return null;
     }

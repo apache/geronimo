@@ -16,6 +16,7 @@
  */
 
 package javax.mail;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
@@ -23,11 +24,11 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
-
 import javax.mail.event.ConnectionEvent;
 import javax.mail.event.ConnectionListener;
 import javax.mail.event.MailEvent;
 import javax.mail.event.TransportListener;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -37,24 +38,29 @@ public abstract class Service {
     protected boolean debug;
     protected Session session;
     protected URLName url;
+
     protected Service(Session session, URLName url) {
         this.session = session;
         this.url = url;
     }
+
     public void addConnectionListener(ConnectionListener listener) {
         _connectionListeners.add(listener);
     }
+
     public void close() throws MessagingException {
         // if we're not connected, ignore
         setConnected(false);
     }
+
     public void connect() throws MessagingException {
         String host = session.getProperty("mail.host");
         String user = session.getProperty("mail.user");
         connect(host, -1, user, null);
     }
+
     public void connect(String host, int port, String user, String password)
-        throws MessagingException {
+            throws MessagingException {
         if (_connected) {
             throw new IllegalStateException("Already connected");
         }
@@ -66,12 +72,11 @@ public abstract class Service {
                 // TODO I18N
                 try {
                     PasswordAuthentication pa =
-                        session.requestPasswordAuthentication(
-                            InetAddress.getByName(host),
-                            port,
-                            null,
-                            "Please enter your password",
-                            user);
+                            session.requestPasswordAuthentication(InetAddress.getByName(host),
+                                    port,
+                                    null,
+                                    "Please enter your password",
+                                    user);
                     password = pa.getPassword();
                     user = pa.getUserName();
                 } catch (UnknownHostException uhe) {
@@ -84,10 +89,12 @@ public abstract class Service {
         // In either case, this is safe.
         setURLName(getURLName());
     }
+
     public void connect(String host, String user, String password)
-        throws MessagingException {
+            throws MessagingException {
         connect(host, -1, user, password);
     }
+
     protected void finalize() throws Throwable {
         try {
             super.finalize();
@@ -95,12 +102,15 @@ public abstract class Service {
             close();
         }
     }
+
     public URLName getURLName() {
         return url;
     }
+
     public boolean isConnected() {
         return _connected;
     }
+
     protected void notifyConnectionListeners(int type) {
         ConnectionEvent event = new ConnectionEvent(this, type);
         Iterator it = _connectionListeners.iterator();
@@ -109,14 +119,15 @@ public abstract class Service {
             event.dispatch(listener);
         }
     }
-    protected boolean protocolConnect(
-        String host,
-        int port,
-        String user,
-        String password)
-        throws MessagingException {
+
+    protected boolean protocolConnect(String host,
+                                      int port,
+                                      String user,
+                                      String password)
+            throws MessagingException {
         return false;
     }
+
     protected void queueEvent(MailEvent event, Vector listeners) {
         Enumeration enumeration = listeners.elements();
         while (enumeration.hasMoreElements()) {
@@ -124,9 +135,11 @@ public abstract class Service {
             event.dispatch(listeners);
         }
     }
+
     public void removeConnectionListener(ConnectionListener listener) {
         _connectionListeners.remove(listener);
     }
+
     protected void setConnected(boolean connected) {
         boolean old = _connected;
         _connected = connected;
@@ -138,9 +151,11 @@ public abstract class Service {
             }
         }
     }
+
     protected void setURLName(URLName url) {
         this.url = url;
     }
+
     public String toString() {
         if (url == null) {
             return super.toString();

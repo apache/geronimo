@@ -16,27 +16,34 @@
  */
 
 package javax.mail.search;
+
 import javax.mail.Message;
 import javax.mail.MessagingException;
+
 /**
  * @version $Rev$ $Date$
  */
 public final class HeaderTerm extends StringTerm {
     protected String headerName;
+
     public HeaderTerm(String header, String pattern) {
         super(pattern);
         this.headerName = header;
     }
+
     public boolean equals(Object other) {
         return super.equals(other)
-            && ((HeaderTerm) other).headerName.equals(headerName);
+                && ((HeaderTerm) other).headerName.equals(headerName);
     }
+
     public String getHeaderName() {
         return headerName;
     }
+
     public int hashCode() {
         return super.hashCode() + headerName.hashCode();
     }
+
     public boolean match(Message message) {
         try {
             String values[] = message.getHeader(headerName);

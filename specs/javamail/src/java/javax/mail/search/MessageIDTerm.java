@@ -16,8 +16,10 @@
  */
 
 package javax.mail.search;
+
 import javax.mail.Message;
 import javax.mail.MessagingException;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -25,6 +27,7 @@ public final class MessageIDTerm extends StringTerm {
     public MessageIDTerm(String id) {
         super(id);
     }
+
     public boolean match(Message message) {
         try {
             String values[] = message.getHeader("Message-ID");

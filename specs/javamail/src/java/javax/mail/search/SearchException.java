@@ -16,7 +16,9 @@
  */
 
 package javax.mail.search;
+
 import javax.mail.MessagingException;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -24,6 +26,7 @@ public class SearchException extends MessagingException {
     public SearchException() {
         super();
     }
+
     public SearchException(String message) {
         super(message);
     }

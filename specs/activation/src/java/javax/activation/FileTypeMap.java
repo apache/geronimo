@@ -25,8 +25,8 @@ import java.io.File;
  * @version $Rev$ $Date$
  */
 public abstract class FileTypeMap {
-	
-	private static FileTypeMap defaultFileTypeMap;
+
+    private static FileTypeMap defaultFileTypeMap;
 
     public FileTypeMap() {
     }
@@ -35,19 +35,19 @@ public abstract class FileTypeMap {
 
     public abstract String getContentType(String filename);
 
-	/**
-	 * Sets the default FileTypeMap for the system
-	 */
+    /**
+     * Sets the default FileTypeMap for the system
+     */
     public static void setDefaultFileTypeMap(FileTypeMap map) {
         defaultFileTypeMap = map;
     }
 
-	/**
-	 * Returns the default FileTypeMap
-	 */
+    /**
+     * Returns the default FileTypeMap
+     */
     public static FileTypeMap getDefaultFileTypeMap() {
-        if (defaultFileTypeMap==null)
-        	return new MimetypesFileTypeMap();
+        if (defaultFileTypeMap == null)
+            return new MimetypesFileTypeMap();
         return defaultFileTypeMap;
     }
 }

@@ -25,9 +25,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- *
- *
- *
  * @version $Rev$ $Date$
  */
 public class FileDataSource implements DataSource {

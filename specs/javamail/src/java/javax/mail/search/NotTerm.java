@@ -16,24 +16,31 @@
  */
 
 package javax.mail.search;
+
 import javax.mail.Message;
+
 /**
  * @version $Rev$ $Date$
  */
 public final class NotTerm extends SearchTerm {
     protected SearchTerm term;
+
     public NotTerm(SearchTerm term) {
         this.term = term;
     }
+
     public boolean equals(Object other) {
         return super.equals(other) && ((NotTerm) other).term.equals(term);
     }
+
     public SearchTerm getTerm() {
         return term;
     }
+
     public int hashCode() {
         return super.hashCode() + term.hashCode();
     }
+
     public boolean match(Message message) {
         return !term.match(message);
     }

@@ -16,6 +16,7 @@
  */
 
 package javax.mail.event;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -24,6 +25,7 @@ public class ConnectionEvent extends MailEvent {
     public static final int DISCONNECTED = 2;
     public static final int OPENED = 1;
     protected int type;
+
     public ConnectionEvent(Object source, int type) {
         super(source);
         this.type = type;
@@ -31,6 +33,7 @@ public class ConnectionEvent extends MailEvent {
             throw new IllegalArgumentException("Unknown type " + type);
         }
     }
+
     public void dispatch(Object listener) {
         // assume that it is the right listener type
         ConnectionListener l = (ConnectionListener) listener;
@@ -44,6 +47,7 @@ public class ConnectionEvent extends MailEvent {
             throw new IllegalArgumentException("Unknown type " + type);
         }
     }
+
     public int getType() {
         return type;
     }

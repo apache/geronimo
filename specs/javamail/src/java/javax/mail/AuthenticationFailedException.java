@@ -16,6 +16,7 @@
  */
 
 package javax.mail;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -23,6 +24,7 @@ public class AuthenticationFailedException extends MessagingException {
     public AuthenticationFailedException() {
         super();
     }
+
     public AuthenticationFailedException(String message) {
         super(message);
     }

@@ -16,7 +16,9 @@
  */
 
 package javax.mail.event;
+
 import javax.mail.Folder;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -27,11 +29,11 @@ public class FolderEvent extends MailEvent {
     protected transient Folder folder;
     protected transient Folder newFolder;
     protected int type;
-    public FolderEvent(
-        Object source,
-        Folder oldFolder,
-        Folder newFolder,
-        int type) {
+
+    public FolderEvent(Object source,
+                       Folder oldFolder,
+                       Folder newFolder,
+                       int type) {
         super(source);
         folder = oldFolder;
         this.newFolder = newFolder;
@@ -40,9 +42,11 @@ public class FolderEvent extends MailEvent {
             throw new IllegalArgumentException("Unknown type " + type);
         }
     }
+
     public FolderEvent(Object source, Folder folder, int type) {
         this(source, folder, null, type);
     }
+
     public void dispatch(Object listener) {
         // assume that it is the right listener type
         FolderListener l = (FolderListener) listener;
@@ -56,12 +60,15 @@ public class FolderEvent extends MailEvent {
             throw new IllegalArgumentException("Unknown type " + type);
         }
     }
+
     public Folder getFolder() {
         return folder;
     }
+
     public Folder getNewFolder() {
         return newFolder;
     }
+
     public int getType() {
         return type;
     }

@@ -16,28 +16,35 @@
  */
 
 package javax.mail.search;
+
 /**
  * @version $Rev$ $Date$
  */
 public abstract class IntegerComparisonTerm extends ComparisonTerm {
     protected int number;
+
     protected IntegerComparisonTerm(int comparison, int number) {
         super(comparison);
         this.number = number;
     }
+
     public boolean equals(Object other) {
         return super.equals(other)
-            && ((IntegerComparisonTerm) other).number == number;
+                && ((IntegerComparisonTerm) other).number == number;
     }
+
     public int getComparison() {
         return super.getComparison();
     }
+
     public int getNumber() {
         return number;
     }
+
     public int hashCode() {
         return super.hashCode() + number * 47;
     }
+
     protected boolean match(int match) {
         return compare(number - match);
     }

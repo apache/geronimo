@@ -16,29 +16,37 @@
  */
 
 package javax.mail.search;
+
 import java.util.Arrays;
 import javax.mail.Message;
+
 /**
  * @version $Rev$ $Date$
  */
 public final class AndTerm extends SearchTerm {
     protected SearchTerm[] terms;
+
     public AndTerm(SearchTerm a, SearchTerm b) {
-        terms = new SearchTerm[] { a, b };
+        terms = new SearchTerm[]{a, b};
     }
+
     public AndTerm(SearchTerm[] terms) {
         this.terms = terms;
     }
+
     public boolean equals(Object other) {
         return super.equals(other)
-            && Arrays.equals(terms, ((AndTerm) other).terms);
+                && Arrays.equals(terms, ((AndTerm) other).terms);
     }
+
     public SearchTerm[] getTerms() {
         return terms;
     }
+
     public int hashCode() {
         return super.hashCode() + terms.length * 37;
     }
+
     public boolean match(Message message) {
         boolean result = true;
         for (int i = 0; result && i < terms.length; i++) {

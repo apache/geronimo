@@ -16,7 +16,9 @@
  */
 
 package javax.mail.search;
+
 import javax.mail.Address;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -24,6 +26,7 @@ public abstract class AddressStringTerm extends StringTerm {
     protected AddressStringTerm(String addressString) {
         super(addressString);
     }
+
     protected boolean match(Address address) {
         return match(address.toString());
     }

@@ -18,9 +18,6 @@
 package javax.activation;
 
 /**
- *
- *
- *
  * @version $Rev$ $Date$
  */
 public interface DataContentHandlerFactory {

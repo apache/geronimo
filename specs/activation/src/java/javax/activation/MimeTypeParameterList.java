@@ -17,11 +17,11 @@
 
 package javax.activation;
 
-import java.util.Enumeration;
-import java.util.StringTokenizer;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 
 /**

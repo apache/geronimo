@@ -16,11 +16,14 @@
  */
 
 package javax.mail.internet;
+
 import java.io.InputStream;
+
 /**
  * @version $Rev$ $Date$
  */
 public interface SharedInputStream {
     public abstract long getPosition();
+
     public abstract InputStream newStream(long start, long end);
 }

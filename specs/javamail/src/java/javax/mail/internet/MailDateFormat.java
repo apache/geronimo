@@ -24,10 +24,11 @@ import java.util.Locale;
 
 /**
  * Parses dates of the form
- *
+ * <p/>
  * <code>Wed, 02 Jan 2003 23:59:59 -0100 (GMT)</code>
- *
+ * <p/>
  * <code>EEE,  d MMM yyyy HH:mm:ss Z (z)</code>
+ *
  * @version $Rev$ $Date$
  */
 public class MailDateFormat extends SimpleDateFormat {

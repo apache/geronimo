@@ -16,21 +16,29 @@
  */
 
 package javax.mail;
+
 /**
  * @version $Rev$ $Date$
  */
 public interface UIDFolder {
     public static final long LASTUID = -1;
+
     public abstract long getUIDValidity() throws MessagingException;
+
     public abstract Message getMessageByUID(long uid)
-        throws MessagingException;
+            throws MessagingException;
+
     public abstract Message[] getMessagesByUID(long start, long end)
-        throws MessagingException;
+            throws MessagingException;
+
     public abstract Message[] getMessagesByUID(long[] ids)
-        throws MessagingException;
+            throws MessagingException;
+
     public abstract long getUID(Message message) throws MessagingException;
+
     public static class FetchProfileItem extends FetchProfile.Item {
         public static final FetchProfileItem UID = new FetchProfileItem("Uid");
+
         protected FetchProfileItem(String name) {
             super(name);
         }

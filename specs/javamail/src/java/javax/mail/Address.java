@@ -16,12 +16,16 @@
  */
 
 package javax.mail;
+
 import java.io.Serializable;
+
 /**
  * @version $Rev$ $Date$
  */
 public abstract class Address implements Serializable {
     public abstract boolean equals(Object object);
+
     public abstract String getType();
+
     public abstract String toString();
 }

@@ -16,14 +16,17 @@
  */
 
 package javax.mail.event;
+
 /**
  * @version $Rev$ $Date$
  */
 public abstract class FolderAdapter implements FolderListener {
     public void folderCreated(FolderEvent event) {
     }
+
     public void folderDeleted(FolderEvent event) {
     }
+
     public void folderRenamed(FolderEvent event) {
     }
 }

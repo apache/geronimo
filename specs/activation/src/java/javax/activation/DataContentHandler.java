@@ -23,9 +23,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- *
- *
- *
  * @version $Rev$ $Date$
  */
 public interface DataContentHandler {

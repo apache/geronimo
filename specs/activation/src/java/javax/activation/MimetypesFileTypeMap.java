@@ -22,9 +22,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- *
- *
- *
  * @version $Rev$ $Date$
  */
 public class MimetypesFileTypeMap extends FileTypeMap {

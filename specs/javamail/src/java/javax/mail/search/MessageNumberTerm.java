@@ -16,7 +16,9 @@
  */
 
 package javax.mail.search;
+
 import javax.mail.Message;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -24,6 +26,7 @@ public final class MessageNumberTerm extends IntegerComparisonTerm {
     public MessageNumberTerm(int number) {
         super(EQ, number);
     }
+
     public boolean match(Message message) {
         return match(message.getMessageNumber());
     }

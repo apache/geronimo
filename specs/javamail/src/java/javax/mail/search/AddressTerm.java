@@ -16,25 +16,32 @@
  */
 
 package javax.mail.search;
+
 import javax.mail.Address;
+
 /**
  * @version $Rev$ $Date$
  */
 public abstract class AddressTerm extends SearchTerm {
     protected Address address;
+
     protected AddressTerm(Address address) {
         this.address = address;
     }
+
     public boolean equals(Object other) {
         return super.equals(other)
-            && ((AddressTerm) other).address.equals(address);
+                && ((AddressTerm) other).address.equals(address);
     }
+
     public Address getAddress() {
         return address;
     }
+
     public int hashCode() {
         return super.hashCode() + address.hashCode();
     }
+
     protected boolean match(Address address) {
         return this.address.equals(address);
     }

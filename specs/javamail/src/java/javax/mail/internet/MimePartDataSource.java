@@ -16,6 +16,7 @@
  */
 
 package javax.mail.internet;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -24,14 +25,17 @@ import javax.activation.DataSource;
 import javax.mail.MessageAware;
 import javax.mail.MessageContext;
 import javax.mail.MessagingException;
+
 /**
  * @version $Rev$ $Date$
  */
 public class MimePartDataSource implements DataSource, MessageAware {
     private MimePart _part;
+
     public MimePartDataSource(MimePart part) {
         _part = part;
     }
+
     public String getContentType() {
         try {
             return _part.getContentType();
@@ -39,6 +43,7 @@ public class MimePartDataSource implements DataSource, MessageAware {
             throw new RuntimeException(e);
         }
     }
+
     public InputStream getInputStream() throws IOException {
         InputStream content;
         try {
@@ -55,12 +60,15 @@ public class MimePartDataSource implements DataSource, MessageAware {
             throw new IOException(e.toString());
         }
     }
+
     public synchronized MessageContext getMessageContext() {
         return new MessageContext(_part);
     }
+
     public String getName() {
         return "";
     }
+
     public OutputStream getOutputStream() throws IOException {
         throw new UnknownServiceException();
     }

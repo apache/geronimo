@@ -16,6 +16,7 @@
  */
 
 package javax.mail.internet;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -28,17 +29,21 @@ public class HeaderTokenizer {
         public static final int QUOTEDSTRING = -2;
         private int _type;
         private String _value;
+
         public Token(int type, String value) {
             _type = type;
             _value = value;
         }
+
         public int getType() {
             return _type;
         }
+
         public String getValue() {
             return _value;
         }
     }
+
     private static final Token EOF = new Token(Token.EOF, null);
     // characters not allowed in MIME
     public static final String MIME = "()<>@,;:\\\"\t []/?=";
@@ -49,26 +54,31 @@ public class HeaderTokenizer {
     private String _header;
     private boolean _skip;
     private int pos;
+
     public HeaderTokenizer(String header) {
         this(header, RFC822);
     }
+
     public HeaderTokenizer(String header, String delimiters) {
         this(header, delimiters, true);
     }
-    public HeaderTokenizer(
-        String header,
-        String delimiters,
-        boolean skipComments) {
+
+    public HeaderTokenizer(String header,
+                           String delimiters,
+                           boolean skipComments) {
         _skip = skipComments;
         _header = header;
         _delimiters = delimiters;
     }
+
     public String getRemainder() {
         return _header.substring(pos);
     }
+
     public Token next() throws ParseException {
         return readToken();
     }
+
     public Token peek() throws ParseException {
         int start = pos;
         try {
@@ -77,6 +87,7 @@ public class HeaderTokenizer {
             pos = start;
         }
     }
+
     /**
      * @return
      */
@@ -84,23 +95,25 @@ public class HeaderTokenizer {
         // skip to next delimiter
         int start = pos;
         while (++pos < _header.length()
-            && _delimiters.indexOf(_header.charAt(pos)) == -1);
+                && _delimiters.indexOf(_header.charAt(pos)) == -1)
+            ;
         return new Token(Token.ATOM, _header.substring(start, pos));
     }
+
     private Token readToken() throws ParseException {
         if (pos >= _header.length()) {
             return EOF;
         } else {
             char c = _header.charAt(pos);
             if (c == '(') {
-                Token comment = readUntil(')',Token.COMMENT);
+                Token comment = readUntil(')', Token.COMMENT);
                 if (_skip) {
                     return readToken();
                 } else {
                     return comment;
                 }
             } else if (c == '\"') {
-                    return readUntil('\"',Token.QUOTEDSTRING);
+                return readUntil('\"', Token.QUOTEDSTRING);
             } else if (WHITE.indexOf(c) != -1) {
                 eatWhiteSpace();
                 return readToken();
@@ -112,6 +125,7 @@ public class HeaderTokenizer {
             }
         }
     }
+
     /**
      * @return
      */
@@ -119,16 +133,19 @@ public class HeaderTokenizer {
         int start = ++pos;
         // skip to end of comment/string
         while (++pos < _header.length()
-            && _header.charAt(pos) != end);
-        String value = _header.substring(start,pos++);
-        return new Token(type,value);
+                && _header.charAt(pos) != end)
+            ;
+        String value = _header.substring(start, pos++);
+        return new Token(type, value);
     }
+
     /**
      * @return
      */
     private void eatWhiteSpace() {
         // skip to end of whitespace
         while (++pos < _header.length()
-            && WHITE.indexOf(_header.charAt(pos)) != -1);
+                && WHITE.indexOf(_header.charAt(pos)) != -1)
+            ;
     }
 }

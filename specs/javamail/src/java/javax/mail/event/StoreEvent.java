@@ -16,7 +16,9 @@
  */
 
 package javax.mail.event;
+
 import javax.mail.Store;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -25,17 +27,21 @@ public class StoreEvent extends MailEvent {
     public static final int NOTICE = 2;
     protected int type;
     protected String message;
+
     public StoreEvent(Store store, int type, String message) {
         super(store);
         this.type = type;
         this.message = message;
     }
+
     public int getMessageType() {
         return type;
     }
+
     public String getMessage() {
         return message;
     }
+
     public void dispatch(Object listener) {
         ((StoreListener) listener).notification(this);
     }

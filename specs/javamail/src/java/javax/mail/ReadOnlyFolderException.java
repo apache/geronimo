@@ -16,18 +16,22 @@
  */
 
 package javax.mail;
+
 /**
  * @version $Rev$ $Date$
  */
 public class ReadOnlyFolderException extends MessagingException {
     private transient Folder _folder;
+
     public ReadOnlyFolderException(Folder folder) {
         this(folder, "Folder not found: " + folder.getName());
     }
+
     public ReadOnlyFolderException(Folder folder, String message) {
         super(message);
         _folder = folder;
     }
+
     public Folder getFolder() {
         return _folder;
     }

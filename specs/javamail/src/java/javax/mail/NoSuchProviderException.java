@@ -16,6 +16,7 @@
  */
 
 package javax.mail;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -23,6 +24,7 @@ public class NoSuchProviderException extends MessagingException {
     public NoSuchProviderException() {
         super();
     }
+
     public NoSuchProviderException(String message) {
         super(message);
     }

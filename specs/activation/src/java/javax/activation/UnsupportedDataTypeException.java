@@ -20,9 +20,6 @@ package javax.activation;
 import java.io.IOException;
 
 /**
- *
- *
- *
  * @version $Rev$ $Date$
  */
 public class UnsupportedDataTypeException extends IOException {

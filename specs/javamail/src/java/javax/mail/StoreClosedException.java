@@ -16,18 +16,22 @@
  */
 
 package javax.mail;
+
 /**
  * @version $Rev$ $Date$
  */
 public class StoreClosedException extends MessagingException {
     private transient Store _store;
+
     public StoreClosedException(Store store) {
         super();
         _store = store;
     }
+
     public StoreClosedException(Store store, String message) {
         super(message);
     }
+
     public Store getStore() {
         return _store;
     }

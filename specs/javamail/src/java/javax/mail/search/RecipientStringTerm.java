@@ -16,28 +16,35 @@
  */
 
 package javax.mail.search;
+
 import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.MessagingException;
+
 /**
  * @version $Rev$ $Date$
  */
 public final class RecipientStringTerm extends AddressStringTerm {
     private Message.RecipientType _type;
+
     public RecipientStringTerm(Message.RecipientType type, String pattern) {
         super(pattern);
         this._type = type;
     }
+
     public boolean equals(Object other) {
         return super.equals(other)
-            && ((RecipientStringTerm) other)._type == _type;
+                && ((RecipientStringTerm) other)._type == _type;
     }
+
     public Message.RecipientType getRecipientType() {
         return _type;
     }
+
     public int hashCode() {
         return super.hashCode() + _type.hashCode();
     }
+
     public boolean match(Message message) {
         try {
             Address from[] = message.getFrom();

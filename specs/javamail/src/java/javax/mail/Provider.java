@@ -16,29 +16,32 @@
  */
 
 package javax.mail;
+
 /**
  * @version $Rev$ $Date$
  */
 public class Provider {
-    Provider(
-        String protocol,
-        String className,
-        Type type,
-        String vendor,
-        String version) {
+    Provider(String protocol,
+             String className,
+             Type type,
+             String vendor,
+             String version) {
         _protocol = protocol;
         _className = className;
         _type = type;
         _vendor = vendor;
         _version = version;
     }
+
     public static class Type {
         private String _name;
         public static final Type STORE = new Type("store");
         public static final Type TRANSPORT = new Type("transport");
+
         private Type(String name) {
             _name = name;
         }
+
         static Type getType(String name) {
             if (name.equals("store")) {
                 return STORE;
@@ -49,34 +52,41 @@ public class Provider {
             }
         }
     }
+
     private String _className;
     private String _protocol;
     private Type _type;
     private String _vendor;
     private String _version;
+
     public String getClassName() {
         return _className;
     }
+
     public String getProtocol() {
         return _protocol;
     }
+
     public Type getType() {
         return _type;
     }
+
     public String getVendor() {
         return _vendor;
     }
+
     public String getVersion() {
         return _version;
     }
+
     public String toString() {
         return "protocol="
-            + _protocol
-            + "; type="
-            + _type
-            + "; class="
-            + _className
-            + (_vendor == null ? "" : "; vendor=" + _vendor)
-            + (_version == null ? "" : ";version=" + _version);
+                + _protocol
+                + "; type="
+                + _type
+                + "; class="
+                + _className
+                + (_vendor == null ? "" : "; vendor=" + _vendor)
+                + (_version == null ? "" : ";version=" + _version);
     }
 }

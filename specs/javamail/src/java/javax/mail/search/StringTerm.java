@@ -16,33 +16,41 @@
  */
 
 package javax.mail.search;
+
 /**
  * @version $Rev$ $Date$
  */
 public abstract class StringTerm extends SearchTerm {
     protected boolean ignoreCase;
     protected String pattern;
+
     protected StringTerm(String pattern) {
         this(pattern, true);
     }
+
     protected StringTerm(String pattern, boolean ignoreCase) {
         this.pattern = pattern;
         this.ignoreCase = ignoreCase;
     }
+
     public boolean equals(Object other) {
         return super.equals(other)
-            && ((StringTerm) other).pattern.equals(pattern)
-            && ((StringTerm) other).ignoreCase == ignoreCase;
+                && ((StringTerm) other).pattern.equals(pattern)
+                && ((StringTerm) other).ignoreCase == ignoreCase;
     }
+
     public boolean getIgnoreCase() {
         return ignoreCase;
     }
+
     public String getPattern() {
         return pattern;
     }
+
     public int hashCode() {
         return super.hashCode() + pattern.hashCode() + (ignoreCase ? 32 : 79);
     }
+
     protected boolean match(String match) {
         String a = match;
         String b = pattern;

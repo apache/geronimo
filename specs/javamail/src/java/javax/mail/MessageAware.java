@@ -16,6 +16,7 @@
  */
 
 package javax.mail;
+
 /**
  * @version $Rev$ $Date$
  */

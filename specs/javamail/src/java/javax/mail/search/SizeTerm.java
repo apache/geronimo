@@ -16,8 +16,10 @@
  */
 
 package javax.mail.search;
+
 import javax.mail.Message;
 import javax.mail.MessagingException;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -25,6 +27,7 @@ public final class SizeTerm extends IntegerComparisonTerm {
     public SizeTerm(int comparison, int size) {
         super(comparison, size);
     }
+
     public boolean match(Message message) {
         try {
             return match(message.getSize());

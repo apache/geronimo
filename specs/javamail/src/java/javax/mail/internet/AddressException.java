@@ -16,32 +16,40 @@
  */
 
 package javax.mail.internet;
+
 /**
  * @version $Rev$ $Date$
  */
 public class AddressException extends ParseException {
     protected int pos;
     protected String ref;
+
     public AddressException() {
         this(null);
     }
+
     public AddressException(String message) {
         this(message, null);
     }
+
     public AddressException(String message, String ref) {
         this(message, null, -1);
     }
+
     public AddressException(String message, String ref, int pos) {
         super(message);
         this.ref = ref;
         this.pos = pos;
     }
+
     public String getRef() {
         return ref;
     }
+
     public int getPos() {
         return pos;
     }
+
     public String toString() {
         return super.toString() + " (" + ref + "," + pos + ")";
     }

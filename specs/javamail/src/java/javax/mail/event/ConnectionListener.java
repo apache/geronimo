@@ -16,12 +16,16 @@
  */
 
 package javax.mail.event;
+
 import java.util.EventListener;
+
 /**
  * @version $Rev$ $Date$
  */
 public interface ConnectionListener extends EventListener {
     public abstract void closed(ConnectionEvent event);
+
     public abstract void disconnected(ConnectionEvent event);
+
     public abstract void opened(ConnectionEvent event);
 }

@@ -16,11 +16,13 @@
  */
 
 package javax.mail;
+
 /**
  * @version $Rev$ $Date$
  */
 public abstract class BodyPart implements Part {
     protected Multipart parent;
+
     public Multipart getParent() {
         return parent;
     }

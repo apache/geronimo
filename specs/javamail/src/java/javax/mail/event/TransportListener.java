@@ -16,12 +16,16 @@
  */
 
 package javax.mail.event;
+
 import java.util.EventListener;
+
 /**
  * @version $Rev$ $Date$
  */
 public interface TransportListener extends EventListener {
     public abstract void messageDelivered(TransportEvent event);
+
     public abstract void messageNotDelivered(TransportEvent event);
+
     public abstract void messagePartiallyDelivered(TransportEvent event);
 }

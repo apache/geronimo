@@ -16,17 +16,19 @@
  */
 
 package javax.mail.internet;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
-
 import javax.mail.Address;
+
 /**
  * @version $Rev$ $Date$
  */
 public class NewsAddress extends Address {
     private static final String _separator = ",";
     private static final NewsAddress[] NEWSADDRESS_ARRAY = new NewsAddress[0];
+
     public static NewsAddress[] parse(String addresses) throws AddressException {
         List result = new LinkedList();
         StringTokenizer tokenizer = new StringTokenizer(addresses, ",");
@@ -36,6 +38,7 @@ public class NewsAddress extends Address {
         }
         return (NewsAddress[]) result.toArray(NEWSADDRESS_ARRAY);
     }
+
     public static String toString(Address[] addresses) {
         // build up a comma separated list of addresses
         StringBuffer result = new StringBuffer();
@@ -47,29 +50,38 @@ public class NewsAddress extends Address {
         }
         return result.toString();
     }
+
     protected String host;
     protected String newsgroup;
+
     public NewsAddress() {
     }
+
     public NewsAddress(String newsgroup) {
         setNewsgroup(newsgroup);
     }
+
     public NewsAddress(String newsgroup, String host) {
         setNewsgroup(newsgroup);
         setHost(host);
     }
+
     public String getHost() {
         return host;
     }
+
     public String getNewsgroup() {
         return newsgroup;
     }
+
     public String getType() {
         return "news";
     }
+
     public void setHost(String string) {
         host = string;
     }
+
     public void setNewsgroup(String newsgroup) {
         newsgroup = newsgroup.trim();
         int at;
@@ -80,6 +92,7 @@ public class NewsAddress extends Address {
             this.newsgroup = newsgroup;
         }
     }
+
     public String toString() {
         return newsgroup + (host == null ? "" : "@" + host);
     }

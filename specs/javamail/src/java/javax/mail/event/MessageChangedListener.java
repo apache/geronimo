@@ -16,7 +16,9 @@
  */
 
 package javax.mail.event;
+
 import java.util.EventListener;
+
 /**
  * @version $Rev$ $Date$
  */

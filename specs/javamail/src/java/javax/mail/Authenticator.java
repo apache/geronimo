@@ -16,7 +16,9 @@
  */
 
 package javax.mail;
+
 import java.net.InetAddress;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -25,21 +27,27 @@ public abstract class Authenticator {
     private int _port;
     private String _prompt;
     private String _protocol;
+
     protected final String getDefaultUserName() {
         return System.getProperty("mail.user");
     }
+
     protected PasswordAuthentication getPasswordAuthentication() {
         return null;
     }
+
     protected final int getRequestingPort() {
         return _port;
     }
+
     protected final String getRequestingPrompt() {
         return _prompt;
     }
+
     protected final String getRequestingProtocol() {
         return _protocol;
     }
+
     protected final InetAddress getRequestingSite() {
         return _host;
     }

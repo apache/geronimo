@@ -16,6 +16,7 @@
  */
 
 package javax.mail.internet;
+
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.util.LinkedList;
@@ -24,11 +25,13 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 import javax.mail.Address;
 import javax.mail.Session;
+
 /**
  * @version $Rev$ $Date$
  */
 public class InternetAddress extends Address implements Cloneable {
     private static final InternetAddress[] IA_ARRAY = new InternetAddress[0];
+
     public static InternetAddress getLocalAddress(Session session) {
         try {
             Properties properties = session.getProperties();
@@ -54,12 +57,14 @@ public class InternetAddress extends Address implements Cloneable {
             return null;
         }
     }
+
     public static InternetAddress[] parse(String address)
-        throws AddressException {
+            throws AddressException {
         return parse(address, true);
     }
+
     public static InternetAddress[] parse(String addresses, boolean strict)
-        throws AddressException {
+            throws AddressException {
         // split up address into component parts
         // addresses are name <addr> or addr (name), sometimes with name in quotes
         // comma separated
@@ -71,12 +76,13 @@ public class InternetAddress extends Address implements Cloneable {
         }
         return (InternetAddress[]) result.toArray(IA_ARRAY);
     }
-    public static InternetAddress[] parseHeader(
-        String addresses,
-        boolean strict)
-        throws AddressException {
+
+    public static InternetAddress[] parseHeader(String addresses,
+                                                boolean strict)
+            throws AddressException {
         return parse(addresses, strict);
     }
+
     public static String toString(Address[] addresses) {
         StringBuffer result = new StringBuffer();
         boolean first = true;
@@ -91,6 +97,7 @@ public class InternetAddress extends Address implements Cloneable {
         }
         return result.toString();
     }
+
     public static String toString(Address[] addresses, int used) {
         String result = toString(addresses);
         if (result.length() > used) {
@@ -98,11 +105,14 @@ public class InternetAddress extends Address implements Cloneable {
         }
         return result;
     }
+
     protected String address;
     protected String encodedPersonal;
     protected String personal;
+
     public InternetAddress() {
     }
+
     public InternetAddress(String address) throws AddressException {
         int lt = address.indexOf("<");
         int gt = address.indexOf(">");
@@ -110,8 +120,7 @@ public class InternetAddress extends Address implements Cloneable {
             setAddress(address.substring(lt + 1, gt));
             // everyting else is the name
             try {
-                setPersonal(
-                    (address.substring(0, lt) + address.substring(gt + 1))
+                setPersonal((address.substring(0, lt) + address.substring(gt + 1))
                         .trim());
             } catch (UnsupportedEncodingException e) {
                 throw new AddressException(e.getMessage());
@@ -120,20 +129,24 @@ public class InternetAddress extends Address implements Cloneable {
             setAddress(address);
         }
     }
+
     public InternetAddress(String address, boolean strict)
-        throws AddressException {
+            throws AddressException {
         // parse address strictly?
     }
+
     public InternetAddress(String address, String personal)
-        throws UnsupportedEncodingException {
+            throws UnsupportedEncodingException {
         this(address, personal, MimeUtility.getDefaultJavaCharset());
     }
+
     public InternetAddress(String address, String personal, String charset)
-        throws UnsupportedEncodingException {
+            throws UnsupportedEncodingException {
         this.address = address;
         this.personal = personal;
         // TODO Encode personal with given charset
     }
+
     public Object clone() {
         InternetAddress ia = new InternetAddress();
         ia.address = address;
@@ -141,44 +154,54 @@ public class InternetAddress extends Address implements Cloneable {
         ia.encodedPersonal = encodedPersonal;
         return ia;
     }
+
     public String getAddress() {
         return address;
     }
+
     public InternetAddress[] getGroup(boolean strict) throws AddressException {
         // TODO Not implemented
         return null;
     }
+
     public String getPersonal() {
         return personal;
     }
+
     public String getType() {
         return "rfc822";
     }
+
     public boolean isGroup() {
         // TODO Not implemented
         return false;
     }
+
     public void setAddress(String address) {
         this.address = address;
     }
+
     public void setPersonal(String name) throws UnsupportedEncodingException {
         setPersonal(name, null);
     }
+
     public void setPersonal(String name, String encoding)
-        throws UnsupportedEncodingException {
+            throws UnsupportedEncodingException {
         encodedPersonal =
-            MimeUtility.encodeText(
-                name,
-                MimeUtility.getDefaultJavaCharset(),
-                encoding);
+                MimeUtility.encodeText(name,
+                        MimeUtility.getDefaultJavaCharset(),
+                        encoding);
         personal = name;
     }
+
     public String toString() {
         return encodedPersonal + " <" + address + ">";
     }
+
     public String toUnicodeString() {
         return personal + " <" + address + ">";
     }
+
     public void validate() throws AddressException {
         // TODO Not implemented
     }

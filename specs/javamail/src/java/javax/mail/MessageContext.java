@@ -16,33 +16,39 @@
  */
 
 package javax.mail;
+
 /**
  * @version $Rev$ $Date$
  */
 public class MessageContext {
     private Part _part;
+
     public MessageContext(Part part) {
         _part = part;
     }
+
     public Message getMessage() {
         return getMessageFrom(getPart());
     }
+
     private Message getMessageFrom(Part part) {
         if (part instanceof Message) {
-            return (Message)part;
+            return (Message) part;
         } else if (part instanceof BodyPart) {
-            Part parent = ((Multipart)part).getParent();
+            Part parent = ((Multipart) part).getParent();
             return getMessageFrom(parent);
         } else if (part instanceof Multipart) {
-            Part parent = ((Multipart)part).getParent();
+            Part parent = ((Multipart) part).getParent();
             return getMessageFrom(parent);
         } else {
             return null;
         }
     }
+
     public Part getPart() {
         return _part;
     }
+
     public Session getSession() {
         Message message = getMessage();
         if (message == null) {

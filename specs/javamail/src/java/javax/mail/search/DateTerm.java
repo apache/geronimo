@@ -16,12 +16,15 @@
  */
 
 package javax.mail.search;
+
 import java.util.Date;
+
 /**
  * @version $Rev$ $Date$
  */
 public abstract class DateTerm extends ComparisonTerm {
     protected Date date;
+
     protected DateTerm(int comparison, Date date) {
         super(comparison);
         if (date == null) {
@@ -29,18 +32,23 @@ public abstract class DateTerm extends ComparisonTerm {
         }
         this.date = date;
     }
+
     public boolean equals(Object other) {
         return super.equals(other) && ((DateTerm) other).date.equals(date);
     }
+
     public int getComparison() {
         return super.getComparison();
     }
+
     public Date getDate() {
         return date;
     }
+
     public int hashCode() {
         return super.hashCode() + date.hashCode();
     }
+
     protected boolean match(Date match) {
         return compare(date.compareTo(match));
     }

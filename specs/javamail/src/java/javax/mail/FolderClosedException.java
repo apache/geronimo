@@ -16,18 +16,22 @@
  */
 
 package javax.mail;
+
 /**
  * @version $Rev$ $Date$
  */
 public class FolderClosedException extends MessagingException {
     private transient Folder _folder;
+
     public FolderClosedException(Folder folder) {
         this(folder, "Folder Closed: " + folder.getName());
     }
+
     public FolderClosedException(Folder folder, String message) {
         super(message);
         _folder = folder;
     }
+
     public Folder getFolder() {
         return _folder;
     }

@@ -16,9 +16,11 @@
  */
 
 package javax.mail.search;
+
 import java.io.IOException;
 import javax.mail.Message;
 import javax.mail.MessagingException;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -26,6 +28,7 @@ public final class BodyTerm extends StringTerm {
     public BodyTerm(String body) {
         super(body);
     }
+
     public boolean match(Message message) {
         try {
             return match((String) message.getContent());

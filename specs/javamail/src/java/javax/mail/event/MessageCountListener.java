@@ -16,11 +16,14 @@
  */
 
 package javax.mail.event;
+
 import java.util.EventListener;
+
 /**
  * @version $Rev$ $Date$
  */
 public interface MessageCountListener extends EventListener {
     public abstract void messagesAdded(MessageCountEvent event);
+
     public abstract void messagesRemoved(MessageCountEvent event);
 }

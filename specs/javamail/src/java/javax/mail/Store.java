@@ -16,6 +16,7 @@
  */
 
 package javax.mail;
+
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -23,6 +24,7 @@ import javax.mail.event.FolderEvent;
 import javax.mail.event.FolderListener;
 import javax.mail.event.StoreEvent;
 import javax.mail.event.StoreListener;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -30,27 +32,37 @@ public abstract class Store extends Service {
     private static final Folder[] FOLDER_ARRAY = new Folder[0];
     private List _folderListeners = new LinkedList();
     private List _storeListeners = new LinkedList();
+
     protected Store(Session session, URLName name) {
-        super(session,name);
+        super(session, name);
     }
+
     public void addFolderListener(FolderListener listener) {
         _folderListeners.add(listener);
     }
+
     public void addStoreListener(StoreListener listener) {
         _storeListeners.add(listener);
     }
+
     public abstract Folder getDefaultFolder() throws MessagingException;
+
     public abstract Folder getFolder(String name) throws MessagingException;
+
     public abstract Folder getFolder(URLName name) throws MessagingException;
+
     public Folder[] getPersonalNamespaces() throws MessagingException {
-        return new Folder[] { getDefaultFolder()};
+        return new Folder[]{getDefaultFolder()};
     }
+
     public Folder[] getSharedNamespaces() throws MessagingException {
         return FOLDER_ARRAY;
     }
+
     public Folder[] getUserNamespaces(String name) throws MessagingException {
         return FOLDER_ARRAY;
     }
+
     protected void notifyFolderListeners(int type, Folder folder) {
         Iterator it = _folderListeners.iterator();
         FolderEvent event = new FolderEvent(this, folder, type);
@@ -59,17 +71,18 @@ public abstract class Store extends Service {
             event.dispatch(listener);
         }
     }
-    protected void notifyFolderRenamedListeners(
-        Folder oldFolder,
-        Folder newFolder) {
+
+    protected void notifyFolderRenamedListeners(Folder oldFolder,
+                                                Folder newFolder) {
         Iterator it = _folderListeners.iterator();
         FolderEvent event =
-            new FolderEvent(this, oldFolder, newFolder, FolderEvent.RENAMED);
+                new FolderEvent(this, oldFolder, newFolder, FolderEvent.RENAMED);
         while (it.hasNext()) {
             FolderListener listener = (FolderListener) it.next();
             event.dispatch(listener);
         }
     }
+
     protected void notifyStoreListeners(int type, String message) {
         Iterator it = _storeListeners.iterator();
         StoreEvent event = new StoreEvent(this, type, message);
@@ -78,9 +91,11 @@ public abstract class Store extends Service {
             listener.notification(event);
         }
     }
+
     public void removeFolderListener(FolderListener listener) {
         _folderListeners.remove(listener);
     }
+
     public void removeStoreListener(StoreListener listener) {
         _storeListeners.remove(listener);
     }

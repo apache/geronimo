@@ -16,7 +16,9 @@
  */
 
 package javax.mail.internet;
+
 // can be in the form major/minor; charset=jobby
+
 /**
  * @version $Rev$ $Date$
  */
@@ -24,14 +26,17 @@ public class ContentType {
     private ParameterList _list;
     private String _minor;
     private String _major;
+
     public ContentType() {
         this("text", "plain", new ParameterList());
     }
+
     public ContentType(String major, String minor, ParameterList list) {
         _major = major;
         _minor = minor;
         _list = list;
     }
+
     public ContentType(String type) throws ParseException {
         final int slash = type.indexOf("/");
         final int semi = type.indexOf(";");
@@ -47,45 +52,57 @@ public class ContentType {
             throw new ParseException("Type invalid: " + type);
         }
     }
+
     public String getPrimaryType() {
         return _major;
     }
+
     public String getSubType() {
         return _minor;
     }
+
     public String getBaseType() {
         return _major + "/" + _minor;
     }
+
     public String getParameter(String name) {
         return (_list == null ? null : _list.get(name));
     }
+
     public ParameterList getParameterList() {
         return _list;
     }
+
     public void setPrimaryType(String major) {
         _major = major;
     }
+
     public void setSubType(String minor) {
         _minor = minor;
     }
+
     public void setParameter(String name, String value) {
         if (_list == null) {
             _list = new ParameterList();
         }
         _list.set(name, value);
     }
+
     public void setParameterList(ParameterList list) {
         _list = list;
     }
+
     public String toString() {
         return getBaseType() + (_list == null ? "" : ";" + _list.toString());
     }
+
     public boolean match(ContentType other) {
         return _major.equals(other._major)
-            && (_minor.equals(other._minor)
+                && (_minor.equals(other._minor)
                 || _minor.equals("*")
                 || other._minor.equals("*"));
     }
+
     public boolean match(String contentType) {
         try {
             return match(new ContentType(contentType));

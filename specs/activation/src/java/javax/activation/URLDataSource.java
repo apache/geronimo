@@ -24,7 +24,6 @@ import java.net.URL;
 import java.net.URLConnection;
 
 /**
- *
  * @version $Rev$ $Date$
  */
 public class URLDataSource implements DataSource {
@@ -41,7 +40,6 @@ public class URLDataSource implements DataSource {
 
     /**
      * Returns the value of the URL content-type header field
-     * 
      */
     public String getContentType() {
         URLConnection connection = null;

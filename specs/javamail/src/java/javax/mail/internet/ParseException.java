@@ -16,7 +16,9 @@
  */
 
 package javax.mail.internet;
+
 import javax.mail.MessagingException;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -24,6 +26,7 @@ public class ParseException extends MessagingException {
     public ParseException() {
         super();
     }
+
     public ParseException(String message) {
         super(message);
     }

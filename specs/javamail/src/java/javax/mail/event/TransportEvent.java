@@ -16,9 +16,11 @@
  */
 
 package javax.mail.event;
+
 import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.Transport;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -31,39 +33,45 @@ public class TransportEvent extends MailEvent {
     protected transient Address[] validUnsent;
     protected transient Address[] invalid;
     protected transient Message msg;
-    public TransportEvent(
-        Transport transport,
-        int type,
-        Address[] validSent,
-        Address[] validUnsent,
-        Address[] invalid,
-        Message message) {
+
+    public TransportEvent(Transport transport,
+                          int type,
+                          Address[] validSent,
+                          Address[] validUnsent,
+                          Address[] invalid,
+                          Message message) {
         super(transport);
         this.type = type;
         this.validSent = validSent;
         this.validUnsent = validUnsent;
         this.invalid = invalid;
         if (type != MESSAGE_DELIVERED
-            && type != MESSAGE_NOT_DELIVERED
-            && type != MESSAGE_PARTIALLY_DELIVERED) {
+                && type != MESSAGE_NOT_DELIVERED
+                && type != MESSAGE_PARTIALLY_DELIVERED) {
             throw new IllegalArgumentException("Unknown type " + type);
         }
     }
+
     public Address[] getValidSentAddresses() {
         return validSent;
     }
+
     public Address[] getValidUnsentAddresses() {
         return validUnsent;
     }
+
     public Address[] getInvalidAddresses() {
         return invalid;
     }
+
     public Message getMessage() {
         return msg;
     }
+
     public int getType() {
         return type;
     }
+
     public void dispatch(Object listener) {
         // assume that it is the right listener type
         TransportListener l = (TransportListener) listener;

@@ -16,25 +16,31 @@
  */
 
 package javax.mail;
+
 /**
  * @version $Rev$ $Date$
  */
 public class MessagingException extends Exception {
     // Required because serialization expects it to be here
     private Exception next;
+
     public MessagingException() {
         super();
     }
+
     public MessagingException(String message) {
         super(message);
     }
+
     public MessagingException(String message, Exception cause) {
         super(message, cause);
         next = cause;
     }
+
     public Exception getNextException() {
         return next;
     }
+
     public synchronized boolean setNextException(Exception cause) {
         if (next == null) {
             initCause(cause);
@@ -46,17 +52,18 @@ public class MessagingException extends Exception {
             return false;
         }
     }
+
     public String getMessage() {
         Exception next = getNextException();
         if (next == null) {
             return super.getMessage();
         } else {
             return super.getMessage()
-                + " ("
-                + next.getClass().getName()
-                + ": "
-                + next.getMessage()
-                + ")";
+                    + " ("
+                    + next.getClass().getName()
+                    + ": "
+                    + next.getMessage()
+                    + ")";
         }
     }
 }

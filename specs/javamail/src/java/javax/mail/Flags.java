@@ -16,12 +16,14 @@
  */
 
 package javax.mail;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -36,9 +38,11 @@ public class Flags implements Cloneable, Serializable {
         public static final Flag USER = new Flag("", false);
         private String _name;
         private boolean _system;
+
         private Flag(String name) {
             this(name, false);
         }
+
         private Flag(String name, boolean system) {
             if (name == null) {
                 throw new IllegalArgumentException("Flag name cannot be null");
@@ -46,36 +50,47 @@ public class Flags implements Cloneable, Serializable {
             _name = name;
             _system = system;
         }
+
         private String getName() {
             return _name;
         }
+
         private boolean isSystemFlag() {
             return _system;
         }
     }
+
     private static final Flag[] FLAG_ARRAY = new Flag[0];
     private static final String[] STRING_ARRAY = new String[0];
     private Map _map = new HashMap(4);
+
     public Flags() {
     }
+
     public Flags(Flag flag) {
         add(flag);
     }
+
     public Flags(Flags flags) {
         add(flags);
     }
+
     public Flags(String name) {
         add(name);
     }
+
     public void add(Flag flag) {
         _map.put(flag.getName(), flag);
     }
+
     public void add(Flags flags) {
         _map.putAll(flags._map);
     }
+
     public void add(String name) {
         add(new Flag(name));
     }
+
     public Object clone() {
         try {
             Flags clone = (Flags) super.clone();
@@ -86,9 +101,11 @@ public class Flags implements Cloneable, Serializable {
             throw new AssertionError();
         }
     }
+
     public boolean contains(Flag flag) {
         return _map.containsKey(flag.getName());
     }
+
     public boolean contains(Flags flags) {
         Iterator it = flags._map.keySet().iterator();
         boolean result = true;
@@ -97,9 +114,11 @@ public class Flags implements Cloneable, Serializable {
         }
         return result;
     }
+
     public boolean contains(String name) {
         return _map.containsKey(name);
     }
+
     public boolean equals(Object other) {
         if (other == null || other.getClass() != this.getClass()) {
             return false;
@@ -107,6 +126,7 @@ public class Flags implements Cloneable, Serializable {
         Flags flags = (Flags) other;
         return flags._map.equals(this._map);
     }
+
     public Flag[] getSystemFlags() {
         List result = new LinkedList();
         Iterator it = _map.values().iterator();
@@ -118,6 +138,7 @@ public class Flags implements Cloneable, Serializable {
         }
         return (Flag[]) result.toArray(FLAG_ARRAY);
     }
+
     public String[] getUserFlags() {
         List result = new LinkedList();
         Iterator it = _map.values().iterator();
@@ -129,21 +150,26 @@ public class Flags implements Cloneable, Serializable {
         }
         return (String[]) result.toArray(STRING_ARRAY);
     }
+
     public int hashCode() {
         return _map.keySet().hashCode();
     }
+
     public void remove(Flag flag) {
         _map.remove(flag.getName());
     }
+
     public void remove(Flags flags) {
         Iterator it = flags._map.keySet().iterator();
         while (it.hasNext()) {
             _map.remove(it.next());
         }
     }
+
     public void remove(String name) {
         _map.remove(name);
     }
+
     public String toString() {
         return _map.keySet().toString();
     }

@@ -16,7 +16,9 @@
  */
 
 package javax.mail.event;
+
 import java.util.EventObject;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -24,5 +26,6 @@ public abstract class MailEvent extends EventObject {
     public MailEvent(Object source) {
         super(source);
     }
+
     public abstract void dispatch(Object listener);
 }

@@ -16,9 +16,11 @@
  */
 
 package javax.mail.search;
+
 import java.util.Date;
 import javax.mail.Message;
 import javax.mail.MessagingException;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -26,6 +28,7 @@ public final class SentDateTerm extends DateTerm {
     public SentDateTerm(int comparison, Date date) {
         super(comparison, date);
     }
+
     public boolean match(Message message) {
         try {
             return match(message.getSentDate());

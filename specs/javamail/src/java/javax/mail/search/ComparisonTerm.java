@@ -16,6 +16,7 @@
  */
 
 package javax.mail.search;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -28,12 +29,15 @@ public abstract class ComparisonTerm extends SearchTerm {
     public static final int LT = 2;
     public static final int NE = 4;
     protected int comparison;
+
     // Dozy idiots didn't provide a constructor with an int comparison argument
     public ComparisonTerm() {
     }
+
     ComparisonTerm(int comparison) {
         this.comparison = comparison;
     }
+
     boolean compare(int answer) {
         if (answer == 0) {
             return (comparison == EQ || comparison == LE || comparison == GE);
@@ -43,13 +47,16 @@ public abstract class ComparisonTerm extends SearchTerm {
             return (comparison == LE || comparison == LT || comparison == NE);
         }
     }
+
     public boolean equals(Object other) {
         return super.equals(other)
-            && ((ComparisonTerm) other).comparison == comparison;
+                && ((ComparisonTerm) other).comparison == comparison;
     }
+
     int getComparison() {
         return comparison;
     }
+
     public int hashCode() {
         return super.hashCode() + comparison * 31;
     }

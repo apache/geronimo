@@ -16,9 +16,11 @@
  */
 
 package javax.mail;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Vector;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -26,34 +28,44 @@ public abstract class Multipart {
     protected String contentType;
     protected Part parent;
     protected Vector parts = new Vector();
+
     protected Multipart() {
     }
+
     public void addBodyPart(BodyPart part) throws MessagingException {
         parts.add(part);
     }
+
     public void addBodyPart(BodyPart part, int pos) throws MessagingException {
         parts.add(pos, part);
     }
+
     public BodyPart getBodyPart(int index) throws MessagingException {
         return (BodyPart) parts.get(index);
     }
+
     public String getContentType() {
         return contentType;
     }
+
     public int getCount() throws MessagingException {
         return parts.size();
     }
+
     public Part getParent() {
         return parent;
     }
+
     public boolean removeBodyPart(BodyPart part) throws MessagingException {
         return parts.remove(part);
     }
+
     public void removeBodyPart(int index) throws MessagingException {
         parts.remove(index);
     }
+
     protected void setMultipartDataSource(MultipartDataSource mds)
-        throws MessagingException {
+            throws MessagingException {
         // TODO review implementation
         contentType = mds.getContentType();
         int size = mds.getCount();
@@ -61,9 +73,11 @@ public abstract class Multipart {
             addBodyPart(mds.getBodyPart(i));
         }
     }
+
     public void setParent(Part part) {
         parent = part;
     }
+
     public abstract void writeTo(OutputStream out)
-        throws IOException, MessagingException;
+            throws IOException, MessagingException;
 }

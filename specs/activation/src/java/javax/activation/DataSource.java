@@ -26,7 +26,10 @@ import java.io.OutputStream;
  */
 public interface DataSource {
     public abstract InputStream getInputStream() throws IOException;
+
     public abstract OutputStream getOutputStream() throws IOException;
+
     public abstract String getContentType();
+
     public abstract String getName();
 }

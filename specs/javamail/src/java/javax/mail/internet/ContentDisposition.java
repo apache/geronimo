@@ -16,17 +16,21 @@
  */
 
 package javax.mail.internet;
+
 // http://www.faqs.org/rfcs/rfc2183.html
+
 /**
  * @version $Rev$ $Date$
  */
 public class ContentDisposition {
     private String _disposition;
     private ParameterList _list;
+
     public ContentDisposition() {
         setDisposition(null);
         setParameterList(null);
     }
+
     public ContentDisposition(String disposition) throws ParseException {
         ParameterList list = null;
         int semicolon;
@@ -37,13 +41,16 @@ public class ContentDisposition {
         setDisposition(disposition);
         setParameterList(list);
     }
+
     public ContentDisposition(String disposition, ParameterList list) {
         setDisposition(disposition);
         setParameterList(list);
     }
+
     public String getDisposition() {
         return _disposition;
     }
+
     public String getParameter(String name) {
         if (_list == null) {
             return null;
@@ -51,16 +58,20 @@ public class ContentDisposition {
             return _list.get(name);
         }
     }
+
     public ParameterList getParameterList() {
         return _list;
     }
+
     public void setDisposition(String string) {
         _disposition = string;
     }
+
     public void setParameter(String name, String value) {
         _list = new ParameterList();
         _list.set(name, value);
     }
+
     public void setParameterList(ParameterList list) {
         if (list == null) {
             _list = new ParameterList();
@@ -68,11 +79,12 @@ public class ContentDisposition {
             _list = list;
         }
     }
+
     public String toString() {
         if (_disposition == null && _list.size() == 0) {
             return null;
         }
         return (_disposition == null ? "" : _disposition)
-            + (_list.size() == 0 ? "" : _list.toString());
+                + (_list.size() == 0 ? "" : _list.toString());
     }
 }

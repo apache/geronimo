@@ -16,33 +16,41 @@
  */
 
 package javax.mail.search;
+
 import javax.mail.Flags;
 import javax.mail.Message;
 import javax.mail.MessagingException;
+
 /**
  * @version $Rev$ $Date$
  */
 public final class FlagTerm extends SearchTerm {
     protected Flags flags;
     protected boolean set;
+
     public FlagTerm(Flags flags, boolean set) {
         this.set = set;
         this.flags = flags;
     }
+
     public boolean equals(Object other) {
         return super.equals(other)
-            && ((FlagTerm) other).flags.equals(flags)
-            && ((FlagTerm) other).set == set;
+                && ((FlagTerm) other).flags.equals(flags)
+                && ((FlagTerm) other).set == set;
     }
+
     public Flags getFlags() {
         return flags;
     }
+
     public boolean getTestSet() {
         return set;
     }
+
     public int hashCode() {
         return super.hashCode() + flags.hashCode() + (set ? 99 : 234);
     }
+
     public boolean match(Message message) {
         try {
             return message.getFlags().contains(flags) == set;

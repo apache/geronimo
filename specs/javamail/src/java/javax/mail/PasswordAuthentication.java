@@ -16,19 +16,23 @@
  */
 
 package javax.mail;
+
 /**
  * @version $Rev$ $Date$
  */
 public final class PasswordAuthentication {
     private String _user;
     private String _password;
+
     public PasswordAuthentication(String user, String password) {
         _user = user;
         _password = password;
     }
+
     public String getUserName() {
         return _user;
     }
+
     public String getPassword() {
         return _password;
     }

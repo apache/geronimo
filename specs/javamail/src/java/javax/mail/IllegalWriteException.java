@@ -16,6 +16,7 @@
  */
 
 package javax.mail;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -23,6 +24,7 @@ public class IllegalWriteException extends MessagingException {
     public IllegalWriteException() {
         super();
     }
+
     public IllegalWriteException(String message) {
         super(message);
     }

@@ -16,11 +16,14 @@
  */
 
 package javax.mail;
+
 import javax.activation.DataSource;
+
 /**
  * @version $Rev$ $Date$
  */
 public interface MultipartDataSource extends DataSource {
     public abstract BodyPart getBodyPart(int index) throws MessagingException;
+
     public abstract int getCount();
 }

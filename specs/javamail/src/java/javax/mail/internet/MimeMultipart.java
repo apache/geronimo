@@ -16,6 +16,7 @@
  */
 
 package javax.mail.internet;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -23,68 +24,81 @@ import javax.activation.DataSource;
 import javax.mail.BodyPart;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
+
 /**
  * @version $Rev$ $Date$
  */
 public class MimeMultipart extends Multipart {
     protected DataSource ds;
     protected boolean parsed;
+
     public MimeMultipart() {
         // TODO Implement method
         throw new UnsupportedOperationException("Method not yet implemented");
     }
+
     public MimeMultipart(DataSource dataSource) throws MessagingException {
         // TODO Implement method
         throw new UnsupportedOperationException("Method not yet implemented");
     }
+
     public MimeMultipart(String subtype) {
         // TODO Implement method
         throw new UnsupportedOperationException("Method not yet implemented");
     }
+
     protected InternetHeaders createInternetHeaders(InputStream in)
-        throws MessagingException {
+            throws MessagingException {
         // TODO Implement method
         throw new UnsupportedOperationException("Method not yet implemented");
     }
+
     protected MimeBodyPart createMimeBodyPart(InputStream in)
-        throws MessagingException {
+            throws MessagingException {
         // TODO Implement method
         throw new UnsupportedOperationException("Method not yet implemented");
     }
-    protected MimeBodyPart createMimeBodyPart(
-        InternetHeaders headers,
-        byte[] data)
-        throws MessagingException {
+
+    protected MimeBodyPart createMimeBodyPart(InternetHeaders headers,
+                                              byte[] data)
+            throws MessagingException {
         // TODO Implement method
         throw new UnsupportedOperationException("Method not yet implemented");
     }
+
     public synchronized BodyPart getBodyPart(int part)
-        throws MessagingException {
+            throws MessagingException {
         // TODO Implement method
         throw new UnsupportedOperationException("Method not yet implemented");
     }
+
     public BodyPart getBodyPart(String cid) throws MessagingException {
         // TODO Implement method
         throw new UnsupportedOperationException("Method not yet implemented");
     }
+
     public int getCount() throws MessagingException {
         // TODO Implement method
         throw new UnsupportedOperationException("Method not yet implemented");
     }
+
     protected void parse() throws MessagingException {
         // TODO Implement method
         throw new UnsupportedOperationException("Method not yet implemented");
     }
+
     public void setSubType(String subtype) throws MessagingException {
         // TODO Implement method
         throw new UnsupportedOperationException("Method not yet implemented");
     }
+
     protected void updateHeaders() throws MessagingException {
         // TODO Implement method
         throw new UnsupportedOperationException("Method not yet implemented");
     }
+
     public void writeTo(OutputStream out)
-        throws IOException, MessagingException {
+            throws IOException, MessagingException {
         // TODO Implement method
         throw new UnsupportedOperationException("Method not yet implemented");
     }

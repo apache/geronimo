@@ -16,6 +16,7 @@
  */
 
 package javax.mail.internet;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -27,16 +28,18 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
 import javax.mail.Header;
 import javax.mail.MessagingException;
+
 /**
  * @version $Rev$ $Date$
  */
 public class InternetHeaders {
     private static final String[] STRING_ARRAY = new String[0];
+
     /**
      * Parse the line into a <code>Header</code?
+     *
      * @param line in the form <code>To: Apache Geronimo Users &lt;geronimo-user@apache.org&gt;</code>
      * @return the parsed <code>Header</code>
      */
@@ -47,6 +50,7 @@ public class InternetHeaders {
         String value = line.substring(colon + 1).trim();
         return new Header(name, value);
     }
+
     /**
      * Stores the list of Headers, indexed by name (uppercased)
      */
@@ -59,18 +63,22 @@ public class InternetHeaders {
      * Stores the list of lines, in the order they were entered.
      */
     private List _lines = new LinkedList();
+
     public InternetHeaders() {
     }
+
     public InternetHeaders(InputStream in) throws MessagingException {
         load(in);
     }
+
     /**
      * Add the given header and original line into the store.
      * A maximum of one of the arguments can be null; if it is, it
      * is dynamically created from the other. If both are <code>null</code>,
      * then a <code>NullPointerException</code> will be raised.
+     *
      * @param header the pre-parsed header
-     * @param line the header line
+     * @param line   the header line
      */
     private void add(Header header, String line) {
         if (line == null) {
@@ -88,15 +96,19 @@ public class InternetHeaders {
         _lines.add(line);
         _last = header;
     }
+
     public void addHeader(String name, String value) {
         add(new Header(name, value), null);
     }
+
     public void addHeaderLine(String line) {
         add(null, line);
     }
+
     public Enumeration getAllHeaderLines() {
         return Collections.enumeration(_lines);
     }
+
     public Enumeration getAllHeaders() {
         List result = new LinkedList();
         Iterator it = _headers.values().iterator();
@@ -106,6 +118,7 @@ public class InternetHeaders {
         }
         return Collections.enumeration(result);
     }
+
     public String[] getHeader(String name) {
         List headers = getHeaderList(name);
         if (headers == null) {
@@ -120,6 +133,7 @@ public class InternetHeaders {
             return (String[]) result.toArray(STRING_ARRAY);
         }
     }
+
     public String getHeader(String name, String delimiter) {
         List list = getHeaderList(name);
         if (list == null || list.isEmpty()) {
@@ -144,9 +158,11 @@ public class InternetHeaders {
             return result.toString();
         }
     }
+
     private List getHeaderList(String name) {
         return (List) _headers.get(name.toUpperCase());
     }
+
     private Enumeration getHeaders(String[] names, boolean match) {
         List matches = new ArrayList(names.length);
         for (int i = 0; i < names.length; i++) {
@@ -162,6 +178,7 @@ public class InternetHeaders {
         }
         return Collections.enumeration(result);
     }
+
     private Enumeration getLines(String[] names, boolean match) {
         List matches = new ArrayList(names.length);
         for (int i = 0; i < names.length; i++) {
@@ -180,18 +197,23 @@ public class InternetHeaders {
         }
         return Collections.enumeration(result);
     }
+
     public Enumeration getMatchingHeaderLines(String[] names) {
         return getLines(names, true);
     }
+
     public Enumeration getMatchingHeaders(String[] names) {
         return getHeaders(names, true);
     }
+
     public Enumeration getNonMatchingHeaderLines(String[] names) {
         return getLines(names, false);
     }
+
     public Enumeration getNonMatchingHeaders(String[] names) {
         return getHeaders(names, false);
     }
+
     public void load(InputStream in) throws MessagingException {
         try {
             StringBuffer buffer = new StringBuffer();
@@ -245,6 +267,7 @@ public class InternetHeaders {
             throw new MessagingException(e.getMessage());
         }
     }
+
     public void removeHeader(String name) {
         String NAME = name.toUpperCase();
         _headers.remove(NAME);
@@ -258,6 +281,7 @@ public class InternetHeaders {
             }
         }
     }
+
     public void setHeader(String name, String value) {
         removeHeader(name);
         addHeader(name, value);

@@ -16,6 +16,7 @@
  */
 
 package javax.mail;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -23,6 +24,7 @@ public class MessageRemovedException extends MessagingException {
     public MessageRemovedException() {
         super();
     }
+
     public MessageRemovedException(String message) {
         super(message);
     }
