@@ -112,7 +112,7 @@ import org.xml.sax.SAXException;
  * DeploymentPlanner in charge of the plannification of Connector deployments.
  *
  *
- * @version $Revision: 1.6 $ $Date: 2003/11/24 00:04:32 $
+ * @version $Revision: 1.7 $ $Date: 2003/11/26 02:17:40 $
  */
 public class ConnectorDeploymentPlanner
         extends AbstractDeploymentPlanner {
@@ -199,14 +199,7 @@ public class ConnectorDeploymentPlanner
         //deploy ra
         ObjectName resourceAdapterName = null;
         if (gra.getResourceAdapterClass() != null) {
-            MBeanMetadata raMD = getMBeanMetadata(raCS.getName(), deploymentUnitName, baseURI);
-            raMD.setCode(gra.getResourceAdapterClass());
-            raMD.setName(buildResourceAdapterDeploymentName(gra));
-            configureMBeanMetadata(gra.getConfigProperty(), raMD);
-            addTasks(raMD, deploymentPlan);
-            resourceAdapterName = raMD.getName();
-            ObjectName bootstrapContextName = buildBootstrapContextName(gra);
-            ResourceAdapterHelperImpl.addMBeanInfo(raMD.getGeronimoMBeanInfo(), bootstrapContextName);
+            resourceAdapterName = planResourceAdapter(deploymentPlan, gra, raCS, deploymentUnitName, baseURI);
         }
 
 
@@ -215,36 +208,58 @@ public class ConnectorDeploymentPlanner
             GeronimoConnectionDefinition gcd = gra.getGeronimoOutboundResourceAdapter().getGeronimoConnectionDefinition(i);
             assert gcd != null: "Null GeronimoConnectionDefinition";
             //deploy cm factory
-            GeronimoConnectionManagerFactory gcmf = gcd.getGeronimoConnectionManagerFactory();
-            assert gcmf != null: "Null GeronimoConnectionManagerFactory";
-            MBeanMetadata cmfMD = getMBeanMetadata(raCS.getName(), deploymentUnitName, baseURI);
-            cmfMD.setGeronimoMBeanDescriptor(gcmf.getConnectionManagerFactoryDescriptor());
-            cmfMD.setName(buildConnectionManagerFactoryDeploymentName(gcd));
-            adaptConfigProperties(gcmf.getConfigProperty(), null, cmfMD.getAttributeValues());
-            addTasks(cmfMD, deploymentPlan);
+            planManagedConnectionFactory(deploymentPlan, gcd, raCS, deploymentUnitName, baseURI, resourceAdapterName);
 
-
-            MBeanMetadata mcfMD = getMBeanMetadata(raCS.getName(), deploymentUnitName, baseURI);
-            mcfMD.setCode(gcd.getManagedConnectionFactoryClass());
-            mcfMD.setName(buildManagedConnectionFactoryDeploymentName(gcd));
-            configureMBeanMetadata(gcd.getConfigProperty(), mcfMD);
-            ManagedConnectionFactoryHelper.addMBeanInfo(mcfMD.getGeronimoMBeanInfo(), resourceAdapterName, cmfMD.getName());
-            Map attributes = mcfMD.getAttributeValues();
-            attributes.put("ConnectionFactoryImplClass", gcd.getConnectionFactoryImplClass());
-            attributes.put("ConnectionFactoryInterface", gcd.getConnectionFactoryInterface());
-            attributes.put("ConnectionImplClass", gcd.getConnectionImplClass());
-            attributes.put("ConnectionInterface", gcd.getConnectionInterface());
-            attributes.put("ManagedConnectionFactoryClass", gcd.getManagedConnectionFactoryClass());
-            if (resourceAdapterName != null) {
-                attributes.put("ResourceAdapterName", resourceAdapterName);
-            }
-            attributes.put("ConnectionManagerFactoryName", cmfMD.getName());
-            addTasks(mcfMD, deploymentPlan);
 
         }
         plans.add(deploymentPlan);
 
         return true;
+    }
+
+    //Public access is bad, but these need to be accessible for testing from other packages.
+    //TODO find a way to make these package access
+    public void planManagedConnectionFactory(DeploymentPlan deploymentPlan, GeronimoConnectionDefinition gcd, ClassSpaceMetadata raCS, ObjectName deploymentUnitName, URI baseURI, ObjectName resourceAdapterName) throws DeploymentException {
+        GeronimoConnectionManagerFactory gcmf = gcd.getGeronimoConnectionManagerFactory();
+        assert gcmf != null: "Null GeronimoConnectionManagerFactory";
+        MBeanMetadata cmfMD = getMBeanMetadata(raCS.getName(), deploymentUnitName, baseURI);
+        cmfMD.setGeronimoMBeanDescriptor(gcmf.getConnectionManagerFactoryDescriptor());
+        cmfMD.setName(buildConnectionManagerFactoryDeploymentName(gcd));
+        adaptConfigProperties(gcmf.getConfigProperty(), null, cmfMD.getAttributeValues());
+        addTasks(cmfMD, deploymentPlan);
+
+
+        MBeanMetadata mcfMD = getMBeanMetadata(raCS.getName(), deploymentUnitName, baseURI);
+        mcfMD.setCode(gcd.getManagedConnectionFactoryClass());
+        mcfMD.setName(buildManagedConnectionFactoryDeploymentName(gcd));
+        configureMBeanMetadata(gcd.getConfigProperty(), mcfMD);
+        ManagedConnectionFactoryHelper.addMBeanInfo(mcfMD.getGeronimoMBeanInfo(), resourceAdapterName, cmfMD.getName());
+        Map attributes = mcfMD.getAttributeValues();
+        attributes.put("ConnectionFactoryImplClass", gcd.getConnectionFactoryImplClass());
+        attributes.put("ConnectionFactoryInterface", gcd.getConnectionFactoryInterface());
+        attributes.put("ConnectionImplClass", gcd.getConnectionImplClass());
+        attributes.put("ConnectionInterface", gcd.getConnectionInterface());
+        attributes.put("ManagedConnectionFactoryClass", gcd.getManagedConnectionFactoryClass());
+        if (resourceAdapterName != null) {
+            attributes.put("ResourceAdapterName", resourceAdapterName);
+        }
+        attributes.put("ConnectionManagerFactoryName", cmfMD.getName());
+        addTasks(mcfMD, deploymentPlan);
+    }
+
+    //Public access is bad, but these need to be accessible for testing from other packages.
+    //TODO find a way to make these package access
+    public ObjectName planResourceAdapter(DeploymentPlan deploymentPlan, GeronimoResourceAdapter gra, ClassSpaceMetadata raCS, ObjectName deploymentUnitName, URI baseURI) throws DeploymentException {
+        ObjectName resourceAdapterName;
+        MBeanMetadata raMD = getMBeanMetadata(raCS.getName(), deploymentUnitName, baseURI);
+        raMD.setCode(gra.getResourceAdapterClass());
+        raMD.setName(buildResourceAdapterDeploymentName(gra));
+        configureMBeanMetadata(gra.getConfigProperty(), raMD);
+        addTasks(raMD, deploymentPlan);
+        resourceAdapterName = raMD.getName();
+        ObjectName bootstrapContextName = buildBootstrapContextName(gra);
+        ResourceAdapterHelperImpl.addMBeanInfo(raMD.getGeronimoMBeanInfo(), bootstrapContextName);
+        return resourceAdapterName;
     }
 
     /**
@@ -307,9 +322,6 @@ public class ConnectorDeploymentPlanner
         DeployGeronimoMBean createTask =
                 new DeployGeronimoMBean(getServer(), metadata);
         plan.addTask(createTask);
-//        InitializeMBeanInstance initTask =
-//                new InitializeMBeanInstance(getServer(), metadata);
-//        plan.addTask(initTask);
         StartMBeanInstance startTask =
                 new StartMBeanInstance(getServer(), metadata);
         plan.addTask(startTask);
@@ -338,7 +350,7 @@ public class ConnectorDeploymentPlanner
 
     private ObjectName buildResourceAdapterDeploymentName(GeronimoResourceAdapter gra) {
         return JMXUtil.getObjectName(
-                "geronimo.management:j2eeType=JCAResourceAdapter,name="
+                "geronimo.j2ee:J2eeType=ResourceAdapter,name="
                 + gra.getName());
     }
 
@@ -356,16 +368,6 @@ public class ConnectorDeploymentPlanner
     }
 
 
-    private ObjectName buildMCFHelperDeploymentName(GeronimoConnectionDefinition gcd) {
-        return JMXUtil.getObjectName(
-                "geronimo.management:j2eeType=MCFHelper,name="
-                + gcd.getName());
-    }
-
-    /**
-     * @param gra
-     * @return
-     */
     private ObjectName buildBootstrapContextName(GeronimoResourceAdapter gra) {
         return JMXUtil.getObjectName(
                 gra.getBootstrapContext());

@@ -66,14 +66,22 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanEndpoint;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/11/17 00:46:09 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/26 02:17:40 $
  */
 public class BootstrapContext implements javax.resource.spi.BootstrapContext {
 
     private WorkManager workManager;
     private XATerminator xATerminator;
-    
-        
+
+    public BootstrapContext() {
+
+    }
+
+    public BootstrapContext(WorkManager workManager, XATerminator xaTerminator) {
+        this.workManager = workManager;
+        this.xATerminator = xaTerminator;
+    }
+
     /**
      * @param workManager The workManager to set.
      */
@@ -113,10 +121,11 @@ public class BootstrapContext implements javax.resource.spi.BootstrapContext {
     public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
         GeronimoMBeanInfo rc = new GeronimoMBeanInfo();
         rc.setTargetClass(BootstrapContext.class);
+        rc.addOperationsDeclaredIn(javax.resource.spi.BootstrapContext.class);
         rc.addEndpoint(new GeronimoMBeanEndpoint("WorkManager",WorkManager.class, new ObjectName("geronimo.jca:role=WorkManager"), true));
         rc.addEndpoint(new GeronimoMBeanEndpoint("XATerminator",XATerminator.class, new ObjectName("geronimo.transaction:role=TransactionManager"), true));
         return rc;
     }
-    
-    
+
+
 }

@@ -73,7 +73,7 @@ import org.apache.geronimo.kernel.deployment.DeploymentException;
 /**
  * ResourceAdapterHelperImpl
  *
- * @version $Revision: 1.4 $ $Date: 2003/11/25 17:28:36 $
+ * @version $Revision: 1.5 $ $Date: 2003/11/26 02:17:40 $
  */
 public class ResourceAdapterHelperImpl implements GeronimoMBeanTarget, ResourceAdapterHelper {
 
@@ -94,7 +94,7 @@ public class ResourceAdapterHelperImpl implements GeronimoMBeanTarget, ResourceA
      * @see org.apache.geronimo.kernel.service.GeronimoMBeanTarget#canStart()
      */
     public boolean canStart() {
-        return bootstrapContext != null;
+        return true;
     }
 
     /* (non-Javadoc)
@@ -180,7 +180,7 @@ public class ResourceAdapterHelperImpl implements GeronimoMBeanTarget, ResourceA
                                     ObjectName bootstrapContextName) {
         mbeanInfo.setTargetClass(TARGET_NAME, ResourceAdapterHelperImpl.class.getName());
 
-        mbeanInfo.addOperationsDeclaredIn(ResourceAdapterHelper.class);
+        mbeanInfo.addOperationsDeclaredIn(ResourceAdapterHelper.class, TARGET_NAME);
 
         mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("BootstrapContext", BootstrapContext.class.getName(), bootstrapContextName, true, TARGET_NAME));
 
