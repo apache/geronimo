@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.14 $ $Date: 2003/09/01 16:46:34 $ -->
+<!-- $Revision: 1.15 $ $Date: 2003/09/01 17:31:26 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
@@ -8,7 +8,8 @@
   xmlns:ant="jelly:ant"
   xmlns:maven="jelly:maven"
   xmlns:define="jelly:define"
-  xmlns:xdoclet="common:xdoclet">
+  xmlns:xdoclet="common:xdoclet"
+  xmlns:castor="common:castor">
   
   <!-- ================= -->
   <!-- Global Properties -->
@@ -147,6 +148,7 @@
     
   </goal>
   
+  
   <!-- =================== -->
   <!-- XDoclet Integration -->
   <!-- =================== -->
@@ -167,27 +169,40 @@
         <maven:addPath id="${appendSet}" refid="xdoclet.jmx.compile.src.set"/>
       </j:if>
       
-      <echo>Generating MBean interfaces...</echo>
+      <j:set var="uptodatePropName" value="xdoclet.jmx.uptodate"/>
+      <j:remove var="${uptodatePropName}"/>
+      <j:set var="uptodateFile" value="${destdir}/tstamp"/>
       
-      <!-- Load the jmxdoclet task -->
-      <taskdef name="jmxdoclet" classname="xdoclet.modules.jmx.JMXDocletTask">
-        <classpath>
-          <path refid="maven.dependency.classpath"/>
-        </classpath>
-      </taskdef>
+      <uptodate property="${uptodatePropName}"
+                targetfile="${uptodateFile}">
+        <srcfiles dir= "${srcdic}" includes="**/*.java"/>
+      </uptodate>
       
-      <!-- Where sources will be generated -->
-      <mkdir dir="${destdir}"/>
-      
-      <!-- Generate MBean interfaces -->
-      <jmxdoclet destDir="${destdir}" verbose="false">
+      <j:if test="${context.getVariable(uptodatePropName) == null}">
+        <echo>Generating MBean interfaces...</echo>
         
-        <fileset dir="${srcdir}">
-          <include name="**/*.java"/>
-        </fileset>
+        <!-- Load the jmxdoclet task -->
+        <taskdef name="jmxdoclet" classname="xdoclet.modules.jmx.JMXDocletTask">
+          <classpath>
+            <path refid="maven.dependency.classpath"/>
+          </classpath>
+        </taskdef>
         
-        <mbeaninterface templateFile="${project.root}/etc/xdoclet/template/jmx/mbean.xdt"/>
-      </jmxdoclet>
+        <!-- Where sources will be generated -->
+        <mkdir dir="${destdir}"/>
+        
+        <!-- Generate MBean interfaces -->
+        <jmxdoclet destDir="${destdir}" verbose="false">
+          
+          <fileset dir="${srcdir}">
+            <include name="**/*.java"/>
+          </fileset>
+          
+          <mbeaninterface templateFile="${project.root}/etc/xdoclet/template/jmx/mbean.xdt"/>
+        </jmxdoclet>
+        
+        <touch file="${uptodateFile}"/>
+      </j:if>
       
     </define:tag>
   </define:taglib>
@@ -206,4 +221,83 @@
       appendSet="maven.test.compile.src.set"/>
   </goal>
   
+  
+  <!-- ===================================== -->
+  <!-- Castor Integration (Plugin is Broken) -->
+  <!-- ===================================== -->
+  
+  <define:taglib uri="common:castor">
+    
+    <define:tag name="generate" xmlns="jelly:ant">
+      <j:if test="${schema == null}">
+        <fail>Missing required attribute: schema</fail>
+      </j:if>
+      <j:if test="${package == null}">
+        <fail>Missing required attribute: package</fail>
+      </j:if>
+      <!-- types can be null -->
+      <!-- marshal can be null -->
+      <!-- binding can be null -->
+      
+      <j:set var="maven.castor.dest" value="${basedir}/target/castor/gen"/>
+      <mkdir dir="${maven.castor.dest}"/>
+      
+      <path id="maven.castor.compile.src.set"
+            location="${maven.castor.dest}"/>
+      <maven:addPath id="maven.compile.src.set"
+                     refid="maven.castor.compile.src.set"/>
+      
+      <j:new var="schemaFile" className="java.io.File">
+        <j:arg type="java.lang.String" value="${schema}"/>
+      </j:new>
+      
+      <j:set var="uptodatePropName" value="castor.schema.${schemaFile.name}.uptodate"/>
+      <j:remove var="${uptodatePropName}"/>
+      <j:set var="uptodateFile" value="${basedir}/target/castor/${schemaFile.name}.tstamp"/>
+      
+      <uptodate property="${uptodatePropName}"
+                srcfile="${schema}"
+                targetfile="${uptodateFile}"/>
+      
+      <j:if test="${context.getVariable(uptodatePropName) == null}">
+        <echo message="Generating sources for ${schema}"/>
+        
+        <path id="castor.classpath">
+          <path refid="maven.dependency.classpath"/>
+        </path>
+         
+        <java className="org.exolab.castor.builder.SourceGenerator"
+                  failonerror="true" fork="yes">
+          <classpath refid="castor.classpath"/>
+          <arg value="-i"/>
+          <arg value="${schema}"/>
+          
+          <j:if test="${binding != null}">
+            <arg value="-binding-file"/>
+            <arg value="${binding}"/>
+          </j:if>
+          
+          <arg value="-package"/>
+          <arg value="${package}"/>
+          
+          <j:if test="${types != null}">
+            <arg value="-types"/>
+            <arg value="${types}"/>
+          </j:if>
+          
+          <j:if test="${marshal == 'false'}">
+            <arg value="-nomarshall"/>
+          </j:if>
+          
+          <arg value="-f"/>
+          <arg value="-dest"/>
+          <arg value="${maven.castor.dest}"/>
+        </java>
+        
+        <touch file="${uptodateFile}"/>
+      </j:if>
+      
+    </define:tag>
+  </define:taglib>
+
 </project>
