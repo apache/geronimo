@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.47 $ $Date: 2003/12/10 12:53:41 $ -->
+<!-- $Revision: 1.48 $ $Date: 2004/01/01 18:32:13 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -174,7 +174,7 @@
     <goal name="modules:javadoc">
         <modules:reactor goals="javadoc" aggregate="false"/>
     </goal>
-    
+
     <goal name="modules:clover">
         <modules:reactor goals="clover" aggregate="false"/>
     </goal>
@@ -551,13 +551,12 @@
                     <fileset dir="${run.dir}/bootlib">
                         <include name="*.jar"/>
                     </fileset>
-                    
+
                     <!-- temporary addition allows RMI to be used, such as with the JMX RMI connector -->
                     <pathelement location="${run.dir}/lib/geronimo-core-rmiclassloaderspi.jar"/>
                 </classpath>
 
                 <sysproperty key="program.name" value="maven:run"/>
-                <sysproperty key="geronimo.home" value="file:${run.dir}/"/>
                 <sysproperty key="java.rmi.server.RMIClassLoaderSpi" value="org.apache.geronimo.rmi.RMIClassLoaderSpiImpl"/>
             </java>
         </j:jelly>
@@ -581,7 +580,7 @@
                     <fileset dir="${run.dir}/bootlib">
                         <include name="*.jar"/>
                     </fileset>
-                    
+
                     <!-- temporary addition allows RMI to be used, such as with the JMX RMI connector -->
                     <pathelement location="${run.dir}/lib/geronimo-core-rmiclassloaderspi.jar"/>
                 </classpath>
@@ -592,9 +591,7 @@
 
                 <sysproperty key="java.compiler" value="NONE"/>
                 <sysproperty key="program.name" value="maven:run"/>
-                <sysproperty key="geronimo.home" value="file:${run.dir}/"/>
                 <sysproperty key="java.rmi.server.RMIClassLoaderSpi" value="org.apache.geronimo.rmi.RMIClassLoaderSpiImpl"/>
-
             </java>
         </j:jelly>
     </goal>

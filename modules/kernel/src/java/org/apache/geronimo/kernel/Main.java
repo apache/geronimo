@@ -84,9 +84,12 @@ import org.apache.geronimo.kernel.jmx.JMXKernel;
 /**
  * Main entry point for the Geronimo server.
  *
- * @version $Revision: 1.3 $ $Date: 2003/11/17 15:26:46 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/01 18:32:13 $
  */
 public class Main implements Runnable {
+
+    static String GERONIMO_HOME;
+
     static {
         // Add our default Commons Logger that support the trace level
         // This MUST be done before the first log is acquired
@@ -97,12 +100,13 @@ public class Main implements Runnable {
         // Set the home directory based on the start location of the Java process
         if (System.getProperty("geronimo.home") == null) {
             try {
-                System.setProperty("geronimo.home", (new File(".")).getAbsoluteFile().toURL().toString());
+                System.setProperty("geronimo.home", (new File("")).getAbsoluteFile().toURL().toString());
             } catch (MalformedURLException e) {
                 throw new AssertionError(e);
             }
         }
-
+        GERONIMO_HOME = System.getProperty("geronimo.home");
+        
         // add our commons property editors incase the commons module is added latter
         List paths = new LinkedList(Arrays.asList(PropertyEditorManager.getEditorSearchPath()));
         paths.add("org.apache.geronimo.common.propertyeditor");
@@ -259,8 +263,6 @@ public class Main implements Runnable {
             log.info("Shutdown complete");
         }
     }
-
-    static String GERONIMO_HOME = System.getProperty("geronimo.home", "file:.");
 
     /**
      * Command line entry point.
