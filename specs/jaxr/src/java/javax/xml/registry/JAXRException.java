@@ -49,10 +49,11 @@ public class JAXRException extends Exception implements JAXRResponse {
     }
 
     public synchronized Throwable initCause(Throwable cause) {
-        if (this.cause != this)
-            throw new IllegalStateException("Can't overwrite cause");
-        if (cause == this)
-            throw new IllegalArgumentException("Self-causation not permitted");
+
+        if (this.cause != null) {
+            throw new IllegalStateException("Cannot overwrite cause.");
+        }
+
         this.cause = cause;
         return this;
     }
