@@ -21,14 +21,11 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.ObjectStreamClass;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.net.URLClassLoader;
-import java.net.MalformedURLException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -38,6 +35,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -49,7 +47,6 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.kernel.ObjectInputStreamExt;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
@@ -135,7 +132,7 @@ public class Configuration implements GBeanLifecycle {
     /**
      * The classloadeder used to load the child GBeans contained in this configuration.
      */
-    private final ClassLoader configurationClassLoader;
+    private final ConfigurationClassLoader configurationClassLoader;
 
     /**
      * The GBeanData for the GBeans contained in this configuration.  These must be persisted as a ByteArray, becuase
@@ -144,6 +141,22 @@ public class Configuration implements GBeanLifecycle {
      */
     private byte[] gbeanState;
 
+    /**
+     * Only used to allow declaration as a reference.
+     */
+    public Configuration() {
+        kernel = null;
+        objectNameString = null;
+        objectName = null;
+        id = null;
+        moduleType = null;
+        parentID = null;
+        configurationStore = null;
+        domain = null;
+        server = null;
+        objectNames = null;
+        configurationClassLoader = null;
+    }
 
     /**
      * Constructor that can be used to create an offline Configuration, typically
@@ -193,9 +206,9 @@ public class Configuration implements GBeanLifecycle {
             // no explicit parent set, so use the class loader of this class as
             // the parent... this class should be in the root geronimo classloader,
             // which is normally the system class loader but not always, so be safe
-            configurationClassLoader = new URLClassLoader(urls, getClass().getClassLoader());
+            configurationClassLoader = new ConfigurationClassLoader(id, urls, getClass().getClassLoader());
         } else {
-            configurationClassLoader = new URLClassLoader(urls, parent.getConfigurationClassLoader());
+            configurationClassLoader = new ConfigurationClassLoader(id, urls, parent.getConfigurationClassLoader());
         }
 
         // DSS: why exactally are we doing this?  I bet there is a reason, but
@@ -366,7 +379,7 @@ public class Configuration implements GBeanLifecycle {
         return gbeanState;
     }
 
-    public ClassLoader getConfigurationClassLoader() {
+    public ConfigurationClassLoader getConfigurationClassLoader() {
         return configurationClassLoader;
     }
 
@@ -447,7 +460,7 @@ public class Configuration implements GBeanLifecycle {
         infoFactory.addAttribute("dependencies", List.class, true);
         infoFactory.addAttribute("gBeanState", byte[].class, true);
         infoFactory.addAttribute("baseURL", URL.class, true);
-        infoFactory.addAttribute("configurationClassLoader", ClassLoader.class, false);
+        infoFactory.addAttribute("configurationClassLoader", ConfigurationClassLoader.class, false);
 
         infoFactory.addReference("Parent", ConfigurationParent.class);
         infoFactory.addReference("Repositories", Repository.class, "GBean");

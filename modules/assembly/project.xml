@@ -419,6 +419,15 @@
         </dependency>
 
         <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-classloader-server</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
             <groupId>tranql</groupId>
             <artifactId>tranql-connector</artifactId>
             <version>${tranql_connector_version}</version>
