@@ -57,15 +57,31 @@ package org.apache.geronimo.deployment;
 
 import java.io.IOException;
 import java.io.File;
+import java.net.URL;
+import java.util.jar.JarInputStream;
 
 import org.apache.xmlbeans.XmlObject;
 
 /**
  * 
  * 
- * @version $Revision: 1.1 $ $Date: 2004/02/12 18:27:39 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/19 01:51:44 $
  */
 public interface ConfigurationBuilder {
+    /**
+     * Determine if this builder can handle the supplied plan.
+     * @param plan the plan to examine
+     * @return true if this builder will handle it
+     */
     boolean canConfigure(XmlObject plan);
-    void buildConfiguration(File outfile, XmlObject plan, boolean install) throws IOException, DeploymentException;
+
+    /**
+     * Extract the deployment plan from a module if this builder can
+     * process it.
+     * @param module the URL of the module to examine
+     * @return the deployment plan, or null if this module can not handle it
+     */
+    XmlObject getDeploymentPlan(URL module);
+
+    void buildConfiguration(File outfile, JarInputStream module, XmlObject plan, boolean install) throws IOException, DeploymentException;
 }

@@ -87,7 +87,7 @@ import org.apache.xmlbeans.XmlObject;
  * Command line based deployment utility which combines multiple deployable modules
  * into a single configuration.
  *
- * @version $Revision: 1.3 $ $Date: 2004/02/13 15:48:26 $
+ * @version $Revision: 1.4 $ $Date: 2004/02/19 01:51:44 $
  */
 public class Deployer {
     static {
@@ -126,7 +126,7 @@ public class Deployer {
             saveOutput = true;
         }
         try {
-            builder.buildConfiguration(cmd.carfile, plan, cmd.install);
+            builder.buildConfiguration(cmd.carfile, null, plan, cmd.install);
         } finally {
             if (!saveOutput) {
                 cmd.carfile.delete();
@@ -219,6 +219,10 @@ public class Deployer {
             command.module = cmd.hasOption('m') ? getURL(cmd.getOptionValue('m')) : null;
         } catch (MalformedURLException e) {
             System.err.println("Invalid URL for module: "+cmd.getOptionValue('m'));
+            return null;
+        }
+        if (command.module == null && command.plan == null) {
+            System.err.println("No plan or module specified");
             return null;
         }
         try {

@@ -72,6 +72,7 @@ import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
+import java.util.jar.JarInputStream;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -100,7 +101,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/12 23:22:19 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/19 01:51:44 $
  */
 public class ServiceConfigBuilder implements ConfigurationBuilder {
     private final Repository repository;
@@ -115,7 +116,11 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         return plan instanceof ConfigurationDocument;
     }
 
-    public void buildConfiguration(File outfile, XmlObject plan, boolean install) throws IOException, DeploymentException {
+    public XmlObject getDeploymentPlan(URL module) {
+        return null;
+    }
+
+    public void buildConfiguration(File outfile, JarInputStream module, XmlObject plan, boolean install) throws IOException, DeploymentException {
         ConfigurationType configType = ((ConfigurationDocument) plan).getConfiguration();
         URI configID;
         try {
