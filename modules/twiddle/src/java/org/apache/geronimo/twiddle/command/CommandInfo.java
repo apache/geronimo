@@ -54,112 +54,114 @@
  * ====================================================================
  */
 
-package org.apache.geronimo.twiddle.config;
+package org.apache.geronimo.twiddle.command;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.FileReader;
-import java.io.InputStreamReader;
-import java.io.BufferedReader;
+import org.apache.geronimo.common.NullArgumentException;
 
-import java.net.URL;
-
-import org.exolab.castor.xml.Unmarshaller;
-import org.exolab.castor.xml.MarshalException;
-
-import org.apache.geronimo.common.Strings;
+import org.apache.geronimo.twiddle.config.CommandConfig;
 
 /**
- * Creates <code>Configuration</code> objects.
+ * Information about a command.
  *
- * @version <code>$Id: ConfigurationReader.java,v 1.2 2003/08/13 08:32:09 jdillon Exp $</code>
+ * @version <code>$Id: CommandInfo.java,v 1.1 2003/08/13 08:32:09 jdillon Exp $</code>
  * @author <a href="mailto:jason@planet57.com">Jason Dillon</a>
  */
-public class ConfigurationReader
+public class CommandInfo
 {
-    /** The Castor unmarshaller used to tranform XML->Objects */
-    protected Unmarshaller unmarshaller;
+    /** The command configuration. */
+    protected CommandConfig config;
+    
+    /** The command prototype. */
+    protected Command prototype;
     
     /**
-     * Construct a <code>ConfigurationReader</code>.
+     * Construct a <code>CommandInfo</code> from the given config.
+     *
+     * @param config    The command configuration.
      */
-    public ConfigurationReader()
+    public CommandInfo(final CommandConfig config)
     {
-        unmarshaller = new Unmarshaller(Configuration.class);
-    }
-    
-    /**
-     * Read a configuration instance from a URL.
-     *
-     * @param url   The URL to read the configuration from.
-     * @return      The configuration instance.
-     *
-     * @throws Exception    Failed to read configuration.
-     */
-    public Configuration read(final URL url) throws Exception
-    {
-        return doRead(new BufferedReader(new InputStreamReader(url.openStream())));
-    }
-    
-    /**
-     * Read a configuration instance from a string URL specification.
-     *
-     * @param urlspec   The URL specification.
-     * @return          The configuration instance.
-     *
-     * @throws Exception    Failed to read configuration.
-     */
-    public Configuration read(final String urlspec) throws Exception
-    {
-        return read(Strings.toURL(urlspec));
-    }
-    
-    /**
-     * Read a configuration instance from a file.
-     *
-     * @param file  The file to read the configuration from.
-     * @return      The configuration instance.
-     *
-     * @throws Exception    Failed to read configuration.
-     */
-    public Configuration read(final File file) throws Exception
-    {
-        return doRead(new BufferedReader(new FileReader(file)));
-    }
-    
-    /**
-     * Read a configuration instance from a reader.
-     *
-     * @param reader    The reader to read the configuration from.
-     * @return          The configuration instance.
-     *
-     * @throws Exception    Failed to read configuration.
-     */
-    public Configuration read(final Reader reader) throws Exception
-    {
-        return (Configuration)unmarshaller.unmarshal(reader);
-    }
-    
-    /**
-     * Read a configuration instance from a reader and handle closing the
-     * reader after the read operation.
-     *
-     * @param reader    The reader to read the configuration from.
-     * @return          The configuration instance.
-     *
-     * @throws Exception    Failed to read configuration.
-     */
-    protected Configuration doRead(final Reader reader) throws Exception
-    {
-        Configuration config = null;
-        try {
-            config = read(reader);
-        }
-        finally {
-            reader.close();
+        if (config == null) {
+            throw new NullArgumentException("config");
         }
         
+        this.config = config;
+    }
+    
+    /**
+     * Get the command configuration.
+     *
+     * @return The command configuration.
+     */
+    public CommandConfig getConfig()
+    {
         return config;
+    }
+    
+    /**
+     * Create the command prototype.
+     *
+     * @return The command prototype.
+     *
+     * @throws CommandException     Failed to create prototype.
+     */
+    protected Command createPrototype() throws CommandException
+    {
+        CommandFactory factory = new CommandFactory(config);
+        Command command = factory.create();
+        command.setCommandInfo(this);
+        
+        return command;
+    }
+    
+    /**
+     * Get the command prototype.
+     *
+     * @return The command prototype.
+     *
+     * @throws CommandException     Failed to create prototype.
+     */
+    public Command getPrototype() throws CommandException
+    {
+        if (prototype == null) {
+            prototype = createPrototype();
+        }
+        
+        return prototype;
+    }
+    
+    
+    /////////////////////////////////////////////////////////////////////////
+    //                               Helpers                               //
+    /////////////////////////////////////////////////////////////////////////
+    
+    /**
+     * Get the name of the command.
+     *
+     * @return The name of the command.
+     */
+    public String getName()
+    {
+        return config.getName();
+    }
+    
+    /**
+     * Get the description of the command.
+     *
+     * @return The description of the command.
+     */
+    public String getDescription()
+    {
+        return config.getDescription();
+    }
+    
+    /**
+     * Check if this command has a configured description.
+     *
+     * @return True if the command has a configured description.
+     */
+    public boolean hasDescription()
+    {
+        return getDescription() != null;
     }
 }

@@ -54,112 +54,78 @@
  * ====================================================================
  */
 
-package org.apache.geronimo.twiddle.config;
+package org.apache.geronimo.twiddle.command;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.FileReader;
-import java.io.InputStreamReader;
-import java.io.BufferedReader;
-
-import java.net.URL;
-
-import org.exolab.castor.xml.Unmarshaller;
-import org.exolab.castor.xml.MarshalException;
-
-import org.apache.geronimo.common.Strings;
+import org.apache.geronimo.common.CloneableObject;
+import org.apache.geronimo.common.NullArgumentException;
 
 /**
- * Creates <code>Configuration</code> objects.
+ * An abstract implementation of a <code>Command</code>.
  *
- * @version <code>$Id: ConfigurationReader.java,v 1.2 2003/08/13 08:32:09 jdillon Exp $</code>
+ * <p>Sub-classes only need to implement {@link Command#execute} and
+ *    can access the command context from {@link #getCommandContext}.
+ *
+ * @version <code>$Id: AbstractCommand.java,v 1.1 2003/08/13 08:32:09 jdillon Exp $</code>
  * @author <a href="mailto:jason@planet57.com">Jason Dillon</a>
  */
-public class ConfigurationReader
+public abstract class AbstractCommand
+    extends CloneableObject
+    implements Command
 {
-    /** The Castor unmarshaller used to tranform XML->Objects */
-    protected Unmarshaller unmarshaller;
+    /** Platform dependent line separator. */
+    protected static final String LINE_SEPARATOR = System.getProperty("line.separator");
     
-    /**
-     * Construct a <code>ConfigurationReader</code>.
-     */
-    public ConfigurationReader()
-    {
-        unmarshaller = new Unmarshaller(Configuration.class);
-    }
+    /** The command information. */
+    private CommandInfo info;
     
-    /**
-     * Read a configuration instance from a URL.
-     *
-     * @param url   The URL to read the configuration from.
-     * @return      The configuration instance.
-     *
-     * @throws Exception    Failed to read configuration.
-     */
-    public Configuration read(final URL url) throws Exception
-    {
-        return doRead(new BufferedReader(new InputStreamReader(url.openStream())));
-    }
+    /** The command context. */
+    private CommandContext context;
     
-    /**
-     * Read a configuration instance from a string URL specification.
-     *
-     * @param urlspec   The URL specification.
-     * @return          The configuration instance.
-     *
-     * @throws Exception    Failed to read configuration.
-     */
-    public Configuration read(final String urlspec) throws Exception
+    public void setCommandInfo(final CommandInfo info)
     {
-        return read(Strings.toURL(urlspec));
-    }
-    
-    /**
-     * Read a configuration instance from a file.
-     *
-     * @param file  The file to read the configuration from.
-     * @return      The configuration instance.
-     *
-     * @throws Exception    Failed to read configuration.
-     */
-    public Configuration read(final File file) throws Exception
-    {
-        return doRead(new BufferedReader(new FileReader(file)));
-    }
-    
-    /**
-     * Read a configuration instance from a reader.
-     *
-     * @param reader    The reader to read the configuration from.
-     * @return          The configuration instance.
-     *
-     * @throws Exception    Failed to read configuration.
-     */
-    public Configuration read(final Reader reader) throws Exception
-    {
-        return (Configuration)unmarshaller.unmarshal(reader);
-    }
-    
-    /**
-     * Read a configuration instance from a reader and handle closing the
-     * reader after the read operation.
-     *
-     * @param reader    The reader to read the configuration from.
-     * @return          The configuration instance.
-     *
-     * @throws Exception    Failed to read configuration.
-     */
-    protected Configuration doRead(final Reader reader) throws Exception
-    {
-        Configuration config = null;
-        try {
-            config = read(reader);
-        }
-        finally {
-            reader.close();
+        if (info == null) {
+            throw new NullArgumentException("info");
         }
         
-        return config;
+        this.info = info;
+    }
+    
+    public CommandInfo getCommandInfo()
+    {
+        if (info == null) {
+            throw new IllegalStateException("Command information was not set");
+        }
+        
+        return info;
+    }
+    
+    public void setCommandContext(final CommandContext ctx)
+    {
+        if (ctx == null) {
+            throw new NullArgumentException("ctx");
+        }
+        
+        this.context = ctx;
+    }
+    
+    public void unsetCommandContext()
+    {
+        context = null;
+    }
+    
+    /**
+     * Provides sub-classes with access to the command context.
+     *
+     * @return The command context.
+     *
+     * @throws IllegalStateException    Command context has not been set or was unset.
+     */
+    protected CommandContext getCommandContext()
+    {
+        if (context == null) {
+            throw new IllegalStateException("Command context has not been set or was unset");
+        }
+        
+        return context;
     }
 }

@@ -54,112 +54,87 @@
  * ====================================================================
  */
 
-package org.apache.geronimo.twiddle.config;
+package org.apache.geronimo.twiddle.command;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.Reader;
-import java.io.FileReader;
-import java.io.InputStreamReader;
-import java.io.BufferedReader;
 
-import java.net.URL;
+import java.beans.Beans;
+import java.beans.BeanInfo;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 
-import org.exolab.castor.xml.Unmarshaller;
-import org.exolab.castor.xml.MarshalException;
+import java.lang.reflect.Method;
 
-import org.apache.geronimo.common.Strings;
+import org.apache.geronimo.common.NullArgumentException;
+
+import org.apache.geronimo.twiddle.config.CommandConfig;
+import org.apache.geronimo.twiddle.config.Attribute;
 
 /**
- * Creates <code>Configuration</code> objects.
+ * A factory for creating <code>Command</code> instances from
+ * a <code>CommandConfig</code>.
  *
- * @version <code>$Id: ConfigurationReader.java,v 1.2 2003/08/13 08:32:09 jdillon Exp $</code>
+ * @version <code>$Id: CommandFactory.java,v 1.1 2003/08/13 08:32:09 jdillon Exp $</code>
  * @author <a href="mailto:jason@planet57.com">Jason Dillon</a>
  */
-public class ConfigurationReader
+public class CommandFactory
 {
-    /** The Castor unmarshaller used to tranform XML->Objects */
-    protected Unmarshaller unmarshaller;
+    protected CommandConfig config;
     
-    /**
-     * Construct a <code>ConfigurationReader</code>.
-     */
-    public ConfigurationReader()
+    public CommandFactory(final CommandConfig config)
     {
-        unmarshaller = new Unmarshaller(Configuration.class);
-    }
-    
-    /**
-     * Read a configuration instance from a URL.
-     *
-     * @param url   The URL to read the configuration from.
-     * @return      The configuration instance.
-     *
-     * @throws Exception    Failed to read configuration.
-     */
-    public Configuration read(final URL url) throws Exception
-    {
-        return doRead(new BufferedReader(new InputStreamReader(url.openStream())));
-    }
-    
-    /**
-     * Read a configuration instance from a string URL specification.
-     *
-     * @param urlspec   The URL specification.
-     * @return          The configuration instance.
-     *
-     * @throws Exception    Failed to read configuration.
-     */
-    public Configuration read(final String urlspec) throws Exception
-    {
-        return read(Strings.toURL(urlspec));
-    }
-    
-    /**
-     * Read a configuration instance from a file.
-     *
-     * @param file  The file to read the configuration from.
-     * @return      The configuration instance.
-     *
-     * @throws Exception    Failed to read configuration.
-     */
-    public Configuration read(final File file) throws Exception
-    {
-        return doRead(new BufferedReader(new FileReader(file)));
-    }
-    
-    /**
-     * Read a configuration instance from a reader.
-     *
-     * @param reader    The reader to read the configuration from.
-     * @return          The configuration instance.
-     *
-     * @throws Exception    Failed to read configuration.
-     */
-    public Configuration read(final Reader reader) throws Exception
-    {
-        return (Configuration)unmarshaller.unmarshal(reader);
-    }
-    
-    /**
-     * Read a configuration instance from a reader and handle closing the
-     * reader after the read operation.
-     *
-     * @param reader    The reader to read the configuration from.
-     * @return          The configuration instance.
-     *
-     * @throws Exception    Failed to read configuration.
-     */
-    protected Configuration doRead(final Reader reader) throws Exception
-    {
-        Configuration config = null;
-        try {
-            config = read(reader);
-        }
-        finally {
-            reader.close();
+        if (config == null) {
+            throw new NullArgumentException("config");
         }
         
+        this.config = config;
+    }
+    
+    public CommandConfig getConfig()
+    {
         return config;
+    }
+    
+    protected Command doCreate() throws Exception
+    {
+        // Load the command instance
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        Command command = (Command)Beans.instantiate(cl, config.getClazz());
+        
+        // Apply attributes
+        BeanInfo info = Introspector.getBeanInfo(command.getClass());
+        Attribute[] attrs = config.getAttribute();
+        if (attrs != null) {
+            PropertyDescriptor[] descs = info.getPropertyDescriptors();
+            
+            for (int i=0; i<attrs.length; i++) {
+                String name = attrs[i].getName();
+                
+                for (int j=0; j<descs.length; j++) {
+                    //
+                    // TODO: Handle attribute types, for now they are all strings
+                    //
+                    
+                    if (name.equals(descs[j].getName())) {
+                        Object value = attrs[i].getContent();
+                        Method method = descs[j].getWriteMethod();
+                        method.invoke(command, new Object[] { value });
+                        break;
+                    }
+                }
+            }
+        }
+        
+        return command;
+    }
+    
+    public Command create() throws CommandException
+    {
+        try {
+            return doCreate();
+        }
+        catch (Exception e) {
+            throw new CommandException("Failed to create command: " + config.getName(), e);
+        }
     }
 }

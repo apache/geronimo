@@ -54,112 +54,85 @@
  * ====================================================================
  */
 
-package org.apache.geronimo.twiddle.config;
+package org.apache.geronimo.twiddle.command;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Reader;
-import java.io.FileReader;
-import java.io.InputStreamReader;
-import java.io.BufferedReader;
-
-import java.net.URL;
-
-import org.exolab.castor.xml.Unmarshaller;
-import org.exolab.castor.xml.MarshalException;
-
-import org.apache.geronimo.common.Strings;
 
 /**
- * Creates <code>Configuration</code> objects.
+ * Provides a command with details on its environment.
  *
- * @version <code>$Id: ConfigurationReader.java,v 1.2 2003/08/13 08:32:09 jdillon Exp $</code>
+ * @version <code>$Id: CommandContext.java,v 1.1 2003/08/13 08:32:09 jdillon Exp $</code>
  * @author <a href="mailto:jason@planet57.com">Jason Dillon</a>
  */
-public class ConfigurationReader
+public interface CommandContext
 {
-    /** The Castor unmarshaller used to tranform XML->Objects */
-    protected Unmarshaller unmarshaller;
+    /////////////////////////////////////////////////////////////////////////
+    //                          Environemnt Access                         //
+    /////////////////////////////////////////////////////////////////////////
     
     /**
-     * Construct a <code>ConfigurationReader</code>.
+     * Get an enviornment attribute.
+     *
+     * @param name  The name of the attribute.
+     * @return      The attribute value, or null if the attribute was not set.
      */
-    public ConfigurationReader()
-    {
-        unmarshaller = new Unmarshaller(Configuration.class);
-    }
+    Object get(String name);
     
     /**
-     * Read a configuration instance from a URL.
+     * Set an environment attribute.
      *
-     * @param url   The URL to read the configuration from.
-     * @return      The configuration instance.
-     *
-     * @throws Exception    Failed to read configuration.
+     * @param name      The name of the attribute.
+     * @param value     The value of the attribute.
      */
-    public Configuration read(final URL url) throws Exception
-    {
-        return doRead(new BufferedReader(new InputStreamReader(url.openStream())));
-    }
+    Object set(String name, Object value);
     
     /**
-     * Read a configuration instance from a string URL specification.
+     * Unset an enviornment attribute.
      *
-     * @param urlspec   The URL specification.
-     * @return          The configuration instance.
-     *
-     * @throws Exception    Failed to read configuration.
+     * @param name  The name of the attribute.
+     * @return      The previous value of the attribute, or null if there was none.
      */
-    public Configuration read(final String urlspec) throws Exception
-    {
-        return read(Strings.toURL(urlspec));
-    }
+    Object unset(String name);
     
     /**
-     * Read a configuration instance from a file.
+     * Check if an attribute is set.
      *
-     * @param file  The file to read the configuration from.
-     * @return      The configuration instance.
-     *
-     * @throws Exception    Failed to read configuration.
+     * @param name  The name of the attribute.
+     * @return      True if the attribute is set, else false.
      */
-    public Configuration read(final File file) throws Exception
-    {
-        return doRead(new BufferedReader(new FileReader(file)));
-    }
+    boolean isSet(String name);
+    
+    
+    /////////////////////////////////////////////////////////////////////////
+    //                          Container Access                           //
+    /////////////////////////////////////////////////////////////////////////
+    
+    CommandContainer getContainer();
+    
+    
+    /////////////////////////////////////////////////////////////////////////
+    //                         Input/Output Access                         //
+    /////////////////////////////////////////////////////////////////////////
     
     /**
-     * Read a configuration instance from a reader.
+     * Get the output writer for the command.
      *
-     * @param reader    The reader to read the configuration from.
-     * @return          The configuration instance.
-     *
-     * @throws Exception    Failed to read configuration.
+     * @return  The output writer.
      */
-    public Configuration read(final Reader reader) throws Exception
-    {
-        return (Configuration)unmarshaller.unmarshal(reader);
-    }
+    PrintWriter getWriter();
     
     /**
-     * Read a configuration instance from a reader and handle closing the
-     * reader after the read operation.
+     * Get the error output writer for the command.
      *
-     * @param reader    The reader to read the configuration from.
-     * @return          The configuration instance.
-     *
-     * @throws Exception    Failed to read configuration.
+     * @return  The error output writer.
      */
-    protected Configuration doRead(final Reader reader) throws Exception
-    {
-        Configuration config = null;
-        try {
-            config = read(reader);
-        }
-        finally {
-            reader.close();
-        }
-        
-        return config;
-    }
+    PrintWriter getErrorWriter();
+    
+    /**
+     * Get the input reader for the command.
+     *
+     * @return  The input reader.
+     */
+    Reader getReader();
 }

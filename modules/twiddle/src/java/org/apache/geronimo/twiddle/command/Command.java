@@ -54,112 +54,68 @@
  * ====================================================================
  */
 
-package org.apache.geronimo.twiddle.config;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.FileReader;
-import java.io.InputStreamReader;
-import java.io.BufferedReader;
-
-import java.net.URL;
-
-import org.exolab.castor.xml.Unmarshaller;
-import org.exolab.castor.xml.MarshalException;
-
-import org.apache.geronimo.common.Strings;
+package org.apache.geronimo.twiddle.command;
 
 /**
- * Creates <code>Configuration</code> objects.
+ * An abstraction of a command.
  *
- * @version <code>$Id: ConfigurationReader.java,v 1.2 2003/08/13 08:32:09 jdillon Exp $</code>
+ * <p>Commands follow the prototype pattern using the {@link #clone} method
+ *    to create new instances from the prototype.
+ *
+ * @version <code>$Id: Command.java,v 1.1 2003/08/13 08:32:09 jdillon Exp $</code>
  * @author <a href="mailto:jason@planet57.com">Jason Dillon</a>
  */
-public class ConfigurationReader
+public interface Command
+    extends Cloneable
 {
-    /** The Castor unmarshaller used to tranform XML->Objects */
-    protected Unmarshaller unmarshaller;
+    /** Standard command success status code. */
+    int SUCCESS = 0;
+    
+    /** Standard command failure status code. */
+    int FAILURE = -1;
     
     /**
-     * Construct a <code>ConfigurationReader</code>.
+     * Set the information about the command.
+     *
+     * @param info  Information about the command.
      */
-    public ConfigurationReader()
-    {
-        unmarshaller = new Unmarshaller(Configuration.class);
-    }
+    void setCommandInfo(CommandInfo info);
     
     /**
-     * Read a configuration instance from a URL.
+     * Get information about the command.
      *
-     * @param url   The URL to read the configuration from.
-     * @return      The configuration instance.
+     * @return Information about the command.
      *
-     * @throws Exception    Failed to read configuration.
+     * @throws IllegalStateException    Command information was not set.
      */
-    public Configuration read(final URL url) throws Exception
-    {
-        return doRead(new BufferedReader(new InputStreamReader(url.openStream())));
-    }
+    CommandInfo getCommandInfo();
     
     /**
-     * Read a configuration instance from a string URL specification.
+     * Set the context for the command.
      *
-     * @param urlspec   The URL specification.
-     * @return          The configuration instance.
-     *
-     * @throws Exception    Failed to read configuration.
+     * @param ctx   The context for the command.
      */
-    public Configuration read(final String urlspec) throws Exception
-    {
-        return read(Strings.toURL(urlspec));
-    }
+    void setCommandContext(CommandContext ctx);
     
     /**
-     * Read a configuration instance from a file.
-     *
-     * @param file  The file to read the configuration from.
-     * @return      The configuration instance.
-     *
-     * @throws Exception    Failed to read configuration.
+     * Unset the context for the command.
      */
-    public Configuration read(final File file) throws Exception
-    {
-        return doRead(new BufferedReader(new FileReader(file)));
-    }
+    void unsetCommandContext();
     
     /**
-     * Read a configuration instance from a reader.
+     * Execute the command.
      *
-     * @param reader    The reader to read the configuration from.
-     * @return          The configuration instance.
+     * @param args  The arguments for the command.
+     * @return      The status code for the command.
      *
-     * @throws Exception    Failed to read configuration.
+     * @throws Exception    An unexpected failure has occured.
      */
-    public Configuration read(final Reader reader) throws Exception
-    {
-        return (Configuration)unmarshaller.unmarshal(reader);
-    }
+    int execute(String[] args) throws Exception;
     
     /**
-     * Read a configuration instance from a reader and handle closing the
-     * reader after the read operation.
+     * Clone this command prototype.
      *
-     * @param reader    The reader to read the configuration from.
-     * @return          The configuration instance.
-     *
-     * @throws Exception    Failed to read configuration.
+     * @return A cloned instance of the command prototype.
      */
-    protected Configuration doRead(final Reader reader) throws Exception
-    {
-        Configuration config = null;
-        try {
-            config = read(reader);
-        }
-        finally {
-            reader.close();
-        }
-        
-        return config;
-    }
+    Object clone();
 }
