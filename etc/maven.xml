@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.6 $ $Date: 2003/08/16 15:42:03 $ -->
+<!-- $Revision: 1.7 $ $Date: 2003/08/17 08:29:20 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
@@ -37,7 +37,11 @@
   
   <!-- For testing -->
   <goal name="hello">
-    <ant:echo>H E L L O</ant:echo>
+    <ant:echo>
+      H E L L O
+      ---------
+      Module Name: ${pom.name}
+    </ant:echo>
   </goal>
   
   <!-- Remove classes which depend on changed files, so they will rebuild. -->
@@ -61,5 +65,58 @@
       </ant:depend>
     </j:if>
   </preGoal>
+  
+  <!-- TODO: add same thing for test:compile -->
+  
+  <!-- Cleanse source files -->
+  <goal name="cleanse-sources"
+        description="Cleanse source files, removing tabs and translating CRLF -> LF">
+        
+    <j:scope xmlns="jelly:ant">
+      
+      <!-- Cleanse sources -->
+      <j:set var="srcdir" value="${basedir}/src/java"/>
+      <u:available file="">
+      <fixcrlf srcdir="${srcdir}" eol="lf" eof="remove" tab="remove" tablength="4">
+        <include name="**/*.java"/>
+      </fixcrlf>
+      <fixcrlf srcdir="${basedir}" eol="lf" eof="remove" tab="remove" tablength="2">
+        <include name="**/*.xml"/>
+        <include name="**/*.html"/>
+      </fixcrlf>
+      </u:available>
+      
+      <!-- Cleanse test sources -->
+      <j:set var="srcdir" value="${basedir}/src/test"/>
+      <u:available file="${srcdir}">
+        <fixcrlf srcdir="${srcdir}" eol="lf" eof="remove" tab="remove" tablength="4">
+          <include name="**/*.java"/>
+          <include name="**/*.xml"/>
+          <include name="**/*.html"/>
+        </fixcrlf>
+        <fixcrlf srcdir="${srcdir}" eol="lf" eof="remove" tab="remove" tablength="2">
+          <include name="**/*.xml"/>
+          <include name="**/*.html"/>
+        </fixcrlf>
+      </u:available>
+      
+      <!-- Cleanse xdocs -->
+      <j:set var="srcdir" value="${basedir}/src/xdocs"/>
+      <u:available file="${srcdir}">
+        <fixcrlf srcdir="${srcdir}" eol="lf" eof="remove" tab="remove" tablength="2">
+          <include name="**/*.xml"/>
+          <include name="**/*.html"/>
+        </fixcrlf>
+      </u:available>
+      
+      <!-- Cleanse build files -->
+      <fixcrlf srcdir="." eol="lf" tab="remove" eof="remove" tablength="2">
+        <include name="project.xml"/>
+        <include name="maven.xml"/>
+      </fixcrlf>
+      
+    </j:scope>
+    
+  </goal>
   
 </project>
