@@ -37,7 +37,7 @@ import org.apache.geronimo.network.SelectorManager;
 
 
 /**
- * @version $Revision: 1.8 $ $Date: 2004/04/24 17:56:32 $
+ * @version $Revision: 1.9 $ $Date: 2004/04/24 21:34:34 $
  */
 public class SocketProtocol implements AcceptableProtocol, SelectionEventListner {
 
@@ -64,13 +64,14 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
     ByteBuffer[] sendBuffer;
     ByteBuffer headerBuffer;
     ByteBuffer bodyBuffer;
-    
+
     Object serviceReadMutex;
     Object serviceWriteMutex;
-    
-    static int nextConnectionId=0;
+
+    static int nextConnectionId = 0;
+
     synchronized static int getNextConnectionId() {
-    	return nextConnectionId++;    	
+        return nextConnectionId++;
     }
 
     public Protocol getUpProtocol() {
@@ -150,18 +151,18 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
     }
 
     public Protocol cloneProtocol() throws CloneNotSupportedException {
-    	SocketProtocol p = (SocketProtocol)super.clone();
-    	p.log = LogFactory.getLog(SocketProtocol.class.getName()+":"+getNextConnectionId());
+        SocketProtocol p = (SocketProtocol) super.clone();
+        p.log = LogFactory.getLog(SocketProtocol.class.getName() + ":" + getNextConnectionId());
         return p;
     }
 
     public void setup() throws ProtocolException {
-    	log = LogFactory.getLog(SocketProtocol.class.getName()+":"+getNextConnectionId());
-    	sendMutex = new Mutex();
-    	headerBuffer = ByteBuffer.allocate(4);
-    	serviceReadMutex = new Object();
-    	serviceWriteMutex = new Object();
-    	
+        log = LogFactory.getLog(SocketProtocol.class.getName() + ":" + getNextConnectionId());
+        sendMutex = new Mutex();
+        headerBuffer = ByteBuffer.allocate(4);
+        serviceReadMutex = new Object();
+        serviceWriteMutex = new Object();
+
         if (address == null && acceptedSocketChannel == null) throw new IllegalStateException("No address set");
 
         log.trace("Starting");
@@ -240,10 +241,9 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
             sendBuffer[0].putInt(size);
             sendBuffer[0].flip();
 
-            // This is non blocking call anyways, push out
-            // the buffer now if we can.
-            serviceWrite();
-            
+            log.trace("OP_READ, OP_WRITE " + selectionKey);
+            selectorManager.setInterestOps(selectionKey, SelectionKey.OP_READ | SelectionKey.OP_WRITE, 0);
+
         } catch (InterruptedException e) {
             log.debug("Communications error, closing connection: ", e);
             close();
@@ -255,16 +255,16 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
         try {
             if (selection.isReadable()) {
                 synchronized (serviceReadMutex) {
-                	serviceRead();
+                    serviceRead();
                 }
             }
             if (selection.isWritable()) {
                 synchronized (serviceWriteMutex) {
-                	serviceWrite();
+                    serviceWrite();
                 }
-            } 
+            }
         } catch (CancelledKeyException e) {
-        	log.trace("Key Cancelled:", e);
+            log.trace("Key Cancelled:", e);
             // who knows, by the time we get here,
             // the key could have been canceled.
         }
@@ -273,11 +273,11 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
     private void serviceWrite() {
         log.trace("serviceWrite() triggered.");
         try {
-        	if( sendBuffer == null ) {
+            if (sendBuffer == null) {
                 log.trace("Write had allready been serviced.");
                 return;
-        	}
-        	
+            }
+
             long count = socketChannel.write(sendBuffer);
             log.trace("Wrote " + count);
 
@@ -285,8 +285,8 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
                 if (sendBuffer[i].hasRemaining()) {
                     // not all was delivered in this call setup selector
                     // so we setup to finish sending async.
-                    log.trace("OP_WRITE " + selectionKey);
-                    selectorManager.setInterestOps(selectionKey, SelectionKey.OP_WRITE, 0);
+                    log.trace("OP_READ, OP_WRITE " + selectionKey);
+                    selectorManager.setInterestOps(selectionKey, SelectionKey.OP_READ | SelectionKey.OP_WRITE, 0);
 
                     return;
                 }
@@ -297,8 +297,12 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
 
             log.trace("RELEASING " + sendMutex);
             sendMutex.release();
-            log.trace("RELEASED " + sendMutex);            
+            log.trace("RELEASED " + sendMutex);
 
+
+            // We are done writing.
+            log.trace("OP_READ " + selectionKey);
+            selectorManager.setInterestOps(selectionKey, SelectionKey.OP_READ, 0);
         } catch (IOException e) {
             log.debug("Communications error, closing connection: ", e);
             close();
@@ -331,7 +335,7 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
 
                     if (headerBuffer.hasRemaining()) {
                         log.trace("HEADER reamining " + headerBuffer.remaining());
-                    	break; // not done reading the header.
+                        break; // not done reading the header.
                     }
 
                     headerBuffer.flip();
@@ -351,8 +355,8 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
                     bodyBuffer.clear();
                     bodyBuffer.limit(size);
                 }
-                
-                log.trace("BODY... HEADER remaining: " + headerBuffer.remaining()+", "+headerBuffer.hasRemaining());
+
+                log.trace("BODY... HEADER remaining: " + headerBuffer.remaining() + ", " + headerBuffer.hasRemaining());
                 // Are we reading the body??
                 if (bodyBuffer.hasRemaining()) {
                     if (tracing)
@@ -381,7 +385,7 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
             log.trace("OP_READ " + selectionKey);
             selectorManager.setInterestOps(selectionKey, SelectionKey.OP_READ, 0);
             if (tracing) log.trace("No more data available to be read.");
-            
+
         } catch (CancelledKeyException e) {
             log.trace("Key Cancelled: ", e);
             // who knows, by the time we get here,
