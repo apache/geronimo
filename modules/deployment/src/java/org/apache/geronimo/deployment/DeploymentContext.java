@@ -113,7 +113,7 @@ public class DeploymentContext {
             throw new AssertionError();
         }
 
-        gbeans.setDefaultDomain(domain);
+//        gbeans.setDefaultDomain(domain);
 
         if (kernel != null && parentID != null) {
             ConfigurationManager configurationManager = kernel.getConfigurationManager();

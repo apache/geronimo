@@ -17,29 +17,71 @@
 package org.apache.geronimo.kernel.registry;
 
 import java.util.Set;
+import java.util.Map;
 import javax.management.ObjectName;
 
+import org.apache.geronimo.gbean.GBeanName;
 import org.apache.geronimo.gbean.runtime.GBeanInstance;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
-import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.Kernel;
 
 /**
+ * Interface implemented by Registries that a Kernel can use to store and retrieve GBeanInstances.
  * @version $Rev$ $Date$
  */
 public interface GBeanRegistry {
+    /**
+     * Start the registry and associate it with a kernel.
+     *
+     * @param kernel the kernel to associate with
+     */
     void start(Kernel kernel);
 
+    /**
+     * Shut down the registry and unregister any GBeans
+     */
     void stop();
 
-    boolean isRegistered(ObjectName name);
+    /**
+     * See if there is a GBean registered with a specific name.
+     *
+     * @param name the name of the GBean to check for
+     * @return true if there is a GBean registered with that name
+     */
+    boolean isRegistered(GBeanName name);
 
-    void register(GBeanInstance gbeanInstance) throws GBeanAlreadyExistsException, InternalKernelException;
+    /**
+     * Register a GBean instance.
+     *
+     * @param gbeanInstance the GBean to register
+     * @throws GBeanAlreadyExistsException if there is already a GBean registered with the instance's name
+     */
+    void register(GBeanInstance gbeanInstance) throws GBeanAlreadyExistsException;
 
-    void unregister(ObjectName name) throws GBeanNotFoundException, InternalKernelException;
+    /**
+     * Unregister a GBean instance.
+     *
+     * @param name the name of the GBean to unregister
+     * @throws GBeanNotFoundException if there is no GBean registered with the supplied name
+     */
+    void unregister(GBeanName name) throws GBeanNotFoundException;
 
-    GBeanInstance getGBeanInstance(ObjectName name) throws GBeanNotFoundException;
+    /**
+     * Return the GBeanInstance registered with the supplied name.
+     *
+     * @param name the name of the instance to return
+     * @return the GBeanInstance
+     * @throws GBeanNotFoundException if there is no GBean registered with the supplied name
+     */
+    GBeanInstance getGBeanInstance(GBeanName name) throws GBeanNotFoundException;
 
-    Set listGBeans(ObjectName pattern) throws InternalKernelException;
+    /**
+     * Search the registry for GBeans matching a name pattern.
+     *
+     * @param domain the domain to query in; null indicates all
+     * @param properties the properties the GBeans must have
+     * @return an unordered Set<GBeanInstance> of GBeans that matched the pattern
+     */
+    Set listGBeans(String domain, Map properties);
 }

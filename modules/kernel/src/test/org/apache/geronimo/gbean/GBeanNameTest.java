@@ -67,7 +67,7 @@ public class GBeanNameTest extends TestCase {
 
     public void testInvalidNames() {
         try {
-            new GBeanName(null);
+            new GBeanName((String) null);
             fail();
         } catch (NullPointerException e) {
         }

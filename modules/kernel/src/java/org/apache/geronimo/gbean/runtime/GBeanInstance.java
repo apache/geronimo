@@ -1237,10 +1237,17 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
 
     }
 
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (obj instanceof GBeanInstance == false) return false;
+        return objectName.equals(((GBeanInstance)obj).objectName);
+    }
+
+    public int hashCode() {
+        return objectName.hashCode();
+    }
+
     public String toString() {
-        if (objectName == null) {
-            return super.toString();
-        }
         return objectName.toString();
     }
 }

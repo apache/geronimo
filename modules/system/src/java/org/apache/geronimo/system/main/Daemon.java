@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.management.ObjectName;
+import javax.management.MBeanServerFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -132,7 +133,7 @@ public class Daemon {
             }
 
             // build a jms kernel
-            final Kernel kernel = new Kernel("geronimo", new JMXGBeanRegistry());
+            final Kernel kernel = new Kernel("geronimo", new JMXGBeanRegistry(MBeanServerFactory.createMBeanServer("geronimo")));
 
             // boot the kernel
             try {

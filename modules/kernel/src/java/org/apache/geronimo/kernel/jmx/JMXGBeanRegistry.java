@@ -17,106 +17,94 @@
 package org.apache.geronimo.kernel.jmx;
 
 import java.util.HashMap;
-import java.util.Set;
+import java.util.Iterator;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.management.JMException;
 import javax.management.JMRuntimeException;
 import javax.management.MBeanInfo;
 import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
 
+import org.apache.geronimo.gbean.GBeanName;
 import org.apache.geronimo.gbean.runtime.GBeanInstance;
 import org.apache.geronimo.gbean.runtime.LifecycleBroadcaster;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.registry.GBeanRegistry;
 import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
+import org.apache.geronimo.kernel.registry.AbstractGBeanRegistry;
 
 /**
+ * An implementation of GBeanRegistry that also registers the GBeans with a JMX MBeanServer.
+ *
  * @version $Rev$ $Date$
  */
-public class JMXGBeanRegistry implements GBeanRegistry {
+public class JMXGBeanRegistry extends AbstractGBeanRegistry {
     private final HashMap registry = new HashMap();
     private Kernel kernel;
-    private MBeanServer mbServer;
+    private final MBeanServer mbServer;
+
+    public JMXGBeanRegistry(MBeanServer mbServer) {
+        this.mbServer = mbServer;
+    }
 
     public void start(Kernel kernel) {
+        super.start(kernel);
         this.kernel = kernel;
-        mbServer = MBeanServerFactory.createMBeanServer(kernel.getKernelName());
     }
 
-    public void stop() {
-        MBeanServerFactory.releaseMBeanServer(mbServer);
+    public synchronized void stop() {
+        this.kernel = null;
 
-        // todo destroy instances
-        synchronized(this) {
-            registry.clear();
+        // unregister all our GBean from the MBeanServer
+        for (Iterator i = registry.keySet().iterator(); i.hasNext();) {
+            GBeanName name = (GBeanName) i.next();
+            try {
+                mbServer.unregisterMBean(name.getObjectName());
+            } catch (Exception e) {
+                // ignore
+            }
         }
+        super.stop();
     }
 
-    public MBeanServer getMBeanServer() {
-        return mbServer;
-    }
-
-    public synchronized boolean isRegistered(ObjectName name) {
-        return registry.containsKey(name);
-    }
-
-    public void register(GBeanInstance gbeanInstance) throws GBeanAlreadyExistsException, InternalKernelException {
+    public void register(GBeanInstance gbeanInstance) throws GBeanAlreadyExistsException {
+        // create an MBean to wrap the plain GBean
         ObjectName name = gbeanInstance.getObjectNameObject();
         MBeanInfo mbeanInfo = JMXUtil.toMBeanInfo(gbeanInstance.getGBeanInfo());
         GBeanMBean gbeanMBean = new GBeanMBean(kernel, name, mbeanInfo);
+
+        // register the MBean with the JMX MBeanServer
         try {
             mbServer.registerMBean(gbeanMBean, name);
         } catch (InstanceAlreadyExistsException e) {
-            throw new GBeanAlreadyExistsException("A GBean is alreayd registered witht then name " + name);
+            throw new GBeanAlreadyExistsException("An MBean is already registered under the name " + name);
         } catch (Exception e) {
             throw new InternalKernelException("Error loading GBean " + name.getCanonicalName(), unwrapJMException(e));
         }
 
-        synchronized (this) {
-            registry.put(name, gbeanInstance);
-        }
+        super.register(gbeanInstance);
 
+        // todo when can we get rid if this?
+        // fire the loaded event from the gbeanMBean.. it was already fired from the GBeanInstance when it was created
         kernel.getLifecycleMonitor().addLifecycleListener(new LifecycleBridge(gbeanMBean), name);
-
-        // fire the loaded event from the gbeanMBean.. it was already fired from
-        // the GBeanInstance when it was created
-        gbeanMBean.fireLoadedEvent();        
+        gbeanMBean.fireLoadedEvent();
     }
 
-    public void unregister(ObjectName name) throws GBeanNotFoundException, InternalKernelException {
+    public void unregister(GBeanName name) throws GBeanNotFoundException, InternalKernelException {
         try {
-             mbServer.unregisterMBean(name);
+            ObjectName objectName = name.getObjectName();
+            mbServer.unregisterMBean(objectName);
         } catch (InstanceNotFoundException e) {
-            throw new GBeanNotFoundException(name.getCanonicalName());
+            // ignore - something else may have unregistered us
+            // if there truely is no GBean then we will catch it below whwn we call the superclass
         } catch (Exception e) {
             throw new InternalKernelException("Error unloading GBean " + name, unwrapJMException(e));
         }
 
-        synchronized (this) {
-            registry.remove(name);
-        }
-    }
-
-    public synchronized GBeanInstance getGBeanInstance(ObjectName name) throws GBeanNotFoundException {
-        GBeanInstance gbeanInstance = (GBeanInstance) registry.get(name);
-        if (gbeanInstance == null) {
-            throw new GBeanNotFoundException(name.getCanonicalName());
-        }
-        return gbeanInstance;
-    }
-
-    public Set listGBeans(ObjectName pattern) throws InternalKernelException {
-        try {
-            return mbServer.queryNames(pattern, null);
-        } catch (RuntimeException e) {
-            throw new InternalKernelException("Error while applying pattern " + pattern, e);
-        }
+        super.unregister(name);
     }
 
     private Throwable unwrapJMException(Throwable cause) {

@@ -19,8 +19,11 @@ package org.apache.geronimo.gbean;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 
 
 /**
@@ -180,5 +183,24 @@ public final class GBeanName implements Serializable {
 
     private Object readResolve() {
         return new GBeanName(name);
+    }
+
+    // utility methods to support conversion from ObjectName to GBeanName
+
+    /**
+     * @deprecated
+     */
+    public ObjectName getObjectName() throws MalformedObjectNameException {
+        return new ObjectName(domain, new Hashtable(props));
+    }
+
+    /**
+     * @deprecated
+     */
+    public GBeanName(ObjectName name) {
+        this.name = name.toString();
+        this.domain = name.getDomain();
+        this.props = new HashMap(name.getKeyPropertyList());
+        this.hashCode = domain.hashCode() + 37 * props.hashCode();
     }
 }

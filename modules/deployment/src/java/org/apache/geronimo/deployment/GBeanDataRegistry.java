@@ -16,36 +16,34 @@
  */
 package org.apache.geronimo.deployment;
 
-import java.util.Set;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Iterator;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanName;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.registry.AbstractGBeanRegistry;
 
 /**
  * @version $Rev:  $ $Date:  $
  */
-public class GBeanDataRegistry extends AbstractGBeanRegistry {
-
-    public void setDefaultDomain(String defaultDomain) {
-        this.defaultDomainName = defaultDomain;
-    }
+public class GBeanDataRegistry {
+    private final Map registry = new HashMap();
 
     public void preregister(ObjectName name) {
-        register(name, null);
+        registry.put(name, null);
     }
 
     public void register(GBeanData gbean) {
-        register(gbean.getName(), gbean);
+        registry.put(gbean.getName(), gbean);
     }
 
-    public GBeanData getGBeanInstance(ObjectName name) throws GBeanNotFoundException {
-        GBeanData gbeanData;
-        synchronized (this) {
-            gbeanData = (GBeanData) registry.get(name);
-        }
+    public synchronized GBeanData getGBeanInstance(ObjectName name) throws GBeanNotFoundException {
+        GBeanData gbeanData = (GBeanData) registry.get(name);
         if (gbeanData == null) {
             throw new GBeanNotFoundException(name.getCanonicalName());
         }
@@ -61,4 +59,15 @@ public class GBeanDataRegistry extends AbstractGBeanRegistry {
     }
 
 
+    public Set listGBeans(ObjectName pattern) {
+        Set result = new HashSet();
+        for (Iterator i = registry.entrySet().iterator(); i.hasNext();) {
+            Map.Entry entry = (Map.Entry) i.next();
+            ObjectName name = (ObjectName) entry.getKey();
+            if (pattern.apply(name)) {
+                result.add(name);
+            }
+        }
+        return result;
+    }
 }

@@ -26,9 +26,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 import javax.management.ObjectName;
+import javax.management.MBeanServerFactory;
 
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.registry.BasicGBeanRegistry;
 import org.apache.geronimo.kernel.jmx.JMXGBeanRegistry;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
@@ -106,7 +108,7 @@ public class StartServer {
         }
 
         // build a basic kernel without a configuration-store, our configuration store is
-        Kernel kernel = new Kernel(getKernelName(), new JMXGBeanRegistry());
+        Kernel kernel = new Kernel(getKernelName(), new BasicGBeanRegistry());
         kernel.boot();
 
         ConfigurationManager configurationManager = kernel.getConfigurationManager();
