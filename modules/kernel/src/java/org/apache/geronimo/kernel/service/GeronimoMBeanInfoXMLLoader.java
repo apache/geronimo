@@ -76,7 +76,7 @@ import org.w3c.dom.NodeList;
 /**
  * Loads the GeronimoMBeanInfo from xml.
  *
- * @version $Revision: 1.3 $ $Date: 2003/11/06 19:54:39 $
+ * @version $Revision: 1.4 $ $Date: 2003/11/10 20:42:01 $
  */
 public class GeronimoMBeanInfoXMLLoader {
     private static final DocumentBuilder parser;
@@ -313,7 +313,7 @@ public class GeronimoMBeanInfoXMLLoader {
         GeronimoMBeanEndpoint endpoint = new GeronimoMBeanEndpoint();
 
         endpoint.setName(endpointElement.getAttribute("name"));
-        endpoint.setName(endpointElement.getAttribute("type"));
+        endpoint.setType(endpointElement.getAttribute("type"));
         endpoint.setDescription(endpointElement.getAttribute("description"));
 
         String targetName = endpointElement.getAttribute("targetName");
