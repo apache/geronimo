@@ -220,6 +220,7 @@ public class SecurityTest extends TestCase {
         start(connectorName, connectorGBean);
 
         tm = new GBeanMBean(GeronimoTransactionManager.GBEAN_INFO);
+        tm.setAttribute("defaultTransactionTimeoutSeconds", new Integer(10));
         Set patterns = new HashSet();
         patterns.add(ObjectName.getInstance("geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
         tm.setReferencePatterns("ResourceManagers", patterns);

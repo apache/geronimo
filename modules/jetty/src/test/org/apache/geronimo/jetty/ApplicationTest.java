@@ -119,6 +119,7 @@ public class ApplicationTest extends TestCase {
         tm = new GBeanMBean(GeronimoTransactionManager.GBEAN_INFO);
         Set patterns = new HashSet();
         patterns.add(ObjectName.getInstance("geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
+        tm.setAttribute("defaultTransactionTimeoutSeconds", new Integer(10));
         tm.setReferencePatterns("ResourceManagers", patterns);
         start(tmName, tm);
         tcm = new GBeanMBean(TransactionContextManager.GBEAN_INFO);
