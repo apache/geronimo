@@ -59,7 +59,7 @@ package org.apache.geronimo.common;
 /**
  * Primitive utilities.
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/27 08:55:27 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/01 15:09:57 $
  */
 public final class Primitives
 {
@@ -158,7 +158,7 @@ public final class Primitives
     {
         if (value > Integer.MAX_VALUE || value < Integer.MIN_VALUE) {
             throw new DataConversionException
-                ("can not safly convert to int: " + value);
+                ("Can not safly convert to int: " + value);
         }
         
         return (int)value;
