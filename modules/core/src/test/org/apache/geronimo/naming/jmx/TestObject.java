@@ -56,15 +56,19 @@
 
 package org.apache.geronimo.naming.jmx;
 
-import javax.ejb.EJBHome;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GOperationInfo;
 
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/11/16 05:24:38 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/21 19:56:40 $
  *
  * */
-public class TestObject implements TestObjectMBean {
+public class TestObject {
+
+    private static final GBeanInfo GBEAN_INFO;
 
     private Object home = new Object();
     private Object local = new Object();
@@ -85,5 +89,16 @@ public class TestObject implements TestObjectMBean {
         return cf;
     }
 
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(TestObject.class.getName());
+        infoFactory.addOperation(new GOperationInfo("getEJBHome"));
+        infoFactory.addOperation(new GOperationInfo("getEJBLocalHome"));
+        infoFactory.addOperation(new GOperationInfo("getConnectionFactory"));
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
 
 }

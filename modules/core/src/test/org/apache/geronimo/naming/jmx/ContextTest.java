@@ -67,8 +67,6 @@ import javax.naming.LinkRef;
 import javax.naming.NamingException;
 
 import org.apache.geronimo.kernel.jmx.JMXKernel;
-import org.apache.geronimo.kernel.service.GeronimoMBean;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.naming.java.AbstractContextTest;
 import org.apache.geronimo.naming.java.RootContext;
 import org.apache.geronimo.test.util.ServerUtil;
@@ -76,7 +74,7 @@ import org.apache.geronimo.test.util.ServerUtil;
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/01/18 22:43:53 $
+ * @version $Revision: 1.8 $ $Date: 2004/01/21 19:56:40 $
  *
  * */
 public class ContextTest extends AbstractContextTest {

@@ -56,16 +56,15 @@
 package org.apache.geronimo.connector;
 
 import java.util.Timer;
+
 import javax.resource.spi.XATerminator;
 import javax.resource.spi.work.WorkManager;
+
 import junit.framework.TestCase;
-import org.apache.geronimo.connector.BootstrapContext;
-import org.apache.geronimo.kernel.service.GeronimoMBeanEndpoint;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 
 /**
  * Unit tests for {@link BootstrapContext}
- * @version $Revision: 1.1 $ $Date: 2003/11/25 07:01:06 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/21 19:56:40 $
  */
 public class BootstrapContextTest extends TestCase {
 
@@ -110,34 +109,4 @@ public class BootstrapContextTest extends TestCase {
         assertNotNull("Object is not null", t);
     }
 
-    /**
-     * Tests getGeronimoMBeanInfo
-     */
-    public void testGetGeronimoMBeanInfo() throws Exception {
-        BootstrapContext context = new BootstrapContext();
-        GeronimoMBeanInfo info = context.getGeronimoMBeanInfo();
-        assertNotNull("Object is not null", info);
-        assertTrue("Correct target",
-                info.getTargetClass().equals(BootstrapContext.class.getName()));
-
-        GeronimoMBeanEndpoint[] endpoints = info.getEndpoints();
-        assertNotNull("Endpoinds are not null", endpoints);
-        assertTrue("Endpoints has 2 elements", endpoints.length == 2);
-        assertTrue("First endpoint is WorkManager endpoint",
-                hasEndpoint("WorkManager", endpoints));
-        assertTrue("Second endpoint is XATerminator endpoint",
-                hasEndpoint("XATerminator", endpoints));
-
-
-    }
-
-    private boolean hasEndpoint(String name, GeronimoMBeanEndpoint[] endpoints) {
-        for(int i = 0; i < endpoints.length; i++) {
-            if(name.equals(endpoints[i].getName())) {
-                return true;
-            }
-        }
-
-        return false;
-    }
 }
