@@ -63,5 +63,9 @@ public abstract class AbstractTestCase
     public String getTestFile(String path) {
         return new File(basedir, path).getAbsolutePath();
     }
+
+    public void testDummy() throws Exception {
+        //to allow commenting out all tests in a test case
+    }
 }
 

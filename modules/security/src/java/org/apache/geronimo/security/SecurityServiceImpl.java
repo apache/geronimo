@@ -17,29 +17,27 @@
 
 package org.apache.geronimo.security;
 
+import java.security.Policy;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-import java.security.Policy;
-import javax.management.ObjectName;
-import javax.security.jacc.PolicyContextException;
 import javax.security.jacc.PolicyConfigurationFactory;
+import javax.security.jacc.PolicyContextException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.common.GeronimoSecurityException;
-import org.apache.geronimo.security.jacc.ModuleConfiguration;
+import org.apache.geronimo.gbean.ReferenceCollection;
+import org.apache.geronimo.gbean.ReferenceCollectionEvent;
+import org.apache.geronimo.gbean.ReferenceCollectionListener;
+import org.apache.geronimo.security.jacc.GeronimoPolicy;
+import org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory;
 import org.apache.geronimo.security.jacc.PolicyContextHandlerContainerSubject;
 import org.apache.geronimo.security.jacc.PolicyContextHandlerHttpServletRequest;
 import org.apache.geronimo.security.jacc.PolicyContextHandlerSOAPMessage;
-import org.apache.geronimo.security.jacc.GeronimoPolicy;
-import org.apache.geronimo.security.realm.SecurityRealm;
 import org.apache.geronimo.security.realm.AutoMapAssistant;
+import org.apache.geronimo.security.realm.SecurityRealm;
 import org.apache.geronimo.security.util.ConfigurationUtil;
 
 
@@ -48,97 +46,120 @@ import org.apache.geronimo.security.util.ConfigurationUtil;
  *
  * @version $Rev$ $Date$
  */
-public class SecurityServiceImpl implements SecurityService, GBeanLifecycle {
-    /**
-     * The JMX name of the SecurityServiceImpl.
-     */
-    public static final ObjectName SECURITY = JMXUtil.getObjectName("geronimo.security:type=SecurityServiceImpl");
+public class SecurityServiceImpl implements SecurityService {
 
     private final Log log = LogFactory.getLog(SecurityService.class);
 
-    private String policyConfigurationFactory;
-    private Collection realms = Collections.EMPTY_SET;
-    private Collection mappers = Collections.EMPTY_SET;
-    private Collection moduleConfigurations = Collections.EMPTY_SET;
-
+    private final Collection realms;
+    private final Collection mappers;
 
     /**
      * Permissions that protect access to sensitive security information
      */
     public static final GeronimoSecurityPermission CONFIGURE = new GeronimoSecurityPermission("configure");
 
-    //deprecated, for geronimo mbean only
-    public SecurityServiceImpl() {
-        this(null);
-    }
-
-
-    public SecurityServiceImpl(String policyConfigurationFactory) {
+    public SecurityServiceImpl(String policyConfigurationFactory,
+                               Collection realms,
+                               Collection mappers) throws PolicyContextException, ClassNotFoundException {
         /**
-         *  @see "JSR 115 4.6.1" Container Subject Policy Contact Handler
+         *  @see "JSR 115 4.6.1" Container Subject Policy Context Handler
          */
-        try {
-            ConfigurationUtil.registerPolicyContextHandler(new PolicyContextHandlerContainerSubject(), true);
-            ConfigurationUtil.registerPolicyContextHandler(new PolicyContextHandlerSOAPMessage(), true);
-            ConfigurationUtil.registerPolicyContextHandler(new PolicyContextHandlerHttpServletRequest(), true);
-        } catch (PolicyContextException pce) {
-            log.error("Exception in doStart()", pce);
+        ConfigurationUtil.registerPolicyContextHandler(new PolicyContextHandlerContainerSubject(), true);
+        ConfigurationUtil.registerPolicyContextHandler(new PolicyContextHandlerSOAPMessage(), true);
+        ConfigurationUtil.registerPolicyContextHandler(new PolicyContextHandlerHttpServletRequest(), true);
 
-            throw (IllegalStateException) new IllegalStateException().initCause(pce);
-        }
-        
-        this.policyConfigurationFactory = policyConfigurationFactory;
-        //TODO remove this if wrapper when GeronimoMBean leaves.
         if (policyConfigurationFactory != null) {
             System.setProperty("javax.security.jacc.PolicyConfigurationFactory.provider", policyConfigurationFactory);
         }
-    }
+        PolicyConfigurationFactory factory = PolicyConfigurationFactory.getPolicyConfigurationFactory();
+        GeronimoPolicyConfigurationFactory geronimoPolicyConfigurationFactory = (GeronimoPolicyConfigurationFactory) factory;
+        Policy.setPolicy(new GeronimoPolicy(geronimoPolicyConfigurationFactory));
+        if (realms == null) {
+            this.realms = Collections.EMPTY_SET;
+        } else {
+            SecurityManager sm = System.getSecurityManager();
+            if (sm != null) {
+                sm.checkPermission(CONFIGURE);
+            }
+            this.realms = realms;
+            ((ReferenceCollection) realms).addReferenceCollectionListener(new ReferenceCollectionListener() {
 
-    public String getPolicyConfigurationFactory() {
-        return policyConfigurationFactory;
-    }
+                public void memberAdded(ReferenceCollectionEvent event) {
+                    SecurityManager sm = System.getSecurityManager();
+                    if (sm != null) {
+                        sm.checkPermission(CONFIGURE);
+                    }
+                }
 
-    public void setPolicyConfigurationFactory(String policyConfigurationFactory) {
-        this.policyConfigurationFactory = policyConfigurationFactory;
-        //TODO remove this if wrapper when GeronimoMBean leaves.
-        if (policyConfigurationFactory != null) {
-            System.setProperty("javax.security.jacc.PolicyConfigurationFactory.provider", policyConfigurationFactory);
+                public void memberRemoved(ReferenceCollectionEvent event) {
+                    SecurityManager sm = System.getSecurityManager();
+                    if (sm != null) {
+                        sm.checkPermission(CONFIGURE);
+                    }
+                }
+            });
         }
+        if (mappers == null) {
+            this.mappers = Collections.EMPTY_SET;
+        } else {
+            SecurityManager sm = System.getSecurityManager();
+            if (sm != null) {
+                sm.checkPermission(CONFIGURE);
+            }
+            this.mappers = mappers;
+            ((ReferenceCollection) mappers).addReferenceCollectionListener(new ReferenceCollectionListener() {
+
+                public void memberAdded(ReferenceCollectionEvent event) {
+                    SecurityManager sm = System.getSecurityManager();
+                    if (sm != null) {
+                        sm.checkPermission(CONFIGURE);
+                    }
+                }
+
+                public void memberRemoved(ReferenceCollectionEvent event) {
+                    SecurityManager sm = System.getSecurityManager();
+                    if (sm != null) {
+                        sm.checkPermission(CONFIGURE);
+                    }
+                }
+            });
+        }
+        log.info("Security service started");
     }
 
-    public Collection getRealms() throws GeronimoSecurityException {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) sm.checkPermission(CONFIGURE);
-        return realms;
-    }
+//    public Collection getRealms() throws GeronimoSecurityException {
+//        SecurityManager sm = System.getSecurityManager();
+//        if (sm != null) sm.checkPermission(CONFIGURE);
+//        return realms;
+//    }
+//
+//
+//    public void setRealms(Collection realms) {
+//        SecurityManager sm = System.getSecurityManager();
+//        if (sm != null) sm.checkPermission(CONFIGURE);
+//        this.realms = realms;
+//    }
+//
+//    public Collection getMappers() throws GeronimoSecurityException {
+//        SecurityManager sm = System.getSecurityManager();
+//        if (sm != null) sm.checkPermission(CONFIGURE);
+//        return mappers;
+//    }
+//
+//
+//    public void setMappers(Collection mappers) {
+//        SecurityManager sm = System.getSecurityManager();
+//        if (sm != null) sm.checkPermission(CONFIGURE);
+//        this.mappers = mappers;
+//    }
 
-
-    public void setRealms(Collection realms) {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) sm.checkPermission(CONFIGURE);
-        this.realms = realms;
-    }
-
-    public Collection getMappers() throws GeronimoSecurityException {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) sm.checkPermission(CONFIGURE);
-        return mappers;
-    }
-
-
-    public void setMappers(Collection mappers) {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) sm.checkPermission(CONFIGURE);
-        this.mappers = mappers;
-    }
-
-    public Collection getModuleConfigurations() {
-        return moduleConfigurations;
-    }
-
-    public void setModuleConfigurations(Collection moduleConfigurations) {
-        this.moduleConfigurations = moduleConfigurations;
-    }
+//    public Collection getModuleConfigurations() {
+//        return moduleConfigurations;
+//    }
+//
+//    public void setModuleConfigurations(Collection moduleConfigurations) {
+//        this.moduleConfigurations = moduleConfigurations;
+//    }
 
     public SecurityRealm getRealm(String name) {
         for (Iterator iter = realms.iterator(); iter.hasNext();) {
@@ -160,20 +181,6 @@ public class SecurityServiceImpl implements SecurityService, GBeanLifecycle {
         return null;
     }
 
-    public void doStart() throws WaitingException, Exception {
-        PolicyConfigurationFactory factory = PolicyConfigurationFactory.getPolicyConfigurationFactory();
-        Policy.setPolicy(new GeronimoPolicy(factory));
-
-        log.info("Security service started");
-    }
-
-    public void doStop() throws WaitingException, Exception {
-        log.info("Security service stopped");
-    }
-
-    public void doFail() {
-        log.info("Security service failed");
-    }
 
     public static final GBeanInfo GBEAN_INFO;
 
@@ -184,11 +191,10 @@ public class SecurityServiceImpl implements SecurityService, GBeanLifecycle {
 
         infoFactory.addReference("Realms", SecurityRealm.class);
         infoFactory.addReference("Mappers", AutoMapAssistant.class);
-        infoFactory.addReference("ModuleConfigurations", ModuleConfiguration.class);
         infoFactory.addOperation("getRealm", new Class[]{String.class});
         infoFactory.addOperation("getMapper", new Class[]{String.class});
 
-        infoFactory.setConstructor(new String[]{"policyConfigurationFactory"});
+        infoFactory.setConstructor(new String[]{"policyConfigurationFactory", "Realms", "Mappers"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

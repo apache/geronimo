@@ -129,6 +129,24 @@ Configuration for the Geronimo deployer
          <uri>geronimo/jars/geronimo-client-${geronimo_version}.jar</uri>
      </dependency>
 
+    <!--jetty dependencies-->
+    <dependency>
+        <uri>jetty/jars/org.mortbay.jetty-${jetty_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/jasper-compiler-${jasper_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/jasper-runtime-${jasper_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>commons-el/jars/commons-el-${commons_el_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>ant/jars/ant-${ant_version}.jar</uri>
+    </dependency>
+
+
     <gbean name="geronimo.deployment:role=Deployer,config=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.deployment.Deployer">
         <reference name="Builders">geronimo.deployer:role=Builder,config=org/apache/geronimo/J2EEDeployer,*</reference>
         <reference name="Store">geronimo.deployment:role=ConfigurationStore,type=Local</reference>
@@ -155,15 +173,50 @@ Configuration for the Geronimo deployer
         <reference name="AppClientConfigBuilder">geronimo.deployer:role=ModuleBuilder,type=AppClient,config=org/apache/geronimo/J2EEDeployer</reference>
     </gbean>
 
+    <!--can this SecurityService actually do anything in this configuration???-->
+    <gbean name="geronimo.deployer:type=SecurityService" class="org.apache.geronimo.security.SecurityServiceImpl">
+        <attribute name="policyConfigurationFactory" type="java.lang.String">org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory</attribute>
+        <reference name="Realms">geronimo.security:type=SecurityRealm,*</reference>
+    </gbean>
+
     <gbean name="geronimo.deployer:role=ModuleBuilder,type=Web,config=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.jetty.deployment.JettyModuleBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
-        <!-- reference name="SecurityService">geronimo.security:type=SecurityService</reference -->
+        <attribute name="defaultSessionTimeoutSeconds">1800</attribute>
+        <attribute name="defaultWelcomeFiles">index.html,index.htm,index.jsp</attribute>
+        <attribute name="jettyContainerObjectName">geronimo.server:type=WebContainer,container=Jetty</attribute>
+        <reference name="SecurityService">geronimo.deployer:type=SecurityService</reference>
+        <attribute name="defaultServlets">geronimo.deployer:role=DefaultServlet,config=org/apache/geronimo/J2EEDeployer,*</attribute>
     </gbean>
 <!-- the tomcat module's requirement
    - uncomment it to run Apache Tomcat as a web container
    -
     <gbean name="geronimo.deployer:role=ModuleBuilder,type=Web,config=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.tomcat.deployment.TomcatModuleBuilder"/>
    -->
+
+    <gbean name="geronimo.deployer:role=DefaultServlet,config=org/apache/geronimo/J2EEDeployer,name=StaticContent" class="org.apache.geronimo.jetty.JettyServletHolder">
+        <attribute name="servletName">default</attribute>
+        <attribute name="servletClass">org.mortbay.jetty.servlet.Default</attribute>
+        <attribute name="loadOnStartup">0</attribute>
+        <attribute name="initParams">
+ acceptRanges=true
+ dirAllowed=true
+ putAllowed=false
+ delAllowed=false
+ redirectWelcome=false
+ minGzipLength=8192</attribute>
+        <attribute name="servletMappings">/</attribute>
+    </gbean>
+
+    <gbean name="geronimo.deployer:role=DefaultServlet,config=org/apache/geronimo/J2EEDeployer,name=JSPServlet" class="org.apache.geronimo.jetty.JettyServletHolder">
+        <attribute name="servletName">jsp</attribute>
+        <attribute name="servletClass">org.apache.jasper.servlet.JspServlet</attribute>
+        <attribute name="loadOnStartup">0</attribute>
+        <attribute name="initParams">
+ logVerbosityLevel=DEBUG
+ fork=false
+ xpoweredBy=false</attribute>
+        <attribute name="servletMappings">*.jsp,*.jspf,*.jspx,*.xsp</attribute>
+    </gbean>
 
     <gbean name="geronimo.deployer:role=ModuleBuilder,type=EJB,config=org/apache/geronimo/J2EEDeployer" class="org.openejb.deployment.OpenEJBModuleBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>

@@ -675,7 +675,7 @@
             <properties>
                 <lib>true</lib>
                 <deploy>true</deploy>
-                <server>true</server><!-- TODO REMOVE WHEN XMLBEANS CL IS FIXED -->
+                <server>true</server>
                 <repository>true</repository>
             </properties>
         </dependency>
@@ -841,7 +841,16 @@
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>jasper-compiler</artifactId>
-            <version>&tomcat-version;</version>
+            <version>&jasper-version;</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>tomcat</groupId>
+            <artifactId>jasper-compiler-jdt</artifactId>
+            <version>&jasper-version;</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -850,7 +859,7 @@
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>jasper-runtime</artifactId>
-            <version>&tomcat-version;</version>
+            <version>&jasper-version;</version>
             <properties>
                 <repository>true</repository>
             </properties>

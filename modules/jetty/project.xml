@@ -47,19 +47,6 @@
     <!-- ============ -->
 
     <dependencies>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-xmlbeans-plugin</artifactId>
-            <version>${pom.currentVersion}</version>
-            <type>plugin</type>
-        </dependency>
-
-        <!-- needed for xmlbeans runtime-->
-        <dependency>
-            <groupId>xmlbeans</groupId>
-            <artifactId>xbean-apache</artifactId>
-            <version>&xmlbeans-version;</version>
-        </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
@@ -69,17 +56,8 @@
 
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-deployment</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>geronimo</groupId>
             <artifactId>geronimo-naming</artifactId>
             <version>${pom.currentVersion}</version>
-            <properties>
-                <xmlbeans>true</xmlbeans>
-            </properties>
         </dependency>
 
         <dependency>
@@ -92,9 +70,6 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-security</artifactId>
             <version>${pom.currentVersion}</version>
-            <properties>
-                <xmlbeans>true</xmlbeans>
-            </properties>
         </dependency>
 
         <dependency>
@@ -146,15 +121,6 @@
         </dependency>
 
         <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-j2ee-schema</artifactId>
-            <version>${pom.currentVersion}</version>
-            <properties>
-                <xmlbeans>true</xmlbeans>
-            </properties>
-        </dependency>
-
-        <dependency>
             <groupId>jetty</groupId>
             <artifactId>org.mortbay.jetty</artifactId>
             <version>&jetty-version;</version>
@@ -186,36 +152,18 @@
             <url>http://jakarta.apache.org/commons/logging/</url>
         </dependency>
 
-        <dependency>
-            <groupId>tomcat</groupId>
-            <artifactId>jasper-compiler</artifactId>
-            <version>&tomcat-version;</version>
-        </dependency>
-
-        <dependency>
-            <groupId>tomcat</groupId>
-            <artifactId>jasper-runtime</artifactId>
-            <version>&tomcat-version;</version>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-el</groupId>
-            <artifactId>commons-el</artifactId>
-            <version>&commons-el-version;</version>
-            <url>http://jakarta.apache.org/commons/el/</url>
-        </dependency>
-
-        <dependency>
-            <groupId>ant</groupId>
-            <artifactId>ant</artifactId>
-            <version>&ant-version;</version>
-        </dependency>
-
-        <dependency>
-            <groupId>xerces</groupId>
-            <artifactId>xercesImpl</artifactId>
-            <version>&xerces-version;</version>
-        </dependency>
+<!-- -->
+<!--        <dependency>-->
+<!--            <groupId>ant</groupId>-->
+<!--            <artifactId>ant</artifactId>-->
+<!--            <version>&ant-version;</version>-->
+<!--        </dependency>-->
+<!---->
+<!--        <dependency>-->
+<!--            <groupId>xerces</groupId>-->
+<!--            <artifactId>xercesImpl</artifactId>-->
+<!--            <version>&xerces-version;</version>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>cglib</groupId>
@@ -250,7 +198,7 @@
     <!-- Build Specification -->
     <!-- =================== -->
 
-    <build>
+    <!--build>
         <resources>
             <resource>
                 <directory>${basedir}/src/etc</directory>
@@ -279,5 +227,5 @@
                 </resource>
             </resources>
         </unitTest>
-    </build>
+    </build-->
 </project>

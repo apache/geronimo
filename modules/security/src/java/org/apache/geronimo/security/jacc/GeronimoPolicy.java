@@ -22,8 +22,6 @@ import java.security.Permission;
 import java.security.PermissionCollection;
 import java.security.Policy;
 import java.security.ProtectionDomain;
-
-import javax.security.jacc.PolicyConfigurationFactory;
 import javax.security.jacc.PolicyContext;
 import javax.security.jacc.PolicyContextException;
 
@@ -34,13 +32,13 @@ import javax.security.jacc.PolicyContextException;
  */
 public class GeronimoPolicy extends Policy {
     private final Policy root;
-    private final PolicyConfigurationFactory factory;
+    private final GeronimoPolicyConfigurationFactory factory;
 
-    public GeronimoPolicy(PolicyConfigurationFactory factory) {
+    public GeronimoPolicy(GeronimoPolicyConfigurationFactory factory) {
         this(factory, null);
     }
 
-    public GeronimoPolicy(PolicyConfigurationFactory factory, Policy root) {
+    public GeronimoPolicy(GeronimoPolicyConfigurationFactory factory, Policy root) {
         this.factory = factory;
         this.root = root;
     }
@@ -56,7 +54,7 @@ public class GeronimoPolicy extends Policy {
         String contextID = PolicyContext.getContextID();
         if (contextID != null) {
             try {
-                GeronimoPolicyConfiguration configuration = (GeronimoPolicyConfiguration)factory.getPolicyConfiguration(contextID, false);
+                GeronimoPolicyConfiguration configuration = factory.getGeronimoPolicyConfiguration(contextID);
 
                 if (configuration.inService()) {
                     if (configuration.implies(domain, permission)) return true;

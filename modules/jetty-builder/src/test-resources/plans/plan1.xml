@@ -3,6 +3,10 @@
     configId="goodservlet"
     parentId="org/apache/geronimo/DefaultDatabase">
     <context-priority-classloader>false</context-priority-classloader>
+    <login-domain-name>foo</login-domain-name>
+    <security>
+        <auto-map-roles security-realm="foo"/>
+    </security>
     <resource-ref>
         <ref-name>jdbc/DB1</ref-name>
         <target-name>DefaultDatabase</target-name>

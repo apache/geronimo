@@ -30,10 +30,6 @@ by the server.
     parentId="org/apache/geronimo/Server"
     >
 
-    <dependency>
-        <uri>geronimo/jars/geronimo-jetty-${geronimo_version}.jar</uri>
-    </dependency>
-
     <!-- Security GBeans -->
 
     <gbean name="geronimo.security:type=LoginModule,name=demo-properties-login"
@@ -53,7 +49,7 @@ by the server.
         <attribute name="loginModuleConfiguration" type="java.util.Properties">
             LoginModule.1.REQUIRED=geronimo.security:type=LoginModule,name=demo-properties-login
         </attribute>
-        <attribute name="autoMapPrincipalClasses" type="java.lang.String">org.apache.geronimo.security.realm.providers.PropertiesFileGroupPrincipal</attribute>
+        <attribute name="autoMapPrincipalClasses" type="java.lang.String">org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal</attribute>
         <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
     </gbean>
 
@@ -61,13 +57,6 @@ by the server.
         class="org.apache.geronimo.security.jaas.ServerRealmConfigurationEntry">
         <attribute name="applicationConfigName" type="java.lang.String">jaasTest</attribute>
         <attribute name="realmName" type="java.lang.String">demo-properties-realm</attribute>
-    </gbean>
-
-    <!-- Jetty Realm that points to the Geronimo Demo Properties File Realm -->
-    <gbean name="geronimo.jetty:role=JaasRealm" class="org.apache.geronimo.jetty.JAASJettyRealm">
-        <reference name="JettyContainer">geronimo.server:type=WebContainer,container=Jetty</reference>
-        <attribute name="name" type="java.lang.String">Jetty JAAS Realm</attribute>
-        <attribute name="loginModuleName" type="java.lang.String">jaasTest</attribute>
     </gbean>
 
 </configuration>

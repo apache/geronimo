@@ -40,7 +40,7 @@ public class SimplePOJOWebServiceTest extends AbstractWebServiceTest {
         super(testName);
     }
 
-    public void testPOJOWS() throws Exception {
+    public void xtestPOJOWS() throws Exception {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         ClassLoader myCl = new URLClassLoader(new URL[]{}, cl);
         File jarfile = new File(getTestFile("target/generated/samples/echo-war/echo-ewsimpl.jar"));

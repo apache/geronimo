@@ -19,12 +19,10 @@ package org.apache.geronimo.security.jacc;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.security.jacc.PolicyConfiguration;
 import javax.security.jacc.PolicyConfigurationFactory;
 import javax.security.jacc.PolicyContextException;
 
-import org.apache.geronimo.security.jacc.GeronimoPolicyConfiguration;
 import org.apache.geronimo.security.GeronimoSecurityPermission;
 
 
@@ -42,12 +40,22 @@ public class GeronimoPolicyConfigurationFactory extends PolicyConfigurationFacto
         configurations.put(contextID, configuration);
     }
 
-    public PolicyConfiguration getPolicyConfiguration(String contextID, boolean remove) throws PolicyContextException {
-        PolicyConfiguration configuration = (PolicyConfiguration) configurations.get(contextID);
+    public GeronimoPolicyConfiguration getGeronimoPolicyConfiguration(String contextID) throws PolicyContextException {
+        GeronimoPolicyConfiguration configuration = (GeronimoPolicyConfiguration) configurations.get(contextID);
+        if (configuration == null) {
+            throw new PolicyContextException("No policy configuration registered for contextID: " + contextID);
+        }
+        return configuration;
+    }
 
-        if (configuration == null || remove) {
+    public PolicyConfiguration getPolicyConfiguration(String contextID, boolean remove) throws PolicyContextException {
+        GeronimoPolicyConfiguration configuration = (GeronimoPolicyConfiguration) configurations.get(contextID);
+
+        if (configuration == null) {
             configuration = new PolicyConfigurationGeneric(contextID);
             configurations.put(contextID, configuration);
+        } else {
+            configuration.open(remove);
         }
 
         return configuration;

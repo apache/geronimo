@@ -408,13 +408,16 @@ public class ENCConfigBuilder {
         Set applicationManagedSecurityResources = new HashSet();
         for (int i = 0; i < resourceRefs.length; i++) {
             ResourceRefType resourceRefType = resourceRefs[i];
-            GerResourceRefType gerResourceRef = (GerResourceRefType) refMap.get(getStringValue(resourceRefType.getResRefName()));
-            String containerId = getResourceContainerId(getStringValue(resourceRefType.getResRefName()), uri, gerResourceRef, refContext, j2eeContext);
-            if ("Unshareable".equals(getStringValue(resourceRefType.getResSharingScope()))) {
-                unshareableResources.add(containerId);
-            }
-            if ("Application".equals(getStringValue(resourceRefType.getResAuth()))) {
-                applicationManagedSecurityResources.add(containerId);
+
+            if (!URL.class.getName().equals(resourceRefType.getResType().getStringValue().trim())) {
+                GerResourceRefType gerResourceRef = (GerResourceRefType) refMap.get(resourceRefType.getResRefName().getStringValue());
+                String containerId = getResourceContainerId(getStringValue(resourceRefType.getResRefName()), uri, gerResourceRef, refContext, j2eeContext);
+                if ("Unshareable".equals(getStringValue(resourceRefType.getResSharingScope()))) {
+                    unshareableResources.add(containerId);
+                }
+                if ("Application".equals(getStringValue(resourceRefType.getResAuth()))) {
+                    applicationManagedSecurityResources.add(containerId);
+                }
             }
         }
         builder.setUnshareableResources(unshareableResources);

@@ -24,11 +24,10 @@ import java.util.Set;
 
 
 /**
- * Utility class for <code>WebModuleConfiguration</code>.  This class is used to generate qualified patterns, HTTP
+ * Utility class for <code>ModuleConfiguration</code>.  This class is used to generate qualified patterns, HTTP
  * method sets, complements of HTTP method sets, and HTTP method sets w/ transport restrictions for URL patterns that
  * are found in the web deployment descriptor.
  * @version $Rev$ $Date$
- * @see org.apache.geronimo.security.jacc.WebModuleConfiguration
  */
 public class URLPattern {
     private final static String[] HTTP_METHODS = {"GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "TRACE"};
@@ -37,16 +36,15 @@ public class URLPattern {
     private final static int INTEGRAL = 0x01;
     private final static int CONFIDENTIAL = 0x02;
 
-    private URLPatternCheck type;
-    private String pattern;
-    private int mask;
+    private final URLPatternCheck type;
+    private final String pattern;
+    private int httpMethodsMask;
     private int transport;
-    private HashSet roles = new HashSet();
+    private final HashSet roles = new HashSet();
 
     /**
      * Construct an instance of the utility class for <code>WebModuleConfiguration</code>.
      * @param pat the URL pattern that this instance is to collect information on
-     * @see org.apache.geronimo.security.jacc.WebModuleConfiguration
      * @see "JSR 115, section 3.1.3" Translating Servlet Deployment Descriptors
      */
     public URLPattern(String pat) {
@@ -104,14 +102,14 @@ public class URLPattern {
      */
     public void addMethod(String method) {
         if (method.length() == 0) {
-            mask = 0xFF;
+            httpMethodsMask = 0xFF;
             return;
         }
 
         boolean found = false;
         for (int j = 0; j < HTTP_METHODS.length; j++) {
             if (method.equals(HTTP_METHODS[j])) {
-                mask |= HTTP_MASKS[j];
+                httpMethodsMask |= HTTP_MASKS[j];
                 found = true;
 
                 break;
@@ -128,7 +126,7 @@ public class URLPattern {
         StringBuffer buffer = null;
 
         for (int i = 0; i < HTTP_MASKS.length; i++) {
-            if ((mask & HTTP_MASKS[i]) > 0) {
+            if ((httpMethodsMask & HTTP_MASKS[i]) > 0) {
                 if (buffer == null) {
                     buffer = new StringBuffer();
                 } else {
@@ -145,7 +143,7 @@ public class URLPattern {
         StringBuffer buffer = null;
 
         for (int i = 0; i < HTTP_MASKS.length; i++) {
-            if ((mask & HTTP_MASKS[i]) == 0) {
+            if ((httpMethodsMask & HTTP_MASKS[i]) == 0) {
                 if (buffer == null) {
                     buffer = new StringBuffer();
                 } else {

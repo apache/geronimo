@@ -34,7 +34,6 @@ import org.apache.geronimo.security.RealmPrincipal;
 
 
 /**
- *
  * @version $Rev$ $Date$
  */
 public class PolicyConfigurationGeneric implements GeronimoPolicyConfiguration {
@@ -44,12 +43,12 @@ public class PolicyConfigurationGeneric implements GeronimoPolicyConfiguration {
 
     private final String contextID;
     private int state;
-    private HashMap rolePermissionsMap = new HashMap();
-    private HashMap principalRoleMapping = new HashMap();
+    private final HashMap rolePermissionsMap = new HashMap();
+    private final HashMap principalRoleMapping = new HashMap();
     private Permissions unchecked = null;
     private Permissions excluded = null;
 
-    private HashMap principalPermissionsMap = new HashMap();
+    private final HashMap principalPermissionsMap = new HashMap();
 
     PolicyConfigurationGeneric(String contextID) {
         this.contextID = contextID;
@@ -191,7 +190,7 @@ public class PolicyConfigurationGeneric implements GeronimoPolicyConfiguration {
     }
 
     public void commit() throws PolicyContextException {
-        if (state == DELETED) throw new UnsupportedOperationException("Not in an open state");
+        if (state != OPEN) throw new UnsupportedOperationException("Not in an open state");
 
         Iterator principals = principalRoleMapping.keySet().iterator();
         while (principals.hasNext()) {
@@ -205,7 +204,7 @@ public class PolicyConfigurationGeneric implements GeronimoPolicyConfiguration {
 
             Iterator roles = ((HashSet) principalRoleMapping.get(principal)).iterator();
             while (roles.hasNext()) {
-                Permissions permissions =  (Permissions) rolePermissionsMap.get(roles.next());
+                Permissions permissions = (Permissions) rolePermissionsMap.get(roles.next());
                 if (permissions == null) continue;
                 Enumeration rolePermissions = permissions.elements();
                 while (rolePermissions.hasMoreElements()) {
@@ -219,5 +218,18 @@ public class PolicyConfigurationGeneric implements GeronimoPolicyConfiguration {
 
     public boolean inService() throws PolicyContextException {
         return (state == IN_SERVICE);
+    }
+
+    //TODO I have no idea what side effects this might have, but it's needed in some form from GeronimoPolicyConfigurationFactory.
+    //see JACC spec 1.0 section 3.1.1.1 discussion of in service and deleted.
+    public void open(boolean remove) {
+        if (remove) {
+            rolePermissionsMap.clear();
+            principalRoleMapping.clear();
+            unchecked = null;
+            excluded = null;
+            principalPermissionsMap.clear();
+        }
+        state = OPEN;
     }
 }

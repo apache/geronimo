@@ -46,7 +46,6 @@ public class SchemaConversionUtils {
     private static final String GERONIMO_SECURITY_NAMESPACE = "http://geronimo.apache.org/xml/ns/security";
 
     private static final QName RESOURCE_ADAPTER_VERSION = new QName(J2EE_NAMESPACE, "resourceadapter-version");
-    private static final QName OUTBOUND_RESOURCEADAPTER = new QName(J2EE_NAMESPACE, "outbound-resourceadapter");
     private static final QName TAGLIB = new QName(J2EE_NAMESPACE, "taglib");
 
     private SchemaConversionUtils() {
@@ -248,50 +247,60 @@ public class SchemaConversionUtils {
             return (WebAppDocument) xmlObject;
         }
         XmlCursor cursor = xmlObject.newCursor();
-        XmlCursor moveable = xmlObject.newCursor();
-        moveable.toStartDoc();
-        moveable.toFirstChild();
-        if ("http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd".equals(moveable.getName().getNamespaceURI())) {
-            XmlObject result = xmlObject.changeType(WebAppDocument.type);
-            validateDD(result);
-            return (WebAppDocument) result;
-        }
-        String schemaLocationURL = "http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd";
-        String version = "2.4";
         try {
-            convertToSchema(cursor, J2EE_NAMESPACE, schemaLocationURL, version);
             cursor.toStartDoc();
-            cursor.toChild(J2EE_NAMESPACE, "web-app");
             cursor.toFirstChild();
-            convertToDescriptionGroup(cursor, moveable);
-            convertToJNDIEnvironmentRefsGroup(cursor, moveable);
-            cursor.push();
-            if (cursor.toNextSibling(TAGLIB)) {
-                cursor.toPrevSibling();
-                moveable.toCursor(cursor);
-                cursor.beginElement("jsp-config", J2EE_NAMESPACE);
-                while (moveable.toNextSibling(TAGLIB)) {
-                    moveable.moveXml(cursor);
-                }
+            if ("http://java.sun.com/xml/ns/j2ee".equals(cursor.getName().getNamespaceURI())) {
+                XmlObject result = xmlObject.changeType(WebAppDocument.type);
+                validateDD(result);
+                return (WebAppDocument) result;
             }
-            cursor.pop();
-            do {
-                String name = cursor.getName().getLocalPart();
-                if ("filter".equals(name) || "servlet".equals(name)) {
-                    cursor.push();
+
+            XmlDocumentProperties xmlDocumentProperties = cursor.documentProperties();
+            String publicId = xmlDocumentProperties.getDoctypePublicId();
+            if ("-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN".equals(publicId) ||
+                    "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN".equals(publicId)) {
+                XmlCursor moveable = xmlObject.newCursor();
+                try {
+                    moveable.toStartDoc();
+                    moveable.toFirstChild();
+                    String schemaLocationURL = "http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd";
+                    String version = "2.4";
+                    convertToSchema(cursor, J2EE_NAMESPACE, schemaLocationURL, version);
+                    cursor.toStartDoc();
+                    cursor.toChild(J2EE_NAMESPACE, "web-app");
                     cursor.toFirstChild();
                     convertToDescriptionGroup(cursor, moveable);
-                    if (cursor.toNextSibling(J2EE_NAMESPACE, "init-param")) {
-                        cursor.toFirstChild();
-                        convertToDescriptionGroup(cursor, moveable);
+                    convertToJNDIEnvironmentRefsGroup(cursor, moveable);
+                    cursor.push();
+                    if (cursor.toNextSibling(TAGLIB)) {
+                        cursor.toPrevSibling();
+                        moveable.toCursor(cursor);
+                        cursor.beginElement("jsp-config", J2EE_NAMESPACE);
+                        while (moveable.toNextSibling(TAGLIB)) {
+                            moveable.moveXml(cursor);
+                        }
                     }
                     cursor.pop();
+                    do {
+                        String name = cursor.getName().getLocalPart();
+                        if ("filter".equals(name) || "servlet".equals(name)) {
+                            cursor.push();
+                            cursor.toFirstChild();
+                            convertToDescriptionGroup(cursor, moveable);
+                            if (cursor.toNextSibling(J2EE_NAMESPACE, "init-param")) {
+                                cursor.toFirstChild();
+                                convertToDescriptionGroup(cursor, moveable);
+                            }
+                            cursor.pop();
+                        }
+                    } while (cursor.toNextSibling());
+                } finally {
+                    moveable.dispose();
                 }
-            } while (cursor.toNextSibling());
-
+            }
         } finally {
             cursor.dispose();
-            moveable.dispose();
         }
         XmlObject result = xmlObject.changeType(WebAppDocument.type);
         if (result != null) {
@@ -305,7 +314,6 @@ public class SchemaConversionUtils {
     public static XmlObject convertToGeronimoNamingSchema(XmlObject xmlObject) {
         XmlCursor cursor = xmlObject.newCursor();
         XmlCursor end = xmlObject.newCursor();
-        String version = "1.0";
         try {
             while (cursor.hasNextToken()) {
                 if (cursor.isStart()) {
@@ -331,7 +339,6 @@ public class SchemaConversionUtils {
     public static XmlObject convertToGeronimoSecuritySchema(XmlObject xmlObject) {
         XmlCursor cursor = xmlObject.newCursor();
         XmlCursor end = xmlObject.newCursor();
-        String version = "1.0";
         try {
             while (cursor.hasNextToken()) {
                 if (cursor.isStart()) {

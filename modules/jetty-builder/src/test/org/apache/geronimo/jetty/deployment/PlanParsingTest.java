@@ -1,8 +1,10 @@
 package org.apache.geronimo.jetty.deployment;
 
 import java.io.File;
+import javax.management.ObjectName;
 
 import junit.framework.TestCase;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
@@ -11,7 +13,8 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
 /**
  */
 public class PlanParsingTest extends TestCase {
-    private JettyModuleBuilder builder = new JettyModuleBuilder(null, null);
+    ObjectName jettyContainerObjectName = JMXUtil.getObjectName("test:type=JettyContainer");
+    private JettyModuleBuilder builder = new JettyModuleBuilder(null, new Integer(1800), null, jettyContainerObjectName, null, null, null, null, null);
     private File basedir = new File(System.getProperty("basedir", "."));
 
     public void testResourceRef() throws Exception {

@@ -294,7 +294,9 @@ public class WorkerContext implements Work {
                 //TODO should we commit the txContext to flush any leftover state???
             } else {
                 try {
-                    transactionContextManager.begin(executionContext.getXid(), executionContext.getTransactionTimeout());
+                    long transactionTimeout = executionContext.getTransactionTimeout();
+                    //translate -1 value to 0 to indicate default transaction timeout.
+                    transactionContextManager.begin(executionContext.getXid(), transactionTimeout == -1? 0: transactionTimeout);
                 } catch (XAException e) {
                     throw new WorkCompletedException("Transaction import failed for xid " + executionContext.getXid(), WorkCompletedException.TX_RECREATE_FAILED).initCause(e);
                } catch (InvalidTransactionException e) {

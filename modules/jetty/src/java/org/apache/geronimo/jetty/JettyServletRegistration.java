@@ -14,21 +14,22 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+package org.apache.geronimo.jetty;
 
-package org.apache.geronimo.security.jacc;
+import java.util.Map;
+import java.util.Set;
+import javax.security.jacc.PolicyContextException;
 
-import java.security.Permission;
-import java.security.ProtectionDomain;
-
+import org.mortbay.jetty.servlet.ServletHandler;
+import org.mortbay.jetty.servlet.ServletHolder;
 
 /**
- *
- * @version $Rev$ $Date$
+ * @version $Rev:  $ $Date:  $
  */
+public interface JettyServletRegistration {
 
-public interface GeronimoPolicyConfiguration extends RoleMappingConfiguration {
-    public boolean implies(ProtectionDomain domain, Permission permission);
+    void registerServletHolder(ServletHolder servletHolder, String servletName, Set servletMappings, Map webRoleRefPermissions) throws Exception;
 
-    public void open(boolean remove);
+    ServletHandler getServletHandler();
 
 }

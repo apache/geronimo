@@ -17,16 +17,13 @@
 
 package org.apache.geronimo.jetty;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.Collection;
+import java.util.EventListener;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
-import javax.resource.ResourceException;
-import javax.transaction.HeuristicMixedException;
-import javax.transaction.HeuristicRollbackException;
-import javax.transaction.RollbackException;
-import javax.transaction.SystemException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,52 +31,54 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
+import org.apache.geronimo.jetty.interceptor.BeforeAfter;
+import org.apache.geronimo.jetty.interceptor.ComponentContextBeforeAfter;
+import org.apache.geronimo.jetty.interceptor.InstanceContextBeforeAfter;
+import org.apache.geronimo.jetty.interceptor.ThreadClassloaderBeforeAfter;
+import org.apache.geronimo.jetty.interceptor.TransactionContextBeforeAfter;
+import org.apache.geronimo.jetty.interceptor.WebApplicationContextBeforeAfter;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
-import org.apache.geronimo.naming.java.RootContext;
-import org.apache.geronimo.transaction.DefaultInstanceContext;
-import org.apache.geronimo.transaction.InstanceContext;
 import org.apache.geronimo.transaction.OnlineUserTransaction;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
-import org.apache.geronimo.transaction.context.InheritableTransactionContext;
-import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.mortbay.http.HttpException;
+import org.mortbay.http.Authenticator;
 import org.mortbay.http.HttpRequest;
 import org.mortbay.http.HttpResponse;
+import org.mortbay.jetty.servlet.FilterHolder;
+import org.mortbay.jetty.servlet.JSR154Filter;
+import org.mortbay.jetty.servlet.ServletHolder;
 import org.mortbay.jetty.servlet.WebApplicationContext;
+import org.mortbay.jetty.servlet.WebApplicationHandler;
 
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
  *
  * @version $Rev$ $Date$
  */
-public class JettyWebAppContext extends WebApplicationContext implements GBeanLifecycle {
+public class JettyWebAppContext extends WebApplicationContext implements GBeanLifecycle, JettyServletRegistration {
     private static Log log = LogFactory.getLog(JettyWebAppContext.class);
 
-    private final ReadOnlyContext componentContext;
-    private final OnlineUserTransaction userTransaction;
     private final ClassLoader classLoader;
-    private final Set unshareableResources;
-    private final Set applicationManagedSecurityResources;
-    private final TransactionContextManager transactionContextManager;
-    private final TrackedConnectionAssociator trackedConnectionAssociator;
     private final JettyContainer jettyContainer;
 
     private final URI webAppRoot;
+    private final WebApplicationHandler handler;
+    private String displayName;
+
+    //TODO make these private final again!
+    protected  BeforeAfter chain;
+    protected  int contextLength;
 
     /**
      * @deprecated never use this... this is only here because Jetty WebApplicationContext is externalizable
      */
     public JettyWebAppContext() {
-        componentContext = null;
-        userTransaction = null;
         classLoader = null;
-        unshareableResources = null;
-        applicationManagedSecurityResources = null;
-        transactionContextManager = null;
-        trackedConnectionAssociator = null;
         jettyContainer = null;
         webAppRoot = null;
+        handler = null;
+        chain = null;
+        contextLength = 0;
     }
 
     public JettyWebAppContext(URI uri,
@@ -91,9 +90,23 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
                               URL configurationBaseUrl,
                               Set unshareableResources,
                               Set applicationManagedSecurityResources,
+
+                              String displayName,
+                              Map contextParamMap,
+                              Collection listenerClassNames,
+                              boolean distributable,
+                              Map mimeMap,
+                              String[] welcomeFiles,
+                              Map localeEncodingMapping,
+                              Map errorPages,
+                              Authenticator authenticator,
+                              String realmName,
+                              Map tagLibMap,
+                              int sessionTimeoutSeconds,
+
                               TransactionContextManager transactionContextManager,
                               TrackedConnectionAssociator trackedConnectionAssociator,
-                              JettyContainer jettyContainer) throws MalformedURLException {
+                              JettyContainer jettyContainer) throws Exception, IllegalAccessException, InstantiationException, ClassNotFoundException {
 
         assert uri != null;
         assert componentContext != null;
@@ -105,16 +118,9 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         assert trackedConnectionAssociator != null;
         assert jettyContainer != null;
 
-        this.componentContext = componentContext;
-        this.userTransaction = userTransaction;
-        this.unshareableResources = unshareableResources;
-        this.applicationManagedSecurityResources = applicationManagedSecurityResources;
-        this.transactionContextManager = transactionContextManager;
-        this.trackedConnectionAssociator = trackedConnectionAssociator;
         this.jettyContainer = jettyContainer;
 
-        setDefaultsDescriptor("META-INF/default-web.xml");
-        setConfigurationClassNames(new String[]{"org.apache.geronimo.jetty.JettyXMLConfiguration"});
+        setConfigurationClassNames(new String[]{});
 
         URI root = URI.create(configurationBaseUrl.toString());
         webAppRoot = root.resolve(uri);
@@ -127,79 +133,52 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         }
         this.classLoader = new JettyClassLoader(urls, classLoader, contextPriorityClassLoader);
         setClassLoader(this.classLoader);
+
+        handler = new WebApplicationHandler();
+        addHandler(handler);
+
+        userTransaction.setUp(transactionContextManager, trackedConnectionAssociator);
+
+        //stuff from spec dd
+        setDisplayName(displayName);
+        setContextParamMap(contextParamMap);
+        setListenerClassNames(listenerClassNames);
+        setDistributable(distributable);
+        setMimeMap(mimeMap);
+        setWelcomeFiles(welcomeFiles);
+        setLocaleEncodingMapping(localeEncodingMapping);
+        setErrorPages(errorPages);
+        setAuthenticator(authenticator);
+        setRealmName(realmName);
+        setTagLibMap(tagLibMap);
+        setSessionTimeoutSeconds(sessionTimeoutSeconds);
+
+
+        int index = 0;
+        BeforeAfter interceptor = new InstanceContextBeforeAfter(null, index++, unshareableResources, applicationManagedSecurityResources, trackedConnectionAssociator);
+        interceptor = new TransactionContextBeforeAfter(interceptor, index++, index++, transactionContextManager);
+        interceptor = new ComponentContextBeforeAfter(interceptor, index++, componentContext);
+        interceptor = new ThreadClassloaderBeforeAfter(interceptor, index++, index++, this.classLoader);
+        interceptor = new WebApplicationContextBeforeAfter(interceptor, index++, this);
+        chain = interceptor;
+        contextLength = index;
+
+        //cheat -- add jsr154 filter not as a gbean
+        FilterHolder jsr154FilterHolder = new FilterHolder(handler, "jsr154", JSR154Filter.class.getName());
+        handler.addFilterHolder(jsr154FilterHolder);
+        jsr154FilterHolder.setInitParameter("unwrappedDispatch", "true");
+        handler.addFilterPathMapping("/*", "jsr154", JettyFilterHolder.__REQUEST | JettyFilterHolder.__FORWARD | JettyFilterHolder.__INCLUDE);
     }
 
-    //TODO tx logic may not be complete.  exceptions are certainly wrong!
-    public void handle(String pathInContext,
-                       String pathParams,
-                       HttpRequest httpRequest,
-                       HttpResponse httpResponse)
-            throws HttpException, IOException {
+    public Object enterContextScope(HttpRequest httpRequest, HttpResponse httpResponse) {
+        Object[] context = new Object[contextLength];
+        chain.before(context, httpRequest, httpResponse);
+        return context;
+    }
 
-        // save previous state
-        ReadOnlyContext oldComponentContext = RootContext.getComponentContext();
-
-        InstanceContext oldInstanceContext = null;
-
-        try {
-            // set up java:comp JNDI Context
-            RootContext.setComponentContext(componentContext);
-
-
-            TransactionContext oldTransactionContext = transactionContextManager.getContext();
-            TransactionContext newTransactionContext = null;
-            if (oldTransactionContext == null || !(oldTransactionContext instanceof InheritableTransactionContext)) {
-                newTransactionContext = transactionContextManager.newUnspecifiedTransactionContext();
-            }
-
-            try {
-                try {
-                    oldInstanceContext = trackedConnectionAssociator.enter(new DefaultInstanceContext(unshareableResources, applicationManagedSecurityResources));
-                } catch (ResourceException e) {
-                    throw new RuntimeException(e);
-                }
-
-                super.handle(pathInContext, pathParams, httpRequest, httpResponse);
-            } finally {
-                try {
-                    if (newTransactionContext != null) {
-                        if (newTransactionContext != transactionContextManager.getContext()) {
-                            transactionContextManager.getContext().rollback();
-                            newTransactionContext.rollback();
-                            throw new HttpException(500, "WRONG EXCEPTION! returned from servlet call with wrong tx context");
-                        }
-                        newTransactionContext.commit();
-
-                    } else {
-                        if (oldTransactionContext != transactionContextManager.getContext()) {
-                            if (transactionContextManager.getContext() != null) {
-                                transactionContextManager.getContext().rollback();
-                            }
-                            throw new HttpException(500, "WRONG EXCEPTION! returned from servlet call with wrong tx context");
-                        }
-                    }
-                } catch (SystemException e) {
-                    throw (HttpException) new HttpException(500, "WRONG EXCEPTION!").initCause(e);
-                } catch (HeuristicMixedException e) {
-                    throw (HttpException) new HttpException(500, "WRONG EXCEPTION!").initCause(e);
-                } catch (HeuristicRollbackException e) {
-                    throw (HttpException) new HttpException(500, "WRONG EXCEPTION!").initCause(e);
-                } catch (RollbackException e) {
-                    throw (HttpException) new HttpException(500, "WRONG EXCEPTION!").initCause(e);
-                } finally {
-                    //this is redundant when we enter with an inheritable context and nothing goes wrong.
-                    transactionContextManager.setContext(oldTransactionContext);
-                }
-            }
-        } finally {
-            try {
-                trackedConnectionAssociator.exit(oldInstanceContext);
-            } catch (ResourceException e) {
-                throw new RuntimeException(e);
-            } finally {
-                RootContext.setComponentContext(oldComponentContext);
-            }
-        }
+    public void leaveContextScope(HttpRequest httpRequest, HttpResponse httpResponse, Object oldScope) {
+        Object[] context = (Object[]) oldScope;
+        chain.after(context, httpRequest, httpResponse);
     }
 
     public void doStart() throws WaitingException, Exception {
@@ -214,57 +193,14 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
         setWAR(webAppRoot.toString());
 
-        userTransaction.setUp(transactionContextManager, trackedConnectionAssociator);
 
         jettyContainer.addContext(this);
 
-        ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
+        Object context = enterContextScope(null, null);
         try {
-            Thread.currentThread().setContextClassLoader(classLoader);
-            ReadOnlyContext oldComponentContext = RootContext.getComponentContext();
-            InstanceContext oldInstanceContext = null;
-            try {
-                RootContext.setComponentContext(componentContext);
-//TODO FIXME!!!
-                TransactionContext transactionContext = transactionContextManager.getContext();
-                if (transactionContext == null) {
-                    transactionContext = transactionContextManager.newUnspecifiedTransactionContext();
-                } else {
-                    transactionContext = null;
-                }
-
-                try {
-
-                    try {
-                        oldInstanceContext = trackedConnectionAssociator.enter(new DefaultInstanceContext(unshareableResources, applicationManagedSecurityResources));
-                    } catch (ResourceException e) {
-                        throw new RuntimeException(e);
-                    }
-
-                    super.doStart();
-                } finally {
-                    if (transactionContext != null) {
-                        transactionContextManager.setContext(null);
-                        try {
-                            transactionContext.commit();
-                        } catch (Exception e) {
-                            //TODO this is undoubtedly the wrong error code!
-                            throw (HttpException) new HttpException(500, "Problem committing unspecified transaction context").initCause(e);
-                        }
-                    }
-                }
-            } finally {
-                try {
-                    trackedConnectionAssociator.exit(oldInstanceContext);
-                } catch (ResourceException e) {
-                    throw new RuntimeException(e);
-                } finally {
-                    RootContext.setComponentContext(oldComponentContext);
-                }
-                //TODO should we reset the transactioncontext to null if we set it?
-            }
+            super.doStart();
         } finally {
-            Thread.currentThread().setContextClassLoader(oldCL);
+            leaveContextScope(null, null, context);
         }
 
         log.info("JettyWebAppContext started");
@@ -277,62 +213,13 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
             return;
         }
 
-        ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
+        Object context = enterContextScope(null, null);
         try {
-            Thread.currentThread().setContextClassLoader(classLoader);
-            ReadOnlyContext oldComponentContext = RootContext.getComponentContext();
-            InstanceContext oldInstanceContext = null;
-            try {
-                RootContext.setComponentContext(componentContext);
-
-                TransactionContext transactionContext = transactionContextManager.getContext();
-                if (transactionContext == null) {
-                    transactionContext = transactionContextManager.newUnspecifiedTransactionContext();
-                } else {
-                    transactionContext = null;
-                }
-                try {
-
-                    try {
-                        oldInstanceContext = trackedConnectionAssociator.enter(new DefaultInstanceContext(unshareableResources, applicationManagedSecurityResources));
-                    } catch (ResourceException e) {
-                        throw new RuntimeException(e);
-                    }
-
-                    while (true) {
-                        try {
-                            super.doStop();
-                            break;
-                        } catch (InterruptedException e) {
-                            continue;
-                        }
-                    }
-                } finally {
-                    if (transactionContext != null) {
-                        transactionContextManager.setContext(null);
-                        try {
-                            transactionContext.commit();
-                        } catch (Exception e) {
-                            //TODO this is undoubtedly the wrong error code!
-                            throw (HttpException) new HttpException(500, "Problem committing unspecified transaction context").initCause(e);
-                        }
-                    }
-                }
-            } finally {
-                try {
-                    trackedConnectionAssociator.exit(oldInstanceContext);
-                } catch (ResourceException e) {
-                    throw new RuntimeException(e);
-                } finally {
-                    RootContext.setComponentContext(oldComponentContext);
-                }
-                //TODO should we reset the transactioncontext to null if we set it?
-            }
-            jettyContainer.removeContext(this);
+            super.doStop();
         } finally {
-            Thread.currentThread().setContextClassLoader(oldCL);
+            leaveContextScope(null, null, context);
         }
-
+        jettyContainer.removeContext(this);
         log.info("JettyWebAppContext stopped");
     }
 
@@ -346,28 +233,131 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         log.info("JettyWebAppContext failed");
     }
 
+
+    //pass through attributes.  They should be constructor params
+
+    //TODO encourage jetty to improve their naming convention.
+    public void setContextParamMap(Map initParameters) {
+        if (initParameters != null) {
+            for (Iterator iterator = initParameters.entrySet().iterator(); iterator.hasNext();) {
+                Map.Entry entry = (Map.Entry) iterator.next();
+                setInitParameter((String) entry.getKey(), (String) entry.getValue());
+            }
+        }
+    }
+
+    public void setLocaleEncodingMapping(Map localeEncodingMap) {
+        if (localeEncodingMap != null) {
+            for (Iterator iterator = localeEncodingMap.entrySet().iterator(); iterator.hasNext();) {
+                Map.Entry entry = (Map.Entry) iterator.next();
+                addLocaleEncoding((String) entry.getKey(), (String) entry.getValue());
+            }
+        }
+    }
+
+    public void setListenerClassNames(Collection eventListeners) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+        if (eventListeners != null) {
+            for (Iterator iterator = eventListeners.iterator(); iterator.hasNext();) {
+                String listenerClassName = (String) iterator.next();
+                Class clazz = loadClass(listenerClassName);
+                EventListener listener = (EventListener) clazz.newInstance();
+                addEventListener(listener);
+                handler.addEventListener(listener);
+            }
+        }
+    }
+
+    public void setErrorPages(Map errorPageMap) {
+        if (errorPageMap != null) {
+            for (Iterator iterator = errorPageMap.entrySet().iterator(); iterator.hasNext();) {
+                Map.Entry entry = (Map.Entry) iterator.next();
+                setErrorPage((String) entry.getKey(), (String) entry.getValue());
+            }
+        }
+    }
+
+    public void setTagLibMap(Map tagLibMap) {
+        if (tagLibMap != null) {
+            for (Iterator iterator = tagLibMap.entrySet().iterator(); iterator.hasNext();) {
+                Map.Entry entry = (Map.Entry) iterator.next();
+                setResourceAlias((String) entry.getKey(), (String) entry.getValue());
+            }
+        }
+    }
+
+    public void setSessionTimeoutSeconds(int seconds) {
+        handler.setSessionInactiveInterval(seconds);
+    }
+
+
+    //TODO this is really dumb, but jetty likes to set the displayname to null frequently.
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+        super.setDisplayName(displayName);
+    }
+
+
+    public void registerServletHolder(ServletHolder servletHolder, String servletName, Set servletMappings, Map webRoleRefPermissions) throws Exception {
+        //TODO filters
+        handler.addServletHolder(servletHolder);
+        if (servletMappings != null) {
+            for (Iterator iterator = servletMappings.iterator(); iterator.hasNext();) {
+                String urlPattern = (String) iterator.next();
+                handler.mapPathToServlet(urlPattern, servletName);
+            }
+        }
+        Object context = enterContextScope(null, null);
+        try {
+            servletHolder.start();
+        } finally {
+            leaveContextScope(null, null, context);
+        }
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Jetty WebApplication Context", JettyWebAppContext.class);
+        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder("Jetty WebApplication Context", JettyWebAppContext.class);
+        //from jetty's webapp context
 
-        infoFactory.addAttribute("uri", URI.class, true);
-        infoFactory.addAttribute("componentContext", ReadOnlyContext.class, true);
-        infoFactory.addAttribute("userTransaction", OnlineUserTransaction.class, true);
-        infoFactory.addAttribute("classLoader", ClassLoader.class, false);
-        infoFactory.addAttribute("webClassPath", URI[].class, true);
-        infoFactory.addAttribute("contextPriorityClassLoader", boolean.class, true);
-        infoFactory.addAttribute("configurationBaseUrl", URL.class, true);
-        infoFactory.addAttribute("unshareableResources", Set.class, true);
-        infoFactory.addAttribute("applicationManagedSecurityResources", Set.class, true);
+        infoBuilder.addAttribute("displayName", String.class, true);
+        infoBuilder.addAttribute("contextParamMap", Map.class, true);
+        infoBuilder.addAttribute("listenerClassNames", Collection.class, true);
+        infoBuilder.addAttribute("distributable", boolean.class, true);
 
-        infoFactory.addAttribute("contextPath", String.class, true);
+        infoBuilder.addAttribute("mimeMap", Map.class, true);
+        infoBuilder.addAttribute("welcomeFiles", String[].class, true);
+        infoBuilder.addAttribute("localeEncodingMapping", Map.class, true);
+        infoBuilder.addAttribute("errorPages", Map.class, true);
+        infoBuilder.addAttribute("authenticator", Authenticator.class, true);
+        infoBuilder.addAttribute("realmName", String.class, true);
+        infoBuilder.addAttribute("tagLibMap", Map.class, true);
+        infoBuilder.addAttribute("sessionTimeoutSeconds", int.class, true);
 
-        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class);
-        infoFactory.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class);
-        infoFactory.addReference("JettyContainer", JettyContainer.class);
 
-        infoFactory.setConstructor(new String[]{
+        infoBuilder.addAttribute("uri", URI.class, true);
+        infoBuilder.addAttribute("componentContext", ReadOnlyContext.class, true);
+        infoBuilder.addAttribute("userTransaction", OnlineUserTransaction.class, true);
+        infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
+        infoBuilder.addAttribute("webClassPath", URI[].class, true);
+        infoBuilder.addAttribute("contextPriorityClassLoader", boolean.class, true);
+        infoBuilder.addAttribute("configurationBaseUrl", URL.class, true);
+        infoBuilder.addAttribute("unshareableResources", Set.class, true);
+        infoBuilder.addAttribute("applicationManagedSecurityResources", Set.class, true);
+
+        infoBuilder.addAttribute("contextPath", String.class, true);
+
+        infoBuilder.addReference("TransactionContextManager", TransactionContextManager.class);
+        infoBuilder.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class);
+        infoBuilder.addReference("JettyContainer", JettyContainer.class);
+
+        infoBuilder.addInterface(JettyServletRegistration.class);
+
+        infoBuilder.setConstructor(new String[]{
             "uri",
             "componentContext",
             "userTransaction",
@@ -377,15 +367,30 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
             "configurationBaseUrl",
             "unshareableResources",
             "applicationManagedSecurityResources",
+
+            "displayName",
+            "contextParamMap",
+            "listenerClassNames",
+            "distributable",
+            "mimeMap",
+            "welcomeFiles",
+            "localeEncodingMapping",
+            "errorPages",
+            "authenticator",
+            "realmName",
+            "tagLibMap",
+            "sessionTimeoutSeconds",
+
             "TransactionContextManager",
             "TrackedConnectionAssociator",
-            "JettyContainer",
+            "JettyContainer"
         });
 
-        GBEAN_INFO = infoFactory.getBeanInfo();
+        GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
+
 }

@@ -17,13 +17,17 @@
 package org.apache.geronimo.jetty;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.Set;
+import java.util.Collections;
 import javax.security.jacc.PolicyContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.UnavailableException;
 
-import org.mortbay.jetty.servlet.ServletHandler;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.mortbay.jetty.servlet.ServletHolder;
 import org.mortbay.jetty.servlet.ServletHttpRequest;
 
@@ -33,22 +37,46 @@ import org.mortbay.jetty.servlet.ServletHttpRequest;
  * ServletHolder for realms that are interested in the current servlet, e.g.
  * current servlet name.
  *
+ * It is also being our servlet gbean for now.  We could gbean-ize the superclass to avoid the thread local access.
+ *
  * @version $Rev$ $Date$
  * @see org.apache.geronimo.jetty.JAASJettyRealm#isUserInRole(java.security.Principal, java.lang.String)
  */
 public class JettyServletHolder extends ServletHolder {
     private static final ThreadLocal currentServletHolder = new ThreadLocal();
 
+    //todo consider interface instead of this constructor for endpoint use.
     public JettyServletHolder() {
-        super();
+
     }
 
-    public JettyServletHolder(ServletHandler handler, String name, String className) {
-        super(handler, name, className);
+    public JettyServletHolder(String servletName,
+                              String servletClassName,
+                              String jspFile,
+                              Map initParams,
+                              Integer loadOnStartup,
+                              Set servletMappings,
+                              Map webRoleRefPermissions,
+                              JettyServletRegistration context) throws Exception {
+        super(context == null? null: context.getServletHandler(), servletName, servletClassName, jspFile);
+        //context will be null only for use as "default servlet info holder" in deployer.
+
+        if (context != null) {
+            putAll(initParams);
+            if (loadOnStartup != null) {
+                setInitOrder(loadOnStartup.intValue());
+            }
+            //this now starts the servlet in the appropriate context
+            context.registerServletHolder(this, servletName, servletMappings, webRoleRefPermissions == null? Collections.EMPTY_MAP: webRoleRefPermissions);
+//            start();
+        }
     }
 
-    public JettyServletHolder(ServletHandler handler, String name, String className, String forcedPath) {
-        super(handler, name, className, forcedPath);
+    //todo how do we stop/destroy the servlet?
+    //todo is start called twice???
+
+    public String getServletName() {
+        return getName();
     }
 
     /**
@@ -72,5 +100,37 @@ public class JettyServletHolder extends ServletHolder {
      */
     static JettyServletHolder getJettyServletHolder() {
         return (JettyServletHolder) currentServletHolder.get();
+    }
+
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(JettyServletHolder.class);
+        //todo replace with interface
+        infoBuilder.addInterface(ServletHolder.class);
+        
+        infoBuilder.addAttribute("servletName", String.class, true);
+        infoBuilder.addAttribute("servletClass", String.class, true);
+        infoBuilder.addAttribute("jspFile", String.class, true);
+        infoBuilder.addAttribute("initParams", Map.class, true);
+        infoBuilder.addAttribute("loadOnStartup", Integer.class, true);
+        infoBuilder.addAttribute("servletMappings", Set.class, true);
+        infoBuilder.addAttribute("webRoleRefPermissions", Map.class, true);
+        infoBuilder.addReference("JettyServletRegistration", JettyServletRegistration.class);
+
+        infoBuilder.setConstructor(new String[] {"servletName",
+                                                 "servletClass",
+                                                 "jspFile",
+                                                 "initParams", 
+                                                 "loadOnStartup", 
+                                                 "servletMappings",
+                                                 "webRoleRefPermissions",
+                                                 "JettyServletRegistration"});
+
+        GBEAN_INFO = infoBuilder.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
     }
 }

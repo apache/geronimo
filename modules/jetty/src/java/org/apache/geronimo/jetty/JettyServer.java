@@ -30,7 +30,6 @@ import org.mortbay.jetty.Server;
  * @version $Rev$ $Date$
  */
 public class JettyServer extends Server {
-    private final static ThreadLocal currentWebAppContext = new ThreadLocal();
     private final Map realmDelegates = new HashMap();
 
     public UserRealm addRealm(UserRealm realm) {
@@ -56,20 +55,6 @@ public class JettyServer extends Server {
 
     public void removeRealm(UserRealm realm) {
         realmDelegates.remove(realm.getName());
-    }
-
-    public static void setCurrentWebAppContext(JettyWebAppJACCContext context) {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) sm.checkPermission(ContextManager.SET_CONTEXT);
-
-        currentWebAppContext.set(context);
-    }
-
-    public static JettyWebAppJACCContext getCurrentWebAppContext() {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) sm.checkPermission(ContextManager.GET_CONTEXT);
-
-        return (JettyWebAppJACCContext) currentWebAppContext.get();
     }
 
     private class RealmDelegate implements UserRealm {

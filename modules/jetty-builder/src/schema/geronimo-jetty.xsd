@@ -37,14 +37,14 @@
         <xs:sequence>
             <xs:element name="dependency" type="jetty:dependencyType" minOccurs="0" maxOccurs="unbounded"/>
 
-            <xs:element name="context-root" type="xs:string" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="context-root" type="xs:string" minOccurs="0"/>
             <xs:element name="context-priority-classloader" type="xs:boolean"/>
 
+            <xs:sequence minOccurs="0">
+                <xs:element name="login-domain-name" type="xs:string"/>
+                <xs:element ref="security:security"/>
+            </xs:sequence>
 
-            <xs:element ref="security:security" minOccurs="0"/>
-
-            <xs:element name="gbean" type="jetty:gbeanType" minOccurs="0" maxOccurs="unbounded"/>
-            
             <!--xs:group ref="naming:jndiEnvironmentRefsGroup"/-->
 
             <xs:element ref="naming:ejb-ref" minOccurs="0" maxOccurs="unbounded"/>
@@ -54,8 +54,11 @@
             <xs:element ref="naming:resource-ref" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element ref="naming:resource-env-ref" minOccurs="0" maxOccurs="unbounded"/>
 
+            <xs:element name="gbean" type="jetty:gbeanType" minOccurs="0" maxOccurs="unbounded"/>
+
         </xs:sequence>
         <xs:attribute name="configId" type="xs:string" use="required"/>
         <xs:attribute name="parentId" type="xs:string" use="optional"/>
     </xs:complexType>
+
 </xs:schema>

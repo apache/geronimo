@@ -18,6 +18,9 @@
 package org.apache.geronimo.jetty;
 
 import java.net.URL;
+import java.net.MalformedURLException;
+import java.io.File;
+
 import junit.framework.TestCase;
 
 /**
@@ -31,8 +34,9 @@ public class ClassLoaderTest extends TestCase {
     JettyClassLoader cl;
     URL[] urls;
 
-    public void setUp() {
-        URL url = getClass().getClassLoader().getResource("deployables/cltest/");
+    public void setUp() throws MalformedURLException {
+        URL url = new File("src/test-resources/deployables/cltest/").toURL();
+//        URL url = getClass().getClassLoader().getResource("deployables/cltest/");
         System.err.println("URL: "+url);
         urls = new URL[]{url};
     }

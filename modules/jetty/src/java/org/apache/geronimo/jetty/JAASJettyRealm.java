@@ -20,18 +20,15 @@ import java.security.AccessControlContext;
 import java.security.AccessControlException;
 import java.security.Principal;
 import java.util.HashMap;
+import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-import javax.security.auth.Subject;
 import javax.security.jacc.WebRoleRefPermission;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.jetty.interceptor.SecurityContextBeforeAfter;
 import org.mortbay.http.HttpRequest;
 import org.mortbay.http.UserRealm;
 
@@ -39,28 +36,20 @@ import org.mortbay.http.UserRealm;
 /**
  * @version $Rev$ $Date$
  */
-public class JAASJettyRealm implements UserRealm, GBeanLifecycle {
+public class JAASJettyRealm implements UserRealm {
     private static Log log = LogFactory.getLog(JAASJettyRealm.class);
 
-    private final JettyContainer container;
-    private String realmName;
-    private String loginModuleName;
+    private final String realmName;
+    private final String loginDomainName;
     private final HashMap userMap = new HashMap();
 
-    public JAASJettyRealm(JettyContainer container) {
-        this.container = container;
+    public JAASJettyRealm(String realmName, String loginDomainName) {
+        this.realmName = realmName;
+        this.loginDomainName = loginDomainName;
     }
 
     public String getName() {
         return realmName;
-    }
-
-    public void setName(String name) {
-        realmName = name;
-    }
-
-    public void setLoginModuleName(String name) {
-        loginModuleName = name;
     }
 
     public Principal getPrincipal(String username) {
@@ -89,7 +78,7 @@ public class JAASJettyRealm implements UserRealm, GBeanLifecycle {
             PasswordCallbackHandler callbackHandler = new PasswordCallbackHandler(username, password);
 
             //set up the login context
-            LoginContext loginContext = new LoginContext(loginModuleName, callbackHandler);
+            LoginContext loginContext = new LoginContext(loginDomainName, callbackHandler);
             loginContext.login();
             callbackHandler.clear();
 
@@ -141,7 +130,7 @@ public class JAASJettyRealm implements UserRealm, GBeanLifecycle {
 
     public Principal pushRole(Principal user, String role) {
         ((JAASJettyPrincipal) user).push(ContextManager.getCurrentCaller());
-        ContextManager.setCurrentCaller(JettyServer.getCurrentWebAppContext().getRoleDesignate(role));
+        ContextManager.setCurrentCaller(SecurityContextBeforeAfter.getCurrentRoleDesignate(role));
         return user;
     }
 
@@ -150,34 +139,4 @@ public class JAASJettyRealm implements UserRealm, GBeanLifecycle {
         return user;
     }
 
-    public void doStart() throws WaitingException, Exception {
-        container.addRealm(this);
-        log.info("JAAS Jetty Realm - " + realmName + " - started");
-    }
-
-    public void doStop() throws WaitingException {
-        container.removeRealm(this);
-        log.info("JAAS Jetty Realm - " + realmName + " - stopped");
-    }
-
-    public void doFail() {
-        container.removeRealm(this);
-        log.info("JAAS Jetty Realm - " + realmName + " - failed");
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Jetty Realm", JAASJettyRealm.class);
-        infoFactory.setConstructor(new String[]{"JettyContainer"});
-        infoFactory.addReference("JettyContainer", JettyContainer.class);
-        infoFactory.addAttribute("name", String.class, true);
-        infoFactory.addAttribute("loginModuleName", String.class, true);
-
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
 }

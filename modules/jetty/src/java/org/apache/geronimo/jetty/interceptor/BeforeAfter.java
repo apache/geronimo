@@ -14,21 +14,18 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+package org.apache.geronimo.jetty.interceptor;
 
-package org.apache.geronimo.security.jacc;
-
-import java.security.Permission;
-import java.security.ProtectionDomain;
-
+import org.mortbay.http.HttpRequest;
+import org.mortbay.http.HttpResponse;
 
 /**
- *
- * @version $Rev$ $Date$
+ * @version $Rev:  $ $Date:  $
  */
+public interface BeforeAfter {
 
-public interface GeronimoPolicyConfiguration extends RoleMappingConfiguration {
-    public boolean implies(ProtectionDomain domain, Permission permission);
+    void before(Object[] context, HttpRequest httpRequest, HttpResponse httpResponse);
 
-    public void open(boolean remove);
+    void after(Object[] context, HttpRequest httpRequest, HttpResponse httpResponse);
 
 }

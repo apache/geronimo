@@ -23,45 +23,46 @@ import java.net.URI;
 import java.net.URL;
 import java.security.AccessControlContext;
 import java.security.AccessControlException;
+import java.security.Permission;
 import java.security.Principal;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 import javax.security.auth.Subject;
 import javax.security.jacc.PolicyConfiguration;
 import javax.security.jacc.PolicyConfigurationFactory;
-import javax.security.jacc.PolicyContext;
 import javax.security.jacc.PolicyContextException;
 import javax.security.jacc.WebResourcePermission;
+import javax.security.jacc.WebRoleRefPermission;
 import javax.security.jacc.WebUserDataPermission;
-import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.WaitingException;
+import org.apache.geronimo.jetty.interceptor.SecurityContextBeforeAfter;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.security.ContextManager;
-import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.PrimaryRealmPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.SubjectId;
-import org.apache.geronimo.security.SecurityService;
-import org.apache.geronimo.security.realm.SecurityRealm;
+import org.apache.geronimo.security.deploy.AutoMapAssistant;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.deploy.Security;
-import org.apache.geronimo.security.deploy.AutoMapAssistant;
+import org.apache.geronimo.security.jacc.RoleMappingConfiguration;
+import org.apache.geronimo.security.realm.SecurityRealm;
 import org.apache.geronimo.security.util.ConfigurationUtil;
-import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.OnlineUserTransaction;
+import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.kernel.Kernel;
-
 import org.mortbay.http.Authenticator;
 import org.mortbay.http.HttpException;
 import org.mortbay.http.HttpRequest;
@@ -70,6 +71,7 @@ import org.mortbay.http.PathMap;
 import org.mortbay.http.SecurityConstraint;
 import org.mortbay.http.UserRealm;
 import org.mortbay.jetty.servlet.FormAuthenticator;
+import org.mortbay.jetty.servlet.ServletHolder;
 import org.mortbay.jetty.servlet.ServletHttpRequest;
 import org.mortbay.util.LazyList;
 
@@ -86,43 +88,77 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
 
     private final Kernel kernel;
     private final String policyContextID;
+    private final String loginDomainName;
     private final Security securityConfig;
-    private final SecurityService securityService;
     private final JAASJettyPrincipal defaultPrincipal;
 
     private PolicyConfigurationFactory factory;
     private PolicyConfiguration policyConfiguration;
 
-    private final Map roleDesignates = new HashMap();
     private final PathMap constraintMap = new PathMap();
 
     private String formLoginPath;
 
+    private final Set securityRoles;
+    private final Set excludedPermissions;
+    private final Set uncheckedPermissions;
+    private final Map rolePermissions;
+
+    private final SecurityContextBeforeAfter securityInterceptor;
+
+
     public JettyWebAppJACCContext() {
         kernel = null;
         policyContextID = null;
+        loginDomainName = null;
         securityConfig = null;
-        securityService = null;
         defaultPrincipal = null;
+        this.securityRoles = null;
+        this.excludedPermissions = null;
+        this.uncheckedPermissions = null;
+        this.rolePermissions = null;
+        securityInterceptor = null;
     }
 
-    public JettyWebAppJACCContext(
-            Kernel kernel,
-            URI uri,
-            ReadOnlyContext componentContext,
-            OnlineUserTransaction userTransaction,
-            ClassLoader classLoader,
-            URI[] webClassPath,
-            boolean contextPriorityClassLoader,
-            URL configurationBaseUrl,
-            Set unshareableResources,
-            Set applicationManagedSecurityResources,
-            String policyContextID,
-            Security securityConfig,
-            SecurityService securityService,
-            TransactionContextManager transactionContextManager,
-            TrackedConnectionAssociator trackedConnectionAssociator,
-            JettyContainer jettyContainer) throws MalformedURLException {
+    public JettyWebAppJACCContext(URI uri,
+                                  ReadOnlyContext componentContext,
+                                  OnlineUserTransaction userTransaction,
+                                  ClassLoader classLoader,
+                                  URI[] webClassPath,
+                                  boolean contextPriorityClassLoader,
+                                  URL configurationBaseUrl,
+                                  Set unshareableResources,
+                                  Set applicationManagedSecurityResources,
+
+                                  String displayName,
+                                  Map contextParamMap,
+                                  Collection listenerClassNames,
+                                  boolean distributable,
+                                  Map mimeMap,
+                                  String[] welcomeFiles,
+                                  Map localeEncodingMapping,
+                                  Map errorPages,
+                                  Authenticator authenticator,
+                                  String realmName,
+                                  Map tagLibMap,
+                                  int sessionTimeoutSeconds,
+
+                                  String policyContextID,
+                                  String loginDomainName,
+                                  Security securityConfig,
+                                  //from jettyxmlconfig
+                                  Set securityRoles,
+                                  Set uncheckedPermissions,
+                                  Set excludedPermissions,
+                                  Map rolePermissions,
+
+                                  //TODO remove
+                                  Map legacySecurityConstraintMap,
+
+                                  TransactionContextManager transactionContextManager,
+                                  TrackedConnectionAssociator trackedConnectionAssociator,
+                                  JettyContainer jettyContainer,
+                                  Kernel kernel) throws Exception, IllegalAccessException, InstantiationException, ClassNotFoundException {
 
         super(uri,
                 componentContext,
@@ -133,74 +169,73 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
                 configurationBaseUrl,
                 unshareableResources,
                 applicationManagedSecurityResources,
+
+                displayName,
+                contextParamMap,
+                listenerClassNames,
+                distributable,
+                mimeMap,
+                welcomeFiles,
+                localeEncodingMapping,
+                errorPages,
+                authenticator,
+                realmName,
+                tagLibMap,
+                sessionTimeoutSeconds,
+
                 transactionContextManager,
                 trackedConnectionAssociator,
                 jettyContainer);
 
         this.kernel = kernel;
+        setRealmName(realmName);
+        //set the JAASJettyRealm as our realm.
+        JAASJettyRealm realm = new JAASJettyRealm(realmName, loginDomainName);
+        setRealm(realm);
+
         this.policyContextID = policyContextID;
+        this.loginDomainName = loginDomainName;
         this.securityConfig = securityConfig;
-        this.securityService = securityService;
-        this.defaultPrincipal = generateDefaultPrincipal(securityConfig);
 
-        /**
-         * We want to use our own web-app handler.
-         */
-        addHandler(new JettyWebAppHandler());
-    }
+        this.securityRoles = securityRoles;
+        this.uncheckedPermissions = uncheckedPermissions;
+        this.excludedPermissions = excludedPermissions;
+        this.rolePermissions = rolePermissions;
 
-    public Kernel getKernel() {
-        return kernel;
-    }
+        this.defaultPrincipal = generateDefaultPrincipal(securityConfig, loginDomainName);
 
-    public String getPolicyContextID() {
-        return policyContextID;
-    }
+        int index = contextLength;
+        this.securityInterceptor = new SecurityContextBeforeAfter(chain, index++, index++, policyContextID);
+        contextLength = index;
+        chain = securityInterceptor;
 
-    public Security getSecurityConfig() {
-        return securityConfig;
-    }
+        //TODO remove
+        for (Iterator entries = legacySecurityConstraintMap.entrySet().iterator(); entries.hasNext();) {
+            Map.Entry entry = (Map.Entry) entries.next();
+            String urlPattern = (String) entry.getKey();
+            List securityConstraints = (List) entry.getValue();
+            for (Iterator constraints = securityConstraints.iterator(); constraints.hasNext();) {
+                SecurityConstraint securityConstraint = (SecurityConstraint) constraints.next();
+                addSecurityConstraint(urlPattern, securityConstraint);
+            }
 
-    public SecurityService getSecurityService() {
-        return securityService;
-    }
-
-    public Subject getRoleDesignate(String roleName) {
-        return (Subject) roleDesignates.get(roleName);
-    }
-
-    void setRoleDesignate(String roleName, Subject subject) {
-        roleDesignates.put(roleName, subject);
-    }
-
-    /**
-     * Handler request.
-     * Call each HttpHandler until request is handled.
-     *
-     * @param pathInContext path in context
-     * @param pathParams path parameters such as encoded Session ID
-     * @param httpRequest the request object
-     * @param httpResponse the response object
-     */
-    public void handle(String pathInContext,
-            String pathParams,
-            HttpRequest httpRequest,
-            HttpResponse httpResponse)
-            throws HttpException, IOException {
-
-        String savedPolicyContextID = PolicyContext.getContextID();
-        JettyWebAppJACCContext savedContext = JettyServer.getCurrentWebAppContext();
-
-        try {
-            PolicyContext.setContextID(policyContextID);
-            JettyServer.setCurrentWebAppContext(this);
-
-            super.handle(pathInContext, pathParams, httpRequest, httpResponse);
-        } finally {
-            JettyServer.setCurrentWebAppContext(savedContext);
-            PolicyContext.setContextID(savedPolicyContextID);
         }
+
     }
+
+    public void registerServletHolder(ServletHolder servletHolder, String servletName, Set servletMappings, Map webRoleRefPermissions) throws Exception {
+        super.registerServletHolder(servletHolder, servletName, servletMappings, webRoleRefPermissions);
+
+        policyConfiguration = factory.getPolicyConfiguration(policyContextID, false);
+        for (Iterator iterator = webRoleRefPermissions.entrySet().iterator(); iterator.hasNext();) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            String roleName = (String) entry.getValue();
+            WebRoleRefPermission webRoleRefPermission = (WebRoleRefPermission) entry.getKey();
+            policyConfiguration.addToRole(roleName, webRoleRefPermission);
+        }
+        policyConfiguration.commit();
+    }
+
 
     /**
      * Keep our own copy of security constraints.<p/>
@@ -210,8 +245,8 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
      * but, to decide whether we should attempt to authenticate the request.
      *
      * @param pathSpec The path spec to which the secuiryt cosntraint applies
-     * @param sc the security constraint
-     * TODO Jetty to provide access to this map so we can remove this method
+     * @param sc       the security constraint
+     *                 TODO Jetty to provide access to this map so we can remove this method
      * @see org.mortbay.http.HttpContext#addSecurityConstraint(java.lang.String, org.mortbay.http.SecurityConstraint)
      */
     public void addSecurityConstraint(String pathSpec, SecurityConstraint sc) {
@@ -230,8 +265,8 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
      * Check the security constraints using JACC.
      *
      * @param pathInContext path in context
-     * @param request HTTP request
-     * @param response HTTP response
+     * @param request       HTTP request
+     * @param response      HTTP response
      * @return true if the path in context passes the security check,
      *         false if it fails or a redirection has occured during authentication.
      */
@@ -284,8 +319,8 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
      * principal.  This is automatically done by <code>JAASJettyRealm</code>.
      *
      * @param pathInContext path in context
-     * @param request HTTP request
-     * @param response HTTP response
+     * @param request       HTTP request
+     * @param response      HTTP response
      * @return <code>null</code> if there is no authenticated user at the moment
      *         and security checking should not proceed and servlet handling should also
      *         not proceed, e.g. redirect. <code>SecurityConstraint.__NOBODY</code> if
@@ -380,9 +415,10 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
      * Generate the default principal from the security config.
      *
      * @param securityConfig The Geronimo security configuration.
+     * @param loginDomainName
      * @return the default principal
      */
-    protected JAASJettyPrincipal generateDefaultPrincipal(Security securityConfig) throws GeronimoSecurityException {
+    protected JAASJettyPrincipal generateDefaultPrincipal(Security securityConfig, String loginDomainName) throws GeronimoSecurityException {
 
         DefaultPrincipal defaultPrincipal = securityConfig.getDefaultPrincipal();
         if (defaultPrincipal == null) {
@@ -396,7 +432,7 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
                     org.apache.geronimo.security.deploy.Principal principal = assistant.obtainDefaultPrincipal();
                     defaultPrincipal = new DefaultPrincipal();
                     defaultPrincipal.setPrincipal(principal);
-                    defaultPrincipal.setRealmName(((SecurityRealm)assistant).getRealmName());
+                    defaultPrincipal.setRealmName(((SecurityRealm) assistant).getRealmName());
                 }
             } catch (MalformedObjectNameException e) {
                 throw new GeronimoSecurityException("Bad object name geronimo.security:type=SecurityRealm,realm=" + config.getSecurityRealm());
@@ -405,20 +441,18 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
         }
         if (defaultPrincipal == null) throw new GeronimoSecurityException("Unable to generate default principal");
 
-        return generateDefaultPrincipal(securityConfig, defaultPrincipal);
+        return generateDefaultPrincipal(securityConfig, defaultPrincipal, loginDomainName);
     }
 
-    protected JAASJettyPrincipal generateDefaultPrincipal(Security securityConfig, DefaultPrincipal defaultPrincipal) throws GeronimoSecurityException {
+    protected JAASJettyPrincipal generateDefaultPrincipal(Security securityConfig, DefaultPrincipal defaultPrincipal, String loginDomainName) throws GeronimoSecurityException {
         JAASJettyPrincipal result = new JAASJettyPrincipal("default");
         Subject defaultSubject = new Subject();
 
-        //todo: needs a proper login domain name to go with the realm name
-        RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(defaultPrincipal.getPrincipal(), defaultPrincipal.getRealmName(), defaultPrincipal.getRealmName());
+        RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(defaultPrincipal.getPrincipal(), loginDomainName, defaultPrincipal.getRealmName());
         if (realmPrincipal == null) {
             throw new GeronimoSecurityException("Unable to create realm principal");
         }
-        //todo: needs a proper login domain name to go with the realm name
-        PrimaryRealmPrincipal primaryRealmPrincipal = ConfigurationUtil.generatePrimaryRealmPrincipal(defaultPrincipal.getPrincipal(), defaultPrincipal.getRealmName(), defaultPrincipal.getRealmName());
+        PrimaryRealmPrincipal primaryRealmPrincipal = ConfigurationUtil.generatePrimaryRealmPrincipal(defaultPrincipal.getPrincipal(), loginDomainName, defaultPrincipal.getRealmName());
         if (primaryRealmPrincipal == null) {
             throw new GeronimoSecurityException("Unable to create primary realm principal");
         }
@@ -450,7 +484,7 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
         SubjectId id = ContextManager.getSubjectId(defaultSubject);
         defaultSubject.getPrincipals().add(new IdentificationPrincipal(id));
 
-        log.debug("Default subject " + id + " for JACC policy '" + ((JettyWebAppJACCContext) getHttpContext()).getPolicyContextID() + "' registered.");
+        log.debug("Default subject " + id + " for JACC policy '" + policyContextID + "' registered.");
 
         /**
          * Get the JACC policy configuration that's associated with this
@@ -462,12 +496,9 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
             factory = PolicyConfigurationFactory.getPolicyConfigurationFactory();
 
             policyConfiguration = factory.getPolicyConfiguration(policyContextID, true);
-            Configuration[] configurations = getConfigurations();
-            for (int i = 0; i < configurations.length; i++) {
-                if (configurations[i] instanceof JettyXMLConfiguration) {
-                    ((JettyXMLConfiguration) configurations[i]).configure(policyConfiguration, securityConfig);
-                }
-            }
+            configure();
+//            configure(policyConfiguration);
+            securityInterceptor.addRoleMappings(securityRoles, loginDomainName, securityConfig, (RoleMappingConfiguration) policyConfiguration);
             policyConfiguration.commit();
         } catch (ClassNotFoundException e) {
             // do nothing
@@ -477,22 +508,6 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
             // do nothing
         }
 
-        /**
-         * Register the role designates with the context manager.
-         *
-         * THIS MUST BE RUN AFTER JettyXMLConfiguration.configure()
-         */
-        Iterator iter = roleDesignates.keySet().iterator();
-        while (iter.hasNext()) {
-            String roleName = (String) iter.next();
-            Subject roleDesignate = (Subject) roleDesignates.get(roleName);
-
-            ContextManager.registerSubject(roleDesignate);
-            id = ContextManager.getSubjectId(roleDesignate);
-            roleDesignate.getPrincipals().add(new IdentificationPrincipal(id));
-
-            log.debug("Role designate " + id + " for role '" + roleName + "' for JACC policy '" + ((JettyWebAppJACCContext) getHttpContext()).getPolicyContextID() + "' registered.");
-        }
 
         log.info("JettyWebAppJACCContext started with JACC policy '" + policyContextID + "'");
     }
@@ -503,18 +518,11 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
         /**
          * Unregister the default principal and role designates
          */
-        log.debug("Default subject " + ContextManager.getSubjectId(defaultPrincipal.getSubject()) + " for JACC policy " + ((JettyWebAppJACCContext) getHttpContext()).getPolicyContextID() + "' unregistered.");
+        log.debug("Default subject " + ContextManager.getSubjectId(defaultPrincipal.getSubject()) + " for JACC policy " + policyContextID + "' unregistered.");
 
         ContextManager.unregisterSubject(defaultPrincipal.getSubject());
 
-        Iterator iter = roleDesignates.keySet().iterator();
-        while (iter.hasNext()) {
-            String roleName = (String) iter.next();
-            Subject roleDesignate = (Subject) roleDesignates.get(roleName);
-
-            ContextManager.unregisterSubject(roleDesignate);
-            log.debug("Role designate " + ContextManager.getSubjectId(roleDesignate) + " for role '" + roleName + "' for JACC policy '" + ((JettyWebAppJACCContext) getHttpContext()).getPolicyContextID() + "' unregistered.");
-        }
+        securityInterceptor.stop();
 
         /**
          * Delete the policy configuration for this web application
@@ -540,18 +548,54 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
         log.info("JettyWebAppJACCContext failed");
     }
 
+
+//from jettyxmlconfig
+
+    private void configure() throws GeronimoSecurityException {
+        try {
+            for (Iterator iterator = excludedPermissions.iterator(); iterator.hasNext();) {
+                Permission permission =  (Permission) iterator.next();
+                policyConfiguration.addToExcludedPolicy(permission);
+            }
+            for (Iterator iterator = uncheckedPermissions.iterator(); iterator.hasNext();) {
+                Permission permission = (Permission) iterator.next();
+                policyConfiguration.addToUncheckedPolicy(permission);
+            }
+            for (Iterator iterator = rolePermissions.entrySet().iterator(); iterator.hasNext();) {
+                Map.Entry entry = (Map.Entry) iterator.next();
+                String roleName = (String) entry.getKey();
+                Set permissions = (Set) entry.getValue();
+                for (Iterator iterator1 = permissions.iterator(); iterator1.hasNext();) {
+                    Permission permission = (Permission) iterator1.next();
+                    policyConfiguration.addToRole(roleName,  permission);
+                }
+            }
+        } catch (PolicyContextException e) {
+            throw new GeronimoSecurityException(e);
+        }
+    }
+
+
+    //===============================================================================
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Jetty JACC WebApplication Context", JettyWebAppJACCContext.class, JettyWebAppContext.GBEAN_INFO);
+        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder("Jetty JACC WebApplication Context", JettyWebAppJACCContext.class, JettyWebAppContext.GBEAN_INFO);
 
-        infoFactory.addAttribute("kernel", Kernel.class, false);
-        infoFactory.addAttribute("policyContextID", String.class, true);
-        infoFactory.addAttribute("securityConfig", Security.class, true);
-        infoFactory.addReference("SecurityService", SecurityService.class);
+        infoBuilder.addAttribute("policyContextID", String.class, true);
+        infoBuilder.addAttribute("loginDomainName", String.class, true);
+        infoBuilder.addAttribute("securityConfig", Security.class, true);
 
-        infoFactory.setConstructor(new String[]{
-            "kernel",
+        infoBuilder.addAttribute("securityRoles", Set.class, true);
+        infoBuilder.addAttribute("uncheckedPermissions", Set.class, true);
+        infoBuilder.addAttribute("excludedPermissions", Set.class, true);
+        infoBuilder.addAttribute("rolePermissions", Map.class, true);
+        //TODO remove
+        infoBuilder.addAttribute("legacySecurityConstraintMap", Map.class, true);
+
+        infoBuilder.addAttribute("kernel", Kernel.class, false);
+
+        infoBuilder.setConstructor(new String[]{
             "uri",
             "componentContext",
             "userTransaction",
@@ -561,15 +605,38 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
             "configurationBaseUrl",
             "unshareableResources",
             "applicationManagedSecurityResources",
+
+            "displayName",
+            "contextParamMap",
+            "listenerClassNames",
+            "distributable",
+            "mimeMap",
+            "welcomeFiles",
+            "localeEncodingMapping",
+            "errorPages",
+            "authenticator",
+            "realmName",
+            "tagLibMap",
+            "sessionTimeoutSeconds",
+
             "policyContextID",
+            "loginDomainName",
             "securityConfig",
-            "SecurityService",
+
+            "securityRoles",
+            "uncheckedPermissions",
+            "excludedPermissions",
+            "rolePermissions",
+            //TODO remove
+            "legacySecurityConstraintMap",
+
             "TransactionContextManager",
             "TrackedConnectionAssociator",
             "JettyContainer",
+            "kernel",
         });
 
-        GBEAN_INFO = infoFactory.getBeanInfo();
+        GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 
     public static GBeanInfo getGBeanInfo() {

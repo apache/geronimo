@@ -73,6 +73,9 @@ public class NameFactory {
     public static final String JCA_RESOURCE_ADAPTER = "JCAResourceAdapter";
     public static final String JCA_WORK_MANAGER = "JCAWorkManager";
     public static final String JCA_CONNECTION_MANAGER = "JCAConnectionManager";
+    public static final String WEB_FILTER = "WebFilter";
+    public static final String WEB_FILTER_MAPPING = "WebFilterMapping";
+    public static final String URL_PATTERN = "URLPattern";
 
     public static ObjectName getDomainName(String j2eeDomainName, J2eeContext context) throws MalformedObjectNameException {
         Properties props = new Properties();
@@ -175,6 +178,22 @@ public class NameFactory {
         props.put(J2EE_APPLICATION, context.getJ2eeApplicationName(j2eeApplicationName));
         props.put(WEB_MODULE, context.getJ2eeModuleName(j2eeModuleName));
         props.put(J2EE_NAME, context.getJ2eeName(j2eeName));
+        return ObjectName.getInstance(context.getJ2eeDomainName(j2eeDomainName), props);
+    }
+
+    //THIS IS KIND OF WEIRD. Is there a better way???
+    public static ObjectName getWebFilterMappingName(String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, String j2eeModuleName, String filterName, String servletName, String urlPattern, J2eeContext context) throws MalformedObjectNameException {
+        Properties props = new Properties();
+        props.put(J2EE_TYPE, WEB_FILTER_MAPPING);
+        props.put(J2EE_SERVER, context.getJ2eeServerName(j2eeServerName));
+        props.put(J2EE_APPLICATION, context.getJ2eeApplicationName(j2eeApplicationName));
+        props.put(WEB_MODULE, context.getJ2eeModuleName(j2eeModuleName));
+        props.put(WEB_FILTER, filterName);
+        if (servletName != null) {
+            props.put(SERVLET, servletName);
+        } else {
+            props.put(URL_PATTERN, ObjectName.quote(urlPattern));
+        }
         return ObjectName.getInstance(context.getJ2eeDomainName(j2eeDomainName), props);
     }
 

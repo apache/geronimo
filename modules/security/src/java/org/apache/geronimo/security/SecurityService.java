@@ -23,23 +23,10 @@ import org.apache.geronimo.security.realm.AutoMapAssistant;
 
 
 /**
- * An MBean that maintains a list of security realms.
- *
  * @version $Rev$ $Date$
  */
 public interface SecurityService {
 
-    String getPolicyConfigurationFactory();
-
-    void setPolicyConfigurationFactory(String policyConfigurationFactory);
-
-    Collection getRealms() throws GeronimoSecurityException;
-
-    void setRealms(Collection realms);
-
-    Collection getModuleConfigurations();
-
-    void setModuleConfigurations(Collection moduleConfigurations);
-
     AutoMapAssistant getMapper(String name);
+
 }

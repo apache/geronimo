@@ -215,7 +215,7 @@ public class ContextManager {
         } else if (!subject.getPrincipals().isEmpty()) {
             context.principal = (Principal) subject.getPrincipals().iterator().next();
         }
-
+        //there are several RealmPrincipals.  Why pick the first out of a map?
         Long id = new Long(nextSubjectId++);
         context.id = new SubjectId(id, hash(id));
 

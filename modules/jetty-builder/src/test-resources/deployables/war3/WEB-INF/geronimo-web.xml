@@ -23,6 +23,7 @@
 
     <context-root>/test</context-root>
     <context-priority-classloader>false</context-priority-classloader>
+    <login-domain-name>demo-properties-realm</login-domain-name>
     <sec:security>
         <sec:auto-map-roles security-realm="demo-properties-realm"/>
         <sec:default-principal realm-name="demo-properties-realm">
