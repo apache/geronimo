@@ -53,46 +53,39 @@
  *
  * ====================================================================
  */
-
-package org.apache.geronimo.security;
+package org.apache.geronimo.xml.deployment;
 
 import java.io.File;
-import java.io.FileReader;
 
-import org.apache.geronimo.deployment.model.geronimo.ejb.EjbJar;
-import org.apache.geronimo.deployment.model.geronimo.ejb.GeronimoEjbJarDocument;
-import org.apache.geronimo.deployment.model.geronimo.web.WebApp;
-import org.apache.geronimo.xml.deployment.AbstractLoaderUtilTest;
-import org.apache.geronimo.xml.deployment.GeronimoEjbJarLoader;
-import org.apache.geronimo.xml.deployment.LoaderUtil;
-import org.w3c.dom.Document;
+import junit.framework.TestCase;
 
 
 /**
- * Unit test for EJB module configuration
- *
- * @version $Revision: 1.3 $ $Date: 2004/01/02 23:32:39 $
+ * @version $Revision: 1.1 $ $Date: 2004/01/02 23:32:39 $
  */
-public class EjbModuleConfigurationTest extends AbstractLoaderUtilTest {
-    private File docDir;
-    EJBModuleConfiguration module;
-    WebApp client;
+public abstract class AbstractLoaderUtilTest extends TestCase {
 
-    public void setUp() throws Exception {
-        super.setUp();
-        System.setProperty("javax.security.jacc.PolicyConfigurationFactory.provider", "org.apache.geronimo.security.GeronimoPolicyConfigurationFactory");
+    private static final File repoDir = new File("src/schema");
+    private static final File docDir = new File("src/test-data/xml/deployment");
+    private static final File catalogFile = new File(docDir, "resolver-catalog.xml");
+    protected LocalEntityResolver resolver;
 
-        docDir = new File("src/test-data/xml/deployment");
+    protected void setUp() throws Exception {
+        setUp(catalogFile.toURI().toString(), repoDir.toURI().toString());
+        resolver.setFailOnUnresolvable(false);
     }
 
-    public void testRead() throws Exception {
-
-        File f = new File(docDir, "geronimo-ejb-jar-testRead.xml");
-        Document xmlDoc = LoaderUtil.parseXML(new FileReader(f));
-        GeronimoEjbJarDocument doc = GeronimoEjbJarLoader.load(xmlDoc);
-        EjbJar jar = doc.getEjbJar();
-
-        module = new EJBModuleConfiguration("pookie test", jar);
-        assertSame("pookie test", module.getContextID());
+    protected void setUp(String catalogFile, String docDirectory) {
+        resolver = new LocalEntityResolver(catalogFile, docDirectory, true);
     }
+
+    /**
+     * @see junit.framework.TestCase#tearDown()
+     */
+    protected void tearDown() throws Exception {
+        resolver = null;
+        LoaderUtil.setEntityResolver(null);
+        StorerUtil.setEntityResolver(null);
+    }
+
 }

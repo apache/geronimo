@@ -58,24 +58,23 @@ package org.apache.geronimo.xml.deployment;
 import java.io.File;
 import java.io.FileReader;
 
-import junit.framework.TestCase;
-import org.apache.geronimo.deployment.model.j2ee.EJBRef;
-import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
-import org.apache.geronimo.deployment.model.j2ee.ResourceEnvRef;
-import org.apache.geronimo.deployment.model.j2ee.Description;
-import org.apache.geronimo.deployment.model.j2ee.DisplayName;
 import org.apache.geronimo.deployment.model.ejb.EjbJar;
 import org.apache.geronimo.deployment.model.ejb.EjbJarDocument;
 import org.apache.geronimo.deployment.model.ejb.EnterpriseBeans;
 import org.apache.geronimo.deployment.model.ejb.Session;
+import org.apache.geronimo.deployment.model.j2ee.Description;
+import org.apache.geronimo.deployment.model.j2ee.DisplayName;
+import org.apache.geronimo.deployment.model.j2ee.EJBRef;
+import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
+import org.apache.geronimo.deployment.model.j2ee.ResourceEnvRef;
 import org.w3c.dom.Document;
 
 /**
  * Tests basic EJB JAR DD loading (not very comprehensive)
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/07 03:49:43 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/02 23:32:39 $
  */
-public class EjbJarLoaderTest extends TestCase {
+public class EjbJarLoaderTest extends AbstractLoaderUtilTest {
     private File docDir;
 
     public void testSimpleLoad() throws Exception {
@@ -88,8 +87,8 @@ public class EjbJarLoaderTest extends TestCase {
 
     static void checkEjbJar(EjbJar jar, String expectedEnvValue) {
         assertEquals("2.1", jar.getVersion());
-        checkDescription("This is a test EJB JAR DD for JSR-88 purposes",jar.getDescription());
-        checkDisplayName("Test EJB JAR",jar.getDisplayName());
+        checkDescription("This is a test EJB JAR DD for JSR-88 purposes", jar.getDescription());
+        checkDisplayName("Test EJB JAR", jar.getDisplayName());
         EnterpriseBeans beans = jar.getEnterpriseBeans();
         Session[] session = beans.getSession();
         assertEquals(2, session.length);
@@ -158,6 +157,7 @@ public class EjbJarLoaderTest extends TestCase {
     }
 
     protected void setUp() throws Exception {
+        super.setUp();
         docDir = new File("src/test-data/xml/deployment");
     }
 }

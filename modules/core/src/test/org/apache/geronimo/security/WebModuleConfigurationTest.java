@@ -59,9 +59,9 @@ package org.apache.geronimo.security;
 import java.io.File;
 import java.io.FileReader;
 
-import junit.framework.TestCase;
 import org.apache.geronimo.deployment.model.geronimo.web.GeronimoWebAppDocument;
 import org.apache.geronimo.deployment.model.geronimo.web.WebApp;
+import org.apache.geronimo.xml.deployment.AbstractLoaderUtilTest;
 import org.apache.geronimo.xml.deployment.GeronimoWebAppLoader;
 import org.apache.geronimo.xml.deployment.LoaderUtil;
 import org.w3c.dom.Document;
@@ -70,19 +70,19 @@ import org.w3c.dom.Document;
 /**
  * Unit test for web module configuration
  *
- * @version $Revision: 1.2 $ $Date: 2003/12/28 19:34:05 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/02 23:32:39 $
  */
-public class WebModuleConfigurationTest extends TestCase {
+public class WebModuleConfigurationTest extends AbstractLoaderUtilTest {
     private File docDir;
-    private GeronimoWebAppLoader loader;
     WebModuleConfiguration module;
     WebApp client;
 
     public void setUp() throws Exception {
+        super.setUp();
+
         System.setProperty("javax.security.jacc.PolicyConfigurationFactory.provider", "org.apache.geronimo.security.GeronimoPolicyConfigurationFactory");
 
         docDir = new File("src/test-data/xml/deployment");
-        loader = new GeronimoWebAppLoader();
     }
 
     public void testRead() throws Exception {
@@ -90,7 +90,7 @@ public class WebModuleConfigurationTest extends TestCase {
 
         File f = new File(docDir, "geronimo-web-app-testRead.xml");
         Document xmlDoc = LoaderUtil.parseXML(new FileReader(f));
-        GeronimoWebAppDocument doc = loader.load(xmlDoc);
+        GeronimoWebAppDocument doc = GeronimoWebAppLoader.load(xmlDoc);
         client = doc.getWebApp();
 
         module = new WebModuleConfiguration("pookie /test", client);

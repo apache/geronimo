@@ -58,43 +58,40 @@ package org.apache.geronimo.xml.deployment;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import org.w3c.dom.Document;
-import org.apache.geronimo.deployment.model.ejb.EjbJarDocument;
+
 import org.apache.geronimo.deployment.model.ejb.EjbJar;
-import junit.framework.TestCase;
+import org.apache.geronimo.deployment.model.ejb.EjbJarDocument;
+import org.w3c.dom.Document;
 
 /**
  * Tests for storing an EJB JAR
  *
- * @version $Revision: 1.1 $ $Date: 2003/10/01 19:03:40 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/02 23:32:39 $
  */
-public class EjbJarStorerTest extends TestCase {
+public class EjbJarStorerTest extends AbstractLoaderUtilTest {
     private File docDir;
-    private EjbJarLoader loader;
-    private EjbJarStorer storer;
 
     protected void setUp() throws Exception {
+        super.setUp();
         docDir = new File("src/test-data/xml/deployment");
-        loader = new EjbJarLoader();
-        storer = new EjbJarStorer();
     }
 
     public void testLoadStoreLoad() throws Exception {
         File f = new File(docDir, "simple-ejb-jar.xml");
         Document xmlDoc = LoaderUtil.parseXML(new FileReader(f));
-        EjbJarDocument doc = loader.load(xmlDoc);
+        EjbJarDocument doc = EjbJarLoader.load(xmlDoc);
         EjbJar jar = doc.getEjbJar();
         EjbJarLoaderTest.checkEjbJar(jar, "example");
 
         File of = new File(docDir, "test-copy-ejb-jar.xml");
         FileWriter out = new FileWriter(of);
-        storer.store(doc, out);
+        EjbJarStorer.store(doc, out);
         out.flush();
         out.close();
 
         f = new File(docDir, "test-copy-ejb-jar.xml");
         xmlDoc = LoaderUtil.parseXML(new FileReader(f));
-        doc = loader.load(xmlDoc);
+        doc = EjbJarLoader.load(xmlDoc);
         jar = doc.getEjbJar();
         EjbJarLoaderTest.checkEjbJar(jar, "example");
     }

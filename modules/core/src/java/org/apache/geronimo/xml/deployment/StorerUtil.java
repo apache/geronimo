@@ -57,6 +57,7 @@ package org.apache.geronimo.xml.deployment;
 
 import java.io.Writer;
 import java.util.Properties;
+
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.Transformer;
@@ -66,17 +67,21 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
+import org.xml.sax.EntityResolver;
 
 /**
  * Holds utility methods for writing to a DOM tree
  *
- * @version $Revision: 1.1 $ $Date: 2003/10/01 19:03:40 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/02 23:32:38 $
  */
 public class StorerUtil {
+    private static EntityResolver entityResolver;
+
     /**
      * Creates a new child of the specified element, adds it as a child, and
      * returns it.
@@ -114,9 +119,9 @@ public class StorerUtil {
      * @param parent  The parent element for the new child
      * @param name  The name of the new child element
      * @param value The text to set on the new element
-     */ 
+     */
     public static void createOptionalChildText(Element parent, String name, String value) {
-        if(value == null || value.equals(""))
+        if (value == null || value.equals(""))
             return;
         Element child = parent.getOwnerDocument().createElement(name);
         parent.appendChild(child);
@@ -153,7 +158,7 @@ public class StorerUtil {
         fac.setNamespaceAware(true);
         fac.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaLanguage", "http://www.w3.org/2001/XMLSchema");
         DocumentBuilder builder = fac.newDocumentBuilder();
-        builder.setEntityResolver(new LocalEntityResolver());
+        builder.setEntityResolver(entityResolver);
         return builder.newDocument();
     }
 
@@ -162,18 +167,18 @@ public class StorerUtil {
      */
     public static void setText(Element e, String s) {
         boolean cdata = s != null && (s.indexOf('>') > -1 ||
-                                      s.indexOf('<') > -1 ||
-                                      s.indexOf('&') > -1);
+                s.indexOf('<') > -1 ||
+                s.indexOf('&') > -1);
         NodeList nl = e.getChildNodes();
         boolean found = false;
         int max = nl.getLength();
-        if(cdata) {
-            for(int i=0; i<max; i++) {
+        if (cdata) {
+            for (int i = 0; i < max; i++) {
                 Node n = nl.item(i);
-                if(n.getNodeType() == Node.TEXT_NODE) {
+                if (n.getNodeType() == Node.TEXT_NODE) {
                     e.removeChild(n);
-                } else if(n.getNodeType() == Node.CDATA_SECTION_NODE) {
-                    if(!found) {
+                } else if (n.getNodeType() == Node.CDATA_SECTION_NODE) {
+                    if (!found) {
                         n.setNodeValue(s);
                         found = true;
                     } else {
@@ -181,24 +186,24 @@ public class StorerUtil {
                     }
                 }
             }
-            if(!found) {
+            if (!found) {
                 e.appendChild(e.getOwnerDocument().createCDATASection(s));
             }
         } else {
-            for(int i=0; i<max; i++) {
+            for (int i = 0; i < max; i++) {
                 Node n = nl.item(i);
-                if(n.getNodeType() == Node.TEXT_NODE) {
-                    if(!found) {
+                if (n.getNodeType() == Node.TEXT_NODE) {
+                    if (!found) {
                         n.setNodeValue(s);
                         found = true;
                     } else {
                         e.removeChild(n);
                     }
-                } else if(n.getNodeType() == Node.CDATA_SECTION_NODE) {
+                } else if (n.getNodeType() == Node.CDATA_SECTION_NODE) {
                     e.removeChild(n);
                 }
             }
-            if(!found) {
+            if (!found) {
                 e.appendChild(e.getOwnerDocument().createTextNode(s == null ? "" : s));
             }
         }
@@ -233,10 +238,14 @@ public class StorerUtil {
      * @param value         The text value to use as the content of the new element
      */
     public static void createOptionalChildTextWithNS(Element elem, String qualifiedName, String namespace, String value) {
-        if(value == null || value.equals(""))
+        if (value == null || value.equals(""))
             return;
         Element child = elem.getOwnerDocument().createElementNS(namespace, qualifiedName);
         elem.appendChild(child);
         setText(child, value);
+    }
+
+    public static void setEntityResolver(LocalEntityResolver entityResolver) {
+        StorerUtil.entityResolver = entityResolver;
     }
 }

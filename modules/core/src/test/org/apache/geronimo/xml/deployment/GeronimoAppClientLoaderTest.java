@@ -58,30 +58,28 @@ package org.apache.geronimo.xml.deployment;
 import java.io.File;
 import java.io.FileReader;
 
-import junit.framework.TestCase;
 import org.apache.geronimo.deployment.model.geronimo.appclient.ApplicationClient;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbRef;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.ServiceRef;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceRef;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceEnvRef;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.MessageDestinationRef;
-import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.MessageDestination;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.MessageDestinationRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceEnvRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.ServiceRef;
+import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
 import org.w3c.dom.Document;
 
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2003/10/19 01:56:15 $
+ * @version $Revision: 1.6 $ $Date: 2004/01/02 23:32:39 $
  */
-public class GeronimoAppClientLoaderTest extends TestCase {
+public class GeronimoAppClientLoaderTest extends AbstractLoaderUtilTest {
     private File docDir;
-    private GeronimoAppClientLoader loader;
 
     public void testLoad() throws Exception {
         File f = new File(docDir, "geronimo-app-client.xml");
         Document doc = LoaderUtil.parseXML(new FileReader(f));
-        ApplicationClient client = loader.load(doc).getApplicationClient();
+        ApplicationClient client = GeronimoAppClientLoader.load(doc).getApplicationClient();
 
         EnvEntry[] envEntries = client.getEnvEntry();
         assertEquals(1, envEntries.length);
@@ -139,7 +137,7 @@ public class GeronimoAppClientLoaderTest extends TestCase {
     }
 
     protected void setUp() throws Exception {
+        super.setUp();
         docDir = new File("src/test-data/xml/deployment");
-        loader = new GeronimoAppClientLoader();
     }
 }

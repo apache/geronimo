@@ -58,7 +58,6 @@ package org.apache.geronimo.xml.deployment;
 import java.io.File;
 import java.io.FileReader;
 
-import junit.framework.TestCase;
 import org.apache.geronimo.deployment.model.appclient.ApplicationClient;
 import org.apache.geronimo.deployment.model.j2ee.EJBRef;
 import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
@@ -72,16 +71,15 @@ import org.w3c.dom.Document;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/05 20:18:03 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/02 23:32:39 $
  */
-public class AppClientLoaderTest extends TestCase {
+public class AppClientLoaderTest extends AbstractLoaderUtilTest {
     private File docDir;
-    private AppClientLoader loader;
 
     public void testSimpleLoad() throws Exception {
         File f = new File(docDir, "simple-app-client.xml");
         Document doc = LoaderUtil.parseXML(new FileReader(f));
-        ApplicationClient client = loader.load(doc);
+        ApplicationClient client = AppClientLoader.load(doc);
 
         EnvEntry[] envEntries = client.getEnvEntry();
         assertEquals(1, envEntries.length);
@@ -134,7 +132,7 @@ public class AppClientLoaderTest extends TestCase {
     }
 
     protected void setUp() throws Exception {
+        super.setUp();
         docDir = new File("src/test-data/xml/deployment");
-        loader = new AppClientLoader();
     }
 }

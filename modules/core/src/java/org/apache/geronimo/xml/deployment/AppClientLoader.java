@@ -62,10 +62,10 @@ import org.w3c.dom.Element;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2003/12/07 03:39:05 $
+ * @version $Revision: 1.6 $ $Date: 2004/01/02 23:32:38 $
  */
 public class AppClientLoader {
-    public ApplicationClient load(Document doc) {
+    public static ApplicationClient load(Document doc) {
         Element root = doc.getDocumentElement();
         if (!"application-client".equals(root.getLocalName())) {
             throw new IllegalArgumentException("Document is not an application-client instance");

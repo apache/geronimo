@@ -1,0 +1,9 @@
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+
+    <!--public publicId="-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+            uri="xml/web-app_2_3.dtd"/>
+
+    <public publicId="http://java.sun.com/xml/ns/j2ee"
+            uri="j2ee_1_4.xsd"/-->
+
+</catalog>

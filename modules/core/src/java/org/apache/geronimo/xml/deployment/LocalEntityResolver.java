@@ -57,14 +57,24 @@ package org.apache.geronimo.xml.deployment;
 
 import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Hashtable;
-import java.util.Properties;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.xml.resolver.Catalog;
+import org.apache.xml.resolver.CatalogEntry;
+import org.apache.xml.resolver.CatalogException;
+import org.apache.xml.resolver.CatalogManager;
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
+import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
+import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -72,171 +82,382 @@ import org.xml.sax.SAXException;
 /**
  * Implementation of EntityResolver that looks to the local filesystem.
  *
- * @jmx:mbean
+ * The implementation tries to resolve an entity via the following steps:
  *
- * @version $Revision: 1.5 $ $Date: 2003/12/09 04:19:38 $
+ * <ul>
+ *   <li>using a catalog file</li>
+ *   <li>using a local repository</li>
+ *   <li>using JAR files in Classpath</li>
+ * </ul>
+ *
+ * The catalog resolving is based on the OASIS XML Catalog Standard.
+ * (see http://www.oasis-open.org/committees/entity/spec-2001-08-01.html
+ * and http://www.oasis-open.org/html/a401.htm)
+ *
+ * @version $Revision: 1.6 $ $Date: 2004/01/02 23:32:38 $
  */
-public class LocalEntityResolver implements EntityResolver, LocalEntityResolverMBean {
-    private static final Log log = LogFactory.getLog(LocalEntityResolver.class);
-    private File root;
-    private String configFile;
-    private Properties mappings = new Properties();
+public class LocalEntityResolver implements EntityResolver {
 
     /**
-     * @jmx:managed-constructor
+     * used Logger
      */
-    public LocalEntityResolver(File root) {
-        this.root = root;
-        log.info("root=" + root);
+    private static final Log log = LogFactory.getLog(LocalEntityResolver.class);
+
+    /**
+     * The used Catalog Manager
+     */
+    private final CatalogManager manager = new CatalogManager();
+
+    /**
+     * the XML Catalog
+     */
+    private Catalog catalog = null;
+
+    /**
+     * the URI of the catalog file
+     */
+    private URI catalogFileURI = null;
+
+    /**
+     * Local Repository where DTDs and Schemas are located
+     */
+    private String localRepository = null;
+
+    /**
+     * Flag indicating if this resolver may return null to signal
+     * the parser to open a regular URI connection to the system
+     * identifier. Otherwise an exception is thrown.
+     */
+    private boolean failOnUnresolvable = false;
+
+    public static GeronimoMBeanInfo getGeronimoMBeanInfo() {
+        GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
+        mbeanInfo.setTargetClass(LocalEntityResolver.class);
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("FailOnUnresolvable", true, true, "Should null be returned or an exception thrown when an entity cannot be resolved"));
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("LocalRepository", true, true, "Location of dtds and schemas"));
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("CatalogFile", true, true, "Location of xml catalog file"));
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("resolveEntity", new GeronimoParameterInfo[]{
+            new GeronimoParameterInfo("PublicID", String.class, "PublicID of entity to resolve"),
+            new GeronimoParameterInfo("SystemID", String.class, "SystemID of entity to resolve")},
+                GeronimoOperationInfo.ACTION,
+                "resolve supplied entity"));
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("addPublicMapping", new GeronimoParameterInfo[]{
+            new GeronimoParameterInfo("PublicID", String.class, "PublicID to map"),
+            new GeronimoParameterInfo("URI", String.class, "Actual location of dtd/schema")},
+                GeronimoOperationInfo.ACTION,
+                "resolve supplied entity"));
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("addSystemMapping", new GeronimoParameterInfo[]{
+            new GeronimoParameterInfo("SystemID", String.class, "SystemID to map"),
+            new GeronimoParameterInfo("URI", String.class, "Actual location of dtd/schema")},
+                GeronimoOperationInfo.ACTION,
+                "resolve supplied entity"));
+        mbeanInfo.setAutostart(true);
+        return mbeanInfo;
     }
 
-    public LocalEntityResolver() {
-        root = null;
+    public LocalEntityResolver(String catalogFile, String localRepository, boolean failOnUnresolvable) {
+        setLocalRepository(localRepository);
+        setFailOnUnresolvable(failOnUnresolvable);
+        setCatalogFile(catalogFile);
+        LoaderUtil.setEntityResolver(this);
+        StorerUtil.setEntityResolver(this);
+    }
+
+    /**
+     * Sets the setFailOnUnresolvable flag.
+     *
+     * @param b value (true means that a SAXException is thrown
+     * if the entity could not be resolved)
+     */
+    public void setFailOnUnresolvable(final boolean b) {
+        failOnUnresolvable = b;
+    }
+
+    public boolean isFailOnUnresolvable() {
+        return failOnUnresolvable;
+    }
+
+    public void setCatalogFile(final String catalogFile) {
+
+        try {
+            URL url = new URL(catalogFile);
+            this.catalogFileURI = new URI(url.toExternalForm());
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException("could not parse url: " + catalogFile);
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException("could not parse url: " + catalogFile);
+        }
+
         init();
     }
 
-    public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
-        InputSource is = null;
-
-                is = resolveEntityLocally(publicId, systemId);
-                if (is != null) {
-                        return is;
-                }
-        if (publicId != null || systemId == null) {
-            if (log.isDebugEnabled()) {
-                log.debug("Not attempting to locally resolve entity S=" + systemId + " P=" + publicId);
-            }
-            return null;
-        }
-        String message = null;
-        if (log.isDebugEnabled()) {
-            message = "Resolving entity S=" + systemId + " P=" + publicId + ": ";
-        }
-        int index = systemId.lastIndexOf("/");
-        String fileName = systemId.substring(index + 1);
-        if (root != null) {
-            File file = new File(root, fileName);
-            if (file.exists()) {
-                if (log.isDebugEnabled()) {
-                    log.debug(message + "found file relative to " + root);
-                }
-                is = new InputSource(new BufferedInputStream(new FileInputStream(file)));
-                is.setSystemId(systemId);
-                return is;
-            }
-        }
-        InputStream in = getClass().getClassLoader().getResourceAsStream(fileName);
-        if (in != null) {
-            if (log.isDebugEnabled()) {
-                log.debug(message + "found file on classpath");
-            }
-            is = new InputSource(new BufferedInputStream(in));
-            is.setSystemId(systemId);
-            return is;
-        }
-        if (log.isDebugEnabled()) {
-            log.debug(message + "not found");
+    public String getCatalogFile() {
+        if (catalogFileURI != null) {
+            return this.catalogFileURI.toString();
         }
         return null;
     }
 
-    /**
-     * @jmx:managed-attribute
-     */
-    public void setConfigFile(String configFile) {
-        this.configFile = configFile;
-        init();
+    public String getLocalRepository() {
+        return localRepository;
+    }
+
+    public void setLocalRepository(String string) {
+        localRepository = string;
+    }
+
+    public void addPublicMapping(final String publicId, final String uri) {
+
+        Vector args = new Vector();
+        args.add(publicId);
+        args.add(uri);
+
+        addEntry("PUBLIC", args);
+
+    }
+
+    public void addSystemMapping(final String systemId, final String uri) {
+
+        Vector args = new Vector();
+        args.add(systemId);
+        args.add(uri);
+
+        addEntry("SYSTEM", args);
+
     }
 
     /**
-     * @jmx:managed-attribute
-     */
-    public String getConfigFile() {
-        return this.configFile;
-    }
-
-    /**
-     * @jmx:managed-operation
-     */
-    public void addMapping(String publicId, String systemId) {
-        if ( publicId == null || systemId == null )
-        {
-                        if (log.isDebugEnabled()) {
-                                log.debug("publicId or systemId are null");
-                        }
-                        return;
-        }
-        if (log.isDebugEnabled()) {
-            log.debug("Adding entity P=" + publicId + " and its S=" + systemId);
-        }
-        mappings.put(publicId, systemId);
-    }
-
-    /**
-     * Resolve entities locally.
+     * Attempt to resolve the entity based on the supplied publicId and systemId.
+     * First the catalog is queried with both publicId and systemId.
+     * Then the local repository is queried with the file name part of the systemId
+     * Then the classpath is queried with  the file name part of the systemId.
      *
-     * TODO: Look for the systemIds in jar(s) beside their file representatives
-     *
+     * Then, if failOnUnresolvable is true, an exception is thrown: otherwise null is returned.
      * @param publicId
      * @param systemId
-     * @return input source of the local representative of systemId
+     * @return
      * @throws SAXException
      * @throws IOException
      */
-    private InputSource resolveEntityLocally(String publicId, String systemId) throws SAXException, IOException {
-        System.out.println("publicId: " + publicId + ", systemId: " + systemId);
-                if ( publicId == null || publicId.length() == 0)
-                {
-                        if (log.isDebugEnabled()) {
-                                log.debug("publicId is null or empty; skipping resolving");
-                        }
-                        return null;
-                }
-        if (log.isDebugEnabled()) {
-            log.debug("Resolving entity locally S=" + systemId + " P=" + publicId);
+    public InputSource resolveEntity(
+            final String publicId,
+            final String systemId)
+            throws SAXException, IOException {
+
+        if (log.isTraceEnabled()) {
+            log.trace(
+                    "start resolving for "
+                    + entityMessageString(publicId, systemId));
         }
-        String publicIdPath = (String) mappings.get(publicId);
-        if (publicIdPath != null && publicIdPath.length() != 0) {
-            File file = new File(publicIdPath);
-            if (file.exists()) {
-                if (log.isDebugEnabled()) {
-                    log.debug("found file: " + publicIdPath);
-                }
-                InputSource is = new InputSource(new BufferedInputStream(new FileInputStream(file)));
-                is.setSystemId(systemId);
-                return is;
+
+        InputSource source = resolveWithCatalog(publicId, systemId);
+        if (source != null) {
+            return source;
+        }
+
+        source = resolveWithRepository(publicId, systemId);
+        if (source != null) {
+            return source;
+        }
+
+        source = resolveWithClasspath(publicId, systemId);
+        if (source != null) {
+            return source;
+        }
+
+        String message =
+                "could not resolve " + entityMessageString(publicId, systemId);
+
+        if (failOnUnresolvable) {
+            throw new SAXException(message);
+        } else {
+            log.debug(message);
+        }
+
+        return null;
+    }
+
+    /**
+     * Try to resolve using the catalog file
+     *
+     * @param publicId the PublicId
+     * @param systemId the SystemId
+     * @return InputSource if the entity could be resolved. null otherwise
+     * @throws MalformedURLException
+     * @throws IOException
+     */
+    private InputSource resolveWithCatalog(
+            final String publicId,
+            final String systemId)
+            throws MalformedURLException, IOException {
+
+        if (catalogFileURI == null) {
+            return null;
+        }
+
+        String resolvedSystemId =
+                catalog.resolvePublic(guaranteeNotNull(publicId), systemId);
+
+        if (resolvedSystemId != null) {
+            if (log.isTraceEnabled()) {
+                log.trace(
+                        "resolved "
+                        + entityMessageString(publicId, systemId)
+                        + " using the catalog file. result: "
+                        + resolvedSystemId);
             }
+            return new InputSource(resolvedSystemId);
+        }
+
+        return null;
+    }
+
+    /**
+     * Try to resolve using the local repository and only the supplied systemID filename.
+     * Any path in the systemID will be removed.
+     *
+     * @param publicId the PublicId
+     * @param systemId the SystemId
+     * @return InputSource if the entity could be resolved. null otherwise
+     */
+    private InputSource resolveWithRepository(
+            final String publicId,
+            final String systemId) {
+
+        if (localRepository == null) {
+            return null;
+        }
+
+        String fileName = getSystemIdFileName(systemId);
+
+        if (fileName == null) {
+            return null;
+        }
+
+        String resolvedSystemId = null;
+
+        File file = new File(localRepository, fileName);
+        if (file.exists()) {
+            resolvedSystemId = file.getAbsolutePath();
+            if (log.isTraceEnabled()) {
+                log.trace(
+                        "resolved "
+                        + entityMessageString(publicId, systemId)
+                        + "with file relative to "
+                        + localRepository
+                        + resolvedSystemId);
+            }
+            return new InputSource(resolvedSystemId);
         }
         return null;
+    }
+
+    /**
+     * Try to resolve using the the classpath and only the supplied systemID.
+     * Any path in the systemID will be removed.
+     *
+     * @param publicId the PublicId
+     * @param systemId the SystemId
+     * @return InputSource if the entity could be resolved. null otherwise
+     */
+    private InputSource resolveWithClasspath(
+            final String publicId,
+            final String systemId) {
+
+        String fileName = getSystemIdFileName(systemId);
+
+        if (fileName == null) {
+            return null;
+        }
+
+        InputStream in =
+                getClass().getClassLoader().getResourceAsStream(fileName);
+        if (in != null) {
+            if (log.isTraceEnabled()) {
+                log.trace(
+                        "resolved "
+                        + entityMessageString(publicId, systemId)
+                        + " via file found file on classpath: "
+                        + fileName);
+            }
+            InputSource is = new InputSource(new BufferedInputStream(in));
+            is.setSystemId(systemId);
+            return is;
+        }
+
+        return null;
+    }
+
+    /**
+     * Guarantees a not null value
+     */
+    private String guaranteeNotNull(final String string) {
+        return string != null ? string : "";
+    }
+
+    /**
+     * Returns the SystemIds filename
+     *
+     * @param systemId SystemId
+     * @return filename
+     */
+    private String getSystemIdFileName(final String systemId) {
+
+        if (systemId == null) {
+            return null;
+        }
+
+        int indexBackSlash = systemId.lastIndexOf(File.separator);
+        int indexSlash = systemId.lastIndexOf("/");
+
+        int index = Math.max(indexBackSlash, indexSlash);
+
+        String fileName = systemId.substring(index + 1);
+        return fileName;
+    }
+
+    /**
+     * Constructs a debugging message string
+     */
+    private String entityMessageString(
+            final String publicId,
+            final String systemId) {
+
+        StringBuffer buffer = new StringBuffer("entity with publicId '");
+        buffer.append(publicId);
+        buffer.append("' and systemId '");
+        buffer.append(systemId);
+        buffer.append("'");
+        return buffer.toString();
+
+    }
+
+    /**
+     * Adds a new Entry to the catalog
+     */
+    private void addEntry(String type, Vector args) {
+        try {
+            CatalogEntry entry = new CatalogEntry(type, args);
+            catalog.addEntry(entry);
+        } catch (CatalogException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
      * Loads mappings from configuration file
      */
     private void init() {
-        mappings.clear();
-        try {
-            if (this.configFile == null || this.configFile.length() == 0) {
-                if (log.isDebugEnabled()) {
-                    log.debug("No configuration file provided");
-                }
-                return;
-            }
-            if (log.isDebugEnabled()) {
-                log.debug("Loading configuration file=" + this.configFile);
-            }
-            mappings.load(new BufferedInputStream(new FileInputStream(this.configFile)));
-        } catch (IOException ioe) {
-            if (log.isDebugEnabled()) {
-                log.debug("Exception occured: " + ioe.getMessage() + "; ignore it");
-            }
+
+        if (log.isDebugEnabled()) {
+            log.debug("init catalog file " + this.catalogFileURI);
         }
+
+        manager.setUseStaticCatalog(false);
+        manager.setCatalogFiles(this.catalogFileURI.toString());
+        manager.setIgnoreMissingProperties(true);
+        catalog = manager.getCatalog();
+
     }
 
-    /**
-     * @jmx:managed-operation
-     */
-    public Hashtable showMappings() {
-        return mappings;
-    }
 }

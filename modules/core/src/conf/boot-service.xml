@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.24 $ $Date: 2003/12/09 04:20:48 $ -->
+<!-- $Revision: 1.25 $ $Date: 2004/01/02 23:32:38 $ -->
 
 <components>
     <class-space name="geronimo.system:role=ClassSpace,name=System">
@@ -9,16 +9,33 @@
         </codebase>
     </class-space>
 
+	<!-- Entity Resolver -->
+    <mbean descriptor="org.apache.geronimo.xml.deployment.LocalEntityResolver"
+           name="geronimo.xml:role=EntityResolver">
 
-    <mbean code="org.apache.geronimo.xml.deployment.LocalEntityResolver" name="geronimo.xml:role=LocalEntityResolver">
         <constructor>
-            <arg type="java.io.File">
-                src/schema
-            </arg>
+        	<!--
+             CatalogFile:
+             Name of the catalog file to use.
+             The catalog resolving is based on the OASIS XML Catalog Standard.
+            -->
+            <arg type="java.lang.String">${geronimo.home}/etc/resolver-catalog.xml</arg>
+
+            <!--
+             LocalRepository:
+             Directory containing dtd and xsd files for entity resolving
+            -->
+            <arg type="java.lang.String">${geronimo.home}/etc/xml</arg>
+
+            <!--
+             FailOnUnresolvable:
+             Flag indicating if the resolver may return null to signal
+		     the parser to open a regular URI connection to the (given)
+		     system identifier. Otherwise an exception is thrown.
+		    -->
+            <arg type="boolean">false</arg>
         </constructor>
-        <attribute name="ConfigFile">
-            ${geronimo.home}/etc/resolver.properties
-        </attribute>
+
     </mbean>
 
     <!-- Log4j Logging Service -->

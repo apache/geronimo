@@ -58,49 +58,45 @@ package org.apache.geronimo.xml.deployment;
 import java.io.File;
 import java.io.FileReader;
 
-import javax.management.relation.Relation;
-
-import junit.framework.TestCase;
-import org.w3c.dom.Document;
-import org.apache.geronimo.deployment.model.geronimo.ejb.GeronimoEjbJarDocument;
-import org.apache.geronimo.deployment.model.geronimo.ejb.EjbJar;
-import org.apache.geronimo.deployment.model.geronimo.ejb.EnterpriseBeans;
-import org.apache.geronimo.deployment.model.geronimo.ejb.Session;
-import org.apache.geronimo.deployment.model.geronimo.ejb.Entity;
-import org.apache.geronimo.deployment.model.geronimo.ejb.Query;
-import org.apache.geronimo.deployment.model.geronimo.ejb.Binding;
-import org.apache.geronimo.deployment.model.geronimo.ejb.MessageDriven;
+import org.apache.geronimo.deployment.model.ejb.QueryMethod;
 import org.apache.geronimo.deployment.model.geronimo.ejb.ActivationConfig;
-import org.apache.geronimo.deployment.model.geronimo.ejb.Relationships;
+import org.apache.geronimo.deployment.model.geronimo.ejb.Binding;
+import org.apache.geronimo.deployment.model.geronimo.ejb.EjbJar;
 import org.apache.geronimo.deployment.model.geronimo.ejb.EjbRelation;
 import org.apache.geronimo.deployment.model.geronimo.ejb.EjbRelationshipRole;
+import org.apache.geronimo.deployment.model.geronimo.ejb.EnterpriseBeans;
+import org.apache.geronimo.deployment.model.geronimo.ejb.Entity;
+import org.apache.geronimo.deployment.model.geronimo.ejb.GeronimoEjbJarDocument;
+import org.apache.geronimo.deployment.model.geronimo.ejb.MessageDriven;
+import org.apache.geronimo.deployment.model.geronimo.ejb.Query;
 import org.apache.geronimo.deployment.model.geronimo.ejb.RelationshipQuery;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceEnvRef;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbRef;
+import org.apache.geronimo.deployment.model.geronimo.ejb.Relationships;
+import org.apache.geronimo.deployment.model.geronimo.ejb.Session;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ClassSpace;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceEnvRef;
 import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
-import org.apache.geronimo.deployment.model.ejb.QueryMethod;
+import org.w3c.dom.Document;
 
 /**
  * Tests basic Geronimo EJB JAR DD loading (not very comprehensive)
  *
- * @version $Revision: 1.7 $ $Date: 2003/11/19 08:01:53 $
+ * @version $Revision: 1.8 $ $Date: 2004/01/02 23:32:39 $
  */
-public class GeronimoEjbJarLoaderTest extends TestCase {
+public class GeronimoEjbJarLoaderTest extends AbstractLoaderUtilTest {
     private File docDir;
-    private GeronimoEjbJarLoader loader;
 
     public void testSimpleLoad() throws Exception {
         File f = new File(docDir, "simple-geronimo-ejb-jar.xml");
         Document xmlDoc = LoaderUtil.parseXML(new FileReader(f));
-        GeronimoEjbJarDocument doc = loader.load(xmlDoc);
+        GeronimoEjbJarDocument doc = GeronimoEjbJarLoader.load(xmlDoc);
         checkGeronimoJar(doc);
     }
 
     public void testRelationshipLoad() throws Exception {
         File f = new File(docDir, "simple-geronimo-ejb-jar.xml");
         Document xmlDoc = LoaderUtil.parseXML(new FileReader(f));
-        GeronimoEjbJarDocument doc = loader.load(xmlDoc);
+        GeronimoEjbJarDocument doc = GeronimoEjbJarLoader.load(xmlDoc);
         EjbJar jar = doc.getEjbJar();
         Relationships relationships = jar.getGeronimoRelationships();
         checkRelationships(relationships);
@@ -216,7 +212,7 @@ public class GeronimoEjbJarLoaderTest extends TestCase {
     }
 
     protected void setUp() throws Exception {
+        super.setUp();
         docDir = new File("src/test-data/xml/deployment");
-        loader = new GeronimoEjbJarLoader();
     }
 }

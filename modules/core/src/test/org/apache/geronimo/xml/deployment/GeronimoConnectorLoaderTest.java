@@ -59,50 +59,52 @@ package org.apache.geronimo.xml.deployment;
 import java.io.File;
 import java.io.FileReader;
 
-import junit.framework.TestCase;
-
-import org.apache.geronimo.deployment.model.connector.ConnectorDocument;
 import org.apache.geronimo.deployment.model.connector.ConfigProperty;
-import org.apache.geronimo.deployment.model.geronimo.connector.*;
+import org.apache.geronimo.deployment.model.connector.ConnectorDocument;
+import org.apache.geronimo.deployment.model.geronimo.connector.GeronimoConnectionManagerFactory;
+import org.apache.geronimo.deployment.model.geronimo.connector.GeronimoConnector;
+import org.apache.geronimo.deployment.model.geronimo.connector.GeronimoConnectorDocument;
+import org.apache.geronimo.deployment.model.geronimo.connector.GeronimoOutboundResourceAdapter;
+import org.apache.geronimo.deployment.model.geronimo.connector.GeronimoResourceAdapter;
 import org.w3c.dom.Document;
 
 /**
  * ConnectorLoaderTest
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/13 22:22:31 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/02 23:32:39 $
  */
-public class GeronimoConnectorLoaderTest extends TestCase {
-	private File docDir_1_5;
-	private File docDir_1_0;
+public class GeronimoConnectorLoaderTest extends AbstractLoaderUtilTest {
+    private File docDir_1_5;
+    private File docDir_1_0;
 
-	public void testSimpleLoad_1_5() throws Exception {
-		File f = new File(docDir_1_5, "ra.xml");
-		Document xmlDoc = LoaderUtil.parseXML(new FileReader(f));
-		ConnectorDocument doc = ConnectorLoader.load(xmlDoc);
-		File g = new File(docDir_1_5, "geronimo-ra.xml");
-		Document xmlGDoc = LoaderUtil.parseXML(new FileReader(g));
-		GeronimoConnectorDocument gdoc = GeronimoConnectorLoader.load(xmlGDoc, doc);
-		GeronimoConnector gconnector = gdoc.getGeronimoConnector();
-		checkResourceAdapter_1_5(gconnector.getGeronimoResourceAdapter());
-	}
-	
-	protected static void checkResourceAdapter_1_5(GeronimoResourceAdapter gresourceAdapter) throws Exception {
-	    assertTrue("Expected a ResourceAdapter object", gresourceAdapter != null);
-	    assertTrue("Expected a ResourceAdapter class", gresourceAdapter.getResourceAdapterClass() != null);
-	    assertEquals("Expected 1 ConfigProperty", 1, gresourceAdapter.getConfigProperty().length);
-		assertTrue("Expected a BootstrapContext", gresourceAdapter.getBootstrapContext() != null);
-	    checkOutboundResourceAdapter_1_5(gresourceAdapter.getGeronimoOutboundResourceAdapter());
-	    //checkInboundResourceAdapter(gresourceAdapter.getGeronimoInboundResourceAdapter());
-	    assertEquals("Expected 2 adminobject", 2, gresourceAdapter.getAdminObject().length);
-	    assertEquals("Expected admin object to have one config property", 1, gresourceAdapter.getAdminObject()[0].getConfigProperty().length);
-	}
-	
-	protected static void checkOutboundResourceAdapter_1_5(GeronimoOutboundResourceAdapter goutboundResourceAdapter) throws Exception {
-	    assertTrue("Expected an OutboundResourceAdapter object", goutboundResourceAdapter != null);
-		assertEquals("Expected 3 ConnectionDefinition objects", 3, goutboundResourceAdapter.getConnectionDefinition().length);
-		ConfigProperty[] configProperty = goutboundResourceAdapter.getGeronimoConnectionDefinition()[0].getConfigProperty();
+    public void testSimpleLoad_1_5() throws Exception {
+        File f = new File(docDir_1_5, "ra.xml");
+        Document xmlDoc = LoaderUtil.parseXML(new FileReader(f));
+        ConnectorDocument doc = ConnectorLoader.load(xmlDoc);
+        File g = new File(docDir_1_5, "geronimo-ra.xml");
+        Document xmlGDoc = LoaderUtil.parseXML(new FileReader(g));
+        GeronimoConnectorDocument gdoc = GeronimoConnectorLoader.load(xmlGDoc, doc);
+        GeronimoConnector gconnector = gdoc.getGeronimoConnector();
+        checkResourceAdapter_1_5(gconnector.getGeronimoResourceAdapter());
+    }
+
+    protected static void checkResourceAdapter_1_5(GeronimoResourceAdapter gresourceAdapter) throws Exception {
+        assertTrue("Expected a ResourceAdapter object", gresourceAdapter != null);
+        assertTrue("Expected a ResourceAdapter class", gresourceAdapter.getResourceAdapterClass() != null);
+        assertEquals("Expected 1 ConfigProperty", 1, gresourceAdapter.getConfigProperty().length);
+        assertTrue("Expected a BootstrapContext", gresourceAdapter.getBootstrapContext() != null);
+        checkOutboundResourceAdapter_1_5(gresourceAdapter.getGeronimoOutboundResourceAdapter());
+        //checkInboundResourceAdapter(gresourceAdapter.getGeronimoInboundResourceAdapter());
+        assertEquals("Expected 2 adminobject", 2, gresourceAdapter.getAdminObject().length);
+        assertEquals("Expected admin object to have one config property", 1, gresourceAdapter.getAdminObject()[0].getConfigProperty().length);
+    }
+
+    protected static void checkOutboundResourceAdapter_1_5(GeronimoOutboundResourceAdapter goutboundResourceAdapter) throws Exception {
+        assertTrue("Expected an OutboundResourceAdapter object", goutboundResourceAdapter != null);
+        assertEquals("Expected 3 ConnectionDefinition objects", 3, goutboundResourceAdapter.getConnectionDefinition().length);
+        ConfigProperty[] configProperty = goutboundResourceAdapter.getGeronimoConnectionDefinition()[0].getConfigProperty();
         assertEquals("Examining first ConnectionDefinition ConfigProperty count", 4,
-		        configProperty.length);
+                configProperty.length);
         assertEquals("ConnectionDefinition 1, ConfigProperty 1", "newvalue1", configProperty[0].getConfigPropertyValue());
         assertEquals("ConnectionDefinition 1, ConfigProperty 2", "originalvalue2", configProperty[1].getConfigPropertyValue());
         assertEquals("ConnectionDefinition 1, ConfigProperty 3", "newvalue2", configProperty[2].getConfigPropertyValue());
@@ -119,47 +121,49 @@ public class GeronimoConnectorLoaderTest extends TestCase {
         assertTrue("Expected a GeronimoConnectionManagerFactory", gcmf != null);
         assertTrue("Expected a descriptor for GeronimoConnectionManagerFactory", gcmf.getConnectionManagerFactoryDescriptor() != null);
         assertEquals("Wrong ConfigProperty count:", 1, gcmf.getConfigProperty().length);
-	}
-	/*
-	protected static void checkInboundResourceAdapter(GeronimoInboundResourceAdapter ginboundResourceAdapter) throws Exception {
-		assertTrue("Expected an InboundResourceAdapter object", ginboundResourceAdapter != null);
-		assertEquals("Expected 1 MessageListener object", 1, ginboundResourceAdapter.getMessageAdapter().getMessageListener().length);
-		assertEquals("Expected 1 required config property", 1,
-		ginboundResourceAdapter.getMessageAdapter().getMessageListener()[0].getActivationSpec().getRequiredConfigProperty().length);
+    }
+    /*
+    protected static void checkInboundResourceAdapter(GeronimoInboundResourceAdapter ginboundResourceAdapter) throws Exception {
+            assertTrue("Expected an InboundResourceAdapter object", ginboundResourceAdapter != null);
+            assertEquals("Expected 1 MessageListener object", 1, ginboundResourceAdapter.getMessageAdapter().getMessageListener().length);
+            assertEquals("Expected 1 required config property", 1,
+            ginboundResourceAdapter.getMessageAdapter().getMessageListener()[0].getActivationSpec().getRequiredConfigProperty().length);
 
-	}
-	*/
+    }
+    */
 
-	public void testSimpleLoad_1_0() throws Exception {
-	File f = new File(docDir_1_0, "ra.xml");
-	Document xmlDoc = LoaderUtil.parseXML(new FileReader(f));
-	ConnectorDocument doc = ConnectorLoader.load(xmlDoc);
-	File g = new File(docDir_1_0, "geronimo-ra.xml");
-	Document xmlGDoc = LoaderUtil.parseXML(new FileReader(g));
-	GeronimoConnectorDocument gdoc = GeronimoConnectorLoader.load(xmlGDoc, doc);
-	GeronimoConnector gconnector = gdoc.getGeronimoConnector();
-	checkResourceAdapter_1_0(gconnector.getGeronimoResourceAdapter());
-}
-	
-protected static void checkResourceAdapter_1_0(GeronimoResourceAdapter gresourceAdapter) throws Exception {
-	assertTrue("Expected a ResourceAdapter object", gresourceAdapter != null);
-	assertTrue("Expected no ResourceAdapter class", gresourceAdapter.getResourceAdapterClass() == null);
-	assertEquals("Expected 0 ConfigProperty", 0, gresourceAdapter.getConfigProperty().length);
-	checkOutboundResourceAdapter_1_0(gresourceAdapter.getGeronimoOutboundResourceAdapter());
-	//checkInboundResourceAdapter(gresourceAdapter.getGeronimoInboundResourceAdapter());
-	assertEquals("Expected 0 adminobject", 0, gresourceAdapter.getAdminObject().length);
-}
-	
-protected static void checkOutboundResourceAdapter_1_0(GeronimoOutboundResourceAdapter goutboundResourceAdapter) throws Exception {
-	assertTrue("Expected an OutboundResourceAdapter object", goutboundResourceAdapter != null);
-	assertEquals("Expected 2 ConnectionDefinition objects", 2, goutboundResourceAdapter.getConnectionDefinition().length);
-	assertEquals("Expected first ConnectionDefinition to have 1 ConfigProperty", 1, 
-			goutboundResourceAdapter.getConnectionDefinition()[0].getConfigProperty().length);
+    public void testSimpleLoad_1_0() throws Exception {
+        File f = new File(docDir_1_0, "ra.xml");
+        Document xmlDoc = LoaderUtil.parseXML(new FileReader(f));
+        ConnectorDocument doc = ConnectorLoader.load(xmlDoc);
+        File g = new File(docDir_1_0, "geronimo-ra.xml");
+        Document xmlGDoc = LoaderUtil.parseXML(new FileReader(g));
+        GeronimoConnectorDocument gdoc = GeronimoConnectorLoader.load(xmlGDoc, doc);
+        GeronimoConnector gconnector = gdoc.getGeronimoConnector();
+        checkResourceAdapter_1_0(gconnector.getGeronimoResourceAdapter());
+    }
 
-}
-protected void setUp() throws Exception {
-		docDir_1_5 = new File("src/test-data/xml/deployment/connector_1_5");
-		docDir_1_0 = new File("src/test-data/xml/deployment/connector_1_0");
-	}
+    protected static void checkResourceAdapter_1_0(GeronimoResourceAdapter gresourceAdapter) throws Exception {
+        assertTrue("Expected a ResourceAdapter object", gresourceAdapter != null);
+        assertTrue("Expected no ResourceAdapter class", gresourceAdapter.getResourceAdapterClass() == null);
+        assertEquals("Expected 0 ConfigProperty", 0, gresourceAdapter.getConfigProperty().length);
+        checkOutboundResourceAdapter_1_0(gresourceAdapter.getGeronimoOutboundResourceAdapter());
+        //checkInboundResourceAdapter(gresourceAdapter.getGeronimoInboundResourceAdapter());
+        assertEquals("Expected 0 adminobject", 0, gresourceAdapter.getAdminObject().length);
+    }
+
+    protected static void checkOutboundResourceAdapter_1_0(GeronimoOutboundResourceAdapter goutboundResourceAdapter) throws Exception {
+        assertTrue("Expected an OutboundResourceAdapter object", goutboundResourceAdapter != null);
+        assertEquals("Expected 2 ConnectionDefinition objects", 2, goutboundResourceAdapter.getConnectionDefinition().length);
+        assertEquals("Expected first ConnectionDefinition to have 1 ConfigProperty", 1,
+                goutboundResourceAdapter.getConnectionDefinition()[0].getConfigProperty().length);
+
+    }
+
+    protected void setUp() throws Exception {
+        super.setUp();
+        docDir_1_5 = new File("src/test-data/xml/deployment/connector_1_5");
+        docDir_1_0 = new File("src/test-data/xml/deployment/connector_1_0");
+    }
 
 }

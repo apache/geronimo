@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.30 $ $Date: 2003/12/10 10:54:07 $ -->
+<!-- $Revision: 1.31 $ $Date: 2004/01/02 23:32:38 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -150,7 +150,7 @@
                 <module>true</module>
             </properties>
         </dependency>
-        
+
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-servlet</artifactId>
@@ -326,6 +326,17 @@
                 <runtime>true</runtime>
             </properties>
         </dependency>
+
+        <dependency>
+            <id>xml-commons-resolver</id>
+            <artifactId>xml-commons-resolver</artifactId>
+            <version>1.1</version>
+            <url>http://xml.apache.org/commons</url>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+
 
     </dependencies>
 

@@ -1,0 +1,18 @@
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+
+<public publicId="-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+        uri="xml/web-app_2_3.dtd"/>
+          
+<public publicId="-//OASIS//DTD DocBook XML V4.1.2//EN"
+        uri="file:///n:/share/doctypes/docbook/xml/docbookx.dtd"/>
+
+<public publicId="-//OASIS//DTD DocBook XML V4.1.2//EN"
+        uri="file:///n:/share/doctypes/docbook/xml/docbookx.dtd"/>
+
+<system systemId="urn:x-oasis:docbook-xml-v4.1.2"
+        uri="docbook/xml/docbookx.dtd"/>
+
+<system systemId="urn:x-oasis:docbook-xml-v4.1.0"
+        uri="file:/home/kkoehler/share/doctypes/docbook/xml/docbookx.dtd"/>
+
+</catalog>

@@ -55,23 +55,14 @@
  */
 package org.apache.geronimo.xml.deployment;
 
-import java.io.File;
-
-import junit.framework.TestCase;
-import org.xml.sax.EntityResolver;
-
 /**
  * 
- * 
- * @version $Revision: 1.1 $ $Date: 2003/09/05 20:18:03 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/02 23:32:39 $
  */
-public class EntityResolverTest extends TestCase {
-    private EntityResolver resolver;
-    protected void setUp() throws Exception {
-        resolver = new LocalEntityResolver(new File("src/schema"));
-    }
-
+public class EntityResolverTest extends AbstractLoaderUtilTest {
+    
     public void testEntityResolver() throws Exception {
+        resolver.setFailOnUnresolvable(false);
         assertNull(resolver.resolveEntity(null, null));
         assertNull(resolver.resolveEntity(null, "no such file"));
         assertNotNull(resolver.resolveEntity(null, "http://java.sun.com/xml/ns/j2ee/application-client_1_4.xsd"));
