@@ -19,8 +19,10 @@ package org.apache.geronimo.security;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.security.Policy;
 import javax.management.ObjectName;
 import javax.security.jacc.PolicyContextException;
+import javax.security.jacc.PolicyConfigurationFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,6 +35,7 @@ import org.apache.geronimo.security.jacc.ModuleConfiguration;
 import org.apache.geronimo.security.jacc.PolicyContextHandlerContainerSubject;
 import org.apache.geronimo.security.jacc.PolicyContextHandlerHttpServletRequest;
 import org.apache.geronimo.security.jacc.PolicyContextHandlerSOAPMessage;
+import org.apache.geronimo.security.jacc.GeronimoPolicy;
 import org.apache.geronimo.security.realm.SecurityRealm;
 import org.apache.geronimo.security.util.ConfigurationUtil;
 
@@ -40,7 +43,7 @@ import org.apache.geronimo.security.util.ConfigurationUtil;
 /**
  * An MBean that maintains a list of security realms.
  *
- * @version $Revision: 1.9 $ $Date: 2004/06/05 07:53:22 $
+ * @version $Revision: 1.10 $ $Date: 2004/06/13 16:59:02 $
  */
 public class SecurityService implements SecurityServiceMBean, GBeanLifecycle {
     /**
@@ -53,6 +56,8 @@ public class SecurityService implements SecurityServiceMBean, GBeanLifecycle {
     private String policyConfigurationFactory;
     private Collection realms = Collections.EMPTY_SET;
     private Collection moduleConfigurations = Collections.EMPTY_SET;
+
+    private Policy oldPolicy;
 
 
     /**
@@ -117,10 +122,16 @@ public class SecurityService implements SecurityServiceMBean, GBeanLifecycle {
 
 
     public void doStart() throws WaitingException, Exception {
+        oldPolicy = Policy.getPolicy();
+        PolicyConfigurationFactory factory = PolicyConfigurationFactory.getPolicyConfigurationFactory();
+        Policy.setPolicy(new GeronimoPolicy(factory));
+
         log.info("Security service started");
     }
 
     public void doStop() throws WaitingException, Exception {
+        Policy.setPolicy(oldPolicy);
+
         log.info("Security service stopped");
     }
 
