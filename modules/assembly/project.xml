@@ -18,7 +18,7 @@
 
 <!DOCTYPE project SYSTEM "../../etc/version-info.ent">
 
-<!-- $Revision: 1.39 $ $Date: 2004/09/02 03:02:16 $ -->
+<!-- $Revision: 1.40 $ $Date: 2004/09/02 04:36:16 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -319,7 +319,7 @@
             <!--axion only-->
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
-            <version>2.1</version>
+            <version>&commons-collections-version;</version>
             <properties>
                 <repository>true</repository>
             </properties>
