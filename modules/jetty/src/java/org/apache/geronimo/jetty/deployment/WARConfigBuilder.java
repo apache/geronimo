@@ -95,7 +95,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/20 07:19:13 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/20 15:49:56 $
  */
 public class WARConfigBuilder implements ConfigurationBuilder {
     private final Repository repository;
@@ -178,7 +178,7 @@ public class WARConfigBuilder implements ConfigurationBuilder {
 //            addIncludes(context, configType);
 //            addDependencies(context, configType.getDependencyArray());
             ClassLoader cl = context.getClassLoader(repository);
-            addGBeans(context, jettyWebApp, cl);
+            addGBeans(context, jettyWebApp.getGbeanArray(), cl);
             context.close();
             os.flush();
         } finally {
@@ -186,8 +186,14 @@ public class WARConfigBuilder implements ConfigurationBuilder {
         }
     }
 
-    private void addGBeans(DeploymentContext context, JettyWebAppType webApp, ClassLoader cl) throws DeploymentException {
-        JettyGbeanType[] gbeans = webApp.getGbeanArray();
+    /**
+     * Add any GBean explicitly defined in the deployment plan
+     * @param context the context of this deployment
+     * @param gbeans the XMLBeans for the <gbean> entries
+     * @param cl the ClassLoader to use to load the GBeans
+     * @throws DeploymentException if there is a problem with the plan
+     */
+    private void addGBeans(DeploymentContext context, JettyGbeanType[] gbeans, ClassLoader cl) throws DeploymentException {
         for (int i = 0; i < gbeans.length; i++) {
             JettyGbeanType gbean = gbeans[i];
             GBeanBuilder builder = new GBeanBuilder(gbean.getName(), cl, gbean.getClass1());

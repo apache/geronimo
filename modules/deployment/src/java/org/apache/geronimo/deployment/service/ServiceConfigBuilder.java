@@ -95,7 +95,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/02/20 07:19:13 $
+ * @version $Revision: 1.5 $ $Date: 2004/02/20 15:49:56 $
  */
 public class ServiceConfigBuilder implements ConfigurationBuilder {
     private final Repository repository;
@@ -153,7 +153,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
             addIncludes(context, configType);
             addDependencies(context, configType.getDependencyArray());
             ClassLoader cl = context.getClassLoader(repository);
-            addGBeans(context, configType, cl);
+            addGBeans(context, configType.getGbeanArray(), cl);
             context.close();
             os.flush();
         } finally {
@@ -238,8 +238,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         return uri;
     }
 
-    private void addGBeans(DeploymentContext context, ConfigurationType configType, ClassLoader cl) throws DeploymentException {
-        GbeanType[] gbeans = configType.getGbeanArray();
+    private void addGBeans(DeploymentContext context, GbeanType[] gbeans, ClassLoader cl) throws DeploymentException {
         for (int i = 0; i < gbeans.length; i++) {
             GbeanType gbean = gbeans[i];
             GBeanBuilder builder = new GBeanBuilder(gbean.getName(), cl, gbean.getClass1());
