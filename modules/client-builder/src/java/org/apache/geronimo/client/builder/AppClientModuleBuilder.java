@@ -74,11 +74,13 @@ import org.apache.xmlbeans.XmlObject;
  * @version $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $
  */
 public class AppClientModuleBuilder implements ModuleBuilder {
+
+    private final URI defaultClientParentId;
+    private final URI defaultServerParentId;
     private final Kernel kernel;
     private final Repository repository;
     private final ConfigurationStore store;
 
-    private static final URI CLIENT_PARENT_ID = URI.create("org/apache/geronimo/Client");
     private final String clientDomainName = "geronimo.client";
     private final String clientServerName = "client";
     private final String clientApplicationName = "client-application";
@@ -88,7 +90,9 @@ public class AppClientModuleBuilder implements ModuleBuilder {
     private final ModuleBuilder connectorModuleBuilder;
     private final ResourceReferenceBuilder resourceReferenceBuilder;
 
-    public AppClientModuleBuilder(ObjectName transactionContextManagerObjectName,
+    public AppClientModuleBuilder(URI defaultClientParentId,
+                                  URI defaultServerParentId,
+                                  ObjectName transactionContextManagerObjectName,
                                   ObjectName connectionTrackerObjectName,
                                   EJBReferenceBuilder ejbReferenceBuilder,
                                   ModuleBuilder connectorModuleBuilder,
@@ -96,6 +100,8 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                                   ConfigurationStore store,
                                   Repository repository,
                                   Kernel kernel) {
+        this.defaultClientParentId = defaultClientParentId;
+        this.defaultServerParentId = defaultServerParentId;
         this.kernel = kernel;
         this.repository = repository;
         this.store = store;
@@ -158,6 +164,8 @@ public class AppClientModuleBuilder implements ModuleBuilder {
             } catch (URISyntaxException e) {
                 throw new DeploymentException("Invalid parentId " + gerAppClient.getParentId(), e);
             }
+        } else {
+            parentId = defaultServerParentId;
         }
 
         return new AppClientModule(standAlone, configId, parentId, moduleFile, targetPath, appClient, gerAppClient, specDD);
@@ -318,7 +326,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                     if (geronimoAppClient.isSetClientParentId()) {
                         clientParentId = URI.create(geronimoAppClient.getClientParentId());
                     } else {
-                        clientParentId = CLIENT_PARENT_ID;
+                        clientParentId = defaultClientParentId;
                     }
                     appClientDeploymentContext = new EARContext(appClientConfiguration,
                             clientConfigId,
@@ -587,20 +595,24 @@ public class AppClientModuleBuilder implements ModuleBuilder {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(AppClientModuleBuilder.class);
-        infoFactory.addAttribute("transactionContextManagerObjectName", ObjectName.class, true);
-        infoFactory.addAttribute("connectionTrackerObjectName", ObjectName.class, true);
-        infoFactory.addReference("EJBReferenceBuilder", EJBReferenceBuilder.class);
-        infoFactory.addReference("ConnectorModuleBuilder", ModuleBuilder.class);
-        infoFactory.addReference("ResourceReferenceBuilder", ResourceReferenceBuilder.class);
-        infoFactory.addReference("Store", ConfigurationStore.class);
-        infoFactory.addReference("Repository", Repository.class);
+        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(AppClientModuleBuilder.class);
+        infoBuilder.addAttribute("defaultClientParentId", URI.class, true);
+        infoBuilder.addAttribute("defaultServerParentId", URI.class, true);
+        infoBuilder.addAttribute("transactionContextManagerObjectName", ObjectName.class, true);
+        infoBuilder.addAttribute("connectionTrackerObjectName", ObjectName.class, true);
+        infoBuilder.addReference("EJBReferenceBuilder", EJBReferenceBuilder.class);
+        infoBuilder.addReference("ConnectorModuleBuilder", ModuleBuilder.class);
+        infoBuilder.addReference("ResourceReferenceBuilder", ResourceReferenceBuilder.class);
+        infoBuilder.addReference("Store", ConfigurationStore.class);
+        infoBuilder.addReference("Repository", Repository.class);
 
-        infoFactory.addAttribute("kernel", Kernel.class, false);
+        infoBuilder.addAttribute("kernel", Kernel.class, false);
 
-        infoFactory.addInterface(ModuleBuilder.class);
+        infoBuilder.addInterface(ModuleBuilder.class);
 
-        infoFactory.setConstructor(new String[]{"transactionContextManagerObjectName",
+        infoBuilder.setConstructor(new String[]{"defaultClientParentId",
+                                                "defaultServerParentId",
+                                                "transactionContextManagerObjectName",
                                                 "connectionTrackerObjectName",
                                                 "EJBReferenceBuilder",
                                                 "ConnectorModuleBuilder",
@@ -608,7 +620,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                                                 "Store",
                                                 "Repository",
                                                 "kernel"});
-        GBEAN_INFO = infoFactory.getBeanInfo();
+        GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 
     public static GBeanInfo getGBeanInfo() {

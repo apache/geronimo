@@ -49,14 +49,20 @@ import org.apache.xmlbeans.XmlException;
  * @version $Rev$ $Date$
  */
 public class ServiceConfigBuilder implements ConfigurationBuilder {
+    private final URI defaultParentId;
     private final Repository repository;
     private final Kernel kernel;
 
-    public ServiceConfigBuilder(Repository repository) {
-        this(repository, null);
+    public ServiceConfigBuilder(URI defaultParentId, Repository repository) {
+        this(defaultParentId, repository, null);
     }
 
-    public ServiceConfigBuilder(Repository repository, Kernel kernel) {
+    public ServiceConfigBuilder(URI defaultParentId, Repository repository, Kernel kernel) {
+        if (defaultParentId == null) {
+            this.defaultParentId = null;
+        } else {
+            this.defaultParentId = defaultParentId;
+        }
         this.repository = repository;
         this.kernel = kernel;
     }
@@ -87,13 +93,17 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         }
         URI parentID;
         if (configType.isSetParentId()) {
-            try {
-                parentID = new URI(configType.getParentId());
-            } catch (URISyntaxException e) {
-                throw new DeploymentException("Invalid parentId " + configType.getParentId(), e);
+            if (configType.getParentId().equals("")) {
+                parentID = null;
+            } else {
+                try {
+                    parentID = new URI(configType.getParentId());
+                } catch (URISyntaxException e) {
+                    throw new DeploymentException("Invalid parentId " + configType.getParentId(), e);
+                }
             }
         } else {
-            parentID = null;
+            parentID = defaultParentId;
         }
 
         DeploymentContext context = null;
@@ -198,10 +208,11 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
 
         infoFactory.addInterface(ConfigurationBuilder.class);
 
+        infoFactory.addAttribute("defaultParentId", URI.class, true);
         infoFactory.addReference("Repository", Repository.class);
         infoFactory.addAttribute("kernel", Kernel.class, false);
 
-        infoFactory.setConstructor(new String[]{"Repository", "kernel"});
+        infoFactory.setConstructor(new String[]{"defaultParentId", "Repository", "kernel"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

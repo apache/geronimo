@@ -120,7 +120,9 @@ public class Bootstrap {
             // create the service builder, repository and config store objects
             LocalConfigStore configStore = new LocalConfigStore(new File(storeDir));
             ReadOnlyRepository repository = new ReadOnlyRepository(new File(repositoryDir));
-            ServiceConfigBuilder builder = new ServiceConfigBuilder(repository);
+
+            //TODO should the defaultParentId be null??
+            ServiceConfigBuilder builder = new ServiceConfigBuilder(null, repository);
 
             // create the manifext
             Manifest manifest = new Manifest();

@@ -28,8 +28,8 @@ import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
-import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.deployment.DeploymentException;
@@ -44,8 +44,6 @@ import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jetty.JettyClassLoader;
 import org.apache.geronimo.jetty.JettyWebAppContext;
@@ -85,7 +83,11 @@ import org.apache.xmlbeans.XmlObject;
  * @version $Rev$ $Date$
  */
 public class JettyModuleBuilder implements ModuleBuilder {
-    private static final String PARENT_ID = "org/apache/geronimo/Server";
+    private final URI defaultParentId;
+
+    public JettyModuleBuilder(URI defaultParentId) {
+        this.defaultParentId = defaultParentId;
+    }
 
     public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
         return createModule(plan, moduleFile, "war", null, true);
@@ -142,6 +144,8 @@ public class JettyModuleBuilder implements ModuleBuilder {
             } catch (URISyntaxException e) {
                 throw new DeploymentException("Invalid parentId " + jettyWebApp.getParentId(), e);
             }
+        } else {
+            parentId = defaultParentId;
         }
 
         WebModule module = new WebModule(standAlone, configId, parentId, moduleFile, targetPath, webApp, jettyWebApp, specDD);
@@ -209,7 +213,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
         JettyWebAppType jettyWebApp = JettyWebAppType.Factory.newInstance();
 
         // set the parentId, configId and context root
-        jettyWebApp.setParentId(PARENT_ID);
+        jettyWebApp.setParentId(defaultParentId.toString());
         if (null != webApp.getId()) {
             id = webApp.getId();
         }
@@ -508,9 +512,12 @@ public class JettyModuleBuilder implements ModuleBuilder {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(JettyModuleBuilder.class);
-        infoFactory.addInterface(ModuleBuilder.class);
-        GBEAN_INFO = infoFactory.getBeanInfo();
+        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(JettyModuleBuilder.class);
+        infoBuilder.addAttribute("defaultParentId", URI.class, true);
+        infoBuilder.addInterface(ModuleBuilder.class);
+
+        infoBuilder.setConstructor(new String[] {"defaultParentId"});
+        GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 
     public static GBeanInfo getGBeanInfo() {

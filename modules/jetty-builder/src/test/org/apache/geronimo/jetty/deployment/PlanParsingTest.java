@@ -11,7 +11,7 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
 /**
  */
 public class PlanParsingTest extends TestCase {
-    private JettyModuleBuilder builder = new JettyModuleBuilder();
+    private JettyModuleBuilder builder = new JettyModuleBuilder(null);
     private File basedir = new File(System.getProperty("basedir", "."));
 
     public void testResourceRef() throws Exception {

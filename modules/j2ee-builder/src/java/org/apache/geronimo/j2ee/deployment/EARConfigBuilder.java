@@ -67,7 +67,6 @@ import org.apache.xmlbeans.XmlObject;
  * @version $Rev$ $Date$
  */
 public class EARConfigBuilder implements ConfigurationBuilder {
-    private static final String PARENT_ID = "org/apache/geronimo/Server";
 
     private final Kernel kernel;
     private final Repository repository;
@@ -77,6 +76,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     private final ModuleBuilder appClientConfigBuilder;
     private final EJBReferenceBuilder ejbReferenceBuilder;
     private final ResourceReferenceBuilder resourceReferenceBuilder;
+
+    private final URI defaultParentId;
     private final String j2eeServerName;
     private final String j2eeDomainName;
     private final ObjectName j2eeServer;
@@ -86,9 +87,10 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     private final ObjectName nonTransactionalTimerObjectName;
 
 
-    public EARConfigBuilder(ObjectName j2eeServer, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName transactionalTimerObjectName, ObjectName nonTransactionalTimerObjectName, Repository repository, ModuleBuilder ejbConfigBuilder, EJBReferenceBuilder ejbReferenceBuilder, ModuleBuilder webConfigBuilder, ModuleBuilder connectorConfigBuilder, ResourceReferenceBuilder resourceReferenceBuilder, ModuleBuilder appClientConfigBuilder, Kernel kernel) {
+    public EARConfigBuilder(URI defaultParentId, ObjectName j2eeServer, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName transactionalTimerObjectName, ObjectName nonTransactionalTimerObjectName, Repository repository, ModuleBuilder ejbConfigBuilder, EJBReferenceBuilder ejbReferenceBuilder, ModuleBuilder webConfigBuilder, ModuleBuilder connectorConfigBuilder, ResourceReferenceBuilder resourceReferenceBuilder, ModuleBuilder appClientConfigBuilder, Kernel kernel) {
         this.kernel = kernel;
         this.repository = repository;
+        this.defaultParentId = defaultParentId;
         this.j2eeServer = j2eeServer;
         j2eeServerName = j2eeServer.getKeyProperty("name");
         j2eeDomainName = j2eeServer.getDomain();
@@ -197,6 +199,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             } catch (URISyntaxException e) {
                 throw new DeploymentException("Invalid parentId " + gerApplication.getParentId(), e);
             }
+        } else {
+            parentId = defaultParentId;
         }
 
         // get the modules either the application plan or for a stand alone module from the specific deployer
@@ -242,7 +246,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         GerApplicationType gerApplication = GerApplicationType.Factory.newInstance();
 
         // set the parentId and configId
-        gerApplication.setParentId(PARENT_ID);
+        gerApplication.setParentId(defaultParentId.toString());
         String id = application.getId();
         if (id == null) {
             File fileName = new File(module.getName());
@@ -538,6 +542,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(EARConfigBuilder.class);
+        infoFactory.addAttribute("defaultParentId", URI.class, true);
         infoFactory.addAttribute("j2eeServer", ObjectName.class, true);
         infoFactory.addAttribute("transactionContextManagerObjectName", ObjectName.class, true);
         infoFactory.addAttribute("connectionTrackerObjectName", ObjectName.class, true);
@@ -557,6 +562,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         infoFactory.addInterface(ConfigurationBuilder.class);
 
         infoFactory.setConstructor(new String[]{
+            "defaultParentId",
             "j2eeServer",
             "transactionContextManagerObjectName",
             "connectionTrackerObjectName",

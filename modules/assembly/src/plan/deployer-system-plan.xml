@@ -24,6 +24,7 @@ Configuration for the system layer of the Geronimo deployer
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment"
     configId="org/apache/geronimo/DeployerSystem"
+    parentId=""
     >
 
     <!-- ServerInfo service -->

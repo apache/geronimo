@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.net.URI;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -74,6 +75,7 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
     private int defaultMinSize = 0;
     private int defaultBlockingTimeoutMilliseconds = 5000;
     private int defaultidleTimeoutMinutes = 15;
+    private URI defaultParentId;
 
     public void testLoadJ2eeDeploymentDescriptor() throws Exception {
         InputStream j2eeInputStream = j2eeDD.openStream();
@@ -130,7 +132,7 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
         ObjectName connectionTrackerName = new ObjectName("geronimo.connector:service=ConnectionTracker");
 
         Kernel kernel = new Kernel("testServer");
-        ConnectorModuleBuilder moduleBuilder = new ConnectorModuleBuilder(defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, kernel);
+        ConnectorModuleBuilder moduleBuilder = new ConnectorModuleBuilder(defaultParentId, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, kernel);
         File rarFile = action.getRARFile();
 
         ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
@@ -384,6 +386,7 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
     }
 
     protected void setUp() throws Exception {
+        defaultParentId = new URI("org/apache/geronimo/Server");
         File docDir = new File(basedir, "src/test-data/connector_1_5");
         j2eeDD = new File(docDir, "ra.xml").toURL();
         geronimoDD = new File(docDir, "geronimo-ra.xml").toURL();

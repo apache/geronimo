@@ -115,8 +115,10 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
     private final boolean defaultXATransactionCaching;
     private final boolean defaultXAThreadCaching;
     private final Kernel kernel;
+    private final URI defaultParentId;
 
-    public ConnectorModuleBuilder(int defaultMaxSize, int defaultMinSize, int defaultBlockingTimeoutMilliseconds, int defaultIdleTimeoutMinutes, boolean defaultXATransactionCaching, boolean defaultXAThreadCaching, Kernel kernel) {
+    public ConnectorModuleBuilder(URI defaultParentId, int defaultMaxSize, int defaultMinSize, int defaultBlockingTimeoutMilliseconds, int defaultIdleTimeoutMinutes, boolean defaultXATransactionCaching, boolean defaultXAThreadCaching, Kernel kernel) {
+        this.defaultParentId = defaultParentId;
         this.defaultMaxSize = defaultMaxSize;
         this.defaultMinSize = defaultMinSize;
         this.defaultBlockingTimeoutMilliseconds = defaultBlockingTimeoutMilliseconds;
@@ -191,7 +193,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
 
             // if we got one extract the validate it otherwise create a default one
             if (gerConnector == null) {
-                throw new DeploymentException("A connector module must contain a geronimo-ra.xml");
+                throw new DeploymentException("A connector module must be deployed using a plan");
             }
             SchemaConversionUtils.validateDD(gerConnector);
         } catch (XmlException e) {
@@ -213,6 +215,8 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             } catch (URISyntaxException e) {
                 throw new DeploymentException("Invalid parentId " + gerConnector.getParentId(), e);
             }
+        } else {
+            parentId = defaultParentId;
         }
 
         return new ConnectorModule(standAlone, configId, parentId, moduleFile, targetPath, connector, gerConnector, specDD);
@@ -917,6 +921,8 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
 
     static {
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(ConnectorModuleBuilder.class);
+
+        infoBuilder.addAttribute("defaultParentId", URI.class, true);
         infoBuilder.addAttribute("defaultMaxSize", int.class, true);
         infoBuilder.addAttribute("defaultMinSize", int.class, true);
         infoBuilder.addAttribute("defaultBlockingTimeoutMilliseconds", int.class, true);
@@ -929,7 +935,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         infoBuilder.addInterface(ModuleBuilder.class);
         infoBuilder.addInterface(ResourceReferenceBuilder.class);
 
-        infoBuilder.setConstructor(new String[]{"defaultMaxSize", "defaultMinSize", "defaultBlockingTimeoutMilliseconds", "defaultIdleTimeoutMinutes", "defaultXATransactionCaching", "defaultXAThreadCaching", "kernel"});
+        infoBuilder.setConstructor(new String[]{"defaultParentId", "defaultMaxSize", "defaultMinSize", "defaultBlockingTimeoutMilliseconds", "defaultIdleTimeoutMinutes", "defaultXATransactionCaching", "defaultXAThreadCaching", "kernel"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 

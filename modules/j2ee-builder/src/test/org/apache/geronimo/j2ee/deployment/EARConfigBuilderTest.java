@@ -18,6 +18,7 @@
 package org.apache.geronimo.j2ee.deployment;
 
 import java.io.File;
+import java.net.URI;
 import java.util.jar.JarFile;
 import javax.management.ObjectName;
 
@@ -48,6 +49,11 @@ public class EARConfigBuilderTest extends TestCase {
     private static final ObjectName connectionTrackerObjectName = JMXUtil.getObjectName(j2eeServerName + ":type=ConnectionTracker");
     private static final ObjectName transactionalTimerObjectName = JMXUtil.getObjectName(j2eeServerName + ":type=ThreadPooledTimer,name=TransactionalThreaPooledTimer");
     private static final ObjectName nonTransactionalTimerObjectName = JMXUtil.getObjectName(j2eeServerName + ":type=ThreadPooledTimer,name=NonTransactionalThreaPooledTimer");
+    private URI defaultParentId;
+
+    protected void setUp() throws Exception {
+        defaultParentId = new URI("org/apache/geronimo/Server");
+    }
 
     public static Test suite() throws Exception {
         TestSuite inner = new TestSuite(EARConfigBuilderTest.class);
@@ -201,7 +207,7 @@ public class EARConfigBuilderTest extends TestCase {
     }
 
     public void testBuildConfiguration() throws Exception {
-        EARConfigBuilder configBuilder = new EARConfigBuilder(j2eeServer, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, ejbConfigBuilder, null, webConfigBuilder, connectorConfigBuilder, resourceReferenceBuilder, appClientConfigBuilder, null);
+        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, j2eeServer, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, ejbConfigBuilder, null, webConfigBuilder, connectorConfigBuilder, resourceReferenceBuilder, appClientConfigBuilder, null);
 
         File tempDir = null;
         try {
@@ -214,7 +220,7 @@ public class EARConfigBuilderTest extends TestCase {
     }
 
     public void testNoEJBDeployer() throws Exception {
-        EARConfigBuilder configBuilder = new EARConfigBuilder(j2eeServer, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, null, null, webConfigBuilder, connectorConfigBuilder, resourceReferenceBuilder, appClientConfigBuilder, null);
+        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, j2eeServer, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, null, null, webConfigBuilder, connectorConfigBuilder, resourceReferenceBuilder, appClientConfigBuilder, null);
 
         File tempDir = null;
         try {
@@ -230,7 +236,7 @@ public class EARConfigBuilderTest extends TestCase {
     }
 
     public void testNoWARDeployer() throws Exception {
-        EARConfigBuilder configBuilder = new EARConfigBuilder(j2eeServer, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, ejbConfigBuilder, null, null, connectorConfigBuilder, resourceReferenceBuilder, appClientConfigBuilder, null);
+        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, j2eeServer, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, ejbConfigBuilder, null, null, connectorConfigBuilder, resourceReferenceBuilder, appClientConfigBuilder, null);
 
         File tempDir = null;
         try {
@@ -246,7 +252,7 @@ public class EARConfigBuilderTest extends TestCase {
     }
 
     public void testNoConnectorDeployer() throws Exception {
-        EARConfigBuilder configBuilder = new EARConfigBuilder(j2eeServer, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, ejbConfigBuilder, null, webConfigBuilder, null, resourceReferenceBuilder, appClientConfigBuilder, null);
+        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, j2eeServer, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, ejbConfigBuilder, null, webConfigBuilder, null, resourceReferenceBuilder, appClientConfigBuilder, null);
 
         File tempDir = null;
         try {
