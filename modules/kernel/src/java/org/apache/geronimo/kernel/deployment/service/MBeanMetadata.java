@@ -64,14 +64,18 @@ import java.util.Map;
 import java.util.Set;
 import javax.management.ObjectName;
 
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+
 /**
  * Metadata about an MBean that is use during deployment.
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/11 04:36:51 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/11 16:37:31 $
  */
 public class MBeanMetadata {
     private String code;
     private String geronimoMBeanDescriptor;
+
+    private GeronimoMBeanInfo geronimoMBeanInfo;
     private ObjectName name;
     private ObjectName loaderName;
     private ObjectName parentName;
@@ -107,6 +111,13 @@ public class MBeanMetadata {
         this.parentName = parentName;
     }
 
+    public MBeanMetadata(ObjectName name, GeronimoMBeanInfo geronimoMBeanInfo, ObjectName loaderName, ObjectName parentName) {
+        this.name = name;
+        this.geronimoMBeanInfo = geronimoMBeanInfo;
+        this.loaderName = loaderName;
+        this.parentName = parentName;
+    }
+
     public String getCode() {
         return code;
     }
@@ -116,7 +127,7 @@ public class MBeanMetadata {
     }
 
     public boolean isGeronimoMBean() {
-        return geronimoMBeanDescriptor != null;
+        return geronimoMBeanDescriptor != null || geronimoMBeanInfo != null;
     }
 
     public String getGeronimoMBeanDescriptor() {
@@ -125,6 +136,14 @@ public class MBeanMetadata {
 
     public void setGeronimoMBeanDescriptor(String geronimoMBeanDescriptor) {
         this.geronimoMBeanDescriptor = geronimoMBeanDescriptor;
+    }
+
+    public GeronimoMBeanInfo getGeronimoMBeanInfo() {
+        return geronimoMBeanInfo;
+    }
+
+    public void setGeronimoMBeanInfo(GeronimoMBeanInfo geronimoMBeanInfo) {
+        this.geronimoMBeanInfo = geronimoMBeanInfo;
     }
 
     public ObjectName getName() {

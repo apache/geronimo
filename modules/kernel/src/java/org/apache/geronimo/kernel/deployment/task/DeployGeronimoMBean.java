@@ -76,7 +76,7 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanInfoXMLLoader;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/11 04:40:11 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/11 16:38:14 $
  */
 public class DeployGeronimoMBean implements DeploymentTask {
     private static final Log log = LogFactory.getLog(DeployGeronimoMBean.class);
@@ -118,12 +118,16 @@ public class DeployGeronimoMBean implements DeploymentTask {
                 }
                 GeronimoMBean mbean = (GeronimoMBean) server.instantiate("org.apache.geronimo.kernel.service.GeronimoMBean");
                 mbean.setClassSpace(metadata.getLoaderName());
-                String descriptorName = metadata.getGeronimoMBeanDescriptor();
-                URL url = newCL.getResource(descriptorName);
-                if(url == null) {
-                    throw new DeploymentException("GeronimoMBean descriptor not found: " + descriptorName);
+                GeronimoMBeanInfo geronimoMBeanInfo = metadata.getGeronimoMBeanInfo();
+                if (geronimoMBeanInfo == null) {
+                    String descriptorName = metadata.getGeronimoMBeanDescriptor();
+                    log.info("Looking for descriptor: " + descriptorName);
+                    URL url = newCL.getResource(descriptorName);
+                    if(url == null) {
+                        throw new DeploymentException("GeronimoMBean descriptor not found: " + descriptorName);
+                    }
+                    geronimoMBeanInfo = GeronimoMBeanInfoXMLLoader.loadMBean(url);
                 }
-                GeronimoMBeanInfo geronimoMBeanInfo = GeronimoMBeanInfoXMLLoader.loadMBean(url);
                 mbean.setMBeanInfo(geronimoMBeanInfo);
                 server.registerMBean(mbean, metadata.getName());
                 registered = true;
