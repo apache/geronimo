@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- $Revision: 1.11 $ $Date: 2004/02/13 23:18:59 $ -->
+<!-- $Revision: 1.12 $ $Date: 2004/02/13 23:44:35 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -159,14 +159,16 @@ THIS IS A TEMPORARY HACK AND WILL BE REPLACED BY THE WAR DEPLOYER
         <ant:echo>Building debug tool configuration</ant:echo>
         <ant:java fork="true" jar="target/bin/deploy.jar">
             <ant:sysproperty key="geronimo.base.dir" value="target"/>
-            <ant:arg value="--install"/>
-            <ant:arg value="--plan"/>
+
+        REMOVE THIS LINE AND THE SPACE BETWEEN THE DASHES BELOW
+            <ant:arg value="- -install"/>
+            <ant:arg value="- -plan"/>
             <ant:arg value="src/plan/debug-tool.xml"/>
-            <ant:arg value="--outfile"/>
+            <ant:arg value="- -outfile"/>
             <ant:arg value="target/config/debug-tool.car"/>
-            <ant:arg value="--store"/>
+            <ant:arg value="- -store"/>
             <ant:arg value="target/config-store"/>
-            <ant:arg value="--deployer"/>
+            <ant:arg value="- -deployer"/>
             <ant:arg value="org/apache/geronimo/ServiceDeployer"/>
         </ant:java>
 -->
