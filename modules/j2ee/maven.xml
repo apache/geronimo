@@ -17,7 +17,7 @@
 -->
   
 
-<!-- $Revision: 1.5 $ $Date: 2004/08/07 11:22:13 $ -->
+<!-- $Revision: 1.6 $ $Date: 2004/08/09 04:19:36 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -105,7 +105,10 @@
         <j:set var="ear.unpacked.relative" value="full"/>
         <attainGoal name="setupBaseUnpackedEar"/>
         <copy todir="${basedir}/target/test-unpacked-ear/${ear.unpacked.relative}/META-INF">
-            <fileset dir="${basedir}/src/test-unpacked-ear/META-INF"/>
+            <fileset dir="${basedir}/src/test-unpacked-ear/META-INF">
+                <include name="application.xml"/>
+                <include name="geronimo-application.xml"/>
+            </fileset>
         </copy>
         
         <j:set var="ear.unpacked.relative" value="naked"/>
@@ -115,6 +118,25 @@
                 <include name="application.xml"/>
             </fileset>
         </copy>
+        
+        <j:set var="ear.unpacked.relative" value="alt-dd"/>
+        <attainGoal name="setupBaseUnpackedEar"/>
+        <copy todir="${basedir}/target/test-unpacked-ear/${ear.unpacked.relative}/META-INF">
+            <fileset dir="${basedir}/src/test-unpacked-ear/META-INF">
+                <include name="application-alt-dd.xml"/>
+            </fileset>
+            <mapper type="merge" to="application.xml"/>
+        </copy>
+        <copy todir="${basedir}/target/test-unpacked-ear/${ear.unpacked.relative}/META-INF">
+            <fileset dir="${basedir}/src/test-unpacked-ear/META-INF">
+                <include name="geronimo-application-alt-dd.xml"/>
+            </fileset>
+            <mapper type="merge" to="geronimo-application.xml"/>
+        </copy>
+        
+        <ant:jar destfile="${basedir}/target/test-unpacked-ear/alt-dd.ear">
+            <fileset dir="${basedir}/target/test-unpacked-ear/${ear.unpacked.relative}"/>
+        </ant:jar>
     </goal>
     
     <goal name="setupBaseUnpackedEar">

@@ -23,12 +23,11 @@ import java.util.jar.JarFile;
 
 import junit.framework.Assert;
 
-import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.SchemaTypeLoader;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/08/07 11:22:12 $
+ * @version $Revision: 1.5 $ $Date: 2004/08/09 04:19:35 $
  */
 public class MockConnectorConfigBuilder extends Assert implements ModuleBuilder {
     public EARContext earContext;
@@ -55,12 +54,17 @@ public class MockConnectorConfigBuilder extends Assert implements ModuleBuilder 
         return null;
     }
 
-    public void installModule(File earFolder, EARContext earContext,
-        Module module) throws DeploymentException {
+    public void installModule(File earFolder, EARContext earContext, Module connectorModule) {
         assertNotNull(earFolder);
         assertNotNull(earContext);
         this.earContext = earContext;
         assertEquals(this.connectorModule, connectorModule);
+        if ( null != this.connectorModule.getAltSpecDD() ) {
+            assertEquals(this.connectorModule.getAltSpecDD(), connectorModule.getAltSpecDD());
+        }
+        if ( null != this.connectorModule.getAltVendorDD() ) {
+            assertEquals(this.connectorModule.getAltVendorDD(), connectorModule.getAltVendorDD());
+        }
     }
     
     public void installModule(JarFile earFile, EARContext earContext, Module connectorModule) {
@@ -68,6 +72,12 @@ public class MockConnectorConfigBuilder extends Assert implements ModuleBuilder 
         assertNotNull(earContext);
         this.earContext = earContext;
         assertEquals(this.connectorModule, connectorModule);
+        if ( null != this.connectorModule.getAltSpecDD() ) {
+            assertEquals(this.connectorModule.getAltSpecDD(), connectorModule.getAltSpecDD());
+        }
+        if ( null != this.connectorModule.getAltVendorDD() ) {
+            assertEquals(this.connectorModule.getAltVendorDD(), connectorModule.getAltVendorDD());
+        }
     }
 
     public void initContext(EARContext earContext, Module connectorModule, ClassLoader cl) {

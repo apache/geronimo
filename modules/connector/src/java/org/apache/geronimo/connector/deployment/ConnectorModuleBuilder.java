@@ -99,7 +99,7 @@ import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 
 /**
- * @version $Revision: 1.12 $ $Date: 2004/08/07 11:22:12 $
+ * @version $Revision: 1.13 $ $Date: 2004/08/09 04:19:35 $
  */
 public class ConnectorModuleBuilder implements ModuleBuilder {
 
@@ -232,9 +232,11 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
                     ConnectorDocument connectorDoc = ConnectorDocument.Factory.parse(callback.getRaDD());
                     SchemaConversionUtils.validateDD(connectorDoc);
                     specConnnector = connectorDoc.getConnector();
-                } catch (XmlException alsoIgnore) {
-                    throw new DeploymentException(
-                        "Could not parse META-INF/ra.xml");
+                } catch (XmlException e) {
+                    throw new DeploymentException("Unable to parse " +
+                        (null == module.getAltSpecDD() ? 
+                            "META-INF/ra.xml":
+                                module.getAltSpecDD().toString()), e);
                 }
             }
             module.setSpecDD(specConnnector);
@@ -252,7 +254,10 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
                     vendorConnector = doc.getConnector();
                     module.setVendorDD(vendorConnector);
                 } catch (XmlException e) {
-                    throw new DeploymentException("Unable to parse geronimo-ra.xml");
+                    throw new DeploymentException("Unable to parse " +
+                        (null == module.getAltVendorDD() ?
+                            "geronimo-ra.xml":
+                                module.getAltVendorDD().toString()), e);
                 }
             }
 
@@ -824,25 +829,39 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
         }
     }
 
-    private interface InstallCallback {
+    private static abstract class InstallCallback {
         
-        public void installInEARContext(EARContext earContext, URI moduleBase) throws DeploymentException, IOException;
+        protected final Module rarModule;
         
-        public InputStream getRaDD() throws DeploymentException, IOException;
+        private InstallCallback(Module rarModule) {
+            this.rarModule = rarModule;
+        }
         
-        public InputStream getGeronimoRaDD() throws DeploymentException, IOException;
+        public abstract void installInEARContext(EARContext earContext, URI moduleBase) throws DeploymentException, IOException;
+        
+        public InputStream getRaDD() throws DeploymentException, IOException {
+            if ( null == rarModule.getAltSpecDD() ) {
+                return null;
+            }
+            return rarModule.getAltSpecDD().openStream();
+        }
+        
+        public InputStream getGeronimoRaDD() throws DeploymentException, IOException {
+            if ( null == rarModule.getAltVendorDD() ) {
+                return null;
+            }
+            return rarModule.getAltVendorDD().openStream();
+        }
 
     }
     
-    private static final class UnPackedInstallCallback implements InstallCallback {
+    private static final class UnPackedInstallCallback extends InstallCallback {
         
         private final File rarFolder;
         
-        private final Module rarModule;
-        
         private UnPackedInstallCallback(Module rarModule, File rarFolder) {
+            super(rarModule);
             this.rarFolder = rarFolder;
-            this.rarModule = rarModule;
         }
         
         public void installInEARContext(EARContext earContext, URI moduleBase) throws DeploymentException, IOException {
@@ -862,6 +881,10 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
         }
         
         public InputStream getRaDD() throws DeploymentException, IOException {
+            InputStream in = super.getRaDD();
+            if (null != in) {
+                return in;
+            }
             File raFile = new File(rarFolder, "META-INF/ra.xml");
             if ( !raFile.exists() ) {
                 throw new DeploymentException("No  in module [" + rarModule.getName() + "]");
@@ -870,6 +893,10 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
         }
         
         public InputStream getGeronimoRaDD() throws DeploymentException, IOException {
+            InputStream in = super.getGeronimoRaDD();
+            if (null != in) {
+                return in;
+            }
             File geronimoRaFile = new File(rarFolder, "META-INF/geronimo-ra.xml");
             if ( geronimoRaFile.exists() ) {
                 return new FileInputStream(geronimoRaFile);
@@ -879,14 +906,12 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
         
     }
     
-    private static final class PackedInstallCallback implements InstallCallback {
+    private static final class PackedInstallCallback extends InstallCallback {
 
-        private final Module rarModule;
-        
         private final JarFile rarFile;
         
         private PackedInstallCallback(Module rarModule, JarFile rarFile) {
-            this.rarModule = rarModule;
+            super(rarModule);
             this.rarFile = rarFile;
         }
         
@@ -903,6 +928,10 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
         }
         
         public InputStream getRaDD() throws DeploymentException, IOException {
+            InputStream in = super.getRaDD();
+            if (null != in) {
+                return in;
+            }
             JarEntry entry = rarFile.getJarEntry("META-INF/ra.xml");
             if (entry == null) {
                 throw new DeploymentException("No META-INF/ra.xml in module [" + rarModule.getName() + "]");
@@ -911,6 +940,10 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
         }
         
         public InputStream getGeronimoRaDD() throws DeploymentException, IOException {
+            InputStream in = super.getGeronimoRaDD();
+            if (null != in) {
+                return in;
+            }
             JarEntry entry = rarFile.getJarEntry("META-INF/geronimo-ra.xml");
             if (entry != null) {
                 return rarFile.getInputStream(entry);

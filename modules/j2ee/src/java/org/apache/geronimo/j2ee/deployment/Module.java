@@ -17,16 +17,19 @@
 package org.apache.geronimo.j2ee.deployment;
 
 import java.net.URI;
+import java.net.URL;
 
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/05/19 20:53:59 $
+ * @version $Revision: 1.2 $ $Date: 2004/08/09 04:19:35 $
  */
 public class Module {
     protected final String name;
     protected final URI uri;
+    protected URL altSpecDD;
     protected XmlObject specDD;
+    protected URL altVendorDD;
     protected XmlObject vendorDD;
 
     public Module(String name, URI uri) {
@@ -43,6 +46,14 @@ public class Module {
         return uri;
     }
 
+    public URL getAltSpecDD() {
+        return altSpecDD;
+    }
+    
+    public void setAltSpecDD(URL altSpecDD) {
+        this.altSpecDD = altSpecDD;
+    }
+    
     public XmlObject getSpecDD() {
         return specDD;
     }
@@ -51,6 +62,14 @@ public class Module {
         this.specDD = specDD;
     }
 
+    public URL getAltVendorDD() {
+        return altVendorDD;
+    }
+    
+    public void setAltVendorDD(URL altVendorDD) {
+        this.altVendorDD = altVendorDD;
+    }
+    
     public XmlObject getVendorDD() {
         return vendorDD;
     }
@@ -73,4 +92,5 @@ public class Module {
         }
         return false;
     }
+    
 }

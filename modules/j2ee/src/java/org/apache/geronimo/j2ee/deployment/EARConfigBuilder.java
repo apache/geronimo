@@ -33,6 +33,7 @@ import org.apache.geronimo.xbeans.geronimo.j2ee.GerApplicationDocument;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerApplicationType;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerDependencyType;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerGbeanType;
+import org.apache.geronimo.xbeans.geronimo.j2ee.GerModuleType;
 import org.apache.geronimo.xbeans.j2ee.ApplicationDocument;
 import org.apache.geronimo.xbeans.j2ee.ApplicationType;
 import org.apache.geronimo.xbeans.j2ee.ModuleType;
@@ -48,7 +49,17 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
@@ -56,7 +67,7 @@ import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
 /**
- * @version $Revision: 1.19 $ $Date: 2004/08/07 11:22:12 $
+ * @version $Revision: 1.20 $ $Date: 2004/08/09 04:19:35 $
  */
 public class EARConfigBuilder implements ConfigurationBuilder {
     static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderUnion(new SchemaTypeLoader[]{
@@ -243,6 +254,13 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                         }
                         return new FileInputStream(appXMLFile);
                     }
+                    public URL toURL(String uri) throws DeploymentException {
+                        try {
+                            return new File(earFolder, uri).toURL();
+                        } catch (MalformedURLException e) {
+                            throw new DeploymentException("Can not create URL", e);
+                        }
+                    }
                 };
                 return EARConfigBuilder.this.addModules(configID, plan, locator, moduleLocations, modules);
             }
@@ -290,6 +308,14 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                             throw new DeploymentException("Did not find META-INF/application.xml in earFile");
                         }
                         return earFile.getInputStream(appXMLEntry);
+                    }
+                    public URL toURL(String uri) throws DeploymentException {
+                        try {
+                            String urlString = "jar:" + new File(earFile.getName()).toURL() + "!/" + uri;
+                            return new URL(urlString);
+                        } catch (MalformedURLException e) {
+                            throw new DeploymentException("Can not create URL", e);
+                        }
                     }
                 };
                 return EARConfigBuilder.this.addModules(configID, plan, locator, moduleLocations, modules);
@@ -439,38 +465,66 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             Set ejbModules = new HashSet();
             Set connectorModules = new HashSet();
             Set webModules = new HashSet();
+            Map moduleMap = new HashMap();
 
             for (int i = 0; i < moduleTypes.length; i++) {
                 ModuleType module = moduleTypes[i];
+                Module currentModule = null;
                 if (module.isSetEjb()) {
                     URI uri = URI.create(module.getEjb().getStringValue());
-                    EJBModule ejbModule = new EJBModule(uri.toString(), uri);
+                    currentModule = new EJBModule(uri.toString(), uri);
                     if (ejbConfigBuilder == null) {
-                        throw new DeploymentException("Can not deploy ejb application; No ejb deployer defined: " + ejbModule.getURI());
+                        throw new DeploymentException("Can not deploy ejb application; No ejb deployer defined: " + currentModule.getURI());
                     }
                     moduleLocations.add(uri.toString());
-                    ejbModules.add(ejbModule);
+                    ejbModules.add(currentModule);
                 } else if (module.isSetWeb()) {
                     org.apache.geronimo.xbeans.j2ee.WebType web = module.getWeb();
                     URI uri = URI.create(web.getWebUri().getStringValue());
                     String contextRoot = web.getContextRoot().getStringValue();
-                    WebModule webModule = new WebModule(uri.toString(), uri, contextRoot);
+                    currentModule = new WebModule(uri.toString(), uri, contextRoot);
                     if (webConfigBuilder == null) {
-                        throw new DeploymentException("Can not deploy web application; No war deployer defined: " + webModule.getURI());
+                        throw new DeploymentException("Can not deploy web application; No war deployer defined: " + currentModule.getURI());
                     }
 
                     moduleLocations.add(uri.toString());
-                    webModules.add(webModule);
+                    webModules.add(currentModule);
                 } else if (module.isSetConnector()) {
                     URI uri = URI.create(module.getConnector().getStringValue());
-                    ConnectorModule connectorModule = new ConnectorModule(uri.toString(), uri);
+                    currentModule = new ConnectorModule(uri.toString(), uri);
                     if (connectorConfigBuilder == null) {
-                        throw new DeploymentException("Can not deploy resource adapter; No rar deployer defined: " + connectorModule.getURI());
+                        throw new DeploymentException("Can not deploy resource adapter; No rar deployer defined: " + currentModule.getURI());
                     }
                     moduleLocations.add(uri.toString());
-                    connectorModules.add(connectorModule);
+                    connectorModules.add(currentModule);
+                }
+                moduleMap.put(currentModule.getName(), currentModule);
+                // TODO remove test against null when application clients will be supported.
+                if ( module.isSetAltDd() && null != currentModule ) {
+                    URL altDDURL = appLocator.toURL(module.getAltDd().getStringValue());
+                    currentModule.setAltSpecDD(altDDURL);
                 }
             }
+            
+            GerApplicationDocument gerApplication = (GerApplicationDocument) plan;
+            GerModuleType gerModuleTypes[] = gerApplication.getApplication().getModuleArray();
+            for (int i = 0; i < gerModuleTypes.length; i++) {
+                GerModuleType gerModuleType = gerModuleTypes[i];
+                Module currentModule = null;
+                if ( gerModuleType.isSetEjb() ) {
+                    currentModule = (Module) moduleMap.get(gerModuleType.getEjb().getStringValue());
+                } else if ( gerModuleType.isSetWeb() ) {
+                    currentModule = (Module) moduleMap.get(gerModuleType.getWeb().getStringValue());
+                } else if ( gerModuleType.isSetConnector() ) {
+                    currentModule = (Module) moduleMap.get(gerModuleType.getConnector().getStringValue());
+                }
+                // TODO remove test against null when application clients will be supported.
+                if ( gerModuleType.isSetAltDd() && null != currentModule ) {
+                    URL altDDURL = appLocator.toURL(gerModuleType.getAltDd().getStringValue());
+                    currentModule.setAltVendorDD(altDDURL);
+                }
+            }
+            
             modules.addAll(connectorModules);
             modules.addAll(ejbModules);
             modules.addAll(webModules);
@@ -640,6 +694,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
         public InputStream getApplication() throws DeploymentException, IOException;
 
+        public URL toURL(String uri) throws DeploymentException;
+        
     }
 
     public static final GBeanInfo GBEAN_INFO;

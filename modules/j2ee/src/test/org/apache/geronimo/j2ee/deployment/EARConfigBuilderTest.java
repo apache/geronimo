@@ -19,6 +19,8 @@ package org.apache.geronimo.j2ee.deployment;
 
 import java.io.File;
 import java.net.URI;
+import java.net.URL;
+
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;
@@ -30,7 +32,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Revision: 1.8 $ $Date: 2004/08/07 11:22:12 $
+ * @version $Revision: 1.9 $ $Date: 2004/08/09 04:19:35 $
  */
 public class EARConfigBuilderTest extends TestCase {
 
@@ -127,6 +129,46 @@ public class EARConfigBuilderTest extends TestCase {
             protected void tearDown() {
             }
         };
+        TestSetup setupUnpackedAltDD = new TestSetup(inner) {
+            protected void setUp() throws Exception {
+                EAR_BASE_DIR = "target/test-unpacked-ear";
+                EAR_PATH = "alt-dd/";
+                ejbConfigBuilder.ejbModule = new EJBModule("test-ejb-jar/", URI.create("test-ejb-jar/"));
+                File baseDir = new File(EAR_BASE_DIR + "/" + EAR_PATH);
+                ejbConfigBuilder.ejbModule.setAltSpecDD(new File(baseDir, "alt-ejb-jar.xml").toURL());
+                ejbConfigBuilder.ejbModule.setAltVendorDD(new File(baseDir, "alt-ger-ejb-jar.xml").toURL());
+                webConfigBuilder.contextRoot = "test";
+                webConfigBuilder.webModule = new WebModule("test-war/", URI.create("test-war/"), "test");
+                webConfigBuilder.webModule.setAltSpecDD(new File(baseDir, "alt-web.xml").toURL());
+                webConfigBuilder.webModule.setAltVendorDD(new File(baseDir, "alt-ger-war.xml").toURL());
+                connectorConfigBuilder.connectorModule = new ConnectorModule("test-rar.rar", URI.create("test-rar.rar"));
+                connectorConfigBuilder.connectorModule.setAltSpecDD(new File(baseDir, "alt-ra.xml").toURL());
+                connectorConfigBuilder.connectorModule.setAltVendorDD(new File(baseDir, "alt-ger-ra.xml").toURL());
+            }
+
+            protected void tearDown() {
+            }
+        };
+        TestSetup setupPackedAltDD = new TestSetup(inner) {
+            protected void setUp() throws Exception {
+                EAR_BASE_DIR = "target/test-unpacked-ear";
+                EAR_PATH = "alt-dd.ear";
+                ejbConfigBuilder.ejbModule = new EJBModule("test-ejb-jar/", URI.create("test-ejb-jar/"));
+                String baseURI = "jar:" + new File(EAR_BASE_DIR + "/" + EAR_PATH).toURL() + "!/";
+                ejbConfigBuilder.ejbModule.setAltSpecDD(new URL(baseURI + "alt-ejb-jar.xml"));
+                ejbConfigBuilder.ejbModule.setAltVendorDD(new URL(baseURI + "alt-ger-ejb-jar.xml"));
+                webConfigBuilder.contextRoot = "test";
+                webConfigBuilder.webModule = new WebModule("test-war/", URI.create("test-war/"), "test");
+                webConfigBuilder.webModule.setAltSpecDD(new URL(baseURI + "alt-web.xml"));
+                webConfigBuilder.webModule.setAltVendorDD(new URL(baseURI + "alt-ger-war.xml"));
+                connectorConfigBuilder.connectorModule = new ConnectorModule("test-rar.rar", URI.create("test-rar.rar"));
+                connectorConfigBuilder.connectorModule.setAltSpecDD(new URL(baseURI + "alt-ra.xml"));
+                connectorConfigBuilder.connectorModule.setAltVendorDD(new URL(baseURI + "alt-ger-ra.xml"));
+            }
+
+            protected void tearDown() {
+            }
+        };
         
         TestSuite suite = new TestSuite();
         suite.addTest(setup14);
@@ -135,6 +177,8 @@ public class EARConfigBuilderTest extends TestCase {
         suite.addTest(setupNaked13);
         suite.addTest(setupUnpacked);
         suite.addTest(setupUnpackedNaked);
+        suite.addTest(setupUnpackedAltDD);
+        suite.addTest(setupPackedAltDD);
         return suite;
     }
 

@@ -34,11 +34,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
+
 import javax.management.ObjectName;
 import javax.sql.DataSource;
 
 import junit.framework.TestCase;
 
+import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARContext;
@@ -58,7 +60,7 @@ import org.apache.xmlbeans.XmlOptions;
 import org.tranql.sql.jdbc.JDBCUtil;
 
 /**
- * @version $Revision: 1.13 $ $Date: 2004/08/06 22:44:36 $
+ * @version $Revision: 1.14 $ $Date: 2004/08/09 04:19:36 $
  */
 public class RAR_1_0ConfigBuilderTest extends TestCase {
     private URL j2eeDD;
@@ -92,14 +94,76 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
                 return rarFile;
             }
             public void install(ModuleBuilder moduleBuilder, EARContext earContext, Module module) throws Exception {
-                // TODO gets rid of this cast when all the ModuleBuilder
-                // will implement this method.
-                ((ConnectorModuleBuilder) moduleBuilder).installModule(rarFile, earContext, module);
+                moduleBuilder.installModule(rarFile, earContext, module);
             }
         };
         executeTestBuildModule(action);
     }
+
+    public void testBuildUnpackedAltSpecDDModule() throws Exception {
+        InstallAction action = new InstallAction() {
+            private File rarFile = new File("target/test-rar-10");
+            public File getRARFile() {
+                return rarFile;
+            }
+            public void install(ModuleBuilder moduleBuilder, EARContext earContext, Module module) throws Exception {
+                // Resets the vendor DD, such that it will be reloaded.
+                module.setVendorDD(null);
+                // this file does not exist, one expects a DeploymentException.
+                module.setAltSpecDD(new File("target/test-rar-10/dummy.xml").toURL());
+                // this file exists
+                module.setAltVendorDD(new File("target/test-rar-10/META-INF/geronimo-ra.xml").toURL());
+                moduleBuilder.installModule(rarFile, earContext, module);
+            }
+        };
+        try {
+            executeTestBuildModule(action);
+            fail("Spec alt-dd does not exist.");
+        } catch (DeploymentException e) {
+        }
+    }
+
+    public void testBuildUnpackedAltVendorDDModule() throws Exception {
+        InstallAction action = new InstallAction() {
+            private File rarFile = new File("target/test-rar-10");
+            public File getRARFile() {
+                return rarFile;
+            }
+            public void install(ModuleBuilder moduleBuilder, EARContext earContext, Module module) throws Exception {
+                // Resets the vendor DD, such that it will be reloaded.
+                module.setVendorDD(null);
+                // this file exists
+                module.setAltSpecDD(new File("target/test-rar-10/META-INF/ra.xml").toURL());
+                // this file does not exist, one expects a DeploymentException.
+                module.setAltVendorDD(new File("target/test-rar-10/dummy.xml").toURL());
+                moduleBuilder.installModule(rarFile, earContext, module);
+            }
+        };
+        try {
+            executeTestBuildModule(action);
+            fail("Vendor alt-dd does not exist.");
+        } catch (DeploymentException e) {
+        }
+    }
     
+    public void testBuildUnpackedAltSpecVendorDDModule() throws Exception {
+        InstallAction action = new InstallAction() {
+            private File rarFile = new File("target/test-rar-10");
+            public File getRARFile() {
+                return rarFile;
+            }
+            public void install(ModuleBuilder moduleBuilder, EARContext earContext, Module module) throws Exception {
+                // Resets the vendor DD, such that it will be reloaded.
+                module.setVendorDD(null);
+                // this file exists
+                module.setAltSpecDD(new File("target/test-rar-10/META-INF/ra.xml").toURL());
+                // this file exists
+                module.setAltVendorDD(new File("target/test-rar-10/META-INF/geronimo-ra.xml").toURL());
+                moduleBuilder.installModule(rarFile, earContext, module);
+            }
+        };
+        executeTestBuildModule(action);
+    }
     
     public void testBuildPackedModule() throws Exception {
         InstallAction action = new InstallAction() {

@@ -32,9 +32,60 @@
         <xs:sequence>
             <xs:element name="dependency" type="geronimo:dependencyType" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="gbean" type="geronimo:gbeanType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="module" type="geronimo:moduleType" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
 
         <xs:attribute name="configId" type="xs:string" use="required"/>
         <xs:attribute name="parentId" type="xs:string" use="optional"/>
     </xs:complexType>
+    
+    <xs:complexType name="moduleType">
+        <xs:annotation>
+            <xs:documentation>
+	Mirrors the moduleType defined by application_1_4.xsd and adds an
+	optional alt-dd element defining a Geronimo specific deployment descriptor.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:choice>
+	            <xs:element name="connector" type="geronimo:pathType"/>
+                <xs:element name="ejb" type="geronimo:pathType"/>
+                <xs:element name="java" type="geronimo:pathType"/>
+                <xs:element name="web" type="geronimo:pathType"/>
+            </xs:choice>
+            <xs:element name="alt-dd" type="geronimo:pathType" minOccurs="0">
+	            <xs:annotation>
+	                <xs:documentation>
+  Specifies an optional URI to the post-assembly version of the Geronimo
+  specific deployment descriptor file for a particular J2EE module.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="pathType">
+        <xs:annotation>
+            <xs:documentation>
+  Mirrors j2ee:pathType.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleContent>
+            <xs:restriction base="geronimo:string"/>
+        </xs:simpleContent>
+    </xs:complexType>
+    
+    <xs:complexType name="string">
+        <xs:annotation>
+            <xs:documentation>
+   Mirrors j2ee:string.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleContent>
+            <xs:extension base="xs:token">
+	            <xs:attribute name="id" type="xs:ID"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    
 </xs:schema>

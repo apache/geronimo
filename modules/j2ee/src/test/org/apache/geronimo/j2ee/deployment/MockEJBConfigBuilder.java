@@ -27,7 +27,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.SchemaTypeLoader;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/08/07 11:22:12 $
+ * @version $Revision: 1.4 $ $Date: 2004/08/09 04:19:35 $
  */
 public class MockEJBConfigBuilder extends Assert implements ModuleBuilder {
     public EARContext earContext;
@@ -54,11 +54,17 @@ public class MockEJBConfigBuilder extends Assert implements ModuleBuilder {
         return null;
     }
 
-    public void installModule(File earFolder, EARContext earContext, Module module) {
+    public void installModule(File earFolder, EARContext earContext, Module ejbModule) {
         assertNotNull(earFolder);
         assertNotNull(earContext);
         this.earContext = earContext;
         assertEquals(this.ejbModule, ejbModule);
+        if ( null != this.ejbModule.getAltSpecDD() ) {
+            assertEquals(this.ejbModule.getAltSpecDD(), ejbModule.getAltSpecDD());
+        }
+        if ( null != this.ejbModule.getAltVendorDD() ) {
+            assertEquals(this.ejbModule.getAltVendorDD(), ejbModule.getAltVendorDD());
+        }
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module ejbModule) {
@@ -66,6 +72,12 @@ public class MockEJBConfigBuilder extends Assert implements ModuleBuilder {
         assertNotNull(earContext);
         this.earContext = earContext;
         assertEquals(this.ejbModule, ejbModule);
+        if ( null != this.ejbModule.getAltSpecDD() ) {
+            assertEquals(this.ejbModule.getAltSpecDD(), ejbModule.getAltSpecDD());
+        }
+        if ( null != this.ejbModule.getAltVendorDD() ) {
+            assertEquals(this.ejbModule.getAltVendorDD(), ejbModule.getAltVendorDD());
+        }
     }
 
     public void initContext(EARContext earContext, Module ejbModule, ClassLoader cl) {

@@ -27,7 +27,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.SchemaTypeLoader;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/08/07 11:22:12 $
+ * @version $Revision: 1.5 $ $Date: 2004/08/09 04:19:35 $
  */
 public class MockWARConfigBuilder extends Assert implements ModuleBuilder {
     public EARContext earContext;
@@ -55,12 +55,17 @@ public class MockWARConfigBuilder extends Assert implements ModuleBuilder {
         return null;
     }
 
-    public void installModule(File earFolder, EARContext earContext,
-        Module module) throws DeploymentException {
+    public void installModule(File earFolder, EARContext earContext, Module webModule) throws DeploymentException {
         assertNotNull(earFolder);
         assertNotNull(earContext);
         this.earContext = earContext;
         assertEquals(this.webModule, webModule);
+        if ( null != this.webModule.getAltSpecDD() ) {
+            assertEquals(this.webModule.getAltSpecDD(), webModule.getAltSpecDD());
+        }
+        if ( null != this.webModule.getAltVendorDD() ) {
+            assertEquals(this.webModule.getAltVendorDD(), webModule.getAltVendorDD());
+        }
     }
     
     public void installModule(JarFile earFile, EARContext earContext, Module webModule) throws DeploymentException {
@@ -68,6 +73,12 @@ public class MockWARConfigBuilder extends Assert implements ModuleBuilder {
         assertNotNull(earContext);
         this.earContext = earContext;
         assertEquals(this.webModule, webModule);
+        if ( null != this.webModule.getAltSpecDD() ) {
+            assertEquals(this.webModule.getAltSpecDD(), webModule.getAltSpecDD());
+        }
+        if ( null != this.webModule.getAltVendorDD() ) {
+            assertEquals(this.webModule.getAltVendorDD(), webModule.getAltVendorDD());
+        }
     }
 
     public void initContext(EARContext earContext, Module webModule, ClassLoader cl) {
