@@ -61,7 +61,7 @@ import junit.framework.TestCase;
 /**
  * Unit test for {@link Classes} class.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/28 09:08:03 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/29 19:33:43 $
  */
 public class ClassesTest
     extends TestCase
@@ -126,4 +126,42 @@ public class ClassesTest
         Class type = loadClass(className);
         assertEquals(byte[].class, type);
     }
+
+    public void testgetClassName() throws ClassNotFoundException {
+        Class t;
+        Class y;
+        String x;
+
+        t= String.class;
+        x = Classes.getClassName(t);
+        y = loadClass(x);
+        assertEquals(t,y);
+        
+        t= int.class;
+        x = Classes.getClassName(t);
+        y = loadClass(x);
+        assertEquals(t,y);
+
+        t= String[].class;
+        x = Classes.getClassName(t);
+        y = loadClass(x);
+        assertEquals(t,y);
+
+        t= int[].class;
+        x = Classes.getClassName(t);
+        y = loadClass(x);
+        assertEquals(t,y);
+
+        t= String[][].class;
+        x = Classes.getClassName(t);
+        y = loadClass(x);
+        assertEquals(t,y);
+
+        t= int[][].class;
+        x = Classes.getClassName(t);
+        y = loadClass(x);
+        assertEquals(t,y);
+
+    }
+    
 }

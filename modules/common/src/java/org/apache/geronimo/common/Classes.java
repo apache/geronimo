@@ -56,19 +56,16 @@
 
 package org.apache.geronimo.common;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Array;
-
-import java.util.Map;
 import java.util.HashMap;
-
-import java.io.IOException;
+import java.util.Map;
 
 /**
  * A collection of <code>Class</code> utilities.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/28 09:08:03 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/29 19:33:43 $
  */
 public final class Classes
 {
@@ -250,6 +247,23 @@ public final class Classes
         VM_PRIMITIVES.put("S", short.class);
         VM_PRIMITIVES.put("Z", boolean.class);
         VM_PRIMITIVES.put("V", void.class);
+    }
+
+    /** VM primitive type primitive type ->  name  */
+    private static final HashMap VM_PRIMITIVES_REVERSE = new HashMap();
+    
+    /** Setup the vm primitives reverse map. */
+    static
+    {
+        VM_PRIMITIVES_REVERSE.put(byte.class, "B");
+        VM_PRIMITIVES_REVERSE.put(char.class, "C");
+        VM_PRIMITIVES_REVERSE.put(double.class, "D");
+        VM_PRIMITIVES_REVERSE.put(float.class,"F");
+        VM_PRIMITIVES_REVERSE.put(int.class, "I");
+        VM_PRIMITIVES_REVERSE.put(long.class, "J");
+        VM_PRIMITIVES_REVERSE.put(short.class,"S");
+        VM_PRIMITIVES_REVERSE.put(boolean.class, "Z");
+        VM_PRIMITIVES_REVERSE.put(void.class, "V");
     }
     
     /**
@@ -435,4 +449,24 @@ public final class Classes
         // Else we can not load (give up)
         throw new ClassNotFoundException(className);
     }
+    
+    /**
+     */
+    public static String getClassName(Class clazz) {
+        StringBuffer rc = new StringBuffer();
+        while (clazz.isArray()) {
+            rc.append('[');
+            clazz = clazz.getComponentType();
+        }
+        if (!clazz.isPrimitive()) {
+            rc.append('L');
+            rc.append(clazz.getName());
+            rc.append(';');
+        } else {
+            rc.append(VM_PRIMITIVES_REVERSE.get(clazz));
+        }
+        return rc.toString();
+    }
+
 }
+   

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.29 $ $Date: 2003/08/29 12:37:35 $ -->
+<!-- $Revision: 1.30 $ $Date: 2003/08/29 19:33:43 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
@@ -161,6 +161,13 @@
         target="${aggregate.dir}/etc"
         include="**/*"/>
     </define:tag>
+
+    <define:tag name="deploy">
+      <aggregate:copy
+        source="${module.root}/src/deploy"
+        target="${aggregate.dir}/deploy"
+        include="**/*"/>
+    </define:tag>
     
     <define:tag name="libraries">
       <aggregate:copy
@@ -172,6 +179,7 @@
     <define:tag name="default">
       <aggregate:scripts/>
       <aggregate:config/>
+      <aggregate:deploy/>
       <aggregate:libraries/>
     </define:tag>
     
@@ -415,5 +423,35 @@
       </java>
     </j:jelly>
   </goal>
- 
+
+  <goal name="debug:main">
+    <j:set var="run.dir" value="${basedir}/target/${release.id}"/>
+    <j:jelly xmlns="jelly:ant">
+
+        <java classname="org.apache.geronimo.Main" 
+            fork="true"
+            maxmemory="128m"
+            failonerror="true"
+            dir="${run.dir}">
+
+        <classpath>
+          <pathelement path="${run.dir}/etc"/>
+          <fileset dir="${run.dir}/lib">
+            <include name="*.jar"/>
+            <exclude name="xerces-2.4.0.jar"/>
+          </fileset>              
+        </classpath>
+
+        <jvmarg value="-Xdebug"/>
+        <jvmarg value="-Xnoagent"/>
+        <jvmarg value="-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y"/>
+
+        <sysproperty key="program.name" value="maven:debug"/>
+        <sysproperty key="geronimo.home" value="file:${run.dir}/"/>
+        <sysproperty key="java.compiler" value="NONE"/>
+
+      </java>
+    </j:jelly>
+  </goal>
+
 </project>
