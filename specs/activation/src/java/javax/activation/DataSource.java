@@ -67,8 +67,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2003/08/16 18:07:45 $
- * @deprecated this is a placeholder for a futre javax.activation package only
+ * @version $Revision: 1.3 $ $Date: 2003/08/18 14:44:32 $
  */
 public interface DataSource {
     public abstract InputStream getInputStream() throws IOException;
