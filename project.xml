@@ -204,6 +204,10 @@
             <id>mx4j</id>
             <version>SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <id>mx4j+tools</id>
+            <version>SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>

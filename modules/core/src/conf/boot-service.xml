@@ -13,11 +13,18 @@
         </constructor>
     </mbean>
 -->
+    <!-- RMI adaptor to support MC4J -->
+    <mbean code="mx4j.tools.naming.NamingService" name="Naming:type=rmiregistry">
+    </mbean>
+    <mbean code="mx4j.adaptor.rmi.jrmp.JRMPAdaptor" name="Adaptor:protocol=JRMP">
+        <attribute name="JNDIName">jrmp</attribute>
+    </mbean>
+
     <mbean code="org.apache.geronimo.deployment.scanner.DeploymentScanner" name="geronimo.deployment:role=DeploymentScanner">
         <attribute name="ScanInterval">5000</attribute>
         <relationship type="DeploymentController-DeploymentScanner" name="DeploymentController-DeploymentScanner" role="DeploymentScanner"/>
         <invoke operation="addURL">
-            <arg type="java.lang.String">file:/D:/temp/deploy/</arg>
+            <arg type="java.lang.String">file:deploy/</arg>
             <arg type="boolean">false</arg>
         </invoke>
     </mbean>
