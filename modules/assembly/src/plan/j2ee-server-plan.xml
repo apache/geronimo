@@ -248,7 +248,7 @@ by the server.
         <reference name="serverInfo">geronimo.system:role=ServerInfo</reference>
     </gbean>
 
-    <gbean name="geronimo.server:type=TransactionManager" class="org.apache.geronimo.transaction.GeronimoTransactionManager">
+    <gbean name="geronimo.server:type=TransactionManager" class="org.apache.geronimo.transaction.manager.TransactionManagerImpl">
         <attribute name="defaultTransactionTimeoutSeconds" type="int">300</attribute>
         <reference name="TransactionLog">geronimo.server:type=HOWLTransactionLog</reference>
         <references name="ResourceManagers">
@@ -260,7 +260,6 @@ by the server.
     <gbean name="geronimo.server:type=TransactionContextManager" class="org.apache.geronimo.transaction.context.TransactionContextManager">
         <reference name="TransactionManager">geronimo.server:type=TransactionManager</reference>
         <reference name="XidImporter">geronimo.server:type=TransactionManager</reference>
-        <reference name="Recovery">geronimo.server:type=TransactionManager</reference>
     </gbean>
 
 

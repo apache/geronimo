@@ -17,6 +17,12 @@
 
 package org.apache.geronimo.transaction.manager;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
@@ -29,6 +35,13 @@ import javax.transaction.Transaction;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.Xid;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.ReferenceCollection;
+import org.apache.geronimo.gbean.ReferenceCollectionEvent;
+import org.apache.geronimo.gbean.ReferenceCollectionListener;
 import org.apache.geronimo.transaction.ExtendedTransactionManager;
 import org.apache.geronimo.transaction.log.UnrecoverableLog;
 
@@ -39,26 +52,53 @@ import org.apache.geronimo.transaction.log.UnrecoverableLog;
  * @version $Rev$ $Date$
  */
 public class TransactionManagerImpl implements ExtendedTransactionManager, XidImporter {
-    private final TransactionLog txnLog;
-    private final XidFactory xidFactory;
+    final TransactionLog transactionLog;
+    final XidFactory xidFactory;
     private final int defaultTransactionTimeoutMilliseconds;
     private final ThreadLocal transactionTimeoutMilliseconds = new ThreadLocal();
     private final ThreadLocal threadTx = new ThreadLocal();
     private final Timer timeoutTimer = new Timer(true);
+    private static final Log recoveryLog = LogFactory.getLog("RecoveryController");
+    final Recovery recovery;
+    final ReferenceCollection resourceManagers;
+    private List recoveryErrors = new ArrayList();
 
-    public TransactionManagerImpl() {
-        defaultTransactionTimeoutMilliseconds = 10 * 1000;
-        txnLog = new UnrecoverableLog();
-        xidFactory = new XidFactoryImpl();
-    }
-
-    public TransactionManagerImpl(int defaultTransactionTimeoutSeconds, TransactionLog txnLog, XidFactory xidFactory) {
+    /**
+     * TODO NOTE!!! this should be called in an unspecified transaction context, but we cannot enforce this restriction!
+     */
+    public TransactionManagerImpl(int defaultTransactionTimeoutSeconds, TransactionLog transactionLog, Collection resourceManagers) throws XAException {
         if (defaultTransactionTimeoutSeconds <= 0) {
             throw new IllegalArgumentException("defaultTransactionTimeoutSeconds must be positive: attempted value: " + defaultTransactionTimeoutSeconds);
         }
+
         this.defaultTransactionTimeoutMilliseconds = defaultTransactionTimeoutSeconds * 1000;
-        this.txnLog = txnLog;
-        this.xidFactory = xidFactory;
+        this.transactionLog = transactionLog == null ? new UnrecoverableLog() : transactionLog;
+        this.xidFactory = new XidFactoryImpl("WHAT DO WE CALL IT?".getBytes());
+        this.resourceManagers = (ReferenceCollection) resourceManagers;
+        recovery = new RecoveryImpl(this.transactionLog, this.xidFactory);
+
+        if (resourceManagers != null) {
+            recovery.recoverLog();
+            List copy = null;
+            synchronized (resourceManagers) {
+                copy = new ArrayList(resourceManagers);
+                this.resourceManagers.addReferenceCollectionListener(new ReferenceCollectionListener() {
+                    public void memberAdded(ReferenceCollectionEvent event) {
+                        ResourceManager resourceManager = (ResourceManager) event.getMember();
+                        recoverResourceManager(resourceManager);
+                    }
+
+                    public void memberRemoved(ReferenceCollectionEvent event) {
+                    }
+
+                });
+            }
+            for (Iterator iterator = copy.iterator(); iterator.hasNext();) {
+                ResourceManager resourceManager = (ResourceManager) iterator.next();
+                recoverResourceManager(resourceManager);
+            }
+            //what to do if there are recovery errors? or not all resource managers are online?
+        }
     }
 
     public Transaction getTransaction() throws SystemException {
@@ -89,17 +129,17 @@ public class TransactionManagerImpl implements ExtendedTransactionManager, XidIm
         if (getStatus() != Status.STATUS_NO_TRANSACTION) {
             throw new NotSupportedException("Nested Transactions are not supported");
         }
-        TransactionImpl tx = new TransactionImpl(xidFactory, txnLog);
+        TransactionImpl tx = new TransactionImpl(xidFactory, transactionLog);
         timeoutTimer.schedule(tx, getTransactionTimeoutMilliseconds(transactionTimeoutMilliseconds));
         threadTx.set(tx);
-        ((TransactionImpl)tx).setCurrentThread(Thread.currentThread());
+        ((TransactionImpl) tx).setCurrentThread(Thread.currentThread());
         return tx;
     }
 
     public Transaction suspend() throws SystemException {
         Transaction tx = getTransaction();
         if (tx != null) {
-            ((TransactionImpl)tx).setCurrentThread(null);
+            ((TransactionImpl) tx).setCurrentThread(null);
         }
         threadTx.set(null);
         return tx;
@@ -113,7 +153,7 @@ public class TransactionManagerImpl implements ExtendedTransactionManager, XidIm
             throw new InvalidTransactionException("Cannot resume foreign transaction: " + tx);
         }
         threadTx.set(tx);
-        ((TransactionImpl)tx).setCurrentThread(Thread.currentThread());
+        ((TransactionImpl) tx).setCurrentThread(Thread.currentThread());
     }
 
     public void setRollbackOnly() throws IllegalStateException, SystemException {
@@ -133,7 +173,7 @@ public class TransactionManagerImpl implements ExtendedTransactionManager, XidIm
             tx.commit();
         } finally {
             threadTx.set(null);
-            ((TransactionImpl)tx).setCurrentThread(null);
+            ((TransactionImpl) tx).setCurrentThread(null);
         }
     }
 
@@ -146,7 +186,7 @@ public class TransactionManagerImpl implements ExtendedTransactionManager, XidIm
             tx.rollback();
         } finally {
             threadTx.set(null);
-            ((TransactionImpl)tx).setCurrentThread(null);
+            ((TransactionImpl) tx).setCurrentThread(null);
         }
     }
 
@@ -155,7 +195,7 @@ public class TransactionManagerImpl implements ExtendedTransactionManager, XidIm
         if (transactionTimeoutMilliseconds < 0) {
             throw new SystemException("transaction timeout must be positive or 0 to reset to default");
         }
-        TransactionImpl tx = new TransactionImpl(xid, xidFactory, txnLog);
+        TransactionImpl tx = new TransactionImpl(xid, xidFactory, transactionLog);
         timeoutTimer.schedule(tx, getTransactionTimeoutMilliseconds(transactionTimeoutMilliseconds));
         return tx;
     }
@@ -219,4 +259,51 @@ public class TransactionManagerImpl implements ExtendedTransactionManager, XidIm
         return defaultTransactionTimeoutMilliseconds;
     }
 
+    protected void recoverResourceManager(ResourceManager resourceManager) {
+        NamedXAResource namedXAResource = null;
+        try {
+            namedXAResource = resourceManager.getRecoveryXAResources();
+        } catch (SystemException e) {
+            recoveryLog.error(e);
+            recoveryErrors.add(e);
+            return;
+        }
+        if (namedXAResource != null) {
+            try {
+                recovery.recoverResourceManager(namedXAResource);
+            } catch (XAException e) {
+                recoveryLog.error(e);
+                recoveryErrors.add(e);
+            } finally {
+                resourceManager.returnResource(namedXAResource);
+            }
+        }
+    }
+
+
+    public Map getExternalXids() {
+        return new HashMap(recovery.getExternalXids());
+    }
+
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(TransactionManagerImpl.class);
+
+        infoBuilder.addAttribute("defaultTransactionTimeoutSeconds", int.class, true);
+        infoBuilder.addReference("TransactionLog", TransactionLog.class);
+        infoBuilder.addReference("ResourceManagers", ResourceManager.class);
+
+        infoBuilder.addInterface(ExtendedTransactionManager.class);
+        infoBuilder.addInterface(XidImporter.class);
+
+        infoBuilder.setConstructor(new String[]{"defaultTransactionTimeoutSeconds", "TransactionLog", "ResourceManagers"});
+
+        GBEAN_INFO = infoBuilder.getBeanInfo();
+    }
+
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
 }

@@ -19,12 +19,9 @@ package org.apache.geronimo.transaction.manager;
 
 import java.sql.Connection;
 import java.sql.Statement;
-import java.util.Map;
-import java.util.List;
-import java.util.Set;
-import java.util.Collection;
 import java.util.ArrayList;
-
+import java.util.Collection;
+import java.util.List;
 import javax.sql.XAConnection;
 import javax.sql.XADataSource;
 import javax.transaction.TransactionManager;
@@ -38,7 +35,6 @@ import javax.transaction.xa.Xid;
  * @version $Rev$ $Date$
  */
 public class XATransactionTester {
-    private TransactionLog log;
     private TransactionManager manager;
     private XADataSource ds;
     private Xid xid;
@@ -51,9 +47,7 @@ public class XATransactionTester {
         ds = getDataSource(args);
         XAConnection xaConn = ds.getXAConnection("test", "test");
         XAResource xaRes = xaConn.getXAResource();
-        log = new DummyLog();
-        XidFactory xidFactory = new XidFactoryImpl();
-        manager = new TransactionManagerImpl(10, log, xidFactory);
+        manager = new TransactionManagerImpl(10, new DummyLog(), null);
         Connection c = xaConn.getConnection();
         Statement s = c.createStatement();
 

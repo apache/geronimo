@@ -35,7 +35,7 @@ import org.apache.geronimo.pool.ThreadPool;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.timer.vm.VMStoreThreadPooledNonTransactionalTimer;
 import org.apache.geronimo.timer.vm.VMStoreThreadPooledTransactionalTimer;
-import org.apache.geronimo.transaction.GeronimoTransactionManager;
+import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
@@ -94,7 +94,7 @@ public class J2EEManager {
 
     private void setUpTransactionManager(Kernel kernel) throws AxisFault {
         try {
-            GBeanData tmGBean = new GBeanData(AxisGeronimoConstants.TRANSACTION_MANAGER_NAME,GeronimoTransactionManager.GBEAN_INFO);
+            GBeanData tmGBean = new GBeanData(AxisGeronimoConstants.TRANSACTION_MANAGER_NAME,TransactionManagerImpl.GBEAN_INFO);
             Set rmpatterns = new HashSet();
             rmpatterns.add(ObjectName.getInstance("geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
             tmGBean.setAttribute("defaultTransactionTimeoutSeconds", new Integer(10));

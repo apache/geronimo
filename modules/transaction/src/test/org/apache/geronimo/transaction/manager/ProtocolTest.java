@@ -4,19 +4,17 @@ import javax.transaction.Transaction;
 import javax.transaction.xa.XAResource;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.transaction.log.UnrecoverableLog;
 
 /**
  */
 public class ProtocolTest extends TestCase {
 
-    XidFactory xidFactory = new XidFactoryImpl("test".getBytes());
-    TransactionManagerImpl tm;
-    MockResourceManager mrm1, mrm2;
-    MockResource mr11, mr12, mr21, mr22;
+    private TransactionManagerImpl tm;
+    private MockResourceManager mrm1, mrm2;
+    private MockResource mr11, mr12, mr21, mr22;
 
     protected void setUp() throws Exception {
-        tm = new TransactionManagerImpl(10, new UnrecoverableLog(), xidFactory);
+        tm = new TransactionManagerImpl(1000, null, null);
         mrm1 = new MockResourceManager(true);
         mrm2 = new MockResourceManager(true);
         mr11 = new MockResource(mrm1, "mr11");

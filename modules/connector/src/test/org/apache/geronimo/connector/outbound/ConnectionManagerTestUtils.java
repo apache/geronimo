@@ -90,8 +90,8 @@ public class ConnectionManagerTestUtils extends TestCase implements DefaultInter
 
     protected void setUp() throws Exception {
         connectionTrackingCoordinator = new ConnectionTrackingCoordinator();
-        TransactionManagerImpl transactionManager = new TransactionManagerImpl();
-        transactionContextManager = new TransactionContextManager(transactionManager, transactionManager, null);
+        TransactionManagerImpl transactionManager = new TransactionManagerImpl(10 * 1000, null, null);
+        transactionContextManager = new TransactionContextManager(transactionManager, transactionManager);
         mockManagedConnectionFactory = new MockManagedConnectionFactory();
         subject = new Subject();
         ContextManager.setCurrentCaller(subject);

@@ -33,7 +33,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.transaction.OnlineUserTransaction;
-import org.apache.geronimo.transaction.GeronimoTransactionManager;
+import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.Kernel;
@@ -238,7 +238,7 @@ public class AbstractWebModuleTest extends TestCase {
         start(container);
         start(connector);
 
-        tm = new GBeanData(tmName, GeronimoTransactionManager.GBEAN_INFO);
+        tm = new GBeanData(tmName, TransactionManagerImpl.GBEAN_INFO);
         Set patterns = new HashSet();
         patterns.add(ObjectName.getInstance("geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
         tm.setAttribute("defaultTransactionTimeoutSeconds", new Integer(10));

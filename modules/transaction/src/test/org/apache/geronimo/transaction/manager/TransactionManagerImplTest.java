@@ -15,11 +15,10 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.transaction;
+package org.apache.geronimo.transaction.manager;
 
 import java.util.ArrayList;
 import java.util.Map;
-
 import javax.transaction.RollbackException;
 import javax.transaction.Status;
 import javax.transaction.Transaction;
@@ -30,20 +29,11 @@ import junit.framework.TestCase;
 import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
-import org.apache.geronimo.transaction.manager.MockLog;
-import org.apache.geronimo.transaction.manager.MockResource;
-import org.apache.geronimo.transaction.manager.MockResourceManager;
-import org.apache.geronimo.transaction.manager.Recovery;
-import org.apache.geronimo.transaction.manager.RecoveryImpl;
-import org.apache.geronimo.transaction.manager.TransactionLog;
-import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
-import org.apache.geronimo.transaction.manager.XidFactory;
-import org.apache.geronimo.transaction.manager.XidFactoryImpl;
 
 /**
  * @version $Rev$ $Date$
  */
-public class TransactionManagerProxyTest extends TestCase {
+public class TransactionManagerImplTest extends TestCase {
 
     MockResourceManager rm1 = new MockResourceManager(true);
     MockResource r1_1 = rm1.getResource("rm1_1");
@@ -54,19 +44,14 @@ public class TransactionManagerProxyTest extends TestCase {
 
     TransactionLog transactionLog = new MockLog();
 
-    XidFactory xidFactory = new XidFactoryImpl("tm1".getBytes());
-    TransactionManagerImpl transactionManager;
-    Recovery recovery = new RecoveryImpl(transactionLog, xidFactory);
     ReferenceCollection resourceManagers = new TestReferenceCollection();
-    TransactionManagerProxy tm;
+    TransactionManagerImpl tm;
 
     protected void setUp() throws Exception {
-        transactionManager = new TransactionManagerImpl(10, transactionLog, xidFactory);
-        tm = new TransactionManagerProxy(transactionManager, transactionManager, recovery, resourceManagers);
+        tm = new TransactionManagerImpl(10, transactionLog, resourceManagers);
     }
 
     protected void tearDown() throws Exception {
-        transactionManager = null;
         tm = null;
     }
 
@@ -261,7 +246,7 @@ public class TransactionManagerProxyTest extends TestCase {
     //This test depends on using the resource that will be recovered by the resource manager.
     public void testSimpleRecovery() throws Exception {
         //create a transaction in our own transaction manager
-        Xid xid = xidFactory.createXid();
+        Xid xid = tm.xidFactory.createXid();
         Transaction tx = tm.importXid(xid, 0);
         tm.resume(tx);
         assertSame(tx, tm.getTransaction());
@@ -272,13 +257,13 @@ public class TransactionManagerProxyTest extends TestCase {
         tm.suspend();
         tm.prepare(tx);
         //recover
+        tm.recovery.recoverLog();
         resourceManagers.add(rm1);
-        tm.doStart();
         assertTrue(r1_2.isCommitted());
         assertTrue(!r2_2.isCommitted());
         resourceManagers.add(rm2);
         assertTrue(r2_2.isCommitted());
-        assertTrue(recovery.localRecoveryComplete());
+        assertTrue(tm.recovery.localRecoveryComplete());
     }
 
     public void testImportedXidRecovery() throws Exception {
@@ -295,14 +280,14 @@ public class TransactionManagerProxyTest extends TestCase {
         tm.suspend();
         tm.prepare(tx);
         //recover
+        tm.recovery.recoverLog();
         resourceManagers.add(rm1);
-        tm.doStart();
         assertTrue(!r1_2.isCommitted());
         assertTrue(!r2_2.isCommitted());
         resourceManagers.add(rm2);
         assertTrue(!r2_2.isCommitted());
         //there are no transactions started here, so local recovery is complete
-        assertTrue(recovery.localRecoveryComplete());
+        assertTrue(tm.recovery.localRecoveryComplete());
         Map recovered = tm.getExternalXids();
         assertEquals(1, recovered.size());
         assertEquals(xid, recovered.keySet().iterator().next());
@@ -310,7 +295,6 @@ public class TransactionManagerProxyTest extends TestCase {
 
     public void testResourceManagerContract() throws Exception {
         resourceManagers.add(rm1);
-        tm.doStart();
         assertTrue(rm1.areAllResourcesReturned());
     }
 

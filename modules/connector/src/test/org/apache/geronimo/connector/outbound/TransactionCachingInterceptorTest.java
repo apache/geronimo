@@ -39,8 +39,8 @@ public class TransactionCachingInterceptorTest extends ConnectionInterceptorTest
 
     protected void setUp() throws Exception {
         super.setUp();
-        transactionManager = new TransactionManagerImpl();
-        transactionContextManager = new TransactionContextManager(transactionManager, transactionManager, null);
+        transactionManager = new TransactionManagerImpl(10 * 1000, null, null);
+        transactionContextManager = new TransactionContextManager(transactionManager, transactionManager);
         transactionCachingInterceptor = new TransactionCachingInterceptor(this, transactionContextManager);
     }
 

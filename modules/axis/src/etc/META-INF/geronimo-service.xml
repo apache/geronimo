@@ -21,5 +21,5 @@
     <path>geronimo-spec-j2ee-connector-DEV.jar</path>
 
     <!-- transaction -->
-    <gbean class="org.apache.geronimo.transaction.TransactionManagerProxy" objectName="geronimo.transaction:service=TransactionManager"/>
+    <gbean class="org.apache.geronimo.transaction.manager.TransactionManagerImpl" objectName="geronimo.transaction:service=TransactionManager"/>
 </gbeans>

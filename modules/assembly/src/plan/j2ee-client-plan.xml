@@ -93,7 +93,7 @@ by the app client.
         <reference name="TransactionContextManager">geronimo.client:type=TransactionContextManager</reference>
     </gbean>
 
-    <gbean name="geronimo.client:type=TransactionManager" class="org.apache.geronimo.transaction.GeronimoTransactionManager">
+    <gbean name="geronimo.client:type=TransactionManager" class="org.apache.geronimo.transaction.manager.TransactionManagerImpl">
         <references name="ResourceManagers">
             <pattern>geronimo.client:j2eeType=JCAManagedConnectionFactory,*</pattern>
             <pattern>geronimo.client:j2eeType=ActivationSpec,*</pattern>
@@ -103,7 +103,6 @@ by the app client.
     <gbean name="geronimo.client:type=TransactionContextManager" class="org.apache.geronimo.transaction.context.TransactionContextManager">
         <reference name="TransactionManager">geronimo.client:type=TransactionManager</reference>
         <reference name="XidImporter">geronimo.client:type=TransactionManager</reference>
-        <reference name="Recovery">geronimo.client:type=TransactionManager</reference>
     </gbean>
 
 </configuration>

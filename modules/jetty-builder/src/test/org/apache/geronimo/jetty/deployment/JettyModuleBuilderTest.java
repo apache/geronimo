@@ -44,7 +44,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.security.SecurityServiceImpl;
-import org.apache.geronimo.transaction.GeronimoTransactionManager;
+import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
@@ -197,7 +197,7 @@ public class JettyModuleBuilderTest extends TestCase {
         start(container);
         start(connector);
 
-        tm = new GBeanData(tmName, GeronimoTransactionManager.GBEAN_INFO);
+        tm = new GBeanData(tmName, TransactionManagerImpl.GBEAN_INFO);
         Set patterns = new HashSet();
         patterns.add(ObjectName.getInstance("geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
         tm.setAttribute("defaultTransactionTimeoutSeconds", new Integer(10));

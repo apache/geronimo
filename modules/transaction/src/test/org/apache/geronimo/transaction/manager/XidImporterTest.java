@@ -40,8 +40,12 @@ public class XidImporterTest extends TestCase{
     MockResource r2_1 = new MockResource(rm2, "rm2");
     MockResource r2_2 = new MockResource(rm2, "rm2");
 
-    XidImporter tm = new TransactionManagerImpl();
+    XidImporter tm;
     XidFactory xidFactory = new XidFactoryImpl();
+
+    protected void setUp() throws Exception {
+        tm = new TransactionManagerImpl(10 * 1000, null, null);
+    }
 
     public void testImportXid() throws Exception {
         Xid externalXid = xidFactory.createXid();

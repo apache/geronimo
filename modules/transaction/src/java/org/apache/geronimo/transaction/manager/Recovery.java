@@ -19,8 +19,8 @@ package org.apache.geronimo.transaction.manager;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+import java.util.Map;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.Xid;
 

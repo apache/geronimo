@@ -29,8 +29,8 @@ import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 public class NontransactionalThreadPooledTimerTest extends AbstractThreadPooledTimerTest {
 
     protected void setUp() throws Exception {
-        TransactionManagerImpl transactionManager = new TransactionManagerImpl();
-        transactionContextManager = new TransactionContextManager(transactionManager, transactionManager, null);
+        TransactionManagerImpl transactionManager = new TransactionManagerImpl(10 * 1000, null, null);
+        transactionContextManager = new TransactionContextManager(transactionManager, transactionManager);
         executableWorkFactory = new NontransactionalExecutorTaskFactory();
         super.setUp();
     }

@@ -45,8 +45,8 @@ public class TransactionEnlistingInterceptorTest extends ConnectionInterceptorTe
 
     protected void setUp() throws Exception {
         super.setUp();
-        TransactionManagerImpl transactionManager = new TransactionManagerImpl();
-        transactionContextManager = new TransactionContextManager(transactionManager, transactionManager, null);
+        TransactionManagerImpl transactionManager = new TransactionManagerImpl(10 * 1000, null, null);
+        transactionContextManager = new TransactionContextManager(transactionManager, transactionManager);
         transactionEnlistingInterceptor = new TransactionEnlistingInterceptor(this, transactionContextManager);
     }
 

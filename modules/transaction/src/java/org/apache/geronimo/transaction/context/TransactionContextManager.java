@@ -50,20 +50,18 @@ public class TransactionContextManager implements XATerminator, XAWork {
 
     private final ExtendedTransactionManager transactionManager;
     private final XidImporter importer;
-    private final Recovery recovery;
     private final Map importedTransactions = new HashMap();
 
     private boolean recoveryState = NOT_IN_RECOVERY;
 
     //use as reference endpoint.
     public TransactionContextManager() {
-        this(null, null, null);
+        this(null, null);
     }
 
-    public TransactionContextManager(ExtendedTransactionManager transactionManager, XidImporter importer, Recovery recovery) {
+    public TransactionContextManager(ExtendedTransactionManager transactionManager, XidImporter importer) {
         this.transactionManager = transactionManager;
         this.importer = importer;
-        this.recovery = recovery;
     }
 
     public TransactionManager getTransactionManager() {
@@ -203,7 +201,7 @@ public class TransactionContextManager implements XATerminator, XAWork {
         //we always return all xids in first call.
         //calling "startrscan" repeatedly starts at beginning of list again.
         if ((flag & XAResource.TMSTARTRSCAN) != 0) {
-            Map recoveredXidMap = recovery.getExternalXids();
+            Map recoveredXidMap = transactionManager.getExternalXids();
             Xid[] recoveredXids = new Xid[recoveredXidMap.size()];
             int i = 0;
             synchronized (importedTransactions) {
@@ -295,12 +293,11 @@ public class TransactionContextManager implements XATerminator, XAWork {
 
         infoFactory.addReference("TransactionManager", ExtendedTransactionManager.class);
         infoFactory.addReference("XidImporter", XidImporter.class);
-        infoFactory.addReference("Recovery", Recovery.class);
 
         infoFactory.addInterface(XATerminator.class);
         infoFactory.addInterface(XAWork.class);
 
-        infoFactory.setConstructor(new String[]{"TransactionManager", "XidImporter", "Recovery"});
+        infoFactory.setConstructor(new String[]{"TransactionManager", "XidImporter"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

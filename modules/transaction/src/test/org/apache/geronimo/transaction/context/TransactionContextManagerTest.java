@@ -20,9 +20,8 @@ package org.apache.geronimo.transaction.context;
 import javax.transaction.xa.Xid;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.transaction.GeronimoTransactionManager;
 import org.apache.geronimo.transaction.ImportedTransactionActiveException;
-import org.apache.geronimo.transaction.TransactionManagerProxy;
+import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.apache.geronimo.transaction.manager.XidFactory;
 import org.apache.geronimo.transaction.manager.XidFactoryImpl;
 
@@ -38,8 +37,8 @@ public class TransactionContextManagerTest extends TestCase {
     private XidFactory xidFactory = new XidFactoryImpl("geronimo.test.tm".getBytes());
 
     protected void setUp() throws Exception {
-        TransactionManagerProxy tm = new GeronimoTransactionManager(1000, null, null);
-        transactionContextManager = new TransactionContextManager(tm, tm, tm);
+        TransactionManagerImpl tm = new TransactionManagerImpl(1000, null, null);
+        transactionContextManager = new TransactionContextManager(tm, tm);
     }
 
     protected void tearDown() throws Exception {
