@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.23 $ $Date: 2003/08/24 13:59:00 $ -->
+<!-- $Revision: 1.24 $ $Date: 2003/08/24 17:35:55 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
@@ -109,12 +109,12 @@
     <attainGoal name="modules:clean"/>
   </preGoal>
   
-  <preGoal name="default">
-    <attainGoal name="modules:default"/>
-  </preGoal>
-  
   <goal name="jar:deploy">
     <attainGoal name="modules:jar:deploy"/>
+  </goal>
+  
+  <goal name="default">
+    <attainGoal name="modules:default"/>
   </goal>
   
   
