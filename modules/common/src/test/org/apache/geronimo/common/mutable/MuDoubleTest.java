@@ -57,12 +57,12 @@
 package org.apache.geronimo.common.mutable;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.common.coerce.NotCoercibleException;
+import org.apache.geronimo.common.NotCoercibleException;
 
 /**
  * Unit test for {@link MuDouble} class.
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/30 20:59:16 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/03 18:00:17 $
  */
 public class MuDoubleTest extends TestCase {
 
