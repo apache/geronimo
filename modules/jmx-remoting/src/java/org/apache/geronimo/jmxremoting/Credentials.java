@@ -35,7 +35,7 @@ public class Credentials implements CallbackHandler, Serializable {
 
     public Credentials(String username, String password) {
         this.username = username;
-        this.password = password.toCharArray();
+        this.password = password == null ? null : password.toCharArray();
     }
 
     public void handle(Callback[] callbacks) throws UnsupportedCallbackException {
@@ -54,6 +54,8 @@ public class Credentials implements CallbackHandler, Serializable {
     }
 
     public void clear() {
-        Arrays.fill(password, '\0');
+        if(password != null) {
+            Arrays.fill(password, '\0');
+        }
     }
 }
