@@ -26,6 +26,7 @@ import javax.transaction.NotSupportedException;
 import javax.transaction.Status;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
+import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
@@ -65,6 +66,10 @@ public class TransactionContextManager implements XATerminator, XAWork {
         this.recovery = recovery;
     }
 
+    public TransactionManager getTransactionManager() {
+        return transactionManager;
+    }
+    
     public TransactionContext getContext() {
         return TransactionContext.getContext();
     }
@@ -276,6 +281,8 @@ public class TransactionContextManager implements XATerminator, XAWork {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(TransactionContextManager.class);
+
+        infoFactory.addOperation("getTransactionManager");
         infoFactory.addOperation("getContext");
         infoFactory.addOperation("setContext", new Class[]{TransactionContext.class});
         infoFactory.addOperation("newContainerTransactionContext");
