@@ -48,4 +48,7 @@ public interface J2eeContext {
 
     String getJ2eeType(String override);
 
+    String getJ2eeModuleType();
+
+    String getJ2eeModuleType(String override);
 }

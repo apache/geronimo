@@ -298,7 +298,8 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         // generate the object name for the app client
         ObjectName appClientModuleName = null;
         try {
-            appClientModuleName = NameFactory.getModuleName(null, null, null, appClientModule.getName(), NameFactory.APP_CLIENT_MODULE, earJ2eeContext);
+            //TODO consider constructing a module context
+            appClientModuleName = NameFactory.getModuleName(null, null, null, NameFactory.APP_CLIENT_MODULE, appClientModule.getName(), earJ2eeContext);
         } catch (MalformedObjectNameException e) {
             throw new DeploymentException("Could not construct module name", e);
         }

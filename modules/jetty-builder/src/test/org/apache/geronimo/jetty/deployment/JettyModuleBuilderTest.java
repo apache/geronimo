@@ -50,6 +50,7 @@ import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.jetty.JettyContainerImpl;
 import org.apache.geronimo.jetty.connector.HTTPConnector;
 import org.apache.geronimo.kernel.Kernel;
@@ -83,7 +84,7 @@ public class JettyModuleBuilderTest extends TestCase {
     private ObjectName tcmName;
     private GBeanData tcm;
     private ClassLoader cl;
-    private J2eeContext moduleContext = new J2eeContextImpl("jetty.test", "test", "null", "jettyTest", null, null);
+    private J2eeContext moduleContext = new J2eeContextImpl("jetty.test", "test", "null", NameFactory.WEB_MODULE, "jettyTest", null, null);
     private JettyModuleBuilder builder;
     private File basedir = new File(System.getProperty("basedir", "."));
     private URI parentId = URI.create("org/apache/geronimo/Foo");
@@ -97,6 +98,9 @@ public class JettyModuleBuilderTest extends TestCase {
         Module module = builder.createModule(null, jarFile);
         URI id = new URI("war4");
         EARContext earContext = createEARContext(outputPath, id);
+        ObjectName serverName = earContext.getServerObjectName();
+        GBeanData server = new GBeanData(serverName, J2EEServerImpl.GBEAN_INFO);
+        start(server);
         builder.initContext(earContext, module, cl);
         builder.addGBeans(earContext, module, cl);
         earContext.close();
@@ -109,6 +113,7 @@ public class JettyModuleBuilderTest extends TestCase {
         if (((Integer) kernel.getAttribute(configData.getName(), "state")).intValue() != State.RUNNING_INDEX) {
             fail("gbean not started: " + configData.getName());
         }
+        assertEquals(new Integer(State.RUNNING_INDEX), kernel.getAttribute(ObjectName.getInstance("test:J2EEApplication=null,J2EEServer=bar,j2eeType=WebModule,name=war4"), "state"));
         Set names = kernel.listGBeans(ObjectName.getInstance("test:J2EEApplication=null,J2EEServer=bar,WebModule=war4,*"));
         System.out.println("Object names: " + names);
         for (Iterator iterator = names.iterator(); iterator.hasNext();) {
@@ -205,8 +210,8 @@ public class JettyModuleBuilderTest extends TestCase {
         connectorName = NameFactory.getWebComponentName(null, null, null, null, "jettyConnector", "WebResource", moduleContext);
 //        webModuleName = NameFactory.getWebComponentName(null, null, null, null, NameFactory.WEB_MODULE, "WebResource", moduleContext);
 
-        tmName = NameFactory.getComponentName(null, null, null, null, "TransactionManager", NameFactory.JTA_RESOURCE, moduleContext);
-        tcmName = NameFactory.getComponentName(null, null, null, null, "TransactionContextManager", NameFactory.JTA_RESOURCE, moduleContext);
+        tmName = NameFactory.getComponentName(null, null, null, null, null, "TransactionManager", NameFactory.JTA_RESOURCE, moduleContext);
+        tcmName = NameFactory.getComponentName(null, null, null, null, null, "TransactionContextManager", NameFactory.JTA_RESOURCE, moduleContext);
         ctcName = new ObjectName("geronimo.test:role=ConnectionTrackingCoordinator");
 
         kernel = new Kernel("foo", new BasicGBeanRegistry());
@@ -246,6 +251,8 @@ public class JettyModuleBuilderTest extends TestCase {
         start(tcm);
         ctc = new GBeanData(ctcName, ConnectionTrackingCoordinator.GBEAN_INFO);
         start(ctc);
+
+
     }
 
     protected void tearDown() throws Exception {

@@ -29,6 +29,8 @@ import org.apache.geronimo.j2ee.management.J2EEServer;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
 import org.apache.geronimo.j2ee.management.impl.Util;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 
@@ -36,18 +38,17 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
  * @version $Rev$ $Date$
  */
 public class ResourceAdapterModuleImpl {
-    private final Kernel kernel;
-    private final String baseName;
     private final J2EEServer server;
     private final J2EEApplication application;
     private final String deploymentDescriptor;
+    private final String[] resourceAdapters;
 
     private final GBeanData resourceAdapterGBeanData;
     private final Map activationSpecInfoMap;
     private final Map adminObjectInfoMap;
     private final Map managedConnectionFactoryInfoMap;
 
-    public ResourceAdapterModuleImpl(Kernel kernel,
+    public ResourceAdapterModuleImpl(String resourceAdapter,
                                      String objectName, 
                                      J2EEServer server, 
                                      J2EEApplication application, 
@@ -59,14 +60,8 @@ public class ResourceAdapterModuleImpl {
         ObjectName myObjectName = JMXUtil.getObjectName(objectName);
         verifyObjectName(myObjectName);
 
-        // build the base name used to query the server for child modules
-        Hashtable keyPropertyList = myObjectName.getKeyPropertyList();
-        String name = (String) keyPropertyList.get("name");
-        String j2eeServerName = (String) keyPropertyList.get("J2EEServer");
-        String j2eeApplicationName = (String) keyPropertyList.get("J2EEApplication");
-        baseName = myObjectName.getDomain() + ":J2EEServer=" + j2eeServerName + ",J2EEApplication=" + j2eeApplicationName + ",ResouceAdapterModule=" + name + ",";
+        this.resourceAdapters = new String[] {resourceAdapter};
 
-        this.kernel = kernel;
         this.server = server;
         this.application = application;
         this.deploymentDescriptor = deploymentDescriptor;
@@ -97,7 +92,7 @@ public class ResourceAdapterModuleImpl {
     }
 
     public String[] getResourceAdapters() throws MalformedObjectNameException {
-        return Util.getObjectNames(kernel, baseName, new String[]{"ResourceAdapter"});
+        return resourceAdapters;
     }
 
     public GBeanData getResourceAdapterGBeanData() {
@@ -152,7 +147,7 @@ public class ResourceAdapterModuleImpl {
 
         infoBuilder.addAttribute("deploymentDescriptor", String.class, true);
 
-        infoBuilder.addAttribute("kernel", Kernel.class, false);
+        infoBuilder.addAttribute("resourceAdapter", String.class, true);
         infoBuilder.addAttribute("objectName", String.class, false);
         infoBuilder.addAttribute("server", String.class, false);
         infoBuilder.addAttribute("application", String.class, false);
@@ -165,7 +160,7 @@ public class ResourceAdapterModuleImpl {
         infoBuilder.addAttribute("managedConnectionFactoryInfoMap", Map.class, true);
 
         infoBuilder.setConstructor(new String[]{
-            "kernel",
+            "resourceAdapter",
             "objectName",
             "J2EEServer",
             "J2EEApplication",

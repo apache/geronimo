@@ -141,7 +141,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
             throw new DeploymentException(e);
         }
 
-        J2eeContext j2eeContext = new J2eeContextImpl(context.getDomain(), context.getServer(), NameFactory.NULL, configID.toString(), null, null);
+        J2eeContext j2eeContext = new J2eeContextImpl(context.getDomain(), context.getServer(), NameFactory.NULL, NameFactory.J2EE_MODULE, configID.toString(), null, null);
         DependencyType[] includes = configType.getIncludeArray();
         addIncludes(context, includes, repository);
         addDependencies(context, configType.getDependencyArray(), repository);
@@ -228,6 +228,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
             String namePart = gbean.getNamePart();
             try {
                 String j2eeType = gBeanInfo.getJ2eeType();
+                //todo investigate using the module type from the j2eecontext.
                 objectName = NameFactory.getComponentName(null, null, null, null, namePart, j2eeType, j2eeContext);
             } catch (MalformedObjectNameException e) {
                 throw new DeploymentException("Invalid ObjectName: " + namePart, e);

@@ -48,7 +48,7 @@ public class EARContext extends DeploymentContext {
 
     public EARContext(File baseDir, URI id, ConfigurationModuleType moduleType, URI parentID, Kernel kernel, String j2eeApplicationName, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName transactedTimerName, ObjectName nonTransactedTimerName, RefContext refContext) throws MalformedObjectNameException, DeploymentException {
         super(baseDir, id, moduleType, parentID, kernel);
-        j2eeContext = new J2eeContextImpl(getDomain(), getServer(), j2eeApplicationName == null ? NameFactory.NULL : j2eeApplicationName, null, null, null);
+        j2eeContext = new J2eeContextImpl(getDomain(), getServer(), j2eeApplicationName == null ? NameFactory.NULL : j2eeApplicationName, null, null, null, null);
         domainObjectName = NameFactory.getDomainName(null, j2eeContext);
         serverObjectName = NameFactory.getServerName(null, null, j2eeContext);
 

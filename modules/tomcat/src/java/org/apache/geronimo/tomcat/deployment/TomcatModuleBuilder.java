@@ -81,10 +81,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
 
     public String addGBeans(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
         J2eeContext earJ2eeContext = earContext.getJ2eeContext();
-        J2eeContext moduleJ2eeContext = new J2eeContextImpl(earJ2eeContext.getJ2eeDomainName(),
-                                                            earJ2eeContext.getJ2eeServerName(),
-                                                            earJ2eeContext.getJ2eeApplicationName(),
-                                                            module.getName(), null, null);
+        J2eeContext moduleJ2eeContext = J2eeContextImpl.newModuleContextFromApplication(earJ2eeContext, NameFactory.WEB_MODULE, module.getName());
         WebModule webModule = (WebModule) module;
 
         // construct the webClassLoader
@@ -102,7 +99,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
 
         ObjectName webModuleName = null;
         try {
-            webModuleName = NameFactory.getModuleName(null, null, null, null, NameFactory.WEB_MODULE, moduleJ2eeContext);
+            webModuleName = NameFactory.getModuleName(null, null, null, null, null, moduleJ2eeContext);
         } catch (MalformedObjectNameException e) {
             throw new DeploymentException("Could not construct module name", e);
         }

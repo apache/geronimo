@@ -41,9 +41,9 @@ public class JCAConnectionFactoryImpl {
         this.managedConnectionFactory = managedConnectionFactory;
     }
 
-    public String getServer() {
-        return server.getObjectName();
-    }
+//    public String getServer() {
+//        return server.getObjectName();
+//    }
 
     public String getManagedConnectionFactory() {
         return managedConnectionFactory;
@@ -83,7 +83,7 @@ public class JCAConnectionFactoryImpl {
         infoFactory.addReference("J2EEServer", J2EEServer.class);
 
         infoFactory.addAttribute("objectName", String.class, false);
-        infoFactory.addAttribute("server", String.class, false);
+//        infoFactory.addAttribute("server", String.class, false);
         infoFactory.addAttribute("managedConnectionFactory", String.class, true);
 
         infoFactory.setConstructor(new String[]{"objectName", "J2EEServer", "managedConnectionFactory"});

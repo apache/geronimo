@@ -67,7 +67,7 @@ public class AbstractWebModuleTest extends TestCase {
     private ObjectName tcmName;
     private GBeanData tcm;
     private ClassLoader cl;
-    private J2eeContext moduleContext = new J2eeContextImpl("jetty.test", "test", "null", "jettyTest", null, null);
+    private J2eeContext moduleContext = new J2eeContextImpl("jetty.test", "test", "null", NameFactory.WEB_MODULE, "jettyTest", null, null);
     private GBeanData loginConfigurationGBean;
     protected ObjectName loginConfigurationName;
     private GBeanData securityServiceGBean;
@@ -239,10 +239,10 @@ public class AbstractWebModuleTest extends TestCase {
         cl = this.getClass().getClassLoader();
         containerName = NameFactory.getWebComponentName(null, null, null, null, "jettyContainer", "WebResource", moduleContext);
         connectorName = NameFactory.getWebComponentName(null, null, null, null, "jettyConnector", "WebResource", moduleContext);
-        webModuleName = NameFactory.getWebComponentName(null, null, null, null, NameFactory.WEB_MODULE, "WebResource", moduleContext);
+        webModuleName = NameFactory.getModuleName(null, null, null, null, "testModule", moduleContext);
 
-        tmName = NameFactory.getComponentName(null, null, null, null, "TransactionManager", NameFactory.JTA_RESOURCE, moduleContext);
-        tcmName = NameFactory.getComponentName(null, null, null, null, "TransactionContextManager", NameFactory.JTA_RESOURCE, moduleContext);
+        tmName = NameFactory.getComponentName(null, null, null, null, null, "TransactionManager", NameFactory.JTA_RESOURCE, moduleContext);
+        tcmName = NameFactory.getComponentName(null, null, null, null, null, "TransactionContextManager", NameFactory.JTA_RESOURCE, moduleContext);
         ctcName = new ObjectName("geronimo.test:role=ConnectionTrackingCoordinator");
 
         kernel = new Kernel("test.kernel");

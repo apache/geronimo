@@ -24,10 +24,13 @@ import java.util.EventListener;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.Hashtable;
 import java.security.PermissionCollection;
 import java.io.IOException;
 
 import javax.naming.Context;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -57,9 +60,17 @@ import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.naming.reference.KernelAwareReference;
 import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
 import org.apache.geronimo.naming.java.SimpleReadOnlyContext;
+import org.apache.geronimo.j2ee.management.J2EEServer;
+import org.apache.geronimo.j2ee.management.J2EEApplication;
+import org.apache.geronimo.j2ee.management.impl.Util;
+import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
@@ -68,6 +79,13 @@ import org.apache.geronimo.naming.java.SimpleReadOnlyContext;
  */
 public class JettyWebAppContext extends WebApplicationContext implements GBeanLifecycle, JettyServletRegistration {
     private static Log log = LogFactory.getLog(JettyWebAppContext.class);
+
+    private final Kernel kernel;
+    //jsr-77 stuff
+    private final J2eeContext moduleContext;
+    private final String originalSpecDD;
+    private final J2EEServer server;
+    private final J2EEApplication application;
 
     private final ClassLoader webClassLoader;
     private final JettyContainer jettyContainer;
@@ -80,11 +98,17 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     private final  BeforeAfter chain;
     private final  int contextLength;
     private final SecurityContextBeforeAfter securityInterceptor;
+    private static final String[] J2EE_TYPES = {NameFactory.SERVLET};
 
     /**
      * @deprecated never use this... this is only here because Jetty WebApplicationContext is externalizable
      */
     public JettyWebAppContext() {
+        kernel = null;
+        server = null;
+        application = null;
+        moduleContext = null;
+        originalSpecDD = null;
         webClassLoader = null;
         jettyContainer = null;
         webAppRoot = null;
@@ -96,42 +120,46 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
     }
 
-    public JettyWebAppContext(URI uri,
-                                  Map componentContext,
-                                  OnlineUserTransaction userTransaction,
-                                  ClassLoader classLoader,
-                                  URI[] webClassPath,
-                                  boolean contextPriorityClassLoader,
-                                  URL configurationBaseUrl,
-                                  Set unshareableResources,
-                                  Set applicationManagedSecurityResources,
+    public JettyWebAppContext(String objectName,
+                              String originalSpecDD,
+                              URI uri,
+                              Map componentContext,
+                              OnlineUserTransaction userTransaction,
+                              ClassLoader classLoader,
+                              URI[] webClassPath,
+                              boolean contextPriorityClassLoader,
+                              URL configurationBaseUrl,
+                              Set unshareableResources,
+                              Set applicationManagedSecurityResources,
 
-                                  String displayName,
-                                  Map contextParamMap,
-                                  Collection listenerClassNames,
-                                  boolean distributable,
-                                  Map mimeMap,
-                                  String[] welcomeFiles,
-                                  Map localeEncodingMapping,
-                                  Map errorPages,
-                                  Authenticator authenticator,
-                                  String realmName,
-                                  Map tagLibMap,
-                                  int sessionTimeoutSeconds,
+                              String displayName,
+                              Map contextParamMap,
+                              Collection listenerClassNames,
+                              boolean distributable,
+                              Map mimeMap,
+                              String[] welcomeFiles,
+                              Map localeEncodingMapping,
+                              Map errorPages,
+                              Authenticator authenticator,
+                              String realmName,
+                              Map tagLibMap,
+                              int sessionTimeoutSeconds,
 
-                                  String policyContextID,
-                                  String securityRealmName,
-                                  Security securityConfig,
-                                  //from jettyxmlconfig
-                                  Set securityRoles,
-                                  PermissionCollection uncheckedPermissions,
-                                  PermissionCollection excludedPermissions,
-                                  Map rolePermissions,
+                              String policyContextID,
+                              String securityRealmName,
+                              Security securityConfig,
+                              //from jettyxmlconfig
+                              Set securityRoles,
+                              PermissionCollection uncheckedPermissions,
+                              PermissionCollection excludedPermissions,
+                              Map rolePermissions,
 
-                                  TransactionContextManager transactionContextManager,
-                                  TrackedConnectionAssociator trackedConnectionAssociator,
-                                  JettyContainer jettyContainer,
-                                  Kernel kernel) throws Exception, IllegalAccessException, InstantiationException, ClassNotFoundException {
+                              TransactionContextManager transactionContextManager,
+                              TrackedConnectionAssociator trackedConnectionAssociator,
+                              JettyContainer jettyContainer,
+                              J2EEServer server,
+                              J2EEApplication application,
+                              Kernel kernel) throws Exception, IllegalAccessException, InstantiationException, ClassNotFoundException {
 
         assert uri != null;
         assert componentContext != null;
@@ -143,7 +171,16 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         assert trackedConnectionAssociator != null;
         assert jettyContainer != null;
 
+        this.kernel = kernel;
+        this.server = server;
+        this.application = application;
+        ObjectName myObjectName = JMXUtil.getObjectName(objectName);
+        verifyObjectName(myObjectName);
+        moduleContext = J2eeContextImpl.newContext(myObjectName, NameFactory.WEB_MODULE);
+
         this.jettyContainer = jettyContainer;
+
+        this.originalSpecDD = originalSpecDD;
 
         setConfigurationClassNames(new String[]{});
 
@@ -356,7 +393,55 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         super.setDisplayName(displayName);
     }
 
+    public String getDeploymentDescriptor() {
+        return originalSpecDD;
+    }
 
+    public String getServer() {
+        return server.getObjectName();
+    }
+
+    public String getApplication() {
+        if (application == null) {
+            return null;
+        }
+        return application.getObjectName();
+    }
+
+    public String[] getJavaVMs() {
+        return server.getJavaVMs();
+    }
+
+    public String[] getServlets() throws MalformedObjectNameException {
+        return Util.getObjectNames(kernel, moduleContext, J2EE_TYPES);
+    }
+
+    /**
+     * ObjectName must match this pattern:
+     * <p/>
+     * domain:j2eeType=WebModule,name=MyName,J2EEServer=MyServer,J2EEApplication=MyApplication
+     */
+    private void verifyObjectName(ObjectName objectName) {
+        if (objectName.isPattern()) {
+            throw new InvalidObjectNameException("ObjectName can not be a pattern", objectName);
+        }
+        Hashtable keyPropertyList = objectName.getKeyPropertyList();
+        if (!NameFactory.WEB_MODULE.equals(keyPropertyList.get("j2eeType"))) {
+            throw new InvalidObjectNameException("WebModule object name j2eeType property must be 'WebModule'", objectName);
+        }
+        if (!keyPropertyList.containsKey(NameFactory.J2EE_NAME)) {
+            throw new InvalidObjectNameException("WebModule object must contain a name property", objectName);
+        }
+        if (!keyPropertyList.containsKey(NameFactory.J2EE_SERVER)) {
+            throw new InvalidObjectNameException("WebModule object name must contain a J2EEServer property", objectName);
+        }
+        if (!keyPropertyList.containsKey(NameFactory.J2EE_APPLICATION)) {
+            throw new InvalidObjectNameException("WebModule object name must contain a J2EEApplication property", objectName);
+        }
+        if (keyPropertyList.size() != 4) {
+            throw new InvalidObjectNameException("WebModule object name can only have j2eeType, name, J2EEApplication, and J2EEServer properties", objectName);
+        }
+    }
     public void registerServletHolder(ServletHolder servletHolder, String servletName, Set servletMappings, Map webRoleRefPermissions) throws Exception {
         //TODO filters
         handler.addServletHolder(servletHolder);
@@ -389,6 +474,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
                                                               
     static {
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder("Jetty WebApplication Context", JettyWebAppContext.class);
+        infoBuilder.addAttribute("deploymentDescriptor", String.class, true);
         //from jetty's webapp context
 
         infoBuilder.addAttribute("displayName", String.class, true);
@@ -433,9 +519,19 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         infoBuilder.addAttribute("excludedPermissions", PermissionCollection.class, true);
         infoBuilder.addAttribute("rolePermissions", Map.class, true);
 
+        infoBuilder.addReference("J2EEServer", J2EEServer.class);
+        infoBuilder.addReference("J2EEApplication", J2EEApplication.class);
+
         infoBuilder.addAttribute("kernel", Kernel.class, false);
+        infoBuilder.addAttribute("objectName", String.class, false);
+        infoBuilder.addAttribute("server", String.class, false);
+        infoBuilder.addAttribute("application", String.class, false);
+        infoBuilder.addAttribute("javaVMs", String[].class, false);
+        infoBuilder.addAttribute("servlets", String[].class, false);
 
         infoBuilder.setConstructor(new String[]{
+            "objectName",
+            "deploymentDescriptor",
             "uri",
             "componentContext",
             "userTransaction",
@@ -472,6 +568,8 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
             "TrackedConnectionAssociator",
             "JettyContainer",
 
+            "J2EEServer",
+            "J2EEApplication",
             "kernel"
         });
 

@@ -26,28 +26,50 @@ public class J2eeContextImpl implements J2eeContext {
     private final String domainName;
     private final String serverName;
     private final String applicationName;
+    private final String moduleType;
     private final String moduleName;
     private final String j2eeName;
     private final String j2eeType;
 
-    public J2eeContextImpl(String domainName, String serverName, String applicationName, String moduleName, String j2eeName, String j2eeType) {
+    public J2eeContextImpl(String domainName, String serverName, String applicationName, String moduleType, String moduleName, String j2eeName, String j2eeType) {
         this.domainName = domainName;
         this.serverName = serverName;
         this.applicationName = applicationName;
+        this.moduleType = moduleType;
         this.moduleName = moduleName;
         this.j2eeName = j2eeName;
         this.j2eeType = j2eeType;
     }
 
-    public J2eeContextImpl(ObjectName source, String moduleType) {
-        this.domainName = source.getDomain();
-        this.serverName = source.getKeyProperty(NameFactory.J2EE_SERVER);
-        this.applicationName = source.getKeyProperty(NameFactory.J2EE_APPLICATION);
-        this.moduleName = source.getKeyProperty(moduleType);
-        this.j2eeType = source.getKeyProperty(NameFactory.J2EE_TYPE);
-        this.j2eeName = source.getKeyProperty(NameFactory.J2EE_NAME);
+    public static J2eeContextImpl newContext(ObjectName source, String moduleType) {
+        return new J2eeContextImpl(source.getDomain(),
+                source.getKeyProperty(NameFactory.J2EE_SERVER),
+                source.getKeyProperty(NameFactory.J2EE_APPLICATION),
+                moduleType,
+                source.getKeyProperty(moduleType),
+                source.getKeyProperty(NameFactory.J2EE_TYPE),
+                source.getKeyProperty(NameFactory.J2EE_NAME));
     }
 
+    public static J2eeContextImpl newModuleContextFromApplication(ObjectName source, String moduleType, String moduleName) {
+        return new J2eeContextImpl(source.getDomain(),
+                source.getKeyProperty(NameFactory.J2EE_SERVER),
+                source.getKeyProperty(NameFactory.J2EE_NAME), //application name in module is name key property in application's object name
+                moduleType,
+                moduleName,
+                null,
+                null);
+    }
+
+    public static J2eeContextImpl newModuleContextFromApplication(J2eeContext source, String moduleType, String moduleName) {
+        return new J2eeContextImpl(source.getJ2eeDomainName(),
+                source.getJ2eeServerName(),
+                source.getJ2eeApplicationName(),
+                moduleType,
+                moduleName,
+                null,
+                null);
+    }
 
     public String getJ2eeDomainName() {
         return domainName;
@@ -59,6 +81,10 @@ public class J2eeContextImpl implements J2eeContext {
 
     public String getJ2eeApplicationName() {
         return applicationName;
+    }
+
+    public String getJ2eeModuleType() {
+        return moduleType;
     }
 
     public String getJ2eeModuleName() {
@@ -74,27 +100,31 @@ public class J2eeContextImpl implements J2eeContext {
     }
 
     public String getJ2eeDomainName(String override) {
-        return override == null? domainName: override;
+        return override == null ? domainName : override;
     }
 
     public String getJ2eeServerName(String override) {
-        return override == null? serverName: override;
+        return override == null ? serverName : override;
     }
 
     public String getJ2eeApplicationName(String override) {
-        return override == null? applicationName: override;
+        return override == null ? applicationName : override;
+    }
+
+    public String getJ2eeModuleType(String override) {
+        return override == null ? moduleType : override;
     }
 
     public String getJ2eeModuleName(String override) {
-        return override == null? moduleName: override;
+        return override == null ? moduleName : override;
     }
 
     //most likely the last 2 don't make any sense.
     public String getJ2eeName(String override) {
-        return override == null? j2eeName: override;
+        return override == null ? j2eeName : override;
     }
 
     public String getJ2eeType(String override) {
-        return override == null? j2eeType: override;
+        return override == null ? j2eeType : override;
     }
 }

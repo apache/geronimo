@@ -69,7 +69,7 @@ public class AbstractWebModuleTest extends TestCase {
     private ObjectName tcmName;
     private GBeanData tcm;
     private ClassLoader cl;
-    private J2eeContext moduleContext = new J2eeContextImpl("tomcat.test", "test", "null", "tomcatTest", null, null);
+    private J2eeContext moduleContext = new J2eeContextImpl("tomcat.test", "test", "null", NameFactory.WEB_MODULE, "tomcatTest", null, null);
     private GBeanData securityServiceGBean;
     protected ObjectName securityServiceName;
     private ObjectName loginServiceName;

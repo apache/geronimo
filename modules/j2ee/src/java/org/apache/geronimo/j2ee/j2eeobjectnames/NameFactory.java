@@ -94,6 +94,7 @@ public class NameFactory {
     public static final String CONFIGURATION_ENTRY = "ConfigurationEntry";
     public static final String PERSISTENT_CONFIGURATION_LIST = "PersistentConfigurationList"; //duplicated in FileConfigurationList
 //    public static final String URL_PATTERN = "URLPattern";
+    public static String DEFAULT_SERVLET = "DefaultServlet";
 
     public static ObjectName getDomainName(String j2eeDomainName, J2eeContext context) throws MalformedObjectNameException {
         Properties props = new Properties();
@@ -117,23 +118,28 @@ public class NameFactory {
         return ObjectName.getInstance(context.getJ2eeDomainName(j2eeDomainName), props);
     }
 
-    public static ObjectName getModuleName(String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, String j2eeModuleName, String j2eeType, J2eeContext context) throws MalformedObjectNameException {
+    public static ObjectName getModuleName(String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, String j2eeModuleType, String j2eeModuleName, J2eeContext context) throws MalformedObjectNameException {
         Properties props = new Properties();
-        props.put(J2EE_TYPE, context.getJ2eeType(j2eeType));
+        //N.B.! module context will have the module's j2eeType as its module type attribute.
+        props.put(J2EE_TYPE, context.getJ2eeModuleType(j2eeModuleType));
         props.put(J2EE_SERVER, context.getJ2eeServerName(j2eeServerName));
         props.put(J2EE_APPLICATION, context.getJ2eeApplicationName(j2eeApplicationName));
         props.put(J2EE_NAME, context.getJ2eeModuleName(j2eeModuleName));
         return ObjectName.getInstance(context.getJ2eeDomainName(j2eeDomainName), props);
     }
 
-    public static ObjectName getEjbComponentName(String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, String j2eeModuleName, String j2eeName, String j2eeType, J2eeContext context) throws MalformedObjectNameException {
+    public static ObjectName getComponentName(String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, String j2eeModuleType, String j2eeModuleName, String j2eeName, String j2eeType, J2eeContext context) throws MalformedObjectNameException {
         Properties props = new Properties();
         props.put(J2EE_TYPE, context.getJ2eeType(j2eeType));
         props.put(J2EE_SERVER, context.getJ2eeServerName(j2eeServerName));
         props.put(J2EE_APPLICATION, context.getJ2eeApplicationName(j2eeApplicationName));
-        props.put(EJB_MODULE, context.getJ2eeModuleName(j2eeModuleName));
+        props.put(context.getJ2eeModuleType(j2eeModuleType), context.getJ2eeModuleName(j2eeModuleName));
         props.put(J2EE_NAME, context.getJ2eeName(j2eeName));
         return ObjectName.getInstance(context.getJ2eeDomainName(j2eeDomainName), props);
+    }
+
+    public static ObjectName getEjbComponentName(String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, String j2eeModuleName, String j2eeName, String j2eeType, J2eeContext context) throws MalformedObjectNameException {
+        return getComponentName(j2eeDomainName, j2eeServerName, j2eeApplicationName, EJB_MODULE, j2eeModuleName, j2eeName, j2eeType, context);
     }
 
     public static String getEjbComponentNameString(String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, String j2eeModuleName, String j2eeName, String j2eeType, J2eeContext context) throws MalformedObjectNameException {
@@ -141,14 +147,7 @@ public class NameFactory {
     }
 
     public static ObjectName getResourceComponentName(String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, String j2eeModuleName, String j2eeName, String j2eeType, J2eeContext context) throws MalformedObjectNameException {
-        Properties props = new Properties();
-        props.put(J2EE_TYPE, context.getJ2eeType(j2eeType));
-        props.put(J2EE_SERVER, context.getJ2eeServerName(j2eeServerName));
-        props.put(J2EE_APPLICATION, context.getJ2eeApplicationName(j2eeApplicationName));
-//        props.put(RESOURCE_ADAPTER_MODULE, context.getJ2eeModuleName(j2eeModuleName));
-        props.put(JCA_RESOURCE, context.getJ2eeModuleName(j2eeModuleName));
-        props.put(J2EE_NAME, context.getJ2eeName(j2eeName));
-        return ObjectName.getInstance(context.getJ2eeDomainName(j2eeDomainName), props);
+        return getComponentName(j2eeDomainName, j2eeServerName, j2eeApplicationName, RESOURCE_ADAPTER_MODULE, j2eeModuleName, j2eeName, j2eeType, context);
     }
 
     public static String getResourceComponentNameString(String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, String j2eeModuleName, String j2eeName, String j2eeType, J2eeContext context) throws MalformedObjectNameException {
@@ -182,17 +181,21 @@ public class NameFactory {
         return ObjectName.getInstance(buffer.toString());
     }
 
-    public static ObjectName getWebComponentName(String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, String j2eeModuleName, String j2eeName, String j2eeType, J2eeContext context) throws MalformedObjectNameException {
-        Properties props = new Properties();
-        props.put(J2EE_TYPE, context.getJ2eeType(j2eeType));
-        props.put(J2EE_SERVER, context.getJ2eeServerName(j2eeServerName));
-        props.put(J2EE_APPLICATION, context.getJ2eeApplicationName(j2eeApplicationName));
-        props.put(WEB_MODULE, context.getJ2eeModuleName(j2eeModuleName));
-        props.put(J2EE_NAME, context.getJ2eeName(j2eeName));
-        return ObjectName.getInstance(context.getJ2eeDomainName(j2eeDomainName), props);
+    public static ObjectName getComponentInModuleQuery(String j2eeDomainName, String j2eeServerName, String applicationName, String j2eeModuleType, String j2eeModuleName, String j2eeType, J2eeContext context) throws MalformedObjectNameException {
+        StringBuffer buffer = new StringBuffer(context.getJ2eeDomainName(j2eeDomainName))
+                .append(":" + J2EE_TYPE + "=").append(context.getJ2eeType(j2eeType))
+                .append("," + J2EE_SERVER + "=").append(context.getJ2eeServerName(j2eeServerName))
+                .append("," + J2EE_APPLICATION + "=").append(context.getJ2eeApplicationName(applicationName))
+                .append(",").append(context.getJ2eeModuleType(j2eeModuleType)).append("=").append(context.getJ2eeModuleName(j2eeModuleName))
+                .append(",*");
+        return ObjectName.getInstance(buffer.toString());
     }
 
-    //THIS IS KIND OF WEIRD. Is there a better way???
+    public static ObjectName getWebComponentName(String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, String j2eeModuleName, String j2eeName, String j2eeType, J2eeContext context) throws MalformedObjectNameException {
+        return getComponentName(j2eeDomainName, j2eeServerName, j2eeApplicationName, WEB_MODULE, j2eeModuleName, j2eeName, j2eeType, context);
+    }
+
+    //TODO THIS IS KIND OF WEIRD. Is there a better way???
     public static ObjectName getWebFilterMappingName(String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, String j2eeModuleName, String filterName, String servletName, String urlPattern, J2eeContext context) throws MalformedObjectNameException {
         Properties props = new Properties();
         props.put(J2EE_TYPE, WEB_FILTER_MAPPING);

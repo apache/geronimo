@@ -283,9 +283,10 @@ public class ConnectorModuleBuilderTest extends TestCase {
 
 
     private void executeTestBuildModule(InstallAction action, boolean is15) throws Exception {
-        J2eeContext j2eeContext = new J2eeContextImpl("test", "bar", "null", "org/apache/geronimo/j2ee/deployment/test", null, null);
+        J2eeContext j2eeContext = new J2eeContextImpl("test", "bar", "null", "JCAResource", "org/apache/geronimo/j2ee/deployment/test", null, null);
         String resourceAdapterName = "testRA";
-        ObjectName connectionTrackerName = NameFactory.getComponentName(null, null, null, null, "ConnectionTracker", ConnectionTrackingCoordinator.GBEAN_INFO.getJ2eeType(), j2eeContext); 
+        //N.B. short version of getComponentName
+        ObjectName connectionTrackerName = NameFactory.getComponentName(null, null, null, null, "ConnectionTracker", ConnectionTrackingCoordinator.GBEAN_INFO.getJ2eeType(), j2eeContext);
                 //new ObjectName("test:J2EEServer=bar,J2EEModule=org/apache/geronimo/j2ee/deployment/test,service=ConnectionTracker");
 
         Kernel kernel = new Kernel("foo", new BasicGBeanRegistry());
@@ -398,7 +399,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
                 assertTrue("No application object should be registered for a standalone module", applications.isEmpty());
             }
 
-            ObjectName moduleName = NameFactory.getModuleName(null, null, null, null, NameFactory.RESOURCE_ADAPTER_MODULE, j2eeContext);
+            ObjectName moduleName = NameFactory.getModuleName(null, null, null, NameFactory.RESOURCE_ADAPTER_MODULE, null, j2eeContext);
             assertRunning(kernel, moduleName);
 
             //1.5 only
@@ -420,7 +421,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
                 assertEquals(3, attributes2.size());
 
                 // ResourceAdapter
-                ObjectName resourceAdapterObjectName = NameFactory.getResourceComponentName(null, null, null, null, resourceAdapterName, NameFactory.JCA_RESOURCE_ADAPTER, j2eeContext);
+                ObjectName resourceAdapterObjectName = NameFactory.getComponentName(null, null, null, null, null, resourceAdapterName, NameFactory.JCA_RESOURCE_ADAPTER, j2eeContext);
 
                 assertRunning(kernel, resourceAdapterObjectName);
                 assertAttributeValue(kernel, resourceAdapterObjectName, "RAStringProperty", "NewStringValue");
@@ -437,42 +438,42 @@ public class ConnectorModuleBuilderTest extends TestCase {
 
 
             // FirstTestOutboundConnectionFactory
-            ObjectName firstConnectionManagerFactory = NameFactory.getResourceComponentName(null, null, null, null, "FirstTestOutboundConnectionFactory", NameFactory.JCA_CONNECTION_MANAGER, j2eeContext);
+            ObjectName firstConnectionManagerFactory = NameFactory.getComponentName(null, null, null, null, null, "FirstTestOutboundConnectionFactory", NameFactory.JCA_CONNECTION_MANAGER, j2eeContext);
             assertRunning(kernel, firstConnectionManagerFactory);
 
 
-            ObjectName firstOutCF = NameFactory.getResourceComponentName(null, null, null, null, "FirstTestOutboundConnectionFactory", NameFactory.JCA_CONNECTION_FACTORY, j2eeContext);
+            ObjectName firstOutCF = NameFactory.getComponentName(null, null, null, null, null, "FirstTestOutboundConnectionFactory", NameFactory.JCA_CONNECTION_FACTORY, j2eeContext);
             assertRunning(kernel, firstOutCF);
 
             ObjectName firstOutSecurity = new ObjectName("geronimo.security:service=Realm,type=PasswordCredential,name=FirstTestOutboundConnectionFactory");
             assertRunning(kernel, firstOutSecurity);
 
-            ObjectName firstOutMCF = NameFactory.getResourceComponentName(null, null, null, null, "FirstTestOutboundConnectionFactory", NameFactory.JCA_MANAGED_CONNECTION_FACTORY, j2eeContext);
+            ObjectName firstOutMCF = NameFactory.getComponentName(null, null, null, null, null, "FirstTestOutboundConnectionFactory", NameFactory.JCA_MANAGED_CONNECTION_FACTORY, j2eeContext);
             assertRunning(kernel, firstOutMCF);
             assertAttributeValue(kernel, firstOutMCF, "OutboundStringProperty1", "newvalue1");
             assertAttributeValue(kernel, firstOutMCF, "OutboundStringProperty2", "originalvalue2");
             assertAttributeValue(kernel, firstOutMCF, "OutboundStringProperty3", "newvalue2");
 
             // SecondTestOutboundConnectionFactory
-            ObjectName secondConnectionManagerFactory = NameFactory.getResourceComponentName(null, null, null, null, "SecondTestOutboundConnectionFactory", NameFactory.JCA_CONNECTION_MANAGER, j2eeContext);
+            ObjectName secondConnectionManagerFactory = NameFactory.getComponentName(null, null, null, null, null, "SecondTestOutboundConnectionFactory", NameFactory.JCA_CONNECTION_MANAGER, j2eeContext);
             assertRunning(kernel, secondConnectionManagerFactory);
 
 
-            ObjectName secondOutCF = NameFactory.getResourceComponentName(null, null, null, null, "SecondTestOutboundConnectionFactory", NameFactory.JCA_CONNECTION_FACTORY, j2eeContext);
+            ObjectName secondOutCF = NameFactory.getComponentName(null, null, null, null, null, "SecondTestOutboundConnectionFactory", NameFactory.JCA_CONNECTION_FACTORY, j2eeContext);
             assertRunning(kernel, secondOutCF);
 
-            ObjectName secondOutMCF = NameFactory.getResourceComponentName(null, null, null, null, "SecondTestOutboundConnectionFactory", NameFactory.JCA_MANAGED_CONNECTION_FACTORY, j2eeContext);
+            ObjectName secondOutMCF = NameFactory.getComponentName(null, null, null, null, null, "SecondTestOutboundConnectionFactory", NameFactory.JCA_MANAGED_CONNECTION_FACTORY, j2eeContext);
             assertRunning(kernel, secondOutMCF);
 
             // ThirdTestOutboundConnectionFactory
-            ObjectName thirdConnectionManagerFactory = NameFactory.getResourceComponentName(null, null, null, null, "ThirdTestOutboundConnectionFactory", NameFactory.JCA_CONNECTION_MANAGER, j2eeContext);
+            ObjectName thirdConnectionManagerFactory = NameFactory.getComponentName(null, null, null, null, null, "ThirdTestOutboundConnectionFactory", NameFactory.JCA_CONNECTION_MANAGER, j2eeContext);
             assertRunning(kernel, thirdConnectionManagerFactory);
 
 
-            ObjectName thirdOutCF = NameFactory.getResourceComponentName(null, null, null, null, "ThirdTestOutboundConnectionFactory", NameFactory.JCA_CONNECTION_FACTORY, j2eeContext);
+            ObjectName thirdOutCF = NameFactory.getComponentName(null, null, null, null, null, "ThirdTestOutboundConnectionFactory", NameFactory.JCA_CONNECTION_FACTORY, j2eeContext);
             assertRunning(kernel, thirdOutCF);
 
-            ObjectName thirdOutMCF = NameFactory.getResourceComponentName(null, null, null, null, "ThirdTestOutboundConnectionFactory", NameFactory.JCA_MANAGED_CONNECTION_FACTORY, j2eeContext);
+            ObjectName thirdOutMCF = NameFactory.getComponentName(null, null, null, null, null, "ThirdTestOutboundConnectionFactory", NameFactory.JCA_MANAGED_CONNECTION_FACTORY, j2eeContext);
             assertRunning(kernel, thirdOutMCF);
 
             // 1.5 only
@@ -480,10 +481,10 @@ public class ConnectorModuleBuilderTest extends TestCase {
             //
 
             if (is15) {
-                ObjectName tweedledeeAdminObject = NameFactory.getResourceComponentName(null, null, null, null, "tweedledee", NameFactory.JCA_ADMIN_OBJECT, j2eeContext);
+                ObjectName tweedledeeAdminObject = NameFactory.getComponentName(null, null, null, null, null, "tweedledee", NameFactory.JCA_ADMIN_OBJECT, j2eeContext);
                 assertRunning(kernel, tweedledeeAdminObject);
 
-                ObjectName tweedledumAdminObject = NameFactory.getResourceComponentName(null, null, null, null, "tweedledum", NameFactory.JCA_ADMIN_OBJECT, j2eeContext);
+                ObjectName tweedledumAdminObject = NameFactory.getComponentName(null, null, null, null, null, "tweedledum", NameFactory.JCA_ADMIN_OBJECT, j2eeContext);
                 assertRunning(kernel, tweedledumAdminObject);
             }
 

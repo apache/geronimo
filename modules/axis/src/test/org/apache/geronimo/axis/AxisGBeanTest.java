@@ -80,11 +80,11 @@ public class AxisGBeanTest extends AbstractTestCase {
         name = new ObjectName("test:name=AxisGBean");
         kernel = new Kernel("test.kernel");
         kernel.boot();
-        TestingUtils.startJ2EEContainerAndAxisServlet(kernel);
+//        TestingUtils.startJ2EEContainerAndAxisServlet(kernel);
     }
 
     protected void tearDown() throws Exception {
-        TestingUtils.stopJ2EEContinerAndAxisServlet(kernel);
+//        TestingUtils.stopJ2EEContinerAndAxisServlet(kernel);
         kernel.shutdown();
     }
 }

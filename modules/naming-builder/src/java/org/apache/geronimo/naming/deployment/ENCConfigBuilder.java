@@ -222,13 +222,14 @@ public class ENCConfigBuilder {
         } else {
             //construct name from components
             try {
-                containerId = NameFactory.getResourceComponentNameString(getStringValue(gerResourceRef.getDomain()),
+                containerId = NameFactory.getComponentName(getStringValue(gerResourceRef.getDomain()),
                         getStringValue(gerResourceRef.getServer()),
                         getStringValue(gerResourceRef.getApplication()),
+                        NameFactory.JCA_RESOURCE,
                         getStringValue(gerResourceRef.getModule()),
                         getStringValue(gerResourceRef.getName()),
                         gerResourceRef.getType() == null ? type : gerResourceRef.getType().trim(),
-                        j2eeContext);
+                        j2eeContext).getCanonicalName();
             } catch (MalformedObjectNameException e) {
                 throw new DeploymentException("could not construct object name for resource", e);
             }
@@ -278,14 +279,15 @@ public class ENCConfigBuilder {
         } else {
             //construct name from components
             try {
-                containerId = NameFactory.getResourceComponentNameString(getStringValue(gerResourceEnvRef.getDomain()),
+                containerId = NameFactory.getComponentName(getStringValue(gerResourceEnvRef.getDomain()),
                         getStringValue(gerResourceEnvRef.getServer()),
                         getStringValue(gerResourceEnvRef.getApplication()),
+                        NameFactory.JCA_RESOURCE,
                         getStringValue(gerResourceEnvRef.getModule()),
                         getStringValue(gerResourceEnvRef.getName()),
                         NameFactory.JMS_RESOURCE,
                         //gerResourceEnvRef.getType(),
-                        j2eeContext);
+                        j2eeContext).getCanonicalName();
             } catch (MalformedObjectNameException e) {
                 throw new DeploymentException("could not construct object name for jms resource", e);
             }

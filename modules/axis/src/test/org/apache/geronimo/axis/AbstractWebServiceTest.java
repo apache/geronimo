@@ -60,7 +60,7 @@ public class AbstractWebServiceTest extends AbstractTestCase {
         kernel.boot();
         //start the J2EE server which would be started by the server plan
         //in the real case 
-        TestingUtils.startJ2EEContainerAndAxisServlet(kernel);
+//        TestingUtils.startJ2EEContainerAndAxisServlet(kernel);
         
         //Start axis gbean        
         GBeanData axisgbData = new GBeanData(axisname,AxisGbean.getGBeanInfo());
@@ -77,7 +77,7 @@ public class AbstractWebServiceTest extends AbstractTestCase {
     }
 
     protected void tearDown() throws Exception {
-        TestingUtils.stopJ2EEContinerAndAxisServlet(kernel);
+//        TestingUtils.stopJ2EEContinerAndAxisServlet(kernel);
         kernel.shutdown();
         File file = new File(AxisGeronimoConstants.AXIS_CONFIG_STORE);
         AxisGeronimoUtils.delete(file);

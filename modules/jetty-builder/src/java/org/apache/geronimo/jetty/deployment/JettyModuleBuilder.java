@@ -323,7 +323,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
 
     public String addGBeans(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
         J2eeContext earJ2eeContext = earContext.getJ2eeContext();
-        J2eeContext moduleJ2eeContext = new J2eeContextImpl(earJ2eeContext.getJ2eeDomainName(), earJ2eeContext.getJ2eeServerName(), earJ2eeContext.getJ2eeApplicationName(), module.getName(), null, null);
+        J2eeContext moduleJ2eeContext = J2eeContextImpl.newModuleContextFromApplication(earJ2eeContext, NameFactory.WEB_MODULE, module.getName());
         WebModule webModule = (WebModule) module;
 
         WebAppType webApp = (WebAppType) webModule.getSpecDD();
@@ -343,7 +343,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
 
         ObjectName webModuleName = null;
         try {
-            webModuleName = NameFactory.getModuleName(null, null, null, null, NameFactory.WEB_MODULE, moduleJ2eeContext);
+            webModuleName = NameFactory.getModuleName(null, null, null, null, null, moduleJ2eeContext);
         } catch (MalformedObjectNameException e) {
             throw new DeploymentException("Could not construct module name", e);
         }
@@ -354,6 +354,12 @@ public class JettyModuleBuilder implements ModuleBuilder {
 
         GBeanData webModuleData = new GBeanData(webModuleName, JettyWebAppContext.GBEAN_INFO);
         try {
+            webModuleData.setReferencePattern("J2EEServer", earContext.getServerObjectName());
+            if (!earContext.getJ2EEApplicationName().equals("null")) {
+                webModuleData.setReferencePattern("J2EEApplication", earContext.getApplicationObjectName());
+            }
+
+            webModuleData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());
             Set securityRoles = collectRoleNames(webApp);
             if (jettyWebApp.isSetSecurityRealmName()) {
                 String securityRealmName = jettyWebApp.getSecurityRealmName().trim();
