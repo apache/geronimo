@@ -58,7 +58,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 
 /**
- * @version $Revision: 1.10 $ $Date: 2004/05/30 18:39:12 $
+ * @version $Revision: 1.11 $ $Date: 2004/05/31 11:57:21 $
  */
 public class SubjectCarryingProtocolTest extends AbstractTest {
 
@@ -289,7 +289,7 @@ public class SubjectCarryingProtocolTest extends AbstractTest {
 
         gbean = new GBeanMBean("org.apache.geronimo.security.jaas.ConfigurationEntryRealmLocal");
         propertiesCE = new ObjectName("geronimo.security:type=ConfigurationEntry,jaasId=properties");
-        gbean.setAttribute("JAASId", "properties");
+        gbean.setAttribute("ApplicationConfigName", "properties");
         gbean.setAttribute("RealmName", "properties-realm");
         gbean.setAttribute("ControlFlag", LoginModuleControlFlag.REQUIRED);
         gbean.setAttribute("Options", new Properties());
