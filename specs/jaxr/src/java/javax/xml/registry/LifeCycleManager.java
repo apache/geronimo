@@ -83,13 +83,13 @@ public interface LifeCycleManager {
 
     Classification createClassification(ClassificationScheme scheme, String name, String value) throws JAXRException;
 
-    Classification createClassification(Concept concept) throws JAXRException;
+    Classification createClassification(Concept concept) throws JAXRException, InvalidRequestException;
 
-    ClassificationScheme createClassificationScheme(Concept concept) throws JAXRException;
+    ClassificationScheme createClassificationScheme(Concept concept) throws JAXRException, InvalidRequestException;
 
-    ClassificationScheme createClassificationScheme(InternationalString name, InternationalString description) throws JAXRException;
+    ClassificationScheme createClassificationScheme(InternationalString name, InternationalString description) throws JAXRException, InvalidRequestException;
 
-    ClassificationScheme createClassificationScheme(String name, String description) throws JAXRException;
+    ClassificationScheme createClassificationScheme(String name, String description) throws JAXRException, InvalidRequestException;
 
     Concept createConcept(RegistryObject parent, InternationalString name, String value) throws JAXRException;
 
@@ -147,7 +147,7 @@ public interface LifeCycleManager {
 
     Slot createSlot(String name, String value, String slotType) throws JAXRException;
 
-    SpecificationLink createSpecifciationLink() throws JAXRException;
+    SpecificationLink createSpecificationLink() throws JAXRException;
 
     TelephoneNumber createTelephoneNumber() throws JAXRException;
 

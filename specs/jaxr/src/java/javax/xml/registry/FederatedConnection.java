@@ -25,5 +25,5 @@ package javax.xml.registry;
 /**
  * @version $Revision$ $Date$
  */
-public interface FederatedConnection {
+public interface FederatedConnection extends Connection {
 }

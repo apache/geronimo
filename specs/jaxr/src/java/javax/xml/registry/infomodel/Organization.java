@@ -45,7 +45,7 @@ public interface Organization extends RegistryObject {
 
     Collection getChildOrganizations() throws JAXRException;
 
-    Collection getDescendentOrganizations() throws JAXRException;
+    Collection getDescendantOrganizations() throws JAXRException;
 
     Organization getParentOrganization() throws JAXRException;
 

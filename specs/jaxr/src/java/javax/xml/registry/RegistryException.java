@@ -20,24 +20,36 @@
 // Community Process. In order to remain compliant with the specification
 // DO NOT add / change / or delete method signatures!
 //
-package javax.xml.registry.infomodel;
+package javax.xml.registry;
 
-import java.util.Collection;
-import javax.xml.registry.JAXRException;
+import javax.xml.registry.infomodel.Key;
 
 /**
  * @version $Revision$ $Date$
  */
-public interface ExtensibleObject {
-    void addSlot(Slot slot) throws JAXRException;
+public class RegistryException extends JAXRException {
+    private Key errorObjectKey;
 
-    void addSlots(Collection slots) throws JAXRException;
+    public RegistryException() {
+    }
 
-    Slot getSlot(String slotName) throws JAXRException;
+    public RegistryException(String message) {
+        super(message);
+    }
 
-    Collection getSlots() throws JAXRException;
+    public RegistryException(Throwable cause) {
+        super(cause);
+    }
 
-    void removeSlot(String slotName) throws JAXRException;
+    public RegistryException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-    void removeSlots(Collection soltNames) throws JAXRException;
+    public Key getErrorObjectKey() throws JAXRException {
+        return errorObjectKey;
+    }
+
+    public void setErrorObjectKey(Key errorObjectKey) throws JAXRException {
+        this.errorObjectKey = errorObjectKey;
+    }
 }

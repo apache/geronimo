@@ -56,7 +56,7 @@ public interface RegistryObject extends ExtensibleObject {
 
     InternationalString getDescription() throws JAXRException;
 
-    Collection getExternalIdentifier() throws JAXRException;
+    Collection getExternalIdentifiers() throws JAXRException;
 
     Collection getExternalLinks() throws JAXRException;
 
@@ -68,7 +68,7 @@ public interface RegistryObject extends ExtensibleObject {
 
     Concept getObjectType() throws JAXRException;
 
-    Collection getRegistryPackage() throws JAXRException;
+    Collection getRegistryPackages() throws JAXRException;
 
     Organization getSubmittingOrganization() throws JAXRException;
 
@@ -89,6 +89,8 @@ public interface RegistryObject extends ExtensibleObject {
     void removeExternalLinks(Collection externalLinks) throws JAXRException;
 
     void setAssociations(Collection associations) throws JAXRException;
+
+    void setDescription(InternationalString description) throws JAXRException;
 
     void setClassifications(Collection classifications) throws JAXRException;
 

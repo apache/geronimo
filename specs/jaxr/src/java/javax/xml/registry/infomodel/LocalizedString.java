@@ -41,5 +41,5 @@ public interface LocalizedString {
 
     void setLocale(Locale locale) throws JAXRException;
 
-    void setValue(String value);
+    void setValue(String value) throws JAXRException;
 }

@@ -66,11 +66,11 @@ public class JAXRException extends Exception implements JAXRResponse {
         return cause;
     }
 
-    public String getRequestId() throws JAXRException {
+    public String getRequestId() {
         return null;
     }
 
-    public int getStatus() throws JAXRException {
+    public int getStatus() {
         return 0;
     }
 

@@ -20,24 +20,24 @@
 // Community Process. In order to remain compliant with the specification
 // DO NOT add / change / or delete method signatures!
 //
-package javax.xml.registry.infomodel;
-
-import java.util.Collection;
-import javax.xml.registry.JAXRException;
+package javax.xml.registry;
 
 /**
  * @version $Revision$ $Date$
  */
-public interface ExtensibleObject {
-    void addSlot(Slot slot) throws JAXRException;
+public class UnexpectedObjectException extends JAXRException {
+    public UnexpectedObjectException() {
+    }
 
-    void addSlots(Collection slots) throws JAXRException;
+    public UnexpectedObjectException(String message) {
+        super(message);
+    }
 
-    Slot getSlot(String slotName) throws JAXRException;
+    public UnexpectedObjectException(Throwable cause) {
+        super(cause);
+    }
 
-    Collection getSlots() throws JAXRException;
-
-    void removeSlot(String slotName) throws JAXRException;
-
-    void removeSlots(Collection soltNames) throws JAXRException;
+    public UnexpectedObjectException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

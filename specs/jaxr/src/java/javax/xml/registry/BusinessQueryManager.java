@@ -43,7 +43,7 @@ public interface BusinessQueryManager extends QueryManager {
 
     BulkResponse findConcepts(Collection findQualifiers, Collection namePatterns, Collection classifications, Collection externalIdentifiers, Collection externalLinks) throws JAXRException;
 
-    BulkResponse findOrganizations(Collection findQualifiers, Collection namePatterns, Collection specifications, Collection externalIdentifiers, Collection externalLinks) throws JAXRException;
+    BulkResponse findOrganizations(Collection findQualifiers, Collection namePatterns, Collection classifications, Collection specifications, Collection externalIdentifiers, Collection externalLinks) throws JAXRException;
 
     BulkResponse findRegistryPackages(Collection findQualifiers, Collection namePatterns, Collection classifications, Collection externalLinks) throws JAXRException;
 

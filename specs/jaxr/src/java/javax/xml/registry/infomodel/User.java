@@ -44,7 +44,7 @@ public interface User extends RegistryObject {
 
     URL getUrl() throws JAXRException;
 
-    void setEmailAddressess(Collection addresses) throws JAXRException;
+    void setEmailAddresses(Collection addresses) throws JAXRException;
 
     void setPersonName(PersonName personName) throws JAXRException;
 

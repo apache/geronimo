@@ -20,36 +20,27 @@
 // Community Process. In order to remain compliant with the specification
 // DO NOT add / change / or delete method signatures!
 //
-package javax.xml.registry.infomodel;
+package javax.xml.registry;
 
+import java.util.Properties;
 import java.util.Collection;
-import javax.xml.registry.JAXRException;
 
 /**
  * @version $Revision$ $Date$
  */
-public interface ClassificationScheme extends RegistryEntry {
-    public static final int VALUE_TYPE_UNIQUE = 0;
-    public static final int VALUE_TYPE_EMBEDDED_PATH = 1;
-    public static final int VALUE_TYPE_NON_UNIQUE = 2;
+public abstract class ConnectionFactory {
+    public ConnectionFactory() {
+    }
 
-    void addChildConcept(Concept concept) throws JAXRException;
+    public abstract Connection createConnection() throws JAXRException;
 
-    void addChildConcepts(Collection concepts) throws JAXRException;
+    public abstract FederatedConnection createFederatedConnection(Collection connections) throws JAXRException;
 
-    int getChildConceptCount() throws JAXRException;
+    public abstract Properties getProperties() throws JAXRException;
 
-    Collection getChildrenConcepts() throws JAXRException;
+    public abstract void setProperties(Properties properties) throws JAXRException;
 
-    Collection getDescendantConcepts() throws JAXRException;
-
-    int getValueType() throws JAXRException;
-
-    boolean isExternal() throws JAXRException;
-
-    void removeChildConcept(Concept concept) throws JAXRException;
-
-    void removeChildConcepts(Collection concepts) throws JAXRException;
-
-    void setValueType(int valueType) throws JAXRException;
+    public static ConnectionFactory newInstance() throws JAXRException {
+        throw new UnsupportedOperationException();
+    }
 }

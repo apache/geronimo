@@ -32,11 +32,11 @@ public interface Versionable {
 
     int getMinorVersion() throws JAXRException;
 
-    int getUserVersion() throws JAXRException;
+    String getUserVersion() throws JAXRException;
 
     void setMajorVersion(int version) throws JAXRException;
 
     void setMinorVersion(int version) throws JAXRException;
 
-    void setUserVersion(int version) throws JAXRException;
+    void setUserVersion(String version) throws JAXRException;
 }

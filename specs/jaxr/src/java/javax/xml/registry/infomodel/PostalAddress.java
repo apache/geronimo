@@ -44,19 +44,19 @@ public interface PostalAddress extends ExtensibleObject {
 
     String getType() throws JAXRException;
 
-    void getCity(String city) throws JAXRException;
+    void setCity(String city) throws JAXRException;
 
-    void getCountry(String country) throws JAXRException;
+    void setCountry(String country) throws JAXRException;
 
-    void getPostalCode(String postalCode) throws JAXRException;
+    void setPostalCode(String postalCode) throws JAXRException;
 
-    void getPostalScheme(ClassificationScheme postalScheme) throws JAXRException;
+    void setPostalScheme(ClassificationScheme postalScheme) throws JAXRException;
 
-    void getStateOrProvince(String state) throws JAXRException;
+    void setStateOrProvince(String state) throws JAXRException;
 
-    void getStreet(String street) throws JAXRException;
+    void setStreet(String street) throws JAXRException;
 
-    void getStreetNumber(String streetNumber) throws JAXRException;
+    void setStreetNumber(String streetNumber) throws JAXRException;
 
-    void getType(String type) throws JAXRException;
+    void setType(String type) throws JAXRException;
 }

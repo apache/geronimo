@@ -39,7 +39,7 @@ public interface Concept extends RegistryObject {
 
     ClassificationScheme getClassificationScheme() throws JAXRException;
 
-    Collection getDescendentConcepts() throws JAXRException;
+    Collection getDescendantConcepts() throws JAXRException;
 
     RegistryObject getParent() throws JAXRException;
 
@@ -49,7 +49,7 @@ public interface Concept extends RegistryObject {
 
     String getValue() throws JAXRException;
 
-    void removeChildConcpet(Concept concept) throws JAXRException;
+    void removeChildConcept(Concept concept) throws JAXRException;
 
     void removeChildConcepts(Collection concepts) throws JAXRException;
 

@@ -31,25 +31,27 @@ import javax.xml.registry.infomodel.Association;
 public interface BusinessLifeCycleManager extends LifeCycleManager {
     void confirmAssociation(Association assoc) throws JAXRException, InvalidRequestException;
 
-    BulkResponse deleteAssociations(Collection associationKeys);
+    BulkResponse deleteAssociations(Collection associationKeys) throws JAXRException;
 
-    BulkResponse deleteClassificationSchemes(Collection schemeKeys);
+    BulkResponse deleteClassificationSchemes(Collection schemeKeys) throws JAXRException;
 
     BulkResponse deleteConcepts(Collection conceptKeys) throws JAXRException;
 
     BulkResponse deleteOrganizations(Collection organizationKeys) throws JAXRException;
 
-    BulkResponse deleteServiceBindngs(Collection bindingKeys) throws JAXRException;
+    BulkResponse deleteServiceBindings(Collection bindingKeys) throws JAXRException;
 
     BulkResponse deleteServices(Collection serviceKeys) throws JAXRException;
 
-    BulkResponse saveClassificationSchemes(Collection schemeKeys);
+    BulkResponse saveAssociations(Collection associationKeys, boolean replace) throws JAXRException;
+
+    BulkResponse saveClassificationSchemes(Collection schemeKeys) throws JAXRException;
 
     BulkResponse saveConcepts(Collection conceptKeys) throws JAXRException;
 
     BulkResponse saveOrganizations(Collection organizationKeys) throws JAXRException;
 
-    BulkResponse saveServiceBindngs(Collection bindingKeys) throws JAXRException;
+    BulkResponse saveServiceBindings(Collection bindingKeys) throws JAXRException;
 
     BulkResponse saveServices(Collection serviceKeys) throws JAXRException;
 

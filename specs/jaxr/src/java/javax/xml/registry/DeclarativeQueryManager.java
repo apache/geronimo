@@ -26,7 +26,7 @@ package javax.xml.registry;
  * @version $Revision$ $Date$
  */
 public interface DeclarativeQueryManager extends QueryManager {
-    Query createQuery(int queryType, String queryString) throws JAXRException;
+    Query createQuery(int queryType, String queryString) throws JAXRException, InvalidRequestException;
 
     BulkResponse executeQuery(Query query) throws JAXRException;
 }
