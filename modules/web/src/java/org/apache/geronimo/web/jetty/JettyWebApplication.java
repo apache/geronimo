@@ -20,11 +20,10 @@ import org.mortbay.jetty.servlet.WebApplicationContext;
  * Created: Sun Sep 14 16:40:17 2003
  *
  * @jmx:mbean extends="org.apache.geronimo.web.AbstractWebApplicationMBean
- * @version $Revision: 1.4 $ $Date: 2003/11/16 07:18:26 $
+ * @version $Revision: 1.5 $ $Date: 2003/11/16 22:36:31 $
  */
 public class JettyWebApplication extends AbstractWebApplication implements JettyWebApplicationMBean {
-    private WebApplicationContext jettyContext;
-    private ReadOnlyContext context;
+    private JettyWebApplicationContext jettyContext;
     private final Log log = LogFactory.getLog(getClass());
 
     public JettyWebApplication() {
@@ -86,12 +85,12 @@ public class JettyWebApplication extends AbstractWebApplication implements Jetty
         return jettyContext;
     }
 
-    public ReadOnlyContext getContext() {
-        return context;
+    public ReadOnlyContext getComponentContext() {
+        return jettyContext.getComponentContext();
     }
 
-    public void setContext(ReadOnlyContext context) {
-        this.context = context;
+    public void setComponentContext(ReadOnlyContext context) {
+        jettyContext.setComponentContext(context);
     }
 
     public void doStart() throws Exception {

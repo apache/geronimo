@@ -67,7 +67,7 @@ import org.apache.geronimo.naming.java.ReadOnlyContext;
  *
  * It supports the J2EE Management WebModule attributes
  *
- * @version  $Revision: 1.11 $ $Date: 2003/11/16 07:18:26 $
+ * @version  $Revision: 1.12 $ $Date: 2003/11/16 22:36:31 $
  */
 public interface WebApplication extends Component, WebModule {
     /**
@@ -123,11 +123,11 @@ public interface WebApplication extends Component, WebModule {
      * Gets the JNDI context for the web application.
      * @return the jndi context
      */
-    public ReadOnlyContext getContext();
+    public ReadOnlyContext getComponentContext();
 
     /**
      * Sets the JNDI context for the web application.
      * @param context the jndi context
      */
-    public void setContext(ReadOnlyContext context);
+    public void setComponentContext(ReadOnlyContext context);
 }
