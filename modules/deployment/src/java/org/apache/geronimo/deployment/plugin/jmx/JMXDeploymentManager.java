@@ -39,11 +39,11 @@ import javax.management.remote.JMXConnector;
 
 import org.apache.geronimo.deployment.plugin.TargetImpl;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
+import org.apache.geronimo.deployment.plugin.local.DistributeCommand;
+import org.apache.geronimo.deployment.plugin.local.RedeployCommand;
 import org.apache.geronimo.deployment.plugin.local.StartCommand;
 import org.apache.geronimo.deployment.plugin.local.StopCommand;
-import org.apache.geronimo.deployment.plugin.local.DistributeCommand;
 import org.apache.geronimo.deployment.plugin.local.UndeployCommand;
-import org.apache.geronimo.deployment.plugin.local.RedeployCommand;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelMBean;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
@@ -54,7 +54,7 @@ import org.apache.geronimo.kernel.management.State;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/06/24 02:50:13 $
+ * @version $Revision: 1.7 $ $Date: 2004/07/06 05:36:12 $
  */
 public class JMXDeploymentManager implements DeploymentManager {
     private JMXConnector jmxConnector;
@@ -161,7 +161,12 @@ public class JMXDeploymentManager implements DeploymentManager {
     }
 
     public ProgressObject distribute(Target[] targetList, InputStream moduleArchive, InputStream deploymentPlan) {
-        throw new UnsupportedOperationException();
+        if (kernel == null) {
+            throw new IllegalStateException("Disconnected");
+        }
+        DistributeCommand command = new DistributeCommand(kernel, targetList, moduleArchive, deploymentPlan);
+        new Thread(command).start();
+        return command;
     }
 
     public ProgressObject start(TargetModuleID[] moduleIDList) {

@@ -18,6 +18,10 @@
 package org.apache.geronimo.deployment.plugin.local;
 
 import java.io.File;
+import java.io.InputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.FileOutputStream;
 import java.util.Iterator;
 import java.util.Set;
 import java.net.URI;
@@ -30,14 +34,17 @@ import org.apache.geronimo.kernel.KernelMBean;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 
 /**
- * @version $Revision: 1.11 $ $Date: 2004/06/23 22:44:49 $
+ * @version $Revision: 1.12 $ $Date: 2004/07/06 05:36:12 $
  */
 public class DistributeCommand extends CommandSupport {
     private static final String[] DEPLOY_SIG = {File.class.getName(), File.class.getName()};
     private final KernelMBean kernel;
     private final Target[] targetList;
-    private final File moduleArchive;
-    private final File deploymentPlan;
+    private final boolean spool;
+    private File moduleArchive;
+    private File deploymentPlan;
+    private InputStream moduleStream;
+    private InputStream deploymentStream;
 
     public DistributeCommand(KernelMBean kernel, Target[] targetList, File moduleArchive, File deploymentPlan) {
         super(CommandType.DISTRIBUTE);
@@ -45,10 +52,32 @@ public class DistributeCommand extends CommandSupport {
         this.targetList = targetList;
         this.moduleArchive = moduleArchive;
         this.deploymentPlan = deploymentPlan;
+        spool = false;
+    }
+
+    public DistributeCommand(KernelMBean kernel, Target[] targetList, InputStream moduleStream, InputStream deploymentStream) {
+        super(CommandType.DISTRIBUTE);
+        this.kernel = kernel;
+        this.targetList = targetList;
+        this.moduleArchive = null ;
+        this.deploymentPlan = null;
+        this.moduleStream = moduleStream;
+        this.deploymentStream = deploymentStream;
+        spool = true;
     }
 
     public void run() {
         try {
+            if (spool) {
+                if (moduleStream != null) {
+                    moduleArchive = File.createTempFile("deployer", ".tmp");
+                    copyTo(moduleArchive, moduleStream);
+                }
+                if (deploymentStream != null) {
+                    deploymentPlan = File.createTempFile("deployer", ".tmp");
+                    copyTo(deploymentPlan, deploymentStream);
+                }
+            }
             Set deployers = kernel.listGBeans(new ObjectName("geronimo.deployment:role=Deployer,*"));
             if (deployers.isEmpty()) {
                 fail("No deployer present in kernel");
@@ -67,6 +96,28 @@ public class DistributeCommand extends CommandSupport {
             complete("Completed");
         } catch (Exception e) {
             fail(e.getMessage());
+        } finally {
+            if (spool) {
+                if (moduleArchive != null) {
+                    moduleArchive.delete();
+                }
+                if (deploymentPlan != null) {
+                    deploymentPlan.delete();
+                }
+            }
+        }
+    }
+
+    private void copyTo(File outfile, InputStream is) throws IOException {
+        byte[] buffer = new byte[4096];
+        int count;
+        OutputStream os = new FileOutputStream(outfile);
+        try {
+            while ((count = is.read(buffer)) > 0) {
+                os.write(buffer, 0, count);
+            }
+        } finally {
+            os.close();
         }
     }
 }
