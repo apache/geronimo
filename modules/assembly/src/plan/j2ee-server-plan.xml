@@ -170,6 +170,7 @@ by the server.
     </gbean>
 
     <gbean name="geronimo.server:type=TransactionManager" class="org.apache.geronimo.transaction.GeronimoTransactionManager">
+        <attribute name="defaultTransactionTimeoutSeconds" type="int">10</attribute>
         <reference name="TransactionLog">geronimo.server:type=HOWLTransactionLog</reference>
         <references name="ResourceManagers">
             <pattern>geronimo.server:j2eeType=JCAManagedConnectionFactory,*</pattern>
