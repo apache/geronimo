@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.6 $ $Date: 2003/09/08 04:53:29 $ -->
+<!-- $Revision: 1.7 $ $Date: 2003/09/14 12:29:44 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -116,6 +116,15 @@
         </dependency>
 
         <!-- Thirdparty -->
+    <dependency>
+      <id>commons-collections</id>
+      <version>2.1</version>
+      <properties>
+        <runtime>false</runtime>
+      </properties>
+    </dependency>
+
+
 
         <dependency>
             <id>commons-logging</id>
@@ -158,6 +167,39 @@
                 <runtime>false</runtime>
             </properties>
         </dependency>
+
+   <dependency>
+      <id>xdoclet</id>
+      <version>1.2b2</version>
+      <properties>
+        <runtime>false</runtime>
+      </properties>
+    </dependency>
+
+    <dependency>
+      <id>xdoclet+xdoclet-module</id>
+      <version>1.2b2</version>
+      <properties>
+        <runtime>false</runtime>
+      </properties>
+    </dependency>
+
+    <dependency>
+      <id>xdoclet+jmx-module</id>
+      <version>1.2b2</version>
+      <properties>
+        <runtime>false</runtime>
+      </properties>
+    </dependency>
+
+    <dependency>
+      <id>xdoclet+xjavadoc</id>
+      <version>1.2b2</version>
+      <properties>
+        <runtime>false</runtime>
+      </properties>
+    </dependency>
+
 
         <dependency>
             <id>mx4j</id>
