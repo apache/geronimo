@@ -231,6 +231,15 @@
       <xsd:element name="security-role-ref" type="j2ee:security-role-refType" minOccurs="0" maxOccurs="unbounded"/>
       <xsd:element name="security-identity" type="j2ee:security-identityType" minOccurs="0"/>
       <xsd:element name="query" type="j2ee:queryType" minOccurs="0" maxOccurs="unbounded"/>
+      <xsd:element name="jndi-name" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>
+            The JNDI name controls where this EJB will appear in the application-wide JNDI
+            space.  Other application components that want to refer to this EJB can define
+            EJB references and map them to this JNDI location.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
     </xsd:sequence>
     <xsd:attribute name="id" type="xsd:ID"/>
   </xsd:complexType>
@@ -390,6 +399,15 @@
       <xsd:group ref="j2ee:jndiEnvironmentRefsGroup"/>
       <xsd:element name="security-role-ref" type="j2ee:security-role-refType" minOccurs="0" maxOccurs="unbounded"/>
       <xsd:element name="security-identity" type="j2ee:security-identityType" minOccurs="0"/>
+      <xsd:element name="jndi-name" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>
+            The JNDI name controls where this EJB will appear in the application-wide JNDI
+            space.  Other application components that want to refer to this EJB can define
+            EJB references and map them to this JNDI location.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
     </xsd:sequence>
     <xsd:attribute name="id" type="xsd:ID"/>
   </xsd:complexType>
