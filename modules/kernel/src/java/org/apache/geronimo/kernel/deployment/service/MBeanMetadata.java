@@ -69,7 +69,7 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 /**
  * Metadata about an MBean that is use during deployment.
  *
- * @version $Revision: 1.3 $ $Date: 2003/11/11 16:37:31 $
+ * @version $Revision: 1.4 $ $Date: 2003/11/15 07:37:37 $
  */
 public class MBeanMetadata {
     private String code;
@@ -80,8 +80,8 @@ public class MBeanMetadata {
     private ObjectName loaderName;
     private ObjectName parentName;
     private URI baseURI;
-    private final List constructorTypes = new ArrayList();
-    private final List constructorArgs = new ArrayList();
+    private String[] constructorTypes;
+    private Object[] constructorArgs;
     private final Map attributeValues = new HashMap();
     private final Set relationships = new HashSet();
     private final Set dependencies = new HashSet();
@@ -116,6 +116,25 @@ public class MBeanMetadata {
         this.geronimoMBeanInfo = geronimoMBeanInfo;
         this.loaderName = loaderName;
         this.parentName = parentName;
+    }
+
+    public MBeanMetadata(ObjectName name,
+                         GeronimoMBeanInfo geronimoMBeanInfo,
+                         ObjectName loaderName,
+                         ObjectName parentName,
+                         Object[] constructorArgs,
+                         String[] constructorTypes) {
+        this.name = name;
+        this.geronimoMBeanInfo = geronimoMBeanInfo;
+        this.loaderName = loaderName;
+        this.parentName = parentName;
+        this.constructorArgs = constructorArgs;
+        this.constructorTypes = constructorTypes;
+    }
+
+    public void setConstructorArgs(Object[] constructorArgs, String[] constructorTypes) {
+        this.constructorArgs = constructorArgs;
+        this.constructorTypes = constructorTypes;
     }
 
     public String getCode() {
@@ -182,11 +201,11 @@ public class MBeanMetadata {
         return attributeValues;
     }
 
-    public List getConstructorArgs() {
+    public Object[] getConstructorArgs() {
         return constructorArgs;
     }
 
-    public List getConstructorTypes() {
+    public String[] getConstructorTypes() {
         return constructorTypes;
     }
 

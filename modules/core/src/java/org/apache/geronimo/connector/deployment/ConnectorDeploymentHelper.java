@@ -53,43 +53,70 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.ejb.metadata;
+
+package org.apache.geronimo.connector.deployment;
+
+import java.net.URL;
+import java.net.MalformedURLException;
+import java.util.List;
+import java.util.Enumeration;
+import java.util.jar.JarFile;
+import java.util.jar.JarEntry;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
+
+import org.apache.geronimo.kernel.deployment.DeploymentException;
+import org.apache.geronimo.kernel.deployment.DeploymentHelper;
+import org.apache.geronimo.kernel.deployment.scanner.URLType;
 
 /**
+ * Connector deployment helper. It allows to compute various information of
+ * a URL to be deployed.
  *
- *
- *
- * @version $Revision: 1.4 $ $Date: 2003/11/15 07:37:37 $
+ * @version $Revision: 1.1 $ $Date: 2003/11/15 07:37:37 $
  */
-public final class TransactionDemarcation {
-    public static final TransactionDemarcation CONTAINER = new TransactionDemarcation("Container");
-    public static final TransactionDemarcation BEAN = new TransactionDemarcation("Bean");
+public class ConnectorDeploymentHelper extends DeploymentHelper {
 
-    private final String name;
-
-    private TransactionDemarcation(String name) {
-        this.name = name;
+    public ConnectorDeploymentHelper(URL url, URLType urlType) throws DeploymentException {
+        super(url, urlType, "Connector", ".rar", "ra.xml", "geronimo-ra.xml");
     }
 
-    public boolean isContainer() {
-        return this == CONTAINER;
+    protected void findUnpackedArchives(List archives) throws DeploymentException {
+        File rootDeploy = new File(url.getFile());
+        File[] jarFiles = rootDeploy.listFiles(new FileFilter() {
+            public boolean accept(File pathname) {
+                return pathname.getName().endsWith(".jar");
+            }
+        });
+        for (int i = 0; i < jarFiles.length; i++) {
+            try {
+                archives.add(jarFiles[i].toURL());
+            } catch (MalformedURLException e) {
+                throw new DeploymentException("Should never occurs", e);
+            }
+        }
+        // TODO handle the .so and .dll entries.
     }
 
-    public boolean isBean() {
-        return this == BEAN;
-    }
-
-    public String toString() {
-        return name;
-    }
-
-    public static TransactionDemarcation valueOf(String demarcation) {
-        if (CONTAINER.name.equals(demarcation)) {
-            return CONTAINER;
-        } else if (BEAN.name.equals(demarcation)) {
-            return BEAN;
-        } else {
-            throw new IllegalArgumentException("Invalid demarcation type: "+demarcation);
+    protected void findPackedArchives(List archives) throws DeploymentException {
+        String rootJar = "jar:" + url.toExternalForm();
+        try {
+            JarFile jFile = new JarFile(url.getFile());
+            Enumeration entries = jFile.entries();
+            while (entries.hasMoreElements()) {
+                JarEntry jEntry = (JarEntry) entries.nextElement();
+                if (jEntry.isDirectory()) {
+                    continue;
+                }
+                if (jEntry.getName().endsWith(".jar")) {
+                    archives.add(
+                            new URL(rootJar + "!/" + jEntry.getName()));
+                }
+                // TODO handle the .so and .dll entries.
+            }
+        } catch (IOException e) {
+            throw new DeploymentException("Should never occurs", e);
         }
     }
 

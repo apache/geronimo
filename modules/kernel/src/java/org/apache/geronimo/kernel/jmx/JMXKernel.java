@@ -74,7 +74,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/13 04:19:39 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/15 07:37:37 $
  */
 public class JMXKernel {
     private static final Log log = LogFactory.getLog(JMXKernel.class);
@@ -93,6 +93,10 @@ public class JMXKernel {
     }
 
     public String getMBeanServerId() {
+        return getMBeanServerId(server);
+    }
+
+    public static  String getMBeanServerId(MBeanServer server) {
         try {
             return (String)server.getAttribute(ObjectName.getInstance("JMImplementation:type=MBeanServerDelegate"), "MBeanServerId");
         } catch (MBeanException e) {

@@ -76,7 +76,7 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanInfoXMLLoader;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/11/14 16:21:03 $
+ * @version $Revision: 1.4 $ $Date: 2003/11/15 07:37:37 $
  */
 public class DeployGeronimoMBean implements DeploymentTask {
     private static final Log log = LogFactory.getLog(DeployGeronimoMBean.class);
@@ -123,7 +123,10 @@ public class DeployGeronimoMBean implements DeploymentTask {
                         //ignore
                     }
                 }
-                GeronimoMBean mbean = (GeronimoMBean) server.instantiate("org.apache.geronimo.kernel.service.GeronimoMBean");
+                GeronimoMBean mbean = (GeronimoMBean) server.instantiate("org.apache.geronimo.kernel.service.GeronimoMBean",
+                        metadata.getLoaderName(),
+                        metadata.getConstructorArgs(),
+                        metadata.getConstructorTypes());
                 mbean.setClassSpace(metadata.getLoaderName());
                 GeronimoMBeanInfo geronimoMBeanInfo = metadata.getGeronimoMBeanInfo();
                 if (geronimoMBeanInfo == null) {

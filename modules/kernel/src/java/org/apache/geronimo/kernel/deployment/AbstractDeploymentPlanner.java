@@ -59,8 +59,10 @@ package org.apache.geronimo.kernel.deployment;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.net.URI;
 
 import javax.management.MBeanServer;
+import javax.management.ObjectName;
 
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
@@ -71,6 +73,7 @@ import org.apache.geronimo.kernel.deployment.goal.DeploymentGoal;
 import org.apache.geronimo.kernel.deployment.goal.DeployURL;
 import org.apache.geronimo.kernel.deployment.goal.RedeployURL;
 import org.apache.geronimo.kernel.deployment.goal.UndeployURL;
+import org.apache.geronimo.kernel.deployment.service.MBeanMetadata;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -138,6 +141,10 @@ public abstract class AbstractDeploymentPlanner implements DeploymentPlanner, Ge
         this.context = context;
     }
 
+    protected GeronimoMBeanContext getMBeanContext() {
+        return context;
+    }
+
     public boolean canStart() {
         return true;
     }
@@ -157,6 +164,14 @@ public abstract class AbstractDeploymentPlanner implements DeploymentPlanner, Ge
 
     protected MBeanServer getServer() {
         return context.getServer();
+    }
+
+    protected MBeanMetadata getMBeanMetadata(ObjectName loader, ObjectName parent, URI baseURI) {
+        MBeanMetadata metadata = new MBeanMetadata();
+        metadata.setLoaderName(loader);
+        metadata.setParentName(parent);
+        metadata.setBaseURI(baseURI);
+        return metadata;
     }
 
 }

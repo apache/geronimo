@@ -112,10 +112,11 @@ import org.xml.sax.SAXException;
  * DeploymentPlanner in charge of the plannification of Connector deployments.
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/14 16:27:34 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/15 07:37:37 $
  */
 public class ConnectorDeploymentPlanner
         extends AbstractDeploymentPlanner {
+
     private static final Log log = LogFactory.getLog(ConnectorDeploymentPlanner.class);
 
     public static GeronimoMBeanInfo getGeronimoMBeanInfo() {
@@ -141,9 +142,9 @@ public class ConnectorDeploymentPlanner
     protected boolean addURL(DeployURL goal, Set goals, Set plans)
             throws DeploymentException {
         URL url = goal.getUrl();
-        DeploymentHelper dHelper =
-                new DeploymentHelper(url, goal.getType());
-        URL raURL = dHelper.locateDD();
+        ConnectorDeploymentHelper dHelper =
+                new ConnectorDeploymentHelper(url, goal.getType());
+        URL raURL = dHelper.locateJ2eeDD();
         URL graURL = dHelper.locateGeronimoDD();
         // Is the specific URL deployable?
         if (null == raURL) {
@@ -201,11 +202,11 @@ public class ConnectorDeploymentPlanner
         if (gra.getResourceAdapterClass() != null) {
             MBeanMetadata raMD = getMBeanMetadata(raCS.getName(), deploymentUnitName, baseURI);
             raMD.setCode(gra.getResourceAdapterClass());
-            raMD.setName(dHelper.buildResourceAdapterDeploymentName(gra));
+            raMD.setName(buildResourceAdapterDeploymentName(gra));
             configureMBeanMetadata(gra.getConfigProperty(), raMD);
             addTasks(raMD, deploymentPlan);
             resourceAdapterName = raMD.getName();
-            ObjectName bootstrapContextName = dHelper.buildBootstrapContextName(gra);
+            ObjectName bootstrapContextName = buildBootstrapContextName(gra);
             ResourceAdapterHelperImpl.addMBeanInfo(raMD.getGeronimoMBeanInfo(), bootstrapContextName);
         }
 
@@ -219,14 +220,14 @@ public class ConnectorDeploymentPlanner
             assert gcmf != null: "Null GeronimoConnectionManagerFactory";
             MBeanMetadata cmfMD = getMBeanMetadata(raCS.getName(), deploymentUnitName, baseURI);
             cmfMD.setGeronimoMBeanDescriptor(gcmf.getConnectionManagerFactoryDescriptor());
-            cmfMD.setName(dHelper.buildConnectionManagerFactoryDeploymentName(gcd));
+            cmfMD.setName(buildConnectionManagerFactoryDeploymentName(gcd));
             adaptConfigProperties(gcmf.getConfigProperty(), null, cmfMD.getAttributeValues());
             addTasks(cmfMD, deploymentPlan);
 
 
             MBeanMetadata mcfMD = getMBeanMetadata(raCS.getName(), deploymentUnitName, baseURI);
             mcfMD.setCode(gcd.getManagedConnectionFactoryClass());
-            mcfMD.setName(dHelper.buildManagedConnectionFactoryDeploymentName(gcd));
+            mcfMD.setName(buildManagedConnectionFactoryDeploymentName(gcd));
             configureMBeanMetadata(gcd.getConfigProperty(), mcfMD);
             ManagedConnectionFactoryHelper.addMBeanInfo(mcfMD.getGeronimoMBeanInfo(), resourceAdapterName, cmfMD.getName());
             Map attributes = mcfMD.getAttributeValues();
@@ -270,14 +271,6 @@ public class ConnectorDeploymentPlanner
      */
     protected boolean removeURL(UndeployURL undeployURL, Set goals, Set plans) throws DeploymentException {
         return false;
-    }
-
-    private MBeanMetadata getMBeanMetadata(ObjectName loader, ObjectName parent, URI baseURI) {
-        MBeanMetadata metadata = new MBeanMetadata();
-        metadata.setLoaderName(loader);
-        metadata.setParentName(parent);
-        metadata.setBaseURI(baseURI);
-        return metadata;
     }
 
     private void configureMBeanMetadata(ConfigProperty[] props, MBeanMetadata metadata) throws DeploymentException {
@@ -336,5 +329,48 @@ public class ConnectorDeploymentPlanner
         e.initCause(aThrowable);
         throw e;
     }
+
+
+    /**
+     * Build the name of the Connector deployment related to this URL.
+     *
+     * @return Connector deployment name.
+     */
+
+    private ObjectName buildResourceAdapterDeploymentName(GeronimoResourceAdapter gra) {
+        return JMXUtil.getObjectName(
+                "geronimo.management:j2eeType=JCAResourceAdapter,name="
+                + gra.getName());
+    }
+
+    private ObjectName buildManagedConnectionFactoryDeploymentName(GeronimoConnectionDefinition gcd) {
+        return JMXUtil.getObjectName(
+                "geronimo.management:j2eeType=JCAManagedConnectionFactory,name="
+                + gcd.getName());
+    }
+
+
+    private ObjectName buildConnectionManagerFactoryDeploymentName(GeronimoConnectionDefinition gcd) {
+        return JMXUtil.getObjectName(
+                "geronimo.management:j2eeType=ConnectionManager,name="
+                + gcd.getName());
+    }
+
+
+    private ObjectName buildMCFHelperDeploymentName(GeronimoConnectionDefinition gcd) {
+        return JMXUtil.getObjectName(
+                "geronimo.management:j2eeType=MCFHelper,name="
+                + gcd.getName());
+    }
+
+    /**
+     * @param gra
+     * @return
+     */
+    private ObjectName buildBootstrapContextName(GeronimoResourceAdapter gra) {
+        return JMXUtil.getObjectName(
+                gra.getBootstrapContext());
+    }
+
 
 }
