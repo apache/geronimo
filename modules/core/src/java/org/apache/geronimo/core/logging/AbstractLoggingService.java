@@ -70,7 +70,7 @@ import org.apache.geronimo.management.AbstractManagedObject;
  *
  * <p>Sub-classes only need to provide a {@link #configure(URL)}.
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/01 19:31:33 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/01 19:34:14 $
  */
 public abstract class AbstractLoggingService
     extends AbstractManagedObject
@@ -149,7 +149,7 @@ public abstract class AbstractLoggingService
     
     
     ///////////////////////////////////////////////////////////////////////////
-    //                    AbstractManagedObject Overrides                    //
+    //                         AbstractManagedObject                         //
     ///////////////////////////////////////////////////////////////////////////
     
     protected void doStart() throws Exception
