@@ -148,7 +148,7 @@ public class Deployer {
                 if (install) {
                     URI uri = store.install(carfile.toURL());
                     List deployedURIs = new ArrayList(childURIs.size() + 1);
-                    deployedURIs.add(uri);
+                    deployedURIs.add(uri.toString());
                     deployedURIs.addAll(childURIs);
                     return deployedURIs;
                 }

@@ -96,10 +96,10 @@ public class DistributeCommand extends CommandSupport {
             List objectNames = (List) kernel.invoke(deployer, "deploy", args, DEPLOY_SIG);
             System.err.println("deploy returned id " + objectNames.get(0));
             if (objectNames != null && !objectNames.isEmpty()) {
-                String parentName = ((URI) objectNames.get(0)).toString();
+                String parentName = (String) objectNames.get(0);
                 String[] childIDs = new String[objectNames.size()-1];
                 for (int j=0; j < childIDs.length; j++) {
-                    childIDs[j] = ((URI)objectNames.get(j+1)).toString();
+                    childIDs[j] = (String)objectNames.get(j+1);
                 }
 
                 TargetModuleID moduleID = new TargetModuleIDImpl(targetList[0], parentName.toString(), childIDs);
