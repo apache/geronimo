@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<components>
+
+    <class-space name="geronimo.system:role=ClassSpace,name=System">
+        <codebase url="file:lib/">
+            <archive name="*"/>
+        </codebase>
+        <codebase url="file:../../lib/">
+            <archive name="geronimo-core-DEV.jar"/>
+            <archive name="geronimo-common-DEV.jar"/>
+        </codebase>
+    </class-space>
+
+  <!-- ============================================================ -->
+  <!-- Sets up the Cluster                                          -->
+  <!-- ============================================================ -->
+
+  <mbean
+    code="org.apache.geronimo.clustering.LocalCluster"
+    name="geronimo.clustering:role=Cluster,name=GERONIMO"
+    >
+  </mbean>
+
+</components>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- $Revision: 1.1 $ $Date: 2003/12/28 16:10:19 $ -->
+
+<project default="default"
+  xmlns:j="jelly:core"
+  xmlns:ant="jelly:ant"
+  xmlns:xdoclet="common:xdoclet"
+  >
+
+  <preGoal name="xdoc:jelly-transform">
+    <attainGoal name="html2xdoc"/>
+  </preGoal>
+
+  <preGoal name="java:compile">
+    <attainGoal name="xdoclet:jmxdoclet:compile"/>
+  </preGoal>
+
+</project>
