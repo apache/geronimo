@@ -29,6 +29,8 @@
     <xsd:complexType name="activation-configType">
         <xsd:sequence>
             <xsd:element name="description" type="j2ee:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="resource-adapter-name" type="j2ee:xdsStringType"/>
+            <xsd:element name="activation-spec-class" type="j2ee:fully-qualified-classType"/>
             <xsd:element name="activation-config-property" type="j2ee:activation-config-propertyType" maxOccurs="unbounded"/>
         </xsd:sequence>
         <xsd:attribute name="id" type="xsd:ID"/>
@@ -262,7 +264,7 @@
             <xsd:element name="transaction-type" type="j2ee:transaction-typeType"/>
             <xsd:element name="message-destination-type" type="j2ee:message-destination-typeType" minOccurs="0"/>
             <xsd:element name="message-destination-link" type="j2ee:message-destination-linkType" minOccurs="0"/>
-            <xsd:element name="activation-config" type="j2ee:activation-configType" minOccurs="0"/>
+            <xsd:element name="activation-config" type="activation-configType" minOccurs="0"/>
             <xsd:group ref="j2ee:jndiEnvironmentRefsGroup"/>
             <xsd:element name="security-identity" type="j2ee:security-identityType" minOccurs="0"/>
         </xsd:sequence>

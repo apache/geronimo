@@ -65,6 +65,7 @@ import org.apache.geronimo.deployment.model.geronimo.ejb.Entity;
 import org.apache.geronimo.deployment.model.geronimo.ejb.Session;
 import org.apache.geronimo.deployment.model.geronimo.ejb.Query;
 import org.apache.geronimo.deployment.model.geronimo.ejb.Binding;
+import org.apache.geronimo.deployment.model.geronimo.ejb.ActivationConfig;
 import org.apache.geronimo.deployment.model.ejb.Ejb;
 import org.apache.geronimo.deployment.model.ejb.Relationships;
 import org.apache.geronimo.deployment.model.ejb.AssemblyDescriptor;
@@ -72,7 +73,7 @@ import org.apache.geronimo.deployment.model.ejb.AssemblyDescriptor;
 /**
  * Loads a Geronimo ejb-jar.xml file into POJOs
  *
- * @version $Revision: 1.11 $ $Date: 2003/11/18 22:22:28 $
+ * @version $Revision: 1.12 $ $Date: 2003/11/19 00:33:59 $
  */
 public class GeronimoEjbJarLoader {
     public static GeronimoEjbJarDocument load(Document doc) {
@@ -129,9 +130,17 @@ public class GeronimoEjbJarLoader {
             mdbs[i].setMessageDestinationType(LoaderUtil.getChildContent(root, "message-destination-type"));
             mdbs[i].setMessagingType(LoaderUtil.getChildContent(root, "messaging-type"));
             mdbs[i].setTransactionType(LoaderUtil.getChildContent(root, "transaction-type"));
-            mdbs[i].setActivationConfig(EjbJarLoader.loadActivationConfig(root));
+            mdbs[i].setActivationConfig(loadActivationConfig(LoaderUtil.getChild(root, "activation-config")));
         }
         return mdbs;
+    }
+
+    private static ActivationConfig loadActivationConfig(Element root) {
+        ActivationConfig activationConfig = new ActivationConfig();
+        EjbJarLoader.loadActivationConfig(root, activationConfig);
+        activationConfig.setActivationSpecClass(LoaderUtil.getChildContent(root, "activation-spec-class"));
+        activationConfig.setResourceAdapterName(LoaderUtil.getChildContent(root, "resource-adapter-name"));
+        return activationConfig;
     }
 
     private static Session[] loadSessions(Element ebe) {

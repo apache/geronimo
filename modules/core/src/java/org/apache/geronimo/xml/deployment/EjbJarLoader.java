@@ -86,7 +86,7 @@ import org.w3c.dom.Element;
  * Knows how to load a set of POJOs from a DOM representing an ejb-jar.xml
  * deployment descriptor.
  *
- * @version $Revision: 1.11 $ $Date: 2003/11/18 02:14:19 $
+ * @version $Revision: 1.12 $ $Date: 2003/11/19 00:33:59 $
  */
 public class EjbJarLoader {
     public static EjbJarDocument load(Document doc) {
@@ -248,17 +248,16 @@ public class EjbJarLoader {
             mdbs[i].setMessageDestinationType(LoaderUtil.getChildContent(root, "message-destination-type"));
             mdbs[i].setMessagingType(LoaderUtil.getChildContent(root, "messaging-type"));
             mdbs[i].setTransactionType(LoaderUtil.getChildContent(root, "transaction-type"));
-            mdbs[i].setActivationConfig(loadActivationConfig(root));
+            mdbs[i].setActivationConfig(loadActivationConfig(LoaderUtil.getChild(root, "activation-config"), new ActivationConfig()));
         }
         return mdbs;
     }
 
-    static ActivationConfig loadActivationConfig(Element parent) {
+    static ActivationConfig loadActivationConfig(Element parent, ActivationConfig activationConfig) {
         if(parent == null) {
-            return null;
+            return null;//???
         }
-        ActivationConfig config = new ActivationConfig();
-        J2EELoader.loadDescribable(parent, config);
+        J2EELoader.loadDescribable(parent, activationConfig);
         Element[] roots = LoaderUtil.getChildren(parent, "activation-config-property");
         ActivationConfigProperty[] props = new ActivationConfigProperty[roots.length];
         for(int i = 0; i < roots.length; i++) {
@@ -267,8 +266,8 @@ public class EjbJarLoader {
             props[i].setActivationConfigPropertyName(LoaderUtil.getChildContent(root, "activation-config-property-name"));
             props[i].setActivationConfigPropertyValue(LoaderUtil.getChildContent(root, "activation-config-property-value"));
         }
-        config.setActivationConfigProperty(props);
-        return config;
+        activationConfig.setActivationConfigProperty(props);
+        return activationConfig;
     }
 
     private static Session[] loadSessions(Element ebe) {

@@ -31,7 +31,6 @@
                 <resource-env-ref-type>javax.sql.DataSource</resource-env-ref-type>
                 <ger:jndi-name>java:jdbc/MyDatabase</ger:jndi-name>
             </resource-env-ref>
-            <jndi-name>StatelessTestJNDI</jndi-name>
         </session>
         <session>
             <description>This is a sample stateful session bean</description>
@@ -54,8 +53,39 @@
                 <resource-env-ref-type>javax.sql.DataSource</resource-env-ref-type>
                 <ger:jndi-name></ger:jndi-name>
             </resource-env-ref>
-            <jndi-name>StatefulTestJNDI</jndi-name>
         </session>
+        <message-driven>
+            <description>This is a sample message-driven bean</description>
+            <display-name>Message Driven Bean</display-name>
+            <ejb-name>MessageDrivenTest</ejb-name>
+            <ejb-class>org.apache.geronimo.enterprise.deploy.test.MessageBean</ejb-class>
+            <messaging-type>org.apache.geronimo.enterprise.deploy.test.MessageBeanIntf</messaging-type>
+            <transaction-type>Container</transaction-type>
+            <message-destination-type>
+                javax.jms.Queue
+            </message-destination-type>
+            <!--message-destination-link></message-destination-link-->
+            <activation-config>
+                <resource-adapter-name>TestInboundAdapter</resource-adapter-name>
+                <activation-spec-class>org.apache.geronimo.connector.TestActivationSpec</activation-spec-class>
+                <activation-config-property>
+                    <activation-config-property-name>StringProp</activation-config-property-name>
+                    <activation-config-property-value>some value</activation-config-property-value>
+                </activation-config-property>
+            </activation-config>
+            <ejb-ref>
+                <ejb-ref-name>ejb/MyStateless</ejb-ref-name>
+                <ejb-ref-type>Session</ejb-ref-type>
+                <home>org.apache.geronimo.enterprise.deploy.test.StatelessHome</home>
+                <remote>org.apache.geronimo.enterprise.deploy.test.Stateless</remote>
+                <ejb-link>Stateless</ejb-link>
+            </ejb-ref>
+            <resource-env-ref>
+                <resource-env-ref-name>jdbc/StatefulDatabase</resource-env-ref-name>
+                <resource-env-ref-type>javax.sql.DataSource</resource-env-ref-type>
+                <ger:jndi-name></ger:jndi-name>
+            </resource-env-ref>
+        </message-driven>
         <entity>
             <description>Sample CMP entity</description>
             <display-name>CMP Entity Bean</display-name>

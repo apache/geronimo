@@ -67,6 +67,8 @@ import org.apache.geronimo.deployment.model.geronimo.ejb.Session;
 import org.apache.geronimo.deployment.model.geronimo.ejb.Entity;
 import org.apache.geronimo.deployment.model.geronimo.ejb.Query;
 import org.apache.geronimo.deployment.model.geronimo.ejb.Binding;
+import org.apache.geronimo.deployment.model.geronimo.ejb.MessageDriven;
+import org.apache.geronimo.deployment.model.geronimo.ejb.ActivationConfig;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceEnvRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ClassSpace;
@@ -76,7 +78,7 @@ import org.apache.geronimo.deployment.model.ejb.QueryMethod;
 /**
  * Tests basic Geronimo EJB JAR DD loading (not very comprehensive)
  *
- * @version $Revision: 1.5 $ $Date: 2003/11/18 22:22:29 $
+ * @version $Revision: 1.6 $ $Date: 2003/11/19 00:33:59 $
  */
 public class GeronimoEjbJarLoaderTest extends TestCase {
     private File docDir;
@@ -106,6 +108,18 @@ public class GeronimoEjbJarLoaderTest extends TestCase {
         assertEquals(1, entity.length);
         assertEquals("Container", entity[0].getPersistenceType());
         assertEquals("java.lang.Integer", entity[0].getPrimKeyClass());
+        MessageDriven[] messageDriven = beans.getGeronimoMessageDriven();
+        assertEquals(1, messageDriven.length);
+        assertEquals("Container", messageDriven[0].getTransactionType());
+        assertEquals("org.apache.geronimo.enterprise.deploy.test.MessageBeanIntf", messageDriven[0].getMessagingType());
+        assertEquals("javax.jms.Queue", messageDriven[0].getMessageDestinationType());
+        ActivationConfig activationConfig = messageDriven[0].getGeronimoActivationConfig();
+        assertEquals("TestInboundAdapter", activationConfig.getResourceAdapterName());
+        assertEquals("org.apache.geronimo.connector.TestActivationSpec", activationConfig.getActivationSpecClass());
+        assertEquals(1, activationConfig.getActivationConfigProperty().length);
+        assertEquals("StringProp", activationConfig.getActivationConfigProperty()[0].getActivationConfigPropertyName());
+        assertEquals("some value", activationConfig.getActivationConfigProperty()[0].getActivationConfigPropertyValue());
+
 
         checkStateless(session[0]);
         checkStateful(session[1]);

@@ -57,8 +57,10 @@ package org.apache.geronimo.xml.deployment;
 
 import java.io.Writer;
 import java.io.IOException;
+
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.apache.geronimo.deployment.model.geronimo.ejb.MessageDriven;
@@ -69,11 +71,12 @@ import org.apache.geronimo.deployment.model.geronimo.ejb.EjbJar;
 import org.apache.geronimo.deployment.model.geronimo.ejb.GeronimoEjbJarDocument;
 import org.apache.geronimo.deployment.model.geronimo.ejb.Query;
 import org.apache.geronimo.deployment.model.geronimo.ejb.Binding;
+import org.apache.geronimo.deployment.model.geronimo.ejb.ActivationConfig;
 
 /**
  * Knows how to store geronimo-ejb-jar.xml POJOs to a DOM
  *
- * @version $Revision: 1.4 $ $Date: 2003/11/18 22:22:28 $
+ * @version $Revision: 1.5 $ $Date: 2003/11/19 00:33:59 $
  */
 public class GeronimoEjbJarStorer {
     public static void store(GeronimoEjbJarDocument jarDoc, Writer out) throws IOException {
@@ -97,31 +100,31 @@ public class GeronimoEjbJarStorer {
             if (jar.getDatasourceName() != null) {
                 StorerUtil.createChildText(root, "datasource-name", jar.getDatasourceName());
             }
-            if(jar.getEnterpriseBeans() != null && jar.getEnterpriseBeans().hasBeans()) {
+            if (jar.getEnterpriseBeans() != null && jar.getEnterpriseBeans().hasBeans()) {
                 storeEjbs(StorerUtil.createChild(root, "enterprise-beans"), jar.getGeronimoEnterpriseBeans());
             }
             //todo: there will probably be Geronimo-specific content for relationships, assembly descriptor
             StorerUtil.writeXML(doc, out);
-        } catch(ParserConfigurationException e) {
-            throw new IOException("Unable to generate DOM document: "+e);
-        } catch(TransformerException e) {
-            throw new IOException("Unable to write document: "+e);
+        } catch (ParserConfigurationException e) {
+            throw new IOException("Unable to generate DOM document: " + e);
+        } catch (TransformerException e) {
+            throw new IOException("Unable to write document: " + e);
         }
     }
 
     static void storeEjbs(Element root, EnterpriseBeans beans) {
         Session[] session = beans.getGeronimoSession();
-        for(int i = 0; i < session.length; i++) {
+        for (int i = 0; i < session.length; i++) {
             Element se = StorerUtil.createChild(root, "session");
             storeSessionBean(se, session[i]);
         }
         Entity[] entity = beans.getGeronimoEntity();
-        for(int i = 0; i < entity.length; i++) {
+        for (int i = 0; i < entity.length; i++) {
             Element ee = StorerUtil.createChild(root, "entity");
             storeEntityBean(ee, entity[i]);
         }
         MessageDriven[] mdb = beans.getGeronimoMessageDriven();
-        for(int i = 0; i < mdb.length; i++) {
+        for (int i = 0; i < mdb.length; i++) {
             Element me = StorerUtil.createChild(root, "message-driven");
             storeMessageDrivenBean(me, mdb[i]);
         }
@@ -140,7 +143,7 @@ public class GeronimoEjbJarStorer {
         StorerUtil.createOptionalChildText(root, "transaction-type", bean.getTransactionType());
         GeronimoJ2EEStorer.storeJNDIEnvironmentRefs(root, bean);
         J2EEStorer.storeSecurityRoleRefs(root, bean.getSecurityRoleRef());
-        if(bean.getSecurityIdentity() != null) {
+        if (bean.getSecurityIdentity() != null) {
             EjbJarStorer.storeSecurityIdentity(StorerUtil.createChild(root, "security-identity"), bean.getSecurityIdentity());
         }
     }
@@ -158,19 +161,19 @@ public class GeronimoEjbJarStorer {
         StorerUtil.createChildText(root, "reentrant", bean.getReentrant());
         StorerUtil.createOptionalChildText(root, "cmp-version", bean.getCmpVersion());
         StorerUtil.createOptionalChildText(root, "abstract-schema-name", bean.getAbstractSchemaName());
-        for(int i = 0; i < bean.getCmpField().length; i++) {
+        for (int i = 0; i < bean.getCmpField().length; i++) {
             EjbJarStorer.storeCmpField(StorerUtil.createChild(root, "cmp-field"), bean.getCmpField(i));
         }
         StorerUtil.createOptionalChildText(root, "primkey-field", bean.getPrimkeyField());
         GeronimoJ2EEStorer.storeJNDIEnvironmentRefs(root, bean);
         J2EEStorer.storeSecurityRoleRefs(root, bean.getSecurityRoleRef());
-        if(bean.getSecurityIdentity() != null) {
+        if (bean.getSecurityIdentity() != null) {
             EjbJarStorer.storeSecurityIdentity(StorerUtil.createChild(root, "security-identity"), bean.getSecurityIdentity());
         }
-        for(int i = 0; i < bean.getQuery().length; i++) {
+        for (int i = 0; i < bean.getQuery().length; i++) {
             storeQuery(StorerUtil.createChild(root, "query"), bean.getGeronimoQuery(i));
         }
-        for(int i = 0; i < bean.getUpdate().length; i++) {
+        for (int i = 0; i < bean.getUpdate().length; i++) {
             storeQuery(StorerUtil.createChild(root, "update"), bean.getUpdate(i));
         }
     }
@@ -202,12 +205,18 @@ public class GeronimoEjbJarStorer {
         StorerUtil.createChildText(root, "transaction-type", bean.getTransactionType());
         StorerUtil.createOptionalChildText(root, "message-destination-type", bean.getMessageDestinationType());
         StorerUtil.createOptionalChildText(root, "message-destination-link", bean.getMessageDestinationLink());
-        if(bean.getActivationConfig() != null) {
-            EjbJarStorer.storeActivationConfig(StorerUtil.createChild(root, "activation-config"), bean.getActivationConfig());
+        if (bean.getActivationConfig() != null) {
+            storeActivationConfig(StorerUtil.createChild(root, "activation-config"), bean.getGeronimoActivationConfig());
         }
         GeronimoJ2EEStorer.storeJNDIEnvironmentRefs(root, bean);
-        if(bean.getSecurityIdentity() != null) {
+        if (bean.getSecurityIdentity() != null) {
             EjbJarStorer.storeSecurityIdentity(StorerUtil.createChild(root, "security-identity"), bean.getSecurityIdentity());
         }
+    }
+
+    static void storeActivationConfig(Element root, ActivationConfig activationConfig) {
+        StorerUtil.createChildText(root, "resource-adapter-name", activationConfig.getResourceAdapterName());
+        StorerUtil.createChildText(root, "activation-spec-class", activationConfig.getActivationSpecClass());
+        EjbJarStorer.storeActivationConfig(root, activationConfig);
     }
 }
