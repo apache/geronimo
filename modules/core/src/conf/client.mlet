@@ -1,0 +1,19 @@
+<MLET CODE="javax.management.relation.RelationService"
+      NAME="geronimo.boot:role=RelationService"
+      ARCHIVE=""
+      >
+      <ARG type="boolean" value="true" />
+</MLET>
+
+<MLET CODE="org.apache.geronimo.deployment.DeploymentController"
+      NAME="geronimo.deployment:role=DeploymentController"
+      ARCHIVE=""
+      >
+</MLET>
+
+<MLET CODE="org.apache.geronimo.client.ClientDeploymentPlanner"
+      NAME="geronimo.deployment:role=DeploymentPlanner,type=Client"
+      ARCHIVE=""
+      >
+</MLET>
+

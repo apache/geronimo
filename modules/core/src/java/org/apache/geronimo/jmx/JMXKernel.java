@@ -53,14 +53,65 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.service;
+package org.apache.geronimo.jmx;
 
-import org.apache.geronimo.deployment.DeploymentPlanner;
+import java.net.URL;
+import java.util.Set;
+import javax.management.MBeanServer;
+import javax.management.MBeanServerFactory;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.management.ServiceNotFoundException;
+import javax.management.loading.MLet;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
- *
- *
- * @version $Revision: 1.2 $ $Date: 2003/08/16 19:03:09 $
+ * 
+ * 
+ * @version $Revision: 1.1 $ $Date: 2003/08/16 19:03:09 $
  */
-public interface ServiceDeploymentPlannerMBean extends DeploymentPlanner {
+public class JMXKernel {
+    private static final Log log = LogFactory.getLog(JMXKernel.class);
+    private final MBeanServer server;
+
+    public JMXKernel(String domainName) {
+        server = MBeanServerFactory.createMBeanServer(domainName);
+    }
+
+    public void release() {
+        MBeanServerFactory.releaseMBeanServer(server);
+    }
+
+    public MBeanServer getMBeanServer() {
+        return server;
+    }
+
+    public Set bootMLet(URL mletURL) throws ServiceNotFoundException {
+        String urlString = mletURL.toString();
+        log.info("Booting MLets from URL " + urlString);
+
+        ObjectName objectName;
+        try {
+            objectName = new ObjectName("geronimo.boot:type=BootMLet,bootURL=" + ObjectName.quote(urlString));
+        } catch (MalformedObjectNameException e) {
+            IllegalArgumentException ex = new IllegalArgumentException(e.getMessage());
+            ex.initCause(e);
+            throw ex;
+        }
+
+
+        MLet bootMLet = new MLet();
+        try {
+            server.registerMBean(bootMLet, objectName);
+        } catch (Exception e) {
+            // it should be impossible for this registration to fail
+            IllegalStateException ex = new IllegalStateException(e.getMessage());
+            ex.initCause(e);
+            throw ex;
+        }
+        return bootMLet.getMBeansFromURL(mletURL);
+    }
+
 }

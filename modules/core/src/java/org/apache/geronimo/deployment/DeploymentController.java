@@ -89,7 +89,7 @@ import org.apache.geronimo.jmx.JMXUtil;
  *
  *
  *
- * @version $Revision: 1.5 $ $Date: 2003/08/14 00:02:34 $
+ * @version $Revision: 1.6 $ $Date: 2003/08/16 19:03:09 $
  */
 public class DeploymentController implements MBeanRegistration, DeploymentControllerMBean {
     private static final ObjectName DEFAULT_NAME = JMXUtil.getObjectName("geronimo.deployment:role=DeploymentController");
@@ -111,7 +111,7 @@ public class DeploymentController implements MBeanRegistration, DeploymentContro
         relationService = JMXUtil.getRelationService(server);
         RoleInfo[] roleInfo = {
             new RoleInfo("DeploymentController", getClass().getName()),
-            new RoleInfo("DeploymentPlanner", "org.apache.geronimo.deployment.DeploymentPlannerMBean", true, true, 0, RoleInfo.ROLE_CARDINALITY_INFINITY, null)
+            new RoleInfo("DeploymentPlanner", "org.apache.geronimo.deployment.DeploymentPlanner", true, true, 0, RoleInfo.ROLE_CARDINALITY_INFINITY, null)
         };
         relationService.createRelationType("DeploymentController-DeploymentPlanner", roleInfo);
 

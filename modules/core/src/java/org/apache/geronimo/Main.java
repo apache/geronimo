@@ -59,31 +59,30 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.Set;
-
 import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
-import javax.management.loading.MLet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.impl.LogFactoryImpl;
 import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.jmx.JMXKernel;
 
 /**
  *
  *
  *
- * @version $Revision: 1.6 $ $Date: 2003/08/14 17:23:38 $
+ * @version $Revision: 1.7 $ $Date: 2003/08/16 19:03:08 $
  */
 public class Main implements Runnable {
     static {
         // Add our default Commons Logger that support the trace level
-        if(System.getProperty(LogFactoryImpl.LOG_PROPERTY) == null) {
+        if (System.getProperty(LogFactoryImpl.LOG_PROPERTY) == null) {
             System.setProperty(LogFactoryImpl.LOG_PROPERTY, "org.apache.geronimo.core.log.Log4jLog");
         }
     }
+
     private static final Log log = LogFactory.getLog("Geronimo");
     private static final String[] DEPLOY_ARG_TYPES = {"java.net.URL"};
 
@@ -91,10 +90,7 @@ public class Main implements Runnable {
     private final URL mletURL;
     private final URL bootURL;
 
-    private MBeanServer mbServer;
-    private ObjectName serverName;
-    private ObjectName bootMLetName;
-    private Set bootedMBeans;
+    private ObjectName controllerName;
 
     public Main(String domainName, URL mletURL, URL bootURL) {
         this.domainName = domainName;
@@ -107,41 +103,48 @@ public class Main implements Runnable {
      */
     public void run() {
         Object[] deployArgs = {bootURL};
+        JMXKernel kernel = null;
         ShutdownThread hook = new ShutdownThread("Shutdown-Thread", Thread.currentThread());
         try {
             Runtime.getRuntime().addShutdownHook(hook);
             try {
                 long start = System.currentTimeMillis();
 
-                log.info("Starting MBeanServer");
-                mbServer = MBeanServerFactory.createMBeanServer(domainName);
+                log.info("Starting JMXKernel");
+                kernel = new JMXKernel(domainName);
 
-                String urlString = mletURL.toString();
-                log.info("Booting MLets from URL " + urlString);
+                // boot my kernel MLet
+                Set bootedMBeans = kernel.bootMLet(mletURL);
 
-                MLet bootMLet = new MLet();
-                bootMLetName = mbServer.registerMBean(bootMLet, new ObjectName("geronimo.boot:type=BootMLet,bootURL=" + ObjectName.quote(urlString))).getObjectName();
-                bootedMBeans = bootMLet.getMBeansFromURL(mletURL);
-
-                // check they all loaded OK
-                ObjectName serverPattern = new ObjectName("*:role=DeploymentController,*");
+                // check they all started OK and it included a controller and service planner
+                ObjectName controllerPattern = new ObjectName("*:role=DeploymentController,*");
+                ObjectName plannerPattern = new ObjectName("*:role=DeploymentPlanner,type=Service,*");
+                boolean planner = false;
                 for (Iterator i = bootedMBeans.iterator(); i.hasNext();) {
                     Object o = i.next();
                     if (o instanceof Throwable) {
                         throw (Throwable) o;
                     }
                     ObjectName mletName = ((ObjectInstance) o).getObjectName();
-                    if (serverPattern.apply(mletName)) {
-                        if (serverName != null) {
+                    if (controllerPattern.apply(mletName)) {
+                        if (controllerName != null) {
                             throw new DeploymentException("Multiple DeploymentControllers specified in boot mlet");
                         }
-                        serverName = mletName;
+                        controllerName = mletName;
+                    } else if (plannerPattern.apply(mletName)) {
+                        planner = true;
                     }
+                }
+                if (controllerName == null) {
+                    throw new DeploymentException("Boot mlet did not load a DeploymentController");
+                } else if (!planner) {
+                    throw new DeploymentException("Boot mlet did not load a DeploymentPlanner for type=Service");
                 }
 
                 // start her up
                 log.info("Deploying Bootstrap Services from " + bootURL);
-                mbServer.invoke(serverName, "deploy", deployArgs, DEPLOY_ARG_TYPES);
+                MBeanServer mbServer = kernel.getMBeanServer();
+                mbServer.invoke(controllerName, "deploy", deployArgs, DEPLOY_ARG_TYPES);
 
                 long end = System.currentTimeMillis();
                 log.info("Started Server in " + (end - start) + "ms.");
@@ -167,48 +170,21 @@ public class Main implements Runnable {
             } catch (Exception e) {
                 // we were in the process of shutting down - ignore
             }
-            if (serverName != null) {
-                try {
-                    log.info("Undeploy Bootstrap Services");
-                    mbServer.invoke(serverName, "undeploy", deployArgs, DEPLOY_ARG_TYPES);
-                } catch (Throwable e) {
-                    log.error("Error stopping Server", e);
-                }
-            }
-
-            if (bootedMBeans != null) {
-                for (Iterator i = bootedMBeans.iterator(); i.hasNext();) {
-                    Object o = i.next();
-                    if (o instanceof ObjectInstance) {
-                        ObjectInstance inst = (ObjectInstance) o;
-                        ObjectName name = inst.getObjectName();
-                        try {
-                            log.debug("Unregistering " + name);
-                            mbServer.unregisterMBean(name);
-                        } catch (Throwable t) {
-                            log.error("Error unregistering " + name);
-                        }
+            if (kernel != null) {
+                if (controllerName != null) {
+                    try {
+                        log.info("Undeploy Bootstrap Services");
+                        MBeanServer mbServer = kernel.getMBeanServer();
+                        mbServer.invoke(controllerName, "undeploy", deployArgs, DEPLOY_ARG_TYPES);
+                    } catch (Throwable e) {
+                        log.error("Error stopping Server", e);
                     }
                 }
+
+                log.info("Releasing JMXKernel");
+                kernel.release();
             }
 
-            if (bootMLetName != null) {
-                try {
-                    log.info("Unregistering MLet " + bootMLetName);
-                    mbServer.unregisterMBean(bootMLetName);
-                } catch (Throwable t) {
-                    log.error("Error unregistering MLet ", t);
-                }
-            }
-
-            if (mbServer != null) {
-                try {
-                    log.info("Releasing MBeanServer");
-                    MBeanServerFactory.releaseMBeanServer(mbServer);
-                } catch (Throwable t) {
-                    log.error("Error releasing MBeanServer", t);
-                }
-            }
             log.info("Shutdown complete");
         }
     }

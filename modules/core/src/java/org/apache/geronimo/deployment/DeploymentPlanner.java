@@ -53,14 +53,16 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.service;
+package org.apache.geronimo.deployment;
 
-import org.apache.geronimo.deployment.DeploymentPlanner;
+import java.util.Set;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/16 19:03:09 $
+ *
+ * @version $Revision: 1.1 $ $Date: 2003/08/16 19:03:09 $
  */
-public interface ServiceDeploymentPlannerMBean extends DeploymentPlanner {
+public interface DeploymentPlanner {
+    boolean plan(Set goals, Set plans) throws DeploymentException;
 }
