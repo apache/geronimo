@@ -85,19 +85,20 @@
             <j:set var="dependency" value="${artifact.dependency}"/>
             <j:if test="${dependency.getProperty('lib') == 'true'}">
                 <ant:copy todir="${libDir}" file="${artifact.path}"/>
-                <j:set var="classpath" value="${classpath} ../lib/${artifact.name}"/>
+                <j:set var="classpathEntry" value="../lib/${artifact.name}"/>
             </j:if>
             <j:if test="${dependency.getProperty('endorsed') == 'true'}">
                 <ant:copy todir="${libDir}/endorsed" file="${artifact.path}"/>
+                <j:set var="classpathEntry" value="../lib/endorsed/${artifact.name}"/>
             </j:if>
             <j:if test="${dependency.getProperty('server') == 'true'}">
-                <j:set var="server.classpath" value="${server.classpath} ../lib/${artifact.name}"/>
+                <j:set var="server.classpath" value="${server.classpath} ${classpathEntry}"/>
             </j:if>
             <j:if test="${dependency.getProperty('client') == 'true'}">
-                <j:set var="client.classpath" value="${client.classpath} ../lib/${artifact.name}"/>
+                <j:set var="client.classpath" value="${client.classpath} ${classpathEntry}"/>
             </j:if>
             <j:if test="${dependency.getProperty('deploy') == 'true'}">
-                <j:set var="deploy.classpath" value="${deploy.classpath} ../lib/${artifact.name}"/>
+                <j:set var="deploy.classpath" value="${deploy.classpath} ${classpathEntry}"/>
             </j:if>
         </j:forEach>
 
@@ -241,7 +242,7 @@
             <ant:arg value="--mainClass"/>
             <ant:arg value="org.apache.geronimo.system.main.Daemon"/>
             <ant:arg value="--endorsedDirs"/>
-            <ant:arg value="${libDir}/endorsed"/>
+            <ant:arg value="lib/endorsed"/>
             <ant:arg value="--install"/>
             <ant:arg value="target/plan/system-plan.xml"/>
             <ant:arg value="${distDir}/bin/server.jar"/>

@@ -698,6 +698,8 @@
             <version>${xerces_version}</version>
             <properties>
                 <endorsed>true</endorsed>
+                <server>true</server>
+                <client>true</client>
             </properties>
         </dependency>
 
@@ -707,6 +709,8 @@
             <version>${xml_parser_apis_version}</version>
             <properties>
                 <endorsed>true</endorsed>
+                <server>true</server>
+                <client>true</client>
             </properties>
         </dependency>
 
@@ -737,7 +741,7 @@
         <dependency>
             <groupId>antlr</groupId>
             <artifactId>antlr</artifactId>
-            <version>${antlr_version}</version>
+            <version>${antlr_version}</version>                                                         `
             <properties>
                 <repository>true</repository>
             </properties>
