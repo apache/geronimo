@@ -15,16 +15,27 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.naming.proxy;
+package org.apache.geronimo.naming.deployment;
+
+import javax.enterprise.deploy.model.DDBean;
 
 /**
- * Interface for connection factory containers.  The id is used by the ProxyManager to correlate which external proxies
- * should be hooked up with which containers.
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/25 09:57:57 $
+ *
+ * @version $Revision: 1.1 $ $Date: 2004/03/09 18:03:11 $
  *
  * */
-public interface CFContainer {
-    Object getProxy();
-    Object getId();
+public class RemoteRefDConfigBean extends LocalRefDConfigBean {
+
+    public RemoteRefDConfigBean(DDBean ddBean, RefAdapter ref, String namePath) {
+        super (ddBean, ref, namePath);
+    }
+
+    public String getServerName() {
+        return ref.getServerName();
+    }
+
+    public void setServerName(String serverName) {
+        ref.setServerName(serverName);
+    }
 }

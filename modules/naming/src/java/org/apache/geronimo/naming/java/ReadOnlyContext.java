@@ -36,6 +36,7 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.NotContextException;
 import javax.naming.OperationNotSupportedException;
+import javax.naming.Reference;
 import javax.naming.spi.NamingManager;
 
 /**
@@ -56,7 +57,7 @@ import javax.naming.spi.NamingManager;
  *   String envEntry2 = (String) componentContext.lookup("env/myEntry2");
  * </code>
  *
- * @version $Revision: 1.5 $ $Date: 2004/02/25 09:57:57 $
+ * @version $Revision: 1.6 $ $Date: 2004/03/09 18:03:11 $
  */
 public class ReadOnlyContext implements Context,Serializable {
     protected final Hashtable env;        // environment for this context
@@ -198,6 +199,15 @@ public class ReadOnlyContext implements Context,Serializable {
         if (result instanceof LinkRef) {
             LinkRef ref = (LinkRef) result;
             result = lookup(ref.getLinkName());
+        }
+        if (result instanceof Reference) {
+            try {
+                result = NamingManager.getObjectInstance(result, null, null, this.env);
+            } catch (NamingException e) {
+                throw e;
+            } catch (Exception e) {
+                throw (NamingException)new NamingException("could not look up : " + name).initCause(e);
+            }
         }
         if (result instanceof ReadOnlyContext) {
             result = new ReadOnlyContext((ReadOnlyContext) result, env);

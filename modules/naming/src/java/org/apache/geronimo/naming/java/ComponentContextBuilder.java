@@ -17,19 +17,29 @@
 
 package org.apache.geronimo.naming.java;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import javax.management.MalformedObjectNameException;
 import javax.naming.NamingException;
+import javax.naming.Reference;
 import javax.transaction.UserTransaction;
+
+import org.apache.geronimo.naming.deployment.RefAdapter;
+import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/02/25 09:57:57 $
+ * @version $Revision: 1.6 $ $Date: 2004/03/09 18:03:11 $
  */
 public class ComponentContextBuilder {
     private static final String ENV = "env/";
+    private final JMXReferenceFactory referenceFactory;
     private final ReadOnlyContext context;
 
-    public ComponentContextBuilder() {
+    public ComponentContextBuilder(JMXReferenceFactory referenceFactory) {
+        this.referenceFactory = referenceFactory;
         this.context = new ReadOnlyContext();
     }
 
@@ -44,6 +54,7 @@ public class ComponentContextBuilder {
         }
         context.internalBind("UserTransaction", userTransaction);
     }
+
 
     public void addEnvEntry(String name, String type, String text) throws NamingException, NumberFormatException {
         if (context.isFrozen()) {
@@ -75,6 +86,34 @@ public class ComponentContextBuilder {
             throw new IllegalArgumentException("Invalid class for env-entry " + name + ", " + type);
         }
         context.internalBind(ENV + name, value);
+    }
+
+    public void addResourceRef(String name, Class iface, RefAdapter refAdapter) throws NamingException {
+        if (iface == URL.class) {
+            try {
+                context.internalBind(ENV + name, new URL(refAdapter.getExternalUri()));
+            } catch (MalformedURLException e) {
+                throw (NamingException) new NamingException("Could not convert " + refAdapter + " to URL").initCause(e);
+            }
+        } else {
+            Reference ref = null;
+            try {
+                ref = referenceFactory.buildConnectionFactoryReference(refAdapter, iface);
+            } catch (MalformedObjectNameException e) {
+                throw (NamingException) new NamingException("invalid object name").initCause(e);
+            }
+            context.internalBind(ENV + name, ref);
+        }
+    }
+
+    public void addResourceEnvRef(String name, Class iface, RefAdapter refAdapter) throws NamingException {
+        Reference ref = null;
+        try {
+            ref = referenceFactory.buildAdminObjectReference(refAdapter, iface);
+        } catch (MalformedObjectNameException e) {
+            throw (NamingException) new NamingException("invalid object name").initCause(e);
+        }
+        context.internalBind(ENV + name, ref);
     }
 
     // todo methods for other references

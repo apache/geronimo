@@ -17,22 +17,35 @@
 
 package org.apache.geronimo.naming.java;
 
-import java.util.Set;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.Arrays;
-import javax.naming.NamingException;
-import javax.naming.NamingEnumeration;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.management.ObjectName;
 import javax.naming.NameClassPair;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
 
 import junit.framework.TestCase;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.naming.deployment.RefAdapter;
+import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
+import org.apache.xmlbeans.XmlObject;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/25 09:57:57 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/09 18:03:11 $
  */
 public class ContextBuilderTest extends TestCase {
     private ComponentContextBuilder builder;
+
+    private List proxy;
 
     public void testFreeze() {
         ReadOnlyContext context = builder.getContext();
@@ -58,8 +71,8 @@ public class ContextBuilderTest extends TestCase {
     public void testEnvEntries() throws Exception {
         String stringVal = "Hello World";
         Character charVal = new Character('H');
-        Byte byteVal = new Byte((byte)12);
-        Short shortVal = new Short((short)12345);
+        Byte byteVal = new Byte((byte) 12);
+        Short shortVal = new Short((short) 12345);
         Integer intVal = new Integer(12345678);
         Long longVal = new Long(1234567890123456L);
         Float floatVal = new Float(123.456);
@@ -77,11 +90,11 @@ public class ContextBuilderTest extends TestCase {
 
         ReadOnlyContext context = builder.getContext();
         Set actual = new HashSet();
-        for (NamingEnumeration e = context.listBindings("env");e.hasMore();) {
+        for (NamingEnumeration e = context.listBindings("env"); e.hasMore();) {
             NameClassPair pair = (NameClassPair) e.next();
             actual.add(pair.getName());
         }
-        Set expected = new HashSet(Arrays.asList(new String[] {"string", "char", "byte", "short", "int", "long", "float", "double", "boolean"}));
+        Set expected = new HashSet(Arrays.asList(new String[]{"string", "char", "byte", "short", "int", "long", "float", "double", "boolean"}));
         assertEquals(expected, actual);
         assertEquals(stringVal, context.lookup("env/string"));
         assertEquals(charVal, context.lookup("env/char"));
@@ -94,8 +107,94 @@ public class ContextBuilderTest extends TestCase {
         assertEquals(booleanVal, context.lookup("env/boolean"));
     }
 
+    public void testResourceEnv() throws Exception {
+        proxy = new ArrayList();
+        builder.addResourceEnvRef("resourceenvref", List.class, new RefAdapter() {
+            public XmlObject getXmlObject() {
+                return null;
+            }
+
+            public void setXmlObject(XmlObject xmlObject) {
+            }
+
+            public String getRefName() {
+                return "resourceenvref";
+            }
+
+            public void setRefName(String name) {
+            }
+
+            public String getServerName() {
+                return null;
+            }
+
+            public void setServerName(String serverName) {
+            }
+
+            public String getKernelName() {
+                return "test.kernel";
+            }
+
+            public void setKernelName(String kernelName) {
+            }
+
+            public String getTargetName() {
+                return "testAdminObject";
+            }
+
+            public void setTargetName(String targetName) {
+            }
+
+            public String getExternalUri() {
+                return null;
+            }
+
+            public void setExternalUri(String externalURI) {
+            }
+
+        });
+        ReadOnlyContext roc = builder.getContext();
+        Kernel kernel = new Kernel("test.kernel", "test.domain");
+        kernel.boot();
+        try {
+            assertEquals(kernel, Kernel.getKernel("test.kernel"));
+            ObjectName proxyFactoryName = ObjectName.getInstance(JMXReferenceFactory.BASE_ADMIN_OBJECT_NAME + "testAdminObject");
+            GBeanMBean gbean = new GBeanMBean(getGbeanInfo());
+            gbean.setAttribute("Content", proxy);
+            kernel.loadGBean(proxyFactoryName, gbean);
+            kernel.startGBean(proxyFactoryName);
+            Object o = roc.lookup("env/resourceenvref");
+            assertEquals(proxy, o);
+        } finally {
+            kernel.shutdown();
+        }
+    }
+
     protected void setUp() throws Exception {
         super.setUp();
-        builder = new ComponentContextBuilder();
+        JMXReferenceFactory referenceFactory = new JMXReferenceFactory();
+        builder = new ComponentContextBuilder(referenceFactory);
+    }
+
+    public static class TestProxyFactory {
+
+        private Object proxy;
+
+        public TestProxyFactory(Object proxy) {
+            this.proxy = proxy;
+        }
+
+        public Object getProxy() {
+            return proxy;
+        }
+
+    }
+
+    public GBeanInfo getGbeanInfo() {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(TestProxyFactory.class);
+        infoFactory.addAttribute("Content", true);
+        infoFactory.addOperation("getProxy");
+        infoFactory.setConstructor(new String[] {"Content"}, new Class[] {Object.class});
+        return infoFactory.getBeanInfo();
     }
 }

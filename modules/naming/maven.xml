@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.1 $ $Date: 2004/02/14 16:55:28 $ -->
+<!-- $Revision: 1.2 $ $Date: 2004/03/09 18:03:11 $ -->
 
 <project default="default"
     xmlns:xmlbeans="geronimo:xmlbeans">
 
-    <preGoal name="java:compile">
+    <!--preGoal name="java:compile">
         <xmlbeans:schema2java
             sourcedir="${basedir}/src"
             sourceschema="schema/geronimo-naming.xsd"
             xmlconfigs="${basedir}/src/schema/xmlconfig.xml"
             targetdir="${basedir}/target/xmlbeans"
             cataloglocation="${basedir}/../../specs/schema/src/catalog/resolver-catalog.xml"/>
-    </preGoal>
+    </preGoal-->
 
 </project>

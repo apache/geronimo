@@ -1,12 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsd:schema xmlns="http://www.w3.org/2001/XMLSchema"
-    xmlns:ger="http://geronimo.apache.org/xml/ns/j2ee"
-    targetNamespace="http://geronimo.apache.org/xml/ns/j2ee"
+<xsd:schema
     xmlns:j2ee="http://java.sun.com/xml/ns/j2ee"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     elementFormDefault="qualified"
     attributeFormDefault="unqualified"
     version="1.0">
+
+    <xsd:annotation>
+        <xsd:documentation>
+            <![CDATA[
+            Partial schema containing common naming elements which can be included in other schemas.
+            This schema does not define a targetNamespace and so all definitions from this
+            schema instance will end up in the targetNamespace of the including document.
+            ]]>
+        </xsd:documentation>
+    </xsd:annotation>
+
     <xsd:import namespace="http://java.sun.com/xml/ns/j2ee" schemaLocation="j2ee_1_4.xsd"/>
 
     <xsd:group name="jndiEnvironmentRefsGroup">
@@ -20,65 +29,58 @@
         </xsd:annotation>
         <xsd:sequence>
             <!--xsd:element name="env-entry"
-                type="ger:env-entryType"
+                type="env-entryType"
                 minOccurs="0" maxOccurs="unbounded"/-->
             <xsd:element name="ejb-ref"
-                type="ger:ejb-refType"
+                type="remote-refType"
                 minOccurs="0" maxOccurs="unbounded"/>
             <xsd:element name="ejb-local-ref"
-                type="ger:ejb-local-refType"
+                type="local-refType"
                 minOccurs="0" maxOccurs="unbounded"/>
             <!-- leave web services out until I know what they do -->
-            <!--xsd:group ref="ger:service-refGroup"/-->
+            <!--xsd:group ref="service-refGroup"/-->
             <xsd:element name="resource-ref"
-                type="ger:resource-refType"
+                type="local-refType"
                 minOccurs="0" maxOccurs="unbounded"/>
             <xsd:element name="resource-env-ref"
-                type="ger:resource-env-refType"
+                type="local-refType"
                 minOccurs="0" maxOccurs="unbounded"/>
             <xsd:element name="message-destination-ref"
-                type="ger:message-destination-refType"
+                type="remote-refType"
                 minOccurs="0" maxOccurs="unbounded"/>
         </xsd:sequence>
     </xsd:group>
 
-    <xsd:complexType name="ejb-refType">
+    <xsd:complexType name="remote-refType">
         <xsd:sequence>
-            <xsd:element name="ejb-ref-name" type="j2ee:ejb-ref-nameType"/>
-            <xsd:element name="uri" type="xsd:string"/>
+            <xsd:element name="ref-name" type="xsd:string"/>
+            <xsd:choice>
+                <xsd:sequence>
+                    <xsd:element name="server" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="kernel-name" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="target-name" type="xsd:string"/>
+                </xsd:sequence>
+                <xsd:element name="external-uri" type="xsd:string"/>
+            </xsd:choice>
         </xsd:sequence>
     </xsd:complexType>
 
-    <!-- has exactly same content as ejb-refType, might not be needed -->
-    <xsd:complexType name="ejb-local-refType">
-        <xsd:sequence>
-            <xsd:element name="ejb-ref-name" type="j2ee:ejb-ref-nameType"/>
-            <xsd:element name="uri" type="xsd:string"/>
-        </xsd:sequence>
-    </xsd:complexType>
-
-    <xsd:complexType name="message-destination-refType">
-        <xsd:sequence>
-            <xsd:element name="message-destination-ref-name"
-                type="j2ee:jndi-nameType"/>
-            <xsd:element name="uri" type="xsd:string"/>
-        </xsd:sequence>
-    </xsd:complexType>
-
-    <xsd:complexType name="resource-env-refType">
-        <xsd:sequence>
-            <xsd:element name="resource-env-ref-name"
-                type="j2ee:jndi-nameType"/>
-            <xsd:element name="uri" type="xsd:string"/>
-        </xsd:sequence>
-    </xsd:complexType>
-
-    <xsd:complexType name="resource-refType">
-        <xsd:sequence>
-            <xsd:element name="res-ref-name"
-                type="j2ee:jndi-nameType"/>
-            <xsd:element name="uri" type="xsd:string"/>
-        </xsd:sequence>
+    <xsd:complexType name="local-refType">
+        <xsd:complexContent>
+            <xsd:restriction base="remote-refType">
+                <xsd:sequence>
+                    <xsd:element name="ref-name" type="xsd:string"/>
+                    <xsd:choice>
+                        <xsd:sequence>
+                            <xsd:element name="server" type="xsd:string" minOccurs="0" maxOccurs="0"/>
+                            <xsd:element name="kernel-name" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="target-name" type="xsd:string"/>
+                        </xsd:sequence>
+                        <xsd:element name="external-uri" type="xsd:string"/>
+                    </xsd:choice>
+                </xsd:sequence>
+            </xsd:restriction>
+        </xsd:complexContent>
     </xsd:complexType>
 
 </xsd:schema>

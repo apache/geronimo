@@ -20,35 +20,50 @@ package org.apache.geronimo.naming.deployment;
 import javax.enterprise.deploy.model.DDBean;
 
 import org.apache.geronimo.deployment.plugin.DConfigBeanSupport;
-import org.apache.geronimo.xbeans.geronimo.GerResourceEnvRefType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/02/25 09:57:57 $
+ * @version $Revision: 1.1 $ $Date: 2004/03/09 18:03:11 $
  */
-public class ResourceEnvRefDConfigBean extends DConfigBeanSupport {
+public class LocalRefDConfigBean extends DConfigBeanSupport {
 
-    public ResourceEnvRefDConfigBean(DDBean ddBean, GerResourceEnvRefType resourceEnvRef) {
-        super(ddBean, resourceEnvRef);
-        assert ddBean.getChildBean("resource-env-ref-name")[0].equals(getResourceEnvRefName());
+    protected final RefAdapter ref;
+
+    public LocalRefDConfigBean(DDBean ddBean, RefAdapter ref, String namePath) {
+        super(ddBean, ref.getXmlObject());
+        this.ref = ref;
+        assert ddBean.getChildBean(namePath)[0].equals(getRefName());
     }
 
-    GerResourceEnvRefType getResourceEnvRef() {
-        return (GerResourceEnvRefType)getXmlObject();
+    String getRefName() {
+        return ref.getRefName();
     }
 
-    String getResourceEnvRefName() {
-        return getResourceEnvRef().getResourceEnvRefName().getStringValue();
+    public String getExternalUri() {
+        return ref.getExternalUri();
     }
 
-    public String getTargetURI() {
-        return getResourceEnvRef().getUri();
+    public void setExternalUri(String targetURI) {
+        ref.setExternalUri(targetURI);
     }
 
-    public void setTargetURI(String targetURI) {
-        getResourceEnvRef().setUri(targetURI);
+
+    public String getKernelName() {
+        return ref.getKernelName();
+    }
+
+    public void setKernelName(String kernelName) {
+        ref.setKernelName(kernelName);
+    }
+
+    public String getTargetName() {
+        return ref.getTargetName();
+    }
+
+    public void setTargetName(String targetName) {
+        ref.setTargetName(targetName);
     }
 
     protected SchemaTypeLoader getSchemaTypeLoader() {
