@@ -58,22 +58,47 @@
  * ====================================================================
  */
 package javax.ejb;
-import java.security.Identity;import java.security.Principal;import java.util.Properties;import javax.transaction.UserTransaction;
-/**
+
+import java.security.Identity;
+import java.security.Principal;
+import java.util.Properties;
+import javax.transaction.UserTransaction;
+
+/**
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/14 16:14:31 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/15 23:46:08 $
  */
 public interface EJBContext {
-    Identity getCallerIdentity() throws IllegalStateException;
-    Principal getCallerPrincipal() throws IllegalStateException;
-    EJBHome getEJBHome() throws IllegalStateException;
-    EJBLocalHome getEJBLocalHome() throws IllegalStateException;
-    Properties getEnvironment();
-    boolean getRollbackOnly() throws IllegalStateException;
-    TimerService getTimerService() throws IllegalStateException;
-    UserTransaction getUserTransaction() throws IllegalStateException;
-    boolean isCallerInRole(Identity identity) throws IllegalStateException;
-    boolean isCallerInRole(String string) throws IllegalStateException;
-    void setRollbackOnly() throws IllegalStateException;}
+    EJBHome getEJBHome();
+
+    EJBLocalHome getEJBLocalHome();
+
+    /**
+     * @deprecated
+     */
+    Properties getEnvironment();
+
+    /**
+     * @deprecated
+     */
+    Identity getCallerIdentity();
+
+    Principal getCallerPrincipal();
+
+    /**
+     * @deprecated
+     */
+    boolean isCallerInRole(Identity role);
+
+    boolean isCallerInRole(String roleName);
+
+    UserTransaction getUserTransaction() throws IllegalStateException;
+
+    void setRollbackOnly() throws IllegalStateException;
+
+    boolean getRollbackOnly() throws IllegalStateException;
+
+    TimerService getTimerService() throws IllegalStateException;
+}

@@ -58,12 +58,15 @@
  * ====================================================================
  */
 package javax.ejb;
-import java.io.Serializable;import java.rmi.RemoteException;
-/**
+
+import java.io.Serializable;
+import java.rmi.RemoteException;
+
+/**
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/14 16:14:31 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/15 23:46:08 $
  */
 public interface HomeHandle extends Serializable {
     EJBHome getEJBHome() throws RemoteException;

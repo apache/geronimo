@@ -58,20 +58,23 @@
  * ====================================================================
  */
 package javax.ejb;
-/**
+
+/**
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/14 16:14:31 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/15 23:46:08 $
  */
 public class TransactionRolledbackLocalException extends EJBException {
     public TransactionRolledbackLocalException() {
         super();
     }
-    public TransactionRolledbackLocalException(String s) {
-        super(s);
+
+    public TransactionRolledbackLocalException(String message) {
+        super(message);
     }
-    public TransactionRolledbackLocalException(String s, Exception e) {
-        super(s, e);
+
+    public TransactionRolledbackLocalException(String message, Exception ex) {
+        super(message, ex);
     }
 }

@@ -58,19 +58,23 @@
  * ====================================================================
  */
 package javax.ejb;
-/**
+
+/**
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/14 16:14:31 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/15 23:46:08 $
  */
 public class NoSuchObjectLocalException extends EJBException {
     public NoSuchObjectLocalException() {
         super();
     }
-    public NoSuchObjectLocalException(String s) {
-        super(s);
+
+    public NoSuchObjectLocalException(String message) {
+        super(message);
     }
-    public NoSuchObjectLocalException(String s, Exception e) {
-        super(s, e);
-    }}
+
+    public NoSuchObjectLocalException(String message, Exception ex) {
+        super(message, ex);
+    }
+}

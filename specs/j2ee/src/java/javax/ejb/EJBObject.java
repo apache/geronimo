@@ -58,16 +58,24 @@
  * ====================================================================
  */
 package javax.ejb;
-import java.rmi.Remote;import java.rmi.RemoteException;
-/**
+
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+
+/**
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/14 16:14:31 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/15 23:46:08 $
  */
 public interface EJBObject extends Remote {
     EJBHome getEJBHome() throws RemoteException;
-    Handle getHandle() throws RemoteException;
-    Object getPrimaryKey() throws RemoteException;
-    boolean isIdentical(EJBObject ejbObject) throws RemoteException;
-    void remove() throws RemoteException, RemoveException;}
+
+    Handle getHandle() throws RemoteException;
+
+    Object getPrimaryKey() throws RemoteException;
+
+    boolean isIdentical(EJBObject obj) throws RemoteException;
+
+    void remove() throws RemoteException, RemoveException;
+}

@@ -58,11 +58,12 @@
  * ====================================================================
  */
 package javax.transaction;
-/**
+
+/**
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/14 16:14:32 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/15 23:46:09 $
  */
 public interface Status {
     int STATUS_ACTIVE = 0;

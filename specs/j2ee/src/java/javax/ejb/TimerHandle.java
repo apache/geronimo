@@ -58,12 +58,14 @@
  * ====================================================================
  */
 package javax.ejb;
-import java.io.Serializable;
-/**
+
+import java.io.Serializable;
+
+/**
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/14 16:14:31 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/15 23:46:08 $
  */
 public interface TimerHandle extends Serializable {
     Timer getTimer() throws EJBException, IllegalStateException, NoSuchObjectLocalException;

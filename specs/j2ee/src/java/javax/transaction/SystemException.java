@@ -58,21 +58,26 @@
  * ====================================================================
  */
 package javax.transaction;
-/**
+
+/**
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/14 16:14:32 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/15 23:46:09 $
  */
 public class SystemException extends Exception {
     public int errorCode;
-    public SystemException() {
+
+    public SystemException() {
         super();
     }
-    public SystemException(String s) {
-        super(s);
+
+    public SystemException(String message) {
+        super(message);
     }
-    public SystemException(int errorCode) {
+
+    public SystemException(int errorCode) {
         super();
         this.errorCode = errorCode;
-    }}
+    }
+}

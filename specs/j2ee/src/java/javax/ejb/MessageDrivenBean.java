@@ -58,12 +58,15 @@
  * ====================================================================
  */
 package javax.ejb;
-/**
+
+/**
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/14 16:14:31 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/15 23:46:08 $
  */
 public interface MessageDrivenBean extends EnterpriseBean {
     void ejbRemove() throws EJBException;
-    void setMessageDrivenContext(MessageDrivenContext messageDrivenContext) throws EJBException;}
+
+    void setMessageDrivenContext(MessageDrivenContext ctx) throws EJBException;
+}

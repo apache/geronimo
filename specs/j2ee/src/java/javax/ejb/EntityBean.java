@@ -58,19 +58,27 @@
  * ====================================================================
  */
 package javax.ejb;
-import java.rmi.RemoteException;
-/**
+
+import java.rmi.RemoteException;
+
+/**
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/14 16:14:31 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/15 23:46:08 $
  */
 public interface EntityBean extends EnterpriseBean {
     void ejbActivate() throws EJBException, RemoteException;
-    void ejbLoad() throws EJBException, RemoteException;
-    void ejbPassivate() throws EJBException, RemoteException;
-    void ejbRemove() throws RemoveException, EJBException, RemoteException;
-    void ejbStore() throws EJBException, RemoteException;
-    void setEntityContext(EntityContext entityContext) throws EJBException, RemoteException;
-    void unsetEntityContext() throws EJBException, RemoteException;
+
+    void ejbLoad() throws EJBException, RemoteException;
+
+    void ejbPassivate() throws EJBException, RemoteException;
+
+    void ejbRemove() throws RemoveException, EJBException, RemoteException;
+
+    void ejbStore() throws EJBException, RemoteException;
+
+    void setEntityContext(EntityContext ctx) throws EJBException, RemoteException;
+
+    void unsetEntityContext() throws EJBException, RemoteException;
 }

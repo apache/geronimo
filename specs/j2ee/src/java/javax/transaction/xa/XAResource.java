@@ -58,11 +58,12 @@
  * ====================================================================
  */
 package javax.transaction.xa;
-/**
+
+/**
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/14 16:14:32 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/15 23:46:09 $
  */
 public interface XAResource {
     int TMENDRSCAN = 8388608;
@@ -76,13 +77,24 @@ public interface XAResource {
     int TMSUSPEND = 33554432;
     int XA_RDONLY = 3;
     int XA_OK = 0;
-    void commit(Xid xid, boolean b) throws XAException;
-    void end(Xid xid, int i) throws XAException;
-    void forget(Xid xid) throws XAException;
-    int getTransactionTimeout() throws XAException;
-    boolean isSameRM(XAResource xaResource) throws XAException;
-    int prepare(Xid xid) throws XAException;
-    Xid[] recover(int i) throws XAException;
-    void rollback(Xid xid) throws XAException;
-    boolean setTransactionTimeout(int i) throws XAException;
-    void start(Xid xid, int i) throws XAException;}
+
+    void commit(Xid xid, boolean onePhase) throws XAException;
+
+    void end(Xid xid, int flags) throws XAException;
+
+    void forget(Xid xid) throws XAException;
+
+    int getTransactionTimeout() throws XAException;
+
+    boolean isSameRM(XAResource xaResource) throws XAException;
+
+    int prepare(Xid xid) throws XAException;
+
+    Xid[] recover(int flag) throws XAException;
+
+    void rollback(Xid xid) throws XAException;
+
+    boolean setTransactionTimeout(int seconds) throws XAException;
+
+    void start(Xid xid, int flags) throws XAException;
+}

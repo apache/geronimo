@@ -58,17 +58,23 @@
  * ====================================================================
  */
 package javax.xml.rpc.handler;
-import java.util.Iterator;
-/**
+
+import java.util.Iterator;
+
+/**
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/14 16:14:32 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/15 23:46:09 $
  */
 public interface MessageContext {
     boolean containsProperty(String name);
-    Object getProperty(String name);
-    Iterator getPropertyNames();
-    void removeProperty(String name);
-    void setProperty(String name, Object value);
+
+    Object getProperty(String name);
+
+    Iterator getPropertyNames();
+
+    void removeProperty(String name);
+
+    void setProperty(String name, Object value);
 }

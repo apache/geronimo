@@ -58,11 +58,12 @@
  * ====================================================================
  */
 package javax.transaction.xa;
-/**
+
+/**
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/14 16:14:32 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/15 23:46:09 $
  */
 public class XAException extends Exception {
     public static final int XA_RBBASE = 100;
@@ -90,14 +91,18 @@ public class XAException extends Exception {
     public static final int XAER_RMFAIL = -7;
     public static final int XAER_DUPID = -8;
     public static final int XAER_OUTSIDE = -9;
-    public int errorCode;
-    public XAException() {
+
+    public int errorCode;
+
+    public XAException() {
         super();
     }
-    public XAException(String s) {
-        super(s);
+
+    public XAException(String message) {
+        super(message);
     }
-    public XAException(int errorCode) {
+
+    public XAException(int errorCode) {
         super();
         this.errorCode = errorCode;
     }

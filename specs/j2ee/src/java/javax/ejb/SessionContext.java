@@ -58,15 +58,19 @@
  * ====================================================================
  */
 package javax.ejb;
-import javax.xml.rpc.handler.MessageContext;
-/**
+
+import javax.xml.rpc.handler.MessageContext;
+
+/**
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/14 16:14:31 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/15 23:46:08 $
  */
 public interface SessionContext extends EJBContext {
     EJBLocalObject getEJBLocalObject() throws IllegalStateException;
-    EJBObject getEJBObject() throws IllegalStateException;
-    MessageContext getMessageContext() throws IllegalStateException;
+
+    EJBObject getEJBObject() throws IllegalStateException;
+
+    MessageContext getMessageContext() throws IllegalStateException;
 }

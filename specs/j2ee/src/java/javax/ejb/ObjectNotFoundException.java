@@ -58,17 +58,19 @@
  * ====================================================================
  */
 package javax.ejb;
-/**
+
+/**
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/14 16:14:31 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/15 23:46:08 $
  */
 public class ObjectNotFoundException extends FinderException {
     public ObjectNotFoundException() {
         super();
     }
-    public ObjectNotFoundException(String s) {
-        super(s);
+
+    public ObjectNotFoundException(String message) {
+        super(message);
     }
 }

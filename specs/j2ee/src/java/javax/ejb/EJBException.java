@@ -58,30 +58,57 @@
  * ====================================================================
  */
 package javax.ejb;
-/**
+
+import java.io.PrintStream;
+import java.io.PrintWriter;
+
+/**
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/14 16:14:31 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/15 23:46:08 $
  */
 public class EJBException extends RuntimeException {
     public EJBException() {
         super();
     }
-    public EJBException(Exception e) {
-        super(e);
+
+    public EJBException(Exception ex) {
+        super(ex);
     }
-    public EJBException(String s) {
-        super(s);
+
+    public EJBException(String message) {
+        super(message);
     }
-    public EJBException(String s, Exception e) {
-        super(s, e);
+
+    public EJBException(String message, Exception ex) {
+        super(message, ex);
     }
-    public Exception getCausedByException() {
+
+    public Exception getCausedByException() {
         Throwable cause = getCause();
         if (cause instanceof Exception) {
             return (Exception) cause;
         }
         return null;
+    }
+
+    public String getMessage() {
+        return getMessage() + "todo";
+    }
+
+
+    public void printStackTrace(PrintStream ps) {
+        super.printStackTrace(ps);
+    }
+
+
+    public void printStackTrace() {
+        super.printStackTrace();
+    }
+
+
+    public void printStackTrace(PrintWriter pw) {
+        super.printStackTrace(pw);
     }
 }

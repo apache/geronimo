@@ -58,16 +58,25 @@
  * ====================================================================
  */
 package javax.ejb.spi;
-import java.io.IOException;import java.io.ObjectInputStream;import java.io.ObjectOutputStream;import javax.ejb.EJBHome;import javax.ejb.EJBObject;
-/**
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import javax.ejb.EJBHome;
+import javax.ejb.EJBObject;
+
+/**
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/14 16:14:32 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/15 23:46:09 $
  */
 public interface HandleDelegate {
-    EJBHome readEJBHome(ObjectInputStream objectInputStream) throws ClassNotFoundException, IOException;
-    EJBObject readEJBObject(ObjectInputStream objectInputStream) throws ClassNotFoundException, IOException;
-    void writeEJBHome(EJBHome ejbHome, ObjectOutputStream objectOutputStream) throws IOException;
-    void writeEJBObject(EJBObject ejbObject, ObjectOutputStream objectOutputStream) throws IOException;
+    EJBHome readEJBHome(ObjectInputStream istream) throws ClassNotFoundException, IOException;
+
+    EJBObject readEJBObject(ObjectInputStream istream) throws ClassNotFoundException, IOException;
+
+    void writeEJBHome(EJBHome ejbHome, ObjectOutputStream ostream) throws IOException;
+
+    void writeEJBObject(EJBObject ejbObject, ObjectOutputStream ostream) throws IOException;
 }

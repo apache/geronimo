@@ -58,17 +58,23 @@
  * ====================================================================
  */
 package javax.ejb;
-/**
+
+/**
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/14 16:14:31 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/15 23:46:08 $
  */
 public interface EJBMetaData {
     EJBHome getEJBHome();
-    Class getHomeInterfaceClass();
-    Class getPrimaryKeyClass();
-    Class getRemoteInterfaceClass();
-    boolean isSession();
-    boolean isStatelessSession();
+
+    Class getHomeInterfaceClass();
+
+    Class getPrimaryKeyClass();
+
+    Class getRemoteInterfaceClass();
+
+    boolean isSession();
+
+    boolean isStatelessSession();
 }

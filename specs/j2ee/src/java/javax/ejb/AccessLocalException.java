@@ -58,20 +58,23 @@
  * ====================================================================
  */
 package javax.ejb;
-/**
+
+/**
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/14 16:14:31 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/15 23:46:08 $
  */
 public class AccessLocalException extends EJBException {
     public AccessLocalException() {
         super();
     }
-    public AccessLocalException(String s) {
-        super(s);
+
+    public AccessLocalException(String message) {
+        super(message);
     }
-    public AccessLocalException(String s, Exception e) {
-        super(s, e);
+
+    public AccessLocalException(String message, Exception ex) {
+        super(message, ex);
     }
 }

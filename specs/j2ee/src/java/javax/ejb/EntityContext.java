@@ -58,14 +58,17 @@
  * ====================================================================
  */
 package javax.ejb;
-/**
+
+/**
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/14 16:14:31 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/15 23:46:08 $
  */
 public interface EntityContext extends EJBContext {
     EJBLocalObject getEJBLocalObject() throws IllegalStateException;
-    EJBObject getEJBObject() throws IllegalStateException;
-    Object getPrimaryKey() throws IllegalStateException;
+
+    EJBObject getEJBObject() throws IllegalStateException;
+
+    Object getPrimaryKey() throws IllegalStateException;
 }

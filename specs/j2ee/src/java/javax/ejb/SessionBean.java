@@ -58,16 +58,21 @@
  * ====================================================================
  */
 package javax.ejb;
-import java.rmi.RemoteException;
-/**
+
+import java.rmi.RemoteException;
+
+/**
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/14 16:14:31 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/15 23:46:08 $
  */
 public interface SessionBean extends EnterpriseBean {
     void ejbActivate() throws EJBException, RemoteException;
-    void ejbPassivate() throws EJBException, RemoteException;
-    void ejbRemove() throws EJBException, RemoteException;
-    void setSessionContext(SessionContext sessionContext) throws EJBException, RemoteException;
+
+    void ejbPassivate() throws EJBException, RemoteException;
+
+    void ejbRemove() throws EJBException, RemoteException;
+
+    void setSessionContext(SessionContext ctx) throws EJBException, RemoteException;
 }

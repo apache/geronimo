@@ -58,17 +58,21 @@
  * ====================================================================
  */
 package javax.transaction;
-import java.rmi.RemoteException;
-/**
+
+import java.rmi.RemoteException;
+
+/**
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/14 16:14:32 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/15 23:46:09 $
  */
 public class TransactionRequiredException extends RemoteException {
     public TransactionRequiredException() {
         super();
     }
-    public TransactionRequiredException(String s) {
-        super(s);
-    }}
+
+    public TransactionRequiredException(String message) {
+        super(message);
+    }
+}

@@ -58,20 +58,23 @@
  * ====================================================================
  */
 package javax.ejb;
-/**
+
+/**
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/14 16:14:31 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/15 23:46:08 $
  */
 public class NoSuchEntityException extends EJBException {
     public NoSuchEntityException() {
         super();
     }
-    public NoSuchEntityException(Exception e) {
-        super(e);
+
+    public NoSuchEntityException(Exception ex) {
+        super(ex);
     }
-    public NoSuchEntityException(String s) {
-        super(s);
+
+    public NoSuchEntityException(String message) {
+        super(message);
     }
 }

@@ -58,19 +58,29 @@
  * ====================================================================
  */
 package javax.transaction;
-/**
+
+/**
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/14 16:14:32 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/15 23:46:09 $
  */
 public interface TransactionManager {
     void begin() throws NotSupportedException, SystemException;
-    void commit() throws HeuristicMixedException, HeuristicRollbackException, IllegalStateException, RollbackException, SecurityException, SystemException;
-    int getStatus() throws SystemException;
-    Transaction getTransaction() throws SystemException;
-    void resume(Transaction transaction) throws IllegalStateException, InvalidTransactionException, SystemException;
-    void rollback() throws IllegalStateException, SecurityException, SystemException;
-    void setRollbackOnly() throws IllegalStateException, SystemException;
-    void setTransactionTimeout(int i) throws SystemException;
-    Transaction suspend() throws SystemException;}
+
+    void commit() throws HeuristicMixedException, HeuristicRollbackException, IllegalStateException, RollbackException, SecurityException, SystemException;
+
+    int getStatus() throws SystemException;
+
+    Transaction getTransaction() throws SystemException;
+
+    void resume(Transaction tobj) throws IllegalStateException, InvalidTransactionException, SystemException;
+
+    void rollback() throws IllegalStateException, SecurityException, SystemException;
+
+    void setRollbackOnly() throws IllegalStateException, SystemException;
+
+    void setTransactionTimeout(int seconds) throws SystemException;
+
+    Transaction suspend() throws SystemException;
+}

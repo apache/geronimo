@@ -58,17 +58,19 @@
  * ====================================================================
  */
 package javax.ejb;
-/**
+
+/**
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/14 16:14:31 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/15 23:46:08 $
  */
 public class CreateException extends Exception {
     public CreateException() {
         super();
     }
-    public CreateException(String s) {
-        super(s);
+
+    public CreateException(String message) {
+        super(message);
     }
 }

@@ -58,15 +58,22 @@
  * ====================================================================
  */
 package javax.ejb;
-import java.rmi.Remote;import java.rmi.RemoteException;
-/**
+
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+
+/**
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/14 16:14:31 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/15 23:46:08 $
  */
 public interface EJBHome extends Remote {
     EJBMetaData getEJBMetaData() throws RemoteException;
-    HomeHandle getHomeHandle() throws RemoteException;
-    void remove(Handle handle) throws RemoteException, RemoveException;
-    void remove(Object object) throws RemoteException, RemoveException;}
+
+    HomeHandle getHomeHandle() throws RemoteException;
+
+    void remove(Handle handle) throws RemoteException, RemoveException;
+
+    void remove(Object primaryKey) throws RemoteException, RemoveException;
+}

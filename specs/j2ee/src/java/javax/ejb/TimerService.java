@@ -58,17 +58,25 @@
  * ====================================================================
  */
 package javax.ejb;
-import java.io.Serializable;import java.sql.Date;import java.util.Collection;
-/**
+
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Date;
+
+/**
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/14 16:14:31 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/15 23:46:08 $
  */
 public interface TimerService {
-    Timer createTimer(Date date, long l, Serializable serializable) throws IllegalArgumentException, IllegalStateException, EJBException;
-    Timer createTimer(Date date, Serializable serializable) throws IllegalArgumentException, IllegalStateException, EJBException;
-    Timer createTimer(long l1, long l2, Serializable serializable) throws IllegalArgumentException, IllegalStateException, EJBException;
-    Timer createTimer(long l, Serializable serializable) throws IllegalArgumentException, IllegalStateException, EJBException;
-    Collection getTimers() throws IllegalStateException, EJBException;
+    Timer createTimer(Date initialExpiration, long intervalDuration, Serializable info) throws IllegalArgumentException, IllegalStateException, EJBException;
+
+    Timer createTimer(Date expiration, Serializable info) throws IllegalArgumentException, IllegalStateException, EJBException;
+
+    Timer createTimer(long initialDuration, long intervalDuration, Serializable info) throws IllegalArgumentException, IllegalStateException, EJBException;
+
+    Timer createTimer(long duration, Serializable info) throws IllegalArgumentException, IllegalStateException, EJBException;
+
+    Collection getTimers() throws IllegalStateException, EJBException;
 }

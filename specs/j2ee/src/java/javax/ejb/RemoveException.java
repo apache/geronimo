@@ -58,17 +58,19 @@
  * ====================================================================
  */
 package javax.ejb;
-/**
+
+/**
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/14 16:14:31 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/15 23:46:08 $
  */
 public class RemoveException extends Exception {
     public RemoveException() {
         super();
     }
-    public RemoveException(String s) {
-        super(s);
+
+    public RemoveException(String message) {
+        super(message);
     }
 }

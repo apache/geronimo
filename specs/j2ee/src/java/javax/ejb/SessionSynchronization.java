@@ -58,15 +58,19 @@
  * ====================================================================
  */
 package javax.ejb;
-import java.rmi.RemoteException;
-/**
+
+import java.rmi.RemoteException;
+
+/**
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/14 16:14:31 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/15 23:46:08 $
  */
 public interface SessionSynchronization {
     void afterBegin() throws EJBException, RemoteException;
-    void afterCompletion(boolean b) throws EJBException, RemoteException;
-    void beforeCompletion() throws EJBException, RemoteException;
+
+    void afterCompletion(boolean committed) throws EJBException, RemoteException;
+
+    void beforeCompletion() throws EJBException, RemoteException;
 }

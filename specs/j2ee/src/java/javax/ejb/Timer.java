@@ -58,17 +58,24 @@
  * ====================================================================
  */
 package javax.ejb;
-import java.io.Serializable;import java.sql.Date;
-/**
+
+import java.io.Serializable;
+import java.util.Date;
+
+/**
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/14 16:14:31 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/15 23:46:08 $
  */
 public interface Timer {
     void cancel() throws EJBException, IllegalStateException, NoSuchObjectLocalException;
-    TimerHandle getHandle() throws EJBException, IllegalStateException, NoSuchObjectLocalException;
-    Serializable getInfo() throws EJBException, IllegalStateException, NoSuchObjectLocalException;
-    Date getNextTimeout() throws EJBException, IllegalStateException, NoSuchObjectLocalException;
-    long getTimeRemaining() throws EJBException, IllegalStateException, NoSuchObjectLocalException;
+
+    long getTimeRemaining() throws EJBException, IllegalStateException, NoSuchObjectLocalException;
+
+    Date getNextTimeout() throws EJBException, IllegalStateException, NoSuchObjectLocalException;
+
+    Serializable getInfo() throws EJBException, IllegalStateException, NoSuchObjectLocalException;
+
+    TimerHandle getHandle() throws EJBException, IllegalStateException, NoSuchObjectLocalException;
 }

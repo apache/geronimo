@@ -58,17 +58,23 @@
  * ====================================================================
  */
 package javax.transaction;
-/**
+
+/**
  *
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/14 16:14:32 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/15 23:46:09 $
  */
 public interface UserTransaction {
     void begin() throws NotSupportedException, SystemException;
-    void commit() throws HeuristicMixedException, HeuristicRollbackException, IllegalStateException, RollbackException, SecurityException, SystemException;
-    int getStatus() throws SystemException;
-    void rollback() throws IllegalStateException, SecurityException, SystemException;
-    void setRollbackOnly() throws IllegalStateException, SystemException;
-    void setTransactionTimeout(int i) throws SystemException;
+
+    void commit() throws HeuristicMixedException, HeuristicRollbackException, IllegalStateException, RollbackException, SecurityException, SystemException;
+
+    int getStatus() throws SystemException;
+
+    void rollback() throws IllegalStateException, SecurityException, SystemException;
+
+    void setRollbackOnly() throws IllegalStateException, SystemException;
+
+    void setTransactionTimeout(int seconds) throws SystemException;
 }
