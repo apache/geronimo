@@ -65,8 +65,6 @@
       <item name="Jetty"                    href="/modules/jetty/index.html"/>
       <item name="Kernel"                   href="/modules/kernel/index.html"/>
       <item name="Naming"                   href="/modules/naming/index.html"/>
-      <item name="Network"                  href="/modules/network/index.html"/>
-      <item name="Remoting"                 href="/modules/remoting/index.html"/>
       <item name="Security"                 href="/modules/security/index.html"/>
       <item name="Spring"                   href="/modules/spring/index.html"/>
       <item name="System"                   href="/modules/system/index.html"/>
