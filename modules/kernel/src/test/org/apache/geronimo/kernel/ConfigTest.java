@@ -55,41 +55,38 @@
  */
 package org.apache.geronimo.kernel;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.net.URL;
-import java.util.Iterator;
 import java.util.Collections;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
+import junit.framework.TestCase;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.jmx.GMBean;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.LocalConfigStore;
 import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GAttributeInfo;
-import org.apache.geronimo.gbean.jmx.GMBean;
-import junit.framework.TestCase;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/14 08:31:07 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/14 20:41:56 $
  */
 public class ConfigTest extends TestCase {
-    private ObjectName gbeanName;
+    private ObjectName gbeanName1;
     private File configRoot;
     private File tmpDir;
     private GBeanInfo storeInfo;
     private Kernel kernel;
     private MBeanServer mbServer;
     private byte[] state;
+    private ObjectName gbeanName2;
 
     public void testOfflineConfig() throws Exception {
         GMBean config = new GMBean(Configuration.GBEAN_INFO);
@@ -109,12 +106,14 @@ public class ConfigTest extends TestCase {
         assertEquals(new Integer(State.RUNNING.toInt()), mbServer.getAttribute(configName, "state"));
         assertNotNull(mbServer.getAttribute(configName, "ClassLoader"));
 
-        assertEquals(new Integer(State.RUNNING.toInt()), mbServer.getAttribute(gbeanName, "state"));
-        assertEquals("1234", mbServer.getAttribute(gbeanName, "Value"));
+        assertEquals(new Integer(State.RUNNING.toInt()), mbServer.getAttribute(gbeanName1, "state"));
+        assertEquals("1234", mbServer.getAttribute(gbeanName1, "Value"));
+        assertEquals("no endpoint", mbServer.invoke(gbeanName1, "checkEndpoint", null, null));
+        //assertEquals("endpointCheck", mbServer.invoke(gbeanName2, "checkEndpoint", null, null));
 
         mbServer.invoke(configName, "stop", null, null);
         try {
-            mbServer.getAttribute(gbeanName, "Value");
+            mbServer.getAttribute(gbeanName1, "Value");
             fail();
         } catch (InstanceNotFoundException e) {
             // ok
@@ -134,13 +133,19 @@ public class ConfigTest extends TestCase {
         kernel.boot();
         mbServer = kernel.getMBeanServer();
 
-        gbeanName = new ObjectName("geronimo.test:name=MyMockGMBean");
-        GMBean mockBean = new GMBean(MockGBean.getGBeanInfo());
-        mockBean.setAttribute("Value", "1234");
-        mockBean.setAttribute("Name", "Name");
+        gbeanName1 = new ObjectName("geronimo.test:name=MyMockGMBean1");
+        GMBean mockBean1 = new GMBean(MockGBean.getGBeanInfo());
+        mockBean1.setAttribute("Value", "1234");
+        mockBean1.setAttribute("Name", "child");
+        gbeanName2 = new ObjectName("geronimo.test:name=MyMockGMBean2");
+        GMBean mockBean2 = new GMBean(MockGBean.getGBeanInfo());
+        mockBean2.setAttribute("Value", "5678");
+        mockBean2.setAttribute("Name", "Parent");
+        mockBean2.setEndpointPatterns("MockEndpoint", Collections.singleton(gbeanName1));
 
         Map gbeans = new HashMap();
-        gbeans.put(gbeanName, mockBean);
+        gbeans.put(gbeanName1, mockBean1);
+        gbeans.put(gbeanName2, mockBean2);
         state = Configuration.storeGBeans(gbeans);
     }
 

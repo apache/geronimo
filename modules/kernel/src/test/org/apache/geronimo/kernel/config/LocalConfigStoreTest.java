@@ -59,22 +59,18 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
-import java.net.URL;
 import java.net.URI;
+import java.net.URL;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
-import java.util.Iterator;
 
-import org.apache.geronimo.kernel.config.LocalConfigStore;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.gbean.GAttributeInfo;
-import org.apache.geronimo.gbean.jmx.GMBean;
 import junit.framework.TestCase;
+import org.apache.geronimo.gbean.jmx.GMBean;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/14 08:31:07 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/14 20:41:56 $
  */
 public class LocalConfigStoreTest extends TestCase {
     private File root;

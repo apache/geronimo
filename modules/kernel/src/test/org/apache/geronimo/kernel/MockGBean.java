@@ -56,36 +56,39 @@
 package org.apache.geronimo.kernel;
 
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
+import org.apache.geronimo.gbean.GEndpointInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/12 01:40:08 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/14 20:41:56 $
  */
-public class MockGBean {
+public class MockGBean implements MockEndpoint {
     private static final GBeanInfo GBEAN_INFO;
     private final String name;
     private String value;
+
+    private MockEndpoint endpoint;
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
 
     static {
-        Set attrs = new HashSet();
-        attrs.add(new GAttributeInfo("Name", true));
-        attrs.add(new GAttributeInfo("Value", true));
-        Set operations = new HashSet();
-        operations.add(new GOperationInfo("checkResource", new String[] {"name"}, new String[] {"java.lang.String"}));
-        GConstructorInfo constructor = new GConstructorInfo(Collections.singletonList("Name"), Collections.singletonList(String.class));
-        GBEAN_INFO = new GBeanInfo(MockGBean.class.getName(), attrs, constructor, operations, Collections.EMPTY_SET, Collections.EMPTY_SET);
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory("MockGBean", "test description", MockGBean.class.getName());
+        infoFactory.addAttribute(new GAttributeInfo("Name", true));
+        infoFactory.addAttribute(new GAttributeInfo("Value", true));
+        infoFactory.addOperation(new GOperationInfo("checkResource", new String[]{"name"}, new String[]{"java.lang.String"}));
+        infoFactory.addOperation(new GOperationInfo("checkEndpoint"));
+        infoFactory.addEndpoint(new GEndpointInfo("MockEndpoint", MockEndpoint.class.getName()));
+        infoFactory.setConstructor(new GConstructorInfo(Collections.singletonList("Name"), Collections.singletonList(String.class)));
+        GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
     public MockGBean(String name) {
@@ -104,8 +107,27 @@ public class MockGBean {
         this.value = value;
     }
 
+    public MockEndpoint getMockEndpoint() {
+        return endpoint;
+    }
+
+    public void setMockEndpoint(MockEndpoint endpoint) {
+        this.endpoint = endpoint;
+    }
+
     public boolean checkResource(String name) {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         return cl.getResource(name) != null;
+    }
+
+    public String doSomething(String name) {
+        return name;
+    }
+
+    public String checkEndpoint() {
+        if (endpoint == null) {
+            return "no endpoint";
+        }
+        return endpoint.doSomething("endpointCheck");
     }
 }

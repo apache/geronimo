@@ -86,7 +86,7 @@ import org.apache.geronimo.gbean.jmx.GMBean;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/12 01:38:55 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/14 20:41:56 $
  */
 public class GMBeanEndpoint implements NotificationListener {
     /**
@@ -249,6 +249,10 @@ public class GMBeanEndpoint implements NotificationListener {
     }
 
     public synchronized void offline() {
+        if (proxy == null) {
+            //we weren't fully online
+            return;
+        }
         // get the targets from the proxy because we are listening to them
         Set registeredTargets = proxy.getTargets();
 
