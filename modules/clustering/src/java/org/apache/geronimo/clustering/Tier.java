@@ -74,7 +74,7 @@ import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
  * into the same abstract base.
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/03 01:42:56 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/04 14:18:06 $
  */
 public abstract class
   Tier
@@ -82,7 +82,7 @@ public abstract class
 {
   protected static Log  _log=LogFactory.getLog(Tier.class);
   protected ObjectName  _objectName;
-  protected ObjectName  _node;
+  protected Node        _node;
   protected MBeanServer _server;
   protected Data        _data;
   protected Map         _tiers;
@@ -106,6 +106,14 @@ public abstract class
   {
     return new ObjectName("geronimo.clustering:role=Tier,name="+tierName+",node="+nodeName+",cluster="+clusterName);
   }
+
+  /**
+   * Return a local reference to this Object. For tight coupling via
+   * JMX (bad idea?).
+   *
+   * @return a <code>Tier</code> value
+   */
+  public Tier getReference(){return this;}
 
   //----------------------------------------
   // GeronimoMBeanTarget
@@ -132,6 +140,16 @@ public abstract class
       return false;
     }
 
+    try
+    {
+      _node=(Node)_server.getAttribute(Node.makeObjectName(getClusterName(), getNodeName()), "Reference");
+    }
+    catch (Exception e)
+    {
+      _log.error("could not find Node", e);
+      return false;
+    }
+
     return true;
   }
 
@@ -142,20 +160,10 @@ public abstract class
   {
     _log.info("starting");
 
-    // find our node
-    try
-    {
-      _node=Node.makeObjectName(getClusterName(), getNodeName());
-      // register our session map with it's Data object
-      Data data=(Data)_server.getAttribute(_node, "Data");
-      _log.info("Data:"+data);
-      _tiers=data.getTiers(); // immutable, so doesn't need synchronisation
-    }
-    catch (Exception e)
-    {
-      _log.error("could not retrieve Node state", e);
-    }
-
+    // register our session map with it's Data object
+    Data data=_node.getData();
+    _log.info("Data:"+data);
+    _tiers=data.getTiers(); // immutable, so doesn't need synchronisation
     _tier=null;
     synchronized (_tiers)
     {
@@ -189,6 +197,7 @@ public abstract class
   {
     GeronimoMBeanInfo mbeanInfo=new GeronimoMBeanInfo();
     //set target class in concrete subclass
+    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Reference",   true, false, "a local reference to this Tier"));
     mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Name",        true, false, "Name of this Tier"));
     mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("NodeName",    true, false, "Name of this Tier's Node"));
     mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ClusterName", true, false, "Name of this Tier's Node's Cluster"));

@@ -73,7 +73,7 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
  * channel. A number of nodes which are part of the same cluster and
  * reside in the same VM should share a single Cluster object.
  *
- * @version $Revision: 1.10 $ $Date: 2004/01/03 01:42:56 $
+ * @version $Revision: 1.11 $ $Date: 2004/01/04 14:18:06 $
  */
 public class
   LocalCluster
@@ -81,39 +81,8 @@ public class
 {
   // class
   protected static Log _log=LogFactory.getLog(LocalCluster.class);
-  protected static Map _map=new HashMap();
-
-  /**
-   * Return either an existing Cluster, or a freshly created one.
-   *
-   * @param name a <code>String</code> value
-   * @return a <code>LocalCluster</code> value
-   */
-  public static LocalCluster
-    find(String name)
-  {
-    synchronized (_map)
-    {
-      LocalCluster cluster=(LocalCluster)_map.get(name);
-
-      if (cluster==null)
-      {
-	cluster=new LocalCluster(name);
-	_map.put(name, cluster);
-
-	_log.trace("created cluster: "+name);
-      }
-      else
-      {
-	_log.trace("found cluster: "+name);
-      }
-
-      return cluster;
-    }
-  }
 
   // instance
-  protected String _name;
   protected List   _members=new Vector();
 
 
@@ -122,8 +91,6 @@ public class
    *
    * @param name a <code>String</code> value
    */
-  protected LocalCluster(String name) {_name=name;}
-
   public List getMembers(){synchronized (_members){return Collections.unmodifiableList(_members);}}
 
   // MetaData

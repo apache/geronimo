@@ -56,7 +56,10 @@
 package org.apache.geronimo.clustering;
 
 import java.util.List;
+import javax.management.MBeanServer;
 import javax.management.ObjectName;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
@@ -70,18 +73,23 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
  * every other node and CleverCluster, which automagically partitions
  * data into SubClusters etc...
  *
- * @version $Revision: 1.5 $ $Date: 2004/01/03 01:42:56 $
+ * @version $Revision: 1.6 $ $Date: 2004/01/04 14:18:06 $
  */
 public abstract class
   Cluster
   implements GeronimoMBeanTarget
 {
+  protected Log _log=LogFactory.getLog(Cluster.class);
+
   public static ObjectName
     makeObjectName(String clusterName)
     throws Exception
   {
     return new ObjectName("geronimo.clustering:role=Cluster,name="+clusterName);
   }
+
+  protected ObjectName 	_objectName;
+  protected MBeanServer _server;
 
   /**
    * Return current Cluster members.
@@ -99,7 +107,6 @@ public abstract class
    */
   public abstract void join(Object member);
 
-
   /**
    * Remove the given node from this Cluster.
    *
@@ -107,22 +114,64 @@ public abstract class
    */
   public abstract void leave(Object member);
 
+  /**
+   * Return a local reference to this Object. For tight coupling via
+   * JMX (bad idea?).
+   *
+   * @return a <code>Cluster</code> value
+   */
+  public Cluster getReference(){return this;}
+
   //----------------------------------------
   // GeronimoMBeanTarget
   //----------------------------------------
 
-  public boolean canStart(){return true;}
+  public boolean
+    canStart()
+  {
+    if (_objectName.getKeyProperty("name")==null)
+    {
+      _log.warn("ClusterMBean name must contain a 'name' property");
+      return false;
+    }
+
+    return true;
+  }
+
   public boolean canStop(){return true;}
-  public void doStart(){}
-  public void doStop(){}
-  public void doFail(){}
-  public void setMBeanContext(GeronimoMBeanContext context){}
+
+  public void
+    doStart()
+  {
+    _log=LogFactory.getLog(Cluster.class.getName()+"#"+_objectName.getKeyProperty("name"));
+    _log.debug("starting");
+  }
+
+  public void
+    doStop()
+  {
+    _log.debug("stopping");
+  }
+
+  public void
+    doFail()
+  {
+    _log.debug("failing");
+  }
+
+  public void
+    setMBeanContext(GeronimoMBeanContext context)
+  {
+    _objectName=(context==null)?null:context.getObjectName();
+    _server    =(context==null)?null:context.getServer();
+  }
 
   public static GeronimoMBeanInfo
     getGeronimoMBeanInfo()
   {
     GeronimoMBeanInfo mbeanInfo=new GeronimoMBeanInfo();
     // set target class in concrete subclasses...
+    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Reference", true, false, "a local reference to this Cluster"));
     return mbeanInfo;
   }
 }

@@ -74,12 +74,11 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
  * Responsible for maintaining state stored in the Web tier -
  * i.e. HttpSessions.
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/03 01:42:56 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/04 14:18:06 $
  */
 public class
   WebTier
   extends Tier
-  implements GeronimoMBeanTarget
 {
   protected Log _log=LogFactory.getLog(WebTier.class);
 

@@ -68,7 +68,7 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/03 01:42:56 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/04 14:18:06 $
  */
 public class
   Node
@@ -116,6 +116,14 @@ public class
   {
     return new ObjectName("geronimo.clustering:role=Node,name="+nodeName+",cluster="+clusterName);
   }
+
+  /**
+   * Return a local reference to this Object. For tight coupling via
+   * JMX (bad idea?).
+   *
+   * @return a <code>Node</code> value
+   */
+  public Node getReference(){return this;}
 
   //----------------------------------------
   // MetaDataListener
@@ -182,6 +190,17 @@ public class
       return false;
     }
 
+    // should we really be altering our state in this method ?
+    try
+    {
+      _cluster=(Cluster)_server.getAttribute(Cluster.makeObjectName(_objectName.getKeyProperty("cluster")), "Reference");
+    }
+    catch (Exception e)
+    {
+      _log.error("could not find Cluster", e);
+      return false;
+    }
+
     return true;
   }
 
@@ -192,7 +211,7 @@ public class
   {
     _log=LogFactory.getLog(getClass().getName()+"#"+getCluster()+"/"+getName());
     _log.info("starting");
-    _cluster=LocalCluster.find(getCluster()); // TODO abstract out
+
     synchronized (_cluster)
     {
       Data data=_cluster.getData();
@@ -228,10 +247,11 @@ public class
   {
     GeronimoMBeanInfo mbeanInfo=new GeronimoMBeanInfo();
     mbeanInfo.setTargetClass(Node.class);
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Name",    true, false, "unique identifier for this Node (within it's Cluster)"));
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Cluster", true, false, "unique identifier for this Node's Cluster"));
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Members", true, false, "list of cluster members"));
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Data",    true, false, "cluster state"));
+    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Reference", true, false, "a local reference to this Node"));
+    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Name",      true, false, "unique identifier for this Node (within it's Cluster)"));
+    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Cluster",   true, false, "unique identifier for this Node's Cluster"));
+    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Members",   true, false, "list of cluster members"));
+    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Data",      true, false, "cluster state"));
     return mbeanInfo;
   }
 }

@@ -74,11 +74,11 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
  * An HttpSessionManager for &lt;distributable/&gt; webapps, which
  * backs onto the generic Geronimo clustering framework.
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/03 01:42:56 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/04 14:18:06 $
  */
 public class
   HttpSessionManager
- implements GeronimoMBeanTarget
+  implements GeronimoMBeanTarget
 {
   protected Log _log=LogFactory.getLog(HttpSessionManager.class);
 
@@ -90,8 +90,8 @@ public class
 
   public int getSize(){return _sessions.size();}
 
-  protected ObjectName _tier;
-  public ObjectName getTier(){return _tier;}
+  protected Tier _tier;
+  public Tier getTier(){return _tier;}
 
   protected String _clusterName;
   public String getClusterName(){return _clusterName;}
@@ -114,7 +114,23 @@ public class
 
   protected MBeanServer _server;
 
-  public boolean canStart() {return true;}
+  public boolean
+    canStart()
+  {
+    try
+    {
+      // find our tier
+      _tier=(Tier)_server.getAttribute(Tier.makeObjectName(getClusterName(), getNodeName(), "web"), "Reference");
+    }
+    catch (Exception e)
+    {
+      _log.error("could not find Tier", e);
+      return false;
+    }
+
+    return true;
+  }
+
   public boolean canStop() {return true;}
 
   public void
@@ -123,18 +139,8 @@ public class
     _uid=_contextPath;		// TODO - what does Greg say ?
     _log=LogFactory.getLog(getClass().getName()+"#"+getUID());
     _log.info("starting");
-    // find our tier
-
-    try
-    {
-      _tier=Tier.makeObjectName(getClusterName(), getNodeName(), "web");
-      _server.invoke(_tier, "registerData", new Object[]{getUID(),_sessions}, new String[]{String.class.getName(),Object.class.getName()});
-      _log.info("sessions registered: "+getUID());
-    }
-    catch (Exception e)
-    {
-      _log.error("could not retrieve Tier state", e);
-    }
+    _tier.registerData(getUID(),_sessions);
+    _log.info("sessions registered: "+getUID());
 
       // test stuff
     _sessions.put("aaa", new Object());
@@ -147,7 +153,7 @@ public class
   {
     _log.info("stopping");
 
-    // TODO - remove our session map from cluster Data
+    _tier.deregisterData(getUID());
     // TODO - leave cluster
   }
 
