@@ -53,49 +53,57 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.proxy;
+package org.apache.geronimo.remoting.router;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.lang.reflect.UndeclaredThrowableException;
+import java.net.URI;
 
-import org.apache.geronimo.core.service.Invocation;
-import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.core.service.Interceptor;
+import org.apache.geronimo.remoting.InterceptorRegistry;
 
 /**
- * A local container that is a proxy for some other "real" container.
- * This container is itself fairly unintelligent; you need to add some
- * interceptors to get the desired behavior (i.e. contacting the real
- * server on every request).  For example, see
- * {@link org.apache.geronimo.remoting.jmx.RemoteMBeanServerFactory}
- *
- * @version $Revision: 1.6 $ $Date: 2003/11/16 05:26:32 $
+ * @version $Revision: 1.1 $ $Date: 2003/11/16 05:27:27 $
  */
-public class ProxyContainer extends SimpleRPCContainer implements InvocationHandler {
+public class InterceptorRegistryRouter extends AbstractInterceptorRouter implements Router {
+
+    SubsystemRouter subsystemRouter;
+    
+    /**
+     * @return Returns the subsystemRouter.
+     */
+    public SubsystemRouter getSubsystemRouter() {
+        return subsystemRouter;
+    }
 
     /**
-     * @see java.lang.reflect.InvocationHandler#invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object[])
+     * @param subsystemRouter The subsystemRouter to set.
      */
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        Invocation invocation = new ProxyInvocation();
-        ProxyInvocation.putMethod(invocation, method);
-        ProxyInvocation.putArguments(invocation, args);
-        ProxyInvocation.putProxy(invocation, proxy);
-        InvocationResult result = this.invoke(invocation);
-        if( result.isException() )
-            throw result.getException();
-        return result.getResult();
+    public void setSubsystemRouter(SubsystemRouter subsystemRouter) {
+        this.subsystemRouter = subsystemRouter;
     }
 
-    public Object createProxy(ClassLoader cl, Class[] interfaces) {
-        return Proxy.newProxyInstance(cl, interfaces, this);
+    /**
+     * @see org.apache.geronimo.remoting.router.AbstractInterceptorRouter#lookupInterceptorFrom(java.net.URI)
+     */
+    protected Interceptor lookupInterceptorFrom(URI to) throws Throwable {
+        Long x = new Long(to.getFragment());
+        return InterceptorRegistry.instance.lookup(x);
     }
-
-    public static ProxyContainer getContainer(Object proxy) {
-        if (Proxy.isProxyClass(proxy.getClass()))
-            throw new IllegalArgumentException("Not a proxy.");
-        return (ProxyContainer) Proxy.getInvocationHandler(proxy);
+    
+    /**
+     * @see org.apache.geronimo.remoting.router.AbstractInterceptorRouter#doStart()
+     */
+    public void doStart() {
+        subsystemRouter.addRoute("/Remoting", this);
+        super.doStart();
     }
+    
+    /**
+     * @see org.apache.geronimo.remoting.router.AbstractInterceptorRouter#doStop()
+     */
+    public void doStop() {
+        super.doStop();
+        subsystemRouter.removeRoute("/Remoting");
+    }
+    
 
 }

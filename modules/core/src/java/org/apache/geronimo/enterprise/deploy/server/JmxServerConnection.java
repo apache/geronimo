@@ -16,14 +16,13 @@ import javax.enterprise.deploy.spi.exceptions.TargetException;
 import javax.enterprise.deploy.shared.ModuleType;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
-import org.apache.geronimo.remoting.jmx.RemoteMBeanServerFactory;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 /**
  * Knows how to execute all the relevant JSR-88 operations on a remote
  * Geronimo server via JMX.  Doesn't currently handle clusters.
  *
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class JmxServerConnection implements ServerConnection {
     private final static ObjectName DEPLOYER_NAME = JMXUtil.getObjectName("geronimo.deployment:role=ApplicationDeployer");

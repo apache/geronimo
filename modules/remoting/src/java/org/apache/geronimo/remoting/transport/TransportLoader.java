@@ -53,49 +53,118 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.proxy;
+package org.apache.geronimo.remoting.transport;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.lang.reflect.UndeclaredThrowableException;
+import java.net.URI;
 
-import org.apache.geronimo.core.service.Invocation;
-import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
+import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
+import org.apache.geronimo.remoting.router.Router;
 
 /**
- * A local container that is a proxy for some other "real" container.
- * This container is itself fairly unintelligent; you need to add some
- * interceptors to get the desired behavior (i.e. contacting the real
- * server on every request).  For example, see
- * {@link org.apache.geronimo.remoting.jmx.RemoteMBeanServerFactory}
- *
- * @version $Revision: 1.6 $ $Date: 2003/11/16 05:26:32 $
+ * @version $Revision: 1.1 $ $Date: 2003/11/16 05:27:27 $
  */
-public class ProxyContainer extends SimpleRPCContainer implements InvocationHandler {
+public class TransportLoader implements GeronimoMBeanTarget {
+    URI bindURI;
+    TransportServer transportServer;
+    Router router;
+    private GeronimoMBeanContext geronimoMBeanContext;
 
     /**
-     * @see java.lang.reflect.InvocationHandler#invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object[])
+     * @return
      */
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        Invocation invocation = new ProxyInvocation();
-        ProxyInvocation.putMethod(invocation, method);
-        ProxyInvocation.putArguments(invocation, args);
-        ProxyInvocation.putProxy(invocation, proxy);
-        InvocationResult result = this.invoke(invocation);
-        if( result.isException() )
-            throw result.getException();
-        return result.getResult();
+    public URI getBindURI() {
+        return bindURI;
     }
 
-    public Object createProxy(ClassLoader cl, Class[] interfaces) {
-        return Proxy.newProxyInstance(cl, interfaces, this);
+    /**
+     * @param bindURI
+     */
+    public void setBindURI(URI bindURI) {
+        this.bindURI = bindURI;
     }
 
-    public static ProxyContainer getContainer(Object proxy) {
-        if (Proxy.isProxyClass(proxy.getClass()))
-            throw new IllegalArgumentException("Not a proxy.");
-        return (ProxyContainer) Proxy.getInvocationHandler(proxy);
+    /**
+     * @return
+     */
+    public Router getRouter() {
+        return router;
     }
 
+    /**
+     * @param dispatchingRouter
+     */
+    public void setRouter(Router router) {
+        this.router = router;
+    }
+
+    /**
+     * @return
+     */
+    public URI getClientConnectURI() {
+        if (transportServer == null)
+            return null;
+        return transportServer.getClientConnectURI();
+    }
+
+    /**
+     * @see org.apache.geronimo.kernel.service.GeronimoMBeanTarget#setMBeanContext(org.apache.geronimo.kernel.service.GeronimoMBeanContext)
+     */
+    public void setMBeanContext(GeronimoMBeanContext geronimoMBeanContext) {
+        this.geronimoMBeanContext = geronimoMBeanContext;
+    }
+
+    /**
+     */
+    public void doStart() {
+
+        try {
+            
+            if (router == null) {
+                throw new IllegalStateException("Target router was not set.");
+            }
+            TransportFactory tf = TransportFactory.getTransportFactory(bindURI);
+            transportServer = tf.createSever();
+            transportServer.bind(bindURI, router);
+            transportServer.start();
+            
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * @see org.apache.geronimo.core.service.AbstractManagedComponent#doStop()
+     */
+    public void doStop() {
+        try {
+            transportServer.stop();
+            transportServer.dispose();
+            transportServer = null;
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * @see org.apache.geronimo.kernel.service.GeronimoMBeanTarget#canStart()
+     */
+    public boolean canStart() {
+        return true;
+    }
+
+    /**
+     * @see org.apache.geronimo.kernel.service.GeronimoMBeanTarget#canStop()
+     */
+    public boolean canStop() {
+        return true;
+    }
+
+    /**
+     * @see org.apache.geronimo.kernel.service.GeronimoMBeanTarget#doFail()
+     */
+    public void doFail() {
+    }
 }

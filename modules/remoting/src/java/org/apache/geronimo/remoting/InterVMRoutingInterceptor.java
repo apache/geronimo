@@ -53,63 +53,127 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.proxy;
+package org.apache.geronimo.remoting;
 
+import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.lang.reflect.Method;
 
+import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
-import org.apache.geronimo.core.service.SimpleInvocation;
+import org.apache.geronimo.core.service.InvocationResult;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2003/11/16 05:26:32 $
+ * @version $Revision: 1.1 $ $Date: 2003/11/16 05:27:27 $
  */
-final public class ProxyInvocation extends SimpleInvocation {
+public class InterVMRoutingInterceptor implements Interceptor, Externalizable {
 
-    Method method;
-    Object args[];
-    Object proxy;
+    String targetVMID = getLocalVMID();
+    transient Interceptor next;
+    TransportInterceptor transportInterceptor;
+    Interceptor localInterceptor;
 
-    /* (non-Javadoc)
-     * @see org.apache.geronimo.core.service.SimpleInvocation#writeExternal(java.io.ObjectOutput)
-     */
-    public void writeExternal(ObjectOutput out) throws IOException {
-        super.writeExternal(out);
-        out.writeObject(args);
-        out.writeObject(new MarshalledMethod(method));
+    public InterVMRoutingInterceptor() {
+    }
+
+    public InterVMRoutingInterceptor(TransportInterceptor transportInterceptor, Interceptor localInterceptor) {
+        this.transportInterceptor = transportInterceptor;
+        this.localInterceptor = localInterceptor;
     }
 
     /**
-     * @see org.apache.geronimo.core.service.SimpleInvocation#readExternal(java.io.ObjectInput)
+     * @see org.apache.geronimo.core.service.AbstractInterceptor#invoke(org.apache.geronimo.core.service.Invocation)
+     */
+    public InvocationResult invoke(Invocation invocation) throws Throwable {
+        return next.invoke(invocation);
+    }
+
+    /**
+     * @see java.io.Externalizable#writeExternal(java.io.ObjectOutput)
+     */
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeUTF(targetVMID);
+        out.writeObject(transportInterceptor);
+        out.writeObject(localInterceptor);
+    }
+
+    /**
+     * @see java.io.Externalizable#readExternal(java.io.ObjectInput)
      */
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-        super.readExternal(in);
-        args = (Object[]) in.readObject();
-        method = ((MarshalledMethod) in.readObject()).getMethod();
+        targetVMID = in.readUTF();
+        transportInterceptor = (TransportInterceptor) in.readObject();
+        localInterceptor = (Interceptor) in.readObject();
+
+        if (getLocalVMID().equals(targetVMID)) {
+            next = localInterceptor;
+        } else {
+            // We have to marshall first..
+            next = new MarshalingInterceptor();
+            next.setNext(transportInterceptor);
+        }
+    }
+    
+    final static String localVMID = "VM:"+System.currentTimeMillis(); 
+    public static String getLocalVMID() {
+        return localVMID;
     }
 
-    public static Method getMethod(Invocation invocation) {
-        return (Method) ((ProxyInvocation) invocation).method;
-    }
-    public static void putMethod(Invocation invocation, Method method) {
-        ((ProxyInvocation) invocation).method = method;
-    }
-
-    public static Object getProxy(Invocation invocation) {
-        return ((ProxyInvocation) invocation).proxy;
-    }
-    public static void putProxy(Invocation invocation, Object proxy) {
-        ((ProxyInvocation) invocation).proxy = proxy;
+    /**
+     * @return
+     */
+    public Interceptor getLocalInterceptor() {
+        return localInterceptor;
     }
 
-    public static Object[] getArguments(Invocation invocation) {
-        return ((ProxyInvocation) invocation).args;
+    /**
+     * @param localInterceptor
+     */
+    public void setLocalInterceptor(Interceptor localInterceptor) {
+        this.localInterceptor = localInterceptor;
     }
 
-    public static void putArguments(Invocation invocation, Object[] arguments) {
-        ((ProxyInvocation) invocation).args = arguments;
+    /**
+     * @return
+     */
+    public TransportInterceptor getTransportInterceptor() {
+        return transportInterceptor;
+    }
+
+    /**
+     * @param remotingInterceptor
+     */
+    public void setTransportInterceptor(TransportInterceptor remotingInterceptor) {
+        this.transportInterceptor = remotingInterceptor;
+    }
+
+    /**
+     * @return
+     */
+    public String getTargetVMID() {
+        return targetVMID;
+    }
+
+    /**
+     * @param targetVMID
+     */
+    public void setTargetVMID(String targetVMID) {
+        this.targetVMID = targetVMID;
+    }
+
+    /**
+     * @see org.apache.geronimo.core.service.Interceptor#getNext()
+     */
+    public Interceptor getNext() {
+        return next;
+    }
+
+    /**
+     * @see org.apache.geronimo.core.service.Interceptor#setNext(org.apache.geronimo.core.service.Interceptor)
+     */
+    public void setNext(Interceptor interceptor) throws IllegalStateException {
+        this.next = interceptor;
     }
 
 }

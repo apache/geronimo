@@ -55,47 +55,103 @@
  */
 package org.apache.geronimo.proxy;
 
-import java.lang.reflect.InvocationHandler;
+import java.io.Serializable;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.lang.reflect.UndeclaredThrowableException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.WeakHashMap;
 
-import org.apache.geronimo.core.service.Invocation;
-import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.common.Classes;
 
 /**
- * A local container that is a proxy for some other "real" container.
- * This container is itself fairly unintelligent; you need to add some
- * interceptors to get the desired behavior (i.e. contacting the real
- * server on every request).  For example, see
- * {@link org.apache.geronimo.remoting.jmx.RemoteMBeanServerFactory}
- *
- * @version $Revision: 1.6 $ $Date: 2003/11/16 05:26:32 $
+ * @version $Revision: 1.1 $ $Date: 2003/11/16 05:26:32 $
  */
-public class ProxyContainer extends SimpleRPCContainer implements InvocationHandler {
+public class MarshalledMethod implements Serializable {
+
+    String declaringClass;
+    String signature;
 
     /**
-     * @see java.lang.reflect.InvocationHandler#invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object[])
+     * 
      */
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        Invocation invocation = new ProxyInvocation();
-        ProxyInvocation.putMethod(invocation, method);
-        ProxyInvocation.putArguments(invocation, args);
-        ProxyInvocation.putProxy(invocation, proxy);
-        InvocationResult result = this.invoke(invocation);
-        if( result.isException() )
-            throw result.getException();
-        return result.getResult();
+    public MarshalledMethod() {
     }
 
-    public Object createProxy(ClassLoader cl, Class[] interfaces) {
-        return Proxy.newProxyInstance(cl, interfaces, this);
+    /**
+     * @param method
+     */
+    public MarshalledMethod(Method method) {
+        declaringClass = method.getDeclaringClass().getName();
+        signature = getSignature( method );
     }
 
-    public static ProxyContainer getContainer(Object proxy) {
-        if (Proxy.isProxyClass(proxy.getClass()))
-            throw new IllegalArgumentException("Not a proxy.");
-        return (ProxyContainer) Proxy.getInvocationHandler(proxy);
+    /**
+     * @param method
+     * @return
+     */
+    static public String getSignature(Method method) {
+        StringBuffer sb = new StringBuffer();
+        sb.append(method.getName());
+        sb.append(' ');
+        Class[] args = method.getParameterTypes();
+        for (int i = 0; i < args.length; i++) {
+            sb.append(' ');
+            sb.append( Classes.getClassName(args[i]) );
+        }
+        return sb.toString();
     }
+
+    /**
+     * @return
+     */
+    public Method getMethod() throws ClassNotFoundException {
+        Class c = Thread.currentThread().getContextClassLoader().loadClass(declaringClass);
+        Map sigs = getCachedSignatureMap(c);        
+        return (Method) sigs.get(signature);
+    }
+
+    /**
+     * TODO: try to cache the results.
+     * @param clazz
+     * @return
+     */
+    static private Map getSignatureMapFor(Class clazz) {
+        Map rc = new HashMap();
+        Method[] methods = clazz.getDeclaredMethods();
+        for (int i = 0; i < methods.length; i++) {
+            Method method = methods[i];
+            rc.put(getSignature(method), method);
+        }
+        return rc;
+    }
+
+    private static Map SignatureMapCache= Collections.synchronizedMap(new WeakHashMap());
+    static class CacheValue {
+        Class clazz;
+        Map sigs;
+    }
+
+
+    public static Map getCachedSignatureMap(Class clazz) {
+        String cacheKey = clazz.getName();
+        CacheValue rc = (CacheValue) SignatureMapCache.get(cacheKey);
+        if (rc == null) {
+            rc = new CacheValue();
+            rc.clazz = clazz;
+            rc.sigs = getSignatureMapFor(clazz);
+            SignatureMapCache.put(cacheKey, rc);
+            return rc.sigs;
+        } else if ( rc.clazz.equals( clazz ) ) {
+            return rc.sigs;
+        } else {
+            // the previously cache class name might not be the same class
+            // due to classloader issues.
+            return getSignatureMapFor(clazz);
+        }
+        
+    }
+
+    
 
 }

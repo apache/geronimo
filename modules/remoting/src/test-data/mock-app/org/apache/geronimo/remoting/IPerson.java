@@ -53,49 +53,36 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.proxy;
-
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.lang.reflect.UndeclaredThrowableException;
-
-import org.apache.geronimo.core.service.Invocation;
-import org.apache.geronimo.core.service.InvocationResult;
+package org.apache.geronimo.remoting;
 
 /**
- * A local container that is a proxy for some other "real" container.
- * This container is itself fairly unintelligent; you need to add some
- * interceptors to get the desired behavior (i.e. contacting the real
- * server on every request).  For example, see
- * {@link org.apache.geronimo.remoting.jmx.RemoteMBeanServerFactory}
- *
- * @version $Revision: 1.6 $ $Date: 2003/11/16 05:26:32 $
+ * @version $Revision: 1.1 $ $Date: 2003/11/16 05:27:34 $
  */
-public class ProxyContainer extends SimpleRPCContainer implements InvocationHandler {
-
-    /**
-     * @see java.lang.reflect.InvocationHandler#invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object[])
-     */
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        Invocation invocation = new ProxyInvocation();
-        ProxyInvocation.putMethod(invocation, method);
-        ProxyInvocation.putArguments(invocation, args);
-        ProxyInvocation.putProxy(invocation, proxy);
-        InvocationResult result = this.invoke(invocation);
-        if( result.isException() )
-            throw result.getException();
-        return result.getResult();
-    }
-
-    public Object createProxy(ClassLoader cl, Class[] interfaces) {
-        return Proxy.newProxyInstance(cl, interfaces, this);
-    }
-
-    public static ProxyContainer getContainer(Object proxy) {
-        if (Proxy.isProxyClass(proxy.getClass()))
-            throw new IllegalArgumentException("Not a proxy.");
-        return (ProxyContainer) Proxy.getInvocationHandler(proxy);
-    }
-
+public interface IPerson {
+    public TransientValue getValue();
+    public void setValue(TransientValue value);
+   /**
+    * @return
+    */
+   public abstract IPerson getSpouse();
+   /**
+    * @param spouse
+    */
+   public abstract void setSpouse(IPerson spouse);
+   /**
+    * @return
+    */
+   public abstract String getFirstName();
+   /**
+    * @param firstName
+    */
+   public abstract void setFirstName(String firstName);
+   /**
+    * @return
+    */
+   public abstract String getLastName();
+   /**
+    * @param lastName
+    */
+   public abstract void setLastName(String lastName);
 }

@@ -53,49 +53,78 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.proxy;
+package org.apache.geronimo.remoting.transport.async;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.lang.reflect.UndeclaredThrowableException;
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.io.StreamCorruptedException;
 
-import org.apache.geronimo.core.service.Invocation;
-import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.remoting.transport.BytesMsg;
+import org.apache.geronimo.remoting.transport.Msg;
 
 /**
- * A local container that is a proxy for some other "real" container.
- * This container is itself fairly unintelligent; you need to add some
- * interceptors to get the desired behavior (i.e. contacting the real
- * server on every request).  For example, see
- * {@link org.apache.geronimo.remoting.jmx.RemoteMBeanServerFactory}
- *
- * @version $Revision: 1.6 $ $Date: 2003/11/16 05:26:32 $
+ * @version $Revision: 1.1 $ $Date: 2003/11/16 05:27:27 $
  */
-public class ProxyContainer extends SimpleRPCContainer implements InvocationHandler {
+public class AsyncMsg extends BytesMsg {
+
+    public static final byte DATAGRAM_TYPE = 0;
+    public static final byte REQUEST_TYPE = 1;
+    public static final byte RESPONE_TYPE = 2;
+
+    byte type = REQUEST_TYPE;
+    int requestId;
+    String to;
 
     /**
-     * @see java.lang.reflect.InvocationHandler#invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object[])
+     * @see org.apache.geronimo.remoting.transport.BytesMsg#createMsg()
      */
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        Invocation invocation = new ProxyInvocation();
-        ProxyInvocation.putMethod(invocation, method);
-        ProxyInvocation.putArguments(invocation, args);
-        ProxyInvocation.putProxy(invocation, proxy);
-        InvocationResult result = this.invoke(invocation);
-        if( result.isException() )
-            throw result.getException();
-        return result.getResult();
+    public Msg createMsg() {
+        return new AsyncMsg();
     }
 
-    public Object createProxy(ClassLoader cl, Class[] interfaces) {
-        return Proxy.newProxyInstance(cl, interfaces, this);
+    /**
+     * @see org.apache.geronimo.remoting.transport.BytesMsg#writeExternal(java.io.DataOutput)
+     */
+    public void writeExternal(DataOutput out) throws IOException {
+        super.writeExternal(out);
+        out.writeByte(type);
+        switch (type) {
+            case DATAGRAM_TYPE :
+                out.writeUTF(to);
+                break;
+            case REQUEST_TYPE :
+                out.writeInt(requestId);
+                out.writeUTF(to);
+                break;
+            case RESPONE_TYPE :
+                out.writeInt(requestId);
+                break;
+            default :
+                throw new StreamCorruptedException("Unknow type: " + type);
+        }
     }
 
-    public static ProxyContainer getContainer(Object proxy) {
-        if (Proxy.isProxyClass(proxy.getClass()))
-            throw new IllegalArgumentException("Not a proxy.");
-        return (ProxyContainer) Proxy.getInvocationHandler(proxy);
-    }
-
+    /**
+     * @see org.apache.geronimo.remoting.transport.BytesMsg#readExternal(java.io.DataInput)
+     */
+    public void readExternal(DataInput in) throws IOException {
+        super.readExternal(in);
+        type = in.readByte();
+        requestId = 0;
+        switch (type) {
+            case DATAGRAM_TYPE :
+                to = in.readUTF();
+                break;
+            case REQUEST_TYPE :
+                requestId = in.readInt();
+                to = in.readUTF();
+                break;
+            case RESPONE_TYPE :
+                requestId = in.readInt();
+                break;
+            default :
+                throw new StreamCorruptedException("Unknow type: " + type);
+        }
+    }    
 }

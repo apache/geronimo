@@ -53,49 +53,63 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.proxy;
+package org.apache.geronimo.remoting.transport;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.lang.reflect.UndeclaredThrowableException;
-
-import org.apache.geronimo.core.service.Invocation;
-import org.apache.geronimo.core.service.InvocationResult;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
- * A local container that is a proxy for some other "real" container.
- * This container is itself fairly unintelligent; you need to add some
- * interceptors to get the desired behavior (i.e. contacting the real
- * server on every request).  For example, see
- * {@link org.apache.geronimo.remoting.jmx.RemoteMBeanServerFactory}
- *
- * @version $Revision: 1.6 $ $Date: 2003/11/16 05:26:32 $
+ * @version $Revision: 1.1 $ $Date: 2003/11/16 05:27:27 $
  */
-public class ProxyContainer extends SimpleRPCContainer implements InvocationHandler {
+public abstract class TransportFactory {
 
-    /**
-     * @see java.lang.reflect.InvocationHandler#invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object[])
-     */
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        Invocation invocation = new ProxyInvocation();
-        ProxyInvocation.putMethod(invocation, method);
-        ProxyInvocation.putArguments(invocation, args);
-        ProxyInvocation.putProxy(invocation, proxy);
-        InvocationResult result = this.invoke(invocation);
-        if( result.isException() )
-            throw result.getException();
-        return result.getResult();
+    private static ArrayList factories = new ArrayList();
+    static {
+        // Try our best to add a few known TransportFactory objects.
+        // We may not be able to load due to ClassNotFound problems.
+        try {
+            addFactory(loadFactory("async"));
+        } catch (Throwable ignore) {
+        }
+    }
+    
+    static private TransportFactory loadFactory(String type) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+        String className = "org.apache.geronimo.remoting.transport."+type+".TransportFactory";
+        return (TransportFactory) Thread.currentThread().getContextClassLoader().loadClass(className).newInstance();
     }
 
-    public Object createProxy(ClassLoader cl, Class[] interfaces) {
-        return Proxy.newProxyInstance(cl, interfaces, this);
+    public static TransportFactory getTransportFactory(URI uri) {
+        Iterator iterator = factories.iterator();
+        while (iterator.hasNext()) {
+            TransportFactory i = (TransportFactory) iterator.next();
+            if (i.handles(uri))
+                return i;
+        }
+
+        // Not found.. see if we can dynamicly load a new Factory for it based on scheme.        
+        try {
+            TransportFactory factory = loadFactory(uri.getScheme());
+            if (factory.handles(uri)) {
+                addFactory(factory);
+                return factory;                
+            }
+        } catch (Throwable ignore) {
+        }
+        return null;
+
     }
 
-    public static ProxyContainer getContainer(Object proxy) {
-        if (Proxy.isProxyClass(proxy.getClass()))
-            throw new IllegalArgumentException("Not a proxy.");
-        return (ProxyContainer) Proxy.getInvocationHandler(proxy);
+    static public void addFactory(TransportFactory tf) {
+        factories.add(tf);
     }
+
+    static public void removeFactory(TransportFactory tf) {
+        factories.remove(tf);
+    }
+
+    abstract protected boolean handles(URI uri);
+    abstract public TransportClient createClient();
+    abstract public TransportServer createSever();
 
 }

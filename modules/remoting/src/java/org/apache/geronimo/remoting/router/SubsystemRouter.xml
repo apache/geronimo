@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mbean name="SubsystemRouter" description="..."
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xsi:noNamespaceSchemaLocation="/Users/david/geronimo/head2/incubator-geronimo/modules/kernel/src/schema/mbean-descriptor.xsd">
+    <target class="org.apache.geronimo.remoting.router.SubsystemRouter"/>
+    
+    <operation name="addRoute" impact="ACTION" description="...">
+        <parameter name="path" type="java.lang.String" description="..."/>
+        <parameter name="router" type="org.apache.geronimo.remoting.router.Router" description="..."/>
+    </operation>
+    <operation name="removeRoute" impact="ACTION" description="...">
+        <parameter name="path" type="java.lang.String" description="..."/>
+    </operation>
+    
+    <operation name="sendRequest" impact="ACTION" description="...">
+        <parameter name="uri" type="java.net.URI" description="..."/>
+        <parameter name="msg" type="org.apache.geronimo.remoting.transport.Msg" description="..."/>
+    </operation>
+    <operation name="sendDatagram" impact="ACTION" description="...">
+        <parameter name="uri" type="java.net.URI" description="..."/>
+        <parameter name="msg" type="org.apache.geronimo.remoting.transport.Msg" description="..."/>
+    </operation>
+        
+</mbean>

@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Revision: 1.1 $ $Date: 2003/11/16 05:27:26 $ -->
+
+<project>
+    <pomVersion>3</pomVersion>
+    <extend>${basedir}/../../etc/project.xml</extend>
+
+    <!-- ===================== -->
+    <!-- Module Identification -->
+    <!-- ===================== -->
+
+    <name>Geronimo :: Remoting</name>
+    <id>geronimo-remoting</id>
+    <shortDescription></shortDescription>
+    <description></description>
+    <siteDirectory></siteDirectory>
+    <distributionDirectory></distributionDirectory>
+
+    <package>org.apache.geronimo.remoting</package>
+    <currentVersion>DEV</currentVersion>
+
+
+    <!-- ============ -->
+    <!-- Dependencies -->
+    <!-- ============ -->
+
+    <dependencies>
+
+        <!-- Plugin Dependencies -->
+        <dependency>
+            <id>commons-collections</id>
+            <version>2.1</version>
+            <properties>
+                <runtime>false</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <id>xdoclet</id>
+            <version>1.2b2</version>
+            <properties>
+                <runtime>false</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <id>xdoclet+xdoclet-module</id>
+            <version>1.2b2</version>
+            <properties>
+                <runtime>false</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <id>xdoclet+jmx-module</id>
+            <version>1.2b2</version>
+            <properties>
+                <runtime>false</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <id>xdoclet+xjavadoc</id>
+            <version>1.2b2</version>
+            <properties>
+                <runtime>false</runtime>
+            </properties>
+        </dependency>
+        
+
+        <!-- Module Dependencies -->
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-common</artifactId>
+            <version>DEV</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-core</artifactId>
+            <version>DEV</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-kernel</artifactId>
+            <version>DEV</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
+
+        <!-- Thirdparty Dependencies -->
+        <dependency>
+            <id>commons-logging</id>
+            <version>1.0.3</version>
+            <url>http://jakarta.apache.org/commons/logging/</url>
+            <properties>
+                <runtime>false</runtime>
+            </properties>
+        </dependency>        
+
+        <dependency>
+            <id>commons-lang</id>
+            <version>SNAPSHOT</version>
+            <url>http://jakarta.apache.org/commons/lang</url>
+            <properties>
+                <runtime>false</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <id>concurrent</id>
+            <version>1.3.2</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <id>mx4j</id>
+            <version>SNAPSHOT</version>
+            <properties>
+                <runtime>false</runtime>
+            </properties>
+        </dependency>
+
+    </dependencies>
+
+
+    <build>
+        <unitTest>
+           <includes>
+                <include>**/*Test.java</include>
+            </includes>                
+        </unitTest>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/java</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                    <include>**/*.properties</include>
+                </includes>
+            </resource>
+        </resources>
+
+    </build>
+</project>

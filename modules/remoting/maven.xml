@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- $Revision: 1.1 $ $Date: 2003/11/16 05:27:26 $ -->
+
+<project default="default"
+  xmlns:j="jelly:core"
+  xmlns:ant="jelly:ant"
+  xmlns:maven="jelly:maven"
+  xmlns:xdoclet="common:xdoclet"
+  >
+
+ 
+  <preGoal name="test:compile">
+    <attainGoal name="xdoclet:jmxdoclet:test-compile"/>
+  </preGoal>
+  
+  <preGoal name="java:compile">
+    <attainGoal name="xdoclet:jmxdoclet:compile"/>
+  </preGoal>
+
+
+ <!-- Set up the test files -->
+  <postGoal name="test:test-resources">
+    
+    <j:jelly xmlns="jelly:ant">
+      <!-- Create the directory where the test databases will reside -->
+      <mkdir dir="${maven.build.dir}/database"/>
+
+      <!-- Compile the code for the Marshalling/Remoting tests -->
+      <mkdir dir="${maven.build.dir}/mock-app"/>
+      <javac
+        destdir="${maven.build.dir}/mock-app"
+        debug="${maven.compile.debug}"
+        deprecation="${maven.compile.deprecation}"
+        optimize="${maven.compile.optimize}">
+        <src>
+          <path>
+            <pathelement location="${maven.src.dir}/test-data/mock-app"/>
+          </path>
+        </src>
+      </javac>
+    </j:jelly>
+    
+  </postGoal>
+
+</project>

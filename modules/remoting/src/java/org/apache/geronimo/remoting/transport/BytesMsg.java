@@ -53,49 +53,87 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.proxy;
+package org.apache.geronimo.remoting.transport;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.lang.reflect.UndeclaredThrowableException;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
 
-import org.apache.geronimo.core.service.Invocation;
-import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.remoting.MarshalledObject;
 
 /**
- * A local container that is a proxy for some other "real" container.
- * This container is itself fairly unintelligent; you need to add some
- * interceptors to get the desired behavior (i.e. contacting the real
- * server on every request).  For example, see
- * {@link org.apache.geronimo.remoting.jmx.RemoteMBeanServerFactory}
- *
- * @version $Revision: 1.6 $ $Date: 2003/11/16 05:26:32 $
+ * @version $Revision: 1.1 $ $Date: 2003/11/16 05:27:27 $
  */
-public class ProxyContainer extends SimpleRPCContainer implements InvocationHandler {
+public class BytesMsg implements Msg {
+
+    ArrayList objectStack = new ArrayList(5);
 
     /**
-     * @see java.lang.reflect.InvocationHandler#invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object[])
+     * @see org.apache.geronimo.remoting.transport.Msg#pushMarshaledObject(org.apache.geronimo.remoting.MarshalledObject)
      */
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        Invocation invocation = new ProxyInvocation();
-        ProxyInvocation.putMethod(invocation, method);
-        ProxyInvocation.putArguments(invocation, args);
-        ProxyInvocation.putProxy(invocation, proxy);
-        InvocationResult result = this.invoke(invocation);
-        if( result.isException() )
-            throw result.getException();
-        return result.getResult();
+    public void pushMarshaledObject(MarshalledObject mo) throws IOException {
+        objectStack.add((BytesMarshalledObject) mo);
     }
 
-    public Object createProxy(ClassLoader cl, Class[] interfaces) {
-        return Proxy.newProxyInstance(cl, interfaces, this);
+    /**
+     * @see org.apache.geronimo.remoting.transport.Msg#popMarshaledObject()
+     */
+    public MarshalledObject popMarshaledObject() throws IOException {
+        if (objectStack.size() == 0)
+            throw new ArrayIndexOutOfBoundsException("Object stack is empty.");
+        return (MarshalledObject) objectStack.remove(objectStack.size() - 1);
+    }
+    
+    public int getStackSize() {
+        return objectStack.size();
     }
 
-    public static ProxyContainer getContainer(Object proxy) {
-        if (Proxy.isProxyClass(proxy.getClass()))
-            throw new IllegalArgumentException("Not a proxy.");
-        return (ProxyContainer) Proxy.getInvocationHandler(proxy);
+    /**
+     * @see org.apache.geronimo.remoting.transport.Msg#createMsg()
+     */
+    public Msg createMsg() {
+        return new BytesMsg();
     }
 
+    public void writeExternal(DataOutput out) throws IOException {
+        out.writeByte(objectStack.size());
+        for (int i = 0; i < objectStack.size(); i++) {
+            BytesMarshalledObject mo = (BytesMarshalledObject) objectStack.get(i);
+            byte[] bs = mo.getBytes();
+            out.writeInt(bs.length);
+            out.write(bs);
+        }
+    }
+
+    public void readExternal(DataInput in) throws IOException {
+        objectStack.clear();
+        int s = in.readByte();
+        for (int i = 0; i < s; i++) {
+            int l = in.readInt();
+            byte t[] = new byte[l];
+            in.readFully(t);
+            BytesMarshalledObject mo = new BytesMarshalledObject();
+            mo.setBytes(t);
+            objectStack.add(mo);
+        }
+    }
+    
+    public byte[] getAsBytes() throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream os = new DataOutputStream(baos);
+        writeExternal(os);
+        os.close();
+        return baos.toByteArray();
+    }
+    
+    public void setFromBytes(byte data[]) throws IOException {
+        ByteArrayInputStream bais = new ByteArrayInputStream(data);
+        DataInputStream is = new DataInputStream(bais);
+        readExternal(is);
+    }
 }

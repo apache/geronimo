@@ -53,49 +53,42 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.proxy;
+package org.apache.geronimo.enterprise.deploy.server;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.lang.reflect.UndeclaredThrowableException;
-
-import org.apache.geronimo.core.service.Invocation;
-import org.apache.geronimo.core.service.InvocationResult;
+import javax.management.MBeanServer;
 
 /**
- * A local container that is a proxy for some other "real" container.
- * This container is itself fairly unintelligent; you need to add some
- * interceptors to get the desired behavior (i.e. contacting the real
- * server on every request).  For example, see
- * {@link org.apache.geronimo.remoting.jmx.RemoteMBeanServerFactory}
- *
- * @version $Revision: 1.6 $ $Date: 2003/11/16 05:26:32 $
+ * @version $Revision: 1.1 $ $Date: 2003/11/16 05:26:32 $
  */
-public class ProxyContainer extends SimpleRPCContainer implements InvocationHandler {
+abstract public class RemoteMBeanServerFactory {
+
+    private static RemoteMBeanServerFactory instance = createRemoteMBeanServerFactory();
+    
+    /**
+     * @param hostname
+     * @return
+     */
+    public static MBeanServer create(String hostname) {
+        return instance.factoryCreate(hostname);
+    }
 
     /**
-     * @see java.lang.reflect.InvocationHandler#invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object[])
+     * @param hostname
      */
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        Invocation invocation = new ProxyInvocation();
-        ProxyInvocation.putMethod(invocation, method);
-        ProxyInvocation.putArguments(invocation, args);
-        ProxyInvocation.putProxy(invocation, proxy);
-        InvocationResult result = this.invoke(invocation);
-        if( result.isException() )
-            throw result.getException();
-        return result.getResult();
-    }
+    abstract protected MBeanServer factoryCreate(String hostname);
 
-    public Object createProxy(ClassLoader cl, Class[] interfaces) {
-        return Proxy.newProxyInstance(cl, interfaces, this);
-    }
-
-    public static ProxyContainer getContainer(Object proxy) {
-        if (Proxy.isProxyClass(proxy.getClass()))
-            throw new IllegalArgumentException("Not a proxy.");
-        return (ProxyContainer) Proxy.getInvocationHandler(proxy);
+    /**
+     * @return
+     */
+    private static RemoteMBeanServerFactory createRemoteMBeanServerFactory() {
+        try {
+            // Get the factory name via sys prop...
+            // In case we EVER used a different factory than: org.apache.geronimo.remoting.jmx.RemoteMBeanServerFactory 
+            String factoryClass = System.getProperty("org.apache.geronimo.enterprise.deploy.server.RemoteMBeanServerFactory", "org.apache.geronimo.remoting.jmx.RemoteMBeanServerFactory");
+            return  (RemoteMBeanServerFactory) RemoteMBeanServerFactory.class.getClassLoader().loadClass(factoryClass).newInstance();
+        } catch (Throwable e) {
+            throw new RuntimeException("The RemoteMBeanServerFactory instance could not be loaded:", e);
+        }
     }
 
 }

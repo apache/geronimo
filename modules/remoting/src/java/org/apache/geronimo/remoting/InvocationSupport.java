@@ -53,49 +53,83 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.proxy;
-
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.lang.reflect.UndeclaredThrowableException;
-
+package org.apache.geronimo.remoting;
+import java.io.ObjectStreamException;
+import java.io.Serializable;
+import java.net.URI;
 import org.apache.geronimo.core.service.Invocation;
-import org.apache.geronimo.core.service.InvocationResult;
-
+import org.apache.geronimo.core.service.InvocationKey;
 /**
- * A local container that is a proxy for some other "real" container.
- * This container is itself fairly unintelligent; you need to add some
- * interceptors to get the desired behavior (i.e. contacting the real
- * server on every request).  For example, see
- * {@link org.apache.geronimo.remoting.jmx.RemoteMBeanServerFactory}
- *
- * @version $Revision: 1.6 $ $Date: 2003/11/16 05:26:32 $
+ * @version $Revision: 1.1 $ $Date: 2003/11/16 05:27:27 $
  */
-public class ProxyContainer extends SimpleRPCContainer implements InvocationHandler {
+public final class InvocationSupport implements Serializable, InvocationKey {
 
+    // Be careful here.  If you change the ordinals, this class must be changed on evey client.
+    private static int MAX_ORDINAL = 3;
+    private static final InvocationSupport[] values = new InvocationSupport[MAX_ORDINAL + 1];
+    private static final InvocationSupport MARSAHLLED_VALUE = new InvocationSupport("MARSHALED_VALUE", 0);
+    private static final InvocationSupport REMOTE_URI = new InvocationSupport("REMOTE_URI", 1);
+    private static final InvocationSupport INVOCATION_TYPE = new InvocationSupport("INVOCATION_TYPE", 2);
+
+    public static MarshalledObject getMarshaledValue(Invocation invocation) {
+        return (MarshalledObject) invocation.get(MARSAHLLED_VALUE);
+    }
+    public static void putMarshaledValue(Invocation invocation, MarshalledObject mo) {
+        invocation.put(MARSAHLLED_VALUE, mo);
+    }
+    public static URI getRemoteURI(Invocation invocation) {
+        return (URI) invocation.get(REMOTE_URI);
+    }
+    public static void putRemoteURI(Invocation invocation, URI remoteURI) {
+        invocation.put(REMOTE_URI, remoteURI);
+    }
+    public static InvocationType getInvocationType(Invocation invocation) {
+        return (InvocationType) invocation.get(INVOCATION_TYPE);
+    }
+    public static void putInvocationType(Invocation invocation, InvocationType type) {
+        invocation.put(INVOCATION_TYPE, type);
+    }
+    
+    private final transient String name;
+    private final int ordinal;
+
+    private InvocationSupport(String name, int ordinal) {
+        assert ordinal < MAX_ORDINAL;
+        assert values[ordinal] == null;
+        this.name = name;
+        this.ordinal = ordinal;
+        values[ordinal] = this;
+    }
+
+    public String toString() {
+        return name;
+    }
+
+    Object readResolve() throws ObjectStreamException {
+        return values[ordinal];
+    }
+
+    static public boolean isAncestor(ClassLoader parent, ClassLoader child) {
+        // Root child? ancestor must be root too.
+        if (child == null)
+            return parent == null;
+        // Root parent is the ancestor of all classloaders.
+        if (parent == null)
+            return true;
+
+        while (child != null) {
+            if (child.equals(parent))
+                return true;
+            child = child.getParent();
+        }
+        return false;
+    }
+    
     /**
-     * @see java.lang.reflect.InvocationHandler#invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object[])
+     * @see org.apache.geronimo.core.service.InvocationKey#isTransient()
      */
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        Invocation invocation = new ProxyInvocation();
-        ProxyInvocation.putMethod(invocation, method);
-        ProxyInvocation.putArguments(invocation, args);
-        ProxyInvocation.putProxy(invocation, proxy);
-        InvocationResult result = this.invoke(invocation);
-        if( result.isException() )
-            throw result.getException();
-        return result.getResult();
-    }
-
-    public Object createProxy(ClassLoader cl, Class[] interfaces) {
-        return Proxy.newProxyInstance(cl, interfaces, this);
-    }
-
-    public static ProxyContainer getContainer(Object proxy) {
-        if (Proxy.isProxyClass(proxy.getClass()))
-            throw new IllegalArgumentException("Not a proxy.");
-        return (ProxyContainer) Proxy.getInvocationHandler(proxy);
+    public boolean isTransient() {
+        return true;
     }
 
 }

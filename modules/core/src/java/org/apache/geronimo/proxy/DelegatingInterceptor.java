@@ -55,47 +55,97 @@
  */
 package org.apache.geronimo.proxy;
 
-import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.lang.reflect.UndeclaredThrowableException;
+import java.util.HashSet;
+import java.util.Set;
 
+import org.apache.geronimo.core.service.AbstractInterceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.core.service.SimpleInvocationResult;
+import org.apache.geronimo.core.service.StackThreadLocal;
 
 /**
- * A local container that is a proxy for some other "real" container.
- * This container is itself fairly unintelligent; you need to add some
- * interceptors to get the desired behavior (i.e. contacting the real
- * server on every request).  For example, see
- * {@link org.apache.geronimo.remoting.jmx.RemoteMBeanServerFactory}
- *
- * @version $Revision: 1.6 $ $Date: 2003/11/16 05:26:32 $
+ * @version $Revision: 1.1 $ $Date: 2003/11/16 05:26:32 $
  */
-public class ProxyContainer extends SimpleRPCContainer implements InvocationHandler {
+final public class DelegatingInterceptor extends AbstractInterceptor {
 
-    /**
-     * @see java.lang.reflect.InvocationHandler#invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object[])
+    Object target;
+    Set methods = new HashSet();
+
+    public class Context {
+        Invocation invocation;
+        
+        public Invocation getInvocation() {
+            return invocation;
+        }
+        public DelegatingInterceptor getDelegatingInterceptor() {
+            return DelegatingInterceptor.this;
+        }
+        public Context(Invocation invocation) {
+            this.invocation = invocation;
+        }
+        
+        /**
+         * 
+         */
+        public Object invokeNext() throws InvocationTargetException {
+            InvocationResult result;
+            try {
+                result = getNext().invoke(invocation);
+            } catch (Throwable e) {
+                throw new RuntimeException(e);
+            }
+            if( result.isNormal() )
+                return result.getResult();
+            else
+                throw new InvocationTargetException(result.getException());
+        }
+        
+    }
+
+    private static StackThreadLocal contextThreadLocal = new StackThreadLocal();
+    static public Context getContext() {
+        return (Context) contextThreadLocal.peek();
+    }
+
+    public DelegatingInterceptor(Object target) {
+        this.target = target;
+        Method[] m = target.getClass().getDeclaredMethods();
+        for (int i = 0; i < m.length; i++) {
+            methods.add(MarshalledMethod.getSignature(m[i])); 
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see org.apache.geronimo.core.service.AbstractInterceptor#invoke(org.apache.geronimo.core.service.Invocation)
      */
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        Invocation invocation = new ProxyInvocation();
-        ProxyInvocation.putMethod(invocation, method);
-        ProxyInvocation.putArguments(invocation, args);
-        ProxyInvocation.putProxy(invocation, proxy);
-        InvocationResult result = this.invoke(invocation);
-        if( result.isException() )
-            throw result.getException();
-        return result.getResult();
-    }
+    public InvocationResult invoke(Invocation invocation) throws Throwable {
 
-    public Object createProxy(ClassLoader cl, Class[] interfaces) {
-        return Proxy.newProxyInstance(cl, interfaces, this);
-    }
+        Method method = ProxyInvocation.getMethod(invocation);
+        if (!methods.contains(MarshalledMethod.getSignature(method)))
+            return getNext().invoke(invocation);
 
-    public static ProxyContainer getContainer(Object proxy) {
-        if (Proxy.isProxyClass(proxy.getClass()))
-            throw new IllegalArgumentException("Not a proxy.");
-        return (ProxyContainer) Proxy.getInvocationHandler(proxy);
+        Object args[] = ProxyInvocation.getArguments(invocation);
+        Method m = target.getClass().getMethod(method.getName(), method.getParameterTypes());
+        try {
+            
+            contextThreadLocal.push(new Context(invocation));
+            Object rc = m.invoke(target, args);
+            return new SimpleInvocationResult(rc);
+
+        } catch (InvocationTargetException e) {
+            Throwable t = e.getCause();
+            if (t instanceof Exception && t instanceof RuntimeException == false) {
+                return new SimpleInvocationResult((Exception) t);
+            } else {
+                throw t;
+            }
+        } finally {
+            contextThreadLocal.pop();
+        }
+
     }
 
 }

@@ -53,49 +53,36 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.proxy;
-
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.lang.reflect.UndeclaredThrowableException;
-
-import org.apache.geronimo.core.service.Invocation;
-import org.apache.geronimo.core.service.InvocationResult;
-
+package org.apache.geronimo.remoting;
+import java.io.ObjectStreamException;
+import java.io.Serializable;
 /**
- * A local container that is a proxy for some other "real" container.
- * This container is itself fairly unintelligent; you need to add some
- * interceptors to get the desired behavior (i.e. contacting the real
- * server on every request).  For example, see
- * {@link org.apache.geronimo.remoting.jmx.RemoteMBeanServerFactory}
- *
- * @version $Revision: 1.6 $ $Date: 2003/11/16 05:26:32 $
+ * @version $Revision: 1.1 $ $Date: 2003/11/16 05:27:27 $
  */
-public class ProxyContainer extends SimpleRPCContainer implements InvocationHandler {
+public final class InvocationType implements Serializable {
 
-    /**
-     * @see java.lang.reflect.InvocationHandler#invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object[])
-     */
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        Invocation invocation = new ProxyInvocation();
-        ProxyInvocation.putMethod(invocation, method);
-        ProxyInvocation.putArguments(invocation, args);
-        ProxyInvocation.putProxy(invocation, proxy);
-        InvocationResult result = this.invoke(invocation);
-        if( result.isException() )
-            throw result.getException();
-        return result.getResult();
+    // Be careful here.  If you change the ordinals, this class must be changed on evey client.
+    private static int MAX_ORDINAL = 2;
+    private static final InvocationType[] values = new InvocationType[MAX_ORDINAL + 1];
+    public static final InvocationType REQUEST = new InvocationType("REQUEST", 0);
+    public static final InvocationType DATAGRAM = new InvocationType("DATAGRAM", 1);
+
+    private final transient String name;
+    private final int ordinal;
+
+    private InvocationType(String name, int ordinal) {
+        assert ordinal < MAX_ORDINAL;
+        assert values[ordinal] == null;
+        this.name = name;
+        this.ordinal = ordinal;
+        values[ordinal] = this;
     }
 
-    public Object createProxy(ClassLoader cl, Class[] interfaces) {
-        return Proxy.newProxyInstance(cl, interfaces, this);
+    public String toString() {
+        return name;
     }
 
-    public static ProxyContainer getContainer(Object proxy) {
-        if (Proxy.isProxyClass(proxy.getClass()))
-            throw new IllegalArgumentException("Not a proxy.");
-        return (ProxyContainer) Proxy.getInvocationHandler(proxy);
+    Object readResolve() throws ObjectStreamException {
+        return values[ordinal];
     }
-
 }

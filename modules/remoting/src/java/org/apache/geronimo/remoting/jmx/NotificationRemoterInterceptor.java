@@ -53,49 +53,81 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.proxy;
+package org.apache.geronimo.remoting.jmx;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.lang.reflect.UndeclaredThrowableException;
+import java.util.HashMap;
 
+import javax.management.NotificationFilter;
+import javax.management.NotificationListener;
+import javax.management.ObjectName;
+
+import org.apache.geronimo.core.service.AbstractInterceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.proxy.ProxyInvocation;
 
 /**
- * A local container that is a proxy for some other "real" container.
- * This container is itself fairly unintelligent; you need to add some
- * interceptors to get the desired behavior (i.e. contacting the real
- * server on every request).  For example, see
- * {@link org.apache.geronimo.remoting.jmx.RemoteMBeanServerFactory}
- *
- * @version $Revision: 1.6 $ $Date: 2003/11/16 05:26:32 $
+ * @version $Revision: 1.1 $ $Date: 2003/11/16 05:27:27 $
  */
-public class ProxyContainer extends SimpleRPCContainer implements InvocationHandler {
+public class NotificationRemoterInterceptor extends AbstractInterceptor {
+
+    
+    HashMap exportedListners = new HashMap();
 
     /**
-     * @see java.lang.reflect.InvocationHandler#invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object[])
+     * @see org.apache.geronimo.core.service.AbstractInterceptor#invoke(org.apache.geronimo.core.service.Invocation)
      */
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        Invocation invocation = new ProxyInvocation();
-        ProxyInvocation.putMethod(invocation, method);
-        ProxyInvocation.putArguments(invocation, args);
-        ProxyInvocation.putProxy(invocation, proxy);
-        InvocationResult result = this.invoke(invocation);
-        if( result.isException() )
-            throw result.getException();
-        return result.getResult();
+    public InvocationResult invoke(Invocation invocation) throws Throwable {
+        Method method = ProxyInvocation.getMethod(invocation);
+        Object[] args = ProxyInvocation.getArguments(invocation);
+                
+        if ( method.getName().equals("addNotificationListener") && isEquals(method.getParameterTypes(), new Class[]{ObjectName.class, NotificationListener.class, NotificationFilter.class, Object.class}) ) {
+            //public void addNotificationListener(ObjectName arg0, NotificationListener arg1, NotificationFilter arg2, Object arg3)
+            NotificationListener local = (NotificationListener) args[1];
+            NotificationListener proxy = getRemoteProxyOf( local );
+
+            // Switch the object for a remotabable version.
+            args[1] = proxy;
+            try {
+                return getNext().invoke(invocation);
+            } finally {
+                // Undo the switch..
+                args[1] = local;
+            }
+            
+            
+        } else if ( method.getName().equals("removeNotificationListener") && isEquals(method.getParameterTypes(), new Class[]{ObjectName.class, NotificationListener.class}) ) {
+            //public void removeNotificationListener(ObjectName arg0, NotificationListener arg1)
+            
+        } else if (method.equals("removeNotificationListener") && isEquals(method.getParameterTypes(), new Class[]{ObjectName.class, NotificationListener.class, NotificationFilter.class, Object.class})) {
+            //public void removeNotificationListener(ObjectName arg0, NotificationListener arg1, NotificationFilter arg2, Object arg3)
+            
+        }
+        return getNext().invoke(invocation);
     }
 
-    public Object createProxy(ClassLoader cl, Class[] interfaces) {
-        return Proxy.newProxyInstance(cl, interfaces, this);
+    /**
+     * @param local
+     * @return
+     */
+    private NotificationListener getRemoteProxyOf(NotificationListener local) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
-    public static ProxyContainer getContainer(Object proxy) {
-        if (Proxy.isProxyClass(proxy.getClass()))
-            throw new IllegalArgumentException("Not a proxy.");
-        return (ProxyContainer) Proxy.getInvocationHandler(proxy);
+    /**
+     * @param classes
+     * @param classes2
+     * @return
+     */
+    private boolean isEquals(Class[] classes, Class[] classes2) {
+        if( classes.length != classes2.length)
+            return false;
+        for (int i = 0; i < classes.length; i++) {
+            if( !classes[i].equals(classes2[i]) )
+                return false;
+        }
+        return true;
     }
-
 }
