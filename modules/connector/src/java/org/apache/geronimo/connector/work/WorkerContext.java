@@ -26,11 +26,15 @@ import javax.resource.spi.work.WorkException;
 import javax.resource.spi.work.WorkListener;
 import javax.resource.spi.work.WorkManager;
 import javax.resource.spi.work.WorkRejectedException;
+import javax.transaction.xa.XAException;
+import javax.transaction.InvalidTransactionException;
+import javax.transaction.SystemException;
 
 import EDU.oswego.cs.dl.util.concurrent.Latch;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.transaction.ImportedTransactionActiveException;
 
 /**
  * Work wrapper providing an execution context to a Work instance.
@@ -291,6 +295,16 @@ public class WorkerContext implements Work {
             } else {
                 try {
                     transactionContextManager.begin(executionContext.getXid(), executionContext.getTransactionTimeout());
+                } catch (XAException e) {
+                    throw new WorkCompletedException("Transaction import failed for xid " + executionContext.getXid(), WorkCompletedException.TX_RECREATE_FAILED).initCause(e);
+               } catch (InvalidTransactionException e) {
+                    throw new WorkCompletedException("Transaction import failed for xid " + executionContext.getXid(), WorkCompletedException.TX_RECREATE_FAILED).initCause(e);
+               } catch (SystemException e) {
+                    throw new WorkCompletedException("Transaction import failed for xid " + executionContext.getXid(), WorkCompletedException.TX_RECREATE_FAILED).initCause(e);
+                } catch (ImportedTransactionActiveException e) {
+                    throw new WorkCompletedException("Transaction already active for xid " + executionContext.getXid(), WorkCompletedException.TX_CONCURRENT_WORK_DISALLOWED);
+                }
+                try {
                     adaptee.run();
                 } finally {
                     transactionContextManager.end(executionContext.getXid());
@@ -300,8 +314,8 @@ public class WorkerContext implements Work {
             workListener.workCompleted(
                     new WorkEvent(this, WorkEvent.WORK_COMPLETED, adaptee, null));
         } catch (Throwable e) {
-            workException = new WorkCompletedException(e);
-            workListener.workRejected(
+            workException =  (WorkException) (e instanceof WorkCompletedException? e: new WorkCompletedException("Unknown error", WorkCompletedException.UNDEFINED).initCause(e));
+            workListener.workCompleted(
                     new WorkEvent(this, WorkEvent.WORK_REJECTED, adaptee,
                             workException));
         } finally {
