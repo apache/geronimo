@@ -560,7 +560,7 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
         mbServer = MBeanServerFactory.createMBeanServer(domainName);
         mbServer.registerMBean(this, KERNEL);
         lifecycleMonitor = new LifecycleMonitor(mbServer);
-        dependencyManager = new DependencyManager(mbServer);
+        dependencyManager = new DependencyManager(lifecycleMonitor);
         proxyManager = new ProxyManager(this);
 
         // set up the data for the new configuration manager instance

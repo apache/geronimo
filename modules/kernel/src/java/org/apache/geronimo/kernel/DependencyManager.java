@@ -26,15 +26,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.management.JMException;
-import javax.management.MBeanServer;
-import javax.management.MBeanServerNotification;
-import javax.management.Notification;
-import javax.management.NotificationFilterSupport;
-import javax.management.NotificationListener;
 import javax.management.ObjectName;
-
-import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 /**
  * DependencyManager is the record keeper of the dependencies in Geronimo.  The DependencyManager
@@ -47,13 +39,18 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
  * The names parent and child have no other meaning are just a convience to make the code readable.
  *
  * @version $Rev$ $Date$
- * @jmx:mbean
  */
-public class DependencyManager implements NotificationListener {
+public class DependencyManager {
     /**
-     * The mbean server we are registered with.
+     * The lifecycleMonitor informs us when gbeans go off line,
+     * so we can clean up the lingering dependencies.
      */
-    private MBeanServer mbeanServer;
+    private final LifecycleMonitor lifecycleMonitor;
+
+    /**
+     * Listenes for GBeans to unregister and removes all dependencies associated with the dependency
+     */
+    private final LifecycleListener lifecycleListener = new DependecyManagerLifecycleListener();
 
     /**
      * A map from child names to a list of parents.
@@ -71,21 +68,14 @@ public class DependencyManager implements NotificationListener {
      */
     private final Map startHoldsMap = new HashMap();
 
-    public DependencyManager(MBeanServer mbeanServer) throws Exception {
-        assert mbeanServer != null;
-        this.mbeanServer = mbeanServer;
-        NotificationFilterSupport mbeanServerFilter = new NotificationFilterSupport();
-        mbeanServerFilter.enableType(MBeanServerNotification.UNREGISTRATION_NOTIFICATION);
-        mbeanServer.addNotificationListener(JMXUtil.DELEGATE_NAME, this, mbeanServerFilter, null);
+    public DependencyManager(LifecycleMonitor lifecycleMonitor) throws Exception {
+        assert lifecycleMonitor != null;
+        this.lifecycleMonitor = lifecycleMonitor;
+        lifecycleMonitor.addLifecycleListener(lifecycleListener, new ObjectName("*:*"));
     }
 
     public synchronized void close() {
-        try {
-            mbeanServer.removeNotificationListener(JMXUtil.DELEGATE_NAME, this);
-        } catch (JMException ignored) {
-            // no big deal... just good citizen clean up code
-        }
-        mbeanServer = null;
+        lifecycleMonitor.removeLifecycleListener(lifecycleListener);
         childToParentMap.clear();
         parentToChildMap.clear();
         startHoldsMap.clear();
@@ -275,16 +265,13 @@ public class DependencyManager implements NotificationListener {
         return null;
     }
 
-    // todo convert this over to a kernel life cycle listener.... if possible
-    public void handleNotification(Notification n, Object handback) {
-        String type = n.getType();
-        if (MBeanServerNotification.UNREGISTRATION_NOTIFICATION.equals(type)) {
-            MBeanServerNotification notification = (MBeanServerNotification) n;
-            ObjectName source = notification.getMBeanName();
-            synchronized (this) {
-                removeAllDependencies(source);
-                removeAllStartHolds(source);
+    private class DependecyManagerLifecycleListener extends LifecycleAdapter {
+        public void unloaded(ObjectName objectName) {
+            synchronized (DependencyManager.this) {
+                removeAllDependencies(objectName);
+                removeAllStartHolds(objectName);
             }
+
         }
     }
 }
