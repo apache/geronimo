@@ -55,7 +55,7 @@
             <xsd:element name="description" type="j2ee:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
             <xsd:element name="principal" type="principalType"/>
         </xsd:sequence>
-        <xsd:attribute name="realm-name" type="xsd:string"/>
+        <xsd:attribute name="realm-name" type="xsd:string" use="required"/>
     </xsd:complexType>
     <xsd:complexType name="role-mappingsType">
         <xsd:sequence>
@@ -67,21 +67,29 @@
             <xsd:element name="description" type="j2ee:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
             <xsd:element name="realm" type="realmType" minOccurs="1" maxOccurs="unbounded"/>
         </xsd:sequence>
-        <xsd:attribute name="role-name" type="xsd:string"/>
+        <xsd:attribute name="role-name" type="xsd:string" use="required"/>
     </xsd:complexType>
     <xsd:complexType name="realmType">
         <xsd:sequence>
             <xsd:element name="description" type="j2ee:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
             <xsd:element name="principal" type="principalType" minOccurs="1" maxOccurs="unbounded"/>
         </xsd:sequence>
-        <xsd:attribute name="realm-name" type="xsd:string"/>
+        <xsd:attribute name="realm-name" type="xsd:string" use="required"/>
     </xsd:complexType>
     <xsd:complexType name="principalType">
         <xsd:sequence>
             <xsd:element name="description" type="j2ee:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
         </xsd:sequence>
-        <xsd:attribute name="class" type="xsd:string"/>
-        <xsd:attribute name="name" type="xsd:string"/>
+        <xsd:attribute name="class" type="xsd:string" use="required"/>
+        <xsd:attribute name="name" type="xsd:string" use="required"/>
+        <xsd:attribute name="designated-run-as" type="xsd:boolean" default="false">
+            <xsd:annotation>
+                <xsd:documentation>
+                    Set this attribute to "true" if this principal is to be
+                    used as the run-as principal for this role.
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
     </xsd:complexType>
 
 </xsd:schema>
