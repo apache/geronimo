@@ -17,6 +17,7 @@
 
 package org.apache.geronimo.messaging.cluster.topology;
 
+import java.io.Serializable;
 import java.util.Set;
 
 import org.apache.geronimo.messaging.NodeInfo;
@@ -27,10 +28,15 @@ import org.apache.geronimo.messaging.NodeTopology;
  * <BR>
  * For instance, nodes could be organized in ring, mesh, hypercube,
  * torus et cetera.
+ * <BR>
+ * A TopologyManager is not required to be thread-safe.
+ * <BR>
+ * Implementation node: a TopologyManager is a Serializable as it is a GBean
+ * persistent attribute.
  *
- * @version $Revision: 1.1 $ $Date: 2004/06/10 23:12:25 $
+ * @version $Revision: 1.2 $ $Date: 2004/07/17 03:33:02 $
  */
-public interface TopologyManager
+public interface TopologyManager extends Serializable
 {
 
     /**
