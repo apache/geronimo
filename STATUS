@@ -1,5 +1,5 @@
 ##
-## $Revision: 1.19 $ $Date: 2003/12/22 18:06:56 $
+## $Revision: 1.20 $ $Date: 2004/01/09 17:12:27 $
 ##
 
 Exit Criteria
@@ -32,6 +32,7 @@ Naming
 2003/12/21 vote on keeping the name Geronimo
       +1 jboynes, dblevins, adc, gstein, jdillon, djencks, dims, chirino, dain, janb, gregwilkins, bsnyder, rmonson, jules, geir
       -1 jstrachan
+      Decision made on 2003/12/24 to keep the name Geronimo
 
   --  Does the codebase,mailing list,bug tracker contain the right name of the project?
      (In case,if the name geronimo is changed)
