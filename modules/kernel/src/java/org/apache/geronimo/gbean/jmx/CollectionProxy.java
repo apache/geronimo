@@ -79,11 +79,12 @@ import net.sf.cglib.proxy.Callbacks;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.Factory;
 import net.sf.cglib.proxy.SimpleCallbacks;
+import net.sf.cglib.core.CodeGenerationException;
 
 /**
  *
  *
- * @version $Revision: 1.8 $ $Date: 2004/01/20 22:39:05 $
+ * @version $Revision: 1.9 $ $Date: 2004/01/21 19:44:29 $
  */
 public class CollectionProxy implements Proxy {
     private static final Log log = LogFactory.getLog(CollectionProxy.class);
@@ -140,7 +141,12 @@ public class CollectionProxy implements Proxy {
         });
         enhancer.setCallbacks(new SimpleCallbacks());
         enhancer.setClassLoader(type.getClassLoader());
-        factory = enhancer.create();
+        try {
+            factory = enhancer.create();
+        } catch (CodeGenerationException e) {
+            log.info("Most likely you are enhancing a class rather than an interface and it lacks a default constructor" +  e.getMessage());
+            throw e;
+        }
     }
 
     public synchronized void destroy() {

@@ -62,6 +62,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+
 import javax.management.Attribute;
 import javax.management.AttributeList;
 import javax.management.AttributeNotFoundException;
@@ -78,20 +79,18 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
+import net.sf.cglib.reflect.FastClass;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.kernel.jmx.MBeanOperationSignature;
-import org.apache.geronimo.kernel.management.NotificationType;
 import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.GEndpointInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
-import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.jmx.AbstractManagedObject;
-
-import net.sf.cglib.reflect.FastClass;
+import org.apache.geronimo.kernel.jmx.MBeanOperationSignature;
+import org.apache.geronimo.kernel.management.NotificationType;
 
 /**
  * A GeronimoMBean is a J2EE Management Managed Object, and is standard base for Geronimo services.
@@ -99,7 +98,7 @@ import net.sf.cglib.reflect.FastClass;
  * GeronimoMBeanInfo instance.  The GeronimoMBean also support caching of attribute values and invocation results
  * which can reduce the number of calls to a target.
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/20 22:39:05 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/21 19:44:29 $
  */
 public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     public static final FastClass fastClass = FastClass.create(GBeanMBean.class);
@@ -267,6 +266,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
         // create the instance
         Object[] parameters = new Object[parameterTypes.length];
         Iterator names = constructorInfo.getAttributeNames().iterator();
+        Iterator assertedTypes = constructorInfo.getTypes().iterator();
         for (int i = 0; i < parameters.length; i++) {
             String name = (String) names.next();
             if (attributeMap.containsKey(name)) {
@@ -278,6 +278,11 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
             } else {
                 throw new InvalidConfigurationException("Unknown attribute or endpoint name in constructor: name=" + name);
             }
+            Class assertedType = (Class) assertedTypes.next();
+            assert parameters[i] == null || assertedType.isPrimitive() || assertedType.isAssignableFrom(parameters[i].getClass()):
+                    "Attempting to construct " + objectName + " of type " + gbeanInfo.getClassName()
+                    + ". Constructor parameter " + i + " should be " + assertedType.getName()
+                    + " but is " + parameters[i].getClass().getName();
         }
         target = constructor.newInstance(parameters);
 
