@@ -132,7 +132,7 @@ import org.xml.sax.SAXException;
  * 2. the url is a directory which contains a WEB-INF/web.xml file
  *
  * @jmx:mbean extends="org.apache.geronimo.web.WebContainer, org.apache.geronimo.kernel.management.StateManageable, javax.management.MBeanRegistration"
- * @version $Revision: 1.21 $ $Date: 2003/11/23 22:39:21 $
+ * @version $Revision: 1.22 $ $Date: 2003/11/24 00:04:32 $
  */
 public abstract class AbstractWebContainer
         extends AbstractManagedContainer
@@ -226,7 +226,7 @@ public abstract class AbstractWebContainer
         URL url = goal.getUrl();
         DeploymentHelper deploymentHelper = new DeploymentHelper(url, goal.getType(), "WebApplication", "web.xml", "geronimo-web.xml", "WEB-INF");
         URL geronimoDDURL = deploymentHelper.locateGeronimoDD();
-        URL webDDURL = deploymentHelper.locateJ2eeDD();
+        URL webDDURL = deploymentHelper.locateJ2EEDD();
 
         // Is the specific URL deployable?
         if (null == geronimoDDURL) {

@@ -72,7 +72,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/11/17 07:33:51 $
+ * @version $Revision: 1.5 $ $Date: 2003/11/24 00:04:32 $
  *
  * */
 public class DeploymentHelper {
@@ -137,7 +137,7 @@ public class DeploymentHelper {
      *
      * @throws org.apache.geronimo.kernel.deployment.DeploymentException
      */
-    public URL locateJ2eeDD() throws DeploymentException {
+    public URL locateJ2EEDD() throws DeploymentException {
         return j2eeURL;
     }
 

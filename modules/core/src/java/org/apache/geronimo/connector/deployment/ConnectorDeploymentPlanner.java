@@ -112,7 +112,7 @@ import org.xml.sax.SAXException;
  * DeploymentPlanner in charge of the plannification of Connector deployments.
  *
  *
- * @version $Revision: 1.5 $ $Date: 2003/11/18 02:18:04 $
+ * @version $Revision: 1.6 $ $Date: 2003/11/24 00:04:32 $
  */
 public class ConnectorDeploymentPlanner
         extends AbstractDeploymentPlanner {
@@ -144,7 +144,7 @@ public class ConnectorDeploymentPlanner
         URL url = goal.getUrl();
         ConnectorDeploymentHelper dHelper =
                 new ConnectorDeploymentHelper(url, goal.getType());
-        URL raURL = dHelper.locateJ2eeDD();
+        URL raURL = dHelper.locateJ2EEDD();
         URL graURL = dHelper.locateGeronimoDD();
         // Is the specific URL deployable?
         if (null == raURL) {
