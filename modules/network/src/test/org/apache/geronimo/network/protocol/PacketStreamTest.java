@@ -16,21 +16,16 @@
  */
 package org.apache.geronimo.network.protocol;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-
-import org.apache.geronimo.network.protocol.PacketInputStream.AvailableCallBack;
 
 import EDU.oswego.cs.dl.util.concurrent.Latch;
 import junit.framework.TestCase;
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/04/19 16:29:31 $
+ * @version $Revision: 1.5 $ $Date: 2004/04/22 14:45:46 $
  */
 public class PacketStreamTest extends TestCase {
 
@@ -68,25 +63,6 @@ public class PacketStreamTest extends TestCase {
         assertFalse("Writer thread failed", failed);
     }
 
-    public void testCallBack() throws Exception {
-        Thread thread = new Thread(new WriterThread((short) 2), "Test Writer");
-
-        startLatch.release();
-        
-        DummyCallBack callBack = new DummyCallBack();
-        PacketInputStream in = new PacketInputStream(eup, (short) 50, callBack);
-        callBack.setInputStream(in);
-        thread.start();
-        thread.join();
-
-        InputStream memIn = new ByteArrayInputStream(callBack.memOut.toByteArray());
-        ObjectInputStream objIn = new ObjectInputStream(memIn);
-        String msg = (String) objIn.readObject();
-
-        assertEquals(msg, "Hello World!");
-        assertFalse("Writer thread failed", failed);
-    }
-
     class WriterThread implements Runnable {
 
         short packetSize;
@@ -111,28 +87,10 @@ public class PacketStreamTest extends TestCase {
         }
     }
 
-    private class DummyCallBack implements AvailableCallBack {
-        private InputStream in;
-        private ByteArrayOutputStream memOut = new ByteArrayOutputStream();
-        private void setInputStream(InputStream anIn) {
-            in = anIn;
-        }
-        public void execute() {
-            try {
-                int size = in.available();
-                byte[] buffer = new byte[size];
-                in.read(buffer);
-                memOut.write(buffer);
-            } catch (IOException e) {
-                ;
-            }
-        }
-    }
-
     public void setUp() throws Exception {
         eup = new EchoUpProtocol();
         startLatch = new Latch();
         failed = false;
     }
-    
+
 }
