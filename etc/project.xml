@@ -17,7 +17,7 @@
 -->
   
 
-<!-- $Revision: 1.29 $ $Date: 2004/05/30 14:03:03 $ -->
+<!-- $Revision: 1.30 $ $Date: 2004/05/30 14:12:09 $ -->
 
 <project>
 
@@ -56,19 +56,19 @@
     </repository>
 
     <mailingLists>
-        <!--
+
         <mailingList>
           <name>Geronimo User List</name>
           <subscribe>user-subscribe@geronimo.apache.org</subscribe>
           <unsubscribe>user-unsubscribe@geronimo.apache.org</unsubscribe>
-          <archive>http://nagoya.apache.org/eyebrowse/SummarizeList?listName=geronimo-user@jakarta.apache.org</archive>
+          <archive>http://nagoya.apache.org/eyebrowse/SummarizeList?listName=user@geronimo.apache.org</archive>
         </mailingList>
-        -->
+
         <mailingList>
             <name>Geronimo Developer List</name>
             <subscribe>dev-subscribe@geronimo.apache.org</subscribe>
             <unsubscribe>dev-unsubscribe@geronimo.apache.org</unsubscribe>
-            <archive>http://nagoya.apache.org/eyebrowse/SummarizeList?listId=140</archive>
+            <archive>http://nagoya.apache.org/eyebrowse/SummarizeList?listName=dev@geronimo.apache.org</archive>
         </mailingList>
     </mailingLists>
 
