@@ -65,7 +65,7 @@ import org.apache.geronimo.gbean.GOperationInfo;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/01/17 00:14:22 $
+ * @version $Revision: 1.6 $ $Date: 2004/01/17 00:32:10 $
  */
 public class MockGBean implements MockEndpoint {
     private static final GBeanInfo GBEAN_INFO;
@@ -90,6 +90,7 @@ public class MockGBean implements MockEndpoint {
         infoFactory.addOperation(new GOperationInfo("checkResource", new String[]{"java.lang.String"}));
         infoFactory.addOperation(new GOperationInfo("checkEndpoint"));
         infoFactory.addOperation(new GOperationInfo("doSomething", new String[]{"java.lang.String"}));
+        infoFactory.addOperation(new GOperationInfo("doSetMutableInt", new String[] {"int"}));
         infoFactory.addEndpoint(new GEndpointInfo("MockEndpoint", MockEndpoint.class.getName()));
         infoFactory.setConstructor(new GConstructorInfo(new String[]{"Name", "FinalInt"}, new Class[]{String.class, Integer.TYPE}));
         GBEAN_INFO = infoFactory.getBeanInfo();
@@ -110,6 +111,10 @@ public class MockGBean implements MockEndpoint {
 
     public int getMutableInt() {
         return mutableInt;
+    }
+
+    public void doSetMutableInt(int mutableInt) {
+        setMutableInt(mutableInt);
     }
 
     public void setMutableInt(int mutableInt) {

@@ -77,7 +77,7 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/01/17 00:14:22 $
+ * @version $Revision: 1.7 $ $Date: 2004/01/17 00:32:10 $
  */
 public class ConfigTest extends TestCase {
     private ObjectName gbeanName1;
@@ -118,6 +118,9 @@ public class ConfigTest extends TestCase {
 
         mbServer.setAttribute(gbeanName2, new Attribute("MutableInt", new Integer(44)));
         assertEquals(new Integer(44), mbServer.getAttribute(gbeanName2, "MutableInt"));
+
+        mbServer.invoke(gbeanName2, "doSetMutableInt", new Object[] {new Integer(55)}, new String[] {"int"});
+        assertEquals(new Integer(55), mbServer.getAttribute(gbeanName2, "MutableInt"));
 
         assertEquals("no endpoint", mbServer.invoke(gbeanName1, "checkEndpoint", null, null));
         assertEquals("endpointCheck", mbServer.invoke(gbeanName2, "checkEndpoint", null, null));
