@@ -17,11 +17,18 @@
 
 package org.apache.geronimo.system.logging.log4j;
 
-import java.net.URI;
-import java.net.URL;
-import java.net.URLConnection;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.net.MalformedURLException;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.Set;
+import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogConfigurationException;
@@ -32,6 +39,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.log.GeronimoLogFactory;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
@@ -53,7 +61,7 @@ public class Log4jService implements GBeanLifecycle {
     /**
      * The properties service
      */
-    private ServerInfo serverInfo;
+    private final ServerInfo serverInfo;
 
     /**
      * The URL watch timer (in daemon mode).
@@ -71,11 +79,6 @@ public class Log4jService implements GBeanLifecycle {
     private long lastChanged = -1;
 
     /**
-     * The level used for the root logger
-     */
-    private Level rootLoggerLevel;
-
-    /**
      * Is this service running?
      */
     private boolean running = false;
@@ -86,12 +89,7 @@ public class Log4jService implements GBeanLifecycle {
      * @param configurationFile The log4j configuration file.
      * @param refreshPeroid The refresh refreshPeroid (in seconds).
      */
-    public Log4jService(final String rootLoggerLevel, final String configurationFile, final int refreshPeroid, ServerInfo serverInfo) {
-        LogFactory logFactory = LogFactory.getFactory();
-        if (!(logFactory instanceof GeronimoLogFactory)) {
-            throw new IllegalStateException("Commons log factory: " + logFactory + " is not a GeronimoLogFactory");
-        }
-        this.rootLoggerLevel = XLevel.toLevel(rootLoggerLevel);
+    public Log4jService(final String configurationFile, final int refreshPeroid, ServerInfo serverInfo) {
         this.refreshPeriod = refreshPeroid;
         this.configurationFile = configurationFile;
         this.serverInfo = serverInfo;
@@ -101,8 +99,10 @@ public class Log4jService implements GBeanLifecycle {
      * Gets the level of the root logger.
      */
     public synchronized String getRootLoggerLevel() {
-        if (rootLoggerLevel != null) {
-            return rootLoggerLevel.toString();
+        Level level = LogManager.getRootLogger().getLevel();
+
+        if (level != null) {
+            return level.toString();
         }
 
         return null;
@@ -114,14 +114,26 @@ public class Log4jService implements GBeanLifecycle {
      * @param level The level to change the logger to.
      */
     public synchronized void setRootLoggerLevel(final String level) {
-        if (level == null) {
-            rootLoggerLevel = null;
-        } else {
-            rootLoggerLevel = XLevel.toLevel(level);
-            if (running) {
-                Logger.getRootLogger().setLevel(rootLoggerLevel);
-            }
+        LogManager.getRootLogger().setLevel(XLevel.toLevel(level));
+    }
+
+    /**
+     * Gets the level of the logger of the give name.
+     *
+     * @param logger The logger to inspect.
+     */
+    public String getLoggerEffectiveLevel(final String logger) {
+        if (logger == null) {
+            throw new IllegalArgumentException("logger is null");
         }
+
+        Level level = LogManager.getLogger(logger).getEffectiveLevel();
+
+        if (level != null) {
+            return level.toString();
+        }
+
+        return null;
     }
 
     /**
@@ -134,7 +146,7 @@ public class Log4jService implements GBeanLifecycle {
             throw new IllegalArgumentException("logger is null");
         }
 
-        Level level = Logger.getLogger(logger).getLevel();
+        Level level = LogManager.getLogger(logger).getLevel();
 
         if (level != null) {
             return level.toString();
@@ -209,14 +221,102 @@ public class Log4jService implements GBeanLifecycle {
     }
 
     /**
+     * Get the content of logging configuration file.
+     *
+     * @return the content of logging configuration file
+     */
+    public synchronized String getConfiguration() {
+        File file = resolveConfigurationFile();
+        if (file == null || !file.canRead()) {
+            return null;
+        }
+        Reader in = null;
+        try {
+            StringBuffer configuration = new StringBuffer();
+            in = new InputStreamReader(new FileInputStream(file));
+            char[] buffer = new char[4096];
+            for (int size = in.read(buffer); size >= 0; size = in.read(buffer)) {
+                configuration.append(buffer, 0, size);
+            }
+            return configuration.toString();
+        } catch (IOException e) {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * Overwrites the content of logging configuration file.
+     *
+     * @param configuration the new content of logging configuration file
+     */
+    public synchronized void setConfiguration(final String configuration) throws IOException {
+        if (configuration == null || configuration.length() == 0) {
+            throw new IllegalArgumentException("configuration is null or an empty string");
+        }
+
+        File file = resolveConfigurationFile();
+        if (file == null) {
+            throw new IllegalStateException("Configuration file is null");
+        }
+
+        // make parent directory if necessary
+        if (!file.getParentFile().exists()) {
+            if (!file.getParentFile().mkdirs()) {
+                throw new IllegalStateException("Could not create parent directory of log configuration file: " + file.getParent());
+            }
+        }
+
+        // verify that the file is writable or does not exist
+        if (file.exists() && !file.canWrite()) {
+            throw new IllegalStateException("Configuration file is not writable: " + file.getAbsolutePath());
+        }
+
+        OutputStream out = null;
+        try {
+            out = new FileOutputStream(file);
+            out.write(configuration.getBytes());
+        } finally {
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
+            }
+        }
+    }
+
+    /**
      * Force the logging system to reconfigure.
      */
     public void reconfigure() {
-        URL url = resolveURL();
-        if (url == null) {
+        File file = resolveConfigurationFile();
+        if (file == null) {
             return;
         }
-        URLConfigurator.configure(url);
+        try {
+            URLConfigurator.configure(file.toURL());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+        // refresh the level info for every log
+        GeronimoLogFactory logFactory = (GeronimoLogFactory) LogFactory.getFactory();
+        Set instances = logFactory.getInstances();
+        for (Iterator iterator = instances.iterator(); iterator.hasNext();) {
+            Object log = iterator.next();
+            if (log instanceof CachingLog4jLog) {
+                ((CachingLog4jLog)log).updateLevelInfo();
+            }
+        }
     }
 
     private synchronized void schedule() {
@@ -235,26 +335,28 @@ public class Log4jService implements GBeanLifecycle {
     }
 
     public void doStart() {
+        LogFactory logFactory = LogFactory.getFactory();
+        if (!(logFactory instanceof GeronimoLogFactory)) {
+            throw new IllegalStateException("Commons log factory: " + logFactory + " is not a GeronimoLogFactory");
+        }
+
         synchronized (this) {
+            timer = new Timer(true);
+
             // Peroidally check the configuration file
             schedule();
 
             // Make sure the root Logger has loaded
-            Logger.getRootLogger();
-
-            // set the root logger level
-            if (rootLoggerLevel != null) {
-                Logger.getRootLogger().setLevel(rootLoggerLevel);
-            }
+            LogManager.getRootLogger();
 
             reconfigure();
         }
 
         // Change all of the loggers over to use log4j
-        GeronimoLogFactory logFactory = (GeronimoLogFactory) LogFactory.getFactory();
-        synchronized (logFactory) {
-            if (!(logFactory.getLogFactory() instanceof CachingLog4jLogFactory)) {
-                logFactory.setLogFactory(new CachingLog4jLogFactory());
+        GeronimoLogFactory geronimoLogFactory = (GeronimoLogFactory) logFactory;
+        synchronized (geronimoLogFactory) {
+            if (!(geronimoLogFactory.getLogFactory() instanceof CachingLog4jLogFactory)) {
+                geronimoLogFactory.setLogFactory(new CachingLog4jLogFactory());
             }
         }
 
@@ -279,9 +381,9 @@ public class Log4jService implements GBeanLifecycle {
         doStop();
     }
 
-    private synchronized URL resolveURL() {
+    private synchronized File resolveConfigurationFile() {
         try {
-            return serverInfo.resolve(URI.create(configurationFile)).toURL();
+            return serverInfo.resolve(configurationFile);
         } catch (Exception e) {
             return null;
         }
@@ -296,12 +398,12 @@ public class Log4jService implements GBeanLifecycle {
                         return;
                     }
 
-                    URL url = resolveURL();
-                    if (url == null) {
+                    File file = resolveConfigurationFile();
+                    if (file == null) {
                         return;
                     }
-                    URLConnection connection = url.openConnection();
-                    lastModified = connection.getLastModified();
+
+                    lastModified = file.lastModified();
                 }
 
                 if (lastChanged < lastModified) {
@@ -345,17 +447,19 @@ public class Log4jService implements GBeanLifecycle {
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(Log4jService.class);
 
-        infoFactory.addAttribute("rootLoggerLevel", String.class, true);
         infoFactory.addAttribute("configurationFile", String.class, true);
         infoFactory.addAttribute("refreshPeriod", int.class, true);
+        infoFactory.addAttribute("configuration", String.class, false);
+        infoFactory.addAttribute("rootLoggerLevel", String.class, false);
 
         infoFactory.addReference("ServerInfo", ServerInfo.class);
 
         infoFactory.addOperation("reconfigure");
         infoFactory.addOperation("setLoggerLevel", new Class[]{String.class, String.class});
         infoFactory.addOperation("getLoggerLevel", new Class[]{String.class});
+        infoFactory.addOperation("getLoggerEffectiveLevel", new Class[]{String.class});
 
-        infoFactory.setConstructor(new String[]{"rootLoggerLevel", "configurationFile", "refreshPeriod", "ServerInfo"});
+        infoFactory.setConstructor(new String[]{"configurationFile", "refreshPeriod", "ServerInfo"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

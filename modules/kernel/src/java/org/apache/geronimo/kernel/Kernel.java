@@ -579,6 +579,10 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
         return running;
     }
 
+    public ClassLoader getClassLoaderFor(ObjectName objectName) throws InstanceNotFoundException {
+        return mbServer.getClassLoaderFor(objectName);
+    }
+
     private static void processQueue() {
         KernelReference kernelRef;
         while ((kernelRef = (KernelReference) queue.poll()) != null) {

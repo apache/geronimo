@@ -71,6 +71,7 @@ public class ServerInfo {
         if (!base.isDirectory()) {
             throw new IllegalArgumentException("Base directory is not a directory: " + baseDirectory);
         }
+        System.setProperty("geronimo.base.dir", base.getAbsolutePath());
     }
 
     public String resolvePath(final String filename) {

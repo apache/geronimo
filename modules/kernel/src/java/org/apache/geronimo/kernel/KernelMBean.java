@@ -156,4 +156,6 @@ public interface KernelMBean {
     void unregisterShutdownHook(Runnable hook);
 
     void shutdown();
+
+    ClassLoader getClassLoaderFor(ObjectName objectName) throws InstanceNotFoundException;
 }

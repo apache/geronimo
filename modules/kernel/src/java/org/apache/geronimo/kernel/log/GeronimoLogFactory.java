@@ -48,7 +48,7 @@ public class GeronimoLogFactory extends LogFactory {
 
     public void setLogFactory(LogFactory logFactory) {
         // change the log factory
-        this.logFactory = logFactory;
+        GeronimoLogFactory.logFactory = logFactory;
 
         // update all known logs to use instances of the new factory
         Set logs = getInstances();
