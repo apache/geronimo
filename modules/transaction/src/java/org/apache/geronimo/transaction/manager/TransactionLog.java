@@ -26,16 +26,16 @@ import javax.transaction.xa.Xid;
 /**
  * Interface used to notify a logging subsystem of transaction events.
  *
- * @version $Revision: 1.6 $ $Date: 2004/06/11 19:20:55 $
+ * @version $Revision: 1.7 $ $Date: 2004/06/12 18:40:52 $
  */
 public interface TransactionLog {
 
     void begin(Xid xid) throws LogException;
 
     /**
-     * log prepare for the global xid xid and the list of TransactionBranch branches
+     * log prepare for the global xid xid and the list of TransactionBranchInfo branches
      * @param xid global xid for the transactions
-     * @param branches List of TransactionBranch
+     * @param branches List of TransactionBranchInfo
      * @throws LogException
      */
     void prepare(Xid xid, List branches) throws LogException;
@@ -44,6 +44,14 @@ public interface TransactionLog {
 
     void rollback(Xid xid) throws LogException;
 
+    /**
+     * Recovers the log, returning a map of (top level) xid to List of TransactionBranchInfo for the branches.
+     * Uses the XidFactory to reconstruct the xids.
+     *
+     * @param xidFactory
+     * @return Map of recovered xid to List of TransactionBranchInfo representing the branches.
+     * @throws LogException
+     */
     Map recover(XidFactory xidFactory) throws LogException;
 
     String getXMLStats();
