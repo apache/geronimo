@@ -17,7 +17,7 @@
 -->
   
 
-<!-- $Revision: 1.1 $ $Date: 2004/05/19 20:53:59 $ -->
+<!-- $Revision: 1.2 $ $Date: 2004/06/21 20:33:32 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -43,6 +43,7 @@
 
         <ant:javac srcdir="${basedir}/src/test-ear/test-ejb-jar"
             destdir="${basedir}/target/test-ejb-jar"
+            source="${maven.compile.source}"
             target="${maven.compile.target}"
             debug="on"
             fork="true">
