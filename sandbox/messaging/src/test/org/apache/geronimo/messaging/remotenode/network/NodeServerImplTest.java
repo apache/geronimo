@@ -22,6 +22,9 @@ import java.net.InetAddress;
 import junit.framework.TestCase;
 
 import org.apache.geronimo.messaging.Msg;
+import org.apache.geronimo.messaging.MsgBody;
+import org.apache.geronimo.messaging.MsgHeader;
+import org.apache.geronimo.messaging.MsgHeaderConstants;
 import org.apache.geronimo.messaging.NodeInfo;
 import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
 import org.apache.geronimo.messaging.io.MockStreamManager;
@@ -37,7 +40,7 @@ import org.apache.geronimo.system.ThreadPool;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:43 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/27 15:41:14 $
  */
 public class NodeServerImplTest extends TestCase {
 
@@ -99,9 +102,17 @@ public class NodeServerImplTest extends TestCase {
             new RemoteNodeJoiner(nodeInfo1, ioContext, factory);
         remoteNode.setMsgProducerOut(dispatcher);
         remoteNode.connect();
-
+        
         NodeInfo nodeInfo2 = new NodeInfo("Node2", address, 8082);
         Msg msg = new Msg();
+        MsgHeader header = msg.getHeader();
+        header.addHeader(MsgHeaderConstants.CORRELATION_ID, "");
+        header.addHeader(MsgHeaderConstants.DEST_ENDPOINT, "");
+        header.addHeader(MsgHeaderConstants.DEST_NODE, "");
+        header.addHeader(MsgHeaderConstants.DEST_NODES, "");
+        header.addHeader(MsgHeaderConstants.SRC_ENDPOINT, "");
+        header.addHeader(MsgHeaderConstants.SRC_NODE, "");
+        header.addHeader(MsgHeaderConstants.BODY_TYPE, MsgBody.Type.RESPONSE);
         msg.getBody().setContent(nodeInfo2);
         remoteNode.getMsgConsumerOut().push(msg);
         
