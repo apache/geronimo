@@ -46,4 +46,6 @@
             <fileset dir="src/resources/ear"/>
         </ant:jar>
     </goal>
+
+    <goal name="site"/>
 </project>
