@@ -352,10 +352,12 @@ public class ENCConfigBuilder {
                         try {
                             ejbReference = refContext.getCORBARemoteRef(new URI(getStringValue(remoteRef.getNsCorbaloc())),
                                                                         getStringValue(remoteRef.getName()),
-                                                                        getStringValue(remoteRef.getCssName()),
+                                                                        ObjectName.getInstance(getStringValue(remoteRef.getCssName())),
                                                                         home);
                         } catch (URISyntaxException e) {
                             throw new DeploymentException("Could not construct CORBA NameServer URI: " + remoteRef.getNsCorbaloc(), e);
+                        } catch (MalformedObjectNameException e) {
+                            throw new DeploymentException("Could not construct CSS container name: " + remoteRef.getCssName(), e);
                         }
                     } else {
                         String containerId = null;

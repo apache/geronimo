@@ -109,7 +109,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
             return null;
         }
 
-        public Reference createCORBAReference(URI corbaURL, String objectName, String containerName, String home) throws DeploymentException {
+        public Reference createCORBAReference(URI corbaURL, String objectName, ObjectName containerName, String home) throws DeploymentException {
             return null;
         }
 

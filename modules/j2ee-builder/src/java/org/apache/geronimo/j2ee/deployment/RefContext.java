@@ -218,7 +218,7 @@ public class RefContext {
         return ejbReferenceBuilder.createEJBRemoteReference(objectName, isSession, home, remote);
     }
 
-    public Reference getCORBARemoteRef(URI corbaURL, String objectName, String containerName, String home) throws DeploymentException {
+    public Reference getCORBARemoteRef(URI corbaURL, String objectName, ObjectName containerName, String home) throws DeploymentException {
         return ejbReferenceBuilder.createCORBAReference(corbaURL, objectName, containerName, home);
     }
 

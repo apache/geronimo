@@ -17,9 +17,11 @@
 package org.apache.geronimo.j2ee.deployment;
 
 import java.net.URI;
+import javax.management.ObjectName;
 import javax.naming.Reference;
 
 import org.apache.geronimo.common.DeploymentException;
+
 
 /**
  * @version $Rev$ $Date$
@@ -30,7 +32,7 @@ public interface EJBReferenceBuilder {
 
     Reference createEJBRemoteReference(String objectName, boolean isSession, String home, String remote) throws DeploymentException;
 
-    Reference createCORBAReference(URI corbaURL, String objectName, String containerName, String home) throws DeploymentException;
+    Reference createCORBAReference(URI corbaURL, String objectName, ObjectName containerName, String home) throws DeploymentException;
 
     Object createHandleDelegateReference();
 

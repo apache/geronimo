@@ -17,14 +17,16 @@
 package org.apache.geronimo.j2ee.deployment;
 
 import java.io.File;
-import java.net.URL;
 import java.net.URI;
+import java.net.URL;
 import java.util.jar.JarFile;
-
+import javax.management.ObjectName;
 import javax.naming.Reference;
 
 import junit.framework.Assert;
+
 import org.apache.geronimo.common.DeploymentException;
+
 
 /**
  * @version $Rev$ $Date$
@@ -77,7 +79,7 @@ public class MockEJBConfigBuilder extends Assert implements ModuleBuilder, EJBRe
         return null;
     }
 
-    public Reference createCORBAReference(URI corbaURL, String objectName, String containerName, String home) throws DeploymentException {
+    public Reference createCORBAReference(URI corbaURL, String objectName, ObjectName containerName, String home) throws DeploymentException {
         return null;
     }
 
