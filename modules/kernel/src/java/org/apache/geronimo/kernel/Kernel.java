@@ -97,7 +97,7 @@ import org.apache.geronimo.kernel.service.DependencyService2;
  * used hold the persistent state of each Configuration. This allows
  * Configurations to restart in he event of system failure.
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/14 22:16:38 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/17 03:44:38 $
  */
 public class Kernel implements Serializable, KernelMBean {
     /**
@@ -140,6 +140,14 @@ public class Kernel implements Serializable, KernelMBean {
     }
 
     /**
+     * Construct a Kernel which does not have a config store.
+     * @param domainName
+     */
+    public Kernel(String domainName) {
+        this(domainName, null, null);
+    }
+
+    /**
      * Get the MBeanServer used by this kernel
      * @return the MBeanServer used by this kernel
      */
@@ -154,11 +162,16 @@ public class Kernel implements Serializable, KernelMBean {
      * @throws org.apache.geronimo.kernel.config.NoSuchConfigException if the store does not contain the specified Configuratoin
      * @throws java.io.IOException if the Configuration could not be read from the store
      * @throws org.apache.geronimo.kernel.config.InvalidConfigException if the Configuration is not valid
+     * @throws java.lang.UnsupportedOperationException if this kernel does not have a store
      */
     public ObjectName load(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException {
         if (!running) {
             throw new IllegalStateException("Kernel is not running");
         }
+        if (store == null) {
+            throw new UnsupportedOperationException("Kernel does not have a ConfigurationStore");
+        }
+
         GBeanMBean config = store.getConfig(configID);
         URL baseURL = store.getBaseURL(configID);
         return load(config, baseURL);
@@ -180,7 +193,7 @@ public class Kernel implements Serializable, KernelMBean {
         }
         ObjectName configName;
         try {
-            configName = new ObjectName("geronimo.config:name="+ObjectName.quote(configID.toString()));
+            configName = new ObjectName("geronimo.config:name=" + ObjectName.quote(configID.toString()));
         } catch (MalformedObjectNameException e) {
             throw new InvalidConfigException("Cannot convert ID to ObjectName: ", e);
         }
@@ -230,7 +243,7 @@ public class Kernel implements Serializable, KernelMBean {
             }
             throw new InvalidConfigException("Cannot set MBeanServer info", e);
         }
-        log.info("Loaded Configuration "+configName);
+        log.info("Loaded Configuration " + configName);
     }
 
     /**
@@ -245,11 +258,11 @@ public class Kernel implements Serializable, KernelMBean {
         try {
             mbServer.unregisterMBean(configName);
         } catch (InstanceNotFoundException e) {
-            throw new NoSuchConfigException("No config registered: "+configName, e);
+            throw new NoSuchConfigException("No config registered: " + configName, e);
         } catch (MBeanRegistrationException e) {
-            throw (IllegalStateException) new IllegalStateException("Error deregistering configuration "+configName).initCause(e);
+            throw (IllegalStateException) new IllegalStateException("Error deregistering configuration " + configName).initCause(e);
         }
-        log.info("Unloaded Configuration "+configName);
+        log.info("Unloaded Configuration " + configName);
     }
 
     /**
@@ -266,11 +279,13 @@ public class Kernel implements Serializable, KernelMBean {
         mbServer = MBeanServerFactory.createMBeanServer(domainName);
         mbServer.registerMBean(this, KERNEL);
         mbServer.registerMBean(new DependencyService2(), DEPENDENCY_SERVICE);
-        storeGBean = new GBeanMBean(storeInfo);
-        storeGBean.setAttribute("root", configStore);
-        mbServer.registerMBean(storeGBean, CONFIG_STORE);
-        storeGBean.start();
-        store = (ConfigurationStore) storeGBean.getTarget();
+        if (storeInfo != null) {
+            storeGBean = new GBeanMBean(storeInfo);
+            storeGBean.setAttribute("root", configStore);
+            mbServer.registerMBean(storeGBean, CONFIG_STORE);
+            storeGBean.start();
+            store = (ConfigurationStore) storeGBean.getTarget();
+        }
         running = true;
         log.info("Booted");
     }
@@ -288,15 +303,21 @@ public class Kernel implements Serializable, KernelMBean {
 
         store = null;
         try {
-            storeGBean.stop();
+            if (storeGBean != null) {
+                storeGBean.stop();
+            }
         } catch (Exception e) {
             // ignore
         }
         try {
-            mbServer.unregisterMBean(CONFIG_STORE);
+            if (storeGBean != null) {
+                mbServer.unregisterMBean(CONFIG_STORE);
+            }
         } catch (Exception e) {
             // ignore
         }
+        storeGBean = null;
+
         try {
             mbServer.unregisterMBean(DEPENDENCY_SERVICE);
         } catch (Exception e) {
@@ -332,7 +353,7 @@ public class Kernel implements Serializable, KernelMBean {
      */
     public static void main(String[] args) {
         if (args.length < 2) {
-            System.err.println("usage: "+Kernel.class.getName()+" <config-store-dir> <config-id>");
+            System.err.println("usage: " + Kernel.class.getName() + " <config-store-dir> <config-id>");
             System.exit(1);
         }
         File storeDir = new File(args[0]);
@@ -347,12 +368,12 @@ public class Kernel implements Serializable, KernelMBean {
         String domain = "geronimo";
         if (storeDir.exists()) {
             if (!storeDir.isDirectory() || !storeDir.canWrite()) {
-                System.err.println("Store location is not a writable directory: "+storeDir);
+                System.err.println("Store location is not a writable directory: " + storeDir);
                 System.exit(1);
             }
         } else {
             if (!storeDir.mkdirs()) {
-                System.err.println("Could not create store directory: "+storeDir);
+                System.err.println("Could not create store directory: " + storeDir);
                 System.exit(1);
             }
         }

@@ -67,12 +67,13 @@ import org.apache.geronimo.gbean.GOperationInfo;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/16 23:31:21 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/17 03:44:38 $
  */
 public class MockGBean implements MockEndpoint {
     private static final GBeanInfo GBEAN_INFO;
     private final String name;
     private String value;
+    private int intValue;
 
     private MockEndpoint endpoint;
 
@@ -84,6 +85,7 @@ public class MockGBean implements MockEndpoint {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory("MockGBean", MockGBean.class.getName());
         infoFactory.addAttribute(new GAttributeInfo("Name", true));
         infoFactory.addAttribute(new GAttributeInfo("Value", true));
+        infoFactory.addAttribute(new GAttributeInfo("IntValue", true));
         infoFactory.addOperation(new GOperationInfo("checkResource", new String[]{"java.lang.String"}));
         infoFactory.addOperation(new GOperationInfo("checkEndpoint"));
         infoFactory.addOperation(new GOperationInfo("doSomething", new String[]{"java.lang.String"}));
@@ -106,6 +108,14 @@ public class MockGBean implements MockEndpoint {
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    public int getIntValue() {
+        return intValue;
+    }
+
+    public void setIntValue(int intValue) {
+        this.intValue = intValue;
     }
 
     public MockEndpoint getMockEndpoint() {

@@ -64,6 +64,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.beans.PropertyEditor;
+import java.beans.PropertyEditorManager;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -75,6 +77,7 @@ import org.apache.geronimo.deployment.util.DeploymentHelper;
 import org.apache.geronimo.kernel.deployment.DeploymentException;
 import org.apache.geronimo.kernel.deployment.scanner.URLInfo;
 import org.apache.geronimo.kernel.deployment.service.XMLUtil;
+import org.apache.geronimo.common.Classes;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -83,7 +86,7 @@ import org.w3c.dom.NodeList;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/17 01:32:38 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/17 03:44:38 $
  */
 public class ServiceDeployer implements ModuleFactory {
     private final DocumentBuilder parser;
@@ -136,7 +139,17 @@ public class ServiceDeployer implements ModuleFactory {
         for (int i = 0; i < nl.getLength(); i++) {
             Element defaultElement = (Element) nl.item(i);
             String attr = defaultElement.getAttribute("attribute");
-            String value = (String) XMLUtil.getContent(defaultElement);
+            String type = defaultElement.getAttribute("type");
+            Object value = XMLUtil.getContent(defaultElement);
+            try {
+                PropertyEditor editor = PropertyEditorManager.findEditor(Classes.loadClass(type));
+                if (editor != null) {
+                    editor.setAsText((String) value);
+                    value = editor.getValue();
+                }
+            } catch (ClassNotFoundException e) {
+                throw new DeploymentException("Could not load attribute class", e);
+            }
             values.put(attr, value);
         }
         NodeList endpointList = gbeanElement.getElementsByTagName("endpoint");

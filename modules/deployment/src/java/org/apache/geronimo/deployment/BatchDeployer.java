@@ -81,6 +81,7 @@ import java.util.zip.ZipEntry;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationParent;
 import org.apache.geronimo.kernel.deployment.DeploymentException;
 import org.apache.geronimo.kernel.deployment.scanner.URLInfo;
 import org.apache.geronimo.gbean.GAttributeInfo;
@@ -90,9 +91,10 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/16 23:02:02 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/17 03:44:38 $
  */
 public class BatchDeployer implements ConfigurationCallback {
+    private final ConfigurationParent parent;
     private final URI configRoot;
     private final List deployers;
     private final Set moduleIDs = new HashSet();
@@ -102,11 +104,12 @@ public class BatchDeployer implements ConfigurationCallback {
     private final Map gbeans = new HashMap();
     private final byte[] buffer = new byte[4096];
 
-    public BatchDeployer(URI configID, List deployers, File workingDir) {
+    public BatchDeployer(ConfigurationParent parent, URI configID, List deployers, File workingDir) {
         if (!workingDir.isDirectory()) {
             throw new IllegalArgumentException("workingDir is not a directory");
         }
 
+        this.parent = parent;
         this.configRoot = workingDir.toURI();
         this.deployers = deployers;
         try {
@@ -188,7 +191,12 @@ public class BatchDeployer implements ConfigurationCallback {
                     throw new DeploymentException("Unable to convert classPath URI to absolute URL: " + uri, e);
                 }
             }
-            ClassLoader cl = new URLClassLoader(urls);
+            ClassLoader cl;
+            if (parent == null) {
+                cl = new URLClassLoader(urls);
+            } else {
+                cl = new URLClassLoader(urls, parent.getClassLoader());
+            }
 
             // get the GBeans from each module
             for (Iterator i = modules.iterator(); i.hasNext();) {

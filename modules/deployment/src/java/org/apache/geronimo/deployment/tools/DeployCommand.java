@@ -79,7 +79,7 @@ import org.apache.geronimo.kernel.deployment.scanner.URLType;
 /**
  * 
  * 
- * @version $Revision: 1.1 $ $Date: 2004/01/16 03:48:42 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/17 03:44:38 $
  */
 public class DeployCommand {
     private final File configFile;
@@ -87,7 +87,7 @@ public class DeployCommand {
 
     public DeployCommand(File configFile, URI configID, File workDir, List deployers) {
         this.configFile = configFile;
-        batcher = new BatchDeployer(configID, deployers, workDir);
+        batcher = new BatchDeployer(null, configID, deployers, workDir);
     }
 
     public void add(URL url) throws IOException, DeploymentException, NoDeployerException {

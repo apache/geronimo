@@ -56,11 +56,12 @@
 package org.apache.geronimo.kernel.deployment.scanner;
 
 import java.net.URL;
+import java.io.IOException;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:38:33 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/17 03:44:38 $
  */
 public class URLInfo {
     private final URL url;
@@ -71,6 +72,10 @@ public class URLInfo {
         assert type != null : "type was null";
         this.url = url;
         this.type = type;
+    }
+
+    public URLInfo(URL url) throws IOException {
+        this(url, URLType.getType(url));
     }
 
     public URLType getType() {

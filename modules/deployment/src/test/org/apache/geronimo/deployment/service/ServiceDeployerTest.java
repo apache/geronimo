@@ -75,6 +75,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.geronimo.deployment.ConfigurationCallback;
 import org.apache.geronimo.deployment.BatchDeployer;
+import org.apache.geronimo.deployment.util.FileUtil;
 import org.apache.geronimo.kernel.deployment.scanner.URLInfo;
 import org.apache.geronimo.kernel.deployment.scanner.URLType;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
@@ -83,7 +84,7 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/16 23:11:02 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/17 03:44:38 $
  */
 public class ServiceDeployerTest extends TestCase {
     private static final URI MODULE_ID = URI.create("service");
@@ -130,6 +131,7 @@ public class ServiceDeployerTest extends TestCase {
                 try {
                     assertEquals(new ObjectName("geronimo.test:name=MyMockGMBean"), name);
                     assertEquals("1234", gbean.getAttribute("Value"));
+                    assertEquals(new Integer(1234), gbean.getAttribute("IntValue"));
                 } catch (Exception e) {
                     fail();
                 }
@@ -171,6 +173,7 @@ public class ServiceDeployerTest extends TestCase {
                 try {
                     assertEquals(new ObjectName("geronimo.test:name=MyMockGMBean"), name);
                     assertEquals("1234", gbean.getAttribute("Value"));
+                    assertEquals(new Integer(1234), gbean.getAttribute("IntValue"));
                 } catch (Exception e) {
                     fail();
                 }
@@ -212,6 +215,7 @@ public class ServiceDeployerTest extends TestCase {
                 try {
                     assertEquals(new ObjectName("geronimo.test:name=MyMockGMBean"), name);
                     assertEquals("1234", gbean.getAttribute("Value"));
+                    assertEquals(new Integer(1234), gbean.getAttribute("IntValue"));
                     assertEquals(Collections.singleton(ObjectName.getInstance("geronimo.test:name=MockEndpoint")), gbean.getEndpointPatterns("MockEndpoint"));
                 } catch (Exception e) {
                     fail(e.getMessage());
@@ -268,26 +272,11 @@ public class ServiceDeployerTest extends TestCase {
         workDir = new File(tmpDir, "test.car.work");
         workDir.mkdir();
         configFile = new File(tmpDir, "test.car");
-        batcher = new BatchDeployer(URI.create("test"), Collections.singletonList(deployer), workDir);
+        batcher = new BatchDeployer(null, URI.create("test"), Collections.singletonList(deployer), workDir);
     }
 
     protected void tearDown() throws Exception {
-        recursiveDelete(workDir);
+        FileUtil.recursiveDelete(workDir);
         configFile.delete();
-    }
-
-    private static void recursiveDelete(File root) throws Exception {
-        File[] files = root.listFiles();
-        if (files != null) {
-            for (int i = 0; i < files.length; i++) {
-                File file = files[i];
-                if (file.isDirectory()) {
-                    recursiveDelete(file);
-                } else {
-                    file.delete();
-                }
-            }
-        }
-        root.delete();
     }
 }
