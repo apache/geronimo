@@ -22,7 +22,7 @@ import java.util.Properties;
 /**
  * Information about this build of the server.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:31 $
+ * @version $Revision: 1.4 $ $Date: 2004/09/02 01:01:28 $
  */
 public class ServerConstants {
     private static final String VERSION;
@@ -70,7 +70,7 @@ public class ServerConstants {
         try {
             versionInfo.load(ServerConstants.class.getClassLoader().getResourceAsStream("org/apache/geronimo/system/serverinfo/geronimo-version.properties"));
         } catch (java.io.IOException e) {
-            throw new ExceptionInInitializerError(new Exception("Could not load geronim-version.properties", e));
+            throw new ExceptionInInitializerError(new Exception("Could not load geronimo-version.properties", e));
         }
         VERSION = versionInfo.getProperty("version");
         if (VERSION == null || VERSION.length() == 0) {
