@@ -62,20 +62,77 @@ import java.net.URL;
 
 import junit.framework.TestCase;
 
+import org.apache.geronimo.common.net.protocol.Protocols;
+
+import org.apache.geronimo.test.protocol.mockproto.Handler;
+import org.apache.geronimo.test.protocol.mockproto.MockURLConnection;
+
 /**
  * 
  * 
- * @version $Revision: 1.1 $ $Date: 2003/08/12 04:16:47 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/30 12:32:32 $
  */
-public class DownloadTest extends TestCase {
+public class DownloadTest
+    extends TestCase
+{
     private File localRoot;
     private File fakeRemoteRoot;
     private ComponentRepository repo;
     private ComponentDescription desc;
     private ComponentDescription desc2;
     private ComponentDescription desc3;
+    private MockURLConnection urlConnection;
     private File testArchive;
+    
+    protected void setUp() throws Exception {
+        Protocols.appendHandlerPackage("org.apache.geronimo.test.protocol");
+        
+        File temp = new File(System.getProperty("java.io.tmpdir"));
+        localRoot = new File(temp, "localRepo");
 
+        desc = new ComponentDescription("product", "1.1.1", "myproduct/product-1.1.1.txt");
+        fakeRemoteRoot = new File(temp, "remoteRepo");
+        testArchive = new File(fakeRemoteRoot, desc.getLocation());
+        testArchive.getParentFile().mkdirs();
+        testArchive.createNewFile();
+        FileOutputStream fos = new FileOutputStream(testArchive);
+        PrintWriter writer = new PrintWriter(fos);
+        writer.println("Hello World");
+        writer.flush();
+        writer.close();
+
+        String location = "commons-logging/jars/commons-logging-1.0.1.jar";
+        desc2 = new ComponentDescription("commons-logging", "1.0.1", location);
+        desc3 = new ComponentDescription("nosuchfile", "noversion", "nolocation");
+
+        repo = new ComponentRepository(localRoot);
+        repo.addRemoteRoot(fakeRemoteRoot.toURL());
+
+        String urlspec = "mockproto://www.ibiblio.org/maven/";
+        urlConnection =  Handler.registerURL(urlspec + location, "This is test file content");
+        repo.addRemoteRoot(new URL(urlspec));
+    }
+
+    protected void tearDown() throws Exception {
+        Protocols.setHandlerPackages(Protocols.getSystemHandlerPackages());
+        
+        recursiveDelete(localRoot);
+        recursiveDelete(fakeRemoteRoot);
+    }
+
+    private void recursiveDelete(File root) throws Exception {
+        File[] files = root.listFiles();
+        for (int i = 0; i < files.length; i++) {
+            File file = files[i];
+            if (file.isDirectory()) {
+                recursiveDelete(file);
+            } else {
+                file.delete();
+            }
+        }
+        root.delete();
+    }
+    
     public void testLocalCopy() throws Exception {
         assertTrue(repo.ensureLocal(desc));
 
@@ -106,12 +163,18 @@ public class DownloadTest extends TestCase {
 
         repo.removeLocal(desc2);
         assertFalse(localFile.exists());
+
+        assertTrue("Was expecting clean up of resources",
+                urlConnection.getState() == MockURLConnection.STATE_CLOSED);
     }
 
     public void testNotFound() throws Exception {
         assertFalse(repo.ensureLocal(desc3));
         File localFile = new File(localRoot, desc3.getLocation());
         assertFalse(localFile.exists());
+        assertTrue("Was expecting clean up",
+                ( urlConnection.getState() == MockURLConnection.STATE_CLOSED 
+                 || urlConnection.getState() == MockURLConnection.STATE_INIT));
     }
 
     private void sleep(long naptime) {
@@ -120,47 +183,5 @@ public class DownloadTest extends TestCase {
         } catch (InterruptedException e) {
             // ignore
         }
-    }
-    protected void setUp() throws Exception {
-        super.setUp();
-        File temp = new File(System.getProperty("java.io.tmpdir"));
-        localRoot = new File(temp, "localRepo");
-
-        desc = new ComponentDescription("product", "1.1.1", "myproduct/product-1.1.1.txt");
-        fakeRemoteRoot = new File(temp, "remoteRepo");
-        testArchive = new File(fakeRemoteRoot, desc.getLocation());
-        testArchive.getParentFile().mkdirs();
-        testArchive.createNewFile();
-        FileOutputStream fos = new FileOutputStream(testArchive);
-        PrintWriter writer = new PrintWriter(fos);
-        writer.println("Hello World");
-        writer.flush();
-        writer.close();
-
-        desc2 = new ComponentDescription("commons-logging", "1.0.1", "commons-logging/jars/commons-logging-1.0.1.jar");
-        desc3 = new ComponentDescription("nosuchfile", "noversion", "nolocation");
-
-        repo = new ComponentRepository(localRoot);
-        repo.addRemoteRoot(fakeRemoteRoot.toURL());
-        repo.addRemoteRoot(new URL("http://www.ibiblio.org/maven/"));
-    }
-
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        recursiveDelete(localRoot);
-        recursiveDelete(fakeRemoteRoot);
-    }
-
-    private void recursiveDelete(File root) throws Exception {
-        File[] files = root.listFiles();
-        for (int i = 0; i < files.length; i++) {
-            File file = files[i];
-            if (file.isDirectory()) {
-                recursiveDelete(file);
-            } else {
-                file.delete();
-            }
-        }
-        root.delete();
     }
 }
