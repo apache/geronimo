@@ -418,15 +418,16 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                             resourceModules.add(connectorModule);
                             connectorModuleBuilder.installModule(connectorFile, appClientDeploymentContext, connectorModule);
                         }
-                        ClassLoader cl = appClientDeploymentContext.getClassLoader(repository);
+                        //the install step could have added more dependencies... we need a new cl.
+                        appClientClassLoader = appClientDeploymentContext.getClassLoader(repository);
                         for (Iterator iterator = resourceModules.iterator(); iterator.hasNext();) {
                             Module connectorModule = (Module) iterator.next();
-                            connectorModuleBuilder.initContext(appClientDeploymentContext, connectorModule, cl);
+                            connectorModuleBuilder.initContext(appClientDeploymentContext, connectorModule, appClientClassLoader);
                         }
 
                         for (Iterator iterator = resourceModules.iterator(); iterator.hasNext();) {
                             Module connectorModule = (Module) iterator.next();
-                            connectorModuleBuilder.addGBeans(appClientDeploymentContext, connectorModule, cl);
+                            connectorModuleBuilder.addGBeans(appClientDeploymentContext, connectorModule, appClientClassLoader);
                         }
                     } finally {
                         for (Iterator iterator = resourceModules.iterator(); iterator.hasNext();) {
@@ -440,7 +441,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 ObjectName jndiContextName = ObjectName.getInstance("geronimo.client:type=StaticJndiContext");
                 GBeanData jndiContextGBeanData = new GBeanData(jndiContextName, StaticJndiContextPlugin.GBEAN_INFO);
                 try {
-                    componentContext = buildComponentContext(appClientDeploymentContext, appClientModule, appClient, geronimoAppClient, earClassLoader);
+                    componentContext = buildComponentContext(appClientDeploymentContext, appClientModule, appClient, geronimoAppClient, appClientClassLoader);
                     jndiContextGBeanData.setAttribute("context", componentContext);
                 } catch (Exception e) {
                     throw new DeploymentException("Unable to construct jndi context for AppClientModule GBean", e);
