@@ -28,11 +28,11 @@ import org.apache.geronimo.network.protocol.control.BootstrapCook;
 import org.apache.geronimo.network.protocol.control.ControlContext;
 import org.apache.geronimo.network.protocol.control.commands.CreateInstanceMenuItem;
 import org.apache.geronimo.network.protocol.control.commands.SetReferenceMenuItem;
-import org.apache.geronimo.system.ThreadPool;
+import org.apache.geronimo.pool.ThreadPool;
 
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/17 03:11:59 $
+ * @version $Revision: 1.4 $ $Date: 2004/07/08 05:13:29 $
  */
 public class BufferProtocol extends AbstractProtocol implements BootstrapCook {
 

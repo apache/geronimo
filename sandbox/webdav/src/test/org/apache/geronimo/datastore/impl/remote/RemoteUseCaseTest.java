@@ -35,13 +35,13 @@ import org.apache.geronimo.messaging.remotenode.MessagingTransportFactory;
 import org.apache.geronimo.messaging.remotenode.network.NetworkTransportFactory;
 import org.apache.geronimo.messaging.proxy.EndPointProxyInfo;
 import org.apache.geronimo.network.SelectorManager;
-import org.apache.geronimo.system.ClockPool;
-import org.apache.geronimo.system.ThreadPool;
+import org.apache.geronimo.pool.ClockPool;
+import org.apache.geronimo.pool.ThreadPool;
 
 /**
  * This is a remote use-case.
  *
- * @version $Revision: 1.8 $ $Date: 2004/06/10 23:12:25 $
+ * @version $Revision: 1.9 $ $Date: 2004/07/08 05:13:29 $
  */
 public class RemoteUseCaseTest extends AbstractUseCaseTest {
 
@@ -147,6 +147,10 @@ public class RemoteUseCaseTest extends AbstractUseCaseTest {
         private final NodeInfo nodeInfo1;
         private final NodeInfo nodeInfo2;
 
+        public int getVersion() {
+            return 0;
+        }
+        
         private MockTopology(NodeInfo aNodeInfo1, NodeInfo aNodeInfo2) {
             nodeInfo1 = aNodeInfo1;
             nodeInfo2 = aNodeInfo2;

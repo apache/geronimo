@@ -23,6 +23,7 @@ import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.pool.ThreadPool;
 import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.GSSException;
 import org.ietf.jgss.GSSManager;
@@ -30,13 +31,12 @@ import org.ietf.jgss.GSSName;
 import org.ietf.jgss.MessageProp;
 import org.ietf.jgss.Oid;
 
-import org.apache.geronimo.system.ThreadPool;
 
 import EDU.oswego.cs.dl.util.concurrent.Latch;
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/04/24 23:17:07 $
+ * @version $Revision: 1.5 $ $Date: 2004/07/08 05:13:29 $
  */
 public class GSSAPIClientProtocol extends AbstractProtocol {
 

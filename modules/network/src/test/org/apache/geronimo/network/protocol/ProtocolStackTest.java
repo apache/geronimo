@@ -26,12 +26,12 @@ import java.util.ArrayList;
 import junit.framework.TestCase;
 
 import org.apache.geronimo.network.SelectorManager;
-import org.apache.geronimo.system.ClockPool;
-import org.apache.geronimo.system.ThreadPool;
+import org.apache.geronimo.pool.ClockPool;
+import org.apache.geronimo.pool.ThreadPool;
 
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/04/03 22:57:41 $
+ * @version $Revision: 1.7 $ $Date: 2004/07/08 05:13:28 $
  */
 public class ProtocolStackTest extends TestCase {
     public void testNothing() {}

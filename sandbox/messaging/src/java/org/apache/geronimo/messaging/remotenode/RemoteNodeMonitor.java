@@ -26,14 +26,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.messaging.NodeException;
 import org.apache.geronimo.messaging.NodeInfo;
-import org.apache.geronimo.system.ClockPool;
+import org.apache.geronimo.pool.ClockPool;
 
 import EDU.oswego.cs.dl.util.concurrent.ClockDaemon;
 
 /**
  * RemoteNode monitor.
  *
- * @version $Revision: 1.1 $ $Date: 2004/06/10 23:12:25 $
+ * @version $Revision: 1.2 $ $Date: 2004/07/08 05:13:29 $
  */
 public class RemoteNodeMonitor
 {

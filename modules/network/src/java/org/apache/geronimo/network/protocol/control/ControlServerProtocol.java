@@ -28,12 +28,12 @@ import org.apache.geronimo.network.protocol.DownPacket;
 import org.apache.geronimo.network.protocol.Protocol;
 import org.apache.geronimo.network.protocol.ProtocolException;
 import org.apache.geronimo.network.protocol.UpPacket;
-import org.apache.geronimo.system.ClockPool;
-import org.apache.geronimo.system.ThreadPool;
+import org.apache.geronimo.pool.ClockPool;
+import org.apache.geronimo.pool.ThreadPool;
 
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/04/24 22:34:01 $
+ * @version $Revision: 1.7 $ $Date: 2004/07/08 05:13:29 $
  */
 public class ControlServerProtocol extends AbstractControlProtocol {
 

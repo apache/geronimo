@@ -33,12 +33,12 @@ import org.apache.geronimo.network.protocol.ProtocolFactory;
 import org.apache.geronimo.network.protocol.ServerSocketAcceptor;
 import org.apache.geronimo.network.protocol.SocketProtocol;
 import org.apache.geronimo.network.protocol.TestProtocol;
-import org.apache.geronimo.system.ClockPool;
-import org.apache.geronimo.system.ThreadPool;
+import org.apache.geronimo.pool.ClockPool;
+import org.apache.geronimo.pool.ThreadPool;
 
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/04/08 05:22:15 $
+ * @version $Revision: 1.8 $ $Date: 2004/07/08 05:13:29 $
  */
 public class ControlProtocolTest extends TestCase {
 

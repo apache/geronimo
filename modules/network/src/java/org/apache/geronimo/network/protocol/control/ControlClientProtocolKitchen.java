@@ -30,14 +30,14 @@ import org.apache.geronimo.network.protocol.ProtocolException;
 import org.apache.geronimo.network.protocol.ProtocolStack;
 import org.apache.geronimo.network.protocol.UpPacket;
 import org.apache.geronimo.network.protocol.control.commands.MenuItem;
-import org.apache.geronimo.system.ClockPool;
-import org.apache.geronimo.system.ThreadPool;
+import org.apache.geronimo.pool.ClockPool;
+import org.apache.geronimo.pool.ThreadPool;
 
 import EDU.oswego.cs.dl.util.concurrent.Latch;
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/04/24 06:29:01 $
+ * @version $Revision: 1.5 $ $Date: 2004/07/08 05:13:29 $
  */
 class ControlClientProtocolKitchen extends ProtocolStack implements ControlClientListener {
 

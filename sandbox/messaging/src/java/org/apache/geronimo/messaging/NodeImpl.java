@@ -47,13 +47,13 @@ import org.apache.geronimo.messaging.remotenode.RemoteNodeEvent;
 import org.apache.geronimo.messaging.remotenode.RemoteNodeEventListener;
 import org.apache.geronimo.messaging.remotenode.RemoteNodeManager;
 import org.apache.geronimo.messaging.remotenode.RemoteNodeManagerImpl;
-import org.apache.geronimo.system.ClockPool;
-import org.apache.geronimo.system.ThreadPool;
+import org.apache.geronimo.pool.ClockPool;
+import org.apache.geronimo.pool.ThreadPool;
 
 /**
  * Node implementation.
  *
- * @version $Revision: 1.6 $ $Date: 2004/07/05 07:03:50 $
+ * @version $Revision: 1.7 $ $Date: 2004/07/08 05:13:29 $
  */
 public class NodeImpl
     implements Node, GBeanLifecycle
@@ -460,12 +460,13 @@ public class NodeImpl
 
     static {
         GBeanInfoFactory factory = new GBeanInfoFactory(NodeImpl.class);
-        factory.setConstructor(new String[] {"NodeInfo", "MessagingTransportFactory"});
-        factory.addAttribute("NodeInfo", NodeInfo.class, true);
-        factory.addAttribute("MessagingTransportFactory", MessagingTransportFactory.class, true);
-        factory.addAttribute("Topology", NodeTopology.class, true);
-        factory.addOperation("addEndPoint", new Class[]{EndPoint.class});
-        factory.addOperation("removeEndPoint", new Class[]{EndPoint.class});
+        factory.setConstructor(new String[] {"NodeInfo", "ThreadPool",
+            "ClockPool", "MessagingTransportFactory"});
+        factory.addInterface(Node.class, new String[] {"NodeInfo"});
+        factory.addReference("ThreadPool", ThreadPool.class);
+        factory.addReference("ClockPool", ClockPool.class);
+        factory.addReference("MessagingTransportFactory",
+            MessagingTransportFactory.class);
         GBEAN_INFO = factory.getBeanInfo();
     }
 

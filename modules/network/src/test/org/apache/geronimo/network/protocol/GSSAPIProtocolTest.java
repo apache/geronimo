@@ -43,12 +43,12 @@ import org.apache.geronimo.network.protocol.control.ControlServerListener;
 import org.apache.geronimo.network.protocol.control.ControlServerProtocol;
 import org.apache.geronimo.network.protocol.control.ControlServerProtocolStack;
 import org.apache.geronimo.network.protocol.control.ControlServerProtocolWaiter;
-import org.apache.geronimo.system.ClockPool;
-import org.apache.geronimo.system.ThreadPool;
+import org.apache.geronimo.pool.ClockPool;
+import org.apache.geronimo.pool.ThreadPool;
 
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/03/17 03:12:00 $
+ * @version $Revision: 1.6 $ $Date: 2004/07/08 05:13:28 $
  */
 public class GSSAPIProtocolTest extends TestCase {
 

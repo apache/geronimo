@@ -27,12 +27,12 @@ import EDU.oswego.cs.dl.util.concurrent.CyclicBarrier;
 import junit.framework.TestCase;
 
 import org.apache.geronimo.network.SelectorManager;
-import org.apache.geronimo.system.ClockPool;
-import org.apache.geronimo.system.ThreadPool;
+import org.apache.geronimo.pool.ClockPool;
+import org.apache.geronimo.pool.ThreadPool;
 
 
 /**
- * @version $Revision: 1.8 $ $Date: 2004/04/03 22:57:41 $
+ * @version $Revision: 1.9 $ $Date: 2004/07/08 05:13:28 $
  */
 public class SocketProtocolStressTest extends TestCase {
 

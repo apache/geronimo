@@ -17,6 +17,8 @@
 
 package org.apache.geronimo.messaging.remotenode.network;
 
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.messaging.NodeInfo;
@@ -26,12 +28,12 @@ import org.apache.geronimo.messaging.remotenode.NodeServer;
 import org.apache.geronimo.messaging.remotenode.RemoteNode;
 import org.apache.geronimo.messaging.remotenode.RemoteNodeConnection;
 import org.apache.geronimo.network.SelectorManager;
-import org.apache.geronimo.system.ClockPool;
+import org.apache.geronimo.pool.ClockPool;
 
 /**
  * MessagingTransportFactory using Geronimo network as the transport layer.
  * 
- * @version $Revision: 1.3 $ $Date: 2004/06/24 23:39:03 $
+ * @version $Revision: 1.4 $ $Date: 2004/07/08 05:13:29 $
  */
 public class NetworkTransportFactory
     implements GBeanLifecycle, MessagingTransportFactory
@@ -70,5 +72,21 @@ public class NetworkTransportFactory
         NodeInfo aNodeInfo, IOContext anIOContext) {
         return new RemoteNodeJoinerConnection(aNodeInfo, anIOContext, sm);
     }
+    
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoFactory factory = new GBeanInfoFactory(NetworkTransportFactory.class);
+        factory.setConstructor(new String[] {"SelectorManager", "ClockPool"});
+        factory.addInterface(MessagingTransportFactory.class);
+        factory.addReference("SelectorManager", SelectorManager.class);
+        factory.addReference("ClockPool", ClockPool.class);
+        GBEAN_INFO = factory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
+    
     
 }

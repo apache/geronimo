@@ -22,12 +22,12 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 
 import org.apache.geronimo.network.SelectorManager;
-import org.apache.geronimo.system.ClockPool;
-import org.apache.geronimo.system.ThreadPool;
+import org.apache.geronimo.pool.ClockPool;
+import org.apache.geronimo.pool.ThreadPool;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:14 $
+ * @version $Revision: 1.3 $ $Date: 2004/07/08 05:13:29 $
  */
 public class ControlContext {
 

@@ -33,14 +33,14 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.system.ThreadPool;
+import org.apache.geronimo.pool.ThreadPool;
 
 
 /**
  * The SelectorManager will manage one Selector and the thread that checks
  * the selector.
  *
- * @version $Revision: 1.11 $ $Date: 2004/06/05 07:53:22 $
+ * @version $Revision: 1.12 $ $Date: 2004/07/08 05:13:29 $
  */
 public class SelectorManager implements Runnable, GBeanLifecycle {
 
@@ -261,12 +261,13 @@ public class SelectorManager implements Runnable, GBeanLifecycle {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(SelectorManager.class);
 
         infoFactory.addAttribute("Timeout", long.class, true);
-        infoFactory.addAttribute("ThreadPool", ThreadPool.class, true);
+        infoFactory.addReference("ThreadPool", ThreadPool.class);
+        infoFactory.addAttribute("ThreadPool", ThreadPool.class, false);
         infoFactory.addAttribute("ThreadName", String.class, true);
 
         infoFactory.addOperation("getSelector");
-        infoFactory.addOperation("getStartCounter");
-
+        infoFactory.addOperation("register", new Class[] {SelectableChannel.class, int.class, SelectionEventListner.class});
+        
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

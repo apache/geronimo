@@ -25,12 +25,12 @@ import java.util.Map;
 import EDU.oswego.cs.dl.util.concurrent.ClockDaemon;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.pool.ClockPool;
 
-import org.apache.geronimo.system.ClockPool;
 
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/04/25 06:37:12 $
+ * @version $Revision: 1.7 $ $Date: 2004/07/08 05:13:29 $
  */
 public class ProtocolFactory implements ServerSocketAcceptorListener {
 

@@ -31,11 +31,11 @@ import org.apache.geronimo.messaging.NodeInfo;
 import org.apache.geronimo.messaging.NodeTopology;
 import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
 import org.apache.geronimo.messaging.io.IOContext;
-import org.apache.geronimo.system.ClockPool;
+import org.apache.geronimo.pool.ClockPool;
 
 /**
  *
- * @version $Revision: 1.3 $ $Date: 2004/07/05 07:03:50 $
+ * @version $Revision: 1.4 $ $Date: 2004/07/08 05:13:29 $
  */
 public class RemoteNodeManagerImplTest extends TestCase
 {

@@ -26,12 +26,12 @@ import org.apache.geronimo.network.SelectorManager;
 import org.apache.geronimo.network.protocol.Protocol;
 import org.apache.geronimo.network.protocol.ProtocolException;
 import org.apache.geronimo.network.protocol.ProtocolStack;
-import org.apache.geronimo.system.ClockPool;
-import org.apache.geronimo.system.ThreadPool;
+import org.apache.geronimo.pool.ClockPool;
+import org.apache.geronimo.pool.ThreadPool;
 
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/17 03:11:59 $
+ * @version $Revision: 1.4 $ $Date: 2004/07/08 05:13:29 $
  */
 public class ControlClientProtocolStack extends ProtocolStack implements ControlClientListener {
 

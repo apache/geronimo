@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.system;
+package org.apache.geronimo.pool;
 
 import EDU.oswego.cs.dl.util.concurrent.ClockDaemon;
 import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
@@ -28,7 +28,7 @@ import org.apache.geronimo.gbean.WaitingException;
 
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/06/05 07:53:22 $
+ * @version $Revision: 1.1 $ $Date: 2004/07/08 05:13:29 $
  */
 public class ClockPool implements GBeanLifecycle {
 

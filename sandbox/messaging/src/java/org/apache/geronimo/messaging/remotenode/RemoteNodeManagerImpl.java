@@ -39,12 +39,12 @@ import org.apache.geronimo.messaging.NodeTopology;
 import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
 import org.apache.geronimo.messaging.io.IOContext;
 import org.apache.geronimo.messaging.remotenode.admin.JoinRequest;
-import org.apache.geronimo.system.ClockPool;
+import org.apache.geronimo.pool.ClockPool;
 
 /**
  * RemoteNode implementation.
  *
- * @version $Revision: 1.5 $ $Date: 2004/06/24 23:39:03 $
+ * @version $Revision: 1.6 $ $Date: 2004/07/08 05:13:29 $
  */
 public class RemoteNodeManagerImpl
     implements RemoteNodeManager
@@ -57,7 +57,7 @@ public class RemoteNodeManagerImpl
     private final Collection listeners;
     private final Map remoteNodes;
     private final RemoteNodeRouter router;
-    private final NodeServer server;
+    private NodeServer server;
     private final NodeInfo nodeInfo;
     private final RemoteNodeMonitor remoteNodeMonitor;
     
@@ -86,12 +86,12 @@ public class RemoteNodeManagerImpl
         remoteNodes = new HashMap();
         router = new RemoteNodeRouter();
         remoteNodeMonitor = new RemoteNodeMonitor(this, aClockPool);
-        server = aFactory.factoryServer(aNodeInfo, anIOContext);
-        server.setRemoteNodeManager(this);
     }
 
     public void start() throws NodeException {
         try {
+            server = factory.factoryServer(nodeInfo, ioContext);
+            server.setRemoteNodeManager(this);
             server.start();
         } catch (IOException e) {
             throw new NodeException("Can not start server.", e);

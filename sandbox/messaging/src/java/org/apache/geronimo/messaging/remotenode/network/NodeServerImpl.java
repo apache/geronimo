@@ -42,12 +42,12 @@ import org.apache.geronimo.network.protocol.ProtocolFactory;
 import org.apache.geronimo.network.protocol.ServerSocketAcceptor;
 import org.apache.geronimo.network.protocol.SocketProtocol;
 import org.apache.geronimo.network.protocol.ProtocolFactory.AcceptedCallBack;
-import org.apache.geronimo.system.ClockPool;
+import org.apache.geronimo.pool.ClockPool;
 
 /**
  * NodeServer implementation.
  *
- * @version $Revision: 1.3 $ $Date: 2004/06/03 14:39:44 $
+ * @version $Revision: 1.4 $ $Date: 2004/07/08 05:13:29 $
  */
 public class NodeServerImpl
     implements NodeServer, AcceptedCallBack

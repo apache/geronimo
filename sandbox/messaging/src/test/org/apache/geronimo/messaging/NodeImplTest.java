@@ -29,12 +29,12 @@ import junit.framework.TestCase;
 import org.apache.geronimo.messaging.remotenode.MessagingTransportFactory;
 import org.apache.geronimo.messaging.remotenode.network.NetworkTransportFactory;
 import org.apache.geronimo.network.SelectorManager;
-import org.apache.geronimo.system.ClockPool;
-import org.apache.geronimo.system.ThreadPool;
+import org.apache.geronimo.pool.ClockPool;
+import org.apache.geronimo.pool.ThreadPool;
 
 /**
  *
- * @version $Revision: 1.4 $ $Date: 2004/07/05 07:03:50 $
+ * @version $Revision: 1.5 $ $Date: 2004/07/08 05:13:29 $
  */
 public class NodeImplTest
     extends TestCase
