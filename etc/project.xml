@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.19 $ $Date: 2004/02/02 22:05:54 $ -->
+<!-- $Revision: 1.20 $ $Date: 2004/02/12 20:19:29 $ -->
 
 <project>
 
@@ -26,7 +26,7 @@
     <description>Geronimo J2EE Application Server</description>
     <shortDescription>Geronimo J2EE Application Server</shortDescription>
     <url>http://incubator.apache.org/projects/geronimo/</url>
-    <issueTrackingUrl>http://jira.codehaus.org/secure/BrowseProject.jspa?id=10220</issueTrackingUrl>
+    <issueTrackingUrl>http://issues.apache.org/jira/secure/BrowseProject.jspa?id=10220</issueTrackingUrl>
 
     <siteAddress>incubator.apache.org</siteAddress>
     <siteDirectory>/www/incubator.apache.org/geronimo</siteDirectory>
