@@ -18,7 +18,6 @@
 package org.apache.geronimo.transaction.context;
 
 import javax.transaction.Transaction;
-import javax.transaction.SystemException;
 
 import org.apache.geronimo.transaction.ConnectionReleaser;
 
@@ -36,7 +35,7 @@ public class UnspecifiedTransactionContext extends TransactionContext {
     public void resume() {
     }
 
-    public void commit() {
+    public boolean commit() {
         try {
             flushState();
         } catch (Error e) {
@@ -46,6 +45,7 @@ public class UnspecifiedTransactionContext extends TransactionContext {
         } catch (Throwable e) {
             log.error("Unable to flush state, continuing", e);
         }
+        return true;
     }
 
     public void rollback() {

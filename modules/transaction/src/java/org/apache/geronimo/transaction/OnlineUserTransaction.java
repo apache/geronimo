@@ -64,7 +64,9 @@ public final class OnlineUserTransaction implements UserTransaction, Serializabl
         }
         BeanTransactionContext beanContext = (BeanTransactionContext) ctx;
         try {
-            beanContext.commit();
+            if (!beanContext.commit()) {
+                throw new RollbackException();
+            }
         } finally {
             UnspecifiedTransactionContext oldContext = beanContext.getOldContext();
             transactionContextManager.setContext(oldContext);

@@ -24,6 +24,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.transaction.context.UnspecifiedTransactionContext;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
@@ -79,7 +80,7 @@ public final class AppClientContainer {
         ClassLoader contextClassLoader = thread.getContextClassLoader();
         thread.setContextClassLoader(classLoader);
         TransactionContext oldTransactionContext = transactionContextManager.getContext();
-        TransactionContext currentTransactionContext = null;
+        UnspecifiedTransactionContext currentTransactionContext = null;
         try {
             jndiContext.startClient(appClientModuleName, kernel, classLoader);
             currentTransactionContext = transactionContextManager.newUnspecifiedTransactionContext();

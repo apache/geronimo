@@ -99,19 +99,25 @@ public abstract class InheritableTransactionContext extends TransactionContext {
         threadAssociated = true;
     }
 
-    public void commit() throws HeuristicMixedException, HeuristicRollbackException, SystemException, RollbackException {
+    public boolean commit() throws HeuristicMixedException, HeuristicRollbackException, SystemException, RollbackException {
         boolean wasCommitted = false;
         try {
-            checkRolledback();
+            if (isRolledback()) {
+                return false;
+            }
 
             flushState();
 
-            checkRolledback();
+            if (isRolledback()) {
+                return false;
+            }
 
             // todo we need to flush anyone enrolled during before and then call before on any flushed...
             beforeCommit();
 
-            checkRolledback();
+            if (isRolledback()) {
+                return false;
+            }
 
             txnManager.commit();
             wasCommitted = true;
@@ -127,9 +133,10 @@ public abstract class InheritableTransactionContext extends TransactionContext {
                 transaction = null;
             }
         }
+        return wasCommitted;
     }
 
-    private void checkRolledback() throws SystemException, RollbackException {
+    private boolean isRolledback() throws SystemException {
         int status;
         try {
             status = transaction.getStatus();
@@ -141,12 +148,13 @@ public abstract class InheritableTransactionContext extends TransactionContext {
         if (status == Status.STATUS_MARKED_ROLLBACK) {
             // we need to rollback
             txnManager.rollback();
-            throw new RollbackException();
+            return true;
         } else if (status == Status.STATUS_ROLLEDBACK ||
                 status == Status.STATUS_ROLLING_BACK) {
             // already rolled back
-            throw new RollbackException();
+            return true;
         }
+        return false;
     }
 
     private void rollbackAndThrow(String message, Throwable throwable) throws HeuristicMixedException, HeuristicRollbackException, SystemException, RollbackException {

@@ -59,13 +59,11 @@ public abstract class TransactionContext {
     private Map managedConnections;
     private InTxCache inTxCache;
 
-//    public abstract void begin() throws SystemException, NotSupportedException;
-
     public abstract void suspend() throws SystemException;
 
     public abstract void resume() throws SystemException, InvalidTransactionException;
 
-    public abstract void commit() throws HeuristicMixedException, HeuristicRollbackException, RollbackException, SystemException;
+    public abstract boolean commit() throws HeuristicMixedException, HeuristicRollbackException, RollbackException, SystemException;
 
     public abstract void rollback() throws SystemException;
 
