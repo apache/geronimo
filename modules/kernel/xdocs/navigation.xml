@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Revision: 1.1 $ $Date: 2003/08/30 15:18:13 $ -->
+
+<project>
+
+  <body>
+    <links>
+      <item name="Apache" href="http://apache.org"/>
+      <item name="Geronimo" href="../../index.html"/>
+    </links>
+  </body>
+  
+</project>

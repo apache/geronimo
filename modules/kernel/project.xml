@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- $Revision: 1.1 $ $Date: 2003/08/30 15:18:13 $ -->
+
+<project>
+  <pomVersion>3</pomVersion>
+  <extend>${basedir}/../../etc/project.xml</extend>
+
+  <!-- ===================== -->
+  <!-- Module Identification -->
+  <!-- ===================== -->
+
+  <name>Geronimo :: Kernel</name>
+  <id>geronimo-kernel</id>
+  <shortDescription>Geronimo Kernel</shortDescription>
+  <description>Geronimo Kernel</description>
+  <url>http://incubator.apache.org/projects/geronimo/kernel/</url>
+  <siteDirectory>/www/incubator.apache.org/projects/geronimo/kernel</siteDirectory>
+  <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds/kernel</distributionDirectory>
+
+  <currentVersion>DEV</currentVersion>
+
+  <!-- ============ -->
+  <!-- Dependencies -->
+  <!-- ============ -->
+
+  <dependencies>
+    
+    <!-- Module Dependencies -->
+    
+    <dependency>
+      <groupId>geronimo</groupId>
+      <artifactId>geronimo-common</artifactId>
+      <version>DEV</version>
+      <properties>
+        <module>true</module>
+      </properties>
+    </dependency>
+    
+    <!-- Thirdparty -->
+    
+    <dependency>
+      <id>commons-logging</id>
+      <version>1.0.3</version>
+      <url>http://jakarta.apache.org/commons/logging/</url>
+      <properties>
+        <runtime>true</runtime>
+      </properties>
+    </dependency>
+    
+  </dependencies>
+
+</project>
