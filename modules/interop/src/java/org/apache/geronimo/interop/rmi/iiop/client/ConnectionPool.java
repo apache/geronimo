@@ -27,6 +27,7 @@ import org.apache.geronimo.interop.rmi.iiop.Protocol;
 import org.apache.geronimo.interop.util.InstancePool;
 import org.apache.geronimo.interop.util.StringUtil;
 
+
 public class ConnectionPool {
     public static ConnectionPool getInstance(ClientNamingContext namingContext) {
         ConnectionPool object = new ConnectionPool();
@@ -34,21 +35,17 @@ public class ConnectionPool {
         return object;
     }
 
-    private ClientNamingContext namingContext;
-    private HashMap             poolMap;
+    // private data
+
+    private ClientNamingContext _namingContext;
+
+    private HashMap _poolMap;
+
+    // public methods
 
     public Connection get(int protocol, String endpoint, ObjectRef objectRef) {
-        //System.out.println("ConnectionPool.get(): protocol: " + protocol + ", endpoint: " + endpoint + ", objectRef: " + objectRef);
+        System.out.println("ConnectionPool.get(): protocol: " + protocol + ", endpoint: " + endpoint + ", objectRef: " + objectRef);
 
-        InstancePool pool = getInstancePool(protocol, endpoint);
-        System.out.println("ConnectionPool.get(): pool: " + pool);
-        Connection conn = (Connection) pool.get();
-        if (conn == null) {
-            conn = newConnection(protocol, endpoint, objectRef, pool);
-        }
-        return conn;
-
-        /*
         HostList hostList = resolve(endpoint, objectRef);
         System.out.println("ConnectionPool.get(): hostlist: " + hostList);
         if (hostList == null) {
@@ -90,16 +87,17 @@ public class ConnectionPool {
             // TODO: I18N
             throw new SystemException("CONNECT FAILED: host list = " + hostList);
         }
-        */
     }
 
     public void put(Connection conn) {
         conn.getInstancePool().put(conn);
     }
 
+    // protected methods
+
     protected void init(ClientNamingContext namingContext) {
-        this.namingContext = namingContext;
-        poolMap = new HashMap();
+        _namingContext = namingContext;
+        _poolMap = new HashMap();
     }
 
     /**
@@ -156,14 +154,40 @@ public class ConnectionPool {
     protected InstancePool getInstancePool(final int protocol, final String endpoint) {
         System.out.println("ConnectionPool.getInstancePool(): protocol: " + protocol + ", endpoint: " + endpoint);
 
-        InstancePool pool = (InstancePool) poolMap.get(endpoint);
+        InstancePool pool = (InstancePool) _poolMap.get(endpoint);
         if (pool == null) {
-            synchronized (poolMap) {
-                pool = (InstancePool) poolMap.get(endpoint);
+            synchronized (_poolMap) {
+                pool = (InstancePool) _poolMap.get(endpoint);
                 if (pool == null) {
                     String poolName = Protocol.getName(protocol) + "://" + endpoint;
+                    //long idleTimeout = 1000 * _namingContext.getIdleConnectionTimeout();
+                    //if (idleTimeout > 0)
+                    //{
+/*
+						pool = new InstancePool
+						(
+							poolName,
+							idleTimeout,
+							new TimeoutObject()
+							{
+								public void onTimeout(Object object)
+								{
+									Connection conn = (Connection)object;
+									if (RmiTrace.CONNECT)
+									{
+										RmiTrace.getInstance().traceDisconnect(Protocol.getName(protocol) + "://" + endpoint);
+									}
+									conn.shutdown();
+								}
+							}
+						);
+                        */
+                    //}
+                    //else
+                    //{
                     pool = new InstancePool(poolName);
-                    poolMap.put(endpoint, pool);
+                    //}
+                    _poolMap.put(endpoint, pool);
                 }
             }
         }
@@ -207,10 +231,7 @@ public class ConnectionPool {
     }
 
     protected Connection iiopConnection(String endpoint, ObjectRef objectRef) {
-        System.out.println( "endpoint : " + endpoint );
-        System.out.println( "objectRef : " + objectRef );
-        System.out.println( "namingContext : " + namingContext );
-        return Connection.getInstance(endpoint, objectRef, namingContext.getConnectionProperties());
+        return Connection.getInstance(endpoint, objectRef, _namingContext.getConnectionProperties());
     }
 
     protected Connection iiopsConnection(String endpoint, ObjectRef objectRef) {
@@ -225,15 +246,14 @@ public class ConnectionPool {
         throw new SystemException("TODO");
     }
 
-    /*
     protected HostList resolve(String endpoint, ObjectRef objectRef) {
-
-		//if (objectRef instanceof org.apache.geronimo.interop.rmi.iiop.NameService
-		//	&& ! endpoint.startsWith("ns~mh~"))
-		//{
-		//	return null; // Avoid unbounded recursion
-		//}
-
+/*
+		if (objectRef instanceof org.apache.geronimo.interop.rmi.iiop.NameService
+			&& ! endpoint.startsWith("ns~mh~"))
+		{
+			return null; // Avoid unbounded recursion
+		}
+        */
         HostList hostList = _namingContext.lookupHost(objectRef.$getHost()); // this uses a cache for good performance
         if (hostList != null
             && hostList.getPreferredServers().size() == 0
@@ -244,5 +264,4 @@ public class ConnectionPool {
         }
         return hostList;
     }
-    */
 }

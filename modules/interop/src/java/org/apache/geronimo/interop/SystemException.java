@@ -17,24 +17,6 @@
  */
 package org.apache.geronimo.interop;
 
-/*
- * This class is used to help marshall server side exceptions back to the client.
- * A server exception is caught and then set as a cause of the system exception.
- *
- * Originally there were two different implementations of the this cause, one for 
- * JDK 1.3 (which didn't have the cause object on an Exception) and this one for JDK 1.4
- * The JDK 1.3 class has been removed.
- *
- * In the stubs/skeletons, they check to see if the marshalled exception is an instance of
- * SystemException and then it take appropriate actions.
- *
- * Its possible that this could change to use the JDK 1.4 RuntimeException.  This may 
- * cause some troubles with identification of specific server side exceptions vs. a
- * general runtime exception.
- *
- * For now, I am going to leave this class in place.  A future TODO would be to investigate
- * this situation more carefully.
- */
 
 public class SystemException extends RuntimeException {
     public SystemException(String message) {
@@ -52,4 +34,17 @@ public class SystemException extends RuntimeException {
                        && cause.getMessage() == null
                        ? cause.getCause() : cause);
     }
+
+    /*
+Constructor Summary 
+RuntimeException() 
+          Constructs a new runtime exception with null as its detail message. 
+RuntimeException(String message) 
+          Constructs a new runtime exception with the specified detail message. 
+RuntimeException(String message, Throwable cause) 
+          Constructs a new runtime exception with the specified detail message and cause. 
+RuntimeException(Throwable cause) 
+          Constructs a new runtime exception with the specified cause and a detail message of (cause==null ? null : cause.toString()) (which typically contains the class and detail message of cause). 
+          */
+
 }

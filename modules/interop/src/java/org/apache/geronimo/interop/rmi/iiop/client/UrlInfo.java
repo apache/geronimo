@@ -29,6 +29,7 @@ import org.apache.geronimo.interop.util.ListUtil;
 import org.apache.geronimo.interop.util.NamedValueList;
 import org.apache.geronimo.interop.util.StringUtil;
 
+
 public class UrlInfo {
     public static UrlInfo getInstance(String url) {
         UrlInfo object = new UrlInfo();
@@ -45,84 +46,94 @@ public class UrlInfo {
         return list;
     }
 
-    private int         protocol;
-    private String      host;
-    private int         port;
-    private String      objectKey;
-    private PropertyMap properties;
+    // private data
+
+    private int _protocol;
+
+    private String _host;
+
+    private int _port;
+
+    private String _objectKey;
+
+    private PropertyMap _properties;
+
+    // internal methods
 
     protected void init(String urlString) {
         int cssPos = urlString.indexOf("://");
         if (cssPos == -1) {
             throw new IllegalArgumentException(urlString);
         }
-        protocol = Protocol.getNumber(urlString.substring(0, cssPos));
+        _protocol = Protocol.getNumber(urlString.substring(0, cssPos));
         try {
             URL url = new URL("http" + urlString.substring(cssPos));
-            host = url.getHost();
-            port = url.getPort();
-            if (port == -1) {
-                switch (protocol) {
+            _host = url.getHost();
+            _port = url.getPort();
+            if (_port == -1) {
+                switch (_protocol) {
                     case Protocol.HTTP:
-                        port = 80; // see http://www.iana.org/assignments/port-numbers
+                        _port = 80; // see http://www.iana.org/assignments/port-numbers
                         break;
                     case Protocol.HTTPS:
-                        port = 443; // see http://www.iana.org/assignments/port-numbers
+                        _port = 443; // see http://www.iana.org/assignments/port-numbers
                         break;
                     case Protocol.IIOP:
-                        port = 683; // see http://www.iana.org/assignments/port-numbers
+                        _port = 683; // see http://www.iana.org/assignments/port-numbers
                         break;
                     case Protocol.IIOPS:
-                        port = 684; // see http://www.iana.org/assignments/port-numbers
+                        _port = 684; // see http://www.iana.org/assignments/port-numbers
                         break;
                     default:
                         throw new IllegalStateException("url = " + urlString);
                 }
             }
-            objectKey = url.getFile();
-            if (objectKey == null) {
-                objectKey = "";
+            _objectKey = url.getFile();
+            if (_objectKey == null) {
+                _objectKey = "";
             }
-            int queryPos = objectKey.indexOf('?');
+            int queryPos = _objectKey.indexOf('?');
             if (queryPos != -1) {
-                objectKey = objectKey.substring(0, queryPos);
+                _objectKey = _objectKey.substring(0, queryPos);
             }
-            objectKey = StringUtil.removePrefix(objectKey, "/");
-            if (objectKey.length() == 0) {
-                objectKey = "NameService";
+            _objectKey = StringUtil.removePrefix(_objectKey, "/");
+            if (_objectKey.length() == 0) {
+                _objectKey = "NameService";
             }
             String query = url.getQuery();
             if (query == null) {
                 query = "";
             }
             String props = StringUtil.removePrefix(query, "?").replace('&', ',');
-            properties = new NamedValueList(props).getProperties();
+            _properties = new NamedValueList(props).getProperties();
         } catch (Exception ex) {
             throw new SystemException(ex);
         }
     }
 
+    // public methods
+
     public int getProtocol() {
-        return protocol;
+        return _protocol;
     }
 
     public String getHost() {
-        return host;
+        return _host;
     }
 
     public int getPort() {
-        return port;
+        return _port;
     }
 
     public String getObjectKey() {
-        return objectKey;
+        return _objectKey;
     }
 
     public PropertyMap getProperties() {
-        return properties;
+        return _properties;
     }
 
     public String toString() {
-        return Protocol.getName(protocol) + "://" + host + ":" + port + "/" + objectKey;
+        return Protocol.getName(_protocol) + "://" + _host + ":" + _port + "/" + _objectKey;
     }
 }

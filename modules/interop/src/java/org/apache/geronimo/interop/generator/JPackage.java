@@ -19,8 +19,9 @@ package org.apache.geronimo.interop.generator;
 
 import java.util.Vector;
 
+
 public class JPackage extends JEntity {
-    private Vector    classes = new Vector();
+    protected Vector _classes = new Vector();
 
     public JPackage(String name) {
         super(name);
@@ -28,15 +29,15 @@ public class JPackage extends JEntity {
 
     public JClass newClass(String name) {
         JClass c = new JClass(name, this);
-        classes.add(c);
+        _classes.add(c);
         return c;
     }
 
     public void deleteClass(JClass c) {
-        classes.removeElement(c);
+        _classes.removeElement(c);
     }
 
     public Vector getClasses() {
-        return classes;
+        return _classes;
     }
 }

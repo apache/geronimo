@@ -20,19 +20,22 @@ package org.apache.geronimo.interop.generator;
 import java.lang.reflect.Modifier;
 import java.util.Vector;
 
+
 public class JMethod extends JEntity {
-    private JReturnType       rt;
-    private JParameter        parms[];
-    private Class             thrown[];
-    private Vector            statements;
-    private JBlockStatement   bodyBlockStatement;
-    private String            body;  // Yuck
+    protected JReturnType _rt;
+    protected JParameter _parms[];
+    protected Class _thrown[];
+
+    protected Vector _statements;
+    protected JBlockStatement _bodyBlockStatement;
+
+    protected String _body;  // Yuck
 
     protected JMethod(String name) {
         super(name, Modifier.PUBLIC);
 
-        statements = new Vector();
-        bodyBlockStatement = new JBlockStatement();
+        _statements = new Vector();
+        _bodyBlockStatement = new JBlockStatement();
     }
 
     protected JMethod(JReturnType rt, String name, JParameter parms[], Class thrown[]) {
@@ -44,58 +47,87 @@ public class JMethod extends JEntity {
     }
 
     public void setRT(JReturnType jt) {
-        rt = jt;
+        _rt = jt;
     }
 
     public JReturnType getRT() {
-        return rt;
+        return _rt;
     }
 
     public void setParms(JParameter parms[]) {
-        this.parms = parms;
+        _parms = parms;
     }
 
     public JParameter[] getParms() {
-        return parms;
+        return _parms;
     }
 
     public void setThrown(Class thrown[]) {
-        this.thrown = thrown;
+        _thrown = thrown;
+
+        /*
+        if (_thrown != null)
+        {
+            _thrownType = new String[_thrown.length];
+            int i;
+            for( i=0; i<_thrown.length; i++ )
+            {
+                _thrownType[i] = _thrown[i].getName();
+            }
+        }
+        else
+        {
+            _thrownType = null;
+        }
+        */
     }
 
     public Class[] getThrown() {
-        return thrown;
+        return _thrown;
     }
 
+    /*
+    public void setThrownType( String thrownType[] )
+    {
+        _thrownType = thrownType;
+        _thrown = null;
+    }
+
+    public String[] getThrownType()
+    {
+        return _thrownType;
+    }
+    */
+
     public void setBody(String body) {
-        this.body = body;
+        _body = body;
     }
 
     public String getBody() {
-        return body;
+        return _body;
     }
 
     public JLocalVariable newLocalVariable(Class type, String name) {
-        return bodyBlockStatement.newLocalVariable(type, name);
+        return _bodyBlockStatement.newLocalVariable(type, name);
     }
 
     public JLocalVariable newLocalVariable(Class type, String name, JExpression initExpr) {
-        return bodyBlockStatement.newLocalVariable(type, name, initExpr);
+        return _bodyBlockStatement.newLocalVariable(type, name, initExpr);
     }
 
     public void deleteLocalVariable(JLocalVariable f) {
-        bodyBlockStatement.deleteLocalVariable(f);
+        _bodyBlockStatement.deleteLocalVariable(f);
     }
 
     public Vector getLocalVariables() {
-        return bodyBlockStatement.getLocalVariables();
+        return _bodyBlockStatement.getLocalVariables();
     }
 
     public void addStatement(JStatement s) {
-        statements.add(s);
+        _statements.add(s);
     }
 
     public Vector getStatements() {
-        return statements;
+        return _statements;
     }
 }

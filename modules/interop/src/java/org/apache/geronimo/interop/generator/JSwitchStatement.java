@@ -19,29 +19,30 @@ package org.apache.geronimo.interop.generator;
 
 import java.util.Vector;
 
+
 public class JSwitchStatement extends JStatement {
-    private JExpression       switchExpr;
-    private Vector            caseStatements;
+    protected JExpression _switchExpr;
+    protected Vector _caseStatements;
 
     public JSwitchStatement(JExpression e) {
-        switchExpr = e;
-        caseStatements = new Vector();
+        _switchExpr = e;
+        _caseStatements = new Vector();
     }
 
     public void setVariable(JExpression e) {
-        switchExpr = e;
+        _switchExpr = e;
     }
 
     public JExpression getExpression() {
-        return switchExpr;
+        return _switchExpr;
     }
 
     public JCaseStatement getCase(JExpression e) {
         JCaseStatement rc = null;
-        int index = caseStatements.indexOf(e);
+        int index = _caseStatements.indexOf(e);
 
         if (index >= 0) {
-            rc = (JCaseStatement) caseStatements.get(index);
+            rc = (JCaseStatement) _caseStatements.get(index);
         }
 
         return rc;
@@ -52,7 +53,7 @@ public class JSwitchStatement extends JStatement {
 
         if (rc == null) {
             rc = new JCaseStatement(e);
-            caseStatements.add(rc);
+            _caseStatements.add(rc);
         }
 
         return rc;
@@ -69,6 +70,6 @@ public class JSwitchStatement extends JStatement {
     }
 
     public Vector getCases() {
-        return caseStatements;
+        return _caseStatements;
     }
 }

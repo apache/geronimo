@@ -17,17 +17,14 @@
  */
 package org.apache.geronimo.interop.rmi.iiop;
 
-public class StringHelper implements ObjectHelper
-{
+public class StringHelper implements ObjectHelper {
     public static final StringHelper SINGLETON = new StringHelper();
 
-    public Object read(ObjectInputStream input)
-    {
+    public Object read(ObjectInputStream input) {
         return input._cdrInput.read_string();
     }
 
-    public void write(ObjectOutputStream output, Object value)
-    {
-        output._cdrOutput.write_string((String)value);
+    public void write(ObjectOutputStream output, Object value) {
+        output._cdrOutput.write_string((String) value);
     }
 }

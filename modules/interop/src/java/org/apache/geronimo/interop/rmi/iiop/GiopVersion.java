@@ -17,8 +17,7 @@
  */
 package org.apache.geronimo.interop.rmi.iiop;
 
-public class GiopVersion
-{
+public class GiopVersion {
     public static final int VERSION_1_0 = 0;
     public static final int VERSION_1_1 = 1;
     public static final int VERSION_1_2 = 2;

@@ -17,40 +17,27 @@
  */
 package org.apache.geronimo.interop.rmi.iiop;
 
-import org.apache.geronimo.interop.*;
-import org.apache.geronimo.interop.rmi.*;
-import org.apache.geronimo.interop.util.*;
-import java.io.*;
+import java.io.IOException;
 
-public class SimpleObjectOutputStream extends ObjectOutputStream
-{
-    //public static final Component component = new Component(SimpleObjectOutputStream.class);
+import org.apache.geronimo.interop.SystemException;
+import org.apache.geronimo.interop.util.ArrayUtil;
+import org.apache.geronimo.interop.util.JavaObject;
 
-    public static ObjectOutputStream getInstance()
-    {
-        ObjectOutputStream oos = null;
+
+public class SimpleObjectOutputStream extends ObjectOutputStream {
+    public static ObjectOutputStream getInstance() {
+        return getInstance(CdrOutputStream.getInstance());
+    }
+
+    public static ObjectOutputStream getInstance(CdrOutputStream cdrOutput) {
+        ObjectOutputStream output = null;
         try {
-            oos = new SimpleObjectOutputStream();
-        } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            output = new SimpleObjectOutputStream();
+        } catch (Exception ex) {
+            throw new SystemException(ex);
         }
-        return oos; // getInstance(CdrOutputStream.getInstance());
-    }
 
-    public static ObjectOutputStream getInstance(CdrOutputStream cdrOutput)
-    {
-        ObjectOutputStream output = getInstance(); // (SimpleObjectOutputStream)component.getInstance();
         output.init(cdrOutput);
-        return output;
-    }
-
-    public static ObjectOutputStream getPooledInstance()
-    {
-        ObjectOutputStream output = null; // (SimpleObjectOutputStream)_pool.get();
-        if (output == null)
-        {
-            output = getInstance();
-        }
         return output;
     }
 
@@ -58,41 +45,25 @@ public class SimpleObjectOutputStream extends ObjectOutputStream
     // private data
     // -----------------------------------------------------------------------
 
-    //private static ThreadLocalInstancePool _pool = new ThreadLocalInstancePool(SimpleObjectOutputStream.class.getName());
-
     // -----------------------------------------------------------------------
     // public methods
     // -----------------------------------------------------------------------
 
-    public SimpleObjectOutputStream() throws IOException
-    {
+    public SimpleObjectOutputStream() throws IOException {
         super();
     }
 
-    public void $reset()
-    {
+    public void $reset() {
         _cdrOutput.reset();
     }
 
-    public void recycle()
-    {
+    public void recycle() {
         $reset();
-        //_pool.put(this);
     }
 
-    public void writeException(ValueType type, Exception value)
-    {
-        String repositoryID = "IDL:" + type._class.getName().replace('.', '/') + ":1.0";
-        _cdrOutput.write_string(repositoryID);
-        writeObject(type, value);
-        _hasException = true;
-    }
-
-    public void writeObject(ValueType type, Object value)
-    {
+    public void writeObject(ValueType type, Object value) {
         ObjectHelper h = type.helper;
-        if (h != null)
-        {
+        if (h != null) {
             h.write(this, value);
             return;
         }
@@ -105,8 +76,7 @@ public class SimpleObjectOutputStream extends ObjectOutputStream
     // protected methods
     // -----------------------------------------------------------------------
 
-    protected void init(CdrOutputStream cdrOutput)
-    {
+    protected void init(CdrOutputStream cdrOutput) {
         super.init(cdrOutput);
     }
 }

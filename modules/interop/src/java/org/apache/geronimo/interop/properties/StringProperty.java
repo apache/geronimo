@@ -28,16 +28,25 @@ import org.apache.geronimo.interop.util.FileUtil;
 import org.apache.geronimo.interop.util.ListUtil;
 import org.apache.geronimo.interop.util.StringUtil;
 
+
 public class StringProperty extends PropertyType {
-    private String      defaultValue = "";
-    private List        valueIsInList = null;
-    private Map         displayValues = null;
-    private Class       valueIsNameOf = null;
-    private boolean     isDirName = false;
-    private boolean     isFileName = false;
-    private boolean     isList = false;
-    private boolean     isReadOnly = false;
-    private boolean     isRequired = false;
+    private String _defaultValue = "";
+
+    private List _valueIsInList = null;
+
+    private Map _displayValues = null;
+
+    private Class _valueIsNameOf = null;
+
+    private boolean _isDirName = false;
+
+    private boolean _isFileName = false;
+
+    private boolean _isList = false;
+
+    private boolean _isReadOnly = false;
+
+    private boolean _isRequired = false;
 
     public StringProperty(Class componentClass, String propertyName) {
         super(componentClass, propertyName);
@@ -69,41 +78,41 @@ public class StringProperty extends PropertyType {
     }
 
     public StringProperty defaultValue(String defaultValue) {
-        this.defaultValue = defaultValue;
+        _defaultValue = defaultValue;
         return this;
     }
 
     public StringProperty legalValues(Class valueIsNameOf) {
-        this.valueIsNameOf = valueIsNameOf;
+        _valueIsNameOf = valueIsNameOf;
         return this;
     }
 
     public StringProperty legalValues(List valueIsInList) {
-        valueIsInList = Collections.unmodifiableList(valueIsInList);
+        _valueIsInList = Collections.unmodifiableList(valueIsInList);
         return this;
     }
 
     public StringProperty legalValues(String valueIsInList) {
         List list = ListUtil.getCommaSeparatedList(valueIsInList);
-        this.valueIsInList = new ArrayList(list.size());
+        _valueIsInList = new ArrayList(list.size());
         for (Iterator i = list.iterator(); i.hasNext();) {
             String value = (String) i.next();
             if (value.indexOf('=') != -1) {
                 String displayValue = StringUtil.afterFirst("=", value).trim();
                 value = StringUtil.beforeFirst("=", value).trim();
-                if (displayValues == null) {
-                    displayValues = new HashMap();
+                if (_displayValues == null) {
+                    _displayValues = new HashMap();
                 }
-                displayValues.put(value, displayValue);
+                _displayValues.put(value, displayValue);
             }
-            this.valueIsInList.add(value);
+            _valueIsInList.add(value);
         }
         return this;
     }
 
     public String getDisplayValue(String value) {
-        if (displayValues != null) {
-            String displayValue = (String) displayValues.get(value);
+        if (_displayValues != null) {
+            String displayValue = (String) _displayValues.get(value);
             if (displayValue != null) {
                 return displayValue;
             }
@@ -112,54 +121,54 @@ public class StringProperty extends PropertyType {
     }
 
     public StringProperty isDirName() {
-        isDirName = true;
+        _isDirName = true;
         return this;
     }
 
     public StringProperty isFileName() {
-        isFileName = true;
+        _isFileName = true;
         return this;
     }
 
     public StringProperty list() {
-        isList = true;
+        _isList = true;
         return this;
     }
 
     public StringProperty readOnly() {
-        isReadOnly = true;
+        _isReadOnly = true;
         return this;
     }
 
     public StringProperty required() {
-        isRequired = true;
+        _isRequired = true;
         return this;
     }
 
     public boolean isList() {
-        return isList;
+        return _isList;
     }
 
     public boolean isReadOnly() {
-        return isReadOnly;
+        return _isReadOnly;
     }
 
     public boolean isRequired() {
-        return isRequired;
+        return _isRequired;
     }
 
     public String getDefaultValue() {
-        return defaultValue;
+        return _defaultValue;
     }
 
     public String getDefaultValueAsString() {
-        return defaultValue;
+        return _defaultValue;
     }
 
     public List getLegalValues() {
-        if (valueIsInList != null) {
-            return valueIsInList;
-        } else if (valueIsNameOf != null) {
+        if (_valueIsInList != null) {
+            return _valueIsInList;
+        } else if (_valueIsNameOf != null) {
             //return Repository.getInstance().getInstanceNames(_valueIsNameOf);
             return null;
         } else {
@@ -173,7 +182,7 @@ public class StringProperty extends PropertyType {
 
     public String getString(String instanceName, PropertyMap props) {
         boolean ok = true, usingDefaultValue = false;
-        String s = props.getProperty(getPropertyName(), defaultValue);
+        String s = props.getProperty(_propertyName, _defaultValue);
         if (s != null && s.startsWith("${")) {
             // Value is contained in system property.
             s = StringUtil.removePrefix(s, "${");
@@ -182,7 +191,7 @@ public class StringProperty extends PropertyType {
             s = sp.getString();
             if (s == null || s.length() == 0) {
                 if (isRequired()) {
-                    String message = getLog(instanceName).errorMissingValueForRequiredSystemProperty(sp.getPropertyName(), getPropertyName(), getContext(instanceName));
+                    String message = getLog(instanceName).errorMissingValueForRequiredSystemProperty(sp.getPropertyName(), _propertyName, getContext(instanceName));
                     throw new MissingRequiredPropertyException(message);
                 }
             }
@@ -207,17 +216,17 @@ public class StringProperty extends PropertyType {
         if (!ok) {
             badPropertyValue(instanceName, s, expectedValueInList(legalValues));
         }
-        if (isDirName || isFileName) {
+        if (_isDirName || _isFileName) {
             s = FileUtil.expandHomeRelativePath(s);
             s = FileUtil.pretty(s);
         }
         if (s == null || s.length() == 0) {
             if (isRequired()) {
-                String message = getLog(instanceName).errorMissingValueForRequiredProperty(getPropertyName(), getContext(instanceName));
+                String message = getLog(instanceName).errorMissingValueForRequiredProperty(_propertyName, getContext(instanceName));
                 throw new MissingRequiredPropertyException(message);
             }
         }
-        logPropertyValue(instanceName, s, s != null && s.equals(defaultValue));
+        logPropertyValue(instanceName, s, s != null && s.equals(_defaultValue));
         return s;
     }
 }

@@ -17,12 +17,14 @@
  */
 package org.apache.geronimo.interop.rmi.iiop;
 
-import org.apache.geronimo.interop.security.*;
-import org.apache.geronimo.interop.util.*;
-import java.util.*;
+import java.util.Iterator;
+import java.util.List;
 
-public class ObjectKey
-{
+import org.apache.geronimo.interop.security.User;
+import org.apache.geronimo.interop.util.ListUtil;
+
+
+public class ObjectKey {
     public static final int TYPE_MANAGER = 'M';
 
     public static final int TYPE_SESSION = 'S';
@@ -33,8 +35,7 @@ public class ObjectKey
     public String component = "";
     public String sessionID = "";
 
-    public byte[] encode()
-    {
+    public byte[] encode() {
         int un = username.length();
         int pn = password.length();
         int cn = component.length();
@@ -46,45 +47,34 @@ public class ObjectKey
         keyBuffer.append(password);
         keyBuffer.append("\tC=");
         keyBuffer.append(component);
-        if (sn > 0)
-        {
+        if (sn > 0) {
             keyBuffer.append("\tS=");
             keyBuffer.append(sessionID);
         }
         byte[] bytes = SecurityInfo.encode(keyBuffer.toString());
-        bytes[0] = (byte)type;
+        bytes[0] = (byte) type;
         return bytes;
     }
 
-    public void decode(byte[] bytes)
-    {
+    public void decode(byte[] bytes) {
         type = bytes.length == 0 ? 0 : bytes[0];
         String key = SecurityInfo.decode(bytes);
         List items = ListUtil.getListWithSeparator(key, "\t");
-        for (Iterator i = items.iterator(); i.hasNext();)
-        {
-            String item = (String)i.next();
-            if (item.startsWith("U="))
-            {
+        for (Iterator i = items.iterator(); i.hasNext();) {
+            String item = (String) i.next();
+            if (item.startsWith("U=")) {
                 username = item.substring(2);
-            }
-            else if (item.startsWith("P="))
-            {
+            } else if (item.startsWith("P=")) {
                 password = item.substring(2);
-            }
-            else if (item.startsWith("C="))
-            {
+            } else if (item.startsWith("C=")) {
                 component = item.substring(2);
-            }
-            else if (item.startsWith("S="))
-            {
+            } else if (item.startsWith("S=")) {
                 sessionID = item.substring(2);
             }
         }
     }
 
-    public void checkPassword()
-    {
+    public void checkPassword() {
         User.getInstance(username).login(password);
     }
 }

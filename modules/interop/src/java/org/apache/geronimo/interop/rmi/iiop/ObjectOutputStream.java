@@ -17,39 +17,34 @@
  */
 package org.apache.geronimo.interop.rmi.iiop;
 
-import org.apache.geronimo.interop.*;
-import org.apache.geronimo.interop.util.*;
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.util.ArrayList;
 
-public class ObjectOutputStream extends java.io.ObjectOutputStream
-{
-    //public static final Component component = new Component(ObjectOutputStream.class);
+import org.apache.geronimo.interop.SystemException;
+import org.apache.geronimo.interop.util.IntegerCache;
+import org.apache.geronimo.interop.util.SimpleIdentityHashMap;
 
-    public static ObjectOutputStream getInstance()
-    {
-        ObjectOutputStream oos = null;
-        try {
-            oos = new ObjectOutputStream(); //getInstance(CdrOutputStream.getInstance());
-        } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            oos = null;
-        }
-        return oos;
+
+public class ObjectOutputStream extends java.io.ObjectOutputStream {
+    public static ObjectOutputStream getInstance() {
+        return getInstance(CdrOutputStream.getInstance());
     }
 
-    public static ObjectOutputStream getInstance(CdrOutputStream cdrOutput)
-    {
-        ObjectOutputStream output = getInstance(); // (ObjectOutputStream)component.getInstance();
+    public static ObjectOutputStream getInstance(CdrOutputStream cdrOutput) {
+        ObjectOutputStream output = null;
+        try {
+            output = new ObjectOutputStream();
+        } catch (Exception ex) {
+            throw new SystemException(ex);
+        }
+
         output.init(cdrOutput);
         return output;
     }
 
-    public static ObjectOutputStream getPooledInstance()
-    {
-        ObjectOutputStream output = null; // (ObjectOutputStream)_pool.get();
-        if (output == null)
-        {
+    public static ObjectOutputStream getPooledInstance() {
+        ObjectOutputStream output = null; //(ObjectOutputStream)_pool.get();
+        if (output == null) {
             output = getInstance();
         }
         return output;
@@ -59,14 +54,12 @@ public class ObjectOutputStream extends java.io.ObjectOutputStream
     // private data
     // -----------------------------------------------------------------------
 
-    protected static class StreamState
-    {
+    protected static class StreamState {
         ValueType type;
         Object value;
         int offset;
 
-        StreamState(ValueType type, Object value, int offset)
-        {
+        StreamState(ValueType type, Object value, int offset) {
             this.type = type;
             this.value = value;
             this.offset = offset;
@@ -113,20 +106,16 @@ public class ObjectOutputStream extends java.io.ObjectOutputStream
     // public methods
     // -----------------------------------------------------------------------
 
-    public ObjectOutputStream() throws IOException
-    {
+    public ObjectOutputStream() throws IOException {
         super();
     }
 
-    public void $reset()
-    {
+    public void $reset() {
         _cdrOutput.reset();
-        if (_indirection != null)
-        {
+        if (_indirection != null) {
             _indirection.clear();
         }
-        if (_stack != null)
-        {
+        if (_stack != null) {
             _stack.clear();
         }
         _blockSizeIndex = -1;
@@ -137,8 +126,7 @@ public class ObjectOutputStream extends java.io.ObjectOutputStream
         _booleanIndex = -1;
     }
 
-    public void recycle()
-    {
+    public void recycle() {
         $reset();
         //_pool.put(this);
     }
@@ -147,53 +135,43 @@ public class ObjectOutputStream extends java.io.ObjectOutputStream
     // public methods from java.io.ObjectOutputStream
     // -----------------------------------------------------------------------
 
-    public void writeBoolean(boolean value)
-    {
+    public void writeBoolean(boolean value) {
         _cdrOutput.write_boolean(value);
     }
 
-    public void writeChar(char value)
-    {
+    public void writeChar(char value) {
         _cdrOutput.write_wchar(value);
     }
 
-    public void writeByte(byte value)
-    {
+    public void writeByte(byte value) {
         _cdrOutput.write_octet(value);
     }
 
-    public void writeShort(short value)
-    {
+    public void writeShort(short value) {
         _cdrOutput.write_short(value);
     }
 
-    public void writeInt(int value)
-    {
+    public void writeInt(int value) {
         _cdrOutput.write_long(value);
     }
 
-    public void writeLong(long value)
-    {
+    public void writeLong(long value) {
         _cdrOutput.write_longlong(value);
     }
 
-    public void writeFloat(float value)
-    {
+    public void writeFloat(float value) {
         _cdrOutput.write_float(value);
     }
 
-    public void writeDouble(double value)
-    {
+    public void writeDouble(double value) {
         _cdrOutput.write_double(value);
     }
 
-    public void writeObjectOverride(Object value)
-    {
+    public void writeObjectOverride(Object value) {
         writeObject(OBJECT_VALUE_TYPE, value);
     }
 
-    public void defaultWriteObject() throws IOException
-    {
+    public void defaultWriteObject() throws IOException {
         StreamState state = top();
         // TODO: check this
         int saveOffset = _cdrOutput._offset;
@@ -207,23 +185,16 @@ public class ObjectOutputStream extends java.io.ObjectOutputStream
     // public methods used by generated and package-internal code
     // -----------------------------------------------------------------------
 
-    public boolean hasException()
-    {
+    public boolean hasException() {
         return _hasException;
     }
 
-    public void writeException(ValueType type, Exception value)
-    {
-        String className = type._class.getName();
-        String exType = StringUtil.removeSuffix(className, "Exception") + "Ex";
-        String repositoryID = "IDL:" + exType.replace('.', '/') + ":1.0";
-        _cdrOutput.write_string(repositoryID);
+    public void writeException(ValueType type, Exception value) {
         writeObject(type, value);
         _hasException = true;
     }
 
-    public void writeObject(ValueType type, Object value)
-    {
+    public void writeObject(ValueType type, Object value) {
         writeObject(type, value, false);
     }
 
@@ -231,153 +202,111 @@ public class ObjectOutputStream extends java.io.ObjectOutputStream
     // protected methods
     // -----------------------------------------------------------------------
 
-    protected void init(CdrOutputStream cdrOutput)
-    {
+    protected void init(CdrOutputStream cdrOutput) {
         _cdrOutput = cdrOutput;
-        thisAsObjectArray = new Object[] { this };
+        thisAsObjectArray = new Object[]{this};
     }
 
-    protected void putIndirection(Object value, Integer ref)
-    {
-        if (_indirection == null)
-        {
+    protected void putIndirection(Object value, Integer ref) {
+        if (_indirection == null) {
             _indirection = new SimpleIdentityHashMap(8);
         }
         _indirection.put(value, ref);
     }
 
-    protected void writeObject(ValueType declaredType, Object value, boolean calledFromCustomSerialization)
-    {
+    protected void writeObject(ValueType declaredType, Object value, boolean calledFromCustomSerialization) {
         ValueType actualType = declaredType;
-        while (value != null)
-        {
+        if (value != null) {
             Class vc = value.getClass();
-            if (vc != declaredType._class)
-            {
+            if (vc != declaredType._class) {
                 actualType = ValueType.getInstance(vc);
             }
-            if (actualType.hasWriteReplace)
-            {
+            if (actualType.hasWriteReplace) {
                 value = actualType.writeReplace(value);
-            }
-            else
-            {
-                break;
             }
         }
         boolean saveIsChunked = _isChunked;
-        if (_inBlock)
-        {
-            if (actualType != null)
-            {
-                if (! (declaredType.isAny && actualType.isObjectRef))
-                {
+        if (_inBlock) {
+            if (actualType != null) {
+                if (!(declaredType.isAny && actualType.isObjectRef)) {
                     endBlock();
                 }
             }
         }
-        if (value == null)
-        {
-            if (calledFromCustomSerialization)
-            {
+        if (value == null) {
+            if (calledFromCustomSerialization) {
                 _cdrOutput.write_boolean(actualType.isObjectRef);
-                if(actualType.isObjectRef)
-                {
-                    _cdrOutput.write_Object((org.omg.CORBA.Object)value);
+                if (actualType.isObjectRef) {
+                    _cdrOutput.write_Object((org.omg.CORBA.Object) value);
                     endBlock();
-                }
-                else
-                {
-                _cdrOutput.write_long(ValueType.NULL_VALUE_TAG);
+                } else {
+                    _cdrOutput.write_long(ValueType.NULL_VALUE_TAG);
                 }
                 return;
             }
-            if (declaredType.isAny)
-            {
+            if (declaredType.isAny) {
                 _cdrOutput.write_TypeCode(ValueType.TC_ABSTRACT_BASE);
                 _cdrOutput.write_boolean(false);
             }
-            if (declaredType.isObjectRef)
-            {
-                _cdrOutput.write_Object((org.omg.CORBA.Object)value);
-            }
-            else
-            {
-                if (declaredType.isAbstractInterface)
-                {
+            if (declaredType.isObjectRef) {
+                _cdrOutput.write_Object((org.omg.CORBA.Object) value);
+            } else {
+                if (declaredType.isAbstractInterface) {
                     _cdrOutput.write_boolean(false);
                 }
                 _cdrOutput.write_long(ValueType.NULL_VALUE_TAG);
             }
             return;
         }
-        if (declaredType.isAny && ! calledFromCustomSerialization)
-        {
+        if (declaredType.isAny && !calledFromCustomSerialization) {
             org.omg.CORBA.TypeCode tc = actualType.tc;
             _cdrOutput.write_TypeCode(tc);
-        }
-        else if (declaredType.isAbstractInterface || calledFromCustomSerialization)
-        {
+        } else if (declaredType.isAbstractInterface || calledFromCustomSerialization) {
             _cdrOutput.write_boolean(actualType.isObjectRef);
-            if (actualType.isObjectRef)
-            {
-                _cdrOutput.write_Object((org.omg.CORBA.Object)value);
+            if (actualType.isObjectRef) {
+                _cdrOutput.write_Object((org.omg.CORBA.Object) value);
                 return;
             }
         }
-        if (actualType.isObjectRef)
-        {
-            if (value instanceof RemoteInterface)
-            {
-                ObjectRef objectRef = ((RemoteInterface)value).getObjectRef();
-                //if (value instanceof AutomaticFailover)
-                //{
-                //    objectRef.$setAutomaticFailover();
-                //}
-                value = objectRef;
+        if (actualType.isObjectRef) {
+            if (value instanceof RemoteInterface) {
+                value = ((RemoteInterface) value).$getObjectRef();
             }
-            _cdrOutput.write_Object((org.omg.CORBA.Object)value);
+            _cdrOutput.write_Object((org.omg.CORBA.Object) value);
             return;
         }
-        Integer ref = _indirection == null ? null : (Integer)_indirection.get(value);
-        if (ref != null)
-        {
+        Integer ref = _indirection == null ? null : (Integer) _indirection.get(value);
+        if (ref != null) {
             _cdrOutput.write_long(ValueType.INDIRECTION_TAG);
             _cdrOutput.write_long(ref.intValue() - _cdrOutput._offset);
             return;
-        }
-        else
-        {
+        } else {
             _cdrOutput.write_align(4, 4); // write any necessary padding
             ref = IntegerCache.get(_cdrOutput._offset);
             putIndirection(value, ref);
         }
-        if (saveIsChunked || actualType.requiresCustomSerialization)
-        {
+        if (saveIsChunked || actualType.requiresCustomSerialization) {
             _cdrOutput.write_long(ValueType.TRUNCATABLE_SINGLE_TYPE_VALUE_TAG);
             _isChunked = true;
-        }
-        else
-        {
+        } else {
             _cdrOutput.write_long(ValueType.SINGLE_TYPE_VALUE_TAG);
             _isChunked = false;
         }
         writeMetaString(actualType.id);
         startBlock();
-        switch (actualType.readWriteCase)
-        {
+        switch (actualType.readWriteCase) {
             case ValueType.CASE_ARRAY:
                 writeArray(actualType, value);
                 break;
             case ValueType.CASE_CLASS:
-                writeClassDesc((java.lang.Class)value);
+                writeClassDesc((java.lang.Class) value);
                 break;
             case ValueType.CASE_IDL_ENTITY:
                 actualType.helper.write(this, value);
                 break;
-            // case ValueType.IDL_OBJECT: // already handled above
+                // case ValueType.IDL_OBJECT: // already handled above
             case ValueType.CASE_STRING:
-                _cdrOutput.write_wstring((String)value);
+                _cdrOutput.write_wstring((String) value);
                 break;
             default:
                 writeObjectState(actualType, value);
@@ -387,103 +316,77 @@ public class ObjectOutputStream extends java.io.ObjectOutputStream
         _isChunked = saveIsChunked;
     }
 
-    protected void writeMetaString(String ms)
-    {
-        Integer ref = (Integer)_indirection.get(ms);
-        if (ref != null)
-        {
+    protected void writeMetaString(String ms) {
+        Integer ref = (Integer) _indirection.get(ms);
+        if (ref != null) {
             _cdrOutput.write_long(ValueType.INDIRECTION_TAG);
             _cdrOutput.write_long(ref.intValue() - _cdrOutput._offset);
-        }
-        else
-        {
+        } else {
             ref = IntegerCache.get(_cdrOutput._offset);
             _cdrOutput.write_string(ms);
             putIndirection(ms, ref);
         }
     }
 
-    protected void writeObjectState(ValueType type, Object value)
-    {
-        if (type.isExternalizable)
-        {
-            _cdrOutput.write_octet((byte)1);
+    protected void writeObjectState(ValueType type, Object value) {
+        if (type.isExternalizable) {
+            _cdrOutput.write_octet((byte) 1);
             type.writeExternal(value, this);
             return;
         }
-        if (type.hasParentState)
-        {
+        if (type.hasParentState) {
             writeObjectState(type.parent, value);
         }
-        if (type.hasWriteObject && type.hasReadObject)
-        {
+        if (type.hasWriteObject && type.hasReadObject) {
             push(new StreamState(type, value, _cdrOutput._offset));
-            if (type.skipCustomFlags)
-            {
+            if (type.skipCustomFlags) {
                 _booleanIndex = _cdrOutput._offset;
-            }
-            else
-            {
-                _cdrOutput.write_octet((byte)1);
+            } else {
+                _cdrOutput.write_octet((byte) 1);
                 _cdrOutput.write_boolean(false);
                 _booleanIndex = _cdrOutput._offset - 1;
             }
             type.writeObject(value, this);
             pop();
-        }
-        else
-        {
+        } else {
             writeDeclaredFields(type, value);
         }
     }
 
-    protected void writeDeclaredFields(ValueType type, Object value)
-    {
+    protected void writeDeclaredFields(ValueType type, Object value) {
         int n = type.fields.length;
-        for (int f = 0; f < n; f++)
-        {
+        for (int f = 0; f < n; f++) {
             ValueTypeField field = type.fields[f];
             int primitive = field.primitive;
-            if (primitive != 0)
-            {
+            if (primitive != 0) {
                 writePrimitive(primitive, field, value);
-            }
-            else
-            {
+            } else {
                 writeObject(field.type, field.get(value), false);
             }
         }
     }
 
-    protected void writeClassDesc(Class theClass)
-    {
+    protected void writeClassDesc(Class theClass) {
         writeObject(ValueType.STRING_VALUE_TYPE, null); // codebase URL
         writeObject(ValueType.STRING_VALUE_TYPE, ValueType.getInstance(theClass).id);
     }
 
-    protected void writeArray(ValueType arrayType, Object value)
-    {
+    protected void writeArray(ValueType arrayType, Object value) {
         int primitive = arrayType.primitiveArray;
-        if (primitive != 0)
-        {
+        if (primitive != 0) {
             arrayType.helper.write(this, value);
-        }
-        else
-        {
-            Object[] array = (Object[])value;
+        } else {
+            Object[] array = (Object[]) value;
             int n = array.length;
             _cdrOutput.write_ulong(n);
-            for (int i = 0; i < n; i++)
-            {
+            for (int i = 0; i < n; i++) {
                 writeObject(arrayType.element, array[i], false);
             }
         }
     }
 
-    protected void writePrimitive(int primitive, ValueTypeField field, Object value)
-    {
-        switch (primitive)
-        {
+    protected void writePrimitive(int primitive, ValueTypeField field, Object value) {
+        switch (primitive) {
             case PrimitiveType.BOOLEAN:
                 _cdrOutput.write_boolean(field.getBoolean(value));
                 break;
@@ -513,10 +416,8 @@ public class ObjectOutputStream extends java.io.ObjectOutputStream
         }
     }
 
-    public void startBlock()
-    {
-        if (! _isChunked)
-        {
+    public void startBlock() {
+        if (!_isChunked) {
             return;
         }
         _endLevel--;
@@ -525,10 +426,8 @@ public class ObjectOutputStream extends java.io.ObjectOutputStream
         _blockSizeIndex = _cdrOutput._offset - 4;
     }
 
-    public void endBlock()
-    {
-        if (! _inBlock)
-        {
+    public void endBlock() {
+        if (!_inBlock) {
             return;
         }
         _inBlock = false;
@@ -539,23 +438,18 @@ public class ObjectOutputStream extends java.io.ObjectOutputStream
         _blockSizeIndex = -1;
     }
 
-    protected void writeEndTag()
-    {
-        if (_isChunked)
-        {
-            if (_endTagIndex == _cdrOutput._offset - 8)
-            {
+    protected void writeEndTag() {
+        if (_isChunked) {
+            if (_endTagIndex == _cdrOutput._offset - 8) {
                 _cdrOutput._offset -= 8;
             }
             _cdrOutput.write_long(_endLevel);
             _endTagIndex = _cdrOutput._offset - 4;
-            if (_endLevel != -1)
-            {
+            if (_endLevel != -1) {
                 _cdrOutput.write_long(1);
-            }
-            else // _endLevel == -1
+            } else // _endLevel == -1
             {
-                _cdrOutput._offset -=4;
+                _cdrOutput._offset -= 4;
                 _cdrOutput.write_long(-1);
                 _isChunked = false;
             }
@@ -596,32 +490,26 @@ public class ObjectOutputStream extends java.io.ObjectOutputStream
     }
     */
 
-    protected void push(StreamState state)
-    {
-        if (_stack == null)
-        {
+    protected void push(StreamState state) {
+        if (_stack == null) {
             _stack = new ArrayList();
         }
         _stack.add(state);
     }
 
-    protected void pop()
-    {
+    protected void pop() {
         int n = _stack.size();
-        if (n == 0)
-        {
+        if (n == 0) {
             throw new SystemException("pop: state stack empty");
         }
         _stack.remove(n - 1);
     }
 
-    private StreamState top()
-    {
+    private StreamState top() {
         int n = _stack.size();
-        if (n == 0)
-        {
+        if (n == 0) {
             throw new SystemException("top: state stack empty");
         }
-        return (StreamState)_stack.get(n - 1);
+        return (StreamState) _stack.get(n - 1);
     }
 }

@@ -21,19 +21,20 @@ import java.io.File;
 import java.lang.reflect.Modifier;
 import java.util.Vector;
 
+
 public class JavaGenerator implements Generator {
-    private GenOptions      genOptions;
+    protected GenOptions _genOptions;
 
     public JavaGenerator(GenOptions genOptions) {
-        this.genOptions = genOptions;
+        _genOptions = genOptions;
     }
 
     public GenOptions getGenOptions() {
-        return genOptions;
+        return _genOptions;
     }
 
     public void setGenOptions(GenOptions genOptions) {
-        this.genOptions = genOptions;
+        _genOptions = genOptions;
     }
 
     public void generate(JEntity e) {
@@ -69,7 +70,7 @@ public class JavaGenerator implements Generator {
 
         String fullName = pkgName + "/" + className;
 
-        JavaWriter jw = new JavaWriter(genOptions, fullName, ".java");
+        JavaWriter jw = new JavaWriter(_genOptions, fullName, ".java");
 
         jw.openFile();
         writeClass(jw, c);
@@ -212,7 +213,13 @@ public class JavaGenerator implements Generator {
         if (m instanceof JConstructor) {
             jw.print(c.getName());
         } else {
-            jw.print(m.getRT().getTypeDecl());
+            //jw.print( m.getRCType() + " " + m.getName() );
+            jw.print(m.getRT().getTypeName());
+
+            if (m.getRT().isArray()) {
+                jw.print("[]");
+            }
+
             jw.print(" " + m.getName());
         }
         jw.print("(");

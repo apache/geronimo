@@ -17,6 +17,5 @@
  */
 package org.apache.geronimo.interop.rmi.iiop;
 
-public class IiopVersion
-{
+public class IiopVersion {
 }

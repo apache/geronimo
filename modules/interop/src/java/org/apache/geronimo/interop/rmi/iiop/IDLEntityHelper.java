@@ -17,13 +17,14 @@
  */
 package org.apache.geronimo.interop.rmi.iiop;
 
-import org.apache.geronimo.interop.*;
-import org.apache.geronimo.interop.util.*;
-import java.lang.reflect.*;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 
-public class IDLEntityHelper implements ObjectHelper
-{
+import org.apache.geronimo.interop.SystemException;
+import org.apache.geronimo.interop.util.ThreadContext;
+
+
+public class IDLEntityHelper implements ObjectHelper {
     private static Class[] EMPTY_CLASS_ARRAY = {};
 
     private static Object[] EMPTY_OBJECT_ARRAY = {};
@@ -38,105 +39,71 @@ public class IDLEntityHelper implements ObjectHelper
 
     private Method _write;
 
-    static IDLEntityHelper getInstance(Class theClass)
-    {
-        IDLEntityHelper helper = (IDLEntityHelper)_helperMap.get(theClass);
-        if (helper == null)
-        {
-			synchronized (_helperMap)
-			{
-				helper = (IDLEntityHelper)_helperMap.get(theClass);
-				if (helper == null)
-				{
-					helper = new IDLEntityHelper(theClass);
-					_helperMap.put(theClass, helper);
-				}
-			}
+    static IDLEntityHelper getInstance(Class theClass) {
+        IDLEntityHelper helper = (IDLEntityHelper) _helperMap.get(theClass);
+        if (helper == null) {
+            synchronized (_helperMap) {
+                helper = (IDLEntityHelper) _helperMap.get(theClass);
+                if (helper == null) {
+                    helper = new IDLEntityHelper(theClass);
+                    _helperMap.put(theClass, helper);
+                }
+            }
         }
         return helper;
     }
 
-    private IDLEntityHelper(Class theClass)
-    {
-        try
-        {
+    private IDLEntityHelper(Class theClass) {
+        try {
             Class helper = ThreadContext.loadClass(theClass.getName() + "Helper", theClass);
             _id = helper.getDeclaredMethod("id", EMPTY_CLASS_ARRAY);
             _type = helper.getDeclaredMethod("type", EMPTY_CLASS_ARRAY);
-            _read = helper.getDeclaredMethod("read", new Class[] { org.omg.CORBA.portable.InputStream.class });
-            _write = helper.getDeclaredMethod("write", new Class[] { org.omg.CORBA.portable.OutputStream.class, theClass });
-        }
-        catch (SystemException ex)
-        {
-			throw ex;
-        }
-        catch (Exception ex)
-        {
-			throw new SystemException(ex);
+            _read = helper.getDeclaredMethod("read", new Class[]{org.omg.CORBA.portable.InputStream.class});
+            _write = helper.getDeclaredMethod("write", new Class[]{org.omg.CORBA.portable.OutputStream.class, theClass});
+        } catch (SystemException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new SystemException(ex);
         }
     }
 
-    public String id()
-    {
-        try
-        {
-            return (String)_id.invoke(null, EMPTY_OBJECT_ARRAY);
-        }
-        catch (SystemException ex)
-        {
-			throw ex;
-        }
-        catch (Exception ex)
-        {
-			throw new SystemException(ex);
+    public String id() {
+        try {
+            return (String) _id.invoke(null, EMPTY_OBJECT_ARRAY);
+        } catch (SystemException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new SystemException(ex);
         }
     }
 
-    public org.omg.CORBA.TypeCode type()
-    {
-        try
-        {
-            return (org.omg.CORBA.TypeCode)_type.invoke(null, EMPTY_OBJECT_ARRAY);
-        }
-        catch (SystemException ex)
-        {
-			throw ex;
-        }
-        catch (Exception ex)
-        {
-			throw new SystemException(ex);
+    public org.omg.CORBA.TypeCode type() {
+        try {
+            return (org.omg.CORBA.TypeCode) _type.invoke(null, EMPTY_OBJECT_ARRAY);
+        } catch (SystemException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new SystemException(ex);
         }
     }
 
-    public Object read(ObjectInputStream input)
-    {
-        try
-        {
-            return _read.invoke(null, new Object[] { input._cdrInput });
+    public Object read(ObjectInputStream input) {
+        try {
+            return _read.invoke(null, new Object[]{input._cdrInput});
+        } catch (SystemException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new SystemException(ex);
         }
-        catch (SystemException ex)
-        {
-			throw ex;
-        }
-        catch (Exception ex)
-        {
-			throw new SystemException(ex);
-        }
-	}
+    }
 
-    public void write(ObjectOutputStream output, Object value)
-    {
-        try
-        {
-            _write.invoke(null, new Object[] { output._cdrOutput, value });
+    public void write(ObjectOutputStream output, Object value) {
+        try {
+            _write.invoke(null, new Object[]{output._cdrOutput, value});
+        } catch (SystemException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new SystemException(ex);
         }
-        catch (SystemException ex)
-        {
-			throw ex;
-        }
-        catch (Exception ex)
-        {
-			throw new SystemException(ex);
-        }
-	}
+    }
 }

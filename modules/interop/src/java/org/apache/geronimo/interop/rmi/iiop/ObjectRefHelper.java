@@ -17,39 +17,25 @@
  */
 package org.apache.geronimo.interop.rmi.iiop;
 
-import org.apache.geronimo.interop.*;
-import org.apache.geronimo.interop.IOP.*;
 
-public class ObjectRefHelper implements ObjectHelper
-{
-    public static ObjectRefHelper getInstance(Class theClass)
-    {
+
+
+public class ObjectRefHelper implements ObjectHelper {
+    public static ObjectRefHelper getInstance(Class theClass) {
         return new ObjectRefHelper();
     }
 
-    public Object read(ObjectInputStream input)
-    {
+    public Object read(ObjectInputStream input) {
         return input._cdrInput.read_Object();
     }
 
-    public void write(ObjectOutputStream output, Object value)
-    {
-        if (value == null || value instanceof ObjectRef)
-        {
-            output._cdrOutput.write_Object((org.omg.CORBA.Object)value);
-        }
-        else if (value instanceof RemoteInterface)
-        {
-            RemoteInterface remote = (RemoteInterface)value;
-            ObjectRef objectRef = remote.getObjectRef();
-            //if (value instanceof AutomaticFailover)
-            //{
-            //    objectRef.$setAutomaticFailover();
-            //}
-            output._cdrOutput.write_Object(objectRef);
-        }
-        else
-        {
+    public void write(ObjectOutputStream output, Object value) {
+        if (value == null || value instanceof ObjectRef) {
+            output._cdrOutput.write_Object((org.omg.CORBA.Object) value);
+        } else if (value instanceof RemoteInterface) {
+            RemoteInterface remote = (RemoteInterface) value;
+            output._cdrOutput.write_Object((org.omg.CORBA.Object) remote.$getObjectRef());
+        } else {
             throw new IllegalArgumentException("class = " + value.getClass());
         }
     }

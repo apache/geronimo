@@ -24,10 +24,6 @@
     xmlns:ant="jelly:ant"
     >
 
-    <!-- <property name="idlj.verbose" value="-verbose"/> -->
-    <property name="idlj.verbose" value="-verbose"/> 
-    <property name="pkg.prefix" value="org.apache.geronimo.interop"/>
-
     <!--
       #
       # Be carefull about changing the package prefix.  When generating the java
@@ -44,168 +40,416 @@
       #    build goals are almost the same.  Maybe we could figure out how to use a for
       #    script statement....
       #
+      # 2. Run the idlj targets only if the idl files were changed.  Figure out how
+      #    to add a dependency check....
+      #
+      # 3. ....
+      #
     -->
 
     <goal name="interop:idlj:iop">
-      <ant:echo message="Interop :: idlj :: IOP">
-      </ant:echo>
-      <ant:ant antfile="build.xml">
-        <ant:property name="maven.build.src" value="${maven.build.src}"/>
-        <ant:property name="maven.src.dir" value="${maven.src.dir}"/>
-        <ant:property name="maven.basedir" value="${basedir}"/>
-        <ant:property name="pkg.prefix" value="${pkg.prefix}"/>
-        <ant:property name="idlj.verbose" value="${idlj.verbose}"/>
-        <ant:property name="idl.file" value="IOP"/>
-      </ant:ant>
+        <j:set var="pkg.prefix" value="org.apache.geronimo.interop"/>
+        <ant:echo message="Interop :: idlj :: IOP"/>
+        <ant:exec dir="${basedir}" executable="idlj">
+            <ant:arg value="-td"/>
+            <ant:arg file="${maven.build.src}"/>
+            <ant:arg value="-i"/>
+            <ant:arg file="${java.home}/lib"/>
+            <ant:arg value="-i"/>
+            <ant:arg file="${maven.src.dir}/idl"/>
+            <ant:arg value="-verbose"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="IOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="IIOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="GIOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="CosNaming"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg file="${maven.src.dir}/idl/IOP.idl"/>
+        </ant:exec>
     </goal>
 
     <goal name="interop:idlj:giop">
-      <ant:echo message="Interop :: idlj :: GIOP"/>
-      <ant:ant antfile="build.xml">
-        <ant:property name="maven.build.src" value="${maven.build.src}"/>
-        <ant:property name="maven.src.dir" value="${maven.src.dir}"/>
-        <ant:property name="maven.basedir" value="${basedir}"/>
-        <ant:property name="pkg.prefix" value="${pkg.prefix}"/>
-        <ant:property name="idlj.verbose" value="${idlj.verbose}"/>
-        <ant:property name="idl.file" value="GIOP"/>
-      </ant:ant>
+        <j:set var="pkg.prefix" value="org.apache.geronimo.interop"/>
+        <ant:echo message="Interop :: idlj :: GIOP"/>
+        <ant:exec dir="${basedir}" executable="idlj">
+            <ant:arg value="-td"/>
+            <ant:arg value="${maven.build.src}"/>
+            <ant:arg value="-i"/>
+            <ant:arg file="${java.home}/lib"/>
+            <ant:arg value="-i"/>
+            <ant:arg file="${maven.src.dir}/idl"/>
+            <ant:arg value="-verbose"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="IOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="IIOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="GIOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="CosNaming"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg file="${maven.src.dir}/idl/GIOP.idl"/>
+        </ant:exec>
     </goal>
 
     <goal name="interop:idlj:iiop">
-      <ant:echo message="Interop :: idlj :: IIOP"/>
-      <ant:ant antfile="build.xml">
-        <ant:property name="maven.build.src" value="${maven.build.src}"/>
-        <ant:property name="maven.src.dir" value="${maven.src.dir}"/>
-        <ant:property name="maven.basedir" value="${basedir}"/>
-        <ant:property name="pkg.prefix" value="${pkg.prefix}"/>
-        <ant:property name="idlj.verbose" value="${idlj.verbose}"/>
-        <ant:property name="idl.file" value="IIOP"/>
-      </ant:ant>
+        <j:set var="pkg.prefix" value="org.apache.geronimo.interop"/>
+        <ant:echo message="Interop :: idlj :: IIOP"/>
+        <ant:exec dir="${basedir}" executable="idlj">
+            <ant:arg value="-td"/>
+            <ant:arg value="${maven.build.src}"/>
+            <ant:arg value="-i"/>
+            <ant:arg file="${java.home}/lib"/>
+            <ant:arg value="-i"/>
+            <ant:arg file="${maven.src.dir}/idl"/>
+            <ant:arg value="-verbose"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="IOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="IIOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="GIOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="CosNaming"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg file="${maven.src.dir}/idl/IIOP.idl"/>
+        </ant:exec>
     </goal>
 
     <goal name="interop:idlj:cosnaming">
-      <ant:echo message="Interop :: idlj :: CosNaming"/>
-      <ant:ant antfile="build.xml">
-        <ant:property name="maven.build.src" value="${maven.build.src}"/>
-        <ant:property name="maven.src.dir" value="${maven.src.dir}"/>
-        <ant:property name="maven.basedir" value="${basedir}"/>
-        <ant:property name="pkg.prefix" value="${pkg.prefix}"/>
-        <ant:property name="idlj.verbose" value="${idlj.verbose}"/>
-        <ant:property name="idl.file" value="CosNaming"/>
-      </ant:ant>
+        <j:set var="pkg.prefix" value="org.apache.geronimo.interop"/>
+        <ant:echo message="Interop :: idlj :: CosNaming"/>
+        <ant:exec dir="${basedir}" executable="idlj">
+            <ant:arg value="-td"/>
+            <ant:arg value="${maven.build.src}"/>
+            <ant:arg value="-i"/>
+            <ant:arg file="${java.home}/lib"/>
+            <ant:arg value="-i"/>
+            <ant:arg file="${maven.src.dir}/idl"/>
+            <ant:arg value="-verbose"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="IOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="IIOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="GIOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="CosNaming"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg file="${maven.src.dir}/idl/CosNaming.idl"/>
+        </ant:exec>
     </goal>
 
-    <goal name="interop:idlj:csiv2">
-      <attainGoal name="interop:idlj:csiv2:csi"/>
-      <attainGoal name="interop:idlj:csiv2:gssup"/>
-      <attainGoal name="interop:idlj:csiv2:csiiop"/>
+    <goal name="interop:idlj:interop-rmi-iiop">
+        <j:set var="pkg.prefix" value="org.apache.geronimo.interop"/>
+        <ant:echo message="Interop :: idlj :: interop-rmi-iiop"/>
+        <ant:exec dir="${basedir}" executable="idlj">
+            <ant:arg value="-td"/>
+            <ant:arg value="${maven.build.src}"/>
+            <ant:arg value="-i"/>
+            <ant:arg file="${java.home}/lib"/>
+            <ant:arg value="-i"/>
+            <ant:arg file="${maven.src.dir}/idl"/>
+            <ant:arg value="-verbose"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="IOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="IIOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="GIOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="CosNaming"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg file="${maven.src.dir}/idl/org-apache-geronimo-interop-rmi-iiop.idl"/>
+        </ant:exec>
     </goal>
 
-    <goal name="interop:idlj:csiv2:csi">
-      <ant:echo message="Interop :: idlj :: CSIv2 :: CSI"/>
-      <ant:ant antfile="build.xml">
-        <ant:property name="maven.build.src" value="${maven.build.src}"/>
-        <ant:property name="maven.src.dir" value="${maven.src.dir}"/>
-        <ant:property name="maven.basedir" value="${basedir}"/>
-        <ant:property name="pkg.prefix" value="${pkg.prefix}"/>
-        <ant:property name="idlj.verbose" value="${idlj.verbose}"/>
-        <ant:property name="idl.file" value="CSI"/>
-      </ant:ant>
-    </goal>
+    <goal name="interop:idlj:csi">
+        <ant:echo message="Interop :: idlj :: CSIv2 :: CSI"/>
+        <ant:exec dir="${basedir}" executable="idlj">
+            <ant:arg value="-td"/>
+            <ant:arg value="${maven.build.src}"/>
+            <ant:arg value="-i"/>
+            <ant:arg file="${java.home}/lib"/>
+            <ant:arg value="-i"/>
+            <ant:arg file="${maven.src.dir}/idl"/>
+            <ant:arg value="-verbose"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="IOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="IIOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="GIOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="CosNaming"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="CSI"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="GSSUP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="CSIIOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg file="${maven.src.dir}/idl/CSI.idl"/>
+        </ant:exec>
 
-    <goal name="interop:idlj:csiv2:gssup">
-      <ant:echo message="Interop :: idlj :: CSIv2 :: GSSUP"/>
-      <ant:ant antfile="build.xml">
-        <ant:property name="maven.build.src" value="${maven.build.src}"/>
-        <ant:property name="maven.src.dir" value="${maven.src.dir}"/>
-        <ant:property name="maven.basedir" value="${basedir}"/>
-        <ant:property name="pkg.prefix" value="${pkg.prefix}"/>
-        <ant:property name="idlj.verbose" value="${idlj.verbose}"/>
-        <ant:property name="idl.file" value="GSSUP"/>
-      </ant:ant>
-    </goal>
+        <ant:echo message="Interop :: idlj :: CSIv2 :: GSSUP"/>
+        <ant:exec dir="${basedir}" executable="idlj">
+            <ant:arg value="-td"/>
+            <ant:arg value="${maven.build.src}"/>
+            <ant:arg value="-i"/>
+            <ant:arg file="${java.home}/lib"/>
+            <ant:arg value="-i"/>
+            <ant:arg file="${maven.src.dir}/idl"/>
+            <ant:arg value="-verbose"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="IOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="IIOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="GIOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="CosNaming"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="CSI"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="GSSUP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="CSIIOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg file="${maven.src.dir}/idl/GSSUP.idl"/>
+        </ant:exec>
         
-    <goal name="interop:idlj:csiv2:csiiop">
-      <ant:echo message="Interop :: idlj :: CSIv2 :: CSIIIOP"/>
-      <ant:ant antfile="build.xml">
-        <ant:property name="maven.build.src" value="${maven.build.src}"/>
-        <ant:property name="maven.src.dir" value="${maven.src.dir}"/>
-        <ant:property name="maven.basedir" value="${basedir}"/>
-        <ant:property name="pkg.prefix" value="${pkg.prefix}"/>
-        <ant:property name="idlj.verbose" value="${idlj.verbose}"/>
-        <ant:property name="idl.file" value="CSIIOP"/>
-      </ant:ant>
+	<ant:echo message="Interop :: idlj :: CSIv2 :: CSIIOP"/>
+	<ant:exec dir="${basedir}" executable="idlj">
+	    <ant:arg value="-td"/>
+	    <ant:arg value="${maven.build.src}"/>
+	    <ant:arg value="-i"/>
+	    <ant:arg file="${java.home}/lib"/>
+	    <ant:arg value="-i"/>
+	    <ant:arg file="${maven.src.dir}/idl"/>
+	    <ant:arg value="-verbose"/>
+	    <ant:arg value="-pkgPrefix"/>
+	    <ant:arg value="IOP"/>
+	    <ant:arg value="${pkg.prefix}"/>
+	    <ant:arg value="-pkgPrefix"/>
+	    <ant:arg value="IIOP"/>
+	    <ant:arg value="${pkg.prefix}"/>
+	    <ant:arg value="-pkgPrefix"/>
+	    <ant:arg value="GIOP"/>
+	    <ant:arg value="${pkg.prefix}"/>
+	    <ant:arg value="-pkgPrefix"/>
+	    <ant:arg value="CosNaming"/>
+	    <ant:arg value="${pkg.prefix}"/>
+	    <ant:arg value="-pkgPrefix"/>
+	    <ant:arg value="CSI"/>
+	    <ant:arg value="${pkg.prefix}"/>
+	    <ant:arg value="-pkgPrefix"/>
+	    <ant:arg value="GSSUP"/>
+	    <ant:arg value="${pkg.prefix}"/>
+	    <ant:arg value="-pkgPrefix"/>
+	    <ant:arg value="CSIIOP"/>
+	    <ant:arg value="${pkg.prefix}"/>
+	    <ant:arg file="${maven.src.dir}/idl/CSIIOP.idl"/>
+	</ant:exec>
     </goal>
 
     <goal name="interop:idlj:security-service">
-      <attainGoal name="interop:idlj:security-service:timebase"/>
-      <attainGoal name="interop:idlj:security-service:securityservice"/>
-      <attainGoal name="interop:idlj:security-service:ssliop"/>
-    </goal>
+        <ant:echo message="Interop :: idlj :: SecurityService :: TimeBase"/>
+        <ant:exec dir="${basedir}" executable="idlj">
+            <ant:arg value="-td"/>
+            <ant:arg value="${maven.build.src}"/>
+            <ant:arg value="-i"/>
+            <ant:arg file="${java.home}/lib"/>
+            <ant:arg value="-i"/>
+            <ant:arg file="${maven.src.dir}/idl"/>
+            <ant:arg value="-verbose"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="IOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="IIOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="GIOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="CosNaming"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="TimeBase"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="SecurityService"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg file="${maven.src.dir}/idl/TimeBase.idl"/>
+        </ant:exec>
 
-    <goal name="interop:idlj:security-service:timebase">
-      <ant:echo message="Interop :: idlj :: SecurityService :: TimeBase"/>
-      <ant:ant antfile="build.xml">
-        <ant:property name="maven.build.src" value="${maven.build.src}"/>
-        <ant:property name="maven.src.dir" value="${maven.src.dir}"/>
-        <ant:property name="maven.basedir" value="${basedir}"/>
-        <ant:property name="pkg.prefix" value="${pkg.prefix}"/>
-        <ant:property name="idlj.verbose" value="${idlj.verbose}"/>
-        <ant:property name="idl.file" value="TimeBase"/>
-      </ant:ant>
-    </goal>
+        <ant:echo message="Interop :: idlj :: SecurityService :: SecurityService"/>
+        <ant:exec dir="${basedir}" executable="idlj">
+            <ant:arg value="-td"/>
+            <ant:arg value="${maven.build.src}"/>
+            <ant:arg value="-i"/>
+            <ant:arg file="${java.home}/lib"/>
+            <ant:arg value="-i"/>
+            <ant:arg file="${maven.src.dir}/idl"/>
+            <ant:arg value="-verbose"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="IOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="IIOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="GIOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="CosNaming"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="TimeBase"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="SecurityService"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg file="${maven.src.dir}/idl/Security.idl"/>
+        </ant:exec>
 
-    <goal name="interop:idlj:security-service:securityservice">
-      <ant:echo message="Interop :: idlj :: SecurityService :: SecurityService"/>
-      <ant:ant antfile="build.xml">
-        <ant:property name="maven.build.src" value="${maven.build.src}"/>
-        <ant:property name="maven.src.dir" value="${maven.src.dir}"/>
-        <ant:property name="maven.basedir" value="${basedir}"/>
-        <ant:property name="pkg.prefix" value="${pkg.prefix}"/>
-        <ant:property name="idlj.verbose" value="${idlj.verbose}"/>
-        <ant:property name="idl.file" value="Security"/>
-      </ant:ant>
-    </goal>
+        <ant:echo message="Interop :: idlj :: SecurityService :: SSLIOP"/>
+        <ant:exec dir="${basedir}" executable="idlj">
+            <ant:arg value="-td"/>
+            <ant:arg value="${maven.build.src}"/>
+            <ant:arg value="-i"/>
+            <ant:arg file="${java.home}/lib"/>
+            <ant:arg value="-i"/>
+            <ant:arg file="${maven.src.dir}/idl"/>
+            <ant:arg value="-verbose"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="IOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="IIOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="GIOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="CosNaming"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="TimeBase"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="SecurityService"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg file="${maven.src.dir}/idl/SSLIOP.idl"/>
+        </ant:exec>
 
-    <goal name="interop:idlj:security-service:ssliop">
-      <ant:echo message="Interop :: idlj :: SecurityService :: SSLIOP"/>
-      <ant:ant antfile="build.xml">
-        <ant:property name="maven.build.src" value="${maven.build.src}"/>
-        <ant:property name="maven.src.dir" value="${maven.src.dir}"/>
-        <ant:property name="maven.basedir" value="${basedir}"/>
-        <ant:property name="pkg.prefix" value="${pkg.prefix}"/>
-        <ant:property name="idlj.verbose" value="${idlj.verbose}"/>
-        <ant:property name="idl.file" value="SSLIOP"/>
-      </ant:ant>
-    </goal>
-
-    <goal name="interop:idlj:costxn:costransactions">
-      <ant:echo message="Interop :: idlj :: CosTx :: CosTransactions"/>
-      <ant:ant antfile="build.xml">
-        <ant:property name="maven.build.src" value="${maven.build.src}"/>
-        <ant:property name="maven.src.dir" value="${maven.src.dir}"/>
-        <ant:property name="maven.basedir" value="${basedir}"/>
-        <ant:property name="pkg.prefix" value="${pkg.prefix}"/>
-        <ant:property name="idlj.verbose" value="${idlj.verbose}"/>
-        <ant:property name="idl.file" value="CosTransactions"/>
-      </ant:ant>
-    </goal>
-
-    <goal name="interop:idlj:costxn:costsinterop">
-      <ant:echo message="Interop :: idlj :: CosTx :: CosTSInteroperation"/>
-      <ant:ant antfile="build.xml">
-        <ant:property name="maven.build.src" value="${maven.build.src}"/>
-        <ant:property name="maven.src.dir" value="${maven.src.dir}"/>
-        <ant:property name="maven.basedir" value="${basedir}"/>
-        <ant:property name="pkg.prefix" value="${pkg.prefix}"/>
-        <ant:property name="idlj.verbose" value="${idlj.verbose}"/>
-        <ant:property name="idl.file" value="CosTransactions"/>
-      </ant:ant>
     </goal>
 
     <goal name="interop:idlj:costxn">
-      <attainGoal name="interop:idlj:costxn:costransactions"/>
-      <attainGoal name="interop:idlj:costxn:costsinterop"/>
+        <!-- Are there any CosTransaction IDL files that require generation? -->
+        <j:set var="pkg.prefix" value="org.apache.geronimo.interop"/>
+        <ant:echo message="Interop :: idlj :: CosTransactions"/>
+        <ant:exec dir="${basedir}" executable="idlj">
+            <ant:arg value="-td"/>
+            <ant:arg value="${maven.build.src}"/>
+            <ant:arg value="-i"/>
+            <ant:arg file="${java.home}/lib"/>
+            <ant:arg value="-i"/>
+            <ant:arg file="${maven.src.dir}/idl"/>
+            <ant:arg value="-verbose"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="IOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="IIOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="GIOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="CosNaming"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="TimeBase"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="CosTransactions"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="CosTSInteroperation"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="CosTSPortability"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg file="${maven.src.dir}/idl/CosTransactions.idl"/>
+        </ant:exec>
+        
+        <ant:echo message="Interop :: idlj :: CosTSInteroperation"/>
+        <ant:exec dir="${basedir}" executable="idlj">
+            <ant:arg value="-td"/>
+            <ant:arg value="${maven.build.src}"/>
+            <ant:arg value="-i"/>
+            <ant:arg file="${java.home}/lib"/>
+            <ant:arg value="-i"/>
+            <ant:arg file="${maven.src.dir}/idl"/>
+            <ant:arg value="-verbose"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="IOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="IIOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="GIOP"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="CosNaming"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="TimeBase"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="CosTransactions"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="CosTSInteroperation"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg value="-pkgPrefix"/>
+            <ant:arg value="CosTSPortability"/>
+            <ant:arg value="${pkg.prefix}"/>
+            <ant:arg file="${maven.src.dir}/idl/CosTSInteroperation.idl"/>
+        </ant:exec>
     </goal>
 
     <goal name="interop:java:compile">
@@ -219,67 +463,15 @@
         <attainGoal name="interop:idlj:giop"/>
         <attainGoal name="interop:idlj:iiop"/>
         <attainGoal name="interop:idlj:cosnaming"/>
-        <attainGoal name="interop:idlj:csiv2"/>
+        <attainGoal name="interop:idlj:interop-rmi-iiop"/>
+        <attainGoal name="interop:idlj:csi"/>
         <attainGoal name="interop:idlj:security-service"/>
         <attainGoal name="interop:idlj:costxn"/>
-    </goal>
-
-    <goal name="interop:stub:generate-compile">
-      <ant:exec dir="${maven.basedir}" executable="java">
-          <ant:arg value="-cp"/>
-          <ant:arg path="${maven.build.dest};${maven.repo.local}\geronimo-spec\jars\geronimo-spec-ejb-2.1-rc3.jar;${maven.repo.local}\commons-logging\jars\commons-logging-1.0.4.jar"/>
-          <ant:arg value="org.apache.geronimo.interop.rmi.iiop.compiler.StubCompiler"/>
-          <ant:arg value="-g"/>
-          <ant:arg value="-c"/>
-          <ant:arg value="-s"/>
-          <ant:arg value="-v"/>
-          <ant:arg value="-o"/>
-          <ant:arg value="-r"/>
-          <ant:arg path="${maven.repo.local}"/>
-          <ant:arg value="-gs"/>
-          <ant:arg path="target/stubs"/>
-          <ant:arg value="-gc"/>
-          <ant:arg path="target/classes"/>
-          <ant:arg value="IDL:org.apache.geronimo.interop.CosNaming.NamingContext"/>
-      </ant:exec>
-    </goal>
-
-    <goal name="interop:skel:generate-compile">
-      <ant:exec dir="${maven.basedir}" executable="java">
-          <ant:arg value="-cp"/>
-          <ant:arg path="${maven.build.dest};${maven.repo.local}\geronimo-spec\jars\geronimo-spec-ejb-2.1-rc3.jar;${maven.repo.local}\commons-logging\jars\commons-logging-1.0.4.jar"/>
-          <ant:arg value="org.apache.geronimo.interop.rmi.iiop.compiler.SkelCompiler"/>
-          <ant:arg value="-g"/>
-          <ant:arg value="-c"/>
-          <ant:arg value="-s"/>
-          <ant:arg value="-v"/>
-          <ant:arg value="-o"/>
-          <ant:arg value="-r"/>
-          <ant:arg path="${maven.repo.local}"/>
-          <ant:arg value="-gs"/>
-          <ant:arg path="target/skels"/>
-          <ant:arg value="-gc"/>
-          <ant:arg path="target/classes"/>
-          <ant:arg value="IDL:org.apache.geronimo.interop.CosNaming.NamingContext"/>
-      </ant:exec>
     </goal>
 
     <preGoal name="java:compile">
         <attainGoal name="interop:idlj"/>
         <attainGoal name="interop:java:compile"/>
     </preGoal>
-
-    <postGoal name="java:compile">
-      <!--
-      <attainGoal name="interop:stub:generate-compile"/>
-      <attainGoal name="interop:skel:generate-compile"/>
-      -->
-    </postGoal>
-
-    <!--
-    <goal name="showprops">
-      <ant:echoproperties/>
-    </goal>
-    -->
 
 </project>

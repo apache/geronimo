@@ -18,31 +18,31 @@
 package org.apache.geronimo.interop.generator;
 
 public class JDeclareStatement extends JStatement {
-    private JVariable         v;
-    private JExpression       initExpr;
+    protected JVariable _v;
+    protected JExpression _initExpr;
 
     public JDeclareStatement(JVariable v) {
         this(v, null);
     }
 
     public JDeclareStatement(JVariable v, JExpression initExpr) {
-        this.v = v;
-        this.initExpr = initExpr;
+        _v = v;
+        _initExpr = initExpr;
     }
 
     public void setVariable(JVariable s) {
-        v = s;
+        _v = s;
     }
 
     public JVariable getVariable() {
-        return v;
+        return _v;
     }
 
     public void setInitExpression(JExpression initExpr) {
-        this.initExpr = initExpr;
+        _initExpr = initExpr;
     }
 
     public JExpression getInitExpression() {
-        return initExpr;
+        return _initExpr;
     }
 }

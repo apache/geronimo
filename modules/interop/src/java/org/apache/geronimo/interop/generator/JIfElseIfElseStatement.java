@@ -19,47 +19,48 @@ package org.apache.geronimo.interop.generator;
 
 import java.util.Vector;
 
+
 public class JIfElseIfElseStatement extends JStatement {
-    private JIfStatement      ifStatement;
-    private Vector            elseifStatements;
-    private JElseStatement    elseStatement;
+    protected JIfStatement _ifStatement;
+    protected Vector _elseifStatements;
+    protected JElseStatement _elseStatement;
 
     public JIfElseIfElseStatement(JExpression if_expr) {
-        ifStatement = new JIfStatement(if_expr);
-        elseifStatements = new Vector();
-        elseStatement = new JElseStatement();
+        _ifStatement = new JIfStatement(if_expr);
+        _elseifStatements = new Vector();
+        _elseStatement = new JElseStatement();
     }
 
     public void addIfStatement(JStatement s) {
-        ifStatement.addStatement(s);
+        _ifStatement.addStatement(s);
     }
 
     public JIfStatement getIfStatement() {
-        return ifStatement;
+        return _ifStatement;
     }
 
     public Vector getIfStatements() {
-        return ifStatement.getStatements();
+        return _ifStatement.getStatements();
     }
 
     public void addElseStatement(JStatement s) {
-        elseStatement.addStatement(s);
+        _elseStatement.addStatement(s);
     }
 
     public JElseStatement getElseStatement() {
-        return elseStatement;
+        return _elseStatement;
     }
 
     public Vector getElseStatements() {
-        return elseStatement.getStatements();
+        return _elseStatement.getStatements();
     }
 
     public JElseIfStatement getElseIf(JExpression e) {
         JElseIfStatement rc = null;
-        int index = elseifStatements.indexOf(e);
+        int index = _elseifStatements.indexOf(e);
 
         if (index >= 0) {
-            rc = (JElseIfStatement) elseifStatements.get(index);
+            rc = (JElseIfStatement) _elseifStatements.get(index);
         }
 
         return rc;
@@ -70,7 +71,7 @@ public class JIfElseIfElseStatement extends JStatement {
 
         if (rc == null) {
             rc = new JElseIfStatement(e);
-            elseifStatements.add(rc);
+            _elseifStatements.add(rc);
         }
 
         return rc;
@@ -87,6 +88,6 @@ public class JIfElseIfElseStatement extends JStatement {
     }
 
     public Vector getElseIfs() {
-        return elseifStatements;
+        return _elseifStatements;
     }
 }

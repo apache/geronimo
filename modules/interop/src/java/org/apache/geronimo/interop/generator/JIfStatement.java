@@ -18,19 +18,19 @@
 package org.apache.geronimo.interop.generator;
 
 public class JIfStatement extends JBlockStatement {
-    private JExpression   expr;
+    protected JExpression _expr;
 
     public JIfStatement(JExpression e) {
         super();
-        expr = e;
+        _expr = e;
     }
 
     public JExpression getExpression() {
-        return expr;
+        return _expr;
     }
 
     public int hashCode() {
-        return expr.hashCode();
+        return _expr.hashCode();
     }
 
     public boolean equals(Object other) {
@@ -41,7 +41,7 @@ public class JIfStatement extends JBlockStatement {
         } else if (other instanceof JIfStatement) {
             JIfStatement is = (JIfStatement) other;
 
-            if (is.expr == expr) {
+            if (is._expr == _expr) {
                 // Todo: Need equals()
                 rc = true;
             }

@@ -17,11 +17,10 @@
  */
 package org.apache.geronimo.interop.rmi.iiop;
 
-import org.apache.geronimo.interop.adapter.Adapter;
-
 public interface RemoteInterface {
-      public ObjectRef getObjectRef();
-//      public RemoteInterface $getSkeleton();
-      public void invoke(String method, byte[] objectKey, Adapter adapter, ObjectInputStream input, ObjectOutputStream output);
-//    public void $invoke(String method, byte[] objectKey, ObjectInputStream input, ObjectOutputStream output);
+    public ObjectRef $getObjectRef();
+
+    public RemoteInterface $getSkeleton();
+
+    public void $invoke(String method, byte[] objectKey, Object instance, ObjectInputStream input, ObjectOutputStream output);
 }

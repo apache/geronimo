@@ -18,8 +18,9 @@
 package org.apache.geronimo.interop.rmi.iiop.client;
 
 public class NameBinding {
-    public Object   object;
-    public long     cacheTimeout;
+    public Object object;
+
+    public long cacheTimeout;
 
     public boolean hasExpired() {
         long timeout = cacheTimeout;

@@ -17,30 +17,33 @@
  */
 package org.apache.geronimo.interop.generator;
 
+
+
+
 public class JCaseStatement extends JStatement {
-    private JExpression       expr;
-    private JBlockStatement   statements;
+    protected JExpression _expr;
+    protected JBlockStatement _statements;
 
     public JCaseStatement(JExpression e) {
         super();
 
-        expr = e;
-        statements = new JBlockStatement();
+        _expr = e;
+        _statements = new JBlockStatement();
     }
 
     public void setExpression(JExpression e) {
-        expr = e;
+        _expr = e;
     }
 
     public JExpression getExpression() {
-        return expr;
+        return _expr;
     }
 
     public void addStatement(JStatement s) {
-        statements.addStatement(s);
+        _statements.addStatement(s);
     }
 
     public JBlockStatement getStatement() {
-        return statements;
+        return _statements;
     }
 }

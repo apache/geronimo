@@ -18,7 +18,7 @@
 package org.apache.geronimo.interop.properties;
 
 public class BooleanProperty extends PropertyType {
-    private boolean defaultValue = false;
+    private boolean _defaultValue = false;
 
     public BooleanProperty(Class componentClass, String propertyName) {
         super(componentClass, propertyName);
@@ -50,16 +50,16 @@ public class BooleanProperty extends PropertyType {
     }
 
     public BooleanProperty defaultValue(boolean defaultValue) {
-        defaultValue = defaultValue;
+        _defaultValue = defaultValue;
         return this;
     }
 
     public boolean getDefaultValue() {
-        return defaultValue;
+        return _defaultValue;
     }
 
     public String getDefaultValueAsString() {
-        return String.valueOf(defaultValue);
+        return String.valueOf(_defaultValue);
     }
 
     public boolean getBoolean() {
@@ -69,7 +69,7 @@ public class BooleanProperty extends PropertyType {
     public boolean getBoolean(String instanceName, PropertyMap props) {
         boolean b;
         boolean ok = true;
-        String value = props.getProperty(getPropertyName(), String.valueOf(defaultValue));
+        String value = props.getProperty(_propertyName, String.valueOf(_defaultValue));
         value = value.toLowerCase();
         if (value.equals("true")) {
             b = true;
@@ -82,7 +82,7 @@ public class BooleanProperty extends PropertyType {
         if (!ok) {
             badPropertyValue(instanceName, value, expectedTrueOrFalse());
         }
-        logPropertyValue(instanceName, value, b == defaultValue);
+        logPropertyValue(instanceName, value, b == _defaultValue);
         return b;
     }
 }

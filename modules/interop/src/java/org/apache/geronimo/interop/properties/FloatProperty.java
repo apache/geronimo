@@ -18,9 +18,11 @@
 package org.apache.geronimo.interop.properties;
 
 public class FloatProperty extends PropertyType {
-    private float   defaultValue = 0;
-    private float   minimumValue = 0;
-    private float   maximumValue = Float.MAX_VALUE;
+    private float _defaultValue = 0;
+
+    private float _minimumValue = 0;
+
+    private float _maximumValue = Float.MAX_VALUE;
 
     public FloatProperty(Class componentClass, String propertyName) {
         super(componentClass, propertyName);
@@ -52,34 +54,34 @@ public class FloatProperty extends PropertyType {
     }
 
     public FloatProperty defaultValue(float defaultValue) {
-        this.defaultValue = defaultValue;
+        _defaultValue = defaultValue;
         return this;
     }
 
     public FloatProperty minimumValue(float minimumValue) {
-        this.minimumValue = minimumValue;
+        _minimumValue = minimumValue;
         return this;
     }
 
     public FloatProperty maximumValue(float maximumValue) {
-        this.maximumValue = maximumValue;
+        _maximumValue = maximumValue;
         return this;
     }
 
     public float getDefaultValue() {
-        return defaultValue;
+        return _defaultValue;
     }
 
     public String getDefaultValueAsString() {
-        return String.valueOf(defaultValue);
+        return String.valueOf(_defaultValue);
     }
 
     public float getMinimumValue() {
-        return minimumValue;
+        return _minimumValue;
     }
 
     public float getMaximumValue() {
-        return maximumValue;
+        return _maximumValue;
     }
 
     public float getFloat() {
@@ -89,20 +91,20 @@ public class FloatProperty extends PropertyType {
     public float getFloat(String instanceName, PropertyMap props) {
         float n;
         boolean ok = true;
-        String value = props.getProperty(getPropertyName(), String.valueOf(defaultValue));
+        String value = props.getProperty(_propertyName, String.valueOf(_defaultValue));
         try {
             n = Float.parseFloat(value);
         } catch (NumberFormatException ex) {
             ok = false;
             n = 0;
         }
-        if (n < minimumValue || n > maximumValue) {
+        if (n < _minimumValue || n > _maximumValue) {
             ok = false;
         }
         if (!ok) {
-            badPropertyValue(instanceName, value, expectedNumberInRange(minimumValue, maximumValue));
+            badPropertyValue(instanceName, value, expectedNumberInRange(_minimumValue, _maximumValue));
         }
-        logPropertyValue(instanceName, value, n == defaultValue);
+        logPropertyValue(instanceName, value, n == _defaultValue);
         return n;
     }
 }

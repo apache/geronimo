@@ -20,27 +20,31 @@ package org.apache.geronimo.interop.generator;
 import java.lang.reflect.Modifier;
 import java.util.Vector;
 
+
 public class JClass extends JEntity {
-    private JPackage      pkg;
-    private Vector        imports;
-    private Vector        impls;
-    private String        baseClassName;
-    private Vector        constructors;
-    private Vector        methods;
-    private Vector        fields;
-    private Vector        classes = new Vector();
-    private JClass        parent;
+    protected JPackage _pkg;
+
+    protected Vector _imports;
+    protected Vector _implements;
+    protected String _baseClassName;
+
+    protected Vector _constructors;
+    protected Vector _methods;
+    protected Vector _fields;
+
+    protected Vector _classes = new Vector();
+    protected JClass _parent;
 
     protected JClass(String name) {
         super(name, Modifier.PUBLIC);
 
-        imports = new Vector();
-        impls = new Vector();
-        baseClassName = "";
+        _imports = new Vector();
+        _implements = new Vector();
+        _baseClassName = "";
 
-        constructors = new Vector();
-        methods = new Vector();
-        fields = new Vector();
+        _constructors = new Vector();
+        _methods = new Vector();
+        _fields = new Vector();
     }
 
     protected JClass(String name, JPackage pkg) {
@@ -50,43 +54,63 @@ public class JClass extends JEntity {
             pkg = new JPackage("");
         }
 
-        this.pkg = pkg;
+        _pkg = pkg;
     }
 
     protected JClass(String name, JClass parent) {
         this(name);
 
-        this.parent = parent;
+        _parent = parent;
     }
 
     public JConstructor newConstructor(JParameter parms[], Class thrown[]) {
         JConstructor c = new JConstructor(parms, thrown);
         c.setParent(this);
-        constructors.add(c);
+        _constructors.add(c);
         return c;
     }
 
+    /*
+    public JConstructor newConstructor( JParameter parms[], String thrown[] )
+    {
+        JConstructor c = new JConstructor( parms, thrown );
+        c.setParent( this );
+        _constructors.add( c );
+        return c;
+    }
+    */
+
     public void deleteConstructor(JConstructor m) {
-        constructors.removeElement(m);
+        _constructors.removeElement(m);
     }
 
     public Vector getConstructors() {
-        return constructors;
+        return _constructors;
     }
 
     public JMethod newMethod(JReturnType rt, String name, JParameter parms[], Class thrown[]) {
         JMethod m = new JMethod(rt, name, parms, thrown);
         m.setParent(this);
-        methods.add(m);
+        _methods.add(m);
         return m;
     }
 
+    /*
+    public JMethod newMethod( JReturnType rt, String name, JParameter parms[], String thrown[] )
+    {
+        JMethod m = new JMethod( rt, name, parms, thrown );
+        m.setParent( this );
+        _methods.add( m );
+        return m;
+    }
+    */
+
     public void deleteMethod(JMethod m) {
-        methods.removeElement(m);
+        _methods.removeElement(m);
     }
 
     public Vector getMethods() {
-        return methods;
+        return _methods;
     }
 
     protected void setFieldParentAndModifier(JField f) {
@@ -119,36 +143,36 @@ public class JClass extends JEntity {
         setFieldParentAndModifier(f);
         f.setInitExpression(initExpr);
 
-        fields.add(f);
+        _fields.add(f);
 
         return f;
     }
 
     public void deleteField(JField f) {
-        fields.remove(f);
+        _fields.remove(f);
     }
 
     public Vector getFields() {
-        return fields;
+        return _fields;
     }
 
     public JClass newClass(String name) {
         JClass c = new JClass(name, this);
-        classes.add(c);
+        _classes.add(c);
         return c;
     }
 
     public JPackage getPackage() {
-        if (parent != null) {
-            return parent.getPackage();
+        if (_parent != null) {
+            return _parent.getPackage();
         } else {
-            return pkg;
+            return _pkg;
         }
     }
 
     public String getName() {
-        if (parent != null) {
-            return parent.getName() + "$" + super.getName();
+        if (_parent != null) {
+            return _parent.getName() + "$" + super.getName();
         } else {
             return super.getName();
         }
@@ -163,23 +187,23 @@ public class JClass extends JEntity {
     }
 
     public void setBaseClassName(String bcl) {
-        baseClassName = bcl;
+        _baseClassName = bcl;
     }
 
     public String getBaseClassName() {
-        return baseClassName;
+        return _baseClassName;
     }
 
     public void addImplements(String className) {
-        impls.add(className);
+        _implements.add(className);
     }
 
     public void removeImplements(String className) {
-        impls.remove(className);
+        _implements.remove(className);
     }
 
     public Vector getImplements() {
-        return impls;
+        return _implements;
     }
 
     /*
@@ -202,7 +226,7 @@ public class JClass extends JEntity {
     }
 
     public void addImport(String fqName) {
-        imports.add(fqName);
+        _imports.add(fqName);
     }
 
     public void removeImport(Package pkg, String itemName) {
@@ -222,10 +246,10 @@ public class JClass extends JEntity {
     }
 
     public void removeImport(String name) {
-        imports.remove(name);
+        _imports.remove(name);
     }
 
     public Vector getImports() {
-        return imports;
+        return _imports;
     }
 }

@@ -17,6 +17,9 @@
  */
 package org.apache.geronimo.interop.generator;
 
+
+
+
 public class JConstructor extends JMethod {
     protected JConstructor(String name) {
         super(name);
@@ -25,4 +28,11 @@ public class JConstructor extends JMethod {
     protected JConstructor(JParameter parms[], Class thrown[]) {
         super((JReturnType) null, (String) null, parms, thrown);
     }
+
+    /*
+    protected JConstructor( JParameter parms[], String thrownType[] )
+    {
+        super( (JReturnType)null, (String)null, parms, thrownType );
+    }
+    */
 }

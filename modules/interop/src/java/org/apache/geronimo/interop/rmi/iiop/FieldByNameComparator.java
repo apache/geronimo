@@ -17,25 +17,23 @@
  */
 package org.apache.geronimo.interop.rmi.iiop;
 
-import java.lang.reflect.*;
-import java.util.*;
+import java.lang.reflect.Field;
+import java.util.Comparator;
+
 
 /**
- ** Sort fields by name only.
- **/
-public class FieldByNameComparator implements Comparator
-{
+ * * Sort fields by name only.
+ */
+public class FieldByNameComparator implements Comparator {
     public static final FieldByNameComparator SINGLETON = new FieldByNameComparator();
 
-    public int compare(Object x, Object y)
-    {
-        Field a = (Field)x;
-        Field b = (Field)y;
+    public int compare(Object x, Object y) {
+        Field a = (Field) x;
+        Field b = (Field) y;
         return a.getName().compareTo(b.getName());
     }
 
-    public boolean equals(Object x)
-    {
+    public boolean equals(Object x) {
         // shouldn't be used
         return false;
     }

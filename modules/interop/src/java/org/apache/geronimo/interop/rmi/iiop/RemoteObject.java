@@ -17,30 +17,12 @@
  */
 package org.apache.geronimo.interop.rmi.iiop;
 
-import org.apache.geronimo.interop.adapter.Adapter;
-
-import java.util.HashMap;
-
 public abstract class RemoteObject {
-
-    protected HashMap   methods = new HashMap(10);
-
-    public RemoteObject( ) {
-        registerMethods();
+    public RemoteObject() {
     }
 
     protected void registerMethods() {
         registerMethod("_is_a", -1);
-    }
-
-    protected void registerMethod( String methodName, int id )
-    {
-        methods.put( methodName, new Integer(id) );
-    }
-
-    protected Integer getMethodId( String methodName )
-    {
-        return (Integer)methods.get( methodName );
     }
 
     public void invoke(int id, byte[] objectKey, Object instance, ObjectInputStream input, ObjectOutputStream output) {
@@ -71,4 +53,6 @@ public abstract class RemoteObject {
     }
 
     public abstract String[] getIds();
+
+    public abstract void registerMethod(String name, int id);
 }

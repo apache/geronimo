@@ -17,72 +17,55 @@
  */
 package org.apache.geronimo.interop.generator;
 
-import java.lang.reflect.Modifier;
-
 public class JEntity {
-    private String    name;
-    private int       modifiers;
-    private JEntity   parent;
+    protected String _name;
+    protected int _modifiers;
+    protected JEntity _parent;
 
     public JEntity(String name) {
-        this(name, Modifier.PUBLIC);
+        this(name, 0);
     }
 
     public JEntity(String name, int modifiers) {
-        this.name = name;
-        this.modifiers = modifiers;
+        _name = name;
+        _modifiers = modifiers;
     }
 
     public JEntity getParent() {
-        return parent;
+        return _parent;
     }
 
     public void setParent(JEntity parent) {
-        this.parent = parent;
+        _parent = parent;
     }
 
     public String getName() {
-        return name;
+        return _name;
     }
 
     public void setName(String val) {
-        name = val;
+        _name = val;
     }
 
     /*
      * if value is true, then the modifier will be set,
      * if value is false, then the modifier will be unset.
      */
-    protected void adjustModifier(int modifier, boolean value) {
+    public void setModifier(int modifier, boolean value) {
         if (value) {
-            modifiers = (modifiers | modifier);
+            _modifiers = (_modifiers | modifier);
         } else {
-            if ((modifiers & modifier) == modifier) {
-                modifiers = (modifiers ^ modifier);
+            if ((_modifiers & modifier) == modifier) {
+                _modifiers = (_modifiers ^ modifier);
             }
         }
     }
 
-    public void setModifier( int modifier )
-    {
-        adjustModifier( modifier, true );
-    }
-
-    public void unsetModifier( int modifier )
-    {
-        adjustModifier( modifier, false );
-    }
-
-    /*
-     * Sets all the modifiers in one set
-     *
-     * Example: setModifiers(Modifier.PRIVATE | Modifier.STATIC | Modifier.FINAL);
-     */
     public void setModifiers(int modifiers) {
-        this.modifiers = modifiers;
+        _modifiers = modifiers;
     }
 
     public int getModifiers() {
-        return modifiers;
+        return _modifiers;
     }
 }

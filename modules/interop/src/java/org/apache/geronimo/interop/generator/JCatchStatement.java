@@ -18,19 +18,19 @@
 package org.apache.geronimo.interop.generator;
 
 public class JCatchStatement extends JBlockStatement {
-    private JVariable     var;
+    protected JVariable _var;
 
     public JCatchStatement(JVariable v) {
         super();
-        var = v;
+        _var = v;
     }
 
     public JVariable getVariable() {
-        return var;
+        return _var;
     }
 
     public int hashCode() {
-        return var.hashCode();
+        return _var.hashCode();
     }
 
     public boolean equals(Object other) {
@@ -41,13 +41,13 @@ public class JCatchStatement extends JBlockStatement {
         } else if (other instanceof JCatchStatement) {
             JCatchStatement cs = (JCatchStatement) other;
 
-            if (cs.var.getType().equals(var.getType())) {
+            if (cs._var.getType().equals(_var.getType())) {
                 rc = true;
             }
         } else if (other instanceof JVariable) {
             JVariable v = (JVariable) other;
 
-            if (v.getType().equals(var.getType())) {
+            if (v.getType().equals(_var.getType())) {
                 rc = true;
             }
         }
@@ -56,3 +56,69 @@ public class JCatchStatement extends JBlockStatement {
         return rc;
     }
 }
+
+/*
+public class JCatchStatement extends JStatement
+{
+    protected JVariable          _var;
+    protected JBlockStatement    _statements;
+
+    public JCatchStatement( JVariable v )
+    {
+        _var = v;
+        _statements = new JBlockStatement();
+    }
+
+    public void addStatement( JStatement s )
+    {
+        _statements.addStatement( s );
+    }
+
+    public JBlockStatement getStatement()
+    {
+        return _statements;
+    }
+
+    public JVariable getVariable()
+    {
+        return _var;
+    }
+
+    public int hashCode()
+    {
+        return _var.hashCode();
+    }
+
+    public boolean equals( Object other )
+    {
+        boolean rc = false;
+
+        if (this == other)
+        {
+            rc = true;
+        }
+        else if (other instanceof JCatchStatement)
+        {
+            JCatchStatement cs = (JCatchStatement)other;
+
+            if (cs._var.getType().equals(_var.getType()))
+            {
+                rc = true;
+            }
+        }
+        else if (other instanceof JVariable)
+        {
+            JVariable v = (JVariable)other;
+
+            if (v.getType().equals( _var.getType() ))
+            {
+                rc = true;
+            }
+        }
+
+
+        return rc;
+    }
+}
+
+*/
