@@ -46,8 +46,11 @@ public abstract class FileTypeMap {
      * Returns the default FileTypeMap
      * @return the default FileTYpeMap; if null returns a MimetypesFileTypeMap
      */
-    public static FileTypeMap getDefaultFileTypeMap() {
-        return defaultFileTypeMap != null ? defaultFileTypeMap : new MimetypesFileTypeMap();
+    public synchronized static FileTypeMap getDefaultFileTypeMap() {
+        if (defaultFileTypeMap == null) {
+            defaultFileTypeMap = new MimetypesFileTypeMap();
+        }
+        return defaultFileTypeMap;
     }
 
     public FileTypeMap() {
