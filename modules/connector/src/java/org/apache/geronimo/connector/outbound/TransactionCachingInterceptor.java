@@ -32,18 +32,18 @@ import org.apache.geronimo.transaction.context.TransactionContextManager;
  * TransactionCachingInterceptor.java
  * TODO: This implementation does not take account of unshareable resources
  * TODO: This implementation does not take account of application security
- *  where several connections with different security info are obtained.
+ * where several connections with different security info are obtained.
  * TODO: This implementation does not take account of container managed security where,
- *  within one transaction, a security domain boundary is crossed
+ * within one transaction, a security domain boundary is crossed
  * and connections are obtained with two (or more) different subjects.
- *
+ * <p/>
  * I suggest a state pattern, with the state set in a threadlocal upon entering a component,
  * will be a usable implementation.
- *
+ * <p/>
  * The afterCompletion method will need to move to an interface,  and that interface include the
  * security info to distinguish connections.
- *
- *
+ * <p/>
+ * <p/>
  * Created: Mon Sep 29 15:07:07 2003
  *
  * @version 1.0
@@ -60,29 +60,31 @@ public class TransactionCachingInterceptor implements ConnectionInterceptor, Con
 
     public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {
         TransactionContext transactionContext = transactionContextManager.getContext();
-        if (transactionContext == null) {
+        //There can be an inactive transaction context when a connection is requested in
+        //Synchronization.afterCompletion().
+        if (transactionContext == null || !transactionContext.isActive()) {
             next.getConnection(connectionInfo);
         } else {
-        ManagedConnectionInfos managedConnectionInfos = (ManagedConnectionInfos) transactionContext.getManagedConnectionInfo(this);
-        if (managedConnectionInfos == null) {
-            managedConnectionInfos = new ManagedConnectionInfos();
-            transactionContext.setManagedConnectionInfo(this, managedConnectionInfos);
-        }
-        if (connectionInfo.isUnshareable()) {
-            if (!managedConnectionInfos.containsUnshared(connectionInfo.getManagedConnectionInfo())) {
-                next.getConnection(connectionInfo);
-                managedConnectionInfos.addUnshared(connectionInfo.getManagedConnectionInfo());
+            ManagedConnectionInfos managedConnectionInfos = (ManagedConnectionInfos) transactionContext.getManagedConnectionInfo(this);
+            if (managedConnectionInfos == null) {
+                managedConnectionInfos = new ManagedConnectionInfos();
+                transactionContext.setManagedConnectionInfo(this, managedConnectionInfos);
             }
-        } else {
-            ManagedConnectionInfo managedConnectionInfo = managedConnectionInfos.getShared();
-            if (managedConnectionInfo != null) {
-                connectionInfo.setManagedConnectionInfo(managedConnectionInfo);
-                return;
+            if (connectionInfo.isUnshareable()) {
+                if (!managedConnectionInfos.containsUnshared(connectionInfo.getManagedConnectionInfo())) {
+                    next.getConnection(connectionInfo);
+                    managedConnectionInfos.addUnshared(connectionInfo.getManagedConnectionInfo());
+                }
             } else {
-                next.getConnection(connectionInfo);
-                managedConnectionInfos.setShared(connectionInfo.getManagedConnectionInfo());
+                ManagedConnectionInfo managedConnectionInfo = managedConnectionInfos.getShared();
+                if (managedConnectionInfo != null) {
+                    connectionInfo.setManagedConnectionInfo(managedConnectionInfo);
+                    return;
+                } else {
+                    next.getConnection(connectionInfo);
+                    managedConnectionInfos.setShared(connectionInfo.getManagedConnectionInfo());
+                }
             }
-        }
         }
     }
 
@@ -97,6 +99,10 @@ public class TransactionCachingInterceptor implements ConnectionInterceptor, Con
         if (transactionContext != null && transactionContext.isActive()) {
             return;
         }
+        internalReturn(connectionInfo, connectionReturnAction);
+    }
+
+    private void internalReturn(ConnectionInfo connectionInfo, ConnectionReturnAction connectionReturnAction) {
         if (connectionInfo.getManagedConnectionInfo().hasConnectionHandles()) {
             return;
         }
@@ -105,7 +111,7 @@ public class TransactionCachingInterceptor implements ConnectionInterceptor, Con
     }
 
     public void afterCompletion(Object stuff) {
-        ManagedConnectionInfos managedConnectionInfos = (ManagedConnectionInfos)stuff;
+        ManagedConnectionInfos managedConnectionInfos = (ManagedConnectionInfos) stuff;
         ManagedConnectionInfo sharedMCI = managedConnectionInfos.getShared();
         if (sharedMCI != null) {
             returnHandle(sharedMCI);
@@ -119,7 +125,7 @@ public class TransactionCachingInterceptor implements ConnectionInterceptor, Con
     private void returnHandle(ManagedConnectionInfo managedConnectionInfo) {
         ConnectionInfo connectionInfo = new ConnectionInfo();
         connectionInfo.setManagedConnectionInfo(managedConnectionInfo);
-        returnConnection(connectionInfo, ConnectionReturnAction.RETURN_HANDLE);
+        internalReturn(connectionInfo, ConnectionReturnAction.RETURN_HANDLE);
     }
 
     static class ManagedConnectionInfos {
