@@ -55,28 +55,29 @@
  */
 package org.apache.geronimo.deployment.dependency;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.Collections;
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanRegistration;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
+import javax.management.relation.RelationServiceMBean;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.management.j2ee.State;
-import org.apache.geronimo.jmx.JMXUtil;
 import org.apache.geronimo.deployment.service.MBeanRelationship;
+import org.apache.geronimo.jmx.JMXUtil;
+import org.apache.management.j2ee.State;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/18 13:30:19 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/18 22:02:05 $
  */
 public class DependencyService implements MBeanRegistration, DependencyServiceMBean {
     private Log log = LogFactory.getLog(getClass());
@@ -86,13 +87,15 @@ public class DependencyService implements MBeanRegistration, DependencyServiceMB
     private final Map createChildToParentMap = new HashMap();
     private final Map createParentToChildMap = new HashMap();
     private final Map relationshipMap = new HashMap();
+    private RelationServiceMBean relationService;
 
     public ObjectName preRegister(MBeanServer server, ObjectName objectName) throws Exception {
         if (objectName == null) {
             objectName = JMXUtil.DEPENDENCY_SERVICE_NAME;
         }
         this.server = server;
-        return null;
+        relationService = JMXUtil.getRelationService(server);
+        return objectName;
     }
 
     public void postRegister(Boolean aBoolean) {
@@ -226,17 +229,32 @@ public class DependencyService implements MBeanRegistration, DependencyServiceMB
         return createChildren;
     }
 
-    public synchronized boolean canStart(ObjectName child) {
-        Set createParents = new HashSet((Set) startChildToParentMap.get(child));
-        for (Iterator i = createParents.iterator(); i.hasNext();) {
-            ObjectName createParent = (ObjectName) i.next();
-            if (!server.isRegistered(createParent)) {
-                log.trace("Cannot run because parent is not registered: parent=" + createParent);
-                return false;
+    public boolean canStart(ObjectName child) {
+        Set createParents = null;
+        synchronized (this) {
+            Set set = (Set) createChildToParentMap.get(child);
+            if (set != null) {
+                createParents = new HashSet(set);
+            }
+        }
+        if (createParents != null) {
+            for (Iterator i = createParents.iterator(); i.hasNext();) {
+                ObjectName createParent = (ObjectName) i.next();
+                if (!server.isRegistered(createParent)) {
+                    log.trace("Cannot run because parent is not registered: parent=" + createParent);
+                    return false;
+                }
             }
         }
 
-        Set startParents = new HashSet((Set) startChildToParentMap.get(child));
+        Set startParents;
+        synchronized (this) {
+            Set set = (Set) startChildToParentMap.get(child);
+            if (set == null) {
+                return true;
+            }
+            startParents = new HashSet(set);
+        }
         for (Iterator i = startParents.iterator(); i.hasNext();) {
             ObjectName startParent = (ObjectName) i.next();
             if (!server.isRegistered(startParent)) {
@@ -255,7 +273,7 @@ public class DependencyService implements MBeanRegistration, DependencyServiceMB
                 log.trace("Parent does not have a State attibute");
             } catch (InstanceNotFoundException e) {
                 // depended on instance was removed bewteen the register check and the invoke
-                log.trace("Cannot run because parent is not parent: parent=" + startParent);
+                log.trace("Cannot run because parent is not registered: parent=" + startParent);
                 return false;
             } catch (Exception e) {
                 // problem getting the attribute, parent has most likely failed
@@ -266,13 +284,16 @@ public class DependencyService implements MBeanRegistration, DependencyServiceMB
         return true;
     }
 
-    public synchronized boolean canStop(ObjectName dependency) {
-        Set set = (Set) startParentToChildMap.get(dependency);
-        if (set == null) {
-            return true;
+    public boolean canStop(ObjectName dependency) {
+        Set dependents;
+        synchronized (this) {
+            Set set = (Set) startParentToChildMap.get(dependency);
+            if (set == null) {
+                return true;
+            }
+            // make a copy before exiting the synchronized block
+            dependents = new HashSet(set);
         }
-        // make a copy before exiting the synchronized block
-        Set dependents = new HashSet(set);
 
         for (Iterator u = dependents.iterator(); u.hasNext();) {
             ObjectName dependent = (ObjectName) u.next();
@@ -280,8 +301,8 @@ public class DependencyService implements MBeanRegistration, DependencyServiceMB
                 try {
                     log.trace("Checking if dependent is stopped: dependent=" + dependent);
                     int state = ((Integer) server.getAttribute(dependent, "State")).intValue();
-                    if (state != State.STOPPED_INDEX && state != State.FAILED_INDEX) {
-                        log.trace("Cannot run because dependent is not stopped: dependent=" + dependent);
+                    if (state == State.RUNNING_INDEX) {
+                        log.trace("Cannot stop because dependent is still running: dependent=" + dependent);
                         return false;
                     }
                 } catch (AttributeNotFoundException e) {
@@ -299,7 +320,95 @@ public class DependencyService implements MBeanRegistration, DependencyServiceMB
         return true;
     }
 
-    public synchronized boolean shouldStop(ObjectName dependent) {
-        return !canStart(dependent);
+    public State shouldChangeState(ObjectName child) {
+        Set relationships = null;
+        synchronized (this) {
+            Set set = (Set) relationshipMap.get(child);
+            if (set != null) {
+                relationships = new HashSet(set);
+            }
+        }
+        if (relationships != null) {
+            for (Iterator i = relationships.iterator(); i.hasNext();) {
+                MBeanRelationship relationship = (MBeanRelationship) i.next();
+
+                // if there is no longer there...
+                String relationshipName = relationship.getName();
+                if (!relationService.hasRelation(relationshipName).booleanValue()) {
+                    log.trace("Must FAIL because relationship was removed: relationshipName=" + relationshipName);
+                    return State.FAILED;
+                }
+            }
+        }
+
+        Set createParents = null;
+        synchronized (this) {
+            Set set = (Set) createChildToParentMap.get(child);
+            if (set != null) {
+                createParents = new HashSet(set);
+            }
+        }
+        if (createParents != null) {
+            for (Iterator i = createParents.iterator(); i.hasNext();) {
+                ObjectName createParent = (ObjectName) i.next();
+                if (!server.isRegistered(createParent)) {
+                    log.trace("Must FAIL because parent is no longer registered: parent=" + createParent);
+                    return State.FAILED;
+                }
+            }
+        }
+
+        Set startParents;
+        synchronized (this) {
+            Set set = (Set) startChildToParentMap.get(child);
+            if (set == null) {
+                return null;
+            }
+            startParents = new HashSet(set);
+        }
+        for (Iterator i = startParents.iterator(); i.hasNext();) {
+            ObjectName startParent = (ObjectName) i.next();
+            if (!server.isRegistered(startParent)) {
+                log.trace("Must FAIL because parent is no longer registered: parent=" + startParent);
+                return State.FAILED;
+            }
+            try {
+                log.trace("Checking if parent is running: parent=" + startParent);
+                int parentState = ((Integer) server.getAttribute(startParent, "State")).intValue();
+                switch (parentState) {
+                case State.STOPPING_INDEX:
+                    log.trace("Must STOP because parent is stopping: parent=" + startParent);
+                    return State.STOPPING;
+                case State.FAILED_INDEX:
+                    log.trace("Must FAIL because parent has failed: parent=" + startParent);
+                    return State.FAILED;
+                case State.STOPPED_INDEX:
+                    log.trace("Must FAIL because parent has stopped: parent=" + startParent);
+                    return State.FAILED;
+                case State.STARTING_INDEX:
+                    log.trace("Must FAIL because parent has transitioned tot starting state without firing " +
+                            "the proper event notifications: parent=" + startParent);
+                    return State.FAILED;
+                case State.RUNNING_INDEX:
+                    // parent is still running -- all is good check next
+                    break;
+                default:
+                    throw new IllegalStateException("Unknown state returned from getState:" +
+                            " objectName=" + startParent + " state=" + parentState);
+                }
+            } catch (AttributeNotFoundException e) {
+                // ok -- parent is not a startable
+                log.trace("Parent does not have a State attibute");
+            } catch (InstanceNotFoundException e) {
+                // depended on instance was removed bewteen the register check and the invoke
+                log.trace("Must FAIL because parent is no longer registered: parent=" + startParent);
+                return State.FAILED;
+            } catch (Exception e) {
+                // problem getting the attribute, parent has most likely failed
+                log.trace("Cannot run because an error occurred while checking if parent is running: parent=" + startParent);
+                return State.FAILED;
+            }
+        }
+        return null;
     }
 }
