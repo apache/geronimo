@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.83 $ $Date: 2004/09/07 03:21:01 $ -->
+<!-- $Revision: 1.83 $ $Date$ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -13,59 +13,6 @@
     <j:set var="release.id" value="${pom.standardToLegacyId(pom.id)}-${pom.currentVersion}"/>
     <j:set var="distDir" value="target/${pom.groupId}-${pom.currentVersion}"/>
 
-    <goal name="run">
-        <attainGoal name="run:server"/>
-    </goal>
-
-    <goal name="run:server">
-        <j:set var="run.dir" value="${distDir}/bin"/>
-        <ant:echo message="Running in ${run.dir}"/>
-
-        <j:jelly xmlns="jelly:ant">
-
-            <property environment="env"/>
-            <java jar="${distDir}/bin/server.jar"
-                fork="true"
-                maxmemory="256m"
-                failonerror="true"
-                dir="${run.dir}">
-
-                <jvmarg value="-ea"/>
-
-                <arg value="org/apache/geronimo/Server"/>
-            </java>
-        </j:jelly>
-    </goal>
-
-    <goal name="debug">
-        <attainGoal name="debug:server"/>
-    </goal>
-
-    <goal name="debug:server">
-        <j:set var="run.dir" value="${distDir}/bin"/>
-        <ant:echo message="Running in ${run.dir}"/>
-
-        <j:jelly xmlns="jelly:ant">
-
-            <property environment="env"/>
-            <java jar="${distDir}/bin/server.jar"
-                fork="true"
-                maxmemory="256m"
-                failonerror="true"
-                dir="${run.dir}">
-
-                <jvmarg value="-ea"/>
-                <jvmarg value="-Xdebug"/>
-                <jvmarg value="-Xnoagent"/>
-                <jvmarg value="-Djava.compiler=NONE"/>
-                <jvmarg value="-Xrunjdwp:transport=dt_socket,address=8888,server=y,suspend=y"/>
-
-                <sysproperty key="java.compiler" value="NONE"/>
-
-                <arg value="org/apache/geronimo/Server"/>
-            </java>
-        </j:jelly>
-    </goal>
 
     <!-- ======= -->
     <!-- Modules -->
