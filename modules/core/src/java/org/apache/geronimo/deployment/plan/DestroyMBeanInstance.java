@@ -55,21 +55,21 @@
  */
 package org.apache.geronimo.deployment.plan;
 
+import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
-import javax.management.MBeanException;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
-import javax.management.ReflectionException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.common.State;
 import org.apache.geronimo.deployment.DeploymentException;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/14 00:02:38 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/18 22:05:55 $
  */
 public class DestroyMBeanInstance implements DeploymentTask {
     private final Log log = LogFactory.getLog(this.getClass());
@@ -82,40 +82,26 @@ public class DestroyMBeanInstance implements DeploymentTask {
     }
 
     public boolean canRun() throws DeploymentException {
+        try {
+            log.trace("Checking if MBean is stopped: name=" + name);
+            if (((Integer) server.getAttribute(name, "State")).intValue() != State.STOPPED_INDEX) {
+                log.trace("Cannot run because MBean is not stopped: name=" + name);
+                return false;
+            }
+            log.trace("MBean is stopped: name=" + name);
+        } catch (AttributeNotFoundException e) {
+            // ok -- MBean is not state manageable
+            log.trace("MBean does not have a State attibute");
+        } catch (InstanceNotFoundException e) {
+            // instance already removed -- we are good to go
+        } catch (Exception e) {
+            // problem getting the attribute, MBean has most likely failed
+            log.trace("An error occurred while checking if MBean is stopped; MBean will be unregistered: name=" + name);
+        }
         return true;
     }
 
     public void perform() {
-        try {
-            server.invoke(name, "stop", null, null);
-        } catch (InstanceNotFoundException e) {
-            log.warn("MBean was already removed " + name, e);
-            return;
-        } catch (MBeanException e) {
-            log.error("Error while stopping MBean " + name, e);
-        } catch (ReflectionException e) {
-            if (e.getTargetException() instanceof NoSuchMethodException) {
-                // did not have a stop method - ok
-            } else {
-                log.error("Error while stopping MBean " + name, e);
-            }
-        }
-
-        try {
-            server.invoke(name, "destroy", null, null);
-        } catch (InstanceNotFoundException e) {
-            log.warn("MBean was already removed " + name, e);
-            return;
-        } catch (MBeanException e) {
-            log.error("Error while destroying MBean " + name, e);
-        } catch (ReflectionException e) {
-            if (e.getTargetException() instanceof NoSuchMethodException) {
-                // did not have a destroy method - ok
-            } else {
-                log.error("Error while destroying MBean " + name, e);
-            }
-        }
-
         try {
             server.unregisterMBean(name);
         } catch (InstanceNotFoundException e) {
