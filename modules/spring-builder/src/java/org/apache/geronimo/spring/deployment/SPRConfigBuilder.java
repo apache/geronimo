@@ -151,8 +151,8 @@ public class SPRConfigBuilder
       for (int i=ids.length; i>0; i--)
 	dlbf.getBean(ids[i-1]);
 
-      ObjectName name=new ObjectName("geronimo.config", "name", sprFile.getName());
-      GBeanData gbeanData = new GBeanData(name, org.apache.geronimo.j2ee.management.impl.SpringApplicationImpl.GBEAN_INFO);
+      ObjectName name=new ObjectName("geronimo.spring", "name", sprFile.getName());
+      GBeanData gbeanData=new GBeanData(name, org.apache.geronimo.j2ee.management.impl.SpringApplicationImpl.GBEAN_INFO);
 
       // setting 'kernel' results in a NotSerializableException: after
       // returning from this method...
