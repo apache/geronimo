@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mbean name="Simple" description="Simple MBean example"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="/Users/dain/work/geronimo/geronimo-head/modules/kernel/src/schema/mbean-descriptor.xsd">
+
+    <target class="org.apache.geronimo.kernel.classspace.DefaultClassSpace"/>
+    <attribute name="classLoader" description="Java ClassLoader for Class Space" writable="false" />
+    <attribute name="parent" description="Parent of this Class Space"/>
+    <operation name="addDeployment" impact="ACTION" description="Adds a URLs for a deployment">
+        <parameter name="deployment" type="javax.management.ObjectName" description="Deployment to add"/>
+        <parameter name="urls" type="java.util.List" description="URLs to add"/>
+    </operation>
+    <operation name="dropDeployment" impact="ACTION" description="Drops the deployment and associated URLs">
+        <parameter name="deployment" type="javax.management.ObjectName" description="Deployment to drop"/>
+    </operation>
+    <operation name="getLoadedClassNames" impact="INFO" description="Gets a list of all classes defined and loaded by this class space"/>
+    <operation name="getURLsByDeployment" impact="INFO" description="Gets a map of URLs by deployment"/>
+    <operation name="getCurrentURLsByDeployment" impact="INFO" description="Gets a map of URLs by deployment"/>
+    <operation name="getURLs" impact="INFO" description="Gets all URLs used by this class space"/>
+    <operation name="getCurrentURLs" impact="INFO" description="Gets all URLs used by this class space"/>
+    <operation name="loadClass" impact="ACTION_INFO" description="Loads and defines the specified class">
+        <parameter name="name" type="java.lang.String" description="Name of class to load"/>
+    </operation>
+    <operation name="findResource" impact="ACTION_INFO" description="Gets a URL for the specifed resource">
+        <parameter name="name" type="java.lang.String" description="Name of resouce to locate"/>
+    </operation>
+</mbean>
