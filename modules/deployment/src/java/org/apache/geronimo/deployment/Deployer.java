@@ -93,7 +93,7 @@ import org.apache.xmlbeans.XmlObject;
  * Command line based deployment utility which combines multiple deployable modules
  * into a single configuration.
  *
- * @version $Revision: 1.9 $ $Date: 2004/02/21 20:03:24 $
+ * @version $Revision: 1.10 $ $Date: 2004/02/21 20:20:44 $
  */
 public class Deployer {
     static {
@@ -142,48 +142,48 @@ public class Deployer {
             throw new DeploymentException("No plan or module supplied");
         }
 
-        JarInputStream moduleStream;
-        if (cmd.module != null) {
-            try {
-                moduleStream = new JarInputStream(cmd.module.openStream());
-            } catch (IOException e) {
-                throw new DeploymentException("Unable to open module", e);
-            }
+        boolean saveOutput;
+        if (cmd.carfile == null) {
+            saveOutput = false;
+            cmd.carfile = File.createTempFile("deployer", ".car");
         } else {
-            moduleStream = null;
+            saveOutput = true;
         }
-
         try {
-            boolean saveOutput;
-            if (cmd.carfile == null) {
-                saveOutput = false;
-                cmd.carfile = File.createTempFile("deployer", ".car");
+            if (cmd.module == null) {
+                builder.buildConfiguration(cmd.carfile, (JarInputStream) null, plan);
+            } else if ("file".equals(cmd.module.getProtocol())) {
+                File module = new File(cmd.module.getPath());
+                builder.buildConfiguration(cmd.carfile, module, plan);
+            } else if (cmd.module.toString().endsWith("/")) {
+                throw new DeploymentException("Unpacked modules must be files");
             } else {
-                saveOutput = true;
-            }
-            try {
-                builder.buildConfiguration(cmd.carfile, moduleStream, plan);
-
+                JarInputStream moduleStream = new JarInputStream(cmd.module.openStream());
                 try {
-                    if (cmd.install) {
-                        kernel.install(cmd.carfile.toURL());
+                    builder.buildConfiguration(cmd.carfile, moduleStream, plan);
+                } finally {
+                    try {
+                        moduleStream.close();
+                    } catch (IOException e) {
+                        // ignore
                     }
-                } catch (InvalidConfigException e) {
-                    // unlikely as we just built this
-                    throw new DeploymentException(e);
-                }
-            } finally {
-                if (!saveOutput) {
-                    cmd.carfile.delete();
                 }
             }
-        } finally {
-            if (moduleStream != null) {
-                try {
-                    moduleStream.close();
-                } catch (IOException e) {
-                    // ignore to allow cause through
+
+            try {
+                if (cmd.install) {
+                    kernel.install(cmd.carfile.toURL());
                 }
+            } catch (InvalidConfigException e) {
+                // unlikely as we just built this
+                throw new DeploymentException(e);
+            }
+        } catch (Exception e) {
+            saveOutput = false;
+            throw e;
+        } finally {
+            if (!saveOutput) {
+                cmd.carfile.delete();
             }
         }
     }
