@@ -32,7 +32,7 @@ import org.apache.geronimo.system.ThreadPool;
 
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/03/18 04:05:27 $
+ * @version $Revision: 1.6 $ $Date: 2004/03/20 21:33:41 $
  */
 public class SocketProtocolStressTest extends TestCase {
 
@@ -215,7 +215,7 @@ public class SocketProtocolStressTest extends TestCase {
 
         });
 
-        sp.setTimeout(10 * 1000);
+        sp.setTimeout(60 * 1000);
         sp.setInterface(new InetSocketAddress("localhost", 0));
         sp.setAddress(new InetSocketAddress(ssa.getConnectURI().getHost(), ssa.getConnectURI().getPort()));
         sp.setSelectorManager(sm);
