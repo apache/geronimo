@@ -37,7 +37,7 @@ import org.apache.geronimo.network.SelectorManager;
 
 
 /**
- * @version $Revision: 1.15 $ $Date: 2004/08/01 13:03:44 $
+ * @version $Revision: 1.16 $ $Date: 2004/08/02 03:53:30 $
  */
 public class SocketProtocol implements AcceptableProtocol, SelectionEventListner {
 
@@ -242,7 +242,10 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
 
         try {
             log.trace("AQUIRING " + sendMutex);
-            if (!sendMutex.attempt(timeout)) throw new ProtocolException("Send timeout.");
+            if (!sendMutex.attempt(timeout)) {
+                log.error("TIMEOUT " + sendMutex);
+                throw new ProtocolException("Send timeout.");
+            }
             log.trace("AQUIRED " + sendMutex);
 
 
@@ -265,7 +268,7 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
             selectorManager.addInterestOps(selectionKey, SelectionKey.OP_WRITE);
 
         } catch (InterruptedException e) {
-            log.trace("Communications error, closing connection: ", e);
+            log.error("Communications error, closing connection: ", e);
             close();
             throw new ProtocolException(e);
         }
@@ -280,7 +283,7 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
             sendMutex.release();
             log.trace("flush RELEASED " + sendMutex);
         } catch (InterruptedException e) {
-            log.trace("Communications error, closing connection: ", e);
+            log.error("Communications error, closing connection: ", e);
             close();
             throw new ProtocolException(e);
         }
