@@ -67,7 +67,6 @@ import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.impl.LogFactoryImpl;
 
 import org.apache.geronimo.common.StopWatch;
 import org.apache.geronimo.common.Duration;
@@ -79,16 +78,9 @@ import org.apache.geronimo.jmx.JMXKernel;
  *
  *
  *
- * @version $Revision: 1.10 $ $Date: 2003/08/24 21:10:35 $
+ * @version $Revision: 1.11 $ $Date: 2003/08/24 22:45:40 $
  */
 public class Main implements Runnable {
-    static {
-        // Add our default Commons Logger that support the trace level
-        if(System.getProperty(LogFactoryImpl.LOG_PROPERTY) == null) {
-            System.setProperty(LogFactoryImpl.LOG_PROPERTY, "org.apache.geronimo.core.log.CachingLog4jLog");
-        }
-    }
-
     private static final Log log = LogFactory.getLog("Geronimo");
     private static final String[] DEPLOY_ARG_TYPES = {"java.net.URL"};
 

@@ -65,6 +65,7 @@ import java.net.URLDecoder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.impl.LogFactoryImpl;
 
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.Option;
@@ -84,10 +85,17 @@ import org.apache.geronimo.twiddle.util.HelpFormatter;
 /**
  * Command-line interface to <code>Twiddle</code>.
  *
- * @version $Revision: 1.7 $ $Date: 2003/08/24 11:20:17 $
+ * @version $Revision: 1.8 $ $Date: 2003/08/24 22:45:40 $
  */
 public class Main
 {
+    static {
+        // Add our default Commons Logger that support the trace level
+        if(System.getProperty(LogFactoryImpl.LOG_PROPERTY) == null) {
+            System.setProperty(LogFactoryImpl.LOG_PROPERTY, "org.apache.geronimo.core.log.CachingLog4jLog");
+        }
+    }
+    
     private static final Log log = LogFactory.getLog(Main.class);
     
     /** Platform dependent line separator. */
