@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.10 $ $Date: 2003/08/19 21:13:15 $ -->
+<!-- $Revision: 1.11 $ $Date: 2003/08/21 07:29:59 $ -->
 
 <project>
   
@@ -50,14 +50,14 @@
     <!--
     <mailingList>
       <name>Geronimo User List</name>
-      <subscribe>users-subscribe@geronimo-user.apache.org</subscribe>
-      <unsubscribe>users-unsubscribe@geronimo-user.apache.org</unsubscribe>
+      <subscribe>geronimo-users-subscribe@incubator.apache.org</subscribe>
+      <unsubscribe>geronimo-users-unsubscribe@incubator.apache.org</unsubscribe>
       <archive>http://nagoya.apache.org/eyebrowse/SummarizeList?listName=geronimo-user@jakarta.apache.org</archive>
     </mailingList>
     -->
     <mailingList>
       <name>Geronimo Developer List</name>
-      <subscribe>geronimo-dev-subscribe@geronimo.apache.org</subscribe>
+      <subscribe>geronimo-dev-subscribe@incubator.apache.org</subscribe>
       <unsubscribe>geronimo-dev-unsubscribe@incubator.apache.org</unsubscribe>
       <archive>http://nagoya.apache.org/eyebrowse/SummarizeList?listId=140</archive>
     </mailingList>
@@ -147,8 +147,8 @@
 
     <developer>
       <name>Jason Dillon</name>
-      <id>jdillon</id>
-      <email>jason@planet57.com</email>
+      <id>jdilon</id>
+      <email>jdilon@planet57.com</email>
       <organization></organization>
     </developer>
 
@@ -168,29 +168,29 @@
 
     <developer>
       <name>Jules Golsnell</name>
-      <id>jgosnell</id>
-      <email>jgosnell@apache.org</email>
+      <id>jules</id>
+      <email>jules@apache.org</email>
       <organization></organization>
     </developer>
 
     <developer>
       <name>Richard Monson-Haefel</name>
-      <id>richardmf</id>
-      <email>richardmf@apache.org</email>
+      <id>rmonson</id>
+      <email>rmonson@apache.org</email>
       <organization></organization>
     </developer>
 
     <developer>
       <name>Remigio Chirino</name>
-      <id>remigio</id>
-      <email>remigio@apache.org</email>
+      <id>chirino</id>
+      <email>chirino@apache.org</email>
       <organization></organization>
     </developer>
 
     <developer>
       <name>Simone Bordet</name>
-      <id>simone</id>
-      <email>simone@apache.org</email>
+      <id>simon</id>
+      <email>simon@apache.org</email>
       <organization></organization>
     </developer>
   </developers>
@@ -220,6 +220,10 @@
     <contributor>
       <name>Maas van den Berg</name>
       <email>email@dds.nl</email>
+    </contributor>
+    <contributor>
+      <name>Siva</name>
+      <email>siva@sivasundaram.com></email>
     </contributor>
   </contributors>
 
