@@ -20,11 +20,10 @@ package org.apache.geronimo.network.protocol;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.ArrayList;
 
-import EDU.oswego.cs.dl.util.concurrent.CyclicBarrier;
 import EDU.oswego.cs.dl.util.concurrent.CountDown;
+import EDU.oswego.cs.dl.util.concurrent.CyclicBarrier;
 import junit.framework.TestCase;
 
 import org.apache.geronimo.network.SelectorManager;
@@ -33,7 +32,7 @@ import org.apache.geronimo.system.ThreadPool;
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/17 03:12:00 $
+ * @version $Revision: 1.5 $ $Date: 2004/03/18 04:05:27 $
  */
 public class SocketProtocolStressTest extends TestCase {
 
@@ -91,7 +90,7 @@ public class SocketProtocolStressTest extends TestCase {
         finished.acquire();
 
         Thread.sleep(5 * 1000);
-        
+
         assertEquals(WORKERS * MESSAGE_COUNT, count);
     }
 

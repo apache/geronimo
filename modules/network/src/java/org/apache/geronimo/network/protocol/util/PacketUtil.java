@@ -23,7 +23,7 @@ import java.util.Iterator;
 
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/03/10 09:59:15 $
+ * @version $Revision: 1.3 $ $Date: 2004/03/18 04:05:27 $
  */
 public class PacketUtil {
 
@@ -42,6 +42,18 @@ public class PacketUtil {
             remaining += ((ByteBuffer) iter.next()).remaining();
         }
         return remaining;
+    }
+
+    public static ByteBuffer consolidate(Collection packets) {
+        int size = 0;
+        for (Iterator iter = packets.iterator(); iter.hasNext();) {
+            size += ((ByteBuffer) iter.next()).remaining();
+        }
+        ByteBuffer buffer = ByteBuffer.allocate(size);
+        for (Iterator iter = packets.iterator(); iter.hasNext();) {
+            buffer.put((ByteBuffer) iter.next());
+        }
+        return (ByteBuffer)buffer.flip();
     }
 
     public final static byte NULL_TYPE = (byte) 0x00;
