@@ -35,9 +35,10 @@ import org.apache.geronimo.jetty.connector.HTTPConnector;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.transaction.GeronimoTransactionManager;
 import org.apache.geronimo.transaction.UserTransactionImpl;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
- * @version $Revision: 1.14 $ $Date: 2004/07/15 17:57:56 $
+ * @version $Revision: 1.15 $ $Date: 2004/07/18 22:04:27 $
  */
 public class ApplicationTest extends TestCase {
     private Kernel kernel;
@@ -52,6 +53,8 @@ public class ApplicationTest extends TestCase {
     private ObjectName tcaName;
     private GBeanMBean tm;
     private GBeanMBean ctc;
+    private ObjectName tcmName;
+    private GBeanMBean tcm;
 
     public void testDummy() throws Exception {
     }
@@ -59,15 +62,15 @@ public class ApplicationTest extends TestCase {
     public void testApplication() throws Exception {
         URL url = Thread.currentThread().getContextClassLoader().getResource("deployables/war1/");
         GBeanMBean app = new GBeanMBean(JettyWebAppContext.GBEAN_INFO);
-        app.setAttribute("URI", URI.create(url.toString()));
+        app.setAttribute("uri", URI.create(url.toString()));
         app.setAttribute("contextPath", "/test");
         app.setAttribute("componentContext", null);
         UserTransactionImpl userTransaction = new UserTransactionImpl();
         app.setAttribute("userTransaction", userTransaction);
         app.setReferencePatterns("Configuration", Collections.EMPTY_SET);
         app.setReferencePatterns("JettyContainer", containerPatterns);
-        app.setReferencePatterns("TransactionManager", Collections.singleton(tmName));
-        app.setReferencePatterns("TrackedConnectionAssociator", Collections.singleton(tcaName));
+        app.setReferencePattern("TransactionContextManager", tcmName);
+        app.setReferencePattern("TrackedConnectionAssociator", tcaName);
         start(appName, app);
 
 
@@ -95,6 +98,7 @@ public class ApplicationTest extends TestCase {
         appName = new ObjectName("geronimo.jetty:app=test");
 
         tmName = new ObjectName("geronimo.test:role=TransactionManager");
+        tcmName = new ObjectName("geronimo.test:role=TransactionContextManager");
         tcaName = new ObjectName("geronimo.test:role=ConnectionTrackingCoordinator");
 
         kernel = new Kernel("test.kernel", "test");
@@ -114,6 +118,9 @@ public class ApplicationTest extends TestCase {
         patterns.add(ObjectName.getInstance("geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
         tm.setReferencePatterns("ResourceManagers", patterns);
         start(tmName, tm);
+        tcm = new GBeanMBean(TransactionContextManager.GBEAN_INFO);
+        tcm.setReferencePattern("TransactionManager", tmName);
+        start(tcmName, tcm);
         ctc = new GBeanMBean(ConnectionTrackingCoordinator.GBEAN_INFO);
         start(tcaName, ctc);
     }

@@ -26,7 +26,7 @@ import javax.management.ObjectName;
 import junit.framework.TestCase;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/06/11 19:18:21 $
+ * @version $Revision: 1.3 $ $Date: 2004/07/18 22:04:27 $
  */
 public class EARContextTest extends TestCase {
     private final URI coffee = URI.create("some/path/coffee.jar");
@@ -137,7 +137,10 @@ public class EARContextTest extends TestCase {
                 "j2eeServer",
                 "j2eeApplicationName",
                 ObjectName.getInstance("j2eeDomain:type=TransactionManager"),
-                ObjectName.getInstance("j2eeDomain:type=ConnectionTracker"));
+                ObjectName.getInstance("j2eeDomain:type=ConnectionTracker"),
+                ObjectName.getInstance("j2eeDomain:type=TransactionalTimer"),
+                ObjectName.getInstance("j2eeDomain:type=NonTransactionalTimer")
+        );
 
         earContext.addEJBRef(coffee, "peaberry", coffee_peaberry);
         earContext.addEJBLocalRef(coffee, "peaberry", coffee_peaberry_local);

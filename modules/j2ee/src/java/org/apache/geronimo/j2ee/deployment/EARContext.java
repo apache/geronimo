@@ -31,7 +31,7 @@ import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.kernel.Kernel;
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/07/06 17:19:14 $
+ * @version $Revision: 1.6 $ $Date: 2004/07/18 22:04:27 $
  */
 public class EARContext extends DeploymentContext {
     private final Map ejbRefs = new HashMap();
@@ -45,10 +45,13 @@ public class EARContext extends DeploymentContext {
     private final ObjectName serverObjectName;
     private final ObjectName applicationObjectName;
 
-    private final ObjectName transactionManagerObjectName;
+    private final ObjectName transactionContextManagerObjectName;
     private final ObjectName connectionTrackerObjectName;
 
-    public EARContext(JarOutputStream jos, URI id, URI parentID, Kernel kernel, String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, ObjectName transactionManagerObjectName, ObjectName connectionTrackerObjectName) throws MalformedObjectNameException, DeploymentException {
+    private final ObjectName transactedTimerName;
+    private final ObjectName nonTransactedTimerName;
+
+    public EARContext(JarOutputStream jos, URI id, URI parentID, Kernel kernel, String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName transactedTimerName, ObjectName nonTransactedTimerName) throws MalformedObjectNameException, DeploymentException {
         super(jos, id, parentID, kernel);
         this.j2eeDomainName = j2eeDomainName;
         this.j2eeServerName = j2eeServerName;
@@ -89,9 +92,10 @@ public class EARContext extends DeploymentContext {
         } else {
             applicationObjectName = null;
         }
-        this.transactionManagerObjectName = transactionManagerObjectName;
+        this.transactionContextManagerObjectName = transactionContextManagerObjectName;
         this.connectionTrackerObjectName = connectionTrackerObjectName;
-
+        this.transactedTimerName = transactedTimerName;
+        this.nonTransactedTimerName = nonTransactedTimerName;
     }
 
     public String getJ2EEDomainName() {
@@ -118,12 +122,20 @@ public class EARContext extends DeploymentContext {
         return applicationObjectName;
     }
 
-    public ObjectName getTransactionManagerObjectName() {
-        return transactionManagerObjectName;
+    public ObjectName getTransactionContextManagerObjectName() {
+        return transactionContextManagerObjectName;
     }
 
     public ObjectName getConnectionTrackerObjectName() {
         return connectionTrackerObjectName;
+    }
+
+    public ObjectName getTransactedTimerName() {
+        return transactedTimerName;
+    }
+
+    public ObjectName getNonTransactedTimerName() {
+        return nonTransactedTimerName;
     }
 
     public void addEJBRef(URI modulePath, String name, Object reference) throws DeploymentException {

@@ -90,14 +90,23 @@ import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConfigPropertyType10;
 import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConnectorDocument10;
 import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConnectorType10;
 import org.apache.geronimo.xbeans.j2ee.connector_1_0.ResourceadapterType10;
+import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.XmlBeans;
 
 /**
- * @version $Revision: 1.8 $ $Date: 2004/07/15 17:00:42 $
+ * @version $Revision: 1.9 $ $Date: 2004/07/18 22:04:26 $
  */
 public class ConnectorModuleBuilder implements ModuleBuilder {
+
+    private static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderUnion(new SchemaTypeLoader[]{
+        XmlBeans.typeLoaderForClassLoader(org.apache.geronimo.xbeans.j2ee.String.class.getClassLoader()),
+        XmlBeans.typeLoaderForClassLoader(GerConnectorDocument.class.getClassLoader())
+    });
+
     private static final String BASE_REALM_BRIDGE_NAME = "geronimo.security:service=RealmBridge,name=";
     private static final String BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME = "geronimo.security:service=Realm,type=PasswordCredential,name=";
     private static final String BASE_WORK_MANAGER_NAME = "geronimo.server:type=WorkManager,name=";
@@ -114,24 +123,28 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
             if (plan == null) {
                 return null;
             }
-            return plan.getConnector();
+            return plan;
         } catch (MalformedURLException e) {
             return null;
         }
     }
 
     public boolean canHandlePlan(XmlObject plan) {
-        return plan instanceof GerConnectorType;
+        return plan instanceof GerConnectorDocument;
     }
 
     public Module createModule(String name, XmlObject plan) throws DeploymentException {
+        if (!canHandlePlan(plan)) {
+            throw new DeploymentException("Wrong kind of plan");
+        }
         ConnectorModule module = new ConnectorModule(name, URI.create("/"));
-        module.setVendorDD(plan);
+        GerConnectorType gerConnector = ((GerConnectorDocument) plan).getConnector();
+        module.setVendorDD(gerConnector);
         return module;
     }
 
     public URI getParentId(XmlObject plan) throws DeploymentException {
-        GerConnectorType geronimoConnector = (GerConnectorType) plan;
+        GerConnectorType geronimoConnector = ((GerConnectorDocument) plan).getConnector();
         URI parentID;
         if (geronimoConnector.isSetParentId()) {
             try {
@@ -146,7 +159,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
     }
 
     public URI getConfigId(XmlObject plan) throws DeploymentException {
-        GerConnectorType geronimoConnector = (GerConnectorType) plan;
+        GerConnectorType geronimoConnector = ((GerConnectorDocument) plan).getConnector();
         URI configID;
         try {
             configID = new URI(geronimoConnector.getConfigId());
@@ -170,7 +183,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
             }
 
             XmlObject specConnnector = null;
-            GerConnectorType vendorConnector = null;
+            GerConnectorType vendorConnector = (GerConnectorType) module.getVendorDD();
             for (JarEntry entry; (entry = jarIS.getNextJarEntry()) != null; jarIS.closeEntry()) {
                 String name = entry.getName();
                 URI target = moduleBase.resolve(name);
@@ -183,28 +196,28 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
                     try {
                         // try 1.0
                         ConnectorDocument10 connectorDoc = ConnectorDocument10.Factory.parse(new ByteArrayInputStream(buffer));
-                        validateDD(connectorDoc);
+                        SchemaConversionUtils.validateDD(connectorDoc);
                         specConnnector = connectorDoc.getConnector();
                     } catch (XmlException ignore) {
                         // that didn't work try 1.5
                         try {
                             ConnectorDocument connectorDoc = ConnectorDocument.Factory.parse(new ByteArrayInputStream(buffer));
-                            validateDD(connectorDoc);
+                            SchemaConversionUtils.validateDD(connectorDoc);
                             specConnnector = connectorDoc.getConnector();
                         } catch (XmlException alsoIgnore) {
                             throw new DeploymentException("Could not parse META-INF/ra.xml");
                         }
                     }
-                } else if (name.equals("META-INF/geronimo-ra.xml")) {
+                } else if (module.getVendorDD() == null && name.equals("META-INF/geronimo-ra.xml")) {
                     byte[] buffer = getBytes(jarIS);
                     earContext.addFile(target, new ByteArrayInputStream(buffer));
                     GerConnectorDocument vendorConnectorDoc;
                     try {
                         vendorConnectorDoc = GerConnectorDocument.Factory.parse(new ByteArrayInputStream(buffer));
+                        SchemaConversionUtils.validateDD(vendorConnectorDoc);
                     } catch (XmlException e) {
                         throw new DeploymentException("Unable to parse geronimo-ra.xml");
                     }
-                    validateDD(vendorConnectorDoc);
                     vendorConnector = vendorConnectorDoc.getConnector();
                 } else if (name.endsWith(".jar")) {
                     earContext.addStreamInclude(target, jarIS);
@@ -233,16 +246,6 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
         }
     }
 
-    private void validateDD(XmlObject dd) throws DeploymentException {
-        XmlOptions xmlOptions = new XmlOptions();
-        xmlOptions.setLoadLineNumbers();
-        Collection errors = new ArrayList();
-        xmlOptions.setErrorListener(errors);
-        if (!dd.validate(xmlOptions)) {
-            throw new DeploymentException("Invalid deployment descriptor: errors: " + errors);
-        }
-    }
-
     public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
         // connectors do not add anything to the shared context
         //TODO should the 1.5 ActivationSpecInfos be processed here?
@@ -263,6 +266,10 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
         for (int i = 0; i < gbeans.length; i++) {
             GBeanHelper.addGbean(new RARGBeanAdapter(gbeans[i]), cl, earContext);
         }
+    }
+
+    public SchemaTypeLoader getSchemaTypeLoader() {
+        return SCHEMA_TYPE_LOADER;
     }
 
     private void addResourceAdapterModuleGBean(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
@@ -383,7 +390,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
                 connectionDefinitions.put(connectionDefinition.getConnectionfactoryInterface().getStringValue(), connectionDefinition);
             }
 
-        // ManagedConnectionFactory setup
+            // ManagedConnectionFactory setup
             if (geronimoResourceAdapter.isSetOutboundResourceadapter()) {
                 for (int i = 0; i < geronimoResourceAdapter.getOutboundResourceadapter().getConnectionDefinitionArray().length; i++) {
                     GerConnectionDefinitionType geronimoConnectionDefinition = geronimoResourceAdapter.getOutboundResourceadapter().getConnectionDefinitionArray(i);

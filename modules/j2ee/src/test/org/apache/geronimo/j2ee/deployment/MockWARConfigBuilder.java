@@ -23,9 +23,10 @@ import java.util.jar.JarFile;
 import junit.framework.Assert;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.SchemaTypeLoader;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/05/19 20:53:59 $
+ * @version $Revision: 1.2 $ $Date: 2004/07/18 22:04:27 $
  */
 public class MockWARConfigBuilder extends Assert implements ModuleBuilder {
     public EARContext earContext;
@@ -73,5 +74,9 @@ public class MockWARConfigBuilder extends Assert implements ModuleBuilder {
         assertEquals(this.cl, cl);
         assertNotNull(contextRoot);
         this.contextRoot = ((WebModule) webModule).getContextRoot();
+    }
+
+    public SchemaTypeLoader getSchemaTypeLoader() {
+        return null;
     }
 }

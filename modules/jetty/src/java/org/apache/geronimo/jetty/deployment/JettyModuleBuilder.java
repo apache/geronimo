@@ -84,12 +84,19 @@ import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
 import org.apache.geronimo.xbeans.j2ee.WebAppType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.XmlBeans;
 
 
 /**
- * @version $Revision: 1.14 $ $Date: 2004/07/12 06:07:50 $
+ * @version $Revision: 1.15 $ $Date: 2004/07/18 22:04:27 $
  */
 public class JettyModuleBuilder implements ModuleBuilder {
+    static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderUnion(new SchemaTypeLoader[] {
+        XmlBeans.typeLoaderForClassLoader(org.apache.geronimo.xbeans.j2ee.String.class.getClassLoader()),
+        XmlBeans.typeLoaderForClassLoader(JettyWebAppDocument.class.getClassLoader())
+    });
+
     private static final String PARENT_ID = "org/apache/geronimo/Server";
 
     public XmlObject getDeploymentPlan(URL module) throws XmlException {
@@ -104,13 +111,13 @@ public class JettyModuleBuilder implements ModuleBuilder {
             if (plan == null) {
                 return createDefaultPlan(moduleBase);
             }
-            return plan.getWebApp();
+            return plan;
         } catch (MalformedURLException e) {
             return null;
         }
     }
 
-    private JettyWebAppType createDefaultPlan(URL moduleBase) throws XmlException {
+    private JettyWebAppDocument createDefaultPlan(URL moduleBase) throws XmlException {
         // load the web.xml
         URL webXmlUrl = null;
         try {
@@ -130,7 +137,8 @@ public class JettyModuleBuilder implements ModuleBuilder {
         }
 
         // construct the empty geronimo-jetty.xml
-        JettyWebAppType jettyWebApp = JettyWebAppType.Factory.newInstance();
+        JettyWebAppDocument jettyWebAppDocument = JettyWebAppDocument.Factory.newInstance();
+        JettyWebAppType jettyWebApp = jettyWebAppDocument.addNewWebApp();
 
         // set the parentId, configId and context root
         jettyWebApp.setParentId(PARENT_ID);
@@ -148,15 +156,15 @@ public class JettyModuleBuilder implements ModuleBuilder {
 
         jettyWebApp.setConfigId(id);
         jettyWebApp.setContextRoot(id);
-        return jettyWebApp;
+        return jettyWebAppDocument;
     }
 
     public boolean canHandlePlan(XmlObject plan) {
-        return plan instanceof JettyWebAppType;
+        return plan instanceof JettyWebAppDocument;
     }
 
     public URI getParentId(XmlObject plan) throws DeploymentException {
-        JettyWebAppType jettyWebApp = (JettyWebAppType) plan;
+        JettyWebAppType jettyWebApp = ((JettyWebAppDocument) plan).getWebApp();
         try {
             return new URI(jettyWebApp.getParentId());
         } catch (URISyntaxException e) {
@@ -165,7 +173,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
     }
 
     public URI getConfigId(XmlObject plan) throws DeploymentException {
-        JettyWebAppType jettyWebApp = (JettyWebAppType) plan;
+        JettyWebAppType jettyWebApp = ((JettyWebAppDocument) plan).getWebApp();
         try {
             return new URI(jettyWebApp.getConfigId());
         } catch (URISyntaxException e) {
@@ -174,7 +182,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
     }
 
     public Module createModule(String name, XmlObject plan) throws DeploymentException {
-        JettyWebAppType jettyWebApp = (JettyWebAppType) plan;
+        JettyWebAppType jettyWebApp = ((JettyWebAppDocument) plan).getWebApp();
         WebModule module = new WebModule(name, URI.create("/"), jettyWebApp.getContextRoot());
         module.setVendorDD(jettyWebApp);
         return module;
@@ -228,7 +236,9 @@ public class JettyModuleBuilder implements ModuleBuilder {
             }
             webModule.setSpecDD(webApp);
 
-            assert jettyWebApp != null: "geronimo-jetty.xml not defined";
+            if (jettyWebApp == null) {
+                throw new DeploymentException("No plan or WEB-INF/jetty-web.xml found");
+            }
             webModule.setVendorDD(jettyWebApp);
 
             // add the dependencies declared in the geronimo-jetty.xml file
@@ -294,7 +304,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
 
             String PolicyContextID = (earContext.getApplicationObjectName()==null? module.getName():earContext.getApplicationObjectName().toString());
 
-            gbean.setAttribute("URI", warRoot);
+            gbean.setAttribute("uri", warRoot);
             gbean.setAttribute("contextPath", webModule.getContextRoot());
             gbean.setAttribute("contextPriorityClassLoader", Boolean.valueOf(jettyWebApp.getContextPriorityClassloader()));
             if (security != null) {
@@ -304,14 +314,18 @@ public class JettyModuleBuilder implements ModuleBuilder {
             gbean.setAttribute("componentContext", compContext);
             gbean.setAttribute("userTransaction", userTransaction);
             setResourceEnvironment(gbean, webApp.getResourceRefArray(), jettyWebApp.getResourceRefArray());
-            gbean.setReferencePatterns("Configuration", Collections.singleton(new ObjectName("geronimo.config:name=" + ObjectName.quote(configID.toString())))); // @todo this is used to resolve relative URIs, we should fix this
-            gbean.setReferencePatterns("JettyContainer", Collections.singleton(new ObjectName("*:type=WebContainer,container=Jetty"))); // @todo configurable
-            gbean.setReferencePatterns("TransactionManager", Collections.singleton(earContext.getTransactionManagerObjectName()));
-            gbean.setReferencePatterns("TrackedConnectionAssociator", Collections.singleton(earContext.getConnectionTrackerObjectName()));
+            gbean.setReferencePattern("Configuration", new ObjectName("geronimo.config:name=" + ObjectName.quote(configID.toString()))); // @todo this is used to resolve relative URIs, we should fix this
+            gbean.setReferencePattern("JettyContainer", new ObjectName("*:type=WebContainer,container=Jetty")); // @todo configurable
+            gbean.setReferencePattern("TransactionContextManager", earContext.getTransactionContextManagerObjectName());
+            gbean.setReferencePattern("TrackedConnectionAssociator", earContext.getConnectionTrackerObjectName());
         } catch (Exception e) {
             throw new DeploymentException("Unable to initialize webapp GBean", e);
         }
         earContext.addGBean(name, gbean);
+    }
+
+    public SchemaTypeLoader getSchemaTypeLoader() {
+       return SCHEMA_TYPE_LOADER;
     }
 
     private ReadOnlyContext buildComponentContext(EARContext earContext, WebModule webModule, WebAppType webApp, JettyWebAppType jettyWebApp, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {

@@ -22,9 +22,10 @@ import java.util.jar.JarFile;
 
 import junit.framework.Assert;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.SchemaTypeLoader;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/05/19 20:53:59 $
+ * @version $Revision: 1.2 $ $Date: 2004/07/18 22:04:27 $
  */
 public class MockConnectorConfigBuilder extends Assert implements ModuleBuilder {
     public EARContext earContext;
@@ -69,5 +70,9 @@ public class MockConnectorConfigBuilder extends Assert implements ModuleBuilder 
         assertEquals(this.earContext, earContext);
         assertEquals(this.connectorModule, connectorModule);
         assertEquals(this.cl, cl);
+    }
+
+    public SchemaTypeLoader getSchemaTypeLoader() {
+        return null;
     }
 }

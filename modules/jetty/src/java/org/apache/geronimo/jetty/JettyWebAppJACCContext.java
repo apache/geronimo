@@ -17,14 +17,6 @@
 
 package org.apache.geronimo.jetty;
 
-import javax.security.auth.Subject;
-import javax.security.jacc.PolicyConfiguration;
-import javax.security.jacc.PolicyConfigurationFactory;
-import javax.security.jacc.PolicyContext;
-import javax.security.jacc.PolicyContextException;
-import javax.security.jacc.WebResourcePermission;
-import javax.security.jacc.WebUserDataPermission;
-import javax.transaction.TransactionManager;
 import java.io.IOException;
 import java.net.URI;
 import java.security.AccessControlContext;
@@ -36,19 +28,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.mortbay.http.Authenticator;
-import org.mortbay.http.HttpException;
-import org.mortbay.http.HttpRequest;
-import org.mortbay.http.HttpResponse;
-import org.mortbay.http.PathMap;
-import org.mortbay.http.SecurityConstraint;
-import org.mortbay.http.UserRealm;
-import org.mortbay.jetty.servlet.FormAuthenticator;
-import org.mortbay.jetty.servlet.ServletHttpRequest;
-import org.mortbay.util.LazyList;
+import javax.security.auth.Subject;
+import javax.security.jacc.PolicyConfiguration;
+import javax.security.jacc.PolicyConfigurationFactory;
+import javax.security.jacc.PolicyContext;
+import javax.security.jacc.PolicyContextException;
+import javax.security.jacc.WebResourcePermission;
+import javax.security.jacc.WebUserDataPermission;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.WaitingException;
@@ -65,13 +54,24 @@ import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.security.util.ConfigurationUtil;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.UserTransactionImpl;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.mortbay.http.Authenticator;
+import org.mortbay.http.HttpException;
+import org.mortbay.http.HttpRequest;
+import org.mortbay.http.HttpResponse;
+import org.mortbay.http.PathMap;
+import org.mortbay.http.SecurityConstraint;
+import org.mortbay.http.UserRealm;
+import org.mortbay.jetty.servlet.FormAuthenticator;
+import org.mortbay.jetty.servlet.ServletHttpRequest;
+import org.mortbay.util.LazyList;
 
 
 /**
  * A class extension to <code>JettyWebAppContext</code> whose purpose is to
  * provide JACC security checks.
  *
- * @version $Revision: 1.3 $ $Date: 2004/07/12 06:07:51 $
+ * @version $Revision: 1.4 $ $Date: 2004/07/18 22:04:27 $
  * @see org.mortbay.jetty.servlet.WebApplicationContext#checkSecurityConstraints(java.lang.String, org.mortbay.http.HttpRequest, org.mortbay.http.HttpResponse)
  */
 public class JettyWebAppJACCContext extends JettyWebAppContext {
@@ -94,20 +94,21 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
         this(null, null, null, null, null, null, null, null, null, null, null, null);
     }
 
-    public JettyWebAppJACCContext(ConfigurationParent config,
-                                  URI uri,
-                                  JettyContainer container,
+    public JettyWebAppJACCContext(URI uri,
                                   ReadOnlyContext compContext,
-                                  String policyContextID,
-                                  Security securityConfig,
+                                  UserTransactionImpl userTransaction,
+                                  ClassLoader classLoader,
                                   Set unshareableResources,
                                   Set applicationManagedSecurityResources,
-                                  TransactionManager txManager,
+                                  String policyContextID,
+                                  Security securityConfig,
+                                  TransactionContextManager transactionContextManager,
                                   TrackedConnectionAssociator associator,
-                                  UserTransactionImpl userTransaction,
-                                  ClassLoader classLoader) {
-        super(config, uri, container, compContext, unshareableResources, applicationManagedSecurityResources,
-              txManager, associator, userTransaction, classLoader);
+                                  ConfigurationParent config,
+                                  JettyContainer container
+                                  ) {
+        super(uri, compContext, userTransaction, classLoader, unshareableResources, applicationManagedSecurityResources, transactionContextManager, associator, config, container
+        );
 
         this.policyContextID = policyContextID;
         this.securityConfig = securityConfig;
@@ -178,7 +179,7 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
      *
      * @param pathSpec The path spec to which the secuiryt cosntraint applies
      * @param sc       the security constraint
-     * @todo Jetty to provide access to this map so we can remove this method
+     * TODO Jetty to provide access to this map so we can remove this method
      * @see org.mortbay.http.HttpContext#addSecurityConstraint(java.lang.String, org.mortbay.http.SecurityConstraint)
      */
     public void addSecurityConstraint(String pathSpec, SecurityConstraint sc) {
@@ -466,18 +467,19 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
         infoFactory.addAttribute("policyContextID", String.class, true);
 
         infoFactory.setConstructor(new String[]{
-            "Configuration",
-            "URI",
-            "JettyContainer",
+            "uri",
             "componentContext",
-            "policyContextID",
-            "securityConfig",
+            "userTransaction",
+            "classLoader",
             "unshareableResources",
             "applicationManagedSecurityResources",
-            "TransactionManager",
+            "policyContextID",
+            "securityConfig",
+            "TransactionContextManager",
             "TrackedConnectionAssociator",
-            "userTransaction",
-            "classLoader"});
+            "Configuration",
+            "JettyContainer",
+        });
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

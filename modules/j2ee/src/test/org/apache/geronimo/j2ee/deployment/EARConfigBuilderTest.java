@@ -57,18 +57,21 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/06/23 21:58:22 $
+ * @version $Revision: 1.4 $ $Date: 2004/07/18 22:04:27 $
  */
 public class EARConfigBuilderTest extends TestCase {
-    private static final ObjectName j2eeServer = JMXUtil.getObjectName("someDomain:j2eeType=J2EEServer,name=J2EEServerName");
-    private static final ObjectName transactionManagerObjectName = JMXUtil.getObjectName("someDomain:type=TransactionManager");
-    private static final ObjectName connectionTrackerObjectName = JMXUtil.getObjectName("someDomain:type=ConnectionTracker");
+    private static final String j2eeServerName = "someDomain";
+    private static final ObjectName j2eeServer = JMXUtil.getObjectName(j2eeServerName + ":j2eeType=J2EEServer,name=J2EEServerName");
+    private static final ObjectName transactionManagerObjectName = JMXUtil.getObjectName(j2eeServerName + ":type=TransactionManager");
+    private static final ObjectName connectionTrackerObjectName = JMXUtil.getObjectName(j2eeServerName + ":type=ConnectionTracker");
+    private static final ObjectName transactionalTimerObjectName = JMXUtil.getObjectName(j2eeServerName + ":type=ThreadPooledTimer,name=TransactionalThreaPooledTimer");
+    private static final ObjectName nonTransactionalTimerObjectName = JMXUtil.getObjectName(j2eeServerName + ":type=ThreadPooledTimer,name=NonTransactionalThreaPooledTimer");
 
     public void testBuildConfiguration() throws Exception {
         MockEJBConfigBuilder ejbConfigBuilder = new MockEJBConfigBuilder();
         MockWARConfigBuilder webConfigBuilder = new MockWARConfigBuilder();
         MockConnectorConfigBuilder connectorConfigBuilder = new MockConnectorConfigBuilder();
-        EARConfigBuilder configBuilder = new EARConfigBuilder(null, null, j2eeServer, ejbConfigBuilder, webConfigBuilder, connectorConfigBuilder, transactionManagerObjectName, connectionTrackerObjectName);
+        EARConfigBuilder configBuilder = new EARConfigBuilder(j2eeServer, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, ejbConfigBuilder, webConfigBuilder, connectorConfigBuilder, null);
         File earFile = new File("target/test-ear.ear");
 
         File carFile = File.createTempFile("EARTest", ".car");
@@ -89,7 +92,7 @@ public class EARConfigBuilderTest extends TestCase {
         MockEJBConfigBuilder ejbConfigBuilder = new MockEJBConfigBuilder();
         MockWARConfigBuilder webConfigBuilder = new MockWARConfigBuilder();
         MockConnectorConfigBuilder connectorConfigBuilder = new MockConnectorConfigBuilder();
-        EARConfigBuilder configBuilder = new EARConfigBuilder(null, null, j2eeServer, ejbConfigBuilder, webConfigBuilder, connectorConfigBuilder, transactionManagerObjectName, connectionTrackerObjectName);
+        EARConfigBuilder configBuilder = new EARConfigBuilder(j2eeServer, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, ejbConfigBuilder, webConfigBuilder, connectorConfigBuilder, null);
         File earFile = new File("target/test-naked-ear.ear");
 
         File carFile = File.createTempFile("EARTest", ".car");
@@ -109,7 +112,7 @@ public class EARConfigBuilderTest extends TestCase {
     public void testNoEJBDeployer() throws Exception {
         MockWARConfigBuilder warConfigBuilder = new MockWARConfigBuilder();
         MockConnectorConfigBuilder connectorConfigBuilder = new MockConnectorConfigBuilder();
-        EARConfigBuilder configBuilder = new EARConfigBuilder(null, null, j2eeServer, null, warConfigBuilder, connectorConfigBuilder, transactionManagerObjectName, connectionTrackerObjectName);
+        EARConfigBuilder configBuilder = new EARConfigBuilder(j2eeServer, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, null, warConfigBuilder, connectorConfigBuilder, null);
         File earFile = new File("target/test-ear.ear");
 
         File carFile = File.createTempFile("EARTest", ".car");
@@ -127,7 +130,7 @@ public class EARConfigBuilderTest extends TestCase {
     public void testNoWARDeployer() throws Exception {
         MockEJBConfigBuilder ejbConfigBuilder = new MockEJBConfigBuilder();
         MockConnectorConfigBuilder connectorConfigBuilder = new MockConnectorConfigBuilder();
-        EARConfigBuilder configBuilder = new EARConfigBuilder(null, null, j2eeServer, ejbConfigBuilder, null, connectorConfigBuilder, transactionManagerObjectName, connectionTrackerObjectName);
+        EARConfigBuilder configBuilder = new EARConfigBuilder(j2eeServer, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, ejbConfigBuilder, null, connectorConfigBuilder, null);
         File earFile = new File("target/test-ear.ear");
 
         File carFile = File.createTempFile("EARTest", ".car");
@@ -145,7 +148,7 @@ public class EARConfigBuilderTest extends TestCase {
     public void testNoConnectorDeployer() throws Exception {
         MockWARConfigBuilder warConfigBuilder = new MockWARConfigBuilder();
         MockEJBConfigBuilder ejbConfigBuilder = new MockEJBConfigBuilder();
-        EARConfigBuilder configBuilder = new EARConfigBuilder(null, null, j2eeServer, ejbConfigBuilder, warConfigBuilder, null, transactionManagerObjectName, connectionTrackerObjectName);
+        EARConfigBuilder configBuilder = new EARConfigBuilder(j2eeServer, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, ejbConfigBuilder, warConfigBuilder, null, null);
         File earFile = new File("target/test-ear.ear");
 
         File carFile = File.createTempFile("EARTest", ".car");

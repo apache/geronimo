@@ -23,9 +23,10 @@ import java.util.jar.JarFile;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.SchemaTypeLoader;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/05/19 20:53:59 $
+ * @version $Revision: 1.2 $ $Date: 2004/07/18 22:04:27 $
  */
 public interface ModuleBuilder {
     XmlObject getDeploymentPlan(URL module) throws XmlException;
@@ -43,4 +44,6 @@ public interface ModuleBuilder {
     void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException;
 
     void addGBeans(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException;
+
+    SchemaTypeLoader getSchemaTypeLoader();
 }

@@ -31,11 +31,14 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.LinkedHashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
+
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -63,9 +66,16 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Revision: 1.12 $ $Date: 2004/07/06 17:19:14 $
+ * @version $Revision: 1.13 $ $Date: 2004/07/18 22:04:27 $
  */
 public class EARConfigBuilder implements ConfigurationBuilder {
+    static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderUnion(new SchemaTypeLoader[] {
+        XmlBeans.typeLoaderForClassLoader(org.apache.geronimo.xbeans.j2ee.String.class.getClassLoader()),
+        XmlBeans.typeLoaderForClassLoader(GerApplicationDocument.class.getClassLoader())
+    });
+
+
+
     private static final String PARENT_ID = "org/apache/geronimo/Server";
 
     private final Kernel kernel;
@@ -76,12 +86,15 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     private final String j2eeServerName;
     private final String j2eeDomainName;
     private final ObjectName j2eeServer;
-    private final ObjectName transactionManagerObjectName;
+    private final ObjectName transactionContextManagerObjectName;
     private final ObjectName connectionTrackerObjectName;
+    private final ObjectName transactionalTimerObjectName;
+    private final ObjectName nonTransactionalTimerObjectName;
 
 
-    public EARConfigBuilder(Kernel kernel, Repository repository, ObjectName j2eeServer, ModuleBuilder ejbConfigBuilder, ModuleBuilder webConfigBuilder, ModuleBuilder connectorConfigBuilder,
-                            ObjectName transactionManagerObjectName, ObjectName connectionTrackerObjectName) {
+    public EARConfigBuilder(
+            ObjectName j2eeServer, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName transactionalTimerObjectName, ObjectName nonTransactionalTimerObjectName, Repository repository, ModuleBuilder ejbConfigBuilder, ModuleBuilder webConfigBuilder, ModuleBuilder connectorConfigBuilder, Kernel kernel
+            ) {
         this.kernel = kernel;
         this.repository = repository;
         this.j2eeServer = j2eeServer;
@@ -91,16 +104,41 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         this.ejbConfigBuilder = ejbConfigBuilder;
         this.webConfigBuilder = webConfigBuilder;
         this.connectorConfigBuilder = connectorConfigBuilder;
-        this.transactionManagerObjectName = transactionManagerObjectName;
+        this.transactionContextManagerObjectName = transactionContextManagerObjectName;
         this.connectionTrackerObjectName = connectionTrackerObjectName;
+        this.transactionalTimerObjectName = transactionalTimerObjectName;
+        this.nonTransactionalTimerObjectName = nonTransactionalTimerObjectName;
     }
 
     public boolean canConfigure(XmlObject plan) {
-        return plan instanceof ApplicationDocument;
+        if (plan instanceof GerApplicationDocument) {
+            return true;
+        }
+        if (connectorConfigBuilder != null && connectorConfigBuilder.canHandlePlan(plan)) {
+            return true;
+        }
+        if (ejbConfigBuilder != null && ejbConfigBuilder.canHandlePlan(plan)) {
+            return true;
+        }
+        if (webConfigBuilder != null && webConfigBuilder.canHandlePlan(plan)) {
+            return true;
+        }
+        return false;
     }
 
     public SchemaTypeLoader[] getTypeLoaders() {
-        return new SchemaTypeLoader[]{XmlBeans.getContextTypeLoader()};
+        List typeLoaders = new ArrayList();
+        typeLoaders.add(SCHEMA_TYPE_LOADER);
+        if (connectorConfigBuilder != null) {
+            typeLoaders.add(connectorConfigBuilder.getSchemaTypeLoader());
+        }
+        if (ejbConfigBuilder != null) {
+            typeLoaders.add(ejbConfigBuilder.getSchemaTypeLoader());
+        }
+        if (webConfigBuilder != null) {
+            typeLoaders.add(webConfigBuilder.getSchemaTypeLoader());
+        }
+        return (SchemaTypeLoader[])typeLoaders.toArray(new SchemaTypeLoader[typeLoaders.size()]);
     }
 
     public XmlObject getDeploymentPlan(URL module) throws XmlException {
@@ -114,11 +152,11 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             }
             GerApplicationDocument gerAppDoc = (GerApplicationDocument) XmlBeansUtil.getXmlObject(new URL(moduleBase, "META-INF/geronimo-application.xml"), GerApplicationDocument.type);
             if (gerAppDoc != null) {
-                return gerAppDoc.getApplication();
+                return gerAppDoc;
             }
 
             // try to create a default plan (will return null if this is not an ear file)
-            GerApplicationType defaultPlan = createDefaultPlan(moduleBase);
+            GerApplicationDocument defaultPlan = createDefaultPlan(moduleBase);
             if (defaultPlan != null) {
                 return defaultPlan;
             }
@@ -150,7 +188,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         return null;
     }
 
-    private GerApplicationType createDefaultPlan(URL moduleBase) throws XmlException {
+    private GerApplicationDocument createDefaultPlan(URL moduleBase) throws XmlException {
         // load the web.xml
         URL applicationXmlUrl = null;
         try {
@@ -164,7 +202,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         }
 
         // construct the empty geronimo-application.xml
-        GerApplicationType gerApplication = GerApplicationType.Factory.newInstance();
+        GerApplicationDocument gerApplicationDocument = GerApplicationDocument.Factory.newInstance();
+        GerApplicationType gerApplication = gerApplicationDocument.addNewApplication();
 
         // set the parentId and configId
         gerApplication.setParentId(PARENT_ID);
@@ -172,16 +211,16 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         if (id == null) {
             id = moduleBase.getFile();
             if (id.endsWith("!/")) {
-                id = id.substring(0, id.length()-2);
+                id = id.substring(0, id.length() - 2);
             }
             if (id.endsWith(".ear")) {
-                id = id.substring(0, id.length()-4);
+                id = id.substring(0, id.length() - 4);
             }
             id = id.substring(id.lastIndexOf('/') + 1);
         }
 
         gerApplication.setConfigId(id);
-        return gerApplication;
+        return gerApplicationDocument;
     }
 
 
@@ -227,8 +266,10 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                         j2eeDomainName,
                         j2eeServerName,
                         applicationName,
-                        transactionManagerObjectName,
-                        connectionTrackerObjectName);
+                        transactionContextManagerObjectName,
+                        connectionTrackerObjectName,
+                        transactionalTimerObjectName,
+                        nonTransactionalTimerObjectName);
             } catch (MalformedObjectNameException e) {
                 throw new DeploymentException(e);
             }
@@ -244,8 +285,9 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             }
 
             // add dependencies declared in the geronimo-application.xml
-            if (plan instanceof GerApplicationType) {
-                GerApplicationType geronimoApplication = (GerApplicationType) plan;
+            if (plan instanceof GerApplicationDocument) {
+                GerApplicationDocument applicationDoc = (GerApplicationDocument) plan;
+                GerApplicationType geronimoApplication = applicationDoc.getApplication();
                 GerDependencyType[] dependencies = geronimoApplication.getDependencyArray();
                 for (int i = 0; i < dependencies.length; i++) {
                     earContext.addDependency(getDependencyURI(dependencies[i]));
@@ -266,8 +308,9 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             }
 
             // add gbeans declared in the geronimo-application.xml
-            if (plan instanceof GerApplicationType) {
-                GerApplicationType geronimoApplication = (GerApplicationType) plan;
+            if (plan instanceof GerApplicationDocument) {
+                GerApplicationDocument applicationDoc = (GerApplicationDocument) plan;
+                GerApplicationType geronimoApplication = applicationDoc.getApplication();
                 GerGbeanType[] gbeans = geronimoApplication.getGbeanArray();
                 for (int i = 0; i < gbeans.length; i++) {
                     GBeanHelper.addGbean(new GerGBeanAdapter(gbeans[i]), cl, earContext);
@@ -307,7 +350,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
     private ApplicationType addModules(URI configId, XmlObject plan, JarFile earFile, Set moduleLocations, Set modules) throws DeploymentException, IOException {
         ApplicationType application;
-        if (plan instanceof GerApplicationType) {
+        if (plan instanceof GerApplicationDocument) {
             try {
                 JarEntry appXMLEntry = earFile.getJarEntry("META-INF/application.xml");
                 if (appXMLEntry == null) {
@@ -385,8 +428,9 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     }
 
     private URI getParentId(XmlObject plan) throws DeploymentException {
-        if (plan instanceof GerApplicationType) {
-            GerApplicationType application = (GerApplicationType) plan;
+        if (plan instanceof GerApplicationDocument) {
+            GerApplicationDocument applicationDoc = (GerApplicationDocument) plan;
+            GerApplicationType application = applicationDoc.getApplication();
             if (application.isSetParentId()) {
                 try {
                     return new URI(application.getParentId());
@@ -420,8 +464,9 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     }
 
     private URI getConfigId(XmlObject plan) throws DeploymentException {
-        if (plan instanceof GerApplicationType) {
-            GerApplicationType application = (GerApplicationType) plan;
+        if (plan instanceof GerApplicationDocument) {
+            GerApplicationDocument applicationDoc = (GerApplicationDocument) plan;
+            GerApplicationType application = applicationDoc.getApplication();
             try {
                 return new URI(application.getConfigId());
             } catch (URISyntaxException e) {
@@ -474,26 +519,33 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(EARConfigBuilder.class);
-        infoFactory.addAttribute("kernel", Kernel.class, false);
-        infoFactory.addAttribute("transactionManagerObjectName", ObjectName.class, true);
-        infoFactory.addAttribute("connectionTrackerObjectName", ObjectName.class, true);
-        infoFactory.addReference("Repository", Repository.class);
         infoFactory.addAttribute("j2eeServer", ObjectName.class, true);
+        infoFactory.addAttribute("transactionContextManagerObjectName", ObjectName.class, true);
+        infoFactory.addAttribute("connectionTrackerObjectName", ObjectName.class, true);
+        infoFactory.addAttribute("transactionalTimerObjectName", ObjectName.class, true);
+        infoFactory.addAttribute("nonTransactionalTimerObjectName", ObjectName.class, true);
+
+        infoFactory.addReference("Repository", Repository.class);
         infoFactory.addReference("EJBConfigBuilder", ModuleBuilder.class);
         infoFactory.addReference("WebConfigBuilder", ModuleBuilder.class);
         infoFactory.addReference("ConnectorConfigBuilder", ModuleBuilder.class);
 
+        infoFactory.addAttribute("kernel", Kernel.class, false);
+
         infoFactory.addInterface(ConfigurationBuilder.class);
 
         infoFactory.setConstructor(new String[]{
-            "kernel",
-            "Repository",
             "j2eeServer",
+            "transactionContextManagerObjectName",
+            "connectionTrackerObjectName",
+            "transactionalTimerObjectName",
+            "nonTransactionalTimerObjectName",
+            "Repository",
             "EJBConfigBuilder",
             "WebConfigBuilder",
             "ConnectorConfigBuilder",
-            "transactionManagerObjectName",
-            "connectionTrackerObjectName"});
+            "kernel"
+        });
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

@@ -22,8 +22,8 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.Set;
+
 import javax.resource.ResourceException;
-import javax.transaction.TransactionManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -37,9 +37,8 @@ import org.apache.geronimo.naming.java.RootContext;
 import org.apache.geronimo.transaction.DefaultInstanceContext;
 import org.apache.geronimo.transaction.InstanceContext;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
-import org.apache.geronimo.transaction.TransactionContext;
-import org.apache.geronimo.transaction.UnspecifiedTransactionContext;
 import org.apache.geronimo.transaction.UserTransactionImpl;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.mortbay.http.HttpException;
 import org.mortbay.http.HttpRequest;
 import org.mortbay.http.HttpResponse;
@@ -48,7 +47,7 @@ import org.mortbay.jetty.servlet.WebApplicationContext;
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
  *
- * @version $Revision: 1.2 $ $Date: 2004/07/12 06:07:51 $
+ * @version $Revision: 1.3 $ $Date: 2004/07/18 22:04:27 $
  */
 public class JettyWebAppContext extends WebApplicationContext implements GBeanLifecycle {
 
@@ -58,7 +57,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     private final URI uri;
     private final JettyContainer container;
     private final ReadOnlyContext componentContext;
-    private final TransactionManager txManager;
+    private final TransactionContextManager transactionContextManager;
     private final TrackedConnectionAssociator associator;
     private final UserTransactionImpl userTransaction;
     private final ClassLoader classLoader;
@@ -73,16 +72,17 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         this(null, null, null, null, null, null, null, null, null, null);
     }
 
-    public JettyWebAppContext(ConfigurationParent config,
-            URI uri,
-            JettyContainer container,
-            ReadOnlyContext compContext,
-            Set unshareableResources,
-            Set applicationManagedSecurityResources,
-            TransactionManager txManager,
-            TrackedConnectionAssociator associator,
-            UserTransactionImpl userTransaction,
-            ClassLoader classLoader) {
+    public JettyWebAppContext(URI uri,
+                              ReadOnlyContext compContext,
+                              UserTransactionImpl userTransaction,
+                              ClassLoader classLoader,
+                              Set unshareableResources,
+                              Set applicationManagedSecurityResources,
+                              TransactionContextManager transactionContextManager,
+                              TrackedConnectionAssociator associator,
+                              ConfigurationParent config,
+                              JettyContainer container
+                              ) {
         super();
         this.config = config;
         this.uri = uri;
@@ -90,7 +90,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         this.componentContext = compContext;
         this.unshareableResources = unshareableResources;
         this.applicationManagedSecurityResources = applicationManagedSecurityResources;
-        this.txManager = txManager;
+        this.transactionContextManager = transactionContextManager;
         this.associator = associator;
         this.userTransaction = userTransaction;
         this.classLoader = classLoader;
@@ -139,9 +139,9 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     }
 
     public void handle(String pathInContext,
-            String pathParams,
-            HttpRequest httpRequest,
-            HttpResponse httpResponse)
+                       String pathParams,
+                       HttpRequest httpRequest,
+                       HttpResponse httpResponse)
             throws HttpException, IOException {
 
         // save previous state
@@ -156,8 +156,8 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
             // Turn on the UserTransaction
             userTransaction.setOnline(true);
 
-            if (TransactionContext.getContext() == null) {
-                TransactionContext.setContext(new UnspecifiedTransactionContext());
+            if (transactionContextManager.getContext() == null) {
+                transactionContextManager.newUnspecifiedTransactionContext();
             }
             try {
                 oldInstanceContext = associator.enter(new DefaultInstanceContext(unshareableResources, applicationManagedSecurityResources));
@@ -175,12 +175,11 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
                 userTransaction.setOnline(false);
                 RootContext.setComponentContext(oldComponentContext);
             }
+            //TODO should we reset the transactioncontext to null if we set it?
         }
     }
 
     public void doStart() throws WaitingException, Exception {
-
-        userTransaction.setUp(txManager, associator);
 
         if (uri.isAbsolute()) {
             setWAR(uri.toString());
@@ -188,6 +187,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
             setWAR(new URL(config.getBaseURL(), uri.toString()).toString());
         }
         if (userTransaction != null) {
+            userTransaction.setUp(transactionContextManager, associator);
             userTransaction.setOnline(true);
         }
         container.addContext(this);
@@ -237,7 +237,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory("Jetty WebApplication Context", JettyWebAppContext.class);
 
-        infoFactory.addAttribute("URI", URI.class, true);
+        infoFactory.addAttribute("uri", URI.class, true);
         infoFactory.addAttribute("contextPath", String.class, true);
         infoFactory.addAttribute("contextPriorityClassLoader", Boolean.TYPE, true);
         infoFactory.addAttribute("componentContext", ReadOnlyContext.class, true);
@@ -248,20 +248,21 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
         infoFactory.addReference("Configuration", ConfigurationParent.class);
         infoFactory.addReference("JettyContainer", JettyContainer.class);
-        infoFactory.addReference("TransactionManager", TransactionManager.class);
+        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class);
         infoFactory.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class);
 
         infoFactory.setConstructor(new String[]{
-            "Configuration",
-            "URI",
-            "JettyContainer",
+            "uri",
             "componentContext",
+            "userTransaction",
+            "classLoader",
             "unshareableResources",
             "applicationManagedSecurityResources",
-            "TransactionManager",
+            "TransactionContextManager",
             "TrackedConnectionAssociator",
-            "userTransaction",
-            "classLoader"});
+            "Configuration",
+            "JettyContainer",
+        });
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
