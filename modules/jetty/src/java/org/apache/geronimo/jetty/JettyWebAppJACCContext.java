@@ -71,7 +71,7 @@ import org.apache.geronimo.transaction.UserTransactionImpl;
  * A class extension to <code>JettyWebAppContext</code> whose purpose is to
  * provide JACC security checks.
  *
- * @version $Revision: 1.1 $ $Date: 2004/06/27 20:37:38 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/29 02:48:59 $
  * @see org.mortbay.jetty.servlet.WebApplicationContext#checkSecurityConstraints(java.lang.String, org.mortbay.http.HttpRequest, org.mortbay.http.HttpResponse)
  */
 public class JettyWebAppJACCContext extends JettyWebAppContext {
@@ -290,10 +290,11 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
                         }
                     } else {
                         unauthenticated = true;
-                        break loop;
                     }
                 }
             }
+        } else {
+            unauthenticated = true;
         }
 
         UserRealm realm = getRealm();
