@@ -66,7 +66,7 @@ import java.net.URL;
 import junit.framework.TestCase;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2003/08/18 20:53:05 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/19 02:39:02 $
  */
 public class URLNameTest extends TestCase {
     public URLNameTest(String name) {
@@ -368,4 +368,34 @@ public class URLNameTest extends TestCase {
         assertEquals(new URLName("http://www.apache.org"), new URLName("http", "www.apache.org", -1, null, null, "doe"));
     }
 
+    public void testHashCode() {
+        URLName name1 = new URLName("http://www.apache.org/file");
+        URLName name2 = new URLName("http://www.apache.org/file#ref");
+        assertTrue(name1.equals(name2));
+        assertTrue(name1.hashCode() == name2.hashCode());
+    }
+
+    public void testNullProtocol() {
+        URLName name1 = new URLName(null, "www.apache.org", -1, null, null, null);
+        assertTrue(!name1.equals(name1));
+    }
+
+    public void testOpaqueSchemes() {
+        String s;
+        URLName name;
+
+        // not strictly opaque but no protocol handler installed
+        s = "foo://jdoe@apache.org/INBOX";
+        name = new URLName(s);
+        assertEquals(s, name.toString());
+        assertEquals("foo", name.getProtocol());
+        assertEquals("apache.org", name.getHost());
+        assertEquals(-1, name.getPort());
+        assertEquals("/INBOX", name.getFile());
+        assertNull(name.getRef());
+        assertEquals("jdoe", name.getUsername());
+        assertNull(name.getPassword());
+
+        // TBD as I am not sure what other URL formats to use
+    }
 }

@@ -66,7 +66,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2003/08/18 20:53:05 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/19 02:39:02 $
  */
 public class URLName {
     private String file;
@@ -77,6 +77,7 @@ public class URLName {
     private String ref;
     private String username;
     protected String fullURL;
+    private int hashCode;
 
     public URLName(String url) {
         parseString(url);
@@ -184,6 +185,7 @@ public class URLName {
     }
 
     private void updateFullURL() {
+        hashCode = 0;
         StringBuffer buf = new StringBuffer(100);
         if (protocol != null) {
             buf.append(protocol).append(':');
@@ -203,6 +205,7 @@ public class URLName {
                 if (file != null) {
                     buf.append(file);
                 }
+                hashCode = buf.toString().hashCode();
                 if (ref != null) {
                     buf.append('#').append(ref);
                 }
@@ -238,7 +241,7 @@ public class URLName {
     }
 
     public int hashCode() {
-        return fullURL.hashCode();
+        return hashCode;
     }
 
     public String toString() {
