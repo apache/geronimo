@@ -688,9 +688,16 @@
             <artifactId>xercesImpl</artifactId>
             <version>${xerces_version}</version>
             <properties>
-                <repository>true</repository>
-                <server>true</server>
-                <client>true</client>
+                <endorsed>true</endorsed>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xmlParserAPIs</artifactId>
+            <version>${xml_parser_apis_version}</version>
+            <properties>
+                <endorsed>true</endorsed>
             </properties>
         </dependency>
 

@@ -79,12 +79,16 @@
         <!-- Copy  the runtime dependencies into lib and create a classpath for the server.jar file -->
         <j:set var="libDir" value="${distDir}/lib"/>
         <ant:mkdir dir="${libDir}"/>
+        <ant:mkdir dir="${libDir}/endorsed"/>
 
         <j:forEach var="artifact" items="${pom.artifacts}">
             <j:set var="dependency" value="${artifact.dependency}"/>
             <j:if test="${dependency.getProperty('lib') == 'true'}">
                 <ant:copy todir="${libDir}" file="${artifact.path}"/>
                 <j:set var="classpath" value="${classpath} ../lib/${artifact.name}"/>
+            </j:if>
+            <j:if test="${dependency.getProperty('endorsed') == 'true'}">
+                <ant:copy todir="${libDir}/endorsed" file="${artifact.path}"/>
             </j:if>
             <j:if test="${dependency.getProperty('server') == 'true'}">
                 <j:set var="server.classpath" value="${server.classpath} ../lib/${artifact.name}"/>
