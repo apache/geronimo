@@ -63,13 +63,15 @@ import org.apache.geronimo.deployment.model.j2ee.MessageDestinationRef;
 import org.apache.geronimo.deployment.model.j2ee.ResourceEnvRef;
 import org.apache.geronimo.deployment.model.j2ee.ResourceRef;
 import org.apache.geronimo.deployment.model.j2ee.ServiceRef;
+import org.apache.geronimo.deployment.model.j2ee.JNDIEnvironmentRefs;
+import org.apache.geronimo.deployment.model.j2ee.EJBLocalRef;
 
 /**
  * JavaBean for the application-client.xml tag application-client
  *
- * @version $Revision: 1.4 $ $Date: 2003/09/17 01:47:15 $
+ * @version $Revision: 1.5 $ $Date: 2003/10/07 19:16:31 $
  */
-public class ApplicationClient extends Displayable {
+public class ApplicationClient extends Displayable implements JNDIEnvironmentRefs {
     private String version;
     private EnvEntry[] envEntry;
     private EJBRef[] ejbRef;
@@ -206,5 +208,21 @@ public class ApplicationClient extends Displayable {
 
     public void setServiceRef(int i, ServiceRef serviceRef) {
         this.serviceRef[i] = serviceRef;
+    }
+
+    public EJBLocalRef[] getEJBLocalRef() {
+        return new EJBLocalRef[0];
+    }
+
+    public EJBLocalRef getEJBLocalRef(int i) {
+        return null;
+    }
+
+    public void setEJBLocalRef(EJBLocalRef[] ejbLocalRef) {
+        throw new UnsupportedOperationException("Application client does not support EJB local references.");
+    }
+
+    public void setEJBLocalRef(int i, EJBLocalRef ejbLocalRef) {
+        throw new UnsupportedOperationException("Application client does not support EJB local references.");
     }
 }

@@ -68,11 +68,23 @@ import org.apache.geronimo.deployment.model.geronimo.j2ee.ServiceRef;
 /**
  * JavaBean for the geronimo-application-client.xml tag application-client
  *
- * @version $Revision: 1.3 $ $Date: 2003/09/17 01:47:15 $
+ * @version $Revision: 1.4 $ $Date: 2003/10/07 19:16:31 $
  */
 public class ApplicationClient extends org.apache.geronimo.deployment.model.appclient.ApplicationClient implements JNDIEnvironmentRefs {
     public EjbLocalRef[] getGeronimoEJBLocalRef() {
         return new EjbLocalRef[0];
+    }
+
+    public EjbLocalRef getGeronimoEJBLocalRef(int i) {
+        return null;
+    }
+
+    public void setGeronimoEJBLocalRef(int i, EjbLocalRef ejbRef) {
+        throw new UnsupportedOperationException("Application client does not support EJB local references.");
+    }
+
+    public void setGeronimoEJBLocalRef(EjbLocalRef[] ejbRef) {
+        throw new UnsupportedOperationException("Application client does not support EJB local references.");
     }
 
     public void setEJBRef(org.apache.geronimo.deployment.model.j2ee.EJBRef[] ejbRef) {
