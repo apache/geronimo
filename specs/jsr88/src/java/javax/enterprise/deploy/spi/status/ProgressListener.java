@@ -61,6 +61,10 @@ package javax.enterprise.deploy.spi.status;
 
 import java.util.EventListener;
 
-public interface ProgressListener extends EventListener{
+/**
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/08/16 01:32:55 $
+ */
+public interface ProgressListener extends EventListener {
     public void handleProgressEvent(ProgressEvent event);
 }

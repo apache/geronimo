@@ -65,6 +65,10 @@ import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
 import javax.enterprise.deploy.spi.exceptions.BeanNotFoundException;
 import java.beans.PropertyChangeListener;
 
+/**
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/08/16 01:32:54 $
+ */
 public interface DConfigBean {
     public DDBean getDDBean();
 

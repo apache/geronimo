@@ -59,6 +59,10 @@
  */
 package javax.enterprise.deploy.shared;
 
+/**
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/08/16 01:32:54 $
+ */
 public class CommandType {
     private static final int MAX_VALUE = 4;
 
@@ -68,7 +72,7 @@ public class CommandType {
     public static final CommandType UNDEPLOY = new CommandType(3);
     public static final CommandType REDEPLOY = new CommandType(4);
 
-    private static final CommandType[] enumValueTable = new CommandType[] {
+    private static final CommandType[] enumValueTable = new CommandType[]{
         DISTRIBUTE,
         START,
         STOP,
@@ -76,7 +80,7 @@ public class CommandType {
         REDEPLOY,
     };
 
-    private static final String[] stringTable = new String[] {
+    private static final String[] stringTable = new String[]{
         "distribute",
         "start",
         "stop",

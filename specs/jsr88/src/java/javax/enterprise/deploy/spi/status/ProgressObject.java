@@ -62,6 +62,10 @@ package javax.enterprise.deploy.spi.status;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.exceptions.OperationUnsupportedException;
 
+/**
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/08/16 01:32:55 $
+ */
 public interface ProgressObject {
     public DeploymentStatus getDeploymentStatus();
 

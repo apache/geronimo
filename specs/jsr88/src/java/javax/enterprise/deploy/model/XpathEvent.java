@@ -61,6 +61,10 @@ package javax.enterprise.deploy.model;
 
 import java.beans.PropertyChangeEvent;
 
+/**
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/08/16 01:32:54 $
+ */
 public class XpathEvent {
     /**@todo is this the right ? */
     public static final Object BEAN_ADDED = new Object();

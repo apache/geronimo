@@ -62,6 +62,10 @@ package javax.enterprise.deploy.spi.factories;
 import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
 import javax.enterprise.deploy.spi.DeploymentManager;
 
+/**
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/08/16 01:32:55 $
+ */
 public interface DeploymentFactory {
     public boolean handlesURI(String uri);
 

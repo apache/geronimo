@@ -59,6 +59,10 @@
  */
 package javax.enterprise.deploy.spi;
 
+/**
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/08/16 01:32:54 $
+ */
 public interface TargetModuleID {
     public Target getTarget();
 

@@ -63,6 +63,10 @@ import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.shared.StateType;
 import javax.enterprise.deploy.shared.ActionType;
 
+/**
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/08/16 01:32:55 $
+ */
 public interface DeploymentStatus {
     public StateType getState();
 

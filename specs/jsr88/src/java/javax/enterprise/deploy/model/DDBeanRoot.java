@@ -61,12 +61,23 @@ package javax.enterprise.deploy.model;
 
 import javax.enterprise.deploy.shared.ModuleType;
 
+/**
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/08/16 01:32:54 $
+ */
 public interface DDBeanRoot extends DDBean {
     public ModuleType getType();
 
     public DeployableObject getDeployableObject();
 
+    /**
+     * @deprecated
+     */
     public String getModuleDTDVersion();
 
+    public String getDDBeanRootVersion();
+
     public String getXpath();
+
+    public String getFilename();
 }

@@ -65,10 +65,17 @@ import javax.enterprise.deploy.spi.factories.DeploymentFactory;
 import java.util.Iterator;
 import java.util.ArrayList;
 
-public class DeploymentFactoryManager {
+/**
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/08/16 01:32:54 $
+ */
+public final class DeploymentFactoryManager {
     private static DeploymentFactoryManager instance;
 
     private ArrayList deploymentFactories = new ArrayList();
+
+    private DeploymentFactoryManager() {
+    }
 
     public static DeploymentFactoryManager getInstance() {
         if (instance == null) {
@@ -76,13 +83,6 @@ public class DeploymentFactoryManager {
         }
         return instance;
     }
-
-    public void registerDeploymentFactory(DeploymentFactory factory) {
-          // apparently we dont care about null values, the Sun RI even adds the null
-          // to the list. So after registerDeploymentFactory(null) getDeploymentFactories()
-          // return an array with length 1.
-          deploymentFactories.add(factory);
-      }
 
     public DeploymentFactory[] getDeploymentFactories() {
         return (DeploymentFactory[]) deploymentFactories.toArray(new DeploymentFactory[]{});
@@ -124,5 +124,12 @@ public class DeploymentFactoryManager {
             }
         }
         throw new DeploymentManagerCreationException("Could not get DeploymentManager");
+    }
+
+    public void registerDeploymentFactory(DeploymentFactory factory) {
+        // apparently we dont care about null values, the Sun RI even adds the null
+        // to the list. So after registerDeploymentFactory(null) getDeploymentFactories()
+        // return an array with length 1.
+        deploymentFactories.add(factory);
     }
 }

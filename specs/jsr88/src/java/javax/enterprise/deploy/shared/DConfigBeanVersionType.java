@@ -59,6 +59,10 @@
  */
 package javax.enterprise.deploy.shared;
 
+/**
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/08/16 01:32:54 $
+ */
 public class DConfigBeanVersionType {
     private static final int MAX_VALUE = 2;
 
@@ -90,7 +94,7 @@ public class DConfigBeanVersionType {
     }
 
     protected String[] getStringTable() {
-         return stringTable;
+        return stringTable;
     }
 
     protected DConfigBeanVersionType[] getEnumValueTable() {

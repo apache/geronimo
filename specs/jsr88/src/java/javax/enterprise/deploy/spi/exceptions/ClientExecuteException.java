@@ -59,11 +59,16 @@
  */
 package javax.enterprise.deploy.spi.exceptions;
 
+/**
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/08/16 01:32:54 $
+ */
 public class ClientExecuteException extends Exception {
     public ClientExecuteException() {
+        super();
     }
 
-    public ClientExecuteException(String msh) {
-        super(msh);
+    public ClientExecuteException(String msg) {
+        super(msg);
     }
 }

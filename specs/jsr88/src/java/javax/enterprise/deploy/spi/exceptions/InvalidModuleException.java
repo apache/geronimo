@@ -59,6 +59,10 @@
  */
 package javax.enterprise.deploy.spi.exceptions;
 
+/**
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/08/16 01:32:54 $
+ */
 public class InvalidModuleException extends Exception {
     public InvalidModuleException(String s) {
         super(s);

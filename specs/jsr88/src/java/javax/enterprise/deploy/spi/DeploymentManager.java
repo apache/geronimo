@@ -70,6 +70,10 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.Locale;
 
+/**
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/08/16 01:32:54 $
+ */
 public interface DeploymentManager {
     public Target[] getTargets() throws IllegalStateException;
 

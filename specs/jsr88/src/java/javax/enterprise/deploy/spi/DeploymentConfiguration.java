@@ -66,6 +66,10 @@ import javax.enterprise.deploy.spi.exceptions.BeanNotFoundException;
 import java.io.OutputStream;
 import java.io.InputStream;
 
+/**
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/08/16 01:32:54 $
+ */
 public interface DeploymentConfiguration {
     public DeployableObject getDeployableObject();
 

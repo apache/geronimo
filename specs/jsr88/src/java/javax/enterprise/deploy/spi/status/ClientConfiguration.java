@@ -62,6 +62,10 @@ package javax.enterprise.deploy.spi.status;
 import javax.enterprise.deploy.spi.exceptions.ClientExecuteException;
 import java.io.Serializable;
 
+/**
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/08/16 01:32:55 $
+ */
 public interface ClientConfiguration extends Serializable {
     public void execute() throws ClientExecuteException;
 }

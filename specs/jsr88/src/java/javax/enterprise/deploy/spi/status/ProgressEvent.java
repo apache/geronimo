@@ -62,6 +62,10 @@ package javax.enterprise.deploy.spi.status;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import java.util.EventObject;
 
+/**
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/08/16 01:32:55 $
+ */
 public class ProgressEvent extends EventObject {
     private TargetModuleID targetModuleID;
     private DeploymentStatus deploymentStatus;

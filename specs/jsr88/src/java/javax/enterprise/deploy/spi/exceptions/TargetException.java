@@ -59,7 +59,11 @@
  */
 package javax.enterprise.deploy.spi.exceptions;
 
-public class TargetException extends Exception{
+/**
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/08/16 01:32:54 $
+ */
+public class TargetException extends Exception {
     public TargetException(String s) {
         super(s);
     }

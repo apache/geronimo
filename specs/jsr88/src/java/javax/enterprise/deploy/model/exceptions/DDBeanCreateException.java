@@ -57,30 +57,18 @@
  *
  * ====================================================================
  */
-package javax.enterprise.deploy.model;
-
-import javax.enterprise.deploy.shared.ModuleType;
+package javax.enterprise.deploy.model.exceptions;
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/16 01:32:54 $
+ * @version $Revision: 1.1 $ $Date: 2003/08/16 01:32:54 $
  */
-public interface J2eeApplicationObject extends DeployableObject {
-    public DeployableObject getDeployableObject(String uri);
+public class DDBeanCreateException extends Exception {
+    public DDBeanCreateException() {
+        super();
+    }
 
-    public DeployableObject[] getDeployableObjects(ModuleType type);
-
-    public DeployableObject[] getDeployableObjects();
-
-    public String[] getModuleUris(ModuleType type);
-
-    public String[] getModuleUris();
-
-    public DDBean[] getChildBean(ModuleType type, String xpath);
-
-    public String[] getText(ModuleType type, String xpath);
-
-    public void addXpathListener(ModuleType type, String xpath, XpathListener xpl);
-
-    public void removeXpathListener(ModuleType type, String xpath, XpathListener xpl);
+    public DDBeanCreateException(String msg) {
+        super(msg);
+    }
 }

@@ -59,8 +59,16 @@
  */
 package javax.enterprise.deploy.model;
 
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.util.Enumeration;
+import javax.enterprise.deploy.model.exceptions.DDBeanCreateException;
 import javax.enterprise.deploy.shared.ModuleType;
 
+/**
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/08/16 01:32:54 $
+ */
 public interface DeployableObject {
     public ModuleType getType();
 
@@ -71,4 +79,15 @@ public interface DeployableObject {
     public String[] getText(String xpath);
 
     public Class getClassFromScope(String className);
+
+    /**
+     * @deprecated
+     */
+    public String getModuleDTDVersion();
+
+    public DDBeanRoot getDDBeanRoot(String filename) throws FileNotFoundException, DDBeanCreateException;
+
+    public Enumeration entries();
+
+    public InputStream getEntry(String name);
 }

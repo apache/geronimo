@@ -59,5 +59,12 @@
  */
 package javax.enterprise.deploy.spi;
 
+import javax.enterprise.deploy.model.DDBeanRoot;
+
+/**
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/08/16 01:32:54 $
+ */
 public interface DConfigBeanRoot extends DConfigBean {
+    public DConfigBean getDConfigBean(DDBeanRoot ddBeanRoot);
 }

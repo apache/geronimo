@@ -59,6 +59,10 @@
  */
 package javax.enterprise.deploy.model;
 
+/**
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/08/16 01:32:54 $
+ */
 public interface XpathListener {
     public void fireXpathEvent(XpathEvent xpe);
 }
