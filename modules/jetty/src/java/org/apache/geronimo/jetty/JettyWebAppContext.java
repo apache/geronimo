@@ -100,7 +100,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         this.userTransaction = userTransaction;
         this.classLoader = classLoader;
 
-        setConfiguration(new JettyXMLConfiguration(this));
+        setConfigurationClassNames(new String[]{"org.apache.geronimo.jetty.JettyXMLConfiguration"});
     }
 
     /**
@@ -186,6 +186,13 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
     public void doStart() throws WaitingException, Exception {
 
+        // merge Geronimo and Jetty Lifecycles
+        if (!isStarting())
+        {
+            super.start();
+            return;
+        }
+        
         if (uri.isAbsolute()) {
             setWAR(uri.toString());
         } else {
@@ -216,7 +223,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
                     throw new RuntimeException(e);
                 }
 
-                super.start();
+                super.doStart();
             } finally {
                 try {
                     associator.exit(oldInstanceContext);
@@ -235,8 +242,15 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         log.info("JettyWebAppContext started");
     }
 
-    public void doStop() throws WaitingException, Exception {
+    public void doStop() throws Exception {
 
+        // merge Geronimo and Jetty Lifecycles
+        if (!isStopping())
+        {
+            super.stop();
+            return;
+        }
+        
         ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(classLoader);
@@ -260,7 +274,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
                 while (true) {
                     try {
-                        super.stop();
+                        super.doStop();
                         break;
                     } catch (InterruptedException e) {
                         continue;

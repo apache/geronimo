@@ -68,10 +68,6 @@ public class JettyXMLConfiguration extends XMLConfiguration {
     private Map servletRoles = new HashMap();
 
 
-    public JettyXMLConfiguration(JettyWebAppContext context) {
-        super(context);
-    }
-
     protected void initialize(XmlParser.Node config) throws ClassNotFoundException, UnavailableException {
         super.initialize(config);
 

@@ -18,7 +18,7 @@
   
 <service xmlns="http://geronimo.apache.org/xml/ns/deployment">
     <dependency>
-        <uri>jetty/jars/org.mortbay.jetty-5.0.1-G1.jar</uri>
+        <uri>jetty/jars/org.mortbay.jetty-5.1.G0.jar</uri>
     </dependency>
     <dependency>
         <uri>tomcat/jars/jasper-compiler-5.0.28.jar</uri>

@@ -114,9 +114,6 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
 
         this.policyContextID = policyContextID;
         this.securityConfig = securityConfig;
-
-        setConfiguration(new JettyXMLConfiguration(this));
-
         defaultPrincipal = generateDefaultPrincipal(securityConfig);
 
         /**
@@ -403,7 +400,12 @@ public class JettyWebAppJACCContext extends JettyWebAppContext {
             factory = PolicyConfigurationFactory.getPolicyConfigurationFactory();
 
             policyConfiguration = factory.getPolicyConfiguration(policyContextID, true);
-            ((JettyXMLConfiguration) this.getConfiguration()).configure(policyConfiguration, securityConfig);
+            Configuration[] configurations = getConfigurations();
+            for (int i=0;i<configurations.length;i++)
+            {
+                if (configurations[i] instanceof JettyXMLConfiguration)
+                    ((JettyXMLConfiguration)configurations[i]).configure(policyConfiguration, securityConfig);
+            }
             policyConfiguration.commit();
         } catch (ClassNotFoundException e) {
             // do nothing
