@@ -55,9 +55,7 @@
  */
 package org.apache.geronimo.kernel.deployment.task;
 
-import java.lang.reflect.Constructor;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -85,7 +83,7 @@ import org.apache.geronimo.kernel.service.ParserUtil;
 /**
  * Creates an new MBean instance and intializes it according to the specified MBeanMetadata metadata
  *
- * @version $Revision: 1.3 $ $Date: 2003/11/11 04:39:37 $
+ * @version $Revision: 1.4 $ $Date: 2003/11/15 19:16:42 $
  */
 public class CreateMBeanInstance implements DeploymentTask {
     private final Log log = LogFactory.getLog(this.getClass());
@@ -148,22 +146,20 @@ public class CreateMBeanInstance implements DeploymentTask {
             // Create and register the MBean
             try {
                 // Get the constructor arguments
-                List constructorTypeStrings = metadata.getConstructorTypes();
-                List constructorTypes = new ArrayList(constructorTypeStrings.size());
-                List constructorValues = metadata.getConstructorArgs();
-                for (int i = 0; i < constructorTypeStrings.size(); i++) {
+                String[] constructorTypeStrings = metadata.getConstructorTypes();
+                Object[] constructorValues = metadata.getConstructorArgs();
+                for (int i = 0; i < constructorTypeStrings.length; i++) {
                     Class type = null;
                     try {
-                        type = ParserUtil.loadClass((String) constructorTypeStrings.get(i), newCL);
+                        type = ParserUtil.loadClass(constructorTypeStrings[i], newCL);
                     } catch (ClassNotFoundException e) {
                         throw new DeploymentException(e, metadata);
                     }
-                    constructorTypes.add(type);
 
-                    Object value = constructorValues.get(i);
+                    Object value = constructorValues[i];
                     if (value instanceof String) {
                         value = ParserUtil.getValue(type, (String) value, baseURI);
-                        constructorValues.set(i, value);
+                        constructorValues[i] = value;
                     }
                 }
 
@@ -172,9 +168,12 @@ public class CreateMBeanInstance implements DeploymentTask {
                     log.trace("Creating MBean name=" + metadata.getName() + " class=" + metadata.getCode());
                 }
 
-                Class mbeanClass = newCL.loadClass(metadata.getCode());
-                Constructor mbeanConstructor = mbeanClass.getConstructor((Class[]) constructorTypes.toArray(new Class[constructorTypes.size()]));
-                Object mbean = mbeanConstructor.newInstance(constructorValues.toArray());
+                //Class mbeanClass = newCL.loadClass(metadata.getCode());
+                //Constructor mbeanConstructor = mbeanClass.getConstructor(constructorTypes);
+                Object mbean = server.instantiate(metadata.getCode(),
+                        metadata.getLoaderName(),
+                        metadata.getConstructorArgs(),
+                        metadata.getConstructorTypes());
                 actualName = server.registerMBean(mbean, metadata.getName()).getObjectName();
                 if (log.isTraceEnabled() && !actualName.equals(metadata.getName())) {
                     log.trace("Actual MBean name is " + actualName);

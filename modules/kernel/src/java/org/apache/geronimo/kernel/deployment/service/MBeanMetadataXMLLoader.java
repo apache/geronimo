@@ -56,7 +56,6 @@
 package org.apache.geronimo.kernel.deployment.service;
 
 import java.net.URI;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.management.MalformedObjectNameException;
@@ -70,7 +69,7 @@ import org.w3c.dom.NodeList;
 /**
  * Loads MBean metadata from xml.
  *
- * @version $Revision: 1.3 $ $Date: 2003/11/11 04:37:48 $
+ * @version $Revision: 1.4 $ $Date: 2003/11/15 19:16:42 $
  */
 public class MBeanMetadataXMLLoader {
     public MBeanMetadata loadXML(URI baseURI, Element element) throws DeploymentException {
@@ -96,14 +95,14 @@ public class MBeanMetadataXMLLoader {
         NodeList nl = element.getElementsByTagName("constructor");
         Element consElement = (Element) nl.item(0);
         if (consElement != null) {
-            List types = md.getConstructorTypes();
-            List args = md.getConstructorArgs();
             nl = consElement.getElementsByTagName("arg");
+            Object[] args = new Object[nl.getLength()];
+            String[] types = new String[nl.getLength()];
             for (int i = 0; i < nl.getLength(); i++) {
                 Element argElement = (Element) nl.item(i);
                 String type = argElement.getAttribute("type");
-                types.add(type);
-                args.add(XMLUtil.getContent(argElement));
+                types[i] = type;
+                args[i] = XMLUtil.getContent(argElement);
             }
         }
 
