@@ -25,7 +25,7 @@ http://wiki.apache.org/geronimo/KnownWorkingConfigurations
 In general, most things work equally well under JDK 1.4 and JDK 1.5.
 However, some very recent Linux platforms have trouble shutting down
 Geronimo network services under JDK 1.4 (this was observed on
-SuSE 9.2), and the current CORBA features do not support JDK 1.5.
+SuSE 9.2).
 
 
 Installing & Starting Geronimo
