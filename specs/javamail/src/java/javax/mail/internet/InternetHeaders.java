@@ -28,6 +28,8 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 import javax.mail.Address;
 import javax.mail.Header;
 import javax.mail.MessagingException;
@@ -97,8 +99,66 @@ public class InternetHeaders {
      * @throws MessagingException if there is a problem pasring the stream
      */
     public void load(InputStream in) throws MessagingException {
-        // todo implement
-        throw new UnsupportedOperationException();
+        try {
+            StringBuffer name = new StringBuffer(32);
+            StringBuffer value = new StringBuffer(128);
+            done: while (true) {
+                int c = in.read();
+                char ch = (char) c;
+                if (c == -1) {
+                    break;
+                } else if (c == 13) {
+                    // empty line terminates header
+                    in.read(); // skip LF
+                    break;
+                } else if (Character.isWhitespace(ch)) {
+                    // handle continuation
+                    do {
+                        c = in.read();
+                        if (c == -1) {
+                            break done;
+                        }
+                        ch = (char) c;
+                    } while (Character.isWhitespace(ch));
+                }  else {
+                    // new header
+                    if (name.length() > 0) {
+                        addHeader(name.toString().trim(), value.toString().trim());
+                    }
+                    name.setLength(0);
+                    value.setLength(0);
+                    while (true) {
+                        name.append((char)c);
+                        c = in.read();
+                        if (c == -1) {
+                            break done;
+                        } else if (c == ':') {
+                            break;
+                        }
+                    }
+                    c = in.read();
+                    if (c == -1) {
+                        break done;
+                    }
+                }
+
+                while (c != 13) {
+                    ch = (char) c;
+                    value.append(ch);
+                    c = in.read();
+                    if (c == -1) {
+                        break done;
+                    }
+                }
+                // skip LF
+                in.read();
+            }
+            if (name.length() > 0) {
+                addHeader(name.toString().trim(), value.toString().trim());
+            }
+        } catch (IOException e) {
+            throw new MessagingException("Error loading headers", e);
+        }
     }
 
     /**
@@ -172,6 +232,7 @@ public class InternetHeaders {
         List list = getHeaderList(name);
         if (list == null) {
             list = new ArrayList();
+            headers.put(name.toLowerCase(), list);
         }
         list.add(new InternetHeader(name, value));
     }
@@ -209,8 +270,19 @@ public class InternetHeaders {
     }
 
     public Enumeration getNonMatchingHeaders(String[] names) {
-        // todo implement
-        throw new UnsupportedOperationException();
+        Set exclude = new HashSet(names.length);
+        for (int i = 0; i < names.length; i++) {
+            String name = names[i];
+            exclude.add(name.toLowerCase());
+        }
+        List result = new ArrayList(headers.size());
+        for (Iterator i = headers.entrySet().iterator(); i.hasNext();) {
+            Map.Entry entry = (Map.Entry) i.next();
+            if (!exclude.contains(((String)entry.getKey()).toLowerCase())) {
+                result.addAll((List)entry.getValue());
+            }
+        }
+        return Collections.enumeration(result);
     }
 
     public void addHeaderLine(String line) {
