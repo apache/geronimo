@@ -689,6 +689,15 @@
             </properties>
         </dependency>
 
+        <dependency>
+            <groupId>antlr</groupId>
+            <artifactId>antlr</artifactId>
+            <version>&antlr-version;</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
         <!--web specific modules-->
         <dependency>
             <groupId>jetty</groupId>
