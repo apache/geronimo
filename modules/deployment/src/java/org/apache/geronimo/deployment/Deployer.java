@@ -57,7 +57,31 @@ public class Deployer {
     }
 
     public List deploy(File moduleFile, File planFile) throws DeploymentException {
-        return deploy(planFile, moduleFile, null, true, null, null);
+        File tmpDir = null;
+        if (moduleFile != null && !moduleFile.isDirectory()) {
+            // todo jar url handling with Sun's VM on Windows leaves a lock on the module file preventing rebuilds
+            // to address this we use a gross hack and copy the file to a temporary directory
+            // unfortunately the lock on the file will prevent that being deleted properly
+            // we need to rewrite deployment so that it does not use jar: urls
+            try {
+                tmpDir = File.createTempFile("deployer", ".tmpdir");
+                tmpDir.delete();
+                tmpDir.mkdir();
+                File tmpFile = new File(tmpDir, moduleFile.getName());
+                DeploymentUtil.copyFile(moduleFile, tmpFile);
+                moduleFile = tmpFile;
+            } catch (IOException e) {
+                throw new DeploymentException(e);
+            }
+        }
+
+        try {
+            return deploy(planFile, moduleFile, null, true, null, null);
+        } finally {
+            if (tmpDir != null) {
+                DeploymentUtil.recursiveDelete(tmpDir);
+            }
+        }
     }
 
     /**
