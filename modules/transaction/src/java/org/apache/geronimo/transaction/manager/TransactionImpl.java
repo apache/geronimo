@@ -24,7 +24,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TimerTask;
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.RollbackException;
@@ -44,12 +43,13 @@ import org.apache.commons.logging.LogFactory;
  *
  * @version $Rev$ $Date$
  */
-public class TransactionImpl extends TimerTask implements Transaction {
+public class TransactionImpl implements Transaction {
     private static final Log log = LogFactory.getLog("Transaction");
 
     private final XidFactory xidFactory;
     private final Xid xid;
     private final TransactionLog txnLog;
+    private final long timeout;
     private final List syncList = new ArrayList(5);
     private final LinkedList resourceManagers = new LinkedList();
     private final IdentityHashMap activeXaResources = new IdentityHashMap(3);
@@ -57,16 +57,15 @@ public class TransactionImpl extends TimerTask implements Transaction {
     private int status = Status.STATUS_NO_TRANSACTION;
     private Object logMark;
 
-    private Thread currentThread;
-
-    TransactionImpl(XidFactory xidFactory, TransactionLog txnLog) throws SystemException {
-        this(xidFactory.createXid(), xidFactory, txnLog);
+    TransactionImpl(XidFactory xidFactory, TransactionLog txnLog, long transactionTimeoutMilliseconds) throws SystemException {
+        this(xidFactory.createXid(), xidFactory, txnLog, transactionTimeoutMilliseconds);
     }
 
-    TransactionImpl(Xid xid, XidFactory xidFactory, TransactionLog txnLog) throws SystemException {
+    TransactionImpl(Xid xid, XidFactory xidFactory, TransactionLog txnLog, long transactionTimeoutMilliseconds) throws SystemException {
         this.xidFactory = xidFactory;
         this.txnLog = txnLog;
         this.xid = xid;
+        this.timeout = transactionTimeoutMilliseconds + TransactionTimer.getCurrentTime();
         try {
             txnLog.begin(xid);
         } catch (LogException e) {
@@ -84,6 +83,8 @@ public class TransactionImpl extends TimerTask implements Transaction {
         this.txnLog = txLog;
         this.xid = xid;
         status = Status.STATUS_PREPARED;
+        //TODO is this a good idea?
+        this.timeout = Long.MAX_VALUE;
     }
 
     public synchronized int getStatus() throws SystemException {
@@ -221,10 +222,23 @@ public class TransactionImpl extends TimerTask implements Transaction {
         beforePrepare();
 
         try {
+                      boolean timedout = false;
+                      if (TransactionTimer.getCurrentTime() > timeout)
+                      {
+                          status = Status.STATUS_MARKED_ROLLBACK;
+                          timedout = true;
+                      }
+
             if (status == Status.STATUS_MARKED_ROLLBACK) {
                 rollbackResources(resourceManagers);
-                cancel();
-                throw new RollbackException("Unable to commit");
+                              if(timedout)
+                              {
+                                  throw new RollbackException("Transaction timout");
+                              }
+                              else
+                              {
+                                  throw new RollbackException("Unable to commit");
+                              }
             }
             synchronized (this) {
                 if (status == Status.STATUS_ACTIVE) {
@@ -248,7 +262,6 @@ public class TransactionImpl extends TimerTask implements Transaction {
                 synchronized (this) {
                     status = Status.STATUS_COMMITTED;
                 }
-                cancel();
                 return;
             }
 
@@ -256,7 +269,6 @@ public class TransactionImpl extends TimerTask implements Transaction {
             if (resourceManagers.size() == 1) {
                 TransactionBranch manager = (TransactionBranch) resourceManagers.getFirst();
                 try {
-                    cancel();
                     manager.getCommitter().commit(manager.getBranchId(), true);
                     synchronized (this) {
                         status = Status.STATUS_COMMITTED;
@@ -298,7 +310,6 @@ public class TransactionImpl extends TimerTask implements Transaction {
                 if (status == Status.STATUS_ACTIVE) {
                     if (resourceManagers.size() == 0) {
                         // nothing to commit
-                        cancel();
                         status = Status.STATUS_COMMITTED;
                         return result;
                     } else {
@@ -398,9 +409,6 @@ public class TransactionImpl extends TimerTask implements Transaction {
                 status = Status.STATUS_PREPARED;
             }
         }
-        //cancel timeout.
-        cancel();
-
         // log our decision
         if (willCommit && !resourceManagers.isEmpty()) {
             try {
@@ -418,7 +426,6 @@ public class TransactionImpl extends TimerTask implements Transaction {
     }
 
     public void rollback() throws IllegalStateException, SystemException {
-        cancel();
         List rms;
         synchronized (this) {
             switch (status) {
@@ -622,23 +629,6 @@ public class TransactionImpl extends TimerTask implements Transaction {
         TransactionBranch manager = new TransactionBranch(xaRes, branchId);
         resourceManagers.add(manager);
         return manager;
-    }
-
-
-    //TimerTask implementation
-    public synchronized void run() {
-        try {
-            setRollbackOnly();
-            if (currentThread != null) {
-                currentThread.interrupt();
-            }
-        } catch (SystemException e) {
-            //in the wrong state.
-        }
-    }
-
-    public synchronized void setCurrentThread(Thread currentThread) {
-        this.currentThread = currentThread;
     }
 
     private static class TransactionBranch implements TransactionBranchInfo {

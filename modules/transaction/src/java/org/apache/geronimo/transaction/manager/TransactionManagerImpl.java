@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.InvalidTransactionException;
@@ -42,13 +41,12 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.transaction.ExtendedTransactionManager;
 import org.apache.geronimo.transaction.log.UnrecoverableLog;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  * Simple implementation of a transaction manager.
- * TODO shut down timer gracefully
  *
  * @version $Rev$ $Date$
  */
@@ -58,7 +56,6 @@ public class TransactionManagerImpl implements ExtendedTransactionManager, XidIm
     private final int defaultTransactionTimeoutMilliseconds;
     private final ThreadLocal transactionTimeoutMilliseconds = new ThreadLocal();
     private final ThreadLocal threadTx = new ThreadLocal();
-    private final Timer timeoutTimer = new Timer(true);
     private static final Log recoveryLog = LogFactory.getLog("RecoveryController");
     final Recovery recovery;
     final ReferenceCollection resourceManagers;
@@ -130,17 +127,17 @@ public class TransactionManagerImpl implements ExtendedTransactionManager, XidIm
         if (getStatus() != Status.STATUS_NO_TRANSACTION) {
             throw new NotSupportedException("Nested Transactions are not supported");
         }
-        TransactionImpl tx = new TransactionImpl(xidFactory, transactionLog);
-        timeoutTimer.schedule(tx, getTransactionTimeoutMilliseconds(transactionTimeoutMilliseconds));
+        TransactionImpl tx = new TransactionImpl(xidFactory, transactionLog, getTransactionTimeoutMilliseconds(transactionTimeoutMilliseconds));
+//        timeoutTimer.schedule(tx, getTransactionTimeoutMilliseconds(transactionTimeoutMilliseconds));
         threadTx.set(tx);
-        ((TransactionImpl) tx).setCurrentThread(Thread.currentThread());
+                // Todo: Verify if this is correct thing to do. Use default timeout for next transaction.
+        this.transactionTimeoutMilliseconds.set(null);
         return tx;
     }
 
     public Transaction suspend() throws SystemException {
         Transaction tx = getTransaction();
         if (tx != null) {
-            ((TransactionImpl) tx).setCurrentThread(null);
         }
         threadTx.set(null);
         return tx;
@@ -154,7 +151,6 @@ public class TransactionManagerImpl implements ExtendedTransactionManager, XidIm
             throw new InvalidTransactionException("Cannot resume foreign transaction: " + tx);
         }
         threadTx.set(tx);
-        ((TransactionImpl) tx).setCurrentThread(Thread.currentThread());
     }
 
     public void setRollbackOnly() throws IllegalStateException, SystemException {
@@ -174,7 +170,6 @@ public class TransactionManagerImpl implements ExtendedTransactionManager, XidIm
             tx.commit();
         } finally {
             threadTx.set(null);
-            ((TransactionImpl) tx).setCurrentThread(null);
         }
     }
 
@@ -187,7 +182,6 @@ public class TransactionManagerImpl implements ExtendedTransactionManager, XidIm
             tx.rollback();
         } finally {
             threadTx.set(null);
-            ((TransactionImpl) tx).setCurrentThread(null);
         }
     }
 
@@ -196,8 +190,7 @@ public class TransactionManagerImpl implements ExtendedTransactionManager, XidIm
         if (transactionTimeoutMilliseconds < 0) {
             throw new SystemException("transaction timeout must be positive or 0 to reset to default");
         }
-        TransactionImpl tx = new TransactionImpl(xid, xidFactory, transactionLog);
-        timeoutTimer.schedule(tx, getTransactionTimeoutMilliseconds(transactionTimeoutMilliseconds));
+        TransactionImpl tx = new TransactionImpl(xid, xidFactory, transactionLog, getTransactionTimeoutMilliseconds(transactionTimeoutMilliseconds));
         return tx;
     }
 
@@ -249,7 +242,7 @@ public class TransactionManagerImpl implements ExtendedTransactionManager, XidIm
         }
     }
 
-    private long getTransactionTimeoutMilliseconds(long transactionTimeoutMilliseconds) {
+    long getTransactionTimeoutMilliseconds(long transactionTimeoutMilliseconds) {
         if (transactionTimeoutMilliseconds != 0) {
             return transactionTimeoutMilliseconds;
         }

@@ -293,6 +293,30 @@ public class TransactionManagerImplTest extends TestCase {
         assertEquals(xid, recovered.keySet().iterator().next());
     }
 
+      public void testTimeout() throws Exception
+      {
+          long timeout = tm.getTransactionTimeoutMilliseconds(0L);
+          tm.setTransactionTimeout((int)timeout/4000);
+          tm.begin();
+          System.out.println("Test to sleep for" + timeout + " secs");
+          Thread.sleep(timeout);
+          try
+          {
+              tm.commit();
+              fail("Tx Should get Rollback exception");
+          }catch(RollbackException rex)
+          {
+              // Caught expected exception
+          }
+
+          // Now test if the default timeout is active
+          tm.begin();
+          System.out.println("Test to sleep for" + (timeout/2) + " secs");
+          Thread.sleep((timeout/2));
+          tm.commit();
+          // Its a failure if exception occurs.
+      }
+
     public void testResourceManagerContract() throws Exception {
         resourceManagers.add(rm1);
         assertTrue(rm1.areAllResourcesReturned());

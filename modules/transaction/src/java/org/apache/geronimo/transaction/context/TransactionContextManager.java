@@ -291,6 +291,7 @@ public class TransactionContextManager implements XATerminator, XAWork {
         infoFactory.addOperation("newUnspecifiedTransactionContext");
         infoFactory.addOperation("getStatus");
         infoFactory.addOperation("setRollbackOnly");
+        infoFactory.addOperation("setTransactionTimeout", new Class[] {int.class});
 
         infoFactory.addReference("TransactionManager", ExtendedTransactionManager.class);
         infoFactory.addReference("XidImporter", XidImporter.class);
