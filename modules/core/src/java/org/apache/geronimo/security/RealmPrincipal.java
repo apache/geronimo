@@ -61,13 +61,13 @@ import java.security.Principal;
 /**
  * Represents a principal in an realm.
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/18 05:17:17 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/23 01:20:06 $
  */
 public class RealmPrincipal implements Principal {
     private final String realm;
     private final Principal principal;
     private transient String name = null;
-    private transient int id;
+    private transient long id;
 
     public RealmPrincipal(String realm, Principal principal) {
         if (realm == null) throw new IllegalArgumentException("realm == null");
@@ -77,11 +77,11 @@ public class RealmPrincipal implements Principal {
         this.principal = principal;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
