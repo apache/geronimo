@@ -34,7 +34,6 @@ import org.apache.geronimo.remoting.transport.RemoteTransportInterceptor;
 import org.apache.geronimo.remoting.transport.TransportFactory;
 import org.apache.geronimo.remoting.transport.TransportServer;
 import org.apache.geronimo.remoting.transport.URISupport;
-import org.apache.geronimo.core.service.Interceptor;
 
 /**
  * Unit test for the Marshaling/DeMarshaling Interceptors
@@ -42,10 +41,11 @@ import org.apache.geronimo.core.service.Interceptor;
  * This test uses 2 classloaders to mock 2 seperate
  * application classloaders.
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:59:20 $
+ * @version $Revision: 1.6 $ $Date: 2004/09/06 11:14:13 $
  */
 
 public class RemotingInterceptorsTest extends TestCase {
+    private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));
 
     private static final String PERSON_CLASS = "org.apache.geronimo.remoting.Person";
     private static final String TRANSIENT_CLASS = "org.apache.geronimo.remoting.TransientValue";
@@ -58,11 +58,12 @@ public class RemotingInterceptorsTest extends TestCase {
      * creates the two classloaders that will be used during the tests.
      */
     public void setUp() throws Exception {
-        URL url = new File("./target/mock-app").toURL();
+        URL url = new File(basedir, "/target/mock-app").toURL();
         System.out.println("Setting up the CP to: " + url);
 
-        cl1 = new URLClassLoader(new URL[] { url });
-        cl2 = new URLClassLoader(new URL[] { url });
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        cl1 = new URLClassLoader(new URL[] { url }, cl);
+        cl2 = new URLClassLoader(new URL[] { url }, cl);
 
         System.out.println("================================================");
         URI bindURI = new URI("async://0.0.0.0:0");

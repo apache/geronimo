@@ -33,7 +33,7 @@ import org.apache.geronimo.remoting.transport.BytesMarshalledObject;
 
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/07/12 06:07:51 $
+ * @version $Revision: 1.7 $ $Date: 2004/09/06 11:14:13 $
  */
 
 public class JMXRemotingTest extends TestCase {
@@ -51,23 +51,24 @@ public class JMXRemotingTest extends TestCase {
 
         GBeanMBean gbean;
 
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
         // Create all the parts
-        gbean = new GBeanMBean("org.apache.geronimo.remoting.router.SubsystemRouter");
+        gbean = new GBeanMBean("org.apache.geronimo.remoting.router.SubsystemRouter", cl);
         subsystemRouter = new ObjectName("geronimo.remoting:router=SubsystemRouter");
         kernel.loadGBean(subsystemRouter, gbean);
 
-        gbean = new GBeanMBean("org.apache.geronimo.remoting.transport.TransportLoader");
+        gbean = new GBeanMBean("org.apache.geronimo.remoting.transport.TransportLoader", cl);
         gbean.setAttribute("bindURI", new URI("async://0.0.0.0:0"));
         gbean.setReferencePatterns("Router", Collections.singleton(subsystemRouter));
         asyncTransport = new ObjectName("geronimo.remoting:transport=async");
         kernel.loadGBean(asyncTransport, gbean);
 
-        gbean = new GBeanMBean("org.apache.geronimo.remoting.router.JMXRouter");
+        gbean = new GBeanMBean("org.apache.geronimo.remoting.router.JMXRouter", cl);
         gbean.setReferencePatterns("SubsystemRouter", Collections.singleton(subsystemRouter));
         jmxRouter = new ObjectName("geronimo.remoting:router=JMXRouter");
         kernel.loadGBean(jmxRouter, gbean);
 
-        gbean = new GBeanMBean("org.apache.geronimo.remoting.jmx.MBeanServerStub");
+        gbean = new GBeanMBean("org.apache.geronimo.remoting.jmx.MBeanServerStub", cl);
         gbean.setReferencePatterns("Router", Collections.singleton(jmxRouter));
         serverStub = new ObjectName("geronimo.remoting:target=MBeanServerStub");
         kernel.loadGBean(serverStub, gbean);

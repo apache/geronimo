@@ -38,10 +38,11 @@ import org.apache.geronimo.remoting.transport.BytesMarshalledObject;
  * This test uses 2 classloaders to mock 2 seperate
  * application classloaders.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:20 $
+ * @version $Revision: 1.5 $ $Date: 2004/09/06 11:14:13 $
  */
 
 public class MarshalingInterceptorsTest extends TestCase {
+    private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));
 
     private static final String PERSON_CLASS = "org.apache.geronimo.remoting.Person";
     private static final String TRANSIENT_CLASS = "org.apache.geronimo.remoting.TransientValue";
@@ -52,11 +53,12 @@ public class MarshalingInterceptorsTest extends TestCase {
      * creates the two classloaders that will be used during the tests.
      */
     public void setUp() throws MalformedURLException, IOException {
-        URL url = new File("./target/mock-app").toURL();
+        URL url = new File(basedir, "target/mock-app").toURL();
         System.out.println("Setting up the CP to: " + url);
 
-        cl1 = new URLClassLoader(new URL[] { url });
-        cl2 = new URLClassLoader(new URL[] { url });
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        cl1 = new URLClassLoader(new URL[] { url }, cl);
+        cl2 = new URLClassLoader(new URL[] { url }, cl);
     }    
 
     /**
@@ -120,10 +122,14 @@ public class MarshalingInterceptorsTest extends TestCase {
         Class class1 = cl1.loadClass(PERSON_CLASS);
         Object object1 = class1.newInstance();
 
+        ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
+        
         // Simulate App1 creating a proxy.
         Thread.currentThread().setContextClassLoader(cl1);
         Object proxy1 = createProxy(object1);
         call(proxy1, "setSpouse", new Object[] { object1 });
+
+        Thread.currentThread().setContextClassLoader(oldCL);
     }
 
     /**
@@ -141,6 +147,8 @@ public class MarshalingInterceptorsTest extends TestCase {
         Object object1 = class1.newInstance();
         Object object2 = class2.newInstance();
 
+        ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
+        
         // Simulate App2 creating a proxy.
         Thread.currentThread().setContextClassLoader(cl2);
         Object proxy2 = createProxy(object2);
@@ -150,6 +158,8 @@ public class MarshalingInterceptorsTest extends TestCase {
         Thread.currentThread().setContextClassLoader(cl1);
         Object proxy1 = mo.get();
         call(proxy1, "setSpouse", new Object[] { object1 });
+        
+        Thread.currentThread().setContextClassLoader(oldCL);
     }
 
     /**
@@ -162,6 +172,8 @@ public class MarshalingInterceptorsTest extends TestCase {
      * @throws Throwable
      */
     public void testSetTransientWithOptimizedProxy() throws Throwable {
+        ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
+        
         Thread.currentThread().setContextClassLoader(cl1);
         Class class1 = cl1.loadClass(PERSON_CLASS);
         Object object1 = class1.newInstance();
@@ -178,6 +190,8 @@ public class MarshalingInterceptorsTest extends TestCase {
         });
 
         assertSame(rc, "foo");
+        
+        Thread.currentThread().setContextClassLoader(oldCL);
     }
 
     /**
@@ -187,6 +201,8 @@ public class MarshalingInterceptorsTest extends TestCase {
      * @throws Throwable
      */
     public void testSetTransientWithSerializedOptimizedProxy() throws Throwable {
+        ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
+        
         Thread.currentThread().setContextClassLoader(cl1);
         Class class1 = cl1.loadClass(PERSON_CLASS);
         Object object1 = class1.newInstance();
@@ -204,6 +220,8 @@ public class MarshalingInterceptorsTest extends TestCase {
         });
 
         assertSame(rc, "foo");
+        
+        Thread.currentThread().setContextClassLoader(oldCL);
     }
 
     /**
@@ -214,6 +232,8 @@ public class MarshalingInterceptorsTest extends TestCase {
      * @throws Throwable
      */
     public void testSetTransientWithSerializedNonOptimizedProxy() throws Throwable {
+        ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
+
         Thread.currentThread().setContextClassLoader(cl1);
         Class class1 = cl1.loadClass(PERSON_CLASS);
         Object object1 = class1.newInstance();
@@ -233,6 +253,8 @@ public class MarshalingInterceptorsTest extends TestCase {
         });
 
         assertSame(rc, null);
+
+        Thread.currentThread().setContextClassLoader(oldCL);
     }
 
     /**

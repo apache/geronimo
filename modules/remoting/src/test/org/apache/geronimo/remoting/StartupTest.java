@@ -30,7 +30,7 @@ import junit.framework.TestCase;
 /**
  * 
  * 
- * @version $Revision: 1.7 $ $Date: 2004/07/12 06:07:51 $
+ * @version $Revision: 1.8 $ $Date: 2004/09/06 11:14:13 $
  */
 public class StartupTest  extends TestCase {
     private Kernel kernel;
@@ -38,28 +38,29 @@ public class StartupTest  extends TestCase {
     public void testLoad() throws Exception {
         GBeanMBean gbean;
 
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
         // Create all the parts
-        gbean = new GBeanMBean("org.apache.geronimo.remoting.router.SubsystemRouter");
+        gbean = new GBeanMBean("org.apache.geronimo.remoting.router.SubsystemRouter", cl);
         ObjectName subsystemRouter = new ObjectName("geronimo.remoting:router=SubsystemRouter");
         kernel.loadGBean(subsystemRouter, gbean);
 
-        gbean = new GBeanMBean("org.apache.geronimo.remoting.transport.TransportLoader");
+        gbean = new GBeanMBean("org.apache.geronimo.remoting.transport.TransportLoader", cl);
         gbean.setAttribute("bindURI", new URI("async://0.0.0.0:3434"));
         gbean.setReferencePatterns("Router", Collections.singleton(subsystemRouter));
         ObjectName asyncTransport = new ObjectName("geronimo.remoting:transport=async");
         kernel.loadGBean(asyncTransport, gbean);
 
-        gbean = new GBeanMBean("org.apache.geronimo.remoting.router.JMXRouter");
+        gbean = new GBeanMBean("org.apache.geronimo.remoting.router.JMXRouter", cl);
         gbean.setReferencePatterns("SubsystemRouter", Collections.singleton(subsystemRouter));
         ObjectName jmxRouter = new ObjectName("geronimo.remoting:router=JMXRouter");
         kernel.loadGBean(jmxRouter, gbean);
 
-        gbean = new GBeanMBean("org.apache.geronimo.remoting.router.InterceptorRegistryRouter");
+        gbean = new GBeanMBean("org.apache.geronimo.remoting.router.InterceptorRegistryRouter", cl);
         gbean.setReferencePatterns("SubsystemRouter", Collections.singleton(subsystemRouter));
         ObjectName registeryRouter = new ObjectName("geronimo.remoting:router=InterceptorRegistryRouter");
         kernel.loadGBean(registeryRouter, gbean);
 
-        gbean = new GBeanMBean("org.apache.geronimo.remoting.jmx.MBeanServerStub");
+        gbean = new GBeanMBean("org.apache.geronimo.remoting.jmx.MBeanServerStub", cl);
         gbean.setReferencePatterns("Router", Collections.singleton(jmxRouter));
         ObjectName serverStub = new ObjectName("geronimo.remoting:target=MBeanServerStub");
         kernel.loadGBean(serverStub, gbean);
