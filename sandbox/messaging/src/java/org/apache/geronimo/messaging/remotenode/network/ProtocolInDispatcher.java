@@ -39,7 +39,7 @@ import org.apache.geronimo.network.protocol.UpPacket;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:42 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/24 23:43:29 $
  */
 public class ProtocolInDispatcher
     implements MsgProducer
@@ -104,7 +104,7 @@ public class ProtocolInDispatcher
     private void dispatch() throws ProtocolException {
         Msg msg;
         try {
-            synchronized (protocol) {
+            synchronized (in) {
                 Object opaque = popSynchronization.beforePop(streamInputStream);
                 msg = (Msg) streamInputStream.readObject();
                 popSynchronization.afterPop(streamInputStream, msg, opaque);

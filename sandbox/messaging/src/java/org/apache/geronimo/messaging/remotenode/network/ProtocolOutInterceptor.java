@@ -38,7 +38,7 @@ import org.apache.geronimo.network.protocol.ProtocolException;
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2004/06/10 23:12:25 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/24 23:43:29 $
  */
 public class ProtocolOutInterceptor
     implements MsgOutInterceptor
@@ -102,20 +102,25 @@ public class ProtocolOutInterceptor
     }
     
     public void push(Msg aMsg) {
+        byte[] marshalled;
         try {
-            Object opaque =
-                pushSynchronization.beforePush(streamOutputStream, aMsg);
-            streamOutputStream.writeObject(aMsg);
-            pushSynchronization.afterPush(streamOutputStream, aMsg, opaque);
-            streamOutputStream.reset();
-            streamOutputStream.flush();
+            synchronized(streamOutputStream) {
+                Object opaque =
+                    pushSynchronization.beforePush(streamOutputStream, aMsg);
+                streamOutputStream.writeObject(aMsg);
+                pushSynchronization.afterPush(streamOutputStream, aMsg, opaque);
+                streamOutputStream.reset();
+                streamOutputStream.flush();
+                marshalled = memOut.toByteArray();
+                memOut.reset();
+            }
         } catch (IOException e) {
             log.error(e);
             throw new CommunicationException(e);
         }
         PlainDownPacket downPacket = new PlainDownPacket();
-        ByteBuffer buffer = ByteBuffer.allocate(memOut.size());
-        buffer.put(memOut.toByteArray());
+        ByteBuffer buffer = ByteBuffer.allocate(marshalled.length);
+        buffer.put(marshalled);
         buffer.flip();
         downPacket.setBuffers(Collections.singleton(buffer));
         synchronized(protocol) {
@@ -123,10 +128,9 @@ public class ProtocolOutInterceptor
                 protocol.sendDown(downPacket);
             } catch (ProtocolException e) {
                 log.error(e);
-                throw new RuntimeException(e);
+                throw new CommunicationException(e);
             }
         }
-        memOut.reset();
     }
 
 }
