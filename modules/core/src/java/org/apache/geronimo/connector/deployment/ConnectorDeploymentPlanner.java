@@ -99,7 +99,7 @@ import org.xml.sax.SAXException;
  * DeploymentPlanner in charge of the plannification of Connector deployments.
  *
  *
- * @version $Revision: 1.11 $ $Date: 2004/01/14 08:29:38 $
+ * @version $Revision: 1.12 $ $Date: 2004/01/21 22:21:25 $
  */
 public class ConnectorDeploymentPlanner
         extends AbstractDeploymentPlanner {
@@ -203,7 +203,7 @@ public class ConnectorDeploymentPlanner
         GeronimoConnectionManagerFactory gcmf = gcd.getGeronimoConnectionManagerFactory();
         assert gcmf != null: "Null GeronimoConnectionManagerFactory";
         MBeanMetadata cmfMD = getMBeanMetadata(raCS.getName(), deploymentUnitName, baseURI);
-        cmfMD.setGeronimoMBeanDescriptor(gcmf.getConnectionManagerFactoryDescriptor());
+        cmfMD.setGeronimoMBeanDescriptor(gcmf.getConnectionManagerFactoryClass());
         cmfMD.setName(buildConnectionManagerFactoryDeploymentName(gcd));
         adaptConfigProperties(gcmf.getConfigProperty(), null, cmfMD.getAttributeValues());
         addTasks(cmfMD, deploymentPlan);

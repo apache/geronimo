@@ -61,15 +61,13 @@ import javax.resource.spi.work.WorkException;
 
 import EDU.oswego.cs.dl.util.concurrent.Channel;
 import org.apache.geronimo.connector.work.WorkerContext;
-import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 
 /**
  * Based class for WorkExecutorPool. Sub-classes define the synchronization
  * policy (should the call block until the end of the work; or when it starts
  * et cetera).
  *
- * @version $Revision: 1.4 $ $Date: 2003/12/28 19:31:16 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/21 22:21:26 $
  */
 public abstract class AbstractWorkExecutorPool implements WorkExecutorPool {
 
@@ -141,15 +139,6 @@ public abstract class AbstractWorkExecutorPool implements WorkExecutorPool {
             wcj.setErrorCode(WorkException.INTERNAL);
             throw wcj;
         }
-    }
-
-    public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
-        GeronimoMBeanInfo rc = new GeronimoMBeanInfo();
-        rc.setTargetClass(AbstractWorkExecutorPool.class);
-        rc.addAttributeInfo(new GeronimoAttributeInfo("PoolSize", true, false));
-        rc.addAttributeInfo(new GeronimoAttributeInfo("MinimumPoolSize", true, true));
-        rc.addAttributeInfo(new GeronimoAttributeInfo("MaximumPoolSize", true, true));
-        return rc;
     }
 
     /**

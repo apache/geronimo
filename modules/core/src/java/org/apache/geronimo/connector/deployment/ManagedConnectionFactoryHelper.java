@@ -71,11 +71,12 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
 import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
 import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
 import org.apache.geronimo.naming.ger.GerContextManager;
+import org.apache.geronimo.connector.outbound.ConnectionManagerFactory;
 
 /**
  * ManagedConnectionFactoryHelper
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/15 01:20:53 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/21 22:21:25 $
  */
 public class ManagedConnectionFactoryHelper implements GeronimoMBeanTarget {
 

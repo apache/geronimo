@@ -63,7 +63,6 @@ import javax.management.ObjectName;
 import javax.resource.ResourceException;
 import javax.resource.spi.ManagedConnectionFactory;
 
-import org.apache.geronimo.connector.deployment.ConnectionManagerFactory;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBean;
@@ -87,7 +86,7 @@ import org.apache.geronimo.security.bridge.RealmBridge;
  * and connection manager stack according to the policies described in the attributes.
  * It's used by deserialized copies of the proxy to get a reference to the actual stack.
  *
- * @version $Revision: 1.12 $ $Date: 2004/01/20 06:59:22 $
+ * @version $Revision: 1.13 $ $Date: 2004/01/21 22:21:26 $
  * */
 public class ConnectionManagerDeployment implements GeronimoMBeanTarget, ConnectionManagerFactory, GBean {
 

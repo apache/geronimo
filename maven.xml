@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.53 $ $Date: 2004/01/20 14:59:28 $ -->
+<!-- $Revision: 1.54 $ $Date: 2004/01/21 22:21:26 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -667,6 +667,13 @@
                     <fileset dir="${maven.repo.local}/concurrent/jars">
                           <include name="concurrent-1.3.2.jar"/>
                     </fileset>
+                    <!-- connector openjca loading test -->
+                    <fileset dir="${maven.repo.local}/openejb-jca/jars">
+                          <include name="openejb-jca-DEV.jar"/>
+                    </fileset>
+                    <fileset dir="${maven.repo.local}/hsqldb/jars">
+                          <include name="hsqldb-1.7.1.jar"/>
+                    </fileset>
                     <!-- WebDAV, not required for boot. To be fixed.-->
                     <fileset dir="${maven.repo.local}/tomcat/jars">
                           <include name="catalina-5.0.16.jar"/>
@@ -754,6 +761,13 @@
                     <!-- connector work manager -->
                     <fileset dir="${maven.repo.local}/concurrent/jars">
                           <include name="concurrent-1.3.2.jar"/>
+                    </fileset>
+                    <!-- connector openjca loading test -->
+                    <fileset dir="${maven.repo.local}/openejb-jca/jars">
+                          <include name="openejb-jca-DEV.jar"/>
+                    </fileset>
+                    <fileset dir="${maven.repo.local}/hsqldb/jars">
+                          <include name="hsqldb-1.7.1.jar"/>
                     </fileset>
                     <!-- WebDAV, not required for boot. To be fixed.-->
                     <fileset dir="${maven.repo.local}/tomcat/jars">

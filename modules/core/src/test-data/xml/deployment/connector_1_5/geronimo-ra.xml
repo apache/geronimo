@@ -15,7 +15,7 @@ xmlns="http://java.sun.com/xml/ns/j2ee"
           <config-property-setting name="OutboundStringProperty1">newvalue1</config-property-setting>
           <config-property-setting name="OutboundStringProperty3">newvalue2</config-property-setting>
         <connectionmanager-factory>
-          <connectionmanagerfactory-descriptor>org.apache.geronimo.connector.outbound.ConnectionManagerDeployer</connectionmanagerfactory-descriptor>
+          <connectionmanagerfactory-class>org.apache.geronimo.connector.outbound.ConnectionManagerDeployer</connectionmanagerfactory-class>
           <realm-bridge>geronimo.security:role=RealmBridge,target=TargetRealm</realm-bridge>
           <config-property-setting name="CacheByTransaction">true</config-property-setting>
         </connectionmanager-factory>

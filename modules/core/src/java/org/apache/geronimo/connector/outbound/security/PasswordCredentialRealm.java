@@ -75,10 +75,10 @@ import org.apache.regexp.RE;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/20 06:13:38 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/21 22:21:26 $
  *
  * */
-public class PasswordCredentialRealm implements SecurityRealm {
+public class PasswordCredentialRealm implements SecurityRealm, ManagedConnectionFactoryListener {
 
     private static final GBeanInfo GBEAN_INFO;
 

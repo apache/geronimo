@@ -71,7 +71,7 @@ import org.w3c.dom.Document;
 /**
  * ConnectorLoaderTest
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/14 08:29:39 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/21 22:21:27 $
  */
 public class GeronimoConnectorLoaderTest extends AbstractLoaderUtilTest {
     private File docDir_1_5;
@@ -119,7 +119,7 @@ public class GeronimoConnectorLoaderTest extends AbstractLoaderUtilTest {
 
         GeronimoConnectionManagerFactory gcmf = goutboundResourceAdapter.getGeronimoConnectionDefinition()[0].getGeronimoConnectionManagerFactory();
         assertTrue("Expected a GeronimoConnectionManagerFactory", gcmf != null);
-        assertTrue("Expected a descriptor for GeronimoConnectionManagerFactory", gcmf.getConnectionManagerFactoryDescriptor() != null);
+        assertTrue("Expected a class for GeronimoConnectionManagerFactory", gcmf.getConnectionManagerFactoryClass() != null);
         assertNotNull("realm-bridge", gcmf.getRealmBridge());
         assertNotNull("global-jndi-name", goutboundResourceAdapter.getGeronimoConnectionDefinition()[0].getGlobalJndiName());
         assertEquals("Wrong ConfigProperty count:", 1, gcmf.getConfigProperty().length);

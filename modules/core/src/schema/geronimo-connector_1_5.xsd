@@ -247,7 +247,8 @@ unique name for admin object instance.  Used in object name of mbean for it.
     <xsd:simpleContent>
       <xsd:restriction base="j2ee:xsdStringType"/>
     </xsd:simpleContent>
-	<xsd:attribute name="name" type="j2ee:xsdStringType"/>
+      <xsd:attribute name="name" type="j2ee:xsdStringType"/>
+      <xsd:attribute name="type" type="j2ee:xsdStringType"/>
   </xsd:complexType>
 
 <!-- **************************************************** -->
@@ -308,7 +309,7 @@ Specification of factory that will construct the ConnectionManager for us.
     </xsd:annotation>
 
     <xsd:sequence>
-      <xsd:element name="connectionmanagerfactory-descriptor"
+      <xsd:element name="connectionmanagerfactory-class"
 		   type="j2ee:string">
 	<xsd:annotation>
 	  <xsd:documentation>

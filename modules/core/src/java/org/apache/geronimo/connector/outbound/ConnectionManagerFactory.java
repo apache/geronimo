@@ -54,72 +54,18 @@
  * ====================================================================
  */
 
-package org.apache.geronimo.deployment.model.geronimo.connector;
+package org.apache.geronimo.connector.outbound;
 
-import org.apache.geronimo.deployment.model.connector.ConfigProperty;
-import org.apache.geronimo.deployment.model.connector.Configurable;
+import javax.resource.ResourceException;
+import javax.resource.spi.ManagedConnectionFactory;
 
 /**
- * GeronimoConnectionManagerFactory
+ * ConnectionManagerFactory
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/21 22:21:26 $
+ * @version $Revision: 1.1 $ $Date: 2004/01/21 22:21:26 $
  */
-public class GeronimoConnectionManagerFactory implements Configurable {
+public interface ConnectionManagerFactory {
 
-    private String connectionManagerFactoryClass;
-
-    private String realmBridge;
-
-    private ConfigProperty[] configProperty = new ConfigProperty[0];
-
-    /* (non-Javadoc)
-     * @see org.apache.geronimo.deployment.model.connector.Configurable#getConfigProperty()
-     */
-    public ConfigProperty[] getConfigProperty() {
-        return configProperty;
-    }
-
-    /* (non-Javadoc)
-     * @see org.apache.geronimo.deployment.model.connector.Configurable#getConfigProperty(int)
-     */
-    public ConfigProperty getConfigProperty(int i) {
-        return configProperty[i];
-    }
-
-    /* (non-Javadoc)
-     * @see org.apache.geronimo.deployment.model.connector.Configurable#setConfigProperty(org.apache.geronimo.deployment.model.connector.ConfigProperty[])
-     */
-    public void setConfigProperty(ConfigProperty[] properties) {
-        configProperty = properties;
-    }
-
-    /* (non-Javadoc)
-     * @see org.apache.geronimo.deployment.model.connector.Configurable#setConfigProperty(int, org.apache.geronimo.deployment.model.connector.ConfigProperty)
-     */
-    public void setConfigProperty(int i, ConfigProperty property) {
-        configProperty[i] = property;
-    }
-
-    /**
-     * @return Returns the connectionManagerFactoryClass.
-     */
-    public String getConnectionManagerFactoryClass() {
-        return connectionManagerFactoryClass;
-    }
-
-    /**
-     * @param connectionManagerFactoryClass The connectionManagerFactoryClass to set.
-     */
-    public void setConnectionManagerFactoryClass(String connectionManagerFactoryClass) {
-        this.connectionManagerFactoryClass = connectionManagerFactoryClass;
-    }
-
-    public String getRealmBridge() {
-        return realmBridge;
-    }
-
-    public void setRealmBridge(String realmBridge) {
-        this.realmBridge = realmBridge;
-    }
+    Object createConnectionFactory(ManagedConnectionFactory mcf) throws ResourceException;
 
 }
