@@ -56,6 +56,7 @@
 package org.apache.geronimo.gbean.jmx;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -98,7 +99,7 @@ import org.apache.geronimo.kernel.management.NotificationType;
  * GeronimoMBeanInfo instance.  The GeronimoMBean also support caching of attribute values and invocation results
  * which can reduce the number of calls to a target.
  *
- * @version $Revision: 1.6 $ $Date: 2004/01/25 21:07:04 $
+ * @version $Revision: 1.7 $ $Date: 2004/02/12 17:21:16 $
  */
 public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     public static final FastClass fastClass = FastClass.create(GBeanMBean.class);
@@ -284,7 +285,12 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
                     + ". Constructor parameter " + i + " should be " + assertedType.getName()
                     + " but is " + parameters[i].getClass().getName();
         }
-        target = constructor.newInstance(parameters);
+        try {
+            target = constructor.newInstance(parameters);
+        } catch (IllegalArgumentException e) {
+            log.warn("Constructor mismatch for "+returnValue, e);
+            throw e;
+        }
 
         // bring all of the attributes online
         for (Iterator iterator = attributeMap.values().iterator(); iterator.hasNext();) {
