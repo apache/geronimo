@@ -23,7 +23,7 @@ import org.apache.geronimo.messaging.Request;
 /**
  * Referenceable manager.
  *
- * @version $Revision: 1.2 $ $Date: 2004/05/24 13:02:55 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/02 11:52:22 $
  */
 public interface ReferenceableManager extends EndPoint
 {
@@ -33,6 +33,9 @@ public interface ReferenceableManager extends EndPoint
      * <BR>
      * If the Referenceable is hosted by this manager, the Referenceable itself
      * is returned.
+     * <BR>
+     * An IllegalStateException is raised by this proxy if its methods are
+     * invoked while the ReferenceableManager which has built it is stopped.
      * 
      * @param aReferenceInfo Reference meta-data.
      * @return An instance implementing the Reference Class and delegating
