@@ -30,7 +30,7 @@ import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 
 /**
- * @version $Revision: 1.10 $ $Date: 2004/03/18 10:04:50 $
+ * @version $Revision: 1.11 $ $Date: 2004/04/07 18:40:17 $
  */
 public class GBeanMBeanAttribute {
 
@@ -254,7 +254,7 @@ public class GBeanMBeanAttribute {
             ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
             try {
                 Thread.currentThread().setContextClassLoader(gmbean.getClassLoader());
-                assert gmbean.getTarget() == null : "online() invoked, however the corresponding GBeanMBean is " +
+                assert gmbean.getTarget() != null : "online() invoked, however the corresponding GBeanMBean is " +
                     "not fully initialized (perhaps online() has been called directly instead by a Kernel)";
                 setInvoker.invoke(gmbean.getTarget(), new Object[] { persistentValue});
             } catch (InvocationTargetException e) {

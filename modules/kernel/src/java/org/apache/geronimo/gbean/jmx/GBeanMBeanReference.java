@@ -26,13 +26,14 @@ import java.util.Iterator;
 import java.util.Set;
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
-import javax.management.ListenerNotFoundException;
 import javax.management.MBeanServerNotification;
 import javax.management.Notification;
 import javax.management.NotificationFilterSupport;
 import javax.management.NotificationListener;
 import javax.management.ObjectName;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.gbean.WaitingException;
@@ -43,9 +44,11 @@ import org.apache.geronimo.kernel.management.State;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:01 $
+ * @version $Revision: 1.5 $ $Date: 2004/04/07 18:40:17 $
  */
 public class GBeanMBeanReference implements NotificationListener {
+    private static final Log log = LogFactory.getLog(GBeanMBeanReference.class);
+
     /**
      * Name of this reference.
      */
@@ -149,72 +152,80 @@ public class GBeanMBeanReference implements NotificationListener {
     }
 
     public synchronized void online() throws Exception {
-        // create the proxy
-        if (singleValued) {
-            proxy = new SingleProxy(gmbean, name, type, patterns);
-        } else {
-            proxy = new CollectionProxy(gmbean, name, type);
-        }
-
-
-        // listen for all mbean registration events
         try {
-            NotificationFilterSupport mbeanServerFilter = new NotificationFilterSupport();
-            mbeanServerFilter.enableType(MBeanServerNotification.REGISTRATION_NOTIFICATION);
-            mbeanServerFilter.enableType(MBeanServerNotification.UNREGISTRATION_NOTIFICATION);
-            gmbean.getServer().addNotificationListener(JMXUtil.DELEGATE_NAME, this, mbeanServerFilter, null);
-        } catch (Exception e) {
-            // this will never happen... all of the above is well formed
-            throw new AssertionError(e);
-        }
+            // create the proxy
+            if (singleValued) {
+                proxy = new SingleProxy(gmbean, name, type, patterns);
+            } else {
+                proxy = new CollectionProxy(gmbean, name, type);
+            }
 
-        // register for state change notifications with all mbeans that match the target patterns
-        Set registeredTargets = new HashSet();
-        for (Iterator targetIterator = patterns.iterator(); targetIterator.hasNext();) {
-            ObjectName pattern = (ObjectName) targetIterator.next();
-            Set names = gmbean.getServer().queryNames(pattern, null);
-            for (Iterator objectNameIterator = names.iterator(); objectNameIterator.hasNext();) {
-                ObjectName target = (ObjectName) objectNameIterator.next();
-                if (!registeredTargets.contains(target)) {
-                    try {
-                        gmbean.getServer().addNotificationListener(target, this, NotificationType.STATE_CHANGE_FILTER, null);
-                    } catch (InstanceNotFoundException e) {
-                        // the instance died before we could get going... not a big deal
-                        break;
-                    }
 
-                    // if the bean is running add it to the runningTargets list
-                    if (isRunning(target)) {
-                        proxy.addTarget(target);
+            // listen for all mbean registration events
+            try {
+                NotificationFilterSupport mbeanServerFilter = new NotificationFilterSupport();
+                mbeanServerFilter.enableType(MBeanServerNotification.REGISTRATION_NOTIFICATION);
+                mbeanServerFilter.enableType(MBeanServerNotification.UNREGISTRATION_NOTIFICATION);
+                gmbean.getServer().addNotificationListener(JMXUtil.DELEGATE_NAME, this, mbeanServerFilter, null);
+            } catch (Exception e) {
+                // this will never happen... all of the above is well formed
+                throw new AssertionError(e);
+            }
+
+            // register for state change notifications with all mbeans that match the target patterns
+            Set registeredTargets = new HashSet();
+            for (Iterator targetIterator = patterns.iterator(); targetIterator.hasNext();) {
+                ObjectName pattern = (ObjectName) targetIterator.next();
+                Set names = gmbean.getServer().queryNames(pattern, null);
+                for (Iterator objectNameIterator = names.iterator(); objectNameIterator.hasNext();) {
+                    ObjectName target = (ObjectName) objectNameIterator.next();
+                    if (!registeredTargets.contains(target)) {
+                        try {
+                            gmbean.getServer().addNotificationListener(target, this, NotificationType.STATE_CHANGE_FILTER, null);
+                        } catch (InstanceNotFoundException e) {
+                            // the instance died before we could get going... not a big deal
+                            break;
+                        }
+
+                        // if the bean is running add it to the runningTargets list
+                        if (isRunning(target)) {
+                            proxy.addTarget(target);
+                        }
                     }
                 }
             }
-        }
 
-        // set the proxy into the instance
-        if (setInvoker != null && patterns.size() > 0) {
-            ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-            try {
-                Thread.currentThread().setContextClassLoader(gmbean.getClassLoader());
-                setInvoker.invoke(gmbean.getTarget(), new Object[]{proxy.getProxy()});
-            } finally {
-                Thread.currentThread().setContextClassLoader(oldClassLoader);
+            // set the proxy into the instance
+            if (setInvoker != null && patterns.size() > 0) {
+                ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+                try {
+                    Thread.currentThread().setContextClassLoader(gmbean.getClassLoader());
+                    setInvoker.invoke(gmbean.getTarget(), new Object[]{proxy.getProxy()});
+                } finally {
+                    Thread.currentThread().setContextClassLoader(oldClassLoader);
+                }
             }
+        } catch (Exception e) {
+            // clean up if we got an exception
+            offline();
+            throw e;
+        } catch (Error error) {
+            // clean up if we got an exception
+            offline();
+            throw error;
         }
     }
 
     public synchronized void offline() {
-        try {
-            gmbean.getServer().removeNotificationListener(JMXUtil.DELEGATE_NAME, this);
-        } catch (InstanceNotFoundException ignore) {
-            // we don't care... the mbean we were listening to disapeared
-        } catch (ListenerNotFoundException ignore) {
-            // we don't care... the mbean doesn't think we were listening
-        }
-
         if (proxy == null) {
             //we weren't fully online
             return;
+        }
+
+        try {
+            gmbean.getServer().removeNotificationListener(JMXUtil.DELEGATE_NAME, this);
+        } catch (Exception ignore) {
+            // don't care... we tried
         }
 
         // get the targets from the proxy because we are listening to them
@@ -229,14 +240,11 @@ public class GBeanMBeanReference implements NotificationListener {
             ObjectName target = (ObjectName) iterator.next();
             try {
                 gmbean.getServer().removeNotificationListener(target, this, NotificationType.STATE_CHANGE_FILTER, null);
-            } catch (InstanceNotFoundException ignore) {
-                // we don't care... the mbean we were listening to disapeared
-            } catch (ListenerNotFoundException ignore) {
-                // we don't care... the mbean doesn't think we were listening
+            } catch (Exception ignore) {
+                // don't care... we tried
             }
         }
     }
-
 
     public synchronized void start() throws WaitingException {
         if (!patterns.isEmpty()) {
@@ -251,6 +259,12 @@ public class GBeanMBeanReference implements NotificationListener {
     }
 
     public synchronized void handleNotification(Notification notification, Object o) {
+        if(proxy == null) {
+            // we are not initialized and should not be recieving notifications
+            log.debug("Offline reference recieved a notification: " + notification);
+            return;
+        }
+
         String type = notification.getType();
 
         if (MBeanServerNotification.REGISTRATION_NOTIFICATION.equals(type)) {
