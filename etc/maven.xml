@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.8 $ $Date: 2003/08/25 15:42:20 $ -->
+<!-- $Revision: 1.9 $ $Date: 2003/08/25 20:49:52 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
@@ -78,6 +78,7 @@
         <fileset dir="${basedir}">
           <include name="maven.log"/>
           <include name="velocity.log*"/>
+          <include name="junit*.properties"/>
         </fileset>
       </delete>
     </j:jelly>
