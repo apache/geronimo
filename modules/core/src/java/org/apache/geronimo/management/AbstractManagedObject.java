@@ -99,7 +99,7 @@ import org.apache.geronimo.common.StopException;
  * Implementors of StateManageable may use this class and simply provide
  * doStart, doStop and doNotification methods.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/21 04:32:13 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/21 13:41:19 $
  */
 public abstract class AbstractManagedObject extends NotificationBroadcasterSupport implements ManagedObject, StateManageable, EventProvider, NotificationListener, MBeanRegistration {
     protected final Log log = LogFactory.getLog(getClass());
@@ -266,7 +266,7 @@ public abstract class AbstractManagedObject extends NotificationBroadcasterSuppo
      */
     private final void doNotification(String type) {
         assert !Thread.holdsLock(this): "This method cannot be called while holding a syncrhonized lock on this";
-        sendNotification(new Notification(type, this, sequenceNumber++));
+        sendNotification(new Notification(type, objectName, sequenceNumber++));
     }
 
     public synchronized final long getStartTime() {
