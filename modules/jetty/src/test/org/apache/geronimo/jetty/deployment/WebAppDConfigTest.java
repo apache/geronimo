@@ -65,17 +65,17 @@ import org.apache.geronimo.deployment.tools.loader.WebDeployable;
 import org.apache.geronimo.deployment.plugin.j2ee.URIRefConfigBean;
 
 /**
- * 
- * 
- * @version $Revision: 1.2 $ $Date: 2004/01/25 01:08:25 $
+ *
+ *
+ * @version $Revision: 1.3 $ $Date: 2004/01/25 01:53:17 $
  */
 public class WebAppDConfigTest extends DeployerTestCase {
     private DeploymentConfiguration config;
     private WebDeployable deployable;
+    private DDBeanRoot ddBeanRoot;
+    private WebAppDConfigRoot configRoot;
 
     public void testWebAppRoot() throws Exception {
-        DDBeanRoot ddBeanRoot = deployable.getDDBeanRoot();
-        WebAppDConfigRoot configRoot = (WebAppDConfigRoot) config.getDConfigBeanRoot(ddBeanRoot);
         assertNotNull(configRoot);
         assertTrue(Arrays.equals(new String[]{"web-app"}, configRoot.getXpaths()));
         assertNotNull(configRoot.getDConfigBean(ddBeanRoot.getChildBean("web-app")[0]));
@@ -83,50 +83,57 @@ public class WebAppDConfigTest extends DeployerTestCase {
     }
 
     public void testWebApp() throws Exception {
-        DDBeanRoot ddBeanRoot = deployable.getDDBeanRoot();
-        WebAppDConfigRoot configRoot = (WebAppDConfigRoot) config.getDConfigBeanRoot(ddBeanRoot);
-        WebAppDConfigBean webApp = (WebAppDConfigBean) configRoot.getDConfigBean(ddBeanRoot.getChildBean("web-app")[0]);
+        DDBean ddBean = ddBeanRoot.getChildBean("web-app")[0];
+        WebAppDConfigBean webApp = (WebAppDConfigBean) configRoot.getDConfigBean(ddBean);
         assertNotNull(webApp);
+        String[] xpaths = webApp.getXpaths();
+        assertTrue(Arrays.equals(
+                new String[]{"ejb-ref/ejb-ref-name", "ejb-local-ref/ejb-ref-name", "service-ref/service-ref-name", "resource-ref/res-ref-name", },
+                xpaths)
+        );
     }
 
-    public void testEncRef() throws Exception {
-        DDBeanRoot ddBeanRoot = deployable.getDDBeanRoot();
-        WebAppDConfigRoot configRoot = (WebAppDConfigRoot) config.getDConfigBeanRoot(ddBeanRoot);
-
-        DDBean[] ddBeans;
-        DConfigBean dcBean;
-
-        ddBeans = ddBeanRoot.getChildBean("web-app/ejb-ref/ejb-ref-name");
-        assertNotNull(ddBeans);
-        assertEquals(1, ddBeans.length);
+    public void testEJBRef() throws Exception {
+        DDBean ddBean = ddBeanRoot.getChildBean("web-app")[0];
+        WebAppDConfigBean webApp = (WebAppDConfigBean) configRoot.getDConfigBean(ddBean);
+        DDBean[] ddBeans = ddBean.getChildBean("ejb-ref/ejb-ref-name");
+        assertEquals(2, ddBeans.length);
         assertEquals("fake-ejb-ref", ddBeans[0].getText());
-        dcBean = configRoot.getDConfigBean(ddBeans[0]);
-//        assertNotNull(dcBean);
-//        assertTrue(dcBean instanceof URIRefConfigBean);
-//        ((URIRefConfigBean)dcBean).setTargetURI("blah-ejb-ref");
-//        dcBean = configRoot.getDConfigBean(ddBeans[0]);
-//        assertNotNull(dcBean);
-//        assertTrue(dcBean instanceof URIRefConfigBean);
-//        assertEquals("blah-ejb-ref", ((URIRefConfigBean)dcBean).getTargetURI());
-//
-//        ddBeans = ddBeanRoot.getChildBean("web-app/ejb-local-ref/ejb-ref-name");
-//        assertNotNull(ddBeans);
-//        assertEquals(1, ddBeans.length);
-//        assertEquals("fake-ejb-local-ref", ddBeans[0].getText());
-//        dcBean = configRoot.getDConfigBean(ddBeans[0]);
-//        assertNotNull(dcBean);
-//        assertTrue(dcBean instanceof URIRefConfigBean);
-//        ((URIRefConfigBean)dcBean).setTargetURI("blah-ejb-local-ref");
-//        dcBean = configRoot.getDConfigBean(ddBeans[0]);
-//        assertNotNull(dcBean);
-//        assertTrue(dcBean instanceof URIRefConfigBean);
-//        assertEquals("blah-ejb-local-ref", ((URIRefConfigBean)dcBean).getTargetURI());
+        assertEquals("another-ejb-ref", ddBeans[1].getText());
+
+        URIRefConfigBean ejbRef0 = (URIRefConfigBean) webApp.getDConfigBean(ddBeans[0]);
+        URIRefConfigBean ejbRef1 = (URIRefConfigBean) webApp.getDConfigBean(ddBeans[1]);
+        assertNotNull(ejbRef0);
+        assertEquals(ddBeans[0],ejbRef0.getDDBean());
+        assertNotNull(ejbRef1);
+        assertEquals(ddBeans[1],ejbRef1.getDDBean());
+        assertTrue(ejbRef0 != ejbRef1);
+    }
+
+    public void testEJBLocalRef() throws Exception {
+        DDBean ddBean = ddBeanRoot.getChildBean("web-app")[0];
+        WebAppDConfigBean webApp = (WebAppDConfigBean) configRoot.getDConfigBean(ddBean);
+        DDBean[] ddBeans = ddBean.getChildBean("ejb-local-ref/ejb-ref-name");
+        assertEquals(2, ddBeans.length);
+        assertEquals("fake-ejb-local-ref", ddBeans[0].getText());
+        assertEquals("another-ejb-local-ref", ddBeans[1].getText());
+
+        URIRefConfigBean ejbRef0 = (URIRefConfigBean) webApp.getDConfigBean(ddBeans[0]);
+        URIRefConfigBean ejbRef1 = (URIRefConfigBean) webApp.getDConfigBean(ddBeans[1]);
+        assertNotNull(ejbRef0);
+        assertEquals(ddBeans[0],ejbRef0.getDDBean());
+        assertNotNull(ejbRef1);
+        assertEquals(ddBeans[1],ejbRef1.getDDBean());
+        assertTrue(ejbRef0 != ejbRef1);
     }
 
     protected void setUp() throws Exception {
         super.setUp();
         deployable = new WebDeployable(classLoader.getResource("deployables/war1/"));
         config = manager.createConfiguration(deployable);
+
+        ddBeanRoot = deployable.getDDBeanRoot();
+        configRoot = (WebAppDConfigRoot) config.getDConfigBeanRoot(ddBeanRoot);
     }
 
     protected void tearDown() throws Exception {

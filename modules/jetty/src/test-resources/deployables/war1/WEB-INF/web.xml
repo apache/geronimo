@@ -19,8 +19,20 @@
         <home>some.package.FakeHome</home>
         <remote>some.package.Fake</remote>
     </ejb-ref>
+    <ejb-ref>
+        <ejb-ref-name>another-ejb-ref</ejb-ref-name>
+        <ejb-ref-type>Entity</ejb-ref-type>
+        <home>some.package.FakeHome</home>
+        <remote>some.package.Fake</remote>
+    </ejb-ref>
     <ejb-local-ref>
         <ejb-ref-name>fake-ejb-local-ref</ejb-ref-name>
+        <ejb-ref-type>Entity</ejb-ref-type>
+        <local-home>some.package.FakeLocalHome</local-home>
+        <local>some.package.FakeLocal</local>
+    </ejb-local-ref>
+    <ejb-local-ref>
+        <ejb-ref-name>another-ejb-local-ref</ejb-ref-name>
         <ejb-ref-type>Entity</ejb-ref-type>
         <local-home>some.package.FakeLocalHome</local-home>
         <local>some.package.FakeLocal</local>

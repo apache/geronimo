@@ -77,11 +77,14 @@ import org.w3c.dom.Node;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/25 01:08:25 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/25 01:53:17 $
  */
 public class ENCHelper {
     public static final String[] ENC_XPATHS = {
-        "ejb-ref/ejb-ref-name"
+        "ejb-ref/ejb-ref-name",
+        "ejb-local-ref/ejb-ref-name",
+        "service-ref/service-ref-name",
+        "resource-ref/res-ref-name",
     };
 
     private final DDBean ddBean;
