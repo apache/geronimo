@@ -1,10 +1,10 @@
 <!--hack to work with activemq-->
-<!ENTITY geronimo-kernel-version "1.0-SNAPSHOT">
-<!ENTITY geronimo-system-version "1.0-SNAPSHOT">
+<!ENTITY geronimo-kernel-version "1.0-M3">
+<!ENTITY geronimo-system-version "1.0-M3">
 
 <!--actual dependencies-->
 <!ENTITY activemq-version "1.2-SNAPSHOT">
-<!ENTITY geronimo-version "1.0-SNAPSHOT">
+<!ENTITY geronimo-version "1.0-M3">
 <!ENTITY openejb-version "2.0-SNAPSHOT">
 <!ENTITY tranql-version "1.0-SNAPSHOT">
 <!ENTITY tranql-connector-version "1.0-SNAPSHOT">
