@@ -70,7 +70,7 @@ import org.apache.commons.jexl.resolver.FlatResolver;
 /**
  * Handles pasring expressions from a string.
  *
- * @version <code>$Revision: 1.1 $ $Date: 2003/08/24 20:13:22 $</code>
+ * @version <code>$Revision: 1.2 $ $Date: 2003/08/25 20:46:45 $</code>
  */
 public class StringValueParser
 {
@@ -217,5 +217,15 @@ public class StringValueParser
         }
         
         return buff.toString();
+    }
+    
+    public String parse(final String input, final boolean trim)
+    {
+        String output = parse(input);
+        if (trim && output != null) {
+            output = output.trim();
+        }
+        
+        return output;
     }
 }
