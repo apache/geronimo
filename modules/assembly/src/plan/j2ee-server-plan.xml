@@ -152,16 +152,17 @@ by the server.
     </gbean>
 
     <gbean name="geronimo.server:type=TransactionManager" class="org.apache.geronimo.transaction.GeronimoTransactionManager">
-        <reference name="transactionLog">geronimo.server:type=HOWLTransactionLog</reference>
-        <references name="resourceManagers">
+        <reference name="TransactionLog">geronimo.server:type=HOWLTransactionLog</reference>
+        <references name="ResourceManagers">
             <pattern>geronimo.server:j2eeType=JCAManagedConnectionFactory,*</pattern>
             <pattern>geronimo.server:j2eeType=ActivationSpec,*</pattern>
         </references>
     </gbean>
 
-    <gbean name="geronimo.server:type=TransactionContextManager" class="org.apache.geronimo.transaction.context.TransactionContextManager">
+    <!--gbean name="geronimo.server:type=TransactionContextManager" 
+class="org.apache.geronimo.transaction.context.TransactionContextManager">
         <reference name="TransactionManager">geronimo.server:type=TransactionManager</reference>
-    </gbean>
+    </gbean-->
 
 
     <!-- default WAR container using Jetty -->
