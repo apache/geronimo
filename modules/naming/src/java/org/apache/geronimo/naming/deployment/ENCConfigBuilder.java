@@ -31,7 +31,7 @@ import org.apache.geronimo.naming.java.ComponentContextBuilder;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/06/25 21:33:27 $
+ * @version $Revision: 1.4 $ $Date: 2004/07/25 08:12:39 $
  *
  * */
 public class ENCConfigBuilder {
@@ -65,6 +65,9 @@ public class ENCConfigBuilder {
                 throw new DeploymentException("could not load class " + type, e);
             }
             RefAdapter refAdapter = (RefAdapter) refAdapterMap.get(name);
+            if (refAdapter == null) {
+                throw  new DeploymentException("No geronimo configuration for resource ref named: " + name);
+            }
             try {
                 builder.addResourceRef(name, iface, refAdapter);
             } catch (NamingException e) {
@@ -86,6 +89,9 @@ public class ENCConfigBuilder {
                 throw new DeploymentException("could not load class " + type, e);
             }
             RefAdapter refAdapter = (RefAdapter) refAdapterMap.get(name);
+            if (refAdapter == null) {
+                throw  new DeploymentException("No geronimo configuration for resource env ref named: " + name);
+            }
             try {
                 builder.addResourceRef(name, iface, refAdapter);
             } catch (NamingException e) {
