@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.1 $ $Date: 2003/08/22 11:18:56 $ -->
+<!-- $Revision: 1.2 $ $Date: 2003/08/22 13:46:47 $ -->
 
-<project
+<project default="default"
   xmlns:j="jelly:core"
   xmlns:u="jelly:util"
   xmlns:ant="jelly:ant"
@@ -14,6 +14,10 @@
   
   <ant:property file="${basedir}/../../etc/project.properties"/>
   
+  <goal name="default">
+	<attainGoal name="java:compile"/>      
+	<attainGoal name="javadoc"/>      
+  </goal>
   
   <preGoal name="xdoc:jelly-transform">
     <attainGoal name="html2xdoc"/>
