@@ -57,101 +57,46 @@ package org.apache.geronimo.transaction.manager;
 
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
-import javax.transaction.InvalidTransactionException;
 import javax.transaction.NotSupportedException;
 import javax.transaction.RollbackException;
-import javax.transaction.Status;
 import javax.transaction.SystemException;
-import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
-
-import org.apache.geronimo.transaction.log.UnrecoverableLog;
+import javax.transaction.UserTransaction;
 
 /**
- * Simple implementation of a local transaction manager.
  *
- * @version $Revision: 1.3 $ $Date: 2003/10/15 02:53:27 $
+ *
+ *
+ * @version $Revision: 1.1 $ $Date: 2003/10/15 02:53:27 $
  */
-public class TransactionManagerImpl implements TransactionManager {
-    private final TransactionLog txnLog;
-    private final XidFactory xidFactory = new XidFactory();
-    private volatile int timeout;
-    private final ThreadLocal threadTx = new ThreadLocal();
+public class UserTransactionImpl implements UserTransaction {
+    private final TransactionManager manager;
 
-    public TransactionManagerImpl() {
-        txnLog = new UnrecoverableLog();
-    }
-
-    public TransactionManagerImpl(TransactionLog txnLog) {
-        this.txnLog = txnLog;
-    }
-
-    public Transaction getTransaction() throws SystemException {
-        return (Transaction) threadTx.get();
-    }
-
-    public void setTransactionTimeout(int seconds) throws SystemException {
-        timeout = seconds;
-    }
-
-    public int getStatus() throws SystemException {
-        Transaction tx = getTransaction();
-        return (tx != null) ? tx.getStatus() : Status.STATUS_NO_TRANSACTION;
+    public UserTransactionImpl(TransactionManager manager) {
+        this.manager = manager;
     }
 
     public void begin() throws NotSupportedException, SystemException {
-        if (getStatus() != Status.STATUS_NO_TRANSACTION) {
-            throw new NotSupportedException("Nested Transactions are not supported");
-        }
-        TransactionImpl tx = new TransactionImpl(xidFactory, txnLog);
-        threadTx.set(tx);
-    }
-
-    public Transaction suspend() throws SystemException {
-        Transaction tx = getTransaction();
-        threadTx.set(null);
-        return tx;
-    }
-
-    public void resume(Transaction tx) throws IllegalStateException, InvalidTransactionException, SystemException {
-        if (threadTx.get() != null) {
-            throw new IllegalStateException("Transaction already associated with current thread");
-        }
-        if (tx instanceof TransactionImpl == false) {
-            throw new InvalidTransactionException("Cannot resume foreign transaction: " + tx);
-        }
-        threadTx.set(tx);
-    }
-
-    public void setRollbackOnly() throws IllegalStateException, SystemException {
-        Transaction tx = getTransaction();
-        if (tx == null) {
-            throw new IllegalStateException("No transaction associated with current thread");
-        }
-        tx.setRollbackOnly();
+        manager.begin();
     }
 
     public void commit() throws HeuristicMixedException, HeuristicRollbackException, IllegalStateException, RollbackException, SecurityException, SystemException {
-        Transaction tx = getTransaction();
-        if (tx == null) {
-            throw new IllegalStateException("No transaction associated with current thread");
-        }
-        try {
-            tx.commit();
-        } finally {
-            threadTx.set(null);
-        }
+        manager.commit();
+    }
+
+    public int getStatus() throws SystemException {
+        return manager.getStatus();
     }
 
     public void rollback() throws IllegalStateException, SecurityException, SystemException {
-        Transaction tx = getTransaction();
-        if (tx == null) {
-            throw new IllegalStateException("No transaction associated with current thread");
-        }
-        try {
-            tx.rollback();
-        } finally {
-            threadTx.set(null);
-        }
+        manager.rollback();
+    }
+
+    public void setRollbackOnly() throws IllegalStateException, SystemException {
+        manager.setRollbackOnly();
+    }
+
+    public void setTransactionTimeout(int timeout) throws SystemException {
+        manager.setTransactionTimeout(timeout);
     }
 }

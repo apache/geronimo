@@ -53,7 +53,7 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.transaction.manager;
+package org.apache.geronimo.transaction;
 
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
@@ -65,33 +65,33 @@ import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 
-import org.apache.geronimo.transaction.log.UnrecoverableLog;
-
 /**
- * Simple implementation of a local transaction manager.
+ * A wrapper for a TransactionManager that wraps all Transactions in a TransactionProxy
+ * so that we can add addition metadata to the Transaction. Only begin (and setTransactionTimeout)
+ * are delegated to the wrapped TransactionManager; all other operations are delegated to the
+ * wrapped Transaction.
  *
- * @version $Revision: 1.3 $ $Date: 2003/10/15 02:53:27 $
+ * @version $Revision: 1.1 $ $Date: 2003/10/15 02:53:27 $
  */
-public class TransactionManagerImpl implements TransactionManager {
-    private final TransactionLog txnLog;
-    private final XidFactory xidFactory = new XidFactory();
-    private volatile int timeout;
+public class TransactionManagerProxy implements TransactionManager {
+    private final TransactionManager delegate;
     private final ThreadLocal threadTx = new ThreadLocal();
 
-    public TransactionManagerImpl() {
-        txnLog = new UnrecoverableLog();
+    /**
+     * Constructor taking the TransactionManager to wrap.
+     * @param delegate the TransactionManager that should be wrapped
+     */
+    public TransactionManagerProxy(TransactionManager delegate) {
+        this.delegate = delegate;
     }
 
-    public TransactionManagerImpl(TransactionLog txnLog) {
-        this.txnLog = txnLog;
+    public void setTransactionTimeout(int timeout) throws SystemException {
+        delegate.setTransactionTimeout(timeout);
     }
 
-    public Transaction getTransaction() throws SystemException {
-        return (Transaction) threadTx.get();
-    }
-
-    public void setTransactionTimeout(int seconds) throws SystemException {
-        timeout = seconds;
+    public void begin() throws NotSupportedException, SystemException {
+        delegate.begin();
+        threadTx.set(new TransactionProxy(delegate.getTransaction()));
     }
 
     public int getStatus() throws SystemException {
@@ -99,12 +99,8 @@ public class TransactionManagerImpl implements TransactionManager {
         return (tx != null) ? tx.getStatus() : Status.STATUS_NO_TRANSACTION;
     }
 
-    public void begin() throws NotSupportedException, SystemException {
-        if (getStatus() != Status.STATUS_NO_TRANSACTION) {
-            throw new NotSupportedException("Nested Transactions are not supported");
-        }
-        TransactionImpl tx = new TransactionImpl(xidFactory, txnLog);
-        threadTx.set(tx);
+    public Transaction getTransaction() throws SystemException {
+        return (Transaction) threadTx.get();
     }
 
     public Transaction suspend() throws SystemException {
@@ -117,18 +113,10 @@ public class TransactionManagerImpl implements TransactionManager {
         if (threadTx.get() != null) {
             throw new IllegalStateException("Transaction already associated with current thread");
         }
-        if (tx instanceof TransactionImpl == false) {
+        if (tx instanceof TransactionProxy == false) {
             throw new InvalidTransactionException("Cannot resume foreign transaction: " + tx);
         }
         threadTx.set(tx);
-    }
-
-    public void setRollbackOnly() throws IllegalStateException, SystemException {
-        Transaction tx = getTransaction();
-        if (tx == null) {
-            throw new IllegalStateException("No transaction associated with current thread");
-        }
-        tx.setRollbackOnly();
     }
 
     public void commit() throws HeuristicMixedException, HeuristicRollbackException, IllegalStateException, RollbackException, SecurityException, SystemException {
@@ -153,5 +141,13 @@ public class TransactionManagerImpl implements TransactionManager {
         } finally {
             threadTx.set(null);
         }
+    }
+
+    public void setRollbackOnly() throws IllegalStateException, SystemException {
+        Transaction tx = getTransaction();
+        if (tx == null) {
+            throw new IllegalStateException("No transaction associated with current thread");
+        }
+        tx.setRollbackOnly();
     }
 }

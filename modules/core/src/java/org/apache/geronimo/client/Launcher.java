@@ -68,8 +68,6 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
-import javax.management.Attribute;
-import javax.management.AttributeList;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
@@ -80,7 +78,8 @@ import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 import javax.management.ServiceNotFoundException;
-import javax.naming.Context;
+import javax.transaction.TransactionManager;
+import javax.transaction.UserTransaction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -91,14 +90,17 @@ import org.apache.geronimo.kernel.deployment.DeploymentException;
 import org.apache.geronimo.kernel.jmx.JMXKernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.naming.java.ComponentContextBuilder;
+import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.proxy.ProxyInvocation;
+import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
+import org.apache.geronimo.transaction.manager.UserTransactionImpl;
 import org.apache.geronimo.xml.deployment.GeronimoAppClientLoader;
 import org.apache.geronimo.xml.deployment.LoaderUtil;
 
 /**
  * Launcher for J2EE Application Clients.
  *
- * @version $Revision: 1.6 $ $Date: 2003/09/22 21:09:35 $
+ * @version $Revision: 1.7 $ $Date: 2003/10/15 02:53:26 $
  */
 public class Launcher {
     static {
@@ -186,6 +188,8 @@ public class Launcher {
             throw new DeploymentException("Boot mlet did not load a DeploymentPlanner for type=Service");
         }
 
+        TransactionManager txnManager = new TransactionManagerImpl();
+
         log.info("Deploying Application Client from " + clientURL);
         // @todo use the deployer to create the app client rather than doing it by hand
 //        try {
@@ -198,7 +202,13 @@ public class Launcher {
 //            throw new DeploymentException(e);
 //        }
 
-        AppClientContainer clientMBean = new AppClientContainer();
+        String mainClassName = getMainClassName();
+
+        UserTransaction userTransaction = txnManager == null ? null : new UserTransactionImpl(txnManager);
+        ApplicationClient appClient = loadAppClientDescriptor();
+        ReadOnlyContext compContext = new ComponentContextBuilder(userTransaction).buildContext(appClient);
+
+        AppClientContainer clientMBean = new AppClientContainer(clientURL, mainClassName, compContext);
         clientName = JMXUtil.getObjectName("geronimo.client:url=" + ObjectName.quote(clientURL.toString()));
         try {
             mbServer.registerMBean(clientMBean, clientName);
@@ -211,22 +221,6 @@ public class Launcher {
         } catch (InstanceAlreadyExistsException e) {
             throw new DeploymentException(e);
         } catch (NotCompliantMBeanException e) {
-            throw new DeploymentException(e);
-        }
-
-        String mainClassName = getMainClassName();
-        ApplicationClient appClient = loadAppClientDescriptor();
-
-        Context compContext = ComponentContextBuilder.buildContext(appClient);
-
-        try {
-            AttributeList attrs = new AttributeList(3);
-            attrs.add(new Attribute("MainClassName", mainClassName));
-            attrs.add(new Attribute("ClientURL", clientURL));
-            attrs.add(new Attribute("ComponentContext", compContext));
-            AttributeList setAttrs = mbServer.setAttributes(clientName, attrs);
-            assert (attrs.size() == setAttrs.size());
-        } catch (Exception e) {
             throw new DeploymentException(e);
         }
 

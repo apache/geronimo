@@ -57,20 +57,24 @@ package org.apache.geronimo.naming.java;
 
 import java.net.URL;
 import javax.naming.Context;
+import javax.naming.NameNotFoundException;
+import javax.transaction.UserTransaction;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.deployment.model.geronimo.appclient.ApplicationClient;
 import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceRef;
+import org.apache.geronimo.transaction.manager.UserTransactionImpl;
 
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2003/09/09 03:47:10 $
+ * @version $Revision: 1.6 $ $Date: 2003/10/15 02:53:26 $
  */
 public class ContextBuilderTest extends TestCase {
     private ApplicationClient client;
+    private Context compCtx;
 
     protected void setUp() throws Exception {
         client = new ApplicationClient();
@@ -93,9 +97,23 @@ public class ContextBuilderTest extends TestCase {
     }
 
     public void testEnvEntries() throws Exception {
-        Context compCtx = ComponentContextBuilder.buildContext(client);
+        compCtx = new ComponentContextBuilder().buildContext(client);
         assertEquals("Hello World", compCtx.lookup("env/string"));
         assertEquals(new Integer(12345), compCtx.lookup("env/int"));
         assertEquals(new URL("http://localhost/path"), compCtx.lookup("env/url/testURL"));
+    }
+
+    public void testUserTransaction() throws Exception {
+        compCtx = new ComponentContextBuilder().buildContext(client);
+        try {
+            compCtx.lookup("UserTransaction");
+            fail("Expected NameNotFoundException");
+        } catch (NameNotFoundException e) {
+            // OK
+        }
+
+        UserTransaction userTransaction = new UserTransactionImpl(null);
+        compCtx = new ComponentContextBuilder(userTransaction).buildContext(client);
+        assertEquals(userTransaction, compCtx.lookup("UserTransaction"));
     }
 }

@@ -59,8 +59,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import javax.naming.Context;
 import javax.naming.LinkRef;
+import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.JNDIEnvironmentRefs;
@@ -71,16 +71,26 @@ import org.apache.geronimo.kernel.deployment.DeploymentException;
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2003/09/17 01:47:15 $
+ * @version $Revision: 1.8 $ $Date: 2003/10/15 02:53:26 $
  */
 public class ComponentContextBuilder {
+    private final UserTransaction userTransaction;
+
+    public ComponentContextBuilder() {
+        userTransaction = null;
+    }
+
+    public ComponentContextBuilder(UserTransaction userTransaction) {
+        this.userTransaction = userTransaction;
+    }
+
     /**
      * Build a component context from definitions contained in POJOs read from
      * a deployment descriptor.
      * @param refs the source reference definitions
      * @return a Context that can be bound to java:comp
      */
-    public static Context buildContext(JNDIEnvironmentRefs refs) throws DeploymentException {
+    public ReadOnlyContext buildContext(JNDIEnvironmentRefs refs) throws DeploymentException {
         Map envMap = new HashMap();
         buildEnvEntries(envMap, refs.getEnvEntry());
         buildEJBRefs(envMap, refs.getGeronimoEJBRef());
@@ -88,6 +98,9 @@ public class ComponentContextBuilder {
 
         Map compMap = new HashMap();
         compMap.put("env", new ReadOnlyContext(envMap));
+        if (userTransaction != null) {
+            compMap.put("UserTransaction", userTransaction);
+        }
         return new ReadOnlyContext(compMap);
     }
 

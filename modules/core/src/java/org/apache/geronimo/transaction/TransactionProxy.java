@@ -53,98 +53,56 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.client;
+package org.apache.geronimo.transaction;
 
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLClassLoader;
-
-import org.apache.geronimo.core.service.AbstractRPCContainer;
-import org.apache.geronimo.kernel.deployment.DeploymentException;
-import org.apache.geronimo.naming.java.ComponentContextInterceptor;
-import org.apache.geronimo.naming.java.ReadOnlyContext;
+import javax.transaction.Transaction;
+import javax.transaction.HeuristicMixedException;
+import javax.transaction.HeuristicRollbackException;
+import javax.transaction.RollbackException;
+import javax.transaction.SystemException;
+import javax.transaction.Synchronization;
+import javax.transaction.xa.XAResource;
 
 /**
+ * Our version of a JTA Transaction which also carries metadata such as isolation level
+ * and write-intent. Delegates all Transaction methods to a real Transaction obtained from
+ * the vendor's TransactionManager.
  *
- * @jmx.mbean
- *      extends="org.apache.geronimo.core.service.RPCContainer,org.apache.geronimo.kernel.management.StateManageable"
  *
- * @version $Revision: 1.6 $ $Date: 2003/10/15 02:53:26 $
+ * @version $Revision: 1.1 $ $Date: 2003/10/15 02:53:27 $
  */
-public class AppClientContainer extends AbstractRPCContainer implements AppClientContainerMBean {
-    private static final Class[] MAIN_ARGS = {String[].class};
+public class TransactionProxy implements Transaction {
+    private final Transaction delegate;
 
-    private String mainClassName;
-    private URL clientURL;
-    private ReadOnlyContext compContext;
-
-    public AppClientContainer() {
+    public TransactionProxy(Transaction delegate) {
+        this.delegate = delegate;
     }
 
-    public AppClientContainer(URL clientURL, String mainClassName, ReadOnlyContext compContext) {
-        this.clientURL = clientURL;
-        this.mainClassName = mainClassName;
-        this.compContext = compContext;
+    public void commit() throws HeuristicMixedException, HeuristicRollbackException, RollbackException, SecurityException, SystemException {
+        delegate.commit();
     }
 
-    /**
-     * @jmx.managed-attribute
-     */
-    public void setMainClassName(String className) {
-        mainClassName = className;
+    public boolean delistResource(XAResource xaResource, int i) throws IllegalStateException, SystemException {
+        return delegate.delistResource(xaResource, i);
     }
 
-    /**
-     * @jmx.managed-attribute
-     */
-    public String getMainClassName() {
-        return mainClassName;
+    public boolean enlistResource(XAResource xaResource) throws IllegalStateException, RollbackException, SystemException {
+        return delegate.enlistResource(xaResource);
     }
 
-    /**
-     * @jmx.managed-attribute
-     */
-    public URL getClientURL() {
-        return clientURL;
+    public int getStatus() throws SystemException {
+        return delegate.getStatus();
     }
 
-    /**
-     * @jmx.managed-attribute
-     */
-    public void setClientURL(URL clientURL) {
-        this.clientURL = clientURL;
+    public void registerSynchronization(Synchronization synchronization) throws IllegalStateException, RollbackException, SystemException {
+        delegate.registerSynchronization(synchronization);
     }
 
-    /**
-     * @jmx.managed-attribute
-     */
-    public ReadOnlyContext getComponentContext() {
-        return compContext;
+    public void rollback() throws IllegalStateException, SystemException {
+        delegate.rollback();
     }
 
-    /**
-     * @jmx.managed-attribute
-     */
-    public void setComponentContext(ReadOnlyContext compContext) {
-        this.compContext = compContext;
-    }
-
-    protected void doStart() throws Exception {
-        ClassLoader clientCL = new URLClassLoader(new URL[] { clientURL }, Thread.currentThread().getContextClassLoader());
-        Method mainMethod;
-        try {
-            Class mainClass = clientCL.loadClass(mainClassName);
-            mainMethod = mainClass.getMethod("main", MAIN_ARGS);
-        } catch (ClassNotFoundException e) {
-            throw new DeploymentException("Unable to load Main-Class " + mainClassName, e);
-        } catch (NoSuchMethodException e) {
-            throw new DeploymentException("Main-Class " + mainClassName + " does not have a main method", e);
-        }
-        addInterceptor(new ComponentContextInterceptor(compContext));
-        addInterceptor(new MainInvokerInterceptor(mainMethod));
-    }
-
-    protected void doStop() throws Exception {
-        clearInterceptors();
+    public void setRollbackOnly() throws IllegalStateException, SystemException {
+        delegate.setRollbackOnly();
     }
 }
