@@ -19,25 +19,24 @@ package org.apache.geronimo.messaging.cluster;
 
 import java.util.Set;
 
-import org.apache.geronimo.messaging.EndPoint;
+import org.apache.geronimo.messaging.NodeException;
 import org.apache.geronimo.messaging.NodeInfo;
 
 /**
  * Cluster of Nodes.
  *
- * @version $Revision: 1.1 $ $Date: 2004/06/10 23:12:25 $
+ * @version $Revision: 1.2 $ $Date: 2004/07/17 03:38:42 $
  */
 public interface Cluster
-    extends EndPoint
 {
 
     /**
-     * Gets the cluster identifier.
+     * Gets the meta-data of this cluster.
      * 
-     * @return Identifier.
+     * @return Cluster meta-data.
      */
-    public Object getClusterID();
-
+    public ClusterInfo getClusterInfo(); 
+    
     /**
      * Gets the Nodes of this cluster.
      * 
@@ -54,9 +53,11 @@ public interface Cluster
      * When the topology has been applied, it notifies the registered
      * cluster event listeners of the addition. 
      * 
-     * @param aNode Node to be added to this cluster. 
+     * @param aNode Node to be added to this cluster.
+     * @exception NodeException Indicates that the specified node can not be
+     * added.
      */
-    public void addMember(NodeInfo aNode);
+    public void addMember(NodeInfo aNode) throws NodeException;
 
     /**
      * Removes a Node from this cluster.
@@ -64,8 +65,10 @@ public interface Cluster
      * See {@link addMember} for more details on the operations of this method. 
      * 
      * @param aNode
+     * @exception NodeException Indicates that the specified node can not be
+     * removed.
      */
-    public void removeMember(NodeInfo aNode);
+    public void removeMember(NodeInfo aNode) throws NodeException;
 
     /**
      * Adds a listener to this cluster.

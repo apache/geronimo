@@ -21,8 +21,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 
-import org.apache.geronimo.messaging.GBeanBaseEndPoint;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.messaging.Node;
+import org.apache.geronimo.messaging.NodeException;
 import org.apache.geronimo.messaging.NodeInfo;
 import org.apache.geronimo.messaging.NodeTopology;
 import org.apache.geronimo.messaging.cluster.topology.TopologyManager;
@@ -30,17 +34,26 @@ import org.apache.geronimo.messaging.cluster.topology.TopologyManager;
 /**
  * Cluster implementation.
  * <BR>
- * It is an EndPoint, which manages the nodes at the cluster level and triggers
- * dynamic reconfigurations of the underlying node topology when members
- * are added or removed.
+ * It manages the nodes at the cluster level and triggers dynamic 
+ * reconfigurations of the underlying node topology when members are added or 
+ * removed.
  *  
- * @version $Revision: 1.1 $ $Date: 2004/06/10 23:12:25 $
+ * @version $Revision: 1.2 $ $Date: 2004/07/17 03:38:42 $
  */
 public class ClusterImpl
-    extends GBeanBaseEndPoint
-    implements Cluster
+    implements Cluster, GBeanLifecycle
 {
+    
+    /**
+     * Cluster meta-data.
+     */
+    private final ClusterInfo clusterInfo;
 
+    /**
+     * Node which is owning this cluster view.
+     */
+    private final Node node;
+    
     /**
      * To reconfigure the node topology.
      */
@@ -54,43 +67,72 @@ public class ClusterImpl
     /**
      * Creates a cluster view mounted by the specified node.
      * 
+     * @param aClusterInfo Cluster meta-data.
      * @param aNode Node which is mounting this cluster view.
-     * @param anID Cluster identifier.
      * @param aTopologyManager Use to reconfigure the node topology when
      * members joined or leaved the cluster. 
      */
-    public ClusterImpl(Node aNode, Object anID,
+    public ClusterImpl(ClusterInfo aClusterInfo, Node aNode,
         TopologyManager aTopologyManager) {
-        super(aNode, anID);
-        if ( null == aTopologyManager ) {
+        if ( null == aClusterInfo ) {
+            throw new IllegalArgumentException("ClusterInfo is required");
+        } else if ( null == aNode ) {
+            throw new IllegalArgumentException("Node is required");
+        } else if ( null == aTopologyManager ) {
             throw new IllegalArgumentException("Topology manager is required");
         }
-        
+        clusterInfo = aClusterInfo;
+        node = aNode;
         topologyManager = aTopologyManager;
-        topologyManager.addNode(node.getNodeInfo());
 
         listeners = new ArrayList();
     }
-    
-    public Object getClusterID() {
-        return getID();
+
+    public void doStart() throws WaitingException, Exception {
+        topologyManager.addNode(node.getNodeInfo());
     }
 
+    public void doStop() throws WaitingException, Exception {
+        topologyManager.removeNode(node.getNodeInfo());
+    }
+
+    public void doFail() {
+        topologyManager.removeNode(node.getNodeInfo());
+    }
+
+    public ClusterInfo getClusterInfo() {
+        return clusterInfo;
+    }
+    
     public Set getMembers() {
         return node.getTopology().getNodes();
     }
 
-    public void addMember(NodeInfo aNode) {
-        topologyManager.addNode(aNode);
-        NodeTopology nodeTopology = topologyManager.factoryTopology();
+    public void addMember(NodeInfo aNode) throws NodeException {
+        NodeTopology nodeTopology;
+        synchronized(topologyManager) {
+            Set nodes = topologyManager.getNodes();
+            if ( nodes.contains(aNode) ) {
+                return;
+            }
+            topologyManager.addNode(aNode);
+            nodeTopology = topologyManager.factoryTopology();
+        }
         node.setTopology(nodeTopology);
         fireClusterMemberEvent(
             new ClusterEvent(this, aNode, ClusterEvent.MEMBER_ADDED));
     }
 
-    public void removeMember(NodeInfo aNode) {
-        topologyManager.removeNode(aNode);
-        NodeTopology nodeTopology = topologyManager.factoryTopology();
+    public void removeMember(NodeInfo aNode) throws NodeException {
+        NodeTopology nodeTopology;
+        synchronized(topologyManager) {
+            Set nodes = topologyManager.getNodes();
+            if ( !nodes.contains(aNode) ) {
+                return;
+            }
+            topologyManager.removeNode(aNode);
+            nodeTopology = topologyManager.factoryTopology();
+        }
         node.setTopology(nodeTopology);
         fireClusterMemberEvent(
             new ClusterEvent(this, aNode, ClusterEvent.MEMBER_REMOVED));
@@ -117,6 +159,22 @@ public class ClusterImpl
         for (int i = 0; i < tmpListeners.length;) {
             tmpListeners[i].fireClusterMemberEvent(anEvent);
         }
+    }
+
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoFactory factory = new GBeanInfoFactory(ClusterImpl.class);
+        factory.setConstructor(new String[] {"clusterInfo", "Node", 
+            "topologyManager"});
+        factory.addInterface(Cluster.class, new String[] {"clusterInfo"});
+        factory.addAttribute("topologyManager", TopologyManager.class, true);
+        factory.addReference("Node", Node.class);
+        GBEAN_INFO = factory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
     }
     
 }
