@@ -19,20 +19,21 @@ package org.apache.geronimo.network.protocol.control;
 
 import java.util.Collection;
 
+import EDU.oswego.cs.dl.util.concurrent.Latch;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.apache.geronimo.network.SelectorManager;
 import org.apache.geronimo.network.protocol.DownPacket;
+import org.apache.geronimo.network.protocol.Protocol;
 import org.apache.geronimo.network.protocol.ProtocolException;
 import org.apache.geronimo.network.protocol.UpPacket;
 import org.apache.geronimo.system.ClockPool;
 import org.apache.geronimo.system.ThreadPool;
 
-import EDU.oswego.cs.dl.util.concurrent.Latch;
-
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/04/24 06:29:01 $
+ * @version $Revision: 1.6 $ $Date: 2004/04/24 22:34:01 $
  */
 public class ControlServerProtocol extends AbstractControlProtocol {
 
@@ -43,12 +44,7 @@ public class ControlServerProtocol extends AbstractControlProtocol {
     private ThreadPool threadPool;
     private ClockPool clockPool;
     private SelectorManager selectorManager;
-    private Latch sendLatch;  //todo: replace with something that uses no locks
     private long timeout;
-
-    private final int STARTED = 0;
-    private final int STOPPED = 1;
-    private int state = STOPPED;
 
     public ControlServerListener getControlServerListener() {
         return controlServerListener;
@@ -98,17 +94,22 @@ public class ControlServerProtocol extends AbstractControlProtocol {
         this.timeout = timeout;
     }
 
+    public Protocol cloneProtocol() throws CloneNotSupportedException {
+        ControlServerProtocol result = (ControlServerProtocol) super.clone();
+        result.START.setParent(result);
+        result.RUN.setParent(result);
+        return result;
+    }
+
     public void setup() throws ProtocolException {
         log.trace("Starting");
-        sendLatch = new Latch();
-        state = STARTED;
     }
 
     public void drain() throws ProtocolException {
         log.trace("Stopping");
-        if (state == STARTED) {
+
+        if (getState() == RUN) {
             getDownProtocol().sendDown(new ShutdownRequestDownPacket());
-            state = STOPPED;
         }
     }
 
@@ -116,40 +117,11 @@ public class ControlServerProtocol extends AbstractControlProtocol {
     }
 
     public void sendUp(UpPacket packet) throws ProtocolException {
-        UpPacket p = ControlPacketReader.getInstance().read(packet.getBuffer());
-        if (p instanceof PassthroughUpPacket) {
-            log.trace("PASSTHROUGH");
-            getUpProtocol().sendUp(packet);
-        } else if (p instanceof BootRequestUpPacket) {
-            log.trace("BOOT REQUEST");
-            getDownProtocol().sendDown(constructBootPacket());
-        } else if (p instanceof BootSuccessUpPacket) {
-            log.trace("BOOT SUCCESS");
-            log.trace("RELEASING " + sendLatch);
-            sendLatch.release();
-            log.trace("RELEASED " + sendLatch);
-        } else if (p instanceof ShutdownRequestUpPacket) {
-            log.trace("SHUTDOWN_REQ");
-            getDownProtocol().sendDown(new ShutdownAcknowledgeDownPacket());
-            state = STOPPED;
-            controlServerListener.shutdown();
-        }
+        getState().sendUp(packet);
     }
 
     public void sendDown(DownPacket packet) throws ProtocolException {
-        try {
-            log.trace("AQUIRING " + sendLatch);
-            if (!sendLatch.attempt(timeout)) throw new ProtocolException("Send timeout.");
-            log.trace("AQUIRED " + sendLatch);
-
-            PassthroughDownPacket passthtough = new PassthroughDownPacket();
-            passthtough.setBuffers(packet.getBuffers());
-
-            getDownProtocol().sendDown(passthtough);
-
-        } catch (InterruptedException e) {
-            throw new ProtocolException(e);
-        }
+        getState().sendDown(packet);
     }
 
     protected DownPacket constructBootPacket() {
@@ -170,4 +142,69 @@ public class ControlServerProtocol extends AbstractControlProtocol {
         }
     }
 
+    private final State START = new State(this) {
+        Latch startupLatch = new Latch();
+
+        public void sendUp(UpPacket packet) throws ProtocolException {
+            UpPacket p = ControlPacketReader.getInstance().read(packet.getBuffer());
+            if (p instanceof BootRequestUpPacket) {
+                log.trace("BOOT REQUEST");
+                getDownProtocol().sendDown(constructBootPacket());
+            } else if (p instanceof BootSuccessUpPacket) {
+                log.trace("BOOT SUCCESS");
+                log.trace("RELEASING " + startupLatch);
+                ((ControlServerProtocol)getParent()).setState(RUN);
+                startupLatch.release();
+                log.trace("RELEASED " + startupLatch);
+            }
+        }
+
+        public void sendDown(DownPacket packet) throws ProtocolException {
+            try {
+                log.trace("AQUIRING " + startupLatch);
+                if (!startupLatch.attempt(timeout)) throw new ProtocolException("Send timeout");
+                log.trace("AQUIRED " + startupLatch);
+
+                PassthroughDownPacket passthtough = new PassthroughDownPacket();
+                passthtough.setBuffers(packet.getBuffers());
+
+                getDownProtocol().sendDown(passthtough);
+            } catch (InterruptedException e) {
+                throw new ProtocolException(e);
+            }
+        }
+    };
+
+    private final State RUN = new State(this) {
+
+        public void sendUp(UpPacket packet) throws ProtocolException {
+            UpPacket p = ControlPacketReader.getInstance().read(packet.getBuffer());
+            if (p instanceof PassthroughUpPacket) {
+                log.trace("PASSTHROUGH");
+                getUpProtocol().sendUp(packet);
+            } else if (p instanceof ShutdownRequestUpPacket) {
+                log.trace("SHUTDOWN_REQ");
+                getDownProtocol().sendDown(new ShutdownAcknowledgeDownPacket());
+                ((ControlServerProtocol)getParent()).setState(START);
+                controlServerListener.shutdown();
+            }
+        }
+
+        public void sendDown(DownPacket packet) throws ProtocolException {
+            PassthroughDownPacket passthtough = new PassthroughDownPacket();
+            passthtough.setBuffers(packet.getBuffers());
+
+            getDownProtocol().sendDown(passthtough);
+        }
+    };
+
+    public State getState() {
+        return state;
+    }
+
+    public void setState(State state) {
+        this.state = state;
+    }
+
+    private volatile State state = START;
 }
