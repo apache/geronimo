@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
+import java.util.LinkedList;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.jar.Attributes;
@@ -51,6 +52,7 @@ import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.config.Configuration;
@@ -74,7 +76,8 @@ public class DeploymentContext {
     private final File baseDir;
     private final URI baseUri;
     private final byte[] buffer = new byte[4096];
-    private final List ancestors;
+    private final List loadedAncestors;
+    private final LinkedList startedAncestors;
     private final ClassLoader parentCL;
 
     public DeploymentContext(File baseDir, URI configID, ConfigurationModuleType type, URI parentID, Kernel kernel) throws MalformedObjectNameException, DeploymentException {
@@ -111,38 +114,45 @@ public class DeploymentContext {
             ObjectName parentName = Configuration.getConfigurationObjectName(parentID);
             config.setReferencePatterns("Parent", Collections.singleton(parentName));
             try {
-                ancestors = configurationManager.loadRecursive(parentID);
+                loadedAncestors = configurationManager.loadRecursive(parentID);
             } catch (Exception e) {
                 throw new DeploymentException("Unable to load parents", e);
             }
 
             try {
-                // starting with the current config start all parents until
-                // there are either no more parents or a parent is already running
-                for (Iterator iterator = ancestors.iterator(); iterator.hasNext();) {
-                    ObjectName name = (ObjectName) iterator.next();
-                    if (isRunning(kernel, name) ) {
-                        // configuration is already running... we can stop now
+                startedAncestors = new LinkedList();
+                ObjectName ancestorName = parentName;
+                while (ancestorName != null && !isRunning(kernel, ancestorName)) {
+                    startedAncestors.addFirst(ancestorName);
+                    Set patterns = kernel.getGBeanData(ancestorName).getReferencePatterns("Parent");
+                    if (patterns.isEmpty()) {
                         break;
                     }
-                    kernel.startGBean(name);
-                    if (!isRunning(kernel, name) ) {
-                        throw new DeploymentException("Failed to start parent configuration: " + name);
+                    ancestorName = (ObjectName) patterns.iterator().next();
+                }
+                //we've found what we need to start, now start them.
+                for (Iterator iterator = startedAncestors.iterator(); iterator.hasNext();) {
+                    ObjectName objectName = (ObjectName) iterator.next();
+                    kernel.startGBean(objectName);
+                    if (!isRunning(kernel, objectName)) {
+                        throw new DeploymentException("Failed to start parent configuration: " + objectName);
                     }
+
                 }
             } catch (DeploymentException e) {
                 throw e;
             } catch (Exception e) {
                 throw new DeploymentException(e);
             }
-                
+
             try {
                 parentCL = (ClassLoader) kernel.getAttribute(parentName, "configurationClassLoader");
             } catch (Exception e) {
                 throw new DeploymentException(e);
             }
         } else {
-            ancestors = null;
+            loadedAncestors = null;
+            startedAncestors = null;
             // no explicit parent set, so use the class loader of this class as
             // the parent... this class should be in the root geronimo classloader,
             // which is normally the system class loader but not always, so be safe
@@ -403,11 +413,33 @@ public class DeploymentContext {
     public void close() throws IOException, DeploymentException {
         saveConfiguration();
 
-        if (kernel != null && ancestors != null && ancestors.size() > 0) {
-            try {
-                kernel.stopGBean((ObjectName) ancestors.get(0));
-            } catch (Exception e) {
-                throw new DeploymentException(e);
+        if (kernel != null) {
+            if (startedAncestors != null) {
+                //stopping one stops all it's children.
+                //doesn't work though.
+                Collections.reverse(startedAncestors);
+                for (Iterator iterator = startedAncestors.iterator(); iterator.hasNext();) {
+                    ObjectName objectName = (ObjectName) iterator.next();
+
+                    try {
+                        kernel.stopGBean(objectName);
+                    } catch (GBeanNotFoundException e) {
+                        throw new DeploymentException("Could not find a configuration we previously started! " + objectName, e);
+                    }
+                }
+                startedAncestors.clear();
+            }
+            if (loadedAncestors != null) {
+                Collections.reverse(loadedAncestors);
+                for (Iterator iterator = loadedAncestors.iterator(); iterator.hasNext();) {
+                    ObjectName objectName = (ObjectName) iterator.next();
+                    try {
+                        kernel.unloadGBean(objectName);
+                    } catch (GBeanNotFoundException e) {
+                        throw new DeploymentException("Could not find a configuration we previously loaded! " + objectName, e);
+                    }
+                }
+                loadedAncestors.clear();
             }
         }
     }
@@ -443,5 +475,13 @@ public class DeploymentContext {
             DeploymentUtil.flush(out);
             DeploymentUtil.close(out);
         }
+    }
+
+    /**
+     * @deprecated Currently used only in some tests, and may not be appropriate as a public method.
+     * @return a copy of the configurations GBeanData
+     */
+    public GBeanData getConfigurationGBeanData() {
+        return new GBeanData(config);
     }
 }
