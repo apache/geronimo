@@ -57,7 +57,6 @@
 package org.apache.geronimo.common;
 
 import java.beans.PropertyEditor;
-import java.beans.PropertyEditorManager;
 import java.io.File;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
@@ -70,11 +69,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.ClassUtils;
+import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 
 /**
  * A collection of <code>Class</code> utilities.
  *
- * @version $Revision: 1.4 $ $Date: 2003/09/05 02:33:56 $
+ * @version $Revision: 1.5 $ $Date: 2003/09/05 04:48:44 $
  */
 public class Classes extends ClassUtils {
     private static final Class[] stringArg = new Class[]{String.class};
@@ -368,6 +368,25 @@ public class Classes extends ClassUtils {
             return Array.newInstance(type, dim).getClass();
         }
 
+        // Handle user friendly type[] syntax
+        if (className.endsWith("[]")) {
+            // get the base component class name and the arrayDimensions
+            int arrayDimension = 0;
+            String componentClassName = className;
+            while (componentClassName.endsWith("[]")) {
+                componentClassName = componentClassName.substring(0, className.length() - 2);
+                arrayDimension++;
+            }
+
+            // load the base type
+            type = loadClass(componentClassName, classLoader);
+
+            // return the array type
+            int[] dim = new int[arrayDimension];
+            java.util.Arrays.fill(dim, 0);
+            return Array.newInstance(type, dim).getClass();
+        }
+
         // Else we can not load (give up)
         throw new ClassNotFoundException(className);
     }
@@ -410,7 +429,7 @@ public class Classes extends ClassUtils {
 
     public static Object getValue(Class type, String value) {
         // try a property editor
-        PropertyEditor editor = PropertyEditorManager.findEditor(type);
+        PropertyEditor editor = PropertyEditors.findEditor(type);
         if (editor != null) {
             editor.setAsText(value);
             return editor.getValue();
