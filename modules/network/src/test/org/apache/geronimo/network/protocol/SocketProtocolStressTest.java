@@ -33,7 +33,7 @@ import org.apache.geronimo.system.ThreadPool;
 
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/03/13 22:51:33 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/13 22:59:51 $
  */
 public class SocketProtocolStressTest extends TestCase {
 
@@ -237,17 +237,13 @@ public class SocketProtocolStressTest extends TestCase {
         DatagramDownPacket packet = new DatagramDownPacket();
         ArrayList list = new ArrayList();
 
-        ByteBuffer byteBuffer = ByteBuffer.allocate(6).order(ByteOrder.BIG_ENDIAN);
-
-        // Load the ByteBuffer with some bytes
-        byteBuffer.put(0, (byte) 'H');
-        byteBuffer.put(1, (byte) 'e');
-        byteBuffer.put(2, (byte) 'l');
-        byteBuffer.put(3, (byte) 'l');
-        byteBuffer.put(4, (byte) 'o');
-        byteBuffer.put(5, (byte) '!');
-
-        list.add(byteBuffer);
+        final int COUNT = 102400;
+        ByteBuffer buffer = ByteBuffer.allocate(COUNT);
+        for (int i = 0; i < COUNT; i++) {
+            buffer.put((byte) 0xba);
+        }
+        buffer.flip();
+        list.add(buffer);
 
         packet.setBuffers(list);
 
