@@ -65,6 +65,7 @@ import org.apache.geronimo.ejb.metadata.MethodMetadata;
 import org.apache.geronimo.security.util.ContextManager;
 
 import javax.security.jacc.PolicyContext;
+import javax.security.auth.Subject;
 import javax.ejb.EJBException;
 import java.lang.reflect.Method;
 import java.security.AccessControlContext;
@@ -72,28 +73,44 @@ import java.security.AccessControlContext;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/08 22:43:08 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/12 04:31:55 $
  */
 public class EJBSecurityInterceptor extends AbstractInterceptor {
-    private AccessControlContext runAsContext;
+    private Subject runAsSubject;
+    private EJBMetadata ejbMetadata;
+    private GeronimoPolicyConfiguration policyConfiguration;
 
-    public AccessControlContext getRunAsContext() {
-        return runAsContext;
+    public Subject getRunAsSubject() {
+        return runAsSubject;
     }
 
-    public void setRunAsContext(AccessControlContext runAsContext) {
-        this.runAsContext = runAsContext;
+    public void setRunAsSubject(Subject runAsSubject) {
+        this.runAsSubject = runAsSubject;
     }
 
-    public InvocationResult invoke(final Invocation invocation) throws Throwable {
+    public EJBMetadata getEjbMetadata() {
+        return ejbMetadata;
+    }
+
+    public void setEjbMetadata(EJBMetadata ejbMetadata) {
+        this.ejbMetadata = ejbMetadata;
+    }
+
+    public GeronimoPolicyConfiguration getPolicyConfiguration() {
+        return policyConfiguration;
+    }
+
+    public void setPolicyConfiguration(GeronimoPolicyConfiguration policyConfiguration) {
+        this.policyConfiguration = policyConfiguration;
+    }
+
+    public InvocationResult invoke(Invocation invocation) throws Throwable {
 
         AccessControlContext context;
-        if (runAsContext != null) {
-            ContextManager.pushContext(runAsContext);
-            context = runAsContext;
-        } else {
-            context = ContextManager.peekContext();
+        if (runAsSubject != null) {
+            ContextManager.pushSubject(runAsSubject);
         }
+        context = ContextManager.peekContext();
 
         String savedContextId = PolicyContext.getContextID();
 
@@ -117,7 +134,7 @@ public class EJBSecurityInterceptor extends AbstractInterceptor {
         } finally {
             PolicyContext.setContextID(savedContextId);
 
-            if (runAsContext != null) ContextManager.popContext();
+            if (runAsSubject != null) ContextManager.popSubject();
         }
         return result;
     }
