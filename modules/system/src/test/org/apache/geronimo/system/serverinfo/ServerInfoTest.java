@@ -22,7 +22,7 @@ import java.io.IOException;
 import junit.framework.TestCase;
 
 /**
- * @version $Rev: 57150 $ $Date: 2004-11-10 09:15:53 +0100 (Wed, 10 Nov 2004) $
+ * @version $Rev$ $Date$
  */
 public class ServerInfoTest extends TestCase {
 
