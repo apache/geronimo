@@ -129,7 +129,7 @@ public class TestingUtils {
 
     protected static EARConfigBuilder getEARConfigBuilder() throws Exception {
         URI defaultParentId = new URI("org/apache/geronimo/Server");
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, null, null);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, null, null, null);
 
        EARConfigBuilder earConfigBuilder =
                 new EARConfigBuilder(defaultParentId,

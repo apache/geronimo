@@ -32,7 +32,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Collections;
 import java.util.jar.JarFile;
+import java.beans.PropertyDescriptor;
+import java.beans.Introspector;
+import java.beans.IntrospectionException;
 import javax.wsdl.Binding;
 import javax.wsdl.BindingInput;
 import javax.wsdl.BindingOperation;
@@ -63,6 +67,10 @@ import org.apache.axis.constants.Use;
 import org.apache.axis.description.FaultDesc;
 import org.apache.axis.description.OperationDesc;
 import org.apache.axis.description.ParameterDesc;
+import org.apache.axis.description.TypeDesc;
+import org.apache.axis.description.FieldDesc;
+import org.apache.axis.description.AttributeDesc;
+import org.apache.axis.description.ElementDesc;
 import org.apache.axis.encoding.ser.ArrayDeserializerFactory;
 import org.apache.axis.encoding.ser.ArraySerializerFactory;
 import org.apache.axis.encoding.ser.BeanDeserializerFactory;
@@ -97,6 +105,8 @@ import org.apache.geronimo.xbeans.j2ee.ServiceEndpointInterfaceMappingType;
 import org.apache.geronimo.xbeans.j2ee.ServiceEndpointMethodMappingType;
 import org.apache.geronimo.xbeans.j2ee.WsdlMessageMappingType;
 import org.apache.geronimo.xbeans.j2ee.WsdlReturnValueMappingType;
+import org.apache.geronimo.xbeans.j2ee.VariableMappingType;
+import org.apache.xmlbeans.SchemaType;
 import org.objectweb.asm.Type;
 import org.w3.x2001.xmlSchema.ComplexType;
 import org.w3.x2001.xmlSchema.ExplicitGroup;
@@ -113,7 +123,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
 
     //WebServiceBuilder
     public void configurePOJO(GBeanData targetGBean, Object portInfoObject, String seiClassName) throws DeploymentException {
-        PortInfo portInfo = (PortInfo)portInfoObject;
+        PortInfo portInfo = (PortInfo) portInfoObject;
         System.out.println("NOT CONFIGURING WEB SERVICE " + portInfo.getPortName());
     }
 
@@ -211,6 +221,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
 
         Map complexTypeMap = WSDescriptorParser.getComplexTypesInWsdl(definition);
         Map exceptionMap = WSDescriptorParser.getExceptionMap(mapping);
+        Map schemaTypeKeyToSchemaTypeMap = WSDescriptorParser.buildSchemaTypeKeyToSchemaTypeMap(definition);
 
         for (Iterator iterator = wsdlPortMap.entrySet().iterator(); iterator.hasNext();) {
             Map.Entry entry = (Map.Entry) iterator.next();
@@ -254,8 +265,9 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
                     OperationInfo operationInfo = buildOperationInfoLightweight(method, bindingOperation, portStyle, soapVersion);
                     operationInfos[i++] = operationInfo;
                 }
-                List typeMappings = new ArrayList();
-                seiFactory = createSEIFactory(portName, enhancedServiceEndpointClass, serviceImpl, typeMappings, location, operationInfos, handlerInfos, context, classLoader);
+                List typeMappings = Collections.EMPTY_LIST;
+                Map typeDescriptors = Collections.EMPTY_MAP;
+                seiFactory = createSEIFactory(portName, enhancedServiceEndpointClass, serviceImpl, typeMappings, typeDescriptors, location, operationInfos, handlerInfos, context, classLoader);
             } else {
                 //complete jaxrpc mapping file supplied
                 QName portTypeQName = portType.getQName();
@@ -280,6 +292,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
                 }
                 JavaXmlTypeMappingType[] javaXmlTypeMappings = mapping.getJavaXmlTypeMappingArray();
                 List typeMappings = new ArrayList();
+                Map typeDescriptors = new HashMap();
                 for (int j = 0; j < javaXmlTypeMappings.length; j++) {
                     JavaXmlTypeMappingType javaXmlTypeMapping = javaXmlTypeMappings[j];
                     //default settings
@@ -299,10 +312,15 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
                         deserializerFactoryClass = ArrayDeserializerFactory.class;
                     }
 
+                    QName typeName;
+                    SchemaTypeKey key;
                     TypeMappingInfo typeMappingInfo = null;
+                    boolean isElement = javaXmlTypeMapping.getQnameScope().getStringValue().equals("element");
+                    boolean isSimpleType = javaXmlTypeMapping.getQnameScope().getStringValue().equals("simpleType");
                     if (javaXmlTypeMapping.isSetRootTypeQname()) {
-                        QName typeName = javaXmlTypeMapping.getRootTypeQname().getQNameValue();
+                        typeName = javaXmlTypeMapping.getRootTypeQname().getQNameValue();
                         typeMappingInfo = new TypeMappingInfo(clazz, typeName, serializerFactoryClass, deserializerFactoryClass);
+                        key = new SchemaTypeKey(typeName, isElement, isSimpleType, false);
                     } else if (javaXmlTypeMapping.isSetAnonymousTypeQname()) {
                         String anonTypeQNameString = javaXmlTypeMapping.getAnonymousTypeQname().getStringValue();
                         int pos = anonTypeQNameString.lastIndexOf(":");
@@ -310,18 +328,93 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
                             throw new DeploymentException("anon QName is invalid, no final ':' " + anonTypeQNameString);
                         }
                         //this appears to be ignored...
-                        QName typeName = new QName(anonTypeQNameString.substring(0, pos), anonTypeQNameString.substring(pos + 1));
+                        typeName = new QName(anonTypeQNameString.substring(0, pos), anonTypeQNameString.substring(pos + 1));
                         typeMappingInfo = new TypeMappingInfo(clazz, typeName, serializerFactoryClass, deserializerFactoryClass);
+                        key = new SchemaTypeKey(typeName, isElement, isSimpleType, true);
+                    } else {
+                        throw new DeploymentException("either root type qname or anonymous type qname must be set");
                     }
                     typeMappings.add(typeMappingInfo);
+                    SchemaType schemaType = (SchemaType) schemaTypeKeyToSchemaTypeMap.get(key);
+                    if (schemaType == null) {
+                        throw new DeploymentException("Schema type key " + key + " not found in analyzed schema: " + schemaTypeKeyToSchemaTypeMap);
+                    }
+                    TypeDesc typeDesc = getTypeDescriptor(clazz, typeName, javaXmlTypeMapping, schemaType);
+                    typeDescriptors.put(clazz, typeDesc);
 
 
                 }
-                seiFactory = createSEIFactory(portName, enhancedServiceEndpointClass, serviceImpl, typeMappings, location, operationInfos, handlerInfos, context, classLoader);
+                seiFactory = createSEIFactory(portName, enhancedServiceEndpointClass, serviceImpl, typeMappings, typeDescriptors, location, operationInfos, handlerInfos, context, classLoader);
             }
             seiPortNameToFactoryMap.put(portName, seiFactory);
             seiClassNameToFactoryMap.put(serviceEndpointInterface.getName(), seiFactory);
         }
+    }
+
+    private TypeDesc getTypeDescriptor(Class javaClass, QName typeQName, JavaXmlTypeMappingType javaXmlTypeMapping, SchemaType schemaType) throws DeploymentException {
+        boolean isRestriction = schemaType.getDerivationType() == SchemaType.DT_RESTRICTION;
+        TypeDesc typeDesc = new TypeDesc(javaClass, !isRestriction);
+        //TODO typeQName may be a 'anonymous" QName like construct.  Is this what axis expects?
+        typeDesc.setXmlType(typeQName);
+        VariableMappingType[] variableMappings = javaXmlTypeMapping.getVariableMappingArray();
+        FieldDesc[] fields = new FieldDesc[variableMappings.length];
+
+        PropertyDescriptor[] propertyDescriptors = new java.beans.PropertyDescriptor[0];
+        try {
+            propertyDescriptors = Introspector.getBeanInfo(javaClass).getPropertyDescriptors();
+        } catch (IntrospectionException e) {
+            throw new DeploymentException("Class " + javaClass + " is not a valid javabean", e);
+        }
+        Map properties = new HashMap();
+        for (int i = 0; i < propertyDescriptors.length; i++) {
+            PropertyDescriptor propertyDescriptor = propertyDescriptors[i];
+            properties.put(propertyDescriptor.getName(), propertyDescriptor.getPropertyType());
+        }
+        for (int i = 0; i < variableMappings.length; i++) {
+            VariableMappingType variableMapping = variableMappings[i];
+            String fieldName = variableMapping.getJavaVariableName().getStringValue().trim();
+
+            if (variableMapping.isSetXmlAttributeName()) {
+                AttributeDesc attributeDesc = new AttributeDesc();
+                //setting attribute name sets the xmlName with "" namespace, so don't do it
+//                attributeDesc.setAttributeName(fieldName);
+                attributeDesc.setFieldName(fieldName);
+                Class javaType = (Class) properties.get(fieldName);
+                if (javaType == null) {
+                    throw new DeploymentException("field name " + fieldName + " not found in " + properties);
+                }
+                attributeDesc.setJavaType(javaType);
+                //TODO correct namespace???
+                String namespace = "";
+                QName xmlName = new QName(namespace, variableMapping.getXmlAttributeName().getStringValue().trim());
+                attributeDesc.setXmlName(xmlName);
+                QName xmlType = schemaType.getName();
+                attributeDesc.setXmlType(xmlType);
+                fields[i] = attributeDesc;
+            } else {
+                ElementDesc elementDesc = new ElementDesc();
+                elementDesc.setFieldName(fieldName);
+                Class javaType = (Class) properties.get(fieldName);
+                if (javaType == null) {
+                    throw new DeploymentException("field name " + fieldName + " not found in " + properties);
+                }
+                elementDesc.setJavaType(javaType);
+                //TODO correct namespace???
+                String namespace = "";
+                QName xmlName = new QName(namespace, variableMapping.getXmlElementName().getStringValue().trim());
+                elementDesc.setXmlName(xmlName);
+                QName xmlType = schemaType.getName();
+                elementDesc.setXmlType(xmlType);
+                //TODO figure out how to find these:
+//                elementDesc.setArrayType(null);
+//                elementDesc.setMinOccurs(0);
+//                elementDesc.setMaxOccurs(0);
+//                elementDesc.setNillable(false);
+                fields[i] = elementDesc;
+            }
+        }
+        typeDesc.setFields(fields);
+        return typeDesc;
     }
 
     private Method getMethodForOperation(Class enhancedServiceEndpointClass, Operation operation) throws DeploymentException {
@@ -360,10 +453,10 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
     }
 
 
-    public SEIFactory createSEIFactory(String portName, Class enhancedServiceEndpointClass, Object serviceImpl, List typeMappings, URL location, OperationInfo[] operationInfos, List handlerInfoInfos, DeploymentContext deploymentContext, ClassLoader classLoader) throws DeploymentException {
+    public SEIFactory createSEIFactory(String portName, Class enhancedServiceEndpointClass, Object serviceImpl, List typeMappings, Map typeDescriptors, URL location, OperationInfo[] operationInfos, List handlerInfoInfos, DeploymentContext deploymentContext, ClassLoader classLoader) throws DeploymentException {
         List handlerInfos = buildHandlerInfosForPort(portName, handlerInfoInfos);
         try {
-            SEIFactory factory = new SEIFactoryImpl(portName, enhancedServiceEndpointClass, operationInfos, serviceImpl, typeMappings, location, handlerInfos, classLoader);
+            SEIFactory factory = new SEIFactoryImpl(portName, enhancedServiceEndpointClass, operationInfos, serviceImpl, typeMappings, typeDescriptors, location, handlerInfos, classLoader);
             return factory;
         } catch (ClassNotFoundException e) {
             throw new DeploymentException("Could not load GenericServiceEndpoint from application classloader", e);
@@ -739,7 +832,6 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
         OperationInfo operationInfo = new OperationInfo(operationDesc, usesSOAPAction, soapActionURI, soapVersion, operationQName, methodName, methodDesc);
         return operationInfo;
     }
-
 
     private static class ByteArrayRetrievingGeneratorStrategy extends DefaultGeneratorStrategy {
 

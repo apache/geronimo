@@ -23,7 +23,9 @@ import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -33,7 +35,6 @@ import javax.wsdl.Definition;
 import javax.wsdl.Types;
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensibilityElement;
-import javax.wsdl.extensions.UnknownExtensibilityElement;
 import javax.wsdl.extensions.schema.Schema;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLLocator;
@@ -76,9 +77,16 @@ import org.apache.geronimo.xbeans.j2ee.ServiceImplBeanType;
 import org.apache.geronimo.xbeans.j2ee.WebserviceDescriptionType;
 import org.apache.geronimo.xbeans.j2ee.WebservicesDocument;
 import org.apache.geronimo.xbeans.j2ee.WebservicesType;
+import org.apache.xmlbeans.SchemaType;
+import org.apache.xmlbeans.SchemaTypeSystem;
+import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.SchemaField;
+import org.apache.xmlbeans.SchemaParticle;
+import org.apache.xmlbeans.SchemaGlobalElement;
 import org.w3.x2001.xmlSchema.ComplexType;
 import org.w3.x2001.xmlSchema.SchemaDocument;
 import org.w3c.dom.Element;
@@ -130,7 +138,7 @@ public class WSDescriptorParser {
                 String seiInterfaceName = portComponent.getServiceEndpointInterface().getStringValue().trim();
                 ServiceImplBeanType serviceImplBeanType = portComponent.getServiceImplBean();
                 if (isEJB == serviceImplBeanType.isSetServletLink()) {
-                    throw new DeploymentException("Wrong kind of web service described in web service descriptor: expected " + (isEJB? "EJB": "POJO(Servlet)"));
+                    throw new DeploymentException("Wrong kind of web service described in web service descriptor: expected " + (isEJB ? "EJB" : "POJO(Servlet)"));
                 }
                 String linkName;
                 if (serviceImplBeanType.isSetServletLink()) {
@@ -186,17 +194,13 @@ public class WSDescriptorParser {
         return definition;
     }
 
-    /**
-     * Find all the top level complex types in the schemas in the definitions' types.
-     * Put them in a map from complex type QName to schema fragment.
-     * TODO it is not clear what happens with included schemas.
-     *
-     * @param definition
-     * @return
-     * @throws DeploymentException
-     */
-    public static Map getComplexTypesInWsdl(Definition definition) throws DeploymentException {
-        Map complexTypeMap = new HashMap();
+    public static Map buildSchemaTypeKeyToSchemaTypeMap(Definition definition) throws DeploymentException {
+        SchemaTypeSystem schemaTypeSystem = compileSchemaTypeSystem(definition);
+        return buildSchemaTypeKeyToSchemaTypeMap(schemaTypeSystem);
+    }
+
+    public static SchemaTypeSystem compileSchemaTypeSystem(Definition definition) throws DeploymentException {
+        List schemaList = new ArrayList();
         Types types = definition.getTypes();
         Map namespaceMap = definition.getNamespaces();
         if (types != null) {
@@ -220,27 +224,155 @@ public class WSDescriptorParser {
                             } finally {
                                 cursor.dispose();
                             }
-                            SchemaDocument schemaDoc = (SchemaDocument) xmlObject.changeType(SchemaDocument.type);
-                            SchemaConversionUtils.validateDD(schemaDoc);
-                            SchemaDocument.Schema schema = schemaDoc.getSchema();
-                            String targetNamespace = schema.getTargetNamespace();
-                            ComplexType[] complexTypes = schema.getComplexTypeArray();
-                            for (int j = 0; j < complexTypes.length; j++) {
-                                ComplexType complexType = complexTypes[j];
-                                String complexTypeName = complexType.getName();
-                                QName complexTypeQName = new QName(targetNamespace, complexTypeName);
-                                complexTypeMap.put(complexTypeQName, complexType);
-                            }
+                            schemaList.add(xmlObject);
                         } catch (XmlException e) {
-                            throw new DeploymentException("Invalid schema in wsdl", e);
+                            throw new DeploymentException("Could not parse schema element", e);
                         }
-                    } else {
-                        //problems??
                     }
-                } else if (o instanceof UnknownExtensibilityElement) {
-                    //This is apparently obsolete as of axis-wsdl4j-1.2-RC3.jar which includes the Schema extension above.
-                    //I'm leaving this in in case this Schema class is not really part of a spec, even though its in javax.
-                    UnknownExtensibilityElement unknownExtensibilityElement = (UnknownExtensibilityElement) o;
+                }
+            }
+        }
+        Collection errors = new ArrayList();
+        XmlOptions xmlOptions = new XmlOptions();
+        xmlOptions.setErrorListener(errors);
+        XmlObject[] schemas = (XmlObject[]) schemaList.toArray(new XmlObject[schemaList.size()]);
+        try {
+            SchemaTypeSystem schemaTypeSystem = XmlBeans.compileXsd(schemas, XmlBeans.getBuiltinTypeSystem(), xmlOptions);
+            if (errors.size() > 0) {
+                throw new DeploymentException("Could not compile schema type system: errors: " + errors);
+            }
+            return schemaTypeSystem;
+        } catch (XmlException e) {
+            throw new DeploymentException("Could not compile schema type system", e);
+        }
+    }
+
+    /**
+     * builds a map of SchemaTypeKey containing jaxrpc-style fake QName and context info to xmlbeans SchemaType object.
+     *
+     * @param schemaTypeSystem
+     * @return
+     */
+    public static Map buildSchemaTypeKeyToSchemaTypeMap(SchemaTypeSystem schemaTypeSystem) {
+        Map qnameMap = new HashMap();
+        SchemaType[] globalTypes = schemaTypeSystem.globalTypes();
+        for (int i = 0; i < globalTypes.length; i++) {
+            SchemaType globalType = globalTypes[i];
+            QName typeQName = globalType.getName();
+            addSchemaType(typeQName, globalType, false, qnameMap);
+        }
+        SchemaGlobalElement[] globalElements = schemaTypeSystem.globalElements();
+        for (int i = 0; i < globalElements.length; i++) {
+            SchemaGlobalElement globalElement = globalElements[i];
+            addElement(globalElement, null, qnameMap);
+        }
+        return qnameMap;
+    }
+
+    private static void addElement(SchemaField element, SchemaTypeKey key, Map qnameMap) {
+        //TODO is this null if element is a ref?
+        QName elementName = element.getName();
+        String elementNamespace = elementName.getNamespaceURI();
+        if (elementNamespace == null || elementNamespace.equals("")) {
+            elementNamespace = key.getqName().getNamespaceURI();
+        }
+        String elementQNameLocalName;
+        SchemaTypeKey elementKey = null;
+        if (key == null) {
+            //top level. rule 2.a,
+            elementQNameLocalName = elementName.getLocalPart();
+            elementKey = new SchemaTypeKey(elementName, true, false, false);
+        } else {
+            //not top level. rule 2.b, key will be for enclosing Type.
+            QName enclosingTypeQName = key.getqName();
+            String enclosingTypeLocalName = enclosingTypeQName.getLocalPart();
+            elementQNameLocalName = enclosingTypeLocalName + ">" + elementName.getLocalPart();
+            QName subElementName = new QName(elementNamespace, elementQNameLocalName);
+            elementKey = new SchemaTypeKey(subElementName, true, false, true);
+        }
+        SchemaType schemaType = element.getType();
+        qnameMap.put(elementKey, schemaType);
+        //check if it's an array
+        if (element.getMaxOccurs() != null && element.getMaxOccurs().intValue() > 1) {
+            //this is at least rule 3.a.  If refs get the element name from the ref, it will handle 3.b also.
+            int minOccurs = element.getMinOccurs() == null ? 1 : element.getMinOccurs().intValue();
+            int maxOccurs = element.getMaxOccurs().intValue();
+            String arrayQNameLocalName = elementQNameLocalName + "[" + minOccurs + "," + maxOccurs + "]";
+            QName arrayName = new QName(elementNamespace, arrayQNameLocalName);
+            SchemaTypeKey arrayKey = new SchemaTypeKey(arrayName, true, false, true);
+            //TODO not clear we want the schemaType as the value
+            qnameMap.put(arrayKey, schemaType);
+        }
+        //now, name for type.  Rule 1.b, type inside an element
+        String typeQNameLocalPart = ">" + elementQNameLocalName;
+        QName typeQName = new QName(elementNamespace, typeQNameLocalPart);
+        boolean isAnonymous = true;
+        addSchemaType(typeQName, schemaType, isAnonymous, qnameMap);
+    }
+
+    private static void addSchemaType(QName typeQName, SchemaType schemaType, boolean anonymous, Map qnameMap) {
+        SchemaTypeKey typeKey = new SchemaTypeKey(typeQName, false, schemaType.isSimpleType(), anonymous);
+        qnameMap.put(typeKey, schemaType);
+        //TODO xmlbeans recommends using summary info from getElementProperties and getAttributeProperties instead of traversing the content model by hand.
+        SchemaParticle schemaParticle = schemaType.getContentModel();
+        if (schemaParticle != null) {
+            addSchemaParticle(schemaParticle, typeKey, qnameMap);
+        }
+    }
+
+
+    private static void addSchemaParticle(SchemaParticle schemaParticle, SchemaTypeKey key, Map qnameMap) {
+        if (schemaParticle.getParticleType() == SchemaParticle.ELEMENT) {
+            SchemaType elementType = schemaParticle.getType();
+            SchemaField element = elementType.getContainerField();
+            //element will be null if the type is defined elsewhere, such as a built in type.
+            if (element != null) {
+                addElement(element, key, qnameMap);
+            } else {
+                //it may be a ref or a built in type.  If it's an array (maxOccurs >1) form a type for it.
+                int maxOccurs = schemaParticle.getMaxOccurs() == null ? 1 : schemaParticle.getMaxOccurs().intValue();
+                if (maxOccurs > 1) {
+                    int minOccurs = schemaParticle.getMinOccurs() == null ? 1 : schemaParticle.getMinOccurs().intValue();
+                    QName elementName = schemaParticle.getName();
+                    String arrayQNameLocalName = elementName.getLocalPart() + "[" + minOccurs + "," + maxOccurs + "]";
+                    String elementNamespace = elementName.getNamespaceURI();
+                    if (elementNamespace == null || elementNamespace.equals("")) {
+                        elementNamespace = key.getqName().getNamespaceURI();
+                    }
+                    QName arrayName = new QName(elementNamespace, arrayQNameLocalName);
+                    SchemaTypeKey arrayKey = new SchemaTypeKey(arrayName, true, false, true);
+                    //TODO not clear we want the schemaType as the value
+                    qnameMap.put(arrayKey, elementType);
+                }
+            }
+        } else {
+            SchemaParticle[] children = schemaParticle.getParticleChildren();
+            for (int i = 0; i < children.length; i++) {
+                SchemaParticle child = children[i];
+                addSchemaParticle(child, key, qnameMap);
+            }
+        }
+    }
+
+    /**
+     * Find all the top level complex types in the schemas in the definitions' types.
+     * Put them in a map from complex type QName to schema fragment.
+     * TODO it is not clear what happens with included schemas.
+     *
+     * @param definition
+     * @return
+     * @throws DeploymentException
+     */
+    public static Map getComplexTypesInWsdl(Definition definition) throws DeploymentException {
+        Map complexTypeMap = new HashMap();
+        Types types = definition.getTypes();
+        Map namespaceMap = definition.getNamespaces();
+        if (types != null) {
+            List schemas = types.getExtensibilityElements();
+            for (Iterator iterator = schemas.iterator(); iterator.hasNext();) {
+                Object o = iterator.next();
+                if (o instanceof Schema) {
+                    Schema unknownExtensibilityElement = (Schema) o;
                     QName elementType = unknownExtensibilityElement.getElementType();
                     if (new QName("http://www.w3.org/2001/XMLSchema", "schema").equals(elementType)) {
                         Element element = unknownExtensibilityElement.getElement();

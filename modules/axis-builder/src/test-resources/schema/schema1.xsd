@@ -1,0 +1,25 @@
+<xsd:schema
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:foo="bar"
+    targetNamespace="bar">
+    <xsd:complexType name="root">
+        <xsd:sequence>
+            <xsd:element name="data" type="xsd:string"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:element name="root">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="inside" maxOccurs="10">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name="data2" type="xsd:string"/>
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+                <xsd:element ref="foo:someOtherElement" maxOccurs="20"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="someOtherElement" type="xsd:int"/>
+</xsd:schema>
