@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.1 $ $Date: 2004/02/05 20:51:55 $ -->
+<!-- $Revision: 1.2 $ $Date: 2004/02/06 05:28:28 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -45,4 +45,7 @@
         </dependency-->
 
     </dependencies>
+    <build>
+        <sourceDirectory>${basedir}/target/xmlbeans</sourceDirectory>
+    </build>
 </project>
