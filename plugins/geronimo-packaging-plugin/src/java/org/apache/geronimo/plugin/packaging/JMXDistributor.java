@@ -16,6 +16,7 @@
  */
 package org.apache.geronimo.plugin.packaging;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -27,7 +28,7 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
-import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.kernel.config.NoSuchStoreException;
 
 /**
  * A Distributor that will distribute packages to a server using JMX remoting.
@@ -39,7 +40,7 @@ import org.apache.geronimo.common.DeploymentException;
 public class JMXDistributor extends AbstractDistributor {
     public void execute() throws Exception {
         if (!getArtifact().canRead()) {
-            throw new DeploymentException("Unable to read artifact " + getArtifact());
+            throw new IOException("Unable to read artifact " + getArtifact());
         }
 
         Map environment = new HashMap();
@@ -62,11 +63,11 @@ public class JMXDistributor extends AbstractDistributor {
         Set set = mbServer.queryNames(storeName, null);
         Iterator i = set.iterator();
         if (!i.hasNext()) {
-            throw new DeploymentException("No ConfigurationStore found matching " + storeName);
+            throw new NoSuchStoreException("No ConfigurationStore found matching " + storeName);
         }
         ObjectName configStore = (ObjectName) i.next();
         if (i.hasNext()) {
-            throw new DeploymentException("Multiple ConfigurationStores found matching " + storeName);
+            throw new NoSuchStoreException("Multiple ConfigurationStores found matching " + storeName);
         }
         return configStore;
     }

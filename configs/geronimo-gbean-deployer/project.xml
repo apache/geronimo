@@ -29,6 +29,16 @@
         <!-- dependencies referenced in plan -->
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-system</artifactId>
+            <version>${geronimo_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-common</artifactId>
+            <version>${geronimo_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-deployment</artifactId>
             <version>${geronimo_version}</version>
         </dependency>
@@ -49,12 +59,14 @@
         </dependency>
 
         <!-- dependency on packaging plugin to force download -->
+<!--
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-packaging-plugin</artifactId>
             <type>plugin</type>
-            <version>0.1</version>
+            <version>SNAPSHOT</version>
         </dependency>
+-->
 
         <!-- dependency on the bootstrap gbean deployer so I can deploy myself-->
         <dependency>

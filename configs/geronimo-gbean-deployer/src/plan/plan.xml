@@ -23,6 +23,12 @@
     >
 
     <dependency>
+        <uri>geronimo/jars/geronimo-system-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-common-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
         <uri>geronimo/jars/geronimo-deployment-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>

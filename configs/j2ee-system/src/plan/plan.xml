@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2004 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<!--
+Configuration for the innermost ring of a Geronimo server.
+This configuration should only contain critical services needed to
+run other Configurations - for example, the ServerInfo, Logging
+and Repository services used to load them.
+
+This configuration should *NOT* be used to provide server or application
+specific services - those should be provided by children.
+-->
+
+<!-- $Rev$ $Date$ -->
+<configuration
+    xmlns="http://geronimo.apache.org/xml/ns/deployment"
+    configId="${pom.groupId}/cars/${pom.artifactId}-${pom.currentVersion}.car"
+    domain="geronimo.server"
+    server="geronimo"
+    >
+
+    <!-- ServerInfo service -->
+    <gbean name="ServerInfo" class="org.apache.geronimo.system.serverinfo.ServerInfo"/>
+
+    <!-- URLFactory service -->
+    <gbean name="URLFactory" class="org.apache.geronimo.system.url.GeronimoURLFactory"/>
+
+    <!-- Configuration Store service -->
+    <gbean name="Local" class="org.apache.geronimo.system.configuration.LocalConfigStore">
+        <attribute name="root">config-store</attribute>
+        <reference name="ServerInfo"><name>ServerInfo</name></reference>
+    </gbean>
+
+    <!-- Persistent List of running Configurations service -->
+    <gbean name="Default" class="org.apache.geronimo.system.configuration.FileConfigurationList">
+        <reference name="ServerInfo"><name>ServerInfo</name></reference>
+        <attribute name="configFile">var/config/config.list</attribute>
+    </gbean>
+
+    <!-- Repository -->
+    <gbean name="Repository" class="org.apache.geronimo.system.repository.ReadOnlyRepository">
+        <attribute name="root">repository/</attribute>
+        <reference name="ServerInfo"><name>ServerInfo</name></reference>
+    </gbean>
+
+    <!-- Logging service -->
+    <gbean name="Logger" class="org.apache.geronimo.system.logging.log4j.Log4jService">
+        <attribute name="configurationFile">var/log/server-log4j.properties</attribute>
+        <attribute name="refreshPeriod">60</attribute>
+        <reference name="ServerInfo"><name>ServerInfo</name></reference>
+    </gbean>
+
+    <!-- RMI Registry -->
+    <gbean name="RMIRegistry" class="org.apache.geronimo.system.rmi.RMIRegistryService">
+        <attribute name="port">1099</attribute>
+    </gbean>
+
+    <!-- Naming properties -->
+    <gbean name="NamingProperties" class="org.apache.geronimo.system.properties.NamingProperties">
+        <attribute name="namingFactoryInitial">com.sun.jndi.rmi.registry.RegistryContextFactory</attribute>
+        <attribute name="namingFactoryUrlPkgs">org.apache.geronimo.naming</attribute>
+        <attribute name="namingProviderUrl">rmi://localhost:1099</attribute>
+    </gbean>
+</configuration>
