@@ -81,13 +81,25 @@ public class ServerConnection {
         this.in = in;
         for(int i = 0; i < args.length; i++) {
             String arg = args[i];
-            if(arg.equals("--uri")) {
+            if(arg.equals("--uri") || arg.equals("--url")) {
+                if(uri != null) {
+                    throw new DeploymentSyntaxException("Cannot specify more than one URI");
+                }
                 uri = args[++i];
             } else if(arg.equals("--driver")) {
+                if(driver != null) {
+                    throw new DeploymentSyntaxException("Cannot specify more than one driver");
+                }
                 driver = args[++i];
             } else if(arg.equals("--user")) {
+                if(user != null) {
+                    throw new DeploymentSyntaxException("Cannot specify more than one user name");
+                }
                 user = args[++i];
             } else if(arg.equals("--password")) {
+                if(password != null) {
+                    throw new DeploymentSyntaxException("Cannot specify more than one password");
+                }
                 password = args[++i];
             } else {
                 throw new DeploymentException("Invalid option "+arg);
