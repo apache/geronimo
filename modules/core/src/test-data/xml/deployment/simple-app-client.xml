@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application-client
+    xmlns="http://java.sun.com/xml/ns/j2ee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/application-client_1_4.xsd"
+	version="1.4">
+    <env-entry>
+        <env-entry-name>hello</env-entry-name>
+        <env-entry-type>java.lang.String</env-entry-type>
+        <env-entry-value>Hello World</env-entry-value>
+    </env-entry>
+    <ejb-ref>
+        <ejb-ref-name>ejb/MyEJB</ejb-ref-name>
+        <ejb-ref-type>Session</ejb-ref-type>
+        <home>my.EJB.Home</home>
+        <remote>my.EJB.Remote</remote>
+    </ejb-ref>
+    <service-ref>
+        <service-ref-name>service/MyService</service-ref-name>
+        <service-interface>javax.xml.rpc.Service</service-interface>
+    </service-ref>
+    <resource-ref>
+        <res-ref-name>jdbc/MyDS</res-ref-name>
+        <res-type>javax.sql.DataSource</res-type>
+        <res-auth>Container</res-auth>
+        <res-sharing-scope>Shareable</res-sharing-scope>
+    </resource-ref>
+    <resource-env-ref>
+        <resource-env-ref-name>jms/MyOldQueue</resource-env-ref-name>
+        <resource-env-ref-type>javax.jms.Queue</resource-env-ref-type>
+    </resource-env-ref>
+    <message-destination-ref>
+        <message-destination-ref-name>jms/MyQueue</message-destination-ref-name>
+        <message-destination-type>javax.jms.Queue</message-destination-type>
+        <message-destination-usage>Produces</message-destination-usage>
+    </message-destination-ref>
+    <callback-handler>my.callback.handler</callback-handler>
+    <message-destination>
+        <message-destination-name>jms/MyOwnQueue</message-destination-name>
+    </message-destination>
+</application-client>
