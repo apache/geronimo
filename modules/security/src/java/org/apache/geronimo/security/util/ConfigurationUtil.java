@@ -17,10 +17,6 @@
 
 package org.apache.geronimo.security.util;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-
 import javax.security.jacc.EJBMethodPermission;
 import javax.security.jacc.EJBRoleRefPermission;
 import javax.security.jacc.PolicyConfiguration;
@@ -29,8 +25,19 @@ import javax.security.jacc.PolicyContextException;
 import javax.security.jacc.PolicyContextHandler;
 import javax.security.jacc.WebResourcePermission;
 import javax.security.jacc.WebUserDataPermission;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 
 import org.apache.geronimo.security.GeronimoSecurityException;
+import org.apache.geronimo.security.RealmPrincipal;
+import org.apache.geronimo.security.PrimaryRealmPrincipal;
+import org.apache.geronimo.security.deploy.Principal;
 import org.apache.geronimo.xbeans.j2ee.AssemblyDescriptorType;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.apache.geronimo.xbeans.j2ee.EnterpriseBeansType;
@@ -54,22 +61,69 @@ import org.apache.geronimo.xbeans.j2ee.WebResourceCollectionType;
  * A collection of utility functions that assist with the configuration of
  * <code>PolicyConfiguration</code>s.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:27 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/27 18:14:14 $
  * @see javax.security.jacc.PolicyConfiguration
- *  @see "JSR 115" Java Authorization Contract for Containers
+ * @see "JSR 115" Java Authorization Contract for Containers
  */
 public class ConfigurationUtil {
 
     /**
+     * Create a RealmPrincipal from a deployment description.
+     * @param principal the deployment description of the principal to be created.
+     * @param realmName the security realm that the principal belongs go
+     * @return a RealmPrincipal from a deployment description
+     */
+    public static RealmPrincipal generateRealmPrincipal(final Principal principal, final String realmName) {
+        try {
+            return (RealmPrincipal) AccessController.doPrivileged(new PrivilegedExceptionAction() {
+                public Object run() throws Exception {
+                    java.security.Principal p = null;
+                    Class clazz = Class.forName(principal.getClassName());
+                    Constructor constructor = clazz.getDeclaredConstructor(new Class[]{String.class});
+                    p = (java.security.Principal) constructor.newInstance(new Object[]{principal.getPrincipalName()});
+
+                    return new RealmPrincipal(realmName, p);
+                }
+            });
+        } catch (PrivilegedActionException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Create a RealmPrincipal from a deployment description.
+     * @param principal the deployment description of the principal to be created.
+     * @param realmName the security realm that the principal belongs go
+     * @return a RealmPrincipal from a deployment description
+     */
+    public static PrimaryRealmPrincipal generatePrimaryRealmPrincipal(final Principal principal, final String realmName) {
+        try {
+            return (PrimaryRealmPrincipal) AccessController.doPrivileged(new PrivilegedExceptionAction() {
+                public Object run() throws Exception {
+                    java.security.Principal p = null;
+                    Class clazz = Class.forName(principal.getClassName());
+                    Constructor constructor = clazz.getDeclaredConstructor(new Class[]{String.class});
+                    p = (java.security.Principal) constructor.newInstance(new Object[]{principal.getPrincipalName()});
+
+                    return new PrimaryRealmPrincipal(realmName, p);
+                }
+            });
+        } catch (PrivilegedActionException e) {
+            return null;
+        }
+    }
+
+    /**
      * A simple helper method to register PolicyContextHandlers
+     *
      * @param handler an object that implements the <code>PolicyContextHandler</code>
-     * interface. The value of this parameter must not be null.
+     *                interface. The value of this parameter must not be null.
      * @param replace this boolean value defines the behavior of this method
-     * if, when it is called, a <code>PolicyContextHandler</code> has already
-     * been registered to handle the same key. In that case, and if the value
-     * of this argument is true, the existing handler is replaced with the
-     * argument handler. If the value of this parameter is false the existing
-     * registration is preserved and an exception is thrown.
+     *                if, when it is called, a <code>PolicyContextHandler</code> has already
+     *                been registered to handle the same key. In that case, and if the value
+     *                of this argument is true, the existing handler is replaced with the
+     *                argument handler. If the value of this parameter is false the existing
+     *                registration is preserved and an exception is thrown.
      */
     public static void registerPolicyContextHandler(PolicyContextHandler handler, boolean replace) throws PolicyContextException {
         String[] keys = handler.getKeys();
@@ -83,10 +137,12 @@ public class ConfigurationUtil {
      * Translate the web deployment descriptors into equivalent security
      * permissions.  These permissions are placed into the appropriate
      * <code>PolicyConfiguration</code> object as defined in the JAAC spec.
+     *
      * @param webApp the deployment descriptor from which to obtain the
-     * security constraints that are to be translated.
-     * @throws org.apache.geronimo.security.GeronimoSecurityException if there is any violation of the semantics of
-     * the security descriptor or the state of the module configuration.
+     *               security constraints that are to be translated.
+     * @throws org.apache.geronimo.security.GeronimoSecurityException
+     *          if there is any violation of the semantics of
+     *          the security descriptor or the state of the module configuration.
      * @see javax.security.jacc.PolicyConfiguration
      * @see "Java Authorization Contract for Containers", section 3.1.3
      */
@@ -284,9 +340,9 @@ public class ConfigurationUtil {
             for (int j = 0; j < methods.length; j++) {
                 MethodType method = methods[j];
                 EJBMethodPermission permission = new EJBMethodPermission(method.getEjbName().getStringValue(),
-                        method.getMethodName().getStringValue(),
-                        method.getMethodIntf().getStringValue(),
-                        toStringArray(method.getMethodParams().getMethodParamArray()));
+                                                                         method.getMethodName().getStringValue(),
+                                                                         method.getMethodIntf().getStringValue(),
+                                                                         toStringArray(method.getMethodParams().getMethodParamArray()));
 
                 try {
                     if (methodPermission.getUnchecked() != null) {
@@ -312,9 +368,9 @@ public class ConfigurationUtil {
             try {
                 for (int i = 0; i < methods.length; i++) {
                     EJBMethodPermission permission = new EJBMethodPermission(methods[i].getEjbName().getStringValue(),
-                            methods[i].getMethodName().getStringValue(),
-                            methods[i].getMethodIntf().getStringValue(),
-                            toStringArray(methods[i].getMethodParams().getMethodParamArray()));
+                                                                             methods[i].getMethodName().getStringValue(),
+                                                                             methods[i].getMethodIntf().getStringValue(),
+                                                                             toStringArray(methods[i].getMethodParams().getMethodParamArray()));
                     configuration.addToExcludedPolicy(permission);
                 }
             } catch (PolicyContextException e) {
