@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: project.xml,v 1.15 2003/08/16 08:52:29 jdillon Exp $ -->
+<!-- $Id: project.xml,v 1.16 2003/08/16 11:31:32 jstrachan Exp $ -->
 
 <project>
   
@@ -14,5 +14,10 @@
   <name>Apache Geronimo</name>
   <id>geronimo</id>
   <currentVersion>DEV</currentVersion>
+
+  <build>
+    <sourceDirectory></sourceDirectory>
+    <unitTestSourceDirectory></unitTestSourceDirectory>
+  </build>
   
 </project>
