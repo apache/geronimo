@@ -55,7 +55,7 @@ import org.apache.geronimo.kernel.management.State;
 /**
  *
  *
- * @version $Revision: 1.8 $ $Date: 2004/07/22 03:24:45 $
+ * @version $Revision: 1.9 $ $Date: 2004/07/23 06:15:15 $
  */
 public class JMXDeploymentManager implements DeploymentManager {
     private JMXConnector jmxConnector;
@@ -99,7 +99,7 @@ public class JMXDeploymentManager implements DeploymentManager {
     public TargetModuleID[] getAvailableModules(final ModuleType moduleType, Target[] targetList) throws TargetException {
         ConfigFilter filter = new ConfigFilter() {
             public boolean accept(ConfigurationInfo info) {
-                return info.getType() == ConfigurationModuleType.getFromValue(moduleType.getValue());
+                return moduleType == null || info.getType() == ConfigurationModuleType.getFromValue(moduleType.getValue());
             }
         };
         return getModules(targetList, filter);
@@ -108,7 +108,7 @@ public class JMXDeploymentManager implements DeploymentManager {
     public TargetModuleID[] getNonRunningModules(final ModuleType moduleType, Target[] targetList) throws TargetException {
         ConfigFilter filter = new ConfigFilter() {
             public boolean accept(ConfigurationInfo info) {
-                return info.getState() != State.RUNNING && info.getType() == ConfigurationModuleType.getFromValue(moduleType.getValue());
+                return info.getState() != State.RUNNING && (moduleType == null || info.getType() == ConfigurationModuleType.getFromValue(moduleType.getValue()));
             }
         };
         return getModules(targetList, filter);
@@ -117,7 +117,7 @@ public class JMXDeploymentManager implements DeploymentManager {
     public TargetModuleID[] getRunningModules(final ModuleType moduleType, Target[] targetList) throws TargetException {
         ConfigFilter filter = new ConfigFilter() {
             public boolean accept(ConfigurationInfo info) {
-                return info.getState() == State.RUNNING && info.getType() == ConfigurationModuleType.getFromValue(moduleType.getValue());
+                return info.getState() == State.RUNNING && (moduleType == null || info.getType() == ConfigurationModuleType.getFromValue(moduleType.getValue()));
             }
         };
         return getModules(targetList, filter);
