@@ -46,7 +46,7 @@
 
     <!-- message broker -->
     <gbean namePart="ActiveMQJMSServer" class="org.codehaus.activemq.gbean.ActiveMQContainerGBean">
-        <reference name="serverInfo">geronimo.system:name=ServerInfo</reference>
+        <reference name="serverInfo">geronimo.server:name=ServerInfo,*</reference>
         <attribute name="brokerName" type="java.lang.String">possibly-unique-broker</attribute>
         <attribute name="dataDirectory" type="java.lang.String">var/activemq</attribute>    
     </gbean>

@@ -59,7 +59,7 @@
     </resourceadapter>
 
     <gbean namePart="DerbySystem" class="org.apache.geronimo.derby.DerbySystemGBean">
-        <reference name="serverInfo">geronimo.system:name=ServerInfo,*</reference>
+        <reference name="serverInfo">geronimo.server:name=ServerInfo,*</reference>
         <attribute name="derbySystemHome" type="java.lang.String">var/derby</attribute>
     </gbean>
     <gbean namePart="DerbyNetwork" class="org.apache.geronimo.derby.DerbyNetworkGBean">
