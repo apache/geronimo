@@ -61,21 +61,21 @@ import org.apache.geronimo.deployment.model.connector.OutboundResourceAdapter;
 /**
  * GeronimoOutboundResourceAdapter
  *
- * @version $VERSION$ $DATE$
+ * @version $Revision: 1.2 $ $Date: 2003/11/13 22:22:30 $
  */
 public class GeronimoOutboundResourceAdapter extends OutboundResourceAdapter {
-    
+
     public GeronimoOutboundResourceAdapter(OutboundResourceAdapter outboundResourceAdapter) {
-		setTransactionSupport(outboundResourceAdapter.getTransactionSupport());
-		setAuthenticationMechanism(outboundResourceAdapter.getAuthenticationMechanism());
-		setReauthenticationSupport(outboundResourceAdapter.getReauthenticationSupport());
+        setTransactionSupport(outboundResourceAdapter.getTransactionSupport());
+        setAuthenticationMechanism(outboundResourceAdapter.getAuthenticationMechanism());
+        setReauthenticationSupport(outboundResourceAdapter.getReauthenticationSupport());
     }
-    
+
     public GeronimoConnectionDefinition[] getGeronimoConnectionDefinition() {
-        return (GeronimoConnectionDefinition[])getConnectionDefinition();
+        return (GeronimoConnectionDefinition[]) getConnectionDefinition();
     }
 
     public GeronimoConnectionDefinition getGeronimoConnectionDefinition(int i) {
-        return (GeronimoConnectionDefinition)getConnectionDefinition(i);
+        return (GeronimoConnectionDefinition) getConnectionDefinition(i);
     }
 }

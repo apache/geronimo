@@ -69,59 +69,59 @@ import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 /**
- * ConnectionManagerDeployment is an mbean that sets up a ProxyConnectionManager 
+ * ConnectionManagerDeployment is an mbean that sets up a ProxyConnectionManager
  * and connection manager stack according to the policies described in the attributes.
  * It's used by deserialized copies of the proxy to get a reference to the actual stack.
  *
- * @version $VERSION$ $DATE$
+ * @version $Revision: 1.2 $ $Date: 2003/11/13 22:22:30 $
  * */
 public class ConnectionManagerDeployment
 
-	implements GeronimoMBeanTarget, ConnectionManagerFactory {
+        implements GeronimoMBeanTarget, ConnectionManagerFactory {
 
-	private final static String MBEAN_SERVER_DELEGATE =
-		"JMImplementation:type=MBeanServerDelegate";
+    private final static String MBEAN_SERVER_DELEGATE =
+            "JMImplementation:type=MBeanServerDelegate";
 
-	/**
-	 * The original Serializable ProxyConnectionManager that provides the 
-	 * ConnectionManager implementation.
-	 */
-	private ProxyConnectionManager cm;
-	
-	//connection manager configuration choices
-	private boolean useConnectionRequestInfo;
-	private boolean useSubject;
-	private boolean useTransactionCaching;
-	private boolean useLocalTransactions;
-	private boolean useTransactions;
-	private int maxSize;
-	private int blockingTimeout;
-	
-	
-	//dependencies
-	
-	/**
-	 * (proxy for) the security domain object
-	 */
-	private SecurityDomain securityDomain;
-	
-	/**
-	 * The actual TransactionManager we get
-	 */
-	private TransactionManager transactionManager;
-	
-	/**
-	 * Identifying string used by unshareable resource detection
-	 */
-	private String jndiName;
+    /**
+     * The original Serializable ProxyConnectionManager that provides the
+     * ConnectionManager implementation.
+     */
+    private ProxyConnectionManager cm;
+
+    //connection manager configuration choices
+    private boolean useConnectionRequestInfo;
+    private boolean useSubject;
+    private boolean useTransactionCaching;
+    private boolean useLocalTransactions;
+    private boolean useTransactions;
+    private int maxSize;
+    private int blockingTimeout;
+
+
+    //dependencies
+
+    /**
+     * (proxy for) the security domain object
+     */
+    private SecurityDomain securityDomain;
+
+    /**
+     * The actual TransactionManager we get
+     */
+    private TransactionManager transactionManager;
+
+    /**
+     * Identifying string used by unshareable resource detection
+     */
+    private String jndiName;
 
     private GeronimoMBeanContext context;
 
 
-	/**
-	 * Actual CachedConnectionManager we relate to.
-	 */
-	private CachedConnectionManager cachedConnectionManager;
+    /**
+     * Actual CachedConnectionManager we relate to.
+     */
+    private CachedConnectionManager cachedConnectionManager;
 
     public void setMBeanContext(GeronimoMBeanContext context) {
         this.context = context;
@@ -132,268 +132,268 @@ public class ConnectionManagerDeployment
     }
 
     /* (non-Javadoc)
-	 * @see org.apache.geronimo.core.service.AbstractStateManageable#doStart()
-	 */
+         * @see org.apache.geronimo.core.service.AbstractStateManageable#doStart()
+         */
     public void doStart() {
-		//check for consistency between attributes
-		useTransactions = (transactionManager != null);
-		if (securityDomain == null){
-			assert useSubject == false: "To use Subject in pooling, you need a SecurityDomain";
-		}
-		
-		//Set up the interceptor stack
-		ConnectionInterceptor stack = new MCFConnectionInterceptor(this);
-		if (useTransactions) {
-			if (useLocalTransactions) {
-				stack = new LocalXAResourceInsertionInterceptor(stack);
-			} else {
-				stack = new XAResourceInsertionInterceptor(stack);
-			}
-		}
-		if (useSubject || useConnectionRequestInfo) {
-			stack =
-				new MultiPoolConnectionInterceptor(
-					stack,
-					maxSize,
-					blockingTimeout,
-					useSubject,
-					useConnectionRequestInfo);
-		} else {
-			stack =
-				new SinglePoolConnectionInterceptor(
-					stack,
-					null,
-					null,
-					maxSize,
-					blockingTimeout);
-		}
-		if (securityDomain != null) {
-		stack = new SubjectInterceptor(stack, securityDomain);
-		}
-		if (useTransactions) {
-			stack =
-				new TransactionEnlistingInterceptor(stack, transactionManager);
-			if (useTransactionCaching) {
-				stack =
-					new TransactionCachingInterceptor(
-						stack,
-						transactionManager);
-			}
-		}
-		stack = new ConnectionHandleInterceptor(stack);
-		if (cachedConnectionManager != null){
-		    stack =
-				new MetaCallConnectionInterceptor(
-		            stack,
-		            jndiName,
-		            cachedConnectionManager,
-		            securityDomain);
-		}
-		
-		ObjectName name = JMXUtil.getObjectName(MBEAN_SERVER_DELEGATE);
+        //check for consistency between attributes
+        useTransactions = (transactionManager != null);
+        if (securityDomain == null) {
+            assert useSubject == false: "To use Subject in pooling, you need a SecurityDomain";
+        }
+
+        //Set up the interceptor stack
+        ConnectionInterceptor stack = new MCFConnectionInterceptor(this);
+        if (useTransactions) {
+            if (useLocalTransactions) {
+                stack = new LocalXAResourceInsertionInterceptor(stack);
+            } else {
+                stack = new XAResourceInsertionInterceptor(stack);
+            }
+        }
+        if (useSubject || useConnectionRequestInfo) {
+            stack =
+                    new MultiPoolConnectionInterceptor(
+                            stack,
+                            maxSize,
+                            blockingTimeout,
+                            useSubject,
+                            useConnectionRequestInfo);
+        } else {
+            stack =
+                    new SinglePoolConnectionInterceptor(
+                            stack,
+                            null,
+                            null,
+                            maxSize,
+                            blockingTimeout);
+        }
+        if (securityDomain != null) {
+            stack = new SubjectInterceptor(stack, securityDomain);
+        }
+        if (useTransactions) {
+            stack =
+                    new TransactionEnlistingInterceptor(stack, transactionManager);
+            if (useTransactionCaching) {
+                stack =
+                        new TransactionCachingInterceptor(
+                                stack,
+                                transactionManager);
+            }
+        }
+        stack = new ConnectionHandleInterceptor(stack);
+        if (cachedConnectionManager != null) {
+            stack =
+                    new MetaCallConnectionInterceptor(
+                            stack,
+                            jndiName,
+                            cachedConnectionManager,
+                            securityDomain);
+        }
+
+        ObjectName name = JMXUtil.getObjectName(MBEAN_SERVER_DELEGATE);
         try {
-		    String agentID = (String) context.getServer().getAttribute(name, "MBeanServerId");
-		    cm = new ProxyConnectionManager(agentID, context.getObjectName(), stack);
+            String agentID = (String) context.getServer().getAttribute(name, "MBeanServerId");
+            cm = new ProxyConnectionManager(agentID, context.getObjectName(), stack);
         } catch (Exception e) {
             throw new RuntimeException("Problem getting agentID from MBeanServerDelegate", e);
         }
 
-	}
+    }
 
     public boolean canStop() {
         return true;
     }
 
     /* (non-Javadoc)
-	 * @see org.apache.geronimo.core.service.AbstractStateManageable#doStop()
-	 */
+         * @see org.apache.geronimo.core.service.AbstractStateManageable#doStop()
+         */
     public void doStop() {
-		cm = null;
-		securityDomain = null;
-		transactionManager = null;
-		cachedConnectionManager = null;
+        cm = null;
+        securityDomain = null;
+        transactionManager = null;
+        cachedConnectionManager = null;
 
-	}
+    }
 
     public void doFail() {
     }
 
     /**
-	 * @return
-	 * @jmx.managed-attribute
-	 */
-	public ConnectionInterceptor getStack() {
-		return cm.getStack();
-	}
+     * @return
+     * @jmx.managed-attribute
+     */
+    public ConnectionInterceptor getStack() {
+        return cm.getStack();
+    }
 
 
-	/**
-	 * @return
-	 * @jmx.managed-operation
-	 */
-	public Object createConnectionFactory(ManagedConnectionFactory mcf) throws ResourceException {
-	    return mcf.createConnectionFactory(cm);
-	}
-	
-	/**
-	 * @return
-	 * @jmx.managed-attribute
-	 */
-	public int getBlockingTimeout() {
-		return blockingTimeout;
-	}
+    /**
+     * @return
+     * @jmx.managed-operation
+     */
+    public Object createConnectionFactory(ManagedConnectionFactory mcf) throws ResourceException {
+        return mcf.createConnectionFactory(cm);
+    }
 
-	/**
-	 * @param blockingTimeout
-	 * @jmx.managed-attribute
-	 */
-	public void setBlockingTimeout(int blockingTimeout) {
-		this.blockingTimeout = blockingTimeout;
-	}
+    /**
+     * @return
+     * @jmx.managed-attribute
+     */
+    public int getBlockingTimeout() {
+        return blockingTimeout;
+    }
 
-	/**
-	 * @return
-	 * @jmx.managed-attribute
-	 */
-	public CachedConnectionManager getCachedConnectionManager() {
-		return cachedConnectionManager;
-	}
+    /**
+     * @param blockingTimeout
+     * @jmx.managed-attribute
+     */
+    public void setBlockingTimeout(int blockingTimeout) {
+        this.blockingTimeout = blockingTimeout;
+    }
 
-	/**
-	 * @param cachedConnectionManager
-	 * @jmx.managed-attribute
-	 */
-	public void setCachedConnectionManager(CachedConnectionManager cachedConnectionManager) {
-		this.cachedConnectionManager = cachedConnectionManager;
-	}
+    /**
+     * @return
+     * @jmx.managed-attribute
+     */
+    public CachedConnectionManager getCachedConnectionManager() {
+        return cachedConnectionManager;
+    }
 
-	/**
-	 * @return
-	 * @jmx.managed-attribute
-	 */
-	public String getJndiName() {
-		return jndiName;
-	}
+    /**
+     * @param cachedConnectionManager
+     * @jmx.managed-attribute
+     */
+    public void setCachedConnectionManager(CachedConnectionManager cachedConnectionManager) {
+        this.cachedConnectionManager = cachedConnectionManager;
+    }
 
-	/**
-	 * @param jndiName
-	 * @jmx.managed-attribute
-	 */
-	public void setJndiName(String jndiName) {
-		this.jndiName = jndiName;
-	}
+    /**
+     * @return
+     * @jmx.managed-attribute
+     */
+    public String getJndiName() {
+        return jndiName;
+    }
 
-	/**
-	 * @return
-	 * @jmx.managed-attribute
-	 */
-	public int getMaxSize() {
-		return maxSize;
-	}
+    /**
+     * @param jndiName
+     * @jmx.managed-attribute
+     */
+    public void setJndiName(String jndiName) {
+        this.jndiName = jndiName;
+    }
 
-	/**
-	 * @param maxSize
-	 * @jmx.managed-attribute
-	 */
-	public void setMaxSize(int maxSize) {
-		this.maxSize = maxSize;
-	}
+    /**
+     * @return
+     * @jmx.managed-attribute
+     */
+    public int getMaxSize() {
+        return maxSize;
+    }
 
-	/**
-	 * @return
-	 * @jmx.managed-attribute
-	 */
-	public SecurityDomain getSecurityDomain() {
-		return securityDomain;
-	}
+    /**
+     * @param maxSize
+     * @jmx.managed-attribute
+     */
+    public void setMaxSize(int maxSize) {
+        this.maxSize = maxSize;
+    }
 
-	/**
-	 * @param securityDomain
-	 * @jmx.managed-attribute
-	 */
-	public void setSecurityDomain(SecurityDomain securityDomain) {
-		this.securityDomain = securityDomain;
-	}
+    /**
+     * @return
+     * @jmx.managed-attribute
+     */
+    public SecurityDomain getSecurityDomain() {
+        return securityDomain;
+    }
 
-	/**
-	 * @return
-	 * @jmx.managed-attribute
-	 */
-	public TransactionManager getTransactionManager() {
-		return transactionManager;
-	}
+    /**
+     * @param securityDomain
+     * @jmx.managed-attribute
+     */
+    public void setSecurityDomain(SecurityDomain securityDomain) {
+        this.securityDomain = securityDomain;
+    }
 
-	/**
-	 * @param transactionManager
-	 * @jmx.managed-attribute
-	 */
-	public void setTransactionManager(TransactionManager transactionManager) {
-		this.transactionManager = transactionManager;
-	}
+    /**
+     * @return
+     * @jmx.managed-attribute
+     */
+    public TransactionManager getTransactionManager() {
+        return transactionManager;
+    }
 
-	/**
-	 * @return
-	 * @jmx.managed-attribute
-	 */
-	public boolean isUseConnectionRequestInfo() {
-		return useConnectionRequestInfo;
-	}
+    /**
+     * @param transactionManager
+     * @jmx.managed-attribute
+     */
+    public void setTransactionManager(TransactionManager transactionManager) {
+        this.transactionManager = transactionManager;
+    }
 
-	/**
-	 * @param useConnectionRequestInfo
-	 * @jmx.managed-attribute
-	 */
-	public void setUseConnectionRequestInfo(boolean useConnectionRequestInfo) {
-		this.useConnectionRequestInfo = useConnectionRequestInfo;
-	}
+    /**
+     * @return
+     * @jmx.managed-attribute
+     */
+    public boolean isUseConnectionRequestInfo() {
+        return useConnectionRequestInfo;
+    }
 
-	/**
-	 * @return
-	 * @jmx.managed-attribute
-	 */
-	public boolean isUseLocalTransactions() {
-		return useLocalTransactions;
-	}
+    /**
+     * @param useConnectionRequestInfo
+     * @jmx.managed-attribute
+     */
+    public void setUseConnectionRequestInfo(boolean useConnectionRequestInfo) {
+        this.useConnectionRequestInfo = useConnectionRequestInfo;
+    }
 
-	/**
-	 * @param useLocalTransactions
-	 * @jmx.managed-attribute
-	 */
-	public void setUseLocalTransactions(boolean useLocalTransactions) {
-		this.useLocalTransactions = useLocalTransactions;
-	}
+    /**
+     * @return
+     * @jmx.managed-attribute
+     */
+    public boolean isUseLocalTransactions() {
+        return useLocalTransactions;
+    }
 
-	/**
-	 * @return
-	 * @jmx.managed-attribute
-	 */
-	public boolean isUseSubject() {
-		return useSubject;
-	}
+    /**
+     * @param useLocalTransactions
+     * @jmx.managed-attribute
+     */
+    public void setUseLocalTransactions(boolean useLocalTransactions) {
+        this.useLocalTransactions = useLocalTransactions;
+    }
 
-	/**
-	 * @param useSubject
-	 * @jmx.managed-attribute
-	 */
-	public void setUseSubject(boolean useSubject) {
-		this.useSubject = useSubject;
-	}
+    /**
+     * @return
+     * @jmx.managed-attribute
+     */
+    public boolean isUseSubject() {
+        return useSubject;
+    }
 
-	/**
-	 * @return
-	 * @jmx.managed-attribute
-	 */
-	public boolean isUseTransactionCaching() {
-		return useTransactionCaching;
-	}
+    /**
+     * @param useSubject
+     * @jmx.managed-attribute
+     */
+    public void setUseSubject(boolean useSubject) {
+        this.useSubject = useSubject;
+    }
 
-	/**
-	 * @param useTransactionCaching
-	 * @jmx.managed-attribute
-	 */
-	public void setUseTransactionCaching(boolean useTransactionCaching) {
-		this.useTransactionCaching = useTransactionCaching;
-	}
+    /**
+     * @return
+     * @jmx.managed-attribute
+     */
+    public boolean isUseTransactionCaching() {
+        return useTransactionCaching;
+    }
+
+    /**
+     * @param useTransactionCaching
+     * @jmx.managed-attribute
+     */
+    public void setUseTransactionCaching(boolean useTransactionCaching) {
+        this.useTransactionCaching = useTransactionCaching;
+    }
 
 
 }

@@ -81,7 +81,7 @@ import javax.management.AttributeNotFoundException;
 /**
  *
  *
- * @version $VERSION$ Nov 11, 2003$
+ * @version $Revision: 1.2 $ $Date: 2003/11/13 22:22:30 $
  *
  * */
 public class JMXContext  implements Context  {

@@ -61,12 +61,12 @@ import org.apache.geronimo.deployment.model.connector.MessageListener;
 /**
  * GeronimoMessageListener
  *
- * @version $VERSION$ $DATE$
+ * @version $Revision: 1.2 $ $Date: 2003/11/13 22:22:30 $
  */
 public class GeronimoMessageListener extends MessageListener {
-    
+
     private String messageEndpointFactoryName;
-    
+
     public GeronimoMessageListener(MessageListener messageListener) {
         setMessageListenerType(messageListener.getMessageListenerType());
         setActivationSpec(messageListener.getActivationSpec());

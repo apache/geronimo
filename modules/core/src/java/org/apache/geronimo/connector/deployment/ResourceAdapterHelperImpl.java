@@ -71,13 +71,13 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
 /**
  * ResourceAdapterHelperImpl
  *
- * @version $VERSION$ $DATE$
+ * @version $Revision: 1.2 $ $Date: 2003/11/13 22:22:30 $
  */
 public class ResourceAdapterHelperImpl implements GeronimoMBeanTarget, ResourceAdapterHelper {
 
     private GeronimoMBeanContext context;
     private ResourceAdapter resourceAdapter;
-    
+
     private BootstrapContext bootstrapContext;
     static final String TARGET_NAME = "raHelper";
 
@@ -99,7 +99,7 @@ public class ResourceAdapterHelperImpl implements GeronimoMBeanTarget, ResourceA
      * @see org.apache.geronimo.kernel.service.GeronimoMBeanTarget#doStart()
      */
     public void doStart() {
-        resourceAdapter = (ResourceAdapter)context.getTarget();  
+        resourceAdapter = (ResourceAdapter) context.getTarget();
         try {
             resourceAdapter.start(bootstrapContext);
         } catch (ResourceAdapterInternalException re) {
@@ -119,7 +119,7 @@ public class ResourceAdapterHelperImpl implements GeronimoMBeanTarget, ResourceA
      */
     public void doStop() {
         // TODO Auto-generated method stub
-        
+
     }
 
     /* (non-Javadoc)
@@ -127,7 +127,7 @@ public class ResourceAdapterHelperImpl implements GeronimoMBeanTarget, ResourceA
      */
     public void doFail() {
         // TODO Auto-generated method stub
-        
+
     }
 
     /* (non-Javadoc)
@@ -150,13 +150,13 @@ public class ResourceAdapterHelperImpl implements GeronimoMBeanTarget, ResourceA
     public void setBootstrapContext(BootstrapContext bootstrapContext) {
         this.bootstrapContext = bootstrapContext;
     }
-    
-	public static void addMBeanInfo(GeronimoMBeanInfo mbeanInfo,
-									ObjectName bootstrapContextName) {
-		mbeanInfo.setTargetClass(TARGET_NAME, ResourceAdapterHelperImpl.class.getName());
-        
-		mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("BootstrapContext", BootstrapContext.class.getName(), bootstrapContextName, true, TARGET_NAME));
 
-	}
+    public static void addMBeanInfo(GeronimoMBeanInfo mbeanInfo,
+                                    ObjectName bootstrapContextName) {
+        mbeanInfo.setTargetClass(TARGET_NAME, ResourceAdapterHelperImpl.class.getName());
+
+        mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("BootstrapContext", BootstrapContext.class.getName(), bootstrapContextName, true, TARGET_NAME));
+
+    }
 
 }

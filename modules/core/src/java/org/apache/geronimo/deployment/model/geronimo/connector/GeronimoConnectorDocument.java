@@ -61,18 +61,18 @@ import org.apache.geronimo.deployment.model.connector.ConnectorDocument;
 /**
  * GeronimoConnectorDocument
  *
- * @version $VERSION$ $DATE$
+ * @version $Revision: 1.2 $ $Date: 2003/11/13 22:22:30 $
  */
 public class GeronimoConnectorDocument extends ConnectorDocument {
-    
-	private final static String geronimofileName = "geronimo-ra.xml";
 
-	public String getFileName() {
-		return geronimofileName;
-	}
-	
-	public GeronimoConnector getGeronimoConnector() {
-	    return (GeronimoConnector)getConnector();
-	}
-	
+    private final static String geronimofileName = "geronimo-ra.xml";
+
+    public String getFileName() {
+        return geronimofileName;
+    }
+
+    public GeronimoConnector getGeronimoConnector() {
+        return (GeronimoConnector) getConnector();
+    }
+
 }

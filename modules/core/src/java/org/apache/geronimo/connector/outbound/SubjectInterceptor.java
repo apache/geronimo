@@ -65,36 +65,36 @@ import javax.security.auth.Subject;
  *
  * Created: Mon Oct  6 14:31:56 2003
  *
- * @version $VERSION$ $DATE$
+ * @version $Revision: 1.2 $ $Date: 2003/11/13 22:22:30 $
  */
 public class SubjectInterceptor implements ConnectionInterceptor {
 
-	private final ConnectionInterceptor next;
-	private final SecurityDomain securityDomain;
+    private final ConnectionInterceptor next;
+    private final SecurityDomain securityDomain;
 
-	public SubjectInterceptor(
-		final ConnectionInterceptor next,
-		final SecurityDomain securityDomain) {
-		this.next = next;
-		this.securityDomain = securityDomain;
-	} // SubjectInterceptor constructor
+    public SubjectInterceptor(
+            final ConnectionInterceptor next,
+            final SecurityDomain securityDomain) {
+        this.next = next;
+        this.securityDomain = securityDomain;
+    } // SubjectInterceptor constructor
 
-	public void getConnection(ConnectionInfo ci) throws ResourceException {
-		Subject subject = null;
-		try {
-			subject = securityDomain.getSubject();
-		} catch (SecurityException e) {
-			throw new ResourceException("Can not obtain Subject for login", e);
-		} // end of try-catch
-		ManagedConnectionInfo mci = ci.getManagedConnectionInfo();
-		mci.setSubject(subject);
-		next.getConnection(ci);
-	}
+    public void getConnection(ConnectionInfo ci) throws ResourceException {
+        Subject subject = null;
+        try {
+            subject = securityDomain.getSubject();
+        } catch (SecurityException e) {
+            throw new ResourceException("Can not obtain Subject for login", e);
+        } // end of try-catch
+        ManagedConnectionInfo mci = ci.getManagedConnectionInfo();
+        mci.setSubject(subject);
+        next.getConnection(ci);
+    }
 
-	public void returnConnection(
-		ConnectionInfo ci,
-		ConnectionReturnAction cra) {
-		next.returnConnection(ci, cra);
-	}
+    public void returnConnection(
+            ConnectionInfo ci,
+            ConnectionReturnAction cra) {
+        next.returnConnection(ci, cra);
+    }
 
 } // SubjectInterceptor

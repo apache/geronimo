@@ -69,7 +69,7 @@ import org.w3c.dom.Document;
 /**
  * ConnectorLoaderTest
  *
- * @version $VERSION$ $DATE$
+ * @version $Revision: 1.2 $ $Date: 2003/11/13 22:22:31 $
  */
 public class GeronimoConnectorLoaderTest extends TestCase {
 	private File docDir_1_5;

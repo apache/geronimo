@@ -66,103 +66,103 @@ import java.util.Stack;
 import javax.resource.ResourceException;
 
 /**
- * CachedConnectionManager tracks connections that are in use by 
- * components such as EJB's.  The component must notify the ccm 
- * when a method enters and exits.  On entrance, the ccm will 
- * notify ConnectionManager stacks so the stack can make sure all 
- * connection handles left open from previous method calls are 
+ * CachedConnectionManager tracks connections that are in use by
+ * components such as EJB's.  The component must notify the ccm
+ * when a method enters and exits.  On entrance, the ccm will
+ * notify ConnectionManager stacks so the stack can make sure all
+ * connection handles left open from previous method calls are
  * attached to ManagedConnections of the correct security context, and
- *  the ManagedConnections are enrolled in any current transaction.   
+ *  the ManagedConnections are enrolled in any current transaction.
  * On exit, the ccm will notify ConnectionManager stacks of the handles
  * left open, so they may be disassociated if appropriate.
- * In addition, when a UserTransaction is started the ccm will notify 
- * ConnectionManager stacks so the existing ManagedConnections can be 
+ * In addition, when a UserTransaction is started the ccm will notify
+ * ConnectionManager stacks so the existing ManagedConnections can be
  * enrolled properly.
- * 
+ *
  * @todo make sure tx enlistment on method entry works
  * @todo implement UserTransaction notifications and tx enlistment.
  *
- * @version $VERSION$ $DATE$
- * 
+ * @version $Revision: 1.2 $ $Date: 2003/11/13 22:22:30 $
+ *
  * */
-public class CachedConnectionManager  {
+public class CachedConnectionManager {
 
-	private final ThreadLocal currentResources = new ThreadLocal();
+    private final ThreadLocal currentResources = new ThreadLocal();
 
-	private final ThreadLocal currentKeys = new ThreadLocal();
+    private final ThreadLocal currentKeys = new ThreadLocal();
 
-	private final Map keyToResourcesMap = new IdentityHashMap();
+    private final Map keyToResourcesMap = new IdentityHashMap();
 
-	public void enter(Object key, Set unshareableResources)
-		throws ResourceException {
-		Stack keyStack = (Stack) currentKeys.get();
-		Map resources = (Map) currentResources.get();
-		Object oldKey = keyStack.peek();
-		synchronized (keyToResourcesMap) {
-			if (!resources.isEmpty()
-				&& !keyToResourcesMap.containsKey(oldKey)) {
-				keyToResourcesMap.put(oldKey, resources);
-			}
-			resources = (Map) keyToResourcesMap.get(key);
-		}
-		keyStack.push(key);
-		if (resources == null) {
-			resources = new HashMap();
-		}
-		currentResources.set(resources);
-		for (Iterator i = resources.entrySet().iterator(); i.hasNext();) {
-			Map.Entry entry = (Map.Entry) i.next();
-			MetaCallConnectionInterceptor mcci =
-				(MetaCallConnectionInterceptor) entry.getKey();
-			Set connections = (Set) entry.getValue();
-			mcci.enter(connections, unshareableResources);
-		}
-	}
+    public void enter(Object key, Set unshareableResources)
+            throws ResourceException {
+        Stack keyStack = (Stack) currentKeys.get();
+        Map resources = (Map) currentResources.get();
+        Object oldKey = keyStack.peek();
+        synchronized (keyToResourcesMap) {
+            if (!resources.isEmpty()
+                    && !keyToResourcesMap.containsKey(oldKey)) {
+                keyToResourcesMap.put(oldKey, resources);
+            }
+            resources = (Map) keyToResourcesMap.get(key);
+        }
+        keyStack.push(key);
+        if (resources == null) {
+            resources = new HashMap();
+        }
+        currentResources.set(resources);
+        for (Iterator i = resources.entrySet().iterator(); i.hasNext();) {
+            Map.Entry entry = (Map.Entry) i.next();
+            MetaCallConnectionInterceptor mcci =
+                    (MetaCallConnectionInterceptor) entry.getKey();
+            Set connections = (Set) entry.getValue();
+            mcci.enter(connections, unshareableResources);
+        }
+    }
 
-	public void exit(Object key, Set unshareableResources)
-		throws ResourceException {
-		Stack keyStack = (Stack) currentKeys.get();
-		assert key
-			== keyStack.pop() : "Did not pop the expected key on method exit";
-		Map resources = (Map) currentResources.get();
-		for (Iterator i = resources.entrySet().iterator(); i.hasNext();) {
-			Map.Entry entry = (Map.Entry) i.next();
-			MetaCallConnectionInterceptor mcci =
-				(MetaCallConnectionInterceptor) entry.getKey();
-			Set connections = (Set) entry.getValue();
-			mcci.exit(connections, unshareableResources);
-			if (connections.isEmpty()) {
-				i.remove();
-			}
+    public void exit(Object key, Set unshareableResources)
+            throws ResourceException {
+        Stack keyStack = (Stack) currentKeys.get();
+        assert key
+                == keyStack.pop() : "Did not pop the expected key on method exit";
+        Map resources = (Map) currentResources.get();
+        for (Iterator i = resources.entrySet().iterator(); i.hasNext();) {
+            Map.Entry entry = (Map.Entry) i.next();
+            MetaCallConnectionInterceptor mcci =
+                    (MetaCallConnectionInterceptor) entry.getKey();
+            Set connections = (Set) entry.getValue();
+            mcci.exit(connections, unshareableResources);
+            if (connections.isEmpty()) {
+                i.remove();
+            }
 
-		}
-		Object previousKey = keyStack.peek();
-		synchronized (keyToResourcesMap) {
-			if (resources.isEmpty()) {
-				keyToResourcesMap.remove(key);
-			} else {
-				keyToResourcesMap.put(key, resources);
-			}
-			resources = (Map) keyToResourcesMap.get(previousKey);
-		}
-		currentResources.set(resources);
+        }
+        Object previousKey = keyStack.peek();
+        synchronized (keyToResourcesMap) {
+            if (resources.isEmpty()) {
+                keyToResourcesMap.remove(key);
+            } else {
+                keyToResourcesMap.put(key, resources);
+            }
+            resources = (Map) keyToResourcesMap.get(previousKey);
+        }
+        currentResources.set(resources);
 
-	}
+    }
 
-	public void handleObtained(
-		MetaCallConnectionInterceptor mcci,
-		ConnectionInfo ci) {
-		Map resources = (Map) currentResources.get();
-		Set infos = (Set) resources.get(mcci);
-		infos.add(ci);
-	}
+    public void handleObtained(
+            MetaCallConnectionInterceptor mcci,
+            ConnectionInfo ci) {
+        Map resources = (Map) currentResources.get();
+        Set infos = (Set) resources.get(mcci);
+        infos.add(ci);
+    }
 
-	public void handleReleased(
-		MetaCallConnectionInterceptor mcci,
-		ConnectionInfo ci) {
-		Map resources = (Map) currentResources.get();
-		Set infos = (Set) resources.get(mcci);
-		//It's not at all clear that an equal ci will be supplied here
-		infos.remove(ci);
-	}
+    public void handleReleased(
+            MetaCallConnectionInterceptor mcci,
+            ConnectionInfo ci) {
+        Map resources = (Map) currentResources.get();
+        Set infos = (Set) resources.get(mcci);
+        //It's not at all clear that an equal ci will be supplied here
+        infos.remove(ci);
+    }
 }

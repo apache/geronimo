@@ -61,21 +61,21 @@ import org.apache.geronimo.deployment.model.connector.ConnectionDefinition;
 /**
  * GeronimoConnectionDefinition
  *
- * @version $VERSION$ $DATE$
+ * @version $Revision: 1.2 $ $Date: 2003/11/13 22:22:30 $
  */
 public class GeronimoConnectionDefinition extends ConnectionDefinition {
-    
+
     private String name;
     private GeronimoConnectionManagerFactory geronimoConnectionManagerFactory;
     private String securityDomain;
-    
+
     public GeronimoConnectionDefinition(ConnectionDefinition connectionDefinition) {
-		setManagedConnectionFactoryClass(connectionDefinition.getManagedConnectionFactoryClass());
-		setConfigProperty(GeronimoResourceAdapter.copyConfigProperties(connectionDefinition.getConfigProperty()));
-		setConnectionFactoryInterface(connectionDefinition.getConnectionFactoryInterface());
-		setConnectionFactoryImplClass(connectionDefinition.getConnectionFactoryImplClass());
-		setConnectionInterface(connectionDefinition.getConnectionInterface());
-		setConnectionImplClass(connectionDefinition.getConnectionImplClass());
+        setManagedConnectionFactoryClass(connectionDefinition.getManagedConnectionFactoryClass());
+        setConfigProperty(GeronimoResourceAdapter.copyConfigProperties(connectionDefinition.getConfigProperty()));
+        setConnectionFactoryInterface(connectionDefinition.getConnectionFactoryInterface());
+        setConnectionFactoryImplClass(connectionDefinition.getConnectionFactoryImplClass());
+        setConnectionInterface(connectionDefinition.getConnectionInterface());
+        setConnectionImplClass(connectionDefinition.getConnectionImplClass());
     }
 
     /**

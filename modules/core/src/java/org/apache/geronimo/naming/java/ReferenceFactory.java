@@ -8,7 +8,7 @@ import org.apache.geronimo.deployment.model.geronimo.j2ee.JNDILocator;
 /**
  * 
  *
- * @version $VERSION$ Nov 12, 2003$
+ * @version $Revision: 1.2 $ $Date: 2003/11/13 22:22:30 $
  * 
  * */
 public interface ReferenceFactory {

@@ -61,21 +61,21 @@ import org.apache.geronimo.deployment.model.connector.Connector;
 /**
  * GeronimoConnector
  *
- * @version $VERSION$ $DATE$
+ * @version $Revision: 1.2 $ $Date: 2003/11/13 22:22:30 $
  */
 public class GeronimoConnector extends Connector {
-   
+
     public GeronimoConnector(Connector connector) {
-		//TODO copy displayable stuff
-		setVendorName(connector.getVendorName());
-		setEisType(connector.getEisType());
-		setResourceAdapterVersion(connector.getResourceAdapterVersion());
-		setLicense(connector.getLicense());
-		setVersion(connector.getVersion());
+        //TODO copy displayable stuff
+        setVendorName(connector.getVendorName());
+        setEisType(connector.getEisType());
+        setResourceAdapterVersion(connector.getResourceAdapterVersion());
+        setLicense(connector.getLicense());
+        setVersion(connector.getVersion());
     }
-    
+
     public GeronimoResourceAdapter getGeronimoResourceAdapter() {
-        return (GeronimoResourceAdapter)getResourceAdapter();
+        return (GeronimoResourceAdapter) getResourceAdapter();
     }
 
 }

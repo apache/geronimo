@@ -61,16 +61,16 @@ import org.apache.geronimo.deployment.model.connector.MessageAdapter;
 /**
  * GeronimoMessageAdapter
  *
- * @version $VERSION$ $DATE$
+ * @version $Revision: 1.2 $ $Date: 2003/11/13 22:22:30 $
  */
 public class GeronimoMessageAdapter extends MessageAdapter {
-    
+
     public GeronimoMessageListener[] getGeronimoMessageListener() {
-        return (GeronimoMessageListener[])getMessageListener();
+        return (GeronimoMessageListener[]) getMessageListener();
     }
 
     public GeronimoMessageListener getGeronimoMessageListener(int i) {
-        return (GeronimoMessageListener)getMessageListener(i);
+        return (GeronimoMessageListener) getMessageListener(i);
     }
 
 }

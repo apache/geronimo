@@ -81,7 +81,7 @@ import org.apache.geronimo.naming.java.RootContext;
 /**
  * 
  *
- * @version $VERSION$ Nov 11, 2003$
+ * @version $Revision: 1.2 $ $Date: 2003/11/13 22:22:31 $
  * 
  * */
 public class ContextTest extends TestCase {

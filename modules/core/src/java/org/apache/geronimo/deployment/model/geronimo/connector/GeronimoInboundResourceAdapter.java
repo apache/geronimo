@@ -61,12 +61,12 @@ import org.apache.geronimo.deployment.model.connector.InboundResourceAdapter;
 /**
  * GeronimoInboundResourceAdapter
  *
- * @version $VERSION$ $DATE$
+ * @version $Revision: 1.2 $ $Date: 2003/11/13 22:22:30 $
  */
 public class GeronimoInboundResourceAdapter extends InboundResourceAdapter {
-    
+
     public GeronimoMessageAdapter getGeronimoMessageAdapter() {
-        return (GeronimoMessageAdapter)getMessageAdapter();
+        return (GeronimoMessageAdapter) getMessageAdapter();
     }
 
 }

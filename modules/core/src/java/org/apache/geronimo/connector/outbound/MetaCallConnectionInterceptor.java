@@ -66,109 +66,109 @@ import java.util.Set;
 import java.util.Iterator;
 
 /**
- * MetaCallConnectionInterceptor.java handles communication with the 
- * CachedConnectionManager.  On method call entry, cached handles are 
- * checked for the correct Subject.  On method call exit, cached 
- * handles are disassociated if possible. On getting or releasing 
- * a connection the CachedConnectionManager is notified. 
+ * MetaCallConnectionInterceptor.java handles communication with the
+ * CachedConnectionManager.  On method call entry, cached handles are
+ * checked for the correct Subject.  On method call exit, cached
+ * handles are disassociated if possible. On getting or releasing
+ * a connection the CachedConnectionManager is notified.
  *
  *
  * Created: Fri Oct 10 19:14:16 2003
  *
- * @version $VERSION$ $DATE$
+ * @version $Revision: 1.2 $ $Date: 2003/11/13 22:22:30 $
  */
 public class MetaCallConnectionInterceptor implements ConnectionInterceptor {
 
-	private final ConnectionInterceptor next;
-	private final String jndiName;
-	private final CachedConnectionManager ccm;
-	private final SecurityDomain securityDomain;
+    private final ConnectionInterceptor next;
+    private final String jndiName;
+    private final CachedConnectionManager ccm;
+    private final SecurityDomain securityDomain;
 
-	public MetaCallConnectionInterceptor(
-		final ConnectionInterceptor next,
-		final String jndiName,
-		final CachedConnectionManager ccm,
-		final SecurityDomain securityDomain) {
-		this.next = next;
-		this.jndiName = jndiName;
-		this.ccm = ccm;
-		this.securityDomain = securityDomain;
-	}
+    public MetaCallConnectionInterceptor(
+            final ConnectionInterceptor next,
+            final String jndiName,
+            final CachedConnectionManager ccm,
+            final SecurityDomain securityDomain) {
+        this.next = next;
+        this.jndiName = jndiName;
+        this.ccm = ccm;
+        this.securityDomain = securityDomain;
+    }
 
-	public void getConnection(ConnectionInfo ci) throws ResourceException {
-		next.getConnection(ci);
-		ccm.handleObtained(this, ci);
-	}
+    public void getConnection(ConnectionInfo ci) throws ResourceException {
+        next.getConnection(ci);
+        ccm.handleObtained(this, ci);
+    }
 
-	public void returnConnection(
-		ConnectionInfo ci,
-		ConnectionReturnAction cra) {
-		ccm.handleReleased(this, ci);
-		next.returnConnection(ci, cra);
-	}
+    public void returnConnection(
+            ConnectionInfo ci,
+            ConnectionReturnAction cra) {
+        ccm.handleReleased(this, ci);
+        next.returnConnection(ci, cra);
+    }
 
-	public void enter(Collection connectionInfos, Set unshareable)
-		throws ResourceException {
-		if (unshareable.contains(jndiName)) {
-			//should probably check to see if subjects are consistent,
-			//and if not raise an exception.  Also need to check if
-			//the spec says anything about this.
-			return;
-		} // end of if ()
-		if (securityDomain == null) {
-			return;
-		}
-		Subject currentSubject = null;
-		try {
-			currentSubject = securityDomain.getSubject();
-		} catch (SecurityException e) {
-			throw new ResourceException("Can not obtain Subject for login", e);
-		} // end of try-catch
-		if (currentSubject == null) {
-			//check to see if mci.getSubject() is null?
-			return;
-		} // end of if ()
-		for (Iterator i = connectionInfos.iterator(); i.hasNext();) {
-			ConnectionInfo ci = (ConnectionInfo) i.next();
-			ManagedConnectionInfo mci = ci.getManagedConnectionInfo();
-			//Is this check correct?  perhaps more credentials got
-			//added without changing the relevant credential we use.
-			if (!currentSubject.equals(mci.getSubject())) {
-				//make a ci to process removing the handle from the old mc
-				ConnectionInfo oldCI = new ConnectionInfo();
-				oldCI.setManagedConnectionInfo(mci);
-				oldCI.setConnectionHandle(ci.getConnectionHandle());
+    public void enter(Collection connectionInfos, Set unshareable)
+            throws ResourceException {
+        if (unshareable.contains(jndiName)) {
+            //should probably check to see if subjects are consistent,
+            //and if not raise an exception.  Also need to check if
+            //the spec says anything about this.
+            return;
+        } // end of if ()
+        if (securityDomain == null) {
+            return;
+        }
+        Subject currentSubject = null;
+        try {
+            currentSubject = securityDomain.getSubject();
+        } catch (SecurityException e) {
+            throw new ResourceException("Can not obtain Subject for login", e);
+        } // end of try-catch
+        if (currentSubject == null) {
+            //check to see if mci.getSubject() is null?
+            return;
+        } // end of if ()
+        for (Iterator i = connectionInfos.iterator(); i.hasNext();) {
+            ConnectionInfo ci = (ConnectionInfo) i.next();
+            ManagedConnectionInfo mci = ci.getManagedConnectionInfo();
+            //Is this check correct?  perhaps more credentials got
+            //added without changing the relevant credential we use.
+            if (!currentSubject.equals(mci.getSubject())) {
+                //make a ci to process removing the handle from the old mc
+                ConnectionInfo oldCI = new ConnectionInfo();
+                oldCI.setManagedConnectionInfo(mci);
+                oldCI.setConnectionHandle(ci.getConnectionHandle());
 
-				//make a new mci for the mc we will ask for
-				ManagedConnectionInfo newMCI =
-					new ManagedConnectionInfo(
-						mci.getManagedConnectionFactory(),
-						mci.getConnectionRequestInfo());
-				newMCI.setSubject(currentSubject);
-				ci.setManagedConnectionInfo(newMCI);
-				next.getConnection(ci);
-				//process the removal of the handle from the previous mc
-				returnConnection(oldCI, ConnectionReturnAction.RETURN_HANDLE);
-			} // end of if ()
-		} // end of for ()
+                //make a new mci for the mc we will ask for
+                ManagedConnectionInfo newMCI =
+                        new ManagedConnectionInfo(
+                                mci.getManagedConnectionFactory(),
+                                mci.getConnectionRequestInfo());
+                newMCI.setSubject(currentSubject);
+                ci.setManagedConnectionInfo(newMCI);
+                next.getConnection(ci);
+                //process the removal of the handle from the previous mc
+                returnConnection(oldCI, ConnectionReturnAction.RETURN_HANDLE);
+            } // end of if ()
+        } // end of for ()
 
-	}
+    }
 
-	public void exit(Collection connectionInfos, Set unshareableResources)
-		throws ResourceException {
-		if (unshareableResources.contains(jndiName)) {
-			return;
-		} // end of if ()
-		for (Iterator i = connectionInfos.iterator(); i.hasNext();) {
-			ConnectionInfo ci = (ConnectionInfo) i.next();
-			ManagedConnectionInfo mci = ci.getManagedConnectionInfo();
-			ManagedConnection mc = mci.getManagedConnection();
-			if (mc instanceof DissociatableManagedConnection) {
-				i.remove();
-				((DissociatableManagedConnection) mc).dissociateConnections();
-				mci.clearConnectionHandles();
-				returnConnection(ci, ConnectionReturnAction.RETURN_HANDLE);
-			} // end of if ()
-		}
-	}
+    public void exit(Collection connectionInfos, Set unshareableResources)
+            throws ResourceException {
+        if (unshareableResources.contains(jndiName)) {
+            return;
+        } // end of if ()
+        for (Iterator i = connectionInfos.iterator(); i.hasNext();) {
+            ConnectionInfo ci = (ConnectionInfo) i.next();
+            ManagedConnectionInfo mci = ci.getManagedConnectionInfo();
+            ManagedConnection mc = mci.getManagedConnection();
+            if (mc instanceof DissociatableManagedConnection) {
+                i.remove();
+                ((DissociatableManagedConnection) mc).dissociateConnections();
+                mci.clearConnectionHandles();
+                returnConnection(ci, ConnectionReturnAction.RETURN_HANDLE);
+            } // end of if ()
+        }
+    }
 } // MetaCallConnectionInterceptor

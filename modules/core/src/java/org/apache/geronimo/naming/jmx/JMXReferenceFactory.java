@@ -70,7 +70,7 @@ import org.apache.geronimo.deployment.model.geronimo.j2ee.JNDILocator;
  *
  * A better set of assumptions might be that the context params are the name/value pairs for the object name.
  *
- * @version $VERSION$ Nov 12, 2003$
+ * @version $Revision: 1.2 $ $Date: 2003/11/13 22:22:31 $
  *
  * */
 public class JMXReferenceFactory implements ReferenceFactory {

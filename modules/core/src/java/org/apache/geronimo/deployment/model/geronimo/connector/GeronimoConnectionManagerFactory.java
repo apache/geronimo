@@ -62,12 +62,12 @@ import org.apache.geronimo.deployment.model.connector.Configurable;
 /**
  * GeronimoConnectionManagerFactory
  *
- * @version $VERSION$ $DATE$
+ * @version $Revision: 1.2 $ $Date: 2003/11/13 22:22:30 $
  */
 public class GeronimoConnectionManagerFactory implements Configurable {
-    
+
     private String connectionManagerFactoryDescriptor;
-    
+
     private ConfigProperty[] configProperty = new ConfigProperty[0];
 
     /* (non-Javadoc)

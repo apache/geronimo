@@ -62,38 +62,39 @@ import org.apache.geronimo.deployment.model.connector.ResourceAdapter;
 /**
  * GeronimoResourceAdapter
  *
- * @version $VERSION$ $DATE$
+ * @version $Revision: 1.2 $ $Date: 2003/11/13 22:22:30 $
  */
 public class GeronimoResourceAdapter extends ResourceAdapter {
-    
-	private String name;
-	private String bootstrapContext;
 
-	public GeronimoResourceAdapter(ResourceAdapter resourceAdapter) {
-		setResourceAdapterClass(resourceAdapter.getResourceAdapterClass());
-		setConfigProperty(copyConfigProperties(resourceAdapter.getConfigProperty()));
-		setSecurityPermission(resourceAdapter.getSecurityPermission());
-	}
-	
-	public GeronimoOutboundResourceAdapter getGeronimoOutboundResourceAdapter() {
-		return (GeronimoOutboundResourceAdapter)getOutboundResourceAdapter();
-	}
-	
-	public GeronimoInboundResourceAdapter getGeronimoInboundResourceAdapter() {
-		return (GeronimoInboundResourceAdapter)getInboundResourceAdapter();
-	}
-	
-	public static ConfigProperty[] copyConfigProperties(ConfigProperty[] oldProperties) {
-	    ConfigProperty[] newProperties = new ConfigProperty[oldProperties.length];
-	    for (int i = 0; i < oldProperties.length; i++) {
-	        newProperties[i] = new ConfigProperty();
-	        newProperties[i].setConfigPropertyName(oldProperties[i].getConfigPropertyName());
-	        newProperties[i].setConfigPropertyType(oldProperties[i].getConfigPropertyType());
-	        newProperties[i].setConfigPropertyValue(oldProperties[i].getConfigPropertyValue());
-	        newProperties[i].setDescription(oldProperties[i].getDescription());//shared description...
-	    }
-	    return newProperties;
-	}
+    private String name;
+    private String bootstrapContext;
+
+    public GeronimoResourceAdapter(ResourceAdapter resourceAdapter) {
+        setResourceAdapterClass(resourceAdapter.getResourceAdapterClass());
+        setConfigProperty(copyConfigProperties(resourceAdapter.getConfigProperty()));
+        setSecurityPermission(resourceAdapter.getSecurityPermission());
+    }
+
+    public GeronimoOutboundResourceAdapter getGeronimoOutboundResourceAdapter() {
+        return (GeronimoOutboundResourceAdapter) getOutboundResourceAdapter();
+    }
+
+    public GeronimoInboundResourceAdapter getGeronimoInboundResourceAdapter() {
+        return (GeronimoInboundResourceAdapter) getInboundResourceAdapter();
+    }
+
+    public static ConfigProperty[] copyConfigProperties(ConfigProperty[] oldProperties) {
+        ConfigProperty[] newProperties = new ConfigProperty[oldProperties.length];
+        for (int i = 0; i < oldProperties.length; i++) {
+            newProperties[i] = new ConfigProperty();
+            newProperties[i].setConfigPropertyName(oldProperties[i].getConfigPropertyName());
+            newProperties[i].setConfigPropertyType(oldProperties[i].getConfigPropertyType());
+            newProperties[i].setConfigPropertyValue(oldProperties[i].getConfigPropertyValue());
+            newProperties[i].setDescription(oldProperties[i].getDescription());//shared description...
+        }
+        return newProperties;
+    }
+
     /**
      * @return Returns the name.
      */

@@ -61,7 +61,7 @@ import javax.ejb.EJBHome;
 /**
  * 
  *
- * @version $VERSION$ Nov 12, 2003$
+ * @version $Revision: 1.2 $ $Date: 2003/11/13 22:22:31 $
  * 
  * */
 public class TestObject implements TestObjectMBean {
