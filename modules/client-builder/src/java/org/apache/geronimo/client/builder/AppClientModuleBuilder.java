@@ -30,6 +30,7 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
+import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.deployment.DeploymentContext;
@@ -47,8 +48,8 @@ import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.RefContext;
 import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
-import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEAppClientModuleImpl;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
@@ -278,7 +279,12 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         }
 
         // generate the object name for the app client
-        ObjectName appClientModuleName = NameFactory.getModuleName(null, null, null, appClientModule.getName(), NameFactory.APP_CLIENT_MODULE, earJ2eeContext);
+        ObjectName appClientModuleName = null;
+        try {
+            appClientModuleName = NameFactory.getModuleName(null, null, null, appClientModule.getName(), NameFactory.APP_CLIENT_MODULE, earJ2eeContext);
+        } catch (MalformedObjectNameException e) {
+            throw new DeploymentException("Could not construct module name", e);
+        }
 
         // create a gbean for the app client module and add it to the ear
         ReadOnlyContext componentContext;

@@ -23,9 +23,9 @@ import javax.management.ObjectName;
 
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.DeploymentException;
-import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContextImpl;
-import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 
@@ -33,7 +33,7 @@ import org.apache.geronimo.kernel.config.ConfigurationModuleType;
  * @version $Rev$ $Date$
  */
 public class EARContext extends DeploymentContext {
-    private final ObjectName domainObjectName;
+    private final ObjectName domainObjectName;                    
     private final ObjectName serverObjectName;
     private final ObjectName applicationObjectName;
 

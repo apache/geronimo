@@ -29,6 +29,7 @@ import java.util.LinkedList;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
 import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.deployment.DeploymentException;
@@ -41,9 +42,11 @@ import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
-import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContextImpl;
-import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jetty.JettyClassLoader;
 import org.apache.geronimo.jetty.JettyWebAppContext;
 import org.apache.geronimo.jetty.JettyWebAppJACCContext;
@@ -287,7 +290,12 @@ public class JettyModuleBuilder implements ModuleBuilder {
             }
         }
 
-        ObjectName webModuleName = NameFactory.getModuleName(null, null, null, null, NameFactory.WEB_MODULE, moduleJ2eeContext);
+        ObjectName webModuleName = null;
+        try {
+            webModuleName = NameFactory.getModuleName(null, null, null, null, NameFactory.WEB_MODULE, moduleJ2eeContext);
+        } catch (MalformedObjectNameException e) {
+            throw new DeploymentException("Could not construct module name", e);
+        }
 
         UserTransaction userTransaction = new OnlineUserTransaction();
         ReadOnlyContext compContext = buildComponentContext(earContext, webModule, webApp, jettyWebApp, userTransaction, webClassLoader);

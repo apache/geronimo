@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import javax.management.MalformedObjectNameException;
 import javax.naming.NamingException;
 import javax.naming.Reference;
 import javax.transaction.UserTransaction;
@@ -32,8 +33,8 @@ import javax.transaction.UserTransaction;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.RefContext;
-import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.naming.java.ComponentContextBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbLocalRefType;
@@ -126,14 +127,18 @@ public class ENCConfigBuilder {
             containerId = gerResourceRef.getTargetName();
         } else {
             //construct name from components
-            containerId = NameFactory.getResourceComponentNameString(gerResourceRef.getDomain(),
-                    gerResourceRef.getServer(),
-                    gerResourceRef.getApplication(),
-                    gerResourceRef.getModule(),
-                    gerResourceRef.getName(),
-                    //todo determine type from iface class
-                    gerResourceRef.getType() == null ? NameFactory.JCA_MANAGED_CONNECTION_FACTORY : gerResourceRef.getType(),
-                    j2eeContext);
+            try {
+                containerId = NameFactory.getResourceComponentNameString(gerResourceRef.getDomain(),
+                        gerResourceRef.getServer(),
+                        gerResourceRef.getApplication(),
+                        gerResourceRef.getModule(),
+                        gerResourceRef.getName(),
+                        //todo determine type from iface class
+                        gerResourceRef.getType() == null ? NameFactory.JCA_MANAGED_CONNECTION_FACTORY : gerResourceRef.getType(),
+                        j2eeContext);
+            } catch (MalformedObjectNameException e) {
+                throw new DeploymentException("could not construct object name for resource", e);
+            }
         }
         return containerId;
     }
@@ -179,14 +184,18 @@ public class ENCConfigBuilder {
             containerId = gerResourceEnvRef.getTargetName();
         } else {
             //construct name from components
-            containerId = NameFactory.getResourceComponentNameString(gerResourceEnvRef.getDomain(),
-                    gerResourceEnvRef.getServer(),
-                    gerResourceEnvRef.getApplication(),
-                    gerResourceEnvRef.getModule(),
-                    gerResourceEnvRef.getName(),
-                    NameFactory.JMS_RESOURCE,
-                    //gerResourceEnvRef.getType(),
-                    j2eeContext);
+            try {
+                containerId = NameFactory.getResourceComponentNameString(gerResourceEnvRef.getDomain(),
+                        gerResourceEnvRef.getServer(),
+                        gerResourceEnvRef.getApplication(),
+                        gerResourceEnvRef.getModule(),
+                        gerResourceEnvRef.getName(),
+                        NameFactory.JMS_RESOURCE,
+                        //gerResourceEnvRef.getType(),
+                        j2eeContext);
+            } catch (MalformedObjectNameException e) {
+                throw new DeploymentException("could not construct object name for jms resource", e);
+            }
         }
         return containerId;
     }
@@ -249,13 +258,18 @@ public class ENCConfigBuilder {
                 if (remoteRef.isSetTargetName()) {
                     ejbReference = refContext.getEJBRemoteRef(remoteRef.getTargetName(), isSession, home, remote);
                 } else {
-                    String containerId = NameFactory.getEjbComponentNameString(remoteRef.getDomain(),
-                            remoteRef.getServer(),
-                            remoteRef.getApplication(),
-                            remoteRef.getModule(),
-                            remoteRef.getName(),
-                            remoteRef.getType(),
-                            j2eeContext);
+                    String containerId = null;
+                    try {
+                        containerId = NameFactory.getEjbComponentNameString(remoteRef.getDomain(),
+                                                    remoteRef.getServer(),
+                                                    remoteRef.getApplication(),
+                                                    remoteRef.getModule(),
+                                                    remoteRef.getName(),
+                                                    remoteRef.getType(),
+                                                    j2eeContext);
+                    } catch (MalformedObjectNameException e) {
+                        throw new DeploymentException("Could not construct ejb object name: " + remoteRef.getName(), e);
+                    }
                     ejbReference = refContext.getEJBRemoteRef(containerId, isSession, home, remote);
 
                 }
@@ -301,13 +315,18 @@ public class ENCConfigBuilder {
                 if (localRef.isSetTargetName()) {
                     ejbReference = refContext.getEJBLocalRef(localRef.getTargetName(), isSession, localHome, local);
                 } else {
-                    String containerId = NameFactory.getEjbComponentNameString(localRef.getDomain(),
-                            localRef.getServer(),
-                            localRef.getApplication(),
-                            localRef.getModule(),
-                            localRef.getName(),
-                            localRef.getType(),
-                            j2eeContext);
+                    String containerId = null;
+                    try {
+                        containerId = NameFactory.getEjbComponentNameString(localRef.getDomain(),
+                                                    localRef.getServer(),
+                                                    localRef.getApplication(),
+                                                    localRef.getModule(),
+                                                    localRef.getName(),
+                                                    localRef.getType(),
+                                                    j2eeContext);
+                    } catch (MalformedObjectNameException e) {
+                        throw new DeploymentException("Could not construct ejb object name: " + localRef.getName(), e);
+                    }
                     ejbReference = refContext.getEJBLocalRef(containerId, isSession, localHome, local);
 
                 }

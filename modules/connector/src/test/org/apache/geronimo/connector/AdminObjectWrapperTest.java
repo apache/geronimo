@@ -27,9 +27,11 @@ import junit.framework.TestCase;
 import org.apache.geronimo.connector.mock.MockAdminObject;
 import org.apache.geronimo.connector.mock.MockAdminObjectImpl;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContextImpl;
-import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.kernel.Kernel;
 
 /**

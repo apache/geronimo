@@ -65,9 +65,9 @@ import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
-import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContextImpl;
-import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.naming.reference.GBeanGetResourceRefAddr;
 import org.apache.geronimo.naming.reference.RefAddrContentObjectFactory;
@@ -285,7 +285,12 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                     GerConnectiondefinitionInstanceType[] connectionDefinitionInstances = connectionDefinition.getConnectiondefinitionInstanceArray();
                     for (int j = 0; j < connectionDefinitionInstances.length; j++) {
                         GerConnectiondefinitionInstanceType connectionDefinitionInstance = connectionDefinitionInstances[j];
-                        String containerId = NameFactory.getResourceComponentNameString(null, null, null, null, connectionDefinitionInstance.getName(), NameFactory.JCA_MANAGED_CONNECTION_FACTORY, moduleJ2eeContext);
+                        String containerId = null;
+                        try {
+                            containerId = NameFactory.getResourceComponentNameString(null, null, null, null, connectionDefinitionInstance.getName(), NameFactory.JCA_MANAGED_CONNECTION_FACTORY, moduleJ2eeContext);
+                        } catch (MalformedObjectNameException e) {
+                            throw new DeploymentException("Could not construct resource object name", e);
+                        }
                         earContext.getRefContext().addConnectionFactoryId(module.getModuleURI(), connectionDefinitionInstance.getName(), containerId);
                     }
                 }
@@ -296,7 +301,12 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             for (int j = 0; j < gerAdminObject.getAdminobjectInstanceArray().length; j++) {
                 GerAdminobjectInstanceType gerAdminObjectInstance = gerAdminObject.getAdminobjectInstanceArray()[j];
 
-                String adminObjectObjectName = NameFactory.getResourceComponentNameString(null, null, null, null, gerAdminObjectInstance.getMessageDestinationName(), NameFactory.JCA_ADMIN_OBJECT, moduleJ2eeContext);
+                String adminObjectObjectName = null;
+                try {
+                    adminObjectObjectName = NameFactory.getResourceComponentNameString(null, null, null, null, gerAdminObjectInstance.getMessageDestinationName(), NameFactory.JCA_ADMIN_OBJECT, moduleJ2eeContext);
+                } catch (MalformedObjectNameException e) {
+                    throw new DeploymentException("Could not construct resource object name", e);
+                }
                 earContext.getRefContext().addAdminObjectId(module.getModuleURI(), gerAdminObjectInstance.getMessageDestinationName(), adminObjectObjectName);
             }
         }
@@ -328,7 +338,12 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
 
     private ObjectName addResourceAdapterModuleGBean(EARContext earContext, J2eeContext moduleJ2eeContext, String originalSpecDD, ClassLoader cl) throws DeploymentException {
         // build the objectName
-        ObjectName resourceAdapterModuleName = NameFactory.getModuleName(null, null, null, null, NameFactory.RESOURCE_ADAPTER_MODULE, moduleJ2eeContext);
+        ObjectName resourceAdapterModuleName = null;
+        try {
+            resourceAdapterModuleName = NameFactory.getModuleName(null, null, null, null, NameFactory.RESOURCE_ADAPTER_MODULE, moduleJ2eeContext);
+        } catch (MalformedObjectNameException e) {
+            throw new DeploymentException("Could not construct module name", e);
+        }
 
         // initalize the GBean
         GBeanMBean resourceAdapterModule = new GBeanMBean(ResourceAdapterModuleImpl.GBEAN_INFO, cl);
@@ -408,11 +423,20 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                 }
 
                 // set the work manager name
-                ObjectName workManagerName = NameFactory.getComponentName(null, null, geronimoResourceAdapter.getResourceadapterInstance().getWorkmanagerName().trim(), NameFactory.JCA_WORK_MANAGER, moduleJ2eeContext);
+                ObjectName workManagerName = null;
+                try {
+                    workManagerName = NameFactory.getComponentName(null, null, geronimoResourceAdapter.getResourceadapterInstance().getWorkmanagerName().trim(), NameFactory.JCA_WORK_MANAGER, moduleJ2eeContext);
+                } catch (MalformedObjectNameException e) {
+                    throw new DeploymentException("Could not construct work manager object name", e);
+                }
                 resourceAdapterGBean.setReferencePattern("WorkManager", workManagerName);
 
                 // add it
-                resourceAdapterObjectName = NameFactory.getResourceComponentName(null, null, null, null, resourceAdapterName, NameFactory.JCA_RESOURCE_ADAPTER, moduleJ2eeContext);
+                try {
+                    resourceAdapterObjectName = NameFactory.getResourceComponentName(null, null, null, null, resourceAdapterName, NameFactory.JCA_RESOURCE_ADAPTER, moduleJ2eeContext);
+                } catch (MalformedObjectNameException e) {
+                    throw new DeploymentException("Could not construct resource adapter object name", e);
+                }
                 earContext.addGBean(resourceAdapterObjectName, resourceAdapterGBean);
             }
 
@@ -494,7 +518,12 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                 }
 
                 // add it
-                ObjectName adminObjectObjectName = NameFactory.getResourceComponentName(null, null, null, null, gerAdminObjectInstance.getMessageDestinationName(), NameFactory.JCA_ADMIN_OBJECT, moduleJ2eeContext);
+                ObjectName adminObjectObjectName = null;
+                try {
+                    adminObjectObjectName = NameFactory.getResourceComponentName(null, null, null, null, gerAdminObjectInstance.getMessageDestinationName(), NameFactory.JCA_ADMIN_OBJECT, moduleJ2eeContext);
+                } catch (MalformedObjectNameException e) {
+                    throw new DeploymentException("Could not construct admin object object name", e);
+                }
                 earContext.addGBean(adminObjectObjectName, adminObjectGBean);
             }
         }
@@ -732,7 +761,12 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         }
 
         // add it
-        ObjectName connectionManagerObjectName = NameFactory.getResourceComponentName(null, null, null, null, connectionfactoryInstance.getName(), NameFactory.JCA_CONNECTION_MANAGER, j2eeContext);
+        ObjectName connectionManagerObjectName = null;
+        try {
+            connectionManagerObjectName = NameFactory.getResourceComponentName(null, null, null, null, connectionfactoryInstance.getName(), NameFactory.JCA_CONNECTION_MANAGER, j2eeContext);
+        } catch (MalformedObjectNameException e) {
+            throw new DeploymentException("Could not construct connection manager object name", e);
+        }
         earContext.addGBean(connectionManagerObjectName, connectionManagerGBean);
         return connectionManagerObjectName;
     }
@@ -775,7 +809,12 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             throw new DeploymentException(e);
         }
 
-        ObjectName managedConnectionFactoryObjectName = NameFactory.getResourceComponentName(null, null, null, null, connectiondefinitionInstance.getName(), NameFactory.JCA_MANAGED_CONNECTION_FACTORY, j2eeContext);
+        ObjectName managedConnectionFactoryObjectName = null;
+        try {
+            managedConnectionFactoryObjectName = NameFactory.getResourceComponentName(null, null, null, null, connectiondefinitionInstance.getName(), NameFactory.JCA_MANAGED_CONNECTION_FACTORY, j2eeContext);
+        } catch (MalformedObjectNameException e) {
+            throw new DeploymentException("Could not construct managed connection factory object name", e);
+        }
         earContext.addGBean(managedConnectionFactoryObjectName, managedConnectionFactoryGBean);
 
         // ConnectionFactory
@@ -787,7 +826,12 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             throw new DeploymentException("Could not initialize JCAConnectionFactory", e);
         }
 
-        ObjectName connectionFactoryObjectName = NameFactory.getResourceComponentName(null, null, null, null, connectiondefinitionInstance.getName(), NameFactory.JCA_CONNECTION_FACTORY, j2eeContext);
+        ObjectName connectionFactoryObjectName = null;
+        try {
+            connectionFactoryObjectName = NameFactory.getResourceComponentName(null, null, null, null, connectiondefinitionInstance.getName(), NameFactory.JCA_CONNECTION_FACTORY, j2eeContext);
+        } catch (MalformedObjectNameException e) {
+            throw new DeploymentException("Could not construct connection factory object name", e);
+        }
         earContext.addGBean(connectionFactoryObjectName, connectionFactory);
     }
 

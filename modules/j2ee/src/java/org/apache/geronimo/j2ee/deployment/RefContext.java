@@ -21,11 +21,13 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
 import javax.naming.Reference;
 
 import org.apache.geronimo.deployment.DeploymentException;
-import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  * @version $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $
@@ -224,7 +226,12 @@ public class RefContext {
         try {
             return getContainerId(module, resourceLink, (Map) connectionFactoryIndex.get(name));
         } catch (UnknownEJBRefException e) {
-            ObjectName query = NameFactory.getComponentRestrictedQueryName(null, null, name, NameFactory.JCA_RESOURCE_ADAPTER, j2eeContext);
+            ObjectName query = null;
+            try {
+                query = NameFactory.getComponentRestrictedQueryName(null, null, name, NameFactory.JCA_RESOURCE_ADAPTER, j2eeContext);
+            } catch (MalformedObjectNameException e1) {
+                throw new DeploymentException("Could not construct resource adapter object name query", e);
+            }
             ObjectName containerName = resourceReferenceBuilder.locateResourceName(query);
             return containerName.getCanonicalName();
         }
@@ -235,7 +242,12 @@ public class RefContext {
         try {
             return getContainerId(module, resourceLink, (Map) connectionFactoryIndex.get(name));
         } catch (UnknownEJBRefException e) {
-            ObjectName query = NameFactory.getComponentRestrictedQueryName(null, null, name, NameFactory.JCA_MANAGED_CONNECTION_FACTORY, j2eeContext);
+            ObjectName query = null;
+            try {
+                query = NameFactory.getComponentRestrictedQueryName(null, null, name, NameFactory.JCA_MANAGED_CONNECTION_FACTORY, j2eeContext);
+            } catch (MalformedObjectNameException e1) {
+                throw new DeploymentException("Could not construct connection factory object name query", e);
+            }
             ObjectName containerName = resourceReferenceBuilder.locateResourceName(query);
             return containerName.getCanonicalName();
         }
@@ -250,7 +262,12 @@ public class RefContext {
         try {
             return getContainerId(module, resourceLink, (Map) adminObjectIndex.get(name));
         } catch (UnknownEJBRefException e) {
-            ObjectName query = NameFactory.getComponentRestrictedQueryName(null, null, name, NameFactory.JCA_ADMIN_OBJECT, j2eeContext);
+            ObjectName query = null;
+            try {
+                query = NameFactory.getComponentRestrictedQueryName(null, null, name, NameFactory.JCA_ADMIN_OBJECT, j2eeContext);
+            } catch (MalformedObjectNameException e1) {
+                throw new DeploymentException("Could not construct admin object object name query", e);
+            }
             ObjectName containerName = resourceReferenceBuilder.locateResourceName(query);
             return containerName.getCanonicalName();
         }
