@@ -66,7 +66,7 @@ import org.apache.geronimo.deployment.scanner.URLType;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/27 11:40:01 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/29 12:29:22 $
  */
 public class DeployURL
     extends DeploymentGoal
@@ -82,7 +82,7 @@ public class DeployURL
             throw new NullArgumentException("type");
         }
         
-        this.url = normalize(url);
+        this.url = normalizeURL(url);
         this.type = type;
     }
 
@@ -94,44 +94,18 @@ public class DeployURL
         return type;
     }
     
-    private static URL normalize(URL url) {
+    private static URL normalizeURL(URL url) {
         assert url != null;
         
-        File f = toFile(url);
-        if (f != null) {
+        if (url.getProtocol().equals("file")) {
+            String filename = url.getFile().replace('/', File.separatorChar);
+            File file = new File(filename);
             try {
-                url = f.toURI().toURL();
+                url = file.toURI().toURL();
             }
-            catch (MalformedURLException ignore) {
-                // ignore, return passed in url
-            }
+            catch (MalformedURLException ignore) {}
         }
         
         return url;
-    }
-    
-    /**
-     * Convert from a <code>URL</code> to a <code>File</code>.
-     *
-     * @param url   File URL.
-     * @return      The equivalent <code>File</code> object, or <code>null</code>
-     *              if the URL's protocol is not <code>file</code>
-     * 
-     * @todo this method was taken from commons-sandbox-io.  if/when that
-     *       project is promoted to commons proper, remove this method and use
-     *       said library.
-     */
-    private static File toFile(final URL url) {
-        if (url == null) {
-            throw new NullArgumentException("url");
-        }
-        
-        if (!url.getProtocol().equals("file")) {
-            return null;
-        }
-        else {
-            String filename = url.getFile().replace('/', File.separatorChar);
-            return new File(filename);
-        }
     }
 }
