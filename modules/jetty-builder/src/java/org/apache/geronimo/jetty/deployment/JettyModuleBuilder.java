@@ -46,13 +46,6 @@ import javax.security.jacc.WebRoleRefPermission;
 import javax.security.jacc.WebUserDataPermission;
 import javax.transaction.UserTransaction;
 
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlObject;
-import org.mortbay.http.BasicAuthenticator;
-import org.mortbay.http.ClientCertAuthenticator;
-import org.mortbay.http.DigestAuthenticator;
-import org.mortbay.jetty.servlet.FormAuthenticator;
-
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.GBeanHelper;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
@@ -71,7 +64,6 @@ import org.apache.geronimo.jetty.JettyFilterHolder;
 import org.apache.geronimo.jetty.JettyFilterMapping;
 import org.apache.geronimo.jetty.JettyServletHolder;
 import org.apache.geronimo.jetty.JettyWebAppContext;
-import org.apache.geronimo.jetty.JettyWebAppJACCContext;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
@@ -79,6 +71,7 @@ import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.SecurityService;
 import org.apache.geronimo.security.deploy.Security;
+import org.apache.geronimo.security.deploy.AutoMapAssistant;
 import org.apache.geronimo.security.deployment.SecurityBuilder;
 import org.apache.geronimo.security.util.URLPattern;
 import org.apache.geronimo.transaction.OnlineUserTransaction;
@@ -111,6 +104,12 @@ import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
 import org.apache.geronimo.xbeans.j2ee.WebAppType;
 import org.apache.geronimo.xbeans.j2ee.WebResourceCollectionType;
 import org.apache.geronimo.xbeans.j2ee.WelcomeFileListType;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
+import org.mortbay.http.BasicAuthenticator;
+import org.mortbay.http.ClientCertAuthenticator;
+import org.mortbay.http.DigestAuthenticator;
+import org.mortbay.jetty.servlet.FormAuthenticator;
 
 
 /**
@@ -368,27 +367,29 @@ public class JettyModuleBuilder implements ModuleBuilder {
         UserTransaction userTransaction = new OnlineUserTransaction();
         ReadOnlyContext compContext = buildComponentContext(earContext, webModule, webApp, jettyWebApp, userTransaction, webClassLoader);
 
-        GBeanData webModuleData;
+        GBeanData webModuleData = new GBeanData(webModuleName, JettyWebAppContext.GBEAN_INFO);
         try {
             Set securityRoles = new HashSet();
             if (jettyWebApp.isSetLoginDomainName()) {
-                webModuleData = new GBeanData(webModuleName, JettyWebAppJACCContext.GBEAN_INFO);
                 Security security = SecurityBuilder.buildSecurityConfig(jettyWebApp.getSecurity(), collectRoleNames(webApp));
                 security.autoGenerate(securityService);
                 webModuleData.setAttribute("loginDomainName", jettyWebApp.getLoginDomainName().trim());
                 webModuleData.setAttribute("securityConfig", security);
 
-                String policyContextID;
-                if (earContext.getApplicationObjectName() == null) {
-                    policyContextID = module.getName();
-                } else {
-                    policyContextID = earContext.getApplicationObjectName().toString();
-                }
+                String policyContextID = webModuleName.getCanonicalName();
                 webModuleData.setAttribute("policyContextID", policyContextID);
                 buildSpecSecurityConfig(webApp, webModuleData, securityRoles);
-
-            } else {
-                webModuleData = new GBeanData(webModuleName, JettyWebAppContext.GBEAN_INFO);
+                AutoMapAssistant assistant = security.getAssistant();
+                if (assistant != null) {
+                    String realmName = assistant.getSecurityRealm();
+                    ObjectName securityRealmName = null;
+                    try {
+                        securityRealmName = NameFactory.getSecurityRealmName(realmName);
+                    } catch (MalformedObjectNameException e) {
+                        throw new DeploymentException("Could not construct security realm name", e);
+                    }
+                    webModuleData.setReferencePattern("SecurityRealm", securityRealmName);
+                }
             }
 
             webModuleData.setAttribute("uri", URI.create(module.getTargetPath() + "/"));

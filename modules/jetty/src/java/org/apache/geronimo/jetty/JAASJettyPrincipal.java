@@ -41,7 +41,7 @@ public class JAASJettyPrincipal implements Principal {
         return subject;
     }
 
-    void setSubject(Subject subject) {
+    public void setSubject(Subject subject) {
         this.subject = subject;
     }
 

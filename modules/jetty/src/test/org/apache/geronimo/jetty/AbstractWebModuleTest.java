@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
@@ -124,7 +125,7 @@ public class AbstractWebModuleTest extends TestCase {
     }
 
     protected void setUpSecureAppContext(Security securityConfig, PermissionCollection uncheckedPermissions, PermissionCollection excludedPermissions, Map rolePermissions, Set securityRoles) throws Exception {
-        GBeanData app = new GBeanData(webModuleName, JettyWebAppJACCContext.GBEAN_INFO);
+        GBeanData app = new GBeanData(webModuleName, JettyWebAppContext.GBEAN_INFO);
         app.setAttribute("loginDomainName", "demo-properties-realm");
         app.setAttribute("securityConfig", securityConfig);
         app.setAttribute("uncheckedPermissions", uncheckedPermissions);
@@ -150,6 +151,7 @@ public class AbstractWebModuleTest extends TestCase {
         app.setReferencePattern("TransactionContextManager", tcmName);
         app.setReferencePattern("TrackedConnectionAssociator", ctcName);
         app.setReferencePattern("JettyContainer", containerName);
+        app.setReferencePattern("SecurityRealm", propertiesRealmName);
 
         app.setAttribute("contextPath", "/test");
 
@@ -167,7 +169,6 @@ public class AbstractWebModuleTest extends TestCase {
 
         securityServiceName = new ObjectName("geronimo.security:type=SecurityService");
         securityServiceGBean = new GBeanData(securityServiceName, SecurityServiceImpl.GBEAN_INFO);
-        securityServiceGBean.setReferencePatterns("Realms", Collections.singleton(new ObjectName("geronimo.security:type=SecurityRealm,*")));
         securityServiceGBean.setReferencePatterns("Mappers", Collections.singleton(new ObjectName("geronimo.security:type=SecurityRealm,*")));
         securityServiceGBean.setAttribute("policyConfigurationFactory", "org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory");
 

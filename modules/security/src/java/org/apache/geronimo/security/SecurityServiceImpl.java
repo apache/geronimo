@@ -19,11 +19,11 @@ package org.apache.geronimo.security;
 
 import java.security.Policy;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import javax.security.jacc.PolicyConfigurationFactory;
 import javax.security.jacc.PolicyContextException;
 
+import EDU.oswego.cs.dl.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -37,7 +37,6 @@ import org.apache.geronimo.security.jacc.PolicyContextHandlerContainerSubject;
 import org.apache.geronimo.security.jacc.PolicyContextHandlerHttpServletRequest;
 import org.apache.geronimo.security.jacc.PolicyContextHandlerSOAPMessage;
 import org.apache.geronimo.security.realm.AutoMapAssistant;
-import org.apache.geronimo.security.realm.SecurityRealm;
 import org.apache.geronimo.security.util.ConfigurationUtil;
 
 
@@ -50,8 +49,7 @@ public class SecurityServiceImpl implements SecurityService {
 
     private final Log log = LogFactory.getLog(SecurityService.class);
 
-    private final Collection realms;
-    private final Collection mappers;
+    private final ConcurrentHashMap mappersMap = new ConcurrentHashMap();
 
     /**
      * Permissions that protect access to sensitive security information
@@ -59,7 +57,6 @@ public class SecurityServiceImpl implements SecurityService {
     public static final GeronimoSecurityPermission CONFIGURE = new GeronimoSecurityPermission("configure");
 
     public SecurityServiceImpl(String policyConfigurationFactory,
-                               Collection realms,
                                Collection mappers) throws PolicyContextException, ClassNotFoundException {
         /**
          *  @see "JSR 115 4.6.1" Container Subject Policy Context Handler
@@ -74,39 +71,11 @@ public class SecurityServiceImpl implements SecurityService {
         PolicyConfigurationFactory factory = PolicyConfigurationFactory.getPolicyConfigurationFactory();
         GeronimoPolicyConfigurationFactory geronimoPolicyConfigurationFactory = (GeronimoPolicyConfigurationFactory) factory;
         Policy.setPolicy(new GeronimoPolicy(geronimoPolicyConfigurationFactory));
-        if (realms == null) {
-            this.realms = Collections.EMPTY_SET;
-        } else {
+        if (mappers != null) {
             SecurityManager sm = System.getSecurityManager();
             if (sm != null) {
                 sm.checkPermission(CONFIGURE);
             }
-            this.realms = realms;
-            ((ReferenceCollection) realms).addReferenceCollectionListener(new ReferenceCollectionListener() {
-
-                public void memberAdded(ReferenceCollectionEvent event) {
-                    SecurityManager sm = System.getSecurityManager();
-                    if (sm != null) {
-                        sm.checkPermission(CONFIGURE);
-                    }
-                }
-
-                public void memberRemoved(ReferenceCollectionEvent event) {
-                    SecurityManager sm = System.getSecurityManager();
-                    if (sm != null) {
-                        sm.checkPermission(CONFIGURE);
-                    }
-                }
-            });
-        }
-        if (mappers == null) {
-            this.mappers = Collections.EMPTY_SET;
-        } else {
-            SecurityManager sm = System.getSecurityManager();
-            if (sm != null) {
-                sm.checkPermission(CONFIGURE);
-            }
-            this.mappers = mappers;
             ((ReferenceCollection) mappers).addReferenceCollectionListener(new ReferenceCollectionListener() {
 
                 public void memberAdded(ReferenceCollectionEvent event) {
@@ -114,6 +83,8 @@ public class SecurityServiceImpl implements SecurityService {
                     if (sm != null) {
                         sm.checkPermission(CONFIGURE);
                     }
+                    AutoMapAssistant assistant = (AutoMapAssistant) event.getMember();
+                    mappersMap.put(assistant.getRealmName(), assistant);
                 }
 
                 public void memberRemoved(ReferenceCollectionEvent event) {
@@ -121,64 +92,20 @@ public class SecurityServiceImpl implements SecurityService {
                     if (sm != null) {
                         sm.checkPermission(CONFIGURE);
                     }
+                    AutoMapAssistant assistant = (AutoMapAssistant) event.getMember();
+                    mappersMap.remove(assistant.getRealmName());
                 }
             });
+            for (Iterator iterator = mappers.iterator(); iterator.hasNext();) {
+                AutoMapAssistant assistant = (AutoMapAssistant) iterator.next();
+                mappersMap.put(assistant.getRealmName(), assistant);
+            }
         }
         log.info("Security service started");
     }
 
-//    public Collection getRealms() throws GeronimoSecurityException {
-//        SecurityManager sm = System.getSecurityManager();
-//        if (sm != null) sm.checkPermission(CONFIGURE);
-//        return realms;
-//    }
-//
-//
-//    public void setRealms(Collection realms) {
-//        SecurityManager sm = System.getSecurityManager();
-//        if (sm != null) sm.checkPermission(CONFIGURE);
-//        this.realms = realms;
-//    }
-//
-//    public Collection getMappers() throws GeronimoSecurityException {
-//        SecurityManager sm = System.getSecurityManager();
-//        if (sm != null) sm.checkPermission(CONFIGURE);
-//        return mappers;
-//    }
-//
-//
-//    public void setMappers(Collection mappers) {
-//        SecurityManager sm = System.getSecurityManager();
-//        if (sm != null) sm.checkPermission(CONFIGURE);
-//        this.mappers = mappers;
-//    }
-
-//    public Collection getModuleConfigurations() {
-//        return moduleConfigurations;
-//    }
-//
-//    public void setModuleConfigurations(Collection moduleConfigurations) {
-//        this.moduleConfigurations = moduleConfigurations;
-//    }
-
-    public SecurityRealm getRealm(String name) {
-        for (Iterator iter = realms.iterator(); iter.hasNext();) {
-            SecurityRealm realm = (SecurityRealm) iter.next();
-            if (name.equals(realm.getRealmName())) {
-                return realm;
-            }
-        }
-        return null;
-    }
-
     public AutoMapAssistant getMapper(String name) {
-        for (Iterator iter = mappers.iterator(); iter.hasNext();) {
-            AutoMapAssistant mapper = (AutoMapAssistant) iter.next();
-            if (name.equals(mapper.getRealmName())) {
-                return mapper;
-            }
-        }
-        return null;
+        return (AutoMapAssistant) mappersMap.get(name);
     }
 
 
@@ -189,12 +116,10 @@ public class SecurityServiceImpl implements SecurityService {
 
         infoFactory.addAttribute("policyConfigurationFactory", String.class, true);
 
-        infoFactory.addReference("Realms", SecurityRealm.class);
         infoFactory.addReference("Mappers", AutoMapAssistant.class);
-        infoFactory.addOperation("getRealm", new Class[]{String.class});
         infoFactory.addOperation("getMapper", new Class[]{String.class});
 
-        infoFactory.setConstructor(new String[]{"policyConfigurationFactory", "Realms", "Mappers"});
+        infoFactory.setConstructor(new String[]{"policyConfigurationFactory", "Mappers"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

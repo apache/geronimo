@@ -210,4 +210,8 @@ public class NameFactory {
         return ObjectName.getInstance(context.getJ2eeDomainName(j2eeDomainName), props);
     }
 
+    //TODO parameterize this
+    public static ObjectName getSecurityRealmName(String realmName) throws MalformedObjectNameException {
+        return ObjectName.getInstance("geronimo.security:type=SecurityRealm,name=" + realmName);
+    }
 }

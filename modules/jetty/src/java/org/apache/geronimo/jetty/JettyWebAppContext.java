@@ -24,12 +24,15 @@ import java.util.EventListener;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.security.PermissionCollection;
+import java.io.IOException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mortbay.http.Authenticator;
 import org.mortbay.http.HttpRequest;
 import org.mortbay.http.HttpResponse;
+import org.mortbay.http.HttpException;
 import org.mortbay.jetty.servlet.AbstractSessionManager;
 import org.mortbay.jetty.servlet.FilterHolder;
 import org.mortbay.jetty.servlet.JSR154Filter;
@@ -47,10 +50,13 @@ import org.apache.geronimo.jetty.interceptor.InstanceContextBeforeAfter;
 import org.apache.geronimo.jetty.interceptor.ThreadClassloaderBeforeAfter;
 import org.apache.geronimo.jetty.interceptor.TransactionContextBeforeAfter;
 import org.apache.geronimo.jetty.interceptor.WebApplicationContextBeforeAfter;
+import org.apache.geronimo.jetty.interceptor.SecurityContextBeforeAfter;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.transaction.OnlineUserTransaction;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.security.deploy.Security;
+import org.apache.geronimo.security.realm.AutoMapAssistant;
 
 
 /**
@@ -68,9 +74,9 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     private final WebApplicationHandler handler;
     private String displayName;
 
-    //TODO make these private final again!
-    protected  BeforeAfter chain;
-    protected  int contextLength;
+    private final  BeforeAfter chain;
+    private final  int contextLength;
+    private final SecurityContextBeforeAfter securityInterceptor;
 
     /**
      * @deprecated never use this... this is only here because Jetty WebApplicationContext is externalizable
@@ -82,34 +88,45 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         handler = null;
         chain = null;
         contextLength = 0;
+        securityInterceptor = null;
     }
 
     public JettyWebAppContext(URI uri,
-                              ReadOnlyContext componentContext,
-                              OnlineUserTransaction userTransaction,
-                              ClassLoader classLoader,
-                              URI[] webClassPath,
-                              boolean contextPriorityClassLoader,
-                              URL configurationBaseUrl,
-                              Set unshareableResources,
-                              Set applicationManagedSecurityResources,
+                                  ReadOnlyContext componentContext,
+                                  OnlineUserTransaction userTransaction,
+                                  ClassLoader classLoader,
+                                  URI[] webClassPath,
+                                  boolean contextPriorityClassLoader,
+                                  URL configurationBaseUrl,
+                                  Set unshareableResources,
+                                  Set applicationManagedSecurityResources,
 
-                              String displayName,
-                              Map contextParamMap,
-                              Collection listenerClassNames,
-                              boolean distributable,
-                              Map mimeMap,
-                              String[] welcomeFiles,
-                              Map localeEncodingMapping,
-                              Map errorPages,
-                              Authenticator authenticator,
-                              String realmName,
-                              Map tagLibMap,
-                              int sessionTimeoutSeconds,
+                                  String displayName,
+                                  Map contextParamMap,
+                                  Collection listenerClassNames,
+                                  boolean distributable,
+                                  Map mimeMap,
+                                  String[] welcomeFiles,
+                                  Map localeEncodingMapping,
+                                  Map errorPages,
+                                  Authenticator authenticator,
+                                  String realmName,
+                                  Map tagLibMap,
+                                  int sessionTimeoutSeconds,
 
-                              TransactionContextManager transactionContextManager,
-                              TrackedConnectionAssociator trackedConnectionAssociator,
-                              JettyContainer jettyContainer) throws Exception, IllegalAccessException, InstantiationException, ClassNotFoundException {
+                                  String policyContextID,
+                                  String loginDomainName,
+                                  Security securityConfig,
+                                  //from jettyxmlconfig
+                                  Set securityRoles,
+                                  PermissionCollection uncheckedPermissions,
+                                  PermissionCollection excludedPermissions,
+                                  Map rolePermissions,
+
+                                  TransactionContextManager transactionContextManager,
+                                  TrackedConnectionAssociator trackedConnectionAssociator,
+                                  JettyContainer jettyContainer,
+                                  AutoMapAssistant assistant) throws Exception, IllegalAccessException, InstantiationException, ClassNotFoundException {
 
         assert uri != null;
         assert componentContext != null;
@@ -163,6 +180,17 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         interceptor = new ComponentContextBeforeAfter(interceptor, index++, componentContext);
         interceptor = new ThreadClassloaderBeforeAfter(interceptor, index++, index++, this.classLoader);
         interceptor = new WebApplicationContextBeforeAfter(interceptor, index++, this);
+//JACC
+        if (securityConfig != null) {
+            //set the JAASJettyRealm as our realm.
+            JAASJettyRealm realm = new JAASJettyRealm(realmName, loginDomainName);
+            setRealm(realm);
+            this.securityInterceptor = new SecurityContextBeforeAfter(interceptor, index++, index++, policyContextID, securityConfig, loginDomainName, assistant, authenticator, securityRoles, uncheckedPermissions, excludedPermissions, rolePermissions, realm);
+            interceptor = securityInterceptor;
+        } else {
+            securityInterceptor = null;
+        }
+//end JACC
         chain = interceptor;
         contextLength = index;
 
@@ -216,24 +244,27 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
             super.stop();
             return;
         }
+        jettyContainer.removeContext(this);
 
+        if (securityInterceptor != null) {
+            securityInterceptor.stop();
+        }
         Object context = enterContextScope(null, null);
         try {
             super.doStop();
         } finally {
             leaveContextScope(null, null, context);
         }
-        jettyContainer.removeContext(this);
         log.info("JettyWebAppContext stopped");
     }
 
     public void doFail() {
         try {
+            //this will call doStop
             super.stop();
         } catch (InterruptedException e) {
         }
 
-        jettyContainer.removeContext(this);
         log.info("JettyWebAppContext failed");
     }
 
@@ -314,6 +345,9 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
                 handler.mapPathToServlet(urlPattern, servletName);
             }
         }
+        if (securityInterceptor != null) {
+            securityInterceptor.registerServletHolder(webRoleRefPermissions);
+        }
         Object context = enterContextScope(null, null);
         try {
             servletHolder.start();
@@ -321,6 +355,14 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
             leaveContextScope(null, null, context);
         }
     }
+
+    public boolean checkSecurityConstraints(String pathInContext, HttpRequest request, HttpResponse response) throws HttpException, IOException {
+         if (securityInterceptor != null) {
+             return securityInterceptor.checkSecurityConstraints(pathInContext, request, response);
+         }
+         return super.checkSecurityConstraints(pathInContext, request, response);
+     }
+
 
     public static final GBeanInfo GBEAN_INFO;
 
@@ -361,6 +403,17 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
         infoBuilder.addInterface(JettyServletRegistration.class);
 
+        infoBuilder.addAttribute("policyContextID", String.class, true);
+        infoBuilder.addAttribute("loginDomainName", String.class, true);
+        infoBuilder.addAttribute("securityConfig", Security.class, true);
+
+        infoBuilder.addAttribute("securityRoles", Set.class, true);
+        infoBuilder.addAttribute("uncheckedPermissions", PermissionCollection.class, true);
+        infoBuilder.addAttribute("excludedPermissions", PermissionCollection.class, true);
+        infoBuilder.addAttribute("rolePermissions", Map.class, true);
+
+        infoBuilder.addReference("SecurityRealm", AutoMapAssistant.class);
+
         infoBuilder.setConstructor(new String[]{
             "uri",
             "componentContext",
@@ -385,9 +438,19 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
             "tagLibMap",
             "sessionTimeoutSeconds",
 
+            "policyContextID",
+            "loginDomainName",
+            "securityConfig",
+
+            "securityRoles",
+            "uncheckedPermissions",
+            "excludedPermissions",
+            "rolePermissions",
+
             "TransactionContextManager",
             "TrackedConnectionAssociator",
-            "JettyContainer"
+            "JettyContainer",
+            "SecurityRealm",
         });
 
         GBEAN_INFO = infoBuilder.getBeanInfo();

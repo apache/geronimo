@@ -163,7 +163,7 @@ Configuration for the Geronimo deployer
     <!--can this SecurityService actually do anything in this configuration???-->
     <gbean name="geronimo.deployer:type=SecurityService" class="org.apache.geronimo.security.SecurityServiceImpl">
         <attribute name="policyConfigurationFactory" type="java.lang.String">org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory</attribute>
-        <reference name="Realms">geronimo.security:type=SecurityRealm,*</reference>
+        <reference name="Mappers">geronimo.security:type=SecurityRealm,*</reference>
     </gbean>
 
     <gbean name="geronimo.deployer:role=ModuleBuilder,type=Web,config=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.jetty.deployment.JettyModuleBuilder">

@@ -184,7 +184,7 @@ public class JettyModuleBuilderTest extends TestCase {
         kernel = new Kernel("test.kernel");
         kernel.boot();
         ObjectName defaultServlets = ObjectName.getInstance("test:name=test,type=none,*");
-        SecurityServiceImpl securityService = new SecurityServiceImpl("org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory", null, null);
+        SecurityServiceImpl securityService = new SecurityServiceImpl("org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory", null);
 
         builder = new JettyModuleBuilder(new URI("null"), new Integer(1800), Collections.EMPTY_LIST, containerName, defaultServlets, null, null, securityService, kernel);
 

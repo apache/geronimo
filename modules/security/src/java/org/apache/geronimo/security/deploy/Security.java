@@ -23,7 +23,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.geronimo.security.SecurityServiceImpl;
 import org.apache.geronimo.security.SecurityService;
 
 
