@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.20 $ $Date: 2004/02/12 20:19:29 $ -->
+<!-- $Revision: 1.21 $ $Date: 2004/02/17 09:17:23 $ -->
 
 <project>
 
@@ -206,6 +206,13 @@
             <email>gianny_damour@hotmail.com</email>
             <organization></organization>
         </developer>
+
+        <developer>
+            <name>Jacek Laskowski</name>
+            <id>jlaskowski</id>
+            <email>jlaskowski@apache.org</email>
+            <organization></organization>
+        </developer>
     </developers>
 
 
@@ -233,10 +240,6 @@
         <contributor>
             <name>Ed Letifov</name>
             <email>e.letifov@chello.nl</email>
-        </contributor>
-        <contributor>
-            <name>Jacek Laskowski</name>
-            <email>jacek.laskowski@hp.com</email>
         </contributor>
         <contributor>
             <name>Kristian Koehler</name>
