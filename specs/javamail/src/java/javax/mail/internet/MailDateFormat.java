@@ -62,13 +62,19 @@ package javax.mail.internet;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-// Wed, 02 Jan 2003 23:59:59 -0100
 /**
- * @version $Revision: 1.2 $ $Date: 2003/08/28 13:32:09 $
+ * Parses dates of the form
+ * 
+ * <code>Wed, 02 Jan 2003 23:59:59 -0100 (GMT)</code>
+ * 
+ * <code>EEE,  d MMM yyyy HH:mm:ss Z (z)</code>
+ * @version $Revision: 1.3 $ $Date: 2003/09/04 02:14:40 $
  */
 public class MailDateFormat extends SimpleDateFormat {
-    MailDateFormat() {
-        super("EEE, d MMM yyyy HH:mm:ss Z");
+    static final MailDateFormat INSTANCE = new MailDateFormat();
+    private static final String pattern = "EEE, d MMM yyyy HH:mm:ss Z (z)";
+    public MailDateFormat() {
+        super(pattern);
     }
     //    public StringBuffer format(Date date, StringBuffer buffer, FieldPosition position) {
     //        return super.format(date,buffer,position);
@@ -77,9 +83,9 @@ public class MailDateFormat extends SimpleDateFormat {
     //        return parse(string,position);
     //    }
     public void setCalendar(Calendar calendar) {
-        throw new UnsupportedOperationException("Method not implemented");
+        throw new UnsupportedOperationException();
     }
     public void setNumberFormat(NumberFormat format) {
-        throw new UnsupportedOperationException("Method not implemented");
+        throw new UnsupportedOperationException();
     }
 }

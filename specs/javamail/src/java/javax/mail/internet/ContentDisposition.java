@@ -61,20 +61,28 @@
 package javax.mail.internet;
 // http://www.faqs.org/rfcs/rfc2183.html
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/16 01:55:48 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/04 02:14:40 $
  */
 public class ContentDisposition {
     private String _disposition;
     private ParameterList _list;
     public ContentDisposition() {
+        setDisposition(null);
+        setParameterList(null);
     }
     public ContentDisposition(String disposition) throws ParseException {
-        // parse it
-        // TODO implement
+        ParameterList list = null;
+        int semicolon;
+        if (disposition != null && (semicolon = disposition.indexOf(";")) != -1) {
+            list = new ParameterList(disposition.substring(semicolon + 1));
+            disposition = disposition.substring(0, semicolon);
+        }
+        setDisposition(disposition);
+        setParameterList(list);
     }
     public ContentDisposition(String disposition, ParameterList list) {
-        _disposition = disposition;
-        _list = list;
+        setDisposition(disposition);
+        setParameterList(list);
     }
     public String getDisposition() {
         return _disposition;
@@ -93,17 +101,21 @@ public class ContentDisposition {
         _disposition = string;
     }
     public void setParameter(String name, String value) {
-        if (_list == null) {
-            _list = new ParameterList();
-        }
+        _list = new ParameterList();
         _list.set(name, value);
     }
     public void setParameterList(ParameterList list) {
-        _list = list;
+        if (list == null) {
+            _list = new ParameterList();
+        } else {
+            _list = list;
+        }
     }
     public String toString() {
-        // return RFC822 compliant ContentDisposition thingy
-        // TODO Implement
-        return null;
+        if (_disposition == null && _list.size() == 0) {
+            return null;
+        }
+        return (_disposition == null ? "" : _disposition)
+            + (_list.size() == 0 ? "" : _list.toString());
     }
 }

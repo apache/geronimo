@@ -68,7 +68,7 @@ import javax.mail.MessageAware;
 import javax.mail.MessageContext;
 import javax.mail.MessagingException;
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/16 01:55:48 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/04 02:14:40 $
  */
 public class MimePartDataSource implements DataSource, MessageAware {
     private MimePart _part;
@@ -83,16 +83,28 @@ public class MimePartDataSource implements DataSource, MessageAware {
         }
     }
     public InputStream getInputStream() throws IOException {
-        throw new UnknownServiceException("Method not implemented in base class");
+        InputStream content;
+        try {
+            String encoding = _part.getEncoding();
+            if (_part instanceof MimeMessage) {
+                content = ((MimeMessage) _part).getContentStream();
+            } else if (_part instanceof MimeBodyPart) {
+                content = ((MimeBodyPart) _part).getContentStream();
+            } else {
+                throw new MessagingException("Unknown part");
+            }
+            return MimeUtility.decode(content, encoding);
+        } catch (MessagingException e) {
+            throw new IOException(e.toString());
+        }
     }
     public synchronized MessageContext getMessageContext() {
-        // TODO Don't really know what this is doing
         return new MessageContext(_part);
     }
     public String getName() {
         return "";
     }
     public OutputStream getOutputStream() throws IOException {
-        throw new UnknownServiceException("Method not implemented in base class");
+        throw new UnknownServiceException();
     }
 }

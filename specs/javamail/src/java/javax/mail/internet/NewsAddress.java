@@ -61,60 +61,23 @@
 package javax.mail.internet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.StringTokenizer;
+
 import javax.mail.Address;
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/16 01:55:48 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/04 02:14:40 $
  */
 public class NewsAddress extends Address {
     private static final String _separator = ",";
-    protected String newsgroup;
-    protected String host;
-    public NewsAddress() {
-    }
-    public NewsAddress(String newsgroup) {
-        setNewsgroup(newsgroup);
-    }
-    public void setNewsgroup(String newsgroup) {
-        int at;
-        if ((at = newsgroup.indexOf("@")) != -1) {
-            this.newsgroup = newsgroup.substring(0, at);
-            this.host = newsgroup.substring(at + 1);
-        } else {
-            this.newsgroup = newsgroup;
+    private static final NewsAddress[] NEWSADDRESS_ARRAY = new NewsAddress[0];
+    public static NewsAddress[] parse(String addresses) throws AddressException {
+        List result = new LinkedList();
+        StringTokenizer tokenizer = new StringTokenizer(addresses, ",");
+        while (tokenizer.hasMoreTokens()) {
+            String address = tokenizer.nextToken();
+            result.add(new NewsAddress(address));
         }
-    }
-    public NewsAddress(String newsgroup, String host) {
-        setNewsgroup(newsgroup);
-        setHost(host);
-    }
-    public String getType() {
-        return "news";
-    }
-    public String getHost() {
-        return host;
-    }
-    public String getNewsgroup() {
-        return newsgroup;
-    }
-    public void setHost(String string) {
-        host = string;
-    }
-    public boolean equals(Object other) {
-        if (other == null || other.getClass() != this.getClass()) {
-            return false;
-        }
-        NewsAddress address = (NewsAddress) other;
-        return (
-            address.host == host || host != null && host.equals(address.host))
-            && (address.newsgroup == newsgroup
-                || newsgroup != null
-                && newsgroup.equals(address.newsgroup));
-    }
-    public String toString() {
-        return newsgroup + (host == null ? "" : "@" + host);
-    }
-    public int hashCode() {
-        return toString().hashCode();
+        return (NewsAddress[]) result.toArray(NEWSADDRESS_ARRAY);
     }
     public static String toString(Address[] addresses) {
         // build up a comma separated list of addresses
@@ -127,18 +90,54 @@ public class NewsAddress extends Address {
         }
         return result.toString();
     }
-    public static NewsAddress[] parse(String address) throws AddressException {
-        List result = new LinkedList();
-        address = address + _separator;
-        int sep;
-        int last = 0;
-        String na;
-        while ((sep = address.indexOf(_separator)) != -1) {
-            na = address.substring(last, sep);
-            result.add(new NewsAddress(na));
-            last = sep + _separator.length();
-        }
-        return (NewsAddress[]) result.toArray(NEWSADDRESS_ARRAY);
+    protected String host;
+    protected String newsgroup;
+    public NewsAddress() {
     }
-    private static final NewsAddress[] NEWSADDRESS_ARRAY = new NewsAddress[0];
+    public NewsAddress(String newsgroup) {
+        setNewsgroup(newsgroup);
+    }
+    public NewsAddress(String newsgroup, String host) {
+        setNewsgroup(newsgroup);
+        setHost(host);
+    }
+    public boolean equals(Object other) {
+        if (other == null || other.getClass() != this.getClass()) {
+            return false;
+        }
+        NewsAddress address = (NewsAddress) other;
+        return (
+            address.host == host || host != null && host.equals(address.host))
+            && (address.newsgroup == newsgroup
+                || newsgroup != null
+                && newsgroup.equals(address.newsgroup));
+    }
+    public String getHost() {
+        return host;
+    }
+    public String getNewsgroup() {
+        return newsgroup;
+    }
+    public String getType() {
+        return "news";
+    }
+    public int hashCode() {
+        return toString().hashCode();
+    }
+    public void setHost(String string) {
+        host = string;
+    }
+    public void setNewsgroup(String newsgroup) {
+        newsgroup = newsgroup.trim();
+        int at;
+        if ((at = newsgroup.indexOf("@")) != -1) {
+            this.newsgroup = newsgroup.substring(0, at);
+            this.host = newsgroup.substring(at + 1);
+        } else {
+            this.newsgroup = newsgroup;
+        }
+    }
+    public String toString() {
+        return newsgroup + (host == null ? "" : "@" + host);
+    }
 }

@@ -64,39 +64,33 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.StringTokenizer;
 // Represents lists in things like
 // Content-Type: text/plain;charset=klingon
 //
 // The ;charset=klingon is the parameter list, may have more of them with ';'
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/16 01:55:48 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/04 02:14:40 $
  */
 public class ParameterList {
     private Map _parameters = new HashMap();
-    private static final String _separator = ";";
-    private static final String _divider = "=";
     public ParameterList() {
     }
     public ParameterList(String list) throws ParseException {
-        // TODO Parse List and add to parameters
-        if (list != null) {
-            int pos;
-            int last = 0;
-            list = list + ";"; // HACK so that it picks up the last one
-            while ((pos = list.indexOf(_separator, last)) != -1) {
-                if (pos == -1) {
-                    pos = list.length();
-                }
-                String string = list.substring(last, pos);
-                int div = string.indexOf(_divider);
-                if (div == -1) {
-                    throw new ParseException("Cannot parse " + string);
+        if (list == null) {
+            return;
+        } else {
+            StringTokenizer tokenizer = new StringTokenizer(list, ";");
+            while (tokenizer.hasMoreTokens()) {
+                String parameter = tokenizer.nextToken();
+                int eq = parameter.indexOf("=");
+                if (eq == -1) {
+                    throw new ParseException(parameter);
                 } else {
-                    set(
-                        string.substring(0, div),
-                        string.substring(div + _divider.length()));
+                    String name = parameter.substring(0, eq);
+                    String value = parameter.substring(eq + 1);
+                    set(name, value);
                 }
-                last = pos + _separator.length();
             }
         }
     }
@@ -120,12 +114,10 @@ public class ParameterList {
         StringBuffer result = new StringBuffer();
         while (it.hasNext()) {
             Map.Entry entry = (Map.Entry) it.next();
-            result.append(
-                entry.getKey()
-                    + _divider
-                    + " "
-                    + entry.getValue()
-                    + _separator);
+            result.append(";");
+            result.append(entry.getKey());
+            result.append("=");
+            result.append(entry.getValue());
         }
         return result.toString();
         // TODO Return in same list as parsed format
