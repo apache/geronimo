@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.38 $ $Date: 2003/09/18 04:48:36 $ -->
+<!-- $Revision: 1.39 $ $Date: 2003/09/23 02:34:27 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -419,7 +419,7 @@
 
     <goal name="modules:aggregate:geronimo:geronimo-core">
         <!-- Do not do the default libraries stuff -->
-        <aggregate:default deploy="false"/>
+        <aggregate:default/>
     </goal>
 
     <goal name="modules:aggregate:geronimo:geronimo-web-console">

@@ -65,7 +65,7 @@ import java.util.WeakHashMap;
 import org.apache.geronimo.common.Classes;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2003/08/29 19:16:53 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/23 02:34:27 $
  */
 public class MarshalledMethod implements Serializable {
 
@@ -90,7 +90,7 @@ public class MarshalledMethod implements Serializable {
      * @param method
      * @return
      */
-    static private String getSignature(Method method) {
+    static public String getSignature(Method method) {
         StringBuffer sb = new StringBuffer();
         sb.append(method.getName());
         sb.append(' ');

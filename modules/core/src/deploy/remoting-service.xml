@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <components>
+    <class-space name="geronimo.system:role=ClassSpace,name=System"/>
 
     <!-- ============================================================ -->
     <!-- Starts the remoting async://0.0.0.0:3434 transport           -->
