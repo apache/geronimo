@@ -311,10 +311,8 @@ public class AppClientModuleBuilder implements ModuleBuilder {
             if (!earContext.getJ2EEApplicationName().equals("null")) {
                 appClientModuleGBeanData.setReferencePatterns("J2EEApplication", Collections.singleton(earContext.getApplicationObjectName()));
             }
-            appClientModuleGBeanData.setAttribute("deploymentDescriptor", null);
+            appClientModuleGBeanData.setAttribute("deploymentDescriptor", appClientModule.getOriginalSpecDD());
 
-//            componentContext = buildComponentContext(earContext, appClientModule, appClient, geronimoAppClient, earClassLoader);
-//            appClientModuleGBeanData.setAttribute("componentContext", componentContext);
         } catch (Exception e) {
             throw new DeploymentException("Unable to initialize AppClientModule GBean", e);
         }
