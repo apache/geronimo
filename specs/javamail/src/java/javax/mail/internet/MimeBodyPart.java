@@ -208,7 +208,7 @@ public class MimeBodyPart extends BodyPart implements MimePart {
         headers.writeTo(out, null);
         out.write(13);
         out.write(10);
-        out.write(content);
+        getDataHandler().writeTo(out);
     }
 
     public String[] getHeader(String name) throws MessagingException {

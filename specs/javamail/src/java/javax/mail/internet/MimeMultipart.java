@@ -113,23 +113,24 @@ public class MimeMultipart extends Multipart {
     }
 
     private static byte[] dash = { '-', '-' };
+    private static byte[] crlf = { 13, 10 };
 
     public void writeTo(OutputStream out) throws IOException, MessagingException {
         parse();
         String boundary = type.getParameter("boundary");
         byte[] bytes = boundary.getBytes();
-        PrintStream pos = new PrintStream(out, false);
         for (int i = 0; i < parts.size(); i++) {
             BodyPart bodyPart = (BodyPart) parts.get(i);
-            pos.print(dash);
-            pos.println(bytes);
-            bodyPart.writeTo(pos);
-            pos.println();
+            out.write(dash);
+            out.write(bytes);
+            out.write(crlf);
+            bodyPart.writeTo(out);
+            out.write(crlf);
         }
-        pos.print(dash);
-        pos.print(bytes);
-        pos.println(dash);
-        pos.flush();
+        out.write(dash);
+        out.write(bytes);
+        out.write(crlf);
+        out.flush();
     }
 
     protected void parse() throws MessagingException {
