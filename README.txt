@@ -27,6 +27,3 @@ to try run the Geronimo server type
 or for the HTML website
 
 	maven site
-	
-	
-	

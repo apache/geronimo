@@ -1,73 +1,111 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.22 $ $Date: 2003/08/24 09:28:54 $ -->
+<!-- $Revision: 1.23 $ $Date: 2003/08/24 13:59:00 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
   xmlns:u="jelly:util"
   xmlns:ant="jelly:ant"
-  xmlns:maven="jelly:maven">
+  xmlns:maven="jelly:maven"
+  xmlns:define="jelly:define"
+  xmlns:aggregate="local:aggregate"
+  xmlns:modules="local:modules">
+  
+  <j:set var="release.id" value="${pom.standardToLegacyId(pom.id)}-${pom.currentVersion}"/>
   
   <!-- ======= -->
   <!-- Modules -->
   <!-- ======= -->
   
-  <goal name="modules:reactor:init">
-    <j:if test="${empty(module)}">
-      <j:set var="module" value="*"/>
-    </j:if>
+  <!-- Helper tags for modules -->
+  <define:taglib uri="local:modules">
     
-    <j:if test="${context.getVariable('modules.includes') == null}">
-      <j:set var="modules.includes" value="modules/${module}/project.xml,specs/${module}/project.xml"/>
-    </j:if>
-    
-    <j:if test="${context.getVariable('modules.excludes') == null}">
-      <j:set var="modules.excludes" value="modules/xbeans/project.xml"/>
-    </j:if>
-  </goal>
+    <define:tag name="reactor">
+      <j:if test="${aggregate != null}">
+        <j:set var="modules.aggregate.skip" value="true"/>
+        <j:if test="${aggregate}">
+          <j:set var="modules.aggregate.skip" value="false"/>
+        </j:if>
+      </j:if>
+      
+      <!--
+         | TODO: Need to make this more friendly for including a few modules
+       -->
+       
+      <j:if test="${empty(module)}">
+        <j:set var="module" value="*"/>
+      </j:if>
+      
+      <j:if test="${context.getVariable('modules.includes') == null}">
+        <j:set var="modules.includes" value="modules/${module}/project.xml,specs/${module}/project.xml"/>
+      </j:if>
+      
+      <j:if test="${context.getVariable('modules.excludes') == null}">
+        <j:set var="modules.excludes" value="modules/xbeans/project.xml"/>
+      </j:if>
+      
+      <j:choose>
+        <j:when test="${goals != null}">
+          <maven:reactor
+              basedir="${basedir}"
+              includes="${modules.includes}"
+              excludes="${modules.excludes}"
+              banner="Executing (${goals}):"
+              ignoreFailures="false"
+              goals="${goals}"
+              postProcessing="true"
+          />
+        </j:when>
+        <j:when test="${goals == null}">
+          <maven:reactor
+              basedir="${basedir}"
+              includes="${modules.includes}"
+              excludes="${modules.excludes}"
+              banner="Executing (${goals}):"
+              ignoreFailures="false"
+              postProcessing="true"
+          />
+        </j:when>
+      </j:choose>
+      
+      <!-- Optionaly perform module aggregation -->
+      <j:if test="${context.getVariable('modules.aggregate.skip') != 'true'}">
+        <j:set var="reactorProjects" value="${reactorProjects}" scope="parent"/>
+        <attainGoal name="modules:aggregate"/>
+      </j:if>
+    </define:tag>
   
-  <goal name="modules:reactor" prereqs="modules:reactor:init">
-    <maven:reactor
-        basedir="${basedir}"
-        includes="${modules.includes}"
-        excludes="${modules.excludes}"
-        banner="Executing (${goals}):"
-        ignoreFailures="false"
-        goals="${goals}"
-        postProcessing="true"
-    />
+  </define:taglib>
+  
+  <goal name="modules:reactor">
+    <modules:reactor/>
   </goal>
   
   <goal name="modules:default">
-    <j:set var="goals" value="default"/>
-    <attainGoal name="modules:reactor"/>
+    <modules:reactor goals="default"/>
   </goal>
   
   <goal name="modules:build">
-    <attainGoal name="modules:default"/>
+    <modules:reactor goals="build"/>
   </goal>
    
   <goal name="modules:site">
-    <j:set var="goals" value="site"/>
-    <attainGoal name="modules:reactor"/>
+    <modules:reactor goals="site" aggregate="false"/>
   </goal>
   
   <goal name="modules:javadoc">
-    <j:set var="goals" value="javadoc"/>
-    <attainGoal name="modules:reactor"/>
+    <modules:reactor goals="javadoc" aggregate="false"/>
   </goal>
   
   <goal name="modules:clean">
-    <j:set var="goals" value="clean"/>
-    <attainGoal name="modules:reactor"/>
+    <modules:reactor goals="clean" aggregate="false"/>
   </goal>
   
   <goal name="modules:jar:deploy">
-    <j:set var="goals" value="jar:deploy"/>
-    <attainGoal name="modules:reactor"/>
+    <modules:reactor goals="jar:deploy"/>
   </goal>
   
-  <preGoal name="clean">
+  <preGoal name="clean:clean">
     <attainGoal name="modules:clean"/>
   </preGoal>
   
@@ -84,11 +122,56 @@
   <!-- Module Output Aggregation -->
   <!-- ========================= -->
   
-  <goal name="modules:aggregate">
+  <!-- Helper tags for module aggregation -->
+  <define:taglib uri="local:aggregate">
+    
+    <define:tag name="copy">
+      <u:available file="${source}" xmlns="jelly:ant">
+        <mkdir dir="${target}"/>
+        <copy todir="${target}">
+          <fileset dir="${source}">
+            <include name="${include}"/>
+          </fileset>
+        </copy>
+      </u:available>
+    </define:tag>
+    
+    <define:tag name="scripts">
+      <aggregate:copy
+        source="${module.root}/src/bin"
+        target="${aggregate.dir}/bin"
+        include="**/*"/>
+    </define:tag>
+    
+    <define:tag name="config">
+      <aggregate:copy
+        source="${module.root}/src/conf"
+        target="${aggregate.dir}/etc"
+        include="**/*"/>
+    </define:tag>
+    
+    <define:tag name="libraries">
+      <aggregate:copy
+        source="${module.root}/target"
+        target="${aggregate.dir}/lib"
+        include="*.jar"/>
+    </define:tag>
+    
+    <define:tag name="default">
+      <aggregate:scripts/>
+      <aggregate:config/>
+      <aggregate:libraries/>
+    </define:tag>
+    
+  </define:taglib>
+  
+  <goal name="modules:aggregate"
+        description="Aggregates module target output.">
+        
     <ant:echo>Aggregating modules...</ant:echo>
     
     <!-- Setup the target aggregation directory -->
-    <j:set var="aggregate.dir" value="${basedir}/target/${pom.standardToLegacyId(pom.id)}-${pom.currentVersion}"/>
+    <j:set var="aggregate.dir" value="${basedir}/target/${release.id}"/>
     <ant:mkdir dir="${aggregate.dir}"/>
     
     <j:forEach var="module" items="${reactorProjects}">
@@ -97,19 +180,13 @@
       <!-- Get the modules root directory -->
       <j:set var="module.root" value="${module.file.parent}"/>
       
-      <!--
-         | Execute the aggregation hook.
-         |
-         | TODO: Should check if there is an aggregate hook for this module
-         |       instead of using the catch hack.
-       -->
+      <!-- Invoke the aggregation hook -->
       <j:set var="hook.name" value="modules:aggregate:${module.id}"/>
-      <j:catch var="e">
-        <attainGoal name="${hook.name}"/>
-      </j:catch>
-      <j:if test="${e != null}">
-        <ant:echo level="warning">Failed to invoke aggregate hook: ${e}</ant:echo>
+      <!-- If there is no goal defined then use the default -->
+      <j:if test="${org.apache.commons.jelly.werkz.Project.getGoal(hook.name) == null}">
+        <j:set var="hook.name" value="modules:aggregate:default"/>
       </j:if>
+      <attainGoal name="${hook.name}"/>
       
       <!-- Process dependencies -->
       <j:forEach var="artifact" items="${module.artifacts}">
@@ -135,36 +212,31 @@
     </u:available>
   </goal>
   
+  
+  <!-- =============================== -->
+  <!-- Module Output Aggregation Hooks -->
+  <!-- =============================== -->
+  
+  <goal name="modules:aggregate:default">
+    <aggregate:default/>
+  </goal>
+  
+  <!--
   <goal name="modules:aggregate:geronimo:geronimo-common">
+    <aggregate:default/>
   </goal>
   
   <goal name="modules:aggregate:geronimo:geronimo-twiddle">
-    <j:jelly xmlns="jelly:ant">
-      <!-- Scripts -->
-      <mkdir dir="${aggregate.dir}/bin"/>
-      <copy todir="${aggregate.dir}/bin">
-        <fileset dir="${module.root}/src/bin">
-          <include name="*"/>
-        </fileset>
-      </copy>
-      
-      <!-- Configuration -->
-      <mkdir dir="${aggregate.dir}/etc"/>
-      <copy todir="${aggregate.dir}/etc">
-        <fileset dir="${module.root}/src/conf">
-          <include name="**/*"/>
-        </fileset>
-      </copy>
-      
-      <!-- Libraries -->
-      <mkdir dir="${aggregate.dir}/lib"/>
-      <copy todir="${aggregate.dir}/lib">
-        <fileset dir="${module.root}/target">
-          <include name="*.jar"/>
-        </fileset>
-      </copy>
-    </j:jelly>
+    <aggregate:scripts/>
+    <aggregate:config/>
+    <aggregate:libraries/>
   </goal>
+  
+  <goal name="modules:aggregate:geronimo:geronimo-core">
+    <aggregate:default/>
+  </goal>
+  -->
+  
   
   <!-- =============================== -->
   <!-- Documentation & Site Generation -->
@@ -229,7 +301,7 @@
     </j:scope>
   </goal>
   
-  <goal name="site:tocvs" prereqs=""
+  <goal name="site:tocvs"
     description="Creates the entire website and copies it to the local CVS repository so that it can be checked in to update the Incubator site">
     
     <!-- a dummy scope tag to change XML namespace to ant -->
@@ -248,14 +320,36 @@
   </goal>
   
   
-  <!-- ============================== -->
-  <!-- Helpers to run Apache Geronimo -->
-  <!-- ============================== -->
+  <!-- ==================================================== -->
+  <!-- Helper to run Apache Geronimo from the current build -->
+  <!-- ==================================================== -->
   
-  <goal name="run" description="Runs the Geronimo Server using the current build">
-    <j:set var="module" value="core"/>
-    <j:set var="goals" value="run"/>
-    <attainGoal name="modules:reactor"/>
+  <goal name="run">
+    <j:set var="run.dir" value="${basedir}/target/${release.id}"/>
+    
+    <!--
+       | Should really execute the system script but for now...
+     -->
+    
+    <j:jelly xmlns="jelly:ant">
+      <java
+        classname="com.werken.forehead.Forehead"
+        fork="true"
+        maxmemory="128m"
+        failonerror="true"
+        dir="${run.dir}">
+        
+        <classpath>
+          <pathelement location="${run.dir}/lib/forehead-SNAPSHOT.jar"/>
+        </classpath>
+        
+        <sysproperty key="program.name" value="maven:run"/>
+        <sysproperty key="forehead.conf.file" value="${run.dir}/etc/forehead.conf"/>
+        <sysproperty key="twiddle.home" value="${run.dir}"/>
+        
+        <arg value="geronimo/start"/>
+      </java>
+    </j:jelly>
   </goal>
   
 </project>
