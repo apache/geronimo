@@ -110,7 +110,9 @@ public class AxisWebServiceContainer implements WebServiceContainer {
             }
             SOAPService service = context.getService();
 
+            Thread.currentThread().setContextClassLoader(classLoader);
             service.invoke(context);
+            
             responseMessage = context.getResponseMessage();
         } catch (AxisFault fault) {
             responseMessage = handleFault(fault, res, context);
