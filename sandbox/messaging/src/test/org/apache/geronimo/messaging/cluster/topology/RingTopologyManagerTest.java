@@ -27,7 +27,7 @@ import junit.framework.TestCase;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/06/10 23:12:24 $
+ * @version $Revision: 1.2 $ $Date: 2004/07/20 00:27:28 $
  */
 public class RingTopologyManagerTest extends TestCase
 {
@@ -102,17 +102,30 @@ public class RingTopologyManagerTest extends TestCase
         manager.addNode(node2);
         NodeInfo node3 = new NodeInfo("node3", address, 1234);
         manager.addNode(node3);
+        NodeInfo node4 = new NodeInfo("node4", address, 1234);
+        manager.addNode(node4);
+        NodeInfo node5 = new NodeInfo("node5", address, 1234);
+        manager.addNode(node5);
         
         NodeTopology topology = manager.factoryTopology();
-        NodeInfo[] path = topology.getPath(node1, node3);
-        assertEquals(2, path.length);
-        assertEquals(node2, path[0]);
-        assertEquals(node3, path[1]);
 
-        path = topology.getPath(node3, node1);
+        NodeInfo[] path = topology.getPath(node2, node3);
+        assertEquals(1, path.length);
+        assertEquals(node3, path[0]);
+
+        path = topology.getPath(node2, node4);
         assertEquals(2, path.length);
-        assertEquals(node2, path[0]);
-        assertEquals(node1, path[1]);
+        assertEquals(node3, path[0]);
+        assertEquals(node4, path[1]);
+
+        path = topology.getPath(node2, node5);
+        assertEquals(2, path.length);
+        assertEquals(node1, path[0]);
+        assertEquals(node5, path[1]);
+
+        path = topology.getPath(node2, node1);
+        assertEquals(1, path.length);
+        assertEquals(node1, path[0]);
     }
-    
+
 }
