@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: maven.xml,v 1.14 2003/08/14 23:13:01 jdillon Exp $ -->
+<!-- $Id: maven.xml,v 1.15 2003/08/15 07:52:50 jstrachan Exp $ -->
 
 <project default="default"
   xmlns:j="jelly:core" 
@@ -21,7 +21,7 @@
     </j:if>
     
     <j:if test="${context.getVariable('modules.excludes') == null}">
-      <j:set var="modules.excludes" value=""/>
+      <j:set var="modules.excludes" value="modules/xmlbeans/project.xml"/>
     </j:if>
   </goal>
   
