@@ -53,7 +53,7 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.enterprise.deploy.server.ejb;
+package org.apache.geronimo.enterprise.deploy.server.j2ee;
 
 import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.model.XpathEvent;
@@ -67,11 +67,11 @@ import org.apache.geronimo.enterprise.deploy.server.DConfigBeanLookup;
 /**
  * The DConfigBean representing /ejb-jar/enterprise-beans/.../env-entry
  *
- * @version $Revision: 1.1 $ $Date: 2003/10/06 14:35:34 $
+ * @version $Revision: 1.1 $ $Date: 2003/10/07 17:16:36 $
  */
 public class SecurityRoleRefBean extends BaseDConfigBean {
-    final static String ROLE_NAME_XPATH = "role-name";
-    final static String ROLE_LINK_XPATH = "role-link";
+    public final static String ROLE_NAME_XPATH = "role-name";
+    public final static String ROLE_LINK_XPATH = "role-link";
     private String roleName;
     private String roleLink;
 
@@ -129,7 +129,7 @@ public class SecurityRoleRefBean extends BaseDConfigBean {
         return roleName;
     }
 
-    void setRoleName(String roleName) {
+    public void setRoleName(String roleName) {
         String old = this.roleName;
         this.roleName = roleName;
         pcs.firePropertyChange("roleName", old, this.roleName);

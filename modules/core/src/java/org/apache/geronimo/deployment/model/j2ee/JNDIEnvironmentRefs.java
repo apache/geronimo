@@ -53,48 +53,67 @@
  *
  * ====================================================================
  */
-
-package org.apache.geronimo.enterprise.deploy.server.ejb;
-
-import java.beans.BeanDescriptor;
-import java.beans.IntrospectionException;
-import java.beans.PropertyDescriptor;
-import java.beans.SimpleBeanInfo;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+package org.apache.geronimo.deployment.model.j2ee;
 
 /**
- * BeanInfo describing the SecurityRoleBean.
+ * Common interface for the jndiEnvironmentRefsGroup schema group.
  *
- * @version $Revision: 1.1 $ $Date: 2003/10/06 14:35:34 $
+ * @version $Revision: 1.3 $ $Date: 2003/10/07 17:16:36 $
  */
-public class SecurityRoleRefBeanBeanInfo extends SimpleBeanInfo {
-    private static final Log log = LogFactory.getLog(SecurityRoleRefBeanBeanInfo.class);
+public interface JNDIEnvironmentRefs {
+    EJBLocalRef[] getEJBLocalRef();
 
-    public BeanDescriptor getBeanDescriptor() {
-        BeanDescriptor bd = new BeanDescriptor(SecurityRoleRefBean.class);
-        bd.setDisplayName("Security Role Reference");
-        bd.setShortDescription("A reference from this EJB to a resource defined in the local server environment");
-        return bd;
-    }
+    EJBLocalRef getEJBLocalRef(int i);
 
-    public PropertyDescriptor[] getPropertyDescriptors() {
-        try {
-            PropertyDescriptor name = new PropertyDescriptor("roleName", SecurityRoleRefBean.class, "getRoleName", null);
-            name.setBound(true);
-            name.setDisplayName("Role Name");
-            name.setShortDescription("The name the EJB uses to refer to this security role");
-            PropertyDescriptor link = new PropertyDescriptor("roleLink", SecurityRoleRefBean.class);
-            link.setBound(true);
-            link.setDisplayName("Role Link");
-            link.setShortDescription("The name the EJB JAR uses to refer to this security role");
-            return new PropertyDescriptor[]{
-                name, link,
-            };
-        } catch(IntrospectionException e) {
-            log.error("Error in BeanInfo", e);
-            return null;
-        }
-    }
+    void setEJBLocalRef(EJBLocalRef[] ejbLocalRef);
+
+    void setEJBLocalRef(int i, EJBLocalRef ejbLocalRef);
+
+    EJBRef[] getEJBRef();
+
+    EJBRef getEJBRef(int i);
+
+    void setEJBRef(EJBRef[] ejbRef);
+
+    void setEJBRef(int i, EJBRef ejbRef);
+
+    EnvEntry[] getEnvEntry();
+
+    EnvEntry getEnvEntry(int i);
+
+    void setEnvEntry(EnvEntry[] envEntry);
+
+    void setEnvEntry(int i, EnvEntry envEntry);
+
+    MessageDestinationRef[] getMessageDestinationRef();
+
+    MessageDestinationRef getMessageDestinationRef(int i);
+
+    void setMessageDestinationRef(MessageDestinationRef[] messageDestinationRef);
+
+    void setMessageDestinationRef(int i, MessageDestinationRef messageDestinationRef);
+
+    ResourceRef[] getResourceRef();
+
+    ResourceRef getResourceRef(int i);
+
+    void setResourceRef(ResourceRef[] resourceRef);
+
+    void setResourceRef(int i, ResourceRef resourceRef);
+
+    ResourceEnvRef[] getResourceEnvRef();
+
+    ResourceEnvRef getResourceEnvRef(int i);
+
+    void setResourceEnvRef(ResourceEnvRef[] resourceEnvRef);
+
+    void setResourceEnvRef(int i, ResourceEnvRef resourceEnvRef);
+
+    ServiceRef[] getServiceRef();
+
+    ServiceRef getServiceRef(int i);
+
+    void setServiceRef(ServiceRef[] serviceRef);
+
+    void setServiceRef(int i, ServiceRef serviceRef);
 }

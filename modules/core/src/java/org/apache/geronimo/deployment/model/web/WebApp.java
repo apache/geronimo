@@ -62,13 +62,14 @@ import org.apache.geronimo.deployment.model.j2ee.MessageDestinationRef;
 import org.apache.geronimo.deployment.model.j2ee.ResourceEnvRef;
 import org.apache.geronimo.deployment.model.j2ee.ResourceRef;
 import org.apache.geronimo.deployment.model.j2ee.ServiceRef;
+import org.apache.geronimo.deployment.model.j2ee.JNDIEnvironmentRefs;
 
 /**
  * JavaBean for the root web.xml tag web-app
  *
- * @version $Revision: 1.3 $  $Date: 2003/09/17 01:47:15 $
+ * @version $Revision: 1.4 $  $Date: 2003/10/07 17:16:36 $
  */
-public class WebApp extends AbstractWebApp {
+public class WebApp extends AbstractWebApp implements JNDIEnvironmentRefs {
     private EJBRef[] ejbRef = new EJBRef[0];
     private EJBLocalRef[] ejbLocalRef = new EJBLocalRef[0];
     private ResourceRef[] resourceRef = new ResourceRef[0];

@@ -63,13 +63,14 @@ import org.apache.geronimo.deployment.model.j2ee.ResourceEnvRef;
 import org.apache.geronimo.deployment.model.j2ee.MessageDestinationRef;
 import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
 import org.apache.geronimo.deployment.model.j2ee.ServiceRef;
+import org.apache.geronimo.deployment.model.j2ee.JNDIEnvironmentRefs;
 
 /**
  * Base class for the JavaBeans for all EJBs (entity, session, message-driven).
  *
- * @version $Revision: 1.3 $ $Date: 2003/09/17 01:47:15 $
+ * @version $Revision: 1.4 $ $Date: 2003/10/07 17:16:36 $
  */
-public class Ejb extends Displayable {
+public class Ejb extends Displayable implements JNDIEnvironmentRefs {
     private String ejbName;
     private String ejbClass;
     private SecurityIdentity securityIdentity;

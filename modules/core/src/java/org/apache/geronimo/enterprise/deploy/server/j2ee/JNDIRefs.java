@@ -53,37 +53,63 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.xml.deployment;
+package org.apache.geronimo.enterprise.deploy.server.j2ee;
 
-import org.apache.geronimo.deployment.model.geronimo.web.WebApp;
-import org.apache.geronimo.deployment.model.geronimo.web.GeronimoWebAppDocument;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import java.util.List;
 
 /**
+ * Interface for DConfigBeans that have the standard JNDI ref group.
  *
- *
- * @version $Revision: 1.3 $ $Date: 2003/10/07 17:16:37 $
+ * @version $Revision: 1.1 $ $Date: 2003/10/07 17:16:36 $
  */
-public class GeronimoWebAppLoader extends AbstractWebAppLoader {
-    public static GeronimoWebAppDocument load(Document doc) {
-        Element root = doc.getDocumentElement();
-        if (!"web-app".equals(root.getLocalName())) {
-            throw new IllegalArgumentException("Document is not a web-app instance");
-        }
+public interface JNDIRefs {
+    final static String EJB_NAME_XPATH = "ejb-name";
+    final static String ENV_ENTRY_XPATH = "env-entry";
+    final static String EJB_REF_XPATH = "ejb-ref";
+    final static String EJB_LOCAL_REF_XPATH = "ejb-local-ref";
+    final static String RESOURCE_REF_XPATH = "resource-ref";
+    final static String RESOURCE_ENV_REF_XPATH = "resource-env-ref";
+    final static String MESSAGE_DESTINATION_REF_XPATH = "message-destination-ref";
 
-        WebApp webApp = new WebApp();
-        loadCommonElements(webApp, root);
-        webApp.setEnvEntry(J2EELoader.loadEnvEntries(root));
-        webApp.setEJBRef(GeronimoJ2EELoader.loadEJBRefs(root));
-        webApp.setEJBLocalRef(GeronimoJ2EELoader.loadEJBLocalRefs(root));
-        webApp.setServiceRef(GeronimoJ2EELoader.loadServiceRefs(root));
-        webApp.setResourceRef(GeronimoJ2EELoader.loadResourceRefs(root));
-        webApp.setResourceEnvRef(GeronimoJ2EELoader.loadResourceEnvRefs(root));
-        webApp.setMessageDestinationRef(GeronimoJ2EELoader.loadMessageDestinationRefs(root));
-        webApp.setMessageDestination(GeronimoJ2EELoader.loadMessageDestinations(root));
-        GeronimoWebAppDocument result = new GeronimoWebAppDocument();
-        result.setWebApp(webApp);
-        return result;
-    }
+    /**
+     * Used by other classes in this package to store and restore.  A JSR-88
+     * tool implementation should get the child DConfigBeans by calling
+     * getDConfigBean for each of the DDBeans.
+     */
+    List getEnvEntry();
+
+    /**
+     * Used by other classes in this package to store and restore.  A JSR-88
+     * tool implementation should get the child DConfigBeans by calling
+     * getDConfigBean for each of the DDBeans.
+     */
+    List getEjbRef();
+
+    /**
+     * Used by other classes in this package to store and restore.  A JSR-88
+     * tool implementation should get the child DConfigBeans by calling
+     * getDConfigBean for each of the DDBeans.
+     */
+    List getEjbLocalRef();
+
+    /**
+     * Used by other classes in this package to store and restore.  A JSR-88
+     * tool implementation should get the child DConfigBeans by calling
+     * getDConfigBean for each of the DDBeans.
+     */
+    List getResourceRef();
+
+    /**
+     * Used by other classes in this package to store and restore.  A JSR-88
+     * tool implementation should get the child DConfigBeans by calling
+     * getDConfigBean for each of the DDBeans.
+     */
+    List getResourceEnvRef();
+
+    /**
+     * Used by other classes in this package to store and restore.  A JSR-88
+     * tool implementation should get the child DConfigBeans by calling
+     * getDConfigBean for each of the DDBeans.
+     */
+    List getMessageDestinationRef();
 }

@@ -1,41 +1,47 @@
 Manifest-Version: 1.0
 J2EE-DeploymentFactory-Implementation-Class: org.apache.geronimo.enterprise.deploy.server.GeronimoDeploymentFactory
 
-Name: org/apache/geronimo/enterprise/deploy/server/jar/ContextParam.class
+Name: org/apache/geronimo/enterprise/deploy/server/j2ee/ContextParam.class
 Java-Bean: True
 
-Name: org/apache/geronimo/enterprise/deploy/server/jar/EjbJarBean.class
+Name: org/apache/geronimo/enterprise/deploy/server/j2ee/EjbLocalRefBean.class
 Java-Bean: True
 
-Name: org/apache/geronimo/enterprise/deploy/server/jar/EjbJarRoot.class
+Name: org/apache/geronimo/enterprise/deploy/server/j2ee/EjbRefBean.class
 Java-Bean: True
 
-Name: org/apache/geronimo/enterprise/deploy/server/jar/EjbLocalRefBean.class
+Name: org/apache/geronimo/enterprise/deploy/server/j2ee/EnvEntryBean.class
 Java-Bean: True
 
-Name: org/apache/geronimo/enterprise/deploy/server/jar/EjbRefBean.class
+Name: org/apache/geronimo/enterprise/deploy/server/j2ee/ResourceEnvRefBean.class
 Java-Bean: True
 
-Name: org/apache/geronimo/enterprise/deploy/server/jar/EnterpriseBeansBean.class
+Name: org/apache/geronimo/enterprise/deploy/server/j2ee/ResourceRefBean.class
 Java-Bean: True
 
-Name: org/apache/geronimo/enterprise/deploy/server/jar/EntityBean.class
+Name: org/apache/geronimo/enterprise/deploy/server/j2ee/SecurityRoleRefBean.class
 Java-Bean: True
 
-Name: org/apache/geronimo/enterprise/deploy/server/jar/EnvEntryBean.class
+Name: org/apache/geronimo/enterprise/deploy/server/ejb/EjbJarBean.class
 Java-Bean: True
 
-Name: org/apache/geronimo/enterprise/deploy/server/jar/MessageDrivenBean.class
+Name: org/apache/geronimo/enterprise/deploy/server/ejb/EjbJarRoot.class
 Java-Bean: True
 
-Name: org/apache/geronimo/enterprise/deploy/server/jar/ResourceEnvRefBean.class
+Name: org/apache/geronimo/enterprise/deploy/server/ejb/EnterpriseBeansBean.class
 Java-Bean: True
 
-Name: org/apache/geronimo/enterprise/deploy/server/jar/ResourceRefBean.class
+Name: org/apache/geronimo/enterprise/deploy/server/ejb/EntityBean.class
 Java-Bean: True
 
-Name: org/apache/geronimo/enterprise/deploy/server/jar/SecurityRoleRefBean.class
+Name: org/apache/geronimo/enterprise/deploy/server/ejb/MessageDrivenBean.class
 Java-Bean: True
 
-Name: org/apache/geronimo/enterprise/deploy/server/jar/SessionBean.class
+Name: org/apache/geronimo/enterprise/deploy/server/ejb/SessionBean.class
+Java-Bean: True
+
+Name: org/apache/geronimo/enterprise/deploy/server/web/WebAppBean.class
+Java-Bean: True
+
+Name: org/apache/geronimo/enterprise/deploy/server/ejb/WebAppRoot.class
 Java-Bean: True

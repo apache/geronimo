@@ -53,37 +53,49 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.xml.deployment;
 
-import org.apache.geronimo.deployment.model.geronimo.web.WebApp;
-import org.apache.geronimo.deployment.model.geronimo.web.GeronimoWebAppDocument;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+package org.apache.geronimo.enterprise.deploy.server.j2ee;
+
+import java.beans.BeanDescriptor;
+import java.beans.IntrospectionException;
+import java.beans.PropertyDescriptor;
+import java.beans.SimpleBeanInfo;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.enterprise.deploy.server.j2ee.SecurityRoleRefBean;
 
 /**
+ * BeanInfo describing the SecurityRoleBean.
  *
- *
- * @version $Revision: 1.3 $ $Date: 2003/10/07 17:16:37 $
+ * @version $Revision: 1.1 $ $Date: 2003/10/07 17:16:36 $
  */
-public class GeronimoWebAppLoader extends AbstractWebAppLoader {
-    public static GeronimoWebAppDocument load(Document doc) {
-        Element root = doc.getDocumentElement();
-        if (!"web-app".equals(root.getLocalName())) {
-            throw new IllegalArgumentException("Document is not a web-app instance");
-        }
+public class SecurityRoleRefBeanBeanInfo extends SimpleBeanInfo {
+    private static final Log log = LogFactory.getLog(SecurityRoleRefBeanBeanInfo.class);
 
-        WebApp webApp = new WebApp();
-        loadCommonElements(webApp, root);
-        webApp.setEnvEntry(J2EELoader.loadEnvEntries(root));
-        webApp.setEJBRef(GeronimoJ2EELoader.loadEJBRefs(root));
-        webApp.setEJBLocalRef(GeronimoJ2EELoader.loadEJBLocalRefs(root));
-        webApp.setServiceRef(GeronimoJ2EELoader.loadServiceRefs(root));
-        webApp.setResourceRef(GeronimoJ2EELoader.loadResourceRefs(root));
-        webApp.setResourceEnvRef(GeronimoJ2EELoader.loadResourceEnvRefs(root));
-        webApp.setMessageDestinationRef(GeronimoJ2EELoader.loadMessageDestinationRefs(root));
-        webApp.setMessageDestination(GeronimoJ2EELoader.loadMessageDestinations(root));
-        GeronimoWebAppDocument result = new GeronimoWebAppDocument();
-        result.setWebApp(webApp);
-        return result;
+    public BeanDescriptor getBeanDescriptor() {
+        BeanDescriptor bd = new BeanDescriptor(SecurityRoleRefBean.class);
+        bd.setDisplayName("Security Role Reference");
+        bd.setShortDescription("A reference from this EJB to a resource defined in the local server environment");
+        return bd;
+    }
+
+    public PropertyDescriptor[] getPropertyDescriptors() {
+        try {
+            PropertyDescriptor name = new PropertyDescriptor("roleName", SecurityRoleRefBean.class, "getRoleName", null);
+            name.setBound(true);
+            name.setDisplayName("Role Name");
+            name.setShortDescription("The name the EJB uses to refer to this security role");
+            PropertyDescriptor link = new PropertyDescriptor("roleLink", SecurityRoleRefBean.class);
+            link.setBound(true);
+            link.setDisplayName("Role Link");
+            link.setShortDescription("The name the EJB JAR uses to refer to this security role");
+            return new PropertyDescriptor[]{
+                name, link,
+            };
+        } catch(IntrospectionException e) {
+            log.error("Error in BeanInfo", e);
+            return null;
+        }
     }
 }

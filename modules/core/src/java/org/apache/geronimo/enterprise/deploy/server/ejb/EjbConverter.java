@@ -78,25 +78,11 @@ import org.apache.geronimo.deployment.model.ejb.QueryMethod;
 import org.apache.geronimo.deployment.model.geronimo.ejb.MessageDriven;
 import org.apache.geronimo.deployment.model.geronimo.ejb.Entity;
 import org.apache.geronimo.deployment.model.geronimo.ejb.Session;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbRef;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.JndiContextParam;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbLocalRef;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceRef;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceEnvRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.SecurityRoleRef;
-import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.JNDIEnvironmentRefs;
 import org.apache.geronimo.deployment.model.j2ee.RunAs;
-import org.apache.geronimo.deployment.model.j2ee.Describable;
-import org.apache.geronimo.deployment.model.j2ee.Description;
-import org.apache.geronimo.deployment.model.j2ee.Displayable;
-import org.apache.geronimo.deployment.model.j2ee.DisplayName;
-import org.apache.geronimo.deployment.model.j2ee.Icon;
-import org.apache.geronimo.enterprise.deploy.server.j2ee.ContextParam;
-import org.apache.geronimo.enterprise.deploy.server.j2ee.EnvEntryBean;
-import org.apache.geronimo.enterprise.deploy.server.j2ee.EjbRefBean;
-import org.apache.geronimo.enterprise.deploy.server.j2ee.EjbLocalRefBean;
-import org.apache.geronimo.enterprise.deploy.server.j2ee.ResourceEnvRefBean;
-import org.apache.geronimo.enterprise.deploy.server.j2ee.ResourceRefBean;
+import org.apache.geronimo.enterprise.deploy.server.j2ee.J2EEConverter;
+import org.apache.geronimo.enterprise.deploy.server.j2ee.SecurityRoleRefBean;
 import org.apache.geronimo.enterprise.deploy.server.DConfigBeanLookup;
 
 /**
@@ -111,9 +97,9 @@ import org.apache.geronimo.enterprise.deploy.server.DConfigBeanLookup;
  * DConfigBean.  Note this means that the standard DD content may be out of
  * sync when loaded, but they'll be cleaned up when the DD is saved.
  *
- * @version $Revision: 1.1 $ $Date: 2003/10/06 14:35:34 $
+ * @version $Revision: 1.2 $ $Date: 2003/10/07 17:16:36 $
  */
-public class EjbConverter {
+public class EjbConverter extends J2EEConverter {
     private static final Log log = LogFactory.getLog(EjbConverter.class);
 
     public static EjbJarRoot loadDConfigBeans(EjbJar custom, DDBeanRoot standard, DConfigBeanLookup lookup) throws ConfigurationException {
@@ -168,57 +154,7 @@ public class EjbConverter {
             }
             dest.setSecurityIdentity(sid);
         }
-        storeEnvEntries(dest, bean.getEnvEntry().iterator());
-        storeEjbRefs(dest, bean.getEjbRef().iterator());
-        storeEjbLocalRefs(dest, bean.getEjbLocalRef().iterator());
-        storeResourceRefs(dest, bean.getResourceRef().iterator());
-        storeResourceEnvRefs(dest, bean.getResourceEnvRef().iterator());
-        //todo: message-destination-refs, service-refs
-    }
-
-    public static void loadDescribable(DDBean base, Describable desc) {
-        DDBean[] ds = base.getChildBean("description");
-        Description[] out = new Description[ds.length];
-        for(int i=0; i<ds.length; i++) {
-            Description d = new Description();
-            d.setLang(ds[i].getAttributeValue("lang"));
-            d.setContent(ds[i].getText());
-            out[i] = d;
-        }
-        desc.setDescription(out);
-    }
-
-    public static void loadDisplayable(DDBean base, Displayable disp) {
-        loadDescribable(base, disp);
-        DDBean[] ds = base.getChildBean("display-name");
-        DisplayName[] out = new DisplayName[ds.length];
-        for(int i=0; i<ds.length; i++) {
-            DisplayName d = new DisplayName();
-            d.setLang(ds[i].getAttributeValue("lang"));
-            d.setContent(ds[i].getText());
-            out[i] = d;
-        }
-        disp.setDisplayName(out);
-        ds = base.getChildBean("icon");
-        Icon[] is = new Icon[ds.length];
-        for(int i=0; i<ds.length; i++) {
-            Icon ic = new Icon();
-            ic.setLang(ds[i].getAttributeValue("lang"));
-            ic.setLargeIcon(getText(ds[i].getText("large-icon")));
-            ic.setSmallIcon(getText(ds[i].getText("small-icon")));
-            is[i] = ic;
-        }
-        disp.setIcon(is);
-    }
-
-    private static String getText(String[] text) {
-        if(text == null || text.length == 0) {
-            return null;
-        } else if(text.length == 1) {
-            return text[0];
-        } else {
-            throw new IllegalArgumentException();
-        }
+        storeJndiEnvironment((JNDIEnvironmentRefs)dest, bean);
     }
 
     private static void storeMessageDriven(EnterpriseBeans beans, Iterator iterator) {
@@ -326,133 +262,6 @@ public class EjbConverter {
             list.add(s);
         }
         beans.setSession((Session[])list.toArray(new Session[list.size()]));
-    }
-
-    private static void storeEnvEntries(Ejb dest, Iterator it) {
-        List list = new ArrayList();
-        while(it.hasNext()) {
-            EnvEntryBean bean = (EnvEntryBean)it.next();
-            DDBean ddb = bean.getDDBean();
-            String standard = getText(ddb.getText(EnvEntryBean.ENV_ENTRY_VALUE_XPATH));
-            EnvEntry e = new EnvEntry();
-            loadDescribable(ddb, e);
-            e.setEnvEntryName(bean.getEnvEntryName());
-            e.setEnvEntryType(getText(ddb.getText("env-entry-type")));
-            e.setEnvEntryValue(bean.getEnvEntryValue() == null ? standard : bean.getEnvEntryValue());
-            list.add(e);
-        }
-        dest.setEnvEntry((EnvEntry[])list.toArray(new EnvEntry[list.size()]));
-    }
-
-    private static void storeEjbRefs(Ejb dest, Iterator it) {
-        List outer = new ArrayList();
-        while(it.hasNext()) {
-            EjbRefBean bean = (EjbRefBean)it.next();
-            EjbRef ref = new EjbRef();
-            DDBean ddb = bean.getDDBean();
-            loadDescribable(ddb, ref);
-            ref.setEJBRefName(bean.getEjbRefName());
-            ref.setEJBRefType(getText(ddb.getText("ejb-ref-type")));
-            ref.setHome(getText(ddb.getText("home")));
-            ref.setRemote(getText(ddb.getText("remote")));
-            ref.setEJBLink(getText(ddb.getText("ejb-link")));
-            if(ref.getEJBLink() == null) {
-                ref.setJndiName(bean.getJndiName());
-                ContextParam[] params = bean.getContextParam();
-                List list = new ArrayList();
-                for(int i=0; i<params.length; i++) {
-                    if(isValid(params[i].getParamName()) && isValid(params[i].getParamValue())) {
-                        JndiContextParam jcp = new JndiContextParam();
-                        jcp.setParamName(params[i].getParamName());
-                        jcp.setParamValue(params[i].getParamValue());
-                        list.add(jcp);
-                    }
-                }
-                if(list.size() > 0) {
-                    ref.setJndiContextParam((JndiContextParam[])list.toArray(new JndiContextParam[list.size()]));
-                }
-            }
-            outer.add(ref);
-        }
-        dest.setEJBRef((EjbRef[])outer.toArray(new EjbRef[outer.size()]));
-    }
-
-    private static void storeEjbLocalRefs(Ejb dest, Iterator it) {
-        List outer = new ArrayList();
-        while(it.hasNext()) {
-            EjbLocalRefBean bean = (EjbLocalRefBean)it.next();
-            EjbLocalRef ref = new EjbLocalRef();
-            DDBean ddb = bean.getDDBean();
-            loadDescribable(ddb, ref);
-            ref.setEJBRefName(bean.getEjbRefName());
-            ref.setEJBRefType(getText(ddb.getText("ejb-ref-type")));
-            ref.setLocalHome(getText(ddb.getText("local-home")));
-            ref.setLocal(getText(ddb.getText("local")));
-            ref.setEJBLink(getText(ddb.getText("ejb-link")));
-            if(ref.getEJBLink() == null) {
-                ref.setJndiName(bean.getJndiName());
-                ContextParam[] params = bean.getContextParam();
-                List list = new ArrayList();
-                for(int i=0; i<params.length; i++) {
-                    if(isValid(params[i].getParamName()) && isValid(params[i].getParamValue())) {
-                        JndiContextParam jcp = new JndiContextParam();
-                        jcp.setParamName(params[i].getParamName());
-                        jcp.setParamValue(params[i].getParamValue());
-                        list.add(jcp);
-                    }
-                }
-                if(list.size() > 0) {
-                    ref.setJndiContextParam((JndiContextParam[])list.toArray(new JndiContextParam[list.size()]));
-                }
-            }
-            outer.add(ref);
-        }
-        dest.setEJBLocalRef((EjbLocalRef[])outer.toArray(new EjbLocalRef[outer.size()]));
-    }
-
-    private static void storeResourceRefs(Ejb dest, Iterator it) {
-        List outer = new ArrayList();
-        while(it.hasNext()) {
-            ResourceRefBean bean = (ResourceRefBean)it.next();
-            ResourceRef ref = new ResourceRef();
-            DDBean ddb = bean.getDDBean();
-            loadDescribable(ddb, ref);
-            ref.setResRefName(bean.getResRefName());
-            ref.setResType(getText(ddb.getText("res-type")));
-            ref.setResAuth(getText(ddb.getText("res-auth")));
-            ref.setResSharingScope(getText(ddb.getText("res-sharing-scope")));
-            ref.setJndiName(bean.getJndiName());
-            ContextParam[] params = bean.getContextParam();
-            List list = new ArrayList();
-            for(int i=0; i<params.length; i++) {
-                if(isValid(params[i].getParamName()) && isValid(params[i].getParamValue())) {
-                    JndiContextParam jcp = new JndiContextParam();
-                    jcp.setParamName(params[i].getParamName());
-                    jcp.setParamValue(params[i].getParamValue());
-                    list.add(jcp);
-                }
-            }
-            if(list.size() > 0) {
-                ref.setJndiContextParam((JndiContextParam[])list.toArray(new JndiContextParam[list.size()]));
-            }
-            outer.add(ref);
-        }
-        dest.setResourceRef((ResourceRef[])outer.toArray(new ResourceRef[outer.size()]));
-    }
-
-    private static void storeResourceEnvRefs(Ejb dest, Iterator it) {
-        List list = new ArrayList();
-        while(it.hasNext()) {
-            ResourceEnvRefBean bean = (ResourceEnvRefBean)it.next();
-            ResourceEnvRef ref = new ResourceEnvRef();
-            DDBean ddb = bean.getDDBean();
-            loadDescribable(ddb, ref);
-            ref.setResourceEnvRefName(bean.getResourceEnvRefName());
-            ref.setResourceEnvRefType(getText(ddb.getText("resource-env-ref-type")));
-            ref.setJndiName(bean.getJndiName());
-            list.add(ref);
-        }
-        dest.setResourceEnvRef((ResourceEnvRef[])list.toArray(new ResourceEnvRef[list.size()]));
     }
 
     private static void storeSecurityRoleRefs(RpcBean dest, Iterator it) {
@@ -565,176 +374,7 @@ public class EjbConverter {
 
     private static void assignEjb(BaseEjbBean dest, Ejb bean, DDBean standard) throws ConfigurationException {
         dest.setEjbName(bean.getEJBName());
-        assignEnvEntries(dest, bean.getEnvEntry(), standard.getChildBean(BaseEjbBean.ENV_ENTRY_XPATH));
-        assignEjbRefs(dest, (EjbRef[])bean.getEJBRef(), standard.getChildBean(BaseEjbBean.EJB_REF_XPATH));
-        assignEjbLocalRefs(dest, (EjbLocalRef[])bean.getEJBLocalRef(), standard.getChildBean(BaseEjbBean.EJB_LOCAL_REF_XPATH));
-        assignResourceRefs(dest, (ResourceRef[])bean.getResourceRef(), standard.getChildBean(BaseEjbBean.RESOURCE_REF_XPATH));
-        assignResourceEnvRefs(dest, (ResourceEnvRef[])bean.getResourceEnvRef(), standard.getChildBean(BaseEjbBean.RESOURCE_ENV_REF_XPATH));
-        //todo: message destination refs, service refs
-    }
-
-    private static void assignEnvEntries(BaseEjbBean dest, EnvEntry[] entries, DDBean[] beans) throws ConfigurationException {
-        Set found = new HashSet();
-        for(int i=0; i<entries.length; i++) {
-            DDBean match = null;
-            for(int j = 0; j < beans.length; j++) {
-                if(beans[j].getText(EnvEntryBean.ENV_ENTRY_NAME_XPATH)[0].equals(entries[i].getEnvEntryName())) {
-                    match = beans[j];
-                }
-            }
-            if(match == null) {
-                log.warn("Env Entry "+entries[i].getEnvEntryName()+" in old DD is no longer present; removing.");
-                continue;
-            }
-            found.add(match);
-            EnvEntryBean bean = (EnvEntryBean)dest.getDConfigBean(match);
-            bean.setEnvEntryName(entries[i].getEnvEntryName());
-            bean.setEnvEntryValue(entries[i].getEnvEntryValue());
-        }
-        for(int i = 0; i < beans.length; i++) {
-            DDBean bean = beans[i];
-            if(found.contains(bean)) {
-                continue;
-            }
-            log.info("Old DD does not contain an entry for Env Entry "+bean.getText(EnvEntryBean.ENV_ENTRY_NAME_XPATH)[0]+"; adding a default entry");
-            dest.getDConfigBean(bean);
-        }
-    }
-
-    private static void assignEjbRefs(BaseEjbBean dest, EjbRef[] refs, DDBean[] beans) throws ConfigurationException {
-        Set found = new HashSet();
-        for(int i=0; i<refs.length; i++) {
-            DDBean match = null;
-            for(int j = 0; j < beans.length; j++) {
-                if(beans[j].getText(EjbRefBean.EJB_REF_NAME_XPATH)[0].equals(refs[i].getEJBRefName())) {
-                    match = beans[j];
-                }
-            }
-            if(match == null) {
-                log.warn("EJB Reference "+refs[i].getEJBRefName()+" in old DD is no longer present; removing.");
-                continue;
-            }
-            found.add(match);
-            EjbRefBean bean = (EjbRefBean)dest.getDConfigBean(match);
-            bean.setEjbRefName(refs[i].getEJBRefName());
-            bean.setJndiName(refs[i].getJndiName());
-            JndiContextParam[] params = refs[i].getJndiContextParam();
-            ContextParam[] cp = new ContextParam[params.length];
-            for(int j=0; j<params.length; j++) {
-                cp[j] = new ContextParam();
-                cp[j].setParamName(params[j].getParamName());
-                cp[j].setParamValue(params[j].getParamValue());
-            }
-            bean.setContextParam(cp);
-        }
-        for(int i = 0; i < beans.length; i++) {
-            DDBean bean = beans[i];
-            if(found.contains(bean)) {
-                continue;
-            }
-            log.info("Old DD does not contain an entry for EJB Reference "+bean.getText(EjbRefBean.EJB_REF_NAME_XPATH)[0]+"; adding a default entry");
-            dest.getDConfigBean(bean);
-        }
-    }
-
-    private static void assignEjbLocalRefs(BaseEjbBean dest, EjbLocalRef[] refs, DDBean[] beans) throws ConfigurationException {
-        Set found = new HashSet();
-        for(int i=0; i<refs.length; i++) {
-            DDBean match = null;
-            for(int j = 0; j < beans.length; j++) {
-                if(beans[j].getText(EjbLocalRefBean.EJB_REF_NAME_XPATH)[0].equals(refs[i].getEJBRefName())) {
-                    match = beans[j];
-                }
-            }
-            if(match == null) {
-                log.warn("EJB Reference "+refs[i].getEJBRefName()+" in old DD is no longer present; removing.");
-                continue;
-            }
-            found.add(match);
-            EjbLocalRefBean bean = (EjbLocalRefBean)dest.getDConfigBean(match);
-            bean.setEjbRefName(refs[i].getEJBRefName());
-            bean.setJndiName(refs[i].getJndiName());
-            JndiContextParam[] params = refs[i].getJndiContextParam();
-            ContextParam[] cp = new ContextParam[params.length];
-            for(int j=0; j<params.length; j++) {
-                cp[j] = new ContextParam();
-                cp[j].setParamName(params[j].getParamName());
-                cp[j].setParamValue(params[j].getParamValue());
-            }
-            bean.setContextParam(cp);
-        }
-        for(int i = 0; i < beans.length; i++) {
-            DDBean bean = beans[i];
-            if(found.contains(bean)) {
-                continue;
-            }
-            log.info("Old DD does not contain an entry for EJB Reference "+bean.getText(EjbLocalRefBean.EJB_REF_NAME_XPATH)[0]+"; adding a default entry");
-            dest.getDConfigBean(bean);
-        }
-    }
-
-    private static void assignResourceEnvRefs(BaseEjbBean dest, ResourceEnvRef[] refs, DDBean[] beans) throws ConfigurationException {
-        Set found = new HashSet();
-        for(int i=0; i<refs.length; i++) {
-            DDBean match = null;
-            for(int j = 0; j < beans.length; j++) {
-                if(beans[j].getText(ResourceEnvRefBean.RESOURCE_ENV_REF_NAME_XPATH)[0].equals(refs[i].getResourceEnvRefName())) {
-                    match = beans[j];
-                }
-            }
-            if(match == null) {
-                log.warn("Resource Env Reference "+refs[i].getResourceEnvRefName()+" in old DD is no longer present; removing.");
-                continue;
-            }
-            found.add(match);
-            ResourceEnvRefBean bean = (ResourceEnvRefBean)dest.getDConfigBean(match);
-            bean.setResourceEnvRefName(refs[i].getResourceEnvRefName());
-            bean.setJndiName(refs[i].getJndiName());
-        }
-        for(int i = 0; i < beans.length; i++) {
-            DDBean bean = beans[i];
-            if(found.contains(bean)) {
-                continue;
-            }
-            log.info("Old DD does not contain an entry for Resource Env Reference "+bean.getText(ResourceEnvRefBean.RESOURCE_ENV_REF_NAME_XPATH)[0]+"; adding a default entry");
-            dest.getDConfigBean(bean);
-        }
-    }
-
-    private static void assignResourceRefs(BaseEjbBean dest, ResourceRef[] refs, DDBean[] beans) throws ConfigurationException {
-        Set found = new HashSet();
-        for(int i=0; i<refs.length; i++) {
-            DDBean match = null;
-            for(int j = 0; j < beans.length; j++) {
-                if(beans[j].getText(ResourceRefBean.RES_REF_NAME_XPATH)[0].equals(refs[i].getResRefName())) {
-                    match = beans[j];
-                }
-            }
-            if(match == null) {
-                log.warn("Resource Reference "+refs[i].getResRefName()+" in old DD is no longer present; removing.");
-                continue;
-            }
-            found.add(match);
-            ResourceRefBean bean = (ResourceRefBean)dest.getDConfigBean(match);
-            bean.setResRefName(refs[i].getResRefName());
-            bean.setJndiName(refs[i].getJndiName());
-            JndiContextParam[] params = refs[i].getJndiContextParam();
-            ContextParam[] cp = new ContextParam[params.length];
-            for(int j=0; j<params.length; j++) {
-                cp[j] = new ContextParam();
-                cp[j].setParamName(params[j].getParamName());
-                cp[j].setParamValue(params[j].getParamValue());
-            }
-            bean.setContextParam(cp);
-        }
-        for(int i = 0; i < beans.length; i++) {
-            DDBean bean = beans[i];
-            if(found.contains(bean)) {
-                continue;
-            }
-            log.info("Old DD does not contain an entry for Resource Reference "+bean.getText(ResourceRefBean.RES_REF_NAME_XPATH)[0]+"; adding a default entry");
-            dest.getDConfigBean(bean);
-        }
+        assignEnvironmentRefs(dest, (JNDIEnvironmentRefs)bean, standard);
     }
 
     private static void assignSecurityRoleRefs(BaseEjbBean dest, SecurityRoleRef[] refs, DDBean[] beans) throws ConfigurationException {
@@ -763,9 +403,5 @@ public class EjbConverter {
             log.info("Old DD does not contain an entry for Security Role Reference "+bean.getText(SecurityRoleRefBean.ROLE_NAME_XPATH)[0]+"; adding a default entry");
             dest.getDConfigBean(bean);
         }
-    }
-
-    private static boolean isValid(String s) {
-        return s != null && !s.equals("");
     }
 }

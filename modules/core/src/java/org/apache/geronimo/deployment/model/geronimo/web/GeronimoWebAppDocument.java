@@ -53,37 +53,27 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.xml.deployment;
+package org.apache.geronimo.deployment.model.geronimo.web;
 
-import org.apache.geronimo.deployment.model.geronimo.web.WebApp;
-import org.apache.geronimo.deployment.model.geronimo.web.GeronimoWebAppDocument;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.apache.geronimo.deployment.model.DeploymentDescriptor;
 
 /**
+ * Top-level Deployment Descriptor element for the Geronimo Web App DD.
  *
- *
- * @version $Revision: 1.3 $ $Date: 2003/10/07 17:16:37 $
+ * @version $Revision: 1.1 $ $Date: 2003/10/07 17:16:36 $
  */
-public class GeronimoWebAppLoader extends AbstractWebAppLoader {
-    public static GeronimoWebAppDocument load(Document doc) {
-        Element root = doc.getDocumentElement();
-        if (!"web-app".equals(root.getLocalName())) {
-            throw new IllegalArgumentException("Document is not a web-app instance");
-        }
+public class GeronimoWebAppDocument implements DeploymentDescriptor {
+    private WebApp webApp;
 
-        WebApp webApp = new WebApp();
-        loadCommonElements(webApp, root);
-        webApp.setEnvEntry(J2EELoader.loadEnvEntries(root));
-        webApp.setEJBRef(GeronimoJ2EELoader.loadEJBRefs(root));
-        webApp.setEJBLocalRef(GeronimoJ2EELoader.loadEJBLocalRefs(root));
-        webApp.setServiceRef(GeronimoJ2EELoader.loadServiceRefs(root));
-        webApp.setResourceRef(GeronimoJ2EELoader.loadResourceRefs(root));
-        webApp.setResourceEnvRef(GeronimoJ2EELoader.loadResourceEnvRefs(root));
-        webApp.setMessageDestinationRef(GeronimoJ2EELoader.loadMessageDestinationRefs(root));
-        webApp.setMessageDestination(GeronimoJ2EELoader.loadMessageDestinations(root));
-        GeronimoWebAppDocument result = new GeronimoWebAppDocument();
-        result.setWebApp(webApp);
-        return result;
+    public String getFileName() {
+        return "geronimo-web.xml";
+    }
+
+    public WebApp getWebApp() {
+        return webApp;
+    }
+
+    public void setWebApp(WebApp webApp) {
+        this.webApp = webApp;
     }
 }

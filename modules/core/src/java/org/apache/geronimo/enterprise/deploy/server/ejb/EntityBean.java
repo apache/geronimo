@@ -64,11 +64,12 @@ import javax.enterprise.deploy.spi.exceptions.BeanNotFoundException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.enterprise.deploy.server.DConfigBeanLookup;
+import org.apache.geronimo.enterprise.deploy.server.j2ee.SecurityRoleRefBean;
 
 /**
  * The DConfigBean for /ejb-jar/enterprise-beans/entity
  *
- * @version $Revision: 1.1 $ $Date: 2003/10/06 14:35:34 $
+ * @version $Revision: 1.2 $ $Date: 2003/10/07 17:16:36 $
  */
 public class EntityBean extends BaseEjbBean {
     private static final Log log = LogFactory.getLog(EntityBean.class);

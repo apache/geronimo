@@ -84,13 +84,10 @@ import org.w3c.dom.Element;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2003/10/01 03:22:48 $
+ * @version $Revision: 1.6 $ $Date: 2003/10/07 17:16:37 $
  */
 public abstract class AbstractWebAppLoader {
-    public AbstractWebAppLoader() {
-    }
-
-    protected void loadCommonElements(AbstractWebApp webApp, Element root) {
+    protected static void loadCommonElements(AbstractWebApp webApp, Element root) {
         webApp.setVersion(LoaderUtil.getAttribute(root, "version"));
 
         J2EELoader.loadDisplayable(root, webApp);
@@ -112,7 +109,7 @@ public abstract class AbstractWebAppLoader {
         loadLocaleEncodingMappingLists(webApp, root);
     }
 
-    private void loadContextParams(AbstractWebApp webApp, Element root) {
+    private static void loadContextParams(AbstractWebApp webApp, Element root) {
         Element[] elements = LoaderUtil.getChildren(root, "context-param");
         ContextParam[] params = new ContextParam[elements.length];
 
@@ -128,7 +125,7 @@ public abstract class AbstractWebAppLoader {
         webApp.setContextParam(params);
     }
 
-    private void loadFilterTypes(AbstractWebApp webApp, Element root) {
+    private static void loadFilterTypes(AbstractWebApp webApp, Element root) {
         Element[] elements = LoaderUtil.getChildren(root, "filter");
         Filter[] filters = new Filter[elements.length];
 
@@ -147,7 +144,7 @@ public abstract class AbstractWebAppLoader {
     }
 
 
-    private void loadFilterMappings(AbstractWebApp webApp, Element root) {
+    private static void loadFilterMappings(AbstractWebApp webApp, Element root) {
         Element[] elements = LoaderUtil.getChildren(root, "filter-mapping");
         FilterMapping[] mappings = new FilterMapping[elements.length];
 
@@ -165,7 +162,7 @@ public abstract class AbstractWebAppLoader {
         webApp.setFilterMapping(mappings);
     }
 
-    private void loadDispatcher(FilterMapping mapping, Element root) {
+    private static void loadDispatcher(FilterMapping mapping, Element root) {
         Element[] elements = LoaderUtil.getChildren(root, "dispatcher");
         String[] dispatchers = new String[elements.length];
 
@@ -176,7 +173,7 @@ public abstract class AbstractWebAppLoader {
         mapping.setDispatcher(dispatchers);
     }
 
-    private void loadListeners(AbstractWebApp webApp, Element root) {
+    private static void loadListeners(AbstractWebApp webApp, Element root) {
         Element[] elements = LoaderUtil.getChildren(root, "listener");
         Listener[] listeners = new Listener[elements.length];
 
@@ -193,7 +190,7 @@ public abstract class AbstractWebAppLoader {
 
     }
 
-    private void loadServlets(AbstractWebApp webApp, Element root) {
+    private static void loadServlets(AbstractWebApp webApp, Element root) {
         Element[] elements = LoaderUtil.getChildren(root, "servlet");
         Servlet[] servlets = new Servlet[elements.length];
 
@@ -218,7 +215,7 @@ public abstract class AbstractWebAppLoader {
         webApp.setServlet(servlets);
     }
 
-    private void loadServletMappings(AbstractWebApp webApp, Element root) {
+    private static void loadServletMappings(AbstractWebApp webApp, Element root) {
         Element[] elements = LoaderUtil.getChildren(root, "servlet-mapping");
         ServletMapping[] mappings = new ServletMapping[elements.length];
 
@@ -234,7 +231,7 @@ public abstract class AbstractWebAppLoader {
         webApp.setServletMapping(mappings);
     }
 
-    private void loadSessionConfigs(AbstractWebApp webApp, Element root) {
+    private static void loadSessionConfigs(AbstractWebApp webApp, Element root) {
         Element[] elements = LoaderUtil.getChildren(root, "session-config");
         SessionConfig[] sessionConfigs = new SessionConfig[elements.length];
 
@@ -252,7 +249,7 @@ public abstract class AbstractWebAppLoader {
         webApp.setSessionConfig(sessionConfigs);
     }
 
-    private void loadMimeMappings(AbstractWebApp webApp, Element root) {
+    private static void loadMimeMappings(AbstractWebApp webApp, Element root) {
         Element[] elements = LoaderUtil.getChildren(root, "mime-mapping");
         MimeMapping[] mappings = new MimeMapping[elements.length];
 
@@ -268,7 +265,7 @@ public abstract class AbstractWebAppLoader {
         webApp.setMimeMapping(mappings);
     }
 
-    private void loadWelcomeFileLists(AbstractWebApp webApp, Element root) {
+    private static void loadWelcomeFileLists(AbstractWebApp webApp, Element root) {
         Element[] elements = LoaderUtil.getChildren(root, "welcome-file-list");
         WelcomeFileList[] fileLists = new WelcomeFileList[elements.length];
 
@@ -283,7 +280,7 @@ public abstract class AbstractWebAppLoader {
         webApp.setWelcomeFileList(fileLists);
     }
 
-    private void loadWelcomeFiles(WelcomeFileList fileList, Element root) {
+    private static void loadWelcomeFiles(WelcomeFileList fileList, Element root) {
         Element[] elements = LoaderUtil.getChildren(root, "welcome-file");
         String[] constraints = new String[elements.length];
 
@@ -293,7 +290,7 @@ public abstract class AbstractWebAppLoader {
         fileList.setWelcomeFile(constraints);
     }
 
-    private void loadErrorPages(AbstractWebApp webApp, Element root) {
+    private static void loadErrorPages(AbstractWebApp webApp, Element root) {
         Element[] elements = LoaderUtil.getChildren(root, "error-page");
         ErrorPage[] errorPages = new ErrorPage[elements.length];
 
@@ -310,7 +307,7 @@ public abstract class AbstractWebAppLoader {
         webApp.setErrorPage(errorPages);
     }
 
-    private void loadJspConfigs(AbstractWebApp webApp, Element root) {
+    private static void loadJspConfigs(AbstractWebApp webApp, Element root) {
         Element[] elements = LoaderUtil.getChildren(root, "jsp-config");
         JSPConfig[] jspConfigs = new JSPConfig[elements.length];
 
@@ -326,7 +323,7 @@ public abstract class AbstractWebAppLoader {
         webApp.setJspConfig(jspConfigs);
     }
 
-    private void loadTagLib(JSPConfig jspConfig, Element root) {
+    private static void loadTagLib(JSPConfig jspConfig, Element root) {
         Element[] elements = LoaderUtil.getChildren(root, "taglib");
         Taglib[] taglibs = new Taglib[elements.length];
 
@@ -342,7 +339,7 @@ public abstract class AbstractWebAppLoader {
         jspConfig.setTaglib(taglibs);
     }
 
-    private void loadJspPropertyGroup(JSPConfig jspConfig, Element root) {
+    private static void loadJspPropertyGroup(JSPConfig jspConfig, Element root) {
         Element[] elements = LoaderUtil.getChildren(root, "jsp-property-group");
         JSPPropertyGroup[] jspPropertyGroups = new JSPPropertyGroup[elements.length];
 
@@ -376,7 +373,7 @@ public abstract class AbstractWebAppLoader {
         jspConfig.setJSPPropertyGroup(jspPropertyGroups);
     }
 
-    private void loadUrlPatterns(JSPPropertyGroup jspPropertyGroup, Element root) {
+    private static void loadUrlPatterns(JSPPropertyGroup jspPropertyGroup, Element root) {
         Element[] elements = LoaderUtil.getChildren(root, "url-pattern");
         String[] patterns = new String[elements.length];
 
@@ -387,7 +384,7 @@ public abstract class AbstractWebAppLoader {
         jspPropertyGroup.setURLPattern(patterns);
     }
 
-    private void loadIncludePrelude(JSPPropertyGroup jspPropertyGroup, Element root) {
+    private static void loadIncludePrelude(JSPPropertyGroup jspPropertyGroup, Element root) {
         Element[] elements = LoaderUtil.getChildren(root, "include-prelude");
         String[] includes = new String[elements.length];
 
@@ -398,7 +395,7 @@ public abstract class AbstractWebAppLoader {
         jspPropertyGroup.setIncludePrelude(includes);
     }
 
-    private void loadIncludeCoda(JSPPropertyGroup jspPropertyGroup, Element root) {
+    private static void loadIncludeCoda(JSPPropertyGroup jspPropertyGroup, Element root) {
         Element[] elements = LoaderUtil.getChildren(root, "include-coda");
         String[] includes = new String[elements.length];
 
@@ -409,7 +406,7 @@ public abstract class AbstractWebAppLoader {
         jspPropertyGroup.setIncludeCoda(includes);
     }
 
-    private void loadSecurityConstraints(AbstractWebApp webApp, Element root) {
+    private static void loadSecurityConstraints(AbstractWebApp webApp, Element root) {
         Element[] elements = LoaderUtil.getChildren(root, "security-constraint");
         SecurityConstraint[] constraints = new SecurityConstraint[elements.length];
 
@@ -441,7 +438,7 @@ public abstract class AbstractWebAppLoader {
         return ds;
     }
 
-    private void loadWebResourceCollections(SecurityConstraint constraint, Element root) {
+    private static void loadWebResourceCollections(SecurityConstraint constraint, Element root) {
         Element[] elements = LoaderUtil.getChildren(root, "web-resource-collection");
         WebResourceCollection[] collections = new WebResourceCollection[elements.length];
 
@@ -459,7 +456,7 @@ public abstract class AbstractWebAppLoader {
         constraint.setWebResourceCollection(collections);
     }
 
-    private void loadUrlPatterns(WebResourceCollection collection, Element root) {
+    private static void loadUrlPatterns(WebResourceCollection collection, Element root) {
         Element[] elements = LoaderUtil.getChildren(root, "url-pattern");
         String[] patterns = new String[elements.length];
 
@@ -470,7 +467,7 @@ public abstract class AbstractWebAppLoader {
         collection.setUrlPattern(patterns);
     }
 
-    private void loadHttpMethods(WebResourceCollection collection, Element root) {
+    private static void loadHttpMethods(WebResourceCollection collection, Element root) {
         Element[] elements = LoaderUtil.getChildren(root, "http-method");
         String[] patterns = new String[elements.length];
 
@@ -481,7 +478,7 @@ public abstract class AbstractWebAppLoader {
         collection.setHttpMethod(patterns);
     }
 
-    private void loadAuthConstraint(SecurityConstraint securityConstraint, Element root) {
+    private static void loadAuthConstraint(SecurityConstraint securityConstraint, Element root) {
         Element element = LoaderUtil.getChild(root, "auth-constraint");
 
         if (element != null) {
@@ -494,7 +491,7 @@ public abstract class AbstractWebAppLoader {
         }
     }
 
-    private void loadUserDataConstraint(SecurityConstraint securityConstraint, Element root) {
+    private static void loadUserDataConstraint(SecurityConstraint securityConstraint, Element root) {
         Element element = LoaderUtil.getChild(root, "user-data-constraint");
 
         if (element != null) {
@@ -507,7 +504,7 @@ public abstract class AbstractWebAppLoader {
         }
     }
 
-    private void loadLoginConfigs(AbstractWebApp webApp, Element root) {
+    private static void loadLoginConfigs(AbstractWebApp webApp, Element root) {
         Element[] elements = LoaderUtil.getChildren(root, "login-config");
         LoginConfig[] loginConfigs = new LoginConfig[elements.length];
 
@@ -524,7 +521,7 @@ public abstract class AbstractWebAppLoader {
         webApp.setLoginConfig(loginConfigs);
     }
 
-    private void loadAuthMethod(LoginConfig loginConfig, Element root) {
+    private static void loadAuthMethod(LoginConfig loginConfig, Element root) {
         Element element = LoaderUtil.getChild(root, "auth-method");
 
         if (element != null) {
@@ -532,7 +529,7 @@ public abstract class AbstractWebAppLoader {
         }
     }
 
-    private void loadRealmName(LoginConfig loginConfig, Element root) {
+    private static void loadRealmName(LoginConfig loginConfig, Element root) {
         Element element = LoaderUtil.getChild(root, "realm-name");
 
         if (element != null) {
@@ -540,7 +537,7 @@ public abstract class AbstractWebAppLoader {
         }
     }
 
-    private void loadFormLoginConfig(LoginConfig loginConfig, Element root) {
+    private static void loadFormLoginConfig(LoginConfig loginConfig, Element root) {
         Element element = LoaderUtil.getChild(root, "form-login-config");
 
         if (element != null) {
@@ -553,7 +550,7 @@ public abstract class AbstractWebAppLoader {
         }
     }
 
-    private void loadLocaleEncodingMappingLists(AbstractWebApp webApp, Element root) {
+    private static void loadLocaleEncodingMappingLists(AbstractWebApp webApp, Element root) {
         Element[] elements = LoaderUtil.getChildren(root, "locale-encoding-mapping-list");
         LocaleEncodingMappingList[] mappingLists = new LocaleEncodingMappingList[elements.length];
 
@@ -568,7 +565,7 @@ public abstract class AbstractWebAppLoader {
         webApp.setLocaleEncodingMappingList(mappingLists);
     }
 
-    private void loadLocaleEncodingMappings(LocaleEncodingMappingList mappingList, Element root) {
+    private static void loadLocaleEncodingMappings(LocaleEncodingMappingList mappingList, Element root) {
         Element[] elements = LoaderUtil.getChildren(root, "locale-encoding-mapping");
         LocaleEncodingMapping[] mappings = new LocaleEncodingMapping[elements.length];
 

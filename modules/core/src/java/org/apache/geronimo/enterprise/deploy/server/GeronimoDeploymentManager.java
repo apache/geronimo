@@ -72,13 +72,16 @@ import javax.enterprise.deploy.shared.DConfigBeanVersionType;
 import javax.enterprise.deploy.model.DeployableObject;
 
 import org.apache.geronimo.enterprise.deploy.server.ejb.EjbJarRoot;
+import org.apache.geronimo.enterprise.deploy.server.ejb.EjbJarDeploymentConfiguration;
+import org.apache.geronimo.enterprise.deploy.server.web.WebAppDeploymentConfiguration;
+import org.apache.geronimo.enterprise.deploy.server.web.WebAppRoot;
 
 /**
  * The Geronimo implementation of the JSR-88 DeploymentManager interface.
  * This same class is used for both connected mode and disconnected mode.
  * It uses a plugin to manage that.  Currently only J2EE 1.4 is supported.
  *
- * @version $Revision: 1.1 $ $Date: 2003/10/06 14:35:33 $
+ * @version $Revision: 1.2 $ $Date: 2003/10/07 17:16:36 $
  */
 public class GeronimoDeploymentManager implements DeploymentManager, DConfigBeanLookup {
     private ServerConnection server; // a connection to an application server
@@ -90,6 +93,8 @@ public class GeronimoDeploymentManager implements DeploymentManager, DConfigBean
     public DeploymentConfiguration createConfiguration(DeployableObject dObj) throws InvalidModuleException {
         if(dObj.getType().getValue() == ModuleType.EJB.getValue()) {
             return new EjbJarDeploymentConfiguration(dObj, new EjbJarRoot(dObj.getDDBeanRoot(), this), this);
+        } else if(dObj.getType().getValue() == ModuleType.WAR.getValue()) {
+            return new WebAppDeploymentConfiguration(dObj, new WebAppRoot(dObj.getDDBeanRoot(), this), this);
         } else {
             throw new InvalidModuleException("Can't handle modules of type " + dObj.getType());
         }

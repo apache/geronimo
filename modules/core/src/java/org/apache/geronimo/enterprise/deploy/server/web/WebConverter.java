@@ -53,37 +53,64 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.xml.deployment;
+package org.apache.geronimo.enterprise.deploy.server.web;
 
+import javax.enterprise.deploy.model.DDBeanRoot;
+import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.deployment.model.geronimo.web.WebApp;
-import org.apache.geronimo.deployment.model.geronimo.web.GeronimoWebAppDocument;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.apache.geronimo.enterprise.deploy.server.j2ee.J2EEConverter;
+import org.apache.geronimo.enterprise.deploy.server.DConfigBeanLookup;
 
 /**
+ * Maps DConfigBeans to POJOs and vice versa.
  *
+ * When converting POJOs to DConfigBeans, we ignore everything except the
+ * Geronimo-specific content.  That way, we don't have to listen on changes
+ * on every single element in the whole standard DD.
  *
- * @version $Revision: 1.3 $ $Date: 2003/10/07 17:16:37 $
+ * When converting DConfigBeans to POJOs, we use the matching DDBeans to
+ * look up all the info that isn't covered in the Geronimo DD for each
+ * DConfigBean.  Note this means that the standard DD content may be out of
+ * sync when loaded, but they'll be cleaned up when the DD is saved.
+ *
+ * @version $Revision: 1.1 $ $Date: 2003/10/07 17:16:36 $
  */
-public class GeronimoWebAppLoader extends AbstractWebAppLoader {
-    public static GeronimoWebAppDocument load(Document doc) {
-        Element root = doc.getDocumentElement();
-        if (!"web-app".equals(root.getLocalName())) {
-            throw new IllegalArgumentException("Document is not a web-app instance");
-        }
+public class WebConverter extends J2EEConverter {
+    private static final Log log = LogFactory.getLog(WebConverter.class);
 
-        WebApp webApp = new WebApp();
-        loadCommonElements(webApp, root);
-        webApp.setEnvEntry(J2EELoader.loadEnvEntries(root));
-        webApp.setEJBRef(GeronimoJ2EELoader.loadEJBRefs(root));
-        webApp.setEJBLocalRef(GeronimoJ2EELoader.loadEJBLocalRefs(root));
-        webApp.setServiceRef(GeronimoJ2EELoader.loadServiceRefs(root));
-        webApp.setResourceRef(GeronimoJ2EELoader.loadResourceRefs(root));
-        webApp.setResourceEnvRef(GeronimoJ2EELoader.loadResourceEnvRefs(root));
-        webApp.setMessageDestinationRef(GeronimoJ2EELoader.loadMessageDestinationRefs(root));
-        webApp.setMessageDestination(GeronimoJ2EELoader.loadMessageDestinations(root));
-        GeronimoWebAppDocument result = new GeronimoWebAppDocument();
-        result.setWebApp(webApp);
-        return result;
+    /**
+     * Convert Geronimo POJOs and the web.xml content into DConfigBeans
+     *
+     * @param custom    The geronimo POJOs
+     * @param standard  The web.xml content
+     * @param lookup    DConfigBeans need this so they can use the connection to the server
+     * @return          The DConfigBeanRoot for the Geronimo web DD
+     */
+    public static WebAppRoot loadDConfigBeans(WebApp custom, DDBeanRoot standard, DConfigBeanLookup lookup) throws ConfigurationException {
+        WebAppRoot root = new WebAppRoot(standard, lookup);
+        WebAppBean webApp = (WebAppBean)root.getDConfigBean(standard.getChildBean(WebAppRoot.WEB_APP_XPATH)[0]);
+        assignEnvironmentRefs(webApp, custom, webApp.getDDBean());
+        return root;
+    }
+
+    /**
+     * Converts populated DConfigBeans into Geronimo POJOs so the DD can be
+     * written.
+     *
+     * @param root The DConfigBeanRoot
+     * @return     The populated Geronimo web POJOs
+     */
+    public static WebApp storeDConfigBeans(WebAppRoot root) throws ConfigurationException {
+        if(root == null || root.getWebApp() == null) {
+            throw new ConfigurationException("Insufficient configuration information to save.");
+        }
+        WebApp app = new WebApp();
+        loadDisplayable(root.getWebApp().getDDBean(), app);
+        storeJndiEnvironment(app, root.getWebApp());
+        //todo: all other J2EE web app properties
+//        jar.setVersion(root.getEjbJar().getDDBean().getAttributeValue("version"));
+        return app;
     }
 }

@@ -53,7 +53,7 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.enterprise.deploy.server;
+package org.apache.geronimo.enterprise.deploy.server.web;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -70,10 +70,13 @@ import javax.enterprise.deploy.model.DDBeanRoot;
 import org.w3c.dom.Document;
 import org.apache.geronimo.enterprise.deploy.server.ejb.EjbConverter;
 import org.apache.geronimo.enterprise.deploy.server.ejb.EjbJarRoot;
+import org.apache.geronimo.enterprise.deploy.server.DConfigBeanLookup;
 import org.apache.geronimo.xml.deployment.GeronimoEjbJarLoader;
 import org.apache.geronimo.xml.deployment.LoaderUtil;
 import org.apache.geronimo.xml.deployment.GeronimoEjbJarStorer;
+import org.apache.geronimo.xml.deployment.GeronimoWebAppLoader;
 import org.apache.geronimo.deployment.model.geronimo.ejb.GeronimoEjbJarDocument;
+import org.apache.geronimo.deployment.model.geronimo.web.GeronimoWebAppDocument;
 import org.xml.sax.SAXException;
 
 /**
@@ -81,25 +84,25 @@ import org.xml.sax.SAXException;
  * knows how to load and save server-specific deployment information, and to
  * generate a default set based on the J2EE deployment descriptors.
  *
- * @version $Revision: 1.1 $ $Date: 2003/10/06 14:35:33 $
+ * @version $Revision: 1.1 $ $Date: 2003/10/07 17:16:36 $
  */
-public class EjbJarDeploymentConfiguration implements DeploymentConfiguration {
-    private DeployableObject ejbDD;
-    private EjbJarRoot geronimoDD;
+public class WebAppDeploymentConfiguration implements DeploymentConfiguration {
+    private DeployableObject webDD;
+    private WebAppRoot geronimoDD;
     private DConfigBeanLookup lookup;
 
-    public EjbJarDeploymentConfiguration(DeployableObject ejbDD, EjbJarRoot geronimoDD, DConfigBeanLookup lookup) {
-        this.ejbDD = ejbDD;
+    public WebAppDeploymentConfiguration(DeployableObject webDD, WebAppRoot geronimoDD, DConfigBeanLookup lookup) {
+        this.webDD = webDD;
         this.geronimoDD = geronimoDD;
         this.lookup = lookup;
     }
 
     public DeployableObject getDeployableObject() {
-        return ejbDD;
+        return webDD;
     }
 
     public DConfigBeanRoot getDConfigBeanRoot(DDBeanRoot bean) throws ConfigurationException {
-        if(bean.equals(ejbDD.getDDBeanRoot())) {
+        if(bean.equals(webDD.getDDBeanRoot())) {
             return geronimoDD;
         } else {
             throw new ConfigurationException("This DeploymentConfiguration does not handle the DDBeanRoot "+bean);
@@ -111,7 +114,7 @@ public class EjbJarDeploymentConfiguration implements DeploymentConfiguration {
     }
 
     public DConfigBeanRoot restoreDConfigBean(InputStream inputArchive, DDBeanRoot bean) throws ConfigurationException {
-        if(!bean.equals(ejbDD.getDDBeanRoot())) {
+        if(!bean.equals(webDD.getDDBeanRoot())) {
             throw new ConfigurationException("This DeploymentConfiguration does not handle the DDBeanRoot "+bean);
         }
         restore(inputArchive);
@@ -135,17 +138,18 @@ public class EjbJarDeploymentConfiguration implements DeploymentConfiguration {
         } catch (IOException e) {
             throw new ConfigurationException("Error reading deployment descriptor", e);
         }
-        GeronimoEjbJarDocument parsed = GeronimoEjbJarLoader.load(doc);
-        geronimoDD = EjbConverter.loadDConfigBeans(parsed.getEjbJar(), ejbDD.getDDBeanRoot(), lookup);
+        GeronimoWebAppDocument parsed = GeronimoWebAppLoader.load(doc);
+        geronimoDD = WebConverter.loadDConfigBeans(parsed.getWebApp(), webDD.getDDBeanRoot(), lookup);
     }
 
     public void save(OutputStream outputArchive) throws ConfigurationException {
-        GeronimoEjbJarDocument doc = new GeronimoEjbJarDocument();
-        doc.setEjbJar(EjbConverter.storeDConfigBeans(geronimoDD));
-        try {
-            GeronimoEjbJarStorer.store(doc, new OutputStreamWriter(outputArchive));
-        } catch(IOException e) {
-            throw new ConfigurationException("Unable to store Geronimo-specific EJB deployment information", e);
-        }
+        GeronimoWebAppDocument doc = new GeronimoWebAppDocument();
+        doc.setWebApp(WebConverter.storeDConfigBeans(geronimoDD));
+        throw new UnsupportedOperationException("Not yet implemented");
+//        try {
+//            GeronimoWebAppStorer.store(doc, new OutputStreamWriter(outputArchive));
+//        } catch(IOException e) {
+//            throw new ConfigurationException("Unable to store Geronimo-specific EJB deployment information", e);
+//        }
     }
 }

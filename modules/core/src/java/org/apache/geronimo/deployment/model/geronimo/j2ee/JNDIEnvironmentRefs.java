@@ -55,24 +55,57 @@
  */
 package org.apache.geronimo.deployment.model.geronimo.j2ee;
 
-import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
 /**
  * Interface for accessing the objects for a components JNDI context.
  * 
- * @version $Revision: 1.3 $ $Date: 2003/09/17 01:47:15 $
+ * @version $Revision: 1.4 $ $Date: 2003/10/07 17:16:36 $
  */
-public interface JNDIEnvironmentRefs {
-    EnvEntry[] getEnvEntry();
+public interface JNDIEnvironmentRefs extends org.apache.geronimo.deployment.model.j2ee.JNDIEnvironmentRefs {
+    EjbLocalRef getGeronimoEJBLocalRef(int i);
 
-    EjbRef[] getGeronimoEJBRef();
+    void setGeronimoEJBLocalRef(int i, EjbLocalRef ejbRef);
 
     EjbLocalRef[] getGeronimoEJBLocalRef();
 
-    ServiceRef[] getGeronimoServiceRef();
+    void setGeronimoEJBLocalRef(EjbLocalRef[] ejbRef);
 
-    ResourceRef[] getGeronimoResourceRef();
+    EjbRef getGeronimoEJBRef(int i);
+
+    void setGeronimoEJBRef(int i, EjbRef ejbRef);
+
+    EjbRef[] getGeronimoEJBRef();
+
+    void setGeronimoEJBRef(EjbRef[] ejbRef);
+
+    MessageDestinationRef getGeronimoMessageDestinationRef(int i);
+
+    void setGeronimoMessageDestinationRef(int i, MessageDestinationRef messageDestinationRef);
+
+    MessageDestinationRef[] getGeronimoMessageDestinationRef();
+
+    void setGeronimoMessageDestinationRef(MessageDestinationRef[] messageDestinationRef);
+
+    ResourceEnvRef getGeronimoResourceEnvRef(int i);
+
+    void setGeronimoResourceEnvRef(int i, ResourceEnvRef resourceEnvRef);
 
     ResourceEnvRef[] getGeronimoResourceEnvRef();
 
-    MessageDestinationRef[] getGeronimoMessageDestinationRef();
+    void setGeronimoResourceEnvRef(ResourceEnvRef[] resourceEnvRef);
+
+    ResourceRef getGeronimoResourceRef(int i);
+
+    void setGeronimoResourceRef(int i, ResourceRef resourceRef);
+
+    ResourceRef[] getGeronimoResourceRef();
+
+    void setGeronimoResourceRef(ResourceRef[] resourceRef);
+
+    ServiceRef[] getGeronimoServiceRef();
+
+    ServiceRef getGeronimoServiceRef(int i);
+
+    void setGeronimoServiceRef(ServiceRef[] serviceRef);
+
+    void setGeronimoServiceRef(int i, ServiceRef ref);
 }

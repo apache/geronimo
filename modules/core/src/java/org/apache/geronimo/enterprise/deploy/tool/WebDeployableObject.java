@@ -53,37 +53,77 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.xml.deployment;
+package org.apache.geronimo.enterprise.deploy.tool;
 
-import org.apache.geronimo.deployment.model.geronimo.web.WebApp;
-import org.apache.geronimo.deployment.model.geronimo.web.GeronimoWebAppDocument;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.IOException;
+import java.util.jar.JarFile;
+import javax.enterprise.deploy.model.DDBeanRoot;
+import javax.enterprise.deploy.model.exceptions.DDBeanCreateException;
+import javax.enterprise.deploy.shared.ModuleType;
+import org.dom4j.io.SAXReader;
+import org.dom4j.DocumentException;
+import org.dom4j.Document;
+import org.dom4j.Element;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
+ * A DeployableObject implementation for EJB JARs.  This knows how to load and
+ * validate the deployment descriptors for EJB (currently v2.1 only).
  *
- *
- * @version $Revision: 1.3 $ $Date: 2003/10/07 17:16:37 $
+ * @version $Revision: 1.1 $ $Date: 2003/10/07 17:16:37 $
  */
-public class GeronimoWebAppLoader extends AbstractWebAppLoader {
-    public static GeronimoWebAppDocument load(Document doc) {
-        Element root = doc.getDocumentElement();
-        if (!"web-app".equals(root.getLocalName())) {
-            throw new IllegalArgumentException("Document is not a web-app instance");
-        }
+public class WebDeployableObject extends AbstractDeployableObject {
+    private final static Log log = LogFactory.getLog(WebDeployableObject.class);
+    private final static String WAR_DD = "WEB-INF/web.xml";
 
-        WebApp webApp = new WebApp();
-        loadCommonElements(webApp, root);
-        webApp.setEnvEntry(J2EELoader.loadEnvEntries(root));
-        webApp.setEJBRef(GeronimoJ2EELoader.loadEJBRefs(root));
-        webApp.setEJBLocalRef(GeronimoJ2EELoader.loadEJBLocalRefs(root));
-        webApp.setServiceRef(GeronimoJ2EELoader.loadServiceRefs(root));
-        webApp.setResourceRef(GeronimoJ2EELoader.loadResourceRefs(root));
-        webApp.setResourceEnvRef(GeronimoJ2EELoader.loadResourceEnvRefs(root));
-        webApp.setMessageDestinationRef(GeronimoJ2EELoader.loadMessageDestinationRefs(root));
-        webApp.setMessageDestination(GeronimoJ2EELoader.loadMessageDestinations(root));
-        GeronimoWebAppDocument result = new GeronimoWebAppDocument();
-        result.setWebApp(webApp);
-        return result;
+    public WebDeployableObject(JarFile jar, ClassLoader loader) {
+        super(jar, ModuleType.WAR, createWebAppRoot(jar), loader);
     }
+
+    public DDBeanRoot getDDBeanRoot(String filename) throws FileNotFoundException, DDBeanCreateException {
+        if(filename.equals(WAR_DD)) {
+            if(super.getDDBeanRoot() == null) {
+                throw new FileNotFoundException("No DD "+filename+" available");
+            } else {
+                return super.getDDBeanRoot();
+            }
+        } else {
+            throw new FileNotFoundException("Unrecognized file: "+filename);
+        }
+    }
+
+    private static DDBeanRootImpl createWebAppRoot(JarFile jar) {
+        DDBeanRootImpl beanRoot = createDDBeanRoot(jar, WAR_DD);
+        if(beanRoot == null) {
+            return null;
+        }
+        Element root = beanRoot.getDocument().getRootElement();
+        if(!root.getName().equals("web-app") || root.attributeValue("version") == null || !root.attributeValue("version").equals("2.4")) {
+            log.error("Not a Web App 2.4 deployment descriptor");
+            return null;
+        }
+        return beanRoot;
+    }
+
+    private static DDBeanRootImpl createDDBeanRoot(JarFile jar, String fileName) {
+        try {
+            InputStream in = jar.getInputStream(jar.getEntry(fileName));
+            if(in == null) {
+                return null;
+            }
+            SAXReader reader = new SAXReader();
+            Document document = reader.read(in);
+            return new DDBeanRootImpl(document);
+        } catch(IOException e) {
+            log.error("Unable to locate DD "+fileName+" in WAR", e);
+            return null;
+        } catch(DocumentException e) {
+            log.error("Unable to parse DD "+fileName+" in WAR", e);
+            return null;
+        }
+    }
+
 }

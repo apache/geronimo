@@ -67,10 +67,10 @@ import org.apache.geronimo.enterprise.deploy.server.DConfigBeanLookup;
 /**
  * The DConfigBean representing /ejb-jar/enterprise-beans/.../message-destination-ref
  *
- * @version $Revision: 1.1 $ $Date: 2003/10/06 14:35:34 $
+ * @version $Revision: 1.2 $ $Date: 2003/10/07 17:16:36 $
  */
 public class MessageDestinationRefBean extends BaseDConfigBean {
-    final static String MESSAGE_DESTINATION_REF_NAME_XPATH = "message-destination-ref-name";
+    public final static String MESSAGE_DESTINATION_REF_NAME_XPATH = "message-destination-ref-name";
     private String messageDestinationRefName;
     private String jndiName = "";
     private ContextParam[] params = new ContextParam[0];
@@ -119,7 +119,7 @@ public class MessageDestinationRefBean extends BaseDConfigBean {
         return messageDestinationRefName;
     }
 
-    void setMessageDestinationRefName(String messageDestinationRefName) {
+    public void setMessageDestinationRefName(String messageDestinationRefName) {
         String old = this.messageDestinationRefName;
         this.messageDestinationRefName = messageDestinationRefName;
         pcs.firePropertyChange("ejbRefName", old, messageDestinationRefName);

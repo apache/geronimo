@@ -69,11 +69,12 @@ import javax.enterprise.deploy.model.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.enterprise.deploy.tool.EjbDeployableObject;
+import org.apache.geronimo.enterprise.deploy.tool.WebDeployableObject;
 
 /**
  * Initializes a command-line JSR-88 deployer.
  *
- * @version $Revision: 1.5 $ $Date: 2003/10/06 14:35:33 $
+ * @version $Revision: 1.6 $ $Date: 2003/10/07 17:16:35 $
  */
 public class Deployer {
     private static final Log log = LogFactory.getLog(Deployer.class);
@@ -90,7 +91,7 @@ public class Deployer {
     private DeploymentConfiguration serverModule;
     private PrintWriter out;
     private BufferedReader in;
-    private EjbJarInfo jarInfo;
+    private ModuleInfo moduleInfo;
     private File saveDir = new File(System.getProperty("user.dir"));
 
     /**
@@ -124,20 +125,26 @@ public class Deployer {
     }
 
     /**
-     * Creates a new instance for the provided EJB JAR file and input/output
+     * Creates a new instance for the provided module file and input/output
      * streams.
      */
     public Deployer(File jarFile, PrintWriter out, Reader in) throws IllegalStateException, IllegalArgumentException {
         this.out = out;
         this.in = in instanceof BufferedReader ? (BufferedReader)in : new BufferedReader(in);
+        if(jarFile.getName().endsWith(".jar")) {
+            moduleInfo = new EjbJarInfo();
+        } else if(jarFile.getName().endsWith(".war")) {
+            moduleInfo = new WarInfo();
+        } else {
+            throw new IllegalArgumentException("Expecting file name to end in .jar or .war");
+        }
         try {
-            jarInfo = new EjbJarInfo();
-            jarInfo.file = jarFile;
-            jarInfo.jarFile = new JarFile(jarFile);
+            moduleInfo.file = jarFile;
+            moduleInfo.jarFile = new JarFile(jarFile);
         } catch(IOException e) {
             throw new IllegalArgumentException(jarFile+" is not a valid JAR file!");
         }
-        if(!connect() || !initializeEjbJar()) {
+        if(!connect() || !moduleInfo.initialize()) {
             throw new IllegalStateException("Unable to connect to Deployment service or prepare deployment information");
         }
     }
@@ -185,6 +192,10 @@ public class Deployer {
      *         successfully.
      */
     private boolean initializeEjbJar() {
+        if(!(moduleInfo instanceof EjbJarInfo)) {
+            throw new IllegalStateException("Tried to load an EJB JAR but the current module is "+moduleInfo.getClass().getName());
+        }
+        EjbJarInfo jarInfo = (EjbJarInfo)moduleInfo;
         try {
             ClassLoader loader = new URLClassLoader(new URL[]{jarInfo.file.toURL()}, ClassLoader.getSystemClassLoader());
             standardModule = new EjbDeployableObject(jarInfo.jarFile, loader);
@@ -211,14 +222,53 @@ public class Deployer {
     }
 
     /**
+     * Loads the deployment descriptor information from the specific WAR
+     * file.
+     *
+     * @return <tt>true</tt> if the deployment information was loaded
+     *         successfully.
+     */
+    private boolean initializeWar() {
+        if(!(moduleInfo instanceof WarInfo)) {
+            throw new IllegalStateException("Tried to load a WAR but the current module is "+moduleInfo.getClass().getName());
+        }
+        WarInfo warInfo = (WarInfo)moduleInfo;
+        try {
+            ClassLoader loader = new URLClassLoader(new URL[]{warInfo.file.toURL()}, ClassLoader.getSystemClassLoader());
+            standardModule = new WebDeployableObject(warInfo.jarFile, loader);
+        } catch(MalformedURLException e) {
+            out.println("ERROR: "+warInfo.file+" is not a valid JAR file!");
+            return false;
+        }
+        try {
+            serverModule = deployer.createConfiguration(standardModule);
+        } catch(InvalidModuleException e) {
+            out.println("ERROR: Unable to initialize a Geronimo DD for WAR "+warInfo.file);
+            return false;
+        }
+        warInfo.war = standardModule.getDDBeanRoot();
+        try {
+            warInfo.warConfig = serverModule.getDConfigBeanRoot(warInfo.war);
+            initializeDConfigBean(warInfo.warConfig);
+        } catch(ConfigurationException e) {
+            log.error("Unable to initialize server-specific deployment information", e);
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * Presents a user interface to let the user take high-level deployment
      * actions.  This lets them do the things you do without reference to a
-     * particular EJB JAR.
+     * particular J2EE module.
      */
     private void workWithoutModule() {
         while(true) {
-            if(jarInfo != null) {
+            if(moduleInfo instanceof EjbJarInfo) {
                 workWithEjbJar();
+                continue;
+            } else if(moduleInfo instanceof WarInfo) {
+                workWithWar();
                 continue;
             }
             out.println("\n\nNo J2EE module is currently selected.");
@@ -227,7 +277,7 @@ public class Deployer {
             out.println("  -- Stop running modules on the selected servers/clusters");
             out.println("  -- Undeploy modules from the selected servers/clusters");
             out.println("  -- View modules on the selected servers/clusters");
-            out.println("  6) Select an EJB JAR to configure, deploy, or redeploy"); //todo: change text when other modules are supported
+            out.println("  6) Select an EJB JAR or WAR to configure, deploy, or redeploy"); //todo: change text when other modules are supported
             out.println("  7) Disconnect from any servers.");
             String choice;
             while(true) {
@@ -256,11 +306,11 @@ public class Deployer {
     /**
      * Prompts the user to select a J2EE module to work with.
      *
-     * Currently handles EJB JAR modules only.
+     * Currently handles EJB JAR modules and WAR modules only.
      */
     private void selectModule() {
         out.println("\nCurrent directory is "+saveDir);
-        out.println("Select an EJB JAR file to load.");
+        out.println("Select an EJB JAR or WAR file to load.");
         String choice;
         File file;
         while(true) {
@@ -281,17 +331,23 @@ public class Deployer {
             break;
         }
 
+        if(file.getName().endsWith(".jar")) {
+            moduleInfo = new EjbJarInfo();
+        } else if(file.getName().endsWith(".war")) {
+            moduleInfo = new WarInfo();
+        } else {
+            out.println("ERROR: Expecting file name to end in .jar or .war");
+        }
         try {
-            jarInfo = new EjbJarInfo();
-            jarInfo.file = file;
-            jarInfo.jarFile = new JarFile(jarInfo.file);
+            moduleInfo.file = file;
+            moduleInfo.jarFile = new JarFile(file);
         } catch(IOException e) {
             out.println("ERROR: "+file+" is not a valid JAR file!");
-            jarInfo = null;
+            moduleInfo = null;
             return;
         }
-        if(!initializeEjbJar()) {
-            jarInfo = null;
+        if(!moduleInfo.initialize()) {
+            moduleInfo = null;
             return;
         }
     }
@@ -301,14 +357,14 @@ public class Deployer {
      */
     private void workWithEjbJar() {
         while(true) {
-            out.println("\n\nLoaded an EJB JAR.  Working with the ejb-jar.xml deployment descriptor.");
-            out.println("  -- Edit the standard EJB deployment descriptor (ejb-jar.xml)");
+            out.println("\n\nLoaded an EJB JAR.  Working with the "+moduleInfo.getFileName()+" deployment descriptor.");
+            out.println("  -- Edit the standard EJB deployment descriptor ("+moduleInfo.getFileName()+")");
             out.println("  2) Edit the corresponding server-specific deployment information");
             out.println("  3) Load a saved set of server-specific deployment information");
             out.println("  4) Save the current set of server-specific deployment information");
             out.println("  -- Edit web services deployment information");
             out.println("  -- Deploy or redeploy the JAR into the application server");
-            out.println("  7) Select a new EJB JAR to work with"); //todo: adjust text when other modules are accepted
+            out.println("  7) Select a new EJB JAR or WAR to work with"); //todo: adjust text when other modules are accepted
             out.println("  8) Manage existing deployments in the server");
             String choice;
             while(true) {
@@ -331,16 +387,58 @@ public class Deployer {
                     break;
                 } else if(choice.equals("7")) {
                     selectModule();
-                    if(jarInfo != null) {
-                        break;
-                    } else {
-                        return;
-                    }
+                    return;
                 } else if(choice.equals("8")) { //todo: prompt to save if modifications were made
-                    jarInfo = null;
+                    moduleInfo = null;
                     return;
                 } else if(choice.equals("q")) {
-                    jarInfo = null;
+                    moduleInfo = null;
+                    return;
+                }
+            }
+        }
+    }
+
+    /**
+     * Presents a user interface for a user to work with an EJB JAR.
+     */
+    private void workWithWar() {
+        while(true) {
+            out.println("\n\nLoaded a WAR.  Working with the "+moduleInfo.getFileName()+" deployment descriptor.");
+            out.println("  -- Edit the standard Web App deployment descriptor ("+moduleInfo.getFileName()+")");
+            out.println("  2) Edit the corresponding server-specific deployment information");
+            out.println("  3) Load a saved set of server-specific deployment information");
+            out.println("  4) Save the current set of server-specific deployment information");
+            out.println("  -- Deploy or redeploy the JAR into the application server");
+            out.println("  6) Select a new EJB JAR or WAR to work with"); //todo: adjust text when other modules are accepted
+            out.println("  7) Manage existing deployments in the server");
+            String choice;
+            while(true) {
+                out.print("Action ([2-4,7,8] or [Q]uit): ");
+                out.flush();
+                try {
+                    choice = in.readLine().trim().toLowerCase();
+                } catch(IOException e) {
+                    log.error("Unable to read user input", e);
+                    return;
+                }
+                if(choice.equals("2")) {
+                    editServerSpecificDD();
+                    break;
+                } else if(choice.equals("3")) {
+                    loadServerSpecificDD();
+                    break;
+                } else if(choice.equals("4")) {
+                    saveServerSpecificDD();
+                    break;
+                } else if(choice.equals("6")) {
+                    selectModule();
+                    return;
+                } else if(choice.equals("7")) { //todo: prompt to save if modifications were made
+                    moduleInfo = null;
+                    return;
+                } else if(choice.equals("q")) {
+                    moduleInfo = null;
                     return;
                 }
             }
@@ -355,7 +453,7 @@ public class Deployer {
     private void loadServerSpecificDD() {
         out.println("\nCurrent directory is "+saveDir);
         out.println("Select a file name.  The server-specific deployment information for the ");
-        out.println((jarInfo.editingEjbJar ? "ejb-jar.xml" : "Web Services DD")+" will be loaded from the file you specify.");
+        out.println(moduleInfo.getFileName()+" will be loaded from the file you specify.");
         String choice;
         while(true) {
             out.print("File Name: ");
@@ -373,14 +471,7 @@ public class Deployer {
             }
             saveDir = file.getParentFile();
             try {
-                BufferedInputStream fin = new BufferedInputStream(new FileInputStream(file));
-                DConfigBeanRoot root = serverModule.restoreDConfigBean(fin, jarInfo.editingEjbJar ? jarInfo.ejbJar : jarInfo.webServices);
-                fin.close();
-                if(jarInfo.editingEjbJar) {
-                    jarInfo.ejbJarConfig = root;
-                } else {
-                    jarInfo.webServicesConfig = root;
-                }
+                moduleInfo.loadDConfigBean(file);
                 out.println("Deployment information loaded from "+file.getName());
                 return;
             } catch(IOException e) {
@@ -404,7 +495,7 @@ public class Deployer {
     private void saveServerSpecificDD() {
         out.println("\nCurrent directory is "+saveDir);
         out.println("Select a file name.  The server-specific deployment information for the ");
-        out.println((jarInfo.editingEjbJar ? "ejb-jar.xml" : "Web Services DD")+" will be saved to the file you specify.");
+        out.println(moduleInfo.getFileName()+" will be saved to the file you specify.");
         String choice;
         try {
             while(true) {
@@ -426,9 +517,7 @@ public class Deployer {
                 }
                 saveDir = file.getParentFile();
                 try {
-                    BufferedOutputStream fout = new BufferedOutputStream(new FileOutputStream(file));
-                    serverModule.saveDConfigBean(fout, jarInfo.editingEjbJar ? jarInfo.ejbJarConfig : jarInfo.webServicesConfig);
-                    fout.close();
+                    moduleInfo.saveDConfigBean(file);
                     out.println("Deployment information saved to "+file.getName());
                     return;
                 } catch(IOException e) {
@@ -465,19 +554,88 @@ public class Deployer {
      * the server-specific deployment information.
      */
     private void editServerSpecificDD() {
-        new DConfigBeanConfigurator(jarInfo.ejbJarConfig, out, in).configure();
+        new DConfigBeanConfigurator(moduleInfo.getConfigRoot(), out, in).configure();
+    }
+
+    private abstract class ModuleInfo {
+        public File file;
+        public JarFile jarFile;
+        public abstract boolean initialize();
+        public abstract String getFileName();
+        public abstract DConfigBeanRoot getConfigRoot();
+        public abstract void loadDConfigBean(File source) throws IOException, ConfigurationException;
+        public abstract void saveDConfigBean(File dest) throws IOException, ConfigurationException;
     }
 
     /**
      * Holds all the relevent data for an EJB JAR.
      */
-    private static class EjbJarInfo {
-        public File file;
-        public JarFile jarFile;
+    private class EjbJarInfo extends ModuleInfo {
         public DDBeanRoot ejbJar;
         public DConfigBeanRoot ejbJarConfig;
         public DDBeanRoot webServices;
         public DConfigBeanRoot webServicesConfig;
         public boolean editingEjbJar;
+
+        public boolean initialize() {
+            return initializeEjbJar();
+        }
+
+        public String getFileName() {
+            return editingEjbJar ? "ejb-jar.xml" : "Web Services DD";
+        }
+
+        public DConfigBeanRoot getConfigRoot() {
+            return editingEjbJar ? ejbJarConfig : webServicesConfig;
+        }
+
+        public void loadDConfigBean(File source) throws IOException, ConfigurationException {
+            BufferedInputStream fin = new BufferedInputStream(new FileInputStream(source));
+            DConfigBeanRoot root = serverModule.restoreDConfigBean(fin, editingEjbJar ? ejbJar : webServices);
+            fin.close();
+            if(editingEjbJar) {
+                ejbJarConfig = root;
+            } else {
+                webServicesConfig = root;
+            }
+        }
+
+        public void saveDConfigBean(File dest) throws IOException, ConfigurationException {
+            BufferedOutputStream fout = new BufferedOutputStream(new FileOutputStream(dest));
+            serverModule.saveDConfigBean(fout, editingEjbJar ? ejbJarConfig : webServicesConfig);
+            fout.close();
+        }
+    }
+    /**
+     * Holds all the relevent data for a WAR.
+     */
+    private class WarInfo extends ModuleInfo {
+        public DDBeanRoot war;
+        public DConfigBeanRoot warConfig;
+
+        public boolean initialize() {
+            return initializeWar();
+        }
+
+        public String getFileName() {
+            return "web.xml";
+        }
+
+        public DConfigBeanRoot getConfigRoot() {
+            return warConfig;
+        }
+
+        public void loadDConfigBean(File source) throws IOException, ConfigurationException {
+            BufferedInputStream fin = new BufferedInputStream(new FileInputStream(source));
+            DConfigBeanRoot root = serverModule.restoreDConfigBean(fin, war);
+            fin.close();
+            warConfig = root;
+        }
+
+        public void saveDConfigBean(File dest) throws IOException, ConfigurationException {
+            BufferedOutputStream fout = new BufferedOutputStream(new FileOutputStream(dest));
+            serverModule.saveDConfigBean(fout, warConfig);
+            fout.close();
+        }
     }
 }

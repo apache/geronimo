@@ -53,91 +53,100 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.enterprise.deploy.server.ejb;
+package org.apache.geronimo.enterprise.deploy.server.web;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
-import javax.enterprise.deploy.model.DDBean;
+import javax.enterprise.deploy.spi.DConfigBeanRoot;
 import javax.enterprise.deploy.spi.DConfigBean;
+import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
 import javax.enterprise.deploy.spi.exceptions.BeanNotFoundException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import javax.enterprise.deploy.model.DDBean;
+import javax.enterprise.deploy.model.XpathEvent;
+import javax.enterprise.deploy.model.DDBeanRoot;
+import org.apache.geronimo.enterprise.deploy.server.BaseDConfigBean;
 import org.apache.geronimo.enterprise.deploy.server.DConfigBeanLookup;
-import org.apache.geronimo.enterprise.deploy.server.j2ee.SecurityRoleRefBean;
 
 /**
- * The DConfigBean for /ejb-jar/enterprise-beans/session
+ * The DConfigBeanRoot for the top level of the EJB JAR DD ("/").
  *
- * @version $Revision: 1.2 $ $Date: 2003/10/07 17:16:36 $
+ * @version $Revision: 1.1 $ $Date: 2003/10/07 17:16:36 $
  */
-public class SessionBean extends BaseEjbBean {
-    private static final Log log = LogFactory.getLog(SessionBean.class);
-    final static String SECURITY_ROLE_REF_XPATH = "security-role-ref";
-    private String jndiName;
-    private List securityRoleRefs = new ArrayList();
+public class WebAppRoot extends BaseDConfigBean implements DConfigBeanRoot {
+    final static String WEB_APP_XPATH = "web-app";
+    private WebAppBean webApp;
 
     /**
      * This is present for JavaBeans compliance, but if it is used, the
      * DConfigBean won't be properly associated with a DDBean, so it
      * should be used for experimentation only.
      */
-    public SessionBean() {
-        super();
-        jndiName = "";
+    public WebAppRoot() {
+        super(null, null);
     }
 
-    public SessionBean(DDBean ddBean, DConfigBeanLookup lookup) {
+    public WebAppRoot(DDBeanRoot ddBean, DConfigBeanLookup lookup) {
         super(ddBean, lookup);
-        jndiName = getEjbName();
     }
 
+    /**
+     * Gets the Standard DD XPaths of interest to this DConfigBean.
+     */
     public String[] getXpaths() {
         return new String[] {
-            ENV_ENTRY_XPATH,
-            EJB_REF_XPATH,
-            EJB_LOCAL_REF_XPATH,
-            SECURITY_ROLE_REF_XPATH,
-            RESOURCE_REF_XPATH,
-            RESOURCE_ENV_REF_XPATH,
-        }; // ejb-name is not included, since we don't have a DConfigBean for it
+            WEB_APP_XPATH,
+        };
+    }
+
+    /**
+     * Gets a DConfigBean corresponding to an interesting DDBean.  The only
+     * interesting DDBean is for /ejb-jar/enterprise-beans (that's the only
+     * one returned by getXpaths), so others will result in an exception.
+     */
+    public DConfigBean getDConfigBean(DDBean bean) throws ConfigurationException {
+        if(getXpath(bean).equals(WEB_APP_XPATH)) {
+            if(webApp == null || !webApp.getDDBean().equals(bean)) {
+                setWebApp(new WebAppBean(bean, lookup));
+            }
+            return webApp;
+        } else {
+            throw new ConfigurationException("Unable to generate a DConfigBean for EJB JAR DD XPath "+bean.getXpath());
+        }
     }
 
     public void removeDConfigBean(DConfigBean bean) throws BeanNotFoundException {
-        if(bean instanceof SecurityRoleRefBean) {
-            if(!securityRoleRefs.remove(bean)) {
-                throw new BeanNotFoundException("Could not find Security Role Reference "+((SecurityRoleRefBean)bean).getRoleName()+" to remove");
-            }
+        if(bean == webApp) {
+            setWebApp(null);
         } else {
-            super.removeDConfigBean(bean);
+            throw new BeanNotFoundException("No such child bean found");
         }
     }
 
-    public String getJndiName() {
-        return jndiName;
-    }
-
-    public void setJndiName(String jndiName) {
-        String old = this.jndiName;
-        this.jndiName = jndiName;
-        pcs.firePropertyChange("jndiName", old, jndiName);
-    }
-
-    protected DConfigBean getDConfigBean(DDBean bean, boolean create) {
-        if(bean.getXpath().equals(SECURITY_ROLE_REF_XPATH)) {
-            for(Iterator it = securityRoleRefs.iterator(); it.hasNext();) {
-                DConfigBean dcb = (DConfigBean)it.next();
-                if(dcb.getDDBean().equals(bean)) {
-                    return dcb;
-                }
-            }
-            if(create) {
-                DConfigBean ref = new SecurityRoleRefBean(bean, lookup);
-                securityRoleRefs.add(ref);
-                return ref;
+    public void notifyDDChange(XpathEvent event) {
+        if(getXpath(event.getBean()).equals(WEB_APP_XPATH)) {
+            if(event.isRemoveEvent()) {
+                setWebApp(null);
+            } else if(event.isAddEvent()) {
+                setWebApp(new WebAppBean(event.getBean(), lookup));
             }
         }
-        return super.getDConfigBean(bean, create);
+    }
+
+    /**
+     * Return a DConfigBean for a deployment descriptor that is not the module's
+     * primary deployment descriptor.  Currently only EJB JAR DDs are handled.
+     *
+     * @return A DConfigBean if the DDBeanRoot represented the EJB DD, and null
+     *         otherwise (web services, etc.).
+     */
+    public DConfigBean getDConfigBean(DDBeanRoot ddBeanRoot) {
+        if(ddBeanRoot.getFilename().equals("WEB-INF/web.xml")) { // Should not be called for this, but just to be safe...
+            return this;
+        } else { //todo: are there Web Services DDs for web apps?
+            return null;
+        }
+    }
+
+    private void setWebApp(WebAppBean bean) {
+        webApp = bean;
     }
 
     /**
@@ -145,7 +154,7 @@ public class SessionBean extends BaseEjbBean {
      * tool implementation should get the child DConfigBeans by calling
      * getDConfigBean for each of the DDBeans.
      */
-    List getSecurityRoleRef() {
-        return securityRoleRefs;
+    WebAppBean getWebApp() {
+        return webApp;
     }
 }

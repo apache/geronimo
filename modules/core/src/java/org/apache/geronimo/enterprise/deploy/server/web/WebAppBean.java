@@ -53,7 +53,7 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.enterprise.deploy.server.ejb;
+package org.apache.geronimo.enterprise.deploy.server.web;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -63,28 +63,25 @@ import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
 import javax.enterprise.deploy.spi.exceptions.BeanNotFoundException;
 import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.model.XpathEvent;
-import javax.enterprise.deploy.model.XpathListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.enterprise.deploy.server.j2ee.EnvEntryBean;
-import org.apache.geronimo.enterprise.deploy.server.j2ee.EjbRefBean;
-import org.apache.geronimo.enterprise.deploy.server.j2ee.EjbLocalRefBean;
-import org.apache.geronimo.enterprise.deploy.server.j2ee.ResourceEnvRefBean;
-import org.apache.geronimo.enterprise.deploy.server.j2ee.ResourceRefBean;
-import org.apache.geronimo.enterprise.deploy.server.j2ee.MessageDestinationRefBean;
-import org.apache.geronimo.enterprise.deploy.server.j2ee.JNDIRefs;
 import org.apache.geronimo.enterprise.deploy.server.BaseDConfigBean;
 import org.apache.geronimo.enterprise.deploy.server.DConfigBeanLookup;
+import org.apache.geronimo.enterprise.deploy.server.j2ee.JNDIRefs;
+import org.apache.geronimo.enterprise.deploy.server.j2ee.EjbRefBean;
+import org.apache.geronimo.enterprise.deploy.server.j2ee.EjbLocalRefBean;
+import org.apache.geronimo.enterprise.deploy.server.j2ee.ResourceRefBean;
+import org.apache.geronimo.enterprise.deploy.server.j2ee.ResourceEnvRefBean;
+import org.apache.geronimo.enterprise.deploy.server.j2ee.EnvEntryBean;
+import org.apache.geronimo.enterprise.deploy.server.j2ee.MessageDestinationRefBean;
 
 /**
- * A common base class for the DConfigBeans representing different
- * types of EJBs.
+ * The DConfigBean representing /web-app
  *
- * @version $Revision: 1.2 $ $Date: 2003/10/07 17:16:36 $
+ * @version $Revision: 1.1 $ $Date: 2003/10/07 17:16:36 $
  */
-public class BaseEjbBean extends BaseDConfigBean implements JNDIRefs {
-    private static final Log log = LogFactory.getLog(BaseEjbBean.class);
-    private String ejbName;
+public class WebAppBean extends BaseDConfigBean implements JNDIRefs {
+    private static final Log log = LogFactory.getLog(WebAppBean.class);
     private List envEntries = new ArrayList();
     private List ejbRefs = new ArrayList();
     private List ejbLocalRefs = new ArrayList();
@@ -97,23 +94,12 @@ public class BaseEjbBean extends BaseDConfigBean implements JNDIRefs {
      * DConfigBean won't be properly associated with a DDBean, so it
      * should be used for experimentation only.
      */
-    public BaseEjbBean() {
+    public WebAppBean() {
         super(null, null);
-        ejbName = "";
     }
 
-    public BaseEjbBean(DDBean ddBean, DConfigBeanLookup lookup) {
+    public WebAppBean(DDBean ddBean, DConfigBeanLookup lookup) {
         super(ddBean, lookup);
-        ejbName = ddBean.getText(EJB_NAME_XPATH)[0];
-        ddBean.addXpathListener(EJB_NAME_XPATH, new XpathListener() {
-            public void fireXpathEvent(XpathEvent xpe) {
-                if(xpe.isChangeEvent() || xpe.isAddEvent()) {
-                    setEjbName(xpe.getBean().getText());
-                } else if(xpe.isRemoveEvent()) {
-                    setEjbName(null);
-                }
-            }
-        });
     }
 
     public String[] getXpaths() {
@@ -124,9 +110,14 @@ public class BaseEjbBean extends BaseDConfigBean implements JNDIRefs {
             RESOURCE_REF_XPATH,
             RESOURCE_ENV_REF_XPATH,
             MESSAGE_DESTINATION_REF_XPATH,
-        }; // ejb-name is not included, since we don't have a DConfigBean for it
+        };
     }
 
+    /**
+     * Gets a DConfigBean corresponding to an interesting DDBean.  The only
+     * interesting DDBean is for "enterprise-beans" (that's the only
+     * one returned by getXpaths), so others will result in an exception.
+     */
     public DConfigBean getDConfigBean(DDBean bean) throws ConfigurationException {
         DConfigBean result = getDConfigBean(bean, true);
         if(result == null) {
@@ -180,16 +171,6 @@ public class BaseEjbBean extends BaseDConfigBean implements JNDIRefs {
         } catch(BeanNotFoundException e) {
             log.error("Unable to handle XPathEvent", e);
         }
-    }
-
-    public String getEjbName() {
-        return ejbName;
-    }
-
-    void setEjbName(String ejbName) {
-        String old = this.ejbName;
-        this.ejbName = ejbName;
-        pcs.firePropertyChange("ejbName", old, ejbName);
     }
 
     protected DConfigBean getDConfigBean(DDBean bean, boolean create) {
@@ -270,7 +251,7 @@ public class BaseEjbBean extends BaseDConfigBean implements JNDIRefs {
     }
 
     public String toString() {
-        return ejbName;
+        return "WebApp";
     }
 
     /**
