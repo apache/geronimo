@@ -5,13 +5,13 @@
       <ARG type="boolean" value="true" />
 </MLET>
 
-<MLET CODE="org.apache.geronimo.deployment.dependency.DependencyService"
+<MLET CODE="org.apache.geronimo.kernel.deployment.DependencyService"
       NAME="geronimo.boot:role=DependencyService"
       ARCHIVE=""
       >
 </MLET>
 
-<MLET CODE="org.apache.geronimo.deployment.DeploymentController"
+<MLET CODE="org.apache.geronimo.kernel.deployment.DeploymentController"
       NAME="geronimo.deployment:role=DeploymentController"
       ARCHIVE=""
       >
