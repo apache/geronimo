@@ -79,7 +79,7 @@ import org.apache.geronimo.common.NullArgumentException;
 /**
  * This class handles invocations for MBean proxies.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/30 20:12:23 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/30 20:19:03 $
  */
 public class MBeanProxyHandler
     implements InvocationHandler, MBeanProxyFactory.MBeanProxy
@@ -88,6 +88,10 @@ public class MBeanProxyHandler
     protected ObjectName target;
     protected Map attributeMap;
     protected Map taskCache;
+    
+    //
+    // TODO: Replace cache map with a backing which will not eat memory
+    //
     
     public MBeanProxyHandler(final MBeanServer server,
                              final ObjectName target)
@@ -141,8 +145,8 @@ public class MBeanProxyHandler
                 }
             }
             
-            // Else we don't have much choice, so just toss the original
-            throw t;
+            // Else we don't have much choice, so...
+            throw new MBeanProxyException(t);
         }
     }
     
