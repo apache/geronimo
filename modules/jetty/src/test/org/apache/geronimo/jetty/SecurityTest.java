@@ -25,7 +25,7 @@ import java.net.URI;
 import java.net.URL;
 
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.security.SecurityService;
+import org.apache.geronimo.security.SecurityServiceImpl;
 import org.apache.geronimo.security.deploy.AutoMapAssistant;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.deploy.Principal;
@@ -155,9 +155,9 @@ public class SecurityTest extends BaseSecurityTest {
         securityConfig.getRoleNames().add("content-administrator");
         securityConfig.getRoleNames().add("auto-administrator");
 
-        SecurityService securityService = null;
+        SecurityServiceImpl securityService = null;
         try {
-            securityService = (SecurityService) kernel.getProxyManager().createProxy(securityServiceName, SecurityService.class);
+            securityService = (SecurityServiceImpl) kernel.getProxyManager().createProxy(securityServiceName, SecurityServiceImpl.class);
             securityConfig.autoGenerate(securityService);
 
             startWebApp(securityConfig);
@@ -247,9 +247,9 @@ public class SecurityTest extends BaseSecurityTest {
         securityConfig.getRoleNames().add("content-administrator");
         securityConfig.getRoleNames().add("auto-administrator");
 
-        SecurityService securityService = null;
+        SecurityServiceImpl securityService = null;
         try {
-            securityService = (SecurityService) kernel.getProxyManager().createProxy(securityServiceName, SecurityService.class);
+            securityService = (SecurityServiceImpl) kernel.getProxyManager().createProxy(securityServiceName, SecurityServiceImpl.class);
             securityConfig.autoGenerate(securityService);
 
             DefaultPrincipal defaultPrincipal = new DefaultPrincipal();

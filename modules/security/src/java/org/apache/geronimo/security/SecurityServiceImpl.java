@@ -48,11 +48,11 @@ import org.apache.geronimo.security.util.ConfigurationUtil;
  *
  * @version $Rev$ $Date$
  */
-public class SecurityService implements SecurityServiceMBean, GBeanLifecycle {
+public class SecurityServiceImpl implements SecurityServiceMBean, GBeanLifecycle {
     /**
-     * The JMX name of the SecurityService.
+     * The JMX name of the SecurityServiceImpl.
      */
-    public static final ObjectName SECURITY = JMXUtil.getObjectName("geronimo.security:type=SecurityService");
+    public static final ObjectName SECURITY = JMXUtil.getObjectName("geronimo.security:type=SecurityServiceImpl");
 
     private final Log log = LogFactory.getLog(SecurityServiceMBean.class);
 
@@ -68,12 +68,12 @@ public class SecurityService implements SecurityServiceMBean, GBeanLifecycle {
     public static final GeronimoSecurityPermission CONFIGURE = new GeronimoSecurityPermission("configure");
 
     //deprecated, for geronimo mbean only
-    public SecurityService() {
+    public SecurityServiceImpl() {
         this(null);
     }
 
 
-    public SecurityService(String policyConfigurationFactory) {
+    public SecurityServiceImpl(String policyConfigurationFactory) {
         /**
          *  @see "JSR 115 4.6.1" Container Subject Policy Contact Handler
          */
@@ -178,7 +178,7 @@ public class SecurityService implements SecurityServiceMBean, GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(SecurityService.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(SecurityServiceImpl.class);
 
         infoFactory.addAttribute("policyConfigurationFactory", String.class, true);
 

@@ -107,8 +107,8 @@ public class BaseSecurityTest extends TestCase {
         jaasRealmGBean.setAttribute("name", "Test JAAS Realm");
         jaasRealmGBean.setAttribute("loginModuleName", "jaasTest");
 
-        securityServiceGBean = new GBeanMBean("org.apache.geronimo.security.SecurityService");
-        securityServiceName = new ObjectName("geronimo.security:type=SecurityService");
+        securityServiceGBean = new GBeanMBean("org.apache.geronimo.security.SecurityServiceImpl");
+        securityServiceName = new ObjectName("geronimo.security:type=SecurityServiceImpl");
         securityServiceGBean.setReferencePatterns("Realms", Collections.singleton(new ObjectName("geronimo.security:type=SecurityRealm,*")));
         securityServiceGBean.setReferencePatterns("Mappers", Collections.singleton(new ObjectName("geronimo.security:type=SecurityRealm,*")));
         securityServiceGBean.setAttribute("policyConfigurationFactory", "org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory");

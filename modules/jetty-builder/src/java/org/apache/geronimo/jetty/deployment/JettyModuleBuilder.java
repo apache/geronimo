@@ -59,7 +59,7 @@ import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.security.deployment.SecurityBuilder;
-import org.apache.geronimo.security.SecurityService;
+import org.apache.geronimo.security.SecurityServiceImpl;
 import org.apache.geronimo.transaction.OnlineUserTransaction;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyDependencyType;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyGbeanType;
@@ -80,9 +80,9 @@ import org.apache.geronimo.xbeans.j2ee.WebResourceCollectionType;
  */
 public class JettyModuleBuilder implements ModuleBuilder {
     private final URI defaultParentId;
-    private final SecurityService securityService;
+    private final SecurityServiceImpl securityService;
 
-    public JettyModuleBuilder(URI defaultParentId, SecurityService securityService) {
+    public JettyModuleBuilder(URI defaultParentId, SecurityServiceImpl securityService) {
         this.defaultParentId = defaultParentId;
         this.securityService = securityService;
     }
@@ -471,7 +471,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
     static {
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(JettyModuleBuilder.class);
         infoBuilder.addAttribute("defaultParentId", URI.class, true);
-        infoBuilder.addReference("SecurityService", SecurityService.class);
+        infoBuilder.addReference("SecurityService", SecurityServiceImpl.class);
         infoBuilder.addInterface(ModuleBuilder.class);
 
         infoBuilder.setConstructor(new String[] {"defaultParentId", "SecurityService"});

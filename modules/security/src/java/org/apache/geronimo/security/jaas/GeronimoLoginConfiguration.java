@@ -35,7 +35,7 @@ import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
 import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.security.SecurityService;
+import org.apache.geronimo.security.SecurityServiceImpl;
 
 
 /**
@@ -57,14 +57,14 @@ public class GeronimoLoginConfiguration extends Configuration implements GBeanLi
 
     public Collection getConfigurations() {
         SecurityManager sm = System.getSecurityManager();
-        if (sm != null) sm.checkPermission(SecurityService.CONFIGURE);
+        if (sm != null) sm.checkPermission(SecurityServiceImpl.CONFIGURE);
 
         return configurations;
     }
 
     public void setConfigurations(Collection configurations) {
         SecurityManager sm = System.getSecurityManager();
-        if (sm != null) sm.checkPermission(SecurityService.CONFIGURE);
+        if (sm != null) sm.checkPermission(SecurityServiceImpl.CONFIGURE);
 
         ReferenceCollection ref = (ReferenceCollection) configurations;
         ref.addReferenceCollectionListener(this);
@@ -89,7 +89,7 @@ public class GeronimoLoginConfiguration extends Configuration implements GBeanLi
 
     public void memberAdded(ReferenceCollectionEvent event) {
         SecurityManager sm = System.getSecurityManager();
-        if (sm != null) sm.checkPermission(SecurityService.CONFIGURE);
+        if (sm != null) sm.checkPermission(SecurityServiceImpl.CONFIGURE);
 
         ConfigurationEntryFactory factory = (ConfigurationEntryFactory) event.getMember();
         addConfiguration(factory);
@@ -97,7 +97,7 @@ public class GeronimoLoginConfiguration extends Configuration implements GBeanLi
 
     public void memberRemoved(ReferenceCollectionEvent event) {
         SecurityManager sm = System.getSecurityManager();
-        if (sm != null) sm.checkPermission(SecurityService.CONFIGURE);
+        if (sm != null) sm.checkPermission(SecurityServiceImpl.CONFIGURE);
 
         ConfigurationEntryFactory factory = (ConfigurationEntryFactory) event.getMember();
 

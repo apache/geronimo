@@ -23,7 +23,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.geronimo.security.SecurityService;
+import org.apache.geronimo.security.SecurityServiceImpl;
 
 
 /**
@@ -108,7 +108,7 @@ public class Security implements Serializable {
      *
      * @param securityService used to obtain the configured auto map assistant.
      */
-    public void autoGenerate(SecurityService securityService) {
+    public void autoGenerate(SecurityServiceImpl securityService) {
         if (securityService == null) return;
         if (assistant == null) return;
 

@@ -135,7 +135,7 @@ by the server.
         </references>
     </gbean>
 
-    <gbean name="geronimo.security:type=SecurityService" class="org.apache.geronimo.security.SecurityService">
+    <gbean name="geronimo.security:type=SecurityService" class="org.apache.geronimo.security.SecurityServiceImpl">
         <attribute name="policyConfigurationFactory" type="java.lang.String">org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory</attribute>
         <reference name="Realms">geronimo.security:type=SecurityRealm,*</reference>
     </gbean>
