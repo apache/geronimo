@@ -63,9 +63,8 @@ public class AxisWebServiceContainer implements WebServiceContainer {
     private final ClassLoader classLoader;
     private final Object wsdlMutext = new Object();
 
-    private Definition definition;
-
-    private WSDLWriter wsdlWriter;
+    private transient Definition definition;
+    private transient WSDLWriter wsdlWriter;
 
     public AxisWebServiceContainer(URI location, URL wsdlURL, SOAPService service, ClassLoader classLoader) {
         this.location = location;
