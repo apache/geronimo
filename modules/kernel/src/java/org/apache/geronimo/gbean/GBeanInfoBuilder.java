@@ -189,6 +189,11 @@ public class GBeanInfoBuilder {
         references.put(info.getName(), info.getReferenceType());
     }
 
+    /**
+     * Add a reference to another GBean or collection of GBeans
+     * @param name
+     * @param type The proxy type or the GBean or objects in a ReferenceCollection
+     */
     public void addReference(String name, Class type) {
         references.put(name, type.getName());
     }
