@@ -32,14 +32,14 @@ import javax.security.jacc.PolicyContextException;
  */
 public class GeronimoPolicy extends Policy {
     private final Policy root;
-    private final GeronimoPolicyConfigurationFactory factory;
+    private GeronimoPolicyConfigurationFactory factory;
+    private boolean loaded;
 
     public GeronimoPolicy() {
         this(null);
     }
 
     public GeronimoPolicy(Policy root) {
-        this.factory = obtainFactory();
         this.root = root;
     }
 
@@ -51,6 +51,11 @@ public class GeronimoPolicy extends Policy {
     }
 
     public boolean implies(ProtectionDomain domain, Permission permission) {
+
+        if (!loaded) {
+            factory = obtainFactory();
+            loaded = true;
+        }
 
         if (factory != null) {
             String contextID = PolicyContext.getContextID();
