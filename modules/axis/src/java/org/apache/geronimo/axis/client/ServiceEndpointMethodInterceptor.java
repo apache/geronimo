@@ -18,10 +18,15 @@ package org.apache.geronimo.axis.client;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Set;
+
+import javax.security.auth.Subject;
 
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 import org.apache.axis.client.Call;
+import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.jaas.UsernamePasswordCredential;
 
 /**
  * @version $Rev:  $ $Date:  $
@@ -49,6 +54,18 @@ public class ServiceEndpointMethodInterceptor implements MethodInterceptor{
         operationInfo.prepareCall(call);
 
         stub.setUpCall(call);
+        Subject subject = ContextManager.getNextCaller();
+        if (subject == null) {
+            //is this an error?
+        } else {
+            Set creds = subject.getPrivateCredentials(UsernamePasswordCredential.class);
+            if (creds.size() != 1) {
+                throw new SecurityException("Non-unique UsernamePasswordCredential, count: " + creds.size());
+            }
+            UsernamePasswordCredential usernamePasswordCredential = (UsernamePasswordCredential) creds.iterator().next();
+            call.setUsername(usernamePasswordCredential.getUsername());
+            call.setPassword(new String(usernamePasswordCredential.getPassword()));
+        }
         java.lang.Object response = call.invoke(objects);
 
         if (response instanceof java.rmi.RemoteException) {
