@@ -60,9 +60,12 @@ import org.apache.geronimo.core.service.ManagedComponent;
 /**
  * A 'Cluster' is the in-vm representative of a Cluster of Geronimo
  * nodes. The particular cluster to which it belongs is identified by
- * it's 'name' property.
+ * it's 'name' property. I hope to support different types of cluster
+ * including (initially) SimpleCluster, in which every node replicates
+ * every other node and CleverCluster, which automagically partitions
+ * data into SubClusters etc...
  *
- * @version $Revision: 1.3 $ $Date: 2003/12/30 21:16:03 $
+ * @version $Revision: 1.4 $ $Date: 2003/12/31 14:51:44 $
  */
 public interface Cluster {
   public String getName();

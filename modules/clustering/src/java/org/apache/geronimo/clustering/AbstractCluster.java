@@ -69,61 +69,70 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
  * into the same abstract base.
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/12/30 21:16:03 $
+ * @version $Revision: 1.5 $ $Date: 2003/12/31 14:51:44 $
  */
-public abstract class AbstractCluster implements Cluster, GeronimoMBeanTarget {
-    protected static Log _log = LogFactory.getLog(AbstractCluster.class);
-    private ObjectName objectName;
+public abstract class
+  AbstractCluster
+  implements Cluster, GeronimoMBeanTarget
+{
+  protected static Log _log=LogFactory.getLog(AbstractCluster.class);
+  protected ObjectName _objectName;
 
-    public String getName() {
-        String name = objectName.getKeyProperty("name");
+  //----------------------------------------
+  // Cluster
+  //----------------------------------------
 
-        if (name == null) {
-            name = "GERONIMO";
-            _log.warn("MBean name should contain 'name' property - defaulting to: " + name);
-        }
+  public String
+    getName()
+  {
+    String name=_objectName.getKeyProperty("name");
 
-        return name;
+    if (name==null)
+    {
+      name="GERONIMO";
+      _log.warn("MBean name should contain 'name' property - defaulting to: "+name);
     }
 
-    public String getNode() {
-        String node = objectName.getKeyProperty("node");
+    return name;
+  }
 
-        if (node == null) {
-            node = "0";
-            _log.warn("MBean name should contain 'node' property - defaulting to: " + node);
-        }
+  public String
+    getNode()
+  {
+    String node=_objectName.getKeyProperty("node");
 
-        return node;
+    if (node==null)
+    {
+      node="0";
+      _log.warn("MBean name should contain 'node' property - defaulting to: "+node);
     }
 
-    public void setMBeanContext(GeronimoMBeanContext context) {
-        objectName = (context == null)? null:context.getObjectName();
-    }
+    return node;
+  }
 
-    public boolean canStart() {
-        return true;
-    }
+  //----------------------------------------
+  // GeronimoMBeanTarget
+  //----------------------------------------
 
-    public void doStart() {
-    }
+  public boolean canStart() {return true;}
+  public void doStart() {}
+  public boolean canStop() {return true;}
+  public void doStop() {}
+  public void doFail() {}
 
-    public boolean canStop() {
-        return true;
-    }
+  public void
+    setMBeanContext(GeronimoMBeanContext context)
+  {
+    _objectName=(context==null)?null:context.getObjectName();
+  }
 
-    public void doStop() {
-    }
-
-    public void doFail() {
-    }
-
-    public static GeronimoMBeanInfo getGeronimoMBeanInfo() {
-        GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
-        //set target class in concrete subclass
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Name", true, false, "Name of cluster we are a part of"));
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Node", true, false, "Node id within the cluster"));
-        return mbeanInfo;
-
-    }
+  public static GeronimoMBeanInfo
+    getGeronimoMBeanInfo()
+  {
+    GeronimoMBeanInfo mbeanInfo=new GeronimoMBeanInfo();
+    //set target class in concrete subclass
+    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Name", true, false, "Name of cluster we are a part of"));
+    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Node", true, false, "Node id within the cluster"));
+    return mbeanInfo;
+  }
 }

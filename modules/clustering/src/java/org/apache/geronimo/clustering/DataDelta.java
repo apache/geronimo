@@ -59,10 +59,16 @@ package org.apache.geronimo.clustering;
  * An object capable of holding a Data change (Delta) and applying it
  * to said Data.
  *
- * @version $Revision: 1.1 $ $Date: 2003/12/30 15:32:20 $
+ * @version $Revision: 1.2 $ $Date: 2003/12/31 14:51:44 $
  */
 public abstract class
   DataDelta
 {
+  /**
+   * Apply the enclosed delta to the Data arg.
+   *
+   * @param data a <code>Data</code> value - The Data to which to
+   * apply the delta.
+   */
   public abstract void apply(Data data);
 }

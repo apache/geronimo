@@ -61,16 +61,16 @@ import java.util.List;
  * An interface implemented by components that wish to be notified
  * about changes to Cluster state.
  *
- * @version $Revision: 1.2 $ $Date: 2003/12/30 15:32:20 $
+ * @version $Revision: 1.3 $ $Date: 2003/12/31 14:51:44 $
  */
 public interface
   DataDeltaListener
 {
   /**
-   * Called by Cluster to initialise the state of a [new] node.
+   * Called by Cluster to notify node of a change to Cluster state.
    *
-   * @param delta a <code>Object</code> delta to be applied to the
-   * nodes current state.
+   * @param delta a <code>DataDelta</code> to be applied to the node's
+   * current state.
    */
   public void applyDataDelta(DataDelta delta);
 }

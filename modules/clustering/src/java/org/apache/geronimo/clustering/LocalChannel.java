@@ -65,9 +65,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * A uniquely identifiable n->n intra-vm event-raising communications channel...
+ * A uniquely identifiable n->n intra-vm event-raising communications
+ * channel. A number of nodes which are part of the same cluster and
+ * reside in the same VM should share a single Channel object.
  *
- * @version $Revision: 1.3 $ $Date: 2003/12/30 15:32:20 $
+ * @version $Revision: 1.4 $ $Date: 2003/12/31 14:51:44 $
  */
 public class
   LocalChannel
@@ -76,6 +78,12 @@ public class
   protected static Log _log=LogFactory.getLog(LocalChannel.class);
   protected static Map _map=new HashMap();
 
+  /**
+   * Return either an existing Channel, or a freshly created one.
+   *
+   * @param name a <code>String</code> value
+   * @return a <code>LocalChannel</code> value
+   */
   public static LocalChannel
     find(String name)
   {
@@ -103,12 +111,29 @@ public class
   protected String _name;
   protected List   _members=new Vector();
 
+
+  /**
+   * Creates a new <code>LocalChannel</code> instance.
+   *
+   * @param name a <code>String</code> value
+   */
   protected LocalChannel(String name) {_name=name;}
 
+  /**
+   * Return current Channel members.
+   *
+   * @return a <code>List</code> value
+   */
   public List getMembers(){synchronized (_members){return Collections.unmodifiableList(_members);}}
 
   // MetaData
 
+  /**
+   * Notify interested Cluster members of a change in membership,
+   * including the node which generated it.
+   *
+   * @param members a <code>List</code> value
+   */
   protected void
     notifyMembershipChanged(List members)
   {
@@ -125,6 +150,11 @@ public class
       }
   }
 
+  /**
+   * Add the given node to this Channel.
+   *
+   * @param member an <code>Object</code> value
+   */
   public void
     join(Object member)
   {
@@ -136,6 +166,11 @@ public class
     }
   }
 
+  /**
+   * Remove the given node from this Channel.
+   *
+   * @param member an <code>Object</code> value
+   */
   public void
     leave(Object member)
   {
@@ -145,11 +180,17 @@ public class
       notifyMembershipChanged(_members);
     }
 
-    // last one out could turn out the lights...
+    // last one out could turn off the lights...
   }
 
   // Data
 
+  /**
+   * Get the Cluster's Data - uses an election policy (currently
+   * hardwired) to decide which node to get it from.
+   *
+   * @return a <code>Data</code> value - The data
+   */
   public synchronized Data
     getData()
   {
@@ -171,6 +212,27 @@ public class
 	    return ((DataListener)member).getData();
 	}
 	return null;
+      }
+    }
+  }
+
+  /**
+   * Apply the given delta to all interested members of the cluster,
+   * excluding the member which generated it.
+   *
+   * @param l a <code>DataDeltaListener</code> value - The node that generated the delta
+   * @param delta a <code>DataDelta</code> value - The delta
+   */
+  public void
+    notifyDataDelta(DataDeltaListener l, DataDelta delta)
+  {
+    synchronized (_members)
+    {
+      for (Iterator i=_members.iterator(); i.hasNext();)
+      {
+	Object member=i.next();
+	if (member != l && member instanceof DataDeltaListener)
+	  ((DataDeltaListener)member).applyDataDelta(delta);
       }
     }
   }

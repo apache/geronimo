@@ -56,7 +56,6 @@
 package org.apache.geronimo.clustering;
 
 import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
@@ -67,86 +66,114 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
  * VM. Thus development on Clustering can start before an inter-vm
  * transport layer has been put in place...
  *
- * @version $Revision: 1.6 $ $Date: 2003/12/30 21:16:03 $
+ * @version $Revision: 1.7 $ $Date: 2003/12/31 14:51:44 $
  */
-public class LocalCluster
-        extends AbstractCluster
-        implements MetaDataListener, DataListener, DataDeltaListener {
-    protected Log log = LogFactory.getLog(LocalCluster.class);
+public class
+  LocalCluster
+  extends AbstractCluster
+  implements MetaDataListener, DataListener, DataDeltaListener
+{
+  protected Log          _log=LogFactory.getLog(LocalCluster.class);
+  protected LocalChannel _channel;
 
-    // LocalCluster
+  //----------------------------------------
+  // LocalCluster
+  //----------------------------------------
 
-    protected LocalChannel channel;
+  /**
+   * Returns a List of current Cluster members.
+   */
+  public List getMembers(){return _channel.getMembers();}
 
-    public List getMembers() {
-        return channel.getMembers();
+  //----------------------------------------
+  // MetaDataListener
+  //----------------------------------------
+
+  public void
+    setMetaData(List members)
+  {
+    _log.info("membership changed: "+members);
+  }
+
+  //----------------------------------------
+  // DataListener
+  //----------------------------------------
+
+  protected Data _data;
+
+  public Data getData() {return _data;}
+
+  public void
+    setData(Data data)
+  {
+    String xtra="we must be the first node up";
+
+    if (data!=null)
+    {
+      xtra="we are joining an extant cluster";
+      _data=data;
+    }
+    else
+    {
+      _data=new Data();
     }
 
-    public void join() {
-        channel.join(this);
+    _log.debug("initialising data - "+xtra);
+  }
+
+  //----------------------------------------
+  // DataDeltaListener
+  //----------------------------------------
+
+  public void
+    applyDataDelta(DataDelta delta)
+  {
+    _log.trace("applying data delta - "+delta);
+  }
+
+  //----------------------------------------
+  // GeronimoMBeanTarget
+  //----------------------------------------
+
+  public void
+    doStart()
+  {
+    _log=LogFactory.getLog(getClass().getName()+"#"+getName()+"/"+getNode());
+    _log.info("starting");
+    _channel=LocalChannel.find(getName());
+    synchronized (_channel)
+    {
+      setData(_channel.getData());
+      _channel.join(this);
     }
 
-    public void leave() {
-        channel.leave(this);
-    }
+    super.doStart();
+  }
 
-    public void doStart() {
-        log = LogFactory.getLog(getClass().getName() + "#" + getName() + "/" + getNode());
-        log.info("starting");
-        channel = LocalChannel.find(getName());
-        synchronized (channel) {
-            setData(channel.getData());
-            join();
-        }
-    }
+  public void
+    doStop()
+  {
+    super.doStop();
 
-    public void doStop() {
-        log.info("stopping");
-        leave();
-    }
+    _log.info("stopping");
+    _channel.leave(this);
+  }
 
-    public void doFail() {
-        log.info("failing");
-        leave();			// ??
-    }
+  public void
+    doFail()
+  {
+    super.doFail();
 
-    // MetaDataListener
-    public void setMetaData(List members) {
-        log.info("membership changed: " + members);
-    }
+    _log.info("failing");
+    _channel.leave(this);	// TODO - ??
+  }
 
-    // DataListener
-    protected Data _data;
-
-    // TODO - should probably return byte[] - needs renaming
-    public Data getData() {
-        return _data;
-    }
-
-    // TODO - should probably expect byte[] - needs renaming
-    public void
-            setData(Data data) {
-        String xtra = "we must be the first node up";
-
-        if (data != null) {
-            xtra = "we are joining an extant cluster";
-            _data = data;
-        } else {
-            _data = new Data();
-        }
-
-        log.debug("initialising data - " + xtra);
-    }
-
-    // DataDeltaListener
-    public void applyDataDelta(DataDelta delta) {
-        log.trace("applying data delta - " + delta);
-    }
-
-    public static GeronimoMBeanInfo getGeronimoMBeanInfo() {
-        GeronimoMBeanInfo mbeanInfo = AbstractCluster.getGeronimoMBeanInfo();
-        mbeanInfo.setTargetClass(LocalCluster.class);
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Members", true, false, "List of cluster members"));
-        return mbeanInfo;
-    }
+  public static GeronimoMBeanInfo
+    getGeronimoMBeanInfo()
+  {
+    GeronimoMBeanInfo mbeanInfo=AbstractCluster.getGeronimoMBeanInfo();
+    mbeanInfo.setTargetClass(LocalCluster.class);
+    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Members", true, false, "List of cluster members"));
+    return mbeanInfo;
+  }
 }
