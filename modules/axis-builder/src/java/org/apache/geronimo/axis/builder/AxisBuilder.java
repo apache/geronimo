@@ -336,7 +336,7 @@ public class AxisBuilder implements ServiceReferenceBuilder {
         String operationName = operation.getName();
         for (int i = 0; i < methodMappings.length; i++) {
             ServiceEndpointMethodMappingType methodMapping = methodMappings[i];
-            if (operationName.equals(methodMapping.getWsdlOperation())) {
+            if (operationName.equals(methodMapping.getWsdlOperation().getStringValue())) {
                 return methodMapping;
             }
         }
