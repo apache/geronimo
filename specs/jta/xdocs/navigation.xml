@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.2 $ $Date: 2003/08/16 15:14:13 $ -->
+<!-- $Revision: 1.3 $ $Date: 2003/11/25 05:30:27 $ -->
 
 <project name="Apache Geronimo :: Java Transaction API Specification">
 
@@ -11,6 +11,9 @@
       <item name="Apache" href="http://apache.org"/>
       <item name="Geronimo" href="../../index.html"/>
     </links>
+
+    <footer><div>Java, J2EE, and JCP are trademarks or registered trademarks of
+      Sun Microsystems, Inc. in the United States and other countries.</div></footer>
+
   </body>
-  
 </project>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: navigation.xml,v 1.1 2003/08/30 01:55:13 dblevins Exp $ -->
+<!-- $Id: navigation.xml,v 1.2 2003/11/25 05:30:27 adc Exp $ -->
 
 <project name="Apache Geronimo :: JSR-115 Specification">
 
@@ -11,6 +11,10 @@
       <item name="Apache" href="http://apache.org"/>
       <item name="Geronimo" href="../../index.html"/>
     </links>
+
+    <footer><div>Java, J2EE, and JCP are trademarks or registered trademarks of
+      Sun Microsystems, Inc. in the United States and other countries.</div></footer>
+
   </body>
   
 </project>
