@@ -65,6 +65,7 @@ public class JettyXMLConfiguration extends XMLConfiguration {
     private Map allMap = new HashMap();
     private Set allRoles = new HashSet();
     private Map roleRefs = new HashMap();
+    private Map servletRoles = new HashMap();
 
 
     public JettyXMLConfiguration(JettyWebAppContext context) {
@@ -88,6 +89,12 @@ public class JettyXMLConfiguration extends XMLConfiguration {
         String name = node.getString("servlet-name", false, true);
         if (name == null) name = node.getString("servlet-class", false, true);
 
+        Set roles = (Set)servletRoles.get(name);
+        if (roles == null) {
+            roles = new HashSet();
+            servletRoles.put(name, roles);
+        }
+
         Iterator sRefsIter = node.iterator("security-role-ref");
         while (sRefsIter.hasNext()) {
             XmlParser.Node securityRef = (XmlParser.Node) sRefsIter.next();
@@ -96,6 +103,8 @@ public class JettyXMLConfiguration extends XMLConfiguration {
 
             if (roleName != null && roleName.length() > 0 && roleLink != null && roleLink.length() > 0) {
                 if (log.isDebugEnabled()) log.debug("link role " + roleName + " to " + roleLink + " for " + this);
+
+                roles.add(roleName);
 
                 Set refs = (Set) roleRefs.get(roleLink);
                 if (refs == null) {
@@ -341,6 +350,21 @@ public class JettyXMLConfiguration extends XMLConfiguration {
                     configuration.addToRole(roleLink, (WebRoleRefPermission) iter.next());
                 }
             }
+
+            keys = servletRoles.keySet().iterator();
+            while (keys.hasNext()) {
+                String servletName = (String) keys.next();
+                Set roles = new HashSet(securityRoles);
+
+                roles.removeAll((Set)servletRoles.get(servletName));
+
+                iter = roles.iterator();
+                while(iter.hasNext()) {
+                    String roleName = (String) iter.next();
+                    configuration.addToRole(roleName, new WebRoleRefPermission(servletName, roleName));
+                }
+            }
+
         } catch (ClassCastException cce) {
             throw new GeronimoSecurityException("Policy configuration object does not implement RoleMappingConfiguration", cce.getCause());
         } catch (PolicyContextException e) {
