@@ -61,7 +61,7 @@ import junit.framework.TestCase;
 /**
  * Unit test for {@link Counter} class.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/26 18:39:53 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/01 21:09:57 $
  */
 public class CounterTest
     extends TestCase
@@ -140,7 +140,7 @@ public class CounterTest
         try {
             increasing.decrement();
             fail();
-        } catch(UnsupportedOperationException ex){
+        } catch (UnsupportedOperationException ex) {
             // success
         }
     }
@@ -158,8 +158,22 @@ public class CounterTest
         try {
             decreasing.increment();
             fail();
-        } catch(UnsupportedOperationException ex){
+        } catch (UnsupportedOperationException ex) {
             // success
         }
+    }
+    
+    public void testUpAndDown() {
+        Counter c = new Counter();
+        
+        assertEquals(0, c.getCount());
+        assertEquals(1, c.increment());
+        assertEquals(2, c.increment());
+        assertEquals(2, c.getCount());
+        assertEquals(1, c.decrement());
+        assertEquals(2, c.increment());
+        assertEquals(1, c.decrement());
+        assertEquals(0, c.decrement());
+        assertEquals(0, c.getCount());
     }
 }
