@@ -321,6 +321,9 @@ public class TransactionContextManager implements XATerminator, XAWork {
         infoFactory.addReference("XidImporter", XidImporter.class);
         infoFactory.addReference("Recovery", Recovery.class);
 
+        infoFactory.addInterface(XATerminator.class);
+        infoFactory.addInterface(XAWork.class);
+
         infoFactory.setConstructor(new String[] {"TransactionManager", "XidImporter", "Recovery"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
