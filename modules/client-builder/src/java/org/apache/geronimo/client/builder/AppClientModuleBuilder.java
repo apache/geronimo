@@ -443,6 +443,8 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 try {
                     componentContext = buildComponentContext(appClientDeploymentContext, appClientModule, appClient, geronimoAppClient, appClientClassLoader);
                     jndiContextGBeanData.setAttribute("context", componentContext);
+                } catch (DeploymentException e) {
+                    throw e;
                 } catch (Exception e) {
                     throw new DeploymentException("Unable to construct jndi context for AppClientModule GBean", e);
                 }
