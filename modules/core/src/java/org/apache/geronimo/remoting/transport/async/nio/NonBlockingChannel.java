@@ -84,7 +84,6 @@ import org.apache.geronimo.remoting.transport.URISupport;
 import org.apache.geronimo.remoting.transport.async.AsyncMsg;
 import org.apache.geronimo.remoting.transport.async.Channel;
 import org.apache.geronimo.remoting.transport.async.ChannelListner;
-import org.apache.geronimo.remoting.transport.async.Registry;
 
 import EDU.oswego.cs.dl.util.concurrent.Mutex;
 /**
@@ -92,7 +91,7 @@ import EDU.oswego.cs.dl.util.concurrent.Mutex;
  * 
  * This implemenation uses the standard Java 1.3 blocking socket IO.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/22 02:23:27 $
+ * @version $Revision: 1.2 $ $Date: 2003/10/21 14:24:39 $
  */
 public class NonBlockingChannel extends SimpleComponent implements Channel, SelectionEventListner {
 
@@ -110,7 +109,9 @@ public class NonBlockingChannel extends SimpleComponent implements Channel, Sele
     private SelectorManager selectorManager;
     private SelectionKey selectionKey;
 
-    public void open(URI remoteURI, ChannelListner listner) throws TransportException {
+    private URI requestedURI;
+
+    public void open(URI remoteURI, URI backConnectURI, ChannelListner listner) throws TransportException {
 
         if (log.isTraceEnabled())
             log.trace("Connecting to : " + remoteURI);
@@ -137,10 +138,13 @@ public class NonBlockingChannel extends SimpleComponent implements Channel, Sele
 
             DataOutputStream out = new DataOutputStream(socketChannel.socket().getOutputStream());
             out.writeUTF(remoteURI.toString());
+            out.writeUTF(backConnectURI.toString());
+            /*
             if (Registry.instance.getServerForClientRequest() == null)
                 out.writeUTF("async://" + socketChannel.socket().getLocalAddress().getHostAddress() + ":0");
             else
                 out.writeUTF(Registry.instance.getServerForClientRequest().getClientConnectURI().toString());
+            */
             out.flush();
 
             if (compression != -1) {
@@ -173,15 +177,15 @@ public class NonBlockingChannel extends SimpleComponent implements Channel, Sele
         // the source vm.  Could be null.
         String sourceURI = in.readUTF();
         this.remoteURI = new URI(sourceURI);
+        this.requestedURI = new URI(destURI);
         if (log.isTraceEnabled()) {
-            log.trace("Connected from : " + remoteURI);
-            log.trace("Request URI    : " + destURI);
+            log.trace("Remote URI    : " + remoteURI);
+            log.trace("Requested URI : " + requestedURI);
         }
 
         // What options did the client want to use with this connection?		
-        URI rruri = new URI(destURI);
         boolean enableTcpNoDelay = true;
-        Properties params = URISupport.parseQueryParameters(rruri);
+        Properties params = URISupport.parseQueryParameters(requestedURI);
         enableTcpNoDelay = params.getProperty("tcp.nodelay", "true").equals("true");
         int compression = Integer.parseInt((String) params.getProperty("compression", "-1"));
 
@@ -468,6 +472,13 @@ public class NonBlockingChannel extends SimpleComponent implements Channel, Sele
             log.debug("Communications error, closing connection: ", e);
             asyncClose();
         }
+    }
+
+    /**
+     * @return
+     */
+    public URI getRequestedURI() {
+        return requestedURI;
     }
 
 }

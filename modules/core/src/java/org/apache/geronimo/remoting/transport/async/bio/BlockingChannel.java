@@ -62,7 +62,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.StreamCorruptedException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URI;
@@ -84,13 +83,12 @@ import org.apache.geronimo.remoting.transport.URISupport;
 import org.apache.geronimo.remoting.transport.async.AsyncMsg;
 import org.apache.geronimo.remoting.transport.async.Channel;
 import org.apache.geronimo.remoting.transport.async.ChannelListner;
-import org.apache.geronimo.remoting.transport.async.Registry;
 /**
  * The Blocking implementation of the AsynchChannel interface.  
  * 
  * This implemenation uses the standard Java 1.3 blocking socket IO.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/22 02:23:26 $
+ * @version $Revision: 1.2 $ $Date: 2003/10/21 14:24:39 $
  */
 public class BlockingChannel extends SimpleComponent implements Runnable, Channel {
 
@@ -99,13 +97,15 @@ public class BlockingChannel extends SimpleComponent implements Runnable, Channe
     private ChannelListner listner;
     private Thread worker;
     private SocketChannel socketChannel;
-    private URI remoteURI;
     private boolean closing = false;
 
     private Inflater inflator;
     private Deflater deflater;
 
-    public void open(URI remoteURI, ChannelListner listner) throws TransportException {
+    private URI remoteURI;
+    private URI requestedURI;
+
+    public void open(URI remoteURI, URI backConnectURI, ChannelListner listner) throws TransportException {
 
         if (log.isTraceEnabled())
             log.trace("Connecting to : " + remoteURI);
@@ -132,10 +132,7 @@ public class BlockingChannel extends SimpleComponent implements Runnable, Channe
 
             DataOutputStream out = new DataOutputStream(socketChannel.socket().getOutputStream());
             out.writeUTF(remoteURI.toString());
-            if (Registry.instance.getServerForClientRequest() == null)
-                out.writeUTF("async://" + socketChannel.socket().getLocalAddress().getHostAddress() + ":0");
-            else
-                out.writeUTF(Registry.instance.getServerForClientRequest().getClientConnectURI().toString());
+            out.writeUTF(backConnectURI.toString());
             out.flush();
             
             if (compression != -1) {
@@ -165,15 +162,14 @@ public class BlockingChannel extends SimpleComponent implements Runnable, Channe
         // the source vm.  Could be null.
         String sourceURI = in.readUTF();
         this.remoteURI = new URI(sourceURI);
+        this.requestedURI = new URI(destURI);
         if (log.isTraceEnabled()) {
-            log.trace("Connected from : " + remoteURI);
-            log.trace("Request URI    : " + destURI);
+            log.trace("Remote URI    : " + remoteURI);
+            log.trace("Requested URI : " + requestedURI);
         }
-
-        // What options did the client want to use with this connection?		
-        URI rruri = new URI(destURI);
+        
         boolean enableTcpNoDelay = true;
-        Properties params = URISupport.parseQueryParameters(rruri);
+        Properties params = URISupport.parseQueryParameters(requestedURI);
         enableTcpNoDelay = params.getProperty("tcp.nodelay", "true").equals("true");
         int compression = Integer.parseInt((String) params.getProperty("compression", "-1"));
 
@@ -278,8 +274,9 @@ public class BlockingChannel extends SimpleComponent implements Runnable, Channe
                 log.trace("Waiting for message");
                 message[0].clear();
                 socketChannel.read(message[0]);
-                if( message[0].position()!=4 ) 
-                    throw new StreamCorruptedException("Did not receive the full message header.");
+                while( message[0].position()!=4 ) {
+                    socketChannel.read(message[0]);
+                }
                 message[0].flip();
                 int size = message[0].getInt();
                 
@@ -296,13 +293,15 @@ public class BlockingChannel extends SimpleComponent implements Runnable, Channe
                 message[1].clear();
                 message[1].limit(size);
                 socketChannel.read(message[1]);
-                if( message[1].position()!=size ) 
-                    throw new StreamCorruptedException("Did not receive the full message body.");
+                while( message[1].position()!=size ) {
+                    socketChannel.read(message[1]);
+                }
                 message[1].flip();                
                 listner.receiveEvent(deserialize(message));
             }
+            log.trace("Stopping due to remote end closing.");
         } catch (IOException e) {
-            // The remote end died on us.
+            log.trace("Stopping due to exception.", e);
         } finally {
             asyncClose();
         }
@@ -393,4 +392,12 @@ public class BlockingChannel extends SimpleComponent implements Runnable, Channe
     public URI getRemoteURI() {
         return remoteURI;
     }
+    
+    /**
+     * @return Returns the requestedURI.
+     */
+    public URI getRequestedURI() {
+        return requestedURI;
+    }
+
 }

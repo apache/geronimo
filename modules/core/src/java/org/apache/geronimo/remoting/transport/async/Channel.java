@@ -68,7 +68,7 @@ import org.apache.geronimo.remoting.transport.TransportException;
  * This interace abstraction is here so that it can be implemented 
  * using both the Blocking and Non-blocking IO APIs.
  * 
- * @version $Revision: 1.1 $ $Date: 2003/08/22 02:23:26 $
+ * @version $Revision: 1.2 $ $Date: 2003/10/21 14:24:39 $
  */
 public interface Channel {
 
@@ -81,7 +81,7 @@ public interface Channel {
      * @throws IOException
      * @throws ConnectionFailedException
      */
-    public void open(URI uri, ChannelListner listner) throws TransportException;
+    public void open(URI uri, URI backConnectURI, ChannelListner listner) throws TransportException;
 
     /**
      * starts an accepted connection.

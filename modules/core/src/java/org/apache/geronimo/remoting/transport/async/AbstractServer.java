@@ -70,7 +70,7 @@ import EDU.oswego.cs.dl.util.concurrent.ClockDaemon;
  * 
  * Sets up a blocking ServerSocket to accept blocking client connections.
  * 
- * @version $Revision: 1.2 $ $Date: 2003/08/29 19:16:53 $
+ * @version $Revision: 1.3 $ $Date: 2003/10/21 14:24:39 $
  */
 abstract public class AbstractServer extends SimpleContainer implements TransportServer {
 
@@ -81,6 +81,7 @@ abstract public class AbstractServer extends SimpleContainer implements Transpor
         Long.parseLong(System.getProperty("org.apache.geronimo.remoting.transport.async.connection_timeout", "300000"));
     // 5 min.
 
+    private HashMap uriTo= new HashMap();
     private HashMap channelPools = new HashMap();
 
     /**

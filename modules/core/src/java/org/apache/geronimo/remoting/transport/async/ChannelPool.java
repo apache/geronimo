@@ -77,13 +77,14 @@ import EDU.oswego.cs.dl.util.concurrent.Semaphore;
  * - It pools AsychChannel connections to be able concurrently do multiple
  * asyc sends. 
  *   
- * @version $Revision: 1.3 $ $Date: 2003/09/06 13:52:11 $
+ * @version $Revision: 1.4 $ $Date: 2003/10/21 14:24:39 $
  */
 public class ChannelPool implements Router {
 
     private static final Log log = LogFactory.getLog(ChannelPool.class);
 
-    private final URI uri;
+    private final URI remoteURI;
+    private URI backConnectURI;
     private final List available = new ArrayList();
     private final Correlator responseManager = new Correlator();
     private Router dispatcher;
@@ -96,10 +97,18 @@ public class ChannelPool implements Router {
      * @param uri
      */
     public ChannelPool(URI uri, Router dispatcher) {
-        this.uri = uri;
+        this.remoteURI = uri;
         this.dispatcher = dispatcher;
+        try {
+            if (Registry.instance.getServerForClientRequest() == null) {
+                backConnectURI = new URI("async://localhost:0");
+            } else {
+                backConnectURI = Registry.instance.getServerForClientRequest().getClientConnectURI();
+            }
+        } catch (Exception e) {
+        }
     }
-
+    
     public void dispose() {
         Iterator iterator;
         synchronized (available) {
@@ -138,9 +147,9 @@ public class ChannelPool implements Router {
             createdChannelCount++;
         }
 
-        public void open(URI uri) throws TransportException, TransportException {
+        public void open(URI uri, URI localuri) throws TransportException, TransportException {
             try {
-                next.open(uri, this);
+                next.open(uri, localuri, this);
             } catch (TransportException e) {
                 doCloseInternal = true;
                 throw e;
@@ -286,15 +295,15 @@ public class ChannelPool implements Router {
             } while (!maxOpenConnections.attempt(100));
 
         } catch (InterruptedException e1) {
-            throw new TransportException("(" + uri + "): " + e1);
+            throw new TransportException("(" + remoteURI + "): " + e1);
         }
 
         // not available, make one on demand
         try {
 
-            log.debug("channel connecting to: " + uri);
+            log.debug("channel connecting to: " + remoteURI);
             PooledAsynchChannel c = new PooledAsynchChannel(TransportFactory.instance.createAsynchChannel());
-            c.open(uri);
+            c.open(remoteURI, backConnectURI);
 
             return c;
         } catch (Exception e) {
@@ -302,9 +311,9 @@ public class ChannelPool implements Router {
             maxOpenConnections.release();
             log.debug("Connect Failed: ", e);
             if (log.isDebugEnabled()) {
-                log.debug("channel connection to: " + uri + " failed", e);
+                log.debug("channel connection to: " + remoteURI + " failed", e);
             }
-            throw new TransportException("(" + uri + "): " + e);
+            throw new TransportException("(" + remoteURI + "): " + e);
         }
     }
 
@@ -481,6 +490,21 @@ public class ChannelPool implements Router {
 
     public int getCreatedChannelCount() {
         return createdChannelCount;
+    }
+
+
+    /**
+     * @return Returns the backConnectURI.
+     */
+    public URI getBackConnectURI() {
+        return backConnectURI;
+    }
+
+    /**
+     * @param backConnectURI The backConnectURI to set.
+     */
+    public void setBackConnectURI(URI backConnectURI) {
+        this.backConnectURI = backConnectURI;
     }
 
 }
