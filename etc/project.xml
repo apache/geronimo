@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.12 $ $Date: 2003/09/08 03:43:28 $ -->
+<!-- $Revision: 1.13 $ $Date: 2003/09/27 15:50:51 $ -->
 
 <project>
   
@@ -191,6 +191,13 @@
       <name>Simone Bordet</name>
       <id>simon</id>
       <email>simon@apache.org</email>
+      <organization></organization>
+    </developer>
+
+    <developer>
+      <name>Alan D. Cabrera</name>
+      <id>adc</id>
+      <email>adc@apache.org</email>
       <organization></organization>
     </developer>
   </developers>
