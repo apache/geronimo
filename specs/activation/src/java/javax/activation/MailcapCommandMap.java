@@ -45,12 +45,12 @@ public class MailcapCommandMap extends CommandMap {
         // process /META-INF/mailcap.default
         try {
             InputStream is = MailcapCommandMap.class.getResourceAsStream("/META-INF/mailcap.default");
-            try {
-                if (is != null) {
+            if (is != null) {
+                try {
                     parseMailcap(is);
+                } finally {
+                    is.close();
                 }
-            } finally {
-                is.close();
             }
         } catch (IOException e) {
             // ignore
@@ -187,7 +187,7 @@ public class MailcapCommandMap extends CommandMap {
         }
 
         // parse fields
-        while (index < mail_cap.length() || mail_cap.charAt(index) == ';') {
+        while (index < mail_cap.length() && mail_cap.charAt(index) == ';') {
             index = skipSpace(mail_cap, index + 1);
             start = index;
             index = getToken(mail_cap, index);
