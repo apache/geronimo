@@ -64,7 +64,7 @@ import org.apache.geronimo.console.cli.DeploymentContext;
 /**
  * Main screen for operating on an EJB JAR
  *
- * @version $Revision: 1.1 $ $Date: 2003/10/19 01:56:14 $
+ * @version $Revision: 1.2 $ $Date: 2003/10/20 02:46:36 $
  */
 public class WorkWithEJBJAR extends TextController {
     private static final Log log = LogFactory.getLog(WorkWithEJBJAR.class);
@@ -110,8 +110,8 @@ public class WorkWithEJBJAR extends TextController {
                     new SelectModule(context).execute();
                     return;
                 } else if(choice.equals("8")) { //todo: prompt to save if modifications were made
-                    context.moduleInfo = null;
-                    return;
+                    new ControlDeployments(context).execute();
+                    break;
                 } else if(choice.equals("b")) {
                     context.moduleInfo = null;
                     return;

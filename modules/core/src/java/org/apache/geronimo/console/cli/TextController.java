@@ -57,8 +57,10 @@ package org.apache.geronimo.console.cli;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.io.IOException;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.DConfigBean;
+import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
 import javax.enterprise.deploy.model.DDBean;
 
@@ -67,7 +69,7 @@ import javax.enterprise.deploy.model.DDBean;
  * will paint information to the screen and then accept user input, possibly
  * repeating or invoking other controllers before returning to the caller.
  *
- * @version $Revision: 1.1 $ $Date: 2003/10/19 01:56:14 $
+ * @version $Revision: 1.2 $ $Date: 2003/10/20 02:46:35 $
  */
 public abstract class TextController {
     protected final DeploymentContext context;
@@ -101,6 +103,7 @@ public abstract class TextController {
     public abstract void execute();
 
     // Some common utility methods
+
     protected Target[] available(Target[] all, Target[] selected) {
         List list = new ArrayList();
         for(int i=0; i<all.length; i++) {
@@ -118,6 +121,50 @@ public abstract class TextController {
         return (Target[])list.toArray(new Target[list.size()]);
     }
 
+    protected TargetModuleID[] available(TargetModuleID[] all, TargetModuleID[] selected) {
+        List list = new ArrayList();
+        for(int i=0; i<all.length; i++) {
+            boolean found = false;
+            for(int j = 0; j < selected.length; j++) {
+                if(equals(all[i], selected[j])) {
+                    found = true;
+                    break;
+                }
+            }
+            if(!found) {
+                list.add(all[i]);
+            }
+        }
+        return (TargetModuleID[])list.toArray(new TargetModuleID[list.size()]);
+    }
+
+    private static boolean equals(TargetModuleID one, TargetModuleID two) {
+        if(one == null) {
+            return two == null;
+        } else if(two == null) {
+            return false;
+        }
+        return one.getTarget().getName().equals(two.getTarget().getName()) &&
+                one.getModuleID().equals(two.getModuleID()) &&
+                equals(one.getParentTargetModuleID(), two.getParentTargetModuleID());
+    }
+
+
+    protected boolean confirmModuleAction(String action) throws IOException {
+        if(context.modules.length == 0) {
+            return false;
+        }
+        println("");
+        String choice;
+        while(true) {
+            print(action+" "+context.modules.length+" selected module(s)? ");
+            context.out.flush();
+            choice = context.in.readLine().trim().toLowerCase();
+            if(choice.equals("n") || choice.equals("y")) {
+                return choice.equals("y");
+            }
+        }
+    }
     /**
      * Marches recursively through the DConfigBean tree to initialize
      * DConfigBeans for all the interesting DDBeans.  Once this is done, and

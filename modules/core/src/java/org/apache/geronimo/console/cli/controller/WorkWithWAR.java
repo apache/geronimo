@@ -64,7 +64,7 @@ import org.apache.geronimo.console.cli.DeploymentContext;
 /**
  * Main screen for operating on a web application WAR
  *
- * @version $Revision: 1.1 $ $Date: 2003/10/19 01:56:14 $
+ * @version $Revision: 1.2 $ $Date: 2003/10/20 02:46:36 $
  */
 public class WorkWithWAR extends TextController {
     private static final Log log = LogFactory.getLog(WorkWithWAR.class);
@@ -80,12 +80,12 @@ public class WorkWithWAR extends TextController {
             context.out.println("  2) Edit the corresponding server-specific deployment information");
             context.out.println("  3) Load a saved set of server-specific deployment information");
             context.out.println("  4) Save the current set of server-specific deployment information");
-            context.out.println("  UN Deploy or redeploy the WAR into the application server");
+            context.out.println("  5) Deploy or redeploy the WAR into the application server");
             context.out.println("  6) Select a new EJB JAR or WAR to work with"); //todo: adjust text when other modules are accepted
             context.out.println("  7) Manage existing deployments in the server");
             String choice;
             while(true) {
-                context.out.print("Action ([2-4,7,8] or [B]ack): ");
+                context.out.print("Action ([2-7] or [B]ack): ");
                 context.out.flush();
                 try {
                     choice = context.in.readLine().trim().toLowerCase();
@@ -102,12 +102,15 @@ public class WorkWithWAR extends TextController {
                 } else if(choice.equals("4")) {
                     new SaveServerSpecificDD(context).execute();
                     break;
+                } else if(choice.equals("5")) {
+                    new DeploymentOptions(context).execute();
+                    break;
                 } else if(choice.equals("6")) {
                     new SelectModule(context).execute();
                     return;
                 } else if(choice.equals("7")) { //todo: prompt to save if modifications were made
-                    context.moduleInfo = null;
-                    return;
+                    new ControlDeployments(context).execute();
+                    break;
                 } else if(choice.equals("b")) {
                     context.moduleInfo = null;
                     return;

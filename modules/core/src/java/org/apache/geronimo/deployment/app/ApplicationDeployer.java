@@ -82,7 +82,7 @@ import org.apache.commons.logging.LogFactory;
  *
  * @jmx:mbean
  *
- * @version $Revision: 1.2 $ $Date: 2003/10/19 01:56:14 $
+ * @version $Revision: 1.3 $ $Date: 2003/10/20 02:46:36 $
  */
 public class ApplicationDeployer implements ApplicationDeployerMBean,MBeanRegistration {
     private final static Log log = LogFactory.getLog(ApplicationDeployer.class);
@@ -182,30 +182,35 @@ public class ApplicationDeployer implements ApplicationDeployerMBean,MBeanRegist
         ModuleType type = verifyDeployment(module, dd);
         //todo: Create and start an MBean for the deployment, use that later to check status of the deployment
         ServerTargetModule tm = new ServerTargetModule(type, localServerTarget, name); //todo: specify URL for web apps
-        deployments.add(tm);
+        if(!deployments.contains(tm)) {
+            deployments.add(tm);
+        }
     }
 
     /**
      * @jmx:managed-operation
      */
-    public void start(TargetModuleID[] moduleIDList) {
+    public void start(TargetModuleID[] modules) {
         //todo: what should this return?  Some sort of ID that the ProgressObject can poll?  Perhaps it should use notifications instead?
+        validateModules(modules, false);
         //todo: implement me
     }
 
     /**
      * @jmx:managed-operation
      */
-    public void stop(TargetModuleID[] moduleIDList) {
+    public void stop(TargetModuleID[] modules) {
         //todo: what should this return?  Some sort of ID that the ProgressObject can poll?  Perhaps it should use notifications instead?
+        validateModules(modules, true);
         //todo: implement me
     }
 
     /**
      * @jmx:managed-operation
      */
-    public void undeploy(TargetModuleID[] moduleIDList) {
+    public void undeploy(TargetModuleID[] modules) {
         //todo: what should this return?  Some sort of ID that the ProgressObject can poll?  Perhaps it should use notifications instead?
+        validateModules(modules, false);
         //todo: implement me
     }
 
@@ -300,6 +305,16 @@ public class ApplicationDeployer implements ApplicationDeployerMBean,MBeanRegist
         } else {
             log.error("Validation Error: cannot determine the J2EE module type for "+module.getName());
             return null;
+        }
+    }
+
+    private void validateModules(TargetModuleID[] modules, boolean running) {
+        for(int i = 0; i < modules.length; i++) {
+            TargetModuleID module = modules[i];
+            if(!module.getTarget().equals(localServerTarget)) {
+                throw new IllegalArgumentException("Cannot affect modules for target "+module.getTarget().getName());
+            }
+            //todo: validate whether module is running according to the running argument
         }
     }
 }

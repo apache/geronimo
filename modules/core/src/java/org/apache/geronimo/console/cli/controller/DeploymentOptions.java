@@ -65,6 +65,8 @@ import java.io.OutputStream;
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
+import javax.enterprise.deploy.spi.status.ProgressObject;
+import javax.enterprise.deploy.spi.TargetModuleID;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.console.cli.TextController;
@@ -73,7 +75,7 @@ import org.apache.geronimo.console.cli.DeploymentContext;
 /**
  * The screen that lets you distribute, deploy, or redeploy the current module.
  *
- * @version $Revision: 1.1 $ $Date: 2003/10/19 01:56:14 $
+ * @version $Revision: 1.2 $ $Date: 2003/10/20 02:46:36 $
  */
 public class DeploymentOptions extends TextController {
     private static final Log log = LogFactory.getLog(DeploymentOptions.class);
@@ -92,8 +94,8 @@ public class DeploymentOptions extends TextController {
             context.out.println((context.targets.length == 0 ? "No" : String.valueOf(context.targets.length))+" target"+(context.targets.length != 1 ? "s" : "")+" currently selected.");
             context.out.println("  1) Select targets (usually servers or clusters) to work with");
             context.out.println("  "+(context.targets.length > 0 ? "2)" : "--")+" Distribute "+context.moduleInfo.file.getName()+" to selected targets");
-            context.out.println("  "+(context.targets.length > 0 ? "UN" : "--")+" Deploy "+context.moduleInfo.file.getName()+" to selected targets");
-            context.out.println("  "+(context.targets.length > 0 ? "UN" : "--")+" Redeploy "+context.moduleInfo.file.getName()+" to selected targets");
+            context.out.println("  "+(context.targets.length > 0 ? "3)" : "--")+" Deploy "+context.moduleInfo.file.getName()+" to selected targets");
+            context.out.println("  "+(context.targets.length > 0 && context.deployer.isRedeploySupported() ? "4)" : "--")+" Redeploy "+context.moduleInfo.file.getName()+" to selected targets");
             String choice;
             while(true) {
                 context.out.print("Action ([1"+(context.targets.length > 0 ? "-4" : "")+"] or [B]ack): ");
@@ -111,9 +113,32 @@ public class DeploymentOptions extends TextController {
                     } else if(choice.equals("2")) {
                         distribute();
                         break;
-                    } else if(choice.equals("3")) { //todo
+                    } else if(choice.equals("3")) {
+                        ProgressObject po = distribute();
+                        if(po != null) {
+                            TargetModuleID[] ids = po.getResultTargetModuleIDs();
+                            println("Successfully distributed "+ids.length+" modules."+(ids.length > 0 ? "Now starting them..." : ""));
+                            if(ids.length > 0) {
+                                po = context.deployer.start(ids);
+                                if(po != null) {
+                                    new ProgressMonitor(context, po).execute();
+                                }
+                            }
+                        } else {
+                            println("ERROR: Modules have been distributed but must be manually started.");
+                        }
                         break;
-                    } else if(choice.equals("4")) { //todo
+                    } else if(choice.equals("4")) {
+                        new SelectDistributedModules(context, new SelectDistributedModules.NonRunningModules("redeploy")).execute();
+                        if(context.modules.length > 0) {
+                            println("Prepared to update "+context.modules.length+" deployments with new "+context.moduleInfo.file.getName());
+                            if(confirmModuleAction("Redeploy")) {
+                                ProgressObject po = context.deployer.redeploy(context.modules, context.moduleInfo.file, spool());
+                                if(po != null) {
+                                    new ProgressMonitor(context, po).execute();
+                                }
+                            }
+                        }
                         break;
                     } else if(choice.equals("b")) {
                         return;
@@ -127,9 +152,13 @@ public class DeploymentOptions extends TextController {
         }
     }
 
-    private void distribute() throws ConfigurationException, IOException {
+    private ProgressObject distribute() throws ConfigurationException, IOException {
         File dd = spool();
-        context.deployer.distribute(context.targets, context.moduleInfo.file, dd);
+        ProgressObject po = context.deployer.distribute(context.targets, context.moduleInfo.file, dd);
+        if(po != null) {
+            new ProgressMonitor(context, po).execute();
+        }
+        return po;
     }
 
     private File spool() throws IOException, ConfigurationException {

@@ -70,7 +70,7 @@ import org.apache.geronimo.console.cli.TextController;
 /**
  * List deployed modules for the selected targets
  *
- * @version $Revision: 1.1 $ $Date: 2003/10/19 01:56:14 $
+ * @version $Revision: 1.2 $ $Date: 2003/10/20 02:46:36 $
  */
 public class ListDeployments extends TextController {
     private static final Log log = LogFactory.getLog(ListDeployments.class);
@@ -128,6 +128,7 @@ public class ListDeployments extends TextController {
                     break;
                 } else if(choice.equals("l")) {
                     selected = true;
+                    type = null;
                     break;
                 }
             }

@@ -57,6 +57,8 @@ package org.apache.geronimo.console.cli.controller;
 
 import java.io.IOException;
 import javax.enterprise.deploy.spi.Target;
+import javax.enterprise.deploy.spi.TargetModuleID;
+import javax.enterprise.deploy.spi.status.ProgressObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.console.cli.TextController;
@@ -65,10 +67,11 @@ import org.apache.geronimo.console.cli.DeploymentContext;
 /**
  * Select targets or view, start, stop, or undeploy modules from the targets.
  *
- * @version $Revision: 1.1 $ $Date: 2003/10/19 01:56:14 $
+ * @version $Revision: 1.2 $ $Date: 2003/10/20 02:46:36 $
  */
 public class ControlDeployments extends TextController {
     private static final Log log = LogFactory.getLog(ControlDeployments.class);
+    Boolean running;
 
     public ControlDeployments(DeploymentContext context) {
         super(context);
@@ -84,9 +87,9 @@ public class ControlDeployments extends TextController {
             }
             context.out.println((context.targets.length == 0 ? "No" : String.valueOf(context.targets.length))+" target"+(context.targets.length != 1 ? "s" : "")+" currently selected.");
             context.out.println("  1) Select targets (usually servers or clusters) to work with");
-            context.out.println("  "+(context.targets.length > 0 ? "UN" : "--")+" Start non-running modules on the selected servers/clusters");
-            context.out.println("  "+(context.targets.length > 0 ? "UN" : "--")+" Stop running modules on the selected servers/clusters");
-            context.out.println("  "+(context.targets.length > 0 ? "UN" : "--")+" Undeploy modules from the selected servers/clusters");
+            context.out.println("  "+(context.targets.length > 0 ? "2)" : "--")+" Start non-running modules on the selected servers/clusters");
+            context.out.println("  "+(context.targets.length > 0 ? "3)" : "--")+" Stop running modules on the selected servers/clusters");
+            context.out.println("  "+(context.targets.length > 0 ? "4)" : "--")+" Undeploy modules from the selected servers/clusters");
             context.out.println("  "+(context.targets.length > 0 ? "5)" : "--")+" View modules on the selected servers/clusters");
             String choice;
             while(true) {
@@ -94,23 +97,71 @@ public class ControlDeployments extends TextController {
                 context.out.flush();
                 try {
                     choice = context.in.readLine().trim().toLowerCase();
+                    if(choice.equals("1")) {
+                        new SelectServer(context).execute();
+                        break;
+                    } else if(choice.equals("2")) {
+                        if(running == null || running.booleanValue()) {
+                            context.modules = new TargetModuleID[0];
+                        }
+                        new SelectDistributedModules(context, new SelectDistributedModules.NonRunningModules("start")).execute();
+                        running = Boolean.FALSE;
+                        if(confirmModuleAction("Start")) {
+                            ProgressObject po = context.deployer.start(context.modules);
+                            if(po != null) {
+                                new ProgressMonitor(context, po).execute();
+                                if(po.getDeploymentStatus().isCompleted()) {
+                                    running = Boolean.TRUE;
+                                } else {
+                                    running = null;
+                                }
+                            } else { // assume success
+                                running = Boolean.TRUE;
+                            }
+                        }
+                        break;
+                    } else if(choice.equals("3")) {
+                        if(running == null || !running.booleanValue()) {
+                            context.modules = new TargetModuleID[0];
+                        }
+                        new SelectDistributedModules(context, new SelectDistributedModules.RunningModules("stop")).execute();
+                        running = Boolean.TRUE;
+                        if(confirmModuleAction("Stop")) {
+                            ProgressObject po = context.deployer.stop(context.modules);
+                            if(po != null) {
+                                new ProgressMonitor(context, po).execute();
+                                if(po.getDeploymentStatus().isCompleted()) {
+                                    running = Boolean.FALSE;
+                                } else {
+                                    running = null;
+                                }
+                            } else { // assume success
+                                running = Boolean.FALSE;
+                            }
+                        }
+                        break;
+                    } else if(choice.equals("4")) {
+                        if(running == null || running.booleanValue()) {
+                            context.modules = new TargetModuleID[0];
+                        }
+                        new SelectDistributedModules(context, new SelectDistributedModules.NonRunningModules("undeploy")).execute();
+                        running = Boolean.FALSE;
+                        if(confirmModuleAction("Undeploy")) {
+                            ProgressObject po = context.deployer.undeploy(context.modules);
+                            if(po != null) {
+                                new ProgressMonitor(context, po).execute();
+                            }
+                            running = null;
+                        }
+                        break;
+                    } else if(choice.equals("5")) {
+                        new ListDeployments(context).execute();
+                        break;
+                    } else if(choice.equals("b")) {
+                        return;
+                    }
                 } catch(IOException e) {
                     log.error("Unable to read user input", e);
-                    return;
-                }
-                if(choice.equals("1")) {
-                    new SelectServer(context).execute();
-                    break;
-                } else if(choice.equals("2")) { //todo
-                    break;
-                } else if(choice.equals("3")) { //todo
-                    break;
-                } else if(choice.equals("4")) { //todo
-                    break;
-                } else if(choice.equals("5")) {
-                    new ListDeployments(context).execute();
-                    break;
-                } else if(choice.equals("b")) {
                     return;
                 }
             }

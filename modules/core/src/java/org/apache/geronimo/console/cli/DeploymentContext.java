@@ -61,12 +61,13 @@ import java.io.File;
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.DeploymentConfiguration;
 import javax.enterprise.deploy.spi.Target;
+import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.model.DeployableObject;
 
 /**
  * The information required in order to perform deployment operations.
  *
- * @version $Revision: 1.1 $ $Date: 2003/10/19 01:56:14 $
+ * @version $Revision: 1.2 $ $Date: 2003/10/20 02:46:35 $
  */
 public class DeploymentContext {
     public DeploymentManager deployer;
@@ -76,6 +77,7 @@ public class DeploymentContext {
     public BufferedReader in;
     public ModuleInfo moduleInfo;
     public File saveDir = new File(System.getProperty("user.dir"));
-    public Target[] targets = new Target[0];
     public boolean connected = false;
+    public Target[] targets = new Target[0];
+    public TargetModuleID[] modules = new TargetModuleID[0];
 }
