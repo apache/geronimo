@@ -53,6 +53,13 @@
  *
  * ====================================================================
  */
+
+//
+// This source code implements specifications defined by the Java
+// Community Process. In order to remain compliant with the specification
+// DO NOT add / change / or delete method signatures!
+//
+
 package org.apache.geronimo.management;
 
 import javax.management.Notification;
@@ -62,7 +69,7 @@ import javax.management.NotificationFilter;
  * Static constants class which contains all of the J2EE notification types from the
  * J2EE management specification.
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/21 14:44:25 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/23 06:26:04 $
  */
 public final class NotificationType {
     private NotificationType() {

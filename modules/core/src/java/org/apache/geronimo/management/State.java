@@ -53,12 +53,19 @@
  *
  * ====================================================================
  */
+
+//
+// This source code implements specifications defined by the Java
+// Community Process. In order to remain compliant with the specification
+// DO NOT add / change / or delete method signatures!
+//
+
 package org.apache.geronimo.management;
 
 /**
  * This class contains a type safe enumeration of the states from the J2EE Management specification.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/20 07:13:09 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/23 06:26:04 $
  */
 public final class State {
     public static final int STARTING_INDEX = 0;

@@ -53,6 +53,13 @@
  *
  * ====================================================================
  */
+
+//
+// This source code implements specifications defined by the Java
+// Community Process. In order to remain compliant with the specification
+// DO NOT add / change / or delete method signatures!
+//
+
 package org.apache.geronimo.management;
 
 import javax.management.j2ee.statistics.Stats;
@@ -60,7 +67,7 @@ import javax.management.j2ee.statistics.Stats;
 /**
  * This is a representation of the StatisticsProvider type defined in the J2EE Management specification.
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/21 14:44:25 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/23 06:26:04 $
  */
 public interface StatisticsProvider {
     /**
