@@ -77,7 +77,7 @@ import org.apache.geronimo.security.util.ContextManager;
  * which, in turn, also get placed into the subject.  It is these RealmPrincipals
  * that are used in the principal to role mapping.
  *
- * @version $Revision: 1.5 $ $Date: 2004/01/02 04:31:44 $
+ * @version $Revision: 1.6 $ $Date: 2004/01/05 18:56:34 $
  */
 public class LoginModuleWrapper implements LoginModule {
     private String realm;
@@ -95,15 +95,14 @@ public class LoginModuleWrapper implements LoginModule {
                 });
     }
 
-    public final static String REALM = "org.apache.geronimo.security.LoginModuleWrapper.REALM";
+    public final static String REALM_NAME = "org.apache.geronimo.security.LoginModuleWrapper.REALM_NAME";
     public final static String MODULE = "org.apache.geronimo.security.LoginModuleWrapper.MODULE";
-    public final static String LOADER = "org.apache.geronimo.security.LoginModuleWrapper.LOADER";
 
 
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
 
         externalSubject = subject;
-        realm = (String) options.get(REALM);
+        realm = (String) options.get(REALM_NAME);
         try {
             final String finalClass = (String) options.get(MODULE);
             module = (LoginModule) java.security.AccessController.doPrivileged(
@@ -140,7 +139,7 @@ public class LoginModuleWrapper implements LoginModule {
         externalSubject.getPrivateCredentials().addAll(internalSubject.getPrivateCredentials());
         externalSubject.getPublicCredentials().addAll(internalSubject.getPublicCredentials());
 
-        AccessControlContext context = (AccessControlContext)Subject.doAsPrivileged(externalSubject, new java.security.PrivilegedAction() {
+        AccessControlContext context = (AccessControlContext) Subject.doAsPrivileged(externalSubject, new java.security.PrivilegedAction() {
             public Object run() {
                 return AccessController.getContext();
             }

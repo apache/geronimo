@@ -70,7 +70,7 @@ import javax.security.auth.spi.LoginModule;
 
 /**
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/02 04:31:44 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/05 18:56:34 $
  */
 
 public class SQLLoginModule implements LoginModule {
@@ -81,7 +81,7 @@ public class SQLLoginModule implements LoginModule {
     String password;
 
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
-        realm = (SQLSecurityRealm) options.get(SQLSecurityRealm.REALM);
+        realm = (SQLSecurityRealm) options.get(SQLSecurityRealm.REALM_INSTANCE);
 
         this.subject = subject;
         this.handler = callbackHandler;

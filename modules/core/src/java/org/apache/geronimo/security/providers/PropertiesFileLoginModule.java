@@ -70,7 +70,7 @@ import javax.security.auth.spi.LoginModule;
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/02 04:31:44 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/05 18:56:34 $
  */
 public class PropertiesFileLoginModule implements LoginModule {
     PropertiesFileSecurityRealm realm;
@@ -80,7 +80,7 @@ public class PropertiesFileLoginModule implements LoginModule {
     String password;
 
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
-        realm = (PropertiesFileSecurityRealm) options.get(PropertiesFileSecurityRealm.REALM);
+        realm = (PropertiesFileSecurityRealm) options.get(PropertiesFileSecurityRealm.REALM_INSTANCE);
 
         this.subject = subject;
         this.handler = callbackHandler;

@@ -65,7 +65,7 @@ import javax.security.auth.login.Configuration;
 
 /**
  *
- * @version $Revision: 1.3 $ $Date: 2003/12/28 19:34:05 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/05 18:56:34 $
  */
 public class GeronimoLoginConfiguration extends Configuration {
 
@@ -75,21 +75,21 @@ public class GeronimoLoginConfiguration extends Configuration {
         this.securityService = securityService;
     }
 
-    public AppConfigurationEntry[] getAppConfigurationEntry(String realm) {
+    public AppConfigurationEntry[] getAppConfigurationEntry(String realmName) {
 
         ArrayList list = new ArrayList();
         for (Iterator iter = securityService.getRealms().iterator(); iter.hasNext();) {
-            SecurityRealm sr = (SecurityRealm) iter.next();
+            SecurityRealm securityRealm = (SecurityRealm) iter.next();
 
-            if (realm.equals(sr.getRealmName())) {
-                AppConfigurationEntry[] ace = sr.getAppConfigurationEntry();
+            if (realmName.equals(securityRealm.getRealmName())) {
+                AppConfigurationEntry[] appConfigurationEntries = securityRealm.getAppConfigurationEntry();
 
-                for (int i = 0; i < ace.length; i++) {
-                    AppConfigurationEntry entry = ace[i];
+                for (int i = 0; i < appConfigurationEntries.length; i++) {
+                    AppConfigurationEntry entry = appConfigurationEntries[i];
                     HashMap options = new HashMap();
 
                     options.putAll(entry.getOptions());
-                    options.put(LoginModuleWrapper.REALM, realm);
+                    options.put(LoginModuleWrapper.REALM_NAME, realmName);
                     options.put(LoginModuleWrapper.MODULE, entry.getLoginModuleName());
 
                     AppConfigurationEntry wrapper = new AppConfigurationEntry("org.apache.geronimo.security.LoginModuleWrapper",

@@ -68,18 +68,16 @@ import java.util.Set;
 
 import javax.security.auth.login.AppConfigurationEntry;
 
+import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.security.AbstractSecurityRealm;
 import org.apache.geronimo.security.GeronimoSecurityException;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
-import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
-import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
-import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
 import org.apache.regexp.RE;
 
 
 /**
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/04 20:40:26 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/05 18:56:34 $
  */
 public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
     private boolean running = false;
@@ -88,7 +86,7 @@ public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
     Properties users = new Properties();
     Properties groups = new Properties();
 
-    final static String REALM = "org.apache.geronimo.security.providers.PropertiesFileSecurityRealm";
+    final static String REALM_INSTANCE = "org.apache.geronimo.security.providers.PropertiesFileSecurityRealm";
 
     public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
         GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
@@ -203,10 +201,10 @@ public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
     public AppConfigurationEntry[] getAppConfigurationEntry() {
         HashMap options = new HashMap();
 
-        options.put(REALM, this);
+        options.put(REALM_INSTANCE, this);
         AppConfigurationEntry entry = new AppConfigurationEntry("org.apache.geronimo.security.providers.PropertiesFileLoginModule",
-                                                                AppConfigurationEntry.LoginModuleControlFlag.SUFFICIENT,
-                                                                options);
+                AppConfigurationEntry.LoginModuleControlFlag.SUFFICIENT,
+                options);
         AppConfigurationEntry[] configuration = {entry};
 
         return configuration;
