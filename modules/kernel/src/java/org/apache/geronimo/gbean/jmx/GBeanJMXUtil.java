@@ -48,7 +48,7 @@ public final class GBeanJMXUtil {
         int a = 0;
         for (Iterator iterator = gbeanAttributes.iterator(); iterator.hasNext();) {
             GAttributeInfo gAttributeInfo = (GAttributeInfo) iterator.next();
-            attributes[a] = new MBeanAttributeInfo(gAttributeInfo.getName(), "no description available", gAttributeInfo.getType(), gAttributeInfo.isReadable().booleanValue(), gAttributeInfo.isWritable().booleanValue(), isIs(gAttributeInfo));
+            attributes[a] = new MBeanAttributeInfo(gAttributeInfo.getName(), gAttributeInfo.getType(), "no description available", gAttributeInfo.isReadable().booleanValue(), gAttributeInfo.isWritable().booleanValue(), isIs(gAttributeInfo));
             a++;
         }
 
