@@ -70,7 +70,7 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/14 22:16:38 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/16 19:59:44 $
  */
 public class GBeanMBeanAttribute {
     private static final Log log = LogFactory.getLog(GBeanMBeanAttribute.class);
@@ -160,18 +160,18 @@ public class GBeanMBeanAttribute {
                 constructorType != getterMethod.getReturnType()) {
             throw new InvalidConfigurationException("Constructor argument and getter method do not have the same type:" +
                     " name=" + attributeInfo.getName() +
-                    " constructorType=" + constructorType +
-                    " geterMethod=" + getterMethod.getName() +
+                    " constructorType=" + constructorType.getName() +
+                    " getterMethod=" + getterMethod.getName() +
                     " targetClass=" + gMBean.getType().getName());
         }
 
         // setter and constructor types are consistent
         if (constructorType != null && setterMethod != null &&
-                constructorType != setterMethod.getReturnType()) {
+                constructorType != setterMethod.getParameterTypes()[0]) {
             throw new InvalidConfigurationException("Constructor argument and setter method do not have the same type:" +
                     " name=" + attributeInfo.getName() +
-                    " constructorType=" + constructorType +
-                    " seterMethod=" + setterMethod.getName() +
+                    " constructorType=" + constructorType.getName() +
+                    " setterMethod=" + setterMethod.getName() +
                     " targetClass=" + gMBean.getType().getName());
         }
 
