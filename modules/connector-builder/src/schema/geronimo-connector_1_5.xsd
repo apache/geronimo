@@ -54,6 +54,42 @@
             </xsd:documentation>
         </xsd:annotation>
 
+        <xsd:unique name="resourceadapter-instance-name-uniqueness">
+          <xsd:annotation>
+            <xsd:documentation>
+
+              The resourceadapter-instance element must have a unique name.
+
+            </xsd:documentation>
+          </xsd:annotation>
+          <xsd:selector xpath="ger:resourceadapter/ger:resourceadapter-instance"/>
+          <xsd:field    xpath="ger:resourceadapter-name"/>
+        </xsd:unique>
+
+        <xsd:unique name="connectiondefinition-instance-name-uniqueness">
+          <xsd:annotation>
+            <xsd:documentation>
+
+              The connectiondefinition-instance element must have a unique name.
+
+            </xsd:documentation>
+          </xsd:annotation>
+          <xsd:selector xpath="ger:resourceadapter/ger:outbound-resourceadapter/ger:connection-definition/ger:connectiondefinition-instance"/>
+          <xsd:field    xpath="ger:name"/>
+        </xsd:unique>
+
+        <xsd:unique name="admin-object-instance-name-uniqueness">
+          <xsd:annotation>
+            <xsd:documentation>
+
+              The admin-object-instance element must have a unique name.
+
+            </xsd:documentation>
+          </xsd:annotation>
+          <xsd:selector xpath="ger:adminobject/ger:adminobject-instance"/>
+          <xsd:field    xpath="ger:message-destination-name"/>
+        </xsd:unique>
+
     </xsd:element>
 
 
@@ -414,7 +450,8 @@
         <xsd:sequence>
             <xsd:element name="resourceadapter-instance"
                 type="ger:resourceadapter-instanceType"
-                minOccurs="0"/>
+                minOccurs="0">
+                </xsd:element>
             <xsd:element name="outbound-resourceadapter"
                 type="ger:outbound-resourceadapterType"
                 minOccurs="0">
