@@ -64,15 +64,19 @@ import org.apache.geronimo.deployment.model.geronimo.ejb.GeronimoEjbJarDocument;
 import org.apache.geronimo.deployment.model.geronimo.ejb.EjbJar;
 import org.apache.geronimo.deployment.model.geronimo.ejb.EnterpriseBeans;
 import org.apache.geronimo.deployment.model.geronimo.ejb.Session;
+import org.apache.geronimo.deployment.model.geronimo.ejb.Entity;
+import org.apache.geronimo.deployment.model.geronimo.ejb.Query;
+import org.apache.geronimo.deployment.model.geronimo.ejb.Binding;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceEnvRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ClassSpace;
 import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
+import org.apache.geronimo.deployment.model.ejb.QueryMethod;
 
 /**
  * Tests basic Geronimo EJB JAR DD loading (not very comprehensive)
  *
- * @version $Revision: 1.4 $ $Date: 2003/11/17 02:03:16 $
+ * @version $Revision: 1.5 $ $Date: 2003/11/18 22:22:29 $
  */
 public class GeronimoEjbJarLoaderTest extends TestCase {
     private File docDir;
@@ -98,13 +102,18 @@ public class GeronimoEjbJarLoaderTest extends TestCase {
         assertEquals(2, session.length);
         assertEquals("Stateless", session[0].getSessionType());
         assertEquals("Stateful", session[1].getSessionType());
+        Entity[] entity = beans.getGeronimoEntity();
+        assertEquals(1, entity.length);
+        assertEquals("Container", entity[0].getPersistenceType());
+        assertEquals("java.lang.Integer", entity[0].getPrimKeyClass());
+
         checkStateless(session[0]);
         checkStateful(session[1]);
+        checkCMPEntity(entity[0]);
     }
 
     static void checkStateless(Session session) {
         assertEquals("StatelessTest", session.getEJBName());
-        assertEquals("StatelessTestJNDI", session.getJndiName());
 
         EnvEntry[] envs = session.getEnvEntry();
         assertEquals(1, envs.length);
@@ -121,7 +130,6 @@ public class GeronimoEjbJarLoaderTest extends TestCase {
 
     static void checkStateful(Session session) {
         assertEquals("StatefulTest", session.getEJBName());
-        assertEquals("StatefulTestJNDI", session.getJndiName());
 
         EjbRef[] ejbRefs = session.getGeronimoEJBRef();
         assertEquals(1, ejbRefs.length);
@@ -134,6 +142,35 @@ public class GeronimoEjbJarLoaderTest extends TestCase {
         ResourceEnvRef resEnvRef = resEnvRefs[0];
         assertEquals("jdbc/StatefulDatabase", resEnvRef.getResourceEnvRefName());
         assertTrue("resEnvRef does not have an empty JNDI name!", resEnvRef.getJndiName() == null || resEnvRef.getJndiName().equals(""));
+    }
+
+    static void checkCMPEntity(Entity cmpEntity) {
+        assertEquals("CMPTest", cmpEntity.getEJBName());
+        //No references...
+        //test queries
+        Query[] query = cmpEntity.getGeronimoQuery();
+        checkQuery(query);
+        Query[] update = cmpEntity.getUpdate();
+        checkQuery(update);
+    }
+
+    private static void checkQuery(Query[] query) {
+        assertEquals(1, query.length);
+        QueryMethod queryMethod = query[0].getQueryMethod();
+        assertTrue(null != queryMethod);
+        assertEquals("doSomething", queryMethod.getMethodName());
+        assertEquals(2, queryMethod.getMethodParam().length);
+        assertEquals("java.lang.String", queryMethod.getMethodParam()[0]);
+        assertEquals("OtherThingy", query[0].getAbstractSchemaName());
+        assertEquals("Many", query[0].getMultiplicity());
+        Binding[] inputBinding = query[0].getInputBinding();
+        assertEquals(2, inputBinding.length);
+        assertEquals("org.openejb.nova.persistence.binding.jdbc.StringBinding", inputBinding[0].getType());
+        assertEquals(0, inputBinding[0].getParam());
+        Binding[] outputBinding = query[0].getOutputBinding();
+        assertEquals(1, outputBinding.length);
+        assertEquals("org.openejb.nova.persistence.binding.jdbc.StringBinding", outputBinding[0].getType());
+        assertEquals(0, outputBinding[0].getParam());
     }
 
     protected void setUp() throws Exception {

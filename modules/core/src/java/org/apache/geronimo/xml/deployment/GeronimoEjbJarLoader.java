@@ -72,7 +72,7 @@ import org.apache.geronimo.deployment.model.ejb.AssemblyDescriptor;
 /**
  * Loads a Geronimo ejb-jar.xml file into POJOs
  *
- * @version $Revision: 1.10 $ $Date: 2003/11/18 04:16:22 $
+ * @version $Revision: 1.11 $ $Date: 2003/11/18 22:22:28 $
  */
 public class GeronimoEjbJarLoader {
     public static GeronimoEjbJarDocument load(Document doc) {
@@ -87,11 +87,11 @@ public class GeronimoEjbJarLoader {
         J2EELoader.loadDisplayable(root, jar);
         jar.setModuleName(LoaderUtil.getChildContent(root, "module-name"));
         String datasourceName = LoaderUtil.getChildContent(root, "datasource-name");
-        if (datasourceName != null && datasourceName.length() >0) {
+        if (datasourceName != null && datasourceName.length() > 0) {
             jar.setDatasourceName(datasourceName);
         }
         Element ebe = LoaderUtil.getChild(root, "enterprise-beans");
-        if(ebe != null) {
+        if (ebe != null) {
             EnterpriseBeans eb = new EnterpriseBeans();
             jar.setEnterpriseBeans(eb);
             eb.setSession(loadSessions(ebe));
@@ -100,7 +100,7 @@ public class GeronimoEjbJarLoader {
         }
         //todo: override any Geronimo-specific relationship content
         Element re = LoaderUtil.getChild(root, "relationships");
-        if(re != null) {
+        if (re != null) {
             Relationships rel = new Relationships();
             J2EELoader.loadDescribable(re, rel);
             rel.setEjbRelation(EjbJarLoader.loadEjbRelations(re));
@@ -108,7 +108,7 @@ public class GeronimoEjbJarLoader {
         }
         //todo: override any Geronimo-specific assembly-descriptor content
         Element ade = LoaderUtil.getChild(root, "assembly-descriptor");
-        if(ade != null) {
+        if (ade != null) {
             AssemblyDescriptor ad = new AssemblyDescriptor();
             EjbJarLoader.loadAssemblyDescriptor(ade, ad);
             jar.setAssemblyDescriptor(ad);
@@ -121,7 +121,7 @@ public class GeronimoEjbJarLoader {
     private static MessageDriven[] loadMessageDrivens(Element parent) {
         Element[] roots = LoaderUtil.getChildren(parent, "message-driven");
         MessageDriven[] mdbs = new MessageDriven[roots.length];
-        for(int i = 0; i < roots.length; i++) {
+        for (int i = 0; i < roots.length; i++) {
             Element root = roots[i];
             mdbs[i] = new MessageDriven();
             loadEjb(root, mdbs[i]);
@@ -137,7 +137,7 @@ public class GeronimoEjbJarLoader {
     private static Session[] loadSessions(Element ebe) {
         Element[] roots = LoaderUtil.getChildren(ebe, "session");
         Session[] sessions = new Session[roots.length];
-        for(int i = 0; i < roots.length; i++) {
+        for (int i = 0; i < roots.length; i++) {
             Element root = roots[i];
             sessions[i] = new Session();
             loadEjb(root, sessions[i]);
@@ -149,7 +149,6 @@ public class GeronimoEjbJarLoader {
             sessions[i].setServiceEndpoint(LoaderUtil.getChildContent(root, "service-endpoint"));
             sessions[i].setSessionType(LoaderUtil.getChildContent(root, "session-type"));
             sessions[i].setTransactionType(LoaderUtil.getChildContent(root, "transaction-type"));
-            sessions[i].setJndiName(LoaderUtil.getChildContent(root, "jndi-name"));
         }
         return sessions;
     }
@@ -157,7 +156,7 @@ public class GeronimoEjbJarLoader {
     private static Entity[] loadEntities(Element ebe) {
         Element[] roots = LoaderUtil.getChildren(ebe, "entity");
         Entity[] entities = new Entity[roots.length];
-        for(int i = 0; i < roots.length; i++) {
+        for (int i = 0; i < roots.length; i++) {
             Element root = roots[i];
             entities[i] = new Entity();
             loadEjb(root, entities[i]);
@@ -173,43 +172,45 @@ public class GeronimoEjbJarLoader {
             entities[i].setAbstractSchemaName(LoaderUtil.getChildContent(root, "abstract-schema-name"));
             entities[i].setPrimkeyField(LoaderUtil.getChildContent(root, "primkey-field"));
             entities[i].setCmpField(EjbJarLoader.loadCmpFields(root));
-            entities[i].setQuery(GeronimoEjbJarLoader.loadQueries(root));
-            entities[i].setJndiName(LoaderUtil.getChildContent(root, "jndi-name"));
+            Element[] query;
+            query = LoaderUtil.getChildren(root, "query");
+            entities[i].setQuery(GeronimoEjbJarLoader.loadQueries(query));
+            Element[] update = LoaderUtil.getChildren(root, "update");
+            entities[i].setUpdate(GeronimoEjbJarLoader.loadQueries(update));
         }
         return entities;
     }
 
-    static Query[] loadQueries(Element parent) {
-        Element[] roots = LoaderUtil.getChildren(parent, "query");
+    static Query[] loadQueries(Element[] roots) {
         Query[] queries = new Query[roots.length];
-        for(int i = 0; i < roots.length; i++) {
+        for (int i = 0; i < roots.length; i++) {
             Element root = roots[i];
             Query query = (Query) EjbJarLoader.loadQuery(root, new Query());
             query.setSql(LoaderUtil.getChildContent(root, "sql"));
-            query.setInputBinding(loadInputBinding(LoaderUtil.getChild(root, "input-binding")));
+            query.setInputBinding(loadBinding(LoaderUtil.getChild(root, "input-binding")));
             Element outputBinding = LoaderUtil.getChild(root, "output-binding");
-            query.setAbstractSchemaName(LoaderUtil.getChildContent(outputBinding, "abstract-schema-name"));
-            query.setOutputBinding(loadBinding(LoaderUtil.getChild(outputBinding, "binding")));
-            query.setMultivalue(Boolean.getBoolean(LoaderUtil.getChildContent(outputBinding, "multivalue")));
+            query.setAbstractSchemaName(LoaderUtil.getAttribute(outputBinding, "abstract-schema-name"));
+            query.setOutputBinding(loadBinding(outputBinding));
+            query.setMultiplicity(LoaderUtil.getAttribute(outputBinding, "multiplicity"));
             queries[i] = query;
         }
         return queries;
     }
 
-    private static Binding[] loadInputBinding(Element parent) {
+    private static Binding[] loadBinding(Element parent) {
+        if (parent == null) {
+            return new Binding[0];
+        }
         Element[] roots = LoaderUtil.getChildren(parent, "binding");
         Binding[] bindings = new Binding[roots.length];
         for (int i = 0; i < bindings.length; i++) {
-            bindings[i] = loadBinding(roots[i]);
+            Element root = roots[i];
+            Binding binding = new Binding();
+            binding.setType(LoaderUtil.getAttribute(root, "type"));
+            binding.setParam(Integer.parseInt(LoaderUtil.getAttribute(root, "param")));
+            bindings[i] = binding;
         }
         return bindings;
-    }
-
-    private static Binding loadBinding(Element root) {
-        Binding binding = new Binding();
-        binding.setType(LoaderUtil.getAttribute(root, "type"));
-        binding.setParam(Integer.parseInt(LoaderUtil.getAttribute(root, "param")));
-        return binding;
     }
 
 

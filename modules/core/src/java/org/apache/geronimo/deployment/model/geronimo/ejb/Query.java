@@ -59,16 +59,16 @@ package org.apache.geronimo.deployment.model.geronimo.ejb;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/17 17:29:09 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/18 22:22:28 $
  *
  * */
 public class Query extends org.apache.geronimo.deployment.model.ejb.Query {
 
     private String sql;
-    private Binding[] inputBinding;
-    private Binding outputBinding;
+    private Binding[] inputBinding = new Binding[0];
+    private Binding[] outputBinding = new Binding[0];
     private String abstractSchemaName;
-    private boolean multivalue;
+    private String multivalue;
 
     public String getSql() {
         return sql;
@@ -86,11 +86,11 @@ public class Query extends org.apache.geronimo.deployment.model.ejb.Query {
         this.inputBinding = inputBinding;
     }
 
-    public Binding getOutputBinding() {
+    public Binding[] getOutputBinding() {
         return outputBinding;
     }
 
-    public void setOutputBinding(Binding outputBinding) {
+    public void setOutputBinding(Binding outputBinding[]) {
         this.outputBinding = outputBinding;
     }
 
@@ -102,11 +102,11 @@ public class Query extends org.apache.geronimo.deployment.model.ejb.Query {
         this.abstractSchemaName = abstractSchemaName;
     }
 
-    public boolean isMultivalue() {
+    public String getMultiplicity() {
         return multivalue;
     }
 
-    public void setMultivalue(boolean multivalue) {
-        this.multivalue = multivalue;
+    public void setMultiplicity(String multiplicity) {
+        this.multivalue = multiplicity;
     }
 }

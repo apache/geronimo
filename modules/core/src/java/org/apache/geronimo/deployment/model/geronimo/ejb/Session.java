@@ -67,10 +67,9 @@ import org.apache.geronimo.deployment.model.geronimo.j2ee.JNDIEnvironmentRefs;
 /**
  * JavaBean for the geronimo-ejb-jar.xml tag session
  *
- * @version $Revision: 1.4 $ $Date: 2003/09/29 14:17:22 $
+ * @version $Revision: 1.5 $ $Date: 2003/11/18 22:22:28 $
  */
 public class Session extends org.apache.geronimo.deployment.model.ejb.Session implements JNDIEnvironmentRefs {
-    private String jndiName;
 
     public Session() {
         super.setSecurityRoleRef(new SecurityRoleRef[0]);
@@ -80,14 +79,6 @@ public class Session extends org.apache.geronimo.deployment.model.ejb.Session im
         super.setResourceEnvRef(new ResourceEnvRef[0]);
         super.setMessageDestinationRef(new MessageDestinationRef[0]);
         super.setServiceRef(new ServiceRef[0]);
-    }
-
-    public String getJndiName() {
-        return jndiName;
-    }
-
-    public void setJndiName(String jndiName) {
-        this.jndiName = jndiName;
     }
 
     public void setSecurityRoleRef(org.apache.geronimo.deployment.model.j2ee.SecurityRoleRef[] ref) {

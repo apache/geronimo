@@ -67,10 +67,11 @@ import org.apache.geronimo.deployment.model.geronimo.j2ee.ServiceRef;
 /**
  * JavaBean for the geronimo-ejb-jar.xml tag entity
  *
- * @version $Revision: 1.5 $ $Date: 2003/11/17 03:27:55 $
+ * @version $Revision: 1.6 $ $Date: 2003/11/18 22:22:28 $
  */
 public class Entity extends org.apache.geronimo.deployment.model.ejb.Entity implements JNDIEnvironmentRefs {
-    private String jndiName;
+
+    private Query[] update;
 
     public Entity() {
         super.setSecurityRoleRef(new SecurityRoleRef[0]);
@@ -81,14 +82,6 @@ public class Entity extends org.apache.geronimo.deployment.model.ejb.Entity impl
         super.setMessageDestinationRef(new MessageDestinationRef[0]);
         super.setServiceRef(new ServiceRef[0]);
         super.setQuery(new Query[0]);
-    }
-
-    public String getJndiName() {
-        return jndiName;
-    }
-
-    public void setJndiName(String jndiName) {
-        this.jndiName = jndiName;
     }
 
     public void setSecurityRoleRef(org.apache.geronimo.deployment.model.j2ee.SecurityRoleRef[] ref) {
@@ -288,4 +281,21 @@ public class Entity extends org.apache.geronimo.deployment.model.ejb.Entity impl
     public Query getGeronimoQuery(int i) {
         return (Query)super.getQuery(i);
     }
+
+    public Query[] getUpdate() {
+        return update;
+    }
+
+    public void setUpdate(Query[] update) {
+        this.update = update;
+    }
+
+    public void setUpdate(int i, Query updat) {
+        update[i] = updat;
+    }
+
+    public Query getUpdate(int i) {
+        return update[i];
+    }
+
 }

@@ -67,11 +67,13 @@ import org.apache.geronimo.deployment.model.geronimo.ejb.Session;
 import org.apache.geronimo.deployment.model.geronimo.ejb.EnterpriseBeans;
 import org.apache.geronimo.deployment.model.geronimo.ejb.EjbJar;
 import org.apache.geronimo.deployment.model.geronimo.ejb.GeronimoEjbJarDocument;
+import org.apache.geronimo.deployment.model.geronimo.ejb.Query;
+import org.apache.geronimo.deployment.model.geronimo.ejb.Binding;
 
 /**
  * Knows how to store geronimo-ejb-jar.xml POJOs to a DOM
  *
- * @version $Revision: 1.3 $ $Date: 2003/11/18 05:41:09 $
+ * @version $Revision: 1.4 $ $Date: 2003/11/18 22:22:28 $
  */
 public class GeronimoEjbJarStorer {
     public static void store(GeronimoEjbJarDocument jarDoc, Writer out) throws IOException {
@@ -141,7 +143,6 @@ public class GeronimoEjbJarStorer {
         if(bean.getSecurityIdentity() != null) {
             EjbJarStorer.storeSecurityIdentity(StorerUtil.createChild(root, "security-identity"), bean.getSecurityIdentity());
         }
-        StorerUtil.createOptionalChildText(root, "jndi-name", bean.getJndiName());
     }
 
     static void storeEntityBean(Element root, Entity bean) {
@@ -167,9 +168,30 @@ public class GeronimoEjbJarStorer {
             EjbJarStorer.storeSecurityIdentity(StorerUtil.createChild(root, "security-identity"), bean.getSecurityIdentity());
         }
         for(int i = 0; i < bean.getQuery().length; i++) {
-            EjbJarStorer.storeQuery(StorerUtil.createChild(root, "query"), bean.getQuery(i));
+            storeQuery(StorerUtil.createChild(root, "query"), bean.getGeronimoQuery(i));
         }
-        StorerUtil.createOptionalChildText(root, "jndi-name", bean.getJndiName());
+        for(int i = 0; i < bean.getUpdate().length; i++) {
+            storeQuery(StorerUtil.createChild(root, "update"), bean.getUpdate(i));
+        }
+    }
+
+    private static void storeQuery(Element child, Query query) {
+        EjbJarStorer.storeQuery(child, query);
+        Element inputBindings = StorerUtil.createChild(child, "input-binding");
+        storeBindings(inputBindings, query.getInputBinding());
+        Element outputBindings = StorerUtil.createChild(child, "output-binding");
+        outputBindings.setAttribute("abstract-schema-name", query.getAbstractSchemaName());
+        outputBindings.setAttribute("multiplicity", query.getMultiplicity());
+        storeBindings(outputBindings, query.getOutputBinding());
+    }
+
+    private static void storeBindings(Element outputBindings, Binding[] bindings) {
+        for (int i = 0; i < bindings.length; i++) {
+            Binding binding = bindings[i];
+            Element child = StorerUtil.createChild(outputBindings, "binding");
+            child.setAttribute("type", binding.getType());
+            child.setAttribute("param", "" + binding.getParam());
+        }
     }
 
     static void storeMessageDrivenBean(Element root, MessageDriven bean) {

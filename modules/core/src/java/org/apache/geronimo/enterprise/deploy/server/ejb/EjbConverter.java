@@ -98,7 +98,7 @@ import org.apache.geronimo.enterprise.deploy.server.DConfigBeanLookup;
  * DConfigBean.  Note this means that the standard DD content may be out of
  * sync when loaded, but they'll be cleaned up when the DD is saved.
  *
- * @version $Revision: 1.3 $ $Date: 2003/11/17 20:28:10 $
+ * @version $Revision: 1.4 $ $Date: 2003/11/18 22:22:28 $
  */
 public class EjbConverter extends J2EEConverter {
     private static final Log log = LogFactory.getLog(EjbConverter.class);
@@ -246,7 +246,6 @@ public class EjbConverter extends J2EEConverter {
                 queries[i] = query;
             }
             e.setQuery(queries);
-            e.setJndiName(bean.getJndiName());
             storeSecurityRoleRefs(e, bean.getSecurityRoleRef().iterator());
             list.add(e);
         }
@@ -267,7 +266,6 @@ public class EjbConverter extends J2EEConverter {
             s.setServiceEndpoint(getText(ddb.getText("service-endpoint")));
             s.setSessionType(getText(ddb.getText("session-type")));
             s.setTransactionType(getText(ddb.getText("transaction-type")));
-            s.setJndiName(bean.getJndiName());
             storeSecurityRoleRefs(s, bean.getSecurityRoleRef().iterator());
             list.add(s);
         }
@@ -337,7 +335,6 @@ public class EjbConverter extends J2EEConverter {
             SessionBean bean = (SessionBean)root.getDConfigBean(match);
             assignEjb(bean, sessions[i], match);
             //session-specific content
-            bean.setJndiName(sessions[i].getJndiName());
             assignSecurityRoleRefs(bean, sessions[i].getGeronimoSecurityRoleRef(), match.getChildBean(EntityBean.SECURITY_ROLE_REF_XPATH));
         }
         for(int i = 0; i < childBean.length; i++) {
@@ -369,7 +366,6 @@ public class EjbConverter extends J2EEConverter {
             EntityBean bean = (EntityBean)root.getDConfigBean(match);
             assignEjb(bean, entities[i], match);
             //entity-specific content
-            bean.setJndiName(entities[i].getJndiName());
             assignSecurityRoleRefs(bean, entities[i].getGeronimoSecurityRoleRef(), match.getChildBean(EntityBean.SECURITY_ROLE_REF_XPATH));
         }
         for(int i = 0; i < childBean.length; i++) {
