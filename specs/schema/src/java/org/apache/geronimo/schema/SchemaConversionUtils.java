@@ -34,7 +34,7 @@ import org.apache.xmlbeans.XmlOptions;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/07/06 17:12:58 $
+ * @version $Revision: 1.4 $ $Date: 2004/07/25 08:18:00 $
  *
  * */
 public class SchemaConversionUtils {
@@ -93,7 +93,7 @@ public class SchemaConversionUtils {
             cursor.toFirstChild();
             convertToDescriptionGroup(cursor, moveable);
             convertToJNDIEnvironmentRefsGroup(cursor, moveable);
-            while (cursor.toNextSibling()) {
+            do {
                 String name = cursor.getName().getLocalPart();
                 if ("filter".equals(name) || "servlet".equals(name)) {
                     cursor.push();
@@ -105,7 +105,7 @@ public class SchemaConversionUtils {
                     }
                     cursor.pop();
                 }
-            }
+            } while (cursor.toNextSibling());
 
         } finally {
             cursor.dispose();

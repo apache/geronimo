@@ -42,5 +42,20 @@
             <role-name>me</role-name>
         </run-as>
     </servlet>
+    <servlet>
+        <servlet-name>myOtherServlet</servlet-name>
+        <display-name>servletDisplayName</display-name>
+        <description>ServletDescription</description>
+        <servlet-class>MyServletClass</servlet-class>
+        <init-param>
+            <param-name>paramName</param-name>
+            <param-value>value</param-value>
+            <description>description</description>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+        <run-as>
+            <role-name>me</role-name>
+        </run-as>
+    </servlet>
 
 </web-app>

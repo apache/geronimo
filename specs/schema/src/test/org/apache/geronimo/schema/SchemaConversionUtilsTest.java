@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.schema.xsl;
+package org.apache.geronimo.schema;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -30,10 +30,10 @@ import junit.framework.TestCase;
  * ejb 1.1 dtd appears to be a subset of ejb 2.0 dtd so the same xsl should
  * work for both.
  *
- * @version $Revision: 1.3 $ $Date: 2004/07/06 17:12:58 $
+ * @version $Revision: 1.1 $ $Date: 2004/07/25 08:18:00 $
  *
  * */
-public class EJB20To21TransformTest extends TestCase {
+public class SchemaConversionUtilsTest extends TestCase {
 
 //comment on validity of j2ee 1.4 schemas: validation doesn't work...
 //        From: "Radu Preotiuc-Pietro" <radup@bea.com>
@@ -143,6 +143,21 @@ public class EJB20To21TransformTest extends TestCase {
         File expectedOutputXml = new File("src/test-data/j2ee_1_3dtd/web-24.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         xmlObject = SchemaConversionUtils.convertToServletSchema(xmlObject);
+        XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
+        List problems = new ArrayList();
+        boolean ok = compareXmlObjects(xmlObject, expected, problems);
+        assertTrue("Differences: " + problems, ok);
+        xmlObject = SchemaConversionUtils.convertToServletSchema(xmlObject);
+        boolean ok2 = compareXmlObjects(xmlObject, expected, problems);
+        assertTrue("Differences: " + problems, ok2);
+    }
+
+    public void testWeb23To24OtherTransform() throws Exception {
+        File srcXml = new File("src/test-data/j2ee_1_3dtd/web-1-23.xml");
+        File expectedOutputXml = new File("src/test-data/j2ee_1_3dtd/web-1-24.xml");
+        XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
+        xmlObject = SchemaConversionUtils.convertToServletSchema(xmlObject);
+        System.out.println(xmlObject.toString());
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
         List problems = new ArrayList();
         boolean ok = compareXmlObjects(xmlObject, expected, problems);
