@@ -38,7 +38,7 @@ public class TransactionContextManagerTest extends TestCase {
     private XidFactory xidFactory = new XidFactoryImpl("geronimo.test.tm".getBytes());
 
     protected void setUp() throws Exception {
-        TransactionManagerProxy tm = new GeronimoTransactionManager(10, null, null);
+        TransactionManagerProxy tm = new GeronimoTransactionManager(1000, null, null);
         transactionContextManager = new TransactionContextManager(tm, tm, tm);
     }
 
@@ -48,9 +48,9 @@ public class TransactionContextManagerTest extends TestCase {
 
     public void testImportedTxLifecycle() throws Exception {
         Xid xid = xidFactory.createXid();
-        transactionContextManager.begin(xid, 0);
+        transactionContextManager.begin(xid, 1000);
         transactionContextManager.end(xid);
-        transactionContextManager.begin(xid, 0);
+        transactionContextManager.begin(xid, 1000);
         transactionContextManager.end(xid);
         transactionContextManager.prepare(xid);
         transactionContextManager.commit(xid, false);
@@ -58,24 +58,30 @@ public class TransactionContextManagerTest extends TestCase {
 
     public void testNoConcurrentWorkSameXid() throws Exception {
         Xid xid = xidFactory.createXid();
-        transactionContextManager.begin(xid, 0);
+        transactionContextManager.begin(xid, 1000);
         try {
-            transactionContextManager.begin(xid, 0);
+            transactionContextManager.begin(xid, 1000);
             fail("should not be able begin same xid twice");
         } catch (ImportedTransactionActiveException e) {
             //expected
+        } finally {
+            transactionContextManager.end(xid);
+            transactionContextManager.rollback(xid);
         }
     }
 
     public void testOnlyOneImportedTxAtATime() throws Exception {
         Xid xid1 = xidFactory.createXid();
         Xid xid2 = xidFactory.createXid();
-        transactionContextManager.begin(xid1, 0);
+        transactionContextManager.begin(xid1, 1000);
         try {
-            transactionContextManager.begin(xid2, 0);
+            transactionContextManager.begin(xid2, 1000);
             fail("should not be able to begin a 2nd tx without ending the first");
         } catch (IllegalStateException e) {
             //expected
+        } finally {
+            transactionContextManager.end(xid1);
+            transactionContextManager.rollback(xid1);
         }
     }
 }

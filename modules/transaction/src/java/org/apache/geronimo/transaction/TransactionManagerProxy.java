@@ -62,7 +62,6 @@ public class TransactionManagerProxy implements ExtendedTransactionManager, XidI
 
     private final ExtendedTransactionManager delegate;
     private final XidImporter importer;
-    private final ThreadLocal threadTx = new ThreadLocal();
     private final Recovery recovery;
     private final ReferenceCollection resourceManagers;
     private List recoveryErrors = new ArrayList();
@@ -151,7 +150,6 @@ public class TransactionManagerProxy implements ExtendedTransactionManager, XidI
 
     public Transaction begin(long transactionTimeoutMilliseconds) throws NotSupportedException, SystemException {
         Transaction tx = delegate.begin(transactionTimeoutMilliseconds);
-        threadTx.set(tx);
         return tx;
     }
 
@@ -165,52 +163,27 @@ public class TransactionManagerProxy implements ExtendedTransactionManager, XidI
     }
 
     public Transaction getTransaction() throws SystemException {
-        return (Transaction) threadTx.get();
+        return delegate.getTransaction();
     }
 
     public Transaction suspend() throws SystemException {
-        Transaction tx = getTransaction();
-        threadTx.set(null);
-        return tx;
+        return delegate.suspend();
     }
 
     public void resume(Transaction tx) throws IllegalStateException, InvalidTransactionException, SystemException {
-        if (threadTx.get() != null) {
-            throw new IllegalStateException("Transaction already associated with current thread");
-        }
-        threadTx.set(tx);
+        delegate.resume(tx);
     }
 
     public void commit() throws HeuristicMixedException, HeuristicRollbackException, IllegalStateException, RollbackException, SecurityException, SystemException {
-        Transaction tx = getTransaction();
-        if (tx == null) {
-            throw new IllegalStateException("No transaction associated with current thread");
-        }
-        try {
-            tx.commit();
-        } finally {
-            threadTx.set(null);
-        }
+        delegate.commit();
     }
 
     public void rollback() throws IllegalStateException, SecurityException, SystemException {
-        Transaction tx = getTransaction();
-        if (tx == null) {
-            throw new IllegalStateException("No transaction associated with current thread");
-        }
-        try {
-            tx.rollback();
-        } finally {
-            threadTx.set(null);
-        }
+        delegate.rollback();
     }
 
     public void setRollbackOnly() throws IllegalStateException, SystemException {
-        Transaction tx = getTransaction();
-        if (tx == null) {
-            throw new IllegalStateException("No transaction associated with current thread");
-        }
-        tx.setRollbackOnly();
+        delegate.setRollbackOnly();
     }
 
 
