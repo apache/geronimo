@@ -39,14 +39,6 @@ public class NCSARequestLog implements GBeanLifecycle {
         requestLog = new org.mortbay.http.NCSARequestLog();
     }
 
-    public boolean isBuffered() {
-        return requestLog.isBuffered();
-    }
-
-    public void setBuffered(boolean buffered) {
-        requestLog.setBuffered(buffered);
-    }
-
     public void setFilename(String filename) {
         this.filename = filename;
     }
@@ -141,8 +133,7 @@ public class NCSARequestLog implements GBeanLifecycle {
         infoFactory.addAttribute("retainDays", int.class, true);
         infoFactory.addAttribute("extended", boolean.class, true);
         infoFactory.addAttribute("append", boolean.class, true);
-        infoFactory.addAttribute("buffered", boolean.class, true);
-        infoFactory.addAttribute("ingorePaths", String[].class, true);
+        infoFactory.addAttribute("ignorePaths", String[].class, true);
         infoFactory.addAttribute("preferProxiedForAddress", boolean.class, true);
 
         infoFactory.setConstructor(new String[]{"JettyContainer", "ServerInfo"});

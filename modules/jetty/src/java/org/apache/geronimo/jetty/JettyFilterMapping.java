@@ -23,6 +23,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.mortbay.jetty.servlet.WebApplicationHandler;
 import org.mortbay.jetty.servlet.FilterHolder;
+import org.mortbay.jetty.servlet.Dispatcher;
 
 /**
  * @version $Rev:  $ $Date:  $
@@ -77,16 +78,16 @@ public class JettyFilterMapping implements Serializable {
             String filterName = jettyFilterHolder.getFilterName();
             int dispatches = 0;
             if (requestDispatch) {
-                dispatches |= FilterHolder.__REQUEST;
+                dispatches |= Dispatcher.__REQUEST;
             }
             if (forwardDispatch) {
-                dispatches |= FilterHolder.__FORWARD;
+                dispatches |= Dispatcher.__FORWARD;
             }
             if (includeDispatch) {
-                dispatches |= FilterHolder.__INCLUDE;
+                dispatches |= Dispatcher.__INCLUDE;
             }
             if (errorDispatch) {
-                dispatches |= FilterHolder.__ERROR;
+                dispatches |= Dispatcher.__ERROR;
             }
 
 

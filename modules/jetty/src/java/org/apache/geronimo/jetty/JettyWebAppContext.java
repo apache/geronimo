@@ -38,12 +38,7 @@ import org.mortbay.http.Authenticator;
 import org.mortbay.http.HttpRequest;
 import org.mortbay.http.HttpResponse;
 import org.mortbay.http.HttpException;
-import org.mortbay.jetty.servlet.AbstractSessionManager;
-import org.mortbay.jetty.servlet.FilterHolder;
-import org.mortbay.jetty.servlet.JSR154Filter;
-import org.mortbay.jetty.servlet.ServletHolder;
-import org.mortbay.jetty.servlet.WebApplicationContext;
-import org.mortbay.jetty.servlet.WebApplicationHandler;
+import org.mortbay.jetty.servlet.*;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -254,7 +249,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         FilterHolder jsr154FilterHolder = new FilterHolder(handler, "jsr154", JSR154Filter.class.getName());
         handler.addFilterHolder(jsr154FilterHolder);
         jsr154FilterHolder.setInitParameter("unwrappedDispatch", "true");
-        handler.addFilterPathMapping("/*", "jsr154", JettyFilterHolder.__REQUEST | JettyFilterHolder.__FORWARD | JettyFilterHolder.__INCLUDE | JettyFilterHolder.__ERROR );
+        handler.addFilterPathMapping("/*", "jsr154", Dispatcher.__REQUEST | Dispatcher.__FORWARD | Dispatcher.__INCLUDE | Dispatcher.__ERROR );
     }
 
     public Object enterContextScope(HttpRequest httpRequest, HttpResponse httpResponse) {
