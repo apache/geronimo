@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.19 $ $Date: 2003/10/06 14:35:33 $ -->
+<!-- $Revision: 1.20 $ $Date: 2003/10/20 16:02:23 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
   xmlns:ant="jelly:ant"
   xmlns:maven="jelly:maven"
   xmlns:xdoclet="common:xdoclet"
-  xmlns:castor="common:castor">>
+  xmlns:castor="common:castor">
 
   <preGoal name="xdoc:jelly-transform">
     <attainGoal name="html2xdoc"/>
