@@ -523,4 +523,12 @@ public class DeploymentContext {
     public GBeanData getConfigurationGBeanData() {
         return new GBeanData(config);
     }
+
+    /**
+     * @deprecated REALLY deprecated.  Only use in tests, please.
+     * @return
+     */
+    public GBeanData[] getGBeans() {
+        return gbeans.getGBeans();
+    }
 }

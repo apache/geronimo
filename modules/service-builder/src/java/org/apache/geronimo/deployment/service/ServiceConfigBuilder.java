@@ -29,6 +29,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.jar.JarFile;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -44,9 +48,13 @@ import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.deployment.xbeans.ReferenceType;
 import org.apache.geronimo.deployment.xbeans.ReferencesType;
 import org.apache.geronimo.deployment.xbeans.ServiceDocument;
+import org.apache.geronimo.deployment.xbeans.XmlAttributeType;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.ReferenceCollection;
+import org.apache.geronimo.gbean.ReferenceCollectionListener;
+import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -55,6 +63,7 @@ import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlCursor;
 
 /**
  * @version $Rev$ $Date$
@@ -64,14 +73,40 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
     private final Repository repository;
     private final Kernel kernel;
 
+    //TODO this being static is a really good argument that all other builders should have a reference to this gbean, not use static methods on it.
+    private static final Map xmlAttributeBuilderMap = new HashMap();
+
     public ServiceConfigBuilder(URI defaultParentId, Repository repository) {
-        this(defaultParentId, repository, null);
+        this(defaultParentId, repository, null, null);
     }
 
-    public ServiceConfigBuilder(URI defaultParentId, Repository repository, Kernel kernel) {
+    public ServiceConfigBuilder(URI defaultParentId, Repository repository, Collection xmlAttributeBuilders, Kernel kernel) {
         this.defaultParentId = defaultParentId;
         this.repository = repository;
         this.kernel = kernel;
+        if (xmlAttributeBuilders != null) {
+            ReferenceCollection builders = (ReferenceCollection)xmlAttributeBuilders;
+            ReferenceCollectionListener listener = new ReferenceCollectionListener() {
+
+                public void memberAdded(ReferenceCollectionEvent event) {
+                    XmlAttributeBuilder attributeBuilder = (XmlAttributeBuilder) event.getMember();
+                    String namespace = attributeBuilder.getNamespace();
+                    xmlAttributeBuilderMap.put(namespace, attributeBuilder);
+                }
+
+                public void memberRemoved(ReferenceCollectionEvent event) {
+                    XmlAttributeBuilder attributeBuilder = (XmlAttributeBuilder) event.getMember();
+                    String namespace = attributeBuilder.getNamespace();
+                    xmlAttributeBuilderMap.remove(namespace);
+                }
+            };
+            builders.addReferenceCollectionListener(listener);
+            for (Iterator iterator = builders.iterator(); iterator.hasNext();) {
+                Object o = iterator.next();
+                ReferenceCollectionEvent e = new ReferenceCollectionEvent(null, o);
+                listener.memberAdded(e);
+            }
+        }
     }
 
     public Object getDeploymentPlan(File planFile, JarFile module) throws DeploymentException {
@@ -234,13 +269,28 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
                 throw new DeploymentException("Invalid ObjectName: " + namePart, e);
             }
         }
-        GBeanBuilder builder = new GBeanBuilder(objectName, gBeanInfo, cl);
+        GBeanBuilder builder = new GBeanBuilder(objectName, gBeanInfo, cl, xmlAttributeBuilderMap);
 
         // set up attributes
         AttributeType[] attributeArray = gbean.getAttributeArray();
         if (attributeArray != null) {
             for (int j = 0; j < attributeArray.length; j++) {
                 builder.setAttribute(attributeArray[j].getName().trim(), attributeArray[j].getType(), attributeArray[j].getStringValue());
+            }
+        }
+
+        XmlAttributeType[] xmlAttributeArray = gbean.getXmlAttributeArray();
+        if (xmlAttributeArray != null) {
+            for (int i = 0; i < xmlAttributeArray.length; i++) {
+                XmlAttributeType xmlAttributeType = xmlAttributeArray[i];
+                String name = xmlAttributeType.getName().trim();
+                XmlCursor xmlCursor = xmlAttributeType.newCursor();
+                try {
+                    xmlCursor.toFirstChild();
+                    builder.setXmlAttribute(name, xmlCursor);
+                } finally {
+                    xmlCursor.dispose();
+                }
             }
         }
 
@@ -296,9 +346,10 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
 
         infoFactory.addAttribute("defaultParentId", URI.class, true);
         infoFactory.addReference("Repository", Repository.class);
+        infoFactory.addReference("XmlAttributeBuilders", XmlAttributeBuilder.class);
         infoFactory.addAttribute("kernel", Kernel.class, false);
 
-        infoFactory.setConstructor(new String[]{"defaultParentId", "Repository", "kernel"});
+        infoFactory.setConstructor(new String[]{"defaultParentId", "Repository", "XmlAttributeBuilders", "kernel"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

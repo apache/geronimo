@@ -4,4 +4,8 @@
         <xb:package>org.apache.geronimo.deployment.xbeans</xb:package>
     </xb:namespace>
 
+    <xb:namespace uri="http://geronimo.apache.org/xml/ns/deployment/javabean">
+        <xb:package>org.apache.geronimo.deployment.javabean.xbeans</xb:package>
+    </xb:namespace>
+
 </xb:config>

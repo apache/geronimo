@@ -132,6 +132,7 @@ Configuration for the Geronimo deployer
     <gbean namePart="ServiceBuilder" class="org.apache.geronimo.deployment.service.ServiceConfigBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
         <reference name="Repository">*:name=Repository,*</reference>
+        <reference name="XmlAttributeBuilders">*:j2eeType=XmlAttributeBuilder,*</reference>
     </gbean>
 
     <gbean namePart="EARBuilder" class="org.apache.geronimo.j2ee.deployment.EARConfigBuilder">

@@ -20,6 +20,7 @@ package org.apache.geronimo.deployment.service;
 import java.beans.PropertyEditor;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Map;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -28,6 +29,8 @@ import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlCursor;
 
 /**
  *
@@ -37,11 +40,13 @@ import org.apache.geronimo.gbean.GBeanInfo;
 public class GBeanBuilder {
     private final GBeanData gbean;
     private final ClassLoader classLoader;
+    private final Map xmlAttributeBuilderMap;
 
-    public GBeanBuilder(ObjectName objectName, GBeanInfo gBeanInfo, ClassLoader classLoader) {
+    GBeanBuilder(ObjectName objectName, GBeanInfo gBeanInfo, ClassLoader classLoader, Map xmlAttributeBuilderMap) {
 
         this.classLoader = classLoader;
         this.gbean = new GBeanData(objectName, gBeanInfo);
+        this.xmlAttributeBuilderMap = xmlAttributeBuilderMap;
     }
 
     public void setAttribute(String name, String type, String text) throws DeploymentException {
@@ -72,6 +77,22 @@ public class GBeanBuilder {
         } catch (Exception e) {
             throw new DeploymentException("Unable to set attribute " + name + " to " + text, e);
         }
+    }
+
+    public void setXmlAttribute(String name, XmlCursor xmlCursor) throws DeploymentException {
+        String namespace = xmlCursor.getName().getNamespaceURI();
+        XmlAttributeBuilder builder = (XmlAttributeBuilder) xmlAttributeBuilderMap.get(namespace);
+        if (builder == null) {
+            throw new DeploymentException("No builder deployed for namespace: " + namespace);
+        }
+        XmlObject xmlObject = xmlCursor.getObject();
+        GAttributeInfo attribute = gbean.getGBeanInfo().getAttribute(name);
+        if (attribute == null) {
+            throw new DeploymentException("Unknown attribute " + name + " on " + gbean.getName());
+        }
+        String type = attribute.getType();
+        Object value = builder.getValue(xmlObject, type, classLoader);
+        gbean.setAttribute(name, value);
     }
 
     public void setReference(String name, String pattern) throws DeploymentException {

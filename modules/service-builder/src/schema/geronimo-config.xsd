@@ -32,8 +32,6 @@
         </xs:documentation>
     </xs:annotation>
 
-    <!--    <xs:include schemaLocation="geronimo-common.xsd"/>-->
-
     <xs:element name="configuration" type="sys:configurationType"/>
 
     <xs:complexType name="configurationType">
@@ -72,6 +70,7 @@
     <xs:complexType name="gbeanType">
         <xs:choice minOccurs="0" maxOccurs="unbounded">
             <xs:element name="attribute" type="sys:attributeType"/>
+            <xs:element name="xml-attribute" type="sys:xml-attributeType"/>
             <xs:element name="reference" type="sys:referenceType"/>
             <xs:element name="references" type="sys:referencesType"/>
         </xs:choice>
@@ -87,6 +86,13 @@
                 <xs:attribute name="type" type="xs:string"/>
             </xs:extension>
         </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="xml-attributeType">
+        <xs:sequence>
+           <xs:any namespace="##other"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string"/>
     </xs:complexType>
 
     <xs:complexType name="referenceType">

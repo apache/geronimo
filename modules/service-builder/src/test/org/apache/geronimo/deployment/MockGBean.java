@@ -30,6 +30,8 @@ public class MockGBean implements MockEndpoint {
     private String value;
     private int intValue;
 
+    private FooBarBean fooBarBean;
+
     private MockEndpoint endpoint;
 
     public MockGBean(String name) {
@@ -54,6 +56,14 @@ public class MockGBean implements MockEndpoint {
 
     public void setIntValue(int intValue) {
         this.intValue = intValue;
+    }
+
+    public FooBarBean getFooBarBean() {
+        return fooBarBean;
+    }
+
+    public void setFooBarBean(FooBarBean fooBarBean) {
+        this.fooBarBean = fooBarBean;
     }
 
     public MockEndpoint getMockEndpoint() {
@@ -83,6 +93,7 @@ public class MockGBean implements MockEndpoint {
         infoFactory.addAttribute("name", String.class, true);
         infoFactory.addAttribute("value", String.class, true);
         infoFactory.addAttribute("intValue", int.class, true);
+        infoFactory.addAttribute("fooBarBean", FooBarBean.class, true);
 
         infoFactory.addOperation("checkEndpoint");
         infoFactory.addOperation("doSomething", new Class[]{String.class});

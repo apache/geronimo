@@ -25,7 +25,7 @@
     <preGoal name="java:compile">
         <xmlbeans:schema2java
             sourcedir="${basedir}/src"
-            sourceschema="schema/geronimo-config.xsd,schema/geronimo-service.xsd"
+            sourceschema="schema/geronimo-config.xsd,schema/geronimo-service.xsd,schema/geronimo-javabean-xmlattribute.xsd"
             xmlconfigs="${basedir}/src/schema/xmlconfig.xml"
             targetdir="${basedir}/target/xmlbeans"
             cataloglocation="${basedir}/../../specs/schema/src/catalog/resolver-catalog.xml"/>

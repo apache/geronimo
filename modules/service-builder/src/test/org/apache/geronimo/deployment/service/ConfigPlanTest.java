@@ -25,6 +25,7 @@ import org.apache.geronimo.deployment.xbeans.ConfigurationType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.deployment.xbeans.ReferenceType;
 import org.apache.geronimo.deployment.xbeans.DependencyType;
+import org.apache.geronimo.deployment.FooBarBean;
 
 import junit.framework.TestCase;
 
@@ -52,9 +53,9 @@ public class ConfigPlanTest extends TestCase {
         assertEquals("geronimo.test:name=MyMockGMBean", gbeans[0].getName());
         AttributeType[] attrs = gbeans[0].getAttributeArray();
         assertEquals(2, attrs.length);
-        assertEquals("Value", attrs[0].getName());
+        assertEquals("value", attrs[0].getName());
         assertEquals("1234", attrs[0].getStringValue());
-        assertEquals("IntValue", attrs[1].getName());
+        assertEquals("intValue", attrs[1].getName());
         assertEquals("1234", attrs[1].getStringValue());
 
         ReferenceType[] refs = gbeans[0].getReferenceArray();
