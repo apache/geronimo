@@ -65,6 +65,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.Map;
 
 import javax.security.auth.login.AppConfigurationEntry;
 
@@ -77,7 +78,7 @@ import org.apache.regexp.RE;
 
 /**
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/05 18:56:34 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/11 08:22:59 $
  */
 
 public class SQLSecurityRealm extends AbstractSecurityRealm {
@@ -87,8 +88,8 @@ public class SQLSecurityRealm extends AbstractSecurityRealm {
     private String password = "";
     private String userSelect = "SELECT UserName, Password FROM Users";
     private String groupSelect = "SELECT GroupName, UserName FROM Groups";
-    HashMap users = new HashMap();
-    HashMap groups = new HashMap();
+    final Map users = new HashMap();
+    final Map groups = new HashMap();
 
     final static String REALM_INSTANCE = "org.apache.geronimo.security.providers.SQLSecurityRealm";
 
@@ -116,7 +117,6 @@ public class SQLSecurityRealm extends AbstractSecurityRealm {
 
     public void doStop() {
         running = false;
-        connectionURL = null;
 
         users.clear();
         groups.clear();
@@ -229,35 +229,63 @@ public class SQLSecurityRealm extends AbstractSecurityRealm {
     }
 
     public void refresh() throws GeronimoSecurityException {
+        users.clear();
+        groups.clear();
+        Map users = new HashMap();
+        Map groups = new HashMap();
         try {
             Connection conn = DriverManager.getConnection(connectionURL, user, password);
 
-            PreparedStatement statement = conn.prepareStatement(userSelect);
-            ResultSet result = statement.executeQuery();
+            try {
+                PreparedStatement statement = conn.prepareStatement(userSelect);
+                try {
+                    ResultSet result = statement.executeQuery();
 
-            while (result.next()) {
-                String userName = result.getString(1);
-                String userPassword = result.getString(2);
+                    try {
+                        while (result.next()) {
+                            String userName = result.getString(1);
+                            String userPassword = result.getString(2);
 
-                users.put(userName, userPassword);
-            }
-
-            statement = conn.prepareStatement(groupSelect);
-            result = statement.executeQuery();
-
-            while (result.next()) {
-                String groupName = result.getString(1);
-                String userName = result.getString(2);
-
-                Set userset = (Set) groups.get(groupName);
-                if (userset == null) {
-                    userset = new HashSet();
-                    groups.put(groupName, userset);
+                            users.put(userName, userPassword);
+                        }
+                    } finally {
+                        result.close();
+                    }
+                } finally {
+                    statement.close();
                 }
-                userset.add(userName);
+
+                statement = conn.prepareStatement(groupSelect);
+                try {
+                    ResultSet result = statement.executeQuery();
+
+                    try {
+                        while (result.next()) {
+                            String groupName = result.getString(1);
+                            String userName = result.getString(2);
+
+                            Set userset = (Set) groups.get(groupName);
+                            if (userset == null) {
+                                userset = new HashSet();
+                                groups.put(groupName, userset);
+                            }
+                            userset.add(userName);
+                        }
+                    } finally {
+                        result.close();
+                    }
+                } finally {
+                    statement.close();
+                }
+            } finally {
+                conn.close();
             }
 
-            conn.close();
+            //copy results if no exception
+            //calling refresh is not thread safe wrt authorization calls.
+            this.users.putAll(users);
+            this.groups.putAll(groups);
+
         } catch (SQLException sqle) {
             throw new GeronimoSecurityException(sqle);
         }
