@@ -32,10 +32,17 @@ import org.apache.geronimo.console.cli.TextController;
 /**
  * List deployed modules for the selected targets
  *
- * @version $Revision: 1.5 $ $Date: 2004/07/22 03:14:48 $
+ * @version $Revision: 1.6 $ $Date: 2004/07/23 07:27:50 $
  */
 public class ListDeployments extends TextController {
     private static final Log log = LogFactory.getLog(ListDeployments.class);
+
+    private static final ModuleType[] ALL = new ModuleType[] {ModuleType.CAR,
+        ModuleType.EAR,
+        ModuleType.EJB,
+        ModuleType.RAR,
+        ModuleType.WAR};
+    
     ModuleType type = null;
     boolean selected = false;
 
@@ -102,31 +109,20 @@ public class ListDeployments extends TextController {
         try {
             if(type != null) {
                 ids = context.deployer.getAvailableModules(type, context.targets);
+                if ( null == ids ) {
+                    ids = new TargetModuleID[0];
+                }
             } else {
                 List list = new ArrayList();
-                TargetModuleID[] modules = context.deployer.getAvailableModules(ModuleType.CAR, context.targets);
-                if ( null != modules ) {
-                    list.addAll(Arrays.asList(modules));
-                }
-                modules = context.deployer.getAvailableModules(ModuleType.EAR, context.targets);
-                if ( null != modules ) {
-                    list.addAll(Arrays.asList(modules));
-                }
-                modules = context.deployer.getAvailableModules(ModuleType.EJB, context.targets);
-                if ( null != modules ) {
-                    list.addAll(Arrays.asList(modules));
-                }
-                modules = context.deployer.getAvailableModules(ModuleType.RAR, context.targets);
-                if ( null != modules ) {
-                    list.addAll(Arrays.asList(modules));
-                }
-                modules = context.deployer.getAvailableModules(ModuleType.WAR, context.targets);
-                if ( null != modules ) {
-                    list.addAll(Arrays.asList(modules));
+                for (int i = 0; i < ALL.length; i++) {
+                    TargetModuleID[] modules = context.deployer.getAvailableModules(ALL[i], context.targets);
+                    if ( null != modules ) {
+                        list.addAll(Arrays.asList(modules));
+                    }
                 }
                 ids = (TargetModuleID[])list.toArray(new TargetModuleID[list.size()]);
             }
-            println(null == ids || ids.length == 0 ? "No matching modules found." : "Found "+ids.length+" matching module"+(ids.length == 1 ? "" : "s"));
+            println(ids.length == 0 ? "No matching modules found." : "Found "+ids.length+" matching module"+(ids.length == 1 ? "" : "s"));
             for(int i=0; i<ids.length; i++) {
                 println("  "+ids[i].toString());
             }
