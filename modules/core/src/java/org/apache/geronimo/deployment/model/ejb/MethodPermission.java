@@ -58,18 +58,26 @@ package org.apache.geronimo.deployment.model.ejb;
 /**
  *  JavaBean for the ejb-jar.xml tag method-permission
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/02 17:04:19 $
+ * @version $Revision: 1.2 $ $Date: 2003/10/01 03:22:28 $
  */
 public class MethodPermission extends MethodConfiguration {
-    private String roleName;
+    private String[] roleName = new String[0];
     private boolean unchecked;
 
-    public String getRoleName() {
+    public String[] getRoleName() {
         return roleName;
     }
 
-    public void setRoleName(String roleName) {
+    public String getRoleName(int i) {
+        return roleName[i];
+    }
+
+    public void setRoleName(String[] roleName) {
         this.roleName = roleName;
+    }
+
+    public void setRoleName(int i, String roleName) {
+        this.roleName[i] = roleName;
     }
 
     public boolean isUnchecked() {

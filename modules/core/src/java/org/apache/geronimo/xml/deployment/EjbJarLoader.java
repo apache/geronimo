@@ -86,7 +86,7 @@ import org.w3c.dom.Element;
  * Knows how to load a set of POJOs from a DOM representing an ejb-jar.xml
  * deployment descriptor.
  *
- * @version $Revision: 1.8 $ $Date: 2003/09/29 16:00:13 $
+ * @version $Revision: 1.9 $ $Date: 2003/10/01 03:22:48 $
  */
 public class EjbJarLoader {
     public static EjbJarDocument load(Document doc) {
@@ -149,7 +149,7 @@ public class EjbJarLoader {
             perms[i] = new MethodPermission();
             J2EELoader.loadDescribable(root, perms[i]);
             perms[i].setUnchecked(LoaderUtil.getChild(root, "unchecked") != null);
-            perms[i].setRoleName(LoaderUtil.getChildContent(root, "role-name"));
+            perms[i].setRoleName(J2EELoader.loadRoleNames(root));
             perms[i].setMethod(loadMethods(root));
         }
         return perms;

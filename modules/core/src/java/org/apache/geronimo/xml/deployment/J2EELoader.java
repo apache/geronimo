@@ -81,7 +81,7 @@ import org.w3c.dom.NodeList;
  * Knows how to load common J2EE deployment descriptor elements from a DOM
  * into POJOs.
  *
- * @version $Revision: 1.7 $ $Date: 2003/09/29 14:17:23 $
+ * @version $Revision: 1.8 $ $Date: 2003/10/01 03:22:48 $
  */
 public final class J2EELoader {
     public static EnvEntry[] loadEnvEntries(Element parent) {
@@ -168,6 +168,17 @@ public final class J2EELoader {
             roles[i].setRoleName(LoaderUtil.getChildContent(root, "role-name"));
         }
         return roles;
+    }
+
+    public static String[] loadRoleNames(Element parent) {
+        Element[] elements = LoaderUtil.getChildren(parent, "role-name");
+        String[] names = new String[elements.length];
+
+        for (int i=0; i<elements.length; i++) {
+            Element e = elements[i];
+            names[i] = LoaderUtil.getContent(e);
+        }
+        return names;
     }
 
     public static ServiceRef[] loadServiceRefs(Element parent) {

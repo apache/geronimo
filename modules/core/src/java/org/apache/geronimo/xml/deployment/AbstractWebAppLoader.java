@@ -84,7 +84,7 @@ import org.w3c.dom.Element;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/09/29 12:38:13 $
+ * @version $Revision: 1.5 $ $Date: 2003/10/01 03:22:48 $
  */
 public abstract class AbstractWebAppLoader {
     public AbstractWebAppLoader() {
@@ -488,21 +488,10 @@ public abstract class AbstractWebAppLoader {
             AuthConstraint constraint = new AuthConstraint();
 
             J2EELoader.loadDescribable(element, constraint);
-            loadRoleNames(constraint, element);
+            constraint.setRoleName(J2EELoader.loadRoleNames(element));
 
             securityConstraint.setAuthConstraint(constraint);
         }
-    }
-
-    private void loadRoleNames(AuthConstraint constraint, Element root) {
-        Element[] elements = LoaderUtil.getChildren(root, "role-name");
-        String[] names = new String[elements.length];
-
-        for (int i=0; i<elements.length; i++) {
-            Element e = elements[i];
-            names[i] = LoaderUtil.getContent(e);
-        }
-        constraint.setRoleName(names);
     }
 
     private void loadUserDataConstraint(SecurityConstraint securityConstraint, Element root) {
