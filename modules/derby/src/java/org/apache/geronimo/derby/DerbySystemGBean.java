@@ -54,6 +54,11 @@ public class DerbySystemGBean implements DerbySystem, GBeanLifecycle {
             actualHome = serverInfo.resolvePath(systemHome);
         }
         System.setProperty(SYSTEM_HOME, actualHome);
+
+        // set the magic system property that causes derby to use explicity
+        // file sync instead of relying on vm support for file open rws
+        System.setProperty("derby.storage.fileSyncTransactionLog", "true");
+
         // load the Embedded driver to initialize the home
         new org.apache.derby.jdbc.EmbeddedDriver();
         log.info("Started in " + actualHome);

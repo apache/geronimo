@@ -33,11 +33,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 public class DerbySystemGBeanTest extends TestCase {
     private File systemDir;
 
-    public void testNothing() {
-    }
-
-    // DISABLED: Derby does not run on Mac OS X or FreeBSD
-    public void XtestCreateSystemUsingServerInfo() throws Exception {
+    public void testCreateSystemUsingServerInfo() throws Exception {
         ServerInfo serverInfo = new ServerInfo(systemDir.toString());
         String derbyDir = "var/dbderby";
         DerbySystemGBean gbean = new DerbySystemGBean(serverInfo, derbyDir);
