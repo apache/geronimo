@@ -215,7 +215,7 @@ public final class Session {
     public Provider getProvider(String protocol) throws NoSuchProviderException {
         ProviderInfo info = getProviderInfo();
         Provider provider;
-        String providerName = properties.getProperty("nail." + protocol + ".class");
+        String providerName = properties.getProperty("mail." + protocol + ".class");
         if (providerName != null) {
             provider = (Provider) info.byClassName.get(providerName);
         } else {
