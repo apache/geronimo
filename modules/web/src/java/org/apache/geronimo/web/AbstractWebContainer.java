@@ -57,6 +57,9 @@
 package org.apache.geronimo.web;
 
 import java.net.URI;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
 
 import javax.management.ObjectName;
 
@@ -66,6 +69,14 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanEndpoint;
 import org.apache.geronimo.kernel.service.GeronimoMBeanEndpointListener;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GConstructorInfo;
+import org.apache.geronimo.gbean.GEndpointInfo;
+import org.apache.geronimo.gbean.EndpointCollection;
+import org.apache.geronimo.gbean.EndpointCollectionListener;
+import org.apache.geronimo.gbean.EndpointCollectionEvent;
 import org.w3c.dom.Document;
 
 /**
@@ -83,7 +94,7 @@ import org.w3c.dom.Document;
  * or
  * 2. the url is a directory which contains a WEB-INF/web.xml file
  *
- * @version $Revision: 1.26 $ $Date: 2003/12/30 08:28:57 $
+ * @version $Revision: 1.27 $ $Date: 2004/01/16 02:19:23 $
  */
 public abstract class AbstractWebContainer implements WebContainer {
 
@@ -92,6 +103,8 @@ public abstract class AbstractWebContainer implements WebContainer {
     public final static String BASE_WEB_CONNECTOR_NAME = "geronimo.web:type=WebConnector";
     public final static String BASE_WEB_ACCESS_LOG_NAME = "geronimo.web:type=WebAccessLog";
     public final static String CONTAINER_CLAUSE = ",container=";
+
+    private final static GBeanInfo GBEAN_INFO;
 
 
     private final static Log log = LogFactory.getLog(AbstractWebContainer.class);
@@ -106,6 +119,48 @@ public abstract class AbstractWebContainer implements WebContainer {
      */
     private Document defaultWebXmlDoc = null;
 
+    private EndpointCollection webApplications;
+    private EndpointCollection webConnectors;
+    private EndpointCollection webAccessLogs;
+    private final EndpointCollectionListener webApplicationListener = new EndpointCollectionListener() {
+        public void memberAdded(EndpointCollectionEvent event) {
+            webApplicationAdded((WebApplication)event.getMember());
+        }
+
+        public void memberRemoved(EndpointCollectionEvent event) {
+            webApplicationRemoval((WebApplication)event.getMember());
+        }
+    };
+
+    private final EndpointCollectionListener webConnectorListener = new EndpointCollectionListener() {
+        public void memberAdded(EndpointCollectionEvent event) {
+            webConnectorAdded((WebConnector)event.getMember());
+        }
+
+        public void memberRemoved(EndpointCollectionEvent event) {
+            webConnectorRemoval((WebConnector)event.getMember());
+        }
+    };
+
+    private final EndpointCollectionListener webAccessLogListener = new EndpointCollectionListener() {
+        public void memberAdded(EndpointCollectionEvent event) {
+            webAccessLogAdded((WebAccessLog)event.getMember());
+        }
+
+        public void memberRemoved(EndpointCollectionEvent event) {
+            webAccessLogRemoval((WebAccessLog)event.getMember());
+        }
+    };
+
+    //deprecated, remove when GBean-only
+    public AbstractWebContainer() {
+
+    }
+
+    public AbstractWebContainer(URI defaultWebXmlURI, Document defaultWebXmlDoc) {
+        this.defaultWebXmlURI = defaultWebXmlURI;
+        this.defaultWebXmlDoc = defaultWebXmlDoc;
+    }
 
     /**
      * Get the URI of the web defaults.
@@ -144,6 +199,66 @@ public abstract class AbstractWebContainer implements WebContainer {
         // TODO
     }
 
+    public Collection getWebApplications() {
+        return webApplications;
+    }
+
+    public void setWebApplications(Collection webApplications) {
+        if (webApplications == null) {
+            this.webApplications.removeEndpointCollectionListener(webApplicationListener);
+            for (Iterator iterator = this.webApplications.iterator(); iterator.hasNext();) {
+                webApplicationRemoval((WebApplication) iterator.next());
+            }
+        }
+        this.webApplications = (EndpointCollection)webApplications;
+        if (webApplications != null) {
+            this.webApplications.addEndpointCollectionListener(webApplicationListener);
+            for (Iterator iterator = this.webApplications.iterator(); iterator.hasNext();) {
+                webApplicationAdded((WebApplication) iterator.next());
+            }
+        }
+    }
+
+    public Collection getWebConnectors() {
+        return webConnectors;
+    }
+
+    public void setWebConnectors(Collection webConnectors) {
+        if (webConnectors == null) {
+            this.webConnectors.removeEndpointCollectionListener(webConnectorListener);
+            for (Iterator iterator = this.webConnectors.iterator(); iterator.hasNext();) {
+                webConnectorRemoval((WebConnector) iterator.next());
+            }
+        }
+        this.webConnectors = (EndpointCollection)webConnectors;
+        if (webConnectors != null) {
+            this.webConnectors.addEndpointCollectionListener(webConnectorListener);
+            for (Iterator iterator = this.webConnectors.iterator(); iterator.hasNext();) {
+                webConnectorAdded((WebConnector) iterator.next());
+            }
+        }
+    }
+
+    public Collection getWebAccessLogs() {
+        return webAccessLogs;
+    }
+
+    public void setWebAccessLogs(Collection webAccessLogs) {
+        if (webAccessLogs == null) {
+            this.webAccessLogs.removeEndpointCollectionListener(webAccessLogListener);
+            for (Iterator iterator = this.webAccessLogs.iterator(); iterator.hasNext();) {
+                webAccessLogRemoval((WebAccessLog) iterator.next());
+            }
+        }
+        this.webAccessLogs = (EndpointCollection)webAccessLogs;
+        if (webAccessLogs != null) {
+            this.webAccessLogs.addEndpointCollectionListener(webAccessLogListener);
+            for (Iterator iterator = this.webAccessLogs.iterator(); iterator.hasNext();) {
+                webAccessLogAdded((WebAccessLog) iterator.next());
+            }
+        }
+    }
+
     /**
      * Method called by addComponent after a WebConnector has been added.
      */
@@ -177,6 +292,29 @@ public abstract class AbstractWebContainer implements WebContainer {
     protected void webAccessLogRemoval(WebAccessLog log) {
     }
 
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(AbstractWebContainer.class.getName());
+        infoFactory.addAttribute(new GAttributeInfo("DefaultWebXmlURI", true, "Location of web.xml defaults"));
+        infoFactory.addAttribute(new GAttributeInfo("DefaultWebXmlDoc", true, "Parsed web defaults xml document"));
+        infoFactory.setConstructor(new GConstructorInfo(Arrays.asList(new Object[] {"DefaultWebXmlURI", "DefaultWebXmlDoc"}),
+                Arrays.asList(new Object[] {URI.class, Document.class})));
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
+
+    /**
+     * @deprecated
+     * @param clazz
+     * @param container
+     * @param webApplicationClass
+     * @param webConnectorClass
+     * @param webAccessLogClass
+     * @return
+     * @throws Exception
+     */
     public static GeronimoMBeanInfo getGeronimoMBeanInfo(Class clazz, String container, Class webApplicationClass, Class webConnectorClass, Class webAccessLogClass) throws Exception {
         GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
         mbeanInfo.setTargetClass(clazz);

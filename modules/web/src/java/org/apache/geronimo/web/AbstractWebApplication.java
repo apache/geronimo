@@ -58,6 +58,7 @@ package org.apache.geronimo.web;
 
 
 import java.net.URI;
+import java.util.Arrays;
 
 import javax.management.ObjectName;
 import javax.naming.Context;
@@ -67,6 +68,11 @@ import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnecti
 import org.apache.geronimo.deployment.model.geronimo.web.GeronimoWebAppDocument;
 import org.apache.geronimo.deployment.model.web.Servlet;
 import org.apache.geronimo.deployment.model.web.WebApp;
+import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GConstructorInfo;
+import org.apache.geronimo.gbean.GEndpointInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanEndpoint;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.transaction.manager.UserTransactionImpl;
@@ -79,9 +85,11 @@ import org.w3c.dom.Document;
  * Instances are created by a deployer. The deployer finds the
  * WebContainer and associates it with the WebApplication.
  *
- * @version $Revision: 1.12 $ $Date: 2003/12/30 08:28:57 $
+ * @version $Revision: 1.13 $ $Date: 2004/01/16 02:19:23 $
  */
 public abstract class AbstractWebApplication implements WebApplication {
+
+    private static final GBeanInfo GBEAN_INFO;
 
     //uri of the webapp
     protected final URI uri;
@@ -108,10 +116,27 @@ public abstract class AbstractWebApplication implements WebApplication {
     protected String contextPath;
 
     //class loading delegation model. Default to web-app scope
-    private boolean java2ClassloadingCompliance;
+    private boolean java2ClassLoadingCompliance;
     private ClassLoader parentClassLoader;
     private UserTransactionImpl userTransaction;
 
+    public AbstractWebApplication(URI uri, ClassLoader parentClassLoader, WebApp webApp, GeronimoWebAppDocument geronimoWebAppDocument, String contextPath,
+                                  Context context, boolean java2ClassLoadingCompliance, TransactionManager transactionManager, TrackedConnectionAssociator trackedConnectionAssociator) {
+        this.uri = uri;
+        this.parentClassLoader = parentClassLoader;
+        this.webApp = webApp;
+        this.geronimoWebAppDoc = geronimoWebAppDocument;
+        this.contextPath = contextPath;
+        this.context = context;
+        this.java2ClassLoadingCompliance = java2ClassLoadingCompliance;
+        userTransaction = new UserTransactionImpl();
+        userTransaction.setTransactionManager(transactionManager);
+        userTransaction.setTrackedConnectionAssociator(trackedConnectionAssociator);
+    }
+
+    /**
+     *  @deprecated, remove when GBean -only
+     */
     public AbstractWebApplication(WebApplicationContext webApplicationContext) {
         uri = webApplicationContext.uri;
         parentClassLoader = webApplicationContext.parentClassLoader;
@@ -120,7 +145,7 @@ public abstract class AbstractWebApplication implements WebApplication {
         contextPath = webApplicationContext.contextPath;
         context = webApplicationContext.context;
         userTransaction = webApplicationContext.userTransaction;
-        java2ClassloadingCompliance = webApplicationContext.java2ClassLoadingCompliance;
+        java2ClassLoadingCompliance = webApplicationContext.java2ClassLoadingCompliance;
     }
 
     public TransactionManager getTransactionManager() {
@@ -143,7 +168,7 @@ public abstract class AbstractWebApplication implements WebApplication {
      * @return the URI of the webapp
      * @see org.apache.geronimo.web.WebApplication#getURI()
      */
-    public URI getURI (){
+    public URI getURI() {
         return uri;
     }
 
@@ -153,8 +178,8 @@ public abstract class AbstractWebApplication implements WebApplication {
      * webapps wanting to load class will try their own context class loader first.
      * @return true if application is using Java 2 compliant class loading
      */
-    public boolean getJava2ClassloadingCompliance() {
-        return java2ClassloadingCompliance;
+    public boolean getJava2ClassLoadingCompliance() {
+        return java2ClassLoadingCompliance;
     }
 
 
@@ -190,7 +215,7 @@ public abstract class AbstractWebApplication implements WebApplication {
         return geronimoWebAppDoc;
     }
 
-    public WebApp getWebApp () {
+    public WebApp getWebApp() {
         return webApp;
     }
     //computed info:
@@ -201,18 +226,18 @@ public abstract class AbstractWebApplication implements WebApplication {
      * @see org.apache.geronimo.web.WebApplication#getServlets()
      */
     public String[] getServlets() {
-       if (servlets == null) {
-           if (webApp == null)
-               return null;
+        if (servlets == null) {
+            if (webApp == null)
+                return null;
 
-          Servlet[] servletObjs = webApp.getServlet();
-          servlets = new String[servletObjs.length];
-          for (int i=0; i<servletObjs.length; i++) {
-              servlets[i] = servletObjs[i].getServletName();
-          }
-       }
+            Servlet[] servletObjs = webApp.getServlet();
+            servlets = new String[servletObjs.length];
+            for (int i = 0; i < servletObjs.length; i++) {
+                servlets[i] = servletObjs[i].getServletName();
+            }
+        }
 
-       return servlets;
+        return servlets;
     }
 
     /** JSR077
@@ -223,41 +248,72 @@ public abstract class AbstractWebApplication implements WebApplication {
      */
     public abstract String getDeploymentDescriptor();
 
-   /**JSR077
-    * @return ObjectName(s) as string of JVM(s) on which this webapp is deployed
-    * @see org.apache.geronimo.kernel.management.J2EEModule#getJavaVMs()
-    */
-   public String[] getJavaVMs() {
-       // TODO
-       return null;
-   }
+    /**JSR077
+     * @return ObjectName(s) as string of JVM(s) on which this webapp is deployed
+     * @see org.apache.geronimo.kernel.management.J2EEModule#getJavaVMs()
+     */
+    public String[] getJavaVMs() {
+        // TODO
+        return null;
+    }
 
 
-   /** JSR077
-    * @return ObjectName as string of Geronimo server  on which this webapp is deployed
-    * @see org.apache.geronimo.kernel.management.J2EEDeployedObject#getServer()
-    */
-   public String getServer() {
-       // TODO
-       return null;
-   }
+    /** JSR077
+     * @return ObjectName as string of Geronimo server  on which this webapp is deployed
+     * @see org.apache.geronimo.kernel.management.J2EEDeployedObject#getServer()
+     */
+    public String getServer() {
+        // TODO
+        return null;
+    }
 
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(AbstractWebApplication.class.getName());
+        infoFactory.addAttribute(new GAttributeInfo("URI", true, "URI of this web application", Boolean.TRUE, Boolean.FALSE));
+        infoFactory.addAttribute(new GAttributeInfo("ParentClassLoader", true, "Parent ClassLoader for this web application", Boolean.TRUE, Boolean.FALSE));
+        infoFactory.addAttribute(new GAttributeInfo("ContextPath", true, "Context path for this web application", Boolean.TRUE, Boolean.FALSE));
+        infoFactory.addAttribute(new GAttributeInfo("DeploymentDescriptor", true, "Deployment descriptor of this web application as a String", Boolean.TRUE, Boolean.FALSE));
+        infoFactory.addAttribute(new GAttributeInfo("GeronimoWebAppDoc", true, "Geronimo deployment descriptor of this web application as a POJO", Boolean.TRUE, Boolean.FALSE));
+        infoFactory.addAttribute(new GAttributeInfo("Java2ClassloadingCompliance", true, "Does this web application follow Java2 class loading semantics or the servlet spec", Boolean.TRUE, Boolean.FALSE));
+        infoFactory.addAttribute(new GAttributeInfo("ComponentContext", true, "Read only jndi context for this web application", Boolean.TRUE, Boolean.FALSE));
+        infoFactory.addAttribute(new GAttributeInfo("Servlets", false, "Array of servlet names in this web application", Boolean.TRUE, Boolean.FALSE));
+        infoFactory.addEndpoint(new GEndpointInfo("TransactionManager", TransactionManager.class.getName()));
+        infoFactory.addEndpoint(new GEndpointInfo("TrackedConnectionAssociator", TrackedConnectionAssociator.class.getName()));
+        infoFactory.setConstructor(new GConstructorInfo(
+                Arrays.asList(new Object[]{"URI", "ParentClassLoader", "WebApp", "GeronimoWebAppDoc", "ContextPath",
+                                  "Context", "Java2ClassLoadingCompliance", "TransactionManager", "TrackedConnectionAssociator"}),
+                Arrays.asList(new Object[]{URI.class, ClassLoader.class, WebApp.class, GeronimoWebAppDocument.class, String.class,
+                                  Context.class,Boolean.TYPE, TransactionManager.class, TrackedConnectionAssociator.class})
+        ));
+
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGbeanInfo() {
+        return GBEAN_INFO;
+    }
+
+    /**
+     *  @deprecated, remove when GBean -only
+     */
     public static GeronimoMBeanInfo getGeronimoMBeanInfo(String containerName) throws Exception {
         GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
         //should do this individually with comments
         mbeanInfo.addOperationsDeclaredIn(WebApplication.class);
+        /*
             mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("WebContainer",
                     AbstractWebContainer.class.getName(),
                     ObjectName.getInstance(AbstractWebContainer.BASE_WEB_CONTAINER_NAME + AbstractWebContainer.CONTAINER_CLAUSE + containerName),
                     true));
-            mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("TransactionManager",
-                    TransactionManager.class.getName(),
-                    ObjectName.getInstance("geronimo.transaction:role=TransactionManager"),
-                    true));
-            mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("TrackedConnectionAssociator",
-                    TrackedConnectionAssociator.class.getName(),
-                    ObjectName.getInstance("geronimo.connector:role=ConnectionTrackingCoordinator"),
-                    true));
+                    */
+        mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("TransactionManager",
+                TransactionManager.class.getName(),
+                ObjectName.getInstance("geronimo.transaction:role=TransactionManager"),
+                true));
+        mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("TrackedConnectionAssociator",
+                TrackedConnectionAssociator.class.getName(),
+                ObjectName.getInstance("geronimo.connector:role=ConnectionTrackingCoordinator"),
+                true));
         return mbeanInfo;
     }
 

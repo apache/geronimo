@@ -59,18 +59,23 @@ package org.apache.geronimo.web.jetty;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
-
-import javax.management.ObjectName;
+import java.net.URI;
+import java.util.Arrays;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GConstructorInfo;
+import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
-import org.apache.geronimo.kernel.service.GeronimoMBeanEndpoint;
+import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
-import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
+import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
+import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
 import org.apache.geronimo.web.AbstractWebAccessLog;
-import org.apache.geronimo.web.AbstractWebContainer;
 import org.mortbay.http.NCSARequestLog;
 import org.mortbay.http.RequestLog;
 import org.mortbay.jetty.Server;
@@ -80,17 +85,36 @@ import org.mortbay.jetty.Server;
 /**
  * JettyWebAccessLog
  *
- * @version $Revision: 1.2 $ $Date: 2003/12/30 08:28:58 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/16 02:19:23 $
  */
 public class JettyWebAccessLog extends AbstractWebAccessLog implements GeronimoMBeanTarget {
+
+    private static final GBeanInfo GBEAN_INFO;
+
     private final static Log log = LogFactory.getLog(JettyWebAccessLog.class);
+
     private final static Class[] defaultConstructorSignature = new Class[]{};
     private final static Object[] defaultConstructorArgs = new Object[]{};
 
-    private JettyWebContainer webContainer;
-    private Server jetty;
-    private RequestLog jettyLog;
+    //private JettyWebContainer webContainer;
+    //private Server jetty;
+    private RequestLog jettyAccessLog;
     private boolean buffering = false;
+
+    public JettyWebAccessLog(String logImplementationClass, URI logLocation, String logPattern, int logRetentionDays,
+                             int logRolloverIntervalHrs, String logPrefix, String logSuffix, String logDateFormat,
+                             boolean resolveHostNames, boolean append, boolean buffering) {
+        super(logImplementationClass, logLocation, logPattern, logRetentionDays, logRolloverIntervalHrs, logPrefix, logSuffix, logDateFormat,
+                resolveHostNames, append);
+        this.buffering = buffering;
+    }
+
+    /**
+     *  @deprecated, remove when GBean -only
+     */
+    public JettyWebAccessLog() {
+
+    }
 
 
     /* -------------------------------------------------------------------------------------- */
@@ -123,25 +147,17 @@ public class JettyWebAccessLog extends AbstractWebAccessLog implements GeronimoM
     }
 
 
-    /**
-     * Set the parent Container for this  component
-     *
-     * @param webContainer a <code>WebContainer</code> value
-     */
-    public void setWebContainer(JettyWebContainer webContainer) {
-        this.webContainer = webContainer;
+    public void registerLog(Server jetty) throws Exception {
+        jetty.setRequestLog(jettyAccessLog);
+        jettyAccessLog.start();
+    }
 
-        if (webContainer != null) {
-            jetty = (webContainer).getJettyServer();
-        } else {
-            jetty = null;
+    public void unregisterLog(Server jetty) throws InterruptedException {
+        //shouldn't we actually unregister?
+        if (jettyAccessLog instanceof NCSARequestLog) {
+            jettyAccessLog.stop();
         }
     }
-
-    public JettyWebContainer getWebContainer() {
-        return webContainer;
-    }
-
 
     public void setMBeanContext(GeronimoMBeanContext context) {
     }
@@ -156,18 +172,18 @@ public class JettyWebAccessLog extends AbstractWebAccessLog implements GeronimoM
                 Class logImplClass = Thread.currentThread().getContextClassLoader().loadClass(getLogImplementationClass());
                 //get the default constructor, if it has one
                 Constructor constructor = logImplClass.getConstructor(defaultConstructorSignature);
-                jettyLog = (RequestLog) constructor.newInstance(defaultConstructorArgs);
+                jettyAccessLog = (RequestLog) constructor.newInstance(defaultConstructorArgs);
                 log.warn("RequestLog does not support rich configuration");
 
-                jetty.setRequestLog(jettyLog);
-                jettyLog.start();
+                //jetty.setRequestLog(jettyAccessLog);
+                //jettyAccessLog.start();
 
                 return;
             }
 
             log.info("Using org.mortbay.http.NCSARequestLog as log impl");
-            jettyLog = new NCSARequestLog();
-            NCSARequestLog ncsaLog = (NCSARequestLog) jettyLog;
+            jettyAccessLog = new NCSARequestLog();
+            NCSARequestLog ncsaLog = (NCSARequestLog) jettyAccessLog;
 
             // set up the configuration of the access log
             ncsaLog.setBuffered(getBuffering());
@@ -209,9 +225,9 @@ public class JettyWebAccessLog extends AbstractWebAccessLog implements GeronimoM
             filename = filename + (getLogSuffix() == null ? "" : getLogSuffix()) + ".log";
             ncsaLog.setFilename(logDir.getCanonicalPath() + File.separator + filename);
 
-            jetty.setRequestLog(ncsaLog);
+            //jetty.setRequestLog(ncsaLog);
 
-            ncsaLog.start();
+            //ncsaLog.start();
         } catch (Exception e) {
             log.error(e);
             throw new RuntimeException("Could not start JettyWebAccessLog", e);
@@ -222,10 +238,10 @@ public class JettyWebAccessLog extends AbstractWebAccessLog implements GeronimoM
         return false;
     }
 
-    public void doStop(){
+    public void doStop() {
         try {
-            if (jettyLog instanceof NCSARequestLog)
-                jettyLog.stop();
+            if (jettyAccessLog instanceof NCSARequestLog)
+                jettyAccessLog.stop();
         } catch (InterruptedException e) {
             throw new RuntimeException("Could not stop JettyWebAccessLog", e);
         }
@@ -235,15 +251,47 @@ public class JettyWebAccessLog extends AbstractWebAccessLog implements GeronimoM
     }
 
 
-    public RequestLog getJettyLog() {
-        return jettyLog;
+    public RequestLog getJettyAccessLog() {
+        return jettyAccessLog;
     }
 
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Jetty Web Access Log", "Wrapped Jetty access log", JettyWebAccessLog.class.getName(), AbstractWebAccessLog.getGbeanInfo());
+        infoFactory.addAttribute(new GAttributeInfo("Buffering", true, "Should log buffer"));
+        infoFactory.addOperation(new GOperationInfo("registerLog", new String[]{"Jetty Server"}, new String[]{Server.class.getName()}));
+        infoFactory.addOperation(new GOperationInfo("unregisterLog", new String[]{"Jetty Server"}, new String[]{Server.class.getName()}));
+        infoFactory.setConstructor(new GConstructorInfo(
+                Arrays.asList(new Object[]{"LogImplementationClass", "LogLocation", "LogPattern",
+                                           "LogRetentionDays", "LogRolloverIntervalHrs", "LogPrefix",
+                                           "LogSuffix", "LogDateFormat", "ResolveHostNames",
+                                           "Append", "Buffering"}),
+                Arrays.asList(new Object[]{String.class, URI.class, String.class,
+                                           Integer.TYPE, Integer.TYPE, String.class,
+                                           String.class, String.class, Boolean.TYPE,
+                                           Boolean.TYPE, Boolean.TYPE})
+        ));
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGbeanInfo() {
+        return GBEAN_INFO;
+    }
+
+
+    /**
+     *  @deprecated, remove when GBean -only
+     */
     public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
         GeronimoMBeanInfo mbeanInfo = AbstractWebAccessLog.getGeronimoMBeanInfo();
         mbeanInfo.setTargetClass(JettyWebAccessLog.class);
         mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Buffering", true, true));
-        mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("WebContainer", JettyWebContainer.class, ObjectName.getInstance(AbstractWebContainer.BASE_WEB_CONTAINER_NAME + AbstractWebContainer.CONTAINER_CLAUSE + "Jetty"), true));
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("registerLog", new GeronimoParameterInfo[] {
+            new GeronimoParameterInfo("Jetty Server", Server.class, "Jetty server")
+        }, GeronimoOperationInfo.ACTION, "register this log with jetty"));
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("unregisterLog", new GeronimoParameterInfo[] {
+            new GeronimoParameterInfo("Jetty Server", Server.class, "Jetty server")
+        }, GeronimoOperationInfo.ACTION, "unregister this log with jetty"));
+        //mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("WebContainer", JettyWebContainer.class, ObjectName.getInstance(AbstractWebContainer.BASE_WEB_CONTAINER_NAME + AbstractWebContainer.CONTAINER_CLAUSE + "Jetty"), true));
         return mbeanInfo;
     }
 }

@@ -66,12 +66,12 @@ import org.apache.geronimo.deployment.model.geronimo.web.GeronimoWebAppDocument;
  *
  * It supports the J2EE Management WebModule attributes
  *
- * @version  $Revision: 1.14 $ $Date: 2003/12/30 08:28:57 $
+ * @version  $Revision: 1.15 $ $Date: 2004/01/16 02:19:23 $
  */
 public interface WebApplication {
     //extends WebModule {
 
-    //FROM WebModule without the ManagedObject cruft that GeronimoMBean takes care of.
+    //FROM WebModule without the ManagedObject cruft that GBeanMBean takes care of.
     /**
      * Gets the list of servlets contained in the deployed WAR module.
      *
@@ -118,7 +118,7 @@ public interface WebApplication {
      * Getter for the class loader delegation model for this webapp
      * @return
      */
-    public boolean getJava2ClassloadingCompliance();
+    public boolean getJava2ClassLoadingCompliance();
 
 
     /**

@@ -57,9 +57,14 @@
 package org.apache.geronimo.web.jetty;
 
 import java.lang.reflect.Constructor;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
@@ -73,13 +78,26 @@ import org.mortbay.http.ajp.AJP13Listener;
 import org.mortbay.util.ThreadedServer;
 
 /**
- * @version $Revision: 1.6 $ $Date: 2003/12/30 08:28:58 $
+ * @version $Revision: 1.7 $ $Date: 2004/01/16 02:19:23 $
  */
 public class JettyWebConnector extends AbstractWebConnector implements GeronimoMBeanTarget {
+    private final static GBeanInfo GBEAN_INFO;
     private final static Log log = LogFactory.getLog(JettyWebConnector.class);
     private final static Class[] _defaultConstructorSignature = new Class[]{};
     private final static Object[] _defaultConstructorArgs = new Object[]{};
     private HttpListener listener = null;
+
+    /**
+     *  @deprecated, remove when GBean -only
+     */
+    public JettyWebConnector() {
+
+    }
+
+    public JettyWebConnector(String protocol, String iface, int port, int maxConnections, int maxIdleTime, List contexts) {
+        super(protocol, iface, port, maxConnections, maxIdleTime, contexts);
+    }
+
 
     /**
      * Set up the port for the Connector to listen on.
@@ -133,7 +151,8 @@ public class JettyWebConnector extends AbstractWebConnector implements GeronimoM
 
     /**
      * Start the connector
-     *
+     * TODO this fishing for the listener class should be done in the deployer.
+     * TODO  This should get a listener as a constructor argument.
      */
     public void doStart() {
         try {
@@ -222,10 +241,23 @@ public class JettyWebConnector extends AbstractWebConnector implements GeronimoM
         return listener;
     }
 
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Jetty Web Connector", "Wrapped Jetty listener", JettyWebConnector.class.getName(), AbstractWebConnector.getGbeanInfo());
+        infoFactory.addOperation(new GOperationInfo("getListener", Collections.EMPTY_LIST));
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGbeanInfo() {
+        return GBEAN_INFO;
+    }
+
+    /**
+     *  @deprecated, remove when GBean -only
+     */
     public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
         GeronimoMBeanInfo mbeanInfo = AbstractWebConnector.getGeronimoMBeanInfo();
         mbeanInfo.setTargetClass(JettyWebConnector.class);
-        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("getListener", new GeronimoParameterInfo[] {}, GeronimoOperationInfo.INFO, "Retrieve the internal HTTP Listener"));
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("getListener", new GeronimoParameterInfo[]{}, GeronimoOperationInfo.INFO, "Retrieve the internal HTTP Listener"));
         return mbeanInfo;
     }
 

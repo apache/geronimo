@@ -5,6 +5,10 @@ import java.util.List;
 
 import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GConstructorInfo;
 
 
 /**
@@ -13,7 +17,7 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
  *
  * Created: Mon Sep  8 20:39:02 2003
  *
- * @version $Revision: 1.5 $ $Date: 2003/12/30 21:18:35 $
+ * @version $Revision: 1.6 $ $Date: 2004/01/16 02:19:23 $
  */
 public abstract class AbstractWebConnector implements WebConnector {
 
@@ -21,21 +25,37 @@ public abstract class AbstractWebConnector implements WebConnector {
     public static final String HTTPS_PROTOCOL = "https";
     public static final String AJP13_PROTOCOL = "ajp13";
 
-    private int _port = 0;
-    private String _protocol = null;
-    private String _interface = null;
-    private int _maxConnections = 0;
-    private int _maxIdleTime = 0;
-    private List _contexts = null;
+    private static final GBeanInfo GBEAN_INFO;
 
+    private int port = 0;
+    private String protocol = null;
+    private String iface = null;
+    private int maxConnections = 0;
+    private int maxIdleTime = 0;
+    private List contexts = null;
 
+    /**
+     *  @deprecated, remove when GBean -only
+     */
+    public AbstractWebConnector() {
+
+    }
+
+    public AbstractWebConnector(String protocol, String iface, int port, int maxConnections, int maxIdleTime, List contexts) {
+        this.protocol = protocol;
+        this.iface = iface;
+        this.port = port;
+        this.maxConnections = maxConnections;
+        this.maxIdleTime = maxIdleTime;
+        this.contexts = contexts;
+    }
 
     /* (non-Javadoc)
      * @see org.apache.geronimo.web.WebConnector#setPort(int)
      */
     public void setPort(int port)
     {
-        _port = port;
+        this.port = port;
     }
 
     /* (non-Javadoc)
@@ -43,7 +63,7 @@ public abstract class AbstractWebConnector implements WebConnector {
      */
     public int getPort()
     {
-        return _port;
+        return port;
     }
 
     /* (non-Javadoc)
@@ -51,7 +71,7 @@ public abstract class AbstractWebConnector implements WebConnector {
      */
     public void setProtocol(String protocol)
     {
-        _protocol = protocol;
+        this.protocol = protocol;
     }
 
     /* (non-Javadoc)
@@ -59,7 +79,7 @@ public abstract class AbstractWebConnector implements WebConnector {
      */
     public String getProtocol()
     {
-        return _protocol;
+        return protocol;
     }
 
     /* (non-Javadoc)
@@ -67,7 +87,7 @@ public abstract class AbstractWebConnector implements WebConnector {
      */
     public void setInterface(String iface)
     {
-        _interface = iface;
+        this.iface = iface;
     }
 
     /* (non-Javadoc)
@@ -75,7 +95,7 @@ public abstract class AbstractWebConnector implements WebConnector {
      */
     public String getInterface()
     {
-        return _interface;
+        return iface;
     }
 
     /* (non-Javadoc)
@@ -83,7 +103,7 @@ public abstract class AbstractWebConnector implements WebConnector {
      */
     public void setMaxConnections(int maxConnects)
     {
-        _maxConnections = maxConnects;
+        maxConnections = maxConnects;
     }
 
     /* (non-Javadoc)
@@ -91,7 +111,7 @@ public abstract class AbstractWebConnector implements WebConnector {
      */
     public int getMaxConnections()
     {
-        return _maxConnections;
+        return maxConnections;
     }
 
     /* (non-Javadoc)
@@ -99,7 +119,7 @@ public abstract class AbstractWebConnector implements WebConnector {
      */
     public void setMaxIdleTime(int maxIdleTime)
     {
-        _maxIdleTime = maxIdleTime;
+        this.maxIdleTime = maxIdleTime;
     }
 
     /* (non-Javadoc)
@@ -107,7 +127,7 @@ public abstract class AbstractWebConnector implements WebConnector {
      */
     public int getMaxIdleTime()
     {
-        return _maxIdleTime;
+        return maxIdleTime;
     }
 
     /* (non-Javadoc)
@@ -115,7 +135,7 @@ public abstract class AbstractWebConnector implements WebConnector {
      */
     public void setContexts(String[] contexts)
     {
-        _contexts = Arrays.asList(contexts);
+        this.contexts = Arrays.asList(contexts);
     }
 
     /* (non-Javadoc)
@@ -123,10 +143,31 @@ public abstract class AbstractWebConnector implements WebConnector {
      */
     public String[] getContexts()
     {
-        return (String[])_contexts.toArray(new String[0]);
+        return (String[])contexts.toArray(new String[0]);
     }
 
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(AbstractWebConnector.class.getName());
+        infoFactory.addAttribute(new GAttributeInfo("Port", true, "port to listen on"));
+        infoFactory.addAttribute(new GAttributeInfo("Protocol", true, "Protocol (hhtp, https, ftp etc) to use"));
+        infoFactory.addAttribute(new GAttributeInfo("Interface", true, "Interface to listen on"));
+        infoFactory.addAttribute(new GAttributeInfo("MaxConnections", true, "Maximum number of connections"));
+        infoFactory.addAttribute(new GAttributeInfo("MaxIdleTime", true, "Maximum idle time (ms??) a connection can be idle before being closed"));
+        infoFactory.addAttribute(new GAttributeInfo("Contexts", true, "Contexts that must be registered in the web container before this connector will start accepting connections"));
+        infoFactory.setConstructor(new GConstructorInfo(
+                Arrays.asList(new Object[] {"Protocol", "Interface", "Port", "MaxConnections", "MaxIdleTime", "Contexts"}),
+                Arrays.asList(new Object[] {String.class, String.class, Integer.class, Integer.class, Integer.class, List.class})
+                ));
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
 
+    public static GBeanInfo getGbeanInfo() {
+        return GBEAN_INFO;
+    }
+
+    /**
+     *  @deprecated, remove when GBean -only
+     */
     public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
         GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
         mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Port", true, true, "port to listen on"));

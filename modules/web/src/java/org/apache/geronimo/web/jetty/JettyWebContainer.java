@@ -56,33 +56,55 @@
 
 package org.apache.geronimo.web.jetty;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.net.URI;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.kernel.management.StateManageable;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.web.AbstractWebContainer;
 import org.apache.geronimo.web.WebApplication;
+import org.apache.geronimo.web.WebAccessLog;
 import org.apache.geronimo.web.WebConnector;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GEndpointInfo;
+import org.apache.geronimo.gbean.GConstructorInfo;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.servlet.WebApplicationContext;
+import org.w3c.dom.Document;
 
 /**
  * Base class for jetty web containers.
  *
  *
- * @version $Revision: 1.10 $ $Date: 2003/12/30 08:28:58 $
+ * @version $Revision: 1.11 $ $Date: 2004/01/16 02:19:23 $
  */
 public class JettyWebContainer extends AbstractWebContainer {
+    private final static GBeanInfo GBEAN_INFO;
 
     private final Log log = LogFactory.getLog(JettyWebContainer.class);
 
     private final Server jettyServer;
 
-
-    public JettyWebContainer() throws Exception
-    {
+    /**
+     *  @deprecated, remove when GBean -only
+     */
+    public JettyWebContainer() throws Exception {
         jettyServer = new Server();
         jettyServer.start();
+    }
+
+    public JettyWebContainer(URI defaultWebXmlURI, Document defaultWebXmlDoc, Collection webApplications, Collection webConnectors, Collection webAccessLogs) throws Exception {
+        super(defaultWebXmlURI, defaultWebXmlDoc);
+        jettyServer = new Server();
+        jettyServer.start();
+        //Does order matter here?
+        setWebApplications(webApplications);
+        setWebAccessLogs(webAccessLogs);
+        setWebConnectors(webConnectors);
     }
 
     /**
@@ -175,9 +197,44 @@ public class JettyWebContainer extends AbstractWebContainer {
         } catch (InterruptedException e) {
             throw new RuntimeException("could not stop jetty context", e);
         }
-        jettyServer.removeContext (((JettyWebApplication)webapp).getJettyContext());
+        jettyServer.removeContext(webApplicationContext);
     }
 
+    protected void webAccessLogAdded(WebAccessLog webAccessLog) {
+        try {
+            ((JettyWebAccessLog)webAccessLog).registerLog(jettyServer);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected void WebAccessLogRemoval(WebAccessLog webAccessLog) {
+        try {
+            ((JettyWebAccessLog)webAccessLog).unregisterLog(jettyServer);
+        } catch (InterruptedException e) {
+            log.info(e);
+            //???ignore???
+        }
+    }
+
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Jetty Web Container", "Geronimo integrated Jetty Server", JettyWebContainer.class.getName(), AbstractWebContainer.getGBeanInfo());
+        infoFactory.addEndpoint(new GEndpointInfo("WebApplications", JettyWebApplication.class.getName()));
+        infoFactory.addEndpoint(new GEndpointInfo("WebConnectors", JettyWebConnector.class.getName()));
+        infoFactory.addEndpoint(new GEndpointInfo("WebAccessLogs", JettyWebAccessLog.class.getName()));
+        infoFactory.setConstructor(new GConstructorInfo(
+                Arrays.asList(new Object[] {"DefaultWebXmlURI", "DefaultWebXmlDoc", "WebApplications", "WebConnectors", "WebAccessLogs", }),
+                Arrays.asList(new Object[] {URI.class, Document.class, Collection.class, Collection.class, Collection.class })));
+         GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGbeanInfo() {
+        return GBEAN_INFO;
+    }
+
+    /**
+     *  @deprecated, remove when GBean -only
+     */
     public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
         return AbstractWebContainer.getGeronimoMBeanInfo(JettyWebContainer.class, "Jetty", JettyWebApplication.class, JettyWebConnector.class, JettyWebAccessLog.class);
     }
