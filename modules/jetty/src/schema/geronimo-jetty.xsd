@@ -35,7 +35,9 @@
 
     <xs:complexType name="web-appType">
         <xs:sequence>
-            <xs:element name="context-root" type="xs:string"/>
+            <xs:element name="dependency" type="jetty:dependencyType" minOccurs="0" maxOccurs="unbounded"/>
+
+            <xs:element name="context-root" type="xs:string" minOccurs="0" maxOccurs="1"/>
             <xs:element name="context-priority-classloader" type="xs:boolean"/>
 
             <!--xs:group ref="jetty:jndiEnvironmentRefsGroup"/-->

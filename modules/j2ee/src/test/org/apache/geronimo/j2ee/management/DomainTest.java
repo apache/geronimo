@@ -17,27 +17,23 @@
 
 package org.apache.geronimo.j2ee.management;
 
-import java.util.Arrays;
-
 import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
 
 
 /**
- * 
- * 
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:52 $
+ * @version $Revision: 1.4 $ $Date: 2004/05/19 20:53:59 $
  */
 public class DomainTest extends Abstract77Test {
     private J2EEDomain domain;
 
-    public void testStandardInterface() {
+    public void testStandardInterface() throws Exception {
         assertEquals(DOMAIN_NAME.toString(), domain.getobjectName());
-        assertTrue(Arrays.equals(new String[]{SERVER_NAME.toString()}, domain.getservers()));
+        assertObjectNamesEqual(new String[]{SERVER_NAME.toString()}, domain.getservers());
     }
 
     public void testStandardAttributes() throws Exception {
         assertEquals(DOMAIN_NAME.toString(), mbServer.getAttribute(DOMAIN_NAME, "objectName"));
-        assertTrue(Arrays.equals(new String[]{SERVER_NAME.toString()}, (String[])mbServer.getAttribute(DOMAIN_NAME, "servers")));
+        assertObjectNamesEqual(new String[]{SERVER_NAME.toString()}, (String[]) mbServer.getAttribute(DOMAIN_NAME, "servers"));
     }
 
     protected void setUp() throws Exception {

@@ -135,30 +135,9 @@ by the server.
     </gbean>
 
     <!-- JSR77 Management Objects -->
-    <gbean name="geronimo.server:type=J2EEDomain,name=geronimo.server" class="org.apache.geronimo.j2ee.management.impl.DomainImpl">
-        <reference name="Servers">geronimo.server:type=J2EEServer,*</reference>
-    </gbean>
-    <gbean name="geronimo.server:type=J2EEServer,name=geronimo" class="org.apache.geronimo.j2ee.management.impl.ServerImpl">
+    <gbean name="geronimo.server:j2eeType=J2EEDomain,name=geronimo.server" class="org.apache.geronimo.j2ee.management.impl.J2EEDomainImpl"/>
+    <gbean name="geronimo.server:j2eeType=J2EEServer,name=geronimo" class="org.apache.geronimo.j2ee.management.impl.J2EEServerImpl">
         <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
-        <references name="DeployedObjects">
-            <pattern>geronimo.server:type=J2EEApplication,J2EEServer=geronimo,*</pattern>
-            <pattern>geronimo.server:type=AppClientModule,J2EEServer=geronimo,*</pattern>
-            <pattern>geronimo.server:type=EJBModule,J2EEServer=geronimo,*</pattern>
-            <pattern>geronimo.server:type=WebModule,J2EEServer=geronimo,*</pattern>
-            <pattern>geronimo.server:type=ResourceAdapterModule,J2EEServer=geronimo,*</pattern>
-        </references>
-        <references name="Resources">
-            <pattern>geronimo.server:type=JCAResource,J2EEServer=geronimo,*</pattern>
-            <pattern>geronimo.server:type=JavaMailResource,J2EEServer=geronimo,*</pattern>
-            <pattern>geronimo.server:type=JDBCResource,J2EEServer=geronimo,*</pattern>
-            <pattern>geronimo.server:type=JCAResource,J2EEServer=geronimo,*</pattern>
-            <pattern>geronimo.server:type=JMSResource,J2EEServer=geronimo,*</pattern>
-            <pattern>geronimo.server:type=JNDIResource,J2EEServer=geronimo,*</pattern>
-            <pattern>geronimo.server:type=JTAResource,J2EEServer=geronimo,*</pattern>
-            <pattern>geronimo.server:type=RMI_IIOPResource,J2EEServer=geronimo,*</pattern>
-            <pattern>geronimo.server:type=URLResource,J2EEServer=geronimo,*</pattern>
-        </references>
-        <reference name="JVMs">geronimo.server:type=JVM,J2EEServer=geronimo,*</reference>
     </gbean>
-    <gbean name="geronimo.server:type=JVM,J2EEServer=geronimo" class="org.apache.geronimo.j2ee.management.impl.JVMImpl"/>
+    <gbean name="geronimo.server:j2eeType=JVM,J2EEServer=geronimo" class="org.apache.geronimo.j2ee.management.impl.JVMImpl"/>
 </configuration>

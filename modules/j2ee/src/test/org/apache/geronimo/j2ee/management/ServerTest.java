@@ -17,33 +17,29 @@
 
 package org.apache.geronimo.j2ee.management;
 
-import java.util.Arrays;
-
 import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
 
 /**
- * 
- * 
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:52 $
+ * @version $Revision: 1.4 $ $Date: 2004/05/19 20:53:59 $
  */
 public class ServerTest extends Abstract77Test {
     private J2EEServer server;
     private String version;
 
-    public void testStandardInterface() {
+    public void testStandardInterface() throws Exception {
         assertEquals(SERVER_NAME.toString(), server.getobjectName());
         assertEquals(0, server.getdeployedObjects().length);
         assertEquals(0, server.getresources().length);
-        assertTrue(Arrays.equals(new String[]{JVM_NAME.toString()}, server.getjavaVMs()));
+        assertObjectNamesEqual(new String[]{JVM_NAME.toString()}, server.getjavaVMs());
         assertEquals("The Apache Software Foundation", server.getserverVendor());
         assertEquals(version, server.getserverVersion());
     }
 
     public void testStandardAttributes() throws Exception {
         assertEquals(SERVER_NAME.toString(), mbServer.getAttribute(SERVER_NAME, "objectName"));
-        assertEquals(0, ((String[])mbServer.getAttribute(SERVER_NAME, "deployedObjects")).length);
-        assertEquals(0, ((String[])mbServer.getAttribute(SERVER_NAME, "resources")).length);
-        assertTrue(Arrays.equals(new String[]{JVM_NAME.toString()}, (String[])mbServer.getAttribute(SERVER_NAME, "javaVMs")));
+        assertEquals(0, ((String[]) mbServer.getAttribute(SERVER_NAME, "deployedObjects")).length);
+        assertEquals(0, ((String[]) mbServer.getAttribute(SERVER_NAME, "resources")).length);
+        assertObjectNamesEqual(new String[]{JVM_NAME.toString()}, (String[]) mbServer.getAttribute(SERVER_NAME, "javaVMs"));
         assertEquals("The Apache Software Foundation", mbServer.getAttribute(SERVER_NAME, "serverVendor"));
         assertEquals(version, mbServer.getAttribute(SERVER_NAME, "serverVersion"));
     }

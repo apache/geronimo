@@ -37,6 +37,9 @@ Configuration for the Geronimo deployer
         <uri>geronimo/jars/geronimo-core-1.0-SNAPSHOT.jar</uri>
     </dependency>
     <dependency>
+        <uri>geronimo/jars/geronimo-j2ee-1.0-SNAPSHOT.jar</uri>
+    </dependency>
+    <dependency>
         <uri>geronimo/jars/geronimo-security-1.0-SNAPSHOT.jar</uri>
     </dependency>
     <dependency>
@@ -85,13 +88,16 @@ Configuration for the Geronimo deployer
         <reference name="Repository">*:role=Repository,*</reference>
     </gbean>
 
-    <gbean name="geronimo.deployer:role=Builder,type=WAR,config=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.jetty.deployment.WARConfigBuilder">
+    <gbean name="geronimo.deployer:role=Builder,type=EAR,config=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.j2ee.deployment.EARConfigBuilder">
         <reference name="Kernel">geronimo.boot:role=Kernel</reference>
         <reference name="Repository">*:role=Repository,*</reference>
+        <attribute name="j2eeServer" type="javax.management.ObjectName">geronimo.server:type=J2EEServer,name=geronimo</attribute>
+        <reference name="EJBConfigBuilder">geronimo.deployer:role=ModuleBuilder,type=EJB,config=org/apache/geronimo/J2EEDeployer</reference>
+        <reference name="WebConfigBuilder">geronimo.deployer:role=ModuleBuilder,type=Web,config=org/apache/geronimo/J2EEDeployer</reference>
+<!--        <reference name="ConnectorConfigBuilder"></reference> -->
     </gbean>
 
-    <gbean name="geronimo.deployer:role=Builder,type=EJB,config=org/apache/geronimo/J2EEDeployer" class="org.openejb.deployment.EJBConfigBuilder">
-        <reference name="Kernel">geronimo.boot:role=Kernel</reference>
-        <reference name="Repository">*:role=Repository,*</reference>
-    </gbean>
+    <gbean name="geronimo.deployer:role=ModuleBuilder,type=Web,config=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.jetty.deployment.JettyModuleBuilder"/>
+
+    <gbean name="geronimo.deployer:role=ModuleBuilder,type=EJB,config=org/apache/geronimo/J2EEDeployer" class="org.openejb.deployment.EJBModuleBuilder"/>
 </configuration>

@@ -32,7 +32,7 @@
     <dependency>
         <uri>ant/jars/ant-1.5.jar</uri>
     </dependency>
-    <dependency>
-        <uri>jdk/jars/tools.jar</uri>
-    </dependency>
+<!--    <dependency>-->
+<!--        <uri>jdk/jars/tools.jar</uri>-->
+<!--    </dependency>-->
 </service>

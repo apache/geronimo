@@ -42,9 +42,7 @@ import org.apache.geronimo.kernel.management.NotificationType;
 import org.apache.geronimo.kernel.management.State;
 
 /**
- *
- *
- * @version $Revision: 1.5 $ $Date: 2004/04/07 18:40:17 $
+ * @version $Revision: 1.6 $ $Date: 2004/05/19 20:54:00 $
  */
 public class GBeanMBeanReference implements NotificationListener {
     private static final Log log = LogFactory.getLog(GBeanMBeanReference.class);
@@ -185,6 +183,8 @@ public class GBeanMBeanReference implements NotificationListener {
                         } catch (InstanceNotFoundException e) {
                             // the instance died before we could get going... not a big deal
                             break;
+                        } catch (Exception e) {
+                            throw new Exception("Could not add listener: objectName" + gmbean.getObjectName() + ", referenceName=" + name, e);
                         }
 
                         // if the bean is running add it to the runningTargets list
@@ -259,7 +259,7 @@ public class GBeanMBeanReference implements NotificationListener {
     }
 
     public synchronized void handleNotification(Notification notification, Object o) {
-        if(proxy == null) {
+        if (proxy == null) {
             // we are not initialized and should not be recieving notifications
             log.debug("Offline reference recieved a notification: " + notification);
             return;
@@ -301,6 +301,7 @@ public class GBeanMBeanReference implements NotificationListener {
 
     /**
      * Is the component in the Running state
+     *
      * @param objectName name of the component to check
      * @return true if the component is running; false otherwise
      */
@@ -323,6 +324,7 @@ public class GBeanMBeanReference implements NotificationListener {
     /**
      * Is the component a possible peer.  A component is a possible peer if
      * its name matched onee of the object name patterns we watch.
+     *
      * @param objectName name of the component to check
      * @return true if the component is a possible peer; false otherwise
      */

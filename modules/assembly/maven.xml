@@ -16,7 +16,7 @@
     limitations under the License.
 -->
   
-<!-- $Revision: 1.11 $ $Date: 2004/05/18 08:29:28 $ -->
+<!-- $Revision: 1.12 $ $Date: 2004/05/19 20:53:58 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -108,10 +108,11 @@
             </ant:fileset>
         </ant:copy>
         
-        <ant:mkdirs dir="${distDir}/repository/jdk/jars"/>
-        <ant:copy file="${java.home}/../lib/tools.jar" todir="${distDir}/repository/jdk/jars">
+<!--        <ant:mkdirs dir="${distDir}/repository/jdk/jars"/>-->
+<!--        <ant:copy file="${java.home}/../lib/tools.jar" todir="${distDir}/repository/jdk/jars">-->
+<!---->
+<!--        </ant:copy>-->
 
-        </ant:copy>
         <ant:copy todir="${distDir}/repository">
             <mapper type="glob" from="${maven.repo.local}*" to="*"/>
             <ant:fileset dir="${maven.repo.local}">

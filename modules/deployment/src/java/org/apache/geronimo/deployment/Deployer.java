@@ -29,8 +29,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-import java.util.jar.Manifest;
 import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -52,7 +52,7 @@ import org.apache.xmlbeans.XmlObject;
  * Command line based deployment utility which combines multiple deployable modules
  * into a single configuration.
  *
- * @version $Revision: 1.18 $ $Date: 2004/04/23 03:08:28 $
+ * @version $Revision: 1.19 $ $Date: 2004/05/19 20:53:59 $
  */
 public class Deployer {
     private final Collection builders;
@@ -65,6 +65,7 @@ public class Deployer {
 
     /**
      * GBean entry point invoked from an executable CAR.
+     *
      * @param args command line args
      */
     public void deploy(String[] args) throws Exception {
@@ -87,7 +88,7 @@ public class Deployer {
                 }
             }
             if (builder == null) {
-                throw new DeploymentException("No deployer found for this plan type");
+                throw new DeploymentException("No deployer found for this plan type: " + cmd.plan);
             }
         } else if (cmd.module != null) {
             for (Iterator i = builders.iterator(); i.hasNext();) {
@@ -99,7 +100,7 @@ public class Deployer {
                 }
             }
             if (builder == null) {
-                throw new DeploymentException("No deployer found for this module type");
+                throw new DeploymentException("No deployer found for this module type: " + cmd.module);
             }
         } else {
             throw new DeploymentException("No plan or module supplied");
@@ -116,10 +117,10 @@ public class Deployer {
         Manifest manifest = new Manifest();
         Attributes mainAttributes = manifest.getMainAttributes();
         mainAttributes.putValue(Attributes.Name.MANIFEST_VERSION.toString(), "1.0");
-        if(cmd.mainClass != null) {
+        if (cmd.mainClass != null) {
             mainAttributes.putValue(Attributes.Name.MAIN_CLASS.toString(), cmd.mainClass);
         }
-        if(cmd.classPath != null) {
+        if (cmd.classPath != null) {
             mainAttributes.putValue(Attributes.Name.CLASS_PATH.toString(), cmd.classPath);
         }
 
@@ -230,7 +231,7 @@ public class Deployer {
             return new File(".").toURI().resolve(location).toURL();
         } catch (IllegalArgumentException e) {
             // thrown by URI.resolve if the location is not valid
-            throw (MalformedURLException) new MalformedURLException("Invalid location: "+location).initCause(e);
+            throw (MalformedURLException) new MalformedURLException("Invalid location: " + location).initCause(e);
         }
     }
 
@@ -250,10 +251,8 @@ public class Deployer {
         infoFactory.addOperation("deploy", new Class[]{String[].class});
         infoFactory.addReference("Builders", ConfigurationBuilder.class);
         infoFactory.addReference("Store", ConfigurationStore.class);
-        infoFactory.setConstructor(new GConstructorInfo(
-                new String[]{"Builders", "Store"},
-                new Class[]{Collection.class, ConfigurationStore.class}
-        ));
+        infoFactory.setConstructor(new GConstructorInfo(new String[]{"Builders", "Store"},
+                new Class[]{Collection.class, ConfigurationStore.class}));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

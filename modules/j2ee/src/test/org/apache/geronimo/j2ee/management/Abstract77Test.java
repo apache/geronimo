@@ -17,37 +17,31 @@
 
 package org.apache.geronimo.j2ee.management;
 
-import java.util.Set;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Set;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
+import junit.framework.TestCase;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.j2ee.management.impl.DomainImpl;
+import org.apache.geronimo.j2ee.management.impl.J2EEDomainImpl;
+import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.j2ee.management.impl.JVMImpl;
-import org.apache.geronimo.j2ee.management.impl.ServerImpl;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
-import junit.framework.TestCase;
-
 /**
- *
- *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:52 $
+ * @version $Revision: 1.4 $ $Date: 2004/05/19 20:53:59 $
  */
 public abstract class Abstract77Test extends TestCase {
     protected static final ObjectName SERVER_INFO_NAME = JMXUtil.getObjectName("geronimo.system:role=ServerInfo");
 
     protected static final String DOMAIN = "geronimo.test";
-    protected static final ObjectName DOMAIN_NAME = JMXUtil.getObjectName(DOMAIN + ":type=J2EEDomain,name=" + DOMAIN);
-    protected static final ObjectName SERVER_NAME = JMXUtil.getObjectName(DOMAIN + ":type=J2EEServer,name=Test");
-    protected static final ObjectName JVM_NAME = JMXUtil.getObjectName(DOMAIN + ":type=JVM,J2EEServer=Test");
-
-    private static final Set SERVER_PATTERN = Collections.singleton(JMXUtil.getObjectName(DOMAIN+":type=J2EEServer,*"));
-    private static final Set JVM_PATTERN = Collections.singleton(JMXUtil.getObjectName(DOMAIN+":type=JVM,*"));
+    protected static final ObjectName DOMAIN_NAME = JMXUtil.getObjectName(DOMAIN + ":j2eeType=J2EEDomain,name=" + DOMAIN);
+    protected static final ObjectName SERVER_NAME = JMXUtil.getObjectName(DOMAIN + ":j2eeType=J2EEServer,name=Test");
+    protected static final ObjectName JVM_NAME = JMXUtil.getObjectName(DOMAIN + ":j2eeType=JVM,J2EEServer=Test");
 
     protected Kernel kernel;
     protected MBeanServer mbServer;
@@ -61,29 +55,10 @@ public abstract class Abstract77Test extends TestCase {
         gbean.setAttribute("BaseDirectory", System.getProperty("java.io.tmpdir"));
         kernel.loadGBean(SERVER_INFO_NAME, gbean);
 
-        gbean = new GBeanMBean(DomainImpl.GBEAN_INFO);
-        gbean.setReferencePatterns("Servers", SERVER_PATTERN);
+        gbean = new GBeanMBean(J2EEDomainImpl.GBEAN_INFO);
         kernel.loadGBean(DOMAIN_NAME, gbean);
 
-        gbean = new GBeanMBean(ServerImpl.GBEAN_INFO);
-        Set objects = new HashSet();
-        objects.add(JMXUtil.getObjectName(DOMAIN + ":type=J2EEApplication,J2EEServer=Test,*"));
-        objects.add(JMXUtil.getObjectName(DOMAIN + ":type=AppClientModule,J2EEServer=Test,*"));
-        objects.add(JMXUtil.getObjectName(DOMAIN + ":type=EJBModule,J2EEServer=Test,*"));
-        objects.add(JMXUtil.getObjectName(DOMAIN + ":type=WebModule,J2EEServer=Test,*"));
-        objects.add(JMXUtil.getObjectName(DOMAIN + ":type=ResourceAdapterModule,J2EEServer=Test,*"));
-        gbean.setReferencePatterns("DeployedObjects", objects);
-        objects = new HashSet();
-        objects.add(JMXUtil.getObjectName(DOMAIN + ":type=JCAResource,J2EEServer=Test,*"));
-        objects.add(JMXUtil.getObjectName(DOMAIN + ":type=JavaMailResource,J2EEServer=Test,*"));
-        objects.add(JMXUtil.getObjectName(DOMAIN + ":type=JDBCResource,J2EEServer=Test,*"));
-        objects.add(JMXUtil.getObjectName(DOMAIN + ":type=JMSResource,J2EEServer=Test,*"));
-        objects.add(JMXUtil.getObjectName(DOMAIN + ":type=JNDIResource,J2EEServer=Test,*"));
-        objects.add(JMXUtil.getObjectName(DOMAIN + ":type=JTAResource,J2EEServer=Test,*"));
-        objects.add(JMXUtil.getObjectName(DOMAIN + ":type=RMI_IIOPResource,J2EEServer=Test,*"));
-        objects.add(JMXUtil.getObjectName(DOMAIN + ":type=URLResource,J2EEServer=Test,*"));
-        gbean.setReferencePatterns("Resources", objects);
-        gbean.setReferencePatterns("JVMs", JVM_PATTERN);
+        gbean = new GBeanMBean(J2EEServerImpl.GBEAN_INFO);
         gbean.setReferencePatterns("ServerInfo", Collections.singleton(SERVER_INFO_NAME));
         kernel.loadGBean(SERVER_NAME, gbean);
 
@@ -108,5 +83,17 @@ public abstract class Abstract77Test extends TestCase {
         kernel.unloadGBean(SERVER_INFO_NAME);
         kernel.shutdown();
         kernel = null;
+    }
+
+    protected void assertObjectNamesEqual(String[] expected, String[] test) throws Exception {
+        Set expectedSet = new HashSet(expected.length);
+        for (int i = 0; i < expected.length; i++) {
+            expectedSet.add(new ObjectName(expected[i]));
+        }
+        Set testSet = new HashSet(test.length);
+        for (int i = 0; i < test.length; i++) {
+            testSet.add(new ObjectName(test[i]));
+        }
+        assertEquals(expectedSet, testSet);
     }
 }

@@ -17,28 +17,29 @@
 
 package org.apache.geronimo.j2ee.management.impl;
 
-import java.util.Collection;
 import java.util.Iterator;
-import java.util.ArrayList;
-
-import org.apache.geronimo.j2ee.management.J2EEManagedObject;
+import java.util.LinkedList;
+import java.util.List;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 
 /**
- * 
- * 
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:52 $
+ * @version $Revision: 1.4 $ $Date: 2004/05/19 20:53:59 $
  */
 public class Util {
-    static String[] getObjectNames(Collection refs) {
-        ArrayList names = new ArrayList(refs.size());
-        for (Iterator i = refs.iterator(); i.hasNext();) {
-            J2EEManagedObject managedObject = (J2EEManagedObject) i.next();
-            try {
-                names.add(managedObject.getobjectName());
-            } catch (IllegalStateException e) {
-                // ignore - means the proxy went offline whilst we were iterating
-            }
+    // todo: kernel should be expanded to support name queries like the mbean server does
+    public static String[] getObjectNames(MBeanServer server, Object parentName, String[] j2eeTypes) throws MalformedObjectNameException {
+        List objectNames = new LinkedList();
+        for (int i = 0; i < j2eeTypes.length; i++) {
+            String j2eeType = j2eeTypes[i];
+            objectNames.addAll(server.queryNames(new ObjectName(parentName + "j2eeType=" + j2eeType + ",*"), null));
         }
-        return (String[]) names.toArray(new String[names.size()]);
+        String[] names = new String[objectNames.size()];
+        Iterator iterator = objectNames.iterator();
+        for (int i = 0; iterator.hasNext(); i++) {
+            names[i] = iterator.next().toString();
+        }
+        return names;
     }
 }

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+
+    Copyright 2004 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+  
+       http://www.apache.org/licenses/LICENSE-2.0
+  
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+  
+
+<!-- $Revision: 1.1 $ $Date: 2004/05/19 20:53:59 $ -->
+
+<project default="default"
+    xmlns:j="jelly:core"
+    xmlns:ant="jelly:ant"
+    xmlns:maven="jelly:maven"
+    xmlns:xmlbeans="geronimo:xmlbeans">
+
+    <preGoal name="java:compile">
+        <xmlbeans:schema2java
+            sourcedir="${basedir}/src"
+            sourceschema="schema/geronimo-application.xsd"
+            xmlconfigs="${basedir}/src/schema/xmlconfig.xml"
+            targetdir="${basedir}/target/xmlbeans"
+            cataloglocation="${basedir}/../../specs/schema/src/catalog/resolver-catalog.xml"/>
+    </preGoal>
+
+    <preGoal name="test:compile">
+        <!-- Build test-ejb-jar -->
+        <ant:mkdir dir="${basedir}/target/test-ejb-jar/META-INF"/>
+        <copy todir="${basedir}/target/test-ejb-jar/META-INF">
+            <fileset dir="${basedir}/src/test-ear/test-ejb-jar/META-INF"/>
+        </copy>
+
+        <ant:javac srcdir="${basedir}/src/test-ear/test-ejb-jar"
+            destdir="${basedir}/target/test-ejb-jar"
+            target="${maven.compile.target}"
+            debug="on"
+            fork="true">
+            <ant:classpath>
+                <ant:path refid="maven.dependency.classpath"/>
+                <ant:pathelement path="${maven.build.dest}"/>
+            </ant:classpath>
+        </ant:javac>
+        
+        <ant:jar destfile="${basedir}/target/test-ejb-jar.jar"
+            basedir="${basedir}/target/test-ejb-jar"/>
+        
+        
+        <!-- Build test-war -->
+        <ant:jar destfile="${basedir}/target/test-war.war"
+            basedir="${basedir}/src/test-ear/test-war"/>
+
+        <!-- Build test-ear -->
+        <ant:jar destfile="${basedir}/target/test-ear.ear" >
+            <fileset dir="${basedir}/target">
+                <include name="test-ejb-jar.jar"/>
+                <include name="test-war.war"/>
+            </fileset>
+            <fileset dir="${basedir}/src/test-ear">
+                <include name="META-INF/*"/>
+            </fileset>
+        </ant:jar>
+        
+    </preGoal>
+</project>

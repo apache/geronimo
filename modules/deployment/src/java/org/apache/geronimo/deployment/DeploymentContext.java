@@ -31,13 +31,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -49,9 +49,7 @@ import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.repository.Repository;
 
 /**
- *
- *
- * @version $Revision: 1.9 $ $Date: 2004/03/10 09:58:48 $
+ * @version $Revision: 1.10 $ $Date: 2004/05/19 20:53:59 $
  */
 public class DeploymentContext {
     private final URI configID;
@@ -61,15 +59,15 @@ public class DeploymentContext {
     private final Set dependencies = new LinkedHashSet();
     private final Set classPath = new LinkedHashSet();
     private final Map includes = new HashMap();
-    private final JarOutputStream jos;
+    private final LinkedList outputStreams = new LinkedList();
     private final byte[] buffer = new byte[4096];
     private final List ancestors;
     private final ClassLoader parentCL;
     private final Collection tmpfiles = new ArrayList();
 
-    public DeploymentContext(JarOutputStream jos, URI id, URI parentID, Kernel kernel) throws IOException, MalformedObjectNameException, DeploymentException {
+    public DeploymentContext(JarOutputStream jos, URI id, URI parentID, Kernel kernel) throws MalformedObjectNameException, DeploymentException {
         this.configID = id;
-        this.jos = jos;
+        outputStreams.addLast(jos);
         this.kernel = kernel;
 
         config = new GBeanMBean(Configuration.GBEAN_INFO);
@@ -119,6 +117,13 @@ public class DeploymentContext {
         return configID;
     }
 
+    private JarOutputStream getJos() {
+        if (outputStreams.isEmpty()) {
+            throw new IllegalStateException();
+        }
+        return (JarOutputStream) outputStreams.getLast();
+    }
+
     public void addGBean(ObjectName name, GBeanMBean gbean) {
         gbeans.put(name, gbean);
     }
@@ -137,11 +142,11 @@ public class DeploymentContext {
         addToClassPath(path, url);
     }
 
-    public void addStreamInclude(URI path, InputStream is) throws IOException {
+    public File addStreamInclude(URI path, InputStream is) throws IOException {
         File tmp = FileUtil.toTempFile(is);
         addInclude(path, tmp.toURL());
         tmpfiles.add(tmp);
-
+        return tmp;
     }
 
     public void addArchive(URI path, ZipInputStream archive) throws IOException {
@@ -188,25 +193,49 @@ public class DeploymentContext {
         return new URLClassLoader(urls, parentCL);
     }
 
-    public void addFile(URI path, InputStream source) throws IOException {
-        if (jos == null) {
-            throw new IllegalStateException();
-        }
+    public void nest(URI path) throws IOException {
+        JarOutputStream jos = getJos();
         jos.putNextEntry(new ZipEntry(path.getPath()));
-        int count;
-        while ((count = source.read(buffer)) > 0) {
-            jos.write(buffer, 0, count);
+        JarOutputStream nestedStream = new JarOutputStream(jos);
+        outputStreams.addLast(nestedStream);
+    }
+
+    public void unnest() throws IOException {
+        if (outputStreams.size() < 2) {
+            throw new IllegalStateException("Conext is not currently nested");
         }
-        jos.closeEntry();
+        JarOutputStream jos = (JarOutputStream) outputStreams.removeLast();
+        try {
+            jos.flush();
+        } finally {
+            jos.close();
+        }
+    }
+
+    public void addFile(URI path, InputStream source) throws IOException {
+        JarOutputStream jos = getJos();
+        jos.putNextEntry(new ZipEntry(path.getPath()));
+        try {
+            int count;
+            while ((count = source.read(buffer)) > 0) {
+                jos.write(buffer, 0, count);
+            }
+        } finally {
+            jos.closeEntry();
+        }
     }
 
     public void close() throws IOException, DeploymentException {
-        if (jos == null) {
-            throw new IllegalStateException();
+        if (outputStreams.size() != 1) {
+            throw new IllegalStateException("Conext must be unnested before being closed");
         }
+        JarOutputStream jos = getJos();
         saveConfiguration();
-        jos.flush();
-        jos.close();
+        try {
+            jos.flush();
+        } finally {
+            jos.close();
+        }
 
         for (Iterator iterator = tmpfiles.iterator(); iterator.hasNext();) {
             try {
@@ -225,9 +254,7 @@ public class DeploymentContext {
     }
 
     private void saveConfiguration() throws IOException, DeploymentException {
-        if (jos == null) {
-            throw new IllegalStateException();
-        }
+        JarOutputStream jos = getJos();
 
         // persist all the GBeans in this Configuration
         try {
@@ -238,15 +265,18 @@ public class DeploymentContext {
 
         // save the persisted form in the archive
         jos.putNextEntry(new ZipEntry("META-INF/config.ser"));
-        ObjectOutputStream oos = new ObjectOutputStream(jos);
         try {
-            Configuration.storeGMBeanState(config, oos);
-        } catch (IOException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new DeploymentException("Unable to save Configuration state", e);
+            ObjectOutputStream oos = new ObjectOutputStream(jos);
+            try {
+                Configuration.storeGMBeanState(config, oos);
+            } catch (IOException e) {
+                throw e;
+            } catch (Exception e) {
+                throw new DeploymentException("Unable to save Configuration state", e);
+            }
+            oos.flush();
+        } finally {
+            jos.closeEntry();
         }
-        oos.flush();
-        jos.closeEntry();
     }
 }
