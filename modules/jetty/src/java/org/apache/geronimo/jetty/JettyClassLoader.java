@@ -70,12 +70,12 @@ public class JettyClassLoader extends URLClassLoader {
 
     public URL getResource(String name) {
         if (!contextPriorityClassLoader ||
-                name.startsWith("java.") ||
-                name.startsWith("javax.") ||
-                name.startsWith("org.apache.geronimo.") ||
-                name.startsWith("org.mortbay.") ||
-                name.startsWith("org.xml.") ||
-                name.startsWith("org.w3c.")) {
+                name.startsWith("java/") ||
+                name.startsWith("javax/") ||
+                name.startsWith("org/apache/geronimo/") ||
+                name.startsWith("org/mortbay/") ||
+                name.startsWith("org/xml/") ||
+                name.startsWith("org/w3c/")) {
             return super.getResource(name);
         }
 

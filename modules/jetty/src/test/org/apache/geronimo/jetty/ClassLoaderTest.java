@@ -21,6 +21,10 @@ import java.net.URL;
 import junit.framework.TestCase;
 
 /**
+ * Tests loading various classes (as classes and URL resources) with different
+ * settings for contextPriorityClassLoader to make sure the restrictions on
+ * javax.* class loading are honored.
+ *
  * @version $Rev: 54805 $ $Date: 2004-10-14 17:51:13 -0400 (Thu, 14 Oct 2004) $
  */
 public class ClassLoaderTest extends TestCase {
@@ -32,6 +36,8 @@ public class ClassLoaderTest extends TestCase {
         System.err.println("URL: "+url);
         urls = new URL[]{url};
     }
+
+    //todo: try more restricted prefixed besides javax.*
 
     /**
      * Tries to load a javax.* class that's not available from the
@@ -121,5 +127,91 @@ public class ClassLoaderTest extends TestCase {
         } catch(ClassNotFoundException e) {
             fail("Problem with test; expecting to have mx4j.* on the ClassPath");
         }
+    }
+
+    /**
+     * Tries to load a javax.* class that's not available from the
+     * parent ClassLoader.  This should work.
+     */
+    public void testFalseNonexistantJavaxResource() {
+        cl = new JettyClassLoader(urls, getClass().getClassLoader(), false);
+        URL url = cl.getResource("javax/foo/Foo.class");
+        if(url == null) {
+            fail("Should be able to load a javax.* class that is not defined by my parent CL");
+        }
+        assertEquals(url.getProtocol(), "file");
+    }
+
+    /**
+     * Tries to load a javax.* class that's not available from the
+     * parent ClassLoader.  This should work.
+     */
+    public void testTrueNonexistantJavaxResource() {
+        cl = new JettyClassLoader(urls, getClass().getClassLoader(), true);
+        URL url = cl.getResource("javax/foo/Foo.class");
+        if(url == null) {
+            fail("Should be able to load a javax.* class that is not defined by my parent CL");
+        }
+        assertEquals(url.getProtocol(), "file");
+    }
+
+    /**
+     * Tries to load a javax.* class that is avialable from the parent ClassLoader,
+     * when there's a different definition available from this ClassLoader too.
+     * This should always load the parent's copy.
+     */
+    public void testFalseExistantJavaxResource() {
+        cl = new JettyClassLoader(urls, getClass().getClassLoader(), false);
+        URL url = cl.getResource("javax/servlet/Servlet.class");
+        if(url == null) {
+            fail("Problem with test; expecting to have javax.servlet.* on the ClassPath");
+        }
+        assertEquals("Loaded wrong class first; expected to find parent CL's copy of javax.servlet.Servlet", url.getProtocol(), "jar");
+    }
+
+    /**
+     * Tries to load a javax.* class that is avialable from the parent ClassLoader,
+     * when there's a different definition available from this ClassLoader too.
+     * This should always load the parent's copy.
+     */
+    public void testTrueExistantJavaxResource() {
+        cl = new JettyClassLoader(urls, getClass().getClassLoader(), true);
+        URL url = cl.getResource("javax/servlet/Servlet.class");
+        if(url == null) {
+            fail("Problem with test; expecting to have javax.servlet.* on the ClassPath");
+        }
+        assertEquals("Loaded wrong class first; expected to find parent CL's copy of javax.servlet.Servlet",url.getProtocol(),"jar");
+    }
+
+    /**
+     * Tries to load a non-javax.* class that is aailable form the parent
+     * ClassLoader, when there's a different definition available from this
+     * ClassLoader.  This should load the parent's copy when
+     * contextPriorityClassLoader is set to false (as here) and the child's
+     * copy when the contextPriorityClassLoader is set to true.
+     */
+    public void testFalseExistantNonJavaxResource() {
+        cl = new JettyClassLoader(urls, getClass().getClassLoader(), false);
+        URL url = cl.getResource("mx4j/MBeanDescription.class");
+        if(url == null) {
+            fail("Problem with test; expecting to have mx4j.* on the ClassPath");
+        }
+        assertEquals("Should not have overriden parent CL definition of class mx4j.MBeanDescription", url.getProtocol(), "jar");
+    }
+
+    /**
+     * Tries to load a non-javax.* class that is aailable form the parent
+     * ClassLoader, when there's a different definition available from this
+     * ClassLoader.  This should load the parent's copy when
+     * contextPriorityClassLoader is set to false and the child's copy when
+     * the contextPriorityClassLoader is set to true (as here).
+     */
+    public void testTrueExistantNonJavaxResource() {
+        cl = new JettyClassLoader(urls, getClass().getClassLoader(), true);
+        URL url = cl.getResource("mx4j/MBeanDescription.class");
+        if(url == null) {
+            fail("Problem with test; expecting to have mx4j.* on the ClassPath");
+        }
+        assertEquals("Should be able to override a class that is not in java.*, javax.*, etc.", url.getProtocol(), "file");
     }
 }
