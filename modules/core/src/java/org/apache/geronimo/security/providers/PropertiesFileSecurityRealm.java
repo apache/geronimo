@@ -70,12 +70,16 @@ import javax.security.auth.login.AppConfigurationEntry;
 
 import org.apache.geronimo.security.AbstractSecurityRealm;
 import org.apache.geronimo.security.GeronimoSecurityException;
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
+import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
+import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
 import org.apache.regexp.RE;
 
 
 /**
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/02 04:31:44 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/04 20:40:26 $
  */
 public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
     private boolean running = false;
@@ -85,6 +89,18 @@ public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
     Properties groups = new Properties();
 
     final static String REALM = "org.apache.geronimo.security.providers.PropertiesFileSecurityRealm";
+
+    public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
+        GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
+
+        mbeanInfo.setTargetClass(PropertiesFileSecurityRealm.class.getName());
+
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("RealmName", true, true, "The name of this security realm"));
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("UsersURI", true, true, "The location of the users property file"));
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("GroupsURI", true, true, "The location of the groups property file"));
+
+        return mbeanInfo;
+    }
 
     public void doStart() {
         if (usersURI == null) throw  new IllegalStateException("Users URI not set");
