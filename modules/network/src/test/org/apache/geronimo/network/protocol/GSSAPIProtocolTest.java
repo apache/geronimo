@@ -120,9 +120,9 @@ public class GSSAPIProtocolTest extends TestCase {
 
             clientStack.setup();
 
-            clientStack.sendDown(getPlainPacket());
-            clientStack.sendDown(getPlainPacket());
-            clientStack.sendDown(getPlainPacket());
+            for (int i = 0; i < COUNT; i++) {
+                clientStack.sendDown(getPlainPacket());
+            }
 
             if (!completed.attempt(60 * 1000)) {
                 throw new IllegalStateException("TIMEOUT");
