@@ -141,11 +141,6 @@ public class InternetAddress extends Address implements Cloneable {
         ia.encodedPersonal = encodedPersonal;
         return ia;
     }
-    public boolean equals(Object other) {
-        return super.equals(other)
-            && ((InternetAddress) other).personal.equals(personal)
-            && ((InternetAddress) other).address.equals(address);
-    }
     public String getAddress() {
         return address;
     }
@@ -158,10 +153,6 @@ public class InternetAddress extends Address implements Cloneable {
     }
     public String getType() {
         return "rfc822";
-    }
-    public int hashCode() {
-        // hash of the name and address
-        return personal.hashCode() + address.hashCode();
     }
     public boolean isGroup() {
         // TODO Not implemented
@@ -190,5 +181,24 @@ public class InternetAddress extends Address implements Cloneable {
     }
     public void validate() throws AddressException {
         // TODO Not implemented
+    }
+
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof InternetAddress)) return false;
+
+        final InternetAddress internetAddress = (InternetAddress) o;
+
+        if (!address.equals(internetAddress.address)) return false;
+        if (!personal.equals(internetAddress.personal)) return false;
+
+        return true;
+    }
+
+    public int hashCode() {
+        int result;
+        result = address.hashCode();
+        result = 29 * result + personal.hashCode();
+        return result;
     }
 }

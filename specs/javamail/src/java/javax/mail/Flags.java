@@ -46,22 +46,8 @@ public class Flags implements Cloneable, Serializable {
             _name = name;
             _system = system;
         }
-        public boolean equals(Object other) {
-            if (other == null || other.getClass() != this.getClass()) {
-                return false;
-            }
-            Flag flag = (Flag) other;
-            return (
-                flag.getName() == null
-                    && this.getName() == null
-                    || flag.getName() != null
-                    && flag.getName().equals(this.getName()));
-        }
         private String getName() {
             return _name;
-        }
-        public int hashCode() {
-            return getName().hashCode();
         }
         private boolean isSystemFlag() {
             return _system;
@@ -90,11 +76,15 @@ public class Flags implements Cloneable, Serializable {
     public void add(String name) {
         add(new Flag(name));
     }
-    public Object clone() throws CloneNotSupportedException {
-        Flags clone = (Flags) super.clone();
-        // do a deep clone of user_flags
-        clone._map = new HashMap(_map);
-        return clone;
+    public Object clone() {
+        try {
+            Flags clone = (Flags) super.clone();
+            // do a deep clone of user_flags
+            clone._map = new HashMap(_map);
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
     public boolean contains(Flag flag) {
         return _map.containsKey(flag.getName());

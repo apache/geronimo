@@ -40,7 +40,7 @@ public class MimeMessage extends Message implements MimePart {
     public static class RecipientType extends Message.RecipientType {
         public static final RecipientType NEWSGROUPS =
             new RecipientType("Newsgroups");
-        private RecipientType(String type) {
+        protected RecipientType(String type) {
             super(type);
         }
         protected Object readResolve() throws ObjectStreamException {
@@ -118,7 +118,7 @@ public class MimeMessage extends Message implements MimePart {
         // TODO Implement method
         throw new UnsupportedOperationException("Method not yet implemented");
     }
-    public Object getContent() throws IOException {
+    public Object getContent() throws MessagingException, IOException {
         // TODO Implement method
         throw new UnsupportedOperationException("Method not yet implemented");
     }
@@ -180,7 +180,7 @@ public class MimeMessage extends Message implements MimePart {
         // TODO Implement method
         throw new UnsupportedOperationException("Method not yet implemented");
     }
-    public InputStream getInputStream() throws IOException {
+    public InputStream getInputStream() throws MessagingException, IOException {
         // TODO Implement method
         throw new UnsupportedOperationException("Method not yet implemented");
     }
@@ -349,11 +349,10 @@ public class MimeMessage extends Message implements MimePart {
     }
     protected void updateHeaders() throws MessagingException {
     }
-    public void writeTo(OutputStream out) throws IOException {
+    public void writeTo(OutputStream out) throws MessagingException, IOException {
     }
-    public void writeTo(OutputStream out, String[] ignoreHeaders)
-        throws IOException {
+    public void writeTo(OutputStream out, String[] ignoreHeaders) throws MessagingException, IOException {
     }
-    public void setSender(Address address) {
+    public void setSender(Address address) throws MessagingException {
     }
 }

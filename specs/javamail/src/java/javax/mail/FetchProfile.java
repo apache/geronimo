@@ -36,17 +36,8 @@ public class FetchProfile {
             }
             _header = header;
         }
-        public boolean equals(Object other) {
-            if (other == null || other.getClass() != this.getClass()) {
-                return false;
-            }
-            return ((Item) other)._header.equals(_header);
-        }
         String getHeader() {
             return _header;
-        }
-        public int hashCode() {
-            return _header.hashCode();
         }
     }
     private static final String[] headersType = new String[0];

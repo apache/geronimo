@@ -38,30 +38,12 @@ public class HeaderTokenizer {
         public String getValue() {
             return _value;
         }
-        public String toString() {
-            String type = "Unknown";
-            switch (_type) {
-                case ATOM :
-                    type = "Atom";
-                    break;
-                case COMMENT :
-                    type = "Comment";
-                    break;
-                case EOF :
-                    type = "EOF";
-                    break;
-                case QUOTEDSTRING :
-                    type = "String";
-                    break;
-            }
-            return "[" + type + "] \"" + getValue() + "\"";
-        }
     }
     private static final Token EOF = new Token(Token.EOF, null);
     // characters not allowed in MIME
-    public static final String MIME = "[]()<>@.:,;\\\" \t?=";
+    public static final String MIME = "()<>@,;:\\\"\t []/?=";
     // charaters not allowed in RFC822
-    public static final String RFC822 = "[]()<>@.:,;\\\" \t";
+    public static final String RFC822 = "()<>@,;:\\\"\t .[]";
     private static final String WHITE = " \t\n\r";
     private String _delimiters;
     private String _header;

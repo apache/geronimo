@@ -39,9 +39,6 @@ public class Provider {
         private Type(String name) {
             _name = name;
         }
-        public String toString() {
-            return _name;
-        }
         static Type getType(String name) {
             if (name.equals("store")) {
                 return STORE;

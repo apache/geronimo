@@ -28,6 +28,9 @@ import javax.mail.MessagingException;
  * @version $Rev$ $Date$
  */
 public class MimeUtility {
+    private MimeUtility(){
+    }
+
     // From J2SE 1.4 API Docs (Constant Values)
     public static final int ALL = -1;
     public static InputStream decode(InputStream in, String encoding)

@@ -21,9 +21,7 @@ import java.io.Serializable;
  * @version $Rev$ $Date$
  */
 public abstract class Address implements Serializable {
-    public boolean equals(Object object) {
-        return (object != null && object.getClass() == this.getClass());
-    }
+    public abstract boolean equals(Object object);
     public abstract String getType();
     public abstract String toString();
 }

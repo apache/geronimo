@@ -20,7 +20,7 @@ package javax.mail;
  * @version $Rev$ $Date$
  */
 public interface UIDFolder {
-    public static final long LASTUID = -11;
+    public static final long LASTUID = -1;
     public abstract long getUIDValidity() throws MessagingException;
     public abstract Message getMessageByUID(long uid)
         throws MessagingException;

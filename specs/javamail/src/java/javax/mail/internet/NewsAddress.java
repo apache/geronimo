@@ -58,17 +58,6 @@ public class NewsAddress extends Address {
         setNewsgroup(newsgroup);
         setHost(host);
     }
-    public boolean equals(Object other) {
-        if (other == null || other.getClass() != this.getClass()) {
-            return false;
-        }
-        NewsAddress address = (NewsAddress) other;
-        return (
-            address.host == host || host != null && host.equals(address.host))
-            && (address.newsgroup == newsgroup
-                || newsgroup != null
-                && newsgroup.equals(address.newsgroup));
-    }
     public String getHost() {
         return host;
     }
@@ -77,9 +66,6 @@ public class NewsAddress extends Address {
     }
     public String getType() {
         return "news";
-    }
-    public int hashCode() {
-        return toString().hashCode();
     }
     public void setHost(String string) {
         host = string;
@@ -96,5 +82,24 @@ public class NewsAddress extends Address {
     }
     public String toString() {
         return newsgroup + (host == null ? "" : "@" + host);
+    }
+
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof NewsAddress)) return false;
+
+        final NewsAddress newsAddress = (NewsAddress) o;
+
+        if (!host.equals(newsAddress.host)) return false;
+        if (!newsgroup.equals(newsAddress.newsgroup)) return false;
+
+        return true;
+    }
+
+    public int hashCode() {
+        int result;
+        result = host.hashCode();
+        result = 29 * result + newsgroup.hashCode();
+        return result;
     }
 }
