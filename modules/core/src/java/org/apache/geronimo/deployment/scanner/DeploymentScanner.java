@@ -57,15 +57,17 @@ package org.apache.geronimo.deployment.scanner;
 
 import java.io.File;
 import java.io.IOException;
+
 import java.net.MalformedURLException;
 import java.net.URL;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.StringTokenizer;
+
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.management.relation.RelationServiceMBean;
@@ -82,8 +84,7 @@ import org.apache.geronimo.management.AbstractManagedObject;
  * An MBean that maintains a list of URLs and periodically invokes a Scanner
  * to search them for deployments.
  *
- *
- * @version $Revision: 1.12 $ $Date: 2003/08/24 22:40:24 $
+ * @version $Revision: 1.13 $ $Date: 2003/08/28 11:19:17 $
  */
 public class DeploymentScanner extends AbstractManagedObject implements DeploymentScannerMBean {
     private static final Log log = LogFactory.getLog(DeploymentScanner.class);
@@ -95,16 +96,14 @@ public class DeploymentScanner extends AbstractManagedObject implements Deployme
 
     public DeploymentScanner() {
     }
-
-    public DeploymentScanner(String initialURLs, boolean recurse) 
-        throws MalformedURLException
+    
+    public DeploymentScanner(final URL[] urls, final boolean recurse) 
     {
-        StringTokenizer tokenizer = new StringTokenizer(initialURLs, " \t\r\n,[]{}");
-        while (tokenizer.hasMoreTokens()) {
-            addURL(tokenizer.nextToken(), recurse);
+        for (int i=0; i<urls.length; i++ ) {
+            addURL(urls[i], recurse);
         }
     }
-
+    
     public ObjectName preRegister(MBeanServer server, ObjectName objectName) throws Exception {
         relationService = JMXUtil.getRelationService(server);
         return super.preRegister(server, objectName);

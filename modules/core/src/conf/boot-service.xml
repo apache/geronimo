@@ -1,20 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<components>
-    <!-- RMI adaptor to support MC4J -->
-    <mbean code="mx4j.tools.naming.NamingService" name="Naming:type=rmiregistry">
-    </mbean>
-    <mbean code="mx4j.adaptor.rmi.jrmp.JRMPAdaptor" name="Adaptor:protocol=JRMP">
-        <attribute name="JNDIName">jrmp</attribute>
-    </mbean>
 
-    <mbean code="org.apache.geronimo.deployment.scanner.DeploymentScanner" name="geronimo.deployment:role=DeploymentScanner">
-        <constructor>
-            <arg type="java.lang.String">
-                ${geronimo.home}/deploy/
-            </arg>
-            <arg type="boolean">true</arg>
-        </constructor>
-        <attribute name="ScanInterval">5000</attribute>
-        <relationship type="DeploymentController-DeploymentScanner" name="DeploymentController-DeploymentScanner" role="DeploymentScanner"/>
-    </mbean>
+<!-- $Revision: 1.9 $ $Date: 2003/08/28 11:19:17 $ -->
+
+<components>
+  <!-- RMI adaptor to support MX4J -->
+  <mbean code="mx4j.tools.naming.NamingService" name="Naming:type=rmiregistry">
+  </mbean>
+  <mbean code="mx4j.adaptor.rmi.jrmp.JRMPAdaptor" name="Adaptor:protocol=JRMP">
+    <attribute name="JNDIName">jrmp</attribute>
+  </mbean>
+  
+  <mbean code="org.apache.geronimo.deployment.scanner.DeploymentScanner"
+         name="geronimo.deployment:role=DeploymentScanner">
+    <constructor>
+      <arg type="[Ljava.net.URL;">
+        ${geronimo.home}/deploy/
+      </arg>
+      <arg type="boolean">true</arg>
+    </constructor>
+    <attribute name="ScanInterval">5000</attribute>
+    <relationship type="DeploymentController-DeploymentScanner"
+                  name="DeploymentController-DeploymentScanner"
+                  role="DeploymentScanner"/>
+  </mbean>
 </components>
