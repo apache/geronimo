@@ -26,7 +26,7 @@ import junit.framework.TestCase;
 public class GeronimoPolicyConfigurationFactoryTest extends TestCase {
 
     private static final String CONTEXT_ID = "testContextID";
-    private GeronimoPolicyConfigurationFactory policyConfigurationFactory = new GeronimoPolicyConfigurationFactory();
+    private static GeronimoPolicyConfigurationFactory policyConfigurationFactory = new GeronimoPolicyConfigurationFactory();
 
 
     /**
