@@ -17,7 +17,7 @@ import org.apache.geronimo.gbean.GConstructorInfo;
  *
  * Created: Mon Sep  8 20:39:02 2003
  *
- * @version $Revision: 1.8 $ $Date: 2004/01/16 23:31:21 $
+ * @version $Revision: 1.9 $ $Date: 2004/01/17 17:02:38 $
  */
 public abstract class AbstractWebConnector implements WebConnector {
 
@@ -47,7 +47,9 @@ public abstract class AbstractWebConnector implements WebConnector {
         this.port = port;
         this.maxConnections = maxConnections;
         this.maxIdleTime = maxIdleTime;
-        this.contexts = Arrays.asList(contexts);
+        if (contexts != null) {
+            this.contexts = Arrays.asList(contexts);
+        }
     }
 
     /* (non-Javadoc)

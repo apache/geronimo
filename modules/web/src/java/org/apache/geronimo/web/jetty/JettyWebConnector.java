@@ -58,10 +58,10 @@ package org.apache.geronimo.web.jetty;
 
 import java.lang.reflect.Constructor;
 import java.util.Collections;
-import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GOperationInfo;
@@ -78,9 +78,9 @@ import org.mortbay.http.ajp.AJP13Listener;
 import org.mortbay.util.ThreadedServer;
 
 /**
- * @version $Revision: 1.9 $ $Date: 2004/01/16 23:31:21 $
+ * @version $Revision: 1.10 $ $Date: 2004/01/17 17:02:38 $
  */
-public class JettyWebConnector extends AbstractWebConnector implements GeronimoMBeanTarget {
+public class JettyWebConnector extends AbstractWebConnector implements GeronimoMBeanTarget, GBean {
     private final static GBeanInfo GBEAN_INFO;
     private final static Log log = LogFactory.getLog(JettyWebConnector.class);
     private final static Class[] _defaultConstructorSignature = new Class[]{};

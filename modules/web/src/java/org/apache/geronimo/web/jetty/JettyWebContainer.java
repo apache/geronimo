@@ -56,32 +56,30 @@
 
 package org.apache.geronimo.web.jetty;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
-import java.net.URI;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GConstructorInfo;
+import org.apache.geronimo.gbean.GEndpointInfo;
 import org.apache.geronimo.kernel.management.StateManageable;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.web.AbstractWebContainer;
-import org.apache.geronimo.web.WebApplication;
 import org.apache.geronimo.web.WebAccessLog;
+import org.apache.geronimo.web.WebApplication;
 import org.apache.geronimo.web.WebConnector;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GEndpointInfo;
-import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.servlet.WebApplicationContext;
-import org.w3c.dom.Document;
 
 /**
  * Base class for jetty web containers.
  *
  *
- * @version $Revision: 1.13 $ $Date: 2004/01/16 23:31:21 $
+ * @version $Revision: 1.14 $ $Date: 2004/01/17 17:02:38 $
  */
 public class JettyWebContainer extends AbstractWebContainer {
     private final static GBeanInfo GBEAN_INFO;
@@ -98,8 +96,8 @@ public class JettyWebContainer extends AbstractWebContainer {
         jettyServer.start();
     }
 
-    public JettyWebContainer(URI defaultWebXmlURI, Document defaultWebXmlDoc, Collection webApplications, Collection webConnectors, Collection webAccessLogs) throws Exception {
-        super(defaultWebXmlURI, defaultWebXmlDoc);
+    public JettyWebContainer(URI defaultWebXmlURI, Collection webApplications, Collection webConnectors, Collection webAccessLogs) throws Exception {
+        super(defaultWebXmlURI);
         jettyServer = new Server();
         jettyServer.start();
         //Does order matter here?
@@ -224,8 +222,8 @@ public class JettyWebContainer extends AbstractWebContainer {
         infoFactory.addEndpoint(new GEndpointInfo("WebConnectors", JettyWebConnector.class.getName()));
         infoFactory.addEndpoint(new GEndpointInfo("WebAccessLogs", JettyWebAccessLog.class.getName()));
         infoFactory.setConstructor(new GConstructorInfo(
-                Arrays.asList(new Object[] {"DefaultWebXmlURI", "DefaultWebXmlDoc", "WebApplications", "WebConnectors", "WebAccessLogs", }),
-                Arrays.asList(new Object[] {URI.class, Document.class, Collection.class, Collection.class, Collection.class })));
+                Arrays.asList(new Object[] {"DefaultWebXmlURI", "WebApplications", "WebConnectors", "WebAccessLogs"}),
+                Arrays.asList(new Object[] {URI.class, Collection.class, Collection.class, Collection.class})));
          GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
@@ -239,4 +237,5 @@ public class JettyWebContainer extends AbstractWebContainer {
     public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
         return AbstractWebContainer.getGeronimoMBeanInfo(JettyWebContainer.class, "Jetty", JettyWebApplication.class, JettyWebConnector.class, JettyWebAccessLog.class);
     }
+
 }

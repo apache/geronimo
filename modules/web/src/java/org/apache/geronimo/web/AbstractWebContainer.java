@@ -65,18 +65,17 @@ import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.EndpointCollection;
+import org.apache.geronimo.gbean.EndpointCollectionEvent;
+import org.apache.geronimo.gbean.EndpointCollectionListener;
+import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GConstructorInfo;
+import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanEndpoint;
 import org.apache.geronimo.kernel.service.GeronimoMBeanEndpointListener;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
-import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GAttributeInfo;
-import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GEndpointInfo;
-import org.apache.geronimo.gbean.EndpointCollection;
-import org.apache.geronimo.gbean.EndpointCollectionListener;
-import org.apache.geronimo.gbean.EndpointCollectionEvent;
 import org.w3c.dom.Document;
 
 /**
@@ -94,7 +93,7 @@ import org.w3c.dom.Document;
  * or
  * 2. the url is a directory which contains a WEB-INF/web.xml file
  *
- * @version $Revision: 1.28 $ $Date: 2004/01/16 23:31:21 $
+ * @version $Revision: 1.29 $ $Date: 2004/01/17 17:02:38 $
  */
 public abstract class AbstractWebContainer implements WebContainer {
 
@@ -157,9 +156,8 @@ public abstract class AbstractWebContainer implements WebContainer {
 
     }
 
-    public AbstractWebContainer(URI defaultWebXmlURI, Document defaultWebXmlDoc) {
+    public AbstractWebContainer(URI defaultWebXmlURI) {
         this.defaultWebXmlURI = defaultWebXmlURI;
-        this.defaultWebXmlDoc = defaultWebXmlDoc;
     }
 
     /**
@@ -374,4 +372,5 @@ public abstract class AbstractWebContainer implements WebContainer {
         }, webAccessLogClass, ObjectName.getInstance(BASE_WEB_ACCESS_LOG_NAME + CONTAINER_CLAUSE + container + ",*")));
         return mbeanInfo;
     }
+
 }
