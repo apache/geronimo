@@ -59,6 +59,9 @@ package org.apache.geronimo.twiddle.command;
 import java.io.PrintWriter;
 import java.io.Reader;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.apache.geronimo.common.CloneableObject;
 import org.apache.geronimo.common.NullArgumentException;
 
@@ -67,7 +70,7 @@ import org.apache.geronimo.common.NullArgumentException;
  *
  * <p>Sub-classes only need to implement {@link Command#execute}.
  *
- * @version $Revision: 1.6 $ $Date: 2003/08/16 15:14:12 $
+ * @version $Revision: 1.7 $ $Date: 2003/08/24 11:20:17 $
  */
 public abstract class AbstractCommand
     extends CloneableObject
@@ -75,6 +78,9 @@ public abstract class AbstractCommand
 {
     /** Platform dependent line separator. */
     protected static final String LINE_SEPARATOR = System.getProperty("line.separator");
+    
+    /** The command logger. */
+    protected Log log = LogFactory.getLog(this.getClass());
     
     /** The command information. */
     private CommandInfo info;

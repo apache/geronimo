@@ -63,6 +63,9 @@ import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.net.URLDecoder;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.CommandLine;
@@ -81,10 +84,12 @@ import org.apache.geronimo.twiddle.util.HelpFormatter;
 /**
  * Command-line interface to <code>Twiddle</code>.
  *
- * @version $Revision: 1.6 $ $Date: 2003/08/16 15:14:12 $
+ * @version $Revision: 1.7 $ $Date: 2003/08/24 11:20:17 $
  */
 public class Main
 {
+    private static final Log log = LogFactory.getLog(Main.class);
+    
     /** Platform dependent line separator. */
     private static final String LINE_SEPARATOR = System.getProperty("line.separator");
     
@@ -172,9 +177,11 @@ public class Main
         URL homeURL = homeDir.toURL();
         URL configURL = new URL(homeURL, filename);
         
-        System.out.println("home directory: " + homeDir);
-        System.out.println("home url: " + homeURL);
-        System.out.println("configuration url: " + configURL);
+        if (log.isDebugEnabled()) {
+            log.debug("Home directory: " + homeDir);
+            log.debug("Home URL: " + homeURL);
+            log.debug("Configuration URL: " + configURL);
+        }
         
         ConfigurationReader reader = new ConfigurationReader();
         Configuration config = reader.read(configURL);

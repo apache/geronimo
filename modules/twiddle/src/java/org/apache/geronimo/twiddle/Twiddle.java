@@ -61,6 +61,9 @@ import java.net.URL;
 import java.io.StringWriter;
 import java.io.PrintWriter;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.apache.geronimo.common.NullArgumentException;
 
 import org.apache.geronimo.twiddle.config.Configuration;
@@ -80,10 +83,12 @@ import org.apache.geronimo.twiddle.console.IOContext;
  *    command processor, it serves only to facilitate their operation and to
  *    provide a simple API to execute commands (hence facade).
  *
- * @version <tt>$Revision: 1.6 $ $Date: 2003/08/14 20:24:34 $</tt>
+ * @version <tt>$Revision: 1.7 $ $Date: 2003/08/24 11:20:17 $</tt>
  */
 public class Twiddle
 {
+    private static final Log log = LogFactory.getLog(Twiddle.class);
+    
     /** The input/output context. */
     protected IOContext io;
     
