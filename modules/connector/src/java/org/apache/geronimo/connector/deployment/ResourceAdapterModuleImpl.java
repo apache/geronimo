@@ -32,14 +32,14 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 /**
  * @version $Rev$ $Date$
  */
-public class ResouceAdapterModuleImpl {
+public class ResourceAdapterModuleImpl {
     private final Kernel kernel;
     private final String baseName;
     private final J2EEServer server;
     private final J2EEApplication application;
     private final String deploymentDescriptor;
 
-    public ResouceAdapterModuleImpl(Kernel kernel, String objectName, J2EEServer server, J2EEApplication application, String deploymentDescriptor) {
+    public ResourceAdapterModuleImpl(Kernel kernel, String objectName, J2EEServer server, J2EEApplication application, String deploymentDescriptor) {
         ObjectName myObjectName = JMXUtil.getObjectName(objectName);
         verifyObjectName(myObjectName);
 
@@ -109,7 +109,7 @@ public class ResouceAdapterModuleImpl {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ResouceAdapterModuleImpl.class);
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ResourceAdapterModuleImpl.class);
         infoFactory.addReference("J2EEServer", J2EEServer.class);
         infoFactory.addReference("J2EEApplication", J2EEApplication.class);
 

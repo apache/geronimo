@@ -262,7 +262,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
         }
 
         // initalize the GBean
-        GBeanMBean resourceAdapterModule = new GBeanMBean(ResouceAdapterModuleImpl.GBEAN_INFO, cl);
+        GBeanMBean resourceAdapterModule = new GBeanMBean(ResourceAdapterModuleImpl.GBEAN_INFO, cl);
         try {
             resourceAdapterModule.setReferencePatterns("J2EEServer", Collections.singleton(earContext.getServerObjectName()));
             if (!earContext.getJ2EEApplicationName().equals("null")) {
