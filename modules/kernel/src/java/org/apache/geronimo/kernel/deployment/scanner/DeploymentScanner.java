@@ -65,6 +65,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.management.relation.RelationServiceMBean;
@@ -73,24 +74,71 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.service.AbstractManagedObject;
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
+import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
+import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
+import org.apache.geronimo.kernel.service.GeronimoMBeanEndpoint;
+import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
+import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
+import org.apache.geronimo.kernel.deployment.DeploymentController;
 
 /**
  * An MBean that maintains a list of URLs and periodically invokes a Scanner
  * to search them for deployments.
  *
- * @jmx:mbean
- *      extends="org.apache.geronimo.kernel.management.StateManageable,org.apache.geronimo.kernel.management.ManagedObject"
- *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:38:33 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/14 16:27:34 $
  */
-public class DeploymentScanner extends AbstractManagedObject implements DeploymentScannerMBean {
+public class DeploymentScanner implements GeronimoMBeanTarget {
+
     private static final Log log = LogFactory.getLog(DeploymentScanner.class);
 
-    private RelationServiceMBean relationService;
+    private GeronimoMBeanContext context;
+
     private final Map scanners = new HashMap();
     private long scanInterval;
     private boolean run;
     private Thread scanThread;
+    private DeploymentController deploymentController;
+
+    public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
+        GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
+        mbeanInfo.setTargetClass(DeploymentScanner.class.getName());
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ScanInterval",
+                true, true,
+                "Milliseconds between deployment scans"));
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("RecursiveURLs",
+                false, true,
+                "Array of URLs to scan recursively"));
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("NonRecursiveURLs",
+                false, true,
+                "Array of URLs to scan non-recursively"));
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("WatchedURLs",
+                true, false,
+                "Set of scanned URLs, without recursive information"));
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("addURL",
+                new GeronimoParameterInfo[]{new GeronimoParameterInfo("URL", URL.class.getName(), "URL to scan"),
+                                            new GeronimoParameterInfo("Recurse", "boolean", "Should subdirectories be scanned")},
+                1,
+                "Start scanning a single URL"));
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("removeURL",
+                new GeronimoParameterInfo[]{new GeronimoParameterInfo("URL", URL.class.getName(), "URL to scan")},
+                1,
+                "Stop scanning a single URL"));
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("scanNow",
+                new GeronimoParameterInfo[]{},
+                1,
+                "Scan all URLs now"));
+        mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("DeploymentController",
+                DeploymentController.class.getName(),
+                ObjectName.getInstance("geronimo.deployment:role=DeploymentController"),
+                true));
+        return mbeanInfo;
+    }
+
+    public void setDeploymentController(DeploymentController deploymentController) {
+        this.deploymentController = deploymentController;
+    }
 
     /**
      * @jmx:managed-constructor
@@ -102,15 +150,15 @@ public class DeploymentScanner extends AbstractManagedObject implements Deployme
      * @jmx:managed-constructor
      */
     public DeploymentScanner(final URL[] urls, final boolean recurse) {
+        addURLs(urls, recurse);
+    }
+
+    private void addURLs(final URL[] urls, final boolean recurse) {
         for (int i = 0; i < urls.length; i++) {
             addURL(urls[i], recurse);
         }
     }
 
-    public ObjectName preRegister(MBeanServer server, ObjectName objectName) throws Exception {
-        relationService = JMXUtil.getRelationService(server);
-        return super.preRegister(server, objectName);
-    }
 
     /**
      * @jmx:managed-attribute
@@ -124,6 +172,19 @@ public class DeploymentScanner extends AbstractManagedObject implements Deployme
      */
     public synchronized void setScanInterval(long scanInterval) {
         this.scanInterval = scanInterval;
+    }
+
+    public void setRecursiveURLs(URL[] urls) {
+        if (urls != null) {
+            addURLs(urls, true);
+        }
+    }
+
+
+    public void setNonRecursiveURLs(URL[] urls) {
+        if (urls != null) {
+            addURLs(urls, false);
+        }
     }
 
     /**
@@ -186,10 +247,18 @@ public class DeploymentScanner extends AbstractManagedObject implements Deployme
         return run;
     }
 
-    protected synchronized void doStart() throws Exception {
+    public void setMBeanContext(GeronimoMBeanContext context) {
+        this.context = context;
+    }
+
+    public boolean canStart() {
+        return true;
+    }
+
+    public synchronized void doStart() {
         if (scanThread == null) {
             run = true;
-            scanThread = new Thread("DeploymentScanner: ObjectName=" + objectName) {
+            scanThread = new Thread("DeploymentScanner: ObjectName=" + context.getObjectName()) {
                 public void run() {
                     while (shouldScannerThreadRun()) {
                         scanNow();
@@ -204,12 +273,19 @@ public class DeploymentScanner extends AbstractManagedObject implements Deployme
         }
     }
 
-    protected synchronized void doStop() throws Exception {
+    public boolean canStop() {
+        return true;
+    }
+
+    public synchronized void doStop() {
         run = false;
         if (scanThread != null) {
             scanThread.interrupt();
             scanThread = null;
         }
+    }
+
+    public void doFail() {
     }
 
     /**
@@ -242,16 +318,7 @@ public class DeploymentScanner extends AbstractManagedObject implements Deployme
         }
 
         try {
-            Map controllers = relationService.findAssociatedMBeans(objectName, "DeploymentController-DeploymentScanner", "DeploymentScanner");
-            log.trace("Found " + controllers.size() + " controller(s)");
-            if (!controllers.isEmpty()) {
-                Set set = controllers.keySet();
-                ObjectName controller = (ObjectName) set.iterator().next();
-                server.invoke(controller,
-                        "planDeployment",
-                        new Object[]{objectName, results},
-                        new String[]{"javax.management.ObjectName", "java.util.Set"});
-            }
+            deploymentController.planDeployment(context.getObjectName(), results);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }

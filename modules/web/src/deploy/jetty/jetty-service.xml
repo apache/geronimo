@@ -18,16 +18,20 @@
     <!-- ================================================================ -->
     <!-- Set up a Jetty container                                         -->
     <!-- ================================================================ -->
-    <mbean code="org.apache.geronimo.web.jetty.JettyWebContainer" 
+    <mbean code="org.apache.geronimo.web.jetty.JettyWebContainer"
            name="jetty:role=WebContainer">
        <attribute type="java.net.URI" name="DefaultWebXmlURI">webdefault.xml</attribute>
+    </mbean>
+<!-- planner that delegates to the mbean above -->
+    <mbean descriptor="org.apache.geronimo.web.WebDeploymentPlanner"
+           name="geronimo.deployment:role=DeploymentPlanner,type=Jetty">
     </mbean>
 
 
     <!-- ================================================================ -->
     <!-- Set up a connector to listen for http requests                   -->
     <!-- ================================================================ -->
-    <mbean code="org.apache.geronimo.web.jetty.JettyWebConnector" 
+    <mbean code="org.apache.geronimo.web.jetty.JettyWebConnector"
            name="jetty:role=WebConnector, port=8080">
         <attribute name="Port">8080</attribute>
 	<attribute name="Contexts">/abc, /def, /geh</attribute>

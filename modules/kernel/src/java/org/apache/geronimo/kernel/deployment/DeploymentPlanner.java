@@ -59,9 +59,8 @@ import java.util.Set;
 
 /**
  *
- * @jmx:mbean
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:38:33 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/14 16:27:34 $
  */
 public interface DeploymentPlanner {
     /**

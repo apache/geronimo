@@ -53,67 +53,55 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.kernel.deployment;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+package org.apache.geronimo.web;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.util.Set;
+
+import javax.management.ObjectName;
+
+import org.apache.geronimo.kernel.deployment.AbstractDeploymentPlanner;
 import org.apache.geronimo.kernel.deployment.DeploymentException;
-import org.apache.geronimo.kernel.deployment.task.DeploymentTask;
+import org.apache.geronimo.kernel.deployment.goal.DeployURL;
+import org.apache.geronimo.kernel.deployment.goal.RedeployURL;
+import org.apache.geronimo.kernel.deployment.goal.UndeployURL;
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.kernel.service.GeronimoMBeanEndpoint;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/14 16:27:34 $
- */
-public class DeploymentPlan {
-    private final Log log = LogFactory.getLog(this.getClass());
-    private final List tasks = new LinkedList();
+ * @version $Revision: 1.1 $ $Date: 2003/11/14 16:27:34 $
+ *
+ * */
+public class WebDeploymentPlanner extends AbstractDeploymentPlanner {
+    /**
+     * We delegate to this guy pending refactoring
+     */
+    private AbstractWebContainer webContainer;
 
-    public DeploymentPlan() {
+    public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
+        GeronimoMBeanInfo mbeanInfo = AbstractDeploymentPlanner.getGeronimoMBeanInfo(WebDeploymentPlanner.class.getName());
+        mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("WebContainer",
+                AbstractWebContainer.class.getName(),
+                ObjectName.getInstance("jetty:role=WebContainer"), //hard coded for now...
+                true));
+        return mbeanInfo;
     }
 
-    public DeploymentPlan(DeploymentTask task) {
-        tasks.add(task);
+    public void setWebContainer(AbstractWebContainer webContainer) {
+        this.webContainer = webContainer;
     }
 
-    public void addTask(DeploymentTask task) {
-        tasks.add(task);
+    protected boolean addURL(DeployURL deployURL, Set goals, Set plans) throws DeploymentException {
+        return webContainer.deploy(deployURL, goals, plans);
     }
 
-    public boolean canRun() throws DeploymentException {
-        boolean canRun = true;
-        for (Iterator i = tasks.iterator(); i.hasNext();) {
-            DeploymentTask task = (DeploymentTask) i.next();
-            log.trace("Checking if task can run " + task);
-
-            // always check each task, so the task can throw an exception if the task can never run
-            boolean thisCanRun = task.canRun();
-            canRun = canRun && thisCanRun;
-            log.trace("Answer: " + thisCanRun);
-        }
-        return canRun;
+    protected boolean redeployURL(RedeployURL redeployURL, Set goals) throws DeploymentException {
+        return webContainer.redeploy(redeployURL, goals);
     }
 
-    public void execute() throws DeploymentException {
-        LinkedList undoList = new LinkedList();
-        try {
-            for (Iterator i = tasks.iterator(); i.hasNext();) {
-                DeploymentTask task = (DeploymentTask) i.next();
-                log.trace("Performing task " + task);
-                task.perform();
-                undoList.add(task);
-            }
-        } catch (DeploymentException e) {
-            while (!undoList.isEmpty()) {
-                DeploymentTask task = (DeploymentTask) undoList.removeLast();
-                log.trace("Performing undo task " + task);
-                task.undo();
-            }
-            throw e;
-        }
+    protected boolean removeURL(UndeployURL undeployURL, Set goals, Set plans) throws DeploymentException {
+        return webContainer.remove(undeployURL, goals, plans);
     }
 }

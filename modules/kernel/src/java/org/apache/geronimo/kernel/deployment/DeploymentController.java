@@ -58,7 +58,7 @@ package org.apache.geronimo.kernel.deployment;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -66,82 +66,73 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.management.MBeanRegistration;
-import javax.management.MBeanServer;
+import java.util.Collections;
+
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import javax.management.relation.RelationServiceMBean;
-import javax.management.relation.Role;
-import javax.management.relation.RoleInfo;
-import javax.management.relation.RoleList;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.kernel.deployment.scanner.URLInfo;
-import org.apache.geronimo.kernel.deployment.scanner.URLType;
 import org.apache.geronimo.kernel.deployment.goal.DeployURL;
 import org.apache.geronimo.kernel.deployment.goal.RedeployURL;
 import org.apache.geronimo.kernel.deployment.goal.UndeployURL;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.deployment.scanner.URLInfo;
+import org.apache.geronimo.kernel.deployment.scanner.URLType;
+import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
+import org.apache.geronimo.kernel.service.GeronimoMBeanEndpoint;
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
+import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
+import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
 
 /**
  *
- * @jmx:mbean
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/29 13:03:00 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/14 16:27:34 $
  */
-public class DeploymentController implements MBeanRegistration, DeploymentControllerMBean {
-    private static final ObjectName DEFAULT_NAME = JMXUtil.getObjectName("geronimo.deployment:role=DeploymentController");
+public class DeploymentController implements GeronimoMBeanTarget {
 
     private static final Log log = LogFactory.getLog(DeploymentController.class);
 
-    private MBeanServer server;
-    private RelationServiceMBean relationService;
-    private ObjectName objectName;
+    private GeronimoMBeanContext context;
+    private Collection planners = Collections.EMPTY_LIST;
     private final Map scanResults = new HashMap();
-    private final Map deployedURLs = new HashMap();
     private final Set goals = new HashSet();
     private final LinkedHashSet plans = new LinkedHashSet();
 
-    public ObjectName preRegister(MBeanServer mBeanServer, ObjectName objectName) throws Exception {
-        server = mBeanServer;
-        this.objectName = objectName == null ? DEFAULT_NAME : objectName;
 
-        relationService = JMXUtil.getRelationService(server);
-        RoleInfo[] roleInfo = {
-            new RoleInfo("DeploymentController", getClass().getName()),
-            new RoleInfo("DeploymentPlanner", "org.apache.geronimo.kernel.deployment.DeploymentPlanner", true, true, 0, RoleInfo.ROLE_CARDINALITY_INFINITY, null)
-        };
-        relationService.createRelationType("DeploymentController-DeploymentPlanner", roleInfo);
-
-        roleInfo = new RoleInfo[]{
-            new RoleInfo("DeploymentController", getClass().getName()),
-            new RoleInfo("DeploymentScanner", "org.apache.geronimo.kernel.deployment.scanner.DeploymentScannerMBean", true, true, 0, RoleInfo.ROLE_CARDINALITY_INFINITY, null)
-        };
-        relationService.createRelationType("DeploymentController-DeploymentScanner", roleInfo);
-
-        return this.objectName;
-    }
-
-    public void postRegister(Boolean aBoolean) {
-        Role controllerRole = new Role("DeploymentController", Collections.singletonList(this.objectName));
-        RoleList roleList = new RoleList();
-        roleList.add(controllerRole);
-
-        try {
-            relationService.createRelation("DeploymentController-DeploymentPlanner", "DeploymentController-DeploymentPlanner", roleList);
-            relationService.createRelation("DeploymentController-DeploymentScanner", "DeploymentController-DeploymentScanner", roleList);
-        } catch (Exception e) {
-            IllegalStateException e1 = new IllegalStateException();
-            e1.initCause(e);
-            throw e1;
-        }
-    }
-
-    public void preDeregister() throws Exception {
-    }
-
-    public void postDeregister() {
+    public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
+        GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
+        mbeanInfo.setAutostart(true);
+        mbeanInfo.setTargetClass(DeploymentController.class.getName());
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("planDeployment",
+                new GeronimoParameterInfo[] {
+                    new GeronimoParameterInfo("Source", ObjectName.class.getName(), "Good question!"),
+                    new GeronimoParameterInfo("URLInfos", Set.class.getName(), "Set of URLs to plan deployments for")
+                },
+                0,
+                "plan the set of deployments"));
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("isDeployed",
+                new GeronimoParameterInfo[] {
+                    new GeronimoParameterInfo("URL", URL.class.getName(), "URL to test")
+                },
+                0,
+                "Determine if the supplied URL is deployed"));
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("deploy",
+                new GeronimoParameterInfo[] {
+                    new GeronimoParameterInfo("URL", URL.class.getName(), "URL to deploy")
+                },
+                0,
+                "Deploy the URL"));
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("undeploy",
+                new GeronimoParameterInfo[] {
+                    new GeronimoParameterInfo("URL", URL.class.getName(), "URL to undeploy")
+                },
+                0,
+                "Undeploy the URL"));
+        mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("Planners", DeploymentPlanner.class.getName(),
+                ObjectName.getInstance("geronimo.deployment:role=DeploymentPlanner,*")));
+        return mbeanInfo;
     }
 
     /**
@@ -159,12 +150,15 @@ public class DeploymentController implements MBeanRegistration, DeploymentContro
 
 
             if (!isDeployed(url)) {
+                log.info("Considering undeployed url " + url);
                 //only add a new deployment goal if we don't already have one. One can already exist if
                 //there was no deployer available when the url was scanned
                 if ((lastScan == null) || ((lastScan != null) &&!lastScan.contains (urlInfo))){
+                    log.info("Adding url goal for " + url);
                     goals.add(new DeployURL(url, urlInfo.getType()));
                 }
             } else {
+                log.info("Redeploying url " + url);
                 goals.add(new RedeployURL(url));
             }
         }
@@ -174,7 +168,7 @@ public class DeploymentController implements MBeanRegistration, DeploymentContro
             for (Iterator i = lastScan.iterator(); i.hasNext();) {
                 URLInfo urlInfo = (URLInfo) i.next();
                 URL url = urlInfo.getUrl();
-	       
+
                 if (!urlInfos.contains(urlInfo) && isDeployed(url)) {
                     goals.add(new UndeployURL(url));
                 }
@@ -203,7 +197,7 @@ public class DeploymentController implements MBeanRegistration, DeploymentContro
     public boolean isDeployed(URL url) {
         try {
             ObjectName pattern = new ObjectName("*:role=DeploymentUnit,url=" + ObjectName.quote(url.toString()) + ",*");
-            return !server.queryNames(pattern, null).isEmpty();
+            return !context.getServer().queryNames(pattern, null).isEmpty();
         } catch (MalformedObjectNameException e) {
             throw new AssertionError();
         }
@@ -254,15 +248,13 @@ public class DeploymentController implements MBeanRegistration, DeploymentContro
 
     private void generatePlans() throws DeploymentException {
         try {
-            List planners = relationService.getRole("DeploymentController-DeploymentPlanner", "DeploymentPlanner");
-            Object[] args = {goals, plans};
-            String[] types = {"java.util.Set", "java.util.Set"};
             while (true) {
                 boolean madeProgress = false;
                 for (Iterator i = planners.iterator(); i.hasNext();) {
-                    ObjectName planner = (ObjectName) i.next();
-                    Boolean progress = (Boolean) server.invoke(planner, "plan", args, types);
-                    if (progress.booleanValue()) {
+                    DeploymentPlanner planner = (DeploymentPlanner) i.next();
+                    log.info("Talking to planner: " + planner);
+                    boolean progress = planner.plan(goals, plans);
+                    if (progress) {
                         madeProgress = true;
                     }
                 }
@@ -311,5 +303,31 @@ public class DeploymentController implements MBeanRegistration, DeploymentContro
                 plans.remove(plan);
             }
         }
+    }
+
+    public void setPlanners(Collection planners) {
+        System.out.println("Setting the planners collection to " + planners);
+        this.planners = planners;
+    }
+
+    public void setMBeanContext(GeronimoMBeanContext context) {
+        this.context = context;
+    }
+
+    public boolean canStart() {
+        return true;
+    }
+
+    public void doStart() {
+    }
+
+    public boolean canStop() {
+        return true;
+    }
+
+    public void doStop() {
+    }
+
+    public void doFail() {
     }
 }

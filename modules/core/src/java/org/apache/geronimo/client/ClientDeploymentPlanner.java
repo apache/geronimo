@@ -58,16 +58,36 @@ package org.apache.geronimo.client;
 import java.util.Set;
 
 import org.apache.geronimo.kernel.deployment.DeploymentException;
+import org.apache.geronimo.kernel.deployment.AbstractDeploymentPlanner;
+import org.apache.geronimo.kernel.deployment.goal.DeployURL;
+import org.apache.geronimo.kernel.deployment.goal.RedeployURL;
+import org.apache.geronimo.kernel.deployment.goal.UndeployURL;
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 
 /**
  *
- * @jmx:mbean
- *      extends="org.apache.geronimo.kernel.deployment.DeploymentPlanner"
  *
- * @version $Revision: 1.4 $ $Date: 2003/09/08 04:22:00 $
+ * @version $Revision: 1.5 $ $Date: 2003/11/14 16:27:34 $
  */
-public class ClientDeploymentPlanner implements ClientDeploymentPlannerMBean {
-    public boolean plan(Set goals, Set plans) throws DeploymentException {
+public class ClientDeploymentPlanner extends AbstractDeploymentPlanner {
+
+    /**
+     * Supply our own GeronimoMBeanInfo for xml-free deployment.
+     * @return
+     */
+    public static GeronimoMBeanInfo getGeronimoMBeanInfo() {
+        return AbstractDeploymentPlanner.getGeronimoMBeanInfo(ClientDeploymentPlanner.class.getName());
+    }
+
+    protected boolean addURL(DeployURL deployURL, Set goals, Set plans) throws DeploymentException {
+        return false;
+    }
+
+    protected boolean redeployURL(RedeployURL redeployURL, Set goals) throws DeploymentException {
+        return false;
+    }
+
+    protected boolean removeURL(UndeployURL undeployURL, Set goals, Set plans) throws DeploymentException {
         return false;
     }
 

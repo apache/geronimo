@@ -86,6 +86,7 @@ import org.apache.geronimo.deployment.model.geronimo.connector.GeronimoResourceA
 import org.apache.geronimo.kernel.deployment.DeploymentException;
 import org.apache.geronimo.kernel.deployment.DeploymentInfo;
 import org.apache.geronimo.kernel.deployment.DeploymentPlan;
+import org.apache.geronimo.kernel.deployment.AbstractDeploymentPlanner;
 import org.apache.geronimo.kernel.deployment.goal.DeployURL;
 import org.apache.geronimo.kernel.deployment.goal.DeploymentGoal;
 import org.apache.geronimo.kernel.deployment.goal.RedeployURL;
@@ -110,59 +111,17 @@ import org.xml.sax.SAXException;
 /**
  * DeploymentPlanner in charge of the plannification of Connector deployments.
  *
- * @jmx:mbean
- *      extends="org.apache.geronimo.kernel.deployment.DeploymentPlanner"
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/11 21:11:56 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/14 16:27:34 $
  */
 public class ConnectorDeploymentPlanner
-    implements MBeanRegistration, ConnectorDeploymentPlannerMBean
-{
-
+        extends AbstractDeploymentPlanner {
     private static final Log log = LogFactory.getLog(ConnectorDeploymentPlanner.class);
 
-    /**
-     * Reference the MBeanServer
-     */
-    private MBeanServer server;
-
-    /**
-     * JMX name of this instance.
-     */
-    private ObjectName objectName;
-
-    /**
-     * Reference the RelationService MBean
-     */
-    private RelationServiceMBean relationService;
-
-    /**
-     * JMX name of the Connector deployment planner. This name MUST match
-     * the one used to mount the connector deployment service.
-     */
-    public static ObjectName CONNECTOR_DEPLOYER =
-        JMXUtil.getObjectName("geronimo.jca:role=ConnectorDeploymentPlanner");
-
-    /**
-     * Entry point for the DeploymentPlanner coordinator.
-     */
-    public boolean plan(Set goals, Set plans) throws DeploymentException {
-        boolean progress = false;
-        Set x = new HashSet(goals);
-        for (Iterator i = x.iterator(); i.hasNext();) {
-            DeploymentGoal goal = (DeploymentGoal) i.next();
-            if (goal instanceof DeployURL) {
-                progress = deploy((DeployURL) goal, goals, plans);
-            } else if (goal instanceof RedeployURL) {
-                // TODO implement me.
-                progress = false;
-            } else if (goal instanceof UndeployURL) {
-                // TODO implement me.
-                progress = false;
-            }
-        }
-        return progress;
+    public static GeronimoMBeanInfo getGeronimoMBeanInfo() {
+        return AbstractDeploymentPlanner.getGeronimoMBeanInfo(ConnectorDeploymentPlanner.class.getName());
     }
+
 
     /**
      * Deploys the specified URL. If this deployer can deploy the specified
@@ -179,19 +138,19 @@ public class ConnectorDeploymentPlanner
      *
      * @throws DeploymentException
      */
-    private boolean deploy(DeployURL goal, Set goals, Set plans)
-        throws DeploymentException {
+    protected boolean addURL(DeployURL goal, Set goals, Set plans)
+            throws DeploymentException {
         URL url = goal.getUrl();
         DeploymentHelper dHelper =
-            new DeploymentHelper(url, goal.getType());
+                new DeploymentHelper(url, goal.getType());
         URL raURL = dHelper.locateDD();
         URL graURL = dHelper.locateGeronimoDD();
         // Is the specific URL deployable?
-        if ( null == raURL ) {
+        if (null == raURL) {
             log.info("Looking at and rejecting url " + url);
             return false;
         }
-		URI baseURI = URI.create(url.toString()).normalize();
+        URI baseURI = URI.create(url.toString()).normalize();
 
         log.trace("Planning the connector deployment " + url);
 
@@ -204,15 +163,15 @@ public class ConnectorDeploymentPlanner
         // Defines a deployment plan for the deployment unit.
         DeploymentPlan deploymentPlan = new DeploymentPlan();
         DeploymentInfo deploymentInfo =
-            new DeploymentInfo(deploymentUnitName, null, url);
-        deploymentPlan.addTask (
-            new RegisterMBeanInstance(server, deploymentUnitName, deploymentInfo));
+                new DeploymentInfo(deploymentUnitName, null, url);
+        deploymentPlan.addTask(
+                new RegisterMBeanInstance(getServer(), deploymentUnitName, deploymentInfo));
         MBeanMetadata deploymentUnitMetadata = new MBeanMetadata(deploymentUnitName);
-        deploymentPlan.addTask (
-            new StartMBeanInstance(server, deploymentUnitMetadata));
+        deploymentPlan.addTask(
+                new StartMBeanInstance(getServer(), deploymentUnitMetadata));
         // Define the ClassSpace for the Connector archives.
         ClassSpaceMetadata raCS = dHelper.buildClassSpace();
-        deploymentPlan.addTask (new CreateClassSpace(server, raCS));//parent???
+        deploymentPlan.addTask(new CreateClassSpace(getServer(), raCS));//parent???
         plans.add(deploymentPlan);
 
         //now another plan for the tasks that depend on the class space.
@@ -223,18 +182,18 @@ public class ConnectorDeploymentPlanner
 
         GeronimoConnectorDocument gconDoc = null;
         try {
-			Document raDocument =
-				LoaderUtil.parseXML(new InputStreamReader(raURL.openStream()));
-			ConnectorDocument conDoc = ConnectorLoader.load(raDocument);
-			Document graDocument =
-				LoaderUtil.parseXML(new InputStreamReader(graURL.openStream()));
-			gconDoc = GeronimoConnectorLoader.load(graDocument, conDoc);
+            Document raDocument =
+                    LoaderUtil.parseXML(new InputStreamReader(raURL.openStream()));
+            ConnectorDocument conDoc = ConnectorLoader.load(raDocument);
+            Document graDocument =
+                    LoaderUtil.parseXML(new InputStreamReader(graURL.openStream()));
+            gconDoc = GeronimoConnectorLoader.load(graDocument, conDoc);
         } catch (FileNotFoundException e1) {
-            throw new DeploymentException ("Deployment descriptor not found", e1);
+            throw new DeploymentException("Deployment descriptor not found", e1);
         } catch (SAXException e1) {
-            throw new DeploymentException ("[geronimo-]ra.xml malformed", e1);
+            throw new DeploymentException("[geronimo-]ra.xml malformed", e1);
         } catch (IOException e1) {
-            throw new DeploymentException ("Deployment descriptor not readable", e1);
+            throw new DeploymentException("Deployment descriptor not readable", e1);
         }
         GeronimoResourceAdapter gra = gconDoc.getGeronimoConnector().getGeronimoResourceAdapter();
         //deploy ra
@@ -243,49 +202,74 @@ public class ConnectorDeploymentPlanner
             MBeanMetadata raMD = getMBeanMetadata(raCS.getName(), deploymentUnitName, baseURI);
             raMD.setCode(gra.getResourceAdapterClass());
             raMD.setName(dHelper.buildResourceAdapterDeploymentName(gra));
-            configureMBeanMetadata(gra.getConfigProperty(), raMD); 
+            configureMBeanMetadata(gra.getConfigProperty(), raMD);
             addTasks(raMD, deploymentPlan);
             resourceAdapterName = raMD.getName();
             ObjectName bootstrapContextName = dHelper.buildBootstrapContextName(gra);
-			ResourceAdapterHelperImpl.addMBeanInfo(raMD.getGeronimoMBeanInfo(), bootstrapContextName);
-		}
+            ResourceAdapterHelperImpl.addMBeanInfo(raMD.getGeronimoMBeanInfo(), bootstrapContextName);
+        }
 
 
         //deploy mcfs
-		for (int i = 0; i < gra.getGeronimoOutboundResourceAdapter().getGeronimoConnectionDefinition().length; i++) {
-			GeronimoConnectionDefinition gcd = gra.getGeronimoOutboundResourceAdapter().getGeronimoConnectionDefinition(i);
+        for (int i = 0; i < gra.getGeronimoOutboundResourceAdapter().getGeronimoConnectionDefinition().length; i++) {
+            GeronimoConnectionDefinition gcd = gra.getGeronimoOutboundResourceAdapter().getGeronimoConnectionDefinition(i);
             assert gcd != null: "Null GeronimoConnectionDefinition";
-			//deploy cm factory
-			GeronimoConnectionManagerFactory gcmf = gcd.getGeronimoConnectionManagerFactory();
+            //deploy cm factory
+            GeronimoConnectionManagerFactory gcmf = gcd.getGeronimoConnectionManagerFactory();
             assert gcmf != null: "Null GeronimoConnectionManagerFactory";
-			MBeanMetadata cmfMD = getMBeanMetadata(raCS.getName(), deploymentUnitName, baseURI);
-			cmfMD.setGeronimoMBeanDescriptor(gcmf.getConnectionManagerFactoryDescriptor());
-			cmfMD.setName(dHelper.buildConnectionManagerFactoryDeploymentName(gcd));
-			adaptConfigProperties(gcmf.getConfigProperty(), null, cmfMD.getAttributeValues());
-			addTasks(cmfMD, deploymentPlan);
-        
-        
-			MBeanMetadata mcfMD = getMBeanMetadata(raCS.getName(), deploymentUnitName, baseURI);
-			mcfMD.setCode(gcd.getManagedConnectionFactoryClass());
-			mcfMD.setName(dHelper.buildManagedConnectionFactoryDeploymentName(gcd));
-			configureMBeanMetadata(gcd.getConfigProperty(), mcfMD);
-			ManagedConnectionFactoryHelper.addMBeanInfo(mcfMD.getGeronimoMBeanInfo(), resourceAdapterName, cmfMD.getName());
-			Map attributes = mcfMD.getAttributeValues();
-			attributes.put("ConnectionFactoryImplClass", gcd.getConnectionFactoryImplClass());
-			attributes.put("ConnectionFactoryInterface", gcd.getConnectionFactoryInterface());
-			attributes.put("ConnectionImplClass", gcd.getConnectionImplClass());
-			attributes.put("ConnectionInterface", gcd.getConnectionInterface());
-			attributes.put("ManagedConnectionFactoryClass", gcd.getManagedConnectionFactoryClass());
-			if (resourceAdapterName != null) {
-			    attributes.put("ResourceAdapterName", resourceAdapterName);
-			}
-			attributes.put("ConnectionManagerFactoryName", cmfMD.getName());
-			addTasks(mcfMD, deploymentPlan);
-        
-		}
-        plans.add (deploymentPlan);
+            MBeanMetadata cmfMD = getMBeanMetadata(raCS.getName(), deploymentUnitName, baseURI);
+            cmfMD.setGeronimoMBeanDescriptor(gcmf.getConnectionManagerFactoryDescriptor());
+            cmfMD.setName(dHelper.buildConnectionManagerFactoryDeploymentName(gcd));
+            adaptConfigProperties(gcmf.getConfigProperty(), null, cmfMD.getAttributeValues());
+            addTasks(cmfMD, deploymentPlan);
+
+
+            MBeanMetadata mcfMD = getMBeanMetadata(raCS.getName(), deploymentUnitName, baseURI);
+            mcfMD.setCode(gcd.getManagedConnectionFactoryClass());
+            mcfMD.setName(dHelper.buildManagedConnectionFactoryDeploymentName(gcd));
+            configureMBeanMetadata(gcd.getConfigProperty(), mcfMD);
+            ManagedConnectionFactoryHelper.addMBeanInfo(mcfMD.getGeronimoMBeanInfo(), resourceAdapterName, cmfMD.getName());
+            Map attributes = mcfMD.getAttributeValues();
+            attributes.put("ConnectionFactoryImplClass", gcd.getConnectionFactoryImplClass());
+            attributes.put("ConnectionFactoryInterface", gcd.getConnectionFactoryInterface());
+            attributes.put("ConnectionImplClass", gcd.getConnectionImplClass());
+            attributes.put("ConnectionInterface", gcd.getConnectionInterface());
+            attributes.put("ManagedConnectionFactoryClass", gcd.getManagedConnectionFactoryClass());
+            if (resourceAdapterName != null) {
+                attributes.put("ResourceAdapterName", resourceAdapterName);
+            }
+            attributes.put("ConnectionManagerFactoryName", cmfMD.getName());
+            addTasks(mcfMD, deploymentPlan);
+
+        }
+        plans.add(deploymentPlan);
 
         return true;
+    }
+
+    /**
+     *
+     * @param redeployURL
+     * @param goals
+     * @return
+     * @throws DeploymentException
+     * @todo implement this
+     */
+    protected boolean redeployURL(RedeployURL redeployURL, Set goals) throws DeploymentException {
+        return false;
+    }
+
+    /**
+     *
+     * @param undeployURL
+     * @param goals
+     * @param plans
+     * @return
+     * @throws DeploymentException
+     * @todo implement this
+     */
+    protected boolean removeURL(UndeployURL undeployURL, Set goals, Set plans) throws DeploymentException {
+        return false;
     }
 
     private MBeanMetadata getMBeanMetadata(ObjectName loader, ObjectName parent, URI baseURI) {
@@ -295,87 +279,48 @@ public class ConnectorDeploymentPlanner
         metadata.setBaseURI(baseURI);
         return metadata;
     }
-    
+
     private void configureMBeanMetadata(ConfigProperty[] props, MBeanMetadata metadata) throws DeploymentException {
-		GeronimoMBeanInfo info = new GeronimoMBeanInfo();
+        GeronimoMBeanInfo info = new GeronimoMBeanInfo();
         info.setTargetClass(metadata.getCode());
-		Map attributes = metadata.getAttributeValues();
-		adaptConfigProperties(props, info, attributes);
-		metadata.setGeronimoMBeanInfo(info);
+        Map attributes = metadata.getAttributeValues();
+        adaptConfigProperties(props, info, attributes);
+        metadata.setGeronimoMBeanInfo(info);
 
     }
-    
-	private void adaptConfigProperties(
-		ConfigProperty[] configProperty,
-		GeronimoMBeanInfo mbeanInfo,
-		Map attributes)
-		throws DeploymentException {
-		ClassLoader cl = Classes.getContextClassLoader();
-		for (int i = 0; i < configProperty.length; i++) {
-			if (mbeanInfo != null) {
+
+    private void adaptConfigProperties(
+            ConfigProperty[] configProperty,
+            GeronimoMBeanInfo mbeanInfo,
+            Map attributes)
+            throws DeploymentException {
+        ClassLoader cl = Classes.getContextClassLoader();
+        for (int i = 0; i < configProperty.length; i++) {
+            if (mbeanInfo != null) {
                 GeronimoAttributeInfo attInfo = new GeronimoAttributeInfo();
-		    	attInfo.setName(configProperty[i].getConfigPropertyName());
+                attInfo.setName(configProperty[i].getConfigPropertyName());
                 if (configProperty[i].getConfigPropertyValue() != null) {
                     attInfo.setInitialValue(configProperty[i].getConfigPropertyValue());
                 }
-			    //descriptions are now multilingual, so we'll leave them to
-			    // someone who knows how to determine the locale.
+                //descriptions are now multilingual, so we'll leave them to
+                // someone who knows how to determine the locale.
                 mbeanInfo.addAttributeInfo(attInfo);
             } else if (configProperty[i].getConfigPropertyValue() != null) {
-				attributes.put(configProperty[i].getConfigPropertyName(), configProperty[i].getConfigPropertyValue());
-			}
-		}
-	}
-    
+                attributes.put(configProperty[i].getConfigPropertyName(), configProperty[i].getConfigPropertyValue());
+            }
+        }
+    }
+
     private void addTasks(MBeanMetadata metadata, DeploymentPlan plan) throws DeploymentException {
-		DeployGeronimoMBean createTask =
-			new DeployGeronimoMBean(server, metadata);
-		plan.addTask(createTask);
-		InitializeMBeanInstance initTask =
-			new InitializeMBeanInstance(server, metadata);
-		plan.addTask(initTask);
-		StartMBeanInstance startTask =
-			new StartMBeanInstance(server, metadata);
-		plan.addTask(startTask);
-    }
-    
-    /**
-     * Gets an handle on the MBeanServer and the RelationService.
-     */
-    public ObjectName preRegister(MBeanServer aServer, ObjectName anObjectName)
-        throws Exception {
-        server = aServer;
-        relationService = JMXUtil.getRelationService(server);
-        objectName = anObjectName;
-        return objectName;
-    }
-
-    /**
-     * Adds ourself as a DeploymentPlanner in case of a successful registration.
-     * One also registers the MasterPartition at this stage and one starts it.
-     */
-    public void postRegister(Boolean aBoolean) {
-        // The registration is not successful.
-        if ( !aBoolean.booleanValue() ) {
-            return;
-        }
-        try {
-            // Register ourself as a DeploymentPlanner.
-            List planners = relationService.getRole(
-                "DeploymentController-DeploymentPlanner", "DeploymentPlanner");
-            planners.add(objectName);
-            relationService.setRole(
-                "DeploymentController-DeploymentPlanner",
-                new Role("DeploymentPlanner", planners));
-        } catch (JMException e) {
-            throwISE("Should never occur", e);
-        }
-    }
-
-    public void preDeregister() throws Exception {
-    }
-
-    public void postDeregister() {
+        DeployGeronimoMBean createTask =
+                new DeployGeronimoMBean(getServer(), metadata);
+        plan.addTask(createTask);
+        InitializeMBeanInstance initTask =
+                new InitializeMBeanInstance(getServer(), metadata);
+        plan.addTask(initTask);
+        StartMBeanInstance startTask =
+                new StartMBeanInstance(getServer(), metadata);
+        plan.addTask(startTask);
     }
 
     /**
@@ -391,4 +336,5 @@ public class ConnectorDeploymentPlanner
         e.initCause(aThrowable);
         throw e;
     }
+
 }

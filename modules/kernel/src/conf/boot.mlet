@@ -17,15 +17,17 @@
       >
 </MLET>
 
-<MLET CODE="org.apache.geronimo.kernel.deployment.DeploymentController"
+<MLET CODE="org.apache.geronimo.kernel.service.GeronimoMBean"
       NAME="geronimo.deployment:role=DeploymentController"
       ARCHIVE=""
       >
+      <ARG type="java.lang.String" value="org.apache.geronimo.kernel.deployment.DeploymentController"/>
 </MLET>
 
-<MLET CODE="org.apache.geronimo.kernel.deployment.service.ServiceDeploymentPlanner"
+<MLET CODE="org.apache.geronimo.kernel.service.GeronimoMBean"
       NAME="geronimo.deployment:role=DeploymentPlanner,type=Service"
       ARCHIVE=""
       >
+      <ARG type="java.lang.String" value="org.apache.geronimo.kernel.deployment.service.ServiceDeploymentPlanner"/>
 </MLET>
 

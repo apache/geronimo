@@ -64,6 +64,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
@@ -87,6 +88,8 @@ import org.apache.geronimo.kernel.deployment.goal.UndeployURL;
 import org.apache.geronimo.kernel.deployment.task.CreateClassSpace;
 import org.apache.geronimo.kernel.deployment.task.CreateMBeanInstance;
 import org.apache.geronimo.kernel.deployment.DeploymentPlan;
+import org.apache.geronimo.kernel.deployment.DeploymentPlanner;
+import org.apache.geronimo.kernel.deployment.AbstractDeploymentPlanner;
 import org.apache.geronimo.kernel.deployment.task.DestroyMBeanInstance;
 import org.apache.geronimo.kernel.deployment.task.InitializeMBeanInstance;
 import org.apache.geronimo.kernel.deployment.task.RegisterMBeanInstance;
@@ -95,6 +98,11 @@ import org.apache.geronimo.kernel.deployment.task.StopMBeanInstance;
 import org.apache.geronimo.kernel.deployment.task.DeployGeronimoMBean;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfoXMLLoader;
+import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
+import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
+import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -103,16 +111,23 @@ import org.w3c.dom.NodeList;
 /**
  * Plans deployment of MBean services.
  *
- * @jmx:mbean extends="org.apache.geronimo.kernel.deployment.DeploymentPlanner"
  *
- * @version $Revision: 1.5 $ $Date: 2003/11/11 04:39:08 $
+ * @version $Revision: 1.6 $ $Date: 2003/11/14 16:27:34 $
  */
-public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, MBeanRegistration {
-    private MBeanServer server;
-    private ObjectName objectName;
-    private RelationServiceMBean relationService;
+public class ServiceDeploymentPlanner extends AbstractDeploymentPlanner {
+
     private final DocumentBuilder parser;
     private final MBeanMetadataXMLLoader mbeanLoader;
+
+    /**
+     * Supply our own GeronimoMBeanInfo for xml-free deployment.
+     * @return
+     */
+    public static GeronimoMBeanInfo getGeronimoMBeanInfo() {
+        GeronimoMBeanInfo mbeanInfo = AbstractDeploymentPlanner.getGeronimoMBeanInfo(ServiceDeploymentPlanner.class.getName());
+        mbeanInfo.setAutostart(true);
+        return mbeanInfo;
+    }
 
     public ServiceDeploymentPlanner() throws DeploymentException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -124,49 +139,8 @@ public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, 
         mbeanLoader = new MBeanMetadataXMLLoader();
     }
 
-    public ObjectName preRegister(MBeanServer mBeanServer, ObjectName objectName) throws Exception {
-        this.server = mBeanServer;
-        relationService = JMXUtil.getRelationService(server);
 
-        this.objectName = objectName;
-        return objectName;
-    }
-
-    public void postRegister(Boolean aBoolean) {
-        try {
-            List planners = relationService.getRole("DeploymentController-DeploymentPlanner", "DeploymentPlanner");
-            planners.add(objectName);
-            relationService.setRole("DeploymentController-DeploymentPlanner", new Role("DeploymentPlanner", planners));
-        } catch (Exception e) {
-            IllegalStateException e1 = new IllegalStateException();
-            e1.initCause(e);
-            throw e1;
-        }
-    }
-
-    public void preDeregister() throws Exception {
-    }
-
-    public void postDeregister() {
-    }
-
-    public boolean plan(Set goals, Set plans) throws DeploymentException {
-        boolean progress = false;
-        Set x = new HashSet(goals);
-        for (Iterator i = x.iterator(); i.hasNext();) {
-            DeploymentGoal goal = (DeploymentGoal) i.next();
-            if (goal instanceof DeployURL) {
-                progress = addURL((DeployURL) goal, goals, plans);
-            } else if (goal instanceof RedeployURL) {
-                progress = verifyURL((RedeployURL) goal, goals);
-            } else if (goal instanceof UndeployURL) {
-                progress = removeURL((UndeployURL) goal, goals, plans);
-            }
-        }
-        return progress;
-    }
-
-    private boolean addURL(DeployURL goal, Set goals, Set plans) throws DeploymentException {
+    protected boolean addURL(DeployURL goal, Set goals, Set plans) throws DeploymentException {
         InputStream is;
         URL url = goal.getUrl();
         URI baseURI = URI.create(url.toString()).normalize();
@@ -209,13 +183,13 @@ public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, 
             throw new DeploymentException(e);
         }
         ServiceDeployment serviceInfo = new ServiceDeployment(deploymentName, null, url);
-        createDeploymentUnitPlan.addTask(new RegisterMBeanInstance(server, deploymentName, serviceInfo));
+        createDeploymentUnitPlan.addTask(new RegisterMBeanInstance(getServer(), deploymentName, serviceInfo));
         MBeanMetadata metadata = new MBeanMetadata(deploymentName);
-        createDeploymentUnitPlan.addTask(new StartMBeanInstance(server, metadata));
+        createDeploymentUnitPlan.addTask(new StartMBeanInstance(getServer(), metadata));
 
         // add a plan to create a class space
         ClassSpaceMetadata md = createClassSpaceMetadata((Element) doc.getElementsByTagName("class-space").item(0), deploymentName, url);
-        createDeploymentUnitPlan.addTask(new CreateClassSpace(server, md));
+        createDeploymentUnitPlan.addTask(new CreateClassSpace(getServer(), md));
         plans.add(createDeploymentUnitPlan);
         ObjectName loaderName = md.getName();
 
@@ -225,24 +199,21 @@ public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, 
 
             Element mbeanElement = (Element) nl.item(i);
             metadata = mbeanLoader.loadXML(baseURI, mbeanElement);
-            if (server.isRegistered(metadata.getName())) {
+            if (getServer().isRegistered(metadata.getName())) {
                 throw new DeploymentException("MBean already exists " + metadata.getName());
             }
             metadata.setLoaderName(loaderName);
             metadata.setParentName(deploymentName);
             metadata.setBaseURI(baseURI);
+            DeploymentPlan createPlan = new DeploymentPlan();
             if (metadata.isGeronimoMBean()) {
-                plans.add(new DeploymentPlan(new DeployGeronimoMBean(server, metadata)));
+                createPlan.addTask(new DeployGeronimoMBean(getServer(), metadata));
             } else {
-                DeploymentPlan createPlan = new DeploymentPlan();
-                CreateMBeanInstance createTask = new CreateMBeanInstance(server, metadata);
-                createPlan.addTask(createTask);
-                InitializeMBeanInstance initTask = new InitializeMBeanInstance(server, metadata);
-                createPlan.addTask(initTask);
-                StartMBeanInstance startTask = new StartMBeanInstance(server, metadata);
-                createPlan.addTask(startTask);
-                plans.add(createPlan);
+                createPlan.addTask(new CreateMBeanInstance(getServer(), metadata));
             }
+            createPlan.addTask(new InitializeMBeanInstance(getServer(), metadata));
+            createPlan.addTask(new StartMBeanInstance(getServer(), metadata));
+            plans.add(createPlan);
 
         }
 
@@ -272,7 +243,7 @@ public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, 
         return classSpaceMetadata;
     }
 
-    private boolean removeURL(UndeployURL goal, Set goals, Set plans) throws DeploymentException {
+    protected boolean removeURL(UndeployURL goal, Set goals, Set plans) throws DeploymentException {
 
         URL url = goal.getUrl();
 
@@ -296,7 +267,7 @@ public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, 
 
         Collection mbeans;
         try {
-            mbeans = (Collection) server.getAttribute(deploymentName, "Children");
+            mbeans = (Collection) getServer().getAttribute(deploymentName, "Children");
         } catch (InstanceNotFoundException e) {
             return false;
         } catch (AttributeNotFoundException e) {
@@ -309,18 +280,18 @@ public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, 
 
         // Stop the main deployment which stopps all dependents including its children
         DeploymentPlan stopPlan = new DeploymentPlan();
-        stopPlan.addTask(new StopMBeanInstance(server, deploymentName));
+        stopPlan.addTask(new StopMBeanInstance(getServer(), deploymentName));
         plans.add(stopPlan);
 
         // Plan the destruction of all the children and then the deployment
         DeploymentPlan destroyPlan = new DeploymentPlan();
         for (Iterator i = mbeans.iterator(); i.hasNext();) {
             ObjectName name = (ObjectName) i.next();
-            destroyPlan.addTask(new DestroyMBeanInstance(server, name));
+            destroyPlan.addTask(new DestroyMBeanInstance(getServer(), name));
 
         }
 
-        destroyPlan.addTask(new DestroyMBeanInstance(server, deploymentName));
+        destroyPlan.addTask(new DestroyMBeanInstance(getServer(), deploymentName));
         plans.add(destroyPlan);
 
         goals.remove(goal);
@@ -328,7 +299,7 @@ public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, 
         return true;
     }
 
-    private boolean verifyURL(RedeployURL goal, Set goals) throws DeploymentException {
+    protected boolean redeployURL(RedeployURL goal, Set goals) throws DeploymentException {
         URL url = goal.getUrl();
         try {
             new ObjectName("geronimo.deployment:role=DeploymentUnit,type=Service,url=" + ObjectName.quote(url.toString()));
@@ -338,4 +309,5 @@ public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, 
         goals.remove(goal);
         return true;
     }
+
 }

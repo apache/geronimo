@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.19 $ $Date: 2003/11/11 21:11:55 $ -->
+<!-- $Revision: 1.20 $ $Date: 2003/11/14 16:27:34 $ -->
 
 <components>
     <class-space name="geronimo.system:role=ClassSpace,name=System">
@@ -21,18 +21,10 @@
     </mbean>
     -->
 
-    <mbean code="org.apache.geronimo.kernel.deployment.scanner.DeploymentScanner"
+    <mbean descriptor="org.apache.geronimo.kernel.deployment.scanner.DeploymentScanner"
         name="geronimo.deployment:role=DeploymentScanner">
-        <constructor>
-            <arg type="java.net.URL[]">
-                ${geronimo.home}/deploy/,
-            </arg>
-            <arg type="boolean">true</arg>
-        </constructor>
+        <attribute name="RecursiveURLs">${geronimo.home}/deploy/,</attribute>
         <attribute name="ScanInterval">5000</attribute>
-        <relationship type="DeploymentController-DeploymentScanner"
-            name="DeploymentController-DeploymentScanner"
-            role="DeploymentScanner"/>
     </mbean>
 
     <mbean code="org.apache.geronimo.deployment.app.ApplicationDeployer"
@@ -47,7 +39,7 @@
            descriptor="org/apache/geronimo/connector/outbound/CachedConnectionManager.xml">
     </mbean>
 
-    <mbean code="org.apache.geronimo.connector.deployment.ConnectorDeploymentPlanner"
+    <mbean descriptor="org.apache.geronimo.connector.deployment.ConnectorDeploymentPlanner"
            name="geronimo.deployment:role=DeploymentPlanner,type=Connector">
     </mbean>
 
