@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.10 $ $Date: 2003/08/25 21:16:49 $ -->
+<!-- $Revision: 1.11 $ $Date: 2003/08/30 15:01:31 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
   xmlns:u="jelly:util"
-  xmlns:ant="jelly:ant">
+  xmlns:ant="jelly:ant"
+  xmlns:maven="jelly:maven">
   
   <!-- ================= -->
   <!-- Global Properties -->
@@ -142,6 +143,62 @@
       
     </j:scope>
     
+  </goal>
+  
+  <!-- =================== -->
+  <!-- XDoclet Integration -->
+  <!-- =================== -->
+  
+  <goal name="xdoclet:jmxdoclet">
+    <j:jelly xmlns="jelly:ant">
+      <echo>Generating MBean interfaces...</echo>
+      
+      <!-- Load the jmxdoclet task -->
+      <taskdef name="jmxdoclet" classname="xdoclet.modules.jmx.JMXDocletTask">
+        <classpath>
+          <path refid="maven.dependency.classpath"/>
+        </classpath>
+      </taskdef>
+      
+      <!-- Where sources will be generated -->
+      <j:set var="maven.xdoclet.jmx.dest" value="${maven.build.dir}/xdoclet/jmx"/>
+      <mkdir dir="${maven.xdoclet.jmx.dest}"/>
+      
+      <!-- Inlcude the generated sources in the Javac compile -->
+      <path id="maven.xdoclet.jmx.compile.src.set" location="${maven.xdoclet.jmx.dest}"/>
+      <maven:addPath id="maven.compile.src.set" refid="maven.xdoclet.jmx.compile.src.set"/>
+      
+      <!-- Generate MBean interfaces -->
+      <jmxdoclet destDir="${maven.xdoclet.jmx.dest}" verbose="false">
+        
+        <fileset dir="${basedir}/src/java">
+          <include name="**/*.java"/>
+        </fileset>
+        
+        <!-- Um, this is broke
+        <j:forEach var="path" items="${pom.compileSourceRootsList}">
+          <fileset dir="${path}">
+            <include name="**/*.java"/>
+            
+            <j:forEach var="sm" items="${pom.build.sourceModifications}">
+              <available property="classPresent" classname="${sm.className}"/>
+              <j:if test="${classPresent != 'true'}">
+                <j:forEach var="exclude" items="${sm.excludes}">
+                  <exclude name="${exclude}"/>
+                </j:forEach>
+                <j:forEach var="include" items="${sm.includes}">
+                  <include name="${include}"/>
+                </j:forEach>
+              </j:if>
+            </j:forEach>
+          </fileset>
+        </j:forEach>
+        -->
+        
+        <mbeaninterface templateFile="${project.root}/etc/xdoclet/template/jmx/mbean.xdt"/>
+      </jmxdoclet>
+      
+    </j:jelly>
   </goal>
   
 </project>
