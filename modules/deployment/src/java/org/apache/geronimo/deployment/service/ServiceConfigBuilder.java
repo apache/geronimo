@@ -48,6 +48,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlException;
 
 /**
  * @version $Rev$ $Date$
@@ -70,9 +71,12 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
             return null;
         }
 
+        // todo tell the difference between an invalid plan and one that's not for me
         try {
             ConfigurationDocument configurationDoc = ConfigurationDocument.Factory.parse(planFile);
             return configurationDoc.getConfiguration();
+        } catch (XmlException e) {
+            return null;
         } catch (Exception e) {
             throw new DeploymentException(e);
         }
