@@ -68,26 +68,24 @@ import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
-import javax.management.JMException;
 import javax.management.relation.RelationServiceMBean;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.kernel.classspace.ClassSpaceException;
+import org.apache.geronimo.kernel.classspace.ClassSpaceUtil;
 import org.apache.geronimo.kernel.deployment.DependencyServiceMBean;
 import org.apache.geronimo.kernel.deployment.DeploymentException;
 import org.apache.geronimo.kernel.deployment.service.MBeanDependencyMetadata;
 import org.apache.geronimo.kernel.deployment.service.MBeanMetadata;
 import org.apache.geronimo.kernel.deployment.service.MBeanRelationshipMetadata;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.kernel.service.GeronimoMBean;
 import org.apache.geronimo.kernel.service.ParserUtil;
-import org.apache.geronimo.kernel.classspace.ClassSpaceUtil;
-import org.apache.geronimo.kernel.classspace.ClassSpaceException;
 
 /**
  * Creates an new MBean instance and intializes it according to the specified MBeanMetadata metadata
  *
- * @version $Revision: 1.2 $ $Date: 2003/10/27 21:32:20 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/11 04:39:37 $
  */
 public class CreateMBeanInstance implements DeploymentTask {
     private final Log log = LogFactory.getLog(this.getClass());
@@ -169,28 +167,17 @@ public class CreateMBeanInstance implements DeploymentTask {
                     }
                 }
 
-                if (metadata.getGeronimoMBeanInfo() != null) {
-                    if (log.isTraceEnabled()) {
-                        log.trace("Creating GeronimoMBean name=" + metadata.getName());
-                    }
-                    GeronimoMBean mbean = (GeronimoMBean) server.instantiate("org.apache.geronimo.kernel.service.GeronimoMBean");
-                    mbean.setClassSpace(metadata.getLoaderName());
-                    mbean.setMBeanInfo(metadata.getGeronimoMBeanInfo());
-                    server.registerMBean(mbean, metadata.getName());
-                    actualName = metadata.getName();
-                } else {
-                    // Create the mbean
-                    if (log.isTraceEnabled()) {
-                        log.trace("Creating MBean name=" + metadata.getName() + " class=" + metadata.getCode());
-                    }
+                // Create the mbean
+                if (log.isTraceEnabled()) {
+                    log.trace("Creating MBean name=" + metadata.getName() + " class=" + metadata.getCode());
+                }
 
-                    Class mbeanClass = newCL.loadClass(metadata.getCode());
-                    Constructor mbeanConstructor = mbeanClass.getConstructor((Class[]) constructorTypes.toArray(new Class[constructorTypes.size()]));
-                    Object mbean = mbeanConstructor.newInstance(constructorValues.toArray());
-                    actualName = server.registerMBean(mbean, metadata.getName()).getObjectName();
-                    if (log.isTraceEnabled() && !actualName.equals(metadata.getName())) {
-                        log.trace("Actual MBean name is " + actualName);
-                    }
+                Class mbeanClass = newCL.loadClass(metadata.getCode());
+                Constructor mbeanConstructor = mbeanClass.getConstructor((Class[]) constructorTypes.toArray(new Class[constructorTypes.size()]));
+                Object mbean = mbeanConstructor.newInstance(constructorValues.toArray());
+                actualName = server.registerMBean(mbean, metadata.getName()).getObjectName();
+                if (log.isTraceEnabled() && !actualName.equals(metadata.getName())) {
+                    log.trace("Actual MBean name is " + actualName);
                 }
                 metadata.setName(actualName);
 
@@ -227,11 +214,10 @@ public class CreateMBeanInstance implements DeploymentTask {
         }
 
         ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
-        ClassLoader newCL;
         try {
             // Set the class loader
             try {
-                newCL = ClassSpaceUtil.setContextClassLoader(server, metadata.getLoaderName());
+                ClassSpaceUtil.setContextClassLoader(server, metadata.getLoaderName());
             } catch (ClassSpaceException e) {
                 log.warn("Could not set context class loader", e);
                 return;
