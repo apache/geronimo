@@ -37,9 +37,9 @@ public interface InstanceContext {
 
     void flush() throws Throwable;
 
-    void beforeCommit() throws Exception;
+    void beforeCommit() throws Throwable;
 
-    void afterCommit(boolean status) throws Exception;
+    void afterCommit(boolean status) throws Throwable;
 
     /**
      * IMPORTANT INVARIANT: this should always return a map, never null.

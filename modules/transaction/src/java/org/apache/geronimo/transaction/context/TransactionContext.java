@@ -110,7 +110,7 @@ public abstract class TransactionContext {
         }
     }
 
-    protected void beforeCommit() throws Exception {
+    protected void beforeCommit() throws Throwable {
         // @todo allow for enrollment during pre-commit
         ArrayList toFlush = new ArrayList(associatedContexts.values());
         for (Iterator i = toFlush.iterator(); i.hasNext();) {
@@ -119,7 +119,7 @@ public abstract class TransactionContext {
         }
     }
 
-    protected void afterCommit(boolean status) throws Exception {
+    protected void afterCommit(boolean status) throws Throwable {
         Throwable firstThrowable = null;
         ArrayList toFlush = new ArrayList(associatedContexts.values());
         for (Iterator i = toFlush.iterator(); i.hasNext();) {

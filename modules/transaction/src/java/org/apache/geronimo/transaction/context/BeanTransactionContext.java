@@ -17,30 +17,16 @@
 
 package org.apache.geronimo.transaction.context;
 
-import javax.transaction.HeuristicMixedException;
-import javax.transaction.HeuristicRollbackException;
-import javax.transaction.InvalidTransactionException;
-import javax.transaction.NotSupportedException;
-import javax.transaction.RollbackException;
-import javax.transaction.Status;
-import javax.transaction.SystemException;
-import javax.transaction.Transaction;
-
 import org.apache.geronimo.transaction.ExtendedTransactionManager;
 
 /**
- *
- *
  * @version $Rev$ $Date$
  */
 public class BeanTransactionContext extends InheritableTransactionContext {
-    private final ExtendedTransactionManager txnManager;
-    private final UnspecifiedTransactionContext oldContext;
-    private Transaction transaction;
-
+    private UnspecifiedTransactionContext oldContext;
 
     public BeanTransactionContext(ExtendedTransactionManager txnManager, UnspecifiedTransactionContext oldContext) {
-        this.txnManager = txnManager;
+        super(txnManager);
         this.oldContext = oldContext;
     }
 
@@ -48,58 +34,7 @@ public class BeanTransactionContext extends InheritableTransactionContext {
         return oldContext;
     }
 
-    public void begin(long transactionTimeoutMilliseconds) throws SystemException, NotSupportedException {
-        transaction = txnManager.begin(transactionTimeoutMilliseconds);
-    }
-
-    public void suspend() throws SystemException {
-        Transaction suspendedTransaction = txnManager.suspend();
-        assert (transaction == suspendedTransaction) : "suspend did not return our transaction";
-    }
-
-    public void resume() throws SystemException, InvalidTransactionException {
-        txnManager.resume(transaction);
-    }
-
-    public void commit() throws HeuristicMixedException, HeuristicRollbackException, RollbackException, SystemException {
-        try {
-            try {
-                flushState();
-            } catch (Throwable t) {
-                try {
-                    txnManager.rollback();
-                } catch (Throwable t1) {
-                    log.error("Unable to roll back transaction", t1);
-                }
-                throw (RollbackException) new RollbackException("Could not flush state before commit").initCause(t);
-            }
-            txnManager.commit();
-        } finally {
-            connectorAfterCommit();
-            transaction = null;
-        }
-    }
-
-    public void rollback() throws SystemException {
-        try {
-            txnManager.rollback();
-        } finally {
-            connectorAfterCommit();
-            transaction = null;
-        }
-    }
-
-    //Geronimo connector framework support
-
-    public boolean isActive() {
-        try {
-            return txnManager.getStatus() == Status.STATUS_ACTIVE;
-        } catch (SystemException e) {
-            return false;
-        }
-    }
-
-    public Transaction getTransaction() {
-        return transaction;
+    public void setOldContext(UnspecifiedTransactionContext oldContext) {
+        this.oldContext = oldContext;
     }
 }

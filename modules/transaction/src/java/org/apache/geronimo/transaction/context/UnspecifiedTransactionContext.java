@@ -18,14 +18,12 @@
 package org.apache.geronimo.transaction.context;
 
 import javax.transaction.Transaction;
+import javax.transaction.SystemException;
 
 import org.apache.geronimo.transaction.ConnectionReleaser;
-import org.apache.geronimo.transaction.context.TransactionContext;
 
 
 /**
- *
- *
  * @version $Rev$ $Date$
  */
 public class UnspecifiedTransactionContext extends TransactionContext {
@@ -53,7 +51,6 @@ public class UnspecifiedTransactionContext extends TransactionContext {
     public void rollback() {
     }
 
-    //Geronimo connector framework support
     public void setManagedConnectionInfo(ConnectionReleaser key, Object info) {
     }
 
