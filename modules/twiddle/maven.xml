@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: maven.xml,v 1.1 2003/08/12 18:18:45 jdillon Exp $ -->
+<!-- $Id: maven.xml,v 1.2 2003/08/13 11:07:51 jdillon Exp $ -->
 
 <project
   xmlns:j="jelly:core"
@@ -29,24 +29,8 @@
                      types="j2"/>
     -->
     
-    <!-- The following is a hacked snippet of the castor plugin -->
-    
     <j:set var="schema" value="${basedir}/src/schema/twiddle-configuration.xsd"/>
-    <j:set var="fileVar" value="${schema}.filename"/>
-    <j:set var="uptodateVar" value="${schema}.uptodate"/>
-    <ant:basename property="${fileVar}" file="${schema}"/>
-    <j:set var="filename" value="${pom.getContext().getVariable(fileVar)}"/>
-    <j:set var="context" value="${pom.getPluginContext('maven-castor-plugin')}"/>
-    <j:set var="log" value="${pom.getPluginContext('maven-castor-plugin').getVariable('maven.castor.tstamp')}"/>
     <j:set var="gen" value="${pom.getPluginContext('maven-castor-plugin').getVariable('maven.castor.dest')}"/>
-    
-    <ant:uptodate property="${uptodateVar}" targetfile="${log}/${filename}">
-      <ant:srcfiles dir="${basedir}" includes="${schema}"/>
-    </ant:uptodate>
-    
-    <j:set var="uptodate" value="${pom.getContext().getVariable(uptodateVar)}"/>
-    
-    <j:if test="${uptodate == null}">
     
     <ant:java className="org.exolab.castor.builder.SourceGenerator"
               failonerror="true">
@@ -63,10 +47,6 @@
       <ant:arg value="-dest"/>
       <ant:arg value="${gen}"/>
     </ant:java>
-    
-    <ant:touch file="${log}/${filename}"/>
-    
-    </j:if>
     
   </preGoal>
 
