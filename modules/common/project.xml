@@ -1,198 +1,179 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.12 $ $Date: 2003/09/01 19:17:07 $ -->
+<!-- $Revision: 1.13 $ $Date: 2003/09/08 04:12:39 $ -->
 
 <project>
-  <pomVersion>3</pomVersion>
-  <extend>${basedir}/../../etc/project.xml</extend>
-  
-  <!-- ===================== -->
-  <!-- Module Identification -->
-  <!-- ===================== -->
-  
-  <name>Geronimo :: Common</name>
-  <id>geronimo-common</id>
-  <shortDescription></shortDescription>
-  <description></description>
-  <siteDirectory></siteDirectory>
-  <distributionDirectory></distributionDirectory>
-  
-  <package>org.apache.geronimo.common</package>
-  <currentVersion>DEV</currentVersion>
-  
-  
-  <!-- ============ -->
-  <!-- Dependencies -->
-  <!-- ============ -->
-  
-  <dependencies>
-    
-    <!-- Plugin Dependencies -->
-    
-    <!-- Already a dependent
-    <dependency>
-      <id>commons-collections</id>
-      <version>2.1</version>
-      <properties>
-        <runtime>false</runtime>
-      </properties>
-    </dependency>
-    -->
-    
-    <!-- Already a dependent
-    <dependency>
-      <id>commons-logging</id>
-      <version>1.1-dev</version>
-      <properties>
-        <runtime>false</runtime>
-      </properties>
-    </dependency>
-    -->
-    
-    <!-- Already a dependent
-    <dependency>
-      <id>log4j</id>
-      <version>1.2.8</version>
-      <properties>
-        <runtime>false</runtime>
-      </properties>
-    </dependency>
-    -->
-    
-    <dependency>
-      <id>xdoclet</id>
-      <version>1.2b2</version>
-      <properties>
-        <runtime>false</runtime>
-      </properties>
-    </dependency>
-    
-    <dependency>
-      <id>xdoclet+xdoclet-module</id>
-      <version>1.2b2</version>
-      <properties>
-        <runtime>false</runtime>
-      </properties>
-    </dependency>
-    
-    <dependency>
-      <id>xdoclet+jmx-module</id>
-      <version>1.2b2</version>
-      <properties>
-        <runtime>false</runtime>
-      </properties>
-    </dependency>
-    
-    <dependency>
-      <id>xdoclet+xjavadoc</id>
-      <version>1.2b2</version>
-      <properties>
-        <runtime>false</runtime>
-      </properties>
-    </dependency>
-    
-    <!-- Thirdparty Dependencies -->
-    
-    <dependency>
-      <id>commons-logging</id>
-      <version>1.0.3</version>
-      <url>http://jakarta.apache.org/commons/logging</url>
-      <properties>
-        <runtime>true</runtime>
-      </properties>
-    </dependency>
-    
-    <dependency>
-      <id>commons-lang</id>
-      <version>SNAPSHOT</version>
-      <url>http://jakarta.apache.org/commons/lang</url>
-      <properties>
-        <runtime>true</runtime>
-      </properties>
-    </dependency>
-    
-    <dependency>
-      <id>commons-collections</id>
-      <version>SNAPSHOT</version>
-      <url>http://jakarta.apache.org/commons/collections</url>
-      <properties>
-        <runtime>true</runtime>
-      </properties>
-    </dependency>
-    
-    <dependency>
-      <id>commons-jexl</id>
-      <version>SNAPSHOT</version>
-      <url>http://jakarta.apache.org/commons/jexl</url>
-      <properties>
-        <runtime>true</runtime>
-      </properties>
-    </dependency>
-    
-    <dependency>
-      <id>log4j</id>
-      <version>1.2.8</version>
-      <url>http://jakarta.apache.org/log4j</url>
-      <properties>
-        <runtime>true</runtime>
-      </properties>
-    </dependency>
-    
-    <dependency>
-      <groupId>mx4j</groupId>
-      <artifactId>mx4j-jmx</artifactId>
-      <version>SNAPSHOT</version>
-      <url>http://mx4j.sourceforge.net</url>
-      <properties>
-        <runtime>true</runtime>
-      </properties>
-    </dependency>
-    
-    <dependency>
-      <groupId>mx4j</groupId>
-      <artifactId>mx4j</artifactId>
-      <version>SNAPSHOT</version>
-      <url>http://mx4j.sourceforge.net</url>
-      <properties>
-        <runtime>false</runtime>
-      </properties>
-    </dependency>
-    
-  </dependencies>
-  
-  
-  <!-- =================== -->
-  <!-- Build Specification -->
-  <!-- =================== -->
+    <pomVersion>3</pomVersion>
+    <extend>${basedir}/../../etc/project.xml</extend>
 
-  <build>
-    <resources>
-      <resource>
-        <directory>${basedir}/src/conf</directory>
-        <includes>
-          <include>*.properties</include>
-        </includes>
-      </resource>
-    </resources>
-    
-    <unitTest>
-      <!-- For some reason this is not pulled from the global project -->
-      <includes>
-        <include>**/*Test.java</include>
-      </includes>
-      <excludes>
-        <exclude>**/Abstract*.java</exclude>
-      </excludes>
-      
-      <resources>
-        <resource>
-          <directory>${basedir}/src/test-data</directory>
-          <includes>
-            <include>**/*</include>
-          </includes>
-        </resource>
-      </resources>
-    </unitTest>
-  </build>
-  
+    <!-- ===================== -->
+    <!-- Module Identification -->
+    <!-- ===================== -->
+
+    <name>Geronimo :: Common</name>
+    <id>geronimo-common</id>
+    <shortDescription></shortDescription>
+    <description></description>
+    <siteDirectory></siteDirectory>
+    <distributionDirectory></distributionDirectory>
+
+    <package>org.apache.geronimo.common</package>
+    <currentVersion>DEV</currentVersion>
+
+
+    <!-- ============ -->
+    <!-- Dependencies -->
+    <!-- ============ -->
+
+    <dependencies>
+
+        <!-- Plugin Dependencies -->
+
+        <dependency>
+            <id>xdoclet</id>
+            <version>1.2b2</version>
+            <properties>
+                <runtime>false</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <id>xdoclet+xdoclet-module</id>
+            <version>1.2b2</version>
+            <properties>
+                <runtime>false</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <id>xdoclet+jmx-module</id>
+            <version>1.2b2</version>
+            <properties>
+                <runtime>false</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <id>xdoclet+xjavadoc</id>
+            <version>1.2b2</version>
+            <properties>
+                <runtime>false</runtime>
+            </properties>
+        </dependency>
+
+        <!-- Module Dependencies -->
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-kernel</artifactId>
+            <version>DEV</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
+
+        <!-- Thirdparty Dependencies -->
+
+        <dependency>
+            <id>commons-logging</id>
+            <version>1.0.3</version>
+            <url>http://jakarta.apache.org/commons/logging</url>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <id>commons-lang</id>
+            <version>SNAPSHOT</version>
+            <url>http://jakarta.apache.org/commons/lang</url>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <id>commons-collections</id>
+            <version>SNAPSHOT</version>
+            <url>http://jakarta.apache.org/commons/collections</url>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <id>commons-jexl</id>
+            <version>SNAPSHOT</version>
+            <url>http://jakarta.apache.org/commons/jexl</url>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <id>log4j</id>
+            <version>1.2.8</version>
+            <url>http://jakarta.apache.org/log4j</url>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>mx4j</groupId>
+            <artifactId>mx4j-jmx</artifactId>
+            <version>SNAPSHOT</version>
+            <url>http://mx4j.sourceforge.net</url>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>mx4j</groupId>
+            <artifactId>mx4j</artifactId>
+            <version>SNAPSHOT</version>
+            <url>http://mx4j.sourceforge.net</url>
+            <properties>
+                <runtime>false</runtime>
+            </properties>
+        </dependency>
+
+    </dependencies>
+
+
+    <!-- =================== -->
+    <!-- Build Specification -->
+    <!-- =================== -->
+
+    <build>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/conf</directory>
+                <includes>
+                    <include>*.properties</include>
+                </includes>
+            </resource>
+        </resources>
+
+        <unitTest>
+            <!-- For some reason this is not pulled from the global project -->
+            <includes>
+                <include>**/*Test.java</include>
+            </includes>
+            <excludes>
+                <exclude>**/Abstract*.java</exclude>
+            </excludes>
+
+            <resources>
+                <resource>
+                    <directory>${basedir}/src/test-data</directory>
+                    <includes>
+                        <include>**/*</include>
+                    </includes>
+                </resource>
+            </resources>
+        </unitTest>
+    </build>
+
 </project>
