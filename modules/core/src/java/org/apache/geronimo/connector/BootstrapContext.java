@@ -57,21 +57,18 @@ package org.apache.geronimo.connector;
 
 import java.util.Timer;
 
-import javax.management.ObjectName;
 import javax.resource.spi.UnavailableException;
 import javax.resource.spi.XATerminator;
 import javax.resource.spi.work.WorkManager;
 
-import org.apache.geronimo.kernel.service.GeronimoMBeanEndpoint;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GOperationInfo;
-import org.apache.geronimo.gbean.GEndpointInfo;
 import org.apache.geronimo.gbean.GConstructorInfo;
+import org.apache.geronimo.gbean.GEndpointInfo;
+import org.apache.geronimo.gbean.GOperationInfo;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/01/20 06:13:38 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/22 06:39:24 $
  */
 public class BootstrapContext implements javax.resource.spi.BootstrapContext {
 
@@ -140,15 +137,5 @@ public class BootstrapContext implements javax.resource.spi.BootstrapContext {
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
-
-    public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
-        GeronimoMBeanInfo rc = new GeronimoMBeanInfo();
-        rc.setTargetClass(BootstrapContext.class);
-        rc.addOperationsDeclaredIn(javax.resource.spi.BootstrapContext.class);
-        rc.addEndpoint(new GeronimoMBeanEndpoint("WorkManager",WorkManager.class, new ObjectName("geronimo.jca:role=WorkManager"), true));
-        rc.addEndpoint(new GeronimoMBeanEndpoint("XATerminator",XATerminator.class, new ObjectName("geronimo.transaction:role=TransactionManager"), true));
-        return rc;
-    }
-
 
 }

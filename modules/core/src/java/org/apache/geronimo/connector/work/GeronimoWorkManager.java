@@ -66,13 +66,11 @@ import org.apache.geronimo.connector.work.pool.ScheduleWorkExecutorPool;
 import org.apache.geronimo.connector.work.pool.StartWorkExecutorPool;
 import org.apache.geronimo.connector.work.pool.SyncWorkExecutorPool;
 import org.apache.geronimo.connector.work.pool.WorkExecutorPool;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
-import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
+import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GAttributeInfo;
-import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.GConstructorInfo;
+import org.apache.geronimo.gbean.GOperationInfo;
 
 /**
  * WorkManager implementation which uses under the cover three WorkExecutorPool
@@ -85,7 +83,7 @@ import org.apache.geronimo.gbean.GConstructorInfo;
  * TODO There needs to be better lifecycle support.  The individual pools can be stopped now, but
  * not restarted AFAIK.
  *
- * @version $Revision: 1.6 $ $Date: 2004/01/20 06:13:38 $
+ * @version $Revision: 1.7 $ $Date: 2004/01/22 06:39:24 $
  */
 public class GeronimoWorkManager implements WorkManager {
 
@@ -286,28 +284,6 @@ public class GeronimoWorkManager implements WorkManager {
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
-    }
-
-    /**
-     * Provides the GeronimoMBean description for this class
-     * @return
-     */
-    public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
-
-        GeronimoMBeanInfo rc = new GeronimoMBeanInfo();
-        rc.setTargetClass(GeronimoWorkManager.class);
-        rc.addOperationsDeclaredIn(WorkManager.class);
-        rc.addAttributeInfo(new GeronimoAttributeInfo("SyncThreadCount", true, false, "Actual size of sync thread pool"));
-        rc.addAttributeInfo(new GeronimoAttributeInfo("SyncMinimumPoolSize", true, true, "Minimum size of sync thread pool"));
-        rc.addAttributeInfo(new GeronimoAttributeInfo("SyncMaximumPoolSize", true, true, "Maximum size of sync thread pool"));
-        rc.addAttributeInfo(new GeronimoAttributeInfo("StartThreadCount", true, false, "Actual size of sync thread pool"));
-        rc.addAttributeInfo(new GeronimoAttributeInfo("StartMinimumPoolSize", true, true, "Minimum size of sync thread pool"));
-        rc.addAttributeInfo(new GeronimoAttributeInfo("StartMaximumPoolSize", true, true, "Maximum size of sync thread pool"));
-        rc.addAttributeInfo(new GeronimoAttributeInfo("ScheduledThreadCount", true, false, "Actual size of sync thread pool"));
-        rc.addAttributeInfo(new GeronimoAttributeInfo("ScheduledMinimumPoolSize", true, true, "Minimum size of sync thread pool"));
-        rc.addAttributeInfo(new GeronimoAttributeInfo("ScheduledMaximumPoolSize", true, true, "Maximum size of sync thread pool"));
-        return rc;
-
     }
 
 }

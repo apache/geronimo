@@ -63,14 +63,12 @@ import java.util.Set;
 
 import javax.resource.ResourceException;
 
-import org.apache.geronimo.connector.outbound.ConnectorComponentContext;
-import org.apache.geronimo.connector.outbound.ConnectionTrackingInterceptor;
 import org.apache.geronimo.connector.outbound.ConnectionInfo;
+import org.apache.geronimo.connector.outbound.ConnectionTrackingInterceptor;
+import org.apache.geronimo.connector.outbound.ConnectorComponentContext;
 import org.apache.geronimo.connector.outbound.ConnectorTransactionContext;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
 
 /**
@@ -87,7 +85,7 @@ import org.apache.geronimo.gbean.GOperationInfo;
  * ConnectionManager stacks so the existing ManagedConnections can be
  * enrolled properly.
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/19 06:29:08 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/22 06:39:24 $
  */
 public class ConnectionTrackingCoordinator implements TrackedConnectionAssociator, ConnectionTracker {
 
@@ -198,11 +196,4 @@ public class ConnectionTrackingCoordinator implements TrackedConnectionAssociato
         return GBEAN_INFO;
     }
 
-    public static GeronimoMBeanInfo getGeronimoMBeanInfo() {
-        GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
-        mbeanInfo.setTargetClass(ConnectionTrackingCoordinator.class.getName());
-        mbeanInfo.addOperationsDeclaredIn(TrackedConnectionAssociator.class );
-        mbeanInfo.addOperationsDeclaredIn(ConnectionTracker.class);
-        return mbeanInfo;
-    }
 }

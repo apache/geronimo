@@ -56,7 +56,6 @@
 
 package org.apache.geronimo.connector.outbound;
 
-import javax.management.MBeanOperationInfo;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -66,20 +65,15 @@ import javax.resource.spi.ManagedConnectionFactory;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBean;
+import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.GEndpointInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.kernel.KernelMBean;
-import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
-import org.apache.geronimo.kernel.service.GeronimoMBeanEndpoint;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
-import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
-import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
 import org.apache.geronimo.security.bridge.RealmBridge;
 
 /**
@@ -87,7 +81,7 @@ import org.apache.geronimo.security.bridge.RealmBridge;
  * and connection manager stack according to the policies described in the attributes.
  * It's used by deserialized copies of the proxy to get a reference to the actual stack.
  *
- * @version $Revision: 1.14 $ $Date: 2004/01/22 02:46:27 $
+ * @version $Revision: 1.15 $ $Date: 2004/01/22 06:39:24 $
  * */
 public class ConnectionManagerDeployment implements GeronimoMBeanTarget, ConnectionManagerFactory, GBean {
 
@@ -398,31 +392,6 @@ public class ConnectionManagerDeployment implements GeronimoMBeanTarget, Connect
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
-    }
-
-    public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
-        GeronimoMBeanInfo mBeanInfo = new GeronimoMBeanInfo();
-
-        mBeanInfo.setTargetClass(ConnectionManagerDeployment.class);
-        mBeanInfo.addEndpoint(new GeronimoMBeanEndpoint("ConnectionTracker", ConnectionTracker.class, ObjectName.getInstance("geronimo.connector:role=ConnectionTrackingCoordinator"), true));
-        mBeanInfo.addEndpoint(new GeronimoMBeanEndpoint("RealmBridge", RealmBridge.class, ObjectName.getInstance("geronimo.connector:role=SecurityDomain"), false));
-
-        mBeanInfo.addAttributeInfo(new GeronimoAttributeInfo("BlockingTimeout", true, true, "Milliseconds to wait for a connection to be returned"));
-        mBeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Name", true, true, "Name to use to identify this guy (needs refactoring of naming conventions)"));
-        mBeanInfo.addAttributeInfo(new GeronimoAttributeInfo("MaxSize", true, true, "Maximum number of ManagedConnections to create in each pool"));
-        mBeanInfo.addAttributeInfo(new GeronimoAttributeInfo("UseConnectionRequestInfo", true, true, "Select pool using app-supplied ConnectionRequestInfo"));
-        mBeanInfo.addAttributeInfo(new GeronimoAttributeInfo("UseTransactions", true, true, "Use local or xa transactions vs. no transactions"));
-        mBeanInfo.addAttributeInfo(new GeronimoAttributeInfo("UseLocalTransactions", true, true, "Use local rather than xa transactions"));
-        mBeanInfo.addAttributeInfo(new GeronimoAttributeInfo("UseTransactionCaching", true, true, "Always use the same connection in a transaction"));
-        mBeanInfo.addAttributeInfo(new GeronimoAttributeInfo("UseSubject", true, true, "Select pool using SecurityDomain supplied subject"));
-
-        mBeanInfo.addOperationInfo(new GeronimoOperationInfo("getStack"));
-
-        mBeanInfo.addOperationInfo(new GeronimoOperationInfo("createConnectionFactory",
-                new GeronimoParameterInfo[]{new GeronimoParameterInfo("ManagedConnectionFactory", ManagedConnectionFactory.class, "ManagedConnectionFactory that will create the ConnectionFactory")},
-                MBeanOperationInfo.ACTION,
-                "PRIVATE OPERATION. Have the supplied ManagedConnectionFactory create a connection factory"));
-        return mBeanInfo;
     }
 
 }

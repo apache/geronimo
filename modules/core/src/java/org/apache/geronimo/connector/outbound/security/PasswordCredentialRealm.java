@@ -65,8 +65,6 @@ import javax.security.auth.login.AppConfigurationEntry;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.security.AbstractSecurityRealm;
 import org.apache.geronimo.security.GeronimoSecurityException;
 import org.apache.geronimo.security.SecurityRealm;
@@ -75,7 +73,7 @@ import org.apache.regexp.RE;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/21 22:21:26 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/22 06:39:24 $
  *
  * */
 public class PasswordCredentialRealm implements SecurityRealm, ManagedConnectionFactoryListener {
@@ -142,10 +140,4 @@ public class PasswordCredentialRealm implements SecurityRealm, ManagedConnection
         return GBEAN_INFO;
     }
 
-    public static GeronimoMBeanInfo getGeronimoMBeanInfo() {
-        GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
-        mbeanInfo.setTargetClass(PasswordCredentialRealm.class);
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Realm", true, true, "Name of this realm"));
-        return mbeanInfo;
-    }
 }
