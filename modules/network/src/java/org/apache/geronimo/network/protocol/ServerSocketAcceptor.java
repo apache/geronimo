@@ -35,7 +35,7 @@ import org.apache.geronimo.network.URISupport;
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/17 03:11:59 $
+ * @version $Revision: 1.5 $ $Date: 2004/04/19 16:30:32 $
  */
 public class ServerSocketAcceptor implements SelectionEventListner {
 
@@ -52,9 +52,9 @@ public class ServerSocketAcceptor implements SelectionEventListner {
 
     private ServerSocketAcceptorListener acceptorListener;
 
-    private final int STARTED = 0;
-    private final int STOPPED = 1;
-    private final int FAILED = 2;
+    private static final int STARTED = 0;
+    private static final int STOPPED = 1;
+    private static final int FAILED = 2;
     private int state = STOPPED;
 
     public URI getUri() {

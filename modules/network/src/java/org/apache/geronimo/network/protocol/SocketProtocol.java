@@ -37,7 +37,7 @@ import org.apache.geronimo.network.SelectorManager;
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/17 03:11:59 $
+ * @version $Revision: 1.5 $ $Date: 2004/04/19 16:30:33 $
  */
 public class SocketProtocol implements AcceptableProtocol, SelectionEventListner {
 
@@ -58,8 +58,8 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
     private long created;
     private long lastUsed;
 
-    private final int STARTED = 0;
-    private final int STOPPED = 1;
+    private static final int STARTED = 0;
+    private static final int STOPPED = 1;
     private int state = STOPPED;
 
 
