@@ -22,6 +22,8 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.io.FileOutputStream;
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.Collections;
 
 /**
  *
@@ -62,16 +64,22 @@ public class FileUtil {
         root.delete();
     }
 
-    public static void listRecursiveFiles(File aFile, Collection aColl) {
-        File[] files = aFile.listFiles();
+    public static Collection listRecursiveFiles(File file) {
+        LinkedList list = new LinkedList();
+        listRecursiveFiles(file, list);
+        return Collections.unmodifiableCollection(list);
+    }
+
+    public static void listRecursiveFiles(File file, Collection collection) {
+        File[] files = file.listFiles();
         if ( null == files ) {
             return;
         }
         for (int i = 0; i < files.length; i++) {
-            if ( files[i].isFile() ) {
-                aColl.add(files[i]);
+            if (files[i].isDirectory()) {
+                listRecursiveFiles(files[i], collection);
             } else {
-                listRecursiveFiles(files[i], aColl);
+                collection.add(files[i]);
             }
         }
     }
