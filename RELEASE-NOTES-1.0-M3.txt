@@ -1,0 +1,98 @@
+Provisional Release Notes -- Apache Geronimo -- Version 1.0-M3
+
+These release notes cover resolved JIRA issues up to GERONIMO-447
+with status as of 11/6/2004 (8:40AM EST).  Any issues opened or modified
+after that date will need to be updated here.  We also need summary of
+remaining open issues.
+
+
+** Bug Fixes
+    * [GERONIMO-294] - NPE on some Windows installations stops server from booting
+    * [GERONIMO-321] - Don't process JSP EL for v2.3 web apps
+    * [GERONIMO-349] - Don't assume ResourceAdapter.getXAResources != null
+    * [GERONIMO-352] - TransactionContext is not associated with imported transactions
+    * [GERONIMO-360] - Wrong TX policy for StatefulSession ejbCreate method
+    * [GERONIMO-362] - RA ConnectionFactories support more than one interface
+    * [GERONIMO-370] - Schema dir missing geronimo-application-client.xsd
+    * [GERONIMO-385] - transaction manager generally does not call end(xid, TMSUCCESS) during commit process
+    * [GERONIMO-390] - Transaction timeout can leak memory
+    * [GERONIMO-432] - Dynamic gbean attributes don't have type information
+    * [GERONIMO-439] - Remote management blows up on null password
+    * [GERONIMO-441] - JSR-88 incorrectly handles authentication errors
+    * [GERONIMO-445] - Web Services supports localhost on IPv6 ::1
+    * [GERONIMO-447] - Schema dir missing openejb-jar.xsd
+
+
+** New Features
+    * [GERONIMO-173] - EJB CMP: v1.1 Entity Bean support
+    * [GERONIMO-176] - EJB CMP: table mapping support
+    * [GERONIMO-177] - EJB CMP: Support for user defined primary key classes
+    * [GERONIMO-179] - EJB CMP: Support for CMRs
+    * [GERONIMO-217] - JAAS Login from J2EE App Client
+    * [GERONIMO-249] - Support manifest Class-Path entries in J2EE modules
+    * [GERONIMO-278] - Servlet/JSP 2.3 deployment descriptor support
+    * [GERONIMO-284] - EAR alt-dd support
+    * [GERONIMO-326] - Support for ejb-refs in a J2EE App Client
+    * [GERONIMO-327] - Support for env-entry in J2EE App Client
+    * [GERONIMO-328] - Support for resource-ref in J2EE App Client
+    * [GERONIMO-329] - Support for resource-env-ref in J2EE App Client
+    * [GERONIMO-331] - Support for message-destination-ref in J2EE App Client
+    * [GERONIMO-357] - Command line deployer can connect to running server
+    * [GERONIMO-377] - EJB CMP: Unknown primary key support
+    * [GERONIMO-398] - Configuration changes are saved to disk
+    * [GERONIMO-399] - GBeans can be configured to be disabled by default
+    * [GERONIMO-401] - J2EEApplication name can be specified distinct from the configId
+    * [GERONIMO-412] - More deploy/runtime options for connection pools
+    * [GERONIMO-427] - HTTPS access to (Jetty) web container
+
+
+** Improvements
+    * [GERONIMO-338] - Change default client configId to earConfigId/moduleName
+    * [GERONIMO-339] - Support an ejb-link in geronimo deployment descriptors
+    * [GERONIMO-340] - Support ejb-ref resolution by matching on the EJB interfaces
+    * [GERONIMO-353] - JMS (ActiveMQ) configuration included w
+    * [GERONIMO-354] - JMS (ActiveMQ) allows selection of data store directory
+    * [GERONIMO-363] - Better logging for exceptions in RA Work instances
+    * [GERONIMO-371] - Improved structure for xxx-refs in geronimo plans
+    * [GERONIMO-372] - Multiple deployments of the same RA in geronimo-ra.xml
+    * [GERONIMO-379] - Use XID tracking provided by HOWL logger
+    * [GERONIMO-393] - Simplify configuration for MDBs in openejb-jar.xml
+    * [GERONIMO-404] - Split deployment and runtime code for connectors
+    * [GERONIMO-413] - geronimo-ra.xml transaction settings defaults to ra.xml transaction setting
+
+
+** Missing Features
+    *
+
+
+** Known Issues
+    *
+
+
+** Opened and closed all in M3 (WILL NOT APPEAR IN FINAL RELEASE NOTES)
+    * [GERONIMO-297] - Build environment for all geronimo-related projects
+    * [GERONIMO-298] - itest.skip=true doesn't work
+    * [GERONIMO-335] - Build failed because of unsatisfied dependency-geronimo-spec-j2ee-1.4-rc2.jar
+    * [GERONIMO-366] - The java 1.5 'enum' reserved word is being used as a variable name.
+    * [GERONIMO-369] - Online maven deployment fails if the module is a path with a space in it.
+    * [GERONIMO-376] - Added version entry for maven-itest-plugin
+    * [GERONIMO-381] - Cannot build a fresh checkout - two JARs not found
+    * [GERONIMO-384] - Make m:co and m:update quieter
+    * [GERONIMO-408] - TM and active mark: Testing Build fails with InvalidConfigException caused by: org.objectweb.howl.log.LogClosedException
+    * [GERONIMO-437] - test/runtime failures with latest HOWL logger
+
+
+** Redundant (WILL NOT APPEAR IN FINAL RELEASE NOTES)
+    * [GERONIMO-330] - same as 331
+    * [GERONIMO-265] - same as 349
+
+
+** Applies to disabled Tomcat module (WILL NOT APPEAR IN FINAL RELEASE NOTES)
+    * [GERONIMO-356] - tomcat-plan.xml : Missing Dependency mx4j/jars/mx4j-2.0.1.jar
+    * [GERONIMO-311] - Tomcat GBean for starting/stoping and managing a Catalina instance
+
+
+UNRESOLVED BUT MARKED FOR M3
+ * 374
+ * 367
+ * 215
