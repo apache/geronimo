@@ -99,7 +99,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/02/20 21:05:01 $
+ * @version $Revision: 1.6 $ $Date: 2004/02/20 23:18:00 $
  */
 public class WARConfigBuilder implements ConfigurationBuilder {
     private final Repository repository;
@@ -254,7 +254,7 @@ public class WARConfigBuilder implements ConfigurationBuilder {
 */
 
             gbean.setReferencePatterns("Configuration", Collections.singleton(Kernel.getConfigObjectName(configID)));
-            gbean.setReferencePatterns("JettyContainer", Collections.singleton(new ObjectName("geronimo.web:type=WebContainer,container=Jetty"))); // @todo configurable
+            gbean.setReferencePatterns("JettyContainer", Collections.singleton(new ObjectName("*:type=WebContainer,container=Jetty"))); // @todo configurable
             gbean.setReferencePatterns("TransactionManager", Collections.EMPTY_SET);
             gbean.setReferencePatterns("TrackedConnectionAssociator", Collections.EMPTY_SET);
         } catch (Exception e) {
