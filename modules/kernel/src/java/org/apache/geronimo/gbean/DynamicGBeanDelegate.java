@@ -17,6 +17,7 @@
 
 package org.apache.geronimo.gbean;
 
+import java.beans.Introspector;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -27,15 +28,18 @@ import net.sf.cglib.reflect.FastMethod;
 
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/05/27 01:05:58 $
+ * Wraps an <code>Object</code> in a <code>DynamicGBean</code> facade.
+ *
+ * @version $Revision: 1.8 $ $Date: 2004/07/27 02:13:21 $
  */
 public class DynamicGBeanDelegate implements DynamicGBean {
     protected final Map getters = new HashMap();
     protected final Map setters = new HashMap();
     protected final Map operations = new HashMap();
+    private Class targetClass;
 
     public void addAll(Object target) {
-        Class targetClass = target.getClass();
+        this.targetClass = target.getClass();
         Method[] methods = targetClass.getMethods();
         for (int i = 0; i < methods.length; i++) {
             Method method = methods[i];
@@ -52,11 +56,11 @@ public class DynamicGBeanDelegate implements DynamicGBean {
     public void addGetter(Object target, Method method) {
         String name = method.getName();
         if (name.startsWith("get")) {
-            addGetter(method.getName().substring(3), target, method);
+            addGetter(name.substring(3), target, method);
         } else if (name.startsWith("is")) {
-            addGetter(method.getName().substring(2), target, method);
+            addGetter(name.substring(2), target, method);
         } else {
-            throw new IllegalArgumentException("Method method name must start with 'get' or 'is' " + method);
+            throw new IllegalArgumentException("Method name must start with 'get' or 'is' " + method);
         }
     }
 
@@ -65,11 +69,14 @@ public class DynamicGBeanDelegate implements DynamicGBean {
             throw new IllegalArgumentException("Method must take no parameters and return a value " + method);
         }
         getters.put(name, new Operation(target, method));
+        // we want to be user-friendly so we put the attribute name in
+        // the Map in both lower-case and upper-case
+        getters.put(Introspector.decapitalize(name), new Operation(target, method));
     }
 
     public void addSetter(Object target, Method method) {
         if (!method.getName().startsWith("set")) {
-            throw new IllegalArgumentException("Method method name must start with 'set' " + method);
+            throw new IllegalArgumentException("Method name must start with 'set' " + method);
         }
         addSetter(method.getName().substring(3), target, method);
     }
@@ -79,6 +86,9 @@ public class DynamicGBeanDelegate implements DynamicGBean {
             throw new IllegalArgumentException("Method must take one parameter and not return anything " + method);
         }
         setters.put(name, new Operation(target, method));
+        // we want to be user-friendly so we put the attribute name in
+        // the Map in both lower-case and upper-case
+        setters.put(Introspector.decapitalize(name), new Operation(target, method));
     }
 
     public void addOperation(Object target, Method method) {
@@ -107,7 +117,7 @@ public class DynamicGBeanDelegate implements DynamicGBean {
     public Object getAttribute(String name) throws Exception {
         Operation operation = (Operation) getters.get(name);
         if (operation == null) {
-            throw new IllegalArgumentException("Unknown attribute " + name);
+            throw new IllegalArgumentException(targetClass.getName() + ": no getter for " + name);
         }
         return operation.invoke(null);
     }
@@ -115,15 +125,16 @@ public class DynamicGBeanDelegate implements DynamicGBean {
     public void setAttribute(String name, Object value) throws Exception {
         Operation operation = (Operation) setters.get(name);
         if (operation == null) {
-            throw new IllegalArgumentException("Unknown attribute " + name);
+            throw new IllegalArgumentException(targetClass.getName() + ": no setter for " + name);
         }
         operation.invoke(new Object[]{value});
     }
 
     public Object invoke(String name, Object[] arguments, String[] types) throws Exception {
-        Operation operation = (Operation) operations.get(new GOperationSignature(name, types));
+        GOperationSignature signature = new GOperationSignature(name, types);
+        Operation operation = (Operation) operations.get(signature);
         if (operation == null) {
-            throw new IllegalArgumentException("Unknown attribute " + name);
+            throw new IllegalArgumentException(targetClass.getName() + ": no operation " + signature);
         }
         return operation.invoke(arguments);
     }
