@@ -259,9 +259,11 @@ public class TransactionContextManager implements XATerminator, XAWork {
             containerTransactionContext.resume();
         }
         importer.setTransactionTimeout(txTimeoutMillis);
+        TransactionContext.setContext(containerTransactionContext);
     }
 
     public void end(Xid xid) throws XAException, SystemException {
+        TransactionContext.setContext(null);
         synchronized (importedTransactions) {
             ContainerTransactionContext containerTransactionContext = (ContainerTransactionContext) importedTransactions.get(xid);
             if (containerTransactionContext == null) {
