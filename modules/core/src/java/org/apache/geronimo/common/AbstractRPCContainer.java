@@ -1,17 +1,16 @@
 package org.apache.geronimo.common;
 
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
-import java.util.ListIterator;
 import java.util.Map;
+
 import javax.management.ObjectName;
 import org.apache.geronimo.management.State;
 
 /**
  * Base class for a Container that can be accecpt invocation.
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/20 07:13:25 $
+ * @version $Revision: 1.5 $ $Date: 2003/08/22 02:08:41 $
  */
 public class AbstractRPCContainer extends AbstractContainer implements RPCContainer {
     // @todo access to these objects must be synchronized
@@ -71,8 +70,8 @@ public class AbstractRPCContainer extends AbstractContainer implements RPCContai
             lastInterceptor.setNext(interceptor);
             interceptors.addLast(interceptor);
         }
-
-        super.addComponent(interceptor);
+        if( interceptor instanceof Component)
+            super.addComponent((Component) interceptor);
     }
 
     public final ObjectName getPlugin(String logicalPluginName) {
@@ -88,10 +87,18 @@ public class AbstractRPCContainer extends AbstractContainer implements RPCContai
         plugins.put(logicalPluginName, objectName);
     }
 
+    /**
+     * @deprecated
+     * @see org.apache.geronimo.common.RPCContainer#getPluginObject(java.lang.String)
+     */
     public final Object getPluginObject(String logicalPluginName) {
         return pluginObjects.get(logicalPluginName);
     }
 
+    /**
+     * @deprecated
+     * @see org.apache.geronimo.common.RPCContainer#putPluginObject(java.lang.String, java.lang.Object)
+     */
     public final void putPluginObject(String logicalPluginName, Object plugin) {
         if (getStateInstance() != State.STOPPED) {
             throw new IllegalStateException(

@@ -55,13 +55,15 @@
  */
 package org.apache.geronimo.core.util;
 
+import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/11 17:59:10 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/22 02:08:41 $
  */
 public class ClassUtil {
     private static final Map primitives = new HashMap();
@@ -78,6 +80,18 @@ public class ClassUtil {
         primitives.put("char", Character.TYPE);
     }
 
+    static HashMap vmPrimitives = new HashMap();
+    static {
+        primitives.put("B", byte.class);
+        primitives.put("C", char.class);
+        primitives.put("D", double.class);
+        primitives.put("F", float.class);
+        primitives.put("I", int.class);
+        primitives.put("J", long.class);
+        primitives.put("S", short.class);
+        primitives.put("Z", boolean.class);
+    }
+
     public static Class getClassForName(String name) throws ClassNotFoundException {
         return getClassForName(Thread.currentThread().getContextClassLoader(), name);
     }
@@ -89,4 +103,38 @@ public class ClassUtil {
         }
         return clazz;
     }
+    
+
+    /**
+     * @see java.io.ObjectInputStream#resolveClass(java.io.ObjectStreamClass)
+     */
+    static public Class resolveObjectStreamClass(ClassLoader loader, String className) throws IOException, ClassNotFoundException {
+        
+        // Is it a normal class??
+        if (!className.startsWith("[")) 
+            return loader.loadClass(className);        
+        
+        // Is it an array class??
+        Class type;             
+        int arrayDimension = className.lastIndexOf('[')+1;             
+
+        // Is the array type a primitive?
+        if (className.charAt(arrayDimension) != 'L') {
+            if (className.length() != arrayDimension + 1) 
+                throw new ClassNotFoundException(className);                
+            type = (Class) vmPrimitives.get(className.substring(arrayDimension,1));
+        } else {           
+            String cn = className.substring(arrayDimension + 1, className.length() - 1);
+            type = loader.loadClass(cn);
+        }
+        
+        // This kinda sucks.. there must be an easier way at getting
+        // to Class of an array.. 
+        int dim[] = new int[arrayDimension];
+        for (int i = 0; i < arrayDimension; i++) 
+            dim[i] = 0;        
+        Object o = Array.newInstance(type, dim);
+        return o.getClass();
+    }
+    
 }

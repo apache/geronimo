@@ -55,13 +55,15 @@
  */
 package org.apache.geronimo.common;
 
+import java.io.Serializable;
+
 /**
  *
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 17:59:10 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/22 02:08:41 $
  */
-public class SimpleInvocationResult implements InvocationResult {
+public class SimpleInvocationResult implements InvocationResult, Serializable {
     private Object result;
 
     public SimpleInvocationResult() {

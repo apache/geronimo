@@ -55,6 +55,10 @@
  */
 package org.apache.geronimo.common;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -62,9 +66,10 @@ import java.util.Map;
  *
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:10 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/22 02:08:41 $
  */
-public class SimpleInvocation implements Invocation {
+public class SimpleInvocation implements Invocation, Externalizable {
+    
     private Map marshalMap = new HashMap();
     private Map asIsMap = new HashMap();
     private Map transientMap = new HashMap();
@@ -91,5 +96,22 @@ public class SimpleInvocation implements Invocation {
 
     public void putTransient(Object key, Object value) {
         transientMap.put(key, value);
+    }
+
+    /* (non-Javadoc)
+     * @see java.io.Externalizable#writeExternal(java.io.ObjectOutput)
+     */
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeObject(marshalMap);
+        out.writeObject(asIsMap);        
+    }
+
+    /* (non-Javadoc)
+     * @see java.io.Externalizable#readExternal(java.io.ObjectInput)
+     */
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        marshalMap = (Map) in.readObject();
+        asIsMap = (Map) in.readObject();
+        transientMap = new HashMap();        
     }
 }

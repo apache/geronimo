@@ -68,10 +68,10 @@ import org.apache.geronimo.ejb.metadata.EJBMetadata;
  *
  *
  *
- * @version $Revision: 1.9 $ $Date: 2003/08/20 07:13:26 $
+ * @version $Revision: 1.10 $ $Date: 2003/08/22 02:08:41 $
  */
 public class TransactionInterceptor implements Interceptor {
-    private Interceptor transactionInterceptor;
+    private ExecutionContextInterceptor transactionInterceptor;
     private Container container;
     private Interceptor nextInterceptor;
 
