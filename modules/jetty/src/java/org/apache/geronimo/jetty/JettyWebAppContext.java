@@ -109,6 +109,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         this.trackedConnectionAssociator = trackedConnectionAssociator;
         this.jettyContainer = jettyContainer;
 
+        setDefaultsDescriptor("META-INF/default-web.xml");
         setConfigurationClassNames(new String[]{"org.apache.geronimo.jetty.JettyXMLConfiguration"});
 
         URI root = URI.create(configurationBaseUrl.toString());
