@@ -30,6 +30,58 @@
                 <j:arg type="java.lang.String" value="${deployurl}"/>
             </j:invokeStatic>
         </define:tag>
+
+        <define:tag name="install" xmlns="jelly:ant">
+            <j:if test="${installDomain == null}">
+                <fail>Missing required attribute: installDomain</fail>
+            </j:if>
+            <j:if test="${installStoreDir == null}">
+                <fail>Missing required attribute: installStoreDir</fail>
+            </j:if>
+            <j:if test="${installConfig == null}">
+                <fail>Missing required attribute: installConfig</fail>
+            </j:if>
+            <j:invokeStatic var="kernel" className="org.apache.geronimo.Geronimo" method="installPackage">
+                <j:arg type="java.lang.String" value="${installDomain}"/>
+                <j:arg type="java.lang.String" value="${installStoreDir}"/>
+                <j:arg type="java.lang.String" value="${installConfig}"/>
+            </j:invokeStatic>
+        </define:tag>
+
+        <define:tag name="loadAndReturn" xmlns="jelly:ant">
+            <j:if test="${runDomain == null}">
+                <fail>Missing required attribute: runDomain</fail>
+            </j:if>
+            <j:if test="${runStoreDir == null}">
+                <fail>Missing required attribute: runStoreDir</fail>
+            </j:if>
+            <j:if test="${runConfigID == null}">
+                <fail>Missing required attribute: runConfigID</fail>
+            </j:if>
+            <j:invokeStatic var="kernel" className="org.apache.geronimo.Geronimo" method="load">
+                <j:arg type="java.lang.String" value="${runDomain}"/>
+                <j:arg type="java.lang.String" value="${runStoreDir}"/>
+                <j:arg type="java.lang.String" value="${runConfigID}"/>
+            </j:invokeStatic>
+        </define:tag>
+
+        <define:tag name="loadAndWait" xmlns="jelly:ant">
+            <j:if test="${runDomain == null}">
+                <fail>Missing required attribute: runDomain</fail>
+            </j:if>
+            <j:if test="${runStoreDir == null}">
+                <fail>Missing required attribute: runStoreDir</fail>
+            </j:if>
+            <j:if test="${runConfigID == null}">
+                <fail>Missing required attribute: runConfigID</fail>
+            </j:if>
+            <j:invokeStatic var="kernel" className="org.apache.geronimo.Geronimo" method="loadAndWait">
+                <j:arg type="java.lang.String" value="${runDomain}"/>
+                <j:arg type="java.lang.String" value="${runStoreDir}"/>
+                <j:arg type="java.lang.String" value="${runConfigID}"/>
+            </j:invokeStatic>
+        </define:tag>
+
     </define:taglib>
 
 </project>

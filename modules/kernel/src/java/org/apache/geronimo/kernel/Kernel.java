@@ -106,7 +106,7 @@ import org.apache.geronimo.gbean.jmx.DependencyService;
  * used hold the persistent state of each Configuration. This allows
  * Configurations to restart in he event of system failure.
  *
- * @version $Revision: 1.11 $ $Date: 2004/01/26 05:55:27 $
+ * @version $Revision: 1.12 $ $Date: 2004/01/26 18:02:15 $
  */
 public class Kernel implements Serializable, KernelMBean, NotificationBroadcaster {
 
@@ -419,74 +419,7 @@ public class Kernel implements Serializable, KernelMBean, NotificationBroadcaste
         return running;
     }
 
-    /**
-     * Static entry point allowing a Kernel to be run from the command line.
-     * Arguments are:
-     * <li>the filename of the directory to use for the configuration store.
-     *     This will be created if it does not exist.</li>
-     * <li>the id of a configuation to load</li>
-     * Once the Kernel is booted and the configuration is loaded, the process
-     * will remain running until the shutdown() method on the kernel is
-     * invoked or until the JVM exits.
-     * @param args
-     */
-    public static void main(String[] args) {
-        if (args.length < 2) {
-            System.err.println("usage: " + Kernel.class.getName() + " <config-store-dir> <config-id>");
-            System.exit(1);
-        }
-        File storeDir = new File(args[0]);
-        URI configID = null;
-        try {
-            configID = new URI(args[1]);
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
-
-        String domain = "geronimo";
-        if (storeDir.exists()) {
-            if (!storeDir.isDirectory() || !storeDir.canWrite()) {
-                System.err.println("Store location is not a writable directory: " + storeDir);
-                System.exit(1);
-            }
-        } else {
-            if (!storeDir.mkdirs()) {
-                System.err.println("Could not create store directory: " + storeDir);
-                System.exit(1);
-            }
-        }
-
-        final Kernel kernel = new Kernel(domain, LocalConfigStore.GBEAN_INFO, storeDir);
-        Runtime.getRuntime().addShutdownHook(new Thread("Shutdown Thread") {
-            public void run() {
-                kernel.shutdown();
-            }
-        });
-        try {
-            kernel.boot();
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(2);
-        }
-        try {
-            kernel.load(configID);
-        } catch (Exception e) {
-            kernel.shutdown();
-            e.printStackTrace();
-            System.exit(2);
-        }
-        while (kernel.isRunning()) {
-            try {
-                synchronized (kernel) {
-                    kernel.wait();
-                }
-            } catch (InterruptedException e) {
-                // continue
-            }
-        }
-    }
-
+    //NotificationBroadcaster support so Kernel can be an endpoint.
     public MBeanNotificationInfo[] getNotificationInfo() {
         return new MBeanNotificationInfo[0];
     }
