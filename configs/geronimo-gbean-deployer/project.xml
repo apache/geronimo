@@ -69,12 +69,14 @@
 -->
 
         <!-- dependency on the bootstrap gbean deployer so I can deploy myself-->
+<!--
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-gbean-deployer</artifactId>
             <type>car</type>
             <version>0.1</version>
         </dependency>
+-->
     </dependencies>
 </project>
 
