@@ -26,20 +26,12 @@ import junit.framework.TestCase;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/27 14:45:58 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/03 14:32:50 $
  */
 public class DeploymentReplacerResolverTest extends TestCase
 {
 
     public void testCustomReplaceObject1() throws Exception {
-        TargetImpl target = new TargetImpl("test", "description");
-        ReplacerResolver replacerResolver = new DeploymentReplacerResolver();
-        TargetImpl2 result = (TargetImpl2) replacerResolver.replaceObject(target);
-        assertEquals(target.getName(), result.getName());
-        assertEquals(target.getDescription(), result.getDescription());
-    }
-    
-    public void testCustomReplaceObject2() throws Exception {
         ModuleType type = ModuleType.CAR;
         ReplacerResolver replacerResolver = new DeploymentReplacerResolver();
         ModuleTypeWrapper result =
@@ -48,16 +40,6 @@ public class DeploymentReplacerResolverTest extends TestCase
     }
     
     public void testCustomResolveObject1() throws Exception {
-        TargetImpl target = new TargetImpl("test", "description");
-        ReplacerResolver replacerResolver = new DeploymentReplacerResolver();
-        TargetImpl2 tmp = (TargetImpl2) replacerResolver.replaceObject(target);
-        
-        TargetImpl result = (TargetImpl) replacerResolver.resolveObject(tmp);
-        assertEquals(target.getName(), result.getName());
-        assertEquals(target.getDescription(), result.getDescription());
-    }
-    
-    public void testCustomResolveObject2() throws Exception {
         ModuleType type = ModuleType.CAR;
         ReplacerResolver replacerResolver = new DeploymentReplacerResolver();
         ModuleTypeWrapper tmp =

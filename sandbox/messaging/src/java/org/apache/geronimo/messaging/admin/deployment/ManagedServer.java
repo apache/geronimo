@@ -35,7 +35,6 @@ import javax.enterprise.deploy.spi.status.ProgressObject;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.plugin.DeploymentServer;
-import org.apache.geronimo.deployment.plugin.TargetImpl;
 import org.apache.geronimo.deployment.plugin.local.DistributeCommand;
 import org.apache.geronimo.deployment.plugin.local.StartCommand;
 import org.apache.geronimo.deployment.plugin.local.StopCommand;
@@ -59,7 +58,7 @@ import org.apache.xmlbeans.XmlObject;
  * result. Results are consolidated by the admin server, which provides a 
  * consistent view of the deployment operations.
  *
- * @version $Revision: 1.4 $ $Date: 2004/06/02 11:27:59 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/03 14:32:50 $
  */
 public class ManagedServer
     extends AbstractEndPoint
@@ -94,7 +93,7 @@ public class ManagedServer
             throw new IllegalArgumentException("Kernel is required");
         }
         
-        target = new TargetImpl(aNode.getNodeInfo().getName(), null);
+        target = new TargetImpl2(aNode.getNodeInfo().getName(), null);
         store = aStore;
         kernel = aKernel;
         

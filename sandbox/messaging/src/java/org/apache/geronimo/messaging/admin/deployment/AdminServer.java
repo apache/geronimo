@@ -37,7 +37,6 @@ import javax.enterprise.deploy.spi.status.ProgressObject;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.plugin.DeploymentServer;
 import org.apache.geronimo.deployment.plugin.FailedProgressObject;
-import org.apache.geronimo.deployment.plugin.TargetImpl;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.messaging.AbstractEndPoint;
 import org.apache.geronimo.messaging.Node;
@@ -57,7 +56,7 @@ import org.apache.xmlbeans.XmlObject;
  *
  * TODO This implementation assumes that the set of Targets is static.
  *
- * @version $Revision: 1.3 $ $Date: 2004/06/01 12:44:22 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/03 14:32:50 $
  */
 public class AdminServer
     extends AbstractEndPoint
@@ -94,7 +93,7 @@ public class AdminServer
             ServerInfo info = new ServerInfo();
             info.server =
                 (DeploymentServer) node.factoryEndPointProxy(proxyInfo);
-            info.target = new TargetImpl(nodeInfo.getName(), null);
+            info.target = new TargetImpl2(nodeInfo.getName(), null);
             nameToInfo.put(nodeInfo.getName(), info);
         }
     }

@@ -22,21 +22,18 @@ import java.io.IOException;
 import javax.enterprise.deploy.shared.ModuleType;
 import javax.enterprise.deploy.spi.status.DeploymentStatus;
 
-import org.apache.geronimo.deployment.plugin.TargetImpl;
 import org.apache.geronimo.messaging.io.AbstractReplacerResolver;
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2004/06/01 12:44:22 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/03 14:32:50 $
  */
 public class DeploymentReplacerResolver
     extends AbstractReplacerResolver
 {
 
     protected Object customReplaceObject(Object obj) throws IOException {
-        if ( obj instanceof TargetImpl ) {
-            return new TargetImpl2((TargetImpl) obj);
-        } else if ( obj instanceof ModuleType ) {
+    	if ( obj instanceof ModuleType ) {
             return new ModuleTypeWrapper((ModuleType) obj);
         } else if ( obj instanceof DeploymentStatus ) {
             DeploymentStatus status = (DeploymentStatus) obj;
@@ -47,10 +44,7 @@ public class DeploymentReplacerResolver
     }
 
     protected Object customResolveObject(Object obj) throws IOException {
-        if ( obj instanceof TargetImpl2 ) {
-            TargetImpl2 target = (TargetImpl2) obj; 
-            return new TargetImpl(target.getName(), target.getDescription());
-        } else if ( obj instanceof ModuleTypeWrapper ) {
+        if ( obj instanceof ModuleTypeWrapper ) {
             return ((ModuleTypeWrapper)obj).getModuleType();
         }
         return null;

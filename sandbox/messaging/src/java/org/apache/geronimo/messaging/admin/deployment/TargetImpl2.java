@@ -21,12 +21,10 @@ import java.io.Serializable;
 
 import javax.enterprise.deploy.spi.Target;
 
-import org.apache.geronimo.deployment.plugin.TargetImpl;
-
 /**
- * A serializable Target. Should replace TargetImpl.
+ * A serializable Target.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/27 14:45:59 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/03 14:32:50 $
  */
 public class TargetImpl2
     implements Target, Serializable
@@ -35,9 +33,9 @@ public class TargetImpl2
     private final String name;
     private final String description;
     
-    public TargetImpl2(TargetImpl aTarget) {
-        name = aTarget.getName();
-        description = aTarget.getDescription();
+    public TargetImpl2(String aName, String aDescription) {
+        name = aName;
+        description = aDescription;
     }
 
     public String getName() {
