@@ -1,4 +1,6 @@
 target
 *.log
 junit*.properties
+.classpath
+.project
 
