@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema xmlns="http://www.w3.org/2001/XMLSchema"
-    targetNamespace="http://java.sun.com/xml/ns/j2ee"
-    xmlns:j2ee="http://java.sun.com/xml/ns/j2ee"
-    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    elementFormDefault="qualified"
-    attributeFormDefault="unqualified"
-    version="2.1">
-    <xsd:annotation>
-        <xsd:documentation>
-      @(#)ejb-jar_2_1.xsds	1.22 02/11/03
-        </xsd:documentation>
-    </xsd:annotation>
+	    targetNamespace="http://java.sun.com/xml/ns/j2ee"
+	    xmlns:j2ee="http://java.sun.com/xml/ns/j2ee"
+	    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	    elementFormDefault="qualified"
+	    attributeFormDefault="unqualified"
+	    version="2.1">
+  <xsd:annotation>
+    <xsd:documentation>
+      @(#)ejb-jar_2_1.xsds	1.23 08/01/03
+    </xsd:documentation>
+  </xsd:annotation>
 
-    <xsd:annotation>
-        <xsd:documentation>
+  <xsd:annotation>
+    <xsd:documentation>
 
-      Copyright 2002 Sun Microsystems, Inc., 901 San Antonio
+      Copyright 2003 Sun Microsystems, Inc., 901 San Antonio
       Road, Palo Alto, California 94303, U.S.A. All rights
       reserved.
 
@@ -44,12 +44,12 @@
       Federal Acquisitions: Commercial Software - Government Users
       Subject to Standard License Terms and Conditions.
 
-        </xsd:documentation>
-    </xsd:annotation>
+    </xsd:documentation>
+  </xsd:annotation>
 
-    <xsd:annotation>
-        <xsd:documentation>
-            <![CDATA[
+  <xsd:annotation>
+    <xsd:documentation>
+      <![CDATA[
 
 	This is the XML Schema for the EJB 2.1 deployment descriptor.
 	The deployment descriptor must be named "META-INF/ejb-jar.xml" in
@@ -75,12 +75,12 @@
 
 	http://java.sun.com/xml/ns/j2ee/ejb-jar_2_1.xsd
 
-        ]]>
-        </xsd:documentation>
-    </xsd:annotation>
+	]]>
+    </xsd:documentation>
+  </xsd:annotation>
 
-    <xsd:annotation>
-        <xsd:documentation>
+  <xsd:annotation>
+    <xsd:documentation>
 
       The following conventions apply to all J2EE
       deployment descriptor elements unless indicated otherwise.
@@ -94,88 +94,88 @@
 	preferred.  The exception is .war files where absolute
 	names are preferred for consistency with the Servlet API.
 
-        </xsd:documentation>
-    </xsd:annotation>
+    </xsd:documentation>
+  </xsd:annotation>
 
-    <xsd:include schemaLocation="j2ee_1_4.xsd"/>
-
-
-    <!-- **************************************************** -->
+  <xsd:include schemaLocation="j2ee_1_4.xsd"/>
 
 
-    <xsd:element name="ejb-jar" type="j2ee:ejb-jarType">
-        <xsd:annotation>
-            <xsd:documentation>
+<!-- **************************************************** -->
+
+
+  <xsd:element name="ejb-jar" type="j2ee:ejb-jarType">
+    <xsd:annotation>
+      <xsd:documentation>
 
 	This is the root of the ejb-jar deployment descriptor.
 
-            </xsd:documentation>
-        </xsd:annotation>
+      </xsd:documentation>
+    </xsd:annotation>
 
-        <xsd:key name="ejb-name-key">
-            <xsd:annotation>
-                <xsd:documentation>
+    <xsd:key name="ejb-name-key">
+      <xsd:annotation>
+	<xsd:documentation>
 
 	  The ejb-name element contains the name of an enterprise
 	  bean. The name must be unique within the ejb-jar file.
 
-                </xsd:documentation>
-            </xsd:annotation>
-            <xsd:selector xpath="j2ee:enterprise-beans/*"/>
-            <xsd:field xpath="j2ee:ejb-name"/>
-        </xsd:key>
+	</xsd:documentation>
+      </xsd:annotation>
+      <xsd:selector xpath="j2ee:enterprise-beans/*"/>
+      <xsd:field    xpath="j2ee:ejb-name"/>
+    </xsd:key>
 
-        <xsd:keyref name="ejb-name-references"
-            refer="j2ee:ejb-name-key">
-            <xsd:annotation>
-                <xsd:documentation>
+    <xsd:keyref name="ejb-name-references"
+		refer="j2ee:ejb-name-key">
+      <xsd:annotation>
+	<xsd:documentation>
 
 	  The keyref indicates the references from
 	  relationship-role-source must be to a specific ejb-name
 	  defined within the scope of enterprise-beans element.
 
-                </xsd:documentation>
-            </xsd:annotation>
-            <xsd:selector
-                xpath=".//j2ee:ejb-relationship-role/j2ee:relationship-role-source"/>
-            <xsd:field
-                xpath="j2ee:ejb-name"/>
-        </xsd:keyref>
+	</xsd:documentation>
+      </xsd:annotation>
+      <xsd:selector
+	   xpath=".//j2ee:ejb-relationship-role/j2ee:relationship-role-source"/>
+      <xsd:field
+	   xpath="j2ee:ejb-name"/>
+    </xsd:keyref>
 
-        <xsd:key name="role-name-key">
-            <xsd:annotation>
-                <xsd:documentation>
+    <xsd:key name="role-name-key">
+      <xsd:annotation>
+	<xsd:documentation>
 
 	  A role-name-key is specified to allow the references
 	  from the security-role-refs.
 
-                </xsd:documentation>
-            </xsd:annotation>
-            <xsd:selector xpath="j2ee:assembly-descriptor/j2ee:security-role"/>
-            <xsd:field xpath="j2ee:role-name"/>
-        </xsd:key>
+	</xsd:documentation>
+      </xsd:annotation>
+      <xsd:selector xpath="j2ee:assembly-descriptor/j2ee:security-role"/>
+      <xsd:field    xpath="j2ee:role-name"/>
+    </xsd:key>
 
-        <xsd:keyref name="role-name-references"
-            refer="j2ee:role-name-key">
-            <xsd:annotation>
-                <xsd:documentation>
+    <xsd:keyref name="role-name-references"
+		refer="j2ee:role-name-key">
+      <xsd:annotation>
+	<xsd:documentation>
 
 	  The keyref indicates the references from
 	  security-role-ref to a specified role-name.
 
-                </xsd:documentation>
-            </xsd:annotation>
-            <xsd:selector xpath="j2ee:enterprise-beans/*/j2ee:security-role-ref"/>
-            <xsd:field xpath="j2ee:role-link"/>
-        </xsd:keyref>
-    </xsd:element>
+	</xsd:documentation>
+      </xsd:annotation>
+      <xsd:selector xpath="j2ee:enterprise-beans/*/j2ee:security-role-ref"/>
+      <xsd:field    xpath="j2ee:role-link"/>
+    </xsd:keyref>
+  </xsd:element>
 
 
-    <!-- **************************************************** -->
+<!-- **************************************************** -->
 
-    <xsd:complexType name="activation-config-propertyType">
-        <xsd:annotation>
-            <xsd:documentation>
+  <xsd:complexType name="activation-config-propertyType">
+    <xsd:annotation>
+      <xsd:documentation>
 
 	The activation-config-propertyType contains a name/value
 	configuration property pair for a message-driven bean.
@@ -183,14 +183,14 @@
 	The properties that are recognized for a particular
 	message-driven bean are determined by the messaging type.
 
-            </xsd:documentation>
-        </xsd:annotation>
+      </xsd:documentation>
+    </xsd:annotation>
 
-        <xsd:sequence>
-            <xsd:element name="activation-config-property-name"
-                type="j2ee:xsdStringType">
-                <xsd:annotation>
-                    <xsd:documentation>
+    <xsd:sequence>
+      <xsd:element name="activation-config-property-name"
+		   type="j2ee:xsdStringType">
+	<xsd:annotation>
+	  <xsd:documentation>
 
 	    The activation-config-property-name element contains
 	    the name for an activation configuration property of
@@ -200,30 +200,30 @@
 	    names are recognized: acknowledgeMode,
 	    messageSelector, destinationType, subscriptionDurability
 
-                    </xsd:documentation>
-                </xsd:annotation>
-            </xsd:element>
-            <xsd:element name="activation-config-property-value"
-                type="j2ee:xsdStringType">
-                <xsd:annotation>
-                    <xsd:documentation>
+	  </xsd:documentation>
+	</xsd:annotation>
+      </xsd:element>
+      <xsd:element name="activation-config-property-value"
+		   type="j2ee:xsdStringType">
+	<xsd:annotation>
+	  <xsd:documentation>
 
 	    The activation-config-property-value element
 	    contains the value for an activation configuration
 	    property of a message-driven bean.
 
-                    </xsd:documentation>
-                </xsd:annotation>
-            </xsd:element>
-        </xsd:sequence>
-        <xsd:attribute name="id" type="xsd:ID"/>
-    </xsd:complexType>
+	  </xsd:documentation>
+	</xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID"/>
+  </xsd:complexType>
 
-    <!-- **************************************************** -->
+<!-- **************************************************** -->
 
-    <xsd:complexType name="activation-configType">
-        <xsd:annotation>
-            <xsd:documentation>
+  <xsd:complexType name="activation-configType">
+    <xsd:annotation>
+      <xsd:documentation>
 
 	The activation-configType defines information about the
 	expected configuration properties of the message-driven bean
@@ -237,26 +237,26 @@
 	The properties that are recognized for a particular
 	message-driven bean are determined by the messaging type.
 
-            </xsd:documentation>
-        </xsd:annotation>
+      </xsd:documentation>
+    </xsd:annotation>
 
-        <xsd:sequence>
-            <xsd:element name="description"
-                type="j2ee:descriptionType"
-                minOccurs="0"
-                maxOccurs="unbounded"/>
-            <xsd:element name="activation-config-property"
-                type="j2ee:activation-config-propertyType"
-                maxOccurs="unbounded"/>
-        </xsd:sequence>
-        <xsd:attribute name="id" type="xsd:ID"/>
-    </xsd:complexType>
+    <xsd:sequence>
+      <xsd:element name="description"
+		   type="j2ee:descriptionType"
+		   minOccurs="0"
+		   maxOccurs="unbounded"/>
+      <xsd:element name="activation-config-property"
+		   type="j2ee:activation-config-propertyType"
+		   maxOccurs="unbounded"/>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID"/>
+  </xsd:complexType>
 
-    <!-- **************************************************** -->
+<!-- **************************************************** -->
 
-    <xsd:complexType name="assembly-descriptorType">
-        <xsd:annotation>
-            <xsd:documentation>
+  <xsd:complexType name="assembly-descriptorType">
+    <xsd:annotation>
+      <xsd:documentation>
 
 	The assembly-descriptorType defines
 	application-assembly information.
@@ -274,54 +274,54 @@
 	Providing an assembly-descriptor in the deployment
 	descriptor is optional for the ejb-jar file producer.
 
-            </xsd:documentation>
-        </xsd:annotation>
+      </xsd:documentation>
+    </xsd:annotation>
 
-        <xsd:sequence>
-            <xsd:element name="security-role"
-                type="j2ee:security-roleType"
-                minOccurs="0"
-                maxOccurs="unbounded"/>
-            <xsd:element name="method-permission"
-                type="j2ee:method-permissionType"
-                minOccurs="0"
-                maxOccurs="unbounded"/>
-            <xsd:element name="container-transaction"
-                type="j2ee:container-transactionType"
-                minOccurs="0"
-                maxOccurs="unbounded"/>
-            <xsd:element name="message-destination"
-                type="j2ee:message-destinationType"
-                minOccurs="0"
-                maxOccurs="unbounded"/>
-            <xsd:element name="exclude-list"
-                type="j2ee:exclude-listType"
-                minOccurs="0"/>
-        </xsd:sequence>
-        <xsd:attribute name="id" type="xsd:ID"/>
-    </xsd:complexType>
+    <xsd:sequence>
+      <xsd:element name="security-role"
+		   type="j2ee:security-roleType"
+		   minOccurs="0"
+		   maxOccurs="unbounded"/>
+      <xsd:element name="method-permission"
+		   type="j2ee:method-permissionType"
+		   minOccurs="0"
+		   maxOccurs="unbounded"/>
+      <xsd:element name="container-transaction"
+		   type="j2ee:container-transactionType"
+		   minOccurs="0"
+		   maxOccurs="unbounded"/>
+      <xsd:element name="message-destination"
+		   type="j2ee:message-destinationType"
+		   minOccurs="0"
+		   maxOccurs="unbounded"/>
+      <xsd:element name="exclude-list"
+		   type="j2ee:exclude-listType"
+		   minOccurs="0"/>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID"/>
+  </xsd:complexType>
 
-    <!-- **************************************************** -->
+<!-- **************************************************** -->
 
-    <xsd:complexType name="cmp-fieldType">
-        <xsd:annotation>
-            <xsd:documentation>
+  <xsd:complexType name="cmp-fieldType">
+    <xsd:annotation>
+      <xsd:documentation>
 
 	The cmp-fieldType describes a container-managed field. The
 	cmp-fieldType contains an optional description of the field,
 	and the name of the field.
 
-            </xsd:documentation>
-        </xsd:annotation>
-        <xsd:sequence>
-            <xsd:element name="description"
-                type="j2ee:descriptionType"
-                minOccurs="0"
-                maxOccurs="unbounded"/>
-            <xsd:element name="field-name"
-                type="j2ee:java-identifierType">
-                <xsd:annotation>
-                    <xsd:documentation>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="description"
+		   type="j2ee:descriptionType"
+		   minOccurs="0"
+		   maxOccurs="unbounded"/>
+      <xsd:element name="field-name"
+		   type="j2ee:java-identifierType">
+	<xsd:annotation>
+	  <xsd:documentation>
 
 	    The field-name element specifies the name of a
 	    container managed field.
@@ -337,18 +337,18 @@
 	    cmp-version 1.x must denote a public field of the
 	    enterprise bean class or one of its superclasses.
 
-                    </xsd:documentation>
-                </xsd:annotation>
-            </xsd:element>
-        </xsd:sequence>
-        <xsd:attribute name="id" type="xsd:ID"/>
-    </xsd:complexType>
+	  </xsd:documentation>
+	</xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID"/>
+  </xsd:complexType>
 
-    <!-- **************************************************** -->
+<!-- **************************************************** -->
 
-    <xsd:complexType name="cmp-versionType">
-        <xsd:annotation>
-            <xsd:documentation>
+  <xsd:complexType name="cmp-versionType">
+    <xsd:annotation>
+      <xsd:documentation>
 
 	The cmp-versionType specifies the version of an entity bean
 	with container-managed persistence. It is used by
@@ -359,42 +359,42 @@
 	    1.x
 	    2.x
 
-            </xsd:documentation>
-        </xsd:annotation>
-        <xsd:simpleContent>
-            <xsd:restriction base="j2ee:string">
-                <xsd:enumeration value="1.x"/>
-                <xsd:enumeration value="2.x"/>
-            </xsd:restriction>
-        </xsd:simpleContent>
-    </xsd:complexType>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:restriction base="j2ee:string">
+	<xsd:enumeration value="1.x"/>
+	<xsd:enumeration value="2.x"/>
+      </xsd:restriction>
+    </xsd:simpleContent>
+  </xsd:complexType>
 
-    <!-- **************************************************** -->
+<!-- **************************************************** -->
 
-    <xsd:complexType name="cmr-field-typeType">
-        <xsd:annotation>
-            <xsd:documentation>
+  <xsd:complexType name="cmr-field-typeType">
+    <xsd:annotation>
+      <xsd:documentation>
 
 	The cmr-field-type element specifies the class of a
 	collection-valued logical relationship field in the entity
 	bean class. The value of an element using cmr-field-typeType
 	must be either: java.util.Collection or java.util.Set.
 
-            </xsd:documentation>
-        </xsd:annotation>
-        <xsd:simpleContent>
-            <xsd:restriction base="j2ee:string">
-                <xsd:enumeration value="java.util.Collection"/>
-                <xsd:enumeration value="java.util.Set"/>
-            </xsd:restriction>
-        </xsd:simpleContent>
-    </xsd:complexType>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:restriction base="j2ee:string">
+	<xsd:enumeration value="java.util.Collection"/>
+	<xsd:enumeration value="java.util.Set"/>
+      </xsd:restriction>
+    </xsd:simpleContent>
+  </xsd:complexType>
 
-    <!-- **************************************************** -->
+<!-- **************************************************** -->
 
-    <xsd:complexType name="cmr-fieldType">
-        <xsd:annotation>
-            <xsd:documentation>
+  <xsd:complexType name="cmr-fieldType">
+    <xsd:annotation>
+      <xsd:documentation>
 
 	The cmr-fieldType describes the bean provider's view of
 	a relationship. It consists of an optional description, and
@@ -405,18 +405,18 @@
 	used only for collection-valued cmr-fields. It specifies the
 	type of the collection that is used.
 
-            </xsd:documentation>
-        </xsd:annotation>
+      </xsd:documentation>
+    </xsd:annotation>
 
-        <xsd:sequence>
-            <xsd:element name="description"
-                type="j2ee:descriptionType"
-                minOccurs="0"
-                maxOccurs="unbounded"/>
-            <xsd:element name="cmr-field-name"
-                type="j2ee:string">
-                <xsd:annotation>
-                    <xsd:documentation>
+    <xsd:sequence>
+      <xsd:element name="description"
+		   type="j2ee:descriptionType"
+		   minOccurs="0"
+		   maxOccurs="unbounded"/>
+      <xsd:element name="cmr-field-name"
+		   type="j2ee:string">
+	<xsd:annotation>
+	  <xsd:documentation>
 
 	    The cmr-field-name element specifies the name of a
 	    logical relationship field in the entity bean
@@ -426,21 +426,21 @@
 	    specified by cmr-field-name in which the first
 	    letter is uppercased, prefixed by "get" or "set".
 
-                    </xsd:documentation>
-                </xsd:annotation>
-            </xsd:element>
-            <xsd:element name="cmr-field-type"
-                type="j2ee:cmr-field-typeType"
-                minOccurs="0"/>
-        </xsd:sequence>
-        <xsd:attribute name="id" type="xsd:ID"/>
-    </xsd:complexType>
+	  </xsd:documentation>
+	</xsd:annotation>
+      </xsd:element>
+      <xsd:element name="cmr-field-type"
+		   type="j2ee:cmr-field-typeType"
+		   minOccurs="0"/>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID"/>
+  </xsd:complexType>
 
-    <!-- **************************************************** -->
+<!-- **************************************************** -->
 
-    <xsd:complexType name="container-transactionType">
-        <xsd:annotation>
-            <xsd:documentation>
+  <xsd:complexType name="container-transactionType">
+    <xsd:annotation>
+      <xsd:documentation>
 
 	The container-transactionType specifies how the container
 	must manage transaction scopes for the enterprise bean's
@@ -449,29 +449,29 @@
 	transaction attribute is to be applied to all the specified
 	methods.
 
-            </xsd:documentation>
-        </xsd:annotation>
+      </xsd:documentation>
+    </xsd:annotation>
 
-        <xsd:sequence>
-            <xsd:element name="description"
-                type="j2ee:descriptionType"
-                minOccurs="0"
-                maxOccurs="unbounded"/>
-            <xsd:element name="method"
-                type="j2ee:methodType"
-                maxOccurs="unbounded"/>
-            <xsd:element name="trans-attribute"
-                type="j2ee:trans-attributeType"/>
-        </xsd:sequence>
-        <xsd:attribute name="id" type="xsd:ID"/>
-    </xsd:complexType>
+    <xsd:sequence>
+      <xsd:element name="description"
+		   type="j2ee:descriptionType"
+		   minOccurs="0"
+		   maxOccurs="unbounded"/>
+      <xsd:element name="method"
+		   type="j2ee:methodType"
+		   maxOccurs="unbounded"/>
+      <xsd:element name="trans-attribute"
+		   type="j2ee:trans-attributeType"/>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID"/>
+  </xsd:complexType>
 
-    <!-- **************************************************** -->
+<!-- **************************************************** -->
 
-    <xsd:complexType name="ejb-classType">
-        <xsd:annotation>
-            <xsd:documentation>
-                <![CDATA[
+  <xsd:complexType name="ejb-classType">
+    <xsd:annotation>
+      <xsd:documentation>
+	<![CDATA[
 
 	  The ejb-classType contains the fully-qualified name of the
 	  enterprise bean's class. It is used by ejb-class elements.
@@ -480,19 +480,19 @@
 
 	      <ejb-class>com.wombat.empl.EmployeeServiceBean</ejb-class>
 
-            ]]>
-            </xsd:documentation>
-        </xsd:annotation>
-        <xsd:simpleContent>
-            <xsd:restriction base="j2ee:fully-qualified-classType"/>
-        </xsd:simpleContent>
-    </xsd:complexType>
+	  ]]>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:restriction base="j2ee:fully-qualified-classType"/>
+    </xsd:simpleContent>
+  </xsd:complexType>
 
-    <!-- **************************************************** -->
+<!-- **************************************************** -->
 
-    <xsd:complexType name="ejb-jarType">
-        <xsd:annotation>
-            <xsd:documentation>
+  <xsd:complexType name="ejb-jarType">
+    <xsd:annotation>
+      <xsd:documentation>
 
 	The ejb-jarType defines the root element of the EJB
 	deployment descriptor. It contains
@@ -509,49 +509,49 @@
 	    - an optional name of an ejb-client-jar file for the
 	      ejb-jar.
 
-            </xsd:documentation>
-        </xsd:annotation>
+      </xsd:documentation>
+    </xsd:annotation>
 
-        <xsd:sequence>
-            <xsd:group ref="j2ee:descriptionGroup"/>
-            <xsd:element name="enterprise-beans"
-                type="j2ee:enterprise-beansType"/>
-            <xsd:element name="relationships"
-                type="j2ee:relationshipsType"
-                minOccurs="0">
-                <xsd:unique name="relationship-name-uniqueness">
-                    <xsd:annotation>
-                        <xsd:documentation>
+    <xsd:sequence>
+      <xsd:group ref="j2ee:descriptionGroup"/>
+      <xsd:element name="enterprise-beans"
+		   type="j2ee:enterprise-beansType"/>
+      <xsd:element name="relationships"
+		   type="j2ee:relationshipsType"
+		   minOccurs="0">
+	<xsd:unique name="relationship-name-uniqueness">
+	  <xsd:annotation>
+	    <xsd:documentation>
 
 	      The ejb-relation-name contains the name of a
 	      relation. The name must be unique within
 	      relationships.
 
-                        </xsd:documentation>
-                    </xsd:annotation>
-                    <xsd:selector xpath="j2ee:ejb-relation"/>
-                    <xsd:field xpath="j2ee:ejb-relation-name"/>
-                </xsd:unique>
-            </xsd:element>
-            <xsd:element name="assembly-descriptor"
-                type="j2ee:assembly-descriptorType"
-                minOccurs="0">
-                <xsd:annotation>
-                    <xsd:documentation>
+	    </xsd:documentation>
+	  </xsd:annotation>
+	  <xsd:selector xpath="j2ee:ejb-relation"/>
+	  <xsd:field    xpath="j2ee:ejb-relation-name"/>
+	</xsd:unique>
+      </xsd:element>
+      <xsd:element name="assembly-descriptor"
+		   type="j2ee:assembly-descriptorType"
+		   minOccurs="0">
+	<xsd:annotation>
+	  <xsd:documentation>
 
 	    Providing an assembly-descriptor in the deployment
 	    descriptor is optional for the ejb-jar file
 	    producer.
 
-                    </xsd:documentation>
-                </xsd:annotation>
-            </xsd:element>
-            <xsd:element name="ejb-client-jar"
-                type="j2ee:pathType"
-                minOccurs="0">
-                <xsd:annotation>
-                    <xsd:documentation>
-                        <![CDATA[
+	  </xsd:documentation>
+	</xsd:annotation>
+      </xsd:element>
+      <xsd:element name="ejb-client-jar"
+		   type="j2ee:pathType"
+		   minOccurs="0">
+	<xsd:annotation>
+	  <xsd:documentation>
+	    <![CDATA[
 
 	      The optional ejb-client-jar element specifies a JAR
 	      file that contains the class files necessary for a
@@ -563,17 +563,17 @@
 		  <ejb-client-jar>employee_service_client.jar
 		  </ejb-client-jar>
 
-                        ]]>
-                    </xsd:documentation>
-                </xsd:annotation>
-            </xsd:element>
-        </xsd:sequence>
-        <xsd:attribute name="version"
-            type="j2ee:dewey-versionType"
-            fixed="2.1"
-            use="required">
-            <xsd:annotation>
-                <xsd:documentation>
+	      ]]>
+	  </xsd:documentation>
+	</xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+    <xsd:attribute name="version"
+		   type="j2ee:dewey-versionType"
+		   fixed="2.1"
+		   use="required">
+      <xsd:annotation>
+	<xsd:documentation>
 
 	  The version specifies the version of the
 	  EJB specification that the instance document must
@@ -582,18 +582,18 @@
 	  Descriptor with respect to a specific version of the EJB
 	  schema.
 
-                </xsd:documentation>
-            </xsd:annotation>
-        </xsd:attribute>
-        <xsd:attribute name="id" type="xsd:ID"/>
-    </xsd:complexType>
+	</xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+    <xsd:attribute name="id" type="xsd:ID"/>
+  </xsd:complexType>
 
-    <!-- **************************************************** -->
+<!-- **************************************************** -->
 
-    <xsd:complexType name="ejb-nameType">
-        <xsd:annotation>
-            <xsd:documentation>
-                <![CDATA[
+  <xsd:complexType name="ejb-nameType">
+    <xsd:annotation>
+      <xsd:documentation>
+	<![CDATA[
 
 	  The ejb-nameType specifies an enterprise bean's name. It is
 	  used by ejb-name elements. This name is assigned by the
@@ -613,19 +613,19 @@
 
 	  <ejb-name>EmployeeService</ejb-name>
 
-            ]]>
-            </xsd:documentation>
-        </xsd:annotation>
-        <xsd:simpleContent>
-            <xsd:restriction base="j2ee:xsdNMTOKENType"/>
-        </xsd:simpleContent>
-    </xsd:complexType>
+	  ]]>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:restriction base="j2ee:xsdNMTOKENType"/>
+    </xsd:simpleContent>
+  </xsd:complexType>
 
-    <!-- **************************************************** -->
+<!-- **************************************************** -->
 
-    <xsd:complexType name="ejb-relationType">
-        <xsd:annotation>
-            <xsd:documentation>
+  <xsd:complexType name="ejb-relationType">
+    <xsd:annotation>
+      <xsd:documentation>
 
 	The ejb-relationType describes a relationship between two
 	entity beans with container-managed persistence.  It is used
@@ -636,40 +636,40 @@
 	relationship, if specified, is unique within the ejb-jar
 	file.
 
-            </xsd:documentation>
-        </xsd:annotation>
+      </xsd:documentation>
+    </xsd:annotation>
 
-        <xsd:sequence>
-            <xsd:element name="description"
-                type="j2ee:descriptionType"
-                minOccurs="0"
-                maxOccurs="unbounded"/>
-            <xsd:element name="ejb-relation-name"
-                type="j2ee:string"
-                minOccurs="0">
-                <xsd:annotation>
-                    <xsd:documentation>
+    <xsd:sequence>
+      <xsd:element name="description"
+		   type="j2ee:descriptionType"
+		   minOccurs="0"
+		   maxOccurs="unbounded"/>
+      <xsd:element name="ejb-relation-name"
+		   type="j2ee:string"
+		   minOccurs="0">
+	<xsd:annotation>
+	  <xsd:documentation>
 
 	    The ejb-relation-name element provides a unique name
 	    within the ejb-jar file for a relationship.
 
-                    </xsd:documentation>
-                </xsd:annotation>
-            </xsd:element>
-            <xsd:element name="ejb-relationship-role"
-                type="j2ee:ejb-relationship-roleType"/>
-            <xsd:element name="ejb-relationship-role"
-                type="j2ee:ejb-relationship-roleType"/>
-        </xsd:sequence>
-        <xsd:attribute name="id" type="xsd:ID"/>
-    </xsd:complexType>
+	  </xsd:documentation>
+	</xsd:annotation>
+      </xsd:element>
+      <xsd:element name="ejb-relationship-role"
+		   type="j2ee:ejb-relationship-roleType"/>
+      <xsd:element name="ejb-relationship-role"
+		   type="j2ee:ejb-relationship-roleType"/>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID"/>
+  </xsd:complexType>
 
-    <!-- **************************************************** -->
+<!-- **************************************************** -->
 
-    <xsd:complexType name="ejb-relationship-roleType">
-        <xsd:annotation>
-            <xsd:documentation>
-                <![CDATA[
+  <xsd:complexType name="ejb-relationship-roleType">
+    <xsd:annotation>
+      <xsd:documentation>
+	<![CDATA[
 
 	  The ejb-relationship-roleType describes a role within a
 	  relationship. There are two roles in each relationship.
@@ -708,36 +708,36 @@
 	       </ejb-relationship-role>
 	  </ejb-relation>
 
-            ]]>
-            </xsd:documentation>
-        </xsd:annotation>
+	  ]]>
+      </xsd:documentation>
+    </xsd:annotation>
 
-        <xsd:sequence>
-            <xsd:element name="description"
-                type="j2ee:descriptionType"
-                minOccurs="0"
-                maxOccurs="unbounded"/>
-            <xsd:element name="ejb-relationship-role-name"
-                type="j2ee:string"
-                minOccurs="0">
-                <xsd:annotation>
-                    <xsd:documentation>
+    <xsd:sequence>
+      <xsd:element name="description"
+		   type="j2ee:descriptionType"
+		   minOccurs="0"
+		   maxOccurs="unbounded"/>
+      <xsd:element name="ejb-relationship-role-name"
+		   type="j2ee:string"
+		   minOccurs="0">
+	<xsd:annotation>
+	  <xsd:documentation>
 
 	    The ejb-relationship-role-name element defines a
 	    name for a role that is unique within an
 	    ejb-relation. Different relationships can use the
 	    same name for a role.
 
-                    </xsd:documentation>
-                </xsd:annotation>
-            </xsd:element>
-            <xsd:element name="multiplicity"
-                type="j2ee:multiplicityType"/>
-            <xsd:element name="cascade-delete"
-                type="j2ee:emptyType"
-                minOccurs="0">
-                <xsd:annotation>
-                    <xsd:documentation>
+	  </xsd:documentation>
+	</xsd:annotation>
+      </xsd:element>
+      <xsd:element name="multiplicity"
+		   type="j2ee:multiplicityType"/>
+      <xsd:element name="cascade-delete"
+		   type="j2ee:emptyType"
+		   minOccurs="0">
+	<xsd:annotation>
+	  <xsd:documentation>
 
 	    The cascade-delete element specifies that, within a
 	    particular relationship, the lifetime of one or more
@@ -748,140 +748,37 @@
 	    which the other ejb-relationship-role
 	    element specifies a multiplicity of One.
 
-                    </xsd:documentation>
-                </xsd:annotation>
-            </xsd:element>
-            <xsd:element name="relationship-role-source"
-                type="j2ee:relationship-role-sourceType"/>
-            <xsd:element name="cmr-field"
-                type="j2ee:cmr-fieldType"
-                minOccurs="0"/>
-        </xsd:sequence>
-        <xsd:attribute name="id" type="xsd:ID"/>
-    </xsd:complexType>
+	  </xsd:documentation>
+	</xsd:annotation>
+      </xsd:element>
+      <xsd:element name="relationship-role-source"
+		   type="j2ee:relationship-role-sourceType"/>
+      <xsd:element name="cmr-field"
+		   type="j2ee:cmr-fieldType"
+		   minOccurs="0"/>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID"/>
+  </xsd:complexType>
 
-    <!-- **************************************************** -->
+<!-- **************************************************** -->
 
-    <xsd:complexType name="enterprise-beansType">
-        <xsd:annotation>
-            <xsd:documentation>
+  <xsd:complexType name="enterprise-beansType">
+    <xsd:annotation>
+      <xsd:documentation>
 
 	The enterprise-beansType declares one or more enterprise
 	beans. Each bean can be a session, entity or message-driven
 	bean.
 
-            </xsd:documentation>
-        </xsd:annotation>
+      </xsd:documentation>
+    </xsd:annotation>
 
-        <xsd:choice maxOccurs="unbounded">
-            <xsd:element name="session"
-                type="j2ee:session-beanType">
-                <xsd:unique name="session-ejb-local-ref-name-uniqueness">
-                    <xsd:annotation>
-                        <xsd:documentation>
-
-	      The ejb-ref-name element contains the name of
-	      an EJB reference. The EJB reference is an entry in
-	      the component's environment and is relative to the
-	      java:comp/env context.  The name must be unique within
-	      the component.
-
-	      It is recommended that name be prefixed with "ejb/".
-
-                        </xsd:documentation>
-                    </xsd:annotation>
-                    <xsd:selector xpath="j2ee:ejb-local-ref"/>
-                    <xsd:field xpath="j2ee:ejb-ref-name"/>
-                </xsd:unique>
-
-                <xsd:unique name="session-ejb-ref-name-uniqueness">
-                    <xsd:annotation>
-                        <xsd:documentation>
-
-	      The ejb-ref-name element contains the name of an EJB
-	      reference. The EJB reference is an entry in the
-	      component's environment and is relative to the
-	      java:comp/env context. The name must be unique
-	      within the component.
-
-	      It is recommended that name is prefixed with "ejb/".
-
-                        </xsd:documentation>
-                    </xsd:annotation>
-                    <xsd:selector xpath="j2ee:ejb-ref"/>
-                    <xsd:field xpath="j2ee:ejb-ref-name"/>
-                </xsd:unique>
-
-                <xsd:unique name="session-resource-env-ref-uniqueness">
-                    <xsd:annotation>
-                        <xsd:documentation>
-
-	      The resource-env-ref-name element specifies the name
-	      of a resource environment reference; its value is
-	      the environment entry name used in the component
-	      code. The name is a JNDI name relative to the
-	      java:comp/env context and must be unique within an
-	      component.
-
-                        </xsd:documentation>
-                    </xsd:annotation>
-                    <xsd:selector xpath="j2ee:resource-env-ref"/>
-                    <xsd:field xpath="j2ee:resource-env-ref-name"/>
-                </xsd:unique>
-
-                <xsd:unique name="session-message-destination-ref-uniqueness">
-                    <xsd:annotation>
-                        <xsd:documentation>
-
-	      The message-destination-ref-name element specifies the name
-	      of a message destination reference; its value is
-	      the message destination reference name used in the component
-	      code. The name is a JNDI name relative to the
-	      java:comp/env context and must be unique within an
-	      component.
-
-                        </xsd:documentation>
-                    </xsd:annotation>
-                    <xsd:selector xpath="j2ee:message-destination-ref"/>
-                    <xsd:field xpath="j2ee:message-destination-ref-name"/>
-                </xsd:unique>
-
-                <xsd:unique name="session-res-ref-name-uniqueness">
-                    <xsd:annotation>
-                        <xsd:documentation>
-
-	      The res-ref-name element specifies the name of a
-	      resource manager connection factory reference.  The name
-	      is a JNDI name relative to the java:comp/env context.
-	      The name must be unique within an component.
-
-                        </xsd:documentation>
-                    </xsd:annotation>
-                    <xsd:selector xpath="j2ee:resource-ref"/>
-                    <xsd:field xpath="j2ee:res-ref-name"/>
-                </xsd:unique>
-
-                <xsd:unique name="session-env-entry-name-uniqueness">
-                    <xsd:annotation>
-                        <xsd:documentation>
-
-	      The env-entry-name element contains the name of a
-	      component's environment entry.  The name is a JNDI
-	      name relative to the java:comp/env context.  The
-	      name must be unique within an component.
-
-                        </xsd:documentation>
-                    </xsd:annotation>
-                    <xsd:selector xpath="j2ee:env-entry"/>
-                    <xsd:field xpath="j2ee:env-entry-name"/>
-                </xsd:unique>
-            </xsd:element>
-
-            <xsd:element name="entity"
-                type="j2ee:entity-beanType">
-                <xsd:unique name="entity-ejb-local-ref-name-uniqueness">
-                    <xsd:annotation>
-                        <xsd:documentation>
+    <xsd:choice maxOccurs="unbounded">
+      <xsd:element name="session"
+		   type="j2ee:session-beanType">
+	<xsd:unique name="session-ejb-local-ref-name-uniqueness">
+	  <xsd:annotation>
+	    <xsd:documentation>
 
 	      The ejb-ref-name element contains the name of
 	      an EJB reference. The EJB reference is an entry in
@@ -891,15 +788,15 @@
 
 	      It is recommended that name be prefixed with "ejb/".
 
-                        </xsd:documentation>
-                    </xsd:annotation>
-                    <xsd:selector xpath="j2ee:ejb-local-ref"/>
-                    <xsd:field xpath="j2ee:ejb-ref-name"/>
-                </xsd:unique>
+	    </xsd:documentation>
+	  </xsd:annotation>
+	  <xsd:selector xpath="j2ee:ejb-local-ref"/>
+	  <xsd:field    xpath="j2ee:ejb-ref-name"/>
+	</xsd:unique>
 
-                <xsd:unique name="entity-ejb-ref-name-uniqueness">
-                    <xsd:annotation>
-                        <xsd:documentation>
+	<xsd:unique name="session-ejb-ref-name-uniqueness">
+	  <xsd:annotation>
+	    <xsd:documentation>
 
 	      The ejb-ref-name element contains the name of an EJB
 	      reference. The EJB reference is an entry in the
@@ -909,15 +806,15 @@
 
 	      It is recommended that name is prefixed with "ejb/".
 
-                        </xsd:documentation>
-                    </xsd:annotation>
-                    <xsd:selector xpath="j2ee:ejb-ref"/>
-                    <xsd:field xpath="j2ee:ejb-ref-name"/>
-                </xsd:unique>
+	    </xsd:documentation>
+	  </xsd:annotation>
+	  <xsd:selector xpath="j2ee:ejb-ref"/>
+	  <xsd:field    xpath="j2ee:ejb-ref-name"/>
+	</xsd:unique>
 
-                <xsd:unique name="entity-resource-env-ref-uniqueness">
-                    <xsd:annotation>
-                        <xsd:documentation>
+	<xsd:unique name="session-resource-env-ref-uniqueness">
+	  <xsd:annotation>
+	    <xsd:documentation>
 
 	      The resource-env-ref-name element specifies the name
 	      of a resource environment reference; its value is
@@ -926,15 +823,15 @@
 	      java:comp/env context and must be unique within an
 	      component.
 
-                        </xsd:documentation>
-                    </xsd:annotation>
-                    <xsd:selector xpath="j2ee:resource-env-ref"/>
-                    <xsd:field xpath="j2ee:resource-env-ref-name"/>
-                </xsd:unique>
+	    </xsd:documentation>
+	  </xsd:annotation>
+	  <xsd:selector xpath="j2ee:resource-env-ref"/>
+	  <xsd:field    xpath="j2ee:resource-env-ref-name"/>
+	</xsd:unique>
 
-                <xsd:unique name="entity-message-destination-ref-uniqueness">
-                    <xsd:annotation>
-                        <xsd:documentation>
+	<xsd:unique name="session-message-destination-ref-uniqueness">
+	  <xsd:annotation>
+	    <xsd:documentation>
 
 	      The message-destination-ref-name element specifies the name
 	      of a message destination reference; its value is
@@ -943,48 +840,48 @@
 	      java:comp/env context and must be unique within an
 	      component.
 
-                        </xsd:documentation>
-                    </xsd:annotation>
-                    <xsd:selector xpath="j2ee:message-destination-ref"/>
-                    <xsd:field xpath="j2ee:message-destination-ref-name"/>
-                </xsd:unique>
+	    </xsd:documentation>
+	  </xsd:annotation>
+	  <xsd:selector xpath="j2ee:message-destination-ref"/>
+	  <xsd:field    xpath="j2ee:message-destination-ref-name"/>
+	</xsd:unique>
 
-                <xsd:unique name="entity-res-ref-name-uniqueness">
-                    <xsd:annotation>
-                        <xsd:documentation>
+	<xsd:unique name="session-res-ref-name-uniqueness">
+	  <xsd:annotation>
+	    <xsd:documentation>
 
 	      The res-ref-name element specifies the name of a
 	      resource manager connection factory reference.  The name
 	      is a JNDI name relative to the java:comp/env context.
 	      The name must be unique within an component.
 
-                        </xsd:documentation>
-                    </xsd:annotation>
-                    <xsd:selector xpath="j2ee:resource-ref"/>
-                    <xsd:field xpath="j2ee:res-ref-name"/>
-                </xsd:unique>
+	    </xsd:documentation>
+	  </xsd:annotation>
+	  <xsd:selector xpath="j2ee:resource-ref"/>
+	  <xsd:field    xpath="j2ee:res-ref-name"/>
+	</xsd:unique>
 
-                <xsd:unique name="entity-env-entry-name-uniqueness">
-                    <xsd:annotation>
-                        <xsd:documentation>
+	<xsd:unique name="session-env-entry-name-uniqueness">
+	  <xsd:annotation>
+	    <xsd:documentation>
 
 	      The env-entry-name element contains the name of a
 	      component's environment entry.  The name is a JNDI
 	      name relative to the java:comp/env context.  The
 	      name must be unique within an component.
 
-                        </xsd:documentation>
-                    </xsd:annotation>
-                    <xsd:selector xpath="j2ee:env-entry"/>
-                    <xsd:field xpath="j2ee:env-entry-name"/>
-                </xsd:unique>
-            </xsd:element>
+	    </xsd:documentation>
+	  </xsd:annotation>
+	  <xsd:selector xpath="j2ee:env-entry"/>
+	  <xsd:field    xpath="j2ee:env-entry-name"/>
+	</xsd:unique>
+      </xsd:element>
 
-            <xsd:element name="message-driven"
-                type="j2ee:message-driven-beanType">
-                <xsd:unique name="messaged-ejb-local-ref-name-uniqueness">
-                    <xsd:annotation>
-                        <xsd:documentation>
+      <xsd:element name="entity"
+		   type="j2ee:entity-beanType">
+	<xsd:unique name="entity-ejb-local-ref-name-uniqueness">
+	  <xsd:annotation>
+	    <xsd:documentation>
 
 	      The ejb-ref-name element contains the name of
 	      an EJB reference. The EJB reference is an entry in
@@ -994,15 +891,15 @@
 
 	      It is recommended that name be prefixed with "ejb/".
 
-                        </xsd:documentation>
-                    </xsd:annotation>
-                    <xsd:selector xpath="j2ee:ejb-local-ref"/>
-                    <xsd:field xpath="j2ee:ejb-ref-name"/>
-                </xsd:unique>
+	    </xsd:documentation>
+	  </xsd:annotation>
+	  <xsd:selector xpath="j2ee:ejb-local-ref"/>
+	  <xsd:field    xpath="j2ee:ejb-ref-name"/>
+	</xsd:unique>
 
-                <xsd:unique name="messaged-ejb-ref-name-uniqueness">
-                    <xsd:annotation>
-                        <xsd:documentation>
+	<xsd:unique name="entity-ejb-ref-name-uniqueness">
+	  <xsd:annotation>
+	    <xsd:documentation>
 
 	      The ejb-ref-name element contains the name of an EJB
 	      reference. The EJB reference is an entry in the
@@ -1012,15 +909,15 @@
 
 	      It is recommended that name is prefixed with "ejb/".
 
-                        </xsd:documentation>
-                    </xsd:annotation>
-                    <xsd:selector xpath="j2ee:ejb-ref"/>
-                    <xsd:field xpath="j2ee:ejb-ref-name"/>
-                </xsd:unique>
+	    </xsd:documentation>
+	  </xsd:annotation>
+	  <xsd:selector xpath="j2ee:ejb-ref"/>
+	  <xsd:field    xpath="j2ee:ejb-ref-name"/>
+	</xsd:unique>
 
-                <xsd:unique name="messaged-resource-env-ref-uniqueness">
-                    <xsd:annotation>
-                        <xsd:documentation>
+	<xsd:unique name="entity-resource-env-ref-uniqueness">
+	  <xsd:annotation>
+	    <xsd:documentation>
 
 	      The resource-env-ref-name element specifies the name
 	      of a resource environment reference; its value is
@@ -1029,15 +926,15 @@
 	      java:comp/env context and must be unique within an
 	      component.
 
-                        </xsd:documentation>
-                    </xsd:annotation>
-                    <xsd:selector xpath="j2ee:resource-env-ref"/>
-                    <xsd:field xpath="j2ee:resource-env-ref-name"/>
-                </xsd:unique>
+	    </xsd:documentation>
+	  </xsd:annotation>
+	  <xsd:selector xpath="j2ee:resource-env-ref"/>
+	  <xsd:field    xpath="j2ee:resource-env-ref-name"/>
+	</xsd:unique>
 
-                <xsd:unique name="messaged-message-destination-ref-uniqueness">
-                    <xsd:annotation>
-                        <xsd:documentation>
+	<xsd:unique name="entity-message-destination-ref-uniqueness">
+	  <xsd:annotation>
+	    <xsd:documentation>
 
 	      The message-destination-ref-name element specifies the name
 	      of a message destination reference; its value is
@@ -1046,52 +943,155 @@
 	      java:comp/env context and must be unique within an
 	      component.
 
-                        </xsd:documentation>
-                    </xsd:annotation>
-                    <xsd:selector xpath="j2ee:message-destination-ref"/>
-                    <xsd:field xpath="j2ee:message-destination-ref-name"/>
-                </xsd:unique>
+	    </xsd:documentation>
+	  </xsd:annotation>
+	  <xsd:selector xpath="j2ee:message-destination-ref"/>
+	  <xsd:field    xpath="j2ee:message-destination-ref-name"/>
+	</xsd:unique>
 
-                <xsd:unique name="messaged-res-ref-name-uniqueness">
-                    <xsd:annotation>
-                        <xsd:documentation>
+	<xsd:unique name="entity-res-ref-name-uniqueness">
+	  <xsd:annotation>
+	    <xsd:documentation>
 
 	      The res-ref-name element specifies the name of a
 	      resource manager connection factory reference.  The name
 	      is a JNDI name relative to the java:comp/env context.
 	      The name must be unique within an component.
 
-                        </xsd:documentation>
-                    </xsd:annotation>
-                    <xsd:selector xpath="j2ee:resource-ref"/>
-                    <xsd:field xpath="j2ee:res-ref-name"/>
-                </xsd:unique>
+	    </xsd:documentation>
+	  </xsd:annotation>
+	  <xsd:selector xpath="j2ee:resource-ref"/>
+	  <xsd:field    xpath="j2ee:res-ref-name"/>
+	</xsd:unique>
 
-                <xsd:unique name="messaged-env-entry-name-uniqueness">
-                    <xsd:annotation>
-                        <xsd:documentation>
+	<xsd:unique name="entity-env-entry-name-uniqueness">
+	  <xsd:annotation>
+	    <xsd:documentation>
 
 	      The env-entry-name element contains the name of a
 	      component's environment entry.  The name is a JNDI
 	      name relative to the java:comp/env context.  The
 	      name must be unique within an component.
 
-                        </xsd:documentation>
-                    </xsd:annotation>
-                    <xsd:selector xpath="j2ee:env-entry"/>
-                    <xsd:field xpath="j2ee:env-entry-name"/>
-                </xsd:unique>
-            </xsd:element>
+	    </xsd:documentation>
+	  </xsd:annotation>
+	  <xsd:selector xpath="j2ee:env-entry"/>
+	  <xsd:field    xpath="j2ee:env-entry-name"/>
+	</xsd:unique>
+      </xsd:element>
 
-        </xsd:choice>
-        <xsd:attribute name="id" type="xsd:ID"/>
-    </xsd:complexType>
+      <xsd:element name="message-driven"
+		   type="j2ee:message-driven-beanType">
+	<xsd:unique name="messaged-ejb-local-ref-name-uniqueness">
+	  <xsd:annotation>
+	    <xsd:documentation>
 
-    <!-- **************************************************** -->
+	      The ejb-ref-name element contains the name of
+	      an EJB reference. The EJB reference is an entry in
+	      the component's environment and is relative to the
+	      java:comp/env context.  The name must be unique within
+	      the component.
 
-    <xsd:complexType name="entity-beanType">
-        <xsd:annotation>
-            <xsd:documentation>
+	      It is recommended that name be prefixed with "ejb/".
+
+	    </xsd:documentation>
+	  </xsd:annotation>
+	  <xsd:selector xpath="j2ee:ejb-local-ref"/>
+	  <xsd:field    xpath="j2ee:ejb-ref-name"/>
+	</xsd:unique>
+
+	<xsd:unique name="messaged-ejb-ref-name-uniqueness">
+	  <xsd:annotation>
+	    <xsd:documentation>
+
+	      The ejb-ref-name element contains the name of an EJB
+	      reference. The EJB reference is an entry in the
+	      component's environment and is relative to the
+	      java:comp/env context. The name must be unique
+	      within the component.
+
+	      It is recommended that name is prefixed with "ejb/".
+
+	    </xsd:documentation>
+	  </xsd:annotation>
+	  <xsd:selector xpath="j2ee:ejb-ref"/>
+	  <xsd:field    xpath="j2ee:ejb-ref-name"/>
+	</xsd:unique>
+
+	<xsd:unique name="messaged-resource-env-ref-uniqueness">
+	  <xsd:annotation>
+	    <xsd:documentation>
+
+	      The resource-env-ref-name element specifies the name
+	      of a resource environment reference; its value is
+	      the environment entry name used in the component
+	      code. The name is a JNDI name relative to the
+	      java:comp/env context and must be unique within an
+	      component.
+
+	    </xsd:documentation>
+	  </xsd:annotation>
+	  <xsd:selector xpath="j2ee:resource-env-ref"/>
+	  <xsd:field    xpath="j2ee:resource-env-ref-name"/>
+	</xsd:unique>
+
+	<xsd:unique name="messaged-message-destination-ref-uniqueness">
+	  <xsd:annotation>
+	    <xsd:documentation>
+
+	      The message-destination-ref-name element specifies the name
+	      of a message destination reference; its value is
+	      the message destination reference name used in the component
+	      code. The name is a JNDI name relative to the
+	      java:comp/env context and must be unique within an
+	      component.
+
+	    </xsd:documentation>
+	  </xsd:annotation>
+	  <xsd:selector xpath="j2ee:message-destination-ref"/>
+	  <xsd:field    xpath="j2ee:message-destination-ref-name"/>
+	</xsd:unique>
+
+	<xsd:unique name="messaged-res-ref-name-uniqueness">
+	  <xsd:annotation>
+	    <xsd:documentation>
+
+	      The res-ref-name element specifies the name of a
+	      resource manager connection factory reference.  The name
+	      is a JNDI name relative to the java:comp/env context.
+	      The name must be unique within an component.
+
+	    </xsd:documentation>
+	  </xsd:annotation>
+	  <xsd:selector xpath="j2ee:resource-ref"/>
+	  <xsd:field    xpath="j2ee:res-ref-name"/>
+	</xsd:unique>
+
+	<xsd:unique name="messaged-env-entry-name-uniqueness">
+	  <xsd:annotation>
+	    <xsd:documentation>
+
+	      The env-entry-name element contains the name of a
+	      component's environment entry.  The name is a JNDI
+	      name relative to the java:comp/env context.  The
+	      name must be unique within an component.
+
+	    </xsd:documentation>
+	  </xsd:annotation>
+	  <xsd:selector xpath="j2ee:env-entry"/>
+	  <xsd:field    xpath="j2ee:env-entry-name"/>
+	</xsd:unique>
+      </xsd:element>
+
+    </xsd:choice>
+    <xsd:attribute name="id" type="xsd:ID"/>
+  </xsd:complexType>
+
+<!-- **************************************************** -->
+
+  <xsd:complexType name="entity-beanType">
+    <xsd:annotation>
+      <xsd:documentation>
 
 	The entity-beanType declares an entity bean. The declaration
 	consists of:
@@ -1177,33 +1177,33 @@
 	the cmp-version is 1.x, and none must not be present if the
 	entity's persistence-type is Bean.
 
-            </xsd:documentation>
-        </xsd:annotation>
+      </xsd:documentation>
+    </xsd:annotation>
 
-        <xsd:sequence>
-            <xsd:group ref="j2ee:descriptionGroup"/>
-            <xsd:element name="ejb-name"
-                type="j2ee:ejb-nameType"/>
-            <xsd:element name="home"
-                type="j2ee:homeType"
-                minOccurs="0"/>
-            <xsd:element name="remote"
-                type="j2ee:remoteType"
-                minOccurs="0"/>
-            <xsd:element name="local-home"
-                type="j2ee:local-homeType"
-                minOccurs="0"/>
-            <xsd:element name="local"
-                type="j2ee:localType"
-                minOccurs="0"/>
-            <xsd:element name="ejb-class"
-                type="j2ee:ejb-classType"/>
-            <xsd:element name="persistence-type"
-                type="j2ee:persistence-typeType"/>
-            <xsd:element name="prim-key-class"
-                type="j2ee:fully-qualified-classType">
-                <xsd:annotation>
-                    <xsd:documentation>
+    <xsd:sequence>
+      <xsd:group ref="j2ee:descriptionGroup"/>
+      <xsd:element name="ejb-name"
+		   type="j2ee:ejb-nameType"/>
+      <xsd:element name="home"
+		   type="j2ee:homeType"
+		   minOccurs="0"/>
+      <xsd:element name="remote"
+		   type="j2ee:remoteType"
+		   minOccurs="0"/>
+      <xsd:element name="local-home"
+		   type="j2ee:local-homeType"
+		   minOccurs="0"/>
+      <xsd:element name="local"
+		   type="j2ee:localType"
+		   minOccurs="0"/>
+      <xsd:element name="ejb-class"
+		   type="j2ee:ejb-classType"/>
+      <xsd:element name="persistence-type"
+		   type="j2ee:persistence-typeType"/>
+      <xsd:element name="prim-key-class"
+		   type="j2ee:fully-qualified-classType">
+	<xsd:annotation>
+	  <xsd:documentation>
 
 	    The prim-key-class element contains the
 	    fully-qualified name of an
@@ -1213,13 +1213,13 @@
 	    deferred to deployment time, the prim-key-class
 	    element should specify java.lang.Object.
 
-                    </xsd:documentation>
-                </xsd:annotation>
-            </xsd:element>
-            <xsd:element name="reentrant"
-                type="j2ee:true-falseType">
-                <xsd:annotation>
-                    <xsd:documentation>
+	  </xsd:documentation>
+	</xsd:annotation>
+      </xsd:element>
+      <xsd:element name="reentrant"
+		   type="j2ee:true-falseType">
+	<xsd:annotation>
+	  <xsd:documentation>
 
 	    The reentrant element specifies whether an entity
 	    bean is reentrant or not.
@@ -1227,17 +1227,17 @@
 	    The reentrant element must be one of the two
 	    following: true or false
 
-                    </xsd:documentation>
-                </xsd:annotation>
-            </xsd:element>
-            <xsd:element name="cmp-version"
-                type="j2ee:cmp-versionType"
-                minOccurs="0"/>
-            <xsd:element name="abstract-schema-name"
-                type="j2ee:java-identifierType"
-                minOccurs="0">
-                <xsd:annotation>
-                    <xsd:documentation>
+	  </xsd:documentation>
+	</xsd:annotation>
+      </xsd:element>
+      <xsd:element name="cmp-version"
+		   type="j2ee:cmp-versionType"
+		   minOccurs="0"/>
+      <xsd:element name="abstract-schema-name"
+		   type="j2ee:java-identifierType"
+		   minOccurs="0">
+	<xsd:annotation>
+	  <xsd:documentation>
 
 	    The abstract-schema-name element specifies the name
 	    of the abstract schema type of an entity bean with
@@ -1247,18 +1247,18 @@
 	    bean whose local interface is
 	    com.acme.commerce.Order might be Order.
 
-                    </xsd:documentation>
-                </xsd:annotation>
-            </xsd:element>
-            <xsd:element name="cmp-field"
-                type="j2ee:cmp-fieldType"
-                minOccurs="0"
-                maxOccurs="unbounded"/>
-            <xsd:element name="primkey-field"
-                type="j2ee:string"
-                minOccurs="0">
-                <xsd:annotation>
-                    <xsd:documentation>
+	  </xsd:documentation>
+	</xsd:annotation>
+      </xsd:element>
+      <xsd:element name="cmp-field"
+		   type="j2ee:cmp-fieldType"
+		   minOccurs="0"
+		   maxOccurs="unbounded"/>
+      <xsd:element name="primkey-field"
+		   type="j2ee:string"
+		   minOccurs="0">
+	<xsd:annotation>
+	  <xsd:documentation>
 
 	    The primkey-field element is used to specify the
 	    name of the primary key field for an entity with
@@ -1275,28 +1275,28 @@
 	    their names must correspond to the field names of
 	    the entity bean class that comprise the key.
 
-                    </xsd:documentation>
-                </xsd:annotation>
-            </xsd:element>
-            <xsd:group ref="j2ee:jndiEnvironmentRefsGroup"/>
-            <xsd:element name="security-role-ref"
-                type="j2ee:security-role-refType"
-                minOccurs="0" maxOccurs="unbounded"/>
-            <xsd:element name="security-identity"
-                type="j2ee:security-identityType"
-                minOccurs="0"/>
-            <xsd:element name="query"
-                type="j2ee:queryType"
-                minOccurs="0" maxOccurs="unbounded"/>
-        </xsd:sequence>
-        <xsd:attribute name="id" type="xsd:ID"/>
-    </xsd:complexType>
+	  </xsd:documentation>
+	</xsd:annotation>
+      </xsd:element>
+      <xsd:group ref="j2ee:jndiEnvironmentRefsGroup"/>
+      <xsd:element name="security-role-ref"
+		   type="j2ee:security-role-refType"
+		   minOccurs="0" maxOccurs="unbounded"/>
+      <xsd:element name="security-identity"
+		   type="j2ee:security-identityType"
+		   minOccurs="0"/>
+      <xsd:element name="query"
+		   type="j2ee:queryType"
+		   minOccurs="0" maxOccurs="unbounded"/>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID"/>
+  </xsd:complexType>
 
-    <!-- **************************************************** -->
+<!-- **************************************************** -->
 
-    <xsd:complexType name="exclude-listType">
-        <xsd:annotation>
-            <xsd:documentation>
+  <xsd:complexType name="exclude-listType">
+    <xsd:annotation>
+      <xsd:documentation>
 
 	The exclude-listType specifies one or more methods which
 	the Assembler marks to be uncallable.
@@ -1305,44 +1305,26 @@
 	in the exclude list, the Deployer should consider those
 	methods to be uncallable.
 
-            </xsd:documentation>
-        </xsd:annotation>
+      </xsd:documentation>
+    </xsd:annotation>
 
-        <xsd:sequence>
-            <xsd:element name="description"
-                type="j2ee:descriptionType"
-                minOccurs="0"
-                maxOccurs="unbounded"/>
-            <xsd:element name="method"
-                type="j2ee:methodType"
-                maxOccurs="unbounded"/>
-        </xsd:sequence>
-        <xsd:attribute name="id" type="xsd:ID"/>
-    </xsd:complexType>
+    <xsd:sequence>
+      <xsd:element name="description"
+		   type="j2ee:descriptionType"
+		   minOccurs="0"
+		   maxOccurs="unbounded"/>
+      <xsd:element name="method"
+		   type="j2ee:methodType"
+		   maxOccurs="unbounded"/>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID"/>
+  </xsd:complexType>
 
-    <!-- **************************************************** -->
+<!-- **************************************************** -->
 
-    <xsd:complexType name="java-typeType">
-        <xsd:annotation>
-            <xsd:documentation>
-
-	This is a generic type that designates a Java primitive
-	type or a fully qualified name of a Java interface/type.
-
-            </xsd:documentation>
-        </xsd:annotation>
-        <xsd:simpleContent>
-            <xsd:restriction base="j2ee:string">
-                <xsd:pattern value="[^\p{Z}]*"/>
-            </xsd:restriction>
-        </xsd:simpleContent>
-    </xsd:complexType>
-
-    <!-- **************************************************** -->
-
-    <xsd:complexType name="message-driven-beanType">
-        <xsd:annotation>
-            <xsd:documentation>
+  <xsd:complexType name="message-driven-beanType">
+    <xsd:annotation>
+      <xsd:documentation>
 
 	The message-driven element declares a message-driven
 	bean. The declaration consists of:
@@ -1381,54 +1363,54 @@
 	    - an optional declaration of the bean's message
 	      destination references
 
-            </xsd:documentation>
-        </xsd:annotation>
+      </xsd:documentation>
+    </xsd:annotation>
 
-        <xsd:sequence>
-            <xsd:group ref="j2ee:descriptionGroup"/>
-            <xsd:element name="ejb-name"
-                type="j2ee:ejb-nameType"/>
-            <xsd:element name="ejb-class"
-                type="j2ee:ejb-classType"/>
-            <xsd:element name="messaging-type"
-                type="j2ee:fully-qualified-classType"
-                minOccurs="0">
-                <xsd:annotation>
-                    <xsd:documentation>
+    <xsd:sequence>
+      <xsd:group ref="j2ee:descriptionGroup"/>
+      <xsd:element name="ejb-name"
+		   type="j2ee:ejb-nameType"/>
+      <xsd:element name="ejb-class"
+		   type="j2ee:ejb-classType"/>
+      <xsd:element name="messaging-type"
+		   type="j2ee:fully-qualified-classType"
+		   minOccurs="0">
+	<xsd:annotation>
+	  <xsd:documentation>
 
 	    The messaging-type element specifies the message
 	    listener interface of the message-driven bean. If
 	    the messaging-type element is not specified, it is
 	    assumed to be javax.jms.MessageListener.
 
-                    </xsd:documentation>
-                </xsd:annotation>
-            </xsd:element>
-            <xsd:element name="transaction-type"
-                type="j2ee:transaction-typeType"/>
-            <xsd:element name="message-destination-type"
-                type="j2ee:message-destination-typeType"
-                minOccurs="0"/>
-            <xsd:element name="message-destination-link"
-                type="j2ee:message-destination-linkType"
-                minOccurs="0"/>
-            <xsd:element name="activation-config"
-                type="j2ee:activation-configType"
-                minOccurs="0"/>
-            <xsd:group ref="j2ee:jndiEnvironmentRefsGroup"/>
-            <xsd:element name="security-identity"
-                type="j2ee:security-identityType"
-                minOccurs="0"/>
-        </xsd:sequence>
-        <xsd:attribute name="id" type="xsd:ID"/>
-    </xsd:complexType>
+	  </xsd:documentation>
+	</xsd:annotation>
+      </xsd:element>
+      <xsd:element name="transaction-type"
+		   type="j2ee:transaction-typeType"/>
+      <xsd:element name="message-destination-type"
+		   type="j2ee:message-destination-typeType"
+		   minOccurs="0"/>
+      <xsd:element name="message-destination-link"
+		   type="j2ee:message-destination-linkType"
+		   minOccurs="0"/>
+      <xsd:element name="activation-config"
+		   type="j2ee:activation-configType"
+		   minOccurs="0"/>
+      <xsd:group ref="j2ee:jndiEnvironmentRefsGroup"/>
+      <xsd:element name="security-identity"
+		   type="j2ee:security-identityType"
+		   minOccurs="0"/>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID"/>
+  </xsd:complexType>
 
-    <!-- **************************************************** -->
+<!-- **************************************************** -->
 
-    <xsd:complexType name="method-intfType">
+  <xsd:complexType name="method-intfType">
 
-        <xsd:annotation>
-            <xsd:documentation>
+    <xsd:annotation>
+      <xsd:documentation>
 
 	The method-intf element allows a method element to
 	differentiate between the methods with the same name and
@@ -1446,73 +1428,73 @@
 	    Local
 	    ServiceEndpoint
 
-            </xsd:documentation>
-        </xsd:annotation>
-        <xsd:simpleContent>
-            <xsd:restriction base="j2ee:string">
-                <xsd:enumeration value="Home"/>
-                <xsd:enumeration value="Remote"/>
-                <xsd:enumeration value="LocalHome"/>
-                <xsd:enumeration value="Local"/>
-                <xsd:enumeration value="ServiceEndpoint"/>
-            </xsd:restriction>
-        </xsd:simpleContent>
-    </xsd:complexType>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:restriction base="j2ee:string">
+	<xsd:enumeration value="Home"/>
+	<xsd:enumeration value="Remote"/>
+	<xsd:enumeration value="LocalHome"/>
+	<xsd:enumeration value="Local"/>
+	<xsd:enumeration value="ServiceEndpoint"/>
+      </xsd:restriction>
+    </xsd:simpleContent>
+  </xsd:complexType>
 
-    <!-- **************************************************** -->
+<!-- **************************************************** -->
 
-    <xsd:complexType name="method-nameType">
-        <xsd:annotation>
-            <xsd:documentation>
+  <xsd:complexType name="method-nameType">
+    <xsd:annotation>
+      <xsd:documentation>
 
 	The method-nameType contains a name of an enterprise
 	bean method or the asterisk (*) character. The asterisk is
 	used when the element denotes all the methods of an
 	enterprise bean's client view interfaces.
 
-            </xsd:documentation>
-        </xsd:annotation>
-        <xsd:simpleContent>
-            <xsd:restriction base="j2ee:string"/>
-        </xsd:simpleContent>
-    </xsd:complexType>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:restriction base="j2ee:string"/>
+    </xsd:simpleContent>
+  </xsd:complexType>
 
-    <!-- **************************************************** -->
+<!-- **************************************************** -->
 
-    <xsd:complexType name="method-paramsType">
-        <xsd:annotation>
-            <xsd:documentation>
+  <xsd:complexType name="method-paramsType">
+    <xsd:annotation>
+      <xsd:documentation>
 
 	The method-paramsType defines a list of the
 	fully-qualified Java type names of the method parameters.
 
-            </xsd:documentation>
-        </xsd:annotation>
+      </xsd:documentation>
+    </xsd:annotation>
 
-        <xsd:sequence>
-            <xsd:element name="method-param"
-                type="j2ee:java-typeType"
-                minOccurs="0"
-                maxOccurs="unbounded">
-                <xsd:annotation>
-                    <xsd:documentation>
+    <xsd:sequence>
+      <xsd:element name="method-param"
+		   type="j2ee:java-typeType"
+		   minOccurs="0"
+		   maxOccurs="unbounded">
+	<xsd:annotation>
+	  <xsd:documentation>
 
 	    The method-param element contains a primitive
 	    or a fully-qualified Java type name of a method
 	    parameter.
 
-                    </xsd:documentation>
-                </xsd:annotation>
-            </xsd:element>
-        </xsd:sequence>
-        <xsd:attribute name="id" type="xsd:ID"/>
-    </xsd:complexType>
+	  </xsd:documentation>
+	</xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID"/>
+  </xsd:complexType>
 
-    <!-- **************************************************** -->
+<!-- **************************************************** -->
 
-    <xsd:complexType name="method-permissionType">
-        <xsd:annotation>
-            <xsd:documentation>
+  <xsd:complexType name="method-permissionType">
+    <xsd:annotation>
+      <xsd:documentation>
 
 	The method-permissionType specifies that one or more
 	security roles are allowed to invoke one or more enterprise
@@ -1527,44 +1509,44 @@
 	defined in the enterprise bean's home, component and/or web
 	service endpoint interfaces.
 
-            </xsd:documentation>
-        </xsd:annotation>
+      </xsd:documentation>
+    </xsd:annotation>
 
-        <xsd:sequence>
-            <xsd:element name="description"
-                type="j2ee:descriptionType"
-                minOccurs="0"
-                maxOccurs="unbounded"/>
-            <xsd:choice>
-                <xsd:element name="role-name"
-                    type="j2ee:role-nameType"
-                    maxOccurs="unbounded"/>
-                <xsd:element name="unchecked"
-                    type="j2ee:emptyType">
-                    <xsd:annotation>
-                        <xsd:documentation>
+    <xsd:sequence>
+      <xsd:element name="description"
+		   type="j2ee:descriptionType"
+		   minOccurs="0"
+		   maxOccurs="unbounded"/>
+      <xsd:choice>
+	<xsd:element name="role-name"
+		     type="j2ee:role-nameType"
+		     maxOccurs="unbounded"/>
+	<xsd:element name="unchecked"
+		     type="j2ee:emptyType">
+	  <xsd:annotation>
+	    <xsd:documentation>
 
 	      The unchecked element specifies that a method is
 	      not checked for authorization by the container
 	      prior to invocation of the method.
 
-                        </xsd:documentation>
-                    </xsd:annotation>
-                </xsd:element>
-            </xsd:choice>
-            <xsd:element name="method"
-                type="j2ee:methodType"
-                maxOccurs="unbounded"/>
-        </xsd:sequence>
-        <xsd:attribute name="id" type="xsd:ID"/>
-    </xsd:complexType>
+	    </xsd:documentation>
+	  </xsd:annotation>
+	</xsd:element>
+      </xsd:choice>
+      <xsd:element name="method"
+		   type="j2ee:methodType"
+		   maxOccurs="unbounded"/>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID"/>
+  </xsd:complexType>
 
-    <!-- **************************************************** -->
+<!-- **************************************************** -->
 
-    <xsd:complexType name="methodType">
-        <xsd:annotation>
-            <xsd:documentation>
-                <![CDATA[
+  <xsd:complexType name="methodType">
+    <xsd:annotation>
+      <xsd:documentation>
+	<![CDATA[
 
 	  The methodType is used to denote a method of an enterprise
 	  bean's home, component, and/or web service endpoint
@@ -1735,34 +1717,34 @@
 	      <method-name>*</method-name>
 	  </method>
 
-            ]]>
-            </xsd:documentation>
-        </xsd:annotation>
+	  ]]>
+      </xsd:documentation>
+    </xsd:annotation>
 
-        <xsd:sequence>
-            <xsd:element name="description"
-                type="j2ee:descriptionType"
-                minOccurs="0" maxOccurs="unbounded"/>
-            <xsd:element name="ejb-name"
-                type="j2ee:ejb-nameType"/>
-            <xsd:element name="method-intf"
-                type="j2ee:method-intfType"
-                minOccurs="0">
-            </xsd:element>
-            <xsd:element name="method-name"
-                type="j2ee:method-nameType"/>
-            <xsd:element name="method-params"
-                type="j2ee:method-paramsType"
-                minOccurs="0"/>
-        </xsd:sequence>
-        <xsd:attribute name="id" type="xsd:ID"/>
-    </xsd:complexType>
+    <xsd:sequence>
+      <xsd:element name="description"
+		   type="j2ee:descriptionType"
+		   minOccurs="0" maxOccurs="unbounded"/>
+      <xsd:element name="ejb-name"
+		   type="j2ee:ejb-nameType"/>
+      <xsd:element name="method-intf"
+		   type="j2ee:method-intfType"
+		   minOccurs="0">
+      </xsd:element>
+      <xsd:element name="method-name"
+		   type="j2ee:method-nameType"/>
+      <xsd:element name="method-params"
+		   type="j2ee:method-paramsType"
+		   minOccurs="0"/>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID"/>
+  </xsd:complexType>
 
-    <!-- **************************************************** -->
+<!-- **************************************************** -->
 
-    <xsd:complexType name="multiplicityType">
-        <xsd:annotation>
-            <xsd:documentation>
+  <xsd:complexType name="multiplicityType">
+    <xsd:annotation>
+      <xsd:documentation>
 
 	The multiplicityType describes the multiplicity of the
 	role that participates in a relation.
@@ -1772,21 +1754,21 @@
 	    One
 	    Many
 
-            </xsd:documentation>
-        </xsd:annotation>
-        <xsd:simpleContent>
-            <xsd:restriction base="j2ee:string">
-                <xsd:enumeration value="One"/>
-                <xsd:enumeration value="Many"/>
-            </xsd:restriction>
-        </xsd:simpleContent>
-    </xsd:complexType>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:restriction base="j2ee:string">
+	<xsd:enumeration value="One"/>
+	<xsd:enumeration value="Many"/>
+      </xsd:restriction>
+    </xsd:simpleContent>
+  </xsd:complexType>
 
-    <!-- **************************************************** -->
+<!-- **************************************************** -->
 
-    <xsd:complexType name="persistence-typeType">
-        <xsd:annotation>
-            <xsd:documentation>
+  <xsd:complexType name="persistence-typeType">
+    <xsd:annotation>
+      <xsd:documentation>
 
 	The persistence-typeType specifies an entity bean's persistence
 	management type.
@@ -1796,22 +1778,22 @@
 	    Bean
 	    Container
 
-            </xsd:documentation>
-        </xsd:annotation>
-        <xsd:simpleContent>
-            <xsd:restriction base="j2ee:string">
-                <xsd:enumeration value="Bean"/>
-                <xsd:enumeration value="Container"/>
-            </xsd:restriction>
-        </xsd:simpleContent>
-    </xsd:complexType>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:restriction base="j2ee:string">
+	<xsd:enumeration value="Bean"/>
+	<xsd:enumeration value="Container"/>
+      </xsd:restriction>
+    </xsd:simpleContent>
+  </xsd:complexType>
 
-    <!-- **************************************************** -->
+<!-- **************************************************** -->
 
-    <xsd:complexType name="query-methodType">
-        <xsd:annotation>
-            <xsd:documentation>
-                <![CDATA[
+  <xsd:complexType name="query-methodType">
+    <xsd:annotation>
+      <xsd:documentation>
+	<![CDATA[
 
 	  The query-method specifies the method for a finder or select
 	  query.
@@ -1838,24 +1820,24 @@
 	      </ejb-ql>
 	  </query>
 
-            ]]>
-            </xsd:documentation>
-        </xsd:annotation>
+	  ]]>
+      </xsd:documentation>
+    </xsd:annotation>
 
-        <xsd:sequence>
-            <xsd:element name="method-name"
-                type="j2ee:method-nameType"/>
-            <xsd:element name="method-params"
-                type="j2ee:method-paramsType"/>
-        </xsd:sequence>
-        <xsd:attribute name="id" type="xsd:ID"/>
-    </xsd:complexType>
+    <xsd:sequence>
+      <xsd:element name="method-name"
+		   type="j2ee:method-nameType"/>
+      <xsd:element name="method-params"
+		   type="j2ee:method-paramsType"/>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID"/>
+  </xsd:complexType>
 
-    <!-- **************************************************** -->
+<!-- **************************************************** -->
 
-    <xsd:complexType name="queryType">
-        <xsd:annotation>
-            <xsd:documentation>
+  <xsd:complexType name="queryType">
+    <xsd:annotation>
+      <xsd:documentation>
 
 	The queryType defines a finder or select
 	query. It contains
@@ -1878,28 +1860,28 @@
 	that returns entity objects.  The default value for the
 	result-type-mapping element is "Local".
 
-            </xsd:documentation>
-        </xsd:annotation>
+      </xsd:documentation>
+    </xsd:annotation>
 
-        <xsd:sequence>
-            <xsd:element name="description"
-                type="j2ee:descriptionType" minOccurs="0"/>
-            <xsd:element name="query-method"
-                type="j2ee:query-methodType"/>
-            <xsd:element name="result-type-mapping"
-                type="j2ee:result-type-mappingType"
-                minOccurs="0"/>
-            <xsd:element name="ejb-ql"
-                type="j2ee:xsdStringType"/>
-        </xsd:sequence>
-        <xsd:attribute name="id" type="xsd:ID"/>
-    </xsd:complexType>
+    <xsd:sequence>
+      <xsd:element name="description"
+		   type="j2ee:descriptionType" minOccurs="0"/>
+      <xsd:element name="query-method"
+		   type="j2ee:query-methodType"/>
+      <xsd:element name="result-type-mapping"
+		   type="j2ee:result-type-mappingType"
+		   minOccurs="0"/>
+      <xsd:element name="ejb-ql"
+		   type="j2ee:xsdStringType"/>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID"/>
+  </xsd:complexType>
 
-    <!-- **************************************************** -->
+<!-- **************************************************** -->
 
-    <xsd:complexType name="relationship-role-sourceType">
-        <xsd:annotation>
-            <xsd:documentation>
+  <xsd:complexType name="relationship-role-sourceType">
+    <xsd:annotation>
+      <xsd:documentation>
 
 	The relationship-role-sourceType designates the source of a
 	role that participates in a relationship. A
@@ -1907,25 +1889,25 @@
 	relationship-role-source elements to uniquely identify an
 	entity bean.
 
-            </xsd:documentation>
-        </xsd:annotation>
+      </xsd:documentation>
+    </xsd:annotation>
 
-        <xsd:sequence>
-            <xsd:element name="description"
-                type="j2ee:descriptionType"
-                minOccurs="0"
-                maxOccurs="unbounded"/>
-            <xsd:element name="ejb-name"
-                type="j2ee:ejb-nameType"/>
-        </xsd:sequence>
-        <xsd:attribute name="id" type="xsd:ID"/>
-    </xsd:complexType>
+    <xsd:sequence>
+      <xsd:element name="description"
+		   type="j2ee:descriptionType"
+		   minOccurs="0"
+		   maxOccurs="unbounded"/>
+      <xsd:element name="ejb-name"
+		   type="j2ee:ejb-nameType"/>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID"/>
+  </xsd:complexType>
 
-    <!-- **************************************************** -->
+<!-- **************************************************** -->
 
-    <xsd:complexType name="relationshipsType">
-        <xsd:annotation>
-            <xsd:documentation>
+  <xsd:complexType name="relationshipsType">
+    <xsd:annotation>
+      <xsd:documentation>
 
 	The relationshipsType describes the relationships in
 	which entity beans with container-managed persistence
@@ -1933,44 +1915,44 @@
 	description; and a list of ejb-relation elements, which
 	specify the container managed relationships.
 
-            </xsd:documentation>
-        </xsd:annotation>
+      </xsd:documentation>
+    </xsd:annotation>
 
-        <xsd:sequence>
-            <xsd:element name="description"
-                type="j2ee:descriptionType"
-                minOccurs="0"
-                maxOccurs="unbounded"/>
-            <xsd:element name="ejb-relation"
-                type="j2ee:ejb-relationType"
-                maxOccurs="unbounded">
+    <xsd:sequence>
+      <xsd:element name="description"
+		   type="j2ee:descriptionType"
+		   minOccurs="0"
+		   maxOccurs="unbounded"/>
+      <xsd:element name="ejb-relation"
+		   type="j2ee:ejb-relationType"
+		   maxOccurs="unbounded">
 
-                <xsd:unique name="role-name-uniqueness">
-                    <xsd:annotation>
-                        <xsd:documentation>
+	<xsd:unique name="role-name-uniqueness">
+	  <xsd:annotation>
+	    <xsd:documentation>
 
 	      The ejb-relationship-role-name contains the name of a
 	      relationship role. The name must be unique within
 	      a relationship, but can be reused in different
 	      relationships.
 
-                        </xsd:documentation>
-                    </xsd:annotation>
-                    <xsd:selector
-                        xpath=".//j2ee:ejb-relationship-role-name"/>
-                    <xsd:field
-                        xpath="."/>
-                </xsd:unique>
-            </xsd:element>
-        </xsd:sequence>
-        <xsd:attribute name="id" type="xsd:ID"/>
-    </xsd:complexType>
+	    </xsd:documentation>
+	  </xsd:annotation>
+	  <xsd:selector
+	       xpath=".//j2ee:ejb-relationship-role-name"/>
+	  <xsd:field
+	       xpath="."/>
+	</xsd:unique>
+      </xsd:element>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID"/>
+  </xsd:complexType>
 
-    <!-- **************************************************** -->
+<!-- **************************************************** -->
 
-    <xsd:complexType name="result-type-mappingType">
-        <xsd:annotation>
-            <xsd:documentation>
+  <xsd:complexType name="result-type-mappingType">
+    <xsd:annotation>
+      <xsd:documentation>
 
 	The result-type-mappingType is used in the query element to
 	specify whether an abstract schema type returned by a query
@@ -1982,21 +1964,21 @@
 	    Local
 	    Remote
 
-            </xsd:documentation>
-        </xsd:annotation>
-        <xsd:simpleContent>
-            <xsd:restriction base="j2ee:string">
-                <xsd:enumeration value="Local"/>
-                <xsd:enumeration value="Remote"/>
-            </xsd:restriction>
-        </xsd:simpleContent>
-    </xsd:complexType>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:restriction base="j2ee:string">
+	<xsd:enumeration value="Local"/>
+	<xsd:enumeration value="Remote"/>
+      </xsd:restriction>
+    </xsd:simpleContent>
+  </xsd:complexType>
 
-    <!-- **************************************************** -->
+<!-- **************************************************** -->
 
-    <xsd:complexType name="security-identityType">
-        <xsd:annotation>
-            <xsd:documentation>
+  <xsd:complexType name="security-identityType">
+    <xsd:annotation>
+      <xsd:documentation>
 
 	The security-identityType specifies whether the caller's
 	security identity is to be used for the execution of the
@@ -2004,40 +1986,40 @@
 	identity is to be used. It contains an optional description
 	and a specification of the security identity to be used.
 
-            </xsd:documentation>
-        </xsd:annotation>
+      </xsd:documentation>
+    </xsd:annotation>
 
-        <xsd:sequence>
-            <xsd:element name="description"
-                type="j2ee:descriptionType"
-                minOccurs="0"
-                maxOccurs="unbounded"/>
-            <xsd:choice>
-                <xsd:element name="use-caller-identity"
-                    type="j2ee:emptyType">
-                    <xsd:annotation>
-                        <xsd:documentation>
+    <xsd:sequence>
+      <xsd:element name="description"
+		   type="j2ee:descriptionType"
+		   minOccurs="0"
+		   maxOccurs="unbounded"/>
+      <xsd:choice>
+	<xsd:element name="use-caller-identity"
+		     type="j2ee:emptyType">
+	  <xsd:annotation>
+	    <xsd:documentation>
 
 	      The use-caller-identity element specifies that
 	      the caller's security identity be used as the
 	      security identity for the execution of the
 	      enterprise bean's methods.
 
-                        </xsd:documentation>
-                    </xsd:annotation>
-                </xsd:element>
-                <xsd:element name="run-as"
-                    type="j2ee:run-asType"/>
-            </xsd:choice>
-        </xsd:sequence>
-        <xsd:attribute name="id" type="xsd:ID"/>
-    </xsd:complexType>
+	    </xsd:documentation>
+	  </xsd:annotation>
+	</xsd:element>
+	<xsd:element name="run-as"
+		     type="j2ee:run-asType"/>
+      </xsd:choice>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID"/>
+  </xsd:complexType>
 
-    <!-- **************************************************** -->
+<!-- **************************************************** -->
 
-    <xsd:complexType name="session-beanType">
-        <xsd:annotation>
-            <xsd:documentation>
+  <xsd:complexType name="session-beanType">
+    <xsd:annotation>
+      <xsd:documentation>
 
 	The session-beanType declares an session bean. The
 	declaration consists of:
@@ -2086,30 +2068,30 @@
 	The service-endpoint element may only be specified if the
 	bean is a stateless session bean.
 
-            </xsd:documentation>
-        </xsd:annotation>
+      </xsd:documentation>
+    </xsd:annotation>
 
-        <xsd:sequence>
-            <xsd:group ref="j2ee:descriptionGroup"/>
-            <xsd:element name="ejb-name"
-                type="j2ee:ejb-nameType"/>
-            <xsd:element name="home"
-                type="j2ee:homeType"
-                minOccurs="0"/>
-            <xsd:element name="remote"
-                type="j2ee:remoteType"
-                minOccurs="0"/>
-            <xsd:element name="local-home"
-                type="j2ee:local-homeType"
-                minOccurs="0"/>
-            <xsd:element name="local"
-                type="j2ee:localType"
-                minOccurs="0"/>
-            <xsd:element name="service-endpoint"
-                type="j2ee:fully-qualified-classType"
-                minOccurs="0">
-                <xsd:annotation>
-                    <xsd:documentation>
+    <xsd:sequence>
+      <xsd:group ref="j2ee:descriptionGroup"/>
+      <xsd:element name="ejb-name"
+		   type="j2ee:ejb-nameType"/>
+      <xsd:element name="home"
+		   type="j2ee:homeType"
+		   minOccurs="0"/>
+      <xsd:element name="remote"
+		   type="j2ee:remoteType"
+		   minOccurs="0"/>
+      <xsd:element name="local-home"
+		   type="j2ee:local-homeType"
+		   minOccurs="0"/>
+      <xsd:element name="local"
+		   type="j2ee:localType"
+		   minOccurs="0"/>
+      <xsd:element name="service-endpoint"
+		   type="j2ee:fully-qualified-classType"
+		   minOccurs="0">
+	<xsd:annotation>
+	  <xsd:documentation>
 
 	    The service-endpoint element contains the
 	    fully-qualified name of the enterprise bean's web
@@ -2118,32 +2100,32 @@
 	    session bean. The specified interface must be a
 	    valid JAX-RPC service endpoint interface.
 
-                    </xsd:documentation>
-                </xsd:annotation>
-            </xsd:element>
-            <xsd:element name="ejb-class"
-                type="j2ee:ejb-classType"/>
-            <xsd:element name="session-type"
-                type="j2ee:session-typeType"/>
-            <xsd:element name="transaction-type"
-                type="j2ee:transaction-typeType"/>
-            <xsd:group ref="j2ee:jndiEnvironmentRefsGroup"/>
-            <xsd:element name="security-role-ref"
-                type="j2ee:security-role-refType"
-                minOccurs="0"
-                maxOccurs="unbounded"/>
-            <xsd:element name="security-identity"
-                type="j2ee:security-identityType"
-                minOccurs="0"/>
-        </xsd:sequence>
-        <xsd:attribute name="id" type="xsd:ID"/>
-    </xsd:complexType>
+	  </xsd:documentation>
+	</xsd:annotation>
+      </xsd:element>
+      <xsd:element name="ejb-class"
+		   type="j2ee:ejb-classType"/>
+      <xsd:element name="session-type"
+		   type="j2ee:session-typeType"/>
+      <xsd:element name="transaction-type"
+		   type="j2ee:transaction-typeType"/>
+      <xsd:group ref="j2ee:jndiEnvironmentRefsGroup"/>
+      <xsd:element name="security-role-ref"
+		   type="j2ee:security-role-refType"
+		   minOccurs="0"
+		   maxOccurs="unbounded"/>
+      <xsd:element name="security-identity"
+		   type="j2ee:security-identityType"
+		   minOccurs="0"/>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID"/>
+  </xsd:complexType>
 
-    <!-- **************************************************** -->
+<!-- **************************************************** -->
 
-    <xsd:complexType name="session-typeType">
-        <xsd:annotation>
-            <xsd:documentation>
+  <xsd:complexType name="session-typeType">
+    <xsd:annotation>
+      <xsd:documentation>
 
 	The session-typeType describes whether the session bean is a
 	stateful session or stateless session. It is used by
@@ -2154,21 +2136,21 @@
 	    Stateful
 	    Stateless
 
-            </xsd:documentation>
-        </xsd:annotation>
-        <xsd:simpleContent>
-            <xsd:restriction base="j2ee:string">
-                <xsd:enumeration value="Stateful"/>
-                <xsd:enumeration value="Stateless"/>
-            </xsd:restriction>
-        </xsd:simpleContent>
-    </xsd:complexType>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:restriction base="j2ee:string">
+	<xsd:enumeration value="Stateful"/>
+	<xsd:enumeration value="Stateless"/>
+      </xsd:restriction>
+    </xsd:simpleContent>
+  </xsd:complexType>
 
-    <!-- **************************************************** -->
+<!-- **************************************************** -->
 
-    <xsd:complexType name="trans-attributeType">
-        <xsd:annotation>
-            <xsd:documentation>
+  <xsd:complexType name="trans-attributeType">
+    <xsd:annotation>
+      <xsd:documentation>
 
 	The trans-attributeType specifies how the container must
 	manage the transaction boundaries when delegating a method
@@ -2183,25 +2165,25 @@
 	    Mandatory
 	    Never
 
-            </xsd:documentation>
-        </xsd:annotation>
-        <xsd:simpleContent>
-            <xsd:restriction base="j2ee:string">
-                <xsd:enumeration value="NotSupported"/>
-                <xsd:enumeration value="Supports"/>
-                <xsd:enumeration value="Required"/>
-                <xsd:enumeration value="RequiresNew"/>
-                <xsd:enumeration value="Mandatory"/>
-                <xsd:enumeration value="Never"/>
-            </xsd:restriction>
-        </xsd:simpleContent>
-    </xsd:complexType>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:restriction base="j2ee:string">
+	<xsd:enumeration value="NotSupported"/>
+	<xsd:enumeration value="Supports"/>
+	<xsd:enumeration value="Required"/>
+	<xsd:enumeration value="RequiresNew"/>
+	<xsd:enumeration value="Mandatory"/>
+	<xsd:enumeration value="Never"/>
+      </xsd:restriction>
+    </xsd:simpleContent>
+  </xsd:complexType>
 
-    <!-- **************************************************** -->
+<!-- **************************************************** -->
 
-    <xsd:complexType name="transaction-typeType">
-        <xsd:annotation>
-            <xsd:documentation>
+  <xsd:complexType name="transaction-typeType">
+    <xsd:annotation>
+      <xsd:documentation>
 
 	The transaction-typeType specifies an enterprise bean's
 	transaction management type.
@@ -2211,15 +2193,15 @@
 	    Bean
 	    Container
 
-            </xsd:documentation>
-        </xsd:annotation>
-        <xsd:simpleContent>
-            <xsd:restriction base="j2ee:string">
-                <xsd:enumeration value="Bean"/>
-                <xsd:enumeration value="Container"/>
-            </xsd:restriction>
-        </xsd:simpleContent>
-    </xsd:complexType>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:restriction base="j2ee:string">
+	<xsd:enumeration value="Bean"/>
+	<xsd:enumeration value="Container"/>
+      </xsd:restriction>
+    </xsd:simpleContent>
+  </xsd:complexType>
 
 </xsd:schema>
 

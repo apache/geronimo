@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema xmlns="http://www.w3.org/2001/XMLSchema"
-    targetNamespace="http://java.sun.com/xml/ns/j2ee"
-    xmlns:j2ee="http://java.sun.com/xml/ns/j2ee"
-    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    elementFormDefault="qualified"
-    attributeFormDefault="unqualified"
-    version="2.0">
-    <xsd:annotation>
-        <xsd:documentation>
+	    targetNamespace="http://java.sun.com/xml/ns/j2ee"
+	    xmlns:j2ee="http://java.sun.com/xml/ns/j2ee"
+	    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	    elementFormDefault="qualified"
+	    attributeFormDefault="unqualified"
+	    version="2.0">
+  <xsd:annotation>
+    <xsd:documentation>
       @(#)jsp_2_0.xsds	1.17 03/18/03
-        </xsd:documentation>
-    </xsd:annotation>
+    </xsd:documentation>
+  </xsd:annotation>
 
-    <xsd:annotation>
-        <xsd:documentation>
+  <xsd:annotation>
+    <xsd:documentation>
 
-      Copyright 2002 Sun Microsystems, Inc., 901 San Antonio
+      Copyright 2003 Sun Microsystems, Inc., 901 San Antonio
       Road, Palo Alto, California 94303, U.S.A. All rights
       reserved.
 
@@ -44,11 +44,11 @@
       Federal Acquisitions: Commercial Software - Government Users
       Subject to Standard License Terms and Conditions.
 
-        </xsd:documentation>
-    </xsd:annotation>
+    </xsd:documentation>
+  </xsd:annotation>
 
-    <xsd:annotation>
-        <xsd:documentation>
+  <xsd:annotation>
+    <xsd:documentation>
 
       This is the XML Schema for the JSP 2.0 deployment descriptor
       types.  The JSP 2.0 schema contains all the special
@@ -58,11 +58,11 @@
       The contents of this schema is used by the web-app_2_4.xsd
       file to define JSP specific content.
 
-        </xsd:documentation>
-    </xsd:annotation>
+    </xsd:documentation>
+  </xsd:annotation>
 
-    <xsd:annotation>
-        <xsd:documentation>
+  <xsd:annotation>
+    <xsd:documentation>
 
       The following conventions apply to all J2EE
       deployment descriptor elements unless indicated otherwise.
@@ -76,60 +76,60 @@
 	preferred.  The exception is .war files where absolute
 	names are preferred for consistency with the Servlet API.
 
-        </xsd:documentation>
-    </xsd:annotation>
+    </xsd:documentation>
+  </xsd:annotation>
 
-    <xsd:include schemaLocation="j2ee_1_4.xsd"/>
+  <xsd:include schemaLocation="j2ee_1_4.xsd"/>
 
 
-    <!-- **************************************************** -->
+<!-- **************************************************** -->
 
-    <xsd:complexType name="jsp-configType">
-        <xsd:annotation>
-            <xsd:documentation>
+  <xsd:complexType name="jsp-configType">
+    <xsd:annotation>
+      <xsd:documentation>
 
 	The jsp-configType is used to provide global configuration
 	information for the JSP files in a web application. It has
 	two subelements, taglib and jsp-property-group.
 
-            </xsd:documentation>
-        </xsd:annotation>
+      </xsd:documentation>
+    </xsd:annotation>
 
-        <xsd:sequence>
-            <xsd:element name="taglib"
-                type="j2ee:taglibType"
-                minOccurs="0"
-                maxOccurs="unbounded"/>
-            <xsd:element name="jsp-property-group"
-                type="j2ee:jsp-property-groupType"
-                minOccurs="0"
-                maxOccurs="unbounded"/>
-        </xsd:sequence>
-        <xsd:attribute name="id" type="xsd:ID"/>
-    </xsd:complexType>
+    <xsd:sequence>
+      <xsd:element name="taglib"
+		   type="j2ee:taglibType"
+		   minOccurs="0"
+		   maxOccurs="unbounded"/>
+      <xsd:element name="jsp-property-group"
+		   type="j2ee:jsp-property-groupType"
+		   minOccurs="0"
+		   maxOccurs="unbounded"/>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID"/>
+  </xsd:complexType>
 
-    <!-- **************************************************** -->
+<!-- **************************************************** -->
 
-    <xsd:complexType name="jsp-fileType">
-        <xsd:annotation>
-            <xsd:documentation>
+  <xsd:complexType name="jsp-fileType">
+    <xsd:annotation>
+      <xsd:documentation>
 
 	The jsp-file element contains the full path to a JSP file
 	within the web application beginning with a `/'.
 
-            </xsd:documentation>
-        </xsd:annotation>
+      </xsd:documentation>
+    </xsd:annotation>
 
-        <xsd:simpleContent>
-            <xsd:restriction base="j2ee:pathType"/>
-        </xsd:simpleContent>
-    </xsd:complexType>
+    <xsd:simpleContent>
+      <xsd:restriction base="j2ee:pathType"/>
+    </xsd:simpleContent>
+  </xsd:complexType>
 
-    <!-- **************************************************** -->
+<!-- **************************************************** -->
 
-    <xsd:complexType name="jsp-property-groupType">
-        <xsd:annotation>
-            <xsd:documentation>
+  <xsd:complexType name="jsp-property-groupType">
+    <xsd:annotation>
+      <xsd:documentation>
 
 	The jsp-property-groupType is used to group a number of
 	files so they can be given global property information.
@@ -142,19 +142,19 @@
 	    - Indicate that a resource is a JSP document (XML)
 	    - Prelude and Coda automatic includes.
 
-            </xsd:documentation>
-        </xsd:annotation>
+      </xsd:documentation>
+    </xsd:annotation>
 
-        <xsd:sequence>
-            <xsd:group ref="j2ee:descriptionGroup"/>
-            <xsd:element name="url-pattern"
-                type="j2ee:url-patternType"
-                maxOccurs="unbounded"/>
-            <xsd:element name="el-ignored"
-                type="j2ee:true-falseType"
-                minOccurs="0">
-                <xsd:annotation>
-                    <xsd:documentation>
+    <xsd:sequence>
+      <xsd:group ref="j2ee:descriptionGroup"/>
+      <xsd:element name="url-pattern"
+		   type="j2ee:url-patternType"
+		   maxOccurs="unbounded"/>
+      <xsd:element name="el-ignored"
+		   type="j2ee:true-falseType"
+		   minOccurs="0">
+	<xsd:annotation>
+	  <xsd:documentation>
 
 	    Can be used to easily set the isELIgnored
 	    property of a group of JSP pages.  By default, the
@@ -162,14 +162,14 @@
 	    a Servlet 2.4 or greater web.xml, and disabled
 	    otherwise.
 
-                    </xsd:documentation>
-                </xsd:annotation>
-            </xsd:element>
-            <xsd:element name="page-encoding"
-                type="j2ee:string"
-                minOccurs="0">
-                <xsd:annotation>
-                    <xsd:documentation>
+	  </xsd:documentation>
+	</xsd:annotation>
+      </xsd:element>
+      <xsd:element name="page-encoding"
+		   type="j2ee:string"
+		   minOccurs="0">
+	<xsd:annotation>
+	  <xsd:documentation>
 
 	    The valid values of page-encoding are those of the
 	    pageEncoding page directive.  It is a
@@ -183,27 +183,27 @@
 	    It is legal to name the same encoding through
 	    mulitple mechanisms.
 
-                    </xsd:documentation>
-                </xsd:annotation>
-            </xsd:element>
-            <xsd:element name="scripting-invalid"
-                type="j2ee:true-falseType"
-                minOccurs="0">
-                <xsd:annotation>
-                    <xsd:documentation>
+	  </xsd:documentation>
+	</xsd:annotation>
+      </xsd:element>
+      <xsd:element name="scripting-invalid"
+		   type="j2ee:true-falseType"
+		   minOccurs="0">
+	<xsd:annotation>
+	  <xsd:documentation>
 
 	    Can be used to easily disable scripting in a
 	    group of JSP pages.  By default, scripting is
 	    enabled.
 
-                    </xsd:documentation>
-                </xsd:annotation>
-            </xsd:element>
-            <xsd:element name="is-xml"
-                type="j2ee:true-falseType"
-                minOccurs="0">
-                <xsd:annotation>
-                    <xsd:documentation>
+	  </xsd:documentation>
+	</xsd:annotation>
+      </xsd:element>
+      <xsd:element name="is-xml"
+		   type="j2ee:true-falseType"
+		   minOccurs="0">
+	<xsd:annotation>
+	  <xsd:documentation>
 
 	    If true, denotes that the group of resources
 	    that match the URL pattern are JSP documents,
@@ -212,15 +212,15 @@
 	    be JSP documents, unless there is another
 	    property group that indicates otherwise.
 
-                    </xsd:documentation>
-                </xsd:annotation>
-            </xsd:element>
-            <xsd:element name="include-prelude"
-                type="j2ee:pathType"
-                minOccurs="0"
-                maxOccurs="unbounded">
-                <xsd:annotation>
-                    <xsd:documentation>
+	  </xsd:documentation>
+	</xsd:annotation>
+      </xsd:element>
+      <xsd:element name="include-prelude"
+		   type="j2ee:pathType"
+		   minOccurs="0"
+		   maxOccurs="unbounded">
+	<xsd:annotation>
+	  <xsd:documentation>
 
 	    The include-prelude element is a context-relative
 	    path that must correspond to an element in the
@@ -229,15 +229,15 @@
 	    in an include directive) at the beginning of each
 	    JSP page in this jsp-property-group.
 
-                    </xsd:documentation>
-                </xsd:annotation>
-            </xsd:element>
-            <xsd:element name="include-coda"
-                type="j2ee:pathType"
-                minOccurs="0"
-                maxOccurs="unbounded">
-                <xsd:annotation>
-                    <xsd:documentation>
+	  </xsd:documentation>
+	</xsd:annotation>
+      </xsd:element>
+      <xsd:element name="include-coda"
+		   type="j2ee:pathType"
+		   minOccurs="0"
+		   maxOccurs="unbounded">
+	<xsd:annotation>
+	  <xsd:documentation>
 
 	    The include-coda element is a context-relative
 	    path that must correspond to an element in the
@@ -246,18 +246,18 @@
 	    in an include directive) at the end of each
 	    JSP page in this jsp-property-group.
 
-                    </xsd:documentation>
-                </xsd:annotation>
-            </xsd:element>
-        </xsd:sequence>
-        <xsd:attribute name="id" type="xsd:ID"/>
-    </xsd:complexType>
+	  </xsd:documentation>
+	</xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID"/>
+  </xsd:complexType>
 
-    <!-- **************************************************** -->
+<!-- **************************************************** -->
 
-    <xsd:complexType name="taglibType">
-        <xsd:annotation>
-            <xsd:documentation>
+  <xsd:complexType name="taglibType">
+    <xsd:annotation>
+      <xsd:documentation>
 
 	The taglibType defines the syntax for declaring in
 	the deployment descriptor that a tag library is
@@ -265,14 +265,14 @@
 	to override implicit map entries from TLD files and
 	from the container.
 
-            </xsd:documentation>
-        </xsd:annotation>
+      </xsd:documentation>
+    </xsd:annotation>
 
-        <xsd:sequence>
-            <xsd:element name="taglib-uri"
-                type="j2ee:string">
-                <xsd:annotation>
-                    <xsd:documentation>
+    <xsd:sequence>
+      <xsd:element name="taglib-uri"
+		   type="j2ee:string">
+	<xsd:annotation>
+	  <xsd:documentation>
 
 	    A taglib-uri element describes a URI identifying a
 	    tag library used in the web application.  The body
@@ -281,27 +281,27 @@
 	    There should be no entries in web.xml with the
 	    same taglib-uri value.
 
-                    </xsd:documentation>
-                </xsd:annotation>
-            </xsd:element>
+	  </xsd:documentation>
+	</xsd:annotation>
+      </xsd:element>
 
-            <xsd:element name="taglib-location"
-                type="j2ee:pathType">
-                <xsd:annotation>
-                    <xsd:documentation>
+      <xsd:element name="taglib-location"
+		   type="j2ee:pathType">
+	<xsd:annotation>
+	  <xsd:documentation>
 
 	    the taglib-location element contains the location
 	    (as a resource relative to the root of the web
 	    application) where to find the Tag Library
 	    Description file for the tag library.
 
-                    </xsd:documentation>
-                </xsd:annotation>
-            </xsd:element>
+	  </xsd:documentation>
+	</xsd:annotation>
+      </xsd:element>
 
-        </xsd:sequence>
-        <xsd:attribute name="id" type="xsd:ID"/>
-    </xsd:complexType>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID"/>
+  </xsd:complexType>
 
 </xsd:schema>
 
