@@ -31,13 +31,16 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
+
 import javax.management.ObjectName;
 import javax.sql.DataSource;
 
 import junit.framework.TestCase;
+import org.apache.geronimo.connector.ActivationSpecInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARContext;
@@ -56,7 +59,7 @@ import org.apache.xmlbeans.XmlOptions;
 import org.tranql.sql.jdbc.JDBCUtil;
 
 /**
- * @version $Revision: 1.11 $ $Date: 2004/06/15 23:33:00 $
+ * @version $Revision: 1.12 $ $Date: 2004/06/25 21:33:27 $
  */
 public class RAR_1_5ConfigBuilderTest extends TestCase {
     private URL j2eeDD;
@@ -161,7 +164,27 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
             kernel.loadGBean(objectName, config);
             config.setAttribute("BaseURL", unpackedDir.toURL());
 
-            // start the configuration
+            //start configuration to load but not start gbeans.
+            kernel.startGBean(objectName);
+            //verify that activationSpecInfoMap is accessible and correct while ResourceAdapterGBean is stopped.
+            ObjectName resourceAdapter = new ObjectName(j2eeDomainName +
+                    ":j2eeType=ResourceAdapter" +
+                    ",name=testRA" +
+                    ",J2EEServer=" + j2eeServerName +
+                    ",J2EEApplication=" + j2eeApplicationName +
+                    ",ResourceAdapterModule=" + j2eeModuleName);
+            Map activationSpecInfoMap = (Map) kernel.getAttribute(resourceAdapter, "activationSpecInfoMap");
+            assertEquals(1, activationSpecInfoMap.size());
+            ActivationSpecInfo activationSpecInfo = (ActivationSpecInfo) activationSpecInfoMap.get("org.apache.geronimo.connector.mock.MockActivationSpec");
+            assertNotNull(activationSpecInfo);
+            GBeanInfo activationSpecGBeanInfo = activationSpecInfo.getActivationSpecGBeanInfo();
+            List attributes = activationSpecGBeanInfo.getPersistentAttributes();
+            assertEquals(3, attributes.size());
+
+            //startRecursive can only be invoked if GBean is stopped.
+            kernel.stopGBean(objectName);
+
+            // start the configuration to also start gbeans.
             kernel.startRecursiveGBean(objectName);
             assertRunning(kernel, objectName);
 
@@ -177,12 +200,6 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
             assertRunning(kernel, moduleName);
 
             // ResourceAdapter
-            ObjectName resourceAdapter = new ObjectName(j2eeDomainName +
-                    ":j2eeType=ResourceAdapter" +
-                    ",name=testRA" +
-                    ",J2EEServer=" + j2eeServerName +
-                    ",J2EEApplication=" + j2eeApplicationName +
-                    ",ResourceAdapterModule=" + j2eeModuleName);
             assertRunning(kernel, resourceAdapter);
 
             // FirstTestOutboundConnectionFactory

@@ -30,7 +30,7 @@ import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 /**
  *
  *
- * @version $Revision: 1.8 $ $Date: 2004/04/13 19:57:18 $
+ * @version $Revision: 1.9 $ $Date: 2004/06/25 21:33:27 $
  */
 public class ComponentContextBuilder {
     private static final String ENV = "env/";
@@ -117,6 +117,17 @@ public class ComponentContextBuilder {
         Reference ref = null;
         try {
             ref = referenceFactory.buildAdminObjectReference(refAdapter, iface);
+        } catch (MalformedObjectNameException e) {
+            throw (NamingException) new NamingException("invalid object name").initCause(e);
+        }
+        context.internalBind(ENV + name, ref);
+    }
+
+    //TODO this works only if there is only one kernel running.
+    public void addMessageDestinationRef(String name, String linkName, Class iface) throws NamingException {
+        Reference ref = null;
+        try {
+            ref = referenceFactory.buildMessageDestinationReference(linkName, iface);
         } catch (MalformedObjectNameException e) {
             throw (NamingException) new NamingException("invalid object name").initCause(e);
         }

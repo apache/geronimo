@@ -43,7 +43,7 @@ import org.apache.geronimo.transaction.manager.NamedXAResource;
 import org.apache.geronimo.transaction.manager.ResourceManager;
 
 /**
- * @version $Revision: 1.16 $ $Date: 2004/06/12 18:43:31 $
+ * @version $Revision: 1.17 $ $Date: 2004/06/25 21:33:26 $
  */
 public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicGBean, ResourceManager {
 
@@ -164,7 +164,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
             if (resourceAdapterWrapper == null) {
                 throw new IllegalStateException("Managed connection factory expects to be registered with a ResourceAdapter, but there is no ResourceAdapter");
             }
-            resourceAdapterWrapper.registerManagedConnectionFactory((ResourceAdapterAssociation) managedConnectionFactory);
+            resourceAdapterWrapper.registerResourceAdapterAssociation((ResourceAdapterAssociation) managedConnectionFactory);
             registered = true;
             log.debug("Registered managedConnectionFactory with ResourceAdapter " + resourceAdapterWrapper.toString());
         }

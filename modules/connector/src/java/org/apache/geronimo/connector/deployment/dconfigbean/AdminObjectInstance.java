@@ -29,7 +29,7 @@ import org.apache.xmlbeans.XmlBeans;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/03/10 09:58:31 $
+ * @version $Revision: 1.7 $ $Date: 2004/06/25 21:33:26 $
  *
  * */
 public class AdminObjectInstance extends XmlBeanSupport {
@@ -103,12 +103,12 @@ public class AdminObjectInstance extends XmlBeanSupport {
         pcs.firePropertyChange("configProperty", old, configs);
     }
 
-    public String getAdminObjectName() {
-        return getAdminobjectInstance().getAdminobjectName();
+    public String getMessageDestinationName() {
+        return getAdminobjectInstance().getMessageDestinationName();
     }
 
-    public void setAdminObjectName(String adminObjectName) {
-        getAdminobjectInstance().setAdminobjectName(adminObjectName);
+    public void setMessageDestinationName(String messageDestinationName) {
+        getAdminobjectInstance().setMessageDestinationName(messageDestinationName);
     }
 
 }

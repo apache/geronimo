@@ -90,10 +90,10 @@
 
     <xsd:complexType name="adminobject-instanceType">
         <xsd:sequence>
-            <xsd:element name="adminobject-name"
+            <xsd:element name="message-destination-name"
                 type="xsd:string">
                 <xsd:annotation>
-                    <xsd:documentation>unique name for admin object instance.  Used in object name of mbean for it.
+                    <xsd:documentation>unique name for admin object instance.  Used in object name of gbean for it. Matches message-destination-name in ejb-jar.xml assembly descriptor.
                     </xsd:documentation>
                 </xsd:annotation>
             </xsd:element>

@@ -46,6 +46,8 @@ import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 import org.apache.geronimo.common.xml.XmlBeansUtil;
 import org.apache.geronimo.connector.AdminObjectWrapper;
 import org.apache.geronimo.connector.ResourceAdapterWrapper;
+import org.apache.geronimo.connector.ActivationSpecWrapper;
+import org.apache.geronimo.connector.ActivationSpecInfo;
 import org.apache.geronimo.connector.outbound.GenericConnectionManager;
 import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.LocalTransactions;
@@ -86,6 +88,9 @@ import org.apache.geronimo.xbeans.j2ee.ConnectionDefinitionType;
 import org.apache.geronimo.xbeans.j2ee.ConnectorDocument;
 import org.apache.geronimo.xbeans.j2ee.ConnectorType;
 import org.apache.geronimo.xbeans.j2ee.ResourceadapterType;
+import org.apache.geronimo.xbeans.j2ee.MessagelistenerType;
+import org.apache.geronimo.xbeans.j2ee.ActivationspecType;
+import org.apache.geronimo.xbeans.j2ee.RequiredConfigPropertyType;
 import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConfigPropertyType10;
 import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConnectorDocument10;
 import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConnectorType10;
@@ -95,7 +100,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/06/15 23:33:00 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/25 21:33:26 $
  */
 public class ConnectorModuleBuilder implements ModuleBuilder {
     private static final String BASE_REALM_BRIDGE_NAME = "geronimo.security:service=RealmBridge,name=";
@@ -332,16 +337,20 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
             ConfigProperty[] configProperties = getConfigProperties(resourceadapter.getConfigPropertyArray(), geronimoResourceAdapter.getResourceadapterInstance().getConfigPropertySettingArray());
             GBeanMBean resourceAdapterGBean = setUpDynamicGBean(resourceAdapterInfoFactory, configProperties, cl);
 
-            // set the resoruce adapter class
+            //get the ActivationSpec metadata as GBeanInfos
+            Map activationSpecInfoMap = getActivationSpecInfoMap(resourceadapter.getInboundResourceadapter().getMessageadapter().getMessagelistenerArray(), cl);
+
+            // set the resource adapter class and activationSpec info map
             try {
-                resourceAdapterGBean.setAttribute("ResourceAdapterClass", cl.loadClass(resourceadapter.getResourceadapterClass().getStringValue()));
+                resourceAdapterGBean.setAttribute("resourceAdapterClass", cl.loadClass(resourceadapter.getResourceadapterClass().getStringValue()));
+                resourceAdapterGBean.setAttribute("activationSpecInfoMap", activationSpecInfoMap);
             } catch (Exception e) {
                 throw new DeploymentException("Could not set ResourceAdapterClass", e);
             }
 
             // set the bootstrap context name
             try {
-                resourceAdapterGBean.setReferencePattern("BootstrapContext",
+                resourceAdapterGBean.setReferencePattern("bootstrapContext",
                         ObjectName.getInstance(geronimoResourceAdapter.getResourceadapterInstance().getBootstrapcontextName().getStringValue()));
             } catch (MalformedObjectNameException e) {
                 throw new DeploymentException("Could not create object name for bootstrap context", e);
@@ -439,7 +448,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
                 try {
                     Properties nameProps = new Properties();
                     nameProps.put("j2eeType", "JCAAdminObject");
-                    nameProps.put("name", gerAdminObjectInstance.getAdminobjectName());
+                    nameProps.put("name", gerAdminObjectInstance.getMessageDestinationName());
                     nameProps.put("J2EEServer", earContext.getJ2EEServerName());
 
                     ObjectName adminObjectObjectName = new ObjectName(earContext.getJ2EEDomainName(), nameProps);
@@ -449,6 +458,31 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
                 }
             }
         }
+    }
+
+    private Map getActivationSpecInfoMap(MessagelistenerType[] messagelistenerArray, ClassLoader cl) throws DeploymentException {
+        Map activationSpecInfos = new HashMap();
+        for (int i = 0; i < messagelistenerArray.length; i++) {
+            MessagelistenerType messagelistenerType = messagelistenerArray[i];
+            ActivationspecType activationspec = messagelistenerType.getActivationspec();
+            String activationSpecClassName = activationspec.getActivationspecClass().getStringValue();
+            GBeanInfoFactory infoFactory = new GBeanInfoFactory(ActivationSpecWrapper.class, ActivationSpecWrapper.getGBeanInfo());
+            for (int j = 0; j < activationspec.getRequiredConfigPropertyArray().length; j++) {
+                RequiredConfigPropertyType requiredConfigPropertyType = activationspec.getRequiredConfigPropertyArray()[j];
+                String propertyName = requiredConfigPropertyType.getConfigPropertyName().getStringValue();
+                infoFactory.addAttribute(new DynamicGAttributeInfo(propertyName, true));
+            }
+            GBeanInfo gbeanInfo = infoFactory.getBeanInfo();
+            Class activationSpecClass = null;
+            try {
+                activationSpecClass = cl.loadClass(activationSpecClassName);
+            } catch (ClassNotFoundException e) {
+                throw new DeploymentException("Could not load ActivationSpec class", e);
+            }
+            ActivationSpecInfo activationSpecInfo = new ActivationSpecInfo(activationSpecClass, gbeanInfo);
+            activationSpecInfos.put(activationSpecClassName, activationSpecInfo);
+        }
+        return activationSpecInfos;
     }
 
     private GBeanMBean setUpDynamicGBean(GBeanInfoFactory infoFactory, ConfigProperty[] configProperties, ClassLoader cl) throws DeploymentException {

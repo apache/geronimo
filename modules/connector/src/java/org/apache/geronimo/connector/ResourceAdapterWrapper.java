@@ -17,6 +17,8 @@
 
 package org.apache.geronimo.connector;
 
+import java.util.Map;
+
 import javax.resource.ResourceException;
 import javax.resource.spi.ActivationSpec;
 import javax.resource.spi.ResourceAdapter;
@@ -37,7 +39,7 @@ import org.apache.geronimo.gbean.WaitingException;
  * Dynamic GBean wrapper around a ResourceAdapter object, exposing the config-properties as
  * GBean attributes.
  *
- * @version $Revision: 1.12 $ $Date: 2004/06/12 18:43:31 $
+ * @version $Revision: 1.13 $ $Date: 2004/06/25 21:33:26 $
  */
 public class ResourceAdapterWrapper implements GBeanLifecycle, DynamicGBean, ResourceAdapter {
 
@@ -51,6 +53,8 @@ public class ResourceAdapterWrapper implements GBeanLifecycle, DynamicGBean, Res
 
     private final DynamicGBeanDelegate delegate;
 
+    private final Map activationSpecInfoMap;
+
     /**
      *  default constructor for enhancement proxy endpoint
      */
@@ -59,11 +63,15 @@ public class ResourceAdapterWrapper implements GBeanLifecycle, DynamicGBean, Res
         this.bootstrapContext = null;
         this.resourceAdapter = null;
         this.delegate = null;
+        this.activationSpecInfoMap = null;
     }
 
-    public ResourceAdapterWrapper(final Class resourceAdapterClass, final BootstrapContext bootstrapContext) throws InstantiationException, IllegalAccessException {
+    public ResourceAdapterWrapper(final Class resourceAdapterClass,
+                                  final Map activationSpecInfoMap,
+                                  final BootstrapContext bootstrapContext) throws InstantiationException, IllegalAccessException {
         this.resourceAdapterClass = resourceAdapterClass;
         this.bootstrapContext = bootstrapContext;
+        this.activationSpecInfoMap = activationSpecInfoMap;
         resourceAdapter = (ResourceAdapter) resourceAdapterClass.newInstance();
         delegate = new DynamicGBeanDelegate();
         delegate.addAll(resourceAdapter);
@@ -73,8 +81,12 @@ public class ResourceAdapterWrapper implements GBeanLifecycle, DynamicGBean, Res
         return resourceAdapterClass;
     }
 
-    public void registerManagedConnectionFactory(final ResourceAdapterAssociation managedConnectionFactory) throws ResourceException {
-        managedConnectionFactory.setResourceAdapter(resourceAdapter);
+    public Map getActivationSpecInfoMap() {
+        return activationSpecInfoMap;
+    }
+
+    public void registerResourceAdapterAssociation(final ResourceAdapterAssociation resourceAdapterAssociation) throws ResourceException {
+        resourceAdapterAssociation.setResourceAdapter(resourceAdapter);
     }
 
     public void start(BootstrapContext ctx) throws ResourceAdapterInternalException {
@@ -125,15 +137,16 @@ public class ResourceAdapterWrapper implements GBeanLifecycle, DynamicGBean, Res
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(ResourceAdapterWrapper.class);
-        infoFactory.addAttribute("ResourceAdapterClass", Class.class, true);
+        infoFactory.addAttribute("resourceAdapterClass", Class.class, true);
+        infoFactory.addAttribute("activationSpecInfoMap", Map.class, true);
 
-        infoFactory.addReference("BootstrapContext", BootstrapContext.class);
+        infoFactory.addReference("bootstrapContext", BootstrapContext.class);
 
-        infoFactory.addOperation("registerManagedConnectionFactory", new Class[]{ResourceAdapterAssociation.class});
+        infoFactory.addOperation("registerResourceAdapterAssociation", new Class[]{ResourceAdapterAssociation.class});
 
         infoFactory.addInterface(ResourceAdapter.class);
 
-        infoFactory.setConstructor(new String[]{"ResourceAdapterClass", "BootstrapContext"});
+        infoFactory.setConstructor(new String[]{"resourceAdapterClass", "activationSpecInfoMap", "bootstrapContext"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

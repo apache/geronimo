@@ -24,13 +24,14 @@ import javax.naming.NamingException;
 import org.apache.geronimo.xbeans.j2ee.EnvEntryType;
 import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceEnvRefType;
+import org.apache.geronimo.xbeans.j2ee.MessageDestinationRefType;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.naming.java.ComponentContextBuilder;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/03/09 22:49:07 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/25 21:33:27 $
  *
  * */
 public class ENCConfigBuilder {
@@ -91,5 +92,27 @@ public class ENCConfigBuilder {
                 throw new DeploymentException("Invalid env-entry definition for name: " + name, e);
             }
         }
+    }
+
+    public static void addMessageDestinationRefs(MessageDestinationRefType[] messageDestinationRefs, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
+        for (int i = 0; i < messageDestinationRefs.length; i++) {
+            MessageDestinationRefType messageDestinationRef = messageDestinationRefs[i];
+            String name = messageDestinationRef.getMessageDestinationRefName().getStringValue();
+            String linkName = messageDestinationRef.getMessageDestinationLink().getStringValue();
+            String type = messageDestinationRef.getMessageDestinationType().getStringValue();
+            Class iface = null;
+            try {
+                iface = cl.loadClass(type);
+            } catch (ClassNotFoundException e) {
+                throw new DeploymentException("could not load class " + type, e);
+            }
+            try {
+                builder.addMessageDestinationRef(name, linkName, iface);
+            } catch (NamingException e) {
+                throw new DeploymentException("Invalid env-entry definition for name: " + name, e);
+            }
+
+        }
+
     }
 }

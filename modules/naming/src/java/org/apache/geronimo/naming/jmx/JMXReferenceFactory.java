@@ -26,14 +26,14 @@ import org.apache.geronimo.naming.deployment.RefAdapter;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/06/15 03:00:38 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/25 21:33:27 $
  *
  * */
 public class JMXReferenceFactory {
 
+    //TODO these names are constructed in a more generic fashion in ConnectorModuleBuilder.
     public static final String BASE_MANAGED_CONNECTION_FACTORY_NAME = "geronimo.server:J2EEServer=geronimo,j2eeType=JCAManagedConnectionFactory,name=";
-    // todo this name is wrong see ConnectionModuleBuilder
-    public static final String BASE_ADMIN_OBJECT_NAME = "geronimo.server:J2EEServer=geronimo,j2eeType=AdminObject,name=";
+    public static final String BASE_ADMIN_OBJECT_NAME = "geronimo.server:J2EEServer=geronimo,j2eeType=JCAAdminObject,name=";
 
     public JMXReferenceFactory() {
     }
@@ -47,6 +47,13 @@ public class JMXReferenceFactory {
     public Reference buildAdminObjectReference(RefAdapter refAdapter, Class iface) throws MalformedObjectNameException {
         Reference ref = new Reference(null, JMXObjectFactory.class.getName(), null);
         ref.add(new JMXRefAddr(refAdapter.getServerName(), refAdapter.getKernelName(), ObjectName.getInstance(BASE_ADMIN_OBJECT_NAME + refAdapter.getTargetName()), iface));
+        return ref;
+    }
+
+    //TODO warning: this only works if there is only one kernel!
+    public Reference buildMessageDestinationReference(String linkName, Class iface) throws MalformedObjectNameException {
+        Reference ref = new Reference(null, JMXObjectFactory.class.getName(), null);
+        ref.add(new JMXRefAddr(null, null, ObjectName.getInstance(BASE_ADMIN_OBJECT_NAME + linkName), iface));
         return ref;
     }
 
