@@ -23,7 +23,7 @@ import java.io.InputStream;
  * Data Access Object contracts for a GFile. It is used to contact a data store
  * and retrieve the state of a file; perform queries et cetera.
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:16 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/11 12:24:59 $
  */
 public interface GFileDAO
 {
@@ -63,8 +63,9 @@ public interface GFileDAO
     public void delete(String aPath) throws DAOException;
 
     /**
-     * Gets the children of the file identified by the provided path.
+     * Gets the children of the directory identified by the provided path.
      * 
+     * @param aPath Directory path.
      * @return Children.
      * @throws DAOException If a DAO error has occured.
      */
@@ -78,8 +79,6 @@ public interface GFileDAO
 
     /**
      * Unflushes the updates performed since the last flush operation.
-     * 
-     * @throws DAOException If a DAO error has occured.
      */
     public void unflush();
     

@@ -26,21 +26,21 @@ import java.util.Map;
  * This is a sub-set of the GFile interface. GFile does not extend this
  * interface as this interface is implementation specific.
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:16 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/11 12:24:59 $
  */
 public interface GFileDelegate
 {
 
-    public boolean exists();
-    public boolean isDirectory();
-    public boolean isFile();
-    public String[] listFiles();
-    public void lock();
-    public void unlock();
-    public Map getProperties();
+    public boolean exists() throws IOException;
+    public boolean isDirectory() throws IOException;
+    public boolean isFile() throws IOException;
+    public String[] listFiles() throws IOException;
+    public void lock() throws IOException;
+    public void unlock() throws IOException;
+    public Map getProperties() throws IOException;
     public InputStream getInputStream() throws IOException;
-    public Map getPropertiesByName(Collection aCollOfNames);
-    public void addProperty(String aName, String aValue);
-    public void removeProperty(String aName);
+    public Map getPropertiesByName(Collection aCollOfNames) throws IOException;
+    public void addProperty(String aName, String aValue) throws IOException;
+    public void removeProperty(String aName) throws IOException;
 
 }

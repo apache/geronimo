@@ -23,25 +23,21 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.apache.geronimo.datastore.GFile;
+import org.apache.geronimo.messaging.reference.Referenceable;
 
 /**
  * GFile implementation.
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:16 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/11 12:24:59 $
  */
 public class GFileImpl
-    implements GFile
+    implements GFile, Referenceable
 {
     
     /**
      * File path.
      */
     private String path;
-    
-    /**
-     * Properties of the file.
-     */
-    private Map properties;
     
     /**
      * New content of the file.
@@ -62,6 +58,7 @@ public class GFileImpl
      * Creates a GFile having the specified path.
      * 
      * @param aPath Path of this file.
+     * @param aManager StateManager tracking the state of this instance.
      */
     public GFileImpl(String aPath, GFileStateManager aManager) {
         if ( null == aPath ) {

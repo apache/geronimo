@@ -24,7 +24,7 @@ import org.apache.geronimo.datastore.GFile;
 /**
  * StateManager for a GFile.
  * 
- * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:16 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/11 12:24:59 $
  */
 class GFileStateManager
     implements StateManager
@@ -48,10 +48,9 @@ class GFileStateManager
     private GFileDelegateImpl delegate;
     
     /**
-     * Creates a StateManager for the provided GFile. Interactions with the
-     * data store will be performed by the provided DAO.
+     * Creates a StateManager. Interactions with the data store will be
+     * performed by the provided DAO.
      * 
-     * @param aFile GFile.
      * @param aFileDAO DAO to be used to query/update the data store.
      * @param aDirtyMarker Initial life cycle state of the provided file.
      */

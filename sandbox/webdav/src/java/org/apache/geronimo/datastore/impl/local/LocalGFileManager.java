@@ -34,7 +34,7 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 /**
  * GFileManager using a LocalGFileDAO to interact with the data store.
  *
- * @version $Revision: 1.2 $ $Date: 2004/03/03 13:10:07 $
+ * @version $Revision: 1.3 $ $Date: 2004/05/11 12:25:00 $
  */
 public class LocalGFileManager
     extends AbstractGFileManager
@@ -50,12 +50,15 @@ public class LocalGFileManager
     private final File root;
     
     /**
-     * Checks compliance of a Root file with this implementation. 
+     * Checks compliance of a Root file with this implementation.
+     * 
+     * @param aReader To read the root file.
+     * @return true if the root is supported. 
      */
     public static boolean isRootSupported(PushbackReader aReader)
         throws IOException {
         char[] chars = new char[IDENTIFIER.length()];
-        int nbRead = aReader.read(chars);
+        aReader.read(chars);
         boolean supported = true;
         for (int i = 0; i < chars.length; i++) {
             if ( chars[i] != IDENTIFIER.charAt(i) ) {
@@ -101,9 +104,6 @@ public class LocalGFileManager
         return root;
     }
     
-    /**
-     * Plug-in the LocalGFileDAO implementation.
-     */
     protected GFileDAO newGerFileDAO() throws DAOException {
         return new LocalGFileDAO(root);
     }

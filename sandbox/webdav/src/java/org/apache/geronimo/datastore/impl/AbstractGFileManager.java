@@ -42,7 +42,7 @@ import org.apache.geronimo.gbean.WaitingException;
  * Indeed, a full GFileManager just have to provide its own GFileDAO
  * implementation in order to support all the GFileManager contract.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/24 11:42:57 $
+ * @version $Revision: 1.4 $ $Date: 2004/05/11 12:24:59 $
  */
 public abstract class AbstractGFileManager
     implements GFileManager
@@ -63,17 +63,6 @@ public abstract class AbstractGFileManager
      */
     private final Map interToStateManagers;
     
-    /**
-     * Indicates if an interaction is started. We are between a start and a
-     * end invocation. 
-     */
-    private boolean isStarted;
-    
-    /**
-     * Used to perform isStarted operation. 
-     */
-    private final Object stateLock = new Object();
-
     /**
      * Name of this GFileManager.
      */
@@ -217,6 +206,8 @@ public abstract class AbstractGFileManager
      * 
      * @param anOpaque An opaque object identifying the interaction whose
      * StateManagers need to be retrieved.
+     * @return Set of StateManagers related to the interaction identified by
+     * anOpaque.
      * @throws IllegalStateException Indicates that the provided identifier
      * does not define an interaction.
      */
@@ -238,7 +229,7 @@ public abstract class AbstractGFileManager
 
     public void doStop() throws WaitingException, Exception {}
 
-    public void doFail() {};
+    public void doFail() {}
 
     public static final GBeanInfo GBEAN_INFO;
 

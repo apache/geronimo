@@ -25,21 +25,17 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.datastore.GFile;
 
 /**
  * GFileDelegate implementation.
  * 
- * @version $Revision: 1.1 $ $Date: 2004/02/25 13:36:16 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/11 12:24:59 $
  */
 class GFileDelegateImpl
     implements GFileDelegate
 {
 
-    private static final Log log = LogFactory.getLog(GFileDelegateImpl.class);
-    
     /**
      * Lock manager to be used to lock GFile.
      */
