@@ -72,6 +72,20 @@ public class MimeTypeParameterListTest extends TestCase {
 		assertEquals("value4", parameterList.get("name4"));
 	}
 
+    public void testCaseInsensitivity() throws MimeTypeParseException {
+        parameterList.parse(";name1=value; NAME2=VALUE; NaMe3=VaLuE");
+        assertEquals(3, parameterList.size());
+        assertEquals("value", parameterList.get("name1"));
+        assertEquals("VALUE", parameterList.get("name2"));
+        assertEquals("VaLuE", parameterList.get("name3"));
+        assertEquals("value", parameterList.get("NAME1"));
+        assertEquals("value", parameterList.get("NaMe1"));
+        parameterList.remove("NAME1");
+        assertNull(parameterList.get("name1"));
+        parameterList.remove("name3");
+        assertEquals("; name2=VALUE", parameterList.toString());
+    }
+
 	public void testNoValueParameterList() {
 		try {
 			parameterList.parse("; name=");

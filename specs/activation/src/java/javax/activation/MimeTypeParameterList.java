@@ -48,7 +48,7 @@ public class MimeTypeParameterList {
             String attribute = parser.expectAttribute();
             parser.expectEquals();
             String value = parser.expectValue();
-            params.put(attribute, value);
+            params.put(attribute.toLowerCase(), value);
         }
     }
 
@@ -61,15 +61,15 @@ public class MimeTypeParameterList {
     }
 
     public String get(String name) {
-        return (String) params.get(name);
+        return (String) params.get(name.toLowerCase());
     }
 
     public void set(String name, String value) {
-        params.put(name, value);
+        params.put(name.toLowerCase(), value);
     }
 
     public void remove(String name) {
-        params.remove(name);
+        params.remove(name.toLowerCase());
     }
 
     public Enumeration getNames() {
