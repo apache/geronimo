@@ -69,7 +69,7 @@ import org.w3c.dom.NodeList;
 /**
  * Loads MBean metadata from xml.
  *
- * @version $Revision: 1.4 $ $Date: 2003/11/15 19:16:42 $
+ * @version $Revision: 1.5 $ $Date: 2003/11/16 00:50:28 $
  */
 public class MBeanMetadataXMLLoader {
     public MBeanMetadata loadXML(URI baseURI, Element element) throws DeploymentException {
@@ -104,6 +104,7 @@ public class MBeanMetadataXMLLoader {
                 types[i] = type;
                 args[i] = XMLUtil.getContent(argElement);
             }
+            md.setConstructorArgs(args, types);
         }
 
         nl = element.getElementsByTagName("attribute");
