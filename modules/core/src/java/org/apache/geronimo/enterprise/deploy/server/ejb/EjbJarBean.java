@@ -67,12 +67,12 @@ import org.apache.geronimo.enterprise.deploy.server.j2ee.ClassSpace;
 /**
  * The DConfigBean representing /ejb-jar
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/17 20:28:11 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/22 19:48:22 $
  */
 public class EjbJarBean extends BaseDConfigBean {
     final static String ENTERPRISE_BEANS_XPATH = "enterprise-beans";
     private EnterpriseBeansBean enterpriseBeans;
-    private ClassSpace classSpace;
+    private ClassSpace classSpace = new ClassSpace();
 
     /**
      * This is present for JavaBeans compliance, but if it is used, the
