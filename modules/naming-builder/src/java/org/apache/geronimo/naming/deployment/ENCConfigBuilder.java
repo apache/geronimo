@@ -47,6 +47,7 @@ import org.apache.geronimo.xbeans.j2ee.EnvEntryType;
 import org.apache.geronimo.xbeans.j2ee.MessageDestinationRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
+import org.apache.geronimo.xbeans.j2ee.XsdStringType;
 
 /**
  * @version $Rev$ $Date$
@@ -56,9 +57,9 @@ public class ENCConfigBuilder {
     public static void addEnvEntries(EnvEntryType[] envEntries, ComponentContextBuilder builder) throws DeploymentException {
         for (int i = 0; i < envEntries.length; i++) {
             EnvEntryType envEntry = envEntries[i];
-            String name = envEntry.getEnvEntryName().getStringValue();
-            String type = envEntry.getEnvEntryType().getStringValue();
-            String text = envEntry.getEnvEntryValue().getStringValue();
+            String name = getStringValue(envEntry.getEnvEntryName());
+            String type = getStringValue(envEntry.getEnvEntryType());
+            String text = getStringValue(envEntry.getEnvEntryValue());
             try {
                 builder.addEnvEntry(name, type, text);
             } catch (NumberFormatException e) {
@@ -79,8 +80,8 @@ public class ENCConfigBuilder {
 
         for (int i = 0; i < resourceRefs.length; i++) {
             ResourceRefType resourceRef = resourceRefs[i];
-            String name = resourceRef.getResRefName().getStringValue();
-            String type = resourceRef.getResType().getStringValue();
+            String name = getStringValue(resourceRef.getResRefName());
+            String type = getStringValue(resourceRef.getResType());
             GerResourceRefType gerResourceRef = (GerResourceRefType) refMap.get(name);
             Class iface = null;
             try {
@@ -122,19 +123,19 @@ public class ENCConfigBuilder {
             //throws exception if it can't locate ref.
             containerId = refContext.getConnectionFactoryContainerId(uri, name, j2eeContext);
         } else if (gerResourceRef.isSetResourceLink()) {
-            containerId = refContext.getConnectionFactoryContainerId(uri, gerResourceRef.getResourceLink(), j2eeContext);
+            containerId = refContext.getConnectionFactoryContainerId(uri, getStringValue(gerResourceRef.getResourceLink()), j2eeContext);
         } else if (gerResourceRef.isSetTargetName()) {
-            containerId = gerResourceRef.getTargetName();
+            containerId = getStringValue(gerResourceRef.getTargetName());
         } else {
             //construct name from components
             try {
-                containerId = NameFactory.getResourceComponentNameString(gerResourceRef.getDomain(),
-                        gerResourceRef.getServer(),
-                        gerResourceRef.getApplication(),
-                        gerResourceRef.getModule(),
-                        gerResourceRef.getName(),
+                containerId = NameFactory.getResourceComponentNameString(getStringValue(gerResourceRef.getDomain()),
+                        getStringValue(gerResourceRef.getServer()),
+                        getStringValue(gerResourceRef.getApplication()),
+                        getStringValue(gerResourceRef.getModule()),
+                        getStringValue(gerResourceRef.getName()),
                         //todo determine type from iface class
-                        gerResourceRef.getType() == null ? NameFactory.JCA_MANAGED_CONNECTION_FACTORY : gerResourceRef.getType(),
+                        gerResourceRef.getType() == null ? NameFactory.JCA_MANAGED_CONNECTION_FACTORY : gerResourceRef.getType().trim(),
                         j2eeContext);
             } catch (MalformedObjectNameException e) {
                 throw new DeploymentException("could not construct object name for resource", e);
@@ -152,8 +153,8 @@ public class ENCConfigBuilder {
 
         for (int i = 0; i < resourceEnvRefArray.length; i++) {
             ResourceEnvRefType resourceEnvRef = resourceEnvRefArray[i];
-            String name = resourceEnvRef.getResourceEnvRefName().getStringValue();
-            String type = resourceEnvRef.getResourceEnvRefType().getStringValue();
+            String name = getStringValue(resourceEnvRef.getResourceEnvRefName());
+            String type = getStringValue(resourceEnvRef.getResourceEnvRefType());
             Class iface = null;
             try {
                 iface = cl.loadClass(type);
@@ -179,17 +180,17 @@ public class ENCConfigBuilder {
             //throws exception if it can't locate ref.
             containerId = refContext.getAdminObjectContainerId(uri, name, j2eeContext);
         } else if (gerResourceEnvRef.isSetMessageDestinationLink()) {
-            containerId = refContext.getAdminObjectContainerId(uri, gerResourceEnvRef.getMessageDestinationLink(), j2eeContext);
+            containerId = refContext.getAdminObjectContainerId(uri, getStringValue(gerResourceEnvRef.getMessageDestinationLink()), j2eeContext);
         } else if (gerResourceEnvRef.isSetTargetName()) {
-            containerId = gerResourceEnvRef.getTargetName();
+            containerId = getStringValue(gerResourceEnvRef.getTargetName());
         } else {
             //construct name from components
             try {
-                containerId = NameFactory.getResourceComponentNameString(gerResourceEnvRef.getDomain(),
-                        gerResourceEnvRef.getServer(),
-                        gerResourceEnvRef.getApplication(),
-                        gerResourceEnvRef.getModule(),
-                        gerResourceEnvRef.getName(),
+                containerId = NameFactory.getResourceComponentNameString(getStringValue(gerResourceEnvRef.getDomain()),
+                        getStringValue(gerResourceEnvRef.getServer()),
+                        getStringValue(gerResourceEnvRef.getApplication()),
+                        getStringValue(gerResourceEnvRef.getModule()),
+                        getStringValue(gerResourceEnvRef.getName()),
                         NameFactory.JMS_RESOURCE,
                         //gerResourceEnvRef.getType(),
                         j2eeContext);
@@ -204,9 +205,9 @@ public class ENCConfigBuilder {
         RefContext refContext = earContext.getRefContext();
         for (int i = 0; i < messageDestinationRefs.length; i++) {
             MessageDestinationRefType messageDestinationRef = messageDestinationRefs[i];
-            String name = messageDestinationRef.getMessageDestinationRefName().getStringValue();
-            String linkName = messageDestinationRef.getMessageDestinationLink().getStringValue();
-            String type = messageDestinationRef.getMessageDestinationType().getStringValue();
+            String name = getStringValue(messageDestinationRef.getMessageDestinationRefName());
+            String linkName = getStringValue(messageDestinationRef.getMessageDestinationLink());
+            String type = getStringValue(messageDestinationRef.getMessageDestinationType());
             Class iface = null;
             try {
                 iface = cl.loadClass(type);
@@ -233,22 +234,22 @@ public class ENCConfigBuilder {
         for (int i = 0; i < ejbRefs.length; i++) {
             EjbRefType ejbRef = ejbRefs[i];
 
-            String ejbRefName = ejbRef.getEjbRefName().getStringValue();
+            String ejbRefName = getStringValue(ejbRef.getEjbRefName());
 
-            String remote = ejbRef.getRemote().getStringValue();
+            String remote = getStringValue(ejbRef.getRemote());
             assureEJBObjectInterface(remote, cl);
 
-            String home = ejbRef.getHome().getStringValue();
+            String home = getStringValue(ejbRef.getHome());
             assureEJBHomeInterface(home, cl);
 
-            boolean isSession = "Session".equals(ejbRef.getEjbRefType().getStringValue());
+            boolean isSession = "Session".equals(getStringValue(ejbRef.getEjbRefType()));
 
             String ejbLink = null;
             GerEjbRefType remoteRef = (GerEjbRefType) ejbRefMap.get(ejbRefName);
             if (remoteRef != null && remoteRef.isSetEjbLink()) {
                 ejbLink = remoteRef.getEjbLink();
             } else if (ejbRef.isSetEjbLink()) {
-                ejbLink = getJ2eeStringValue(ejbRef.getEjbLink());
+                ejbLink = getStringValue(ejbRef.getEjbLink());
             }
 
             Reference ejbReference;
@@ -256,16 +257,16 @@ public class ENCConfigBuilder {
                 ejbReference = refContext.getEJBRemoteRef(uri, ejbLink, isSession, home, remote);
             } else if (remoteRef != null) {
                 if (remoteRef.isSetTargetName()) {
-                    ejbReference = refContext.getEJBRemoteRef(remoteRef.getTargetName(), isSession, home, remote);
+                    ejbReference = refContext.getEJBRemoteRef(getStringValue(remoteRef.getTargetName()), isSession, home, remote);
                 } else {
                     String containerId = null;
                     try {
-                        containerId = NameFactory.getEjbComponentNameString(remoteRef.getDomain(),
-                                                    remoteRef.getServer(),
-                                                    remoteRef.getApplication(),
-                                                    remoteRef.getModule(),
-                                                    remoteRef.getName(),
-                                                    remoteRef.getType(),
+                        containerId = NameFactory.getEjbComponentNameString(getStringValue(remoteRef.getDomain()),
+                                                    getStringValue(remoteRef.getServer()),
+                                                    getStringValue(remoteRef.getApplication()),
+                                                    getStringValue(remoteRef.getModule()),
+                                                    getStringValue(remoteRef.getName()),
+                                                    getStringValue(remoteRef.getType()),
                                                     j2eeContext);
                     } catch (MalformedObjectNameException e) {
                         throw new DeploymentException("Could not construct ejb object name: " + remoteRef.getName(), e);
@@ -290,22 +291,22 @@ public class ENCConfigBuilder {
         for (int i = 0; i < ejbLocalRefs.length; i++) {
             EjbLocalRefType ejbLocalRef = ejbLocalRefs[i];
 
-            String ejbRefName = ejbLocalRef.getEjbRefName().getStringValue();
+            String ejbRefName = getStringValue(ejbLocalRef.getEjbRefName());
 
-            String local = ejbLocalRef.getLocal().getStringValue();
+            String local = getStringValue(ejbLocalRef.getLocal());
             assureEJBLocalObjectInterface(local, cl);
 
-            String localHome = ejbLocalRef.getLocalHome().getStringValue();
+            String localHome = getStringValue(ejbLocalRef.getLocalHome());
             assureEJBLocalHomeInterface(localHome, cl);
 
-            boolean isSession = "Session".equals(ejbLocalRef.getEjbRefType().getStringValue());
+            boolean isSession = "Session".equals(getStringValue(ejbLocalRef.getEjbRefType()));
 
             String ejbLink = null;
             GerEjbLocalRefType localRef = (GerEjbLocalRefType) ejbLocalRefMap.get(ejbRefName);
             if (localRef != null && localRef.isSetEjbLink()) {
                 ejbLink = localRef.getEjbLink();
             } else if (ejbLocalRef.isSetEjbLink()) {
-                ejbLink = getJ2eeStringValue(ejbLocalRef.getEjbLink());
+                ejbLink = getStringValue(ejbLocalRef.getEjbLink());
             }
 
             Reference ejbReference;
@@ -313,16 +314,16 @@ public class ENCConfigBuilder {
                 ejbReference = refContext.getEJBLocalRef(uri, ejbLink, isSession, localHome, local);
             } else if (localRef != null) {
                 if (localRef.isSetTargetName()) {
-                    ejbReference = refContext.getEJBLocalRef(localRef.getTargetName(), isSession, localHome, local);
+                    ejbReference = refContext.getEJBLocalRef(getStringValue(localRef.getTargetName()), isSession, localHome, local);
                 } else {
                     String containerId = null;
                     try {
-                        containerId = NameFactory.getEjbComponentNameString(localRef.getDomain(),
-                                                    localRef.getServer(),
-                                                    localRef.getApplication(),
-                                                    localRef.getModule(),
-                                                    localRef.getName(),
-                                                    localRef.getType(),
+                        containerId = NameFactory.getEjbComponentNameString(getStringValue(localRef.getDomain()),
+                                                    getStringValue(localRef.getServer()),
+                                                    getStringValue(localRef.getApplication()),
+                                                    getStringValue(localRef.getModule()),
+                                                    getStringValue(localRef.getName()),
+                                                    getStringValue(localRef.getType()),
                                                     j2eeContext);
                     } catch (MalformedObjectNameException e) {
                         throw new DeploymentException("Could not construct ejb object name: " + localRef.getName(), e);
@@ -378,11 +379,24 @@ public class ENCConfigBuilder {
         }
     }
 
-    private static String getJ2eeStringValue(org.apache.geronimo.xbeans.j2ee.String string) {
+    private static String getStringValue(org.apache.geronimo.xbeans.j2ee.String string) {
         if (string == null) {
             return null;
         }
-        return string.getStringValue().trim();
+        String s = string.getStringValue();
+        return s == null ? null : s.trim();
+    }
+
+    private static String getStringValue(XsdStringType string) {
+        if (string == null) {
+            return null;
+        }
+        String s = string.getStringValue();
+        return s == null ? null : s.trim();
+    }
+
+    private static String getStringValue(String string) {
+        return string == null ? null : string.trim();
     }
 
 
@@ -394,12 +408,12 @@ public class ENCConfigBuilder {
         Set applicationManagedSecurityResources = new HashSet();
         for (int i = 0; i < resourceRefs.length; i++) {
             ResourceRefType resourceRefType = resourceRefs[i];
-            GerResourceRefType gerResourceRef = (GerResourceRefType) refMap.get(resourceRefType.getResRefName().getStringValue());
-            String containerId = getResourceContainerId(getJ2eeStringValue(resourceRefType.getResRefName()), uri, gerResourceRef, refContext, j2eeContext);
-            if ("Unshareable".equals(getJ2eeStringValue(resourceRefType.getResSharingScope()))) {
+            GerResourceRefType gerResourceRef = (GerResourceRefType) refMap.get(getStringValue(resourceRefType.getResRefName()));
+            String containerId = getResourceContainerId(getStringValue(resourceRefType.getResRefName()), uri, gerResourceRef, refContext, j2eeContext);
+            if ("Unshareable".equals(getStringValue(resourceRefType.getResSharingScope()))) {
                 unshareableResources.add(containerId);
             }
-            if ("Application".equals(getJ2eeStringValue(resourceRefType.getResAuth()))) {
+            if ("Application".equals(getStringValue(resourceRefType.getResAuth()))) {
                 applicationManagedSecurityResources.add(containerId);
             }
         }
