@@ -62,31 +62,30 @@ import javax.resource.spi.ManagedConnectionFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.connector.ResourceAdapterWrapper;
-import org.apache.geronimo.connector.deployment.ManagedConnectionFactoryHelper;
 import org.apache.geronimo.connector.outbound.security.ManagedConnectionFactoryListener;
 import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.DynamicGBeanDelegate;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBean;
+import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.GEndpointInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.naming.ger.GerContextManager;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/22 02:46:27 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/22 05:04:02 $
  *
  * */
 public class ManagedConnectionFactoryWrapper implements GBean, DynamicGBean {
 
     private static final GBeanInfo GBEAN_INFO;
-    private static final Log log = LogFactory.getLog(ManagedConnectionFactoryHelper.class);
+    private static final Log log = LogFactory.getLog(ManagedConnectionFactoryWrapper.class);
 
     private final Class managedConnectionFactoryClass;
     private final Class connectionFactoryInterface;
