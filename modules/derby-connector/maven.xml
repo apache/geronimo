@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Revision: 1.4 $ $Date: 2004/10/12 21:16:45 $ -->
+
+<project default="default"
+    xmlns:j="jelly:core"
+    xmlns:ant="jelly:ant"
+    >
+
+    <!-- ==================== -->
+    <!-- Default Global Goals -->
+    <!-- ==================== -->
+
+    <goal name="default">
+        <attainGoal name="rar:install"/>
+    </goal>
+
+    <goal name="build">
+        <attainGoal name="default"/>
+    </goal>
+
+    <goal name="rebuild">
+        <attainGoal name="clean"/>
+        <attainGoal name="build"/>
+    </goal>
+
+    <preGoal name="rar:rar">
+        <attainGoal name="jar:install"/>
+    </preGoal>
+
+    <!-- Check if the tests need to run -->
+    <preGoal name="test:test">
+        <j:if test="${context.getVariable('maven.test.force') == null}">
+            <j:if test="${cloveroverride != 'true'}">
+                <j:set var="uptodatePropName" value="tests.uptodate"/>
+                <j:remove var="${uptodatePropName}"/>
+                <ant:mkdir dir="${basedir}/target/test-reports/"/>
+                <j:set var="uptodateFile" value="${basedir}/target/test-reports/tstamp"/>
+
+                <ant:uptodate property="${uptodatePropName}" targetfile="${uptodateFile}">
+                    <ant:srcfiles dir="${basedir}/src/" includes="**/*"/>
+                </ant:uptodate>
+
+                <j:if test="${context.getVariable(uptodatePropName) == 'true'}">
+                    <ant:echo>NOTICE: Skipping tests; they seem to have passed already</ant:echo>
+                    <j:set var="maven.test.skip" value="true"/>
+                    <j:set var="unitTestSourcesPresent" value="false"/>
+                </j:if>
+            </j:if>
+        </j:if>
+    </preGoal>
+
+    <!-- Update the timestamp of the last successful test -->
+    <postGoal name="test:test">
+        <j:if test="${context.getVariable('maven.test.failure') == null}">
+            <ant:touch file="${basedir}/target/test-reports/tstamp"/>
+        </j:if>
+    </postGoal>
+
+    <postGoal name="jar:deploy">
+        <attainGoal name="rar:deploy" />
+    </postGoal>
+</project>
