@@ -59,12 +59,15 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.Collections;
+import java.util.StringTokenizer;
 import javax.management.MBeanRegistration;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
@@ -80,7 +83,7 @@ import org.apache.geronimo.common.AbstractStateManageable;
  * to search them for deployments.
  *
  *
- * @version $Revision: 1.7 $ $Date: 2003/08/16 23:16:30 $
+ * @version $Revision: 1.8 $ $Date: 2003/08/17 06:09:14 $
  */
 public class DeploymentScanner extends AbstractStateManageable implements DeploymentScannerMBean {
     private static final Log log = LogFactory.getLog(DeploymentScanner.class);
@@ -89,6 +92,16 @@ public class DeploymentScanner extends AbstractStateManageable implements Deploy
     private long scanInterval;
     private boolean run;
     private Thread scanThread;
+
+    public DeploymentScanner() {
+    }
+
+    public DeploymentScanner(String initialURLs, boolean recurse) throws MalformedURLException {
+        StringTokenizer tokenizer = new StringTokenizer(initialURLs, " \t\r\n,[]{}");
+        while(tokenizer.hasMoreTokens()) {
+            addURL(new URL(tokenizer.nextToken()), recurse);
+        }
+    }
 
     public ObjectName preRegister(MBeanServer server, ObjectName objectName) throws Exception {
         relationService = JMXUtil.getRelationService(server);
