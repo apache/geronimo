@@ -1,5 +1,5 @@
 ##
-## $Revision: 1.23 $ $Date: 2004/02/10 23:23:41 $
+## $Revision: 1.24 $ $Date: 2004/02/20 23:54:25 $
 ##
 
 Exit Criteria
@@ -15,18 +15,21 @@ X -- Do All the software in the codebase, are licensed (or multi-licensed) under
      Apache licence?
      Yes - all code is currently ASL1.1 and will move soon to ASL2.0
 
-  -- Do all the software in the codebase,are compliant with the
+X -- Do all the software in the codebase,are compliant with the
      Specifications set by Java Community Process?(Wherever applicable)
+     * This criteria has been superceded by the Exit Milestone below
 
 Distribution rights
 
- --  For all code included with the distribution that is not under the
+X -- For all code included with the distribution that is not under the
      Apache license, do we have the right to combine with Apache-licensed
      code and redistribute?
+     Yes
 
-  -- Is all source code distributed by the project covered by one or more
+X -- Is all source code distributed by the project covered by one or more
      of the following approved licenses:  Apache, BSD, Artistic, MIT/X,
      MIT/W3C, MPL 1.1, or something with essentially the same terms?
+     Yes
 
 Naming
 
@@ -93,14 +96,18 @@ X -- Are the decision-making guidelines published and agreed to by
   -- Has the community decided on a policy for the composition of its 'steering committee'?
 
 
-  -- Has the community,the graduation/new PMC of the project to which the codebase and community
+X -- Has the community,the graduation/new PMC of the project to which the codebase and community
      will move at the end of incubation (if any), and the Incubator PMC, decided the
      expected time frame of stay in incubator?
+     Yes - when the Exit Milestone below has been achieved
 
 X -- Has the community adopted the Apache voting rules and is otherwise following the Apache
      guidelines?
      Yes
 
+Exit Milestone:
+  -- "Run Petstore from a distribution (on a machine with Zero Source code) by following some
+     easy instruction steps" - a little fuzzy, but whether this is met is to be decided by vote
 
 organisational acceptance:
 
