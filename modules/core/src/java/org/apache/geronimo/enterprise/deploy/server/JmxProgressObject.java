@@ -91,7 +91,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 /**
  * A ProgressObject implementation that listens for JMX notifications
  *
- * @version $Revision: 1.3 $ $Date: 2003/11/22 20:08:54 $
+ * @version $Revision: 1.4 $ $Date: 2003/11/24 14:23:08 $
  */
 public class JmxProgressObject implements ProgressObject {
     private final static Log log = LogFactory.getLog(JmxProgressObject.class);
@@ -101,6 +101,7 @@ public class JmxProgressObject implements ProgressObject {
     private JobDeploymentStatus status;
     private EventListenerList listenerList = new EventListenerList();
     private NotificationListener listener;
+    private NotificationFilter filter;
 
     public JmxProgressObject(int jobID, MBeanServer server, CommandType command) {
         status = new JobDeploymentStatus(command);
@@ -108,7 +109,7 @@ public class JmxProgressObject implements ProgressObject {
         this.server = server;
         try {
             server.addNotificationListener(CONTROLLER, listener = new PONotificationListener(),
-                    new PONotificationFilter(jobID),null);
+                    filter = new PONotificationFilter(jobID),null);
             server.invoke(CONTROLLER, "startDeploymentJob", new Object[]{new Integer(jobID)}, new String[]{Integer.TYPE.toString()});
         } catch(InstanceNotFoundException e) {
             throw new RuntimeException("ProgressObject unable to register with server");
@@ -470,13 +471,15 @@ public class JmxProgressObject implements ProgressObject {
                 }
                 if(status.isCompleted() || status.isFailed()) {
                     try {
-                        server.removeNotificationListener(CONTROLLER, listener);
+                        server.removeNotificationListener(CONTROLLER, listener, filter, null);
                     } catch(InstanceNotFoundException e) {
                         log.error("Unable to remove notification listener", e);
                     } catch(ListenerNotFoundException e) {
                         log.error("Unable to remove notification listener", e);
                     }
                 }
+            } else {
+                log.error("Got a notification for "+dn.getDeploymentID()+", expecting "+jobID);
             }
         }
     }
@@ -502,6 +505,21 @@ public class JmxProgressObject implements ProgressObject {
                 result = ((DeploymentNotification)notification).getDeploymentID() == jobID;
             }
             return result;
+        }
+
+        public boolean equals(Object o) {
+            if(this == o) return true;
+            if(!(o instanceof PONotificationFilter)) return false;
+
+            final PONotificationFilter poNotificationFilter = (PONotificationFilter)o;
+
+            if(jobID != poNotificationFilter.jobID) return false;
+
+            return true;
+        }
+
+        public int hashCode() {
+            return jobID;
         }
     }
 }
