@@ -18,11 +18,13 @@ package org.apache.geronimo.client;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Iterator;
 
 import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.ReferenceCollection;
 
 /**
  * @version $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $
@@ -31,13 +33,13 @@ public final class AppClientContainer {
     private static final Class[] MAIN_ARGS = {String[].class};
 
     private final String mainClassName;
-    private final AppClientJNDIProvider jndiProvider;
+    private final ReferenceCollection plugins;
     private final ObjectName appClientModuleName;
     private final Method mainMethod;
 
-    public AppClientContainer(String mainClassName,  ObjectName appClientModuleName, AppClientJNDIProvider jndiProvider,ClassLoader classLoader) throws Exception {
+    public AppClientContainer(String mainClassName,  ObjectName appClientModuleName, ReferenceCollection plugins ,ClassLoader classLoader) throws Exception {
         this.mainClassName = mainClassName;
-        this.jndiProvider = jndiProvider;
+        this.plugins = plugins;
         this.appClientModuleName = appClientModuleName;
 
         try {
@@ -61,7 +63,10 @@ public final class AppClientContainer {
     public void main(String[] args) throws Exception {
         Throwable throwable = null;
         try {
-            jndiProvider.startClient(null);
+            for (Iterator iterator = plugins.iterator(); iterator.hasNext();) {
+                AppClientPlugin plugin = (AppClientPlugin) iterator.next();
+                plugin.startClient(appClientModuleName);
+            }
 
             mainMethod.invoke(null, args);
 
@@ -74,7 +79,10 @@ public final class AppClientContainer {
             }
             throwable = e;
         } finally {
-            jndiProvider.stopClient(null);
+            for (Iterator iterator = plugins.iterator(); iterator.hasNext();) {
+                AppClientPlugin plugin = (AppClientPlugin) iterator.next();
+                plugin.stopClient(appClientModuleName);
+            }
 
             if (throwable instanceof Exception) {
                 throw (Exception) throwable;
@@ -92,10 +100,10 @@ public final class AppClientContainer {
         infoFactory.addOperation("main", new Class[]{String[].class});
         infoFactory.addAttribute("mainClassName", String.class, true);
         infoFactory.addAttribute("appClientModuleObjectName", ObjectName.class, true);
-        infoFactory.addReference("JNDIProvider", AppClientJNDIProvider.class);
+        infoFactory.addReference("plugins", AppClientPlugin.class);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
 
-        infoFactory.setConstructor(new String[]{"mainClassName", "appClientModuleName", "JNDIProvider", "classLoader"});
+        infoFactory.setConstructor(new String[]{"mainClassName", "appClientModuleName", "plugins", "classLoader"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
