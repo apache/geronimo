@@ -23,10 +23,9 @@ import java.util.List;
 
 import org.apache.geronimo.core.service.Component;
 import org.apache.geronimo.core.service.Container;
-import org.apache.geronimo.common.NullArgumentException;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:43 $
+ * @version $Revision: 1.5 $ $Date: 2004/03/21 22:24:39 $
  */
 public class SimpleContainer extends SimpleComponent implements Container {
 
@@ -37,7 +36,7 @@ public class SimpleContainer extends SimpleComponent implements Container {
      */
     public void addComponent(Component component) {
         if (component == null)
-            throw new NullArgumentException("component");
+            throw new IllegalArgumentException("component");
 
         components.add(component);
     }
@@ -54,7 +53,7 @@ public class SimpleContainer extends SimpleComponent implements Container {
      */
     public void removeComponent(Component component) throws Exception {
         if (component == null)
-            throw new NullArgumentException("component");
+            throw new IllegalArgumentException("component");
         components.remove(component);
     }
 

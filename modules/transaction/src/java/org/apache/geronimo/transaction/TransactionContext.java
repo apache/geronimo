@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.InvalidTransactionException;
@@ -33,16 +32,17 @@ import javax.transaction.Transaction;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.tranql.cache.InTxCache;
+
 
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:36 $
+ * @version $Revision: 1.4 $ $Date: 2004/03/21 22:24:39 $
  */
 public abstract class TransactionContext {
     protected static final Log log = LogFactory.getLog(TransactionContext.class);
     private static ThreadLocal CONTEXT = new ThreadLocal();
-    private Map managedConnections;
 
     public static TransactionContext getContext() {
         return (TransactionContext) CONTEXT.get();
@@ -53,9 +53,10 @@ public abstract class TransactionContext {
     }
 
     private InstanceContext currentContext;
-    private final org.apache.geronimo.transaction.DoubleKeyedHashMap associatedContexts = new org.apache.geronimo.transaction.DoubleKeyedHashMap();
-    private final org.apache.geronimo.transaction.DoubleKeyedHashMap dirtyContexts = new org.apache.geronimo.transaction.DoubleKeyedHashMap();
-    private final org.apache.geronimo.transaction.DoubleKeyedHashMap instanceDataCache = new org.apache.geronimo.transaction.DoubleKeyedHashMap();
+    private final DoubleKeyedHashMap associatedContexts = new DoubleKeyedHashMap();
+    private final DoubleKeyedHashMap dirtyContexts = new DoubleKeyedHashMap();
+    private Map managedConnections;
+    private InTxCache inTxCache;
 
     public abstract void begin() throws SystemException, NotSupportedException;
 
@@ -68,14 +69,19 @@ public abstract class TransactionContext {
     public abstract void rollback() throws SystemException;
 
     public final void associate(InstanceContext context) throws Exception {
-        if (associatedContexts.put(context.getContainer(), context.getId(), context) == null) {
+        if (associatedContexts.put(context.getContainerId(), context.getId(), context) == null) {
             context.associate();
         }
     }
 
+    public final void unassociate(Object containerId, Object id) throws Exception {
+        associatedContexts.remove(containerId, id);
+        dirtyContexts.remove(containerId, id);
+    }
+
     public final InstanceContext beginInvocation(InstanceContext context) {
         if (context.getId() != null) {
-            dirtyContexts.put(context.getContainer(), context.getId(), context);
+            dirtyContexts.put(context.getContainerId(), context.getId(), context);
         }
         InstanceContext caller = currentContext;
         currentContext = context;
@@ -96,7 +102,7 @@ public abstract class TransactionContext {
             }
         }
         if (currentContext != null && currentContext.getId() != null) {
-            dirtyContexts.put(currentContext.getContainer(), currentContext.getId(), currentContext);
+            dirtyContexts.put(currentContext.getContainerId(), currentContext.getId(), currentContext);
         }
     }
 
@@ -118,16 +124,15 @@ public abstract class TransactionContext {
         }
     }
 
-    public final InstanceContext getContext(Object container, Object id) {
-        return (InstanceContext) associatedContexts.get(container, id);
+    public final InstanceContext getContext(Object containerId, Object id) {
+        return (InstanceContext) associatedContexts.get(containerId, id);
     }
 
-    public final void putInstanceData(Object container, Object id, Object data) {
-        instanceDataCache.put(container, id, data);
-    }
-
-    public final Object getInstancedata(Object container, Object id) {
-        return instanceDataCache.get(container, id);
+    public final InTxCache getInTxCache() {
+        if (inTxCache == null) {
+            inTxCache = new InTxCache();
+        }
+        return inTxCache;
     }
 
     //Geronimo connector framework support

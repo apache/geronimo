@@ -20,7 +20,6 @@ package org.apache.geronimo.remoting.transport.async;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 
-import org.apache.geronimo.common.Classes;
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
@@ -28,13 +27,20 @@ import org.apache.geronimo.core.service.SimpleInvocationResult;
 import org.apache.geronimo.proxy.ProxyInvocation;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:20 $
+ * @version $Revision: 1.5 $ $Date: 2004/03/21 22:24:39 $
  */
 public class IdentityInterceptor implements Interceptor, Serializable {
 
-    private static final Method EQUALS_METHOD = Classes.getMethod(Object.class, "equals");
-    private static final Method HASHCODE_METHOD = Classes.getMethod(Object.class, "hashCode");
-    
+    private static final Method EQUALS_METHOD;
+    private static final Method HASHCODE_METHOD;
+    static {
+        try {
+            EQUALS_METHOD = Object.class.getMethod("equals", new Class[] {Object.class});
+            HASHCODE_METHOD = Object.class.getMethod("hashCode", null);
+        } catch (NoSuchMethodException e) {
+            throw new ExceptionInInitializerError(e);
+        }
+    }
     private RemoteRef ref;
     private Interceptor next;
 

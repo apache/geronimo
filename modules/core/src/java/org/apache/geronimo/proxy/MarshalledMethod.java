@@ -24,10 +24,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import org.apache.geronimo.common.Classes;
+import org.apache.geronimo.kernel.ClassLoading;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:43 $
+ * @version $Revision: 1.4 $ $Date: 2004/03/21 22:24:39 $
  */
 public class MarshalledMethod implements Serializable {
 
@@ -59,7 +59,7 @@ public class MarshalledMethod implements Serializable {
         Class[] args = method.getParameterTypes();
         for (int i = 0; i < args.length; i++) {
             sb.append(' ');
-            sb.append( Classes.getClassName(args[i]) );
+            sb.append( ClassLoading.getClassName(args[i]) );
         }
         return sb.toString();
     }

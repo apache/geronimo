@@ -26,7 +26,7 @@ import org.apache.geronimo.transaction.InstanceContext;
 /**
  * Simple implementation of ComponentContext satisfying invariant.
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:33 $
+ * @version $Revision: 1.5 $ $Date: 2004/03/21 22:24:39 $
  *
  * */
 public class DefaultComponentContext implements InstanceContext {
@@ -40,7 +40,7 @@ public class DefaultComponentContext implements InstanceContext {
     public void setId(Object id) {
     }
 
-    public Object getContainer() {
+    public Object getContainerId() {
         return null;
     }
 

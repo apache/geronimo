@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.72 $ $Date: 2004/03/02 22:28:34 $ -->
+<!-- $Revision: 1.73 $ $Date: 2004/03/21 22:24:38 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -266,6 +266,10 @@
 
     <goal name="default">
         <attainGoal name="modules:default"/>
+    </goal>
+
+    <goal name="blah">
+        <modules:reactor goals="hello"/>
     </goal>
 
     <goal name="plugins">

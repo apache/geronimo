@@ -17,7 +17,7 @@
 -->
   
 
-<!-- $Revision: 1.23 $ $Date: 2004/03/21 18:11:11 $ -->
+<!-- $Revision: 1.24 $ $Date: 2004/03/21 22:24:38 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -43,6 +43,12 @@
     <!-- ============ -->
 
     <dependencies>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-kernel</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+
         <!-- Thirdparty Dependencies -->
         <dependency>
             <groupId>commons-logging</groupId>

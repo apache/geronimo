@@ -17,12 +17,12 @@
 
 package org.apache.geronimo.common.propertyeditor;
 
-import org.apache.geronimo.common.Classes;
+import org.apache.geronimo.kernel.ClassLoading;
 
 /**
  * A property editor for {@link Class}.
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:26 $
+ * @version $Revision: 1.4 $ $Date: 2004/03/21 22:24:38 $
  */
 public class ClassEditor
     extends TextPropertyEditorSupport
@@ -38,7 +38,7 @@ public class ClassEditor
     {
         try {
             String classname = getAsText();
-            return Classes.loadClass(classname);
+            return ClassLoading.loadClass(classname);
         }
         catch (Exception e) {
             throw new PropertyEditorException(e);

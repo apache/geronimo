@@ -19,26 +19,24 @@ package org.apache.geronimo.gbean.jmx;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.HashMap;
 import javax.management.MBeanException;
 import javax.management.MBeanOperationInfo;
 import javax.management.MBeanParameterInfo;
 import javax.management.ReflectionException;
 
+import org.apache.geronimo.gbean.DynamicGBean;
+import org.apache.geronimo.gbean.DynamicGOperationInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
-import org.apache.geronimo.gbean.DynamicGOperationInfo;
-import org.apache.geronimo.gbean.DynamicGBean;
+import org.apache.geronimo.kernel.ClassLoading;
 
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/03/10 09:59:01 $
+ * @version $Revision: 1.8 $ $Date: 2004/03/21 22:24:39 $
  */
 public class GBeanMBeanOperation {
     private final GBeanMBean gmbean;
@@ -82,7 +80,7 @@ public class GBeanMBeanOperation {
         for (int i = 0; i < types.length; i++) {
             String type = (String) parameterTypes.get(i);
             try {
-                types[i] = loadClass((String) parameterTypes.get(i), classLoader);
+                types[i] = ClassLoading.loadClass((String) parameterTypes.get(i), classLoader);
             } catch (ClassNotFoundException e) {
                 throw new InvalidConfigurationException("Could not load operation parameter class:" +
                         " name=" + operationInfo.getName() +
@@ -160,145 +158,5 @@ public class GBeanMBeanOperation {
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
-    }
-
-    /**
-     * Load a class for the given name.
-     *
-     * <p>Handles loading primitive types as well as VM class and array syntax.
-     *
-     * @param className the name of the Class to be loaded
-     * @param classLoader the class loader to load the Class object from
-     * @return the Class object for the given name
-     *
-     * @throws ClassNotFoundException   if classloader could not locate the specified class
-     */
-    private static Class loadClass(final String className, final ClassLoader classLoader) throws ClassNotFoundException {
-        if (className == null) {
-            throw new IllegalArgumentException("Class name is null");
-        }
-        if (classLoader == null) {
-            throw new IllegalArgumentException("Class loader is null");
-        }
-
-        // First just try to load
-        try {
-            return classLoader.loadClass(className);
-        } catch (ClassNotFoundException ignore) {
-            // handle special cases below
-        }
-
-        Class type = null;
-
-        // Check if it is a primitive type
-        type = getPrimitiveType(className);
-        if (type != null) return type;
-
-        // Check if it is a vm primitive
-        type = getVMPrimitiveType(className);
-        if (type != null) return type;
-
-        // Handle VM class syntax (Lclassname;)
-        if (className.charAt(0) == 'L' && className.charAt(className.length() - 1) == ';') {
-            return classLoader.loadClass(className.substring(1, className.length() - 1));
-        }
-
-        // Handle VM array syntax ([type)
-        if (className.charAt(0) == '[') {
-            int arrayDimension = className.lastIndexOf('[') + 1;
-            String componentClassName = className.substring(arrayDimension, className.length());
-            type = loadClass(componentClassName, classLoader);
-
-            int dim[] = new int[arrayDimension];
-            java.util.Arrays.fill(dim, 0);
-            return Array.newInstance(type, dim).getClass();
-        }
-
-        // Handle user friendly type[] syntax
-        if (className.endsWith("[]")) {
-            // get the base component class name and the arrayDimensions
-            int arrayDimension = 0;
-            String componentClassName = className;
-            while (componentClassName.endsWith("[]")) {
-                componentClassName = componentClassName.substring(0, componentClassName.length() - 2);
-                arrayDimension++;
-            }
-
-            // load the base type
-            type = loadClass(componentClassName, classLoader);
-
-            // return the array type
-            int[] dim = new int[arrayDimension];
-            java.util.Arrays.fill(dim, 0);
-            return Array.newInstance(type, dim).getClass();
-        }
-
-        // Else we can not load (give up)
-        throw new ClassNotFoundException(className);
-    }
-
-    /** Primitive type name -> class map. */
-    private static final Map PRIMITIVES = new HashMap();
-
-    /** Setup the primitives map. */
-    static {
-        PRIMITIVES.put("boolean", Boolean.TYPE);
-        PRIMITIVES.put("byte", Byte.TYPE);
-        PRIMITIVES.put("char", Character.TYPE);
-        PRIMITIVES.put("short", Short.TYPE);
-        PRIMITIVES.put("int", Integer.TYPE);
-        PRIMITIVES.put("long", Long.TYPE);
-        PRIMITIVES.put("float", Float.TYPE);
-        PRIMITIVES.put("double", Double.TYPE);
-        PRIMITIVES.put("void", Void.TYPE);
-    }
-
-    /**
-     * Get the primitive type for the given primitive name.
-     *
-     * @param name    Primitive type name (boolean, byte, int, ...)
-     * @return        Primitive type or null.
-     */
-    private static Class getPrimitiveType(final String name) {
-        return (Class) PRIMITIVES.get(name);
-    }
-
-    /** VM primitive type name -> primitive type */
-    private static final HashMap VM_PRIMITIVES = new HashMap();
-
-    /** Setup the vm primitives map. */
-    static {
-        VM_PRIMITIVES.put("B", byte.class);
-        VM_PRIMITIVES.put("C", char.class);
-        VM_PRIMITIVES.put("D", double.class);
-        VM_PRIMITIVES.put("F", float.class);
-        VM_PRIMITIVES.put("I", int.class);
-        VM_PRIMITIVES.put("J", long.class);
-        VM_PRIMITIVES.put("S", short.class);
-        VM_PRIMITIVES.put("Z", boolean.class);
-        VM_PRIMITIVES.put("V", void.class);
-    }
-
-    /**
-     * Get the primitive type for the given VM primitive name.
-     *
-     * <p>Mapping:
-     * <pre>
-     *   B - byte
-     *   C - char
-     *   D - double
-     *   F - float
-     *   I - int
-     *   J - long
-     *   S - short
-     *   Z - boolean
-     *   V - void
-     * </pre>
-     *
-     * @param name    VM primitive type name (B, C, J, ...)
-     * @return        Primitive type or null.
-     */
-    private static Class getVMPrimitiveType(final String name) {
-        return (Class) VM_PRIMITIVES.get(name);
     }
 }

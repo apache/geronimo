@@ -17,7 +17,7 @@
 -->
   
 
-<!-- $Revision: 1.8 $ $Date: 2004/03/10 09:59:36 $ -->
+<!-- $Revision: 1.9 $ $Date: 2004/03/21 22:24:39 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -74,6 +74,12 @@
             <artifactId>commons-logging</artifactId>
             <version>1.0.3</version>
             <url>http://jakarta.apache.org/commons/logging/</url>
+        </dependency>
+
+        <dependency>
+            <groupId>tranql</groupId>
+            <artifactId>tranql</artifactId>
+            <version>DEV</version>
         </dependency>
     </dependencies>
 </project>

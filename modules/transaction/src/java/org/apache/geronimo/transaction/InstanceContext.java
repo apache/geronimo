@@ -19,11 +19,10 @@ package org.apache.geronimo.transaction;
 
 import java.util.Map;
 
-
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:36 $
+ * @version $Revision: 1.4 $ $Date: 2004/03/21 22:24:39 $
  *
  * */
 public interface InstanceContext {
@@ -31,7 +30,7 @@ public interface InstanceContext {
 
     void setId(Object id);
 
-    Object getContainer();
+    Object getContainerId();
 
     void associate() throws Exception;
 
@@ -45,6 +44,6 @@ public interface InstanceContext {
      * IMPORTANT INVARIANT: this should always return a map, never null.
      * @return map of ConnectionManager to (list of ) managed connection info objects.
      */
-    public Map getConnectionManagerMap();
+    Map getConnectionManagerMap();
 
 }

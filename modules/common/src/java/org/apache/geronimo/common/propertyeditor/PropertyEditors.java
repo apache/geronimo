@@ -17,21 +17,20 @@
 
 package org.apache.geronimo.common.propertyeditor;
 
-import java.util.List;
-import java.util.ArrayList;
-
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorManager;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.apache.geronimo.common.Classes;
 import org.apache.geronimo.common.NullArgumentException;
+import org.apache.geronimo.kernel.ClassLoading;
 
 /**
  * A collection of PropertyEditor utilities.
  *
  * <p>Allows editors to be nested sub-classes named PropertyEditor.
  *
- * @version $Revision: 1.8 $ $Date: 2004/03/10 09:58:26 $
+ * @version $Revision: 1.9 $ $Date: 2004/03/21 22:24:38 $
  */
 public class PropertyEditors
 {
@@ -86,11 +85,11 @@ public class PropertyEditors
 
         Class type = null;
         try {
-            type = Classes.loadClass(typeName);
+            type = ClassLoading.loadClass(typeName);
         }
         catch (ClassNotFoundException e) {
             // look for a nested class
-            type = Classes.loadClass(typeName + "$PropertyEditor");
+            type = ClassLoading.loadClass(typeName + "$PropertyEditor");
         }
 
         return findEditor(type);
@@ -168,8 +167,8 @@ public class PropertyEditors
             throw new NullArgumentException("editorTypeName");
         }
 
-        Class type = Classes.loadClass(typeName);
-        Class editorType = Classes.loadClass(editorTypeName);
+        Class type = ClassLoading.loadClass(typeName);
+        Class editorType = ClassLoading.loadClass(editorTypeName);
 
         registerEditor(type, editorType);
     }
