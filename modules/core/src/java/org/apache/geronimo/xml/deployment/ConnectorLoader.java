@@ -67,7 +67,7 @@ import org.apache.geronimo.deployment.model.connector.MessageAdapter;
 import org.apache.geronimo.deployment.model.connector.MessageListener;
 import org.apache.geronimo.deployment.model.connector.OutboundResourceAdapter;
 import org.apache.geronimo.deployment.model.connector.RequiredConfigProperty;
-import org.apache.geronimo.deployment.model.connector.ResourceAdapater;
+import org.apache.geronimo.deployment.model.connector.ResourceAdapter;
 import org.apache.geronimo.deployment.model.connector.SecurityPermission;
 import org.apache.geronimo.deployment.model.connector.License;
 import org.w3c.dom.Document;
@@ -77,9 +77,13 @@ import org.w3c.dom.Element;
  * Knows how to load a set of POJOs from a DOM representing a ra.xml
  * deployment descriptor.
  * 
- * @version $Revision: 1.1 $ $Date: 2003/09/29 02:01:08 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/10 20:49:51 $
  */
 public class ConnectorLoader {
+    
+    private ConnectorLoader() {
+    }
+    
     public static ConnectorDocument load(Document doc) {
         Element root = doc.getDocumentElement();
         if (!"connector".equals(root.getTagName())) {
@@ -91,36 +95,61 @@ public class ConnectorLoader {
         connector.setEisType(LoaderUtil.getChildContent(root, "eis-type"));
         connector.setResourceAdapterVersion(LoaderUtil.getChildContent(root, "resourceadapter-version"));
         connector.setLicense(loadLicense(LoaderUtil.getChild(root, "license")));
-        connector.setResourceAdapter(loadResourceadapater(root));
-        connector.setVersion(LoaderUtil.getAttribute(root, "version"));
-        ConnectorDocument result = new ConnectorDocument();
+		connector.setVersion(LoaderUtil.getAttribute(root, "version"));
+		if ("1.5".equals(connector.getVersion())) {
+		    connector.setResourceAdapter(loadResourceAdapter_1_5(root));
+		} else {
+			connector.setVersion(LoaderUtil.getChildContent(root, "spec-version"));
+		    if ("1.0".equals(connector.getVersion())) {
+		        connector.setResourceAdapter(loadResourceAdapter_1_0(root));
+		    } else {
+		        throw new IllegalStateException("Unrecognized connector version " + connector.getVersion());
+		    }
+		}
+		
+		ConnectorDocument result = new ConnectorDocument();
         result.setConnector(connector);
         return result;
     }
 
     private static License loadLicense(Element root) {
+		if (root == null) {
+		    return null;
+		}
         License license = new License();
         J2EELoader.loadDescribable(root, license);
         license.setLicenseRequired(LoaderUtil.getChildContent(root, "license-required"));
         return license;
     }
 
-    private static ResourceAdapater loadResourceadapater(Element econ) {
-        ResourceAdapater ra = null;
+    private static ResourceAdapter loadResourceAdapter_1_5(Element econ) {
         Element era = LoaderUtil.getChild(econ, "resourceadapter");
-        if( null != era ) {
-            ra = new ResourceAdapater();
-            ra.setResourceAdapterClass(LoaderUtil.getChildContent(era, "resourceadapter-class"));
-            ra.setConfigProperty(loadConfigProperty(era));
-            ra.setOutboundResourceAdapter(loadOutboundResourceadapter(era));
-            ra.setInboundResourceAdapter(loadInboundResourceadapter(era));
-            ra.setAdminObject(loadAdminobject(era));
-            ra.setSecurityPermission(loadSecurityPermission(era));
-        }
+        ResourceAdapter ra = new ResourceAdapter();
+        ra.setResourceAdapterClass(LoaderUtil.getChildContent(era, "resourceadapter-class"));
+        ra.setConfigProperty(loadConfigProperty(era));
+        ra.setOutboundResourceAdapter(loadOutboundResourceadapter(era));
+        ra.setInboundResourceAdapter(loadInboundResourceadapter(era));
+        ra.setAdminObject(loadAdminobject(era));
+        ra.setSecurityPermission(loadSecurityPermission(era));
         return ra;
     }
     
-    private static ConfigProperty[] loadConfigProperty(Element era) {
+	private static ResourceAdapter loadResourceAdapter_1_0(Element econ) {
+		Element era = LoaderUtil.getChild(econ, "resourceadapter");
+		ResourceAdapter	ra = new ResourceAdapter();
+		ra.setSecurityPermission(loadSecurityPermission(era));
+		OutboundResourceAdapter ora = new OutboundResourceAdapter();
+		ConnectionDefinition[] connectionDefinition = new ConnectionDefinition[1];
+		connectionDefinition[0] = loadSingleConnectionDefinition(era);
+		ora.setConnectionDefinition(connectionDefinition);
+		ora.setTransactionSupport(LoaderUtil.getChildContent(era, "transaction-support"));
+		ora.setAuthenticationMechanism(loadAuthenticationMechanism(era));
+		ora.setReauthenticationSupport(LoaderUtil.getChildContent(era, "reauthentication-support"));
+		ra.setOutboundResourceAdapter(ora);
+		return ra;
+	}
+
+	private static ConfigProperty[] loadConfigProperty(Element era) {
         Element[] roots = LoaderUtil.getChildren(era, "config-property");
         ConfigProperty[] configProperties = new ConfigProperty[roots.length];
         for(int i = 0; i < roots.length; i++) {
@@ -152,15 +181,20 @@ public class ConnectorLoader {
         ConnectionDefinition[] conDefinitions = new ConnectionDefinition[roots.length];
         for(int i = 0; i < roots.length; i++) {
             Element root = roots[i];
-            conDefinitions[i] = new ConnectionDefinition();
-            conDefinitions[i].setManagedConnectionFactoryClass(LoaderUtil.getChildContent(root, "managedconnectionfactory-class"));
-            conDefinitions[i].setConfigProperty(loadConfigProperty(root));
-            conDefinitions[i].setConnectionFactoryInterface(LoaderUtil.getChildContent(root, "connectionfactory-interface"));
-            conDefinitions[i].setConnectionFactoryImplClass(LoaderUtil.getChildContent(root, "connectionfactory-impl-class"));
-            conDefinitions[i].setConnectionInterface(LoaderUtil.getChildContent(root, "connection-interface"));
-            conDefinitions[i].setConnectionImplClass(LoaderUtil.getChildContent(root, "connection-impl-class"));
+            conDefinitions[i] = loadSingleConnectionDefinition(root);
         }
         return conDefinitions;
+    }
+    
+    private static ConnectionDefinition loadSingleConnectionDefinition(Element root) {
+		ConnectionDefinition cd = new ConnectionDefinition();
+		cd.setManagedConnectionFactoryClass(LoaderUtil.getChildContent(root, "managedconnectionfactory-class"));
+		cd.setConfigProperty(loadConfigProperty(root));
+		cd.setConnectionFactoryInterface(LoaderUtil.getChildContent(root, "connectionfactory-interface"));
+		cd.setConnectionFactoryImplClass(LoaderUtil.getChildContent(root, "connectionfactory-impl-class"));
+		cd.setConnectionInterface(LoaderUtil.getChildContent(root, "connection-interface"));
+		cd.setConnectionImplClass(LoaderUtil.getChildContent(root, "connection-impl-class"));
+		return cd;
     }
 
     private static AuthenticationMechanism[] loadAuthenticationMechanism(Element era) {

@@ -60,21 +60,24 @@ import org.apache.geronimo.deployment.model.j2ee.Displayable;
 /**
  * JavaBean for the root ra.xml tag connector
  *  
- * @version $Revision: 1.1 $ $Date: 2003/09/29 02:01:08 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/10 20:49:51 $
  */
 public class Connector extends Displayable {
     private String vendorName;
     private String eisType;
     private String resourceAdapterVersion;
     private License license;
-    private ResourceAdapater resourceAdapter;
+    private ResourceAdapter resourceAdapter;
     private String version;
+    
+    public Connector() {
+    }
     
     public License getLicense() {
         return license;
     }
 
-    public ResourceAdapater getResourceAdapter() {
+    public ResourceAdapter getResourceAdapter() {
         return resourceAdapter;
     }
 
@@ -94,7 +97,7 @@ public class Connector extends Displayable {
         this.license = license;
     }
 
-    public void setResourceAdapter(ResourceAdapater resourceadapater) {
+    public void setResourceAdapter(ResourceAdapter resourceadapater) {
         resourceAdapter = resourceadapater;
     }
 
