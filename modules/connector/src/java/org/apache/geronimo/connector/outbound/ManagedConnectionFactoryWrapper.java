@@ -43,7 +43,7 @@ import org.apache.geronimo.transaction.manager.NamedXAResource;
 import org.apache.geronimo.transaction.manager.ResourceManager;
 
 /**
- * @version $Revision: 1.15 $ $Date: 2004/06/11 19:22:04 $
+ * @version $Revision: 1.16 $ $Date: 2004/06/12 18:43:31 $
  */
 public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicGBean, ResourceManager {
 
@@ -258,9 +258,9 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         infoFactory.addAttribute("ConnectionFactoryImplClass", Class.class, true);
         infoFactory.addAttribute("ConnectionInterface", Class.class, true);
         infoFactory.addAttribute("ConnectionImplClass", Class.class, true);
-        infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("GlobalJNDIName", String.class, true);
         infoFactory.addAttribute("kernel", Kernel.class, false);
+        infoFactory.addAttribute("objectName", String.class, false);
 
         infoFactory.addOperation("getProxy");
         infoFactory.addOperation("getMethodInterceptor");

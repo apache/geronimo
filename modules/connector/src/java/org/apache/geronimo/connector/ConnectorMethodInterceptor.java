@@ -29,9 +29,10 @@ import net.sf.cglib.proxy.MethodProxy;
 import org.apache.geronimo.kernel.Kernel;
 
 /**
+ * MethodInterceptor used by various Proxies.  The important part of this class is the
+ * deserialization in the readResolve method.
  *
- *
- * @version $Revision: 1.2 $ $Date: 2004/05/30 19:03:36 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/12 18:43:31 $
  *
  * */
 public class ConnectorMethodInterceptor implements MethodInterceptor, Serializable {
@@ -41,22 +42,29 @@ public class ConnectorMethodInterceptor implements MethodInterceptor, Serializab
 
     private transient Object internalProxy;
 
-    public ConnectorMethodInterceptor(String kernelName, ObjectName targetName) {
+    public ConnectorMethodInterceptor(final String kernelName, final ObjectName targetName) {
         this.kernelName = kernelName;
         this.targetName = targetName;
     }
 
-    public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
+    public Object intercept(final Object o, final Method method, Object[] objects, final MethodProxy methodProxy) throws Throwable {
         if (internalProxy == null) {
             throw new IllegalStateException("Proxy is not connected");
         }
         return methodProxy.invoke(internalProxy, objects);
     }
 
-    public void setInternalProxy(Object internalProxy) {
+    public void setInternalProxy(final Object internalProxy) {
         this.internalProxy = internalProxy;
     }
 
+    /**
+     * Deserializing readResolve method.  This uses the stored kernel name and target object name to
+     * obtain and return the original version of this object that is attached to the actual object of
+     * interest.  This allows serialization of resource-refs and resource-env-refs (admin objects).
+     * @return
+     * @throws ObjectStreamException
+     */
     private Object readResolve() throws ObjectStreamException {
         Kernel kernel = Kernel.getKernel(kernelName);
         try {

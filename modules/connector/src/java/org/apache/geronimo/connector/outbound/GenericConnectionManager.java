@@ -32,7 +32,7 @@ import org.apache.geronimo.security.bridge.RealmBridge;
  * GenericConnectionManager sets up a connection manager stack according to the
  * policies described in the attributes.
  *
- * @version $Revision: 1.6 $ $Date: 2004/06/11 19:22:04 $
+ * @version $Revision: 1.7 $ $Date: 2004/06/12 18:43:31 $
  */
 public class GenericConnectionManager extends AbstractConnectionManager {
 
@@ -146,10 +146,11 @@ public class GenericConnectionManager extends AbstractConnectionManager {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(GenericConnectionManager.class, AbstractConnectionManager.GBEAN_INFO);
 
-        infoFactory.addAttribute("ObjectName", String.class, true);
         infoFactory.addAttribute("Name", String.class, true);
         infoFactory.addAttribute("TransactionSupport", TransactionSupport.class, true);
         infoFactory.addAttribute("Pooling", PoolingSupport.class, true);
+
+        infoFactory.addAttribute("objectName", String.class, false);
 
         infoFactory.addReference("ConnectionTracker", ConnectionTracker.class);
         infoFactory.addReference("RealmBridge", RealmBridge.class);
@@ -157,7 +158,7 @@ public class GenericConnectionManager extends AbstractConnectionManager {
         infoFactory.setConstructor(new String[]{
             "TransactionSupport",
             "Pooling",
-            "ObjectName",
+            "objectName",
             "RealmBridge",
             "ConnectionTracker"});
 

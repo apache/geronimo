@@ -27,34 +27,33 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/06/02 05:33:01 $
+ * GBean BootstrapContext implementation that refers to externally configured WorkManager
+ * and XATerminator gbeans.
+ *
+ * @version $Revision: 1.7 $ $Date: 2004/06/12 18:43:31 $
  */
 public class BootstrapContext implements javax.resource.spi.BootstrapContext {
-    private WorkManager workManager;
-    private XATerminator xATerminator;
+    private final WorkManager workManager;
+    private final XATerminator xATerminator;
 
+    /**
+     * Default constructor for use as a GBean Endpoint.
+     */
     public BootstrapContext() {
-
+        workManager = null;
+        xATerminator = null;
     }
 
-    public BootstrapContext(WorkManager workManager, XATerminator xaTerminator) {
+    /**
+     * Normal constructor for use as a GBean.
+     * @param workManager
+     * @param xaTerminator
+     */
+    public BootstrapContext(final WorkManager workManager, final XATerminator xaTerminator) {
         this.workManager = workManager;
         this.xATerminator = xaTerminator;
     }
 
-    /**
-     * @param workManager The workManager to set.
-     */
-    public void setWorkManager(WorkManager workManager) {
-        this.workManager = workManager;
-    }
-
-    /**
-     * @param terminator The xATerminator to set.
-     */
-    public void setXATerminator(XATerminator terminator) {
-        xATerminator = terminator;
-    }
 
     /**
      * @see javax.resource.spi.BootstrapContext#getWorkManager()
@@ -81,9 +80,9 @@ public class BootstrapContext implements javax.resource.spi.BootstrapContext {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(BootstrapContext.class);
+          //adding interface does not work, creates attributes for references???
+//        infoFactory.addInterface(javax.resource.spi.BootstrapContext.class);
 
-        infoFactory.addOperation("getWorkManager");
-        infoFactory.addOperation("getXATerminator");
         infoFactory.addOperation("createTimer");
 
         infoFactory.addReference("WorkManager", WorkManager.class);
@@ -97,4 +96,5 @@ public class BootstrapContext implements javax.resource.spi.BootstrapContext {
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
+
 }

@@ -21,7 +21,10 @@ import javax.resource.ResourceException;
 import javax.resource.spi.ActivationSpec;
 import javax.resource.spi.ResourceAdapter;
 import javax.resource.spi.ResourceAdapterAssociation;
+import javax.resource.spi.BootstrapContext;
+import javax.resource.spi.ResourceAdapterInternalException;
 import javax.resource.spi.endpoint.MessageEndpointFactory;
+import javax.transaction.xa.XAResource;
 
 import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.DynamicGBeanDelegate;
@@ -31,9 +34,12 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 
 /**
- * @version $Revision: 1.11 $ $Date: 2004/06/11 19:22:04 $
+ * Dynamic GBean wrapper around a ResourceAdapter object, exposing the config-properties as
+ * GBean attributes.
+ *
+ * @version $Revision: 1.12 $ $Date: 2004/06/12 18:43:31 $
  */
-public class ResourceAdapterWrapper implements GBeanLifecycle, DynamicGBean {
+public class ResourceAdapterWrapper implements GBeanLifecycle, DynamicGBean, ResourceAdapter {
 
     public static final GBeanInfo GBEAN_INFO;
 
@@ -45,7 +51,9 @@ public class ResourceAdapterWrapper implements GBeanLifecycle, DynamicGBean {
 
     private final DynamicGBeanDelegate delegate;
 
-    //default constructor for enhancement proxy endpoint
+    /**
+     *  default constructor for enhancement proxy endpoint
+     */
     public ResourceAdapterWrapper() {
         this.resourceAdapterClass = null;
         this.bootstrapContext = null;
@@ -53,7 +61,7 @@ public class ResourceAdapterWrapper implements GBeanLifecycle, DynamicGBean {
         this.delegate = null;
     }
 
-    public ResourceAdapterWrapper(Class resourceAdapterClass, BootstrapContext bootstrapContext) throws InstantiationException, IllegalAccessException {
+    public ResourceAdapterWrapper(final Class resourceAdapterClass, final BootstrapContext bootstrapContext) throws InstantiationException, IllegalAccessException {
         this.resourceAdapterClass = resourceAdapterClass;
         this.bootstrapContext = bootstrapContext;
         resourceAdapter = (ResourceAdapter) resourceAdapterClass.newInstance();
@@ -65,17 +73,29 @@ public class ResourceAdapterWrapper implements GBeanLifecycle, DynamicGBean {
         return resourceAdapterClass;
     }
 
-    public void registerManagedConnectionFactory(ResourceAdapterAssociation managedConnectionFactory) throws ResourceException {
+    public void registerManagedConnectionFactory(final ResourceAdapterAssociation managedConnectionFactory) throws ResourceException {
         managedConnectionFactory.setResourceAdapter(resourceAdapter);
     }
 
+    public void start(BootstrapContext ctx) throws ResourceAdapterInternalException {
+        throw new IllegalStateException("Don't call this");
+    }
+
+    public void stop() {
+        throw new IllegalStateException("Don't call this");
+    }
+
     //endpoint handling
-    public void endpointActivation(MessageEndpointFactory messageEndpointFactory, ActivationSpec activationSpec) throws ResourceException {
+    public void endpointActivation(final MessageEndpointFactory messageEndpointFactory, final ActivationSpec activationSpec) throws ResourceException {
         resourceAdapter.endpointActivation(messageEndpointFactory, activationSpec);
     }
 
-    public void endpointDeactivation(MessageEndpointFactory messageEndpointFactory, ActivationSpec activationSpec) {
+    public void endpointDeactivation(final MessageEndpointFactory messageEndpointFactory, final ActivationSpec activationSpec) {
         resourceAdapter.endpointDeactivation(messageEndpointFactory, activationSpec);
+    }
+
+    public XAResource[] getXAResources(ActivationSpec[] specs) throws ResourceException {
+        return resourceAdapter.getXAResources(specs);
     }
 
     public void doStart() throws WaitingException, Exception {
@@ -110,8 +130,8 @@ public class ResourceAdapterWrapper implements GBeanLifecycle, DynamicGBean {
         infoFactory.addReference("BootstrapContext", BootstrapContext.class);
 
         infoFactory.addOperation("registerManagedConnectionFactory", new Class[]{ResourceAdapterAssociation.class});
-        infoFactory.addOperation("endpointActivation", new Class[]{MessageEndpointFactory.class, ActivationSpec.class});
-        infoFactory.addOperation("endpointDeactivation", new Class[]{MessageEndpointFactory.class, ActivationSpec.class});
+
+        infoFactory.addInterface(ResourceAdapter.class);
 
         infoFactory.setConstructor(new String[]{"ResourceAdapterClass", "BootstrapContext"});
 

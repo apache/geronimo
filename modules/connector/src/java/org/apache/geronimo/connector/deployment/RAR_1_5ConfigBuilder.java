@@ -68,7 +68,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 
 /**
- * @version $Revision: 1.17 $ $Date: 2004/06/08 17:38:00 $
+ * @version $Revision: 1.18 $ $Date: 2004/06/12 18:43:31 $
  */
 public class RAR_1_5ConfigBuilder extends AbstractRARConfigBuilder {
 
@@ -201,7 +201,7 @@ public class RAR_1_5ConfigBuilder extends AbstractRARConfigBuilder {
                     ObjectName adminObjectObjectName = ObjectName.getInstance(JMXReferenceFactory.BASE_ADMIN_OBJECT_NAME + gerAdminobjectInstance.getAdminobjectName());
                     adminObjectGBean.setAttribute("AdminObjectInterface", cl.loadClass(adminobject.getAdminobjectInterface().getStringValue()));
                     adminObjectGBean.setAttribute("AdminObjectClass", cl.loadClass(adminobject.getAdminobjectClass().getStringValue()));
-                    adminObjectGBean.setAttribute("SelfName", adminObjectObjectName);
+//                    adminObjectGBean.setAttribute("SelfName", adminObjectObjectName);
                     context.addGBean(adminObjectObjectName, adminObjectGBean);
                 } catch (Exception e) {
                     throw new DeploymentException("Could not construct AdminObject", e);

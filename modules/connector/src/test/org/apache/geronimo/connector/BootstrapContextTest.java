@@ -25,7 +25,7 @@ import junit.framework.TestCase;
 
 /**
  * Unit tests for {@link BootstrapContext}
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:58:33 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/12 18:43:31 $
  */
 public class BootstrapContextTest extends TestCase {
 
@@ -41,9 +41,8 @@ public class BootstrapContextTest extends TestCase {
      * Tests get and set work manager
      */
     public void testGetSetWorkManager() {
-        BootstrapContext context = new BootstrapContext();
         MockWorkManager manager = new MockWorkManager("testGetSetWorkManager");
-        context.setWorkManager(manager);
+        BootstrapContext context = new BootstrapContext(manager, null);
         WorkManager wm = context.getWorkManager();
 
         assertTrue("Make sure it is the same object", manager.equals(wm));
@@ -53,9 +52,8 @@ public class BootstrapContextTest extends TestCase {
      * Tests get and set XATerminator
      */
     public void testGetSetXATerminator() {
-        BootstrapContext context = new BootstrapContext();
         MockXATerminator t = new MockXATerminator("testGetSetXATerminator");
-        context.setXATerminator(t);
+        BootstrapContext context = new BootstrapContext(null, t);
         XATerminator xat = context.getXATerminator();
 
         assertTrue("Make sure it is the same object", t.equals(xat));
