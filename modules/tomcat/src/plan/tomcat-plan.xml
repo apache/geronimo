@@ -37,7 +37,7 @@
         <uri>commons-digester/jars/commons-digester-1.6.jar</uri>
     </dependency>
     <dependency>
-        <uri>commons-modeler/jars/commons-modeler-XXX.jar</uri>
+        <uri>commons-modeler/jars/commons-modeler-1.1-dev.jar</uri>
     </dependency>
     <dependency>
         <uri>regexp/jars/regexp-1.3.jar</uri>
