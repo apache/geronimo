@@ -19,10 +19,7 @@ package org.apache.geronimo.tomcat;
 import java.io.File;
 import java.net.URI;
 import java.security.PermissionCollection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;
@@ -47,6 +44,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.tomcat.connector.HTTPConnector;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
+import org.apache.geronimo.transaction.OnlineUserTransaction;
 
 
 /**
@@ -55,6 +53,9 @@ import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 public class AbstractWebModuleTest extends TestCase {
 
     protected static final String securityRealmName = "demo-properties-realm";
+    protected static final String POLICY_CONTEXT_ID = "securetest";
+
+
     protected Kernel kernel;
     private GBeanData container;
     private ObjectName containerName;
@@ -91,7 +92,12 @@ public class AbstractWebModuleTest extends TestCase {
         app.setAttribute("webAppRoot", new File("target/var/catalina/webapps/war1/").toURI());
         app.setAttribute("webClassPath", new URI[]{});
         app.setAttribute("configurationBaseUrl", new File("target/var/catalina/webapps/war1/WEB-INF/web.xml").toURL());
+        app.setAttribute("componentContext", Collections.EMPTY_MAP);
         app.setReferencePattern("Container", containerName);
+        OnlineUserTransaction userTransaction = new OnlineUserTransaction();
+        app.setAttribute("userTransaction", userTransaction);
+        app.setReferencePattern("TransactionContextManager", tcmName);
+        app.setReferencePattern("TrackedConnectionAssociator", ctcName);
         app.setAttribute("path", "/test");
 
         start(app);
@@ -103,6 +109,7 @@ public class AbstractWebModuleTest extends TestCase {
         app.setAttribute("webClassPath", new URI[]{});
         app.setAttribute("configurationBaseUrl", new File("target/var/catalina/webapps/war3/WEB-INF/web.xml").toURL());
         app.setAttribute("path", "/securetest");
+        app.setAttribute("policyContextID", POLICY_CONTEXT_ID);
 
         LoginConfig loginConfig = new LoginConfig();
         loginConfig.setAuthMethod(Constants.FORM_METHOD);
@@ -120,7 +127,15 @@ public class AbstractWebModuleTest extends TestCase {
         realm.setRoleClassNames("org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
         app.setAttribute("tomcatRealm", realm);
 
+        OnlineUserTransaction userTransaction = new OnlineUserTransaction();
+        app.setAttribute("userTransaction", userTransaction);
+        app.setReferencePattern("TransactionContextManager", tcmName);
+        app.setReferencePattern("TrackedConnectionAssociator", ctcName);
+
+        app.setAttribute("componentContext", Collections.EMPTY_MAP);
         app.setReferencePattern("Container", containerName);
+        app.setAttribute("kernel", null);
+
         start(app);
 
         return webModuleName;
@@ -139,7 +154,8 @@ public class AbstractWebModuleTest extends TestCase {
         app.setAttribute("webClassPath", new URI[]{});
         app.setAttribute("configurationBaseUrl", new File("target/var/catalina/webapps/war3/WEB-INF/web.xml").toURL());
         app.setAttribute("path", "/securetest");
-
+        app.setAttribute("policyContextID", POLICY_CONTEXT_ID);
+ 
         LoginConfig loginConfig = new LoginConfig();
         loginConfig.setAuthMethod(Constants.FORM_METHOD);
         loginConfig.setRealmName("Test JACC Realm");
@@ -150,7 +166,7 @@ public class AbstractWebModuleTest extends TestCase {
         app.setAttribute("securityConstraints", securityConstraints);
         app.setAttribute("securityRoles", securityRoles);
 
-        TomcatGeronimoRealm realm = new TomcatGeronimoRealm("securetest",
+        TomcatGeronimoRealm realm = new TomcatGeronimoRealm(POLICY_CONTEXT_ID,
                                                             securityConfig,
                                                             "demo-properties-realm",
                                                             securityRoles,
@@ -161,6 +177,12 @@ public class AbstractWebModuleTest extends TestCase {
         realm.setRoleClassNames("org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
         app.setAttribute("tomcatRealm", realm);
 
+        OnlineUserTransaction userTransaction = new OnlineUserTransaction();
+        app.setAttribute("userTransaction", userTransaction);
+        app.setReferencePattern("TransactionContextManager", tcmName);
+        app.setReferencePattern("TrackedConnectionAssociator", ctcName);
+
+        app.setAttribute("componentContext", Collections.EMPTY_MAP);
         app.setReferencePattern("Container", containerName);
         start(app);
 
