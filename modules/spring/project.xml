@@ -37,7 +37,7 @@
     <shortDescription>Geronimo Spring</shortDescription>
     <description>Geronimo Spring</description>
     <url>http://incubator.apache.org/projects/geronimo/spring/</url>
-    <siteDirectory>/www/incubator.apache.org/projects/geronimo/spring</siteDirectory>
+    <siteDirectory>/www/geronimo.apache.org/modules/sprint</siteDirectory>
     <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds/spring</distributionDirectory>
 
     <package>org.apache.geronimo.spring</package>
