@@ -21,7 +21,7 @@ import junit.framework.TestCase;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/29 13:14:11 $
+ * @version $Revision: 1.2 $ $Date: 2004/03/01 13:12:51 $
  */
 public class DirtyMarkerImplTest extends TestCase {
 
@@ -29,60 +29,45 @@ public class DirtyMarkerImplTest extends TestCase {
         DirtyMarkerImpl dirtyMarker = new DirtyMarkerImpl();
         dirtyMarker.setIsNew(true);
 
-        Exception ex = null;
         try {
             dirtyMarker.setIsDelete(true);
-        } catch (IllegalArgumentException e) {
-            ex = e;
-        }
-        assertNotNull("Transition should ne impossible", ex);
+            fail("Transition should not be possible");
+        } catch (IllegalArgumentException e) {}
         
         try {
             dirtyMarker.setIsDirty(true);
-        } catch (IllegalArgumentException e) {
-            ex = e;
-        }
-        assertNotNull("Transition should ne impossible", ex);
+            fail("Transition should not be possible");
+        } catch (IllegalArgumentException e) {}
     }
 
     public void testDirty() {
         DirtyMarkerImpl dirtyMarker = new DirtyMarkerImpl();
         dirtyMarker.setIsDirty(true);
 
-        Exception ex = null;
         try {
             dirtyMarker.setIsNew(true);
-        } catch (IllegalArgumentException e) {
-            ex = e;
-        }
-        assertNotNull("Transition should ne impossible", ex);
+            fail("Transition should not be possible");
+        } catch (IllegalArgumentException e) {}
         
         try {
             dirtyMarker.setIsDelete(true);
-        } catch (IllegalArgumentException e) {
-            ex = e;
-        }
-        assertNotNull("Transition should ne impossible", ex);
+            fail("Transition should not be possible");
+        } catch (IllegalArgumentException e) {}
     }
     
     public void testDelete() {
         DirtyMarkerImpl dirtyMarker = new DirtyMarkerImpl();
         dirtyMarker.setIsDelete(true);
 
-        Exception ex = null;
         try {
             dirtyMarker.setIsNew(true);
-        } catch (IllegalArgumentException e) {
-            ex = e;
-        }
-        assertNotNull("Transition should ne impossible", ex);
+            fail("Transition should not be possible");
+        } catch (IllegalArgumentException e) {}
         
         try {
             dirtyMarker.setIsDirty(true);
-        } catch (IllegalArgumentException e) {
-            ex = e;
-        }
-        assertNotNull("Transition should ne impossible", ex);
+            fail("Transition should not be possible");
+        } catch (IllegalArgumentException e) {}
     }
     
 }
