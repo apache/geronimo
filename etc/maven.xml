@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.23 $ $Date: 2003/12/10 10:54:07 $ -->
+<!-- $Revision: 1.24 $ $Date: 2003/12/13 22:12:29 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
@@ -277,7 +277,7 @@
           <fileset dir="${srcdir}">
             <include name="**/*.java"/>
           </fileset>
-          <mbeaninfo/>
+          <mbeaninfo templateFile="${project.root}/etc/xdoclet/template/jmx/geronimo-mbeaninfo.xdt"/>
         </geronimodoclet>
 
         <touch file="${uptodateFile}"/>
