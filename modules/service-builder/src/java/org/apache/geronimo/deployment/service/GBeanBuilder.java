@@ -62,6 +62,8 @@ public class GBeanBuilder {
             editor.setAsText(text);
             Object value = editor.getValue();
             gbean.setAttribute(name, value);
+        } catch (DeploymentException e) {
+            throw e;
         } catch (ClassNotFoundException e) {
             throw new DeploymentException("Unable to find PropertyEditor for " + type, e);
         } catch (Exception e) {
