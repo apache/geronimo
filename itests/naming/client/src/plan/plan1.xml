@@ -68,7 +68,7 @@
 
     </resource>
     <resource>
-        <external-rar>activemq/rars/activemq-1.1-SNAPSHOT.rar</external-rar>
+        <external-rar>activemq/rars/activemq-ra-1.2-SNAPSHOT.rar</external-rar>
         <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector" version="1.5"
           configId="org.codehaus.activemq.ra/default"
           >
