@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.12 $ $Date: 2003/09/01 16:17:50 $ -->
+<!-- $Revision: 1.13 $ $Date: 2003/09/01 16:29:47 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
   xmlns:u="jelly:util"
   xmlns:ant="jelly:ant"
-  xmlns:maven="jelly:maven">
+  xmlns:maven="jelly:maven"
+  xmlns:define="jelly:define">
   
   <!-- ================= -->
   <!-- Global Properties -->
@@ -149,8 +150,22 @@
   <!-- XDoclet Integration -->
   <!-- =================== -->
   
-  <goal name="xdoclet:jmxdoclet">
-    <j:jelly xmlns="jelly:ant">
+  <define:taglib uri="common:xdoclet">
+    
+    <define:tag name="jmxdoclet" xmlns="jelly:ant">
+      <j:if test="${srcdir == null}">
+        <fail>Missing required attribute: srcdir</fail>
+      </j:if>
+      <j:if test="${destdir == null}">
+        <fail>Missing required attribute: destdir</fail>
+      </j:if>
+      
+      <!-- Inlcude the generated sources in the Javac compile -->
+      <j:if test="${appendSet != null}">
+        <path id="xdoclet.jmx.compile.src.set" location="${destdir}"/>
+        <maven:addPath id="${appendSet}" refid="xdoclet.jmx.compile.src.set"/>
+      </j:if>
+      
       <echo>Generating MBean interfaces...</echo>
       
       <!-- Load the jmxdoclet task -->
@@ -161,51 +176,19 @@
       </taskdef>
       
       <!-- Where sources will be generated -->
-      <j:if test="${context.getVariable('maven.xdoclet.jmx.dest') == null}">
-        <j:set var="maven.xdoclet.jmx.dest" value="${maven.build.dir}/xdoclet/jmx"/>
-      </j:if>
-      <mkdir dir="${maven.xdoclet.jmx.dest}"/>
-      
-      <!-- Where sources come from -->
-      <j:if test="${context.getVariable('maven.xdoclet.jmx.src') == null}">
-        <j:set var="maven.xdoclet.jmx.src" value="${basedir}/src/java"/>
-      </j:if>
-      
-      <!-- Inlcude the generated sources in the Javac compile -->
-      <path id="maven.xdoclet.jmx.compile.src.set" location="${maven.xdoclet.jmx.dest}"/>
-      <maven:addPath id="maven.compile.src.set" refid="maven.xdoclet.jmx.compile.src.set"/>
+      <mkdir dir="${destdir}"/>
       
       <!-- Generate MBean interfaces -->
-      <jmxdoclet destDir="${maven.xdoclet.jmx.dest}" verbose="false">
+      <jmxdoclet destDir="${destdir}" verbose="false">
         
-        <fileset dir="${maven.xdoclet.jmx.src}">
+        <fileset dir="${srcdir}">
           <include name="**/*.java"/>
         </fileset>
-        
-        <!-- Um, this is broke
-        <j:forEach var="path" items="${pom.compileSourceRootsList}">
-          <fileset dir="${path}">
-            <include name="**/*.java"/>
-            
-            <j:forEach var="sm" items="${pom.build.sourceModifications}">
-              <available property="classPresent" classname="${sm.className}"/>
-              <j:if test="${classPresent != 'true'}">
-                <j:forEach var="exclude" items="${sm.excludes}">
-                  <exclude name="${exclude}"/>
-                </j:forEach>
-                <j:forEach var="include" items="${sm.includes}">
-                  <include name="${include}"/>
-                </j:forEach>
-              </j:if>
-            </j:forEach>
-          </fileset>
-        </j:forEach>
-        -->
         
         <mbeaninterface templateFile="${project.root}/etc/xdoclet/template/jmx/mbean.xdt"/>
       </jmxdoclet>
       
-    </j:jelly>
-  </goal>
+    </define:tag>
+  </define:taglib>
   
 </project>
