@@ -107,6 +107,22 @@ public final class State implements Serializable {
         return eventTypeValue;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public boolean isRunning() {
+        return this == State.RUNNING;
+    }
+
+    public boolean isStopped() {
+        return this == State.STOPPED;
+    }
+
+    public boolean isFailed() {
+        return this == State.FAILED;
+    }
+
     public String toString() {
         return name;
     }
