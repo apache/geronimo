@@ -77,25 +77,32 @@ import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 import javax.management.ServiceNotFoundException;
+import javax.naming.Context;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.impl.LogFactoryImpl;
 import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.deployment.model.appclient.ApplicationClient;
 import org.apache.geronimo.jmx.JMXKernel;
 import org.apache.geronimo.jmx.JMXUtil;
 import org.apache.geronimo.proxy.ProxyInvocation;
+import org.apache.geronimo.naming.java.ComponentContextBuilder;
+import org.apache.geronimo.xml.deployment.AppClientLoader;
+import org.apache.geronimo.common.InvocationResult;
+import org.apache.xerces.parsers.DOMParser;
+import org.xml.sax.SAXException;
 
 /**
  * Launcher for J2EE Application Clients.
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/23 22:14:20 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/03 16:02:05 $
  */
 public class Launcher {
     static {
         // Add our default Commons Logger that support the trace level
         if (System.getProperty(LogFactoryImpl.LOG_PROPERTY) == null) {
-            System.setProperty(LogFactoryImpl.LOG_PROPERTY, "org.apache.geronimo.core.log.Log4jLog");
+            System.setProperty(LogFactoryImpl.LOG_PROPERTY, "org.apache.geronimo.common.log.log4j.Log4jLog");
         }
     }
 
@@ -106,16 +113,29 @@ public class Launcher {
     private JMXKernel kernel;
     private MBeanServer mbServer;
     private URL clientURL;
+    private URL deploymentURL;
     private String[] appArgs;
     private ObjectName controllerName;
     private ObjectName clientName;
+    private ShutdownThread shutdownHook;
 
     private Launcher(String[] args) throws IllegalArgumentException {
         parseCommandLine(args);
     }
 
     private void deploy() throws DeploymentException {
-        Runtime.getRuntime().addShutdownHook(new ShutdownThread("Geronimo-Shutdown", this));
+        shutdownHook = new ShutdownThread("Geronimo-Shutdown", this);
+        Runtime.getRuntime().addShutdownHook(shutdownHook);
+
+        if (clientURL.toString().endsWith("/")) {
+            deploymentURL = clientURL;
+        } else {
+            try {
+                deploymentURL = new URL("jar:" + clientURL + "!/");
+            } catch (MalformedURLException e) {
+                throw new DeploymentException("Unable to create deploymentURL", e);
+            }
+        }
 
         kernel = new JMXKernel("Geronimo Client");
         mbServer = kernel.getMBeanServer();
@@ -192,19 +212,42 @@ public class Launcher {
             throw new DeploymentException(e);
         }
 
+        String mainClassName = getMainClassName();
+        ApplicationClient appClient = loadAppClientDescriptor();
+
+        Context compContext = ComponentContextBuilder.buildContext(appClient);
+
+        try {
+            AttributeList attrs = new AttributeList(2);
+            attrs.add(new Attribute("MainClassName", mainClassName));
+            attrs.add(new Attribute("ClientURL", clientURL));
+            attrs.add(new Attribute("ComponentContext", compContext));
+            AttributeList setAttrs = mbServer.setAttributes(clientName, attrs);
+            assert (attrs.size() == setAttrs.size());
+        } catch (Exception e) {
+            throw new DeploymentException(e);
+        }
+
+        try {
+            mbServer.invoke(clientName, "start", null, null);
+        } catch (Exception e) {
+            throw new DeploymentException(e);
+        }
+    }
+
+    private String getMainClassName() throws DeploymentException {
         String mainClassName;
         try {
             Manifest manifest;
-            if (clientURL.toString().endsWith("/")) {
+            if ("jar".equals(deploymentURL.getProtocol())) {
+                JarURLConnection jarConn = (JarURLConnection) deploymentURL.openConnection();
+                manifest = jarConn.getManifest();
+            } else {
                 // unpacked
-                URL manifestURL = new URL(clientURL, "META-INF/MANIFEST.MF");
+                URL manifestURL = new URL(deploymentURL, "META-INF/MANIFEST.MF");
                 InputStream is = manifestURL.openStream();
                 manifest = new Manifest(is);
                 is.close();
-            } else {
-                URL jarURL = new URL("jar:" + clientURL + "!/");
-                JarURLConnection jarConn = (JarURLConnection) jarURL.openConnection();
-                manifest = jarConn.getManifest();
             }
             Attributes attrs = manifest.getMainAttributes();
             mainClassName = (String) attrs.get(Attributes.Name.MAIN_CLASS);
@@ -214,20 +257,18 @@ public class Launcher {
         } catch (IOException e) {
             throw new DeploymentException("Unable to get Main-Class from manifest for " + clientURL, e);
         }
+        return mainClassName;
+    }
 
+    private ApplicationClient loadAppClientDescriptor() throws DeploymentException {
         try {
-            AttributeList attrs = new AttributeList(2);
-            attrs.add(new Attribute("MainClassName", mainClassName));
-            attrs.add(new Attribute("ClientURL", clientURL));
-            mbServer.setAttributes(clientName, attrs);
+            URL appClientURL = new URL(deploymentURL, "META-INF/application-client.xml");
+            DOMParser parser = new DOMParser();
+            parser.parse(appClientURL.toString());
+            AppClientLoader loader = new AppClientLoader();
+            return loader.load(parser.getDocument());
         } catch (Exception e) {
-            throw new DeploymentException(e);
-        }
-
-        try {
-            mbServer.invoke(clientName, "start", null, null);
-        } catch (Exception e) {
-            throw new DeploymentException(e);
+            throw new DeploymentException("Unable to load application-client.xml", e);
         }
     }
 
@@ -253,13 +294,19 @@ public class Launcher {
             }
             kernel.release();
         }
+        try {
+            Runtime.getRuntime().removeShutdownHook(shutdownHook);
+        } catch (Exception e) {
+            // ignore
+        }
     }
 
-    public void run() {
+    public void run() throws Exception {
+        InvocationResult result;
         try {
             ProxyInvocation invocation = new ProxyInvocation();
             ProxyInvocation.putArguments(invocation, new Object[] { appArgs });
-            mbServer.invoke(clientName, "invoke", new Object[]{invocation}, new String[]{"org.apache.geronimo.common.Invocation"});
+            result = (InvocationResult) mbServer.invoke(clientName, "invoke", new Object[]{invocation}, new String[]{"org.apache.geronimo.common.Invocation"});
         } catch (InstanceNotFoundException e) {
             IllegalStateException ex = new IllegalStateException("Unable to invoke app client");
             ex.initCause(e);
@@ -272,9 +319,12 @@ public class Launcher {
             ex.initCause(e);
             throw ex;
         }
+        if (result.isException()) {
+            throw result.getException();
+        }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         Launcher launcher;
         try {
             launcher = new Launcher(args);
@@ -292,7 +342,11 @@ public class Launcher {
             return;
         }
 
-        launcher.run();
+        try {
+            launcher.run();
+        } finally {
+            launcher.undeploy();
+        }
     }
 
     private void parseCommandLine(String[] args) throws IllegalArgumentException {

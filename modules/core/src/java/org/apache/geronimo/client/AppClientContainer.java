@@ -59,6 +59,8 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 
+import javax.naming.Context;
+
 import org.apache.geronimo.common.AbstractRPCContainer;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.naming.java.ComponentContextInterceptor;
@@ -68,13 +70,14 @@ import org.apache.geronimo.naming.java.ComponentContextInterceptor;
  * @jmx:mbean
  *      extends="org.apache.geronimo.common.RPCContainer,org.apache.geronimo.management.StateManageable"
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/01 20:38:48 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/03 16:02:05 $
  */
 public class AppClientContainer extends AbstractRPCContainer implements AppClientContainerMBean {
     private static final Class[] MAIN_ARGS = {String[].class};
 
     private String mainClassName;
     private URL clientURL;
+    private Context compContext;
 
     public AppClientContainer() throws DeploymentException {
     }
@@ -107,6 +110,20 @@ public class AppClientContainer extends AbstractRPCContainer implements AppClien
         this.clientURL = clientURL;
     }
 
+    /**
+     * @jmx:managed-attribute
+     */
+    public Context getComponentContext() {
+        return compContext;
+    }
+
+    /**
+     * @jmx:managed-attribute
+     */
+    public void setComponentContext(Context compContext) {
+        this.compContext = compContext;
+    }
+
     protected void doStart() throws Exception {
         ClassLoader clientCL = new URLClassLoader(new URL[] { clientURL }, Thread.currentThread().getContextClassLoader());
         Method mainMethod;
@@ -118,7 +135,7 @@ public class AppClientContainer extends AbstractRPCContainer implements AppClien
         } catch (NoSuchMethodException e) {
             throw new DeploymentException("Main-Class " + mainClassName + " does not have a main method", e);
         }
-        addInterceptor(new ComponentContextInterceptor(null));
+        addInterceptor(new ComponentContextInterceptor(compContext));
         addInterceptor(new MainInvokerInterceptor(mainMethod));
     }
 

@@ -53,108 +53,74 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.model.appclient;
+package org.apache.geronimo.naming.java;
 
-import org.apache.geronimo.deployment.model.j2ee.Displayable;
-import org.apache.geronimo.deployment.model.j2ee.EJBRef;
+import java.util.HashMap;
+import java.util.Map;
+import javax.naming.Context;
+
+import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
-import org.apache.geronimo.deployment.model.j2ee.MessageDestination;
-import org.apache.geronimo.deployment.model.j2ee.MessageDestinationRef;
-import org.apache.geronimo.deployment.model.j2ee.ResourceEnvRef;
-import org.apache.geronimo.deployment.model.j2ee.ResourceRef;
-import org.apache.geronimo.deployment.model.j2ee.ServiceRef;
 import org.apache.geronimo.deployment.model.j2ee.JNDIEnvironmentRefs;
-import org.apache.geronimo.deployment.model.j2ee.EJBLocalRef;
 
 /**
- *
- *
- * @version $Revision: 1.2 $ $Date: 2003/09/03 16:02:05 $
+ * 
+ * 
+ * @version $Revision: 1.1 $ $Date: 2003/09/03 16:02:05 $
  */
-public class ApplicationClient extends Displayable implements JNDIEnvironmentRefs {
-    private String version;
-    private EnvEntry[] envEntry;
-    private EJBRef[] ejbRef;
-    private ServiceRef[] serviceRef;
-    private ResourceRef[] resourceRef;
-    private ResourceEnvRef[] resourceEnvRef;
-    private MessageDestinationRef[] messageDestinationRef;
-    private String callbackHandler;
-    private MessageDestination[] messageDestination;
+public class ComponentContextBuilder {
+    /**
+     * Build a component context from definitions contained in POJOs read from
+     * a deployment descriptor.
+     * @param refs the source reference definitions
+     * @return a Context that can be bound to java:comp
+     */
+    public static Context buildContext(JNDIEnvironmentRefs refs) throws DeploymentException {
+        Map envMap = new HashMap();
+        buildEnvEntries(envMap, refs.getEnvEntry());
 
-    public String getVersion() {
-        return version;
+        Map compMap = new HashMap();
+        compMap.put("env", new ReadOnlyContext(envMap));
+        return new ReadOnlyContext(compMap);
     }
 
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    public String getCallbackHandler() {
-        return callbackHandler;
-    }
-
-    public void setCallbackHandler(String callbackHandler) {
-        this.callbackHandler = callbackHandler;
-    }
-
-    public EJBRef[] getEJBRef() {
-        return ejbRef;
-    }
-
-    public void setEJBRef(EJBRef[] ejbRef) {
-        this.ejbRef = ejbRef;
-    }
-
-    public EJBLocalRef[] getEJBLocalRef() {
-        return new EJBLocalRef[0];
-    }
-
-    public EnvEntry[] getEnvEntry() {
-        return envEntry;
-    }
-
-    public void setEnvEntry(EnvEntry[] envEntry) {
-        this.envEntry = envEntry;
-    }
-
-    public MessageDestination[] getMessageDestination() {
-        return messageDestination;
-    }
-
-    public void setMessageDestination(MessageDestination[] messageDestination) {
-        this.messageDestination = messageDestination;
-    }
-
-    public MessageDestinationRef[] getMessageDestinationRef() {
-        return messageDestinationRef;
-    }
-
-    public void setMessageDestinationRef(MessageDestinationRef[] messageDestinationRef) {
-        this.messageDestinationRef = messageDestinationRef;
-    }
-
-    public ResourceEnvRef[] getResourceEnvRef() {
-        return resourceEnvRef;
-    }
-
-    public void setResourceEnvRef(ResourceEnvRef[] resourceEnvRef) {
-        this.resourceEnvRef = resourceEnvRef;
-    }
-
-    public ResourceRef[] getResourceRef() {
-        return resourceRef;
-    }
-
-    public void setResourceRef(ResourceRef[] resourceRef) {
-        this.resourceRef = resourceRef;
-    }
-
-    public ServiceRef[] getServiceRef() {
-        return serviceRef;
-    }
-
-    public void setServiceRef(ServiceRef[] serviceRef) {
-        this.serviceRef = serviceRef;
+    private static void buildEnvEntries(Map envMap, EnvEntry[] envEntries) throws DeploymentException {
+        for (int i=0; i < envEntries.length; i++) {
+            EnvEntry entry = envEntries[i];
+            String name = entry.getEnvEntryName();
+            String type = entry.getEnvEntryType();
+            String value = entry.getEnvEntryValue();
+            Object mapEntry;
+            try {
+                if (value == null) {
+                    mapEntry = null;
+                } else if ("java.lang.String".equals(type)) {
+                    mapEntry = value;
+                } else if ("java.lang.Character".equals(type)) {
+                    mapEntry = new Character(value.charAt(0));
+                } else if ("java.lang.Boolean".equals(type)) {
+                    mapEntry = Boolean.valueOf(value);
+                } else if ("java.lang.Byte".equals(type)) {
+                    mapEntry = Byte.valueOf(value);
+                } else if ("java.lang.Short".equals(type)) {
+                    mapEntry = Short.valueOf(value);
+                } else if ("java.lang.Integer".equals(type)) {
+                    mapEntry = Integer.valueOf(value);
+                } else if ("java.lang.Long".equals(type)) {
+                    mapEntry = Long.valueOf(value);
+                } else if ("java.lang.Float".equals(type)) {
+                    mapEntry = Float.valueOf(value);
+                } else if ("java.lang.Double".equals(type)) {
+                    mapEntry = Double.valueOf(value);
+                } else {
+                    throw new AssertionError("Invalid class for env-entry "+name+", "+type);
+                }
+            } catch (NumberFormatException e) {
+                throw new DeploymentException("Invalid numeric value for env-entry "+name+", value="+value);
+            }
+            if (envMap.put(name, mapEntry) != null) {
+                throw new AssertionError("Duplicate entry for env-entry "+name);
+            }
+        }
     }
 }

@@ -53,40 +53,38 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.client;
+package org.apache.geronimo.naming.java;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.InvocationTargetException;
+import javax.naming.Context;
 
-import org.apache.geronimo.common.AbstractInterceptor;
-import org.apache.geronimo.common.InvocationResult;
-import org.apache.geronimo.common.Invocation;
-import org.apache.geronimo.common.SimpleInvocationResult;
-import org.apache.geronimo.proxy.ProxyInvocation;
+import junit.framework.TestCase;
+import org.apache.geronimo.deployment.model.appclient.ApplicationClient;
+import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
 
 /**
- * Basic invoker for the main method of an Application Client
  * 
- * @version $Revision: 1.3 $ $Date: 2003/09/03 16:02:05 $
+ * 
+ * @version $Revision: 1.1 $ $Date: 2003/09/03 16:02:06 $
  */
-public class MainInvokerInterceptor extends AbstractInterceptor {
-    private final Method mainMethod;
+public class ContextBuilderTest extends TestCase {
+    private ApplicationClient client;
 
-    public MainInvokerInterceptor(Method mainMethod) {
-        this.mainMethod = mainMethod;
+    protected void setUp() throws Exception {
+        client = new ApplicationClient();
+        EnvEntry stringEntry = new EnvEntry();
+        stringEntry.setEnvEntryName("string");
+        stringEntry.setEnvEntryType("java.lang.String");
+        stringEntry.setEnvEntryValue("Hello World");
+        EnvEntry intEntry = new EnvEntry();
+        intEntry.setEnvEntryName("int");
+        intEntry.setEnvEntryType("java.lang.Integer");
+        intEntry.setEnvEntryValue("12345");
+        client.setEnvEntry(new EnvEntry[] { stringEntry, intEntry });
     }
 
-    public InvocationResult invoke(Invocation invocation) throws Throwable {
-        assert (mainMethod.equals(ProxyInvocation.getMethod(invocation)));
-        Object[] args = ProxyInvocation.getArguments(invocation);
-        try {
-            return new SimpleInvocationResult(mainMethod.invoke(null, args));
-        } catch (InvocationTargetException e) {
-            Throwable cause = e.getCause();
-            if (cause instanceof Exception && cause instanceof RuntimeException == false) {
-                return new SimpleInvocationResult((Exception)cause);
-            }
-            throw cause;
-        }
+    public void testEnvEntries() throws Exception {
+        Context compCtx = ComponentContextBuilder.buildContext(client);
+        assertEquals("Hello World", compCtx.lookup("env/string"));
+        assertEquals(new Integer(12345), compCtx.lookup("env/int"));
     }
 }
