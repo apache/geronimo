@@ -69,7 +69,7 @@ import org.apache.xmlbeans.XmlBeans;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/02/06 08:55:49 $
+ * @version $Revision: 1.6 $ $Date: 2004/02/08 02:06:13 $
  */
 public class WebAppDConfigBean extends DConfigBeanSupport {
     private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
@@ -97,8 +97,6 @@ public class WebAppDConfigBean extends DConfigBeanSupport {
         getWebApp().getContextRoot().setStringValue(contextRoot);
     }
 
-
-    /* ------------------------------------------------------------------------------- */
     /** getContextPriorityClassLoader.
      * @return True if this context should give web application class in preference over the containers
      * classes, as per the servlet specification recommendations.
@@ -107,7 +105,6 @@ public class WebAppDConfigBean extends DConfigBeanSupport {
         return getWebApp().getContextPriorityClassloader();
     }
 
-    /* ------------------------------------------------------------------------------- */
     /** setContextPriorityClassLoader.
      * @param contextPriority True if this context should give web application class in preference over the containers
      * classes, as per the servlet specification recommendations.
@@ -116,7 +113,6 @@ public class WebAppDConfigBean extends DConfigBeanSupport {
         pcs.firePropertyChange("contextPriorityClassLoader", getContextPriorityClassLoader(), contextPriority);
         getWebApp().setContextPriorityClassloader(contextPriority);
     }
-
 
     public DConfigBean getDConfigBean(DDBean ddBean) throws ConfigurationException {
         return encHelper.getDConfigBean(ddBean);

@@ -74,7 +74,7 @@ import org.w3c.dom.Document;
 /**
  *
  *
- * @version $Revision: 1.8 $ $Date: 2004/02/06 08:55:49 $
+ * @version $Revision: 1.9 $ $Date: 2004/02/08 02:06:13 $
  */
 public class JettyModule extends AbstractModule {
     private final File moduleDirectory;
@@ -90,12 +90,12 @@ public class JettyModule extends AbstractModule {
         this.zipArchive= new ZipInputStream(moduleArchive);
         closeStream= false;
 
-        // TODO - why does this not use the WebAppDConfigBean ??
+        // TODO - This should decode XML directly here.  Should use xmlbeans?
         contextPath= XMLUtil.getChildContent(deploymentPlan.getDocumentElement(), "context-root", null, null);
         if (contextPath == null)
             throw new DeploymentException("No context root specified");
         String t=XMLUtil.getChildContent(deploymentPlan.getDocumentElement(), "context-priority-classloader", null, null);
-        contextPriorityClassLoader= t != null && t.length() > 0 && t.toLowerCase().charAt(0) == 't';
+        contextPriorityClassLoader= new Boolean(t).booleanValue();
     }
 
     public JettyModule(URI configID, File archiveFile, Document deploymentPlan) throws DeploymentException {
@@ -123,9 +123,9 @@ public class JettyModule extends AbstractModule {
             contextPath = "/" + contextPath;
         }
 
-        // TODO - why does this not use the WebAppDConfigBean ??
+        // TODO - This should decode XML directly here.  Should use x mlbeans?
         String t=XMLUtil.getChildContent(deploymentPlan.getDocumentElement(), "context-priority-classloader", null, null);
-        contextPriorityClassLoader= t != null && t.length() > 0 && t.toLowerCase().charAt(0) == 't';
+        contextPriorityClassLoader= new Boolean(t).booleanValue();
     }
 
     public JettyModule(URI configID, InputStream moduleArchive, JettyWebAppType webApp) throws DeploymentException {
@@ -137,6 +137,7 @@ public class JettyModule extends AbstractModule {
         if (contextPath == null) {
             throw new DeploymentException("No context root specified");
         }
+        contextPriorityClassLoader=webApp.getContextPriorityClassloader();
     }
 
     public void init() throws DeploymentException {
