@@ -74,6 +74,8 @@ public class LightweightOperationDescBuilder extends OperationDescBuilder {
 
         built = true;
 
+        operationDesc.setMethod(method);
+        
         //section 7.3.2, we don't have to look at parameter ordering.
         //unless it turns out we have to validate it.
 //        List order = operation.getParameterOrdering();

@@ -17,6 +17,7 @@
 package org.apache.geronimo.axis.builder;
 
 import java.lang.String;
+import java.lang.reflect.Method;
 import java.util.*;
 import javax.wsdl.*;
 import javax.wsdl.extensions.soap.SOAPBody;
@@ -53,8 +54,9 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
      */
     private final Set inParamNames = new HashSet();
     private final Set outParamNames = new HashSet();
+    private final Class serviceEndpointInterface;
 
-    public HeavyweightOperationDescBuilder(BindingOperation bindingOperation, JavaWsdlMappingType mapping, ServiceEndpointMethodMappingType methodMapping, Style defaultStyle, Map exceptionMap, Map complexTypeMap, ClassLoader classLoader) throws DeploymentException {
+    public HeavyweightOperationDescBuilder(BindingOperation bindingOperation, JavaWsdlMappingType mapping, ServiceEndpointMethodMappingType methodMapping, Style defaultStyle, Map exceptionMap, Map complexTypeMap, ClassLoader classLoader, Class serviceEndpointInterface) throws DeploymentException {
         super(bindingOperation);
         this.mapping = mapping;
         this.methodMapping = methodMapping;
@@ -62,7 +64,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
         this.exceptionMap = exceptionMap;
         this.complexTypeMap = complexTypeMap;
         this.classLoader = classLoader;
-
+        this.serviceEndpointInterface = serviceEndpointInterface;
         BindingInput bindingInput = bindingOperation.getBindingInput();
         this.soapBody = (SOAPBody) WSDescriptorParser.getExtensibilityElement(SOAPBody.class, bindingInput.getExtensibilityElements());
     }
@@ -105,7 +107,6 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
         Use use = Use.getUse(soapBody.getUse());
         operationDesc.setUse(use);
 
-
         boolean isWrappedElement = methodMapping.isSetWrappedElement();
 
         MethodParamPartsMappingType[] paramMappings = methodMapping.getMethodParamPartsMappingArray();
@@ -131,14 +132,34 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
             throw new DeploymentException("Not all input message parts were mapped for operation name" + operationName);
         }
 
-        //check that all the parameters are there
+        Class[] paramTypes = new Class[parameterDescriptions.length];
         for (int i = 0; i < parameterDescriptions.length; i++) {
             ParameterDesc parameterDescription = parameterDescriptions[i];
             if (parameterDescription == null) {
                 throw new DeploymentException("There is no mapping for parameter number " + i + " for operation " + operationName);
             }
             operationDesc.addParameter(parameterDescription);
+            paramTypes[i] = parameterDescription.getJavaType();
         }
+
+        String methodName = methodMapping.getJavaMethodName().getStringValue().trim();
+        Method method = null;
+        try {
+            method = serviceEndpointInterface.getMethod(methodName, paramTypes);
+        } catch (NoSuchMethodException e) {
+            String args = "(";
+            for (int i = 0; i < paramTypes.length; i++) {
+                args += paramTypes[i].getName();
+                if (i < paramTypes.length-1){
+                    args += ",";
+                }
+            }
+            args += ")";
+            
+            throw new DeploymentException("Mapping references non-existent method in service-endpoint: " + methodName+ args);
+        }
+
+        operationDesc.setMethod(method);
 
         // MAP RETURN TYPE
         if (methodMapping.isSetWsdlReturnValueMapping()) {

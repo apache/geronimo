@@ -280,7 +280,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
             String operationName = operation.getName();
             BindingOperation bindingOperation = binding.getBindingOperation(operationName, operation.getInput().getName(), operation.getOutput() == null ? null : operation.getOutput().getName());
             ServiceEndpointMethodMappingType methodMapping = WSDescriptorParser.getMethodMappingForOperation(operationName, methodMappings);
-            OperationInfo operationInfo = buildOperationInfoHeavyweight(methodMapping, bindingOperation, portStyle, soapVersion, exceptionMap, complexTypeMap, mapping, classLoader);
+            OperationInfo operationInfo = buildOperationInfoHeavyweight(methodMapping, bindingOperation, portStyle, soapVersion, exceptionMap, complexTypeMap, mapping, classLoader, enhancedServiceEndpointClass);
             operationInfos[i++] = operationInfo;
         }
         JavaXmlTypeMappingType[] javaXmlTypeMappings = mapping.getJavaXmlTypeMappingArray();
@@ -474,8 +474,8 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
         return operationDescBuilder.buildOperationInfo(soapVersion);
     }
 
-    public OperationInfo buildOperationInfoHeavyweight(ServiceEndpointMethodMappingType methodMapping, BindingOperation bindingOperation, Style defaultStyle, SOAPConstants soapVersion, Map exceptionMap, Map complexTypeMap, JavaWsdlMappingType mapping, ClassLoader classLoader) throws DeploymentException {
-        HeavyweightOperationDescBuilder operationDescBuilder = new HeavyweightOperationDescBuilder(bindingOperation, mapping, methodMapping, defaultStyle, exceptionMap, complexTypeMap, classLoader);
+    public OperationInfo buildOperationInfoHeavyweight(ServiceEndpointMethodMappingType methodMapping, BindingOperation bindingOperation, Style defaultStyle, SOAPConstants soapVersion, Map exceptionMap, Map complexTypeMap, JavaWsdlMappingType mapping, ClassLoader classLoader, Class serviceEndpointInterface) throws DeploymentException {
+        HeavyweightOperationDescBuilder operationDescBuilder = new HeavyweightOperationDescBuilder(bindingOperation, mapping, methodMapping, defaultStyle, exceptionMap, complexTypeMap, classLoader, serviceEndpointInterface);
         return operationDescBuilder.buildOperationInfo(soapVersion);
     }
 
