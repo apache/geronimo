@@ -99,7 +99,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/02/20 20:30:22 $
+ * @version $Revision: 1.5 $ $Date: 2004/02/20 21:05:01 $
  */
 public class WARConfigBuilder implements ConfigurationBuilder {
     private final Repository repository;
@@ -186,6 +186,11 @@ public class WARConfigBuilder implements ConfigurationBuilder {
                 throw new DeploymentException(e);
             }
 
+            // add the warfile's content to the configuration
+            URI warRoot = URI.create("war/");
+            context.addArchive(warRoot, module);
+            context.addToClassPath(warRoot);
+
             // todo do we need to support include and dependency or can we rely on the parent?
             // add low-level GBean definitions to the config
 //            addIncludes(context, configType);
@@ -193,10 +198,6 @@ public class WARConfigBuilder implements ConfigurationBuilder {
             ClassLoader cl = context.getClassLoader(repository);
             addGBeans(context, jettyWebApp.getGbeanArray(), cl);
 
-            // add the warfile's content to the configuration
-            URI warRoot = URI.create("war/");
-            context.addArchive(warRoot, module);
-            context.addToClassPath(warRoot);
 
             // add the GBean for the web application
             addWebAppGBean(context, jettyWebApp, warRoot);
