@@ -33,10 +33,10 @@ import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
@@ -49,9 +49,9 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  * GBean that saves a list of configurations, for example to allow
  * a server to restart automatically.
  *
- * @version $Revision: 1.1 $ $Date: 2004/06/04 17:27:00 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/05 14:38:00 $
  */
-public class FileConfigurationList implements GBean, PersistentConfigurationList {
+public class FileConfigurationList implements GBeanLifecycle, PersistentConfigurationList {
     private static final Log log = LogFactory.getLog(PersistentConfigurationList.class);
     private final Kernel kernel;
     private final ServerInfo serverInfo;
