@@ -76,7 +76,7 @@ import org.xml.sax.SAXException;
 /**
  * Holds utility methods for parsing a DOM tree.
  *
- * @version $Revision: 1.5 $ $Date: 2003/09/23 05:11:25 $
+ * @version $Revision: 1.6 $ $Date: 2003/09/29 14:00:56 $
  */
 public final class LoaderUtil {
     private static final Log log = LogFactory.getLog(LoaderUtil.class);
@@ -128,17 +128,22 @@ public final class LoaderUtil {
         return null;
     }
 
+    /**
+     * Gets an array of the direct children of this node with the specified
+     * tag name
+     */
     public static Element[] getChildren(Element root, String childName) {
-        NodeList nodes = root.getElementsByTagName(childName);
-        if(nodes == null) {
-            return new Element[0];
+        NodeList nl = root.getChildNodes();
+        int max = nl.getLength();
+        LinkedList list = new LinkedList();
+        for(int i=0; i<max; i++) {
+            Node n = nl.item(i);
+            if(n.getNodeType() == Node.ELEMENT_NODE &&
+                    n.getNodeName().equals(childName)) {
+                list.add(n);
+            }
         }
-        int length = nodes.getLength();
-        Element[] result = new Element[length];
-        for (int i = 0; i < length; i++) {
-            result[i] = (Element) nodes.item(i);
-        }
-        return result;
+        return (Element[])list.toArray(new Element[list.size()]);
     }
 
     public static String getChildContent(Element element, String child) {
@@ -178,13 +183,13 @@ public final class LoaderUtil {
      * @throws IOException if there was a problem reading the input
      */
     public static Document parseXML(Reader reader) throws SAXException, IOException {
-        DocumentBuilderFactory factory = new org.apache.xerces.jaxp.DocumentBuilderFactoryImpl();
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setNamespaceAware(true);
         factory.setValidating(true);
         factory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaLanguage", "http://www.w3.org/2001/XMLSchema");
         try {
             DocumentBuilder builder = factory.newDocumentBuilder();
-            builder.setEntityResolver(new LocalEntityResolver(new File("src/schema"))); // @todo get this from resource
+            builder.setEntityResolver(new LocalEntityResolver(new File("modules/core/src/schema"))); // @todo get this from resource
             return builder.parse(new InputSource(new BufferedReader(reader)));
         } catch (ParserConfigurationException e) {
             throw new AssertionError("Unable to obtain suitable DocumentBuilder");
