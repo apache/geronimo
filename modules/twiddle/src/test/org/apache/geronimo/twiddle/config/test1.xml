@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Id: test1.xml,v 1.1 2003/08/13 08:35:33 jdillon Exp $ -->
+
+<configuration xmlns="http://geronimo.apache.org/xml/schema/Twiddle/Configuration">
+  
+  <!-- ================= -->
+  <!-- System Properties -->
+  <!-- ================= -->
+  
+  <properties>
+    <property name="property1">value1</property>
+    <property name="property2">value2</property>
+  </properties>
+  
+  
+  <!-- ==================== -->
+  <!-- Additional Libraries -->
+  <!-- ==================== -->
+  
+  <libraries>
+    <library>library1</library>
+    <library>library2</library>
+  </libraries>
+  
+  
+  <!-- ====================== -->
+  <!-- Configuration Includes -->
+  <!-- ====================== -->
+  
+  <includes>
+    <include>include1</include>
+    <include>include2</include>
+  </includes>
+  
+  
+  <!-- ================== -->
+  <!-- Global Environment -->
+  <!-- ================== -->
+  
+  <environment>
+    <attribute name="default1">value</attribute>
+    <attribute name="string1" type="string">value</attribute>
+    <attribute name="number1" type="number">1</attribute>
+    <attribute name="boolean1" type="boolean">true</attribute>
+    <attribute name="class1" type="class">my.class</attribute>
+    
+    <complex-attribute name="complex1" class="my.complex.class">
+      <attribute name="default2">value2</attribute>
+      <attribute name="string2" type="string">value</attribute>
+      <attribute name="number2" type="number">2</attribute>
+      <attribute name="boolean2" type="boolean">false</attribute>
+      <attribute name="class2" type="class">my.other.class</attribute>
+    </complex-attribute>
+  </environment>
+  
+  
+  <!-- =================== -->
+  <!-- Command Search Path -->
+  <!-- =================== -->
+  
+  <search-path>
+    <path-element>path1</path-element>
+    <path-element>path2</path-element>
+    <path-element>path3</path-element>
+  </search-path>
+  
+  
+  <!-- ======== -->
+  <!-- Commands -->
+  <!-- ======== -->
+  
+  <commands>
+    
+    <command name="help" class="org.geronimo.twiddle.commands.HelpCommand"/>
+    
+    <command-set name="whatever">
+      <command name="whatever" class="whatever">
+        <attribute name="Foo">Bar</attribute>
+      </command>
+    </command-set>
+  
+  </commands>
+
+</configuration>
