@@ -61,11 +61,11 @@ import javax.security.auth.spi.LoginModule;
 
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/02/17 00:05:39 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/17 04:30:29 $
  */
 class LoginModuleCacheObject {
 
-    private final Long loginModuleId;
+    private final LoginModuleId loginModuleId;
     private String realmName;
     private Subject subject;
     private LoginModule loginModule;
@@ -73,13 +73,13 @@ class LoginModuleCacheObject {
     private long created;
     private boolean done;
 
-    LoginModuleCacheObject(Long loginModuleId) {
+    LoginModuleCacheObject(LoginModuleId loginModuleId) {
         this.loginModuleId = loginModuleId;
         this.created = System.currentTimeMillis();
         this.done = false;
     }
 
-    Long getLoginModuleId() {
+    LoginModuleId getLoginModuleId() {
         return loginModuleId;
     }
 

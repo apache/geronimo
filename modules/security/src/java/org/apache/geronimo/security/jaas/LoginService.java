@@ -70,6 +70,8 @@ import javax.security.auth.spi.LoginModule;
 import java.io.IOException;
 import java.security.AccessController;
 import java.security.Principal;
+import java.security.NoSuchAlgorithmException;
+import java.security.InvalidKeyException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -105,7 +107,7 @@ import org.apache.geronimo.security.realm.SecurityRealm;
 /**
  * An MBean that maintains a list of security realms.
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/17 00:05:39 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/17 04:30:29 $
  */
 public class LoginService implements LoginServiceMBean, GBean {
 
@@ -131,7 +133,7 @@ public class LoginService implements LoginServiceMBean, GBean {
     private Collection loginModules = Collections.EMPTY_SET;
     private final static ClassLoader classLoader;
 
-    private Mac mac;
+    private SecretKey key;
     private String algorithm;
     private String password;
 
@@ -230,7 +232,7 @@ public class LoginService implements LoginServiceMBean, GBean {
         return null;
     }
 
-    public Long allocateLoginModule(String realmName) {
+    public LoginModuleId allocateLoginModule(String realmName) {
         LoginModuleCacheObject lm = null;
 
         synchronized (LoginService.class) {
@@ -270,7 +272,7 @@ public class LoginService implements LoginServiceMBean, GBean {
         return lm.getLoginModuleId();
     }
 
-    public void removeLoginModule(Long loginModuleId) throws ExpiredLoginModuleException {
+    public void removeLoginModule(LoginModuleId loginModuleId) throws ExpiredLoginModuleException {
         LoginModuleCacheObject lm = (LoginModuleCacheObject) loginCache.get(loginModuleId);
         if (lm == null) throw new ExpiredLoginModuleException();
 
@@ -278,7 +280,7 @@ public class LoginService implements LoginServiceMBean, GBean {
         log.trace("LoginModule [" + lm.getLoginModuleId() + "] marked done");
     }
 
-    public Collection getCallbacks(Long loginModuleId) throws ExpiredLoginModuleException {
+    public Collection getCallbacks(LoginModuleId loginModuleId) throws ExpiredLoginModuleException {
         LoginModuleCacheObject lm = (LoginModuleCacheObject) loginCache.get(loginModuleId);
         if (lm == null) throw new ExpiredLoginModuleException();
 
@@ -322,7 +324,7 @@ public class LoginService implements LoginServiceMBean, GBean {
         }
     }
 
-    public boolean login(Long loginModuleId, Collection callbacks) throws LoginException {
+    public boolean login(LoginModuleId loginModuleId, Collection callbacks) throws LoginException {
         LoginModuleCacheObject lm = (LoginModuleCacheObject) loginCache.get(loginModuleId);
         if (lm == null) throw new ExpiredLoginModuleException();
 
@@ -334,7 +336,7 @@ public class LoginService implements LoginServiceMBean, GBean {
         return module.login();
     }
 
-    public boolean commit(Long loginModuleId) throws LoginException {
+    public boolean commit(LoginModuleId loginModuleId) throws LoginException {
         LoginModuleCacheObject lm = (LoginModuleCacheObject) loginCache.get(loginModuleId);
         if (lm == null) throw new ExpiredLoginModuleException();
 
@@ -355,20 +357,12 @@ public class LoginService implements LoginServiceMBean, GBean {
 
         Long id = ContextManager.getSubjectId(lm.getSubject());
 
-        long n = id.longValue();
-        byte[] bytes = new byte[8];
-        for (int i = 7; i >= 0; i--) {
-            bytes[i] = (byte) (n);
-            n >>>= 8;
-        }
-        mac.update(bytes);
-
-        subject.getPrincipals().add(new IdentificationPrincipal(id, mac.doFinal()));
+        subject.getPrincipals().add(new IdentificationPrincipal(id, hash(id)));
 
         return true;
     }
 
-    public boolean abort(Long loginModuleId) throws LoginException {
+    public boolean abort(LoginModuleId loginModuleId) throws LoginException {
         LoginModuleCacheObject lm = (LoginModuleCacheObject) loginCache.get(loginModuleId);
         if (lm == null) throw new ExpiredLoginModuleException();
 
@@ -377,7 +371,7 @@ public class LoginService implements LoginServiceMBean, GBean {
         return module.abort();
     }
 
-    public boolean logout(Long loginModuleId) throws LoginException {
+    public boolean logout(LoginModuleId loginModuleId) throws LoginException {
         LoginModuleCacheObject lm = (LoginModuleCacheObject) loginCache.get(loginModuleId);
         if (lm == null) throw new ExpiredLoginModuleException();
 
@@ -388,26 +382,48 @@ public class LoginService implements LoginServiceMBean, GBean {
         return module.logout();
     }
 
-    public Subject retrieveSubject(Long loginModuleId) throws LoginException {
+    public Subject retrieveSubject(LoginModuleId loginModuleId) throws LoginException {
         LoginModuleCacheObject lm = (LoginModuleCacheObject) loginCache.get(loginModuleId);
         if (lm == null) throw new ExpiredLoginModuleException();
 
         return lm.getSubject();
     }
 
+    private byte[] hash(Long id) {
+        long n = id.longValue();
+        byte[] bytes = new byte[8];
+        for (int i = 7; i >= 0; i--) {
+            bytes[i] = (byte) (n);
+            n >>>= 8;
+        }
+
+        try {
+            Mac mac = Mac.getInstance(algorithm);
+            mac.init(key);
+            mac.update(bytes);
+
+            return mac.doFinal();
+        } catch (NoSuchAlgorithmException e) {
+        } catch (InvalidKeyException e) {
+        }
+        assert false : "Should never have reached here";
+        return null;
+    }
+
     private static long nextLoginModuleId = System.currentTimeMillis();
 
     private LoginModuleCacheObject allocateLoginModuleCacheObject(long maxAge) {
         synchronized (loginCache) {
-            Long key = new Long(nextLoginModuleId++);
+            Long id = new Long(nextLoginModuleId++);
+            LoginModuleId loginModuleId = new LoginModuleId(id, hash(id));
 
-            LoginModuleCacheObject lm = (LoginModuleCacheObject) loginCache.get(key);
+            LoginModuleCacheObject lm = (LoginModuleCacheObject) loginCache.get(loginModuleId);
             if (lm == null) {
-                lm = new LoginModuleCacheObject(key);
+                lm = new LoginModuleCacheObject(loginModuleId);
 
-                loginCache.put(key, lm);
+                loginCache.put(loginModuleId, lm);
 
-                LoginModuleCacheMonitor cm = new LoginModuleCacheMonitor(key, lm, maxAge);
+                LoginModuleCacheMonitor cm = new LoginModuleCacheMonitor(loginModuleId, lm, maxAge);
                 cm.clockTicket = clockDaemon.executePeriodically(reclaimPeriod, cm, true);
             }
             return lm;
@@ -418,12 +434,12 @@ public class LoginService implements LoginServiceMBean, GBean {
      * This class periodically checks one login module.
      */
     private class LoginModuleCacheMonitor implements Runnable {
-        final Long key;
+        final LoginModuleId key;
         final LoginModuleCacheObject loginModule;
         Object clockTicket;
         final long maxAge;
 
-        LoginModuleCacheMonitor(Long key, LoginModuleCacheObject loginModule, long maxAge) {
+        LoginModuleCacheMonitor(LoginModuleId key, LoginModuleCacheObject loginModule, long maxAge) {
             this.key = key;
             this.loginModule = loginModule;
             this.maxAge = maxAge;
@@ -445,8 +461,14 @@ public class LoginService implements LoginServiceMBean, GBean {
     }
 
     public void doStart() throws WaitingException, Exception {
-        SecretKey key = new SecretKeySpec(password.getBytes(), algorithm);
-        mac = Mac.getInstance(algorithm);
+        key = new SecretKeySpec(password.getBytes(), algorithm);
+
+        /**
+         * Simple test to make sure that the algorithm and key are fine.
+         * This should stop the service from being started if there is a
+         * problem.
+         */
+        Mac mac = Mac.getInstance(algorithm);
         mac.init(key);
 
         log.info("Login server has been started");
@@ -475,12 +497,12 @@ public class LoginService implements LoginServiceMBean, GBean {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(LoginService.class.getName());
         infoFactory.addOperation(new GOperationInfo("getAppConfigurationEntry", new String[]{String.class.getName()}));
         infoFactory.addOperation(new GOperationInfo("allocateLoginModule", new String[]{String.class.getName()}));
-        infoFactory.addOperation(new GOperationInfo("getCallbacks", new String[]{Long.class.getName()}));
-        infoFactory.addOperation(new GOperationInfo("login", new String[]{Long.class.getName(), Collection.class.getName()}));
-        infoFactory.addOperation(new GOperationInfo("commit", new String[]{Long.class.getName()}));
-        infoFactory.addOperation(new GOperationInfo("abort", new String[]{Long.class.getName()}));
-        infoFactory.addOperation(new GOperationInfo("logout", new String[]{Long.class.getName()}));
-        infoFactory.addOperation(new GOperationInfo("retrieveSubject", new String[]{Long.class.getName()}));
+        infoFactory.addOperation(new GOperationInfo("getCallbacks", new String[]{LoginModuleId.class.getName()}));
+        infoFactory.addOperation(new GOperationInfo("login", new String[]{LoginModuleId.class.getName(), Collection.class.getName()}));
+        infoFactory.addOperation(new GOperationInfo("commit", new String[]{LoginModuleId.class.getName()}));
+        infoFactory.addOperation(new GOperationInfo("abort", new String[]{LoginModuleId.class.getName()}));
+        infoFactory.addOperation(new GOperationInfo("logout", new String[]{LoginModuleId.class.getName()}));
+        infoFactory.addOperation(new GOperationInfo("retrieveSubject", new String[]{LoginModuleId.class.getName()}));
         infoFactory.addAttribute(new GAttributeInfo("Kernel", true));
         infoFactory.addAttribute(new GAttributeInfo("ReclaimPeriod", true));
         infoFactory.addAttribute(new GAttributeInfo("Algorithm", true));

@@ -76,11 +76,11 @@ import org.apache.geronimo.security.RealmPrincipal;
  * which, in turn, also get placed into the subject.  It is these RealmPrincipals
  * that are used in the principal to role mapping.
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/17 00:05:39 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/17 04:30:29 $
  */
 public class RemoteLoginModuleLocalWrapper implements LoginModule {
     private String realmName;
-    private Long loginModuleId;
+    private LoginModuleId loginModuleId;
     private Subject internalSubject;
     private Subject externalSubject;
     private LoginServiceMBean remoteLoginService;

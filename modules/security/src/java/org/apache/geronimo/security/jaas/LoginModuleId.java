@@ -55,45 +55,75 @@
  */
 package org.apache.geronimo.security.jaas;
 
-import javax.security.auth.Subject;
-import javax.security.auth.login.LoginException;
-
-import java.util.Collection;
-
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.security.GeronimoSecurityException;
+import java.io.Serializable;
 
 
 /**
- * An MBean that maintains a list of security realms.
- *
- * @version $Revision: 1.2 $ $Date: 2004/02/17 04:30:29 $
+ * @version $Revision: 1.1 $ $Date: 2004/02/17 04:30:29 $
  */
-public interface LoginServiceMBean {
+public class LoginModuleId implements Serializable {
+    private final Long loginModuleId;
+    private final byte[] hash;
+    private transient int hashCode;
+    private transient String name;
 
-    Kernel getKernel();
+    public LoginModuleId(Long loginModuleId, byte[] hash) {
+        this.loginModuleId = loginModuleId;
+        this.hash = hash;
+    }
 
-    void setKernel(Kernel kernel);
+    public Long getLoginModuleId() {
+        return loginModuleId;
+    }
 
-    Collection getRealms() throws GeronimoSecurityException;
+    public byte[] getHash() {
+        return hash;
+    }
 
-    void setRealms(Collection realms);
+    public boolean equals(Object obj) {
+        if (!(obj instanceof LoginModuleId)) return false;
 
-    SerializableACE getAppConfigurationEntry(String realmName);
+        LoginModuleId another = (LoginModuleId) obj;
+        if (!another.loginModuleId.equals(loginModuleId)) return false;
+        for (int i = 0; i < hash.length; i++) {
+            if (another.hash[i] != hash[i]) return false;
+        }
+        return true;
+    }
 
-    LoginModuleId allocateLoginModule(String realmName) throws LoginException;
+    public String toString() {
+        if (name == null) {
+            StringBuffer buffer = new StringBuffer();
+            buffer.append('[');
+            buffer.append(loginModuleId);
+            buffer.append(":0x");
+            for (int i = 0; i < hash.length; i++) {
+                buffer.append(HEXCHAR[(hash[i]>>>4)&0x0F]);
+                buffer.append(HEXCHAR[(hash[i]    )&0x0F]);
+            }
+            buffer.append(']');
+            name = buffer.toString();
+        }
+        return name;
+    }
 
-    void removeLoginModule(LoginModuleId loginModuleId) throws ExpiredLoginModuleException;
+    /**
+     * Returns a hashcode for this LoginModuleId.
+     *
+     * @return a hashcode for this LoginModuleId.
+     */
+    public int hashCode() {
+        if (hashCode == 0) {
+            for (int i = 0; i < hash.length; i++) {
+                hashCode ^= hash[i];
+            }
+            hashCode ^= loginModuleId.hashCode();
+        }
+        return hashCode;
+    }
 
-    Collection getCallbacks(LoginModuleId loginModuleId) throws ExpiredLoginModuleException;
-
-    boolean login(LoginModuleId loginModuleId, Collection callbacks) throws LoginException;
-
-    boolean commit(LoginModuleId loginModuleId) throws LoginException;
-
-    boolean abort(LoginModuleId loginModuleId) throws LoginException;
-
-    boolean logout(LoginModuleId loginModuleId) throws LoginException;
-
-    Subject retrieveSubject(LoginModuleId loginModuleId) throws LoginException;
+    private static final char[] HEXCHAR = {
+        '0', '1', '2', '3', '4', '5', '6', '7',
+        '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
+    };
 }
