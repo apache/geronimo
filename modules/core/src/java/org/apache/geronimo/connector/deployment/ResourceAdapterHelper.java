@@ -60,15 +60,19 @@ import javax.resource.ResourceException;
 import javax.resource.spi.ManagedConnectionFactory;
 import javax.resource.spi.ActivationSpec;
 
+import org.apache.geronimo.kernel.deployment.DeploymentException;
+
 /**
  * ResourceAdapterHelper
  *
- * @version $Revision: 1.3 $ $Date: 2003/11/19 02:13:04 $
+ * @version $Revision: 1.4 $ $Date: 2003/11/25 17:28:36 $
  */
 public interface ResourceAdapterHelper {
 
     void registerManagedConnectionFactory(ManagedConnectionFactory mcf) throws ResourceException;
 
     void registerActivationSpec(ActivationSpec activationSpec) throws ResourceException;
+
+    ActivationSpec createActivationSpec(String activationSpecClassName) throws DeploymentException;
 
 }

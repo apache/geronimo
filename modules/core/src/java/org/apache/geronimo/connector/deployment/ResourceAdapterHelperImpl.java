@@ -68,11 +68,12 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
 import org.apache.geronimo.kernel.service.GeronimoMBeanEndpoint;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
+import org.apache.geronimo.kernel.deployment.DeploymentException;
 
 /**
  * ResourceAdapterHelperImpl
  *
- * @version $Revision: 1.3 $ $Date: 2003/11/19 02:13:04 $
+ * @version $Revision: 1.4 $ $Date: 2003/11/25 17:28:36 $
  */
 public class ResourceAdapterHelperImpl implements GeronimoMBeanTarget, ResourceAdapterHelper {
 
@@ -140,6 +141,25 @@ public class ResourceAdapterHelperImpl implements GeronimoMBeanTarget, ResourceA
 
     public void registerActivationSpec(ActivationSpec activationSpec) throws ResourceException {
         activationSpec.setResourceAdapter(resourceAdapter);
+    }
+
+    public ActivationSpec createActivationSpec(String activationSpecClassName) throws DeploymentException {
+        ClassLoader cl = resourceAdapter.getClass().getClassLoader();
+        Class clazz = null;
+        try {
+            clazz = cl.loadClass(activationSpecClassName);
+        } catch (ClassNotFoundException e) {
+            throw new DeploymentException("Could not load ActivationSpec class : " + activationSpecClassName + " using classloader from ResourceAdapter: " + cl, e);
+        }
+        ActivationSpec activationSpec = null;
+        try {
+            activationSpec = (ActivationSpec)clazz.newInstance();
+        } catch (InstantiationException e) {
+            throw new DeploymentException("Could not create an ActivationSpec instance", e);
+        } catch (IllegalAccessException e) {
+            throw new DeploymentException("Could not create an ActivationSpec instance", e);         }
+        return activationSpec;
+
     }
 
     /**
