@@ -1,33 +1,44 @@
 Release Notes - Apache Geronimo - Version 1.0-M2
 
-Bug Fixes
+** Bug Fixes
 
     * [GERONIMO-229] - Automatically create requred openejb-jar.xml
     * [GERONIMO-230] - ejb-jar.xml files without assembly-descriptors encounter NullPointerException
     * [GERONIMO-233] - no run:server target in modules/assembly
+    * [GERONIMO-235] - No JSP support without tools.jar
     * [GERONIMO-236] - WAR deployer not getting the dependency classpath right
     * [GERONIMO-237] - Unable to do a build from CVS
+    * [GERONIMO-238] - GBeanMBean.getContextClassLoader() should use class's ClassLoader
     * [GERONIMO-243] - NoClassDefFoundError using demo application
+    * [GERONIMO-244] - Content of war appear in car file twice
+    * [GERONIMO-245] - OutOfMemoryError while running ConnectionManagerStressTest
+    * [GERONIMO-246] - NullPointerException when omitting assembly-descriptor tag in ejb-jar.xml
+    * [GERONIMO-247] - Missing jsp_2_0.xsd  for "offline mode"
     * [GERONIMO-248] - WAR can't find class for ejb-local-ref
     * [GERONIMO-251] - BUILD FAILED: howl-logger-GERONIMO-PRIVATE-0.1.jar not available
     * [GERONIMO-252] - java.security.policy: error adding Entry: java.lang.IllegalArgumentException: invalid actions mask
     * [GERONIMO-255] - GBeanMBean ManagedObject operations don't reliably replace GBean methods of the same name/signature
     * [GERONIMO-257] - java.lang.NoClassDefFoundError: org/mortbay/jaas/callback/DefaultCallbackHandler
+    * [GERONIMO-259] - maven javadoc:install fails
     * [GERONIMO-262] - NullPointerException deploying resource adapter
     * [GERONIMO-263] - Can'e deploy bare jars with old DD
     * [GERONIMO-267] - NoSuchOperationError on deployment of SSB
+    * [GERONIMO-286] - NPE deploying an ear with a java module
 
-New Feature
+** New Features
 
     * [GERONIMO-162] - Basic EAR deployment support
     * [GERONIMO-163] - Support for ejb-refs in a web.xml
     * [GERONIMO-169] - EJB 2.0 DTD deployment descriptor support
     * [GERONIMO-170] - EJB 1.1 DTD deployment descriptor support
     * [GERONIMO-171] - EJB 2.1 Message-Driven Bean support
-    * [GERONIMO-174] - Support for security-roles in web.xml
     * [GERONIMO-178] - Support for security roles in ejb-jar.xml
     * [GERONIMO-180] - Support for method-permissions in the ejb-jar.xml
     * [GERONIMO-187] - EJB to EJB references via ejb-ref and ejb-link to EJBs in separate jars
+    * [GERONIMO-205] - J2EE Connector support for JMS Providers
+    * [GERONIMO-206] - Hot deployment of EJB, WAR, and RAR archives
+    * [GERONIMO-211] - Servlet web.xml resource-ref support to JMS
+    * [GERONIMO-212] - EJB ejb-jar.xml resource-ref support to JMS
     * [GERONIMO-216] - JAAS Login from Web Container
     * [GERONIMO-219] - JACC (JSR 115) authorization from Web Container
     * [GERONIMO-220] - JACC (JSR 115) authorization from EJB Container
@@ -41,42 +52,19 @@ New Feature
     * [GERONIMO-278] - Servlet/JSP 2.3 DTD deployment descriptor support
     * [GERONIMO-279] - J2EE Application 1.4 deployment descriptor support
 
-Improvement
+** Improvements
 
     * [GERONIMO-34] - JSR77 statistics implementation
+    * [GERONIMO-148] - [PATCH] Schema corrections for geronimo xsds
+    * [GERONIMO-223] - Upgrade Jetty5.0beta0 to Jetty5.0RC0
     * [GERONIMO-253] - Default initial server configuration
+    * [GERONIMO-256] - org.apache.xmlbeans.XmlException: error: Document root element is missing.
     * [GERONIMO-270] - add looser param name matching to DynamicGBeanDelegate
 
-Task
+** Unimplemented and Unsupported Features
 
-    * [GERONIMO-205] - J2EE Connector support for JMS Providers
-    * [GERONIMO-211] - Servlet web.xml resource-ref support to JMS
-    * [GERONIMO-212] - EJB ejb-jar.xml resource-ref support to JMS
-    * [GERONIMO-223] - Upgrade Jetty5.0beta0 to Jetty5.0RC0
+    * [GERONIMO-172] - EJB 2.1 ServiceEndpoint interface support    * [GERONIMO-173] - EJB 1.1 CMP EntityBean support    * [GERONIMO-174] - Support for security-roles in web.xml    * [GERONIMO-175] - Web to EJB security integration    * [GERONIMO-176] - CMP table mapping support    * [GERONIMO-177] - Support for user defined primary key classes    * [GERONIMO-179] - Support for CMRs    * [GERONIMO-181] - Transaction propogation accross calls to stateful session beans    * [GERONIMO-186] - EJB-QL support    * [GERONIMO-188] - Entity instance caching    * [GERONIMO-191] - Deployment of multiple modules into a single configuration    * [GERONIMO-192] - ejbSelect method support    * [GERONIMO-194] - Date, time and datetime data type support for CMP entitiy beans    * [GERONIMO-195] - BLOB support for CMP entity bean    * [GERONIMO-213] - J2EE 1.4 Application Client (JSR 151) support    * [GERONIMO-215] - Tomcat integration for Servlet 2.4 (JSR 154) and JSP 2.0 (JSR 152) support    * [GERONIMO-217] - JAAS Login from App Client Container    * [GERONIMO-218] - UserTransaction access from App Client Container    * [GERONIMO-226] - Locical dependency support    * [GERONIMO-228] - EJB 2.1 Home methods    * [GERONIMO-234] - Build fails when maven/plugins is not writable    * [GERONIMO-239] - Should be able to dump .car file    * [GERONIMO-241] - GBean proxy code could use improvement    * [GERONIMO-242] - Keep history of running configurations    * [GERONIMO-254] - ServerInfo is too darned useful    * [GERONIMO-264] - exceptions being swallowed at startup    * [GERONIMO-272] - Web Service References in ejb-jar.xml Deployment Descriptor    * [GERONIMO-281] - Optional packages support
 
-Unimplemented and Unsupported
+** Known Issues
 
-    * [GERONIMO-172] - EJB 2.1 ServiceEndpoint interface support
-    * [GERONIMO-173] - EJB 1.1 CMP EntityBean support
-    * [GERONIMO-175] - Web to EJB security integration
-    * [GERONIMO-176] - CMP table mapping support
-    * [GERONIMO-177] - Support for user defined primary key classes
-    * [GERONIMO-179] - Support for CMRs
-    * [GERONIMO-181] - Transaction propogation accross calls to stateful session beans
-    * [GERONIMO-186] - EJB-QL support
-    * [GERONIMO-188] - Entity instance caching
-    * [GERONIMO-191] - Deployment of multiple modules into a single configuration
-    * [GERONIMO-192] - ejbSelect method support
-    * [GERONIMO-194] - Date, time and datetime data type support for CMP entitiy beans
-    * [GERONIMO-195] - BLOB support for CMP entity bean
-    * [GERONIMO-206] - Hot deployment of EJB, WAR, and RAR archives
-    * [GERONIMO-213] - J2EE 1.4 Application Client (JSR 151) support
-    * [GERONIMO-215] - Tomcat integration for Servlet 2.4 (JSR 154) and JSP 2.0 (JSR 152) support
-    * [GERONIMO-217] - JAAS Login from App Client Container
-    * [GERONIMO-218] - UserTransaction access from App Client Container
-    * [GERONIMO-226] - Locical dependency support
-    * [GERONIMO-228] - EJB 2.1 Home methods
-    * [GERONIMO-235] - No JSP support without tools.jar
-    * [GERONIMO-246] - NullPointerException when omitting assembly-descriptor tag in ejb-jar.xml
-    * [GERONIMO-272] - Web Service References in ejb-jar.xml Deployment Descriptor
-    * [GERONIMO-280] - J2EE Application 1.3 deployment descriptor support
+    * [GERONIMO-249] - Ear, war, ejb-jar, and rar manifest Class-Path entries are ignored by configuration builders    * [GERONIMO-250] - Connector tries to commit after connection error    * [GERONIMO-258] - org.xml.sax.SAXParseException: Attribute "xmlns" must be declared for element type "web-app"    * [GERONIMO-260] - NullPointerException deploying EAR files    * [GERONIMO-261] - NullPointerException deploying EAR jetty module    * [GERONIMO-265] - NPE while deploying resource adapter    * [GERONIMO-268] - Connection Error handling problems    * [GERONIMO-282] - servlet calls ejb: "class not found" at deployment and run time    * [GERONIMO-284] - alt-dd is not implemented    * [GERONIMO-289] - Interface classes for an ejb-ref in a war cannot be loaded from war libs or classes
