@@ -53,7 +53,7 @@ import org.objectweb.howl.log.ReplayListener;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/06/25 21:29:34 $
+ * @version $Revision: 1.5 $ $Date: 2004/07/18 21:51:51 $
  *
  * */
 public class HOWLLog implements TransactionLog, GBeanLifecycle {
@@ -304,6 +304,7 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
         } catch (LogConfigurationException e) {
             throw new LogException(e);
         }
+        log.info("In doubt transactions recovered from log");
         return recovered;
     }
 
