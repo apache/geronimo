@@ -58,25 +58,24 @@ package org.apache.geronimo.common.jmx;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-
 import java.util.Map;
-
+import javax.management.Attribute;
+import javax.management.MBeanAttributeInfo;
+import javax.management.MBeanInfo;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
-import javax.management.Attribute;
-import javax.management.MBeanInfo;
-import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanOperationInfo;
-import javax.management.MBeanException;
 
 import org.apache.commons.collections.ReferenceMap;
-
 import org.apache.geronimo.common.NullArgumentException;
 
 /**
  * This class handles invocations for MBean proxies.
  *
- * @version $Revision: 1.5 $ $Date: 2003/09/01 19:18:47 $
+ * @todo remove this as noone is using it other then a test case... all uses have been swiched back to
+ * abstract MBeanProxyHandler which is used by both the MBeanProxyFactory and RelationshipMBeanProxyFactory
+ * also this class does lazy loading which is definately not what we want.
+ *
+ * @version $Revision: 1.6 $ $Date: 2003/09/08 04:05:04 $
  */
 public class MBeanProxyHandler
     implements InvocationHandler, MBeanProxyContext
