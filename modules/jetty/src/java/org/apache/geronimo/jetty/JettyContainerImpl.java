@@ -17,27 +17,33 @@
 
 package org.apache.geronimo.jetty;
 
+import java.security.Principal;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.mortbay.http.HttpContext;
+import org.mortbay.http.HttpListener;
+import org.mortbay.http.HttpRequest;
+import org.mortbay.http.UserRealm;
+import org.mortbay.jetty.Server;
+
 import org.apache.geronimo.gbean.GBean;
+import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.gbean.GBeanContext;
 
-import org.mortbay.http.HttpContext;
-import org.mortbay.http.HttpListener;
-import org.mortbay.jetty.Server;
 
 /**
- *
- *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:55 $
+ * @version $Revision: 1.5 $ $Date: 2004/05/30 19:09:57 $
  */
 public class JettyContainerImpl implements JettyContainer, GBean {
+
     private final Server server;
 
     public JettyContainerImpl() {
-        server = new Server();
+        server = new JettyServer();
     }
 
     public void addListener(HttpListener listener) {
@@ -54,6 +60,14 @@ public class JettyContainerImpl implements JettyContainer, GBean {
 
     public void removeContext(HttpContext context) {
         server.removeContext(context);
+    }
+
+    public void addRealm(UserRealm realm) {
+        server.addRealm(realm);
+    }
+
+    public void removeRealm(UserRealm realm) {
+        server.removeRealm(realm.getName());
     }
 
     public void setGBeanContext(GBeanContext context) {
@@ -86,6 +100,8 @@ public class JettyContainerImpl implements JettyContainer, GBean {
         infoFactory.addOperation(new GOperationInfo("removeListener", new String[]{HttpListener.class.getName()}));
         infoFactory.addOperation(new GOperationInfo("addContext", new String[]{HttpContext.class.getName()}));
         infoFactory.addOperation(new GOperationInfo("removeContext", new String[]{HttpContext.class.getName()}));
+        infoFactory.addOperation(new GOperationInfo("addRealm", new String[]{UserRealm.class.getName()}));
+        infoFactory.addOperation(new GOperationInfo("removeRealm", new String[]{UserRealm.class.getName()}));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

@@ -17,6 +17,12 @@
 
 package org.apache.geronimo.jetty.deployment;
 
+import javax.management.AttributeNotFoundException;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.management.ReflectionException;
+import javax.naming.NamingException;
+import javax.transaction.UserTransaction;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
@@ -28,21 +34,16 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.HashSet;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.zip.ZipEntry;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.management.AttributeNotFoundException;
-import javax.management.ReflectionException;
-import javax.management.InvalidAttributeValueException;
-import javax.management.MBeanException;
-import javax.naming.NamingException;
-import javax.transaction.UserTransaction;
+
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
 
 import org.apache.geronimo.common.xml.XmlBeansUtil;
 import org.apache.geronimo.deployment.DeploymentException;
@@ -60,25 +61,36 @@ import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.java.ComponentContextBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
+import org.apache.geronimo.security.deploy.DefaultPrincipal;
+import org.apache.geronimo.security.deploy.Principal;
+import org.apache.geronimo.security.deploy.Realm;
+import org.apache.geronimo.security.deploy.Role;
+import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.transaction.UserTransactionImpl;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettyDefaultPrincipalType;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyDependencyType;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyGbeanType;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyLocalRefType;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettyPrincipalType;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettyRealmType;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettyRoleMappingsType;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettyRoleType;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettySecurityType;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
 import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
 import org.apache.geronimo.xbeans.j2ee.EjbRefType;
 import org.apache.geronimo.xbeans.j2ee.EnvEntryType;
+import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
 import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
 import org.apache.geronimo.xbeans.j2ee.WebAppType;
-import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlObject;
+
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/05/24 19:40:12 $
+ * @version $Revision: 1.4 $ $Date: 2004/05/30 19:09:57 $
  */
 public class JettyModuleBuilder implements ModuleBuilder {
+
     public XmlObject getDeploymentPlan(URL module) throws XmlException {
         try {
             URL gerAppURL = new URL("jar:" + module.toString() + "!/WEB-INF/geronimo-jetty.xml");
@@ -221,10 +233,14 @@ public class JettyModuleBuilder implements ModuleBuilder {
             } else {
                 warRoot = URI.create("war/");
             }
+            
+            String PolicyContextID = (earContext.getApplicationObjectName()==null? module.getName():earContext.getApplicationObjectName().toString());
+
             gbean.setAttribute("URI", warRoot);
             gbean.setAttribute("ContextPath", webModule.getContextRoot());
             gbean.setAttribute("ContextPriorityClassLoader", Boolean.valueOf(jettyWebApp.getContextPriorityClassloader()));
-            gbean.setAttribute("PolicyContextID", null);
+            gbean.setAttribute("SecurityConfig", buildSecurityConfig(jettyWebApp));
+            gbean.setAttribute("PolicyContextID", PolicyContextID);
             gbean.setAttribute("ComponentContext", compContext);
             gbean.setAttribute("UserTransaction", userTransaction);
             setResourceEnvironment(gbean, webApp.getResourceRefArray(), jettyWebApp.getResourceRefArray());
@@ -281,6 +297,59 @@ public class JettyModuleBuilder implements ModuleBuilder {
         // todo message-destination-ref
 
         return builder.getContext();
+    }
+
+    private static Security buildSecurityConfig(JettyWebAppType jettyWebApp) {
+        Security security = new Security();
+
+        JettySecurityType securityType = jettyWebApp.getSecurity();
+        if (securityType != null) {
+            security.setUseContextHandler(securityType.getUseContextHandler());
+
+            JettyDefaultPrincipalType defaultPrincipalType = securityType.getDefaultPrincipal();
+            DefaultPrincipal defaultPrincipal = new DefaultPrincipal();
+
+            defaultPrincipal.setRealmName(defaultPrincipalType.getRealmName());
+            defaultPrincipal.setPrincipal(buildPrincipal(defaultPrincipalType.getPrincipal()));
+
+            security.setDefaultPrincipal(defaultPrincipal);
+
+            JettyRoleMappingsType roleMappingsType = securityType.getRoleMappings();
+            if (roleMappingsType != null) {
+                for (int i = 0; i < roleMappingsType.sizeOfRoleArray(); i++) {
+                    JettyRoleType roleType = roleMappingsType.getRoleArray(i);
+                    Role role = new Role();
+
+                    role.setRoleName(roleType.getRoleName());
+
+                    for (int j = 0; j < roleType.sizeOfRealmArray(); j++) {
+                        JettyRealmType realmType = roleType.getRealmArray(j);
+                        Realm realm = new Realm();
+
+                        realm.setRealmName(realmType.getRealmName());
+
+                        for (int k = 0; k < realmType.sizeOfPrincipalArray(); k++) {
+                            realm.getPrincipals().add(buildPrincipal(realmType.getPrincipalArray(k)));
+                        }
+
+                        role.getRealms().add(realm);
+                    }
+
+                    security.getRollMappings().add(role);
+                }
+            }
+        }
+
+        return security;
+    }
+
+    private static Principal buildPrincipal(JettyPrincipalType principalType) {
+        Principal principal = new Principal();
+
+        principal.setClassName(principalType.getClass1());
+        principal.setPrincipalName(principalType.getName());
+
+        return principal;
     }
 
     private static void addEJBRefs(EARContext earContext, WebModule webModule, EjbRefType[] ejbRefs, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
@@ -341,7 +410,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
         }
     }
 
-    private void setResourceEnvironment(GBeanMBean bean, ResourceRefType[] resourceRefArray, JettyLocalRefType[] jettyResourceRefArray) throws AttributeNotFoundException, ReflectionException, InvalidAttributeValueException, MBeanException {
+    private void setResourceEnvironment(GBeanMBean bean, ResourceRefType[] resourceRefArray, JettyLocalRefType[] jettyResourceRefArray) throws AttributeNotFoundException, ReflectionException {
         Map openejbNames = new HashMap();
         for (int i = 0; i < jettyResourceRefArray.length; i++) {
             JettyLocalRefType jettyLocalRefType = jettyResourceRefArray[i];
@@ -351,7 +420,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
         Set applicationManagedSecurityResources = new HashSet();
         for (int i = 0; i < resourceRefArray.length; i++) {
             ResourceRefType resourceRefType = resourceRefArray[i];
-            String name = (String)openejbNames.get(resourceRefType.getResRefName().getStringValue());
+            String name = (String) openejbNames.get(resourceRefType.getResRefName().getStringValue());
             if ("Unshareable".equals(getJ2eeStringValue(resourceRefType.getResSharingScope()))) {
                 unshareableResources.add(name);
             }
@@ -362,7 +431,6 @@ public class JettyModuleBuilder implements ModuleBuilder {
         bean.setAttribute("UnshareableResources", unshareableResources);
         bean.setAttribute("ApplicationManagedSecurityResources", applicationManagedSecurityResources);
     }
-
 
 
     private static String getJ2eeStringValue(org.apache.geronimo.xbeans.j2ee.String string) {

@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,25 +14,32 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.apache.geronimo.jetty;
 
-import org.mortbay.http.HttpListener;
-import org.mortbay.http.HttpContext;
-import org.mortbay.http.UserRealm;
+import javax.security.auth.Subject;
+import java.security.Principal;
+
 
 /**
- * 
- * 
- * @version $Revision: 1.4 $ $Date: 2004/05/30 19:09:57 $
+ * @version $Revision: 1.1 $ $Date: 2004/05/30 19:09:57 $
  */
-public interface JettyContainer {
-    void addListener(HttpListener listener);
-    void removeListener(HttpListener listener);
+public class JAASJettyPrincipal implements Principal {
+    private String name;
+    private Subject subject;
 
-    void addContext(HttpContext context);
-    void removeContext(HttpContext context);
+    public JAASJettyPrincipal(String name) {
+        this.name = name;
+    }
 
-    void addRealm(UserRealm realm);
-    void removeRealm(UserRealm realm);
+    public String getName() {
+        return name;
+    }
+
+    public Subject getSubject() {
+        return subject;
+    }
+
+    void setSubject(Subject subject) {
+        this.subject = subject;
+    }
 }

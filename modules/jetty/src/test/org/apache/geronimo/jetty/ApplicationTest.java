@@ -39,7 +39,7 @@ import org.apache.geronimo.transaction.UserTransactionImpl;
 /**
  *
  *
- * @version $Revision: 1.8 $ $Date: 2004/04/06 00:21:21 $
+ * @version $Revision: 1.9 $ $Date: 2004/05/30 19:09:57 $
  */
 public class ApplicationTest extends TestCase {
     private Kernel kernel;
@@ -56,7 +56,7 @@ public class ApplicationTest extends TestCase {
     private GBeanMBean ctc;
 
     public void testApplication() throws Exception {
-        URL url = Thread.currentThread().getContextClassLoader().getResource("deployables/war1");
+        URL url = Thread.currentThread().getContextClassLoader().getResource("deployables/war1/");
         GBeanMBean app = new GBeanMBean(JettyWebApplicationContext.GBEAN_INFO);
         app.setAttribute("URI", URI.create(url.toString()));
         app.setAttribute("ContextPath", "/test");
