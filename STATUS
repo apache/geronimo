@@ -1,5 +1,5 @@
 ##
-## $Revision: 1.2 $ $Date: 2003/09/23 00:59:45 $
+## $Revision: 1.3 $ $Date: 2003/12/17 02:28:11 $
 ##
 
 Exit Criteria
@@ -29,6 +29,9 @@ Distribution rights
 Naming
 
   --  Has the final name for the project decided?
+2003/12/21 vote on keeping the name Geronimo
+      +1 jboynes
+      -1
 
   --  Does the codebase,mailing list,bug tracker contain the right name of the project?
      (In case,if the name geronimo is changed)
