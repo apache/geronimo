@@ -287,9 +287,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             }
 
             // add dependencies declared in the geronimo-application.xml
-            if (plan instanceof GerApplicationDocument) {
-                GerApplicationDocument applicationDoc = (GerApplicationDocument) plan;
-                GerApplicationType geronimoApplication = applicationDoc.getApplication();
+            if (plan instanceof GerApplicationType) {
+                GerApplicationType geronimoApplication = (GerApplicationType) plan;
                 GerDependencyType[] dependencies = geronimoApplication.getDependencyArray();
                 for (int i = 0; i < dependencies.length; i++) {
                     earContext.addDependency(getDependencyURI(dependencies[i]));
@@ -310,9 +309,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             }
 
             // add gbeans declared in the geronimo-application.xml
-            if (plan instanceof GerApplicationDocument) {
-                GerApplicationDocument applicationDoc = (GerApplicationDocument) plan;
-                GerApplicationType geronimoApplication = applicationDoc.getApplication();
+            if (plan instanceof GerApplicationType) {
+                GerApplicationType geronimoApplication = (GerApplicationType) plan;
                 GerGbeanType[] gbeans = geronimoApplication.getGbeanArray();
                 for (int i = 0; i < gbeans.length; i++) {
                     GBeanHelper.addGbean(new GerGBeanAdapter(gbeans[i]), cl, earContext);
