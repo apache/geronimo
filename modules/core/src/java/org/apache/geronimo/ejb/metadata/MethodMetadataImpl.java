@@ -55,6 +55,7 @@
  */
 package org.apache.geronimo.ejb.metadata;
 
+import javax.security.jacc.EJBMethodPermission;
 import java.lang.reflect.Method;
 import java.util.Set;
 
@@ -62,13 +63,13 @@ import java.util.Set;
  *
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 17:59:12 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/08 22:29:05 $
  */
 public class MethodMetadataImpl implements MethodMetadata {
     private Method interfaceMethod;
     private Method callbackMethod;
     private TransactionAttribute transactionAttribute;
-    private Set allowedRoles;
+    private EJBMethodPermission ejbMethodPermission;
     private boolean excluded;
     private boolean unchecked;
 
@@ -96,12 +97,12 @@ public class MethodMetadataImpl implements MethodMetadata {
         this.transactionAttribute = transactionAttribute;
     }
 
-    public Set getAllowedRoles() {
-        return allowedRoles;
+    public EJBMethodPermission getEJBMethodPermission() {
+        return ejbMethodPermission;
     }
 
-    public void setAllowedRoles(Set allowedRoles) {
-        this.allowedRoles = allowedRoles;
+    public void setEJBMethodPermission(EJBMethodPermission ejbMethodPermission) {
+        this.ejbMethodPermission = ejbMethodPermission;
     }
 
     public boolean isExcluded() {
