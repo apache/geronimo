@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.10 $ $Date: 2003/08/30 11:58:42 $ -->
+<!-- $Revision: 1.11 $ $Date: 2003/08/30 21:02:00 $ -->
 
 <project>
   <pomVersion>3</pomVersion>
@@ -72,6 +72,16 @@
       <url>http://mx4j.sourceforge.net</url>
       <properties>
         <runtime>true</runtime>
+      </properties>
+    </dependency>
+    
+    <dependency>
+      <groupId>mx4j</groupId>
+      <artifactId>mx4j</artifactId>
+      <version>SNAPSHOT</version>
+      <url>http://mx4j.sourceforge.net</url>
+      <properties>
+        <runtime>false</runtime>
       </properties>
     </dependency>
     
