@@ -81,7 +81,7 @@ import org.w3c.dom.NodeList;
  * Knows how to load common J2EE deployment descriptor elements from a DOM
  * into POJOs.
  *
- * @version $Revision: 1.6 $ $Date: 2003/09/27 16:52:06 $
+ * @version $Revision: 1.7 $ $Date: 2003/09/29 14:17:23 $
  */
 public final class J2EELoader {
     public static EnvEntry[] loadEnvEntries(Element parent) {
@@ -146,13 +146,16 @@ public final class J2EELoader {
         Element[] roots = LoaderUtil.getChildren(parent, "security-role-ref");
         SecurityRoleRef[] refs = new SecurityRoleRef[roots.length];
         for(int i = 0; i < roots.length; i++) {
-            Element root = roots[i];
-            refs[i] = new SecurityRoleRef();
-            loadDescribable(root, refs[i]);
-            refs[i].setRoleName(LoaderUtil.getChildContent(root, "role-name"));
-            refs[i].setRoleLink(LoaderUtil.getChildContent(root, "role-link"));
+            refs[i] = loadSecurityRoleRef(roots[i], new SecurityRoleRef());
         }
         return refs;
+    }
+
+    public static SecurityRoleRef loadSecurityRoleRef(Element root, SecurityRoleRef ref) {
+        loadDescribable(root, ref);
+        ref.setRoleName(LoaderUtil.getChildContent(root, "role-name"));
+        ref.setRoleLink(LoaderUtil.getChildContent(root, "role-link"));
+        return ref;
     }
 
     public static SecurityRole[] loadSecurityRoles(Element parent) {

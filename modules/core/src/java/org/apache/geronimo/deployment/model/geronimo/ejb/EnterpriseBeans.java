@@ -58,9 +58,15 @@ package org.apache.geronimo.deployment.model.geronimo.ejb;
 /**
  * JavaBean for the geronimo-ejb-jar.xml tag enterprise-beans
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/17 01:47:14 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/29 14:17:22 $
  */
 public class EnterpriseBeans extends org.apache.geronimo.deployment.model.ejb.EnterpriseBeans {
+    public EnterpriseBeans() {
+        super.setEntity(new Entity[0]);
+        super.setSession(new Session[0]);
+        super.setMessageDriven(new MessageDriven[0]);
+    }
+
     public void setEntity(int i, org.apache.geronimo.deployment.model.ejb.Entity bean) {
         assert (bean instanceof Entity);
         super.setEntity(i, bean);

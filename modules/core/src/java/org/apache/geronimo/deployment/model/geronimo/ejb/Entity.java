@@ -67,10 +67,20 @@ import org.apache.geronimo.deployment.model.geronimo.j2ee.ServiceRef;
 /**
  * JavaBean for the geronimo-ejb-jar.xml tag entity
  *
- * @version $Revision: 1.3 $ $Date: 2003/09/27 01:13:24 $
+ * @version $Revision: 1.4 $ $Date: 2003/09/29 14:17:22 $
  */
 public class Entity extends org.apache.geronimo.deployment.model.ejb.Entity implements JNDIEnvironmentRefs {
     private String jndiName;
+
+    public Entity() {
+        super.setSecurityRoleRef(new SecurityRoleRef[0]);
+        super.setEJBRef(new EjbRef[0]);
+        super.setEJBLocalRef(new EjbLocalRef[0]);
+        super.setResourceRef(new ResourceRef[0]);
+        super.setResourceEnvRef(new ResourceEnvRef[0]);
+        super.setMessageDestinationRef(new MessageDestinationRef[0]);
+        super.setServiceRef(new ServiceRef[0]);
+    }
 
     public String getJndiName() {
         return jndiName;

@@ -63,12 +63,13 @@ import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceEnvRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ServiceRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.MessageDestinationRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.MessageDestination;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.SecurityRoleRef;
 import org.w3c.dom.Element;
 
 /**
  * Loads common Geronimo DD tags
  *
- * @version $Revision: 1.4 $ $Date: 2003/09/17 01:47:14 $
+ * @version $Revision: 1.5 $ $Date: 2003/09/29 14:17:23 $
  */
 public final class GeronimoJ2EELoader {
     public static EjbRef[] loadEJBRefs(Element e) {
@@ -143,6 +144,20 @@ public final class GeronimoJ2EELoader {
     public static ServiceRef loadServiceRef(Element e, ServiceRef serviceRef) {
         J2EELoader.loadServiceRef(e, serviceRef);
         return serviceRef;
+    }
+
+    public static SecurityRoleRef[] loadSecurityRoleRefs(Element e) {
+        Element[] nodes = LoaderUtil.getChildren(e, "security-role-ref");
+        SecurityRoleRef[] result = new SecurityRoleRef[nodes.length];
+        for(int i = 0; i < nodes.length; i++) {
+            result[i] = loadSecurityRoleRef(nodes[i], new SecurityRoleRef());
+        }
+        return result;
+    }
+
+    public static SecurityRoleRef loadSecurityRoleRef(Element e, SecurityRoleRef ref) {
+        J2EELoader.loadSecurityRoleRef(e, ref);
+        return ref;
     }
 
     public static MessageDestinationRef[] loadMessageDestinationRefs(Element e) {

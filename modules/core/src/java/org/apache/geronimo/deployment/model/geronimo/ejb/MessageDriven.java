@@ -66,9 +66,18 @@ import org.apache.geronimo.deployment.model.geronimo.j2ee.JNDIEnvironmentRefs;
 /**
  * JavaBean for the geronimo-ejb-jar.xml tag message-driven
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/17 01:47:14 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/29 14:17:22 $
  */
 public class MessageDriven extends org.apache.geronimo.deployment.model.ejb.MessageDriven implements JNDIEnvironmentRefs {
+    public MessageDriven() {
+        super.setEJBRef(new EjbRef[0]);
+        super.setEJBLocalRef(new EjbLocalRef[0]);
+        super.setResourceRef(new ResourceRef[0]);
+        super.setResourceEnvRef(new ResourceEnvRef[0]);
+        super.setMessageDestinationRef(new MessageDestinationRef[0]);
+        super.setServiceRef(new ServiceRef[0]);
+    }
+
     public void setEJBLocalRef(org.apache.geronimo.deployment.model.j2ee.EJBLocalRef[] ejbRef) {
         assert (ejbRef instanceof EjbLocalRef[]);
         super.setEJBLocalRef(ejbRef);

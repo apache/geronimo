@@ -67,10 +67,20 @@ import org.apache.geronimo.deployment.model.geronimo.j2ee.JNDIEnvironmentRefs;
 /**
  * JavaBean for the geronimo-ejb-jar.xml tag session
  *
- * @version $Revision: 1.3 $ $Date: 2003/09/27 01:13:24 $
+ * @version $Revision: 1.4 $ $Date: 2003/09/29 14:17:22 $
  */
 public class Session extends org.apache.geronimo.deployment.model.ejb.Session implements JNDIEnvironmentRefs {
     private String jndiName;
+
+    public Session() {
+        super.setSecurityRoleRef(new SecurityRoleRef[0]);
+        super.setEJBRef(new EjbRef[0]);
+        super.setEJBLocalRef(new EjbLocalRef[0]);
+        super.setResourceRef(new ResourceRef[0]);
+        super.setResourceEnvRef(new ResourceEnvRef[0]);
+        super.setMessageDestinationRef(new MessageDestinationRef[0]);
+        super.setServiceRef(new ServiceRef[0]);
+    }
 
     public String getJndiName() {
         return jndiName;
