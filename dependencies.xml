@@ -547,6 +547,149 @@
       <id>jetty+jasper-runtime</id>
       <jar>jasper-runtime-&activemq-jetty-version;.jar</jar>
     </dependency>
+    <dependency>
+      <groupId>axis</groupId>
+      <artifactId>axis</artifactId>
+      <version>1.2-beta-2</version>
+    </dependency>
+
+<!-- Aaron put these in as a placeholder to list plugin
+     dependencies.  Not all of them will actually get
+     downloaded by this script, unfortunately (it only gets
+     one version per artifact).  -->
+
+    <dependency>
+      <groupId>commons-jelly</groupId>
+      <artifactId>commons-jelly</artifactId>
+      <version>20030211.141339</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-jelly</groupId>
+      <artifactId>commons-jelly</artifactId>
+      <version>20030310.073407</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-jelly</groupId>
+      <artifactId>commons-jelly</artifactId>
+      <version>20030902.160215</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-jelly</groupId>
+      <artifactId>commons-jelly-tags-antlr</artifactId>
+      <version>20030211.143720</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-jelly</groupId>
+      <artifactId>commons-jelly-tags-interaction</artifactId>
+      <version>20030211.143817</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-jelly</groupId>
+      <artifactId>commons-jelly-tags-jsl</artifactId>
+      <version>20030211.143151</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-jelly</groupId>
+      <artifactId>commons-jelly-tags-log</artifactId>
+      <version>20030211.142821</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-jelly</groupId>
+      <artifactId>commons-jelly-tags-util</artifactId>
+      <version>20030211.141939</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-jelly</groupId>
+      <artifactId>commons-jelly-tags-velocity</artifactId>
+      <version>20030303.205659</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-jelly</groupId>
+      <artifactId>commons-jelly-tags-xml</artifactId>
+      <version>20030211.142705</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-jelly</groupId>
+      <artifactId>commons-jelly-tags-xml</artifactId>
+      <version>20040613.030723</version>
+    </dependency>
+    <dependency>
+      <groupId>dom4j</groupId>
+      <artifactId>dom4j</artifactId>
+      <version>1.4-dev-8</version>
+    </dependency>
+    <dependency>
+      <groupId>velocity</groupId>
+      <artifactId>velocity</artifactId>
+      <version>1.4-dev</version>
+    </dependency>
+    <dependency>
+      <groupId>velocity-dvsl</groupId>
+      <artifactId>velocity-dvsl</artifactId>
+      <version>0.45</version>
+    </dependency>
+    <dependency>
+      <groupId>xml-apis</groupId>
+      <artifactId>xml-apis</artifactId>
+      <version>1.0.b2</version>
+    </dependency>
+    <dependency>
+      <groupId>isorelax</groupId>
+      <artifactId>isorelax</artifactId>
+      <version>20030108</version>
+    </dependency>
+    <dependency>
+      <groupId>jing</groupId>
+      <artifactId>jing</artifactId>
+      <version>20030619</version>
+    </dependency>
+    <dependency>
+      <groupId>xerces</groupId>
+      <artifactId>xerces</artifactId>
+      <version>2.4.0</version>
+    </dependency>
+    <dependency>
+      <groupId>isorelax</groupId>
+      <artifactId>isorelax</artifactId>
+      <version>20030108</version>
+    </dependency>
+    <dependency>
+      <groupId>thaiopensource</groupId>
+      <artifactId>jing</artifactId>
+      <version>20030619</version>
+    </dependency>
+    <dependency>
+      <groupId>xerces</groupId>
+      <artifactId>xerces</artifactId>
+      <version>2.4.0</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>20030203.000550</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-net</groupId>
+      <artifactId>commons-net</artifactId>
+      <version>1.1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-httpclient</groupId>
+      <artifactId>commons-httpclient</artifactId>
+      <version>2.0</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.0</version>
+    </dependency>
+    <dependency>
+      <groupId>jsch</groupId>
+      <artifactId>jsch</artifactId>
+      <version>0.1.5</version>
+    </dependency>
+
+<!-- end of dependency list -->
     </dependencies>
 
     <build>
