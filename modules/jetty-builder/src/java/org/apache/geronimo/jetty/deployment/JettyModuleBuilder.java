@@ -708,7 +708,13 @@ public class JettyModuleBuilder implements ModuleBuilder {
             } catch (ClassNotFoundException e) {
                 throw new DeploymentException("Could not load servlet class " + servletClassName, e);
             }
-            if (Servlet.class.isAssignableFrom(servletClass)) {
+            Class baseServletClass = null;
+            try {
+                baseServletClass = webClassLoader.loadClass(Servlet.class.getName());
+            } catch (ClassNotFoundException e) {
+                throw new DeploymentException("Could not load javax.servlet.Servlet in web classloader", e);
+            }
+            if (baseServletClass.isAssignableFrom(servletClass)) {
             servletData = new GBeanData(servletObjectName, JettyServletHolder.GBEAN_INFO);
             servletData.setAttribute("servletClass", servletClassName);
             } else {
