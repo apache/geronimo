@@ -31,12 +31,7 @@ import org.apache.geronimo.security.AbstractTest;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
-import org.apache.geronimo.security.realm.SecurityRealm;
-import org.apache.geronimo.security.realm.DeploymentSupport;
-import org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal;
-import org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.kernel.Kernel;
 
 
 /**
@@ -103,7 +98,7 @@ public class LoginPropertiesFileTest extends AbstractTest {
         testRealm = new ObjectName("geronimo.security:type=SecurityRealm,realm=properties-realm");
         gbean.setAttribute("realmName", "properties-realm");
         props = new Properties();
-        props.setProperty("LoginModule.1.REQUIRED","geronimo.security:type=LoginModule,name=properties");
+        props.setProperty("LoginModule.1.REQUIRED", "geronimo.security:type=LoginModule,name=properties");
         gbean.setAttribute("loginModuleConfiguration", props);
         gbean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfo));
         kernel.loadGBean(testRealm, gbean);
@@ -144,8 +139,8 @@ public class LoginPropertiesFileTest extends AbstractTest {
         assertTrue("subject should have one remote principal", subject.getPrincipals(IdentificationPrincipal.class).size() == 1);
         IdentificationPrincipal remote = (IdentificationPrincipal) subject.getPrincipals(IdentificationPrincipal.class).iterator().next();
         assertTrue("subject should be associated with remote id", ContextManager.getRegisteredSubject(remote.getId()) != null);
-        assertEquals("subject should have three principals ("+subject.getPrincipals().size()+")", 3, subject.getPrincipals().size());
-        assertEquals("subject should have no realm principals ("+subject.getPrincipals(RealmPrincipal.class).size()+")", 0, subject.getPrincipals(RealmPrincipal.class).size());
+        assertEquals("subject should have three principals (" + subject.getPrincipals().size() + ")", 3, subject.getPrincipals().size());
+        assertEquals("subject should have no realm principals (" + subject.getPrincipals(RealmPrincipal.class).size() + ")", 0, subject.getPrincipals(RealmPrincipal.class).size());
 
         subject = ContextManager.getServerSideSubject(subject);
 
@@ -153,8 +148,8 @@ public class LoginPropertiesFileTest extends AbstractTest {
         assertTrue("subject should have one remote principal", subject.getPrincipals(IdentificationPrincipal.class).size() == 1);
         remote = (IdentificationPrincipal) subject.getPrincipals(IdentificationPrincipal.class).iterator().next();
         assertTrue("subject should be associated with remote id", ContextManager.getRegisteredSubject(remote.getId()) != null);
-        assertEquals("subject should have five principals ("+subject.getPrincipals().size()+")", 5, subject.getPrincipals().size());
-        assertEquals("subject should have two realm principals ("+subject.getPrincipals(RealmPrincipal.class).size()+")", 2, subject.getPrincipals(RealmPrincipal.class).size());
+        assertEquals("subject should have five principals (" + subject.getPrincipals().size() + ")", 5, subject.getPrincipals().size());
+        assertEquals("subject should have two realm principals (" + subject.getPrincipals(RealmPrincipal.class).size() + ")", 2, subject.getPrincipals(RealmPrincipal.class).size());
         RealmPrincipal principal = (RealmPrincipal) subject.getPrincipals(RealmPrincipal.class).iterator().next();
         assertTrue("id of principal should be non-zero", principal.getId() != 0);
 
