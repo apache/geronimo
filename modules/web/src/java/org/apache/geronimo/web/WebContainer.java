@@ -56,13 +56,16 @@
 
 package org.apache.geronimo.web;
 
+import java.net.URI;
+
 import org.apache.geronimo.common.Container;
+import org.w3c.dom.Document;
 
 /*
  * WebContainer
  *  
  * 
- * @version $Revision: 1.1 $  $Date: 2003/08/18 13:30:41 $
+ * @version $Revision: 1.2 $  $Date: 2003/08/23 09:38:04 $
  */
 public interface WebContainer extends Container
 {
@@ -70,22 +73,45 @@ public interface WebContainer extends Container
     /*-------------------------------------------------------------------------------- */
     /** Deploy a web application. Convenience method to 
      * have the container create the WebApplication and add it to itself.
-    * @param url 
+    * @param uri
     * @throws Exception
     */
-    public void deploy(String url) throws Exception;
+    public void deploy(String uri) throws Exception;
 
     /*-------------------------------------------------------------------------------- */
     /** Set up a web.xml descriptor for the Container to use as
      * defaults.
     * @param url 
     */
-    public void setDefaultWebXmlURL(String url);
+    public void setDefaultWebXmlURI(URI uri);
 
     /*-------------------------------------------------------------------------------- */
-    /** Get the url of the default web.xml descriptor used 
+    /** Get the uri of the default web.xml descriptor used 
      * by this container.
     * @return
     */
-    public String getDefaultWebXmlURL();
+    public URI getDefaultWebXmlURI();
+    
+    
+    /* -------------------------------------------------------------------------------------- */
+    /**Get the parsed web defaults
+     * @return
+     */
+    public Document getDefaultWebXmlDoc ();
+        
+
+    
+    /* -------------------------------------------------------------------------------------- */
+    /** Control if wars will be unpacked to temporary location or not
+     * @param state
+     */
+    public void setUnpackWars (boolean state);
+    
+    /* -------------------------------------------------------------------------------------- */
+    /**Getter for whether wars will be unpacked to temporary location or not
+     * @return
+     */
+    public boolean getUnpackWars ();
+    
+
 }

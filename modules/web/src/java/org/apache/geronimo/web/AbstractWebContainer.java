@@ -55,48 +55,141 @@
 */
 package org.apache.geronimo.web;
 
+import java.net.URI;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.apache.geronimo.common.AbstractContainer;
 import org.apache.geronimo.common.Component;
+import org.w3c.dom.Document;
 
+/* -------------------------------------------------------------------------------------- */
 /**
+ * AbstractWebContainer
+ * 
  * Base class for web containers.
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/21 15:02:45 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/23 09:38:04 $
  */
-public class AbstractWebContainer extends AbstractContainer implements WebContainer {
+public class AbstractWebContainer
+    extends AbstractContainer
+    implements WebContainer
+{
     /**
-     * Location of the defualt web.xml file
+     * Location of the default web.xml file
      */
-    private String defaultWebXmlURL;
+    private URI defaultWebXmlURI = null;
 
     /**
-     * Creates a WebApplication from the url and associates it with this container.
-     * @param url the location of the web application to deploy
-     * @throws Exception
-     * @see org.apache.geronimo.web.WebContainer#deploy(java.lang.String)
+     * Parsed default web.xml 
      */
-    public void deploy(String url) throws Exception {
+    private Document defaultWebXmlDoc = null;
+
+
+    /**
+     * Controls unpacking of wars to tmp runtime location
+     */
+    private boolean unpackWars = true;
+
+
+    private final DocumentBuilder parser;
+
+
+
+    /* -------------------------------------------------------------------------------------- */
+    /**
+     *  Constructor
+     */
+    public AbstractWebContainer()
+    {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        try
+        {
+            parser = factory.newDocumentBuilder();
+        }
+        catch (Exception e)
+        {
+            throw new AssertionError("No XML parser available");
+        }
     }
 
+    /* -------------------------------------------------------------------------------------- */
     /**
-     * Get the URL of the web defaults.
+    * Creates a WebApplication from the url and associates it with this container.
+    * @param url the location of the web application to deploy
+    * @throws Exception
+    * @see org.apache.geronimo.web.WebContainer#deploy(java.lang.String)
+    */
+    public void deploy(String url) throws Exception
+    {
+    }
+
+    /* -------------------------------------------------------------------------------------- */
+    /**
+     * Get the URI of the web defaults.
      * @return the location of the default web.xml file for this container
      * @see org.apache.geronimo.web.WebContainer#getDefaultWebXmlURL()
      */
-    public String getDefaultWebXmlURL() {
-        return defaultWebXmlURL;
+    public URI getDefaultWebXmlURI()
+    {
+        return defaultWebXmlURI;
     }
 
-    /**
-     * Set a url of a web.xml containing defaults for this continer.
-     * @param url the location of the default web.xml file
+    /* -------------------------------------------------------------------------------------- */
+    /**Set a uri of a web.xml containing defaults for this container.
+     * @param uri the location of the default web.xml file
      * @see org.apache.geronimo.web.WebContainer#setDefaultWebXmlURL(java.lang.String)
      */
-    public void setDefaultWebXmlURL(String url) {
-        defaultWebXmlURL = url;
+    public void setDefaultWebXmlURI(URI uri)
+    {
+        defaultWebXmlURI = uri;
     }
-    
-    /* (non-Javadoc)
+
+    /* -------------------------------------------------------------------------------------- */
+    /**Get the parsed web defaults
+     * @return
+     */
+    public Document getDefaultWebXmlDoc()
+    {
+        return defaultWebXmlDoc;
+    }
+
+
+    /* -------------------------------------------------------------------------------------- */
+    /**Parse the web defaults descriptor
+     * @throws Exception
+     */
+    protected void parseWebDefaults() throws Exception
+    {
+        if (defaultWebXmlURI == null)
+            return;
+
+        defaultWebXmlDoc = parser.parse(defaultWebXmlURI.toString());
+    }
+
+    /* -------------------------------------------------------------------------------------- */
+    /* 
+     * @return
+     * @see org.apache.geronimo.web.WebContainer#getUnpackWars()
+     */
+    public boolean getUnpackWars()
+    {
+        return unpackWars;
+    }
+
+    /* -------------------------------------------------------------------------------------- */
+    /* 
+     * @param state
+     * @see org.apache.geronimo.web.WebContainer#setUnpackWars(boolean)
+     */
+    public void setUnpackWars(boolean state)
+    {
+        unpackWars = state;
+    }
+
+    /* -------------------------------------------------------------------------------------- */
+    /* Add a component to this container's containment hierarchy
      * @see org.apache.geronimo.common.Container#addComponent(org.apache.geronimo.common.Component)
      */
     public void addComponent(Component component)
@@ -107,9 +200,12 @@ public class AbstractWebContainer extends AbstractContainer implements WebContai
             webConnectorAdded((WebConnector)component);
         else if (component instanceof WebApplication)
             webApplicationAdded((WebApplication)component);
+        else if (component instanceof WebAccessLog)
+            webAccessLogAdded ((WebAccessLog)component);
     }
-
-    /* (non-Javadoc)
+    
+    /* -------------------------------------------------------------------------------------- */
+    /* Remove a component from this container's hierarchy
      * @see org.apache.geronimo.common.Container#removeComponent(org.apache.geronimo.common.Component)
      */
     public void removeComponent(Component component) throws Exception
@@ -122,6 +218,8 @@ public class AbstractWebContainer extends AbstractContainer implements WebContai
         super.removeComponent(component);
     }
     
+    
+    /* -------------------------------------------------------------------------------------- */
     /**
      * Method called by addComponent after a WebConnector has been added.
      * @param connector
@@ -130,7 +228,8 @@ public class AbstractWebContainer extends AbstractContainer implements WebContai
     {
     }
 
-    
+
+    /* -------------------------------------------------------------------------------------- */
     /**
      * Method called by addComponment after a WebApplication has been added.
      * @param connector
@@ -140,15 +239,24 @@ public class AbstractWebContainer extends AbstractContainer implements WebContai
     }
     
     
+    /* -------------------------------------------------------------------------------------- */
     /**
-     * Method called by addComponent before a WebConnector has been removed.
+     * @param log
+     */
+    protected void webAccessLogAdded (WebAccessLog log)
+    {
+    }
+    
+    /* -------------------------------------------------------------------------------------- */
+    /**
+     * Method called by removeComponent before a WebConnector has been removed.
      * @param connector
      */
     protected void webConnectorRemoval(WebConnector connector)
     {
     }
 
-    
+    /* -------------------------------------------------------------------------------------- */   
     /**
      * Method called by removeComponment before a WebApplication has been removed.
      * @param connector
@@ -157,5 +265,11 @@ public class AbstractWebContainer extends AbstractContainer implements WebContai
     {
     }
     
-
+    /* -------------------------------------------------------------------------------------- */
+    /** Remove an access log service from the container
+     * @param log
+     */
+    protected void webAccessLogRemoval (WebAccessLog log)
+    {
+    }
 }

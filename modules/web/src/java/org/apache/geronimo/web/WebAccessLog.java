@@ -54,65 +54,34 @@
 * ====================================================================
 */
 
+
 package org.apache.geronimo.web;
 
 import java.net.URI;
 
 import org.apache.geronimo.common.Component;
-import org.w3c.dom.Document;
 
 /* -------------------------------------------------------------------------------------- */
 /**
- * WebApplication
- * This interface represents a web application deployable within
- * a WebContainer.
+ * WebAccessLog
  * 
- * It supports the JSR077 WebModule attribute servlets[]
- *
- * @version  $Revision: 1.3 $ $Date: 2003/08/23 09:38:04 $
+ * 
+ * @version $Revision: 1.1 $ $Date: 2003/08/23 09:38:04 $
  */
-public interface WebApplication extends Component {
-
-    /* -------------------------------------------------------------------------------------- */
-    /**Get the url of the webapp
-     * @return
-     */
-    public URI getURI();
+public interface WebAccessLog extends Component
+{
+    public void setLogLocation (URI uri);
     
-    /*-------------------------------------------------------------------------------- */
-    /** JSR077 WebModule method to expose the
-     * names of all servlets contained within this webapp.
-     * 
-     * @return Names of all servlets contained by this webapp
-     */
-    public String[] getServlets();
+    public URI getLogLocation ();
     
-    public String getContextPath();
+    // extendedNCSAFormat
     
-    public String getDeploymentDescriptor();
+    // rollover retention days
     
-    public URI getDeploymentDescriptorURI();
+    // date format
     
-    public Document getDeploymentDescriptorDocument();
+    // append
     
-    public String getGeronimoDeploymentDescriptor();
+    // buffering
     
-    public URI getGeronimoDeploymentDescriptorURI();
-    
-    public Document getGeronimoDeploymentDescriptorDocument();
-    
-    /* -------------------------------------------------------------------------------------- */
-     /**Getter for the class loader delegation model for this webapp
-      * @return
-      */
-     public boolean getJava2ClassloadingCompliance ();
-     
-    /* -------------------------------------------------------------------------------------- */
-    /**Set the class loading delegation model for this web application
-     * @param state
-     */
-    public void setJava2ClassloadingCompliance (boolean state );
-    
-    
- 
 }
