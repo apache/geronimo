@@ -61,16 +61,21 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Arrays;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/16 02:18:06 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/17 00:14:01 $
  */
 public class GConstructorInfo implements Serializable {
     private final List attributeNames;
     private final List types;
     private final Map attributeTypeMap;
+
+    public GConstructorInfo(String[] attributeNames, Class[] types) {
+        this(Arrays.asList(attributeNames), Arrays.asList(types));
+    }
 
     public GConstructorInfo(List attributeNames, List types) {
         assert attributeNames.size() == types.size(): "name count: " + attributeNames.size() + " does not match type count: " + types.size();
