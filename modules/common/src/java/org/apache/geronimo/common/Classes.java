@@ -59,96 +59,20 @@ package org.apache.geronimo.common;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+
 import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.commons.lang.ClassUtils;
 
 /**
  * A collection of <code>Class</code> utilities.
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/29 19:33:43 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/03 17:32:11 $
  */
-public final class Classes
+public class Classes
+    extends ClassUtils
 {
-    /** The string used to separator packages */
-    public static final String PACKAGE_SEPARATOR = ".";
-    
-    /** The characther used to separator packages */
-    public static final char PACKAGE_SEPARATOR_CHAR = '.';
-    
-    /** The default package name. */
-    public static final String DEFAULT_PACKAGE_NAME = "";
-    
-    /**
-     * Get the short name of the specified class by striping off the package name.
-     *
-     * @param className  Class name.
-     * @return           Short class name.
-     */
-    public static String stripPackageName(final String className) {
-        if (className == null) {
-            throw new NullArgumentException("className");
-        }
-        
-        int idx = className.lastIndexOf(PACKAGE_SEPARATOR);
-        
-        if (idx != -1)
-            return className.substring(idx + 1, className.length());
-        return className;
-    }
-    
-    /**
-     * Get the short name of the specified class by striping off the package
-     * name.
-     *
-     * @param type    Class name.
-     * @return        Short class name.
-     */
-    public static String stripPackageName(final Class type) {
-        if (type == null) {
-            throw new NullArgumentException("type");
-        }
-        
-        return stripPackageName(type.getName());
-    }
-    
-    /**
-     * Get the package name of the specified class.
-     *
-     * @param className  Class name.
-     * @return           Package name or {@link #DEFAULT_PACKAGE_NAME} if the className is in the
-     *                   <i>default</i> package.
-     *
-     * @throws IllegalArgumentException     className is an empty string.
-     */
-    public static String getPackageName(final String className) {
-        if (className == null) {
-            throw new NullArgumentException("className");
-        }
-        if (className.length() == 0) {
-            throw new IllegalArgumentException("className string is empty");
-        }
-        
-        int index = className.lastIndexOf(PACKAGE_SEPARATOR);
-        if (index != -1) {
-            return className.substring(0, index);
-        }
-        return DEFAULT_PACKAGE_NAME;
-    }
-    
-    /**
-     * Get the package name of the specified class.
-     *
-     * @param type    Class.
-     * @return        Package name.
-     */
-    public static String getPackageName(final Class type) {
-        if (type == null) {
-            throw new NullArgumentException("type");
-        }
-        
-        return getPackageName(type.getName());
-    }
-    
     /**
      * Force the given class to be loaded fully.
      *
@@ -169,7 +93,7 @@ public final class Classes
         if (type.isPrimitive()) return;
         
         // don't attempt to force java.* classes to load
-        String packageName = Classes.getPackageName(type);
+        String packageName = ClassUtils.getPackageName(type);
         assert packageName != null;
         
         if (packageName.startsWith("java.") || 
