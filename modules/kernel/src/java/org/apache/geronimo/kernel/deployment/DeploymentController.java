@@ -88,7 +88,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
  *
  * @jmx:mbean
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:38:33 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/29 13:03:00 $
  */
 public class DeploymentController implements MBeanRegistration, DeploymentControllerMBean {
     private static final ObjectName DEFAULT_NAME = JMXUtil.getObjectName("geronimo.deployment:role=DeploymentController");
@@ -148,23 +148,33 @@ public class DeploymentController implements MBeanRegistration, DeploymentContro
      * @jmx:managed-operation
      */
     public synchronized void planDeployment(ObjectName source, Set urlInfos) {
+
+
+        Set lastScan = (Set) scanResults.get(source);
+
         // find new and existing urlInfos
         for (Iterator i = urlInfos.iterator(); i.hasNext();) {
             URLInfo urlInfo = (URLInfo) i.next();
             URL url = urlInfo.getUrl();
+
+
             if (!isDeployed(url)) {
-                goals.add(new DeployURL(url, urlInfo.getType()));
+                //only add a new deployment goal if we don't already have one. One can already exist if
+                //there was no deployer available when the url was scanned
+                if ((lastScan == null) || ((lastScan != null) &&!lastScan.contains (urlInfo))){
+                    goals.add(new DeployURL(url, urlInfo.getType()));
+                }
             } else {
                 goals.add(new RedeployURL(url));
             }
         }
 
         // create remove goals for all urlInfos that were found last time but not now
-        Set lastScan = (Set) scanResults.get(source);
         if (lastScan != null) {
             for (Iterator i = lastScan.iterator(); i.hasNext();) {
                 URLInfo urlInfo = (URLInfo) i.next();
                 URL url = urlInfo.getUrl();
+	       
                 if (!urlInfos.contains(urlInfo) && isDeployed(url)) {
                     goals.add(new UndeployURL(url));
                 }
