@@ -21,7 +21,7 @@
 <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector"
     version="1.5"
     configId="org/apache/geronimo/SystemJMS"
-    parentId="org/apache/geronimo/SystemDatabase">
+    parentId="org/apache/geronimo/Server">
   <resourceadapter>
     <resourceadapter-instance>
       <resourceadapter-name>ActiveMQ RA</resourceadapter-name>
