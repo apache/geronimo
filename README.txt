@@ -23,6 +23,10 @@ To do a clean rebuild of Geronimo type
 
 NOTE: maven rebuild currently has some problems due to a bug in the reactor.
 
+To only build select modules (assumes that depends are installed already):
+
+    maven -Dmodules=common,core
+
 To clean your workspace:
 
     maven clean
@@ -38,6 +42,6 @@ To try run the Geronimo server type:
 
 	maven run
 		
-Rr for the HTML website:
+For the HTML website:
 
 	maven site

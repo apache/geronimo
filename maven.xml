@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.31 $ $Date: 2003/09/01 07:44:29 $ -->
+<!-- $Revision: 1.32 $ $Date: 2003/09/01 09:49:31 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
@@ -17,6 +17,98 @@
   <!-- Modules -->
   <!-- ======= -->
   
+  <goal name="modules:reactor:init">
+    <!--
+       | Determine the includes which the reactor will use.
+       |
+       | Uses 4 properties to control which modules will be include:
+       |
+       | modules.types      Comma seperated list of module types (ie. specs or modules)
+       | modules.includes   Comma seperated list of module names (ie. common, core, ...)
+       | modules            Same as modules.includes, modules.includes initializes to this value
+       | modules.excludes   Comma seperated list of module names to exclude
+       |
+       | The end result is that modules.reactor.includes is set to the project.xml files
+       | to include.  This is the value the reactor will use.
+       |
+       | Example, to only build the common and core modules:
+       |
+       | maven -Dmodules=common,core
+     -->
+    
+    <j:if test="${context.getVariable('module.types') == null}">
+      <j:set var="module.types" value="modules,specs"/>
+    </j:if>
+    
+    <j:if test="${context.getVariable('modules') == null}">
+      <!-- The default it to build everything -->
+      <j:set var="modules" value="*"/>
+    </j:if>
+    
+    <j:if test="${context.getVariable('module.includes') == null}">
+      <j:set var="module.includes" value="${modules}"/>
+    </j:if>
+    
+    <j:if test="${context.getVariable('module.excludes') == null}">
+      <j:set var="module.excludes" value=""/>
+    </j:if>
+    
+    <u:tokenize var="types" delim=",">${module.types}</u:tokenize>
+    
+    <ant:fileScanner var="scanner">
+      <ant:fileset dir="${basedir}">
+        <j:forEach var="type" items="${types}">
+          <j:choose>
+            <j:when test="${context.getVariable('module.includes') == '*'}">
+              <ant:include name="${type}/*/project.xml"/>
+            </j:when>
+            <j:otherwise>
+              <u:tokenize var="includes" delim=",">${module.includes}</u:tokenize>
+              <j:forEach var="include" items="${includes}">
+                <u:available file="${basedir}/${type}/${include}/project.xml">
+                  <ant:include name="${type}/${include}/project.xml"/>
+                </u:available>
+              </j:forEach>
+            </j:otherwise>
+          </j:choose>
+        
+          <j:choose>
+            <j:when test="${context.getVariable('module.excludes') == '*'}">
+              <ant:exclude name="${type}/*/project.xml"/>
+            </j:when>
+            <j:otherwise>
+              <u:tokenize var="excludes" delim=",">${module.excludes}</u:tokenize>
+              <j:forEach var="exclude" items="${excludes}">
+                <u:available file="${basedir}/${type}/${exclude}/project.xml">
+                  <ant:exclude name="${type}/${exclude}/project.xml"/>
+                </u:available>
+              </j:forEach>
+            </j:otherwise>
+          </j:choose>
+        </j:forEach>
+      </ant:fileset>
+    </ant:fileScanner>
+    
+    <!-- Setup the includes which will be used by the reactor -->
+    <j:forEach var="file" items="${scanner.iterator()}">
+      <!--
+         | Would be nice if reactor would take a file set, but for now just remove
+         | the baseddir portion of the file's name.  So this will essential strip off
+         | ${basedir}
+       -->
+      <j:set var="filename"
+             value="${file.parentFile.parentFile.name}/${file.parentFile.name}/${file.name}"/>
+      <j:choose>
+        <j:when test="${context.getVariable('modules.reactor.includes') == null}">
+          <j:set var="modules.reactor.includes" value="${filename}"/>
+        </j:when>
+        <j:otherwise>
+          <j:set var="modules.reactor.includes" value="${modules.reactor.includes},${filename}"/>
+        </j:otherwise>
+      </j:choose>
+    </j:forEach>
+  </goal>
+  
   <!-- Helper tags for modules -->
   <define:taglib uri="local:modules">
     
@@ -28,28 +120,13 @@
         </j:if>
       </j:if>
       
-      <!--
-         | TODO: Need to make this more friendly for including a few modules
-       -->
-       
-      <j:if test="${empty(module)}">
-        <j:set var="module" value="*"/>
-      </j:if>
-      
-      <j:if test="${context.getVariable('modules.includes') == null}">
-        <j:set var="modules.includes" value="modules/${module}/project.xml,specs/${module}/project.xml"/>
-      </j:if>
-      
-      <j:if test="${context.getVariable('modules.excludes') == null}">
-        <j:set var="modules.excludes" value="modules/xbeans/project.xml"/>
-      </j:if>
+      <attainGoal name="modules:reactor:init"/>
       
       <j:choose>
         <j:when test="${goals != null}">
           <maven:reactor
               basedir="${basedir}"
-              includes="${modules.includes}"
-              excludes="${modules.excludes}"
+              includes="${modules.reactor.includes}"
               banner="Executing (${goals}):"
               ignoreFailures="false"
               goals="${goals}"
@@ -59,8 +136,7 @@
         <j:when test="${goals == null}">
           <maven:reactor
               basedir="${basedir}"
-              includes="${modules.includes}"
-              excludes="${modules.excludes}"
+              includes="${modules.reactor.includes}"
               banner="Executing (${goals}):"
               ignoreFailures="false"
               postProcessing="true"
@@ -316,13 +392,13 @@
   </postGoal>
   
   <preGoal name="site">
-    <attainGoal name="modules:copy-site"/>
+    <attainGoal name="modules:aggregate:site"/>
   </preGoal>
   
-  <goal name="modules:copy-site" prereqs="modules:site"
+  <goal name="modules:copy-site" prereqs="modules:aggregate:site"
         description="Copy the generated websites of all the modules into the root project">
     
-    <ant:echo>Aggregating module documentation...</ant:echo>
+    <ant:echo>Aggregating module site documentation...</ant:echo>
     
     <!-- Setup the target aggregation directory -->
     <j:set var="aggregate.dir" value="${basedir}/target/docs"/>
@@ -349,7 +425,7 @@
   </goal>
   
   <goal name="site:tocvs"
-    description="Creates the entire website and copies it to the local CVS repository so that it can be checked in to update the Incubator site">
+        description="Creates the entire website and copies it to the local CVS repository so that it can be checked in to update the Incubator site">
     
     <j:jelly xmlns="jelly:ant">
     
