@@ -82,7 +82,7 @@ import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
 /**
  * Maps DConfigBeans to POJOs and vice versa.
  *
- * @version $Revision: 1.6 $ $Date: 2003/09/17 01:47:15 $
+ * @version $Revision: 1.7 $ $Date: 2003/09/29 14:46:00 $
  */
 public class EjbConverter {
     private static final Log log = LogFactory.getLog(EjbConverter.class);
@@ -419,8 +419,6 @@ public class EjbConverter {
             EnvEntryBean bean = (EnvEntryBean)dest.getDConfigBean(match);
             bean.setEnvEntryName(entries[i].getEnvEntryName());
             bean.setEnvEntryValue(entries[i].getEnvEntryValue());
-            log.debug("Set env entry value for "+bean.hashCode()+" to "+bean.getEnvEntryValue()+" for "+match.hashCode());
-            log.debug("Try reload: "+dest.getDConfigBean(match).hashCode()+" value is "+((EnvEntryBean)dest.getDConfigBean(match)).getEnvEntryValue());
         }
         for(int i = 0; i < beans.length; i++) {
             DDBean bean = beans[i];
