@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Arrays;
 
 import javax.transaction.SystemException;
 import javax.transaction.xa.XAException;
@@ -36,7 +37,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/06/08 17:33:42 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/08 20:12:34 $
  *
  * */
 public class Recovery {
@@ -51,6 +52,7 @@ public class Recovery {
     private final Map externalGlobalIdMap = new HashMap();
 
     private final List recoveryErrors = new ArrayList();
+    private ByteArrayWrapper globalIdWrapper;
 
     public Recovery(final List xaResources, final TransactionLog txLog, final XidFactory xidFactory) {
         this.xaResources = xaResources;
@@ -79,7 +81,7 @@ public class Recovery {
             Xid xid = (Xid) entry.getKey();
             if (xidFactory.matchesGlobalId(xid.getGlobalTransactionId())) {
                 XidNamesPair xidNamesPair = new XidNamesPair(xid, (Set) entry.getValue());
-                ourXids.put(xid.getGlobalTransactionId(), xidNamesPair);
+                ourXids.put(new ByteArrayWrapper(xid.getGlobalTransactionId()), xidNamesPair);
             } else {
                 TransactionImpl externalTx = new ExternalTransaction(xid, txLog, (Set) entry.getValue());
                 externalXids.put(xid, externalTx);
@@ -93,7 +95,8 @@ public class Recovery {
         Xid[] prepared = xaResource.recover(XAResource.TMSTARTRSCAN + XAResource.TMENDRSCAN);
         for (int i = 0; i < prepared.length; i++) {
             Xid xid = prepared[i];
-            XidNamesPair xidNamesPair = (XidNamesPair) ourXids.get(xid.getGlobalTransactionId());
+            globalIdWrapper = new ByteArrayWrapper(xid.getGlobalTransactionId());
+            XidNamesPair xidNamesPair = (XidNamesPair) ourXids.get(globalIdWrapper);
             if (xidNamesPair != null) {
                 try {
                     xaResource.commit(xid, false);
@@ -106,6 +109,7 @@ public class Recovery {
                 }
                 if (xidNamesPair.resourceNames.isEmpty()) {
                     try {
+                        ourXids.remove(globalIdWrapper);
                         txLog.commit(xidNamesPair.xid);
                     } catch (LogException e) {
                         recoveryErrors.add(e);
@@ -167,6 +171,32 @@ public class Recovery {
         public XidNamesPair(Xid xid, Set resourceNames) {
             this.xid = xid;
             this.resourceNames = resourceNames;
+        }
+    }
+
+    private static class ByteArrayWrapper {
+        private final byte[] bytes;
+        private final int hashCode;
+
+        public ByteArrayWrapper(final byte[] bytes) {
+            assert bytes != null;
+            this.bytes = bytes;
+            int hash = 0;
+            for (int i = 0; i < bytes.length; i++) {
+                hash += 37 * bytes[i];
+            }
+            hashCode = hash;
+        }
+
+        public boolean equals(Object other) {
+            if (other instanceof ByteArrayWrapper) {
+                return Arrays.equals(bytes, ((ByteArrayWrapper)other).bytes);
+            }
+            return false;
+        }
+
+        public int hashCode() {
+            return hashCode;
         }
     }
 
