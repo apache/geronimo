@@ -56,30 +56,82 @@
 
 package org.apache.geronimo.twiddle.config;
 
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.apache.commons.jexl.JexlHelper;
+import org.apache.commons.jexl.JexlContext;
+import org.apache.commons.jexl.Expression;
+import org.apache.commons.jexl.ExpressionFactory;
+import org.apache.commons.jexl.resolver.FlatResolver;
+
 import org.apache.geronimo.common.NullArgumentException;
 
 /**
  * Handles pasring expressions from a string.
  *
- * @version <code>$Revision: 1.5 $ $Date: 2003/08/24 10:54:43 $</code>
+ * @version <code>$Revision: 1.6 $ $Date: 2003/08/24 15:06:02 $</code>
  */
 public class StringValueParser
 {
-    public StringValueParser()
+    private static final Log log = LogFactory.getLog(StringValueParser.class);
+    
+    protected JexlContext context;
+    
+    public StringValueParser(final Map vars)
     {
+        context = JexlHelper.createContext();
+        context.setVars(vars);
+        
+        if (log.isTraceEnabled()) {
+            log.trace("Using variables: " + context.getVars());
+        }
     }
     
-    protected String evaluate(final String expr)
+    public StringValueParser()
     {
-        //
-        // TODO: Hook up JEXL here
-        //
+        this(System.getProperties());
+    }
+    
+    public Map getVariables()
+    {
+        return context.getVars();
+    }
+    
+    private FlatResolver resolver = new FlatResolver(true);
+    
+    protected Expression createExpression(final String expression) throws Exception
+    {
+        Expression expr = ExpressionFactory.createExpression(expression);
+        expr.addPreResolver(resolver);
+        return expr;
+    }
+    
+    public Object evaluate(final String expression) throws Exception
+    {
+        boolean trace = log.isTraceEnabled();
+        if (trace) {
+            log.trace("Evaluating expression: " + expression);
+        }
         
-        return System.getProperty(expr);
+        Expression expr = createExpression(expression);
+        Object obj = expr.evaluate(context);
+        if (trace) {
+            log.trace("Result: " + obj);
+        }
+        
+        return obj;
     }
     
     public String parse(final String input)
     {
+        boolean trace = log.isTraceEnabled();
+        if (trace) {
+            log.trace("Parsing input: " + input);
+        }
+        
         StringBuffer buff = new StringBuffer();
 
         int cur = 0;
@@ -94,13 +146,28 @@ public class StringValueParser
             }
 
             suffixLoc = input.indexOf("}", prefixLoc);
+            if (suffixLoc < 0) {
+                throw new RuntimeException("Missing '}': " + input);
+            }
+            
             String expr = input.substring(prefixLoc + 2, suffixLoc);
             buff.append(input.substring(cur, prefixLoc));
-            buff.append(evaluate(expr));
+            
+            try {
+                buff.append(evaluate(expr));
+            }
+            catch (Exception e) {
+                throw new RuntimeException("Failed to evaluate: " + expr, e);
+            }
+            
             cur = suffixLoc + 1;
         }
         
         buff.append(input.substring(cur));
+        
+        if (trace) {
+            log.trace("Parsed result: " + buff);
+        }
         
         return buff.toString();
     }

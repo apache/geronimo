@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.6 $ $Date: 2003/08/24 09:27:44 $ -->
+<!-- $Revision: 1.7 $ $Date: 2003/08/24 15:06:02 $ -->
 
 <project>
   <pomVersion>3</pomVersion>
@@ -126,7 +126,6 @@
       </properties>
     </dependency>
     
-    <!-- Will need this soon, but not right now
     <dependency>
       <id>commons-jexl</id>
       <version>SNAPSHOT</version>
@@ -135,7 +134,6 @@
         <runtime>true</runtime>
       </properties>
     </dependency>
-    -->
     
     <dependency>
       <id>commons-cli</id>
