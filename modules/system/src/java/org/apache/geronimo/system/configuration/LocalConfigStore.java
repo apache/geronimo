@@ -37,9 +37,9 @@ import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
@@ -52,9 +52,9 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 /**
  * Implementation of ConfigurationStore using the local filesystem.
  *
- * @version $Revision: 1.8 $ $Date: 2004/06/05 07:14:30 $
+ * @version $Revision: 1.9 $ $Date: 2004/06/05 07:53:22 $
  */
-public class LocalConfigStore implements ConfigurationStore, GBean {
+public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
     private static final String INDEX_NAME = "index.properties";
     private final String objectName;
     private final URI root;

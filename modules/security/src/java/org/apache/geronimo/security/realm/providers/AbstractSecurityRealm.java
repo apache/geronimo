@@ -17,17 +17,17 @@
 
 package org.apache.geronimo.security.realm.providers;
 
-import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.security.realm.SecurityRealm;
 import org.apache.regexp.RE;
 
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/06/05 07:14:30 $
+ * @version $Revision: 1.8 $ $Date: 2004/06/05 07:53:22 $
  */
-public abstract class AbstractSecurityRealm implements SecurityRealm, GBean {
+public abstract class AbstractSecurityRealm implements SecurityRealm, GBeanLifecycle {
     private String realmName;
     private long maxLoginModuleAge;
 

@@ -45,9 +45,9 @@ import javax.management.ReflectionException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GAttributeInfo;
-import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.GOperationSignature;
@@ -62,7 +62,7 @@ import org.apache.geronimo.kernel.management.NotificationType;
  * {@link GBeanInfo} instance.  The GBeanMBean also supports caching of attribute values and invocation results
  * which can reduce the number of calls to a target.
  *
- * @version $Revision: 1.23 $ $Date: 2004/06/05 07:14:29 $
+ * @version $Revision: 1.24 $ $Date: 2004/06/05 07:53:22 $
  */
 public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     /**
@@ -585,14 +585,14 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
             references[i].start();
         }
 
-        if (target instanceof GBean) {
-            ((GBean) target).doStart();
+        if (target instanceof GBeanLifecycle) {
+            ((GBeanLifecycle) target).doStart();
         }
     }
 
     protected void doStop() throws Exception {
-        if (target instanceof GBean) {
-            ((GBean) target).doStop();
+        if (target instanceof GBeanLifecycle) {
+            ((GBeanLifecycle) target).doStop();
         }
 
         // stop all of the references
@@ -602,8 +602,8 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     }
 
     protected void doFail() {
-        if (target instanceof GBean) {
-            ((GBean) target).doFail();
+        if (target instanceof GBeanLifecycle) {
+            ((GBeanLifecycle) target).doFail();
         }
 
         // stop all of the references

@@ -24,7 +24,7 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/06/05 07:14:29 $
+ * @version $Revision: 1.7 $ $Date: 2004/06/05 07:53:22 $
  */
 public class GBeanInfoFactoryTest extends TestCase {
 
@@ -103,7 +103,7 @@ public class GBeanInfoFactoryTest extends TestCase {
         assertTrue(gbeanInfoFactory.getBeanInfo().getOperations().size() == 0);
 
         gbeanInfoFactory = new GBeanInfoFactory("");
-        gbeanInfoFactory.addInterface(GBean.class);
+        gbeanInfoFactory.addInterface(GBeanLifecycle.class);
         GBeanInfo gbeanInfo = gbeanInfoFactory.getBeanInfo();
         assertTrue(gbeanInfo.getAttributes().size() == 0);
         assertTrue(gbeanInfo.getOperations().size() == 3);

@@ -17,18 +17,18 @@
 
 package org.apache.geronimo.jetty.connector;
 
-import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.jetty.JettyContainer;
 import org.mortbay.http.HttpListener;
 import org.mortbay.util.ThreadedServer;
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/06/05 07:14:29 $
+ * @version $Revision: 1.8 $ $Date: 2004/06/05 07:53:21 $
  */
-public abstract class JettyConnector implements GBean {
+public abstract class JettyConnector implements GBeanLifecycle {
     private final JettyContainer container;
     protected final HttpListener listener;
 

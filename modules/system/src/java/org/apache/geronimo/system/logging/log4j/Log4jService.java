@@ -26,9 +26,9 @@ import java.util.TimerTask;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogConfigurationException;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.log.GeronimoLogFactory;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.log4j.Level;
@@ -37,9 +37,9 @@ import org.apache.log4j.Logger;
 /**
  * A Log4j logging service.
  *
- * @version $Revision: 1.5 $ $Date: 2004/06/05 07:14:30 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/05 07:53:22 $
  */
-public class Log4jService implements GBean {
+public class Log4jService implements GBeanLifecycle {
     /**
      * The URL to the configuration file.
      */

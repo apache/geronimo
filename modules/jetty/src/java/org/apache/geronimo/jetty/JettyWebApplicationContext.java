@@ -31,9 +31,9 @@ import javax.transaction.TransactionManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.config.ConfigurationParent;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
@@ -54,9 +54,9 @@ import org.mortbay.jetty.servlet.WebApplicationContext;
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
  *
- * @version $Revision: 1.20 $ $Date: 2004/06/05 07:14:29 $
+ * @version $Revision: 1.21 $ $Date: 2004/06/05 07:53:21 $
  */
-public class JettyWebApplicationContext extends WebApplicationContext implements GBean {
+public class JettyWebApplicationContext extends WebApplicationContext implements GBeanLifecycle {
 
     private static Log log = LogFactory.getLog(JettyWebApplicationContext.class);
 

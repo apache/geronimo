@@ -27,18 +27,18 @@ import javax.sql.DataSource;
 import javax.transaction.xa.Xid;
 
 import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
-import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.transaction.manager.LogException;
 import org.apache.geronimo.transaction.manager.TransactionLog;
 import org.apache.geronimo.transaction.manager.XidImpl;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/06/05 07:14:29 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/05 07:53:21 $
  */
-public class JDBCLog implements TransactionLog, GBean {
+public class JDBCLog implements TransactionLog, GBeanLifecycle {
     private final static String INSERT_XID = "INSERT INTO TXLOG (SYSTEMID, FORMATID, GLOBALID, BRANCHID) VALUES (?, ?, ?, ?)";
     private final static String DELETE_XID = "DELETE FROM TXLOG WHERE SYSTEMID = ? AND FORMATID = ? AND GLOBALID = ? BRANCHID = ?";
     private final static String RECOVER = "SELECT FORMATID, GLOBALID, BRANCHID FROM TXLOG WHERE SYSTEMID = ?";

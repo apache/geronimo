@@ -24,18 +24,18 @@ import javax.management.remote.JMXServiceURL;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.Kernel;
 
 /**
  * A Connector that supports the server sideof JSR 160 JMX Remoting.
  * 
- * @version $Revision: 1.5 $ $Date: 2004/06/05 07:14:29 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/05 07:53:22 $
  */
-public class JMXConnector implements GBean {
+public class JMXConnector implements GBeanLifecycle {
     private final Kernel kernel;
     private final Log log;
     private String url;

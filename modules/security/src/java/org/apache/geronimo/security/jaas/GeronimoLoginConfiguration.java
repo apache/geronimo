@@ -22,17 +22,17 @@ import java.util.Map;
 import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.Configuration;
 
-import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.security.SecurityService;
 
 
 /**
- * @version $Revision: 1.8 $ $Date: 2004/06/05 07:14:30 $
+ * @version $Revision: 1.9 $ $Date: 2004/06/05 07:53:22 $
  */
-public class GeronimoLoginConfiguration extends Configuration implements GBean {
+public class GeronimoLoginConfiguration extends Configuration implements GBeanLifecycle {
 
     private static Map entries = new Hashtable();
     private Configuration oldConfiguration;

@@ -32,9 +32,9 @@ import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.plugin.DeploymentServer;
 import org.apache.geronimo.deployment.plugin.FailedProgressObject;
 import org.apache.geronimo.deployment.plugin.TargetImpl;
-import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
@@ -46,9 +46,9 @@ import org.apache.geronimo.system.configuration.LocalConfigStore;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Revision: 1.12 $ $Date: 2004/06/05 07:14:29 $
+ * @version $Revision: 1.13 $ $Date: 2004/06/05 07:53:21 $
  */
-public class LocalServer implements DeploymentServer, GBean {
+public class LocalServer implements DeploymentServer, GBeanLifecycle {
     private final URI rootConfigID;
     private final Target target;
     private final Kernel kernel;

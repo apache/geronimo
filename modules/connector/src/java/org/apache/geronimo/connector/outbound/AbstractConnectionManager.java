@@ -23,15 +23,15 @@ import javax.resource.spi.ConnectionRequestInfo;
 import javax.resource.spi.LazyAssociatableConnectionManager;
 import javax.resource.spi.ManagedConnectionFactory;
 
-import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/06/05 07:14:29 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/05 07:53:21 $
  */
-public abstract class AbstractConnectionManager implements ConnectionManagerFactory, GBean, ConnectionManager, LazyAssociatableConnectionManager {
+public abstract class AbstractConnectionManager implements ConnectionManagerFactory, GBeanLifecycle, ConnectionManager, LazyAssociatableConnectionManager {
     protected ConnectionInterceptor stack;
 
     public AbstractConnectionManager() {

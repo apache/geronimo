@@ -22,14 +22,14 @@ import java.net.URI;
 import EDU.oswego.cs.dl.util.concurrent.Latch;
 import EDU.oswego.cs.dl.util.concurrent.Sync;
 import EDU.oswego.cs.dl.util.concurrent.TimeoutSync;
-import org.apache.geronimo.gbean.GBean;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.remoting.transport.Msg;
 import org.apache.geronimo.remoting.transport.TransportException;
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/06/05 07:14:29 $
+ * @version $Revision: 1.7 $ $Date: 2004/06/05 07:53:22 $
  */
-public abstract class AbstractRouterRouter implements GBean, Router {
+public abstract class AbstractRouterRouter implements GBeanLifecycle, Router {
     private long stoppedRoutingTimeout = 1000 * 60; // 1 min.
 
     /**

@@ -17,18 +17,18 @@
 
 package org.apache.geronimo.system.logging.log4j.appender;
 
-import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.system.logging.log4j.PatternLayout;
 import org.apache.geronimo.system.logging.log4j.XLevel;
 import org.apache.log4j.Logger;
 import org.apache.log4j.WriterAppender;
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/06/05 07:14:30 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/05 07:53:22 $
  */
-public abstract class AbstractAppenderService implements GBean {
+public abstract class AbstractAppenderService implements GBeanLifecycle {
     protected final WriterAppender appender;
 
     public AbstractAppenderService(WriterAppender appender) {

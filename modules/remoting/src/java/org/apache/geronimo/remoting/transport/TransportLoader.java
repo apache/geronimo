@@ -21,15 +21,15 @@ import java.net.URI;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.remoting.router.Router;
 
 /**
- * @version $Revision: 1.11 $ $Date: 2004/06/05 07:14:30 $
+ * @version $Revision: 1.12 $ $Date: 2004/06/05 07:53:22 $
  */
-public class TransportLoader implements GBean {
+public class TransportLoader implements GBeanLifecycle {
     private static final Log log = LogFactory.getLog(TransportLoader.class);
     private URI bindURI;
     private TransportServer transportServer;

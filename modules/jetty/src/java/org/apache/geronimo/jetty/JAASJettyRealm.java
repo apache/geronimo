@@ -23,9 +23,9 @@ import javax.security.auth.login.LoginException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.mortbay.http.HttpRequest;
 import org.mortbay.http.UserRealm;
@@ -34,9 +34,9 @@ import org.mortbay.util.LogSupport;
 
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/06/05 07:14:29 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/05 07:53:21 $
  */
-public class JAASJettyRealm implements UserRealm, GBean {
+public class JAASJettyRealm implements UserRealm, GBeanLifecycle {
 
     private static Log log = LogFactory.getLog(JAASJettyRealm.class);
 

@@ -17,9 +17,9 @@
 
 package org.apache.geronimo.jetty;
 
-import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.mortbay.http.HttpContext;
 import org.mortbay.http.HttpListener;
@@ -27,9 +27,9 @@ import org.mortbay.http.UserRealm;
 import org.mortbay.jetty.Server;
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/06/05 07:14:29 $
+ * @version $Revision: 1.8 $ $Date: 2004/06/05 07:53:21 $
  */
-public class JettyContainerImpl implements JettyContainer, GBean {
+public class JettyContainerImpl implements JettyContainer, GBeanLifecycle {
 
     private final Server server;
 

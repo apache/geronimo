@@ -31,17 +31,17 @@ import org.apache.geronimo.connector.ResourceAdapterWrapper;
 import org.apache.geronimo.connector.outbound.security.ManagedConnectionFactoryListener;
 import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.DynamicGBeanDelegate;
-import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.naming.geronimo.GeronimoContextManager;
 
 /**
- * @version $Revision: 1.12 $ $Date: 2004/06/05 07:14:29 $
+ * @version $Revision: 1.13 $ $Date: 2004/06/05 07:53:21 $
  */
-public class ManagedConnectionFactoryWrapper implements GBean, DynamicGBean {
+public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicGBean {
 
     private static final GBeanInfo GBEAN_INFO;
     private static final Log log = LogFactory.getLog(ManagedConnectionFactoryWrapper.class);

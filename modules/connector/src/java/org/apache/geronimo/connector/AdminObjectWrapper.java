@@ -24,16 +24,16 @@ import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.DynamicGBeanDelegate;
-import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.Kernel;
 
 /**
- * @version $Revision: 1.8 $ $Date: 2004/06/05 07:14:29 $
+ * @version $Revision: 1.9 $ $Date: 2004/06/05 07:53:21 $
  */
-public class AdminObjectWrapper implements GBean, DynamicGBean {
+public class AdminObjectWrapper implements GBeanLifecycle, DynamicGBean {
 
     public static final GBeanInfo GBEAN_INFO;
 

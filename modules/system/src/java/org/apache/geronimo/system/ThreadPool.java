@@ -22,16 +22,16 @@ import EDU.oswego.cs.dl.util.concurrent.PooledExecutor;
 import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/06/05 07:14:30 $
+ * @version $Revision: 1.7 $ $Date: 2004/06/05 07:53:22 $
  */
-public class ThreadPool implements GBean {
+public class ThreadPool implements GBeanLifecycle {
 
     static private final Log log = LogFactory.getLog(ThreadPool.class);
 

@@ -29,9 +29,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 
 /**
@@ -39,9 +39,9 @@ import org.apache.geronimo.gbean.WaitingException;
  * complete control over the URLs creted in the server.  This allows us to replace the
  * broken implementation of the "file" protocol.
  *
- * @version $Revision: 1.4 $ $Date: 2004/06/05 07:14:30 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/05 07:53:22 $
  */
-public class GeronimoURLFactory implements GBean {
+public class GeronimoURLFactory implements GBeanLifecycle {
     private static final URLStreamHandlerFactory factory = new URLStreamHandlerFactory();
     private static boolean installed = false;
 

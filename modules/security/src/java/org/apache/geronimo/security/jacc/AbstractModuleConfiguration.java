@@ -23,16 +23,16 @@ import javax.security.jacc.PolicyConfiguration;
 import javax.security.jacc.PolicyConfigurationFactory;
 import javax.security.jacc.PolicyContextException;
 
-import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.security.GeronimoSecurityException;
 
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/06/05 07:14:30 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/05 07:53:22 $
  */
-public abstract class AbstractModuleConfiguration implements ModuleConfiguration, GBean {
+public abstract class AbstractModuleConfiguration implements ModuleConfiguration, GBeanLifecycle {
     public static final String BASE_OBJECT_NAME = "geronimo.security:type=ModuleConfiguration";
 
     private String contextId;

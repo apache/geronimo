@@ -44,9 +44,9 @@ import javax.management.ReflectionException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GAttributeInfo;
-import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
@@ -81,9 +81,9 @@ import org.apache.geronimo.kernel.repository.Repository;
  * a startRecursive() for all the GBeans it contains. Similarly, if the
  * Configuration is stopped then all of its GBeans will be stopped as well.
  *
- * @version $Revision: 1.22 $ $Date: 2004/06/05 07:14:29 $
+ * @version $Revision: 1.23 $ $Date: 2004/06/05 07:53:22 $
  */
-public class Configuration implements GBean {
+public class Configuration implements GBeanLifecycle {
     private static final Log log = LogFactory.getLog(Configuration.class);
 
     private final Kernel kernel;

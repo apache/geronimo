@@ -47,9 +47,9 @@ import EDU.oswego.cs.dl.util.concurrent.ClockDaemon;
 import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.security.ContextManager;
@@ -63,9 +63,9 @@ import org.apache.geronimo.security.realm.SecurityRealm;
 /**
  * An MBean that maintains a list of security realms.
  *
- * @version $Revision: 1.7 $ $Date: 2004/06/05 07:14:30 $
+ * @version $Revision: 1.8 $ $Date: 2004/06/05 07:53:22 $
  */
-public class LoginService implements LoginServiceMBean, GBean {
+public class LoginService implements LoginServiceMBean, GBeanLifecycle {
     /**
      * The JMX name of the SecurityService.
      */
