@@ -55,6 +55,14 @@
  */
 package org.apache.geronimo.jmx;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
+import javax.management.MBeanRegistration;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 import javax.management.relation.RelationServiceMBean;
 import javax.management.relation.RelationServiceNotRegisteredException;
 import javax.management.relation.RelationTypeNotFoundException;
@@ -62,38 +70,104 @@ import javax.management.relation.RoleInfo;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.common.AbstractStateManageable;
 
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/16 23:16:55 $
+ * @version $Revision: 1.5 $ $Date: 2003/08/18 22:19:28 $
  */
-public class Relationship extends AbstractStateManageable implements RelationshipMBean {
+public class Relationship implements MBeanRegistration, RelationshipMBean {
     private final Log log = LogFactory.getLog(getClass());
+    private RelationServiceMBean relationService;
 
-    private String name;
+    private final String name;
 
     // left role
-    private String leftRoleName = "left";
-    private String leftRoleClass = "java.lang.Object";
-    private boolean leftRoleReadable = true;
-    private boolean leftRoleWritable = true;
-    private int leftRoleMinimum = 0;
-    private int leftRoleMaximum = RoleInfo.ROLE_CARDINALITY_INFINITY;
-    private String leftRoleDescription;
+    private final String leftRoleName;
+    private final String leftRoleClass;
+    private final boolean leftRoleReadable;
+    private final boolean leftRoleWritable;
+    private final int leftRoleMinimum;
+    private final int leftRoleMaximum;
+    private final String leftRoleDescription;
 
     // right role
-    private String rightRoleName = "right";
-    private String rightRoleClass = "java.lang.object";
-    private boolean rightRoleReadable = true;
-    private boolean rightRoleWritable = true;
-    private int rightRoleMinimum = 0;
-    private int rightRoleMaximum = RoleInfo.ROLE_CARDINALITY_INFINITY;
-    private String rightRoleDescription;
+    private final String rightRoleName;
+    private final String rightRoleClass;
+    private final boolean rightRoleReadable;
+    private final boolean rightRoleWritable;
+    private final int rightRoleMinimum;
+    private final int rightRoleMaximum;
+    private final String rightRoleDescription;
+
+    public Relationship(String propertiesString) {
+        Properties properties = new Properties();
+        try {
+            properties.load(new ByteArrayInputStream(propertiesString.getBytes()));
+        } catch (IOException cause) {
+            IllegalArgumentException e = new IllegalArgumentException("Properties string is invalid");
+            e.initCause(cause);
+            throw e;
+        }
+
+        name = properties.getProperty("name");
+
+        // left role
+        leftRoleName = properties.getProperty("left.name", "left");
+        leftRoleClass = properties.getProperty("left.class", "java.lang.Object");
+        leftRoleReadable = Boolean.valueOf(properties.getProperty("left.readable", "true")).booleanValue();
+        leftRoleWritable = Boolean.valueOf(properties.getProperty("left.writable", "true")).booleanValue();
+        String leftRoleMinimumString = properties.getProperty("left.minimum");
+        if (leftRoleMinimumString != null) {
+            leftRoleMinimum = Integer.parseInt(leftRoleMinimumString);
+        } else {
+            leftRoleMinimum = 0;
+        }
+        String leftRoleMaximumString = properties.getProperty("left.maximum");
+        if (leftRoleMaximumString != null) {
+            leftRoleMaximum = Integer.parseInt(leftRoleMaximumString);
+        } else {
+            leftRoleMaximum = RoleInfo.ROLE_CARDINALITY_INFINITY;
+        }
+        leftRoleDescription = properties.getProperty("left.description");
+
+        // right role
+        rightRoleName = properties.getProperty("right.name", "right");
+        rightRoleClass = properties.getProperty("right.class", "java.lang.Object");
+        rightRoleReadable = Boolean.valueOf(properties.getProperty("right.readable", "true")).booleanValue();
+        rightRoleWritable = Boolean.valueOf(properties.getProperty("right.writable", "true")).booleanValue();
+        String rightRoleMinimumString = properties.getProperty("right.minimum");
+        if (rightRoleMinimumString != null) {
+            rightRoleMinimum = Integer.parseInt(rightRoleMinimumString);
+        } else {
+            rightRoleMinimum = 0;
+        }
+        String rightRoleMaximumString = properties.getProperty("right.maximum");
+        if (rightRoleMaximumString != null) {
+            rightRoleMaximum = Integer.parseInt(rightRoleMaximumString);
+        } else {
+            rightRoleMaximum = RoleInfo.ROLE_CARDINALITY_INFINITY;
+        }
+        rightRoleDescription = properties.getProperty("right.description");
+    }
+
+    public ObjectName preRegister(MBeanServer server, ObjectName objectName) throws Exception {
+        relationService = JMXUtil.getRelationService(server);
+
+        // register our relationship
+        RoleInfo[] roleInfo = {
+            new RoleInfo(leftRoleName, leftRoleClass, leftRoleReadable, leftRoleWritable, leftRoleMinimum, leftRoleMaximum, leftRoleDescription),
+            new RoleInfo(rightRoleName, rightRoleClass, rightRoleReadable, rightRoleWritable, rightRoleMinimum, rightRoleMaximum, rightRoleDescription),
+            new RoleInfo("dummy", "java.lang.Object", true, true, 0, 0, "dummy role to test three way relationship code"),
+        };
+        relationService.createRelationType(name, roleInfo);
+        return objectName;
+    }
+
+    public void postRegister(Boolean aBoolean) {
+    }
 
     public void preDeregister() throws Exception {
-        RelationServiceMBean relationService = JMXUtil.getRelationService(server);
         try {
             relationService.removeRelationType(name);
         } catch (IllegalArgumentException e) {
@@ -103,139 +177,76 @@ public class Relationship extends AbstractStateManageable implements Relationshi
         } catch (RelationTypeNotFoundException e) {
             log.warn("Could not remove relation type: name=" + name, e);
         }
-        super.preDeregister();
     }
 
-    public void doStart() throws Exception {
-        RelationServiceMBean relationService = JMXUtil.getRelationService(server);
-        RoleInfo[] roleInfo = {
-            new RoleInfo(leftRoleName, leftRoleClass, leftRoleReadable, leftRoleWritable, leftRoleMinimum, leftRoleMaximum, leftRoleDescription),
-            new RoleInfo(rightRoleName, rightRoleClass, rightRoleReadable, rightRoleWritable, rightRoleMinimum, rightRoleMaximum, rightRoleDescription),
-            new RoleInfo("dummy", "java.lang.Object", true, true, 0, 0, "dummy role to test three way relationship code"),
-        };
-        relationService.createRelationType(name, roleInfo);
+    public void postDeregister() {
     }
 
-    public void doStop() throws Exception {
+    public List getRegisteredRelationships() {
+        try {
+            return relationService.findRelationsOfType(name);
+        } catch (Exception e) {
+            return Collections.EMPTY_LIST;
+        }
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getLeftRoleName() {
         return leftRoleName;
-    }
-
-    public void setLeftRoleName(String leftRoleName) {
-        this.leftRoleName = leftRoleName;
     }
 
     public String getLeftRoleClass() {
         return leftRoleClass;
     }
 
-    public void setLeftRoleClass(String leftRoleClass) {
-        this.leftRoleClass = leftRoleClass;
-    }
-
     public boolean isLeftRoleReadable() {
         return leftRoleReadable;
-    }
-
-    public void setLeftRoleReadable(boolean leftRoleReadable) {
-        this.leftRoleReadable = leftRoleReadable;
     }
 
     public boolean isLeftRoleWritable() {
         return leftRoleWritable;
     }
 
-    public void setLeftRoleWritable(boolean leftRoleWritable) {
-        this.leftRoleWritable = leftRoleWritable;
-    }
-
     public int getLeftRoleMinimum() {
         return leftRoleMinimum;
-    }
-
-    public void setLeftRoleMinimum(int leftRoleMinimum) {
-        this.leftRoleMinimum = leftRoleMinimum;
     }
 
     public int getLeftRoleMaximum() {
         return leftRoleMaximum;
     }
 
-    public void setLeftRoleMaximum(int leftRoleMaximum) {
-        this.leftRoleMaximum = leftRoleMaximum;
-    }
-
     public String getLeftRoleDescription() {
         return leftRoleDescription;
-    }
-
-    public void setLeftRoleDescription(String leftRoleDescription) {
-        this.leftRoleDescription = leftRoleDescription;
     }
 
     public String getRightRoleName() {
         return rightRoleName;
     }
 
-    public void setRightRoleName(String rightRoleName) {
-        this.rightRoleName = rightRoleName;
-    }
-
     public String getRightRoleClass() {
         return rightRoleClass;
-    }
-
-    public void setRightRoleClass(String rightRoleClass) {
-        this.rightRoleClass = rightRoleClass;
     }
 
     public boolean isRightRoleReadable() {
         return rightRoleReadable;
     }
 
-    public void setRightRoleReadable(boolean rightRoleReadable) {
-        this.rightRoleReadable = rightRoleReadable;
-    }
-
     public boolean isRightRoleWritable() {
         return rightRoleWritable;
-    }
-
-    public void setRightRoleWritable(boolean rightRoleWritable) {
-        this.rightRoleWritable = rightRoleWritable;
     }
 
     public int getRightRoleMinimum() {
         return rightRoleMinimum;
     }
 
-    public void setRightRoleMinimum(int rightRoleMinimum) {
-        this.rightRoleMinimum = rightRoleMinimum;
-    }
-
     public int getRightRoleMaximum() {
         return rightRoleMaximum;
     }
 
-    public void setRightRoleMaximum(int rightRoleMaximum) {
-        this.rightRoleMaximum = rightRoleMaximum;
-    }
-
     public String getRightRoleDescription() {
         return rightRoleDescription;
-    }
-
-    public void setRightRoleDescription(String rightRoleDescription) {
-        this.rightRoleDescription = rightRoleDescription;
     }
 }

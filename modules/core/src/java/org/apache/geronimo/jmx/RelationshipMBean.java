@@ -55,71 +55,44 @@
  */
 package org.apache.geronimo.jmx;
 
-import org.apache.management.j2ee.StateManageable;
+import java.util.List;
 
 /**
  * 
  * 
- * @version $Revision: 1.3 $ $Date: 2003/08/18 13:30:19 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/18 22:19:28 $
  */
-public interface RelationshipMBean extends StateManageable {
-    String getName();
+public interface RelationshipMBean {
 
-    void setName(String name);
+    List getRegisteredRelationships();
+
+    String getName();
 
     String getLeftRoleName();
 
-    void setLeftRoleName(String leftRoleName);
-
     String getLeftRoleClass();
-
-    void setLeftRoleClass(String leftRoleClass);
 
     boolean isLeftRoleReadable();
 
-    void setLeftRoleReadable(boolean leftRoleReadable);
-
     boolean isLeftRoleWritable();
-
-    void setLeftRoleWritable(boolean leftRoleWritable);
 
     int getLeftRoleMinimum();
 
-    void setLeftRoleMinimum(int leftRoleMinimum);
-
     int getLeftRoleMaximum();
-
-    void setLeftRoleMaximum(int leftRoleMaximum);
 
     String getLeftRoleDescription();
 
-    void setLeftRoleDescription(String leftRoleDescription);
-
     String getRightRoleName();
-
-    void setRightRoleName(String rightRoleName);
 
     String getRightRoleClass();
 
-    void setRightRoleClass(String rightRoleClass);
-
     boolean isRightRoleReadable();
-
-    void setRightRoleReadable(boolean rightRoleReadable);
 
     boolean isRightRoleWritable();
 
-    void setRightRoleWritable(boolean rightRoleWritable);
-
     int getRightRoleMinimum();
-
-    void setRightRoleMinimum(int rightRoleMinimum);
 
     int getRightRoleMaximum();
 
-    void setRightRoleMaximum(int rightRoleMaximum);
-
     String getRightRoleDescription();
-
-    void setRightRoleDescription(String rightRoleDescription);
 }
