@@ -30,7 +30,7 @@ import junit.framework.TestCase;
 /**
  * This is just a unit test for recovery, depending on proper behavior of the log(s) it uses.
  *
- * @version $Revision: 1.2 $ $Date: 2004/06/20 18:45:52 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/22 18:41:00 $
  *
  * */
 public abstract class AbstractRecoveryTest extends TestCase {
@@ -46,7 +46,7 @@ public abstract class AbstractRecoveryTest extends TestCase {
 
     public void testDummy() throws Exception {}
 
-    public void xtest2ResOnlineAfterRecoveryStart() throws Exception {
+    public void test2ResOnlineAfterRecoveryStart() throws Exception {
         Xid[] xids = getXidArray(XID_COUNT);
         MockXAResource xares1 = new MockXAResource(RM1, xids);
         MockXAResource xares2 = new MockXAResource(RM2, xids);
@@ -68,7 +68,7 @@ public abstract class AbstractRecoveryTest extends TestCase {
         assertTrue(recovery.localRecoveryComplete());
     }
 
-    public void xtest3ResOnlineAfterRecoveryStart() throws Exception {
+    public void test3ResOnlineAfterRecoveryStart() throws Exception {
         Xid[] xids12 = getXidArray(XID_COUNT);
         List xids12List = Arrays.asList(xids12);
         Xid[] xids13 = getXidArray(XID_COUNT);

@@ -17,23 +17,21 @@
 
 package org.apache.geronimo.transaction.log;
 
-import java.io.IOException;
+import java.io.File;
 
-import javax.transaction.xa.Xid;
-
-import junit.framework.TestCase;
+import junit.extensions.TestSetup;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 import org.apache.geronimo.transaction.manager.TransactionLog;
-import org.objectweb.howl.log.LogClosedException;
-import org.objectweb.howl.log.LogFileOverflowException;
-import org.objectweb.howl.log.Logger;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/06/19 17:17:13 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/22 18:41:00 $
  *
  * */
 public class HOWLLogTest extends AbstractLogTest {
+    private static final String LOG_FILE_NAME = "howl_test";
 
 
     protected String getResultFileName() {
@@ -53,7 +51,7 @@ public class HOWLLogTest extends AbstractLogTest {
                 20, //                "flushSleepTime",
                 "target", //                "logFileDir",
                 "log", //                "logFileExt",
-                "howl_test_", //                "logFileName",
+                LOG_FILE_NAME, //                "logFileName",
                 200, //                "maxBlocksPerFile",
                 10, //                "maxBuffers",
                 2, //                "maxLogFiles",
@@ -62,6 +60,20 @@ public class HOWLLogTest extends AbstractLogTest {
         );
         howlLog.doStart();
         return howlLog;
+    }
+    public static Test suite() {
+        return new TestSetup(new TestSuite(HOWLLogTest.class)) {
+            protected void setUp() throws Exception {
+                File logFile = new File("target/" + LOG_FILE_NAME + "_1.log");
+                if (logFile.exists()) {
+                    logFile.delete();
+                }
+                logFile = new File("target/" + LOG_FILE_NAME + "_2.log");
+                if (logFile.exists()) {
+                    logFile.delete();
+                }
+            }
+        };
     }
 
 }

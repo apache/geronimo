@@ -17,7 +17,7 @@
 -->
 
 
-<!-- $Revision: 1.16 $ $Date: 2004/06/20 07:39:34 $ -->
+<!-- $Revision: 1.17 $ $Date: 2004/06/22 18:41:00 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -76,11 +76,11 @@
             <url>http://jakarta.apache.org/commons/logging/</url>
         </dependency>
 
-        <!--this is an experimental version compiled by David Jencks-->
+        <!--compiled by David Jencks, but tagged version-->
         <dependency>
              <groupId>howl</groupId>
             <artifactId>howl-logger</artifactId>
-            <version>GERONIMO-PRIVATE-0.1</version>
+            <version>0.1.1</version>
             <url>http://forge.objectweb.org/projects/howl</url>
         </dependency>
 

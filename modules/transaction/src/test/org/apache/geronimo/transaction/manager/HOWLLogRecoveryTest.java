@@ -27,41 +27,42 @@ import junit.extensions.TestSetup;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/06/20 18:45:52 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/22 18:41:00 $
  *
  * */
 public class HOWLLogRecoveryTest extends AbstractRecoveryTest {
+    private static final String LOG_FILE_NAME = "howl_test_";
 
-    public void xtest2Again() throws Exception {
-        xtest2ResOnlineAfterRecoveryStart();
+    public void test2Again() throws Exception {
+        test2ResOnlineAfterRecoveryStart();
     }
 
-    public void xtest3Again() throws Exception {
-        xtest3ResOnlineAfterRecoveryStart();
+    public void test3Again() throws Exception {
+        test3ResOnlineAfterRecoveryStart();
     }
 
     protected void setUp() throws Exception {
-//        HOWLLog howlLog = new HOWLLog(
-//                "org.objectweb.howl.log.BlockLogBuffer", //                "bufferClassName",
-//                4, //                "bufferSizeKBytes",
-//                true, //                "checksumEnabled",
-//                20, //                "flushSleepTime",
-//                "target", //                "logFileDir",
-//                "log", //                "logFileExt",
-//                "howl_test_", //                "logFileName",
-//                200, //                "maxBlocksPerFile",
-//                10, //                "maxBuffers",                       log
-//                2, //                "maxLogFiles",
-//                2, //                "minBuffers",
-//                10//                "threadsWaitingForceThreshold"});
-//        );
-//        howlLog.doStart();
-//        txLog = howlLog;
+        HOWLLog howlLog = new HOWLLog(
+                "org.objectweb.howl.log.BlockLogBuffer", //                "bufferClassName",
+                4, //                "bufferSizeKBytes",
+                true, //                "checksumEnabled",
+                20, //                "flushSleepTime",
+                "target", //                "logFileDir",
+                "log", //                "logFileExt",
+                LOG_FILE_NAME, //                "logFileName",
+                200, //                "maxBlocksPerFile",
+                10, //                "maxBuffers",                       log
+                2, //                "maxLogFiles",
+                2, //                "minBuffers",
+                10//                "threadsWaitingForceThreshold"});
+        );
+        howlLog.doStart();
+        txLog = howlLog;
     }
 
     protected void tearDown() throws Exception {
-//        ((HOWLLog)txLog).doStop();
-//        txLog = null;
+        ((HOWLLog)txLog).doStop();
+        txLog = null;
     }
 
     protected void prepareForReplay() throws Exception {
@@ -72,11 +73,11 @@ public class HOWLLogRecoveryTest extends AbstractRecoveryTest {
     public static Test suite() {
         return new TestSetup(new TestSuite(HOWLLogRecoveryTest.class)) {
             protected void setUp() throws Exception {
-                File logFile = new File("target/howl_1.log");
+                File logFile = new File("target/" + LOG_FILE_NAME + "_1.log");
                 if (logFile.exists()) {
                     logFile.delete();
                 }
-                logFile = new File("target/howl_2.log");
+                logFile = new File("target/" + LOG_FILE_NAME + "_2.log");
                 if (logFile.exists()) {
                     logFile.delete();
                 }

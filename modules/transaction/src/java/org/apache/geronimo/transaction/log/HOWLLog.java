@@ -52,7 +52,7 @@ import org.objectweb.howl.log.Configuration;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/06/20 07:39:02 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/22 18:41:00 $
  *
  * */
 public class HOWLLog implements TransactionLog, GBeanLifecycle {
@@ -355,7 +355,7 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
             if (type == PREPARE) {
                 Set branches = new HashSet();
                 recoveredTx.put(masterXid, branches);
-                log.info("recovered prepare record for master xid: " + masterXid);
+//                log.info("recovered prepare record for master xid: " + masterXid);
                 while (raw.hasRemaining()) {
                     int branchBranchIdLength = raw.getShort();
                     byte[] branchBranchId = new byte[branchBranchIdLength];
@@ -367,11 +367,11 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
                     String name = new String(nameBytes);
                     TransactionBranchInfoImpl branchInfo = new TransactionBranchInfoImpl(branchXid, name);
                     branches.add(branchInfo);
-                    log.info("recovered branch for resource manager, branchId " + name + ", " + branchXid);
+//                    log.info("recovered branch for resource manager, branchId " + name + ", " + branchXid);
                 }
             } else if (type == COMMIT || type == ROLLBACK) {
                 Object o = recoveredTx.remove(masterXid);
-                log.info("Recovered " + TYPE_NAMES[type] + " for xid: " + masterXid + " and branches: " + o);
+//                log.info("Recovered " + TYPE_NAMES[type] + " for xid: " + masterXid + " and branches: " + o);
             } else {
                 log.error("Unknown recovery record received, type byte: " + type + ", buffer: " + raw);
             }
