@@ -1,0 +1,5 @@
+<gbeans>
+    <gbean class="org.apache.geronimo.deployment.MockGBean" objectName="geronimo.test:name=MyMockGMBean">
+        <default attribute="Value">1234</default>
+    </gbean>
+</gbeans>

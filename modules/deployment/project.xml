@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- $Revision: 1.1 $ $Date: 2004/01/16 03:48:42 $ -->
+
+<project>
+    <pomVersion>3</pomVersion>
+    <extend>${basedir}/../../etc/project.xml</extend>
+
+    <!-- ===================== -->
+    <!-- Module Identification -->
+    <!-- ===================== -->
+
+    <name>Geronimo :: Deployment</name>
+    <id>geronimo-deployment</id>
+    <shortDescription>Geronimo Deployment</shortDescription>
+    <description>Geronimo Deployment</description>
+    <url>http://incubator.apache.org/projects/geronimo/deployment/</url>
+    <siteDirectory>/www/incubator.apache.org/projects/geronimo/deployment</siteDirectory>
+    <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds/deployment</distributionDirectory>
+
+    <currentVersion>DEV</currentVersion>
+
+    <!-- ============ -->
+    <!-- Dependencies -->
+    <!-- ============ -->
+
+    <dependencies>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-kernel</artifactId>
+            <version>DEV</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <id>cglib</id>
+            <version>HEAD-20031111</version>
+            <url>http://cglib.sf.net/</url>
+            <properties>
+                <runtime>true</runtime>
+                <destinations>bootlib</destinations>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <id>mx4j</id>
+            <version>SNAPSHOT</version>
+            <properties>
+                <runtime>true</runtime>
+                <destinations>bootlib</destinations>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <id>commons-logging</id>
+            <version>1.0.3</version>
+            <url>http://jakarta.apache.org/commons/logging/</url>
+            <properties>
+                <runtime>true</runtime>
+                <destinations>bootlib</destinations>
+            </properties>
+        </dependency>
+
+    </dependencies>
+
+
+    <!-- =================== -->
+    <!-- Build Specification -->
+    <!-- =================== -->
+
+    <build>
+        <unitTest>
+            <includes>
+                <include>**/*Test.java</include>
+            </includes>
+            <excludes>
+                <exclude>**/Abstract*.java</exclude>
+            </excludes>
+            <resources>
+                <resource>
+                    <directory>${basedir}/src/schema</directory>
+                    <includes>
+                        <include>*.xsd</include>
+                    </includes>
+                </resource>
+                <resource>
+                    <directory>${basedir}/src/test-resources</directory>
+                </resource>
+            </resources>
+        </unitTest>
+    </build>
+</project>
