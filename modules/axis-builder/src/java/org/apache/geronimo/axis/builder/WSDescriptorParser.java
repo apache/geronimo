@@ -664,7 +664,7 @@ public class WSDescriptorParser {
             Method method = methods[i];
             if (method.getName().equals(opName)) {
                 if (found != null) {
-                    throw new DeploymentException("Overloaded methods NYI");
+                    throw new DeploymentException("Overloaded methods are not allowed in lightweight mappings");
                 }
                 found = method;
             }

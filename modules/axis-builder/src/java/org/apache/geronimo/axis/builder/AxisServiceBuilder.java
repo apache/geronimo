@@ -308,10 +308,10 @@ public class AxisServiceBuilder {
         List bindingOperations = binding.getBindingOperations();
         for (int i = 0; i < bindingOperations.size(); i++) {
             BindingOperation bindingOperation = (BindingOperation) bindingOperations.get(i);
-            Method method = WSDescriptorParser.getMethodForOperation(serviceEndpointInterface, bindingOperation.getOperation());
 
             OperationDescBuilder operationDescBuilder;
             if (lightweight) {
+                Method method = WSDescriptorParser.getMethodForOperation(serviceEndpointInterface, bindingOperation.getOperation());
                 operationDescBuilder = new LightweightOperationDescBuilder(bindingOperation, method);
             } else {
                 String operationName = bindingOperation.getOperation().getName();
