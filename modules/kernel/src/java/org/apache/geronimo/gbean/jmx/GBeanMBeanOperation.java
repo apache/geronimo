@@ -17,8 +17,8 @@
 
 package org.apache.geronimo.gbean.jmx;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -33,9 +33,9 @@ import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.kernel.ClassLoading;
 
 /**
- * @version $Revision: 1.10 $ $Date: 2004/05/27 01:05:59 $
+ * @version $Revision: 1.11 $ $Date: 2004/06/02 20:10:08 $
  */
-public class GBeanMBeanOperation {
+public final class GBeanMBeanOperation {
     private final GBeanMBean gmbean;
     private final String name;
     private final List parameterTypes;
@@ -132,7 +132,7 @@ public class GBeanMBeanOperation {
         return mbeanOperationInfo;
     }
 
-    public Object invoke(Object[] arguments) throws ReflectionException {
+    public Object invoke(final Object[] arguments) throws ReflectionException {
         if (gmbean.isOffline()) {
             throw new IllegalStateException("Operations can not be called while offline");
         }

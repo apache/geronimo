@@ -20,7 +20,7 @@ package org.apache.geronimo.kernel;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/02/25 09:57:50 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/02 20:10:08 $
  *
  * */
 public interface MockEndpoint {
@@ -32,5 +32,9 @@ public interface MockEndpoint {
     void doSetMutableInt(int mutableInt);
 
     void setMutableInt(int mutableInt);
+
+    void doNothing();
+
+    String echo(String message);
 
 }

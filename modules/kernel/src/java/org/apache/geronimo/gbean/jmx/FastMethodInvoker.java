@@ -24,16 +24,16 @@ import net.sf.cglib.reflect.FastClass;
 import net.sf.cglib.reflect.FastMethod;
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/05/27 01:05:59 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/02 20:10:08 $
  */
-public class FastMethodInvoker implements MethodInvoker {
-    private FastMethod method;
+public final class FastMethodInvoker implements MethodInvoker {
+    private final FastMethod method;
 
     public FastMethodInvoker(Method method) {
         this.method = FastClass.create(method.getDeclaringClass()).getMethod(method);
     }
 
-    public Object invoke(Object target, Object[] arguments) throws Exception {
+    public Object invoke(final Object target, final Object[] arguments) throws Exception {
         try {
             return method.invoke(target, arguments);
         } catch (InvocationTargetException e) {

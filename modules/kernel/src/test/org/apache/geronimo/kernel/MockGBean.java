@@ -26,7 +26,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 
 /**
- * @version $Revision: 1.16 $ $Date: 2004/06/02 05:33:03 $
+ * @version $Revision: 1.17 $ $Date: 2004/06/02 20:10:08 $
  */
 public class MockGBean implements MockEndpoint {
 
@@ -59,6 +59,7 @@ public class MockGBean implements MockEndpoint {
         infoFactory.addAttribute("ExceptionMutableInt", Integer.TYPE, true);
         infoFactory.addAttribute("EndpointMutableInt", Integer.TYPE, false);
 
+        infoFactory.addOperation("echo", new Class[] {String.class});
         infoFactory.addOperation("checkResource", new Class[] { String.class});
         infoFactory.addOperation("checkEndpoint");
         infoFactory.addOperation("checkEndpointCollection");
@@ -81,6 +82,13 @@ public class MockGBean implements MockEndpoint {
 
     public String getName() {
         return name;
+    }
+
+    public void doNothing() {
+    }
+
+    public String echo(String msg) {
+        return msg;
     }
 
     public int getFinalInt() {
