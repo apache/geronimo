@@ -61,7 +61,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
  * used hold the persistent state of each Configuration. This allows
  * Configurations to restart in he event of system failure.
  *
- * @version $Revision: 1.23 $ $Date: 2004/03/13 23:48:56 $
+ * @version $Revision: 1.24 $ $Date: 2004/04/23 03:02:00 $
  */
 public class Kernel extends NotificationBroadcasterSupport implements Serializable, KernelMBean {
 
@@ -339,15 +339,16 @@ public class Kernel extends NotificationBroadcasterSupport implements Serializab
         configurationManagerGBean = null;
 
         try {
-            mbServer.unregisterMBean(DEPENDENCY_SERVICE);
-        } catch (Exception e) {
-            // ignore
-        }
-        try {
             mbServer.unregisterMBean(KERNEL);
         } catch (Exception e) {
             // ignore
         }
+        try {
+            mbServer.unregisterMBean(DEPENDENCY_SERVICE);
+        } catch (Exception e) {
+            // ignore
+        }
+
         MBeanServerFactory.releaseMBeanServer(mbServer);
         mbServer = null;
         synchronized (this) {
