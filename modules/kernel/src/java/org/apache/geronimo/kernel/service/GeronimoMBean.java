@@ -92,7 +92,7 @@ import net.sf.cglib.reflect.FastClass;
  * GeronimoMBeanInfo instance.  The GeronimoMBean also support caching of attribute values and invocation results
  * which can reduce the number of calls to a target.
  *
- * @version $Revision: 1.11 $ $Date: 2003/12/30 08:25:32 $
+ * @version $Revision: 1.12 $ $Date: 2004/01/04 23:45:09 $
  */
 public class GeronimoMBean extends AbstractManagedObject2 implements DynamicMBean {
     public static final FastClass fastClass = FastClass.create(GeronimoMBean.class);
@@ -173,7 +173,7 @@ public class GeronimoMBean extends AbstractManagedObject2 implements DynamicMBea
                 if (attributeInfo.isReadable()) {
                     String getterName = (attributeInfo.isIs() ? "is" : "get") +
                             Character.toUpperCase(attributeName.charAt(0)) + attributeName.substring(1);
-                    operationInfoMap.put(new MBeanOperationSignature(getterName, null), attributeInfo);
+                    operationInfoMap.put(new MBeanOperationSignature(getterName, new String[0]), attributeInfo);
                 }
                 if (attributeInfo.isWritable()) {
                     String setterName = "set" + Character.toUpperCase(attributeName.charAt(0)) + attributeName.substring(1);
