@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2004 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<!-- @version $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $ -->
+<xs:schema
+    xmlns:geronimo="http://geronimo.apache.org/xml/ns/j2ee/application-client"
+    targetNamespace="http://geronimo.apache.org/xml/ns/j2ee/application-client"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified"
+    version="1.0">
+
+    <xs:include schemaLocation="../../../naming/src/schema/geronimo-naming.xsd"/>
+    <xs:include schemaLocation="../../../deployment/src/schema/geronimo-common.xsd"/>
+
+    <xs:element name="application-client" type="geronimo:application-clientType"/>
+
+    <xs:complexType name="application-clientType">
+        <xs:sequence>
+            <xs:element name="dependency" type="geronimo:dependencyType" minOccurs="0" maxOccurs="unbounded"/>
+
+            <!---->
+            <!--            <xs:element name="callback-handler"-->
+            <!--                type="geronimo:fully-qualified-classType"-->
+            <!--                minOccurs="0"/>-->
+
+            <xs:element name="ejb-ref"
+                type="geronimo:remote-refType"
+                minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="resource-ref"
+                type="geronimo:local-refType"
+                minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="resource-env-ref"
+                type="geronimo:local-refType"
+                minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="message-destination-ref"
+                type="geronimo:remote-refType"
+                minOccurs="0" maxOccurs="unbounded"/>
+
+            <xs:element name="gbean" type="geronimo:gbeanType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+
+        <xs:attribute name="configId" type="xs:string" use="required"/>
+        <xs:attribute name="parentId" type="xs:string" use="optional"/>
+    </xs:complexType>
+
+
+</xs:schema>

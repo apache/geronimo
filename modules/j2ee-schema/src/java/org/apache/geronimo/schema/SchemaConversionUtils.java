@@ -26,6 +26,7 @@ import javax.xml.namespace.QName;
 import org.apache.geronimo.xbeans.j2ee.ApplicationDocument;
 import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
 import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
+import org.apache.geronimo.xbeans.j2ee.ApplicationClientDocument;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -160,6 +161,14 @@ public class SchemaConversionUtils {
         }
         validateDD(xmlObject);
         return (WebAppDocument) xmlObject;
+    }
+
+    public static ApplicationClientDocument convertToApplicationClientSchema(XmlObject xmlObject) throws XmlException {
+        if (ApplicationClientDocument.type.equals(xmlObject.schemaType())) {
+            validateDD(xmlObject);
+            return (ApplicationClientDocument) xmlObject;
+        }
+        throw new UnsupportedOperationException("Deployment of previous version of application not supported");
     }
 
     public static boolean convertToSchema(XmlCursor cursor, String schemaLocationURL, String version) {
