@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.73 $ $Date: 2004/03/21 22:24:38 $ -->
+<!-- $Revision: 1.74 $ $Date: 2004/05/06 15:25:42 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -218,6 +218,10 @@
     <goal name="modules:clover">
         <modules:reactor goals="clover.wrapper"/>
     </goal>
+
+  <goal name="modules:jar-deploy">
+      <modules:reactor goals="jar:deploy"/>
+  </goal>
 
     <goal name="modules:clean">
         <attainGoal name="modules:reactor:init"/>
