@@ -36,7 +36,9 @@ import javax.wsdl.Types;
 import javax.wsdl.WSDLException;
 import javax.wsdl.Service;
 import javax.wsdl.Port;
+import javax.wsdl.Import;
 import javax.wsdl.extensions.ExtensibilityElement;
+import javax.wsdl.extensions.UnknownExtensibilityElement;
 import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.wsdl.extensions.schema.Schema;
 import javax.wsdl.factory.WSDLFactory;
@@ -204,37 +206,8 @@ public class WSDescriptorParser {
 
     public static SchemaTypeSystem compileSchemaTypeSystem(Definition definition) throws DeploymentException {
         List schemaList = new ArrayList();
-        Types types = definition.getTypes();
         Map namespaceMap = definition.getNamespaces();
-        if (types != null) {
-            List schemas = types.getExtensibilityElements();
-            for (Iterator iterator = schemas.iterator(); iterator.hasNext();) {
-                Object o = iterator.next();
-                if (o instanceof Schema) {
-                    Schema unknownExtensibilityElement = (Schema) o;
-                    QName elementType = unknownExtensibilityElement.getElementType();
-                    if (new QName("http://www.w3.org/2001/XMLSchema", "schema").equals(elementType)) {
-                        Element element = unknownExtensibilityElement.getElement();
-                        try {
-                            XmlObject xmlObject = SchemaConversionUtils.parse(element);
-                            XmlCursor cursor = xmlObject.newCursor();
-                            try {
-                                cursor.toFirstContentToken();
-                                for (Iterator namespaces = namespaceMap.entrySet().iterator(); namespaces.hasNext();) {
-                                    Map.Entry entry = (Map.Entry) namespaces.next();
-                                    cursor.insertNamespace((String) entry.getKey(), (String) entry.getValue());
-                                }
-                            } finally {
-                                cursor.dispose();
-                            }
-                            schemaList.add(xmlObject);
-                        } catch (XmlException e) {
-                            throw new DeploymentException("Could not parse schema element", e);
-                        }
-                    }
-                }
-            }
-        }
+        addImportsFromDefinition(definition, namespaceMap, schemaList);
         Collection errors = new ArrayList();
         XmlOptions xmlOptions = new XmlOptions();
         xmlOptions.setErrorListener(errors);
@@ -247,6 +220,72 @@ public class WSDescriptorParser {
             return schemaTypeSystem;
         } catch (XmlException e) {
             throw new DeploymentException("Could not compile schema type system", e);
+        }
+    }
+
+    private static void addImportsFromDefinition(Definition definition, Map namespaceMap, List schemaList) throws DeploymentException {
+        Types types = definition.getTypes();
+        if (types != null) {
+            List schemas = types.getExtensibilityElements();
+            for (Iterator iterator = schemas.iterator(); iterator.hasNext();) {
+                Object o = iterator.next();
+                if (o instanceof Schema) {
+                    Schema unknownExtensibilityElement = (Schema) o;
+                    QName elementType = unknownExtensibilityElement.getElementType();
+                    if (new QName("http://www.w3.org/2001/XMLSchema", "schema").equals(elementType)) {
+                        Element element = unknownExtensibilityElement.getElement();
+                        addSchemaElement(element, namespaceMap, schemaList);
+                    }
+                } else if (o instanceof UnknownExtensibilityElement) {
+                    //This is allegedly obsolete as of axis-wsdl4j-1.2-RC3.jar which includes the Schema extension above.
+                    //The change notes imply that imported schemas should end up in Schema elements.  They don't, so this is still needed.
+                    UnknownExtensibilityElement unknownExtensibilityElement = (UnknownExtensibilityElement) o;
+                    Element element = unknownExtensibilityElement.getElement();
+                    String elementNamespace = element.getNamespaceURI();
+                    String elementLocalName = element.getNodeName();
+                    if ("http://www.w3.org/2001/XMLSchema".equals(elementNamespace) &&  "schema".equals(elementLocalName)) {
+                        addSchemaElement(element, namespaceMap, schemaList);
+                    }
+                }
+            }
+        }
+        Map imports = definition.getImports();
+        if (imports != null) {
+            for (Iterator iterator = imports.entrySet().iterator(); iterator.hasNext();) {
+                Map.Entry entry = (Map.Entry) iterator.next();
+                String namespaceURI = (String) entry.getKey();
+                List importList = (List) entry.getValue();
+                for (Iterator iterator1 = importList.iterator(); iterator1.hasNext();) {
+                    Import anImport = (Import) iterator1.next();
+                    //according to the 1.1 jwsdl mr shcema imports are supposed to show up here,
+                    //but according to the 1.0 spec there is supposed to be no Definition.
+                    Definition definition1 = anImport.getDefinition();
+                    if (definition1 != null) {
+                        addImportsFromDefinition(definition1, namespaceMap, schemaList);
+                    } else {
+                        System.out.println("Missing definition in import for namespace " + namespaceURI);
+                    }
+                }
+            }
+        }
+    }
+
+    private static void addSchemaElement(Element element, Map namespaceMap, List schemaList) throws DeploymentException {
+        try {
+            XmlObject xmlObject = SchemaConversionUtils.parse(element);
+            XmlCursor cursor = xmlObject.newCursor();
+            try {
+                cursor.toFirstContentToken();
+                for (Iterator namespaces = namespaceMap.entrySet().iterator(); namespaces.hasNext();) {
+                    Map.Entry entry = (Map.Entry) namespaces.next();
+                    cursor.insertNamespace((String) entry.getKey(), (String) entry.getValue());
+                }
+            } finally {
+                cursor.dispose();
+            }
+            schemaList.add(xmlObject);
+        } catch (XmlException e) {
+            throw new DeploymentException("Could not parse schema element", e);
         }
     }
 
