@@ -61,7 +61,7 @@ import javax.security.auth.Subject;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/11 08:27:03 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/20 06:12:45 $
  *
  * */
 public class ConfiguredIdentityUserPasswordBridgeTest extends AbstractUserPasswordBridgeTest {
@@ -70,10 +70,7 @@ public class ConfiguredIdentityUserPasswordBridgeTest extends AbstractUserPasswo
 
     protected void setUp() {
         super.setUp();
-        bridge = new ConfiguredIdentityUserPasswordRealmBridge();
-        bridge.setTargetRealm(TestRealm.REALM_NAME);
-        bridge.setConfiguredUser(AbstractUserPasswordBridgeTest.USER);
-        bridge.setConfiguredPassword(AbstractUserPasswordBridgeTest.PASSWORD);
+        bridge = new ConfiguredIdentityUserPasswordRealmBridge(TestRealm.REALM_NAME, AbstractUserPasswordBridgeTest.USER, AbstractUserPasswordBridgeTest.PASSWORD);
     }
     public void testConfiguredIdentityBridge() throws Exception {
         Subject sourceSubject = new Subject();

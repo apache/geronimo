@@ -59,30 +59,34 @@ package org.apache.geronimo.security.bridge;
 import java.io.IOException;
 import java.util.Set;
 
-import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
-import javax.security.auth.Subject;
+import javax.security.auth.callback.UnsupportedCallbackException;
 
-import org.apache.geronimo.security.providers.GeronimoPasswordCredential;
-import org.apache.geronimo.security.bridge.AbstractRealmBridge;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.security.providers.GeronimoPasswordCredential;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/11 08:27:02 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/20 06:12:45 $
  *
  * */
 public class CallerIdentityUserPasswordRealmBridge extends AbstractRealmBridge {
 
-    public static GeronimoMBeanInfo getGeronimoMBeanInfo() {
-        GeronimoMBeanInfo mbeanInfo = AbstractRealmBridge.getGeronimoMBeanInfo();
-        mbeanInfo.setTargetClass(CallerIdentityUserPasswordRealmBridge.class);
-        return mbeanInfo;
+    private static final GBeanInfo GBEAN_INFO;
+
+    public CallerIdentityUserPasswordRealmBridge() {}
+
+    public CallerIdentityUserPasswordRealmBridge(String targetRealm) {
+        super(targetRealm);
     }
+
 
     protected CallbackHandler getCallbackHandler(final Subject sourceSubject) {
         return new CallbackHandler() {
@@ -108,4 +112,20 @@ public class CallerIdentityUserPasswordRealmBridge extends AbstractRealmBridge {
 
         };
     }
+
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(CallerIdentityUserPasswordRealmBridge.class.getName(), AbstractRealmBridge.getGBeanInfo());
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
+
+    public static GeronimoMBeanInfo getGeronimoMBeanInfo() {
+        GeronimoMBeanInfo mbeanInfo = AbstractRealmBridge.getGeronimoMBeanInfo();
+        mbeanInfo.setTargetClass(CallerIdentityUserPasswordRealmBridge.class);
+        return mbeanInfo;
+    }
+
 }

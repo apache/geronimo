@@ -82,7 +82,7 @@ import org.apache.regexp.RE;
 
 /**
  *
- * @version $Revision: 1.6 $ $Date: 2004/01/20 01:36:59 $
+ * @version $Revision: 1.7 $ $Date: 2004/01/20 06:12:45 $
  */
 
 public class SQLSecurityRealm extends AbstractSecurityRealm {
@@ -315,7 +315,6 @@ public class SQLSecurityRealm extends AbstractSecurityRealm {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(PropertiesFileSecurityRealm.class.getName(), AbstractSecurityRealm.getGBeanInfo());
-        infoFactory.addAttribute(new GAttributeInfo("RealmName", true));
         infoFactory.addAttribute(new GAttributeInfo("ConnectionURL", true));
         infoFactory.addAttribute(new GAttributeInfo("User", true));
         infoFactory.addAttribute(new GAttributeInfo("Password", true));

@@ -65,26 +65,28 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
 import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
 import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GConstructorInfo;
+import org.apache.geronimo.security.providers.PropertiesFileSecurityRealm;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/11 08:27:02 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/20 06:12:45 $
  *
  * */
 public abstract class AbstractRealmBridge implements RealmBridge {
 
+    private static final GBeanInfo GBEAN_INFO;
+
     private String targetRealm;
 
-    public static GeronimoMBeanInfo getGeronimoMBeanInfo() {
-        GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
-        //set target class in concrete subclass
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("TargetRealm", true, true, "Name of realm to log in to"));
-        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("getSubject",
-                new GeronimoParameterInfo[]{new GeronimoParameterInfo("sourceSubject", Subject.class, "Subject to be translated")},
-                GeronimoOperationInfo.ACTION,
-                "Log into the target realm using information gleaned from the supplied Subject"));
-        return mbeanInfo;
+    public AbstractRealmBridge() {}
+
+    public AbstractRealmBridge(String targetRealm) {
+        this.targetRealm = targetRealm;
     }
 
     public Subject mapSubject(Subject sourceSubject) throws LoginException {
@@ -103,4 +105,29 @@ public abstract class AbstractRealmBridge implements RealmBridge {
     public void setTargetRealm(String targetRealm) {
         this.targetRealm = targetRealm;
     }
+
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(AbstractRealmBridge.class.getName());
+        infoFactory.addAttribute(new GAttributeInfo("TargetRealm", true));
+        infoFactory.setConstructor(new GConstructorInfo(
+                new String[] {"TargetRealm"},
+                new Class[] {String.class}));
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
+
+    public static GeronimoMBeanInfo getGeronimoMBeanInfo() {
+        GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
+        //set target class in concrete subclass
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("TargetRealm", true, true, "Name of realm to log in to"));
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("getSubject",
+                new GeronimoParameterInfo[]{new GeronimoParameterInfo("sourceSubject", Subject.class, "Subject to be translated")},
+                GeronimoOperationInfo.ACTION,
+                "Log into the target realm using information gleaned from the supplied Subject"));
+        return mbeanInfo;
+    }
+
 }

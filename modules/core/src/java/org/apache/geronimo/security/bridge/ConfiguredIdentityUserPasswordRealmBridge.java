@@ -58,36 +58,41 @@ package org.apache.geronimo.security.bridge;
 
 import java.io.IOException;
 
-import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
-import javax.security.auth.Subject;
+import javax.security.auth.callback.UnsupportedCallbackException;
 
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
-import org.apache.geronimo.security.bridge.AbstractRealmBridge;
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 
 /**
  * ConfiguredIdentityRealmBridge supplies a constant mapping between realms:
  * it always returns the configured user and password, no matter what the
  * source realm or source subject.
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/11 08:27:02 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/20 06:12:45 $
  *
  * */
 public class ConfiguredIdentityUserPasswordRealmBridge extends AbstractRealmBridge {
 
+    private static final GBeanInfo GBEAN_INFO;
+
     private String configuredUser;
     private char[] configuredPassword;
 
-    public static GeronimoMBeanInfo getGeronimoMBeanInfo() {
-        GeronimoMBeanInfo mbeanInfo = AbstractRealmBridge.getGeronimoMBeanInfo();
-        mbeanInfo.setTargetClass(ConfiguredIdentityUserPasswordRealmBridge.class);
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ConfiguredUser", true, true, "Name of user to log in as"));
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ConfiguredPassword", true, true, "Password of user to log in as"));
-        return mbeanInfo;
+    public ConfiguredIdentityUserPasswordRealmBridge() {}
+
+    public ConfiguredIdentityUserPasswordRealmBridge(String targetRealm, String configuredUser, String configuredPassword) {
+        super(targetRealm);
+        this.configuredUser = configuredUser;
+        setConfiguredPassword(configuredPassword);
     }
 
     public String getConfiguredUser() {
@@ -99,7 +104,7 @@ public class ConfiguredIdentityUserPasswordRealmBridge extends AbstractRealmBrid
     }
 
     public String getConfiguredPassword() {
-        return new String(configuredPassword);
+        return configuredPassword == null? null:new String(configuredPassword);
     }
 
     public void setConfiguredPassword(String configuredPassword) {
@@ -124,4 +129,27 @@ public class ConfiguredIdentityUserPasswordRealmBridge extends AbstractRealmBrid
 
         };
     }
+
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ConfiguredIdentityUserPasswordRealmBridge.class.getName(), AbstractRealmBridge.getGBeanInfo());
+        infoFactory.addAttribute(new GAttributeInfo("ConfiguredUser", true));
+        infoFactory.addAttribute(new GAttributeInfo("ConfiguredPassword", true));
+        infoFactory.setConstructor(new GConstructorInfo(
+                new String[] {"TargetRealm", "ConfiguredUser", "ConfiguredPassword"},
+                new Class[] {String.class, String.class, String.class}));
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
+
+    public static GeronimoMBeanInfo getGeronimoMBeanInfo() {
+        GeronimoMBeanInfo mbeanInfo = AbstractRealmBridge.getGeronimoMBeanInfo();
+        mbeanInfo.setTargetClass(ConfiguredIdentityUserPasswordRealmBridge.class);
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ConfiguredUser", true, true, "Name of user to log in as"));
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ConfiguredPassword", true, true, "Password of user to log in as"));
+        return mbeanInfo;
+    }
+
 }
