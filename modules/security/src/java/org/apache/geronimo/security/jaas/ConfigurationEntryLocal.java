@@ -35,7 +35,7 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
  * <p>More specifically, you can only use this method or Sun's JAAS config
  * file.
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/25 09:58:08 $
+ * @version $Revision: 1.3 $ $Date: 2004/05/30 01:27:35 $
  * @see org.apache.geronimo.security.jaas.GeronimoLoginConfiguration
  * @see javax.security.auth.login.Configuration
  */
@@ -58,7 +58,7 @@ public class ConfigurationEntryLocal extends ConfigurationEntry {
         try {
             return new AppConfigurationEntry[]{
                 new AppConfigurationEntry(loginModuleName,
-                                          getControlFlag(),
+                                          getControlFlag().getFlag(),
                                           getOptions())};
         } catch (Exception e) {
         }

@@ -19,7 +19,6 @@ package org.apache.geronimo.security.network.protocol;
 
 import javax.management.ObjectName;
 import javax.security.auth.Subject;
-import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 
@@ -53,13 +52,14 @@ import org.apache.geronimo.network.protocol.control.ControlServerProtocolStack;
 import org.apache.geronimo.network.protocol.control.ControlServerProtocolWaiter;
 import org.apache.geronimo.security.AbstractTest;
 import org.apache.geronimo.security.jaas.GeronimoLoginConfiguration;
+import org.apache.geronimo.security.jaas.LoginModuleControlFlag;
 import org.apache.geronimo.system.ClockPool;
 import org.apache.geronimo.system.ThreadPool;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 
 /**
- * @version $Revision: 1.8 $ $Date: 2004/05/28 22:22:40 $
+ * @version $Revision: 1.9 $ $Date: 2004/05/30 01:27:36 $
  */
 public class SubjectCarryingProtocolTest extends AbstractTest {
 
@@ -292,7 +292,7 @@ public class SubjectCarryingProtocolTest extends AbstractTest {
         propertiesCE = new ObjectName("geronimo.security:type=ConfigurationEntry,jaasId=properties");
         gbean.setAttribute("JAASId", "properties");
         gbean.setAttribute("RealmName", "properties-realm");
-        gbean.setAttribute("ControlFlag", AppConfigurationEntry.LoginModuleControlFlag.REQUIRED);
+        gbean.setAttribute("ControlFlag", LoginModuleControlFlag.REQUIRED);
         gbean.setAttribute("Options", new HashMap());
         kernel.loadGBean(propertiesCE, gbean);
 

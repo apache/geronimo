@@ -36,7 +36,7 @@ import org.apache.geronimo.gbean.WaitingException;
  * <p>More specifically, you can only use this method or Sun's JAAS config
  * file.
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/25 09:58:09 $
+ * @version $Revision: 1.3 $ $Date: 2004/05/30 01:27:35 $
  * @see GeronimoLoginConfiguration
  * @see javax.security.auth.login.Configuration
  */
@@ -59,7 +59,7 @@ public class ConfigurationEntryRealmRemote extends ConfigurationEntryRealmLocal 
         try {
             return new AppConfigurationEntry[]{
                 new AppConfigurationEntry("org.apache.geronimo.security.jaas.LocalLoginModule",
-                                          getControlFlag(),
+                                          getControlFlag().getFlag(),
                                           getOptions())};
         } catch (Exception e) {
         }
