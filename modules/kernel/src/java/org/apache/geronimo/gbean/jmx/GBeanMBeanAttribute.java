@@ -70,7 +70,7 @@ import org.apache.geronimo.gbean.InvalidConfigurationException;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/20 06:09:42 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/29 06:03:35 $
  */
 public class GBeanMBeanAttribute {
     private static final Log log = LogFactory.getLog(GBeanMBeanAttribute.class);
@@ -226,6 +226,28 @@ public class GBeanMBeanAttribute {
                 readable,
                 writable,
                 isIs);
+
+        if(persistent && type.isPrimitive()) {
+            if (type == Boolean.TYPE) {
+                persistentValue = Boolean.FALSE;
+            } else if (type == Character.TYPE) {
+                persistentValue = new Character((char) 0);
+            } else if (type == Byte.TYPE) {
+                persistentValue = new Byte((byte) 0);
+            } else if (type == Short.TYPE) {
+                persistentValue = new Short((short) 0);
+            } else if (type == Integer.TYPE) {
+                persistentValue = new Integer(0);
+            } else if (type == Long.TYPE) {
+                persistentValue = new Long(0);
+            } else if (type == Float.TYPE) {
+                persistentValue = new Float(0);
+            } else if (type == Double.TYPE) {
+                persistentValue = new Double(0);
+            } else {
+                throw new IllegalArgumentException("Unknown primitive type: " + type.getName());
+            }
+        }
     }
 
     public String getName() {
@@ -312,6 +334,10 @@ public class GBeanMBeanAttribute {
     public void setValue(Object value) throws ReflectionException {
         if (gmbean.isOffline()) {
             if (persistent) {
+                if(value == null && type.isPrimitive()) {
+                    throw new IllegalArgumentException("Can not assign null to a primitive attribute");
+                }
+                // @todo actually check type
                 this.persistentValue = value;
             } else {
                 throw new IllegalStateException("Only persistent attributes can be modified while offline");
@@ -324,6 +350,10 @@ public class GBeanMBeanAttribute {
                     throw new IllegalArgumentException("This attribute is not writable");
                 }
             }
+            if(value == null && type.isPrimitive()) {
+                throw new IllegalArgumentException("Can not assign null to a primitive attribute");
+            }
+            // @todo actually check type
             ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
             try {
                 Thread.currentThread().setContextClassLoader(gmbean.getClassLoader());
