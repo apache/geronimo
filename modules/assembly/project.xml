@@ -84,6 +84,15 @@
         <!-- ========================================================== -->
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-activation</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-client</artifactId>
             <version>${pom.currentVersion}</version>
             <properties>
