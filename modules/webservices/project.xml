@@ -59,6 +59,12 @@
 
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-kernel</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee</artifactId>
             <version>${geronimo_version}</version>
         </dependency>
@@ -140,6 +146,27 @@
                 <runtime>true</runtime>
             </properties>
         </dependency>
+
+        <!-- JAXR (Apache Scout) -->
+        <dependency>
+            <groupId>scout</groupId>
+            <artifactId>jaxr-api</artifactId>
+            <version>${scout_version}</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+
+
+        <dependency>
+            <groupId>scout</groupId>
+            <artifactId>scout</artifactId>
+            <version>${scout_version}</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+
 
     </dependencies>
 
