@@ -63,6 +63,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.OutputStream;
+import java.io.BufferedOutputStream;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -88,7 +90,7 @@ import org.apache.geronimo.gbean.GBeanContext;
 /**
  * Implementation of ConfigurationStore using the local filesystem.
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/22 02:46:27 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/23 16:31:21 $
  */
 public class LocalConfigStore implements ConfigurationStore, GBean {
     private static final String INDEX_NAME = "index.properties";
@@ -147,7 +149,21 @@ public class LocalConfigStore implements ConfigurationStore, GBean {
     private void saveIndex() throws IOException {
         File indexFile = new File(root, INDEX_NAME);
         File tmpFile = File.createTempFile("index", ".tmp", root);
-        tmpFile.renameTo(indexFile);
+        FileOutputStream fos = new FileOutputStream(tmpFile);
+        try {
+            BufferedOutputStream os = new BufferedOutputStream(fos);
+            index.store(os, null);
+            os.close();
+            fos = null;
+            indexFile.delete();
+            tmpFile.renameTo(indexFile);
+        } catch (IOException e) {
+            if (fos != null) {
+                fos.close();
+            }
+            tmpFile.delete();
+            throw e;
+        }
     }
 
     public void install(URL source) throws IOException, InvalidConfigException {
@@ -157,46 +173,23 @@ public class LocalConfigStore implements ConfigurationStore, GBean {
         }
         File bundleRoot = new File(root, newId);
         bundleRoot.mkdir();
-        ZipInputStream zis = new ZipInputStream(source.openStream());
+        InputStream is = source.openStream();
         try {
-            ZipEntry entry;
-            byte[] buffer = new byte[4096];
-            while ((entry = zis.getNextEntry()) != null) {
-                File out = new File(bundleRoot, entry.getName());
-                if (entry.isDirectory()) {
-                    out.mkdirs();
-                } else {
-                    out.getParentFile().mkdirs();
-                    OutputStream os = new FileOutputStream(out);
-                    try {
-                        int count;
-                        while ((count = zis.read(buffer)) > 0) {
-                            os.write(buffer, 0, count);
-                        }
-                    } finally {
-                        os.close();
-                    }
-                    zis.closeEntry();
-                }
-            }
-            try {
-                GBeanMBean config = loadConfig(bundleRoot);
-                index.setProperty(config.getAttribute("ID").toString(), newId);
-            } catch (Exception e) {
-                throw new InvalidConfigException("Unable to get ID from downloaded configuration", e);
-            }
-            synchronized (this) {
-                saveIndex();
-            }
-        } catch (IOException e) {
-            delete(bundleRoot);
-            throw e;
-        } catch (InvalidConfigException e) {
-            delete(bundleRoot);
-            throw e;
+            unpack(bundleRoot, is);
         } finally {
-            zis.close();
+            is.close();
         }
+        try {
+            GBeanMBean config = loadConfig(bundleRoot);
+            index.setProperty(config.getAttribute("ID").toString(), newId);
+        } catch (Exception e) {
+            delete(bundleRoot);
+            throw new InvalidConfigException("Unable to get ID from downloaded configuration", e);
+        }
+        synchronized (this) {
+            saveIndex();
+        }
+
     }
 
     public synchronized GBeanMBean getConfig(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException {
@@ -245,7 +238,36 @@ public class LocalConfigStore implements ConfigurationStore, GBean {
         }
     }
 
-    private void delete(File root) throws IOException {
+    public static void unpack(File to, InputStream from) throws IOException {
+        ZipInputStream zis = new ZipInputStream(from);
+        try {
+            ZipEntry entry;
+            byte[] buffer = new byte[4096];
+            while ((entry = zis.getNextEntry()) != null) {
+                File out = new File(to, entry.getName());
+                if (entry.isDirectory()) {
+                    out.mkdirs();
+                } else {
+                    out.getParentFile().mkdirs();
+                    OutputStream os = new FileOutputStream(out);
+                    try {
+                        int count;
+                        while ((count = zis.read(buffer)) > 0) {
+                            os.write(buffer, 0, count);
+                        }
+                    } finally {
+                        os.close();
+                    }
+                    zis.closeEntry();
+                }
+            }
+        } catch (IOException e) {
+            delete(to);
+            throw e;
+        }
+    }
+
+    private static void delete(File root) throws IOException {
         File[] files = root.listFiles();
         for (int i = 0; i < files.length; i++) {
             File file = files[i];
