@@ -27,6 +27,8 @@ import java.util.Map;
 import java.util.jar.JarFile;
 import java.util.zip.ZipFile;
 
+import javax.management.ObjectName;
+
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -34,35 +36,45 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
+
 
 /**
  * This Class should build Configurations out of deployment Module.
  * @version $Rev: $ $Date: $ 
  */
 public class WSConfigBuilder implements ConfigurationBuilder {
-   // private final AxisGbean axisGBean;
+    private static final GBeanInfo GBEAN_INFO;
     
-//    public WSConfigBuilder(AxisGbean axisGBean){
-//        //this.axisGBean = axisGBean;
-//    }
-    public WSConfigBuilder(){
-        //this.axisGBean = axisGBean;
-    }
-    
-    public static final GBeanInfo GBEAN_INFO;
+    private final ObjectName objectName;
+    private AxisGbean axisGbean;
 
+    
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("WSConfigBuilder",WSConfigBuilder.class);
-        //referances
-        //infoFactory.addReference("AxisGBean", AxisGbean.class);
-        //interfaces
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("WSConfigBuilder",
+                WSConfigBuilder.class);
+
+        // attributes
+        infoFactory.addAttribute("objectName", String.class, false);
+        infoFactory.addReference("AxisGbean",AxisGbean.class);
         infoFactory.addInterface(ConfigurationBuilder.class);
-        //constructers
-        //infoFactory.setConstructor(new String[]{"AxisGBean"});
-        
+
+        // operations
+        infoFactory.setConstructor(new String[]{"objectName","AxisGbean"});
+        infoFactory.setConstructor(new String[]{"objectName"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
+    public WSConfigBuilder(String objectName,AxisGbean axisGbean) {
+        this.objectName = JMXUtil.getObjectName(objectName);
+        this.axisGbean = axisGbean;
+    }
+
+    public WSConfigBuilder(String objectName) {
+        this.objectName = JMXUtil.getObjectName(objectName);
+        this.axisGbean = null;
+
+    }
     
     public void doStart() throws WaitingException, Exception {
     }
@@ -119,6 +131,12 @@ public class WSConfigBuilder implements ConfigurationBuilder {
         //where this gives a Zip file. For the time been the method is override and used.  
         return null;
     }
+    
+    public void doFail() {
+    }
+    public void doStop() throws WaitingException, Exception {
+    }
+
     
 //    /**
 //     * the users suppose to use 
@@ -243,6 +261,18 @@ public class WSConfigBuilder implements ConfigurationBuilder {
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
+    }
+    /**
+     * @return Returns the axisGbean.
+     */
+    public AxisGbean getAxisGbean() {
+        return axisGbean;
+    }
+    /**
+     * @param axisGbean The axisGbean to set.
+     */
+    public void setAxisGbean(AxisGbean axisGbean) {
+        this.axisGbean = axisGbean;
     }
 }
 

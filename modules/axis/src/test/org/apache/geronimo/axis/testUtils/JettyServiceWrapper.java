@@ -52,7 +52,7 @@ public class JettyServiceWrapper {
         containerPatterns = Collections.singleton(containerName);
         connectorName = AxisGeronimoConstants.WEB_CONNECTOR_NAME;
         tmName = AxisGeronimoConstants.TRANSACTION_MANAGER_NAME;
-        tcaName = AxisGeronimoConstants.CONNTECTION_TRACKING_COORDINATOR;
+        tcaName = AxisGeronimoConstants.CONNECTION_TRACKER_NAME;
         tcmName = AxisGeronimoConstants.TRANSACTION_CONTEXT_MANAGER_NAME;
     }
 

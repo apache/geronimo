@@ -31,7 +31,6 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
  */
 public class AxisGbean implements GBeanLifecycle {
     private static Log log = LogFactory.getLog(AxisGbean.class);
-    private final String name;
     private static final GBeanInfo GBEAN_INFO;
     private final ObjectName objectName;
 
@@ -40,13 +39,15 @@ public class AxisGbean implements GBeanLifecycle {
                 AxisGbean.class);
 
         // attributes
-        infoFactory.addAttribute("Name", String.class, true);
         infoFactory.addAttribute("objectName", String.class, false);
 
         // operations
-        infoFactory.setConstructor(new String[]{"Name",
-                                                "objectName"});
+        infoFactory.setConstructor(new String[]{"objectName"});
         GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+    
+    public AxisGbean(){
+        this.objectName = null;
     }
 
     /**
@@ -55,8 +56,7 @@ public class AxisGbean implements GBeanLifecycle {
      * @param name
      @param objectName
      */
-    public AxisGbean(String name, String objectName) {
-        this.name = name;
+    public AxisGbean(String objectName) {
         this.objectName = JMXUtil.getObjectName(objectName);
     }
 
@@ -95,14 +95,5 @@ public class AxisGbean implements GBeanLifecycle {
      */
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
-    }
-
-    /**
-     * Method getName
-     *
-     * @return
-     */
-    public String getName() {
-        return name;
     }
 }

@@ -23,6 +23,7 @@ import java.util.jar.JarFile;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.axis.AbstractTestCase;
+import org.apache.geronimo.axis.EJBWSGBean;
 import org.apache.geronimo.axis.testUtils.AxisGeronimoConstants;
 import org.apache.geronimo.axis.testUtils.J2EEManager;
 import org.apache.geronimo.axis.testUtils.TestingUtils;
@@ -95,41 +96,52 @@ public class DynamicEJBDeploymentTest extends AbstractTestCase {
                         null);
 
         
-            JarFile jarFileModules = null;
-            System.out.println("**"+jarFile +"**");
+            ObjectName config = TestingUtils.installAndStartEJB(jarFile,AxisGeronimoConstants.STORE,earConfigBuilder,kernel);
             
-            File ejbdir = AxisGeronimoConstants.STORE.createNewConfigurationDir();
-            
-            
-            try {
-                jarFileModules = new JarFile(jarFile);
-                Object plan = earConfigBuilder.getDeploymentPlan(null, jarFileModules);
-                earConfigBuilder.buildConfiguration(plan, jarFileModules, ejbdir);
-            } finally {
-                if (jarFileModules != null) {
-                    jarFileModules.close();
-                }
-            }
-            
-            
-//            ObjectName name = new ObjectName("geronimo.test:name=" + jarFile.getName());
-//           GBeanMBean gbean = AxisGeronimoUtils.loadConfig(ejbdir);
-//           kernel.loadGBean(name,gbean);
-//           gbean.setAttribute("baseURL",ejbdir.toURL());
-//           kernel.startGBean(name);
+//            ObjectName ejbname = new ObjectName("test:name=ejbwsGBean");
+//            GBeanMBean ejbBean = new GBeanMBean(EJBWSGBean.getGBeanInfo());
+//            ejbBean.setReferencePattern("EjbConfig",config);
+//            kernel.loadGBean(ejbname,ejbBean);
+//            kernel.startGBean(ejbname);
 //
-            URI uri = AxisGeronimoConstants.STORE.install(ejbdir);
-            
-            
-
-//            //ObjectName name = new ObjectName("geronimo.test:name=" + jarFile.getName());
-//            GBeanMBean gbean = AxisGeronimoUtils.loadConfig(unpackedDir);
-//            URI uri = AxisGeronimoUtils.saveConfiguration(gbean,AxisGeronimoConstants.STORE);
-            
-            GBeanMBean config = AxisGeronimoConstants.STORE.getConfiguration(uri);
-            ConfigurationManager configurationManager = kernel.getConfigurationManager();
-            ObjectName configName = configurationManager.load(config, AxisGeronimoConstants.STORE.getBaseURL(uri));
-            kernel.startRecursiveGBean(configName);
+//            kernel.stopGBean(ejbname);
+//            kernel.unloadGBean(ejbname);
+//        
+//            JarFile jarFileModules = null;
+//            System.out.println("**"+jarFile +"**");
+//            
+//            File ejbdir = AxisGeronimoConstants.STORE.createNewConfigurationDir();
+//            
+//            
+//            try {
+//                jarFileModules = new JarFile(jarFile);
+//                Object plan = earConfigBuilder.getDeploymentPlan(null, jarFileModules);
+//                earConfigBuilder.buildConfiguration(plan, jarFileModules, ejbdir);
+//            } finally {
+//                if (jarFileModules != null) {
+//                    jarFileModules.close();
+//                }
+//            }
+//            
+//            
+////            ObjectName name = new ObjectName("geronimo.test:name=" + jarFile.getName());
+////           GBeanMBean gbean = AxisGeronimoUtils.loadConfig(ejbdir);
+////           kernel.loadGBean(name,gbean);
+////           gbean.setAttribute("baseURL",ejbdir.toURL());
+////           kernel.startGBean(name);
+////
+//            URI uri = AxisGeronimoConstants.STORE.install(ejbdir);
+//            
+//            
+//
+////            //ObjectName name = new ObjectName("geronimo.test:name=" + jarFile.getName());
+////            GBeanMBean gbean = AxisGeronimoUtils.loadConfig(unpackedDir);
+////            URI uri = AxisGeronimoUtils.saveConfiguration(gbean,AxisGeronimoConstants.STORE);
+//            
+//            GBeanMBean config = AxisGeronimoConstants.STORE.getConfiguration(uri);
+//            ConfigurationManager configurationManager = kernel.getConfigurationManager();
+//            ObjectName configName = configurationManager.load(config, AxisGeronimoConstants.STORE.getBaseURL(uri));
+//            kernel.startRecursiveGBean(configName);
     }
 
     protected void tearDown() throws Exception {

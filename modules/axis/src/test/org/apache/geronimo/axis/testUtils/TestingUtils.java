@@ -114,8 +114,7 @@ public class TestingUtils {
             Kernel kernel,
             ObjectName wsConfgBuilderName)throws Exception{
         URI ejbURI = null;
-        ObjectName wsconf = new ObjectName("geronimo.test:name=" + jarfile.getName());
-        ObjectName ejbconf = new ObjectName("geronimo.test:name=" + jarfile.getName() + "EJB");
+        ObjectName wsconf = new ObjectName("geronimo.test:name=" + jarfile.getName()+",value=check");
         URI wsURI = new URI("new");
 
         WSPlan plan = null;
@@ -125,20 +124,8 @@ public class TestingUtils {
             ZipEntry zipe = (ZipEntry) entires.nextElement();
             String name = zipe.getName();
             if (name.endsWith("/ejb-jar.xml")) {
-                
-                JarFile module = new JarFile(jarfile);
-                File unpackedDir = store.createNewConfigurationDir();
-                //Install the EJB
-                Object ejbplan = earConfigBuilder.getDeploymentPlan(null, module);
-                earConfigBuilder.buildConfiguration(ejbplan, module, unpackedDir);
-                ejbURI = store.install(unpackedDir);
-
-                //load the EJB Configuration TODO, Do we need this?        
-                GBeanMBean ejbGBean = AxisGeronimoUtils.loadConfig(unpackedDir);
-                
-                plan = WSPlan.createPlan(wsURI,wsconf,ejbGBean.getObjectNameObject(),jarfile);
-                System.out.println("entry found " + name + " the web service is based on a ejb.");
-                //log.info("the web service is based on a ejb.");
+                ObjectName ejbConfName = TestingUtils.installAndStartEJB(jarfile,store,earConfigBuilder,kernel);
+                plan = WSPlan.createPlan(wsURI,wsconf,ejbConfName,jarfile);
                 break;
             }
         }
@@ -155,19 +142,31 @@ public class TestingUtils {
                 File.class.getName()});
         //wsconfBuilder.buildConfiguration(plan, null, wsinstallDir);
         
-        if(ejbURI != null){
-            GBeanMBean config = store.getConfiguration(ejbURI);
-            ConfigurationManager configurationManager = kernel.getConfigurationManager();
-            ObjectName configName = configurationManager.load(config, null);
-            kernel.loadGBean(configName,config);
-            kernel.startRecursiveGBean(configName);
-        }
         URI wsInstalledURI = store.install(wsinstallDir);
         GBeanMBean config = store.getConfiguration(wsInstalledURI);
         ConfigurationManager configurationManager = kernel.getConfigurationManager();
         ObjectName configName = configurationManager.load(config, null);
         kernel.startRecursiveGBean(configName);
     
+    }
+    
+    public static ObjectName installAndStartEJB(File jarfile,
+            ConfigurationStore store,
+            EARConfigBuilder earConfigBuilder,
+            Kernel kernel)throws Exception{
+            JarFile module = new JarFile(jarfile);
+            File unpackedDir = store.createNewConfigurationDir();
+            //Install the EJB
+            Object ejbplan = earConfigBuilder.getDeploymentPlan(null, module);
+            earConfigBuilder.buildConfiguration(ejbplan, module, unpackedDir);
+            URI ejbURI = store.install(unpackedDir);
+
+        
+          GBeanMBean config = store.getConfiguration(ejbURI);
+          ConfigurationManager configurationManager = kernel.getConfigurationManager();
+          ObjectName configName = configurationManager.load(config, store.getBaseURL(ejbURI));
+          kernel.startRecursiveGBean(configName);
+          return configName;
     }
 
 }

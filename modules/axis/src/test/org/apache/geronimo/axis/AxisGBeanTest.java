@@ -21,6 +21,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLClassLoader;
 
+import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.axis.testUtils.TestingUtils;
@@ -47,7 +48,6 @@ public class AxisGBeanTest extends AbstractTestCase {
         ClassLoader cl = getClass().getClassLoader();
         ClassLoader myCl = new URLClassLoader(new URL[0], cl);
         GBeanMBean gbean = new GBeanMBean(AxisGbean.getGBeanInfo(), myCl);
-        gbean.setAttribute("Name", "Test");
         kernel.loadGBean(name, gbean);
         kernel.startGBean(name);
         System.out.println(kernel.getMBeanServer().getAttribute(name, "state"));
@@ -63,6 +63,18 @@ public class AxisGBeanTest extends AbstractTestCase {
         kernel.stopGBean(name);
         kernel.unloadGBean(name);
     }
+    
+    
+//    public void testEJBWebServiceGBean() throws Exception{
+//        ObjectName ejbname = new ObjectName("test:name=ejbwsGBean");
+//        GBeanMBean ejbBean = new GBeanMBean(EJBWSGBean.getGBeanInfo());
+//        kernel.loadGBean(ejbname,ejbBean);
+//        kernel.startGBean(ejbname);
+//
+//        kernel.stopGBean(ejbname);
+//        kernel.unloadGBean(ejbname);
+//    
+//    }
 
     protected void setUp() throws Exception {
         

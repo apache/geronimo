@@ -33,7 +33,7 @@ import java.util.Iterator;
  */
 public class POJOWSGBean implements GBeanLifecycle {
     private static Log log = LogFactory.getLog(POJOWSGBean.class);
-    private final String name;
+    private final String objectName;
     private static final GBeanInfo GBEAN_INFO;
     private URL moduleURL;
     private Collection classList;
@@ -43,19 +43,19 @@ public class POJOWSGBean implements GBeanLifecycle {
                 POJOWSGBean.class);
 
         // attributes
-        infoFactory.addAttribute("Name", String.class, true);
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("moduleURL", URL.class, true);
         infoFactory.addAttribute("classList", Collection.class, true);
         // operations
-        infoFactory.setConstructor(new String[]{"Name",
-                                                "objectName"});
+        infoFactory.setConstructor(new String[]{"objectName"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
-    public POJOWSGBean(String name, String objectName) {
-        this.name = name;
+    
+    public POJOWSGBean(String objectName) {
+        this.objectName = objectName;
     }
+
 
     public void doFail() {
     }
@@ -95,12 +95,6 @@ public class POJOWSGBean implements GBeanLifecycle {
         return moduleURL;
     }
 
-    /**
-     * @return
-     */
-    public String getName() {
-        return name;
-    }
 
     /**
      * @param url
