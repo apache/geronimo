@@ -25,6 +25,7 @@ import javax.transaction.Status;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
+import javax.transaction.RollbackException;
 
 /**
  * @version $Rev$ $Date$
@@ -58,7 +59,7 @@ public class ContainerTransactionContext extends InheritableTransactionContext {
         threadAssociated = true;
     }
 
-    public void commit() throws HeuristicMixedException, HeuristicRollbackException, SystemException {
+    public void commit() throws HeuristicMixedException, HeuristicRollbackException, SystemException, RollbackException {
         boolean wasCommitted = false;
         try {
             if (checkRolledback()) {
@@ -115,7 +116,7 @@ public class ContainerTransactionContext extends InheritableTransactionContext {
         return false;
     }
 
-    private void rollbackAndThrow(String message, Throwable throwable) throws HeuristicMixedException, HeuristicRollbackException, SystemException {
+    private void rollbackAndThrow(String message, Throwable throwable) throws HeuristicMixedException, HeuristicRollbackException, SystemException, RollbackException {
         try {
             // just incase there is a junk transaction on the thread
             if (txnManager.getStatus() != Status.STATUS_NO_TRANSACTION) {
@@ -129,6 +130,8 @@ public class ContainerTransactionContext extends InheritableTransactionContext {
             throw (HeuristicMixedException) throwable;
         } else if (throwable instanceof HeuristicRollbackException) {
             throw (HeuristicRollbackException) throwable;
+        } else if (throwable instanceof RollbackException) {
+            throw (RollbackException) throwable;
         } else if (throwable instanceof SystemException) {
             throw (SystemException) throwable;
         } else if (throwable instanceof Error) {
