@@ -56,36 +56,94 @@
 package org.apache.geronimo.deployment.service;
 
 /**
+ * This class contains metadata necessary to enroll an MBean in a relationship.
  *
- *
- * @version $Revision: 1.1 $ $Date: 2003/08/11 17:59:11 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/13 21:17:24 $
  */
 public class MBeanRelationship {
+    /**
+     * The name of the relationship (A.K.A relationshipID)
+     */
     private final String name;
+
+    /**
+     * The type of the relationship.  This is used if a new relationship instance is created during deployment.
+     */
     private final String type;
+
+    /**
+     * The name of the role to enroll the MBean
+     */
     private final String role;
+
+    /**
+     * The name of the target MBean to which this MBean will be related.  This is only used if a new relationship
+     * is created during deployment.
+     */
     private final String target;
 
-    public MBeanRelationship(String name, String type, String role, String target) {
+    /**
+     * The name of the role to assign the target MBean.  This is only used if a new relationship is created during
+     * deployment.  This is only neccessary if the relationship has more then two roles.
+     */
+    private final String targetRole;
+
+    /**
+     * Creates a new MBeanRelationship, which is used during deployment to enroll the new MBean in a relationship.
+     *
+     * @param name name of the relationship
+     * @param type type of the relationship
+     * @param role role to which this MBean will be added
+     * @param target the object name of another MBean to add to relationship if a new relationship is created
+     * @param targetRole the role to assign the target MBean
+     */
+    public MBeanRelationship(String name, String type, String role, String target, String targetRole) {
         this.name = name;
         this.type = type;
         this.role = role;
         this.target = target;
+        this.targetRole = targetRole;
     }
 
+    /**
+     * The name of the relationship (A.K.A relationshipID)
+     * @return the name of the relationship
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * The type of the relationship.  This is used if a new relationship instance is created during deployment.
+     * @return the relationship type
+     */
+    public String getType() {
+        return type;
+    }
+
+    /**
+     * The name of the role to enroll the MBean.
+     * @return name of the role to which this MBean will be assigned
+     */
     public String getRole() {
         return role;
     }
 
+    /**
+     * The name of the target MBean to which this MBean will be related.  This is only used if a new relationship
+     * is created during deployment.
+     * @return object name of the target MBean
+     */
     public String getTarget() {
         return target;
     }
 
-    public String getType() {
-        return type;
+    /**
+     * The name of the role to assign the target MBean.  This is only used if a new relationship is created during
+     * deployment.  This is only neccessary if the relationship has more then two roles.
+     * @return name of the role to which the target MBean will be assigned
+     */
+    public String getTargetRole() {
+        return targetRole;
     }
 }

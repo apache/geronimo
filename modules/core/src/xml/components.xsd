@@ -38,7 +38,8 @@
 									<xs:attribute name="name" type="xs:string" use="required"/>
 									<xs:attribute name="type" type="xs:string" use="required"/>
 									<xs:attribute name="role" type="xs:string" use="required"/>
-									<xs:attribute name="target" type="objectName" use="optional"/>
+                                    <xs:attribute name="target" type="objectName" use="optional"/>
+                                    <xs:attribute name="targetRole" type="xs:string" use="optional"/>
 								</xs:complexType>
 							</xs:element>
 							<xs:element name="invoke" minOccurs="0" maxOccurs="unbounded">

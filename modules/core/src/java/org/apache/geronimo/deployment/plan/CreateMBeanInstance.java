@@ -91,9 +91,9 @@ import org.apache.geronimo.deployment.service.MBeanOperation;
 import org.apache.geronimo.jmx.JMXUtil;
 
 /**
+ * Creates an new MBean instance and intializes it according to the specified MBeanMetadata metadata
  *
- *
- * @version $Revision: 1.3 $ $Date: 2003/08/13 04:15:43 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/13 21:17:20 $
  */
 public class CreateMBeanInstance extends DeploymentTask {
     private final Log log = LogFactory.getLog(this.getClass());
@@ -122,6 +122,7 @@ public class CreateMBeanInstance extends DeploymentTask {
 
         // create an MBean instance
         try {
+            // Get the class loader
             try {
                 newCL = server.getClassLoader(loaderName);
                 Thread.currentThread().setContextClassLoader(newCL);
@@ -129,8 +130,8 @@ public class CreateMBeanInstance extends DeploymentTask {
                 throw new DeploymentException(e);
             }
 
+            // Create and register the MBean
             try {
-
                 Object[] consValues = metadata.getConstructorArgs().toArray();
                 List constructorTypes = metadata.getConstructorTypes();
                 String[] consTypes = (String[]) constructorTypes.toArray(new String[constructorTypes.size()]);
@@ -164,6 +165,7 @@ public class CreateMBeanInstance extends DeploymentTask {
                 throw new DeploymentException(e);
             }
 
+            // Resolve and enroll in all relationships
             Set relationships = metadata.getRelationships();
             try {
                 for (Iterator i = relationships.iterator(); i.hasNext();) {
@@ -185,18 +187,25 @@ public class CreateMBeanInstance extends DeploymentTask {
                         // if we have a target we need to add it to the role list
                         String target = relationship.getTarget();
                         if (target != null && target.length() > 0) {
-                            List roles = relationService.getRoleInfos(relationshipType);
-
-                            String targetRoleName;
-                            if (((RoleInfo) roles.get(0)).getName().equals(relationshipRole)) {
-                                targetRoleName = ((RoleInfo) roles.get(1)).getName();
-                            } else {
-                                targetRoleName = ((RoleInfo) roles.get(0)).getName();
+                            String targetRoleName = relationship.getTargetRole();
+                            if (targetRoleName == null || targetRoleName.length() == 0) {
+                                List roles = relationService.getRoleInfos(relationshipType);
+                                if(roles.size() < 2) {
+                                    throw new DeploymentException("Relationship has less than two roles. You cannot specify a target");
+                                }
+                                if(roles.size() > 2) {
+                                    throw new DeploymentException("Relationship has more than two roles. You must use targetRoleName");
+                                }
+                                if (((RoleInfo) roles.get(0)).getName().equals(relationshipRole)) {
+                                    targetRoleName = ((RoleInfo) roles.get(1)).getName();
+                                } else {
+                                    targetRoleName = ((RoleInfo) roles.get(0)).getName();
+                                }
                             }
+
                             roleList.add(new Role(targetRoleName, Collections.singletonList(new ObjectName(target))));
                         }
                         relationService.createRelation(relationshipName, relationshipType, roleList);
-
                     } else {
                         // We have an exiting relationship -- just add to the existing role
                         List members = relationService.getRole(relationshipName, relationshipRole);
@@ -210,7 +219,7 @@ public class CreateMBeanInstance extends DeploymentTask {
                 throw new DeploymentException(e);
             }
 
-            // set its attributes
+            // Set the MBean attributes
             MBeanInfo mbInfo;
             try {
                 mbInfo = server.getMBeanInfo(actualName);
@@ -255,7 +264,7 @@ public class CreateMBeanInstance extends DeploymentTask {
                 throw new DeploymentException(e);
             }
 
-            // invoke its create method
+            // Invoke the create callback method
             try {
                 server.invoke(actualName, "create", null, null);
                 createCalled = true;
@@ -273,6 +282,7 @@ public class CreateMBeanInstance extends DeploymentTask {
                 }
             }
 
+            // Add a deployment plan to start the MBean
             DeploymentPlan startPlan = new DeploymentPlan();
             startPlan.addTask(new StartMBeanInstance(server, actualName));
             List operations = metadata.getOperations();

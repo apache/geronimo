@@ -67,9 +67,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * 
- * 
- * @version $Revision: 1.2 $ $Date: 2003/08/13 04:13:58 $
+ *
+ *
+ * @version $Revision: 1.3 $ $Date: 2003/08/13 21:17:28 $
  */
 public class Relationship implements MBeanRegistration, RelationshipMBean{
     private final Log log = LogFactory.getLog(getClass());
@@ -118,6 +118,7 @@ public class Relationship implements MBeanRegistration, RelationshipMBean{
         RoleInfo[] roleInfo = {
             new RoleInfo(leftRoleName, leftRoleClass, leftRoleReadable, leftRoleWritable, leftRoleMinimum, leftRoleMaximum, leftRoleDescription),
             new RoleInfo(rightRoleName, rightRoleClass, rightRoleReadable, rightRoleWritable, rightRoleMinimum, rightRoleMaximum, rightRoleDescription),
+            new RoleInfo("dummy", "java.lang.Object", true, true, 0, 0, "dummy role to test three way relationship code"),
         };
         relationService.createRelationType(name, roleInfo);
     }

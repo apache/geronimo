@@ -70,7 +70,7 @@ import org.w3c.dom.NodeList;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 19:46:28 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/13 21:17:24 $
  */
 public class MBeanMetadataXMLLoader {
     public MBeanMetadata loadXML(Element element) throws DeploymentException {
@@ -115,7 +115,8 @@ public class MBeanMetadataXMLLoader {
             String type = argElement.getAttribute("type");
             String role = argElement.getAttribute("role");
             String target = argElement.getAttribute("target");
-            MBeanRelationship relationship = new MBeanRelationship(name, type, role, target);
+            String targetRole = argElement.getAttribute("targetRole");
+            MBeanRelationship relationship = new MBeanRelationship(name, type, role, target, targetRole);
             relationships.add(relationship);
         }
 
