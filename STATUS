@@ -1,5 +1,5 @@
 ##
-## $Revision: 1.21 $ $Date: 2004/02/05 17:16:34 $
+## $Revision: 1.22 $ $Date: 2004/02/10 15:35:17 $
 ##
 
 Exit Criteria
@@ -74,6 +74,8 @@ X -- Do they have accounts on cvs.apache.org?
 
 X -- Are there three or more independent committers?
      Yes
+     2/10/04 voted to add Jacek Lascowski as committer
+             +1 jboynes djencks dims ammulder adc dain janb geir gdamour bsynder dblevins chirino
 
 Collaborative Development:
 
