@@ -64,6 +64,8 @@ import javax.resource.spi.ManagedConnection;
 import javax.security.auth.Subject;
 
 import EDU.oswego.cs.dl.util.concurrent.FIFOSemaphore;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * SinglePoolConnectionInterceptor.java
@@ -75,6 +77,9 @@ import EDU.oswego.cs.dl.util.concurrent.FIFOSemaphore;
  * @version 1.0
  */
 public class SinglePoolConnectionInterceptor implements ConnectionInterceptor {
+
+    private static Log log = LogFactory.getLog(GeronimoConnectionEventListener.class.getName());
+
 
     private final ConnectionInterceptor next;
 
@@ -113,6 +118,9 @@ public class SinglePoolConnectionInterceptor implements ConnectionInterceptor {
                 synchronized (pool) {
                     if (pool.isEmpty()) {
                         next.getConnection(ci);
+                        if (log.isTraceEnabled()) {
+                            log.trace("Returning new connection " + ci.getManagedConnectionInfo());
+                        }
                         return;
                     } else {
                         newMCI = (ManagedConnectionInfo) pool.removeFirst();
@@ -128,6 +136,9 @@ public class SinglePoolConnectionInterceptor implements ConnectionInterceptor {
                                         mci.getConnectionRequestInfo());
                         if (matchedMC != null) {
                             ci.setManagedConnectionInfo(newMCI);
+                            if (log.isTraceEnabled()) {
+                                log.trace("Returning pooled connection " + ci.getManagedConnectionInfo());
+                            }
                             return;
                         } else {
                             //matching failed.
@@ -165,6 +176,9 @@ public class SinglePoolConnectionInterceptor implements ConnectionInterceptor {
     public void returnConnection(
             ConnectionInfo ci,
             ConnectionReturnAction cra) {
+        if (log.isTraceEnabled()) {
+            log.trace("returning connection" + ci.getConnectionHandle());
+        }
         boolean wasInPool = false;
         ManagedConnectionInfo mci = ci.getManagedConnectionInfo();
         if (cra == ConnectionReturnAction.DESTROY) {
@@ -185,7 +199,6 @@ public class SinglePoolConnectionInterceptor implements ConnectionInterceptor {
         }
 
         if (cra == ConnectionReturnAction.DESTROY) {
-
             next.returnConnection(ci, cra);
         } else {
             synchronized (pool) {
@@ -195,6 +208,9 @@ public class SinglePoolConnectionInterceptor implements ConnectionInterceptor {
 
         } // end of else
 
+        if (!wasInPool) {
+            permits.release();
+        }
     }
 
     static class PoolDeque {

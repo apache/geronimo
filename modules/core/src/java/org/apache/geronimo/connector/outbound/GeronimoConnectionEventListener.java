@@ -62,6 +62,9 @@ import java.util.Set;
 import javax.resource.spi.ConnectionEvent;
 import javax.resource.spi.ConnectionEventListener;
 
+import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.Log;
+
 /**
  * ConnectionEventListener.java
  *
@@ -72,6 +75,8 @@ import javax.resource.spi.ConnectionEventListener;
  */
 public class GeronimoConnectionEventListener
         implements ConnectionEventListener {
+
+    private static Log log = LogFactory.getLog(GeronimoConnectionEventListener.class.getName());
 
     private final ManagedConnectionInfo mci;
     private final ConnectionInterceptor stack;
@@ -97,6 +102,9 @@ public class GeronimoConnectionEventListener
                     + ", actual "
                     + connectionEvent.getSource());
         } // end of if ()
+        if (log.isTraceEnabled()) {
+            log.trace("connectionClosed called with " + connectionEvent.getConnectionHandle());
+        }
         ConnectionInfo ci = new ConnectionInfo(mci);
         ci.setConnectionHandle(connectionEvent.getConnectionHandle());
         stack.returnConnection(ci, ConnectionReturnAction.RETURN_HANDLE);
@@ -115,6 +123,7 @@ public class GeronimoConnectionEventListener
                     + ", actual "
                     + connectionEvent.getSource());
         } // end of if ()
+        log.info("connectionErrorOccurred called with " + connectionEvent.getConnectionHandle(),connectionEvent.getException());
         ConnectionInfo ci = new ConnectionInfo(mci);
         ci.setConnectionHandle(connectionEvent.getConnectionHandle());
         stack.returnConnection(ci, ConnectionReturnAction.DESTROY);
