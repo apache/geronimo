@@ -19,7 +19,7 @@
  * 3. The end-user documentation included with the redistribution,
  *    if any, must include the following acknowledgment:
  *       "This product includes software developed by the
- *        Apache Software Foundation (http:www.apache.org/)."
+ *        Apache Software Foundation (http://www.apache.org/)."
  *    Alternately, this acknowledgment may appear in the software itself,
  *    if and wherever such third-party acknowledgments normally appear.
  *
@@ -49,142 +49,143 @@
  * This software consists of voluntary contributions made by many
  * individuals on behalf of the Apache Software Foundation.  For more
  * information on the Apache Software Foundation, please see
- * <http:www.apache.org/>.
+ * <http://www.apache.org/>.
  *
  * ====================================================================
  */
 package org.apache.geronimo.security.util;
 
-import java.security.AccessControlContext;
-import java.security.AccessControlException;
-import java.security.Principal;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Stack;
-
 import javax.security.auth.Subject;
 import javax.security.jacc.EJBRoleRefPermission;
-import javax.security.jacc.WebRoleRefPermission;
+import java.security.AccessControlContext;
+import java.security.AccessControlException;
+import java.security.AccessController;
+import java.security.Principal;
+import java.security.PrivilegedAction;
+import java.util.Hashtable;
+import java.util.Map;
 
+import org.apache.geronimo.security.PrimaryRealmPrincipal;
 import org.apache.geronimo.security.GeronimoSecurityPermission;
 import org.apache.geronimo.security.RealmPrincipal;
 
 
 /**
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/02 04:31:44 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/10 22:34:42 $
  */
-
 public class ContextManager {
-    private static ContextThreadLocalStack contexts = new ContextThreadLocalStack();
+    private static ThreadLocal currentCaller = new ThreadLocal();
+    private static ThreadLocal nextCaller = new ThreadLocal();
     private static Map subjectContexts = new Hashtable();
-    private static ThreadLocal methodIndexes = new ThreadLocal();
 
     public static final GeronimoSecurityPermission GET_CONTEXT = new GeronimoSecurityPermission("getContext");
     public static final GeronimoSecurityPermission SET_CONTEXT = new GeronimoSecurityPermission("setContext");
 
-    public static AccessControlContext peekContext() {
+
+    public static void setNextCaller(Subject subject) {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) sm.checkPermission(SET_CONTEXT);
+
+        nextCaller.set(subject);
+    }
+
+    public static Subject getNextCaller() {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(GET_CONTEXT);
 
-        return contexts.peek().context;
+        return (Subject) nextCaller.get();
     }
 
-    public static Subject popSubject() {
+    public static void setCurrentCaller(Subject subject) {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(SET_CONTEXT);
 
-        return contexts.pop().subject;
+        currentCaller.set(subject);
     }
 
-    public static void pushSubject(Subject subject) {
+    public static Subject getCurrentCaller() {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) sm.checkPermission(GET_CONTEXT);
+
+        return (Subject) currentCaller.get();
+    }
+
+    public static AccessControlContext getCurrentContext() {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) sm.checkPermission(GET_CONTEXT);
+
+        Context context = (Context) subjectContexts.get(currentCaller.get());
+
+        assert context != null : "No registered context";
+
+        return context.context;
+    }
+
+    public static Principal getCurrentPrincipal() {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) sm.checkPermission(GET_CONTEXT);
+
+        Context context = (Context) subjectContexts.get(currentCaller.get());
+
+        assert context != null : "No registered context";
+
+        return context.principal;
+    }
+
+    public static boolean isCallerInRole(String EJBName, String role) {
+        if (EJBName == null) throw new IllegalArgumentException("EJBName must not be null");
+        if (role == null) throw new IllegalArgumentException("Role must not be null");
+
+        try {
+            Context context = (Context) subjectContexts.get(currentCaller.get());
+
+            assert context != null : "No registered context";
+
+            context.context.checkPermission(new EJBRoleRefPermission(EJBName, role));
+        } catch (AccessControlException e) {
+            return false;
+        }
+        return true;
+    }
+
+    public static void registerSubject(Subject subject) {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(SET_CONTEXT);
+
+        if (subject == null) throw new IllegalArgumentException("Subject must not be null");
+
+        AccessControlContext acc = (AccessControlContext) Subject.doAsPrivileged(subject, new PrivilegedAction() {
+            public Object run() {
+                return AccessController.getContext();
+            }
+        }, null);
 
         Context context = new Context();
         context.subject = subject;
-        context.context = (AccessControlContext)subjectContexts.get(subject);
-
-        assert context.context != null;
-
-        contexts.push(context);
-    }
-
-    public static void registerContext(Subject subject, AccessControlContext context) {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) sm.checkPermission(SET_CONTEXT);
-
+        context.context = acc;
+        if (!subject.getPrincipals(PrimaryRealmPrincipal.class).isEmpty()) {
+            context.principal = (PrimaryRealmPrincipal) subject.getPrincipals(PrimaryRealmPrincipal.class).iterator().next();
+        } else if (!subject.getPrincipals(RealmPrincipal.class).isEmpty()) {
+            context.principal = (RealmPrincipal) subject.getPrincipals(RealmPrincipal.class).iterator().next();
+        } else if (!subject.getPrincipals().isEmpty()) {
+            context.principal = (Principal) subject.getPrincipals().iterator().next();
+        }
         subjectContexts.put(subject, context);
     }
 
-    public static void unregisterContext(Subject subject) {
+    public static void unregisterSubject(Subject subject) {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(SET_CONTEXT);
+
+        if (subject == null) throw new IllegalArgumentException("Subject must not be null");
 
         subjectContexts.remove(subject);
     }
 
-    public static void setMethodIndex(int index) {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) sm.checkPermission(SET_CONTEXT);
-
-        methodIndexes.set(new Integer(index));
-    }
-
-    public static int getMethodIndex() {
-        return ((Integer)methodIndexes.get()).intValue();
-    }
-
-    public static Principal getCallerPrincipal() {
-        Iterator iter = contexts.peek().subject.getPrincipals(RealmPrincipal.class).iterator();
-
-        assert iter.hasNext();
-
-        return (RealmPrincipal)iter.next();
-    }
-
-    public static boolean isCallerInRole(String EJBName, String role) {
-        try {
-            contexts.peek().context.checkPermission(new EJBRoleRefPermission(EJBName, role));
-        } catch (AccessControlException e) {
-            return false;
-        }
-        return true;
-    }
-
-    public static boolean isUserInRole(String resourceName, String role) {
-        try {
-            contexts.peek().context.checkPermission(new WebRoleRefPermission(resourceName, role));
-        } catch (AccessControlException e) {
-            return false;
-        }
-        return true;
-    }
-
-    public static class Context {
+    private static class Context {
         AccessControlContext context;
         Subject subject;
-    }
-
-    private static class ContextThreadLocalStack extends ThreadLocal {
-        protected Object initialValue() {
-            return new Stack();
-        }
-
-        void push(Context context) {
-            Stack stack = (Stack) super.get();
-            stack.push(context);
-        }
-
-        Context pop() {
-            Stack stack = (Stack) super.get();
-            return (Context) stack.pop();
-        }
-
-        Context peek() {
-            Stack stack = (Stack) super.get();
-            return (Context) stack.peek();
-        }
+        Principal principal;
     }
 }
