@@ -17,16 +17,11 @@
  */
 package org.apache.geronimo.interop.adapter;
 
-import java.util.HashMap;
-
 import org.apache.geronimo.interop.rmi.iiop.RemoteInterface;
-import org.apache.geronimo.interop.rmi.iiop.ObjectInputStream;
-import org.apache.geronimo.interop.rmi.iiop.ObjectOutputStream;
 import org.apache.geronimo.interop.rmi.iiop.ObjectRef;
 import org.apache.geronimo.interop.naming.NameService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openejb.EJBContainer;
 
 public class CorbaAdapter extends Adapter {
 
@@ -164,7 +159,7 @@ public class CorbaAdapter extends Adapter {
         return remoteClassObject;
     }
 
-    public EJBContainer getEJBContainer()
+    public Object getEJBContainer()
     {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }

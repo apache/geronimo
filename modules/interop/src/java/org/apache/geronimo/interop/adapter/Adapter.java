@@ -19,7 +19,7 @@ package org.apache.geronimo.interop.adapter;
 
 import org.apache.geronimo.interop.rmi.iiop.ObjectRef;
 import org.apache.geronimo.interop.rmi.iiop.RemoteInterface;
-import org.openejb.EJBContainer;
+//import org.openejb.EJBContainer;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -35,8 +35,8 @@ public abstract class Adapter
     public abstract ObjectRef getObjectRef();
 
     public abstract Object getServant();
-    public abstract EJBContainer getEJBContainer();
-    public abstract Object getEJBHome();
+//    public abstract EJBContainer getEJBContainer();
+//    public abstract Object getEJBHome();
 
     public abstract void invoke(java.lang.String methodName, byte[] objectKey, org.apache.geronimo.interop.rmi.iiop.ObjectInputStream input, org.apache.geronimo.interop.rmi.iiop.ObjectOutputStream output);
 

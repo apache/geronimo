@@ -17,8 +17,8 @@
  */
 package org.apache.geronimo.interop.adapter;
 
-import org.openejb.EJBContainer;
-import org.openejb.EJBComponentType;
+//import org.openejb.EJBContainer;
+//import org.openejb.EJBComponentType;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.*;
@@ -50,11 +50,13 @@ public class AdapterManager implements ReferenceCollectionListener {
         this.classLoader = null;
     }
 
-    public AdapterManager( ClassLoader classLoader, Collection containers ) {
-        log.debug( "AdapterManager(): containers = " + containers );
+    //public AdapterManager( ClassLoader classLoader, Collection containers ) {
+    public AdapterManager( ClassLoader classLoader) {
+        //log.debug( "AdapterManager(): containers = " + containers );
 
         this.classLoader = classLoader;
 
+        /*
         ReferenceCollection ref = (ReferenceCollection) containers;
         ref.addReferenceCollectionListener(this);
 
@@ -63,6 +65,7 @@ public class AdapterManager implements ReferenceCollectionListener {
         int len = ( containers != null ? containers.size() : 20 );
         homeAdapters = new HashMap( len );
         remoteAdapters = new HashMap( len );
+        */
 
         // Todo: Add the containers .. invoke memberAdded for each element in containers.
 
@@ -129,6 +132,7 @@ public class AdapterManager implements ReferenceCollectionListener {
     }
 
     public void memberAdded(ReferenceCollectionEvent event) {
+        /*
         EJBContainer container = (EJBContainer) event.getMember();
 
         log.debug( "AdapterManager.memberAdded(): container = " + container );
@@ -156,9 +160,11 @@ public class AdapterManager implements ReferenceCollectionListener {
         adapter = new RemoteAdapter( container );
         adapter.start();
         registerRemoteAdapter( adapter );
+        */
     }
 
     public void memberRemoved(ReferenceCollectionEvent event) {
+        /*
         EJBContainer container = (EJBContainer) event.getMember();
 
         log.debug( "AdapterManager.memberRemoved(): container = " + container );
@@ -171,6 +177,7 @@ public class AdapterManager implements ReferenceCollectionListener {
         adapter = getRemoteAdapter( container.getContainerID() );
         adapter.stop();
         unregisterRemoteAdapter( adapter );
+        */
     }
 
     public static final GBeanInfo GBEAN_INFO;
@@ -179,9 +186,10 @@ public class AdapterManager implements ReferenceCollectionListener {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(AdapterManager.class);
 
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
-        infoFactory.addReference("containers", EJBContainer.class);
+        //infoFactory.addReference("containers", EJBContainer.class);
 
-        infoFactory.setConstructor(new String[]{"classLoader", "containers"});
+        //infoFactory.setConstructor(new String[]{"classLoader", "containers"});
+        infoFactory.setConstructor(new String[]{"classLoader"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

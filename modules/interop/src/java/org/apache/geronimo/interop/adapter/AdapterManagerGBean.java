@@ -20,7 +20,6 @@ package org.apache.geronimo.interop.adapter;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 
-
 public class AdapterManagerGBean
 {
     public static final GBeanInfo GBEAN_INFO;
