@@ -77,7 +77,7 @@ import javax.enterprise.deploy.shared.factories.DeploymentFactoryManager;
  *
  * (Note that connected mode is not yet implemented)
  *
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class GeronimoDeploymentFactory implements DeploymentFactory {
     static { // Auto-registers a GeronimoDeploymentFactory
@@ -94,6 +94,49 @@ public class GeronimoDeploymentFactory implements DeploymentFactory {
     }
 
     /**
+     * Validates that the entire URI is well-formed, by splitting it up into
+     * it components.  Assumes that handlesURI has already returned true.
+     *
+     * @return The components of the URI, or <tt>null</tt> if the URI is not valid.
+     */
+    private Address parseURI(String uri) {
+        if(uri.equals(URI_PREFIX)) {
+            return new Address();
+        }
+        if(!uri.startsWith(URI_PREFIX+"//")) {
+            return null;
+        }
+        String end = uri.substring(URI_PREFIX.length()+2);
+        String server = null, port = null, application = null;
+        int pos = end.indexOf('/');
+        if(pos > -1) { // includes an application
+            if(end.indexOf(',', pos+1) > -1) {
+                return null;
+            }
+            application = end.substring(pos+1);
+            end = end.substring(0, pos);
+        }
+        pos = end.indexOf(':');
+        if(pos > -1) { // includes a port
+            if(end.indexOf(':', pos+1) > -1) {
+                return null;
+            }
+            port = end.substring(pos+1);
+            end = end.substring(0, pos);
+        }
+        server = end;
+        Address add = new Address();
+        add.server = server;
+        try {
+            add.port = port == null ? null : new Integer(port);
+        } catch(NumberFormatException e) {
+            return null;
+        }
+        add.application = application;
+        return add;
+    }
+
+    /**
      * Currently always returns a disconnected DeploymentManager, but will
      * eventually return a connected one.
      *
@@ -103,9 +146,29 @@ public class GeronimoDeploymentFactory implements DeploymentFactory {
      */
     public DeploymentManager getDeploymentManager(String uri, String username, String password) throws DeploymentManagerCreationException {
         if(!handlesURI(uri)) {
-            throw new DeploymentManagerCreationException("Invalid URI for "+getDisplayName()+" "+getProductVersion()+" DeploymentFactory, expecting "+URI_PREFIX+"... got "+uri);
+            throw new DeploymentManagerCreationException("Invalid URI for "+getDisplayName()+" "+getProductVersion()+" DeploymentFactory ("+uri+"), expecting "+URI_PREFIX+"...");
         }
-        return new GeronimoDeploymentManager(new NoServerConnection());
+        Address add = parseURI(uri);
+        if(add == null) {
+            throw new DeploymentManagerCreationException("Invalid URI for "+getDisplayName()+" "+getProductVersion()+" DeploymentFactory ("+uri+"), expecting "+URI_PREFIX+"//server:port/application");
+        }
+        if(add.server != null) {
+            if(add.port != null || add.application != null) {
+                System.err.println("WARNING: Currently, the port and application parts of the URL are ignored.");
+            }
+            try {
+                ClassLoader old = Thread.currentThread().getContextClassLoader();
+                //todo: Figure out a way around this (either make everything try the current CL as well as the TCCL, or set/unset the TCCL on every operation...)
+                System.err.println("Replacing Context ClassLoader: "+old);
+                Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+                return new GeronimoDeploymentManager(new JmxServerConnection(add.server));
+            } catch(Exception e) {
+                e.printStackTrace();
+                throw new DeploymentManagerCreationException("Unable to connect to Geronimo server at "+uri+": "+e.getMessage());
+            }
+        } else {
+            return new GeronimoDeploymentManager(new NoServerConnection());
+        }
     }
 
     /**
@@ -116,7 +179,7 @@ public class GeronimoDeploymentFactory implements DeploymentFactory {
      */
     public DeploymentManager getDisconnectedDeploymentManager(String uri) throws DeploymentManagerCreationException {
         if(!handlesURI(uri)) {
-            throw new DeploymentManagerCreationException("Invalid URI for "+getDisplayName()+" "+getProductVersion()+" DeploymentFactory, expecting "+URI_PREFIX+"... got "+uri);
+            throw new DeploymentManagerCreationException("Invalid URI for "+getDisplayName()+" "+getProductVersion()+" DeploymentFactory ("+uri+"), expecting "+URI_PREFIX+"...");
         }
         return new GeronimoDeploymentManager(new NoServerConnection());
     }
@@ -149,5 +212,11 @@ public class GeronimoDeploymentFactory implements DeploymentFactory {
 
     public String toString() {
         return getDisplayName()+" "+getProductVersion()+" DeploymentFactory";
+    }
+
+    private static class Address {
+        public String server;
+        public Integer port;
+        public String application;
     }
 }

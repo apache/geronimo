@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.14 $ $Date: 2003/09/23 02:34:27 $ -->
+<!-- $Revision: 1.15 $ $Date: 2003/10/01 04:46:41 $ -->
 
 <components>
     <class-space name="geronimo.system:role=ClassSpace,name=System">
@@ -42,4 +42,8 @@
             name="DeploymentController-DeploymentScanner"
             role="DeploymentScanner"/>
     </mbean>
+
+    <mbean code="org.apache.geronimo.deployment.app.ApplicationDeployer"
+           name="geronimo.deployment:role=ApplicationDeployer">
+    </mbean> 
 </components>

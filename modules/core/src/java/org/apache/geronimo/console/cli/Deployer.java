@@ -73,7 +73,7 @@ import org.apache.geronimo.enterprise.deploy.tool.EjbDeployableObject;
 /**
  * Initializes a command-line JSR-88 deployer.
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/29 14:08:01 $
+ * @version $Revision: 1.3 $ $Date: 2003/10/01 04:46:41 $
  */
 public class Deployer {
     private static final Log log = LogFactory.getLog(Deployer.class);
@@ -166,7 +166,7 @@ public class Deployer {
             if(url.equals("")) {
                 url = "deployer:geronimo:";
             }
-            deployer = DeploymentFactoryManager.getInstance().getDisconnectedDeploymentManager(url);
+            deployer = DeploymentFactoryManager.getInstance().getDeploymentManager(url, null, null);
         } catch(DeploymentManagerCreationException e) {
             log.error("Can't create deployment manager",e);
             return false;

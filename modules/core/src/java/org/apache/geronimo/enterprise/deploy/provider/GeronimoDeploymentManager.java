@@ -58,6 +58,7 @@ package org.apache.geronimo.enterprise.deploy.provider;
 import java.io.File;
 import java.io.InputStream;
 import java.util.Locale;
+import java.rmi.RemoteException;
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
@@ -77,7 +78,7 @@ import org.apache.geronimo.enterprise.deploy.provider.jar.EjbJarRoot;
  * This same class is used for both connected mode and disconnected mode.
  * It uses a plugin to manage that.  Currently only J2EE 1.4 is supported.
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/22 19:16:34 $
+ * @version $Revision: 1.4 $ $Date: 2003/10/01 04:46:42 $
  */
 public class GeronimoDeploymentManager implements DeploymentManager {
     private ServerConnection server; // a connection to an application server
@@ -87,7 +88,7 @@ public class GeronimoDeploymentManager implements DeploymentManager {
     }
 
     public DeploymentConfiguration createConfiguration(DeployableObject dObj) throws InvalidModuleException {
-        if (dObj.getType().getValue() == ModuleType.EJB.getValue()) {
+        if(dObj.getType().getValue() == ModuleType.EJB.getValue()) {
             return new EjbJarDeploymentConfiguration(dObj, new EjbJarRoot(dObj.getDDBeanRoot()));
         } else {
             throw new InvalidModuleException("Can't handle modules of type " + dObj.getType());
@@ -124,7 +125,7 @@ public class GeronimoDeploymentManager implements DeploymentManager {
      *         not the default locale, as changing Locales is not supported.
      */
     public void setLocale(Locale locale) throws UnsupportedOperationException {
-        if (!locale.equals(Locale.getDefault())) {
+        if(!locale.equals(Locale.getDefault())) {
             throw new UnsupportedOperationException();
         }
     }
@@ -164,58 +165,127 @@ public class GeronimoDeploymentManager implements DeploymentManager {
      *         version is not 1.4.
      */
     public void setDConfigBeanVersion(DConfigBeanVersionType version) throws DConfigBeanVersionUnsupportedException {
-        if (version.getValue() != DConfigBeanVersionType.V1_4.getValue()) {
+        if(version.getValue() != DConfigBeanVersionType.V1_4.getValue()) {
             throw new DConfigBeanVersionUnsupportedException("This implementation only supports J2EE 1.4");
         }
+    }
+
+    private void handleRemoteException(RemoteException e) {
+        if(e.getCause() != null) {
+            e.getCause().printStackTrace();
+        } else {
+            e.printStackTrace();
+        }
+        release();
     }
 
     // ---- All of the methods below are handled by the ServerConnection -----
 
     public Target[] getTargets() throws IllegalStateException {
-        return server.getTargets();
+        try {
+            return server.getTargets();
+        } catch(RemoteException e) {
+            handleRemoteException(e);
+            throw new IllegalStateException("Connection to server lost");
+        }
     }
 
     public TargetModuleID[] getRunningModules(ModuleType moduleType, Target[] targetList) throws TargetException, IllegalStateException {
-        return server.getRunningModules(moduleType, targetList);
+        try {
+            return server.getRunningModules(moduleType, targetList);
+        } catch(RemoteException e) {
+            handleRemoteException(e);
+            throw new IllegalStateException("Connection to server lost");
+        }
     }
 
     public TargetModuleID[] getNonRunningModules(ModuleType moduleType, Target[] targetList) throws TargetException, IllegalStateException {
-        return server.getNonRunningModules(moduleType, targetList);
+        try {
+            return server.getNonRunningModules(moduleType, targetList);
+        } catch(RemoteException e) {
+            handleRemoteException(e);
+            throw new IllegalStateException("Connection to server lost");
+        }
     }
 
     public TargetModuleID[] getAvailableModules(ModuleType moduleType, Target[] targetList) throws TargetException, IllegalStateException {
-        return server.getAvailableModules(moduleType, targetList);
+        try {
+            return server.getAvailableModules(moduleType, targetList);
+        } catch(RemoteException e) {
+            handleRemoteException(e);
+            throw new IllegalStateException("Connection to server lost");
+        }
     }
 
     public ProgressObject distribute(Target[] targetList, File moduleArchive, File deploymentPlan) throws IllegalStateException {
-        return server.distribute(targetList, moduleArchive, deploymentPlan);
+        try {
+            return server.distribute(targetList, moduleArchive, deploymentPlan);
+        } catch(RemoteException e) {
+            handleRemoteException(e);
+            throw new IllegalStateException("Connection to server lost");
+        }
     }
 
     public ProgressObject distribute(Target[] targetList, InputStream moduleArchive, InputStream deploymentPlan) throws IllegalStateException {
-        return server.distribute(targetList, moduleArchive, deploymentPlan);
+        try {
+            return server.distribute(targetList, moduleArchive, deploymentPlan);
+        } catch(RemoteException e) {
+            handleRemoteException(e);
+            throw new IllegalStateException("Connection to server lost");
+        }
     }
 
     public ProgressObject start(TargetModuleID[] moduleIDList) throws IllegalStateException {
-        return server.start(moduleIDList);
+        try {
+            return server.start(moduleIDList);
+        } catch(RemoteException e) {
+            handleRemoteException(e);
+            throw new IllegalStateException("Connection to server lost");
+        }
     }
 
     public ProgressObject stop(TargetModuleID[] moduleIDList) throws IllegalStateException {
-        return server.stop(moduleIDList);
+        try {
+            return server.stop(moduleIDList);
+        } catch(RemoteException e) {
+            handleRemoteException(e);
+            throw new IllegalStateException("Connection to server lost");
+        }
     }
 
     public ProgressObject undeploy(TargetModuleID[] moduleIDList) throws IllegalStateException {
-        return server.undeploy(moduleIDList);
+        try {
+            return server.undeploy(moduleIDList);
+        } catch(RemoteException e) {
+            handleRemoteException(e);
+            throw new IllegalStateException("Connection to server lost");
+        }
     }
 
     public boolean isRedeploySupported() {
-        return server.isRedeploySupported();
+        try {
+            return server.isRedeploySupported();
+        } catch(RemoteException e) {
+            handleRemoteException(e);
+            return false;
+        }
     }
 
     public ProgressObject redeploy(TargetModuleID[] moduleIDList, File moduleArchive, File deploymentPlan) throws UnsupportedOperationException, IllegalStateException {
-        return server.redeploy(moduleIDList, moduleArchive, deploymentPlan);
+        try {
+            return server.redeploy(moduleIDList, moduleArchive, deploymentPlan);
+        } catch(RemoteException e) {
+            handleRemoteException(e);
+            throw new IllegalStateException("Connection to server lost");
+        }
     }
 
     public ProgressObject redeploy(TargetModuleID[] moduleIDList, InputStream moduleArchive, InputStream deploymentPlan) throws UnsupportedOperationException, IllegalStateException {
-        return server.redeploy(moduleIDList, moduleArchive, deploymentPlan);
+        try {
+            return server.redeploy(moduleIDList, moduleArchive, deploymentPlan);
+        } catch(RemoteException e) {
+            handleRemoteException(e);
+            throw new IllegalStateException("Connection to server lost");
+        }
     }
 }

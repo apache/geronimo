@@ -57,6 +57,7 @@ package org.apache.geronimo.enterprise.deploy.provider;
 
 import java.io.File;
 import java.io.InputStream;
+import java.rmi.RemoteException;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.status.ProgressObject;
@@ -70,7 +71,7 @@ import javax.enterprise.deploy.shared.ModuleType;
  * information from the server (such as getting a list of EJBs deployed
  * to provide as options when resolving an EJB reference).
  *
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public interface ServerConnection {
     // ---------------------- Methods required by DeploymentManager ----------------------
@@ -83,62 +84,62 @@ public interface ServerConnection {
     /**
      * @see javax.enterprise.deploy.spi.DeploymentManager#getTargets
      */
-    public Target[] getTargets() throws IllegalStateException;
+    public Target[] getTargets() throws IllegalStateException, RemoteException;
 
     /**
      * @see javax.enterprise.deploy.spi.DeploymentManager#getRunningModules
      */
-    public TargetModuleID[] getRunningModules(ModuleType moduleType, Target[] targetList) throws TargetException, IllegalStateException;
+    public TargetModuleID[] getRunningModules(ModuleType moduleType, Target[] targetList) throws TargetException, IllegalStateException, RemoteException;
 
     /**
      * @see javax.enterprise.deploy.spi.DeploymentManager#getNonRunningModules
      */
-    public TargetModuleID[] getNonRunningModules(ModuleType moduleType, Target[] targetList) throws TargetException, IllegalStateException;
+    public TargetModuleID[] getNonRunningModules(ModuleType moduleType, Target[] targetList) throws TargetException, IllegalStateException, RemoteException;
 
     /**
      * @see javax.enterprise.deploy.spi.DeploymentManager#getAvailableModules
      */
-    public TargetModuleID[] getAvailableModules(ModuleType moduleType, Target[] targetList) throws TargetException, IllegalStateException;
+    public TargetModuleID[] getAvailableModules(ModuleType moduleType, Target[] targetList) throws TargetException, IllegalStateException, RemoteException;
 
     /**
      * @see javax.enterprise.deploy.spi.DeploymentManager#distribute(javax.enterprise.deploy.spi.Target[], java.io.File, java.io.File)
      */
-    public ProgressObject distribute(Target[] targetList, File moduleArchive, File deploymentPlan) throws IllegalStateException;
+    public ProgressObject distribute(Target[] targetList, File moduleArchive, File deploymentPlan) throws IllegalStateException, RemoteException;
 
     /**
      * @see javax.enterprise.deploy.spi.DeploymentManager#distribute(javax.enterprise.deploy.spi.Target[], java.io.InputStream, java.io.InputStream)
      */
-    public ProgressObject distribute(Target[] targetList, InputStream moduleArchive, InputStream deploymentPlan) throws IllegalStateException;
+    public ProgressObject distribute(Target[] targetList, InputStream moduleArchive, InputStream deploymentPlan) throws IllegalStateException, RemoteException;
 
     /**
      * @see javax.enterprise.deploy.spi.DeploymentManager#start
      */
-    public ProgressObject start(TargetModuleID[] moduleIDList) throws IllegalStateException;
+    public ProgressObject start(TargetModuleID[] moduleIDList) throws IllegalStateException, RemoteException;
 
     /**
      * @see javax.enterprise.deploy.spi.DeploymentManager#stop
      */
-    public ProgressObject stop(TargetModuleID[] moduleIDList) throws IllegalStateException;
+    public ProgressObject stop(TargetModuleID[] moduleIDList) throws IllegalStateException, RemoteException;
 
     /**
      * @see javax.enterprise.deploy.spi.DeploymentManager#undeploy
      */
-    public ProgressObject undeploy(TargetModuleID[] moduleIDList) throws IllegalStateException;
+    public ProgressObject undeploy(TargetModuleID[] moduleIDList) throws IllegalStateException, RemoteException;
 
     /**
      * @see javax.enterprise.deploy.spi.DeploymentManager#isRedeploySupported
      */
-    public boolean isRedeploySupported();
+    public boolean isRedeploySupported() throws RemoteException;
 
     /**
      * @see javax.enterprise.deploy.spi.DeploymentManager#redeploy(javax.enterprise.deploy.spi.TargetModuleID[], java.io.File, java.io.File)
      */
-    public ProgressObject redeploy(TargetModuleID[] moduleIDList, File moduleArchive, File deploymentPlan) throws UnsupportedOperationException, IllegalStateException;
+    public ProgressObject redeploy(TargetModuleID[] moduleIDList, File moduleArchive, File deploymentPlan) throws UnsupportedOperationException, IllegalStateException, RemoteException;
 
     /**
      * @see javax.enterprise.deploy.spi.DeploymentManager#redeploy(javax.enterprise.deploy.spi.TargetModuleID[], java.io.InputStream, java.io.InputStream)
      */
-    public ProgressObject redeploy(TargetModuleID[] moduleIDList, InputStream moduleArchive, InputStream deploymentPlan) throws UnsupportedOperationException, IllegalStateException;
+    public ProgressObject redeploy(TargetModuleID[] moduleIDList, InputStream moduleArchive, InputStream deploymentPlan) throws UnsupportedOperationException, IllegalStateException, RemoteException;
 
     // ---------------------- Methods required to populate Property Editors ----------------------
 
@@ -152,7 +153,7 @@ public interface ServerConnection {
      *         is not authorized to retrieve that information, or the
      *         information is not available.
      */
-    public String[] getSecurityRoleOptions(String securityRealm);
+    public String[] getSecurityRoleOptions(String securityRealm) throws RemoteException;
 
     /**
      * Gets a list of the JNDI names of global resources of a particular type
@@ -167,5 +168,5 @@ public interface ServerConnection {
      *         null of no such resources are available, the current user is
      *         not authorized to retrieve the list, etc.
      */
-    public String[] getResourceJndiNames(String resourceClassName);
+    public String[] getResourceJndiNames(String resourceClassName) throws RemoteException;
 }
