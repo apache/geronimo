@@ -31,7 +31,7 @@ import org.apache.geronimo.security.SecurityService;
 
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/05/30 18:32:42 $
+ * @version $Revision: 1.6 $ $Date: 2004/05/30 19:44:05 $
  */
 public class GeronimoLoginConfiguration extends Configuration implements GBean {
 
@@ -69,7 +69,11 @@ public class GeronimoLoginConfiguration extends Configuration implements GBean {
     }
 
     public void doStart() throws WaitingException, Exception {
-        oldConfiguration = Configuration.getConfiguration();
+        try {
+            oldConfiguration = Configuration.getConfiguration();
+        } catch (SecurityException e) {
+            oldConfiguration = null;
+        }
         Configuration.setConfiguration(this);
     }
 
