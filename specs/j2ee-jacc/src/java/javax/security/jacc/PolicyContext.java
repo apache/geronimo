@@ -24,15 +24,13 @@
 package javax.security.jacc;
 
 import java.security.SecurityPermission;
-import java.security.AccessControlContext;
-import java.security.AccessController;
 import java.util.Hashtable;
 import java.util.Set;
 
 
 /**
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:53 $
+ * @version $Revision: 1.5 $ $Date: 2004/05/30 18:34:35 $
  */
 public final class PolicyContext {
 
@@ -59,7 +57,7 @@ public final class PolicyContext {
         handlerData.set(data);
     }
 
-    public static void registerHandler(String key, PolicyContextHandler handler, boolean replace) throws PolicyContextException {
+    public static void registerHandler(String key, PolicyContextHandler handler, boolean replace) {
         if (key == null) throw new IllegalArgumentException("Key must not be null");
         if (handler == null) throw new IllegalArgumentException("Handler must not be null");
         if (!replace && handlers.containsKey(key)) throw new IllegalArgumentException("A handler has already been registered under '" + key + "' and replace is false.");
