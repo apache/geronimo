@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.66 $ $Date: 2004/02/17 07:26:46 $ -->
+<!-- $Revision: 1.67 $ $Date: 2004/02/18 22:15:34 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -8,7 +8,6 @@
     xmlns:ant="jelly:ant"
     xmlns:maven="jelly:maven"
     xmlns:define="jelly:define"
-    xmlns:aggregate="local:aggregate"
     xmlns:modules="local:modules">
 
     <j:set var="release.id" value="${pom.standardToLegacyId(pom.id)}-${pom.currentVersion}"/>
@@ -81,10 +80,10 @@
            |
            | Uses 4 properties to control which modules will be include:
            |
-           | modules.types      Comma seperated list of module types (ie. specs or modules)
-           | modules.includes   Comma seperated list of module names (ie. common, core, ...)
-           | modules            Same as modules.includes, modules.includes initializes to this value
-           | modules.excludes   Comma seperated list of module names to exclude
+           | module.types      Comma seperated list of module types (ie. specs or modules)
+           | module.includes   Comma seperated list of module names (ie. common, core, ...)
+           | modules           Same as module.includes, module.includes initializes to this value
+           | module.excludes   Comma seperated list of module names to exclude
            |
            | The end result is that modules.reactor.includes is set to the project.xml files
            | to include.  This is the value the reactor will use.
@@ -169,15 +168,7 @@
 
     <!-- Helper tags for modules -->
     <define:taglib uri="local:modules">
-
         <define:tag name="reactor">
-            <j:if test="${aggregate != null}">
-                <j:set var="modules.aggregate.skip" value="true"/>
-                <j:if test="${aggregate}">
-                    <j:set var="modules.aggregate.skip" value="false"/>
-                </j:if>
-            </j:if>
-
             <attainGoal name="modules:reactor:init"/>
 
             <j:choose>
@@ -204,13 +195,7 @@
 
             <!-- Set reactor projects in parent scope so goals have access to it -->
             <j:set var="reactorProjects" value="${reactorProjects}" scope="parent"/>
-
-            <!-- Optionaly perform module aggregation -->
-            <!--j:if test="${context.getVariable('modules.aggregate.skip') != 'true'}">
-                <attainGoal name="modules:aggregate"/>
-            </j:if-->
         </define:tag>
-
     </define:taglib>
 
     <goal name="modules:reactor">
@@ -226,27 +211,23 @@
     </goal>
 
     <goal name="modules:site">
-        <modules:reactor goals="site" aggregate="false"/>
+        <modules:reactor goals="site"/>
     </goal>
 
     <goal name="modules:javadoc">
-        <modules:reactor goals="javadoc" aggregate="false"/>
+        <modules:reactor goals="javadoc"/>
     </goal>
 
     <goal name="modules:clover">
-        <modules:reactor goals="clover.wrapper" aggregate="false"/>
+        <modules:reactor goals="clover.wrapper"/>
     </goal>
 
     <goal name="modules:clean">
-        <modules:reactor goals="clean" aggregate="false"/>
+        <modules:reactor goals="clean"/>
     </goal>
 
     <goal name="modules:clobber">
-        <modules:reactor goals="clobber" aggregate="false"/>
-    </goal>
-
-    <goal name="modules:jar:deploy">
-        <modules:reactor goals="jar:deploy"/>
+        <modules:reactor goals="clobber"/>
     </goal>
 
     <preGoal name="clean:clean">
@@ -261,17 +242,12 @@
         <attainGoal name="modules:clobber"/>
     </preGoal>
 
-    <goal name="jar:deploy">
-        <attainGoal name="modules:jar:deploy"/>
-    </goal>
-
     <goal name="default">
         <attainGoal name="modules:default"/>
     </goal>
 
     <goal name="plugins">
-        <j:set var="modules" value="maven-xmlbeans-plugin"/>
-        <attainGoal name="modules:default"/>
+        <ant:echo>This step is no longer necessary.   Simply use 'maven' to build the server.</ant:echo>
     </goal>
 
 
@@ -357,157 +333,4 @@
 
         </j:jelly>
     </goal>
-
-
-    <!-- ========================= -->
-    <!-- Module Output Aggregation -->
-    <!-- ========================= -->
-
-    <goal name="aggregate">
-        <attainGoal name="modules:reactor"/>
-        <!--attainGoal name="modules:aggregate"/-->
-    </goal>
-
-    <!-- Helper tags for module aggregation -->
-    <define:taglib uri="local:aggregate">
-
-        <define:tag name="copy">
-            <u:available file="${source}" xmlns="jelly:ant">
-                <mkdir dir="${target}"/>
-                <copy todir="${target}">
-                    <fileset dir="${source}">
-                        <include name="${include}"/>
-                    </fileset>
-                </copy>
-            </u:available>
-        </define:tag>
-
-        <define:tag name="scripts">
-            <aggregate:copy
-                source="${module.root}/src/bin"
-                target="${aggregate.dir}/bin"
-                include="**/*"/>
-        </define:tag>
-
-        <define:tag name="config">
-            <aggregate:copy
-                source="${module.root}/src/conf"
-                target="${aggregate.dir}/etc"
-                include="**/*"/>
-        </define:tag>
-
-        <define:tag name="deploy">
-            <aggregate:copy
-                source="${module.root}/src/deploy"
-                target="${aggregate.dir}/deploy"
-                include="**/*"/>
-        </define:tag>
-
-        <define:tag name="libraries">
-            <aggregate:copy
-                source="${module.root}/target"
-                target="${aggregate.dir}/lib"
-                include="*.jar"/>
-        </define:tag>
-
-        <define:tag name="default">
-            <j:if test="${scripts == null || scripts == 'true'}">
-                <aggregate:scripts/>
-            </j:if>
-
-            <j:if test="${config == null || config == 'true'}">
-                <aggregate:config/>
-            </j:if>
-
-            <j:if test="${deploy == null || deploy == 'true'}">
-                <aggregate:deploy/>
-            </j:if>
-
-            <j:if test="${libraries == null || libraries == 'true'}">
-                <aggregate:libraries/>
-            </j:if>
-        </define:tag>
-
-    </define:taglib>
-
-    <goal name="modules:aggregate"
-        description="Aggregates module target output.">
-
-        <ant:echo>Aggregating modules...</ant:echo>
-
-        <!-- Setup the target aggregation directory -->
-        <j:set var="aggregate.dir" value="${basedir}/target/${release.id}"/>
-        <ant:mkdir dir="${aggregate.dir}"/>
-
-        <j:forEach var="module" items="${reactorProjects}">
-            <ant:echo>Processing ${module.id}...</ant:echo>
-
-            <!-- Get the modules root directory -->
-            <j:set var="module.root" value="${module.file.parent}"/>
-
-            <!-- Invoke the aggregation hook -->
-            <j:set var="hook_name" value="modules:aggregate:${module.id}"/>
-            <!-- If there is no goal defined then use the default -->
-            <j:set var="werkzProject" value="${org.apache.commons.jelly.werkz.Project}"/>
-            <j:if test="${werkzProject.getGoal(hook_name) == null}">
-                <j:set var="hook_name" value="modules:aggregate:default"/>
-            </j:if>
-            <attainGoal name="${hook_name}"/>
-
-            <!-- Process dependencies -->
-            <j:forEach var="artifact" items="${module.artifacts}">
-                <j:set var="dependency" value="${artifact.dependency}"/>
-                <j:if test="${dependency.getProperty('runtime') == 'true'}">
-                    <ant:echo>Processing dependency: ${dependency.id}</ant:echo>
-
-                    <j:choose>
-                        <j:when test="${dependency.getProperty('destinations') == null}">
-                            <j:set var="destinations" value="lib"/>
-                        </j:when>
-                        <j:otherwise>
-                            <j:set var="destinations" value="${dependency.getProperty('destinations')}"/>
-                        </j:otherwise>
-                    </j:choose>
-
-                    <u:tokenize var="destinationSet" delim="," trim="true">${destinations}</u:tokenize>
-
-                    <j:forEach var="destination" items="${destinationSet}" trim="true">
-                        <j:set var="targetDir" value="${aggregate.dir}/${destination.trim()}"/>
-                        <ant:mkdir dir="${targetDir}"/>
-                        <ant:copy todir="${targetDir}" file="${artifact.path}"/>
-                    </j:forEach>
-                </j:if>
-            </j:forEach>
-        </j:forEach>
-
-        <!-- Cleanse some stuff -->
-        <u:available file="${aggregate.dir}/bin" xmlns="jelly:ant">
-            <!-- Fix permissions -->
-            <chmod perm="ugo+x">
-                <fileset dir="${aggregate.dir}/bin">
-                    <include name="*"/>
-                    <exclude name="*.bat"/>
-                    <exclude name="*.cmd"/>
-                </fileset>
-            </chmod>
-            <chmod perm="ugo-x">
-                <fileset dir="${aggregate.dir}/bin">
-                    <include name="*.bat"/>
-                    <include name="*.cmd"/>
-                </fileset>
-            </chmod>
-
-            <!-- Fix CRLF -->
-            <fixcrlf srcdir="${aggregate.dir}/bin" eol="lf" eof="remove">
-                <include name="*"/>
-                <exclude name="*.bat"/>
-                <exclude name="*.cmd"/>
-            </fixcrlf>
-            <fixcrlf srcdir="${aggregate.dir}/bin" eol="crlf">
-                <include name="*.bat"/>
-                <include name="*.cmd"/>
-            </fixcrlf>
-        </u:available>
-    </goal>
-
 </project>
