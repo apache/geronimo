@@ -36,10 +36,12 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.Reference;
 
+import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 import org.apache.geronimo.connector.ActivationSpecWrapper;
 import org.apache.geronimo.connector.AdminObjectWrapper;
 import org.apache.geronimo.connector.ResourceAdapterModuleImpl;
+import org.apache.geronimo.connector.ResourceAdapterWrapper;
 import org.apache.geronimo.connector.outbound.JCAConnectionFactoryImpl;
 import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.LocalTransactions;
@@ -52,7 +54,6 @@ import org.apache.geronimo.connector.outbound.connectionmanagerconfig.Transactio
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionSupport;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.XATransactions;
 import org.apache.geronimo.connector.outbound.security.PasswordCredentialRealm;
-import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.GBeanHelper;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.DynamicGAttributeInfo;
@@ -81,6 +82,7 @@ import org.apache.geronimo.xbeans.geronimo.GerConnectiondefinitionInstanceType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectionmanagerType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorType;
+import org.apache.geronimo.xbeans.geronimo.GerCredentialInterfaceType;
 import org.apache.geronimo.xbeans.geronimo.GerDependencyType;
 import org.apache.geronimo.xbeans.geronimo.GerGbeanType;
 import org.apache.geronimo.xbeans.geronimo.GerPartitionedpoolType;
@@ -92,7 +94,6 @@ import org.apache.geronimo.xbeans.j2ee.ConfigPropertyType;
 import org.apache.geronimo.xbeans.j2ee.ConnectionDefinitionType;
 import org.apache.geronimo.xbeans.j2ee.ConnectorDocument;
 import org.apache.geronimo.xbeans.j2ee.ConnectorType;
-import org.apache.geronimo.xbeans.j2ee.FullyQualifiedClassType;
 import org.apache.geronimo.xbeans.j2ee.MessagelistenerType;
 import org.apache.geronimo.xbeans.j2ee.ResourceadapterType;
 import org.apache.xmlbeans.XmlException;
@@ -271,7 +272,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         ResourceadapterType resourceadapter = ((ConnectorType) specDD).getResourceadapter();
         // Create the resource adapter gbean
         if (resourceadapter.isSetResourceadapterClass()) {
-            GBeanInfoBuilder resourceAdapterInfoBuilder = new GBeanInfoBuilder("org.apache.geronimo.connector.ResourceAdapterWrapper", cl);
+            GBeanInfoBuilder resourceAdapterInfoBuilder = new GBeanInfoBuilder(ResourceAdapterWrapper.class, ResourceAdapterWrapper.GBEAN_INFO);
             GBeanData resourceAdapterGBeanData = setUpDynamicGBean(resourceAdapterInfoBuilder, resourceadapter.getConfigPropertyArray(), cl);
 
             resourceAdapterGBeanData.setAttribute("resourceAdapterClass", resourceadapter.getResourceadapterClass().getStringValue().trim());
@@ -417,7 +418,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                     GerConnectionDefinitionType geronimoConnectionDefinition = geronimoResourceAdapter.getOutboundResourceadapter().getConnectionDefinitionArray(i);
                     assert geronimoConnectionDefinition != null: "Null GeronimoConnectionDefinition";
 
-                    String connectionFactoryInterfaceName = geronimoConnectionDefinition.getConnectionfactoryInterface().getStringValue().trim();
+                    String connectionFactoryInterfaceName = geronimoConnectionDefinition.getConnectionfactoryInterface().trim();
                     GBeanData connectionFactoryGBeanData = earContext.getRefContext().getConnectionFactoryInfo(resourceAdapterModuleObjectName, connectionFactoryInterfaceName);
 
                     if (connectionFactoryGBeanData == null) {
@@ -438,7 +439,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         for (int i = 0; i < geronimoConnector.getAdminobjectArray().length; i++) {
             GerAdminobjectType gerAdminObject = geronimoConnector.getAdminobjectArray()[i];
 
-            String adminObjectInterface = gerAdminObject.getAdminobjectInterface().getStringValue();
+            String adminObjectInterface = gerAdminObject.getAdminobjectInterface().trim();
             GBeanData adminObjectGBeanData = earContext.getRefContext().getAdminObjectInfo(resourceAdapterModuleObjectName, adminObjectInterface);
 
             if (adminObjectGBeanData == null) {
@@ -468,8 +469,8 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             MessagelistenerType messagelistenerType = messagelistenerArray[i];
             String messageListenerInterface = messagelistenerType.getMessagelistenerType().getStringValue().trim();
             ActivationspecType activationspec = messagelistenerType.getActivationspec();
-            String activationSpecClassName = activationspec.getActivationspecClass().getStringValue();
-            GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(ActivationSpecWrapper.class.getName(), cl);
+            String activationSpecClassName = activationspec.getActivationspecClass().getStringValue().trim();
+            GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(ActivationSpecWrapper.class, ActivationSpecWrapper.GBEAN_INFO);
 
             //add all javabean properties that have both getter and setter.  Ignore the "required" flag from the dd.
             Map getters = new HashMap();
@@ -518,8 +519,8 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         for (int i = 0; i < connectionDefinitionArray.length; i++) {
             ConnectionDefinitionType connectionDefinition = connectionDefinitionArray[i];
 
-            GBeanInfoBuilder adminObjectInfoFactory = new GBeanInfoBuilder(ManagedConnectionFactoryWrapper.class.getName(), cl);
-            GBeanData managedConnectionFactoryGBeanData = setUpDynamicGBean(adminObjectInfoFactory, connectionDefinition.getConfigPropertyArray(), cl);
+            GBeanInfoBuilder managedConnectionFactoryInfoBuilder = new GBeanInfoBuilder(ManagedConnectionFactoryWrapper.class, ManagedConnectionFactoryWrapper.GBEAN_INFO);
+            GBeanData managedConnectionFactoryGBeanData = setUpDynamicGBean(managedConnectionFactoryInfoBuilder, connectionDefinition.getConfigPropertyArray(), cl);
 
             // set the standard properties
             String connectionfactoryInterface = connectionDefinition.getConnectionfactoryInterface().getStringValue().trim();
@@ -538,8 +539,8 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         for (int i = 0; i < adminobjectArray.length; i++) {
             AdminobjectType adminObject = adminobjectArray[i];
 
-            GBeanInfoBuilder adminObjectInfoFactory = new GBeanInfoBuilder(AdminObjectWrapper.class.getName(), cl);
-            GBeanData adminObjectGBeanData = setUpDynamicGBean(adminObjectInfoFactory, adminObject.getConfigPropertyArray(), cl);
+            GBeanInfoBuilder adminObjectInfoBuilder = new GBeanInfoBuilder(AdminObjectWrapper.class, AdminObjectWrapper.GBEAN_INFO);
+            GBeanData adminObjectGBeanData = setUpDynamicGBean(adminObjectInfoBuilder, adminObject.getConfigPropertyArray(), cl);
 
             // set the standard properties
             String adminObjectInterface = adminObject.getAdminobjectInterface().getStringValue().trim();
@@ -720,7 +721,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                 managedConnectionFactoryInstanceGBeanData.setReferencePattern("ResourceAdapterWrapper", resourceAdapterObjectName);
             }
             managedConnectionFactoryInstanceGBeanData.setReferencePattern("ConnectionManagerFactory", connectionManagerObjectName);
-            if (connectiondefinitionInstance.getCredentialInterface() != null && "javax.resource.spi.security.PasswordCredential".equals(connectiondefinitionInstance.getCredentialInterface().getStringValue())) {
+            if (connectiondefinitionInstance.getCredentialInterface() != null && GerCredentialInterfaceType.Enum.forString("javax.resource.spi.security.PasswordCredential").equals(connectiondefinitionInstance.getCredentialInterface())) {
                 ObjectName realmObjectName = ObjectName.getInstance(BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME + connectiondefinitionInstance.getName());
                 GBeanData realmGBean = new GBeanData(realmObjectName, PasswordCredentialRealm.getGBeanInfo());
                 realmGBean.setAttribute("realmName", BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME + connectiondefinitionInstance.getName());
@@ -728,11 +729,13 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                 managedConnectionFactoryInstanceGBeanData.setReferencePattern("ManagedConnectionFactoryListener", realmObjectName);
             }
             //additional interfaces implemented by connection factory
-            FullyQualifiedClassType[] implementedInterfaceElements = connectiondefinitionInstance.getImplementedInterfaceArray();
-            String[] implementedInterfaces = new String[implementedInterfaceElements == null ? 0 : implementedInterfaceElements.length];
-            for (int i = 0; i < implementedInterfaceElements.length; i++) {
-                FullyQualifiedClassType additionalInterfaceType = implementedInterfaceElements[i];
-                implementedInterfaces[i] = additionalInterfaceType.getStringValue().trim();
+            String[] implementedInterfaces = connectiondefinitionInstance.getImplementedInterfaceArray();
+            if (implementedInterfaces != null) {
+                for (int i = 0; i < implementedInterfaces.length; i++) {
+                    implementedInterfaces[i] = implementedInterfaces[i].trim();
+                }
+            } else {
+                implementedInterfaces = new String[0];
             }
             managedConnectionFactoryInstanceGBeanData.setAttribute("implementedInterfaces", implementedInterfaces);
 

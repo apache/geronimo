@@ -19,13 +19,11 @@ package org.apache.geronimo.connector.deployment.dconfigbean;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.spi.DConfigBean;
 import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
 
 import org.apache.geronimo.deployment.plugin.DConfigBeanSupport;
-import org.apache.geronimo.xbeans.geronimo.GerAdminobjectType;
 import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectionDefinitionType;
 import org.apache.geronimo.xbeans.geronimo.GerOutboundResourceadapterType;
@@ -98,7 +96,7 @@ public class ResourceAdapterDConfigBean extends DConfigBeanSupport {
                 DDBean connectionDefinitionDdBean = connectionDefinitionDDBeans[i];
                 GerConnectionDefinitionType connectionDefinition = connectionDefinitions[i];
                 String connectionfactoryInterface = connectionDefinitionDdBean.getText("connectionfactory-interface")[0];
-                assert connectionfactoryInterface.equals(connectionDefinition.getConnectionfactoryInterface().getStringValue());
+                assert connectionfactoryInterface.equals(connectionDefinition.getConnectionfactoryInterface());
                 ConnectionDefinitionDConfigBean connectionDefinitionDConfigBean = new ConnectionDefinitionDConfigBean(connectionDefinitionDdBean, connectionDefinition);
                 connectionDefinitionsMap.put(connectionfactoryInterface, connectionDefinitionDConfigBean);
             }

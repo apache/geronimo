@@ -37,15 +37,15 @@ public class AdminObjectDConfigBean extends DConfigBeanSupport {
         super(ddBean, adminObject);
         String adminObjectInterface = ddBean.getText("adminobject-interface")[0];
         if (adminObject.getAdminobjectInterface() == null) {
-            adminObject.addNewAdminobjectInterface().setStringValue(adminObjectInterface);
+            adminObject.setAdminobjectInterface(adminObjectInterface);
         } else {
-            assert adminObjectInterface.equals(adminObject.getAdminobjectInterface().getStringValue());
+            assert adminObjectInterface.equals(adminObject.getAdminobjectInterface());
         }
         String adminObjectClass = ddBean.getText("adminobject-class")[0];
         if (adminObject.getAdminobjectClass() == null) {
-            adminObject.addNewAdminobjectClass().setStringValue(adminObjectClass);
+            adminObject.setAdminobjectClass(adminObjectClass);
         } else {
-            assert adminObjectClass.equals(adminObject.getAdminobjectClass().getStringValue());
+            assert adminObjectClass.equals(adminObject.getAdminobjectClass());
         }
         // Get initial list of instances
         GerAdminobjectInstanceType[] xmlInstances = getAdminObject().getAdminobjectInstanceArray();

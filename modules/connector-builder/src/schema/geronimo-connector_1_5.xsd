@@ -25,7 +25,6 @@
     attributeFormDefault="unqualified"
     version="1.5">
 
-    <xsd:import namespace="http://java.sun.com/xml/ns/j2ee" schemaLocation="j2ee_1_4.xsd"/>
     <xsd:include schemaLocation="../../../service-builder/src/schema/geronimo-common.xsd"/>
 
     <xsd:annotation>
@@ -55,39 +54,39 @@
         </xsd:annotation>
 
         <xsd:unique name="resourceadapter-instance-name-uniqueness">
-          <xsd:annotation>
-            <xsd:documentation>
+            <xsd:annotation>
+                <xsd:documentation>
 
               The resourceadapter-instance element must have a unique name.
 
-            </xsd:documentation>
-          </xsd:annotation>
-          <xsd:selector xpath="ger:resourceadapter/ger:resourceadapter-instance"/>
-          <xsd:field    xpath="ger:resourceadapter-name"/>
+                </xsd:documentation>
+            </xsd:annotation>
+            <xsd:selector xpath="ger:resourceadapter/ger:resourceadapter-instance"/>
+            <xsd:field xpath="ger:resourceadapter-name"/>
         </xsd:unique>
 
         <xsd:unique name="connectiondefinition-instance-name-uniqueness">
-          <xsd:annotation>
-            <xsd:documentation>
+            <xsd:annotation>
+                <xsd:documentation>
 
               The connectiondefinition-instance element must have a unique name.
 
-            </xsd:documentation>
-          </xsd:annotation>
-          <xsd:selector xpath="ger:resourceadapter/ger:outbound-resourceadapter/ger:connection-definition/ger:connectiondefinition-instance"/>
-          <xsd:field    xpath="ger:name"/>
+                </xsd:documentation>
+            </xsd:annotation>
+            <xsd:selector xpath="ger:resourceadapter/ger:outbound-resourceadapter/ger:connection-definition/ger:connectiondefinition-instance"/>
+            <xsd:field xpath="ger:name"/>
         </xsd:unique>
 
         <xsd:unique name="admin-object-instance-name-uniqueness">
-          <xsd:annotation>
-            <xsd:documentation>
+            <xsd:annotation>
+                <xsd:documentation>
 
               The admin-object-instance element must have a unique name.
 
-            </xsd:documentation>
-          </xsd:annotation>
-          <xsd:selector xpath="ger:adminobject/ger:adminobject-instance"/>
-          <xsd:field    xpath="ger:message-destination-name"/>
+                </xsd:documentation>
+            </xsd:annotation>
+            <xsd:selector xpath="ger:adminobject/ger:adminobject-instance"/>
+            <xsd:field xpath="ger:message-destination-name"/>
         </xsd:unique>
 
     </xsd:element>
@@ -104,7 +103,7 @@
 
         <xsd:sequence>
             <xsd:element name="adminobject-interface"
-                type="j2ee:fully-qualified-classType">
+                type="ger:fully-qualified-classType">
                 <xsd:annotation>
                     <xsd:documentation>
                         believe it or not, there are no uniqueness constraints on admin object intf or class
@@ -113,7 +112,7 @@
 
             </xsd:element>
             <xsd:element name="adminobject-class"
-                type="j2ee:fully-qualified-classType">
+                type="ger:fully-qualified-classType">
                 <xsd:annotation>
                     <xsd:documentation>reference back into the standard dd</xsd:documentation>
                 </xsd:annotation>
@@ -141,62 +140,6 @@
         </xsd:sequence>
     </xsd:complexType>
 
-    <!-- **************************************************** -->
-
-    <xsd:complexType name="authentication-mechanismType">
-        <xsd:annotation>
-            <xsd:documentation>
-
-                The authentication-mechanismType specifies an authentication
-                mechanism supported by the resource adapter. Note that this
-                support is for the resource adapter and not for the
-                underlying EIS instance. The optional description specifies
-                any resource adapter specific requirement for the support of
-                security contract and authentication mechanism.
-
-                Note that BasicPassword mechanism type should support the
-                javax.resource.spi.security.PasswordCredential interface.
-                The Kerbv5 mechanism type should support the
-                org.ietf.jgss.GSSCredential interface or the deprecated
-                javax.resource.spi.security.GenericCredential interface.
-
-            </xsd:documentation>
-        </xsd:annotation>
-
-        <xsd:sequence>
-            <xsd:element name="description"
-                type="j2ee:descriptionType"
-                minOccurs="0"
-                maxOccurs="unbounded"/>
-            <xsd:element name="authentication-mechanism-type"
-                type="xsd:string">
-                <xsd:annotation>
-                    <xsd:documentation>
-                        <![CDATA[
-
-                        The element authentication-mechanism-type specifies
-                        type of an authentication mechanism.
-
-                        The example values are:
-
-                        <authentication-mechanism-type>BasicPassword
-                        </authentication-mechanism-type>
-
-                        <authentication-mechanism-type>Kerbv5
-                        </authentication-mechanism-type>
-
-                        Any additional security mechanisms are outside the
-                        scope of the Connector architecture specification.
-
-                        ]]>
-                    </xsd:documentation>
-                </xsd:annotation>
-
-            </xsd:element>
-            <xsd:element name="credential-interface"
-                type="ger:credential-interfaceType"/>
-        </xsd:sequence>
-    </xsd:complexType>
 
     <!-- **************************************************** -->
 
@@ -235,7 +178,7 @@
 
         <xsd:sequence>
             <xsd:element name="connectionfactory-interface"
-                type="j2ee:fully-qualified-classType">
+                type="ger:fully-qualified-classType">
                 <xsd:annotation>
                     <xsd:documentation>
                         connectionfactory-interface is unique in ra.xml so is used to index into ra.xml
@@ -255,7 +198,7 @@
                 type="xsd:string"/>
 
             <xsd:element name="implemented-interface"
-                type="j2ee:fully-qualified-classType"
+                type="ger:fully-qualified-classType"
                 minOccurs="0"
                 maxOccurs="unbounded">
                 <xsd:annotation>
@@ -361,7 +304,7 @@
             <xsd:element name="resourceadapter" type="ger:resourceadapterType" maxOccurs="unbounded"/>
 
             <xsd:element name="adminobject" type="ger:adminobjectType" minOccurs="0" maxOccurs="unbounded"/>
-            
+
             <xsd:element name="gbean" type="ger:gbeanType" minOccurs="0" maxOccurs="unbounded"/>
         </xsd:sequence>
 
@@ -379,7 +322,7 @@
     </xsd:simpleType>
     <!-- **************************************************** -->
 
-    <xsd:complexType name="credential-interfaceType">
+    <xsd:simpleType name="credential-interfaceType">
         <xsd:annotation>
             <xsd:documentation>
 
@@ -400,17 +343,15 @@
 
             </xsd:documentation>
         </xsd:annotation>
-        <xsd:simpleContent>
-            <xsd:restriction base="j2ee:fully-qualified-classType">
-                <xsd:enumeration
-                    value="javax.resource.spi.security.PasswordCredential"/>
-                <xsd:enumeration
-                    value="org.ietf.jgss.GSSCredential"/>
-                <xsd:enumeration
-                    value="javax.resource.spi.security.GenericCredential"/>
-            </xsd:restriction>
-        </xsd:simpleContent>
-    </xsd:complexType>
+        <xsd:restriction base="ger:fully-qualified-classType">
+            <xsd:enumeration
+                value="javax.resource.spi.security.PasswordCredential"/>
+            <xsd:enumeration
+                value="org.ietf.jgss.GSSCredential"/>
+            <xsd:enumeration
+                value="javax.resource.spi.security.GenericCredential"/>
+        </xsd:restriction>
+    </xsd:simpleType>
 
     <!-- **************************************************** -->
 
@@ -451,7 +392,7 @@
             <xsd:element name="resourceadapter-instance"
                 type="ger:resourceadapter-instanceType"
                 minOccurs="0">
-                </xsd:element>
+            </xsd:element>
             <xsd:element name="outbound-resourceadapter"
                 type="ger:outbound-resourceadapterType"
                 minOccurs="0">
@@ -478,32 +419,21 @@
     </xsd:complexType>
 
 
-    <!-- **************************************************** -->
 
-    <xsd:complexType name="transaction-supportType">
-        <xsd:annotation>
-            <xsd:documentation>
+    <!-- types borrowed from the j2ee schema.  We might want to centralize  these -->
 
-                The transaction-supportType specifies the level of
-                transaction support provided by the resource adapter. It is
-                used by transaction-support elements.
+    <xsd:simpleType name="fully-qualified-classType">
+        <xsd:restriction base="xsd:string"/>
+    </xsd:simpleType>
 
-                The value must be one of the following:
-
-                NoTransaction
-                LocalTransaction
-                XATransaction
-
-            </xsd:documentation>
-        </xsd:annotation>
+    <xsd:complexType name="descriptionType">
         <xsd:simpleContent>
-            <xsd:restriction base="j2ee:string">
-                <xsd:enumeration value="NoTransaction"/>
-                <xsd:enumeration value="LocalTransaction"/>
-                <xsd:enumeration value="XATransaction"/>
-            </xsd:restriction>
+            <xsd:extension base="xsd:string">
+                <xsd:attribute ref="xml:lang"/>
+            </xsd:extension>
         </xsd:simpleContent>
     </xsd:complexType>
+
 
 </xsd:schema>
 

@@ -39,7 +39,6 @@ import junit.framework.TestCase;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
@@ -173,28 +172,29 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
         DataSource ds = null;
         Kernel kernel = null;
         try {
-            GBeanMBean config = loadConfig(unpackedDir, cl);
+            GBeanData config = loadConfig(unpackedDir);
+            ObjectName objectName = ObjectName.getInstance("test:configuration=test-ejb-jar");
+            config.setName(objectName);
 
             kernel = new Kernel("blah");
             kernel.boot();
 
-            GBeanMBean serverInfoGBean = new GBeanMBean(ServerInfo.GBEAN_INFO);
-            serverInfoGBean.setAttribute("baseDirectory", ".");
             ObjectName serverInfoObjectName = ObjectName.getInstance(j2eeContext.getJ2eeDomainName() + ":type=ServerInfo");
-            kernel.loadGBean(serverInfoObjectName, serverInfoGBean);
+            GBeanData serverInfoGBean = new GBeanData(serverInfoObjectName, ServerInfo.GBEAN_INFO);
+            serverInfoGBean.setAttribute("baseDirectory", ".");
+            kernel.loadGBean(serverInfoGBean, cl);
             kernel.startGBean(serverInfoObjectName);
             assertRunning(kernel, serverInfoObjectName);
 
-            GBeanMBean j2eeServerGBean = new GBeanMBean(J2EEServerImpl.GBEAN_INFO);
-            j2eeServerGBean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfoObjectName));
             ObjectName j2eeServerObjectName = NameFactory.getServerName(null, null, j2eeContext);
-            kernel.loadGBean(j2eeServerObjectName, j2eeServerGBean);
+            GBeanData j2eeServerGBean = new GBeanData(j2eeServerObjectName, J2EEServerImpl.GBEAN_INFO);
+            j2eeServerGBean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfoObjectName));
+            kernel.loadGBean(j2eeServerGBean, cl);
             kernel.startGBean(j2eeServerObjectName);
             assertRunning(kernel, j2eeServerObjectName);
 
             // load the configuration
-            ObjectName objectName = ObjectName.getInstance("test:configuration=test-ejb-jar");
-            kernel.loadGBean(objectName, config);
+            kernel.loadGBean(config, cl);
             config.setAttribute("baseURL", unpackedDir.toURL());
 
             //start configuration to load but not start gbeans.
@@ -329,13 +329,13 @@ public class RAR_1_5ConfigBuilderTest extends TestCase {
         assertEquals(State.RUNNING_INDEX, state);
     }
 
-    private GBeanMBean loadConfig(File unpackedCar, ClassLoader classLoader) throws Exception {
+    private GBeanData loadConfig(File unpackedCar) throws Exception {
         InputStream in = new FileInputStream(new File(unpackedCar, "META-INF/config.ser"));
         try {
             ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(in));
             GBeanData config = new GBeanData();
             config.readExternal(ois);
-            return new GBeanMBean(config, classLoader);
+            return config;
         } finally {
             in.close();
         }

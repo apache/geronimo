@@ -39,9 +39,9 @@ public class ConnectionDefinitionDConfigBean extends DConfigBeanSupport {
         super(ddBean, connectionDefinition);
         String connectionfactoryInterface = ddBean.getText("connectionfactory-interface")[0];
         if (connectionDefinition.getConnectionfactoryInterface() == null) {
-            connectionDefinition.addNewConnectionfactoryInterface().setStringValue(connectionfactoryInterface);
+            connectionDefinition.setConnectionfactoryInterface(connectionfactoryInterface);
         } else {
-            assert connectionfactoryInterface.equals(connectionDefinition.getConnectionfactoryInterface().getStringValue());
+            assert connectionfactoryInterface.equals(connectionDefinition.getConnectionfactoryInterface());
         }
         // Get initial list of instances
         instances = new ConnectionDefinitionInstance[getConnectionDefinition().getConnectiondefinitionInstanceArray().length];

@@ -47,7 +47,6 @@ import org.apache.geronimo.transaction.manager.ResourceManager;
  */
 public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicGBean, ResourceManager {
 
-    private static final GBeanInfo GBEAN_INFO;
     private static final Log log = LogFactory.getLog(ManagedConnectionFactoryWrapper.class);
 
     private final String managedConnectionFactoryClass;
@@ -289,6 +288,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         ((ConnectionManagerFactory.ReturnableXAResource) xaResource).returnConnection();
     }
 
+    public static final GBeanInfo GBEAN_INFO;
 
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ManagedConnectionFactoryWrapper.class);
