@@ -78,6 +78,7 @@ import javax.management.Notification;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 import javax.transaction.UserTransaction;
+import javax.transaction.TransactionManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -110,6 +111,7 @@ import org.apache.geronimo.web.deploy.RemoveWebApplication;
 import org.apache.geronimo.xml.deployment.GeronimoWebAppLoader;
 import org.apache.geronimo.xml.deployment.LoaderUtil;
 import org.apache.geronimo.xml.deployment.WebAppLoader;
+import org.apache.geronimo.transaction.manager.UserTransactionImpl;
 
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -130,7 +132,7 @@ import org.xml.sax.SAXException;
  * 2. the url is a directory which contains a WEB-INF/web.xml file
  *
  * @jmx:mbean extends="org.apache.geronimo.web.WebContainer, org.apache.geronimo.kernel.management.StateManageable, javax.management.MBeanRegistration"
- * @version $Revision: 1.20 $ $Date: 2003/11/20 09:10:17 $
+ * @version $Revision: 1.21 $ $Date: 2003/11/23 22:39:21 $
  */
 public abstract class AbstractWebContainer
         extends AbstractManagedContainer
@@ -151,7 +153,16 @@ public abstract class AbstractWebContainer
     //this should move down to AbstractContainer
     private Map webAppMap = new HashMap();
 
+    private TransactionManager transactionManager;
 
+    /**
+     * @param transactionManager
+     * @jmx.managed-operation
+     * @todo make GeronimoMBean support managed attributes
+     */
+    public void bindTransactionManager(TransactionManager transactionManager) {
+        this.transactionManager = transactionManager;
+    }
 
     /**
      * Constructor
@@ -216,7 +227,7 @@ public abstract class AbstractWebContainer
         DeploymentHelper deploymentHelper = new DeploymentHelper(url, goal.getType(), "WebApplication", "web.xml", "geronimo-web.xml", "WEB-INF");
         URL geronimoDDURL = deploymentHelper.locateGeronimoDD();
         URL webDDURL = deploymentHelper.locateJ2eeDD();
-        
+
         // Is the specific URL deployable?
         if (null == geronimoDDURL) {
 //            log.info("Looking at and rejecting url " + url);
@@ -280,7 +291,7 @@ public abstract class AbstractWebContainer
             throw new DeploymentException(e);
         }
 
-       
+
         // Create a deployment plan for the webapp
         DeploymentPlan webappPlan = new DeploymentPlan();
         webappPlan.addTask(new RegisterMBeanInstance(server, webappName, webapp));
@@ -299,7 +310,7 @@ public abstract class AbstractWebContainer
         webapp.setWebDDObj (webAppDoc);
         // Set up the geronimo-web.xml POJO
         webapp.setGeronimoDDObj (geronimoWebAppDoc);
-        
+
         // Set up the ContextPath, which can come from:
         //  application.xml
         //  geronimo-web.xml
@@ -317,7 +328,7 @@ public abstract class AbstractWebContainer
 
         // Set up the ENC etc
         if(geronimoWebAppDoc != null) {
-            webapp.setComponentContext(this.getComponentContext(geronimoWebAppDoc, null));
+            webapp.setComponentContext(this.getComponentContext(geronimoWebAppDoc, new UserTransactionImpl(transactionManager)));
         }
 
         // Add a task to start the webapp which will finish configuring it

@@ -59,6 +59,7 @@ package org.apache.geronimo.web;
 import java.util.Set;
 
 import javax.management.ObjectName;
+import javax.transaction.TransactionManager;
 
 import org.apache.geronimo.kernel.deployment.AbstractDeploymentPlanner;
 import org.apache.geronimo.kernel.deployment.DeploymentException;
@@ -71,7 +72,7 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanEndpoint;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/14 16:27:34 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/23 22:39:21 $
  *
  * */
 public class WebDeploymentPlanner extends AbstractDeploymentPlanner {
@@ -80,17 +81,31 @@ public class WebDeploymentPlanner extends AbstractDeploymentPlanner {
      */
     private AbstractWebContainer webContainer;
 
+    private TransactionManager transactionManager;
+
     public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
         GeronimoMBeanInfo mbeanInfo = AbstractDeploymentPlanner.getGeronimoMBeanInfo(WebDeploymentPlanner.class.getName());
         mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("WebContainer",
                 AbstractWebContainer.class.getName(),
                 ObjectName.getInstance("jetty:role=WebContainer"), //hard coded for now...
                 true));
+        mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("TransactionManager",
+                TransactionManager.class.getName(),
+                ObjectName.getInstance("geronimo.transaction:role=TransactionManager"), //hard coded for now...
+                true));
         return mbeanInfo;
     }
 
     public void setWebContainer(AbstractWebContainer webContainer) {
         this.webContainer = webContainer;
+        webContainer.bindTransactionManager(transactionManager);
+    }
+
+    public void setTransactionManager(TransactionManager transactionManager) {
+        this.transactionManager = transactionManager;
+        if (webContainer!= null) {
+            webContainer.bindTransactionManager(transactionManager);
+        }
     }
 
     protected boolean addURL(DeployURL deployURL, Set goals, Set plans) throws DeploymentException {
