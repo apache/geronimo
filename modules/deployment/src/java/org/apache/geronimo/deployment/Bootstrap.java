@@ -128,10 +128,10 @@ public class Bootstrap {
             Manifest manifest = new Manifest();
             Attributes mainAttributes = manifest.getMainAttributes();
             mainAttributes.putValue(Attributes.Name.MANIFEST_VERSION.toString(), "1.0");
-            mainAttributes.putValue(Attributes.Name.MAIN_CLASS.toString(), "org.apache.geronimo.system.main.CommandLine");
+            mainAttributes.putValue(Attributes.Name.MAIN_CLASS.toString(), "org.apache.geronimo.deployment.cli.DeployTool");
             mainAttributes.putValue(Attributes.Name.CLASS_PATH.toString(), deployerClassPath);
-            mainAttributes.putValue(CommandLineManifest.MAIN_GBEAN.toString(), deployerGBean);
-            mainAttributes.putValue(CommandLineManifest.MAIN_METHOD.toString(), "deploy");
+//            mainAttributes.putValue(CommandLineManifest.MAIN_GBEAN.toString(), deployerGBean);
+//            mainAttributes.putValue(CommandLineManifest.MAIN_METHOD.toString(), "deploy");
             mainAttributes.putValue(CommandLineManifest.CONFIGURATIONS.toString(), j2eeDeployerConfig.getConfigId());
 
             // attribute that indicates to a JSR-88 tool that we have a Deployment factory

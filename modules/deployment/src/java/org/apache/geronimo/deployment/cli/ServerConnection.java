@@ -34,6 +34,7 @@ import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl;
 import org.apache.geronimo.deployment.plugin.factories.AuthenticationFailedException;
 import org.apache.geronimo.system.main.CommandLine;
+import org.apache.geronimo.system.main.CommandLineManifest;
 
 /**
  * Supports two types of connections to the server.  One, via JSR-88, is valid
@@ -216,10 +217,8 @@ public class ServerConnection {
         }
 
         public void start() throws DeploymentException {
-            //todo: load configuration list dynamically once the bootstrapper builds this deploy tool
-            List configurations = new ArrayList();
+            List configurations = CommandLineManifest.getManifestEntries().getConfigurations();
             try {
-                configurations.add(new URI("org/apache/geronimo/J2EEDeployer"));
                 super.startKernel(configurations);
             } catch(Exception e) {
                 throw new DeploymentException("Unable to start local kernel", e);

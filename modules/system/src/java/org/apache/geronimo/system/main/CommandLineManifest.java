@@ -62,28 +62,20 @@ public class CommandLineManifest {
 
         // get the main gbean class
         String mainGBeanString = mainAttributes.getValue(MAIN_GBEAN);
-        if (mainGBeanString == null) {
-            System.err.println("Manifest does not contain a Main-GBean entry");
-            System.exit(1);
-            throw new AssertionError();
-        }
 
-        ObjectName mainGBean;
-        try {
-            mainGBean = new ObjectName(mainGBeanString);
-        } catch (MalformedObjectNameException e) {
-            System.err.println("Invalid Main-GBean name: " + mainGBeanString);
-            System.exit(1);
-            throw new AssertionError();
+        ObjectName mainGBean = null;
+        if(mainGBeanString != null) {
+            try {
+                mainGBean = new ObjectName(mainGBeanString);
+            } catch (MalformedObjectNameException e) {
+                System.err.println("Invalid Main-GBean name: " + mainGBeanString);
+                System.exit(1);
+                throw new AssertionError();
+            }
         }
 
         // get the main method
         String mainMethod = mainAttributes.getValue(MAIN_METHOD);
-        if (mainGBeanString == null) {
-            System.err.println("Manifest does not contain a Main-Method entry");
-            System.exit(1);
-            throw new AssertionError();
-        }
 
         // get the list of extra configurations to load
         List configurations = new ArrayList();

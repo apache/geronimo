@@ -210,25 +210,25 @@
             deploymentFactory="org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl"
             />
 
-        <!-- build the new deployer JAR -->
+        <!-- build the new deployer JAR
         <ant:echo>Building new-deployer.jar</ant:echo>
         <ant:mkdir dir="${distDir}/bin"/>
         <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
             <ant:jvmarg value="-ea"/>
-            <ant:arg value="--plan"/>
+            <ant:arg value="- -plan"/>
             <ant:arg value="target/plan/deployer-system-plan.xml"/>
-            <ant:arg value="--outfile"/>
+            <ant:arg value="- -outfile"/>
             <ant:arg value="${distDir}/bin/new-deployer.jar"/>
-            <ant:arg value="--mainClass"/>
+            <ant:arg value="- -mainClass"/>
             <ant:arg value="org.apache.geronimo.deployment.cli.DeployTool"/>
-            <ant:arg value="--classPath"/>
+            <ant:arg value="- -classPath"/>
             <ant:arg value="${deploy.classpath}"/>
         </ant:java>
-
+        -->
         <!-- build the system configuration and server.jar -->
         <ant:echo>Building server.jar</ant:echo>
         <ant:mkdir dir="${distDir}/bin"/>
-        <ant:java fork="true" jar="${distDir}/bin/new-deployer.jar" failonerror="true">
+        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
             <ant:jvmarg value="-ea"/>
             <ant:arg value="package"/>
             <ant:arg value="--classPath"/>
@@ -241,7 +241,7 @@
 
         <!-- build the J2EEServer configuration -->
         <ant:echo>Building server configuration</ant:echo>
-        <ant:java fork="true" jar="${distDir}/bin/new-deployer.jar" failonerror="true">
+        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
             <ant:jvmarg value="-ea"/>
             <ant:arg value="distribute"/>
             <ant:arg value="target/plan/j2ee-server-plan.xml"/>
@@ -249,7 +249,7 @@
 
         <!-- building tranql connector default database configuration-->
         <ant:echo>Building default database configuration</ant:echo>
-        <ant:java fork="true" jar="${distDir}/bin/new-deployer.jar" failonerror="true">
+        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
             <ant:jvmarg value="-ea"/>
             <ant:arg value="distribute"/>
             <ant:arg value="target/plan/default-database-plan.xml"/>
@@ -258,7 +258,7 @@
 
         <!-- building system database configuration-->
         <ant:echo>Building system database configuration</ant:echo>
-        <ant:java fork="true" jar="${distDir}/bin/new-deployer.jar" failonerror="true">
+        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
             <ant:jvmarg value="-ea"/>
             <ant:arg value="distribute"/>
             <ant:arg value="target/plan/system-database-plan.xml"/>
@@ -267,7 +267,7 @@
 
         <!-- building system activemq configuration-->
         <ant:echo>Building system activemq configuration</ant:echo>
-        <ant:java fork="true" jar="${distDir}/bin/new-deployer.jar" failonerror="true">
+        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
             <ant:jvmarg value="-ea"/>
             <ant:arg value="distribute"/>
             <ant:arg value="target/plan/system-activemq-plan.xml"/>
@@ -275,7 +275,7 @@
 
         <!-- building system jms configuration-->
         <ant:echo>Building system jms configuration</ant:echo>
-        <ant:java fork="true" jar="${distDir}/bin/new-deployer.jar" failonerror="true">
+        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
             <ant:jvmarg value="-ea"/>
             <ant:arg value="distribute"/>
             <ant:arg value="target/plan/system-jms-plan.xml"/>
@@ -284,7 +284,7 @@
 
         <!-- build the J2EEServer secure configuration -->
         <ant:echo>Building secure server configuration</ant:echo>
-        <ant:java fork="true" jar="${distDir}/bin/new-deployer.jar" failonerror="true">
+        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
             <ant:jvmarg value="-ea"/>
             <ant:arg value="distribute"/>
             <ant:arg value="target/plan/j2ee-secure-plan.xml"/>
@@ -293,7 +293,7 @@
         <!-- build the system configuration and client.jar -->
         <ant:echo>Building client.jar</ant:echo>
         <ant:mkdir dir="${distDir}/bin"/>
-        <ant:java fork="true" jar="${distDir}/bin/new-deployer.jar" failonerror="true">
+        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
             <ant:jvmarg value="-ea"/>
             <ant:arg value="package"/>
             <ant:arg value="--mainClass"/>
@@ -306,7 +306,7 @@
 
         <!-- build the J2EE client configuration -->
         <ant:echo>Building J2EE Client configuration</ant:echo>
-        <ant:java fork="true" jar="${distDir}/bin/new-deployer.jar" failonerror="true">
+        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
             <ant:jvmarg value="-ea"/>
             <ant:arg value="distribute"/>
             <ant:arg value="target/plan/j2ee-client-plan.xml"/>
@@ -314,7 +314,7 @@
 
         <!-- build the Demo configuration -->
         <ant:echo>Building demo website configuration</ant:echo>
-        <ant:java fork="true" jar="${distDir}/bin/new-deployer.jar" failonerror="true">
+        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
             <ant:jvmarg value="-ea"/>
             <ant:arg value="distribute"/>
             <ant:arg value="${maven.repo.local}/geronimo/wars/geronimo-demo-${pom.currentVersion}.war"/>
@@ -322,7 +322,7 @@
 
         <!-- build the Debug Tool configuration "org/apache/geronimo/DebugConsole"-->
         <ant:echo>Building debug tool configuration</ant:echo>
-        <ant:java fork="true" jar="${distDir}/bin/new-deployer.jar" failonerror="true">
+        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
             <ant:jvmarg value="-ea"/>
             <ant:arg value="distribute"/>
             <ant:arg value="${maven.repo.local}/geronimo/wars/geronimo-jmxdebug-${pom.currentVersion}.war"/>
