@@ -28,6 +28,7 @@ import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl;
 import org.apache.geronimo.kernel.jmx.KernelDelegate;
 import org.apache.geronimo.kernel.jmx.KernelMBean;
 import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
 
 public class WaitForStarted extends AbstractModuleCommand {
 
@@ -77,9 +78,13 @@ public class WaitForStarted extends AbstractModuleCommand {
         }
         URI id = new URI(getId());
         for (int tries = maxTries; tries > 0; tries--) {
-            int state = kernel.getConfigurationState(id);
-            if (state == State.RUNNING_INDEX) {
-                return;
+            try {
+                int state = kernel.getConfigurationState(id);
+                if (state == State.RUNNING_INDEX) {
+                    return;
+                }
+            } catch (NoSuchConfigException e) {
+                //hasn't been loaded yet, keep trying
             }
             Thread.sleep(1000);
         }
