@@ -18,7 +18,7 @@
             name="geronimo.remoting:router=SubsystemRouter">
     </mbean>
 
-    <mbean code="org.apache.geronimo.jmx.Relationship" 
+    <mbean code="org.apache.geronimo.common.jmx.Relationship"
            name="geronimo.remoting:role=Relationship,name=Route">
         <constructor>
             <arg type="java.lang.String">
@@ -61,7 +61,7 @@
     <!-- Expose the MBeanServer via remoting URI                      -->
     <!--   async://localhost:3434/JMX#geronimo.jmx:target=MBeanServerStub -->
     <!-- ============================================================ -->
-    <mbean code="org.apache.geronimo.jmx.MBeanServerStub" 
+    <mbean code="org.apache.geronimo.remoting.jmx.MBeanServerStub"
             name="geronimo.remoting:target=MBeanServerStub">
     </mbean>    
 
