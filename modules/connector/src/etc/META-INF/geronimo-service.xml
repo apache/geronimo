@@ -44,12 +44,12 @@
             <pattern>geronimo.boot:role=Kernel</pattern>
         </endpoint>
     </gbean-->
-
+<!--
     <gbean class="org.apache.geronimo.connector.deployment.ConnectorDeployer" objectName="geronimo.deployment:type=connector">
         <default attribute="ConnectionTrackerNamePattern" type="javax.management.ObjectName">geronimo.connector:service=ConnectionTrackingCoordinator</default>
         <endpoint name="ParserFactory">
             <pattern>geronimo.system:type=ParserFactory</pattern>
         </endpoint>
     </gbean>
-
+-->
 </gbeans>
