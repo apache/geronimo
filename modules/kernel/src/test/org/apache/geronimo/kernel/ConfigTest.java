@@ -55,35 +55,27 @@
  */
 package org.apache.geronimo.kernel;
 
-import java.io.File;
 import java.net.URI;
-import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import javax.management.Attribute;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
-import javax.management.Attribute;
 
-import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.LocalConfigStore;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.management.State;
 
 import junit.framework.TestCase;
 
 /**
- *
- *
- * @version $Revision: 1.11 $ $Date: 2004/02/10 22:34:04 $
+ * @version $Revision: 1.12 $ $Date: 2004/02/24 06:05:37 $
  */
 public class ConfigTest extends TestCase {
     private ObjectName gbeanName1;
-    private File configRoot;
-    private File tmpDir;
-    private GBeanInfo storeInfo;
     private Kernel kernel;
     private MBeanServer mbServer;
     private byte[] state;
@@ -102,7 +94,8 @@ public class ConfigTest extends TestCase {
         config.setAttribute("ClassPath", Collections.EMPTY_LIST);
         config.setAttribute("GBeanState", state);
         config.setAttribute("Dependencies", Collections.EMPTY_LIST);
-        ObjectName configName = (ObjectName) mbServer.invoke(Kernel.KERNEL, "load", new Object[]{config, null}, new String[]{GBeanMBean.class.getName(), URL.class.getName()});
+        ConfigurationManager configurationManager = kernel.getConfigurationManager();
+        ObjectName configName = configurationManager.load(config, null);
         mbServer.invoke(configName, "startRecursive", null, null);
 
         assertEquals(new Integer(State.RUNNING_INDEX), mbServer.getAttribute(configName, "state"));
@@ -120,7 +113,7 @@ public class ConfigTest extends TestCase {
         mbServer.setAttribute(gbeanName2, new Attribute("MutableInt", new Integer(44)));
         assertEquals(new Integer(44), mbServer.getAttribute(gbeanName2, "MutableInt"));
 
-        mbServer.invoke(gbeanName2, "doSetMutableInt", new Object[] {new Integer(55)}, new String[] {"int"});
+        mbServer.invoke(gbeanName2, "doSetMutableInt", new Object[]{new Integer(55)}, new String[]{"int"});
         assertEquals(new Integer(55), mbServer.getAttribute(gbeanName2, "MutableInt"));
 
         assertEquals("no endpoint", mbServer.invoke(gbeanName1, "checkEndpoint", null, null));
@@ -141,18 +134,14 @@ public class ConfigTest extends TestCase {
             // ok
         }
         assertEquals(new Integer(State.STOPPED.toInt()), mbServer.getAttribute(configName, "state"));
-        mbServer.invoke(Kernel.KERNEL, "unload", new Object[]{configName}, new String[]{ObjectName.class.getName()});
+        configurationManager.unload(configName);
         assertFalse(mbServer.isRegistered(configName));
     }
 
     protected void setUp() throws Exception {
-        tmpDir = new File(System.getProperty("java.io.tmpdir"));
-        configRoot = new File(tmpDir, "config-store");
-        storeInfo = LocalConfigStore.getGBeanInfo();
-        configRoot.mkdir();
-
-        kernel = new Kernel("test.kernel", "geronimo", storeInfo, configRoot);
+        kernel = new Kernel("test.kernel", "geronimo");
         kernel.boot();
+
         mbServer = kernel.getMBeanServer();
 
         gbeanName1 = new ObjectName("geronimo.test:name=MyMockGMBean1");
@@ -179,22 +168,5 @@ public class ConfigTest extends TestCase {
     protected void tearDown() throws Exception {
         mbServer = null;
         kernel.shutdown();
-        recursiveDelete(configRoot);
     }
-
-    private static void recursiveDelete(File root) throws Exception {
-        File[] files = root.listFiles();
-        if (files != null) {
-            for (int i = 0; i < files.length; i++) {
-                File file = files[i];
-                if (file.isDirectory()) {
-                    recursiveDelete(file);
-                } else {
-                    file.delete();
-                }
-            }
-        }
-        root.delete();
-    }
-
 }

@@ -76,7 +76,7 @@ import org.objectweb.asm.Type;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/01/26 06:50:46 $
+ * @version $Revision: 1.6 $ $Date: 2004/02/24 06:05:37 $
  */
 public final class ProxyMethodInterceptor implements MethodInterceptor {
     /**
@@ -212,7 +212,6 @@ public final class ProxyMethodInterceptor implements MethodInterceptor {
             methodTable[getSuperIndex(proxyType, proxyType.getMethod("hashCode", null))] = new HashCodeInvoke();
             methodTable[getSuperIndex(proxyType, proxyType.getMethod("toString", null))] = new ToStringInvoke(proxyType.getName());
         } catch (Exception e) {
-            System.out.println("Missing method for " + proxyType + " object name " + objectName);
             // this can not happen... all classes must implement equals, hashCode and toString
             throw new AssertionError(e);
         }

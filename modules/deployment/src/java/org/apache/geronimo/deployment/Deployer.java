@@ -59,14 +59,13 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Properties;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
 import java.util.jar.JarInputStream;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -79,10 +78,7 @@ import org.apache.commons.cli.PosixParser;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GOperationInfo;
-import org.apache.geronimo.gbean.GReferenceInfo;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.LocalConfigStore;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
 import org.apache.xmlbeans.SchemaTypeLoader;
@@ -93,7 +89,7 @@ import org.apache.xmlbeans.XmlObject;
  * Command line based deployment utility which combines multiple deployable modules
  * into a single configuration.
  *
- * @version $Revision: 1.10 $ $Date: 2004/02/21 20:20:44 $
+ * @version $Revision: 1.11 $ $Date: 2004/02/24 06:05:36 $
  */
 public class Deployer {
     static {
@@ -104,15 +100,26 @@ public class Deployer {
     public static final URI DEFAULT_CONFIG = URI.create("org/apache/geronimo/J2EEDeployer");
 
     private final Collection builders;
-    private final Kernel kernel;
+    private final ConfigurationStore store;
 
-    public Deployer(Kernel kernel, Collection builders) {
-        this.kernel = kernel;
+    public Deployer(Collection builders, ConfigurationStore store) {
         this.builders = builders;
+        this.store = store;
     }
 
-    public void deploy(Command cmd) throws Exception {
+    /**
+     * GBean entry point invoked from an executable CAR.
+     * @param args command line args
+     */
+    public void deploy(String[] args) throws Exception {
+        Command cmd = parseArgs(args);
+        if (cmd == null) {
+            return;
+        }
+
         ConfigurationBuilder builder = null;
+
+        // parse the plan
         XmlObject plan = null;
         if (cmd.plan != null) {
             plan = getLoader().parse(cmd.plan, null, null);
@@ -149,6 +156,7 @@ public class Deployer {
         } else {
             saveOutput = true;
         }
+
         try {
             if (cmd.module == null) {
                 builder.buildConfiguration(cmd.carfile, (JarInputStream) null, plan);
@@ -172,7 +180,7 @@ public class Deployer {
 
             try {
                 if (cmd.install) {
-                    kernel.install(cmd.carfile.toURL());
+                    store.install(cmd.carfile.toURL());
                 }
             } catch (InvalidConfigException e) {
                 // unlikely as we just built this
@@ -199,51 +207,6 @@ public class Deployer {
         return XmlBeans.typeLoaderUnion(loaders);
     }
 
-    /**
-     * Command line entry point called by executable jar
-     * @param args command line args
-     */
-    public static void main(String[] args) {
-        try {
-            Command cmd = parseArgs(args);
-            if (cmd == null) {
-                return;
-            }
-
-            Kernel kernel = new Kernel("geronimo.deployment", LocalConfigStore.GBEAN_INFO, cmd.store);
-            kernel.boot();
-
-            ObjectName configName = kernel.load(cmd.deployer);
-            kernel.startRecursiveGBean(configName);
-
-            ObjectName deployerName = getDeployerName(cmd.deployer);
-            kernel.getMBeanServer().invoke(deployerName, "deploy", new Object[]{cmd}, new String[]{Command.class.getName()});
-
-            kernel.stopGBean(configName);
-            kernel.shutdown();
-        } catch (ParseException e) {
-            e.printStackTrace();
-            System.exit(2);
-            throw new AssertionError();
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(3);
-            throw new AssertionError();
-        }
-    }
-
-    /**
-     * GBean entry point invoked from an executable CAR.
-     * @param args command line args
-     */
-    public void deploy(String[] args) throws Exception {
-        Command cmd = parseArgs(args);
-        if (cmd == null) {
-            return;
-        }
-        deploy(cmd);
-    }
-
     public static ObjectName getDeployerName(URI configID) throws MalformedObjectNameException {
         Properties props = new Properties();
         props.put("role", "Deployer");
@@ -258,8 +221,7 @@ public class Deployer {
         options.addOption("o", "outfile", true, "output file to generate");
         options.addOption("m", "module", true, "module to deploy");
         options.addOption("p", "plan", true, "deployment plan");
-        options.addOption("d", "deployer", true, "id of the config used to perform deployment");
-        options.addOption("s", "store", true, "location of the config store");
+
         CommandLine cmd = new PosixParser().parse(options, args);
         if (cmd.hasOption("h")) {
             new HelpFormatter().printHelp("deploy.jar [OPTIONS] <module>...", options);
@@ -285,13 +247,6 @@ public class Deployer {
             System.err.println("No plan or module specified");
             return null;
         }
-        try {
-            command.deployer = cmd.hasOption('d') ? new URI(cmd.getOptionValue('d')) : DEFAULT_CONFIG;
-        } catch (URISyntaxException e) {
-            System.err.println("Invalid URI for deployer: " + cmd.getOptionValue('d'));
-            return null;
-        }
-        command.store = cmd.hasOption('s') ? new File(cmd.getOptionValue('s')) : new File("../config-store");
         return command;
     }
 
@@ -308,21 +263,18 @@ public class Deployer {
         private File carfile;
         private URL module;
         private URL plan;
-        private URI deployer;
-        private File store;
     }
 
     public static final GBeanInfo GBEAN_INFO;
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(Deployer.class);
-        infoFactory.addOperation(new GOperationInfo("deploy", new Class[]{String[].class}));
-        infoFactory.addOperation(new GOperationInfo("deploy", new Class[]{Command.class}));
-        infoFactory.addReference(new GReferenceInfo("Kernel", Kernel.class));
-        infoFactory.addReference(new GReferenceInfo("Builders", ConfigurationBuilder.class));
+        infoFactory.addOperation("deploy", new Class[]{String[].class});
+        infoFactory.addReference("Builders", ConfigurationBuilder.class);
+        infoFactory.addReference("Store", ConfigurationStore.class);
         infoFactory.setConstructor(new GConstructorInfo(
-                new String[]{"Kernel", "Builders"},
-                new Class[]{Kernel.class, Collection.class}
+                new String[]{"Builders", "Store"},
+                new Class[]{Collection.class, ConfigurationStore.class}
         ));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

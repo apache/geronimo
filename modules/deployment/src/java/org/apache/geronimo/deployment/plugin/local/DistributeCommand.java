@@ -61,39 +61,38 @@ import java.io.FileOutputStream;
 import java.net.URI;
 import java.util.jar.JarOutputStream;
 import javax.enterprise.deploy.shared.CommandType;
-import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.Target;
+import javax.enterprise.deploy.spi.TargetModuleID;
 
 import org.apache.geronimo.deployment.DeploymentModule;
 import org.apache.geronimo.deployment.ModuleDeployer;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 import org.apache.geronimo.deployment.util.FileUtil;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationParent;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
 
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/26 05:55:26 $
+ * @version $Revision: 1.4 $ $Date: 2004/02/24 06:05:37 $
  */
 public class DistributeCommand extends CommandSupport {
     private final Target target;
     private final ConfigurationParent parent;
     private final URI configID;
-    private final Kernel kernel;
+    private final ConfigurationStore store;
     private final DeploymentModule module;
 
-    public DistributeCommand(Target target, ConfigurationParent parent, URI configID, Kernel kernel, DeploymentModule module) {
+    public DistributeCommand(Target target, ConfigurationParent parent, URI configID, ConfigurationStore store, DeploymentModule module) {
         super(CommandType.DISTRIBUTE);
         this.target = target;
         this.parent = parent;
         this.configID = configID;
-        this.kernel = kernel;
+        this.store = store;
         this.module = module;
     }
 
     public void run() {
-
         File configFile = null;
         File workDir = null;
         try {
@@ -120,7 +119,7 @@ public class DistributeCommand extends CommandSupport {
             }
 
             // install in our local server
-            kernel.install(configFile.toURL());
+            store.install(configFile.toURL());
             addModule(targetID);
             complete("Completed");
         } catch (Exception e) {

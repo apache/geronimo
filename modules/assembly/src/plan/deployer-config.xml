@@ -7,92 +7,31 @@ Configuration for the Geronimo deployer
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment"
     configId="org/apache/geronimo/J2EEDeployer"
+    parentId="org/apache/geronimo/DeployerSystem"
     >
 
-<!-- HACK uncomment
+    <include>
+        <uri>geronimo/jars/geronimo-connector-DEV.jar</uri>
+    </include>
     <dependency>
         <uri>geronimo/jars/geronimo-jetty-DEV.jar</uri>
     </dependency>
--->
-
-<!-- BEGIN HACK -->
     <include>
-        <uri>geronimo/jars/geronimo-system-DEV.jar</uri>
-    </include>
-    <include>
-        <uri>geronimo/jars/geronimo-connector-DEV.jar</uri>
+        <uri>geronimo/jars/geronimo-naming-DEV.jar</uri>
     </include>
     <include>
         <uri>geronimo/jars/geronimo-transaction-DEV.jar</uri>
     </include>
     <include>
-        <uri>geronimo/jars/geronimo-naming-DEV.jar</uri>
-    </include>
-    <include>
         <uri>geronimo-spec/jars/geronimo-spec-j2ee-DEV.jar</uri>
     </include>
-    <include>
+    <dependency>
         <uri>geronimo-spec/jars/geronimo-spec-j2eeschema-DEV.jar</uri>
-    </include>
-    <include>
-        <uri>log4j/jars/log4j-1.2.8.jar</uri>
-    </include>
-    <include>
-        <uri>geronimo/jars/geronimo-jetty-DEV.jar</uri>
-    </include>
-    <include>
-        <uri>jetty/jars/org.mortbay.jetty-5.0.beta0.jar</uri>
-    </include>
-    <include>
-        <uri>tomcat/jars/jasper-compiler-5.0.16.jar</uri>
-    </include>
-    <include>
-        <uri>tomcat/jars/jasper-runtime-5.0.16.jar</uri>
-    </include>
-    <include>
-        <uri>commons-el/jars/commons-el-1.0.jar</uri>
-    </include>
-    <include>
-        <uri>ant/jars/ant-1.5.jar</uri>
-    </include>
-
-    <gbean name="geronimo.deployment:role=ServerInfo" class="org.apache.geronimo.system.serverinfo.ServerInfo">
-    </gbean>
-
-    <gbean name="geronimo.deployment:role=Logger" class="org.apache.geronimo.system.logging.log4j.Log4jService">
-        <attribute name="RefreshPeriod" type="int">60</attribute>
-        <attribute name="ConfigurationURL" type="java.net.URL">log4j.xml</attribute>
-        <reference name="ServerInfo">geronimo.deployment:role=ServerInfo</reference>
-    </gbean>
-
-    <gbean name="geronimo.deployment:role=LogAppender,type=ConsoleAppender" class="org.apache.geronimo.system.logging.log4j.appender.ConsoleAppenderService">
-        <attribute name="Threshold" type="java.lang.String">INFO</attribute>
-        <attribute name="LayoutPattern" type="java.lang.String">%d{ABSOLUTE} %-5p [%c{1}] %m%n</attribute>
-        <attribute name="Target" type="java.lang.String">System.out</attribute>
-    </gbean>
-
-    <gbean name="geronimo.deployment:role=LogAppender,type=DailyRollingFileAppender" class="org.apache.geronimo.system.logging.log4j.appender.RollingFileAppenderService">
-        <attribute name="Threshold" type="java.lang.String">DEBUG</attribute>
-        <attribute name="LayoutPattern" type="java.lang.String">%d{ABSOLUTE} %-5p [%c{1}] %m%n</attribute>
-        <attribute name="Append" type="boolean">true</attribute>
-        <attribute name="File" type="java.lang.String">var/log/geronimo.log</attribute>
-        <attribute name="BufferedIO" type="boolean">false</attribute>
-        <attribute name="BufferedSize" type="int">8192</attribute>
-        <attribute name="MaxBackupIndex" type="int">1</attribute>
-        <attribute name="MaxFileSize" type="java.lang.String">10MB</attribute>
-        <reference name="ServerInfo">geronimo.deployment:role=ServerInfo</reference>
-    </gbean>
-
-    <gbean name="geronimo.deployment:role=Repository" class="org.apache.geronimo.system.repository.ReadOnlyRepository">
-        <attribute name="Root" type="java.net.URI">repository/</attribute>
-        <reference name="ServerInfo">geronimo.deployment:role=ServerInfo</reference>
-    </gbean>
-<!-- END HACK -->
-
+    </dependency>
 
     <gbean name="geronimo.deployment:role=Deployer,config=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.deployment.Deployer">
-        <reference name="Kernel">geronimo.boot:role=Kernel</reference>
         <reference name="Builders">geronimo.deployer:role=Builder,config=org/apache/geronimo/J2EEDeployer,*</reference>
+        <reference name="Store">geronimo.boot:role=ConfigurationStore</reference>
     </gbean>
 
     <gbean name="geronimo.deployer:role=Builder,type=Service,config=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.deployment.service.ServiceConfigBuilder">

@@ -56,7 +56,6 @@
 package org.apache.geronimo.kernel.config;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.URI;
 import java.net.URL;
 
@@ -65,7 +64,7 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 /**
  * Interface to a store for Configurations.
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/14 22:16:38 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/24 06:05:37 $
  */
 public interface ConfigurationStore {
     /**
@@ -77,6 +76,13 @@ public interface ConfigurationStore {
     void install(URL source) throws IOException, InvalidConfigException;
 
     /**
+     * Determines if the store contains a configuration with the spedified ID.
+     * @param configID the unique ID of the configuration
+     * @return true if the store contains the configuration
+     */
+    boolean containsConfiguration(URI configID);
+
+    /**
      * Return the Configuration GBean for the specified ID
      * @param id the unique ID of a Configuration
      * @return the GBeanMBean for that configuration
@@ -84,7 +90,7 @@ public interface ConfigurationStore {
      * @throws java.io.IOException if there was a problem loading the Configuration from the store
      * @throws org.apache.geronimo.kernel.config.InvalidConfigException if the Configuration is invalid
      */
-    GBeanMBean getConfig(URI id) throws NoSuchConfigException, IOException, InvalidConfigException;
+    GBeanMBean getConfiguration(URI id) throws NoSuchConfigException, IOException, InvalidConfigException;
 
     /**
      * Return the base URL for the specified ID

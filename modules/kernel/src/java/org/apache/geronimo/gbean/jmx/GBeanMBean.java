@@ -63,7 +63,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-
 import javax.management.Attribute;
 import javax.management.AttributeList;
 import javax.management.AttributeNotFoundException;
@@ -80,18 +79,19 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
-import net.sf.cglib.reflect.FastClass;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
+import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.kernel.jmx.MBeanOperationSignature;
 import org.apache.geronimo.kernel.management.NotificationType;
+
+import net.sf.cglib.reflect.FastClass;
 
 /**
  * A GeronimoMBean is a J2EE Management Managed Object, and is standard base for Geronimo services.
@@ -99,7 +99,7 @@ import org.apache.geronimo.kernel.management.NotificationType;
  * GeronimoMBeanInfo instance.  The GeronimoMBean also support caching of attribute values and invocation results
  * which can reduce the number of calls to a target.
  *
- * @version $Revision: 1.9 $ $Date: 2004/02/13 23:21:07 $
+ * @version $Revision: 1.10 $ $Date: 2004/02/24 06:05:37 $
  */
 public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     public static final FastClass fastClass = FastClass.create(GBeanMBean.class);
@@ -296,7 +296,7 @@ public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
             }
             throw e;
         } catch (IllegalArgumentException e) {
-            log.warn("Constructor mismatch for "+returnValue, e);
+            log.warn("Constructor mismatch for "  + returnValue, e);
             throw e;
         }
 

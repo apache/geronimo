@@ -89,6 +89,7 @@ import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.jetty.JettyWebApplicationContext;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyAttributeType;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyGbeanType;
@@ -111,7 +112,7 @@ import org.apache.xmlbeans.XmlOptions;
 /**
  *
  *
- * @version $Revision: 1.8 $ $Date: 2004/02/21 19:51:29 $
+ * @version $Revision: 1.9 $ $Date: 2004/02/24 06:05:37 $
  */
 public class WARConfigBuilder implements ConfigurationBuilder {
     private final Repository repository;
@@ -328,7 +329,7 @@ public class WARConfigBuilder implements ConfigurationBuilder {
             gbean.setAttribute("ContextPriorityClassLoader", Boolean.valueOf(jettyWebApp.getContextPriorityClassloader()));
             gbean.setAttribute("PolicyContextID", null);
             gbean.setAttribute("ComponentContext", compContext);
-            gbean.setReferencePatterns("Configuration", Collections.singleton(Kernel.getConfigObjectName(configID)));
+            gbean.setReferencePatterns("Configuration", Collections.singleton(ConfigurationManager.getConfigObjectName(configID)));
             gbean.setReferencePatterns("JettyContainer", Collections.singleton(new ObjectName("*:type=WebContainer,container=Jetty"))); // @todo configurable
             gbean.setReferencePatterns("TransactionManager", Collections.EMPTY_SET);
             gbean.setReferencePatterns("TrackedConnectionAssociator", Collections.EMPTY_SET);

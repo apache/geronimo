@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.68 $ $Date: 2004/02/19 08:59:15 $ -->
+<!-- $Revision: 1.69 $ $Date: 2004/02/24 06:05:36 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -31,8 +31,6 @@
 
                 <jvmarg value="-ea"/>
 
-                <arg value="../config-store"/>
-                <arg value="org/apache/geronimo/System"/>
                 <arg value="org/apache/geronimo/Server"/>
             </java>
         </j:jelly>
@@ -63,8 +61,6 @@
 
                 <sysproperty key="java.compiler" value="NONE"/>
 
-                <arg value="../config-store"/>
-                <arg value="org/apache/geronimo/System"/>
                 <arg value="org/apache/geronimo/Server"/>
             </java>
         </j:jelly>

@@ -69,6 +69,7 @@ import java.util.jar.Attributes;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
+import java.util.zip.ZipEntry;
 import javax.management.MalformedObjectNameException;
 
 import org.apache.geronimo.deployment.ConfigurationBuilder;
@@ -78,6 +79,7 @@ import org.apache.geronimo.deployment.xbeans.AttributeType;
 import org.apache.geronimo.deployment.xbeans.ConfigurationDocument;
 import org.apache.geronimo.deployment.xbeans.ConfigurationType;
 import org.apache.geronimo.deployment.xbeans.DependencyType;
+import org.apache.geronimo.deployment.xbeans.ExecutableType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.deployment.xbeans.ReferenceType;
 import org.apache.geronimo.deployment.xbeans.ReferencesType;
@@ -95,7 +97,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/02/21 19:51:29 $
+ * @version $Revision: 1.7 $ $Date: 2004/02/24 06:05:37 $
  */
 public class ServiceConfigBuilder implements ConfigurationBuilder {
     private final Repository repository;
@@ -141,13 +143,30 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
             parentID = null;
         }
 
+        // create the manifext
         Manifest manifest = new Manifest();
-        manifest.getMainAttributes().putValue(Attributes.Name.MANIFEST_VERSION.toString(), "1.0");
-        // @todo support attributes in plan to make CARfile executable
+        Attributes mainAttributes = manifest.getMainAttributes();
+        mainAttributes.putValue(Attributes.Name.MANIFEST_VERSION.toString(), "1.0");
+
+        // add the manifest entries to make the archive executable
+        ExecutableType executable = configType.getExecutable();
+        if(executable != null) {
+            mainAttributes.putValue(Attributes.Name.MAIN_CLASS.toString(), executable.getMainClass());
+            if(executable.getClassPath() != null) {
+                mainAttributes.putValue(Attributes.Name.CLASS_PATH.toString(), executable.getClassPath());
+            }
+        }
 
         FileOutputStream fos = new FileOutputStream(outfile);
         try {
             JarOutputStream os = new JarOutputStream(new BufferedOutputStream(fos), manifest);
+
+            // if this is an executable jar add the startup jar finder file
+            if(executable != null) {
+                os.putNextEntry(new ZipEntry("META-INF/startup-jar"));
+                os.closeEntry();
+            }
+
             DeploymentContext context = null;
             try {
                 context = new DeploymentContext(os, configID, parentID, kernel);

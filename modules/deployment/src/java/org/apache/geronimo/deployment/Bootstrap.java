@@ -57,18 +57,18 @@ package org.apache.geronimo.deployment;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.jar.JarEntry;
+import java.util.jar.Attributes;
+import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import javax.management.ObjectName;
 
@@ -76,85 +76,98 @@ import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.LocalConfigStore;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.system.configuration.LocalConfigStore;
+import org.apache.geronimo.system.main.CommandLine;
 import org.apache.geronimo.system.repository.ReadOnlyRepository;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.XmlObject;
 
 /**
  * Helper class to bootstrap the Geronimo deployer.
  *
- * @version $Revision: 1.7 $ $Date: 2004/02/20 07:19:13 $
+ * @version $Revision: 1.8 $ $Date: 2004/02/24 06:05:36 $
  */
 public class Bootstrap {
-    public static final URI CONFIG_ID = URI.create("org/apache/geronimo/ServiceDeployer");
+    public static final URI CONFIG_ID = URI.create("org/apache/geronimo/DeployerSystem");
+    private static final ObjectName REPOSITORY_NAME = JMXUtil.getObjectName("geronimo.deployer:role=Repository,root=repository");
+    private static final ObjectName SERVICE_BUILDER_NAME = JMXUtil.getObjectName("geronimo.deployer:role=Builder,type=Service,id=" + CONFIG_ID.toString());
 
     /**
      * Invoked from maven.xml during the build to create the first Deployment Configuration
      * @param car the configuration file to generate
-     * @param store the store to install the configuration into
      */
-    public static void bootstrap(String car, String store, String systemJar) {
+    public static void bootstrap(String car, String baseDir, String store, String planPath, String classPath, String mainGBean, String mainMethod, String configurations) {
         File carfile = new File(car);
-        File storeDir = new File(store);
-        File system = new File(systemJar);
+        File storeDir = new File(baseDir, store);
 
         ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(Bootstrap.class.getClassLoader());
         try {
-            Map gbeans = new HashMap();
+            GBeanMBean deploymentSystemConfig = getDeploymentSystemConfig(new URI(store));
 
-            // Install ServerInfo GBean
-            ObjectName serverName = new ObjectName("geronimo.deployer:role=ServerInfo");
-            GBeanMBean server = new GBeanMBean(ServerInfo.getGBeanInfo());
-            gbeans.put(serverName, server);
+            // create the manifext
+            Manifest manifest = new Manifest();
+            Attributes mainAttributes = manifest.getMainAttributes();
+            mainAttributes.putValue(Attributes.Name.MANIFEST_VERSION.toString(), "1.0");
+            mainAttributes.putValue(Attributes.Name.MAIN_CLASS.toString(), CommandLine.class.getName());
+            mainAttributes.putValue(Attributes.Name.CLASS_PATH.toString(), classPath);
+            mainAttributes.putValue(CommandLine.MAIN_GBEAN.toString(), mainGBean);
+            mainAttributes.putValue(CommandLine.MAIN_METHOD.toString(), mainMethod);
+            mainAttributes.putValue(CommandLine.CONFIGURATIONS.toString(), configurations);
 
-            // Install default local Repository
-            ObjectName repoName = new ObjectName("geronimo.deployer:role=Repository,root=repository");
-            GBeanMBean localRepo = new GBeanMBean(ReadOnlyRepository.GBEAN_INFO);
-            localRepo.setAttribute("Root", URI.create("repository/"));
-            localRepo.setReferencePatterns("ServerInfo", Collections.singleton(serverName));
-            gbeans.put(repoName, localRepo);
-
-            // Install ServiceConfigBuilder
-            ObjectName builderName = new ObjectName("geronimo.deployer:role=Builder,type=Service,id=" + CONFIG_ID.toString());
-            GBeanMBean serviceBuilder = new GBeanMBean(ServiceConfigBuilder.GBEAN_INFO);
-            serviceBuilder.setReferencePatterns("Repository", Collections.singleton(repoName));
-            serviceBuilder.setReferencePatterns("Kernel", Collections.singleton(Kernel.KERNEL));
-            gbeans.put(builderName, serviceBuilder);
-
-            // Install Deployer
-            ObjectName deployerName = Deployer.getDeployerName(CONFIG_ID);
-            GBeanMBean deployer = new GBeanMBean(Deployer.GBEAN_INFO);
-            deployer.setReferencePatterns("Kernel", Collections.singleton(Kernel.KERNEL));
-            deployer.setReferencePatterns("Builders", Collections.singleton(new ObjectName("geronimo.deployer:role=Builder,id=" + CONFIG_ID.toString() + ",*")));
-            gbeans.put(deployerName, deployer);
-
-            List classPath = new ArrayList();
-
-            JarOutputStream jos = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(carfile)));
+            // write the deployer system out to a jar
+            JarOutputStream jos = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(carfile)), manifest);
             try {
-                URI path = URI.create(system.getName());
-                addFile(jos, path, system);
-                classPath.add(path);
+                // add the startup jar entry which allows us to locat the startup directory
+                jos.putNextEntry(new ZipEntry("META-INF/startup-jar"));
+                jos.closeEntry();
 
-                GBeanMBean config = new GBeanMBean(Configuration.GBEAN_INFO);
-                config.setAttribute("ID", CONFIG_ID);
-                config.setReferencePatterns("Parent", null);
-                config.setAttribute("ClassPath", classPath);
-                config.setAttribute("GBeanState", Configuration.storeGBeans(gbeans));
-                config.setAttribute("Dependencies", Collections.EMPTY_LIST);
-
+                // write the configuration to the jar
                 jos.putNextEntry(new ZipEntry("META-INF/config.ser"));
                 ObjectOutputStream ois = new ObjectOutputStream(jos);
-                Configuration.storeGMBeanState(config, ois);
+                Configuration.storeGMBeanState(deploymentSystemConfig, ois);
                 ois.flush();
                 jos.closeEntry();
             } finally {
                 jos.close();
             }
 
+            // install the deployer systen in to the config store
             LocalConfigStore configStore = new LocalConfigStore(storeDir);
             configStore.install(carfile.toURL());
+
+            System.setProperty("geronimo.base.dir", baseDir);
+            Kernel kernel = new Kernel("geronimo.bootstrap");
+            kernel.boot();
+
+            ConfigurationManager configurationManager = kernel.getConfigurationManager();
+            ObjectName deploymentSystemName = configurationManager.load(deploymentSystemConfig, carfile.toURL());
+            kernel.startRecursiveGBean(deploymentSystemName);
+
+            GBeanMBean serviceDeployerConfig = getServiceDeployerConfig();
+            serviceDeployerConfig.setReferencePatterns("Parent", Collections.singleton(deploymentSystemName));
+            ObjectName serviceDeployerName = configurationManager.load(serviceDeployerConfig, carfile.toURL());
+            kernel.startRecursiveGBean(serviceDeployerName);
+
+            File tempFile = File.createTempFile("deployer", ".car");
+            try {
+                URL planURL = new File(planPath).toURL();
+                XmlObject plan = XmlBeans.getContextTypeLoader().parse(planURL, null, null);
+                kernel.getMBeanServer().invoke(
+                        SERVICE_BUILDER_NAME,
+                        "buildConfiguration",
+                        new Object[]{tempFile, null, plan},
+                        new String[]{File.class.getName(), JarInputStream.class.getName(), XmlObject.class.getName()});
+                configStore.install(tempFile.toURL());
+            } finally {
+                tempFile.delete();
+            }
+
+            kernel.stopGBean(deploymentSystemName);
+            kernel.shutdown();
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(2);
@@ -164,18 +177,57 @@ public class Bootstrap {
         }
     }
 
-    private static void addFile(JarOutputStream jos, URI path, File file) throws IOException {
-        FileInputStream fis = new FileInputStream(file);
-        try {
-            jos.putNextEntry(new JarEntry(path.toString()));
-            byte[] buffer = new byte[4096];
-            int count;
-            while ((count = fis.read(buffer)) > 0) {
-                jos.write(buffer, 0, count);
-            }
-            jos.closeEntry();
-        } finally {
-            fis.close();
-        }
+    private static GBeanMBean getDeploymentSystemConfig(URI storeDir) throws Exception {
+        Map gbeans = new HashMap();
+
+        // Install ServerInfo GBean
+        ObjectName serverInfoName = new ObjectName("geronimo.deployer:role=ServerInfo");
+        GBeanMBean serverInfo = new GBeanMBean(ServerInfo.getGBeanInfo());
+        gbeans.put(serverInfoName, serverInfo);
+
+        // Install LocalConfigStore
+        GBeanMBean storeGBean = new GBeanMBean(LocalConfigStore.getGBeanInfo());
+        storeGBean.setAttribute("root", storeDir);
+        storeGBean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfoName));
+        gbeans.put(new ObjectName("geronimo.boot:role=ConfigurationStore"), storeGBean);
+
+        // Install default local Repository
+        GBeanMBean localRepo = new GBeanMBean(ReadOnlyRepository.GBEAN_INFO);
+        localRepo.setAttribute("Root", URI.create("repository/"));
+        localRepo.setReferencePatterns("ServerInfo", Collections.singleton(serverInfoName));
+        gbeans.put(REPOSITORY_NAME, localRepo);
+
+        // assemble the deployer system configuration
+        GBeanMBean config = new GBeanMBean(Configuration.GBEAN_INFO);
+        config.setAttribute("ID", CONFIG_ID);
+        config.setReferencePatterns("Parent", null);
+        config.setAttribute("ClassPath", new ArrayList());
+        config.setAttribute("GBeanState", Configuration.storeGBeans(gbeans));
+        config.setAttribute("Dependencies", Collections.EMPTY_LIST);
+        return config;
+    }
+
+    private static GBeanMBean getServiceDeployerConfig() throws Exception {
+        Map gbeans = new HashMap();
+
+        // Install ServiceConfigBuilder
+        GBeanMBean serviceBuilder = new GBeanMBean(ServiceConfigBuilder.GBEAN_INFO);
+        serviceBuilder.setReferencePatterns("Repository", Collections.singleton(REPOSITORY_NAME));
+        serviceBuilder.setReferencePatterns("Kernel", Collections.singleton(Kernel.KERNEL));
+        gbeans.put(SERVICE_BUILDER_NAME, serviceBuilder);
+
+        // Install Deployer
+        ObjectName deployerName = Deployer.getDeployerName(CONFIG_ID);
+        GBeanMBean deployer = new GBeanMBean(Deployer.GBEAN_INFO);
+        deployer.setReferencePatterns("Builders", Collections.singleton(SERVICE_BUILDER_NAME));
+        gbeans.put(deployerName, deployer);
+
+        GBeanMBean config = new GBeanMBean(Configuration.GBEAN_INFO);
+        config.setAttribute("ID", new URI("temp/deployment/ServiceDeployer"));
+        config.setAttribute("ClassPath", new ArrayList());
+        config.setAttribute("GBeanState", Configuration.storeGBeans(gbeans));
+        config.setAttribute("Dependencies", Collections.EMPTY_LIST);
+
+        return config;
     }
 }

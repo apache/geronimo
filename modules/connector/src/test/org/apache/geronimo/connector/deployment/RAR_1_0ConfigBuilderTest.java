@@ -69,24 +69,23 @@ import java.util.Map;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
-
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import junit.framework.TestCase;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.LocalConfigStore;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
 import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConnectorDocument;
 import org.apache.xmlbeans.XmlOptions;
 
+import junit.framework.TestCase;
+
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/21 01:10:50 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/24 06:05:36 $
  *
  * */
 public class RAR_1_0ConfigBuilderTest extends TestCase {
@@ -122,7 +121,7 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
         GerConnectorDocument geronimoConnectorDocument = GerConnectorDocument.Factory.parse(geronimoInputStream);
         File configStore = new File(System.getProperty("java.io.tmpdir"), "config-store");
         configStore.mkdir();
-        Kernel kernel = new Kernel("test.kernel", "test", LocalConfigStore.GBEAN_INFO, configStore);
+        Kernel kernel = new Kernel("test.kernel", "test");
         kernel.boot();
         try {
             RAR_1_0ConfigBuilder configBuilder = new RAR_1_0ConfigBuilder(kernel, null, new ObjectName("geronimo.connector:service=ConnectionTracker"));
@@ -141,7 +140,7 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
         File configStore = new File(System.getProperty("java.io.tmpdir"), "config-store");
         configStore.mkdir();
         File outfile = new File(System.getProperty("java.io.tmpdir"), "rar10outfile");
-        Kernel kernel = new Kernel("test.kernel", "test", LocalConfigStore.GBEAN_INFO, configStore);
+        Kernel kernel = new Kernel("test.kernel", "test");
         kernel.boot();
         try {
             RAR_1_0ConfigBuilder configBuilder = new RAR_1_0ConfigBuilder(kernel, null, new ObjectName("geronimo.connector:service=ConnectionTracker"));

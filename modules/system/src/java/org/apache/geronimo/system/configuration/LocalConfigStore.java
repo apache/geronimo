@@ -53,7 +53,7 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.kernel.config;
+package org.apache.geronimo.system.configuration;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -80,45 +80,54 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
  * Implementation of ConfigurationStore using the local filesystem.
  *
- * @version $Revision: 1.6 $ $Date: 2004/02/13 04:58:16 $
+ * @version $Revision: 1.1 $ $Date: 2004/02/24 06:05:37 $
  */
 public class LocalConfigStore implements ConfigurationStore, GBean {
     private static final String INDEX_NAME = "index.properties";
-    private final File root;
+    private final URI root;
+    private final ServerInfo serverInfo;
+    private File rootDir;
     private final Properties index = new Properties();
     private int maxId;
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(LocalConfigStore.class);
-        infoFactory.addAttribute("root", true);
-        infoFactory.setConstructor(new String[] {"root"}, new Class[]{File.class});
-        GBEAN_INFO = infoFactory.getBeanInfo();
+    /**
+     * Constructor is only used for direct testing with out a kernel.
+     * @param rootDir
+     */
+    public LocalConfigStore(File rootDir) {
+        serverInfo = null;
+        this.root = null;
+        this.rootDir = rootDir;
     }
 
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
-    public LocalConfigStore(File root) {
+    public LocalConfigStore(URI root, ServerInfo serverInfo) {
         this.root = root;
+        this.serverInfo = serverInfo;
     }
 
     public void setGBeanContext(GBeanContext context) {
     }
 
     public void doStart() throws WaitingException, FileNotFoundException, IOException {
-        if (!root.isDirectory()) {
-            throw new FileNotFoundException("Store root does not exist or is not a directory: " + root);
+        // resolve the root dir if not alredy resolved
+        if (rootDir == null) {
+            rootDir = new File(serverInfo.resolve(root));
+            if (!rootDir.isDirectory()) {
+                throw new FileNotFoundException("Store root does not exist or is not a directory: " + rootDir);
+            }
         }
 
         index.clear();
-        File indexfile = new File(root, INDEX_NAME);
+        File indexfile = new File(rootDir, INDEX_NAME);
         try {
             index.load(new BufferedInputStream(new FileInputStream(indexfile)));
             for (Iterator i = index.values().iterator(); i.hasNext();) {
@@ -137,8 +146,8 @@ public class LocalConfigStore implements ConfigurationStore, GBean {
     }
 
     private void saveIndex() throws IOException {
-        File indexFile = new File(root, INDEX_NAME);
-        File tmpFile = File.createTempFile("index", ".tmp", root);
+        File indexFile = new File(rootDir, INDEX_NAME);
+        File tmpFile = File.createTempFile("index", ".tmp", rootDir);
         FileOutputStream fos = new FileOutputStream(tmpFile);
         try {
             BufferedOutputStream os = new BufferedOutputStream(fos);
@@ -161,7 +170,7 @@ public class LocalConfigStore implements ConfigurationStore, GBean {
         synchronized (this) {
             newId = Integer.toString(++maxId);
         }
-        File bundleRoot = new File(root, newId);
+        File bundleRoot = new File(rootDir, newId);
         bundleRoot.mkdir();
         InputStream is = source.openStream();
         try {
@@ -182,7 +191,7 @@ public class LocalConfigStore implements ConfigurationStore, GBean {
 
     }
 
-    public synchronized GBeanMBean getConfig(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException {
+    public synchronized GBeanMBean getConfiguration(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException {
         return loadConfig(getRoot(configID));
     }
 
@@ -195,12 +204,16 @@ public class LocalConfigStore implements ConfigurationStore, GBean {
         }
     }
 
+    public synchronized boolean containsConfiguration(URI configID) {
+        return index.getProperty(configID.toString()) != null;
+    }
+
     private synchronized File getRoot(URI configID) throws NoSuchConfigException {
         String id = index.getProperty(configID.toString());
         if (id == null) {
             throw new NoSuchConfigException("No such config: " + configID);
         }
-        return new File(root, id);
+        return new File(rootDir, id);
     }
 
     private GBeanMBean loadConfig(File configRoot) throws IOException, InvalidConfigException {
@@ -238,17 +251,19 @@ public class LocalConfigStore implements ConfigurationStore, GBean {
                 if (entry.isDirectory()) {
                     out.mkdirs();
                 } else {
-                    out.getParentFile().mkdirs();
-                    OutputStream os = new FileOutputStream(out);
-                    try {
-                        int count;
-                        while ((count = zis.read(buffer)) > 0) {
-                            os.write(buffer, 0, count);
+                    if (!entry.getName().equals("META-INF/startup-jar")) {
+                        out.getParentFile().mkdirs();
+                        OutputStream os = new FileOutputStream(out);
+                        try {
+                            int count;
+                            while ((count = zis.read(buffer)) > 0) {
+                                os.write(buffer, 0, count);
+                            }
+                        } finally {
+                            os.close();
                         }
-                    } finally {
-                        os.close();
+                        zis.closeEntry();
                     }
-                    zis.closeEntry();
                 }
             }
         } catch (IOException e) {
@@ -268,5 +283,25 @@ public class LocalConfigStore implements ConfigurationStore, GBean {
             }
         }
         root.delete();
+    }
+
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(LocalConfigStore.class);
+        infoFactory.addAttribute("root", true);
+        infoFactory.addReference("ServerInfo", ServerInfo.class);
+        infoFactory.addOperation("install", new Class[]{URL.class});
+        infoFactory.addOperation("containsConfiguration", new Class[]{URI.class});
+        infoFactory.addOperation("getConfiguration", new Class[]{URI.class});
+        infoFactory.addOperation("getBaseURL", new Class[]{URI.class});
+        infoFactory.setConstructor(
+                new String[]{"root", "ServerInfo"},
+                new Class[]{URI.class, ServerInfo.class});
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
     }
 }

@@ -105,7 +105,7 @@ import org.w3c.dom.Document;
 /**
  *
  *
- * @version $Revision: 1.11 $ $Date: 2004/02/22 23:06:38 $
+ * @version $Revision: 1.12 $ $Date: 2004/02/24 06:05:36 $
  */
 public class DeploymentManagerImpl implements DeploymentManager, GBean {
     private final DeploymentServer server;
@@ -341,7 +341,6 @@ public class DeploymentManagerImpl implements DeploymentManager, GBean {
     //should we be using this or reading configID from deploymentplan?
     private URI getConfigID(Document doc) throws URISyntaxException {
         String id = Long.toString(System.currentTimeMillis()); // unique enough one hopes
-        //id = XMLUtil.getChildContent(doc.getDocumentElement(), "config-id", id, id);
         return new URI(id);
     }
 

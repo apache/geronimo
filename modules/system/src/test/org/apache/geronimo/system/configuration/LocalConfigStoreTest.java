@@ -53,45 +53,83 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.kernel.deployment.service;
+package org.apache.geronimo.system.configuration;
 
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Node;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
+import java.net.URI;
+import java.net.URL;
+import java.util.jar.JarOutputStream;
+import java.util.zip.ZipEntry;
+
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.system.configuration.LocalConfigStore;
+import org.apache.geronimo.kernel.config.Configuration;
+
+import junit.framework.TestCase;
 
 /**
- * Utility methods for dealing with xml.
  *
- * @version $Revision: 1.1 $ $Date: 2003/10/24 22:45:33 $
+ *
+ * @version $Revision: 1.1 $ $Date: 2004/02/24 06:05:38 $
  */
-public class XMLUtil {
-    /**
-     * Return the content of an argument node.
-     * If the node contains an Element, then the Element is returned;
-     * otherwise the content of the node (after stripping comments and trimming)
-     * is returned, or null if it is empty or zero length
-     * @param element the element to extract the value from
-     * @return the value of the node (a String or Element)
-     */
-    public static Object getContent(Element element) {
-        NodeList nl = element.getChildNodes();
-        if (nl.getLength() == 0) {
-            return null;
-        }
+public class LocalConfigStoreTest extends TestCase {
+    private File root;
+    private LocalConfigStore store;
+    private URL source;
+    private File sourceFile;
+    private URI uri;
 
-        StringBuffer content = new StringBuffer();
-        for (int i = 0; i < nl.getLength(); i++) {
-            Node node = nl.item(i);
-            switch (node.getNodeType()) {
-            case Node.ELEMENT_NODE:
-                return node;
-            case Node.CDATA_SECTION_NODE:
-            case Node.TEXT_NODE:
-                content.append(node.getNodeValue());
-                break;
+    public void testInstall() throws Exception {
+        store.install(source);
+        assertTrue(new File(root, "1/META-INF/config.ser").exists());
+        assertEquals(new File(root, "1").toURL(), store.getBaseURL(uri));
+        GBeanMBean config = store.getConfiguration(uri);
+        assertEquals(uri, config.getAttribute("ID"));
+    }
+
+    protected void setUp() throws Exception {
+        root = new File(System.getProperty("java.io.tmpdir") + "/config-store");
+        root.mkdir();
+
+        store = new LocalConfigStore(root);
+        store.doStart();
+
+        GBeanMBean gbean = new GBeanMBean(Configuration.GBEAN_INFO);
+        uri = new URI("test");
+        gbean.setAttribute("ID", uri);
+        sourceFile = File.createTempFile("test", ".car");
+        source = sourceFile.toURL();
+        JarOutputStream jos = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(sourceFile)));
+        jos.putNextEntry(new ZipEntry("META-INF/config.ser"));
+        ObjectOutputStream oos = new ObjectOutputStream(jos);
+        Configuration.storeGMBeanState(gbean, oos);
+        oos.flush();
+        jos.closeEntry();
+        jos.close();
+    }
+
+    protected void tearDown() throws Exception {
+        sourceFile.delete();
+        store.doStop();
+        store = null;
+        recursiveDelete(root);
+    }
+
+    private static void recursiveDelete(File root) throws Exception {
+        File[] files = root.listFiles();
+        if (files != null) {
+            for (int i = 0; i < files.length; i++) {
+                File file = files[i];
+                if (file.isDirectory()) {
+                    recursiveDelete(file);
+                } else {
+                    file.delete();
+                }
             }
         }
-        String s = content.toString().trim();
-        return (s.length() > 0) ? s : null;
+        root.delete();
     }
 }

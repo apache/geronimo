@@ -63,14 +63,20 @@ import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.log.GeronimoLogging;
 
 /**
- * 
- * 
- * @version $Revision: 1.2 $ $Date: 2004/02/04 05:42:57 $
+ *
+ *
+ * @version $Revision: 1.3 $ $Date: 2004/02/24 06:05:37 $
  */
 public class Run {
-    private final static String[] MAIN_ARGS = { String[].class.getName()};
+    static {
+        // This MUST be done before the first log is acquired
+        GeronimoLogging.initialize(GeronimoLogging.INFO);
+    }
+
+    private final static String[] MAIN_ARGS = {String[].class.getName()};
 
     public static void main(String[] args) {
         ClassLoader cl = Run.class.getClassLoader();
@@ -102,7 +108,7 @@ public class Run {
             } finally {
                 ois.close();
             }
-            final ObjectName configName = kernel.load(config, cl.getResource("/"));
+            final ObjectName configName = kernel.getConfigurationManager().load(config, cl.getResource("/"));
 
             Runtime.getRuntime().addShutdownHook(new Thread("Shutdown Thread") {
                 public void run() {
@@ -116,7 +122,7 @@ public class Run {
             });
 
             kernel.startGBean(configName);
-            kernel.getMBeanServer().invoke(gbeanName, "main", new Object[] { args }, MAIN_ARGS);
+            kernel.getMBeanServer().invoke(gbeanName, "main", new Object[]{args}, MAIN_ARGS);
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(2);

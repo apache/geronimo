@@ -53,30 +53,34 @@
  *
  * ====================================================================
  */
+package org.apache.geronimo.system.main;
 
-package org.apache.geronimo;
-
-import java.io.File;
+import java.io.ObjectInputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import javax.management.ObjectName;
 
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.LocalConfigStore;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
 
 /**
- * @version $Revision: 1.10 $ $Date: 2004/02/17 07:26:47 $
+ *
+ *
+ * @version $Revision: 1.1 $ $Date: 2004/02/24 06:05:37 $
  */
-public class Geronimo {
+public class Daemon {
     static {
         // This MUST be done before the first log is acquired
         GeronimoLogging.initialize(GeronimoLogging.INFO);
     }
 
-    private Geronimo() {
+    private Daemon() {
     }
 
     /**
@@ -88,79 +92,97 @@ public class Geronimo {
      * Once the Kernel is booted and the configuration is loaded, the process
      * will remain running until the shutdown() method on the kernel is
      * invoked or until the JVM exits.
-     * @param args
-     * @todo commons-cli support
+     * @param args the command line arguments
      * @todo save list of started configurations and restart them next time
      */
     public static void main(String[] args) {
-        if (args.length < 2) {
-            System.err.println("usage: " + Geronimo.class.getName() + " <config-store-dir> <config-artifactId>...");
-            System.exit(1);
-        }
-        String storeDirName = args[0];
-        List configs = new ArrayList();
-        for (int i = 1; i < args.length; i++) {
-            URI configID;
+        try {
+            // get a list of the configuration uris from the command line
+            List configs = new ArrayList();
+            for (int i = 0; i < args.length; i++) {
+                try {
+                    configs.add(new URI(args[i]));
+                } catch (URISyntaxException e) {
+                    System.err.println("Invalid configuration-id: " + args[i]);
+                    e.printStackTrace();
+                    System.exit(1);
+                    throw new AssertionError();
+                }
+            }
+
+            // load this configuration
+            ClassLoader classLoader = Daemon.class.getClassLoader();
+            GBeanMBean configuration = new GBeanMBean(Configuration.GBEAN_INFO);
+            ObjectInputStream ois = new ObjectInputStream(classLoader.getResourceAsStream("META-INF/config.ser"));
             try {
-                configID = new URI(args[i]);
-            } catch (URISyntaxException e) {
-                System.err.println("Invalid config-id: " + args[i]);
+                Configuration.loadGMBeanState(configuration, ois);
+            } finally {
+                ois.close();
+            }
+
+            // build a basic kernel without a configuration-store, our configuration store is
+            final Kernel kernel = new Kernel("geronimo.kernel", "geronimo");
+
+            // boot the kernel
+            try {
+                kernel.boot();
+            } catch (Exception e) {
                 e.printStackTrace();
-                System.exit(1);
-                throw new AssertionError();
-            }
-            configs.add(configID);
-        }
-        final Kernel kernel;
-        File storeDir = new File(storeDirName);
-        if (storeDir.exists()) {
-            if (!storeDir.isDirectory() || !storeDir.canWrite()) {
-                System.err.println("Store location is not a writable directory: " + storeDir);
                 System.exit(2);
-                throw new AssertionError();
             }
-        } else {
-            if (!storeDir.mkdirs()) {
-                System.err.println("Could not create store directory: " + storeDir);
-                System.exit(2);
-                throw new AssertionError();
-            }
-        }
 
-        kernel = new Kernel("geronimo.kernel", "geronimo", LocalConfigStore.GBEAN_INFO, storeDir);
-        Runtime.getRuntime().addShutdownHook(new Thread("Shutdown Thread") {
-            public void run() {
+            // add our shutdown hook
+            ConfigurationManager configurationManager = kernel.getConfigurationManager();
+            final ObjectName configName = configurationManager.load(configuration, classLoader.getResource("/"));
+            Runtime.getRuntime().addShutdownHook(new Thread("Shutdown Thread") {
+                public void run() {
+                    if (kernel.isRunning()) {
+                        try {
+                            // stop this configuration first
+                            kernel.stopGBean(configName);
+                        } catch (Exception e) {
+                            // ignore
+                        }
+                        // clean up the kernel before exiting
+                        kernel.shutdown();
+                    }
+                }
+            });
+
+            // start this configuration
+            kernel.startRecursiveGBean(configName);
+
+            // load the rest of the configuration listed on the command line
+            try {
+                for (Iterator i = configs.iterator(); i.hasNext();) {
+                    URI configID = (URI) i.next();
+                    List list = configurationManager.loadRecursive(configID);
+                    for (Iterator iterator = list.iterator(); iterator.hasNext();) {
+                        ObjectName name = (ObjectName) iterator.next();
+                        kernel.startRecursiveGBean(name);
+                    }
+                }
+            } catch (Exception e) {
                 kernel.shutdown();
+                e.printStackTrace();
+                System.exit(3);
             }
-        });
 
-        try {
-            kernel.boot();
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(2);
-        }
 
-        try {
-            for (Iterator i = configs.iterator(); i.hasNext();) {
-                URI configID = (URI) i.next();
-                kernel.load(configID);
-                kernel.startRecursiveGBean(Kernel.getConfigObjectName(configID));
+            // capture this thread until the kernel is ready to exit
+            while (kernel.isRunning()) {
+                try {
+                    synchronized (kernel) {
+                        kernel.wait();
+                    }
+                } catch (InterruptedException e) {
+                    // continue
+                }
             }
         } catch (Exception e) {
-            kernel.shutdown();
             e.printStackTrace();
             System.exit(3);
-        }
-
-        while (kernel.isRunning()) {
-            try {
-                synchronized (kernel) {
-                    kernel.wait();
-                }
-            } catch (InterruptedException e) {
-                // continue
-            }
+            throw new AssertionError();
         }
     }
 }

@@ -77,27 +77,33 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.WaitingException;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationParent;
-import org.apache.geronimo.kernel.config.LocalConfigStore;
+import org.apache.geronimo.system.configuration.LocalConfigStore;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/02/04 05:43:31 $
+ * @version $Revision: 1.5 $ $Date: 2004/02/24 06:05:37 $
  */
-public class LocalServer implements DeploymentServer,GBean {
+public class LocalServer implements DeploymentServer, GBean {
     private final URI rootConfigID;
     private final Target target;
     private final Kernel kernel;
+    private final File storeDir;
+    private ConfigurationStore store;
     private ObjectName configName;
     private ConfigurationParent parent;
 
-    public LocalServer(URI rootConfigID, File configStore) {
+    public LocalServer(URI rootConfigID, File storeDir) throws Exception {
         this.rootConfigID = rootConfigID;
         target = new TargetImpl(this.rootConfigID.toString(), null);
-        kernel = new Kernel(this.rootConfigID.toString(), "geronimo.localserver", LocalConfigStore.GBEAN_INFO, configStore);
+        kernel = new Kernel(this.rootConfigID.toString(), "geronimo.localserver");
+        this.storeDir = storeDir;
     }
 
     public boolean isLocal() {
@@ -105,7 +111,7 @@ public class LocalServer implements DeploymentServer,GBean {
     }
 
     public Target[] getTargets() throws IllegalStateException {
-        return new Target[] {target};
+        return new Target[]{target};
     }
 
     public TargetModuleID[] getAvailableModules(ModuleType moduleType, Target[] targetList) throws TargetException, IllegalStateException {
@@ -133,7 +139,7 @@ public class LocalServer implements DeploymentServer,GBean {
         if (targetList.length != 1 || !target.equals(targetList[0])) {
             return new FailedProgressObject(CommandType.DISTRIBUTE, "Invalid Target");
         }
-        DistributeCommand command = new DistributeCommand(target, parent, configID, kernel, module);
+        DistributeCommand command = new DistributeCommand(target, parent, configID, store, module);
         new Thread(command).start();
         return command;
     }
@@ -170,15 +176,22 @@ public class LocalServer implements DeploymentServer,GBean {
 
     public void doStart() throws WaitingException, Exception {
         kernel.boot();
-        configName = kernel.load(rootConfigID);
-        kernel.getMBeanServer().invoke(configName, "startRecursive", null, null);
+
+        ObjectName localStoreName = JMXUtil.getObjectName("geronimo.localserver:role=ConfigurationStore,type=Local");
+        GBeanMBean localStore = new GBeanMBean(LocalConfigStore.GBEAN_INFO);
+        localStore.setAttribute("root", storeDir);
+        kernel.startGBean(localStoreName);
+        store = (ConfigurationStore) localStore.getTarget();
+
+        configName = kernel.getConfigurationManager().load(rootConfigID);
+        kernel.startRecursiveGBean(configName);
         parent = (ConfigurationParent) MBeanProxyFactory.getProxy(ConfigurationParent.class, kernel.getMBeanServer(), configName);
     }
 
     public void doStop() throws WaitingException, Exception {
         parent = null;
-        kernel.getMBeanServer().invoke(configName, "stop", null, null);
-        kernel.unload(configName);
+        kernel.stopGBean(configName);
+        kernel.getConfigurationManager().unload(configName);
         kernel.shutdown();
     }
 
@@ -186,14 +199,15 @@ public class LocalServer implements DeploymentServer,GBean {
     }
 
     public static final GBeanInfo GBEAN_INFO;
+
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory("JSR88 Local Server", LocalServer.class.getName());
         infoFactory.addInterface(DeploymentServer.class);
         infoFactory.addAttribute(new GAttributeInfo("ConfigID", true));
         infoFactory.addAttribute(new GAttributeInfo("ConfigStore", true));
         infoFactory.setConstructor(new GConstructorInfo(
-                new String[] { "ConfigID", "ConfigStore"},
-                new Class[] {URI.class, File.class}
+                new String[]{"ConfigID", "ConfigStore"},
+                new Class[]{URI.class, File.class}
         ));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

@@ -30,6 +30,9 @@ by the server.
     <dependency>
         <uri>geronimo/jars/geronimo-naming-DEV.jar</uri>
     </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-j2ee-DEV.jar</uri>
+    </dependency>
 
     <!-- default WAR container using Jetty -->
     <gbean name="geronimo.server:type=WebContainer,container=Jetty" class="org.apache.geronimo.jetty.JettyContainerImpl">

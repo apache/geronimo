@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.4 $ $Date: 2004/02/19 09:00:28 $ -->
+<!-- $Revision: 1.5 $ $Date: 2004/02/24 06:05:37 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -29,6 +29,13 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
             <version>${pom.currentVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib-full</artifactId>
+            <version>2.0-RC2</version>
+            <url>http://cglib.sf.net/</url>
         </dependency>
 
         <dependency>

@@ -65,7 +65,7 @@ import org.apache.geronimo.kernel.Kernel;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/24 21:07:44 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/24 06:05:37 $
  */
 public class StartCommand extends CommandSupport {
     private final Kernel kernel;
@@ -83,9 +83,9 @@ public class StartCommand extends CommandSupport {
                 TargetModuleID module = modules[i];
 
                 URI moduleID = URI.create(module.getModuleID());
-                ObjectName name = kernel.load(moduleID);
+                ObjectName name = kernel.getConfigurationManager().load(moduleID);
 
-                kernel.getMBeanServer().invoke(name, "startRecursive", null, null);
+                kernel.startRecursiveGBean(name);
                 addModule(module);
             }
             complete("Completed");

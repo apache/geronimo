@@ -61,11 +61,12 @@ import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/26 05:55:26 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/24 06:05:37 $
  */
 public class StopCommand extends CommandSupport {
     private final Kernel kernel;
@@ -83,7 +84,7 @@ public class StopCommand extends CommandSupport {
                 TargetModuleID module = modules[i];
 
                 URI moduleID = URI.create(module.getModuleID());
-                ObjectName name = Kernel.getConfigObjectName(moduleID);
+                ObjectName name = ConfigurationManager.getConfigObjectName(moduleID);
                 kernel.getMBeanServer().invoke(name, "stop", null, null);
                 addModule(module);
             }

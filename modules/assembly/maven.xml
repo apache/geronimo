@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- $Revision: 1.2 $ $Date: 2004/02/20 07:41:31 $ -->
+<!-- $Revision: 1.3 $ $Date: 2004/02/24 06:05:36 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -59,9 +59,6 @@
             <j:if test="${dependency.getProperty('deploy') == 'true'}">
                 <j:set var="deploy.classpath" value="${deploy.classpath} ../lib/${artifact.name}"/>
             </j:if>
-            <j:if test="${dependency.artifactId == 'geronimo-system'}">
-                <j:set var="system.artifact" value="${artifact.path}"/>
-            </j:if>
         </j:forEach>
 
         <!-- Create directory for XML schema documents -->
@@ -105,103 +102,47 @@
             </ant:fileset>
         </ant:copy>
 
-        <!-- Create the server.jar file used to run the server-->
-        <ant:touch file="${distDir}/.empty.temp.file"/>
-        <ant:mkdir dir="${distDir}/bin"/>
-        <ant:jar destfile="${distDir}/bin/server.jar">
-            <zipfileset file="${distDir}/.empty.temp.file" fullpath="META-INF/startup-jar"/>
-            <manifest>
-                <attribute name="Main-Class" value="org.apache.geronimo.Geronimo"/>
-                <attribute name="Class-Path" value="${server.classpath}"/>
-            </manifest>
-        </ant:jar>
-
-        <!-- Create the deploy.jar file used to deploy things -->
-        <ant:jar destfile="${distDir}/bin/deploy.jar">
-            <zipfileset file="${distDir}/.empty.temp.file" fullpath="META-INF/startup-jar"/>
-            <manifest>
-                <attribute name="Main-Class" value="org.apache.geronimo.deployment.Deployer"/>
-                <attribute name="Class-Path" value="${deploy.classpath}"/>
-            </manifest>
-        </ant:jar>
-        <ant:delete file="${distDir}/.empty.temp.file"/>
-
-        <!-- bootstrap the service deployer -->
+        <!-- bootstrap the deployer -->
         <ant:echo>Bootstrapping service deployer</ant:echo>
-        <ant:mkdir dir="${distDir}/config"/>
+        <ant:mkdir dir="${distDir}/bin"/>
         <ant:mkdir dir="${distDir}/config-store"/>
         <j:invokeStatic className="org.apache.geronimo.deployment.Bootstrap" method="bootstrap">
-            <j:arg type="java.lang.String" value="${distDir}/config/service-deployer.car"/>
-            <j:arg type="java.lang.String" value="${distDir}/config-store"/>
-            <j:arg type="java.lang.String" value="${system.artifact}"/>
+            <j:arg type="java.lang.String" value="${distDir}/bin/deployer.jar"/>
+            <j:arg type="java.lang.String" value="${distDir}"/>
+            <j:arg type="java.lang.String" value="config-store"/>
+            <j:arg type="java.lang.String" value="${basedir}/src/plan/deployer-config.xml"/>
+            <j:arg type="java.lang.String" value="${deploy.classpath}"/>
+            <j:arg type="java.lang.String" value="geronimo.deployment:role=Deployer,config=org/apache/geronimo/J2EEDeployer"/>
+            <j:arg type="java.lang.String" value="deploy"/>
+            <j:arg type="java.lang.String" value="org/apache/geronimo/J2EEDeployer"/>
         </j:invokeStatic>
 
-        <!-- build the system configuration -->
+        <!-- build the system configuration and server.jar -->
         <ant:echo>Building system configuration</ant:echo>
-        <ant:java fork="true" jar="${distDir}/bin/deploy.jar">
-            <ant:sysproperty key="geronimo.base.dir" value="${distDir}"/>
+        <ant:mkdir dir="${distDir}/bin"/>
+        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
             <ant:arg value="--install"/>
             <ant:arg value="--plan"/>
             <ant:arg value="src/plan/system-config.xml"/>
             <ant:arg value="--outfile"/>
-            <ant:arg value="${distDir}/config/system.car"/>
-            <ant:arg value="--store"/>
-            <ant:arg value="${distDir}/config-store"/>
-            <ant:arg value="--deployer"/>
-            <ant:arg value="org/apache/geronimo/ServiceDeployer"/>
+            <ant:arg value="${distDir}/bin/server.jar"/>
         </ant:java>
 
         <!-- build the J2EEServer configuration -->
         <ant:echo>Building server configuration</ant:echo>
-        <ant:java fork="true" jar="${distDir}/bin/deploy.jar">
-            <ant:sysproperty key="geronimo.base.dir" value="${distDir}"/>
+        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
             <ant:arg value="--install"/>
             <ant:arg value="--plan"/>
             <ant:arg value="src/plan/server-config.xml"/>
-            <ant:arg value="--outfile"/>
-            <ant:arg value="${distDir}/config/J2EEServer.car"/>
-            <ant:arg value="--store"/>
-            <ant:arg value="${distDir}/config-store"/>
-            <ant:arg value="--deployer"/>
-            <ant:arg value="org/apache/geronimo/ServiceDeployer"/>
-        </ant:java>
-
-        <!-- build the J2EEDeployer configuration -->
-        <ant:echo>Building deployer configuration</ant:echo>
-        <ant:java fork="true" jar="${distDir}/bin/deploy.jar">
-            <ant:sysproperty key="geronimo.base.dir" value="${distDir}"/>
-            <ant:arg value="--install"/>
-            <ant:arg value="--plan"/>
-            <ant:arg value="src/plan/deployer-config.xml"/>
-            <ant:arg value="--outfile"/>
-            <ant:arg value="${distDir}/config/J2EEDeployer.car"/>
-            <ant:arg value="--store"/>
-            <ant:arg value="${distDir}/config-store"/>
-            <ant:arg value="--deployer"/>
-            <ant:arg value="org/apache/geronimo/ServiceDeployer"/>
         </ant:java>
 
         <!-- build the Debug Tool configuration -->
-<!--
-uncomment to build the debug tool config - but remember to remove the absolute path first
-THIS IS A TEMPORARY HACK AND WILL BE REPLACED BY THE WAR DEPLOYER
-
         <ant:echo>Building debug tool configuration</ant:echo>
-        <ant:java fork="true" jar="${distDir}/bin/deploy.jar">
-            <ant:sysproperty key="geronimo.base.dir" value="${distDir}"/>
-
-       REMOVE THIS LINE AND THE SPACE BETWEEN THE DASHES BELOW
-            <ant:arg value="- -install"/>
-            <ant:arg value="- -plan"/>
-            <ant:arg value="src/plan/debug-tool.xml"/>
-            <ant:arg value="- -outfile"/>
-            <ant:arg value="${distDir}/config/debug-tool.car"/>
-            <ant:arg value="- -store"/>
-            <ant:arg value="${distDir}/config-store"/>
-            <ant:arg value="- -deployer"/>
-            <ant:arg value="org/apache/geronimo/ServiceDeployer"/>
+        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
+            <ant:arg value="--install"/>
+            <ant:arg value="--module"/>
+            <ant:arg value="${project.root}/applications/jmxdebug/target/geronimo-jmxdebug.war"/>
         </ant:java>
--->
     </goal>
 
 </project>

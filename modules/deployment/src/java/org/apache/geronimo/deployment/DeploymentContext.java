@@ -79,12 +79,13 @@ import javax.management.ObjectName;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.repository.Repository;
 
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/02/20 16:56:08 $
+ * @version $Revision: 1.4 $ $Date: 2004/02/24 06:05:36 $
  */
 public class DeploymentContext {
     private final URI configID;
@@ -99,7 +100,7 @@ public class DeploymentContext {
     private final List ancestors;
     private final ClassLoader parentCL;
 
-    public DeploymentContext(JarOutputStream jos, URI id, URI parentID, Kernel kernel) throws IOException,MalformedObjectNameException, DeploymentException {
+    public DeploymentContext(JarOutputStream jos, URI id, URI parentID, Kernel kernel) throws IOException, MalformedObjectNameException, DeploymentException {
         this.configID = id;
         this.jos = jos;
         this.kernel = kernel;
@@ -115,10 +116,10 @@ public class DeploymentContext {
         }
 
         if (parentID != null) {
-            ObjectName parentName = Kernel.getConfigObjectName(parentID);
+            ObjectName parentName = ConfigurationManager.getConfigObjectName(parentID);
             config.setReferencePatterns("Parent", Collections.singleton(parentName));
             try {
-                ancestors = kernel.loadRecursive(parentID);
+                ancestors = kernel.getConfigurationManager().loadRecursive(parentID);
             } catch (Exception e) {
                 throw new DeploymentException("Unable to load parents", e);
             }
@@ -134,7 +135,7 @@ public class DeploymentContext {
                 }
             }
             try {
-                parentCL = (ClassLoader) kernel.getMBeanServer().getAttribute(parentName, "ClassLoader");
+                parentCL = (ClassLoader) kernel.getAttribute(parentName, "ClassLoader");
             } catch (Exception e) {
                 throw new DeploymentException(e);
             }
@@ -191,7 +192,7 @@ public class DeploymentContext {
         }
 
         URL[] urls = new URL[dependencies.size() + classPath.size()];
-        int j=0;
+        int j = 0;
         for (Iterator i = dependencies.iterator(); i.hasNext();) {
             URI uri = (URI) i.next();
             try {
@@ -228,7 +229,7 @@ public class DeploymentContext {
         jos.close();
 
         try {
-            if (ancestors != null) {
+            if (ancestors != null && ancestors.size() > 0) {
                 kernel.stopGBean((ObjectName) ancestors.get(0));
             }
         } catch (Exception e) {

@@ -55,17 +55,13 @@
  */
 package org.apache.geronimo.kernel;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
-import java.net.URI;
-import java.net.URL;
+import java.util.Collections;
 import java.util.Hashtable;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
+import javax.management.Attribute;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.management.JMException;
@@ -73,19 +69,16 @@ import javax.management.JMRuntimeException;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
-import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.NotificationBroadcasterSupport;
 import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.jmx.DependencyService;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 
@@ -106,7 +99,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
  * used hold the persistent state of each Configuration. This allows
  * Configurations to restart in he event of system failure.
  *
- * @version $Revision: 1.18 $ $Date: 2004/02/13 23:21:07 $
+ * @version $Revision: 1.19 $ $Date: 2004/02/24 06:05:37 $
  */
 public class Kernel extends NotificationBroadcasterSupport implements Serializable, KernelMBean {
 
@@ -120,23 +113,23 @@ public class Kernel extends NotificationBroadcasterSupport implements Serializab
      */
     public static final ObjectName DEPENDENCY_SERVICE = JMXUtil.getObjectName("geronimo.boot:role=DependencyService2");
 
-    /**
-     * The JMX name of the ConfigurationStore.
-     */
-    public static final ObjectName CONFIG_STORE = JMXUtil.getObjectName("geronimo.boot:role=ConfigurationStore");
 
     private static final Map kernels = new Hashtable();
     private static final ReferenceQueue queue = new ReferenceQueue();
     private final String kernelName;
     private final String domainName;
-    private final GBeanInfo storeInfo;
-    private final File configStore;
 
     private transient Log log;
     private transient boolean running;
     private transient MBeanServer mbServer;
-    private transient GBeanMBean storeGBean;
-    private transient ConfigurationStore store;
+
+    private transient ConfigurationManager configurationManager;
+    private transient GBeanMBean configurationManagerGBean;
+
+    private static final String[] NO_TYPES = new String[0];
+    private static final Object[] NO_ARGS = new Object[0];
+    private static final ObjectName CONFIGURATION_MANAGER_NAME = JMXUtil.getObjectName("geronimo.boot:role=ConfigurationManager");
+    private static final ObjectName CONFIGURATION_STORE_PATTERN = JMXUtil.getObjectName("*:role=ConfigurationStore,*");
 
     /**
      * No-arg constructor allowing this class to be used as a GBean reference.
@@ -144,39 +137,14 @@ public class Kernel extends NotificationBroadcasterSupport implements Serializab
     public Kernel() {
         kernelName = null;
         domainName = null;
-        storeInfo = null;
-        configStore = null;
     }
 
     /**
-     * Construct a Kernel using the specified JMX domain and supply the
-     * information needed to create the ConfigurationStore.
-     * @param kernelName the name of the kernel that uniquely indentifies the kernel in a VM
+     * Construct a Kernel which does not have a config store.
      * @param domainName the domain name to be used for the JMX MBeanServer
-     * @param storeInfo the info for the GBeanMBean to be used for the ConfigurationStore
-     * @param configStore a local directory to be used by the ConfigurationStore;
-     *                    this must be present and writable when the kernel is booted
      */
-    public Kernel(String kernelName, String domainName, GBeanInfo storeInfo, File configStore) {
-        this.kernelName = kernelName;
-        this.domainName = domainName;
-        this.storeInfo = storeInfo;
-        this.configStore = configStore;
-    }
-
-    /**
-     * Construct a Kernel using the specified JMX domain and supply the
-     * information needed to create the ConfigurationStore.
-     * @param domainName the domain name to be used for the JMX MBeanServer
-     * @param storeInfo the info for the GBeanMBean to be used for the ConfigurationStore
-     * @param configStore a local directory to be used by the ConfigurationStore;
-     *                    this must be present and writable when the kernel is booted
-     */
-    public Kernel(String domainName, GBeanInfo storeInfo, File configStore) {
-        this.kernelName = null;
-        this.domainName = domainName;
-        this.storeInfo = storeInfo;
-        this.configStore = configStore;
+    public Kernel(String domainName) {
+        this(domainName, null);
     }
 
     /**
@@ -185,15 +153,8 @@ public class Kernel extends NotificationBroadcasterSupport implements Serializab
      * @param domainName the domain name to be used for the JMX MBeanServer
      */
     public Kernel(String kernelName, String domainName) {
-        this(kernelName, domainName, null, null);
-    }
-
-    /**
-     * Construct a Kernel which does not have a config store.
-     * @param domainName the domain name to be used for the JMX MBeanServer
-     */
-    public Kernel(String domainName) {
-        this(domainName, null, null);
+        this.kernelName = kernelName;
+        this.domainName = domainName;
     }
 
     public MBeanServer getMBeanServer() {
@@ -247,121 +208,71 @@ public class Kernel extends NotificationBroadcasterSupport implements Serializab
         }
     }
 
-    public static ObjectName getConfigObjectName(URI configID) throws MalformedObjectNameException {
-        return new ObjectName("geronimo.config:name=" + ObjectName.quote(configID.toString()));
+    public ConfigurationManager getConfigurationManager() {
+        return configurationManager;
     }
 
-    public void install(URL source) throws IOException, InvalidConfigException {
-        if (store == null) {
-            throw new UnsupportedOperationException("Kernel does not have a ConfigurationStore");
-        }
-        store.install(source);
-    }
-
-    public List loadRecursive(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException {
+    public Object getAttribute(ObjectName objectName, String attributeName) throws Exception {
         try {
-            LinkedList ancestors = new LinkedList();
-            while (configID != null && !isLoaded(configID)) {
-                ObjectName name = load(configID);
-                ancestors.addFirst(name);
-                configID = (URI) mbServer.getAttribute(name, "ParentID");
+            return mbServer.getAttribute(objectName, attributeName);
+        } catch (JMException e) {
+            Throwable cause = e;
+            while ((cause instanceof JMException || cause instanceof JMRuntimeException) && cause.getCause() != null) {
+                cause = cause.getCause();
             }
-            return ancestors;
-        } catch (NoSuchConfigException e) {
-            throw e;
-        } catch (IOException e) {
-            throw e;
-        } catch (InvalidConfigException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new InvalidConfigException(e);
-        }
-    }
-
-    public ObjectName load(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException {
-        if (!running) {
-            throw new IllegalStateException("Kernel is not running");
-        }
-        if (store == null) {
-            throw new UnsupportedOperationException("Kernel does not have a ConfigurationStore");
-        }
-
-        GBeanMBean config = store.getConfig(configID);
-        URL baseURL = store.getBaseURL(configID);
-        return load(config, baseURL);
-    }
-
-    public ObjectName load(GBeanMBean config, URL rootURL) throws InvalidConfigException {
-        URI configID;
-        try {
-            configID = (URI) config.getAttribute("ID");
-        } catch (Exception e) {
-            throw new InvalidConfigException("Cannot get config ID", e);
-        }
-        ObjectName configName;
-        try {
-            configName = getConfigObjectName(configID);
-        } catch (MalformedObjectNameException e) {
-            throw new InvalidConfigException("Cannot convert ID to ObjectName: ", e);
-        }
-        load(config, rootURL, configName);
-        return configName;
-    }
-
-    /**
-     * Load the supplied Configuration into the Kernel and override the default JMX name.
-     * This method should be used with discretion as it is possible to create
-     * Configurations that cannot be located by management or monitoring tools.
-     * @param config the GBeanMBean representing the Configuration
-     * @param rootURL the URL to be used to resolve relative paths in the configuration
-     * @param configName the JMX ObjectName to register the Configuration under
-     * @throws org.apache.geronimo.kernel.config.InvalidConfigException if the Configuration is not valid
-     */
-    public void load(GBeanMBean config, URL rootURL, ObjectName configName) throws InvalidConfigException {
-        if (!running) {
-            throw new IllegalStateException("Kernel is not running");
-        }
-        try {
-            mbServer.registerMBean(config, configName);
-        } catch (Exception e) {
-            throw new InvalidConfigException("Unable to register configuraton", e);
-        }
-
-        try {
-            config.setAttribute("BaseURL", rootURL);
-        } catch (Exception e) {
-            try {
-                mbServer.unregisterMBean(configName);
-            } catch (Exception e1) {
-                // ignore
+            if (cause instanceof Error) {
+                throw (Error) cause;
+            } else if (cause instanceof Exception) {
+                throw (Exception) cause;
+            } else {
+                throw new AssertionError(cause);
             }
-            throw new InvalidConfigException("Cannot set BaseURL", e);
-        }
-
-        log.info("Loaded Configuration " + configName);
-    }
-
-    public boolean isLoaded(URI configID) {
-        try {
-            ObjectName name = getConfigObjectName(configID);
-            return mbServer.isRegistered(name);
-        } catch (MalformedObjectNameException e) {
-            return false;
         }
     }
 
-    public void unload(ObjectName configName) throws NoSuchConfigException {
-        if (!running) {
-            throw new IllegalStateException("Kernel is not running");
-        }
+    public void setAttribute(ObjectName objectName, String attributeName, Object attributeValue) throws Exception {
         try {
-            mbServer.unregisterMBean(configName);
-        } catch (InstanceNotFoundException e) {
-            throw new NoSuchConfigException("No config registered: " + configName, e);
-        } catch (MBeanRegistrationException e) {
-            throw (IllegalStateException) new IllegalStateException("Error deregistering configuration " + configName).initCause(e);
+            mbServer.setAttribute(objectName, new Attribute(attributeName, attributeValue));
+        } catch (JMException e) {
+            Throwable cause = e;
+            while ((cause instanceof JMException || cause instanceof JMRuntimeException) && cause.getCause() != null) {
+                cause = cause.getCause();
+            }
+            if (cause instanceof Error) {
+                throw (Error) cause;
+            } else if (cause instanceof Exception) {
+                throw (Exception) cause;
+            } else {
+                throw new AssertionError(cause);
+            }
         }
-        log.info("Unloaded Configuration " + configName);
+    }
+
+    public Object invoke(ObjectName objectName, String methodName) throws Exception {
+        return invoke(objectName, methodName, NO_ARGS, NO_TYPES);
+    }
+
+    public Object invoke(ObjectName objectName, String methodName, Object[] args, String[] types) throws Exception {
+        try {
+            return mbServer.invoke(objectName, methodName, args, types);
+        } catch (JMException e) {
+            Throwable cause = e;
+            while ((cause instanceof JMException || cause instanceof JMRuntimeException) && cause.getCause() != null) {
+                cause = cause.getCause();
+            }
+            if (cause instanceof Error) {
+                throw (Error) cause;
+            } else if (cause instanceof Exception) {
+                throw (Exception) cause;
+            } else {
+                throw new AssertionError(cause);
+            }
+        }
+    }
+
+
+    public boolean isLoaded(ObjectName name) {
+        return mbServer.isRegistered(name);
     }
 
     public void loadGBean(ObjectName name, GBeanMBean gbean) throws InstanceAlreadyExistsException, InvalidConfigException {
@@ -376,37 +287,25 @@ public class Kernel extends NotificationBroadcasterSupport implements Serializab
 
     public void startGBean(ObjectName name) throws InstanceNotFoundException, InvalidConfigException {
         try {
-            mbServer.invoke(name, "start", null, null);
-        } catch (JMException e) {
-            Throwable cause = e;
-            while ((cause instanceof JMException || cause instanceof JMRuntimeException) && cause.getCause() != null) {
-                cause = cause.getCause();
-            }
-            throw new InvalidConfigException("Invalid GBean configuration for " + name, cause);
+            invoke(name, "start");
+        } catch (Exception e) {
+            throw new InvalidConfigException("Invalid GBean configuration for " + name, e);
         }
     }
 
     public void startRecursiveGBean(ObjectName name) throws InstanceNotFoundException, InvalidConfigException {
         try {
-            mbServer.invoke(name, "startRecursive", null, null);
-        } catch (JMException e) {
-            Throwable cause = e;
-            while ((cause instanceof JMException || cause instanceof JMRuntimeException) && cause.getCause() != null) {
-                cause = cause.getCause();
-            }
-            throw new InvalidConfigException("Invalid GBean configuration for " + name, cause);
+            invoke(name, "startRecursive");
+        } catch (Exception e) {
+            throw new InvalidConfigException("Invalid GBean configuration for " + name, e);
         }
     }
 
     public void stopGBean(ObjectName name) throws InstanceNotFoundException, InvalidConfigException {
         try {
-            mbServer.invoke(name, "stop", null, null);
-        } catch (JMException e) {
-            Throwable cause = e;
-            while ((cause instanceof JMException || cause instanceof JMRuntimeException) && cause.getCause() != null) {
-                cause = cause.getCause();
-            }
-            throw new InvalidConfigException("Invalid GBean configuration for " + name, cause);
+            invoke(name, "stop");
+        } catch (Exception e) {
+            throw new InvalidConfigException("Invalid GBean configuration for " + name, e);
         }
     }
 
@@ -439,13 +338,14 @@ public class Kernel extends NotificationBroadcasterSupport implements Serializab
         mbServer = MBeanServerFactory.createMBeanServer(domainName);
         mbServer.registerMBean(this, KERNEL);
         mbServer.registerMBean(new DependencyService(), DEPENDENCY_SERVICE);
-        if (storeInfo != null) {
-            storeGBean = new GBeanMBean(storeInfo);
-            storeGBean.setAttribute("root", configStore);
-            mbServer.registerMBean(storeGBean, CONFIG_STORE);
-            storeGBean.start();
-            store = (ConfigurationStore) storeGBean.getTarget();
-        }
+
+        configurationManagerGBean = new GBeanMBean(ConfigurationManager.GBEAN_INFO);
+        configurationManagerGBean.setReferencePatterns("Kernel", Collections.singleton(KERNEL));
+        configurationManagerGBean.setReferencePatterns("Stores", Collections.singleton(CONFIGURATION_STORE_PATTERN));
+        mbServer.registerMBean(configurationManagerGBean, CONFIGURATION_MANAGER_NAME);
+        configurationManagerGBean.start();
+        configurationManager = (ConfigurationManager) configurationManagerGBean.getTarget();
+
         running = true;
         log.info("Booted");
     }
@@ -461,22 +361,23 @@ public class Kernel extends NotificationBroadcasterSupport implements Serializab
         running = false;
         log.info("Starting kernel shutdown");
 
-        store = null;
+        configurationManager = null;
+        configurationManagerGBean = null;
         try {
-            if (storeGBean != null) {
-                storeGBean.stop();
+            if (configurationManagerGBean != null) {
+                configurationManagerGBean.stop();
             }
         } catch (Exception e) {
             // ignore
         }
         try {
-            if (storeGBean != null) {
-                mbServer.unregisterMBean(CONFIG_STORE);
+            if (configurationManagerGBean != null) {
+                mbServer.unregisterMBean(CONFIGURATION_MANAGER_NAME);
             }
         } catch (Exception e) {
             // ignore
         }
-        storeGBean = null;
+        configurationManagerGBean = null;
 
         try {
             mbServer.unregisterMBean(DEPENDENCY_SERVICE);

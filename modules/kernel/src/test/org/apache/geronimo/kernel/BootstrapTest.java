@@ -62,22 +62,18 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.kernel.config.LocalConfigStore;
 
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/02/05 05:26:33 $
+ * @version $Revision: 1.5 $ $Date: 2004/02/24 06:05:37 $
  */
 public class BootstrapTest extends TestCase {
-    private File configRoot;
     private File tmpDir;
     private File kernelState;
-    private GBeanInfo storeInfo;
 
     public void testCreate() throws Exception {
-        Kernel kernel = new Kernel("test.kernel", "geronimo", storeInfo, configRoot);
+        Kernel kernel = new Kernel("test.kernel", "geronimo");
         assertEquals("No kernel should be registered", null, Kernel.getKernel("test.kernel"));
         kernel.boot();
         assertEquals("test.kernel kernel should be registered", kernel, Kernel.getKernel("test.kernel"));
@@ -86,7 +82,7 @@ public class BootstrapTest extends TestCase {
     }
 
     public void testPersist() throws Exception {
-        Kernel kernel = new Kernel("test.kernel", "geronimo", storeInfo, configRoot);
+        Kernel kernel = new Kernel("test.kernel", "geronimo");
         assertEquals("No kernel should be registered", null, Kernel.getKernel("test.kernel"));
         kernel.boot();
         assertEquals("test.kernel kernel should be registered", kernel, Kernel.getKernel("test.kernel"));
@@ -108,30 +104,10 @@ public class BootstrapTest extends TestCase {
 
     protected void setUp() throws Exception {
         tmpDir = new File(System.getProperty("java.io.tmpdir"));
-        configRoot = new File(tmpDir, "config-store");
         kernelState = new File(tmpDir, "kernel.ser");
-        storeInfo = LocalConfigStore.getGBeanInfo();
-
-        configRoot.mkdir();
     }
 
     protected void tearDown() throws Exception {
-        recursiveDelete(configRoot);
         kernelState.delete();
-    }
-
-    private static void recursiveDelete(File root) throws Exception {
-        File[] files = root.listFiles();
-        if (files != null) {
-            for (int i = 0; i < files.length; i++) {
-                File file = files[i];
-                if (file.isDirectory()) {
-                    recursiveDelete(file);
-                } else {
-                    file.delete();
-                }
-            }
-        }
-        root.delete();
     }
 }
