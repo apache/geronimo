@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.16 $ $Date: 2003/12/10 10:54:07 $ -->
+<!-- $Revision: 1.17 $ $Date: 2004/01/22 18:37:03 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -12,66 +12,21 @@
 
     <name>Geronimo :: Common</name>
     <id>geronimo-common</id>
-    <shortDescription></shortDescription>
-    <description></description>
-    <siteDirectory></siteDirectory>
-    <distributionDirectory></distributionDirectory>
 
+    <shortDescription>Geronimo Common</shortDescription>
+    <description>Geronimo Common</description>
+    <url>http://incubator.apache.org/projects/geronimo/common/</url>
+    <siteDirectory>/www/incubator.apache.org/projects/geronimo/common</siteDirectory>
+    <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds/common</distributionDirectory>
     <package>org.apache.geronimo.common</package>
     <currentVersion>DEV</currentVersion>
-
 
     <!-- ============ -->
     <!-- Dependencies -->
     <!-- ============ -->
 
     <dependencies>
-
-        <!-- Plugin Dependencies -->
-
-        <dependency>
-            <id>xdoclet</id>
-            <version>1.2b2</version>
-            <properties>
-                <runtime>false</runtime>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <id>xdoclet+xdoclet-module</id>
-            <version>1.2b2</version>
-            <properties>
-                <runtime>false</runtime>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <id>xdoclet+jmx-module</id>
-            <version>1.2b2</version>
-            <properties>
-                <runtime>false</runtime>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <id>xdoclet+xjavadoc</id>
-            <version>1.2b2</version>
-            <properties>
-                <runtime>false</runtime>
-            </properties>
-        </dependency>
-
         <!-- Module Dependencies -->
-
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-tools</artifactId>
-            <version>DEV</version>
-            <properties>
-                <module>true</module>
-            </properties>
-        </dependency>
-
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
@@ -137,17 +92,6 @@
                 <runtime>false</runtime>
             </properties>
         </dependency>
-
-        <dependency>
-            <groupId>mx4j</groupId>
-            <artifactId>mx4j</artifactId>
-            <version>SNAPSHOT</version>
-            <url>http://mx4j.sourceforge.net</url>
-            <properties>
-                <runtime>false</runtime>
-            </properties>
-        </dependency>
-
     </dependencies>
 
 
