@@ -23,6 +23,7 @@ import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.RefAddr;
 import javax.naming.Reference;
+import javax.naming.NamingException;
 import javax.naming.spi.ObjectFactory;
 
 /**
@@ -47,7 +48,7 @@ public abstract class SimpleReference extends Reference {
      * Gets the actual referenced Object.
      * @return the referenced object
      */
-    public abstract Object getContent();
+    public abstract Object getContent() throws NamingException;
 
     /**
      * We will atleast return an Object.  Subclasses may want to provide a more specific class.

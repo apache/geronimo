@@ -644,6 +644,11 @@ public class ENCConfigBuilder {
             builder.addUserTransaction(userTransaction);
         }
 
+        ObjectName corbaGBean = earContext.getCORBAGBeanObjectName();
+        if (corbaGBean != null) {
+            builder.addORB(corbaGBean);
+        }
+
         Object handleDelegateReference = earContext.getRefContext().getHandleDelegateReference();
         if (handleDelegateReference != null) {
             builder.addHandleDelegateReference(handleDelegateReference);

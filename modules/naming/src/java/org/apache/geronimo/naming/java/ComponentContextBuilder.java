@@ -27,6 +27,7 @@ import javax.transaction.UserTransaction;
 import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.naming.reference.GBeanProxyReference;
 import org.apache.geronimo.naming.reference.KernelReference;
+import org.apache.geronimo.naming.reference.ORBReference;
 
 /**
  * TODO consider removing this class. The only purpose is to slightly hide the internalBind method.
@@ -43,6 +44,10 @@ public class ComponentContextBuilder {
 
     public void addUserTransaction(UserTransaction userTransaction) {
         context.put("UserTransaction", userTransaction);
+    }
+
+    public void addORB(ObjectName corbaGBeanObjectName) {
+        context.put("ORB", new ORBReference(corbaGBeanObjectName));
     }
 
     public void addHandleDelegateReference(Object handleDelegateReference) {

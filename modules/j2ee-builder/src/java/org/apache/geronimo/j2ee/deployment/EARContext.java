@@ -43,10 +43,12 @@ public class EARContext extends DeploymentContext {
     private final ObjectName transactedTimerName;
     private final ObjectName nonTransactedTimerName;
 
+    private final ObjectName corbaGBeanObjectName;
+
     private final RefContext refContext;
     private final J2eeContext j2eeContext;
 
-    public EARContext(File baseDir, URI id, ConfigurationModuleType moduleType, URI parentID, Kernel kernel, String j2eeApplicationName, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName transactedTimerName, ObjectName nonTransactedTimerName, RefContext refContext) throws MalformedObjectNameException, DeploymentException {
+    public EARContext(File baseDir, URI id, ConfigurationModuleType moduleType, URI parentID, Kernel kernel, String j2eeApplicationName, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName transactedTimerName, ObjectName nonTransactedTimerName, ObjectName corbaGBeanObjectName, RefContext refContext) throws MalformedObjectNameException, DeploymentException {
         super(baseDir, id, moduleType, parentID, kernel);
         j2eeContext = new J2eeContextImpl(getDomain(), getServer(), j2eeApplicationName == null ? NameFactory.NULL : j2eeApplicationName, NameFactory.J2EE_MODULE, NameFactory.NULL, null, null);
         domainObjectName = NameFactory.getDomainName(null, j2eeContext);
@@ -62,6 +64,7 @@ public class EARContext extends DeploymentContext {
         this.connectionTrackerObjectName = connectionTrackerObjectName;
         this.transactedTimerName = transactedTimerName;
         this.nonTransactedTimerName = nonTransactedTimerName;
+        this.corbaGBeanObjectName = corbaGBeanObjectName;
         this.refContext = refContext;
     }
 
@@ -103,6 +106,10 @@ public class EARContext extends DeploymentContext {
 
     public ObjectName getNonTransactedTimerName() {
         return nonTransactedTimerName;
+    }
+
+    public ObjectName getCORBAGBeanObjectName() {
+        return corbaGBeanObjectName;
     }
 
     public RefContext getRefContext() {

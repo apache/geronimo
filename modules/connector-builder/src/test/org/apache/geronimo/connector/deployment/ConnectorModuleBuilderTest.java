@@ -73,7 +73,6 @@ import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.registry.BasicGBeanRegistry;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.xbeans.j2ee.ServiceRefHandlerType;
 import org.tranql.sql.jdbc.JDBCUtil;
 
 /**
@@ -94,22 +93,22 @@ public class ConnectorModuleBuilderTest extends TestCase {
                     return false;
                 }
 
-                public URL getURL(URI uri) throws MalformedURLException {
+                public URL getURL(URI uri) {
                     return null;
                 }
             };
 
     private EJBReferenceBuilder ejbReferenceBuilder = new EJBReferenceBuilder() {
 
-        public Reference createEJBLocalReference(String objectName, boolean isSession, String localHome, String local) throws DeploymentException {
+        public Reference createEJBLocalReference(String objectName, boolean isSession, String localHome, String local) {
             return null;
         }
 
-        public Reference createEJBRemoteReference(String objectName, boolean isSession, String home, String remote) throws DeploymentException {
+        public Reference createEJBRemoteReference(String objectName, boolean isSession, String home, String remote) {
             return null;
         }
 
-        public Reference createCORBAReference(URI corbaURL, String objectName, ObjectName containerName, String home) throws DeploymentException {
+        public Reference createCORBAReference(URI corbaURL, String objectName, ObjectName containerName, String home) {
             return null;
         }
 
@@ -120,31 +119,31 @@ public class ConnectorModuleBuilderTest extends TestCase {
 
     private ResourceReferenceBuilder resourceReferenceBuilder = new ResourceReferenceBuilder() {
 
-        public Reference createResourceRef(String containerId, Class iface) throws DeploymentException {
+        public Reference createResourceRef(String containerId, Class iface)  {
             return null;
         }
 
-        public Reference createAdminObjectRef(String containerId, Class iface) throws DeploymentException {
+        public Reference createAdminObjectRef(String containerId, Class iface)  {
             return null;
         }
 
-        public ObjectName locateResourceName(ObjectName query) throws DeploymentException {
+        public ObjectName locateResourceName(ObjectName query)  {
             return null;
         }
 
-        public GBeanData locateActivationSpecInfo(ObjectName resourceAdapterName, String messageListenerInterface) throws DeploymentException {
+        public GBeanData locateActivationSpecInfo(ObjectName resourceAdapterName, String messageListenerInterface)  {
             return null;
         }
 
-        public GBeanData locateResourceAdapterGBeanData(ObjectName resourceAdapterModuleName) throws DeploymentException {
+        public GBeanData locateResourceAdapterGBeanData(ObjectName resourceAdapterModuleName)  {
             return null;
         }
 
-        public GBeanData locateAdminObjectInfo(ObjectName resourceAdapterModuleName, String adminObjectInterfaceName) throws DeploymentException {
+        public GBeanData locateAdminObjectInfo(ObjectName resourceAdapterModuleName, String adminObjectInterfaceName)  {
             return null;
         }
 
-        public GBeanData locateConnectionFactoryInfo(ObjectName resourceAdapterModuleName, String connectionFactoryInterfaceName) throws DeploymentException {
+        public GBeanData locateConnectionFactoryInfo(ObjectName resourceAdapterModuleName, String connectionFactoryInterfaceName) {
             return null;
         }
     };
@@ -168,7 +167,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
             kernel.startGBean(store.getName());
 
             rarFile = DeploymentUtil.createJarFile(new File(basedir, "target/test-ear-noger.ear"));
-            EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, null, connectionTrackerName, null, null, null, null, ejbReferenceBuilder, null, new ConnectorModuleBuilder(defaultParentId, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, repository, kernel), resourceReferenceBuilder, null, serviceReferenceBuilder, kernel);
+            EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, null, connectionTrackerName, null, null, null, null, null, ejbReferenceBuilder, null, new ConnectorModuleBuilder(defaultParentId, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, repository, kernel), resourceReferenceBuilder, null, serviceReferenceBuilder, kernel);
             File tempDir = null;
             try {
                 tempDir = DeploymentUtil.createTempDir();
@@ -332,7 +331,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
                         connectionTrackerName,
                         null,
                         null,
-                        new RefContext(ejbReferenceBuilder,
+                        null, new RefContext(ejbReferenceBuilder,
                                 moduleBuilder,
                                 serviceReferenceBuilder, kernel));
 

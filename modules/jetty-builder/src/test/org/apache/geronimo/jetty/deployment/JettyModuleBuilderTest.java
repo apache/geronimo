@@ -149,7 +149,7 @@ public class JettyModuleBuilderTest extends TestCase {
                 ctcName,
                 null,
                 null,
-                new RefContext(new EJBReferenceBuilder() {
+                null, new RefContext(new EJBReferenceBuilder() {
 
                     public Reference createEJBLocalReference(String objectName, boolean isSession, String localHome, String local) throws DeploymentException {
                         return null;

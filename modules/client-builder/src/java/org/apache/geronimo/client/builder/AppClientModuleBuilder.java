@@ -346,7 +346,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                             connectionTrackerObjectName,
                             null,
                             null,
-                            RefContext.derivedClientRefContext(earContext.getRefContext(), ejbReferenceBuilder, resourceReferenceBuilder, serviceReferenceBuilder));
+                            null, RefContext.derivedClientRefContext(earContext.getRefContext(), ejbReferenceBuilder, resourceReferenceBuilder, serviceReferenceBuilder));
                 } catch (Exception e) {
                     throw new DeploymentException("Could not create a deployment context for the app client", e);
                 }

@@ -83,9 +83,10 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     private final ObjectName connectionTrackerObjectName;
     private final ObjectName transactionalTimerObjectName;
     private final ObjectName nonTransactionalTimerObjectName;
+    private final ObjectName corbaGBeanObjectName;
 
 
-    public EARConfigBuilder(URI defaultParentId, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName transactionalTimerObjectName, ObjectName nonTransactionalTimerObjectName, Repository repository, ModuleBuilder ejbConfigBuilder, EJBReferenceBuilder ejbReferenceBuilder, ModuleBuilder webConfigBuilder, ModuleBuilder connectorConfigBuilder, ResourceReferenceBuilder resourceReferenceBuilder, ModuleBuilder appClientConfigBuilder, ServiceReferenceBuilder serviceReferenceBuilder, Kernel kernel) {
+    public EARConfigBuilder(URI defaultParentId, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName transactionalTimerObjectName, ObjectName nonTransactionalTimerObjectName, ObjectName corbaGBeanObjectName, Repository repository, ModuleBuilder ejbConfigBuilder, EJBReferenceBuilder ejbReferenceBuilder, ModuleBuilder webConfigBuilder, ModuleBuilder connectorConfigBuilder, ResourceReferenceBuilder resourceReferenceBuilder, ModuleBuilder appClientConfigBuilder, ServiceReferenceBuilder serviceReferenceBuilder, Kernel kernel) {
         this.kernel = kernel;
         this.repository = repository;
         this.defaultParentId = defaultParentId;
@@ -101,6 +102,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         this.connectionTrackerObjectName = connectionTrackerObjectName;
         this.transactionalTimerObjectName = transactionalTimerObjectName;
         this.nonTransactionalTimerObjectName = nonTransactionalTimerObjectName;
+        this.corbaGBeanObjectName = corbaGBeanObjectName;
     }
 
     public Object getDeploymentPlan(File planFile, JarFile jarFile) throws DeploymentException {
@@ -286,6 +288,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                         connectionTrackerObjectName,
                         transactionalTimerObjectName,
                         nonTransactionalTimerObjectName,
+                        corbaGBeanObjectName,
                         new RefContext(ejbReferenceBuilder, resourceReferenceBuilder, serviceReferenceBuilder, kernel));
             } catch (MalformedObjectNameException e) {
                 throw new DeploymentException(e);
@@ -528,6 +531,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         infoFactory.addAttribute("connectionTrackerObjectName", ObjectName.class, true);
         infoFactory.addAttribute("transactionalTimerObjectName", ObjectName.class, true);
         infoFactory.addAttribute("nonTransactionalTimerObjectName", ObjectName.class, true);
+        infoFactory.addAttribute("corbaGBeanObjectName", ObjectName.class, true);
 
         infoFactory.addReference("Repository", Repository.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addReference("EJBConfigBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
@@ -548,6 +552,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             "connectionTrackerObjectName",
             "transactionalTimerObjectName",
             "nonTransactionalTimerObjectName",
+            "corbaGBeanObjectName",
             "Repository",
             "EJBConfigBuilder",
             "EJBReferenceBuilder",
