@@ -3,3 +3,4 @@
 maven.log
 junit*.properties
 target
+velocity.log
