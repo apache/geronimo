@@ -69,7 +69,7 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Revision: 1.15 $ $Date: 2004/07/23 06:06:19 $
+ * @version $Revision: 1.16 $ $Date: 2004/07/31 01:01:22 $
  */
 public class EARConfigBuilder implements ConfigurationBuilder {
     static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderUnion(new SchemaTypeLoader[] {
@@ -265,7 +265,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             public void installModule(ModuleBuilder moduleBuilder, EARContext earContext, Module module) throws IOException, DeploymentException {
                 if ( false == module instanceof ConnectorModule &&
                     false == module instanceof WebModule ) {
-                    throw new DeploymentException("Only unpacked RAR are suppored.");
+                    throw new DeploymentException("Only unpacked RARs and WARs (in unpacked EAR) are supported.");
                 }
                 // TODO gets rid of this cast when all the ModuleBuilder will
                 // support unpacked deployments.
@@ -581,7 +581,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             }
         }
 
-        throw new DeploymentException("Could not determine config id");
+        throw new DeploymentException("Could not determine type");
     }
 
     private URI getDependencyURI(GerDependencyType dep) throws DeploymentException {
