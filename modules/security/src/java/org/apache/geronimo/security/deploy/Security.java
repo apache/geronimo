@@ -22,12 +22,13 @@ import java.util.Set;
 
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/07/11 21:37:10 $
+ * @version $Revision: 1.4 $ $Date: 2004/07/27 01:57:06 $
  */
 public class Security implements Serializable {
 
     private boolean doAsCurrentCaller;
     private boolean useContextHandler;
+    private String defaultRole;
     private DefaultPrincipal defaultPrincipal;
     private Set roleMappings = new HashSet();
 
@@ -45,6 +46,14 @@ public class Security implements Serializable {
 
     public void setUseContextHandler(boolean useContextHandler) {
         this.useContextHandler = useContextHandler;
+    }
+
+    public String getDefaultRole() {
+        return defaultRole;
+    }
+
+    public void setDefaultRole(String defaultRole) {
+        this.defaultRole = defaultRole;
     }
 
     public DefaultPrincipal getDefaultPrincipal() {
