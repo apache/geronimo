@@ -17,28 +17,69 @@
 
 package javax.activation;
 
+import java.beans.Beans;
+import java.io.Externalizable;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 
 /**
  * @version $Rev$ $Date$
  */
 public class CommandInfo {
-    public CommandInfo(String verb, String className) {
-        /*@todo implement*/
+    private final String commandName;
+    private final String commandClass;
+
+    /**
+     * Constructor for a CommandInfo
+     *
+     * @param commandName  the command name
+     * @param commandClass the name of the command's implementation class
+     */
+    public CommandInfo(String commandName, String commandClass) {
+        this.commandName = commandName;
+        this.commandClass = commandClass;
     }
 
+    /**
+     * Return the command name.
+     *
+     * @return the command name
+     */
     public String getCommandName() {
-        /*@todo implement*/
-        return null;
+        return commandName;
     }
 
+    /**
+     * Return the implementation class name.
+     *
+     * @return the name of the command's implementation class; may be null
+     */
     public String getCommandClass() {
-        /*@todo implement*/
-        return null;
+        return commandClass;
     }
 
+    /**
+     * Instantiate and return a command JavaBean.
+     * The bean is created using Beans.instantiate(loader, commandClass).
+     * If the new bean implements CommandObject then its setCommandContext(String, DataHandler)
+     * method is called.
+     * Otherwise if it implements Externalizable and the supplied DataHandler is not null
+     * then its readExternal(ObjectInputStream) method is called with a stream obtained from
+     * DataHandler.getInputStream().
+     *
+     * @param dh a DataHandler that provides the data to be passed to the command
+     * @param loader the ClassLoader to be used to instantiate the command
+     * @return a new command instance
+     * @throws IOException if there was a problem initializing the command
+     * @throws ClassNotFoundException if the command class could not be found
+     */
     public Object getCommandObject(DataHandler dh, ClassLoader loader) throws IOException, ClassNotFoundException {
-        /*@todo implement*/
-        return null;
+        Object bean = Beans.instantiate(loader, commandClass);
+        if (bean instanceof CommandObject) {
+            ((CommandObject) bean).setCommandContext(commandName, dh);
+        } else if (bean instanceof Externalizable && dh != null) {
+            ((Externalizable) bean).readExternal(new ObjectInputStream(dh.getInputStream()));
+        }
+        return bean;
     }
 }

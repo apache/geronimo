@@ -23,35 +23,35 @@ import java.awt.datatransfer.DataFlavor;
  * @version $Rev$ $Date$
  */
 public class ActivationDataFlavor extends DataFlavor {
+    private String humanPresentableName;
+
     public ActivationDataFlavor(Class representationClass, String mimeType, String humanPresentableName) {
-        /*@todo implement*/
+        this.humanPresentableName = humanPresentableName;
     }
 
     public ActivationDataFlavor(Class representationClass, String humanPresentableName) {
-        /*@todo implement*/
+        this.humanPresentableName = humanPresentableName;
     }
 
     public ActivationDataFlavor(String mimeType, String humanPresentableName) {
-        /*@todo implement*/
+        super(mimeType, humanPresentableName);
+        this.humanPresentableName = humanPresentableName;
     }
 
     public String getMimeType() {
-        /*@todo implement*/
-        return null;
+        return super.getMimeType();
     }
 
     public Class getRepresentationClass() {
-        /*@todo implement*/
-        return null;
+        return super.getRepresentationClass();
     }
 
     public String getHumanPresentableName() {
-        /*@todo implement*/
-        return null;
+        return humanPresentableName;
     }
 
     public void setHumanPresentableName(String humanPresentableName) {
-        /*@todo implement*/
+        this.humanPresentableName = humanPresentableName;
     }
 
     public boolean equals(DataFlavor dataFlavor) {

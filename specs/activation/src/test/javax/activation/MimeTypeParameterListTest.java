@@ -25,24 +25,8 @@ import junit.framework.TestCase;
  * @version $Rev$ $Date$
  */
 public class MimeTypeParameterListTest extends TestCase {
-
-	private String simpleParameterListStr;
-	private String withWhiteSpacesParameterListStr;
-	private String longParameterListStr;
-	private String noNameParameterListStr;
-	private String noValueParameterListStr;
-
-	public MimeTypeParameterListTest(String name) {
-		super(name);
-	}
-
 	protected void setUp() throws Exception {
 		super.setUp();
-		simpleParameterListStr = ";name=value";
-		withWhiteSpacesParameterListStr = "; name= value ;  ";
-		longParameterListStr = "; name1 =value1;;   ; name2= value2;name3= value3;name4  =value4;";
-		noNameParameterListStr = "; = value";
-		noValueParameterListStr = "; name=";
 	}
 
 	public void testEmptyParameterList() {
@@ -51,17 +35,21 @@ public class MimeTypeParameterListTest extends TestCase {
 	}
 
 	public void testSimpleParameterList() throws MimeTypeParseException {
-		MimeTypeParameterList parameterList = new MimeTypeParameterList(simpleParameterListStr);
-		assertEquals(simpleParameterListStr, parameterList.toString());
+		MimeTypeParameterList parameterList = new MimeTypeParameterList(";name=value");
+        assertEquals(1, parameterList.size());
+        assertEquals("name", parameterList.getNames().nextElement());
+		assertEquals("value", parameterList.get("name"));
 	}
 
 	public void testWhiteSpacesParameterList() throws MimeTypeParseException {
-		MimeTypeParameterList parameterList = new MimeTypeParameterList(withWhiteSpacesParameterListStr);
-		assertEquals(simpleParameterListStr, parameterList.toString());
+		MimeTypeParameterList parameterList = new MimeTypeParameterList("; name= value ;  ");
+        assertEquals(1, parameterList.size());
+        assertEquals("name", parameterList.getNames().nextElement());
+		assertEquals("value", parameterList.get("name"));
 	}
 
 	public void testLongParameterList() throws MimeTypeParseException {
-		MimeTypeParameterList parameterList = new MimeTypeParameterList(longParameterListStr);
+		MimeTypeParameterList parameterList = new MimeTypeParameterList(";name1=value1; name2 = value2; name3=value3;name4  = value4");
 		assertEquals(4, parameterList.size());
 		assertEquals("value1", parameterList.get("name1"));
 		assertEquals("value2", parameterList.get("name2"));
@@ -69,24 +57,22 @@ public class MimeTypeParameterListTest extends TestCase {
 		assertEquals("value4", parameterList.get("name4"));
 	}
 
-	public void testNoNameParameterList() {
-		boolean catched = false;
+	public void testNoValueParameterList() {
 		try {
-			MimeTypeParameterList parameterList = new MimeTypeParameterList(noNameParameterListStr);
+			new MimeTypeParameterList("; name=");
+            fail("Expected MimeTypeParseException");
 		} catch (MimeTypeParseException mtpEx) {
-			catched = true;
+            // ok
 		}
-		assertTrue(catched);
 	}
 
-	public void testNoValueParameterList() {
-		boolean catched = false;
+	public void testNoNameParameterList() {
 		try {
-			MimeTypeParameterList parameterList = new MimeTypeParameterList(noValueParameterListStr);
+			new MimeTypeParameterList("; = value");
+            fail("Expected MimeTypeParseException");
 		} catch (MimeTypeParseException mtpEx) {
-			catched = true;
+            // ok
 		}
-		assertTrue(catched);
 	}
 }
 

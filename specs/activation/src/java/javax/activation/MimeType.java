@@ -31,8 +31,8 @@ public class MimeType implements Externalizable {
     private final static String PARAMETER_SEPARATOR = ";";
     private final static String STAR_SUB_TYPE = "*";
 
-    private String primaryType = "text";
-    private String subType = "plain";
+    private String primaryType = "application";
+    private String subType = "*";
     private MimeTypeParameterList parameterList = new MimeTypeParameterList();;
 
     public MimeType() {

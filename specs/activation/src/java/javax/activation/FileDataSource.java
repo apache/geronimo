@@ -28,8 +28,7 @@ import java.io.OutputStream;
  * @version $Rev$ $Date$
  */
 public class FileDataSource implements DataSource {
-
-    private File file;
+    private final File file;
     private FileTypeMap fileTypeMap;
 
     /**
@@ -64,10 +63,11 @@ public class FileDataSource implements DataSource {
      * Returns the content type of the data source
      */
     public String getContentType() {
-        if (fileTypeMap == null)
+        if (fileTypeMap == null) {
             return FileTypeMap.getDefaultFileTypeMap().getContentType(file);
-
-        return fileTypeMap.getContentType(file);
+        } else {
+            return fileTypeMap.getContentType(file);
+        }
     }
 
     /**

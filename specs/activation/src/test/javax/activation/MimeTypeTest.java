@@ -26,8 +26,8 @@ import junit.framework.TestCase;
  */
 public class MimeTypeTest extends TestCase {
 
-	private final static String DEFAULT_PRIMARY_TYPE = "text";
-	private final static String DEFAULT_SUB_TYPE = "plain";
+	private final static String DEFAULT_PRIMARY_TYPE = "application";
+	private final static String DEFAULT_SUB_TYPE = "*";
 
 	private String defaultRawdata;
 	private String primary;
@@ -40,7 +40,7 @@ public class MimeTypeTest extends TestCase {
 
 	public void setUp() throws Exception {
 		super.setUp();
-		defaultRawdata = "text/plain;";
+		defaultRawdata = "application/*;";
 		primary = "primary";
 		sub = "sub";
 		withParamsRawdata = primary + "/" + sub + "; name1 =value1; name2 = value2;";

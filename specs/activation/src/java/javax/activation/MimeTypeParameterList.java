@@ -22,6 +22,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.Iterator;
 
 
 /**
@@ -97,11 +98,10 @@ public class MimeTypeParameterList {
     }
 
     public String toString() {
-        StringBuffer buf = new StringBuffer();
-        for (Enumeration e = getNames(); e.hasMoreElements();) {
-            buf.append(PARAMETER_SEPARATOR);
-            String name = (String) e.nextElement();
-            buf.append(name).append(NAME_VALUE_SEPARATOR).append(get(name));
+        StringBuffer buf = new StringBuffer(_mimeTypeParameterMap.size() << 4);
+        for (Iterator i = _mimeTypeParameterMap.entrySet().iterator(); i.hasNext();) {
+            Map.Entry entry = (Map.Entry) i.next();
+            buf.append("; ").append(entry.getKey()).append('=').append(entry.getValue());
         }
         return buf.toString();
     }

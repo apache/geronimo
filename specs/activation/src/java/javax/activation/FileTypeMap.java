@@ -25,8 +25,30 @@ import java.io.File;
  * @version $Rev$ $Date$
  */
 public abstract class FileTypeMap {
+    // we use null here rather than a default because
+    // the constructor for MimetypesFileTypeMap does a lot of I/O
+    private static FileTypeMap defaultFileTypeMap = null;
 
-    private static FileTypeMap defaultFileTypeMap;
+    /**
+     * Sets the default FileTypeMap for the system.
+     * @param fileMap the new default FileTypeMap
+     * @throws SecurityException if the caller does not have "SetFactory" RuntimePermission
+     */
+    public static void setDefaultFileTypeMap(FileTypeMap fileMap) {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) {
+            sm.checkSetFactory();
+        }
+        defaultFileTypeMap = fileMap;
+    }
+
+    /**
+     * Returns the default FileTypeMap
+     * @return the default FileTYpeMap; if null returns a MimetypesFileTypeMap
+     */
+    public static FileTypeMap getDefaultFileTypeMap() {
+        return defaultFileTypeMap != null ? defaultFileTypeMap : new MimetypesFileTypeMap();
+    }
 
     public FileTypeMap() {
     }
@@ -34,20 +56,4 @@ public abstract class FileTypeMap {
     public abstract String getContentType(File file);
 
     public abstract String getContentType(String filename);
-
-    /**
-     * Sets the default FileTypeMap for the system
-     */
-    public static void setDefaultFileTypeMap(FileTypeMap map) {
-        defaultFileTypeMap = map;
-    }
-
-    /**
-     * Returns the default FileTypeMap
-     */
-    public static FileTypeMap getDefaultFileTypeMap() {
-        if (defaultFileTypeMap == null)
-            return new MimetypesFileTypeMap();
-        return defaultFileTypeMap;
-    }
 }

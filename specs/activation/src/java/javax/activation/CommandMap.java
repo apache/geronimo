@@ -21,17 +21,32 @@ package javax.activation;
  * @version $Rev$ $Date$
  */
 public abstract class CommandMap {
-    public CommandMap() {
-        /*@todo implement*/
-    }
+    private static CommandMap defaultCommandMap = new MailcapCommandMap();
 
+    /**
+     * Return the default CommandMap. If this has not been explictly set
+     * using setDefaultCommandMap() then a MailcapCommandMap is returned.
+     * @return the default CommandMap
+     */
     public static CommandMap getDefaultCommandMap() {
-        /*@todo implement*/
-        return null;
+        return defaultCommandMap;
     }
 
+    /**
+     * Set the default CommandMap.
+     *
+     * @param commandMap the new default CommandMap; if null resets to a MailcapCommandMap 
+     * @throws SecurityException if the caller does not have "SetFactory" RuntimePermission
+     */
     public static void setDefaultCommandMap(CommandMap commandMap) {
-        /*@todo implement*/
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) {
+            sm.checkSetFactory();
+        }
+        defaultCommandMap = commandMap == null ? new MailcapCommandMap() : commandMap;
+    }
+
+    public CommandMap() {
     }
 
     public abstract CommandInfo[] getPreferredCommands(String mimeType);
