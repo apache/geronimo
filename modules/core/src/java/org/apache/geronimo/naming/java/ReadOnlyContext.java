@@ -60,6 +60,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
+
 import javax.naming.Binding;
 import javax.naming.CompositeName;
 import javax.naming.Context;
@@ -92,33 +93,18 @@ import javax.naming.spi.NamingManager;
  *   String envEntry2 = (String) componentContext.lookup("env/myEntry2");
  * </code>
  *
- * @version $Revision: 1.7 $ $Date: 2003/12/09 05:03:49 $
+ * @version $Revision: 1.8 $ $Date: 2004/01/12 06:19:52 $
  */
 public class ReadOnlyContext implements Context {
     private final Hashtable env;        // environment for this context
     private final Map bindings;         // bindings at my level
     private final Map treeBindings;     // all bindings under me
 
-    /**
-     * Construct a ReadOnlyContext with the bindings as defined by the Map
-     * @param bindings the bindings for this level; may include sub-contexts
-     */
-    public ReadOnlyContext(Map bindings) {
-        this.env = new Hashtable();
-        this.bindings = new HashMap(bindings);
-        treeBindings = new HashMap(bindings);
-        for (Iterator i = bindings.entrySet().iterator(); i.hasNext();) {
-            Map.Entry entry = (Map.Entry) i.next();
-            Object value = entry.getValue();
-            if (value instanceof ReadOnlyContext) {
-                String key = (String) entry.getKey() + '/';
-                Map subBindings = ((ReadOnlyContext) value).treeBindings;
-                for (Iterator j = subBindings.entrySet().iterator(); j.hasNext();) {
-                    Map.Entry subEntry = (Map.Entry) j.next();
-                    treeBindings.put(key + subEntry.getKey(), subEntry.getValue());
-                }
-            }
-        }
+
+    ReadOnlyContext() {
+        env = new Hashtable();
+        bindings = new HashMap();
+        treeBindings = new HashMap();
     }
 
     ReadOnlyContext(Hashtable env) {
@@ -135,6 +121,56 @@ public class ReadOnlyContext implements Context {
         this.bindings = clone.bindings;
         this.treeBindings = clone.treeBindings;
         this.env = new Hashtable(env);
+    }
+
+    /**
+     * internalBind is intended for use only during setup or possibly by suitably synchronized superclasses.
+     * It binds every possible lookup into a map in each context.  To do this, each context
+     * strips off one name segment and if necessary creates a new context for it. Then it asks that context
+     * to bind the remaining name.  It returns a map containing all the bindings from the next context, plus
+     * the context it just created (if it in fact created it). (the names are suitably extended by the segment
+     * originally lopped off).
+     * @param name
+     * @param value
+     * @return
+     * @throws NamingException
+     */
+    Map internalBind(String name, Object value) throws NamingException {
+        assert name != null;
+        assert !name.equals("");
+        Map newBindings = new HashMap();
+        int pos = name.indexOf('/');
+        if (pos == -1) {
+            if (treeBindings.put(name, value) != null) {
+                throw new NamingException("Something already bound at " + name);
+            }
+            bindings.put(name, value);
+            newBindings.put(name, value);
+        } else {
+            String segment = name.substring(0, pos);
+            assert segment != null;
+            assert !segment.equals("");
+            Object o = treeBindings.get(segment);
+            if (o == null) {
+                o = new ReadOnlyContext();
+                treeBindings.put(segment, o);
+                bindings.put(segment, o);
+                newBindings.put(segment, o);
+            } else if (!(o instanceof ReadOnlyContext)) {
+                throw new NamingException("Something already bound where a subcontext should go");
+            }
+            ReadOnlyContext readOnlyContext = (ReadOnlyContext)o;
+            String remainder = name.substring(pos + 1);
+            Map subBindings = readOnlyContext.internalBind(remainder, value);
+            for (Iterator iterator = subBindings.entrySet().iterator(); iterator.hasNext();) {
+                Map.Entry entry = (Map.Entry) iterator.next();
+                String subName = segment + "/" + (String)entry.getKey();
+                Object bound = entry.getValue();
+                treeBindings.put(subName, bound);
+                newBindings.put(subName, bound);
+            }
+        }
+        return newBindings;
     }
 
     public Object addToEnvironment(String propName, Object propVal) throws NamingException {
@@ -309,7 +345,6 @@ public class ReadOnlyContext implements Context {
     public void unbind(String name) throws NamingException {
         throw new OperationNotSupportedException();
     }
-
 
     private abstract class LocalNamingEnumeration implements NamingEnumeration {
         private Iterator i = bindings.entrySet().iterator();

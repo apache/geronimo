@@ -57,30 +57,28 @@ package org.apache.geronimo.naming.java;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-import javax.naming.LinkRef;
-import javax.naming.Reference;
+
 import javax.naming.NamingException;
+import javax.naming.Reference;
 import javax.transaction.UserTransaction;
 
+import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbLocalRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.JNDIEnvironmentRefs;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceRef;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.JNDILocator;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbLocalRef;
 import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
 import org.apache.geronimo.kernel.deployment.DeploymentException;
 
 /**
  *
  *
- * @version $Revision: 1.10 $ $Date: 2003/11/16 05:24:38 $
+ * @version $Revision: 1.11 $ $Date: 2004/01/12 06:19:52 $
  */
 public class ComponentContextBuilder {
 
     private final ReferenceFactory referenceFactory;
     private final UserTransaction userTransaction;
+    private static final String ENV = "env/";
 
     public ComponentContextBuilder(ReferenceFactory referenceFactory, UserTransaction userTransaction) {
         this.userTransaction = userTransaction;
@@ -94,21 +92,23 @@ public class ComponentContextBuilder {
      * @return a Context that can be bound to java:comp
      */
     public ReadOnlyContext buildContext(JNDIEnvironmentRefs refs) throws DeploymentException {
-        Map envMap = new HashMap();
-        buildEnvEntries(envMap, refs.getEnvEntry());
-        buildEJBRefs(envMap, refs.getGeronimoEJBRef());
-        buildEJBLocalRefs(envMap, refs.getGeronimoEJBLocalRef());
-        buildResourceRefs(envMap, refs.getGeronimoResourceRef());
+        ReadOnlyContext readOnlyContext = new ReadOnlyContext();
+        buildEnvEntries(readOnlyContext, refs.getEnvEntry());
+        buildEJBRefs(readOnlyContext, refs.getGeronimoEJBRef());
+        buildEJBLocalRefs(readOnlyContext, refs.getGeronimoEJBLocalRef());
+        buildResourceRefs(readOnlyContext, refs.getGeronimoResourceRef());
 
-        Map compMap = new HashMap();
-        compMap.put("env", new ReadOnlyContext(envMap));
         if (userTransaction != null) {
-            compMap.put("UserTransaction", userTransaction);
+            try {
+                readOnlyContext.internalBind("UserTransaction", userTransaction);
+            } catch (NamingException e) {
+                throw new DeploymentException("could not bind UserTransaction", e);
+            }
         }
-        return new ReadOnlyContext(compMap);
+        return readOnlyContext;
     }
 
-    private static void buildEnvEntries(Map envMap, EnvEntry[] envEntries) throws DeploymentException {
+    private static void buildEnvEntries(ReadOnlyContext readOnlyContext, EnvEntry[] envEntries) throws DeploymentException {
         for (int i = 0; i < envEntries.length; i++) {
             EnvEntry entry = envEntries[i];
             String name = entry.getEnvEntryName();
@@ -142,13 +142,15 @@ public class ComponentContextBuilder {
             } catch (NumberFormatException e) {
                 throw new DeploymentException("Invalid numeric value for env-entry " + name + ", value=" + value);
             }
-            if (envMap.put(name, mapEntry) != null) {
-                throw new AssertionError("Duplicate entry for env-entry " + name);
+            try {
+                readOnlyContext.internalBind(ENV + name, mapEntry);
+            } catch (NamingException e) {
+                throw new DeploymentException("Could not bind", e);
             }
         }
     }
 
-    private void buildEJBRefs(Map envMap, EjbRef[] ejbRefs) throws DeploymentException {
+    private void buildEJBRefs(ReadOnlyContext readOnlyContext, EjbRef[] ejbRefs) throws DeploymentException {
         for (int i = 0; i < ejbRefs.length; i++) {
             EjbRef ejbRef = ejbRefs[i];
             String name = ejbRef.getEJBRefName();
@@ -158,13 +160,15 @@ public class ComponentContextBuilder {
             } catch (NamingException e) {
                 throw new DeploymentException("Could not construct reference to " + ejbRef.getJndiName() + ", " + e.getMessage());
             }
-            if (envMap.put(name, ref) != null) {
-                throw new DeploymentException("Duplicate entry for env-entry " + name);
+            try {
+                readOnlyContext.internalBind(ENV + name, ref);
+            } catch (NamingException e) {
+                throw new DeploymentException("could not bind", e);
             }
         }
     }
 
-    private void buildEJBLocalRefs(Map envMap, EjbLocalRef[] ejbLocalRefs) throws DeploymentException {
+    private void buildEJBLocalRefs(ReadOnlyContext readOnlyContext, EjbLocalRef[] ejbLocalRefs) throws DeploymentException {
         for (int i = 0; i < ejbLocalRefs.length; i++) {
             EjbLocalRef ejbLocalRef = ejbLocalRefs[i];
             String name = ejbLocalRef.getEJBRefName();
@@ -174,13 +178,15 @@ public class ComponentContextBuilder {
             } catch (NamingException e) {
                 throw new DeploymentException("Could not construct reference to " + ejbLocalRef.getJndiName() + ", " + e.getMessage());
             }
-            if (envMap.put(name, ref) != null) {
-                throw new DeploymentException("Duplicate entry for env-entry " + name);
+            try {
+                readOnlyContext.internalBind(ENV + name, ref);
+            } catch (NamingException e) {
+                throw new DeploymentException("Could not bind", e);
             }
         }
     }
 
-    private void buildResourceRefs(Map envMap, ResourceRef[] resRefs) throws DeploymentException {
+    private void buildResourceRefs(ReadOnlyContext readOnlyContext, ResourceRef[] resRefs) throws DeploymentException {
         for (int i=0; i < resRefs.length; i++) {
             ResourceRef resRef = resRefs[i];
             String name = resRef.getResRefName();
@@ -199,8 +205,10 @@ public class ComponentContextBuilder {
                     throw new DeploymentException("Could not construct reference to " + resRef.getJndiName());
                 }
             }
-            if (envMap.put(name, ref) != null) {
-                throw new AssertionError("Duplicate entry for resource-ref " + name);
+            try {
+                readOnlyContext.internalBind(ENV + name, ref);
+            } catch (NamingException e) {
+                throw new DeploymentException("Could not bind", e);
             }
         }
     }

@@ -53,45 +53,59 @@
  *
  * ====================================================================
  */
+
 package org.apache.geronimo.naming.java;
+
+import java.util.HashMap;
+import java.util.Properties;
+import java.util.Map;
 
 import javax.naming.InitialContext;
 import javax.naming.LinkRef;
+import javax.naming.Context;
+import javax.naming.NamingException;
 
 import junit.framework.TestCase;
 
 /**
- * Test component context can be inherited by Threads spawned by
- * a component. This is required for Application Client and Servlets;
- * it is not applicable to EJBs as they are not allowed to create Threads.
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/12 06:19:52 $
- */
-public class ThreadContextTest extends TestCase {
-
-    private Throwable failure = null;
-    public void testThreadInheritence() throws Throwable {
-        Thread worker = new Thread() {
-            public void run() {
-                try {
-                    assertEquals("Hello", new InitialContext().lookup("java:comp/env/hello"));
-                } catch (Throwable e) {
-                    failure = e;
-                }
-            }
-        };
-        worker.start();
-        worker.join();
-        if (failure != null) {
-            throw failure;
-        }
-    }
+ *
+ * @version $Revision: 1.1 $ $Date: 2004/01/12 06:19:52 $
+ *
+ * */
+public class AbstractContextTest extends TestCase {
+    protected ReadOnlyContext readOnlyContext;
+    protected Properties syntax;
+    protected Map envBinding;
+    protected Context initialContext;
+    protected Context compContext;
+    protected Context envContext;
 
     protected void setUp() throws Exception {
-        ReadOnlyContext readOnlyContext = new ReadOnlyContext();
+        initialContext = new InitialContext();
+
+        readOnlyContext = new ReadOnlyContext();
+
+        envBinding = new HashMap();
         readOnlyContext.internalBind("env/hello", "Hello");
-        readOnlyContext.internalBind("env/world", "Hello World");
-        readOnlyContext.internalBind("env/link", new LinkRef("java:comp/env/hello"));
+        envBinding.put("hello", "Hello");
+        bind("env/world", "Hello World");
+        envBinding.put("world", "Hello World");
+        bind("env/here/there/anywhere", "long name");
+        envBinding.put("here", readOnlyContext.lookup("env/here"));
+        LinkRef link = new LinkRef("java:comp/env/hello");
+        bind("env/link", link);
+        envBinding.put("link", link);
+
         RootContext.setComponentContext(readOnlyContext);
+
+        compContext = (Context) initialContext.lookup("java:comp");
+        envContext = (Context) initialContext.lookup("java:comp/env");
+
+        syntax = new Properties();
+    }
+
+    protected void bind(String name, Object value) throws NamingException {
+        readOnlyContext.internalBind(name, value);
     }
 }

@@ -56,8 +56,8 @@
 
 package org.apache.geronimo.naming.jmx;
 
-import java.util.HashMap;
 import java.util.Hashtable;
+
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.naming.CompositeName;
@@ -66,21 +66,20 @@ import javax.naming.InitialContext;
 import javax.naming.LinkRef;
 import javax.naming.NamingException;
 
-import junit.framework.TestCase;
 import org.apache.geronimo.kernel.jmx.JMXKernel;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBean;
-import org.apache.geronimo.naming.java.ReadOnlyContext;
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.naming.java.AbstractContextTest;
 import org.apache.geronimo.naming.java.RootContext;
 import org.apache.geronimo.test.util.ServerUtil;
 
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2003/11/19 02:08:42 $
+ * @version $Revision: 1.6 $ $Date: 2004/01/12 06:19:52 $
  *
  * */
-public class ContextTest extends TestCase {
+public class ContextTest extends AbstractContextTest {
 
     private final static String on1 = "geronimo.test:name=test,role=first";
     private final static String mn1 = "getEJBHome";
@@ -91,6 +90,7 @@ public class ContextTest extends TestCase {
     private TestObject mbean;
 
     protected void setUp() throws Exception {
+        super.setUp();
         server = ServerUtil.newLocalServer();
 
         agentId = JMXKernel.getMBeanServerId(server);
@@ -145,34 +145,27 @@ public class ContextTest extends TestCase {
          }
     }
 
-    public void XtestJmxURLContextFactory() throws Exception {
+    public void testJmxURLContextFactory() throws Exception {
         jmxURLContextFactory contextFactory = new jmxURLContextFactory();
         Context context = (Context)contextFactory.getObjectInstance(null, null, null, new Hashtable());
         Object result = context.lookup(JMXContext.encode(agentId, on1, mn1));
         assertTrue("Expected the supplied object back", result == mbean.getEJBHome());
     }
 
+    public void testLinkRefToJMX() throws Exception {
+        bind("env/link2", new LinkRef(JMXContext.encode(agentId, on1, mn1)));
+        RootContext.setComponentContext(readOnlyContext);
 
-    public void XtestLinkRefToJMX() throws Exception {
         InitialContext initialContext = new InitialContext();
-
-        HashMap compBinding = new HashMap();
-
-        HashMap envBinding = new HashMap();
-        envBinding.put("link", new LinkRef(JMXContext.encode(agentId, on1, mn1)));
-        compBinding.put("env", new ReadOnlyContext(envBinding));
-        RootContext.setComponentContext(new ReadOnlyContext(compBinding));
-
         Context compContext = (Context) initialContext.lookup("java:comp");
         Context envContext = (Context) initialContext.lookup("java:comp/env");
 
-        Object result = initialContext.lookup("java:comp/env/link");
+        Object result = initialContext.lookup("java:comp/env/link2");
         assertTrue("Expected the supplied object back", result == mbean.getEJBHome());
-        result = compContext.lookup("env/link");
+        result = compContext.lookup("env/link2");
         assertTrue("Expected the supplied object back", result == mbean.getEJBHome());
-        result = envContext.lookup("link");
+        result = envContext.lookup("link2");
         assertTrue("Expected the supplied object back", result == mbean.getEJBHome());
     }
-
 
 }

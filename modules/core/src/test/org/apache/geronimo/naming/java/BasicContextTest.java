@@ -58,9 +58,7 @@ package org.apache.geronimo.naming.java;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Properties;
 import java.util.NoSuchElementException;
-import java.util.Hashtable;
 
 import javax.naming.Binding;
 import javax.naming.CompositeName;
@@ -70,24 +68,15 @@ import javax.naming.InitialContext;
 import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.LinkRef;
 
 import org.apache.geronimo.common.StopWatch;
-
-import junit.framework.TestCase;
 
 /**
 * Unit tests for basic ops on an {@link InitialContext}.
  *
- * @version $Revision: 1.6 $ $Date: 2003/10/19 01:56:15 $
+ * @version $Revision: 1.7 $ $Date: 2004/01/12 06:19:52 $
  */
-public class BasicContextTest extends TestCase {
-    private Properties syntax;
-    private Map compBinding;
-    private Map envBinding;
-    private Context initialContext;
-    private Context compContext;
-    private Context envContext;
+public class BasicContextTest extends AbstractContextTest {
 
     public void testInitialContext() throws NamingException {
         assertEquals("Hello", initialContext.lookup("java:comp/env/hello"));
@@ -109,6 +98,13 @@ public class BasicContextTest extends TestCase {
         assertEquals("Hello", compContext.lookup(new CompoundName("env/hello", syntax)));
 
         assertEquals(envContext, envContext.lookup(""));
+    }
+
+    public void testSubContext() throws NamingException {
+        assertEquals("long name", initialContext.lookup("java:comp/env/here/there/anywhere"));
+        Context intermediate = (Context)initialContext.lookup("java:comp/env/here/there");
+        assertNotNull(intermediate);
+        assertEquals("long name", intermediate.lookup("anywhere"));
     }
 
     public void testSchemeLookup() throws NamingException {
@@ -162,14 +158,17 @@ public class BasicContextTest extends TestCase {
 
     public void testListBindings() throws NamingException {
         NamingEnumeration enum;
-        Map result;
         enum = envContext.listBindings("");
-        result = new HashMap();
+        int count = 0;
         while (enum.hasMore()) {
+            count ++;
             Binding pair = (Binding) enum.next();
-            result.put(pair.getName(), pair.getObject());
+            assertTrue(envBinding.containsKey(pair.getName()));
+            if (! (envBinding.get(pair.getName()) instanceof ReadOnlyContext)) {
+                assertEquals(pair.getObject(), envBinding.get(pair.getName()));
+            }
         }
-        assertEquals(envBinding, result);
+        assertEquals(envBinding.size(), count);
 
         try {
             enum.next();
@@ -199,22 +198,4 @@ public class BasicContextTest extends TestCase {
         System.out.println("lookup(String): " + watch.toDuration());
     }
 
-    protected void setUp() throws Exception {
-        super.setUp();
-        initialContext = new InitialContext();
-
-        compBinding = new HashMap();
-
-        envBinding = new HashMap();
-        envBinding.put("hello", "Hello");
-        envBinding.put("world", "Hello World");
-        envBinding.put("link", new LinkRef("java:comp/env/hello"));
-        compBinding.put("env", new ReadOnlyContext(envBinding));
-        RootContext.setComponentContext(new ReadOnlyContext(compBinding));
-
-        compContext = (Context) initialContext.lookup("java:comp");
-        envContext = (Context) initialContext.lookup("java:comp/env");
-
-        syntax = new Properties();
-    }
 }

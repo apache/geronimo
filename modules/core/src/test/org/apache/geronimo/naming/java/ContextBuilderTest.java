@@ -77,7 +77,7 @@ import org.apache.geronimo.transaction.manager.UserTransactionImpl;
 /**
  *
  *
- * @version $Revision: 1.11 $ $Date: 2003/12/30 08:28:57 $
+ * @version $Revision: 1.12 $ $Date: 2004/01/12 06:19:52 $
  */
 public class ContextBuilderTest extends TestCase {
     protected static final String objectName1 = "geronimo.test:name=test1";
@@ -110,6 +110,10 @@ public class ContextBuilderTest extends TestCase {
         intEntry.setEnvEntryName("int");
         intEntry.setEnvEntryType("java.lang.Integer");
         intEntry.setEnvEntryValue("12345");
+        EnvEntry compoundEntry = new EnvEntry();
+        compoundEntry.setEnvEntryName("this/is/a/compound/name");
+        compoundEntry.setEnvEntryType("java.lang.String");
+        compoundEntry.setEnvEntryValue("long name");
 
         EjbRef ejbRef = new EjbRef();
         ejbRef.setEJBRefName("here/there/EJB1");
@@ -140,7 +144,7 @@ public class ContextBuilderTest extends TestCase {
         cfRef.setResRefName("DefaultCF");
         cfRef.setJndiName(objectName1);
 
-        client.setEnvEntry(new EnvEntry[] { stringEntry, intEntry });
+        client.setEnvEntry(new EnvEntry[] { stringEntry, intEntry, compoundEntry });
         session.setEnvEntry(client.getEnvEntry());
         client.setEJBRef(new EjbRef[] {ejbRef, ejbLinkRef});
         session.setEJBRef(client.getEJBRef());
@@ -155,6 +159,10 @@ public class ContextBuilderTest extends TestCase {
         assertEquals("Hello World", compCtx.lookup("env/string"));
         assertEquals(new Integer(12345), compCtx.lookup("env/int"));
         assertEquals(new URL("http://localhost/path"), compCtx.lookup("env/url/testURL"));
+        assertEquals("long name", compCtx.lookup("env/this/is/a/compound/name"));
+        Context intermediate = (Context)compCtx.lookup("env/this/is/a");
+        assertNotNull(intermediate);
+        assertEquals("long name", intermediate.lookup("compound/name"));
     }
 
     public void testUserTransaction() throws Exception {
