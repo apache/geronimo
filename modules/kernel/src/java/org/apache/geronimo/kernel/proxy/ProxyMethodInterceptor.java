@@ -18,18 +18,19 @@ package org.apache.geronimo.kernel.proxy;
 
 import java.beans.Introspector;
 import java.lang.reflect.Method;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanInfo;
-import javax.management.MBeanOperationInfo;
+import java.util.Set;
 import javax.management.ObjectName;
 
 import net.sf.cglib.core.Signature;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 import net.sf.cglib.reflect.FastClass;
+import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.GOperationSignature;
 import org.apache.geronimo.gbean.runtime.GBeanInstance;
 import org.apache.geronimo.gbean.runtime.RawInvoker;
@@ -177,28 +178,27 @@ public class ProxyMethodInterceptor implements MethodInterceptor {
     }
 
     private ProxyInvoker[] createKernelGBeanInvokers(Kernel kernel, ObjectName objectName, Class proxyType) {
-        MBeanInfo info;
+        GBeanInfo info;
         try {
-            // todo convert this over to gbean info
-            info = kernel.getMBeanServer().getMBeanInfo(objectName);
+            info = kernel.getGBeanInfo(objectName);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Could not get MBeanInfo for target object: " + objectName);
+            throw new IllegalArgumentException("Could not get GBeanInfo for target object: " + objectName);
         }
 
         // build attributeName->attributeInfo map
-        MBeanAttributeInfo[] attributeInfos = info.getAttributes();
-        Map attributes = new HashMap(attributeInfos.length);
-        for (int i = 0; i < attributeInfos.length; i++) {
-            MBeanAttributeInfo attributeInfo = attributeInfos[i];
-            attributes.put(attributeInfo.getName(), attributeInfo);
+        Set attributeInfos = info.getAttributes();
+        Set attributeNames = new HashSet(attributeInfos.size());
+        for (Iterator iterator = attributeInfos.iterator(); iterator.hasNext();) {
+            GAttributeInfo attributeInfo = (GAttributeInfo) iterator.next();
+            attributeNames.add(attributeInfo.getName());
         }
 
-        // build operationName->operationInfo map
-        MBeanOperationInfo[] operationInfos = info.getOperations();
-        Map operations = new HashMap(operationInfos.length);
-        for (int i = 0; i < operationInfos.length; i++) {
-            MBeanOperationInfo operationInfo = operationInfos[i];
-            operations.put(new GOperationSignature(operationInfo), operationInfo);
+        // build operationSignature->operationInfo map
+        Set operationInfos = info.getOperations();
+        Set operationSignatures = new HashSet(operationInfos.size());
+        for (Iterator iterator = operationInfos.iterator(); iterator.hasNext();) {
+            GOperationInfo operationInfo = (GOperationInfo) iterator.next();
+            operationSignatures.add(new GOperationSignature(operationInfo.getName(), operationInfo.getParameterList()));
         }
 
         // build the method lookup table
@@ -209,44 +209,44 @@ public class ProxyMethodInterceptor implements MethodInterceptor {
             Method method = methods[i];
             int interfaceIndex = getSuperIndex(proxyType, method);
             if (interfaceIndex >= 0) {
-                invokers[interfaceIndex] = createJMXGBeanInvoker(kernel, method, operations, attributes);
+                invokers[interfaceIndex] = createJMXGBeanInvoker(kernel, method, operationSignatures, attributeNames);
             }
         }
 
         return invokers;
     }
 
-    private ProxyInvoker createJMXGBeanInvoker(Kernel kernel, Method method, Map operations, Map attributes) {
-        if (operations.containsKey(new GOperationSignature(method))) {
+    private ProxyInvoker createJMXGBeanInvoker(Kernel kernel, Method method, Set operationSignatures, Set attributeNames) {
+        if (operationSignatures.contains(new GOperationSignature(method))) {
             return new KernelOperationInvoker(kernel, method);
         }
 
         String name = method.getName();
         if (name.startsWith("get")) {
-            String attrName = method.getName().substring(3);
-            if (attributes.containsKey(attrName)) {
-                return new KernelGetAttributeInvoker(kernel, attrName);
+            String attributeName = method.getName().substring(3);
+            if (attributeNames.contains(attributeName)) {
+                return new KernelGetAttributeInvoker(kernel, attributeName);
             }
-            attrName = Introspector.decapitalize(attrName);
-            if (attributes.containsKey(attrName)) {
-                return new KernelGetAttributeInvoker(kernel, attrName);
+            attributeName = Introspector.decapitalize(attributeName);
+            if (attributeNames.contains(attributeName)) {
+                return new KernelGetAttributeInvoker(kernel, attributeName);
             }
         } else if (name.startsWith("is")) {
             String attrName = method.getName().substring(2);
-            if (attributes.containsKey(attrName)) {
+            if (attributeNames.contains(attrName)) {
                 return new KernelGetAttributeInvoker(kernel, attrName);
             }
             attrName = Introspector.decapitalize(attrName);
-            if (attributes.containsKey(attrName)) {
+            if (attributeNames.contains(attrName)) {
                 return new KernelGetAttributeInvoker(kernel, attrName);
             }
         } else if (name.startsWith("set")) {
             String attrName = method.getName().substring(3);
-            if (attributes.containsKey(attrName)) {
+            if (attributeNames.contains(attrName)) {
                 return new KernelSetAttributeInvoker(kernel, attrName);
             }
             attrName = Introspector.decapitalize(attrName);
-            if (attributes.containsKey(attrName)) {
+            if (attributeNames.contains(attrName)) {
                 return new KernelSetAttributeInvoker(kernel, attrName);
             }
         }
