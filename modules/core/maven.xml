@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.6 $ $Date: 2003/08/16 15:14:12 $ -->
+<!-- $Revision: 1.7 $ $Date: 2003/08/22 19:03:37 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
@@ -9,6 +9,31 @@
   
   <preGoal name="xdoc:jelly-transform">
     <attainGoal name="html2xdoc"/>
+  </preGoal>
+
+  <preGoal name="java:compile">
+    <attainGoal name="castor:prepare-filesystem"/>
+
+    <j:set var="schema" value="${basedir}/src/xml/geronimo-ejb-jar.xsd"/>
+    <j:set var="gen" value="${pom.getPluginContext('maven-castor-plugin').getVariable('maven.castor.dest')}"/>
+
+    <ant:java className="org.exolab.castor.builder.SourceGenerator"
+              failonerror="true">
+      <ant:arg value="-i"/>
+      <ant:arg value="${schema}"/>
+<!--
+      <ant:arg value="-binding-file"/>
+      <ant:arg value="${basedir}/src/etc/twiddle-configuration-binding.xml"/>
+-->
+      <ant:arg value="-package"/>
+      <ant:arg value="org.apache.geronimo.enterprise.deploy.common"/>
+      <ant:arg value="-types"/>
+      <ant:arg value="j2"/>
+      <ant:arg value="-nomarshall"/>
+      <ant:arg value="-f"/>
+      <ant:arg value="-dest"/>
+      <ant:arg value="${gen}"/>
+    </ant:java>
   </preGoal>
 
   <preGoal name="java:compile">

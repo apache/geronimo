@@ -69,13 +69,14 @@ import javax.enterprise.deploy.spi.exceptions.DConfigBeanVersionUnsupportedExcep
 import javax.enterprise.deploy.shared.ModuleType;
 import javax.enterprise.deploy.shared.DConfigBeanVersionType;
 import javax.enterprise.deploy.model.DeployableObject;
+import org.apache.geronimo.enterprise.deploy.provider.jar.EjbJarRoot;
 
 /**
  * The Geronimo implementation of the JSR-88 DeploymentManager interface.
  * This same class is used for both connected mode and disconnected mode.
  * It uses a plugin to manage that.  Currently only J2EE 1.4 is supported.
  *
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/22 19:03:37 $
  */
 public class GeronimoDeploymentManager implements DeploymentManager {
     private ServerConnection server; // a connection to an application server
@@ -85,7 +86,11 @@ public class GeronimoDeploymentManager implements DeploymentManager {
     }
 
     public DeploymentConfiguration createConfiguration(DeployableObject dObj) throws InvalidModuleException {
-        return null; //todo
+        if(dObj.getType().getValue() == ModuleType.EJB.getValue()) {
+            return new EjbJarDeploymentConfiguration(dObj, new EjbJarRoot(dObj.getDDBeanRoot()));
+        } else {
+            throw new InvalidModuleException("Can't handle modules of type "+dObj.getType());
+        }
     }
 
     /**
