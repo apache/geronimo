@@ -50,7 +50,13 @@ public class JMSException extends Exception {
         return linkedException;
     }
 
-    public void setLinkedException(Exception ex) {
+    /*
+     * Although not specified in the JavaDoc, this method need to be
+     * declared synchronized to make the serialUID the same as for
+     * the RI. However, given that the setter is not synchronized
+     * this may be problematic on some platforms.
+     */
+    public synchronized void setLinkedException(Exception ex) {
         linkedException = ex;
     }
 }
