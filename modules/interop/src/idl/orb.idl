@@ -1,0 +1,10 @@
+#ifndef _ORB_IDL_
+#define _ORB_IDL_
+module CORBA
+{
+    typedef unsigned long ServiceOption;
+    typedef unsigned long ServiceDetailType;
+
+    typedef unsigned long PolicyType;
+};
+#endif // _ORB_IDL_

@@ -281,7 +281,100 @@
 	    <ant:arg line="${pkg.prefix}"/>
 	    <ant:arg line="${maven.src.dir}/idl/CSIIOP.idl"/>
 	</ant:exec>
-</goal>
+    </goal>
+
+    <goal name="interop:idlj:security-service">
+        <ant:echo message="Interop :: idlj :: SecurityService :: TimeBase"/>
+        <ant:exec dir="${basedir}" executable="idlj">
+            <ant:arg line="-td"/>
+            <ant:arg line="${maven.build.src}"/>
+            <ant:arg line="-i"/>
+            <ant:arg line="${java.home}/lib"/>
+            <ant:arg line="-i"/>
+            <ant:arg line="${maven.src.dir}/idl"/>
+            <ant:arg line="-verbose"/>
+            <ant:arg line="-pkgPrefix"/>
+            <ant:arg line="IOP"/>
+            <ant:arg line="${pkg.prefix}"/>
+            <ant:arg line="-pkgPrefix"/>
+            <ant:arg line="IIOP"/>
+            <ant:arg line="${pkg.prefix}"/>
+            <ant:arg line="-pkgPrefix"/>
+            <ant:arg line="GIOP"/>
+            <ant:arg line="${pkg.prefix}"/>
+            <ant:arg line="-pkgPrefix"/>
+            <ant:arg line="CosNaming"/>
+            <ant:arg line="${pkg.prefix}"/>
+            <ant:arg line="-pkgPrefix"/>
+            <ant:arg line="TimeBase"/>
+            <ant:arg line="${pkg.prefix}"/>
+            <ant:arg line="-pkgPrefix"/>
+            <ant:arg line="SecurityService"/>
+            <ant:arg line="${pkg.prefix}"/>
+            <ant:arg line="${maven.src.dir}/idl/TimeBase.idl"/>
+        </ant:exec>
+
+        <ant:echo message="Interop :: idlj :: SecurityService :: SecurityService"/>
+        <ant:exec dir="${basedir}" executable="idlj">
+            <ant:arg line="-td"/>
+            <ant:arg line="${maven.build.src}"/>
+            <ant:arg line="-i"/>
+            <ant:arg line="${java.home}/lib"/>
+            <ant:arg line="-i"/>
+            <ant:arg line="${maven.src.dir}/idl"/>
+            <ant:arg line="-verbose"/>
+            <ant:arg line="-pkgPrefix"/>
+            <ant:arg line="IOP"/>
+            <ant:arg line="${pkg.prefix}"/>
+            <ant:arg line="-pkgPrefix"/>
+            <ant:arg line="IIOP"/>
+            <ant:arg line="${pkg.prefix}"/>
+            <ant:arg line="-pkgPrefix"/>
+            <ant:arg line="GIOP"/>
+            <ant:arg line="${pkg.prefix}"/>
+            <ant:arg line="-pkgPrefix"/>
+            <ant:arg line="CosNaming"/>
+            <ant:arg line="${pkg.prefix}"/>
+            <ant:arg line="-pkgPrefix"/>
+            <ant:arg line="TimeBase"/>
+            <ant:arg line="${pkg.prefix}"/>
+            <ant:arg line="-pkgPrefix"/>
+            <ant:arg line="SecurityService"/>
+            <ant:arg line="${pkg.prefix}"/>
+            <ant:arg line="${maven.src.dir}/idl/Security.idl"/>
+        </ant:exec>
+
+        <ant:echo message="Interop :: idlj :: SecurityService :: SSLIOP"/>
+        <ant:exec dir="${basedir}" executable="idlj">
+            <ant:arg line="-td"/>
+            <ant:arg line="${maven.build.src}"/>
+            <ant:arg line="-i"/>
+            <ant:arg line="${java.home}/lib"/>
+            <ant:arg line="-i"/>
+            <ant:arg line="${maven.src.dir}/idl"/>
+            <ant:arg line="-verbose"/>
+            <ant:arg line="-pkgPrefix"/>
+            <ant:arg line="IOP"/>
+            <ant:arg line="${pkg.prefix}"/>
+            <ant:arg line="-pkgPrefix"/>
+            <ant:arg line="IIOP"/>
+            <ant:arg line="${pkg.prefix}"/>
+            <ant:arg line="-pkgPrefix"/>
+            <ant:arg line="GIOP"/>
+            <ant:arg line="${pkg.prefix}"/>
+            <ant:arg line="-pkgPrefix"/>
+            <ant:arg line="CosNaming"/>
+            <ant:arg line="${pkg.prefix}"/>
+            <ant:arg line="-pkgPrefix"/>
+            <ant:arg line="TimeBase"/>
+            <ant:arg line="${pkg.prefix}"/>
+            <ant:arg line="-pkgPrefix"/>
+            <ant:arg line="SecurityService"/>
+            <ant:arg line="${pkg.prefix}"/>
+            <ant:arg line="${maven.src.dir}/idl/SSLIOP.idl"/>
+        </ant:exec>
+
+    </goal>
 
     <goal name="interop:idlj:costxn">
         <!-- Are there any CosTransaction IDL files that require generation? -->
@@ -301,6 +394,7 @@
         <attainGoal name="interop:idlj:cosnaming"/>
         <attainGoal name="interop:idlj:interop-rmi-iiop"/>
         <attainGoal name="interop:idlj:csi"/>
+        <attainGoal name="interop:idlj:security-service"/>
     </goal>
 
     <preGoal name="java:compile">
