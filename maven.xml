@@ -18,7 +18,7 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project default="default"
+<project default="m:build-all"
     xmlns:j="jelly:core"
     xmlns:u="jelly:util"
     xmlns:ant="jelly:ant"
@@ -101,18 +101,16 @@
         </j:forEach>
     </goal>
 
-    <goal name="m:rebuild" prereqs="m:clean,m:default"/>
-    <goal name="m:rebuild-all">
-        <!-- only include geronimo-spec when doeing a rebuild-all -->
+    <goal name="m:-all">
+        <!-- only include geronimo-spec when doeing a -all -->
         <j:set var="maven.multiproject.includes" value="${maven.multiproject.includes},specs/*/project.xml"/>
-        <attainGoal name="m:clean"/>
-        <attainGoal name="m:clean-repo"/>
-
-        <!-- only delete geronimo-spec when doeing a complete-rebuild -->
-        <delete dir="${maven.repo.local}/geronimo-spec"/>
-        <attainGoal name="m:default"/>
+        <j:set var="geronimo.all" value="true"/>
     </goal>
 
+    <goal name="m:rebuild-all" prereqs="m:-all,m:clean,m:clean-repo,m:default"/>
+    <goal name="m:rebuild" prereqs="m:clean,m:default"/>
+
+    <goal name="m:build-all" prereqs="m:-all,m:default"/>
     <goal name="m:build" prereqs="m:default"/>
     <goal name="m:default" prereqs="m:init">
         <!-- don't run the active mq tests they take way too long and don't complete successfully -->
@@ -124,6 +122,7 @@
         <attainGoal name="multiproject:goal"/>
     </goal>
 
+    <goal name="m:clean-all" prereqs="m:-all,m:clean"/>
     <goal name="m:clean" prereqs="m:init">
         <u:tokenize var="directories" delim=",">${modules.directories}</u:tokenize>
         <j:forEach var="directory" items="${directories}">
@@ -157,6 +156,9 @@
         <delete dir="${maven.repo.local}/howl"/>
         <delete dir="${maven.repo.local}/openejb"/>
         <delete dir="${maven.repo.local}/tranql"/>
+        <j:if test="${context.getVariable('geronimo.all') == 'true'}">
+            <delete dir="${maven.repo.local}/geronimo-spec"/>
+        </j:if>
     </goal>
 
     <goal name="m:test" prereqs="m:init">
@@ -177,6 +179,11 @@
     <goal name="m:intellij" prereqs="m:idea"/>
     <goal name="m:idea" prereqs="m:init">
         <attainGoal name="idea:multiproject"/>
+    </goal>
+
+    <goal name="m:build:start">
+        <j:set var="goal" value="build:start"/>
+        <attainGoal name="multiproject:goal"/>
     </goal>
 
     <!--  =========  -->
@@ -237,102 +244,6 @@
         <ant:exec dir="${basedir}" executable="svn">
             <ant:arg line="update"/>
         </ant:exec>
-    </goal>
-
-    <!-- ==================== -->
-    <!-- Current Multiproject -->
-    <!-- ==================== -->
-    <goal name="getotherprojects">
-        <!--activemq-->
-        <j:set var="g.scm.cvs.root" value="${geronimo.activemq.cvs.access}@cvs.activemq.codehaus.org:/home/projects/activemq/scm"/>
-
-        <j:set var="g.scm.cvs.module" value="activemq"/>
-
-        <ant:cvs command="checkout"
-           quiet="${maven.scm.cvs.quiet}"
-           cvsRsh="ssh"
-           cvsRoot="${g.scm.cvs.root}"
-           dest="${basedir}"
-           package="${g.scm.cvs.module}"
-           failonerror="true"
-        />
-
-        <!--howl-->
-        <j:set var="g.scm.cvs.root" value="${geronimo.howl.cvs.access}@cvs.forge.objectweb.org:/cvsroot/howl"/>
-        <j:set var="g.scm.cvs.module" value="howl/logger"/>
-
-        <ant:cvs command="checkout"
-           quiet="${maven.scm.cvs.quiet}"
-           cvsRsh="ssh"
-           cvsRoot="${g.scm.cvs.root}"
-           dest="${basedir}"
-           package="${g.scm.cvs.module}"
-           failonerror="true"
-        />
-
-        <!--openejb-->
-        <j:set var="g.scm.cvs.root" value="${geronimo.openejb.cvs.access}@cvs.openejb.org:/home/projects/openejb/scm"/>
-        <j:set var="g.scm.cvs.module" value="openejb"/>
-
-        <ant:cvs command="checkout"
-           quiet="${maven.scm.cvs.quiet}"
-           cvsRsh="ssh"
-           cvsRoot="${g.scm.cvs.root}"
-           dest="${basedir}"
-           package="${g.scm.cvs.module}"
-           failonerror="true"
-        />
-
-        <!--tranql-->
-        <j:set var="g.scm.cvs.root" value="${geronimo.tranql.cvs.access}@cvs.tranql.codehaus.org:/home/projects/tranql/scm"/>
-        <j:set var="g.scm.cvs.module" value="tranql"/>
-
-        <mkdir dir="${basedir}/tranql"/>
-
-        <ant:cvs command="checkout"
-           quiet="${maven.scm.cvs.quiet}"
-           cvsRsh="ssh"
-           cvsRoot="${g.scm.cvs.root}"
-           dest="${basedir}/tranql"
-           package="${g.scm.cvs.module}"
-           failonerror="true"
-        />
-
-        <!--tranql-connector-->
-        <j:set var="g.scm.cvs.root" value="${geronimo.tranql.cvs.access}@cvs.tranql.codehaus.org:/home/projects/tranql/scm"/>
-        <j:set var="g.scm.cvs.module" value="connector"/>
-
-        <ant:cvs command="checkout"
-           quiet="${maven.scm.cvs.quiet}"
-           cvsRsh="ssh"
-           cvsRoot="${g.scm.cvs.root}"
-           dest="${basedir}/tranql"
-           package="${g.scm.cvs.module}"
-           failonerror="true"
-        />
-
-    </goal>
-
-    <goal name="removeotherprojects">
-        <delete dir="${basedir}/activemq"/>
-        <delete dir="${basedir}/howl"/>
-        <delete dir="${basedir}/openejb"/>
-        <delete dir="${basedir}/tranql"/>
-    </goal>
-
-    <goal name="cleanlocalrepo">
-        <delete dir="${maven.repo.local}/activemq"/>
-        <delete dir="${maven.repo.local}/geronimo"/>
-        <delete dir="${maven.repo.local}/geronimo-spec"/>
-        <delete dir="${maven.repo.local}/howl"/>
-        <delete dir="${maven.repo.local}/openejb"/>
-        <delete dir="${maven.repo.local}/tranql"/>
-    </goal>
-
-    <goal name="complete-rebuild">
-        <attainGoal name="multiproject:clean"/>
-        <attainGoal name="cleanlocalrepo"/>
-        <attainGoal name="multiproject:install"/>
     </goal>
 
     <!--old style build starts here -->
@@ -505,9 +416,9 @@
         <modules:reactor goals="clover.wrapper"/>
     </goal>
 
-  <goal name="modules:jar-deploy">
-      <modules:reactor goals="jar:deploy"/>
-  </goal>
+    <goal name="modules:jar-deploy">
+        <modules:reactor goals="jar:deploy"/>
+    </goal>
 
     <goal name="modules:java-src">
         <modules:reactor goals="java-src"/>
