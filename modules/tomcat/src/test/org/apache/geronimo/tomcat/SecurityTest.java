@@ -16,12 +16,11 @@
  */
 package org.apache.geronimo.tomcat;
 
+import javax.management.ObjectName;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-
-import javax.management.ObjectName;
 
 import org.apache.catalina.deploy.SecurityCollection;
 import org.apache.catalina.deploy.SecurityConstraint;
@@ -29,7 +28,7 @@ import org.apache.catalina.deploy.SecurityConstraint;
 
 /**
  * Tests the JAAS security for Tomcat
- * 
+ *
  * @version $Rev: 111239 $ $Date: 2004-12-08 02:29:11 -0700 (Wed, 08 Dec 2004) $
  */
 public class SecurityTest extends AbstractWebModuleTest {
@@ -37,7 +36,7 @@ public class SecurityTest extends AbstractWebModuleTest {
     ObjectName appName = null;
     /**
      * Test the explicit map feature.  Only Alan should be able to log in.
-     *
+     * TODO uncomment this code and get it working when JACC is enabled.
      * @throws Exception thrown if an error in the test occurs
      */
     /*
@@ -368,7 +367,9 @@ public class SecurityTest extends AbstractWebModuleTest {
         stopWebApp();
     }
     */
+
     public void testNotAuthorized() throws Exception {
+
         SecurityConstraint[] constraints = new SecurityConstraint[2];
 
         SecurityConstraint sc = new SecurityConstraint();
@@ -394,14 +395,14 @@ public class SecurityTest extends AbstractWebModuleTest {
         startWebApp(constraints, securityRoles);
 
         //Begin the test
-        HttpURLConnection connection = (HttpURLConnection)
-                new URL("http://localhost:8080/securetest/protected/hello.txt").openConnection();
+        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8080/securetest/protected/hello.txt").openConnection();
         connection.setInstanceFollowRedirects(false);
         assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
         //Be sure we have been given the login page
         BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         assertEquals("<!-- Login Page -->", reader.readLine());
         reader.close();
+
         String cookie = connection.getHeaderField("Set-Cookie");
         cookie = cookie.substring(0, cookie.lastIndexOf(';'));
         String location = "http://localhost:8080/securetest/protected/j_security_check?j_username=alan&j_password=starcraft";
@@ -410,6 +411,8 @@ public class SecurityTest extends AbstractWebModuleTest {
         connection.setRequestProperty("Cookie", cookie);
         connection.setInstanceFollowRedirects(false);
         assertEquals(HttpURLConnection.HTTP_MOVED_TEMP, connection.getResponseCode());
+
+        // TODO This really should pass.  It will pass when we put in JACC
         location = connection.getHeaderField("Location");
         connection = (HttpURLConnection) new URL(location).openConnection();
         connection.setRequestProperty("Cookie", cookie);
@@ -476,11 +479,9 @@ public class SecurityTest extends AbstractWebModuleTest {
         connection.disconnect();
 
         stopWebApp();
-
     }
 
-    public void testAutoMapping
-            () throws Exception {
+    public void testAutoMapping() throws Exception {
 
         SecurityConstraint[] constraints = new SecurityConstraint[2];
 
@@ -538,27 +539,22 @@ public class SecurityTest extends AbstractWebModuleTest {
         connection.disconnect();
 
         stopWebApp();
-
     }
 
-    protected void startWebApp
-            (SecurityConstraint[] securityConstraints, String[] securityRoles) throws Exception {
+    protected void startWebApp(SecurityConstraint[] securityConstraints, String[] securityRoles) throws Exception {
         appName = setUpSecureAppContext(securityConstraints, securityRoles);
     }
 
-    protected void stopWebApp
-            () throws Exception {
+    protected void stopWebApp() throws Exception {
         stop(appName);
     }
 
-    protected void setUp
-            () throws Exception {
+    protected void setUp() throws Exception {
         super.setUp();
         setUpSecurity();
     }
 
-    protected void tearDown
-            () throws Exception {
+    protected void tearDown() throws Exception {
         tearDownSecurity();
         super.tearDown();
     }

@@ -17,21 +17,22 @@
 
 package org.apache.geronimo.tomcat;
 
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 
 import org.apache.catalina.Context;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 
+
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
- * 
+ *
  * @version $Rev: 56022 $ $Date: 2004-10-30 07:16:18 +0200 (Sat, 30 Oct 2004) $
  */
 public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
@@ -48,8 +49,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
 
     private String docBase = null;
 
-    public TomcatWebAppContext(URI webAppRoot, URI[] webClassPath, URL configurationBaseUrl, TomcatContainer container)
-            throws MalformedURLException {
+    public TomcatWebAppContext(URI webAppRoot, URI[] webClassPath, URL configurationBaseUrl, TomcatContainer container) {
 
         assert webAppRoot != null;
         assert webClassPath != null;
@@ -109,6 +109,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
 
     public void doFail() {
         container.removeContext(this);
+        
         log.info("TomcatWebAppContext failed");
     }
 
@@ -125,7 +126,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
 
         infoFactory.addReference("Container", TomcatContainer.class);
 
-        infoFactory.setConstructor(new String[] { "webAppRoot", "webClassPath", "configurationBaseUrl", "Container" });
+        infoFactory.setConstructor(new String[]{"webAppRoot", "webClassPath", "configurationBaseUrl", "Container"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

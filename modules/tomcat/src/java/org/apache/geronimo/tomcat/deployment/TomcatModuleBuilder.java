@@ -76,10 +76,6 @@ public class TomcatModuleBuilder implements ModuleBuilder {
                 .getJ2eeServerName(), earJ2eeContext.getJ2eeApplicationName(), module.getName(), null, null);
         WebModule webModule = (WebModule) module;
 
-        WebAppType webApp = (WebAppType) webModule.getSpecDD();
-        // JettyWebAppType jettyWebApp = (JettyWebAppType)
-        // webModule.getVendorDD();
-
         // construct the webClassLoader
         URI[] webClassPath = getWebClassPath(earContext, webModule);
         URI baseUri = earContext.getTargetFile(URI.create(webModule.getTargetPath() + "/")).toURI();

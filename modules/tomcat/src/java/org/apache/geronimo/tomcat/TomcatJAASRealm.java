@@ -35,7 +35,7 @@ import org.apache.geronimo.security.ContextManager;
  * @version $Rev: 106522 $ $Date: 2004-11-25 01:28:57 +0100 (Thu, 25 Nov 2004) $
  */
 public class TomcatJAASRealm extends JAASRealm {
-    private static Log log = LogFactory.getLog(TomcatJAASRealm.class);
+    private static final Log log = LogFactory.getLog(TomcatJAASRealm.class);
 
     /**
      * Descriptive information about this <code>Realm</code> implementation.
