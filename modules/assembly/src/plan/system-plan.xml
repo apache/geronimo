@@ -16,14 +16,22 @@ specific services - those should be provided by children.
 
     <executable mainClass="org.apache.geronimo.system.main.Daemon" classPath="../lib/geronimo-kernel-DEV.jar ../lib/geronimo-system-DEV.jar ../lib/cglib-full-2.0-RC2.jar ../lib/commons-cli-1.0.jar ../lib/commons-logging-1.0.3.jar ../lib/log4j-1.2.8.jar ../lib/mx4j-SNAPSHOT.jar ../lib/xercesImpl-2.6.0.jar ../lib/xmlParserAPIs-2.2.1.jar"/>
 
+    <!-- ServerInfo service -->
+    <gbean name="geronimo.system:role=ServerInfo" class="org.apache.geronimo.system.serverinfo.ServerInfo"/>
+
+    <!-- ServerInfo service -->
+    <gbean name="geronimo.system:role=URLFactory" class="org.apache.geronimo.system.url.GeronimoURLFactory"/>
+
     <!-- Configuration Store service -->
     <gbean name="geronimo.system:role=ConfigurationStore,type=Local" class="org.apache.geronimo.system.configuration.LocalConfigStore">
         <attribute name="root" type="java.net.URI">config-store</attribute>
         <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
     </gbean>
 
-    <!-- ServerInfo service -->
-    <gbean name="geronimo.system:role=ServerInfo" class="org.apache.geronimo.system.serverinfo.ServerInfo">
+    <!-- Repository -->
+    <gbean name="geronimo.system:role=Repository" class="org.apache.geronimo.system.repository.ReadOnlyRepository">
+        <attribute name="Root" type="java.net.URI">repository/</attribute>
+        <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
     </gbean>
 
     <!-- Logging service -->
@@ -48,12 +56,6 @@ specific services - those should be provided by children.
         <attribute name="BufferedSize" type="int">8192</attribute>
         <attribute name="MaxBackupIndex" type="int">1</attribute>
         <attribute name="MaxFileSize" type="java.lang.String">10MB</attribute>
-        <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
-    </gbean>
-
-    <!-- Repository -->
-    <gbean name="geronimo.system:role=Repository" class="org.apache.geronimo.system.repository.ReadOnlyRepository">
-        <attribute name="Root" type="java.net.URI">repository/</attribute>
         <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
     </gbean>
 </configuration>
