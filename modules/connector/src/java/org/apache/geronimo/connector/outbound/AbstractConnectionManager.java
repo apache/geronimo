@@ -97,9 +97,14 @@ public abstract class AbstractConnectionManager implements ConnectionManagerFact
 
     public ConnectionManagerFactory.ReturnableXAResource getRecoveryXAResource(ManagedConnectionFactory managedConnectionFactory) throws ResourceException {
         ManagedConnectionInfo mci = new ManagedConnectionInfo(managedConnectionFactory, null);
+        NamedXAResource namedXAResource = (NamedXAResource) mci.getXAResource();
+        if (namedXAResource == null) {
+            //obviously, we can't do recovery.
+            return null;
+        }
         ConnectionInfo recoveryConnectionInfo = new ConnectionInfo(mci);
         recoveryStack.getConnection(recoveryConnectionInfo);
-        return new ConnectionManagerFactory.ReturnableXAResource((NamedXAResource) mci.getXAResource(), recoveryStack, recoveryConnectionInfo);
+        return new ConnectionManagerFactory.ReturnableXAResource(namedXAResource, recoveryStack, recoveryConnectionInfo);
     }
 
 
