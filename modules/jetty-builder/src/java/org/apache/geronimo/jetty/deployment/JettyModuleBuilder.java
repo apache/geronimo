@@ -58,6 +58,7 @@ import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
+import org.apache.geronimo.j2ee.deployment.EJBWebServiceDeployer;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -66,6 +67,7 @@ import org.apache.geronimo.jetty.JettyFilterHolder;
 import org.apache.geronimo.jetty.JettyFilterMapping;
 import org.apache.geronimo.jetty.JettyServletHolder;
 import org.apache.geronimo.jetty.JettyWebAppContext;
+import org.apache.geronimo.jetty.JettyWebServiceHandler;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
@@ -113,7 +115,7 @@ import org.mortbay.jetty.servlet.FormAuthenticator;
 /**
  * @version $Rev$ $Date$
  */
-public class JettyModuleBuilder implements ModuleBuilder {
+public class JettyModuleBuilder implements ModuleBuilder, EJBWebServiceDeployer {
     private final URI defaultParentId;
     private final ObjectName jettyContainerObjectName;
     private final ObjectName defaultServlets;
@@ -717,8 +719,8 @@ public class JettyModuleBuilder implements ModuleBuilder {
                 throw new DeploymentException("Could not load javax.servlet.Servlet in web classloader", e);
             }
             if (baseServletClass.isAssignableFrom(servletClass)) {
-            servletData = new GBeanData(servletObjectName, JettyServletHolder.GBEAN_INFO);
-            servletData.setAttribute("servletClass", servletClassName);
+                servletData = new GBeanData(servletObjectName, JettyServletHolder.GBEAN_INFO);
+                servletData.setAttribute("servletClass", servletClassName);
             } else {
 //                servletData = webServiceBuilder.buildServletGBean();
                 System.out.println("NOT DEPLOYING WEB SERVICE CLASS " + servletClassName);
@@ -996,12 +998,6 @@ public class JettyModuleBuilder implements ModuleBuilder {
     }
 
     private Map buildComponentContext(EARContext earContext, Module webModule, WebAppType webApp, JettyWebAppType jettyWebApp, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {
-        URI targetPathUri = null;
-        try {
-            targetPathUri = new URI(webModule.getTargetPath() + "/");
-        } catch (URISyntaxException e) {
-            throw new DeploymentException("Could not locate module within configuration", e);
-        }
         return ENCConfigBuilder.buildComponentContext(earContext,
                 webModule,
                 userTransaction,
@@ -1058,6 +1054,21 @@ public class JettyModuleBuilder implements ModuleBuilder {
         if (webApp.getLoginConfigArray().length > 1) throw new DeploymentException("Multiple <login-config> elements found");
     }
 
+
+    public void addEJBWebService(ObjectName containerId, String contextPath, String name, J2eeContext j2eeModuleContext, EARContext earContext) throws DeploymentException {
+        ObjectName webServiceHandlerName = null;
+        try {
+            webServiceHandlerName = NameFactory.getWebComponentName(null, null, null, null, name, NameFactory.WEB_MODULE, j2eeModuleContext);
+        } catch (MalformedObjectNameException e) {
+            throw new DeploymentException("Could not construct web service handler name", e);
+        }
+        GBeanData webServiceGBeanData = new GBeanData(webServiceHandlerName, JettyWebServiceHandler.GBEAN_INFO);
+        webServiceGBeanData.setAttribute("contextPath", contextPath);
+        webServiceGBeanData.setReferencePattern("WebServiceInvoker", containerId);
+        webServiceGBeanData.setReferencePattern("JettyContainer", jettyContainerObjectName);
+        earContext.addGBean(webServiceGBeanData);
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
@@ -1089,4 +1100,5 @@ public class JettyModuleBuilder implements ModuleBuilder {
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
+
 }

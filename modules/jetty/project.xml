@@ -91,6 +91,12 @@
         </dependency>
 
         <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-webservices</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+
+        <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jta</artifactId>
             <version>${geronimo_spec_jta_version}</version>

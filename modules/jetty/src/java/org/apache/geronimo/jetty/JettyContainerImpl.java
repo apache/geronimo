@@ -33,6 +33,10 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 public class JettyContainerImpl implements JettyContainer, GBeanLifecycle {
     private final Server server;
 
+    public JettyContainerImpl() {
+        server = new JettyServer();
+    }
+
     public void resetStatistics() {
         server.statsReset();
     }
@@ -99,10 +103,6 @@ public class JettyContainerImpl implements JettyContainer, GBeanLifecycle {
 
     public long getRequestsDurationMax() {
         return server.getRequestsDurationMax();
-    }
-
-    public JettyContainerImpl() {
-        server = new JettyServer();
     }
 
     public void addListener(HttpListener listener) {
