@@ -34,6 +34,7 @@
 
     <menu name="Geronimo">
       <item name="Overview"                href="/index.html"/>
+      <item name="Documentation"           href="/documentation.html" />
       <item name="FAQ"                     href="/faq.html"/>
       <item name="Wiki"                    href="http://wiki.apache.org/geronimo"/>
       <item name="Jira"                    href="http://nagoya.apache.org/jira/secure/BrowseProject.jspa?id=10220"/>
