@@ -60,7 +60,6 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
 import java.util.Map;
-import java.util.HashMap;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
@@ -69,17 +68,15 @@ import javax.management.MBeanInfo;
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanOperationInfo;
 import javax.management.MBeanException;
-import javax.management.ReflectionException;
-import javax.management.RuntimeOperationsException;
-import javax.management.RuntimeMBeanException;
-import javax.management.RuntimeErrorException;
+
+import org.apache.commons.collections.ReferenceMap;
 
 import org.apache.geronimo.common.NullArgumentException;
 
 /**
  * This class handles invocations for MBean proxies.
  *
- * @version $Revision: 1.4 $ $Date: 2003/09/01 15:11:57 $
+ * @version $Revision: 1.5 $ $Date: 2003/09/01 19:18:47 $
  */
 public class MBeanProxyHandler
     implements InvocationHandler, MBeanProxyContext
@@ -88,10 +85,6 @@ public class MBeanProxyHandler
     protected ObjectName target;
     protected Map attributeMap;
     protected Map taskCache;
-    
-    //
-    // TODO: Replace cache map with a backing which will not eat memory
-    //
     
     public MBeanProxyHandler(final MBeanServer server,
                              final ObjectName target)
@@ -232,7 +225,8 @@ public class MBeanProxyHandler
     {
         assert method != null;
         
-        if (taskCache == null) {
+        // Lazy init the attribute map
+        if (attributeMap == null) {
             // Allow sub-class overrides
             ObjectName target = getObjectName();
             
@@ -240,14 +234,11 @@ public class MBeanProxyHandler
             MBeanInfo info = server.getMBeanInfo(target);
             
             // Load up the attribute mapping
-            attributeMap = new HashMap();
+            attributeMap = new ReferenceMap(ReferenceMap.HARD, ReferenceMap.SOFT);
             MBeanAttributeInfo[] attributes = info.getAttributes();
             for (int i=0; i<attributes.length; i++) {
                 attributeMap.put(attributes[i].getName(), attributes[i]);
             }
-            
-            // Initialize the task cache
-            taskCache = new HashMap();
         }
         
         String methodName = method.getName();
@@ -297,11 +288,13 @@ public class MBeanProxyHandler
     protected Task getTask(final Method method, final Object[] args)
         throws Exception
     {
-        // Check if there is a cached task
-        Task task = null;
-        if (taskCache != null) {
-            task = (Task)taskCache.get(method);
+        // Lazy init the cache
+        if (taskCache == null) {
+            taskCache = new ReferenceMap(ReferenceMap.SOFT, ReferenceMap.SOFT);
         }
+        
+        // Check if there is a cached task
+        Task task = (Task)taskCache.get(method);
         
         // If not create one and cache it
         if (task == null) {

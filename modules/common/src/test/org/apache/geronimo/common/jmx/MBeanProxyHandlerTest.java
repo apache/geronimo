@@ -56,6 +56,10 @@
 
 package org.apache.geronimo.common.jmx;
 
+import java.lang.reflect.Method;
+
+import java.util.Map;
+
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
@@ -63,16 +67,17 @@ import javax.management.ObjectName;
 import junit.framework.TestCase;
 
 /**
- * Unit test for {@link MBeanProxyFactory} class.
+ * Unit test for {@link MBeanProxyHandler} class.
  *
- * @version $Revision: 1.5 $ $Date: 2003/09/01 19:18:47 $
+ * @version $Revision: 1.1 $ $Date: 2003/09/01 19:18:47 $
  */
-public class MBeanProxyFactoryTest
+public class MBeanProxyHandlerTest
     extends TestCase
 {
     protected MBeanServer server;
     protected ObjectName target;
     protected MockObject targetObject;
+    protected MyMBeanProxyHandler handler;
     
     protected void setUp() throws Exception
     {
@@ -81,89 +86,78 @@ public class MBeanProxyFactoryTest
         target = new ObjectName("geronimo.test:bean=test");
         targetObject = new MockObject();
         server.registerMBean(targetObject, target);
+        
+        handler = new MyMBeanProxyHandler(server, target);
     }
     
     protected void tearDown() throws Exception
     {
         MBeanServerFactory.releaseMBeanServer(server);
+        handler = null;
         server = null;
     }
     
-    public void testCreate() throws Exception
+    public void testHandlerCreateTask() throws Exception
     {
-        MockObjectMBean bean = (MockObjectMBean)
-            MBeanProxyFactory.create(MockObjectMBean.class, server, target);
-        assertNotNull(bean);
+        Class type = MockObjectMBean.class;
+        Method method = type.getMethod("someOperation", new Class[0]);
+        Object[] args = new Object[0];
+        
+        Object task = handler.createTask(method, args);
+        assertNotNull(task);
     }
     
-    public void testGetString() throws Exception
+    public void testHandlerGetTask() throws Exception
     {
-        MockObjectMBean bean = (MockObjectMBean)
-            MBeanProxyFactory.create(MockObjectMBean.class, server, target);
-        assertNotNull(bean);
+        Class type = MockObjectMBean.class;
+        Method method = type.getMethod("someOperation", new Class[0]);
+        Object[] args = new Object[0];
+        Object task1 = handler.getTask(method, args);
+        assertNotNull(task1);
         
-        String value = bean.getString();
-        assertEquals(targetObject.getString(), value);
+        Map taskCache = handler.getTaskCache();
+        assertNotNull(taskCache);
+        assertEquals(1, taskCache.size());
+        
+        Object task2 = handler.getTask(method, args);
+        assertNotNull(task2);
+        assertEquals(task1, task2);
+        assertEquals(1, taskCache.size());
     }
     
-    public void testSetString() throws Exception
-    {
-        MockObjectMBean bean = (MockObjectMBean)
-            MBeanProxyFactory.create(MockObjectMBean.class, server, target);
-        assertNotNull(bean);
-        
-        String value = "newvalue";
-        bean.setString(value);
-        assertEquals(value, targetObject.getString());
-    }
+    //
+    // Test MBeanProxyHandler to get access to protected bits
+    //
     
-    public void testOperation_Simple() throws Exception
+    protected class MyMBeanProxyHandler
+        extends MBeanProxyHandler
     {
-        MockObjectMBean bean = (MockObjectMBean)
-            MBeanProxyFactory.create(MockObjectMBean.class, server, target);
-        assertNotNull(bean);
+        public MyMBeanProxyHandler(final MBeanServer server,
+                                   final ObjectName target)
+        {
+            super(server, target);
+        }
         
-        String value = bean.doIt();
-        assertEquals(targetObject.doIt(), value);
-    }
-    
-    public void testOperation_PoorlyNamed() throws Exception
-    {
-        MockObjectMBean bean = (MockObjectMBean)
-            MBeanProxyFactory.create(MockObjectMBean.class, server, target);
-        assertNotNull(bean);
+        public Map getTaskCache()
+        {
+            return taskCache;
+        }
         
-        String value = bean.setPoorlyNameOperation();
-        assertEquals(targetObject.setPoorlyNameOperation(), value);
-    }
-    
-    public void testOperation_SameNameDiffArgs() throws Exception
-    {
-        MockObjectMBean bean = (MockObjectMBean)
-            MBeanProxyFactory.create(MockObjectMBean.class, server, target);
-        assertNotNull(bean);
+        public Map getAttributeMap()
+        {
+            return attributeMap;
+        }
         
-        String value = bean.someOperation();
-        assertEquals(targetObject.someOperation(), value);
+        public Task createTask(final Method method, final Object[] args)
+            throws Exception
+        {
+            return super.createTask(method, args);
+        }
         
-        value = bean.someOperation("foo");
-        assertEquals(targetObject.someOperation("foo"), value);
-        
-        value = bean.someOperation(true);
-        assertEquals(targetObject.someOperation(true), value);
-    }
-    
-    public void testMBeanProxyContext() throws Exception
-    {
-        MockObjectMBean bean = (MockObjectMBean)
-            MBeanProxyFactory.create(MockObjectMBean.class, server, target);
-        assertNotNull(bean);
-        
-        assertTrue(bean instanceof MBeanProxyContext);
-        
-        MBeanProxyContext ctx = (MBeanProxyContext)bean;
-        assertNotNull(ctx.getObjectName());
-        assertEquals(target, ctx.getObjectName());
-        assertNotNull(ctx.getMBeanServer());
+        public Task getTask(final Method method, final Object[] args)
+            throws Exception
+        {
+            return super.getTask(method, args);
+        }
     }
 }
