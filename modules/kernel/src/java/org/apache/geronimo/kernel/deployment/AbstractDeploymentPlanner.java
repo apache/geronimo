@@ -78,11 +78,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- *
- *
- * @version $REVISION$ Nov 13, 2003$
- *
- * */
+ * @version $Revision: 1.5 $ $Date: 2003/12/14 16:20:23 $
+ */
 public abstract class AbstractDeploymentPlanner implements DeploymentPlanner, GeronimoMBeanTarget {
 
     private static final Log log = LogFactory.getLog(AbstractDeploymentPlanner.class);
