@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application-client xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-client"
+    clientConfigId="org/apache/geronimo/itest/naming/Client"
+    configId="org/apache/geronimo/itest/naming/ClientServer"
+    parentId="org/apache/geronimo/Server">
+    <resource-ref>
+        <ref-name>jdbc/DefaultDatasource</ref-name>
+        <target-name>DefaultDatasource</target-name>
+    </resource-ref>
+    <resource>
+        <external-rar>tranql/rars/tranql-connector-1.0-SNAPSHOT.rar</external-rar>
+        <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector"
+            version="1.5"
+            configId="org/apache/geronimo/DefaultDatabase"
+            parentId="org/apache/geronimo/Server">
+
+            <dependency>
+                <uri>axion/jars/axion-1.0-M3-dev.jar</uri>
+            </dependency>
+            <dependency>
+                <uri>commons-collections/jars/commons-collections-2.1.jar</uri>
+            </dependency>
+
+            <dependency>
+                <uri>commons-primitives/jars/commons-primitives-1.0.jar</uri>
+            </dependency>
+
+            <dependency>
+                <uri>regexp/jars/regexp-1.3.jar</uri>
+            </dependency>
+
+            <resourceadapter>
+                <outbound-resourceadapter>
+                    <connection-definition>
+                        <connectionfactory-interface>javax.sql.DataSource</connectionfactory-interface>
+                        <connectiondefinition-instance>
+                            <name>DefaultDatasource</name>
+                            <config-property-setting name="UserName"></config-property-setting>
+                            <config-property-setting name="Password"></config-property-setting>
+                            <config-property-setting name="Driver">org.axiondb.jdbc.AxionDriver</config-property-setting>
+                            <config-property-setting name="ConnectionURL">jdbc:axiondb:DefaultDatabase</config-property-setting>
+                            <config-property-setting name="CommitBeforeAutocommit">true</config-property-setting>
+                            <config-property-setting name="ExceptionSorterClass">org.tranql.connector.NoExceptionsAreFatalSorter</config-property-setting>
+                            <connectionmanager>
+                                <local-transaction/>
+                                <single-pool>
+                                    <max-size>10</max-size>
+                                    <blocking-timeout-milliseconds>5000</blocking-timeout-milliseconds>
+                                    <match-one/>
+                                </single-pool>
+                            </connectionmanager>
+                            <global-jndi-name>tranql/axion</global-jndi-name>
+                            <!--credential-interface>javax.resource.spi.security.PasswordCredential</credential-interface-->
+                        </connectiondefinition-instance>
+                    </connection-definition>
+                </outbound-resourceadapter>
+            </resourceadapter>
+
+        </connector>
+
+    </resource>
+</application-client>
