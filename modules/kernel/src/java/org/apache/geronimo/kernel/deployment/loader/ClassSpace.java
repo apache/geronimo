@@ -67,7 +67,7 @@ import org.apache.commons.logging.LogFactory;
  *
  * @jmx:mbean
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:38:33 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/14 11:57:37 $
  */
 public class ClassSpace extends URLClassLoader implements ClassSpaceMBean {
     private final static Log log = LogFactory.getLog(ClassSpace.class);
@@ -78,7 +78,10 @@ public class ClassSpace extends URLClassLoader implements ClassSpaceMBean {
      * @jmx:managed-constructor
      */
     public ClassSpace(String name, URL[] urls) {
-        super(urls);
+        super(urls,
+	      Thread.currentThread().getContextClassLoader() == null?
+	      ClassSpace.class.getClassLoader():
+	      Thread.currentThread().getContextClassLoader());
         this.name = name;
         for (int i = 0; i < urls.length; i++) {
             URL url = urls[i];
