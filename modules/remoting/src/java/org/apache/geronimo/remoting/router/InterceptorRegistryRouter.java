@@ -61,7 +61,7 @@ import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.remoting.InterceptorRegistry;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/11/16 05:27:27 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/19 11:30:51 $
  */
 public class InterceptorRegistryRouter extends AbstractInterceptorRouter implements Router {
 
@@ -93,7 +93,8 @@ public class InterceptorRegistryRouter extends AbstractInterceptorRouter impleme
      * @see org.apache.geronimo.remoting.router.AbstractInterceptorRouter#doStart()
      */
     public void doStart() {
-        subsystemRouter.addRoute("/Remoting", this);
+        if(subsystemRouter!=null)
+            subsystemRouter.addRoute("/Remoting", this);
         super.doStart();
     }
     
@@ -102,7 +103,8 @@ public class InterceptorRegistryRouter extends AbstractInterceptorRouter impleme
      */
     public void doStop() {
         super.doStop();
-        subsystemRouter.removeRoute("/Remoting");
+        if(subsystemRouter!=null)
+            subsystemRouter.removeRoute("/Remoting");
     }
     
 
