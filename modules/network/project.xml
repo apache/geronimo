@@ -109,6 +109,7 @@
             </includes>
             <excludes>
                 <exclude>**/DatagramProtocolTest.*</exclude>
+                <exclude>**/SocketProtocolStressTest.*</exclude>
             </excludes>
         </unitTest>
         <resources>

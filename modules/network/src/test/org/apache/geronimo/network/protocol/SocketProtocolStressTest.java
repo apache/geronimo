@@ -53,7 +53,7 @@ public class SocketProtocolStressTest extends TestCase {
     public void testNothing() {
     }
 
-    public void XtestSimple() throws Exception {
+    public void testSimple() throws Exception {
         for (int i = 0; i < MESSAGE_COUNT; i++) {
             sp.sendDown(allocateDownPacket());
         }
@@ -63,7 +63,7 @@ public class SocketProtocolStressTest extends TestCase {
         }
     }
 
-    public void XtestConcurrentRequests() throws Exception {
+    public void testConcurrentRequests() throws Exception {
 
         final CyclicBarrier barrier = new CyclicBarrier(WORKERS);
 
