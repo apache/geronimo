@@ -12,7 +12,7 @@
     </organization>
 
     <inceptionYear>2003</inceptionYear>
-    <package>geronimo</package>
+    <package>org.apache.geronimo</package>
     <logo>/images/geronimo.jpg</logo>
     <description>Geronimo J2EE Application Server</description>
     <shortDescription>Geronimo J2EE Application Server</shortDescription>
