@@ -55,63 +55,62 @@
  */
 package org.apache.geronimo.naming.java;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Properties;
+import java.util.NoSuchElementException;
 import java.util.Hashtable;
-import javax.naming.NameNotFoundException;
+
+import javax.naming.Binding;
+import javax.naming.CompositeName;
+import javax.naming.CompoundName;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NameClassPair;
+import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.LinkRef;
+
+import org.apache.geronimo.common.StopWatch;
+
+import junit.framework.TestCase;
 
 /**
- * The root context for the java: namespace.
- * Automatically handles switching the "java:comp" sub-context to the
- * appropriate one for the current thread.
+ * Test component context can be inherited by Threads spawned by
+ * a component. This is required for Application Client and Servlets;
+ * it is not applicable to EJBs as they are not allowed to create Threads. 
  *
- * @version $Revision: 1.4 $ $Date: 2003/10/30 02:00:07 $
+ * @version $Revision: 1.1 $ $Date: 2003/10/30 02:00:07 $
  */
-public class RootContext extends ReadOnlyContext {
-    private static InheritableThreadLocal compContext = new InheritableThreadLocal();
+public class ThreadContextTest extends TestCase {
+    private Map compBinding;
+    private Map envBinding;
 
-    RootContext(Hashtable env) {
-        super(env);
+    public void testThreadInheritence() throws Exception {
+        RootContext.setComponentContext(new ReadOnlyContext(compBinding));
+        Thread worker = new Thread() {
+            public void run() {
+                try {
+                    assertEquals("Hello", new InitialContext().lookup("java:comp/env/hello"));
+                } catch (NamingException e) {
+                    fail(e.getMessage());
+                }
+            }
+        };
+        worker.start();
+        worker.join();
     }
 
-    public Object lookup(String name) throws NamingException {
-        if (name.startsWith("java:")) {
-            name = name.substring(5);
-            if (name.length() == 0) {
-                return this;
-            }
+    protected void setUp() throws Exception {
+        super.setUp();
 
-            ReadOnlyContext compCtx = (ReadOnlyContext) compContext.get();
-            if (compCtx == null) {
-                // the component context was not set for this thread
-                throw new NameNotFoundException();
-            }
-            compCtx = new ReadOnlyContext(compCtx, getEnvironment());
+        compBinding = new HashMap();
 
-            if ("comp".equals(name)) {
-                return compCtx;
-            } else if (name.startsWith("comp/")) {
-                return compCtx.lookup(name.substring(5));
-            } else {
-                throw new NameNotFoundException();
-            }
-        }
-        return super.lookup(name);
-    }
-
-    /**
-     * Set the component context for the current thread. This will be returned
-     * for all lookups of "java:comp"
-     * @param ctx the current components context
-     */
-    public static void setComponentContext(ReadOnlyContext ctx) {
-        compContext.set(ctx);
-    }
-
-    /**
-     * Get the component context for the current thread.
-     * @return the current components context
-     */
-    public static ReadOnlyContext getComponentContext() {
-        return (ReadOnlyContext) compContext.get();
+        envBinding = new HashMap();
+        envBinding.put("hello", "Hello");
+        envBinding.put("world", "Hello World");
+        envBinding.put("link", new LinkRef("java:comp/env/hello"));
+        compBinding.put("env", new ReadOnlyContext(envBinding));
     }
 }
