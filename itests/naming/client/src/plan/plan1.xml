@@ -118,16 +118,16 @@
             </adminobject>
           </resourceadapter>
 
-          <gbean namePart="ActiveMQ" class="org.codehaus.activemq.gbean.ActiveMQContainer">
+          <gbean name="ActiveMQ" class="org.codehaus.activemq.gbean.ActiveMQContainer">
             <attribute name="brokerName">possibly-unique-broker</attribute>
           </gbean>
           <gbean namePart='ActiveMQ,url="tcp://localhost:61616"' class="org.codehaus.activemq.gbean.ActiveMQConnector">
             <attribute name="Url">tcp://localhost:61616</attribute>
-            <reference name="ActiveMQContainer">geronimo.client:type=JMSServer,name=ActiveMQ,*</reference>
+            <reference name="ActiveMQContainer"><gbean-name>geronimo.client:type=JMSServer,name=ActiveMQ,*</gbean-name></reference>
           </gbean>
           <gbean namePart='ActiveMQ,url="vm://localhost"' class="org.codehaus.activemq.gbean.ActiveMQConnector">
             <attribute name="Url">vm://localhost</attribute>
-            <reference name="ActiveMQContainer">geronimo.client:type=JMSServer,name=ActiveMQ,*</reference>
+            <reference name="ActiveMQContainer"><gbean-name>geronimo.client:type=JMSServer,name=ActiveMQ,*</gbean-name></reference>
           </gbean>
         </connector>
 

@@ -32,7 +32,7 @@
   </dependency>
 
 <!--
-  <gbean namePart="Spring" class="org.apache.geronimo.spring.SpringGBean">
+  <gbean name="Spring" class="org.apache.geronimo.spring.SpringGBean">
   </gbean>
 -->
 

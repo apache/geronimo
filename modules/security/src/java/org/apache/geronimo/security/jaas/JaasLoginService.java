@@ -51,6 +51,7 @@ import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.SubjectId;
 import org.apache.geronimo.security.realm.SecurityRealm;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  * The single point of contact for Geronimo JAAS realms.  Instead of attempting
@@ -443,7 +444,7 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
         infoFactory.addOperation("loginFailed", new Class[]{JaasClientId.class});
         infoFactory.addOperation("logout", new Class[]{JaasClientId.class});
 
-        infoFactory.addReference("Realms", SecurityRealm.class);
+        infoFactory.addReference("Realms", SecurityRealm.class, NameFactory.SECURITY_REALM);
 
         infoFactory.setConstructor(new String[] {"algorithm", "password", "classLoader"});
 

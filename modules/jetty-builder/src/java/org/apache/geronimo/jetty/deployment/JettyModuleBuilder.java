@@ -1113,8 +1113,8 @@ public class JettyModuleBuilder implements ModuleBuilder {
         infoBuilder.addAttribute("defaultFilters", ObjectName.class, true);
         infoBuilder.addAttribute("defaultFilterMappings", ObjectName.class, true);
         infoBuilder.addAttribute("pojoWebServiceTemplate", ObjectName.class, true);
-        infoBuilder.addReference("WebServiceBuilder", WebServiceBuilder.class);
-        infoBuilder.addReference("Repository", Repository.class);
+        infoBuilder.addReference("WebServiceBuilder", WebServiceBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addReference("Repository", Repository.class, NameFactory.GERONIMO_SERVICE);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
         infoBuilder.addInterface(ModuleBuilder.class);
 

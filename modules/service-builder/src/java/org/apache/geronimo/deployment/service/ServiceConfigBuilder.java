@@ -25,14 +25,13 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.Map;
-import java.util.HashMap;
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.Set;
 import java.util.jar.JarFile;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -52,19 +51,16 @@ import org.apache.geronimo.deployment.xbeans.XmlAttributeType;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.ReferenceCollection;
-import org.apache.geronimo.gbean.ReferenceCollectionListener;
-import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.gbean.ReferenceMap;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
-import org.apache.xmlbeans.XmlException;
+import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlException;
 
 /**
  * @version $Rev$ $Date$
@@ -241,14 +237,14 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
     public static GBeanData getGBeanData(GbeanType gbean, J2eeContext j2eeContext, ClassLoader cl) throws DeploymentException {
         GBeanInfo gBeanInfo = GBeanInfo.getGBeanInfo(gbean.getClass1(), cl);
         ObjectName objectName;
-        if (gbean.isSetName()) {
+        if (gbean.isSetGbeanName()) {
             try {
-                objectName = ObjectName.getInstance(gbean.getName());
+                objectName = ObjectName.getInstance(gbean.getGbeanName());
             } catch (MalformedObjectNameException e) {
                 throw new DeploymentException("Invalid ObjectName: " + gbean.getName(), e);
             }
         } else {
-            String namePart = gbean.getNamePart();
+            String namePart = gbean.getName();
             try {
                 String j2eeType = gBeanInfo.getJ2eeType();
                 //todo investigate using the module type from the j2eecontext.
@@ -286,7 +282,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         ReferenceType[] referenceArray = gbean.getReferenceArray();
         if (referenceArray != null) {
             for (int j = 0; j < referenceArray.length; j++) {
-                builder.setReference(referenceArray[j].getName(), referenceArray[j].getStringValue());
+                builder.setReference(referenceArray[j].getName2(), referenceArray[j], j2eeContext);
             }
         }
 
@@ -294,7 +290,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         ReferencesType[] referencesArray = gbean.getReferencesArray();
         if (referencesArray != null) {
             for (int j = 0; j < referencesArray.length; j++) {
-                builder.setReference(referencesArray[j].getName(), referencesArray[j].getPatternArray());
+                builder.setReference(referencesArray[j].getName(), referencesArray[j].getPatternArray(), j2eeContext);
             }
         }
 
@@ -333,8 +329,8 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         infoFactory.addInterface(ConfigurationBuilder.class);
 
         infoFactory.addAttribute("defaultParentId", URI.class, true);
-        infoFactory.addReference("Repository", Repository.class);
-        infoFactory.addReference("XmlAttributeBuilders", XmlAttributeBuilder.class);
+        infoFactory.addReference("Repository", Repository.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("XmlAttributeBuilders", XmlAttributeBuilder.class, "XmlAttributeBuilder");
         infoFactory.addAttribute("kernel", Kernel.class, false);
 
         infoFactory.setConstructor(new String[]{"defaultParentId", "Repository", "XmlAttributeBuilders", "kernel"});

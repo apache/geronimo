@@ -34,6 +34,6 @@
     </module>
 
     <!-- a random gbean just to verify that the deployer doesn't die because of it -->
-    <gbean name="foo:j2eeType=J2EEDomain,name=foo" class="org.apache.geronimo.j2ee.management.impl.J2EEDomainImpl"/>
+    <gbean gbeanName="foo:j2eeType=J2EEDomain,name=foo" class="org.apache.geronimo.j2ee.management.impl.J2EEDomainImpl"/>
 
 </application>

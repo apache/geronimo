@@ -21,6 +21,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.jetty.JettyContainer;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -131,8 +132,8 @@ public class NCSARequestLog implements GBeanLifecycle {
 
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("NCSA Request Log", NCSARequestLog.class);
-        infoFactory.addReference("JettyContainer", JettyContainer.class);
-        infoFactory.addReference("ServerInfo", ServerInfo.class);
+        infoFactory.addReference("JettyContainer", JettyContainer.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
 
         infoFactory.addAttribute("filename", String.class, true);
         infoFactory.addAttribute("logDateFormat", String.class, true);

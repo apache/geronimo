@@ -132,7 +132,7 @@ public class ResourceAdapterWrapper implements GBeanLifecycle, DynamicGBean, Res
         infoBuilder.addAttribute("resourceAdapterClass", String.class, true);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
 
-        infoBuilder.addReference("WorkManager", GeronimoWorkManager.class);
+        infoBuilder.addReference("WorkManager", GeronimoWorkManager.class, NameFactory.JCA_WORK_MANAGER);
 
         infoBuilder.addOperation("registerResourceAdapterAssociation", new Class[]{ResourceAdapterAssociation.class});
 

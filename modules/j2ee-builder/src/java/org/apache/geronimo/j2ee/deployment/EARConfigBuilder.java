@@ -529,14 +529,14 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         infoFactory.addAttribute("transactionalTimerObjectName", ObjectName.class, true);
         infoFactory.addAttribute("nonTransactionalTimerObjectName", ObjectName.class, true);
 
-        infoFactory.addReference("Repository", Repository.class);
-        infoFactory.addReference("EJBConfigBuilder", ModuleBuilder.class);
-        infoFactory.addReference("EJBReferenceBuilder", EJBReferenceBuilder.class);
-        infoFactory.addReference("WebConfigBuilder", ModuleBuilder.class);
-        infoFactory.addReference("ConnectorConfigBuilder", ModuleBuilder.class);
-        infoFactory.addReference("ResourceReferenceBuilder", ResourceReferenceBuilder.class);
-        infoFactory.addReference("AppClientConfigBuilder", ModuleBuilder.class);
-        infoFactory.addReference("ServiceReferenceBuilder", ServiceReferenceBuilder.class);
+        infoFactory.addReference("Repository", Repository.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("EJBConfigBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
+        infoFactory.addReference("EJBReferenceBuilder", EJBReferenceBuilder.class, NameFactory.MODULE_BUILDER);
+        infoFactory.addReference("WebConfigBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
+        infoFactory.addReference("ConnectorConfigBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
+        infoFactory.addReference("ResourceReferenceBuilder", ResourceReferenceBuilder.class, NameFactory.MODULE_BUILDER);
+        infoFactory.addReference("AppClientConfigBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
+        infoFactory.addReference("ServiceReferenceBuilder", ServiceReferenceBuilder.class, NameFactory.MODULE_BUILDER);
 
         infoFactory.addAttribute("kernel", Kernel.class, false);
 

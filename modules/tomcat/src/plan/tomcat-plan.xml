@@ -85,15 +85,15 @@ Configuration for the Apache Tomcat web container
         <uri>mx4j/jars/mx4j-${mx4j-version}.jar</uri>
     </dependency>
 
-    <gbean name="geronimo.server:type=WebContainer,container=Tomcat" class="org.apache.geronimo.tomcat.TomcatContainer">
+    <gbean gbeanName="geronimo.server:type=WebContainer,container=Tomcat" class="org.apache.geronimo.tomcat.TomcatContainer">
         <attribute name="catalinaHome">var/catalina</attribute>
         <attribute name="port">8090</attribute>
         <attribute name="endorsedDirs">lib</attribute>
-        <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
+        <reference name="ServerInfo"><gbean-name>geronimo.system:role=ServerInfo</gbean-name></reference>
     </gbean>
-    <gbean name="geronimo.server:type=WebConnector,container=Tomcat,port=8090" class="org.apache.geronimo.tomcat.connector.HTTPConnector">
+    <gbean gbeanName="geronimo.server:type=WebConnector,container=Tomcat,port=8090" class="org.apache.geronimo.tomcat.connector.HTTPConnector">
         <attribute name="port">8090</attribute>
-        <reference name="TomcatContainer">geronimo.server:type=WebContainer,container=Tomcat</reference>
+        <reference name="TomcatContainer"><gbean-name>geronimo.server:type=WebContainer,container=Tomcat</gbean-name></reference>
     </gbean>
 
 </configuration>

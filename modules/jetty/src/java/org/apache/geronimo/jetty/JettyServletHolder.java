@@ -117,7 +117,7 @@ public class JettyServletHolder extends ServletHolder {
         infoBuilder.addAttribute("loadOnStartup", Integer.class, true);
         infoBuilder.addAttribute("servletMappings", Set.class, true);
         infoBuilder.addAttribute("webRoleRefPermissions", Map.class, true);
-        infoBuilder.addReference("JettyServletRegistration", JettyServletRegistration.class);
+        infoBuilder.addReference("JettyServletRegistration", JettyServletRegistration.class, NameFactory.WEB_MODULE);
 
         infoBuilder.setConstructor(new String[] {"servletName",
                                                  "servletClass",

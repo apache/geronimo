@@ -54,7 +54,7 @@ public class JettyFilterHolder extends FilterHolder {
         infoBuilder.addAttribute("filterClass", String.class, true);
         infoBuilder.addAttribute("initParams", Map.class, true);
 
-        infoBuilder.addReference("JettyServletRegistration", JettyServletRegistration.class);
+        infoBuilder.addReference("JettyServletRegistration", JettyServletRegistration.class, NameFactory.WEB_MODULE);
 
         infoBuilder.setConstructor(new String[] {"filterName", "filterClass", "initParams", "JettyServletRegistration"});
 

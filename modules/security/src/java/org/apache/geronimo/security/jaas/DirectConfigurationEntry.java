@@ -62,7 +62,7 @@ public class DirectConfigurationEntry implements ConfigurationEntryFactory {
         infoFactory.addAttribute("applicationConfigName", String.class, true);
         infoFactory.addAttribute("controlFlag", LoginModuleControlFlag.class, true);
 
-        infoFactory.addReference("Module", LoginModuleGBean.class);
+        infoFactory.addReference("Module", LoginModuleGBean.class, null);
 
         infoFactory.setConstructor(new String[]{"applicationConfigName", "controlFlag", "Module"});
         GBEAN_INFO = infoFactory.getBeanInfo();

@@ -50,7 +50,7 @@ public class ConfigPlanTest extends TestCase {
 
         GbeanType[] gbeans = configuration.getGbeanArray();
         assertEquals(1, gbeans.length);
-        assertEquals("geronimo.test:name=MyMockGMBean", gbeans[0].getName());
+        assertEquals("geronimo.test:name=MyMockGMBean", gbeans[0].getGbeanName());
         AttributeType[] attrs = gbeans[0].getAttributeArray();
         assertEquals(2, attrs.length);
         assertEquals("value", attrs[0].getName());
@@ -60,8 +60,8 @@ public class ConfigPlanTest extends TestCase {
 
         ReferenceType[] refs = gbeans[0].getReferenceArray();
         assertEquals(1, refs.length);
-        assertEquals("MockEndpoint", refs[0].getName());
-        assertEquals("geronimo.test:name=MyMockGMBean", refs[0].getStringValue());
+        assertEquals("MockEndpoint", refs[0].getName2());
+        assertEquals("geronimo.test:name=MyMockGMBean", refs[0].getGbeanName());
     }
 
     protected void setUp() throws Exception {

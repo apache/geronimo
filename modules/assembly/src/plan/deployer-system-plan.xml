@@ -29,26 +29,26 @@ Configuration for the system layer of the Geronimo deployer
     >
 
     <!-- ServerInfo service -->
-    <gbean namePart="ServerInfo" class="org.apache.geronimo.system.serverinfo.ServerInfo">
+    <gbean name="ServerInfo" class="org.apache.geronimo.system.serverinfo.ServerInfo">
     </gbean>
 
     <!-- Configuration Store service -->
-    <gbean namePart="Local" class="org.apache.geronimo.system.configuration.LocalConfigStore">
+    <gbean name="Local" class="org.apache.geronimo.system.configuration.LocalConfigStore">
         <attribute name="root">config-store/</attribute>
-        <reference name="ServerInfo">geronimo.deployer:name=ServerInfo,*</reference>
+        <reference name="ServerInfo"><name>ServerInfo</name></reference>
     </gbean>
 
 
     <!-- Repository -->
-    <gbean namePart="Repository" class="org.apache.geronimo.system.repository.ReadOnlyRepository">
+    <gbean name="Repository" class="org.apache.geronimo.system.repository.ReadOnlyRepository">
         <attribute name="root">repository/</attribute>
-        <reference name="ServerInfo">geronimo.deployer:name=ServerInfo,*</reference>
+        <reference name="ServerInfo"><name>ServerInfo</name></reference>
     </gbean>
 
     <!-- Logging service -->
-    <gbean namePart="Logger" class="org.apache.geronimo.system.logging.log4j.Log4jService">
+    <gbean name="Logger" class="org.apache.geronimo.system.logging.log4j.Log4jService">
         <attribute name="configurationFile">var/log/deployer-log4j.properties</attribute>
         <attribute name="refreshPeriod">60</attribute>
-        <reference name="ServerInfo">geronimo.deployer:name=ServerInfo,*</reference>
+        <reference name="ServerInfo"><name>ServerInfo</name></reference>
     </gbean>
 </configuration>

@@ -57,29 +57,32 @@
         </outbound-resourceadapter>
     </resourceadapter>
 
-    <gbean namePart="DerbySystem" class="org.apache.geronimo.derby.DerbySystemGBean">
-        <reference name="serverInfo">geronimo.server:name=ServerInfo,*</reference>
+    <gbean name="DerbySystem" class="org.apache.geronimo.derby.DerbySystemGBean">
+        <reference name="ServerInfo"><moduleType>J2EEModule</moduleType><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
         <attribute name="derbySystemHome">var/derby</attribute>
     </gbean>
-    <gbean namePart="DerbyNetwork" class="org.apache.geronimo.derby.DerbyNetworkGBean">
-        <reference name="derbySystem">geronimo.server:name=DerbySystem,*</reference>
+    <gbean name="DerbyNetwork" class="org.apache.geronimo.derby.DerbyNetworkGBean">
+        <!--TODO remove moduleType when gbeans get the moduleType of the plan they are in -->
+        <reference name="derbySystem"><moduleType>J2EEModule</moduleType><name>DerbySystem</name></reference>
         <attribute name="host">127.0.0.1</attribute>
         <attribute name="port">1527</attribute>
     </gbean>
 
-    <gbean namePart="JDBCTransactionalThreadPooledTimer" class="org.apache.geronimo.timer.jdbc.JDBCStoreThreadPooledTransactionalTimer">
+    <gbean name="JDBCTransactionalThreadPooledTimer" class="org.apache.geronimo.timer.jdbc.JDBCStoreThreadPooledTransactionalTimer">
         <attribute name="repeatCount">5</attribute>
-        <reference name="TransactionContextManager">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=JTAResource,name=TransactionContextManager,*</reference>
-        <reference name="ManagedConnectionFactoryWrapper">geronimo.server:J2EEApplication=null,J2EEServer=geronimo,JCAResource=org/apache/geronimo/SystemDatabase,j2eeType=JCAManagedConnectionFactory,name=SystemDatasource,*</reference>
-        <reference name="ThreadPool">geronimo.server:J2EEServer=geronimo,j2eeType=GBean,name=DefaultThreadPool,*</reference>
-        <reference name="DerbySystem">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/SystemDatabase,J2EEServer=geronimo,j2eeType=GBean,name=DerbySystem</reference>
+        <reference name="TransactionContextManager"><moduleType>J2EEModule</moduleType><module>org/apache/geronimo/Server</module><name>TransactionContextManager</name></reference>
+        <reference name="ManagedConnectionFactoryWrapper"><moduleType>JCAResource</moduleType><name>SystemDatasource</name></reference>
+        <reference name="ThreadPool"><moduleType>J2EEModule</moduleType><module>org/apache/geronimo/Server</module><name>DefaultThreadPool</name></reference>
+        <!--TODO remove moduleType when gbeans get the moduleType of the plan they are in -->
+        <reference name="DerbySystem"><moduleType>J2EEModule</moduleType><name>DerbySystem</name></reference>
     </gbean>
 
-    <gbean namePart="JDBCNonTransactionalThreadPooledTimer" class="org.apache.geronimo.timer.jdbc.JDBCStoreThreadPooledNonTransactionalTimer">
-        <reference name="ManagedConnectionFactoryWrapper">geronimo.server:J2EEApplication=null,J2EEServer=geronimo,JCAResource=org/apache/geronimo/SystemDatabase,j2eeType=JCAManagedConnectionFactory,name=SystemDatasource,*</reference>
-        <reference name="TransactionContextManager">geronimo.server:J2EEServer=geronimo,j2eeType=JTAResource,name=TransactionContextManager,*</reference>
-        <reference name="ThreadPool">geronimo.server:J2EEServer=geronimo,j2eeType=GBean,name=DefaultThreadPool,*</reference>
-        <reference name="DerbySystem">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/SystemDatabase,J2EEServer=geronimo,j2eeType=GBean,name=DerbySystem</reference>
+    <gbean name="JDBCNonTransactionalThreadPooledTimer" class="org.apache.geronimo.timer.jdbc.JDBCStoreThreadPooledNonTransactionalTimer">
+        <reference name="TransactionContextManager"><moduleType>J2EEModule</moduleType><module>org/apache/geronimo/Server</module><name>TransactionContextManager</name></reference>
+        <reference name="ManagedConnectionFactoryWrapper"><moduleType>JCAResource</moduleType><name>SystemDatasource</name></reference>
+        <reference name="ThreadPool"><moduleType>J2EEModule</moduleType><module>org/apache/geronimo/Server</module><name>DefaultThreadPool</name></reference>
+        <!--TODO remove moduleType when gbeans get the moduleType of the plan they are in -->
+        <reference name="DerbySystem"><moduleType>J2EEModule</moduleType><name>DerbySystem</name></reference>
     </gbean>
 
 </connector>

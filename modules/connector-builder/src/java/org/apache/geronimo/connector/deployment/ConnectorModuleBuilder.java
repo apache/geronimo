@@ -864,7 +864,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         infoBuilder.addAttribute("defaultXATransactionCaching", boolean.class, true);
         infoBuilder.addAttribute("defaultXAThreadCaching", boolean.class, true);
 
-        infoBuilder.addReference("Repository", Repository.class);
+        infoBuilder.addReference("Repository", Repository.class, NameFactory.GERONIMO_SERVICE);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
 
         infoBuilder.addInterface(ModuleBuilder.class);

@@ -19,25 +19,19 @@ package org.apache.geronimo.spring.deployment;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URL;
-import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
-import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
-import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.deployment.util.NestedJarFile;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -45,8 +39,8 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.spring.SpringGBean;
 import org.apache.geronimo.spring.SpringApplicationImpl;
+import org.apache.geronimo.spring.SpringGBean;
 
 /**
  * @version $Rev: 126313 $ $Date: 2005-01-24 21:03:52 +0000 (Mon, 24 Jan 2005) $
@@ -78,7 +72,7 @@ public class SPRConfigBuilder
   {
     GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(SPRConfigBuilder.class, NameFactory.CONFIG_BUILDER);
     infoFactory.addAttribute("defaultParentId" , URI.class, true);
-    infoFactory.addReference("Repository"      , Repository.class);
+    infoFactory.addReference("Repository"      , Repository.class, NameFactory.GERONIMO_SERVICE);
     infoFactory.addAttribute("kernel"          , Kernel.class, false);
     infoFactory.addInterface(ConfigurationBuilder.class);
     infoFactory.setConstructor(new String[]{"defaultParentId", "Repository", "kernel"});

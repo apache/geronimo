@@ -45,7 +45,7 @@ public class EJBWSGBean implements GBeanLifecycle {
                 EJBWSGBean.class);
         // attributes
         infoFactory.addAttribute("objectName", String.class, false);
-        infoFactory.addReference("ejbConfig", Configuration.class);
+        infoFactory.addReference("ejbConfig", Configuration.class, null);
         infoFactory.addAttribute("classList", Collection.class, true);
         
         // operations

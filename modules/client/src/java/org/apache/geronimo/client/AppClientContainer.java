@@ -110,8 +110,8 @@ public final class AppClientContainer {
         infoFactory.addOperation("main", new Class[]{String[].class});
         infoFactory.addAttribute("mainClassName", String.class, true);
         infoFactory.addAttribute("appClientModuleName", ObjectName.class, true);
-        infoFactory.addReference("JNDIContext", AppClientPlugin.class);
-        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class);
+        infoFactory.addReference("JNDIContext", AppClientPlugin.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.JTA_RESOURCE);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.addAttribute("kernel", Kernel.class, false);
 

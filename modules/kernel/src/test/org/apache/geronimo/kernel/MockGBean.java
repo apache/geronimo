@@ -81,8 +81,8 @@ public class MockGBean implements MockEndpoint {
 
         infoFactory.addInterface(MockEndpoint.class, new String[]{"mutableInt"});
 
-        infoFactory.addReference("MockEndpoint", MockEndpoint.class);
-        infoFactory.addReference("EndpointCollection", MockEndpoint.class);
+        infoFactory.addReference("MockEndpoint", MockEndpoint.class, null);
+        infoFactory.addReference("EndpointCollection", MockEndpoint.class, null);
 
         infoFactory.setConstructor(new String[]{"name", "finalInt", "objectName", "classLoader", "gbeanLifecycleController", "kernel"});
 

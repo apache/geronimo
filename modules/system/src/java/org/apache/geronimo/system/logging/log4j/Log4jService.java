@@ -452,7 +452,7 @@ public class Log4jService implements GBeanLifecycle {
         infoFactory.addAttribute("configuration", String.class, false);
         infoFactory.addAttribute("rootLoggerLevel", String.class, false);
 
-        infoFactory.addReference("ServerInfo", ServerInfo.class);
+        infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
 
         infoFactory.addOperation("reconfigure");
         infoFactory.addOperation("setLoggerLevel", new Class[]{String.class, String.class});

@@ -351,10 +351,10 @@ public class MailGBean implements GBeanLifecycle {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(MailGBean.class, NameFactory.JAVA_MAIL_RESOURCE);
 
         infoFactory.addAttribute("objectName", String.class, false);
-        infoFactory.addReference("Protocols", ProtocolGBean.class);
+        infoFactory.addReference("Protocols", ProtocolGBean.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addAttribute("useDefault", Boolean.class, true);
         infoFactory.addAttribute("properties", Properties.class, true);
-        infoFactory.addReference("Authenticator", Authenticator.class);
+        infoFactory.addReference("Authenticator", Authenticator.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addAttribute("storeProtocol", String.class, true);
         infoFactory.addAttribute("transportProtocol", String.class, true);
         infoFactory.addAttribute("host", String.class, true);

@@ -109,7 +109,7 @@ public class J2EEServerImpl {
         infoFactory.addAttribute("serverVendor", String.class, false);
         infoFactory.addAttribute("serverVersion", String.class, false);
 
-        infoFactory.addReference("ServerInfo", ServerInfo.class);
+        infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
 
         infoFactory.setConstructor(new String[]{"kernel", "objectName", "ServerInfo"});
 

@@ -226,8 +226,8 @@ public class Deployer {
         infoFactory.addOperation("deploy", new Class[]{File.class, File.class});
         infoFactory.addOperation("deploy", new Class[]{File.class, File.class, File.class, boolean.class, String.class, String.class, String.class});
 
-        infoFactory.addReference("Builders", ConfigurationBuilder.class);
-        infoFactory.addReference("Store", ConfigurationStore.class);
+        infoFactory.addReference("Builders", ConfigurationBuilder.class, "ConfigBuilder");
+        infoFactory.addReference("Store", ConfigurationStore.class, "ConfigurationStore");
 
         infoFactory.setConstructor(new String[]{"Builders", "Store"});
 

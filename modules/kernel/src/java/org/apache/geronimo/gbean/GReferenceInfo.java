@@ -44,11 +44,17 @@ public class GReferenceInfo implements Serializable {
      */
     private final String setterName;
 
-    public GReferenceInfo(String name, String referenceType, String proxyType, String setterName) {
+    /**
+     * String for type component when constructing reference patterns. For jsr-77 this maps to j2eeType=nameTypeName
+     */
+    private final String nameTypeName;
+
+    public GReferenceInfo(String name, String referenceType, String proxyType, String setterName, String nameTypeName) {
         this.name = name;
         this.referenceType = referenceType;
         this.setterName = setterName;
         this.proxyType = proxyType;
+        this.nameTypeName = nameTypeName;
     }
 
     public String getName() {
@@ -67,11 +73,16 @@ public class GReferenceInfo implements Serializable {
         return setterName;
     }
 
+    public String getNameTypeName() {
+        return nameTypeName;
+    }
+
     public String toString() {
         return "[GReferenceInfo: name=" + name +
                 " referenceType=" + referenceType +
                 " proxyType=" + proxyType +
                 " setterName=" + setterName +
+                " naming system type name= " + nameTypeName +
                 "]";
     }
 }

@@ -46,6 +46,7 @@ import org.apache.geronimo.tomcat.valve.PolicyContextValve;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.context.OnlineUserTransaction;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 import javax.naming.NamingException;
 
@@ -239,7 +240,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Tomcat WebApplication Context", TomcatWebAppContext.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Tomcat WebApplication Context", TomcatWebAppContext.class, NameFactory.WEB_MODULE);
 
         infoFactory.addAttribute("webAppRoot", URI.class, true);
         infoFactory.addAttribute("webClassPath", URI[].class, true);
@@ -262,10 +263,10 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
 
         infoFactory.addAttribute("componentContext", Map.class, true);
         infoFactory.addAttribute("userTransaction", OnlineUserTransaction.class, true);
-        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class);
-        infoFactory.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class);
+        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.JTA_RESOURCE);
+        infoFactory.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class, NameFactory.JCA_RESOURCE);
 
-        infoFactory.addReference("Container", TomcatContainer.class);
+        infoFactory.addReference("Container", TomcatContainer.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addAttribute("kernel", Kernel.class, false);
 
         infoFactory.setConstructor(new String[]{

@@ -91,15 +91,15 @@ by the server.
         <uri>commons-el/jars/commons-el-${commons_el_version}.jar</uri>
     </dependency>
 
-    <gbean namePart="TomcatWebContainer" class="org.apache.geronimo.tomcat.TomcatContainer">
+    <gbean name="TomcatWebContainer" class="org.apache.geronimo.tomcat.TomcatContainer">
         <attribute name="catalinaHome">var/catalina</attribute>
         <attribute name="endorsedDirs">lib</attribute>
-        <reference name="ServerInfo">geronimo.server:name=ServerInfo,*</reference>
+        <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
     </gbean>
 
-    <gbean namePart="TomcatWebConnector" class="org.apache.geronimo.tomcat.connector.HTTPConnector">
+    <gbean name="TomcatWebConnector" class="org.apache.geronimo.tomcat.connector.HTTPConnector">
         <attribute name="port" type="int">8090</attribute>
-        <reference name="TomcatContainer">geronimo.server:name=TomcatWebContainer,*</reference>
+        <reference name="TomcatContainer"><name>TomcatWebContainer</name></reference>
     </gbean>
 
 </configuration>

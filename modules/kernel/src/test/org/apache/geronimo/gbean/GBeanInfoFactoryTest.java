@@ -132,7 +132,7 @@ public class GBeanInfoFactoryTest extends TestCase {
             infoFactory.setConstructor(new String[]{"foo", "bar"});
             infoFactory.addAttribute("foo", String.class, false);
             infoFactory.addAttribute("bar", String.class, false);
-            infoFactory.addReference("reference", String.class);
+            infoFactory.addReference("reference", String.class, null);
             GBEAN_INFO = infoFactory.getBeanInfo();
         }
 

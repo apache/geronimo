@@ -88,7 +88,7 @@ public class DerbyNetworkGBean implements GBeanLifecycle {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(DerbyNetworkGBean.class);
         infoFactory.addAttribute("host", String.class, true);
         infoFactory.addAttribute("port", Integer.TYPE, true);
-        infoFactory.addReference("derbySystem", DerbySystem.class);
+        infoFactory.addReference("derbySystem", DerbySystem.class, "GBean");
         infoFactory.setConstructor(new String[]{"derbySystem"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

@@ -103,7 +103,7 @@ public class GBeanInfoBuilder {
 
             for (Iterator iterator = source.getReferences().iterator(); iterator.hasNext();) {
                 GReferenceInfo referenceInfo = (GReferenceInfo) iterator.next();
-                references.put(referenceInfo.getName(), referenceInfo.getReferenceType());
+                references.put(referenceInfo.getName(), new RefInfo(referenceInfo.getReferenceType(), referenceInfo.getNameTypeName()));
             }
 
             //in case subclass constructor has same parameters as superclass.
@@ -215,16 +215,21 @@ public class GBeanInfoBuilder {
     }
 
     public void addReference(GReferenceInfo info) {
-        references.put(info.getName(), info.getReferenceType());
+        references.put(info.getName(), new RefInfo(info.getReferenceType(), info.getNameTypeName()));
     }
 
     /**
      * Add a reference to another GBean or collection of GBeans
      * @param name the name of the reference
      * @param type The proxy type of the GBean or objects in a ReferenceCollection
+     * @param namingType the string expected as the type component of the name.  For jsr-77 names this is the j2eeType value
      */
+    public void addReference(String name, Class type, String namingType) {
+        references.put(name, new RefInfo(type.getName(), namingType));
+    }
+
     public void addReference(String name, Class type) {
-        references.put(name, type.getName());
+        references.put(name, new RefInfo(type.getName(), null));
     }
 
     public GBeanInfo getBeanInfo() {
@@ -237,7 +242,9 @@ public class GBeanInfoBuilder {
         for (Iterator iterator = references.entrySet().iterator(); iterator.hasNext();) {
             Map.Entry entry = (Map.Entry) iterator.next();
             String referenceName = (String) entry.getKey();
-            String referenceType = (String) entry.getValue();
+            RefInfo refInfo = (RefInfo) entry.getValue();
+            String referenceType = refInfo.getJavaType();
+            String namingType = refInfo.getNamingType();
 
             String proxyType = (String) constructorTypes.get(referenceName);
             String setterName = null;
@@ -258,7 +265,7 @@ public class GBeanInfoBuilder {
                 throw new InvalidConfigurationException("Reference proxy type must be Collection or " + referenceType + ": name=" + referenceName);
             }
 
-            referenceInfos.add(new GReferenceInfo(referenceName, referenceType, proxyType, setterName));
+            referenceInfos.add(new GReferenceInfo(referenceName, referenceType, proxyType, setterName, namingType));
         }
 
 
@@ -276,7 +283,7 @@ public class GBeanInfoBuilder {
                 argumentTypes[i] = attribute.getType();
                 isReference[i] = false;
             } else if (references.containsKey(argumentName)) {
-                argumentTypes[i] = (String) references.get(argumentName);
+                argumentTypes[i] = ((RefInfo) references.get(argumentName)).getJavaType();
                 isReference[i] = true;
             }
         }
@@ -447,6 +454,24 @@ public class GBeanInfoBuilder {
             return classLoader.loadClass(name);
         } catch (ClassNotFoundException e) {
             throw new InvalidConfigurationException("Could not load class " + name, e);
+        }
+    }
+
+    private static class RefInfo {
+        private final String javaType;
+        private final String namingType;
+
+        public RefInfo(String javaType, String namingType) {
+            this.javaType = javaType;
+            this.namingType = namingType;
+        }
+
+        public String getJavaType() {
+            return javaType;
+        }
+
+        public String getNamingType() {
+            return namingType;
         }
     }
 }

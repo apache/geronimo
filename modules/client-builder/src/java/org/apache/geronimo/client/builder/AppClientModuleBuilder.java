@@ -582,12 +582,12 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         infoBuilder.addAttribute("defaultServerParentId", URI.class, true);
         infoBuilder.addAttribute("transactionContextManagerObjectName", ObjectName.class, true);
         infoBuilder.addAttribute("connectionTrackerObjectName", ObjectName.class, true);
-        infoBuilder.addReference("EJBReferenceBuilder", EJBReferenceBuilder.class);
-        infoBuilder.addReference("ConnectorModuleBuilder", ModuleBuilder.class);
-        infoBuilder.addReference("ResourceReferenceBuilder", ResourceReferenceBuilder.class);
-        infoBuilder.addReference("ServiceReferenceBuilder", ServiceReferenceBuilder.class);
-        infoBuilder.addReference("Store", ConfigurationStore.class);
-        infoBuilder.addReference("Repository", Repository.class);
+        infoBuilder.addReference("EJBReferenceBuilder", EJBReferenceBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addReference("ConnectorModuleBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addReference("ResourceReferenceBuilder", ResourceReferenceBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addReference("ServiceReferenceBuilder", ServiceReferenceBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addReference("Store", ConfigurationStore.class, NameFactory.CONFIGURATION_STORE);
+        infoBuilder.addReference("Repository", Repository.class, NameFactory.GERONIMO_SERVICE);
 
         infoBuilder.addAttribute("kernel", Kernel.class, false);
 

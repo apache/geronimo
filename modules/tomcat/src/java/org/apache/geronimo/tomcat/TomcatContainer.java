@@ -244,7 +244,7 @@ public class TomcatContainer implements GBeanLifecycle {
         infoFactory.addAttribute("catalinaHome", String.class, true);
         infoFactory.addAttribute("endorsedDirs", String.class, true);
 
-        infoFactory.addReference("ServerInfo", ServerInfo.class);
+        infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
 
         infoFactory.addOperation("addContext", new Class[] { TomcatContext.class });
         infoFactory.addOperation("removeContext", new Class[] { TomcatContext.class });

@@ -142,8 +142,8 @@ public class ResourceAdapterModuleImpl {
 
     static {
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(ResourceAdapterModuleImpl.class, NameFactory.RESOURCE_ADAPTER_MODULE);
-        infoBuilder.addReference("J2EEServer", J2EEServer.class);
-        infoBuilder.addReference("J2EEApplication", J2EEApplication.class);
+        infoBuilder.addReference("J2EEServer", J2EEServer.class, null);
+        infoBuilder.addReference("J2EEApplication", J2EEApplication.class, null);
 
         infoBuilder.addAttribute("deploymentDescriptor", String.class, true);
 

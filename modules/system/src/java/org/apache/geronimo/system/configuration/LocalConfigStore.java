@@ -388,7 +388,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("root", URI.class, true);
-        infoFactory.addReference("ServerInfo", ServerInfo.class);
+        infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
         infoFactory.addInterface(ConfigurationStore.class);
 
         infoFactory.setConstructor(new String[]{"kernel", "objectName", "root", "ServerInfo"});

@@ -24,6 +24,7 @@ import org.apache.geronimo.timer.PersistentTimer;
 import org.apache.geronimo.timer.ThreadPooledTimer;
 import org.apache.geronimo.timer.TransactionalExecutorTaskFactory;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  *
@@ -48,8 +49,8 @@ public class VMStoreThreadPooledTransactionalTimer extends ThreadPooledTimer {
         infoFactory.addInterface(PersistentTimer.class);
 
         infoFactory.addAttribute("repeatCount", int.class, true);
-        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class);
-        infoFactory.addReference("ThreadPool", Executor.class);
+        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.JTA_RESOURCE);
+        infoFactory.addReference("ThreadPool", Executor.class, NameFactory.GERONIMO_SERVICE);
 
         infoFactory.setConstructor(new String[] {"repeatCount", "TransactionContextManager", "ThreadPool"});
         GBEAN_INFO = infoFactory.getBeanInfo();

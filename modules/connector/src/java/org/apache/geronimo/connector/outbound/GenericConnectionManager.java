@@ -25,6 +25,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.security.bridge.RealmBridge;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  * GenericConnectionManager sets up a connection manager stack according to the
@@ -127,9 +128,9 @@ public class GenericConnectionManager extends AbstractConnectionManager {
 
         infoBuilder.addAttribute("objectName", String.class, false);
 
-        infoBuilder.addReference("ConnectionTracker", ConnectionTracker.class);
-        infoBuilder.addReference("RealmBridge", RealmBridge.class);
-        infoBuilder.addReference("TransactionContextManager", TransactionContextManager.class);
+        infoBuilder.addReference("ConnectionTracker", ConnectionTracker.class, NameFactory.JCA_RESOURCE);
+        infoBuilder.addReference("RealmBridge", RealmBridge.class, NameFactory.GERONIMO_SERVICE);
+        infoBuilder.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.JTA_RESOURCE);
 
         infoBuilder.setConstructor(new String[]{
             "transactionSupport",

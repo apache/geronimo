@@ -309,9 +309,9 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
 
         infoFactory.addInterface(ResourceManager.class);
 
-        infoFactory.addReference("ResourceAdapterWrapper", ResourceAdapterWrapper.class);
-        infoFactory.addReference("ConnectionManagerFactory", ConnectionManagerFactory.class);
-        infoFactory.addReference("ManagedConnectionFactoryListener", ManagedConnectionFactoryListener.class);
+        infoFactory.addReference("ResourceAdapterWrapper", ResourceAdapterWrapper.class, NameFactory.RESOURCE_ADAPTER);
+        infoFactory.addReference("ConnectionManagerFactory", ConnectionManagerFactory.class, NameFactory.JCA_CONNECTION_MANAGER);
+        infoFactory.addReference("ManagedConnectionFactoryListener", ManagedConnectionFactoryListener.class, NameFactory.SECURITY_REALM);
 
         infoFactory.setConstructor(new String[]{
             "managedConnectionFactoryClass",

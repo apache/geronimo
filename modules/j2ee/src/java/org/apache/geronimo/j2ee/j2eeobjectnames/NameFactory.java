@@ -80,7 +80,7 @@ public class NameFactory {
     public static final String GERONIMO_SERVICE = "GBean"; //copied in GBeanInfoBuilder to avoid dependencies in the wrong direction.
 
     public static String JAXR_CONNECTION_FACTORY = "JAXRConnectionFactory";
-    
+
     public static final String CONFIG_BUILDER = "ConfigBuilder";
     public static final String MODULE_BUILDER = "ModuleBuilder";
     public static final String SECURITY_REALM = "SecurityRealm";
@@ -147,41 +147,77 @@ public class NameFactory {
         return getEjbComponentName(j2eeDomainName, j2eeServerName, j2eeApplicationName, j2eeModuleName, j2eeName, j2eeType, context).getCanonicalName();
     }
 
+
+    public static ObjectName getComponentNameQuery(String domainName, String serverName, String applicationName, String moduleType, String moduleName, String name, String type, J2eeContext context) throws MalformedObjectNameException {
+        StringBuffer buffer = new StringBuffer();
+        if ("*".equals(domainName)) {
+            buffer.append("*");
+        } else {
+            buffer.append(context.getJ2eeDomainName(domainName));
+        }
+        boolean query = false;
+        String sep = ":";
+        //implicit attributes, if they are missing it means "use value from j2eecontext": if they are * it means skip and make a query
+        if ("*".equals(serverName)) {
+            query = true;
+        } else {
+            buffer.append(sep).append(J2EE_SERVER + "=").append(context.getJ2eeServerName(serverName));
+            sep = ",";
+        }
+        if ("*".equals(applicationName)) {
+            query = true;
+        } else {
+            buffer.append(sep).append(J2EE_APPLICATION + "=").append(context.getJ2eeApplicationName(applicationName));
+            sep = ",";
+        }
+        if ("*".equals(moduleName)) {
+            query = true;
+        } else {
+            buffer.append(sep).append(context.getJ2eeModuleType(moduleType)).append("=").append(context.getJ2eeModuleName(moduleName));
+            sep = ",";
+        }
+        if ("*".equals(type)) {
+            query = true;
+        } else {
+            buffer.append(sep).append(J2EE_TYPE + "=").append(context.getJ2eeType(type));
+            sep = ",";
+        }
+        //explicit attributes, must be included: if * then make a query
+        if ("*".equals(name)) {
+            query = true;
+        } else {
+            buffer.append(sep).append(J2EE_NAME + "=").append(context.getJ2eeName(name));
+            sep = ",";
+        }
+        //make a query, possibly
+        if (query) {
+            buffer.append(sep).append("*");
+        }
+        return ObjectName.getInstance(buffer.toString());
+    }
+
+    public static ObjectName getComponentNameQuery(String domainName, String serverName, String applicationName, String name, String type, J2eeContext context) throws MalformedObjectNameException {
+        return getComponentNameQuery(domainName, serverName, applicationName, null, "*", name, type, context);
+    }
+
+    public static ObjectName getComponentInModuleQuery(String domainName, String serverName, String applicationName, String moduleType, String moduleName, String type, J2eeContext context) throws MalformedObjectNameException {
+        return getComponentNameQuery(domainName, serverName, applicationName, moduleType, moduleName, "*", type, context);
+    }
+
     /**
      * Creates a query for components that are in no application with given name.
      *
-     * @param j2eeDomainName
-     * @param j2eeServerName
-     * @param j2eeName
-     * @param j2eeType
+     * @param domainName
+     * @param serverName
+     * @param name
+     * @param type
      * @param context
      * @return
      * @throws MalformedObjectNameException
      */
 
-    public static ObjectName getComponentRestrictedQueryName(String j2eeDomainName, String j2eeServerName, String j2eeName, String j2eeType, J2eeContext context) throws MalformedObjectNameException {
-        String applicationName = NULL;
-        return getComponentNameQuery(j2eeDomainName, j2eeServerName, applicationName, j2eeName, j2eeType, context);
-    }
-
-    public static ObjectName getComponentNameQuery(String j2eeDomainName, String j2eeServerName, String applicationName, String j2eeName, String j2eeType, J2eeContext context) throws MalformedObjectNameException {
-        StringBuffer buffer = new StringBuffer(context.getJ2eeDomainName(j2eeDomainName))
-                .append(":" + J2EE_TYPE + "=").append(context.getJ2eeType(j2eeType))
-                .append("," + J2EE_SERVER + "=").append(context.getJ2eeServerName(j2eeServerName))
-                .append("," + J2EE_APPLICATION + "=").append(context.getJ2eeApplicationName(applicationName))
-                .append("," + J2EE_NAME + "=").append(context.getJ2eeName(j2eeName))
-                .append(",*");
-        return ObjectName.getInstance(buffer.toString());
-    }
-
-    public static ObjectName getComponentInModuleQuery(String j2eeDomainName, String j2eeServerName, String applicationName, String j2eeModuleType, String j2eeModuleName, String j2eeType, J2eeContext context) throws MalformedObjectNameException {
-        StringBuffer buffer = new StringBuffer(context.getJ2eeDomainName(j2eeDomainName))
-                .append(":" + J2EE_TYPE + "=").append(context.getJ2eeType(j2eeType))
-                .append("," + J2EE_SERVER + "=").append(context.getJ2eeServerName(j2eeServerName))
-                .append("," + J2EE_APPLICATION + "=").append(context.getJ2eeApplicationName(applicationName))
-                .append(",").append(context.getJ2eeModuleType(j2eeModuleType)).append("=").append(context.getJ2eeModuleName(j2eeModuleName))
-                .append(",*");
-        return ObjectName.getInstance(buffer.toString());
+    public static ObjectName getComponentRestrictedQueryName(String domainName, String serverName, String name, String type, J2eeContext context) throws MalformedObjectNameException {
+        return getComponentNameQuery(domainName, serverName, NULL, null, "*", name, type, context);
     }
 
     public static ObjectName getWebComponentName(String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, String j2eeModuleName, String j2eeName, String j2eeType, J2eeContext context) throws MalformedObjectNameException {

@@ -65,7 +65,7 @@
         </outbound-resourceadapter>
     </resourceadapter>
 
-    <!--gbean name="geronimo.security:service=RealmBridge,name=TargetRealm" class="org.apache.geronimo.security.bridge.ConfiguredIdentityUserPasswordRealmBridge">
+    <!--gbean gbeanName="geronimo.security:service=RealmBridge,name=TargetRealm" class="org.apache.geronimo.security.bridge.ConfiguredIdentityUserPasswordRealmBridge">
         <attribute name="TargetRealm">TargetRealm</attribute>
         <attribute name="ConfiguredUser">testUser</attribute>
         <attribute name="ConfiguredPassword">testPassword</attribute>

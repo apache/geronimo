@@ -94,7 +94,7 @@ public class ReadOnlyRepository implements Repository, GBeanLifecycle {
 
         infoFactory.addAttribute("root", URI.class, true);
 
-        infoFactory.addReference("ServerInfo", ServerInfo.class);
+        infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
 
         infoFactory.addInterface(Repository.class);
 

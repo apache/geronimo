@@ -21,6 +21,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.jetty.JettyContainer;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.mortbay.http.SunJsseListener;
 
 /**
@@ -110,7 +111,7 @@ public class HTTPSConnector extends JettyConnector {
         infoFactory.addAttribute("password", String.class, true);
         infoFactory.addAttribute("useDefaultTrustStore", boolean.class, true);
         infoFactory.addAttribute("needClientAuth", boolean.class, true);
-        infoFactory.addReference("ServerInfo", ServerInfo.class);
+        infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.setConstructor(new String[]{"JettyContainer", "ServerInfo"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

@@ -450,7 +450,7 @@ public class Configuration implements GBeanLifecycle {
         infoFactory.addAttribute("configurationClassLoader", ClassLoader.class, false);
 
         infoFactory.addReference("Parent", ConfigurationParent.class);
-        infoFactory.addReference("Repositories", Repository.class);
+        infoFactory.addReference("Repositories", Repository.class, "GBean");
         infoFactory.addReference("ConfigurationStore", ConfigurationStore.class);
 
         infoFactory.setConstructor(new String[]{

@@ -27,7 +27,7 @@
         <version>DEV</version>
     </dependency>
     
-    <gbean name="geronimo.test:name=MyMockGMBean" class="org.apache.geronimo.deployment.MockGBean">
+    <gbean gbeanName="geronimo.test:name=MyMockGMBean" class="org.apache.geronimo.deployment.MockGBean">
         <attribute name="value">1234</attribute>
         <attribute name="intValue">1234</attribute>
         <xml-attribute name="fooBarBean">
@@ -42,6 +42,6 @@
                 </ns:bean-property>
             </ns:javabean>
         </xml-attribute>
-        <reference name="MockEndpoint">geronimo.test:name=MyMockGMBean</reference>
+        <reference name="MockEndpoint"><gbean-name>geronimo.test:name=MyMockGMBean</gbean-name></reference>
     </gbean>
 </configuration>

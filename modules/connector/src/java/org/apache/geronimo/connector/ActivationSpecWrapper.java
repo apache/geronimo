@@ -180,7 +180,7 @@ public class ActivationSpecWrapper implements ResourceManager, DynamicGBean {
         infoBuilder.addAttribute("containerId", String.class, true);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
 
-        infoBuilder.addReference("ResourceAdapterWrapper", ResourceAdapterWrapper.class);
+        infoBuilder.addReference("ResourceAdapterWrapper", ResourceAdapterWrapper.class, NameFactory.RESOURCE_ADAPTER);
 
         infoBuilder.addOperation("activate", new Class[]{MessageEndpointFactory.class});
         infoBuilder.addOperation("deactivate", new Class[]{MessageEndpointFactory.class});

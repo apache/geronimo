@@ -52,7 +52,7 @@ public class WSConfigBuilder implements ConfigurationBuilder {
 
         // attributes
         infoFactory.addAttribute("objectName", String.class, false);
-        infoFactory.addReference("AxisGbean",AxisGbean.class);
+        infoFactory.addReference("AxisGbean",AxisGbean.class, null);
         infoFactory.addInterface(ConfigurationBuilder.class);
 
         // operations

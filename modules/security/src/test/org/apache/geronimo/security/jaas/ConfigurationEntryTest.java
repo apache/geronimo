@@ -200,7 +200,7 @@ public class ConfigurationEntryTest extends TestCase {
         serverStub = new ObjectName("geronimo.remoting:target=JaasLoginServiceRemotingServer");
         gbean = new GBeanData(serverStub, JaasLoginServiceRemotingServer.getGBeanInfo());
         gbean.setAttribute("bindURI", new URI("tcp://0.0.0.0:4242"));
-        gbean.setReferencePattern("loginService", loginService);
+        gbean.setReferencePattern("LoginService", loginService);
         kernel.loadGBean(gbean, JaasLoginServiceRemotingServer.class.getClassLoader());               
 
         kernel.startGBean(loginConfiguration);

@@ -65,31 +65,31 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
     </dependency>
 
     <!-- deployer gbeans -->
-    <gbean namePart="Deployer" class="org.apache.geronimo.deployment.Deployer">
-        <reference name="Builders">geronimo.server:j2eeType=ConfigBuilder,J2EEModule=org/apache/geronimo/RuntimeDeployer,*</reference>
-        <reference name="Store">geronimo.server:j2eeType=ConfigurationStore,*</reference>
+    <gbean name="Deployer" class="org.apache.geronimo.deployment.Deployer">
+        <reference name="Builders"><name>*</name></reference>
+        <reference name="Store"><module>org/apache/geronimo/System</module><name>*</name></reference>
     </gbean>
 
-    <gbean namePart="ServiceBuilder" class="org.apache.geronimo.deployment.service.ServiceConfigBuilder">
+    <gbean name="ServiceBuilder" class="org.apache.geronimo.deployment.service.ServiceConfigBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
-        <reference name="Repository">*:name=Repository,*</reference>
-        <reference name="XmlAttributeBuilders">*:j2eeType=XmlAttributeBuilder,*</reference>
+        <reference name="Repository"><gbean-name>*:name=Repository,*</gbean-name></reference>
+        <reference name="XmlAttributeBuilders"><name>*</name></reference>
     </gbean>
 
-    <gbean namePart="EARBuilder" class="org.apache.geronimo.j2ee.deployment.EARConfigBuilder">
+    <gbean name="EARBuilder" class="org.apache.geronimo.j2ee.deployment.EARConfigBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
         <attribute name="transactionContextManagerObjectName">geronimo.server:name=TransactionContextManager,*</attribute>
         <attribute name="connectionTrackerObjectName">geronimo.server:name=ConnectionTracker,*</attribute>
         <attribute name="transactionalTimerObjectName">geronimo.server:name=TransactionalThreadPooledTimer,*</attribute>
         <attribute name="nonTransactionalTimerObjectName">geronimo.server:name=NonTransactionalThreadPooledTimer,*</attribute>
-        <reference name="Repository">*:name=Repository,*</reference>
-        <reference name="EJBConfigBuilder">geronimo.server:name=EJBBuilder,J2EEModule=org/apache/geronimo/RuntimeDeployer,*</reference>
-        <reference name="EJBReferenceBuilder">geronimo.server:name=EJBBuilder,J2EEModule=org/apache/geronimo/RuntimeDeployer,*</reference>
-        <reference name="WebConfigBuilder">geronimo.server:name=WebBuilder,J2EEModule=org/apache/geronimo/RuntimeDeployer,*</reference>
-        <reference name="ConnectorConfigBuilder">geronimo.server:name=ConnectorBuilder,J2EEModule=org/apache/geronimo/RuntimeDeployer,*</reference>
-        <reference name="ResourceReferenceBuilder">geronimo.server:name=ConnectorBuilder,J2EEModule=org/apache/geronimo/RuntimeDeployer,*</reference>
-        <reference name="AppClientConfigBuilder">geronimo.server:name=AppClientBuilder,J2EEModule=org/apache/geronimo/RuntimeDeployer,*</reference>
-        <reference name="ServiceReferenceBuilder">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/RuntimeDeployer,J2EEServer=geronimo,j2eeType=ModuleBuilder,name=WebServiceBuilder</reference>
+        <reference name="Repository"><gbean-name>*:name=Repository,*</gbean-name></reference>
+        <reference name="EJBConfigBuilder"><name>EJBBuilder</name></reference>
+        <reference name="EJBReferenceBuilder"><name>EJBBuilder</name></reference>
+        <reference name="WebConfigBuilder"><name>WebBuilder</name></reference>
+        <reference name="ConnectorConfigBuilder"><name>ConnectorBuilder</name></reference>
+        <reference name="ResourceReferenceBuilder"><name>ConnectorBuilder</name></reference>
+        <reference name="AppClientConfigBuilder"><name>AppClientBuilder</name></reference>
+        <reference name="ServiceReferenceBuilder"><name>WebServiceBuilder</name></reference>
     </gbean>
 
     <!--
@@ -111,7 +111,7 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
     <dependency>
         <uri>tomcat/jars/tomcat-util-${tomcat_version}.jar</uri>
     </dependency>
-    <gbean namePart="WebBuilder" class="org.apache.geronimo.tomcat.deployment.TomcatModuleBuilder">
+    <gbean name="WebBuilder" class="org.apache.geronimo.tomcat.deployment.TomcatModuleBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Tomcat</attribute>
         <attribute name="tomcatContainerObjectName">geronimo.server:name=TomcatWebContainer,*</attribute>
     </gbean>
@@ -119,18 +119,18 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
 
     <!-- Comment out the next WebBuilder gbean to enable Tomcat deployer
     -->
-    <gbean namePart="WebBuilder" class="org.apache.geronimo.jetty.deployment.JettyModuleBuilder">
+    <gbean name="WebBuilder" class="org.apache.geronimo.jetty.deployment.JettyModuleBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
         <attribute name="defaultSessionTimeoutSeconds">1800</attribute>
         <attribute name="defaultWelcomeFiles">index.html,index.htm,index.jsp</attribute>
         <attribute name="jettyContainerObjectName">geronimo.server:name=JettyWebContainer,*</attribute>
         <attribute name="defaultServlets">geronimo.server:j2eeType=DefaultServlet,J2EEModule=org/apache/geronimo/RuntimeDeployer,*</attribute>
         <attribute name="pojoWebServiceTemplate">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/RuntimeDeployer,J2EEServer=geronimo,j2eeType=ServletWebServiceTemplate,name=AxisPOJOTemplate</attribute>
-        <reference name="WebServiceBuilder">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/RuntimeDeployer,J2EEServer=geronimo,j2eeType=ModuleBuilder,name=WebServiceBuilder</reference>
-        <reference name="Repository">*:name=Repository,*</reference>
+        <reference name="WebServiceBuilder"><name>WebServiceBuilder</name></reference>
+        <reference name="Repository"><gbean-name>*:name=Repository,*</gbean-name></reference>
     </gbean>
     
-    <gbean namePart="StaticContent" class="org.apache.geronimo.jetty.JettyServletHolder">
+    <gbean name="StaticContent" class="org.apache.geronimo.jetty.JettyServletHolder">
         <attribute name="servletName">default</attribute>
         <attribute name="servletClass">org.mortbay.jetty.servlet.Default</attribute>
         <attribute name="loadOnStartup">0</attribute>
@@ -144,7 +144,7 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
         <attribute name="servletMappings">/</attribute>
     </gbean>
 
-    <gbean namePart="JSPServlet" class="org.apache.geronimo.jetty.JettyServletHolder">
+    <gbean name="JSPServlet" class="org.apache.geronimo.jetty.JettyServletHolder">
         <attribute name="servletName">jsp</attribute>
         <attribute name="servletClass">org.apache.jasper.servlet.JspServlet</attribute>
         <attribute name="loadOnStartup">0</attribute>
@@ -155,20 +155,20 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
         <attribute name="servletMappings">*.jsp,*.jspf,*.jspx,*.xsp</attribute>
     </gbean>
 
-    <gbean namePart="AxisPOJOTemplate" class="org.apache.geronimo.jetty.JettyAxisPOJOWebService">
+    <gbean name="AxisPOJOTemplate" class="org.apache.geronimo.jetty.JettyAxisPOJOWebService">
         <attribute name="servletName">dummy</attribute>
     </gbean>
 
-    <gbean namePart="EJBBuilder" class="org.openejb.deployment.OpenEJBModuleBuilder">
+    <gbean name="EJBBuilder" class="org.openejb.deployment.OpenEJBModuleBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
         <attribute name="listener">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=GBean,name=JettyWebContainer</attribute>
-        <!--        <reference name="SkeletonGenerator">openejb.CORBA:type=SkeletonGenerator,vendor=OpenORB</reference>-->
-        <reference name="Repository">*:name=Repository,*</reference>
+        <!--        <reference name="SkeletonGenerator"><gbean-name>openejb.CORBA:type=SkeletonGenerator,vendor=OpenORB</gbean-name></reference>-->
+        <reference name="Repository"><gbean-name>*:name=Repository,*</gbean-name></reference>
     </gbean>
 
-    <gbean namePart="ClientEJBReferenceBuilder" class="org.openejb.deployment.RemoteEJBReferenceBuilder"/>
+    <gbean name="ClientEJBReferenceBuilder" class="org.openejb.deployment.RemoteEJBReferenceBuilder"/>
 
-    <gbean namePart="ConnectorBuilder" class="org.apache.geronimo.connector.deployment.ConnectorModuleBuilder">
+    <gbean name="ConnectorBuilder" class="org.apache.geronimo.connector.deployment.ConnectorModuleBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
         <attribute name="defaultMaxSize">10</attribute>
         <attribute name="defaultMinSize">0</attribute>
@@ -176,30 +176,30 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
         <attribute name="defaultIdleTimeoutMinutes">15</attribute>
         <attribute name="defaultXATransactionCaching">true</attribute>
         <attribute name="defaultXAThreadCaching">false</attribute>
-        <reference name="Repository">*:name=Repository,*</reference>
+        <reference name="Repository"><gbean-name>*:name=Repository,*</gbean-name></reference>
     </gbean>
 
-    <gbean namePart="AppClientBuilder" class="org.apache.geronimo.client.builder.AppClientModuleBuilder">
+    <gbean name="AppClientBuilder" class="org.apache.geronimo.client.builder.AppClientModuleBuilder">
         <attribute name="defaultClientParentId">org/apache/geronimo/Client</attribute>
         <attribute name="defaultServerParentId">org/apache/geronimo/Server</attribute>
         <attribute name="transactionContextManagerObjectName">geronimo.client:name=TransactionContextManager,*</attribute>
         <attribute name="connectionTrackerObjectName">geronimo.client:name=ConnectionTracker,*</attribute>
-        <reference name="EJBReferenceBuilder">geronimo.server:name=ClientEJBReferenceBuilder,J2EEModule=org/apache/geronimo/RuntimeDeployer,*</reference>
-        <reference name="ConnectorModuleBuilder">geronimo.server:name=ConnectorBuilder,J2EEModule=org/apache/geronimo/RuntimeDeployer,*</reference>
-        <reference name="ResourceReferenceBuilder">geronimo.server:name=ConnectorBuilder,J2EEModule=org/apache/geronimo/RuntimeDeployer,*</reference>
-        <reference name="ServiceReferenceBuilder">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/RuntimeDeployer,J2EEServer=geronimo,j2eeType=ModuleBuilder,name=WebServiceBuilder</reference>
-        <reference name="Store">*:j2eeType=ConfigurationStore,*</reference>
-        <reference name="Repository">*:name=Repository,*</reference>
+        <reference name="EJBReferenceBuilder"><name>ClientEJBReferenceBuilder</name></reference>
+        <reference name="ConnectorModuleBuilder"><name>ConnectorBuilder</name></reference>
+        <reference name="ResourceReferenceBuilder"><name>ConnectorBuilder</name></reference>
+        <reference name="ServiceReferenceBuilder"><name>WebServiceBuilder</name></reference>
+        <reference name="Store"><module>org/apache/geronimo/System</module><name>*</name></reference>
+        <reference name="Repository"><gbean-name>*:name=Repository,*</gbean-name></reference>
     </gbean>
 
-    <gbean namePart="WebServiceBuilder" class="org.apache.geronimo.axis.builder.AxisBuilder">
+    <gbean name="WebServiceBuilder" class="org.apache.geronimo.axis.builder.AxisBuilder">
     </gbean>
-    <!--    <gbean name="openejb.CORBA:type=Compiler,vendor=Ant" class="org.openejb.corba.compiler.AntCompiler"/>-->
+    <!--    <gbean gbeanName="openejb.CORBA:type=Compiler,vendor=Ant" class="org.openejb.corba.compiler.AntCompiler"/>-->
     <!---->
-    <!--    <gbean name="openejb.CORBA:type=SkeletonGenerator,vendor=OpenORB" class="org.openejb.corba.compiler.OpenORBSkeletonGenerator">-->
+    <!--    <gbean gbeanName="openejb.CORBA:type=SkeletonGenerator,vendor=OpenORB" class="org.openejb.corba.compiler.OpenORBSkeletonGenerator">-->
         <!--        <attribute name="props">-->
             <!--        </attribute>-->
-        <!--        <reference name="Compiler">openejb.CORBA:type=Compiler,vendor=Ant</reference>-->
+        <!--        <reference name="Compiler"><gbean-name>openejb.CORBA:type=Compiler,vendor=Ant</gbean-name></reference>-->
         <!--    </gbean>-->
     <!---->
     <!-- end deployment block -->

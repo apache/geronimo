@@ -406,8 +406,8 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
         infoFactory.addAttribute("minBuffers", Integer.TYPE, true);
         infoFactory.addAttribute("threadsWaitingForceThreshold", Integer.TYPE, true);
 
-        infoFactory.addReference("XidFactory", XidFactory.class);
-        infoFactory.addReference("serverInfo", ServerInfo.class);
+        infoFactory.addReference("XidFactory", XidFactory.class, NameFactory.JTA_RESOURCE);
+        infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
 
         infoFactory.addInterface(TransactionLog.class);
 
@@ -425,7 +425,7 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
             "minBuffers",
             "threadsWaitingForceThreshold",
             "XidFactory",
-            "serverInfo"});
+            "ServerInfo"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

@@ -23,6 +23,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.tomcat.TomcatContainer;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  * Apache Tomcat HTTP 1.1 connector
@@ -55,7 +56,7 @@ public class HTTPConnector extends Connector implements GBeanLifecycle {
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Tomcat HTTP Connector", HTTPConnector.class);
         infoFactory.addAttribute("port", int.class, true);
-        infoFactory.addReference("TomcatContainer", TomcatContainer.class);
+        infoFactory.addReference("TomcatContainer", TomcatContainer.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.setConstructor(new String[] { "TomcatContainer" });
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

@@ -145,10 +145,10 @@ public class JettyFilterMapping implements Serializable {
         infoBuilder.addAttribute("includeDispatch", boolean.class, true);
         infoBuilder.addAttribute("errorDispatch", boolean.class, true);
 
-        infoBuilder.addReference("Filter", JettyFilterHolder.class);
-        infoBuilder.addReference("Servlet", JettyServletHolder.class);
-        infoBuilder.addReference("Previous", JettyFilterMapping.class);
-        infoBuilder.addReference("JettyServletRegistration", JettyServletRegistration.class);
+        infoBuilder.addReference("Filter", JettyFilterHolder.class, NameFactory.WEB_FILTER);
+        infoBuilder.addReference("Servlet", JettyServletHolder.class, NameFactory.SERVLET);
+        infoBuilder.addReference("Previous", JettyFilterMapping.class, NameFactory.WEB_FILTER_MAPPING);
+        infoBuilder.addReference("JettyServletRegistration", JettyServletRegistration.class, NameFactory.WEB_MODULE);
 
         infoBuilder.setConstructor(new String[]{"urlPattern",
                                                 "requestDispatch",

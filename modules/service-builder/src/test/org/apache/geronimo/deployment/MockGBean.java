@@ -98,7 +98,7 @@ public class MockGBean implements MockEndpoint {
         infoFactory.addOperation("checkEndpoint");
         infoFactory.addOperation("doSomething", new Class[]{String.class});
 
-        infoFactory.addReference("MockEndpoint", MockEndpoint.class);
+        infoFactory.addReference("MockEndpoint", MockEndpoint.class, null);
 
         infoFactory.setConstructor(new String[] {"name"});
 

@@ -285,8 +285,8 @@ public class TransactionManagerImpl implements ExtendedTransactionManager, XidIm
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(TransactionManagerImpl.class, NameFactory.JTA_RESOURCE);
 
         infoBuilder.addAttribute("defaultTransactionTimeoutSeconds", int.class, true);
-        infoBuilder.addReference("TransactionLog", TransactionLog.class);
-        infoBuilder.addReference("ResourceManagers", ResourceManager.class);
+        infoBuilder.addReference("TransactionLog", TransactionLog.class, NameFactory.JTA_RESOURCE);
+        infoBuilder.addReference("ResourceManagers", ResourceManager.class);//two kinds of things, so specify the type in each pattern.
 
         infoBuilder.addInterface(ExtendedTransactionManager.class);
         infoBuilder.addInterface(XidImporter.class);

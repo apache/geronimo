@@ -117,7 +117,7 @@ by the server.
 
 
     <!-- Default security realm using properties files -->
-    <gbean namePart="properties-login"
+    <gbean name="properties-login"
         class="org.apache.geronimo.security.jaas.LoginModuleGBean">
         <attribute name="loginModuleClass">org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule</attribute>
         <attribute name="serverSide">true</attribute>
@@ -128,59 +128,59 @@ by the server.
         <attribute name="loginDomainName">geronimo-properties-realm</attribute>
     </gbean>
 
-    <gbean namePart="geronimo-properties-realm"
+    <gbean name="geronimo-properties-realm"
         class="org.apache.geronimo.security.realm.GenericSecurityRealm">
         <attribute name="realmName">geronimo-properties-realm</attribute>
         <attribute name="loginModuleConfiguration">
             LoginModule.1.REQUIRED=geronimo.server:j2eeType=LoginModule,J2EEServer=geronimo,J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,name=properties-login
         </attribute>
-        <reference name="ServerInfo">geronimo.server:name=ServerInfo,*</reference>
+        <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
     </gbean>
 
-    <gbean namePart="JMX"
+    <gbean name="JMX"
         class="org.apache.geronimo.security.jaas.ServerRealmConfigurationEntry">
         <attribute name="applicationConfigName">JMX</attribute>
         <attribute name="realmName">geronimo-properties-realm</attribute>
     </gbean>
 
     <!-- Register GeronimoLoginConfiguration as the LoginConfiguration handler -->
-    <gbean namePart="LoginConfiguration" class="org.apache.geronimo.security.jaas.GeronimoLoginConfiguration">
+    <gbean name="LoginConfiguration" class="org.apache.geronimo.security.jaas.GeronimoLoginConfiguration">
         <references name="Configurations">
-            <pattern>geronimo.server:j2eeType=SecurityRealm,*</pattern>
-            <pattern>geronimo.server:j2eeType=ConfigurationEntry,*</pattern>
+            <pattern><gbean-name>geronimo.server:j2eeType=SecurityRealm,*</gbean-name></pattern>
+            <pattern><gbean-name>geronimo.server:j2eeType=ConfigurationEntry,*</gbean-name></pattern>
         </references>
     </gbean>
 
-    <gbean namePart="SecurityService" class="org.apache.geronimo.security.SecurityServiceImpl">
-        <reference name="ServerInfo">geronimo.server:name=ServerInfo,*</reference>
+    <gbean name="SecurityService" class="org.apache.geronimo.security.SecurityServiceImpl">
+        <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
         <attribute name="policyConfigurationFactory">org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory</attribute>
         <attribute name="policyProvider">org.apache.geronimo.security.jacc.GeronimoPolicy</attribute>
     </gbean>
 
-    <gbean namePart="JaasLoginService" class="org.apache.geronimo.security.jaas.JaasLoginService">
-        <reference name="Realms">geronimo.server:j2eeType=SecurityRealm,*</reference>
+    <gbean name="JaasLoginService" class="org.apache.geronimo.security.jaas.JaasLoginService">
+        <reference name="Realms"><application>*</application><module>*</module><name>*</name></reference>
         <!--        <attribute name="reclaimPeriod">100000</attribute>-->
         <attribute name="algorithm">HmacSHA1</attribute>
         <attribute name="password">secret</attribute>
     </gbean>
 
-    <gbean namePart="DefaultThreadPool" class="org.apache.geronimo.pool.ThreadPool">
+    <gbean name="DefaultThreadPool" class="org.apache.geronimo.pool.ThreadPool">
         <attribute name="keepAliveTime">5000</attribute>
         <attribute name="poolSize">10</attribute>
         <attribute name="poolName">DefaultThreadPool</attribute>
     </gbean>
 
-    <gbean namePart="ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator">
+    <gbean name="ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator">
     </gbean>
 
-    <gbean namePart="DefaultWorkManager" class="org.apache.geronimo.connector.work.GeronimoWorkManager">
+    <gbean name="DefaultWorkManager" class="org.apache.geronimo.connector.work.GeronimoWorkManager">
         <attribute name="syncMaximumPoolSize">10</attribute>
         <attribute name="startMaximumPoolSize">10</attribute>
         <attribute name="scheduledMaximumPoolSize">10</attribute>
-        <reference name="TransactionContextManager">geronimo.server:name=TransactionContextManager,*</reference>
+        <reference name="TransactionContextManager"><name>TransactionContextManager</name></reference>
     </gbean>
 
-    <gbean namePart="HOWLTransactionLog" class="org.apache.geronimo.transaction.log.HOWLLog">
+    <gbean name="HOWLTransactionLog" class="org.apache.geronimo.transaction.log.HOWLLog">
         <attribute name="bufferClassName">org.objectweb.howl.log.BlockLogBuffer</attribute>
         <attribute name="bufferSizeKBytes">32</attribute>
         <attribute name="checksumEnabled">true</attribute>
@@ -193,45 +193,45 @@ by the server.
         <attribute name="maxLogFiles">2</attribute>
         <attribute name="minBuffers">4</attribute>
         <attribute name="threadsWaitingForceThreshold">-1</attribute>
-        <reference name="serverInfo">geronimo.server:name=ServerInfo,*</reference>
+        <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
     </gbean>
 
-    <gbean namePart="TransactionManager" class="org.apache.geronimo.transaction.manager.TransactionManagerImpl">
+    <gbean name="TransactionManager" class="org.apache.geronimo.transaction.manager.TransactionManagerImpl">
         <attribute name="defaultTransactionTimeoutSeconds">600</attribute>
-        <reference name="TransactionLog">geronimo.server:name=HOWLTransactionLog,*</reference>
+        <reference name="TransactionLog"><name>HOWLTransactionLog</name></reference>
         <references name="ResourceManagers">
-            <pattern>geronimo.server:j2eeType=JCAManagedConnectionFactory,*</pattern>
-            <pattern>geronimo.server:j2eeType=ActivationSpec,*</pattern>
+            <pattern><gbean-name>geronimo.server:j2eeType=JCAManagedConnectionFactory,*</gbean-name></pattern>
+            <pattern><gbean-name>geronimo.server:j2eeType=ActivationSpec,*</gbean-name></pattern>
         </references>
     </gbean>
 
-    <gbean namePart="TransactionContextManager" class="org.apache.geronimo.transaction.context.TransactionContextManager">
-        <reference name="TransactionManager">geronimo.server:name=TransactionManager,*</reference>
-        <reference name="XidImporter">geronimo.server:name=TransactionManager,*</reference>
+    <gbean name="TransactionContextManager" class="org.apache.geronimo.transaction.context.TransactionContextManager">
+        <reference name="TransactionManager"><name>TransactionManager</name></reference>
+        <reference name="XidImporter"><name>TransactionManager</name></reference>
     </gbean>
 
 
     <!-- default WAR container using Jetty -->
-    <gbean namePart="JettyWebContainer" class="org.apache.geronimo.jetty.JettyContainerImpl">
+    <gbean name="JettyWebContainer" class="org.apache.geronimo.jetty.JettyContainerImpl">
     </gbean>
 
-    <gbean namePart="JettyRequestLog" class="org.apache.geronimo.jetty.requestlog.NCSARequestLog">
-        <reference name="JettyContainer">geronimo.server:name=JettyWebContainer,*</reference>
-        <reference name="ServerInfo">geronimo.server:name=ServerInfo,*</reference>
+    <gbean name="JettyRequestLog" class="org.apache.geronimo.jetty.requestlog.NCSARequestLog">
+        <reference name="JettyContainer"><name>JettyWebContainer</name></reference>
+        <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
         <attribute name="filename">var/log/jetty_yyyy_mm_dd.log</attribute>
         <attribute name="logDateFormat">dd/MMM/yyyy:HH:mm:ss ZZZ</attribute>
         <attribute name="logTimeZone">GMT</attribute>
     </gbean>
 
-    <gbean namePart="JettyWebConnector" class="org.apache.geronimo.jetty.connector.HTTPConnector">
+    <gbean name="JettyWebConnector" class="org.apache.geronimo.jetty.connector.HTTPConnector">
         <attribute name="port">8080</attribute>
-        <reference name="JettyContainer">geronimo.server:name=JettyWebContainer,*</reference>
+        <reference name="JettyContainer"><name>JettyWebContainer</name></reference>
         <!--        <attribute name="MaxConnections">10</attribute>-->
         <!--        <attribute name="MaxIdleTime">10</attribute>-->
     </gbean>
 
     <!-- EJB Protocol -->
-    <gbean name="openejb:type=NetworkService,name=EJB" class="org.openejb.server.StandardServiceStackGBean">
+    <gbean gbeanName="openejb:type=NetworkService,name=EJB" class="org.openejb.server.StandardServiceStackGBean">
         <attribute name="name">EJB</attribute>
         <attribute name="port">4201</attribute>
         <attribute name="address">127.0.0.1</attribute>
@@ -240,17 +240,17 @@ by the server.
         <attribute name="threads">20</attribute>
         <attribute name="logOnSuccess">HOST,NAME,THREADID,USERID</attribute>
         <attribute name="logOnFailure">HOST,NAME</attribute>
-        <reference name="Server">openejb:type=Server,name=EJB</reference>
+        <reference name="Server"><gbean-name>openejb:type=Server,name=EJB</gbean-name></reference>
     </gbean>
-    <gbean name="openejb:type=Server,name=EJB" class="org.openejb.server.ejbd.EjbServerGBean">
-        <reference name="ContainerIndex">openejb:type=ContainerIndex</reference>
+    <gbean gbeanName="openejb:type=Server,name=EJB" class="org.openejb.server.ejbd.EjbServerGBean">
+        <reference name="ContainerIndex"><gbean-name>openejb:type=ContainerIndex</gbean-name></reference>
     </gbean>
     <!-- pattern domain name must match the domain of the j2eeServer attribute of the EAR builder in the deployer plan -->
-    <gbean name="openejb:type=ContainerIndex" class="org.openejb.ContainerIndex">
+    <gbean gbeanName="openejb:type=ContainerIndex" class="org.openejb.ContainerIndex">
         <references name="EJBContainers">
-            <pattern>geronimo.server:j2eeType=StatelessSessionBean,*</pattern>
-            <pattern>geronimo.server:j2eeType=StatefulSessionBean,*</pattern>
-            <pattern>geronimo.server:j2eeType=EntityBean,*</pattern>
+            <pattern><gbean-name>geronimo.server:j2eeType=StatelessSessionBean,*</gbean-name></pattern>
+            <pattern><gbean-name>geronimo.server:j2eeType=StatefulSessionBean,*</gbean-name></pattern>
+            <pattern><gbean-name>geronimo.server:j2eeType=EntityBean,*</gbean-name></pattern>
         </references>
     </gbean>
 
@@ -258,22 +258,22 @@ by the server.
     <!-- HTTP/SOAP Protocol is now run through jetty-->
 
     <!-- JSR77 Management Objects -->
-    <gbean name="geronimo.server:j2eeType=J2EEDomain,name=geronimo.server" class="org.apache.geronimo.j2ee.management.impl.J2EEDomainImpl"/>
-    <gbean name="geronimo.server:j2eeType=J2EEServer,name=geronimo" class="org.apache.geronimo.j2ee.management.impl.J2EEServerImpl">
-        <reference name="ServerInfo">geronimo.server:name=ServerInfo,*</reference>
+    <gbean gbeanName="geronimo.server:j2eeType=J2EEDomain,name=geronimo.server" class="org.apache.geronimo.j2ee.management.impl.J2EEDomainImpl"/>
+    <gbean gbeanName="geronimo.server:j2eeType=J2EEServer,name=geronimo" class="org.apache.geronimo.j2ee.management.impl.J2EEServerImpl">
+        <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
     </gbean>
 
-    <gbean name="geronimo.server:j2eeType=JVM,J2EEServer=geronimo,name=JVM" class="org.apache.geronimo.j2ee.management.impl.JVMImpl"/>
+    <gbean gbeanName="geronimo.server:j2eeType=JVM,J2EEServer=geronimo,name=JVM" class="org.apache.geronimo.j2ee.management.impl.JVMImpl"/>
 
     <!-- JMX Remoting -->
-    <gbean namePart="JMXService" class="org.apache.geronimo.jmxremoting.JMXConnector">
+    <gbean name="JMXService" class="org.apache.geronimo.jmxremoting.JMXConnector">
         <attribute name="URL">service:jmx:rmi://localhost/jndi/rmi:/JMXConnector</attribute>
         <attribute name="applicationConfigName">JMX</attribute>
     </gbean>
 
 
-    <gbean namePart="eis/JAXR" class="org.apache.geronimo.webservices.jaxr.JAXRGBean"/>
+    <gbean name="eis/JAXR" class="org.apache.geronimo.webservices.jaxr.JAXRGBean"/>
 
-    <gbean name="geronimo.server:J2EEApplication=null,EJBModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=StatelessSessionBean,name=ejb/mgmt/MEJB" class="org.openejb.mejb.MEJB"/>
+    <gbean gbeanName="geronimo.server:J2EEApplication=null,EJBModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=StatelessSessionBean,name=ejb/mgmt/MEJB" class="org.openejb.mejb.MEJB"/>
 
 </configuration>

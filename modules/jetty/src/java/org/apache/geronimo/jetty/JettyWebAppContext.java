@@ -473,7 +473,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     public static final GBeanInfo GBEAN_INFO;
                                                               
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder("Jetty WebApplication Context", JettyWebAppContext.class);
+        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder("Jetty WebApplication Context", JettyWebAppContext.class, NameFactory.WEB_MODULE);
         infoBuilder.addAttribute("deploymentDescriptor", String.class, true);
         //from jetty's webapp context
 
@@ -504,9 +504,9 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
         infoBuilder.addAttribute("contextPath", String.class, true);
 
-        infoBuilder.addReference("TransactionContextManager", TransactionContextManager.class);
-        infoBuilder.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class);
-        infoBuilder.addReference("JettyContainer", JettyContainer.class);
+        infoBuilder.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.JTA_RESOURCE);
+        infoBuilder.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class, NameFactory.JCA_RESOURCE);
+        infoBuilder.addReference("JettyContainer", JettyContainer.class, NameFactory.GERONIMO_SERVICE);
 
         infoBuilder.addInterface(JettyServletRegistration.class);
 

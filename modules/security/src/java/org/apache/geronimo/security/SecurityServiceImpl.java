@@ -26,6 +26,7 @@ import org.apache.geronimo.security.jacc.PolicyContextHandlerHttpServletRequest;
 import org.apache.geronimo.security.jacc.PolicyContextHandlerSOAPMessage;
 import org.apache.geronimo.security.util.ConfigurationUtil;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 import javax.security.jacc.PolicyConfigurationFactory;
 import javax.security.jacc.PolicyContextException;
@@ -116,7 +117,7 @@ public class SecurityServiceImpl implements SecurityService {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(SecurityServiceImpl.class);
 
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
-        infoFactory.addReference("ServerInfo", ServerInfo.class);
+        infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addAttribute("policyConfigurationFactory", String.class, true);
         infoFactory.addAttribute("policyProvider", String.class, true);
         infoFactory.addAttribute("keyStore", String.class, true);

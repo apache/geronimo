@@ -37,14 +37,14 @@
     <uri>geronimo/jars/geronimo-spring-builder-${geronimo_version}.jar</uri>
   </dependency>
 
-  <gbean namePart="Deployer" class="org.apache.geronimo.deployment.Deployer">
-    <reference name="Builders">geronimo.server:j2eeType=ConfigBuilder,J2EEModule=org/apache/geronimo/SpringDeployer,*</reference>
-    <reference name="Store">geronimo.server:j2eeType=ConfigurationStore,*</reference>
+  <gbean name="Deployer" class="org.apache.geronimo.deployment.Deployer">
+    <reference name="Builders"><name>SPRBuilder</name></reference>
+      <reference name="Store"><module>org/apache/geronimo/System</module><name>*</name></reference>
   </gbean>
 
-  <gbean namePart="SPRBuilder" class="org.apache.geronimo.spring.deployment.SPRConfigBuilder">
+  <gbean name="SPRBuilder" class="org.apache.geronimo.spring.deployment.SPRConfigBuilder">
     <attribute name="defaultParentId">org/apache/geronimo/SpringRuntime</attribute>
-    <reference name="Repository">*:name=Repository,*</reference>
+    <reference name="Repository"><gbean-name>*:name=Repository,*</gbean-name></reference>
   </gbean>
 
 </configuration>

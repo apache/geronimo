@@ -39,6 +39,7 @@ import org.apache.geronimo.transaction.manager.TransactionBranchInfo;
 import org.apache.geronimo.transaction.manager.TransactionBranchInfoImpl;
 import org.apache.geronimo.transaction.manager.TransactionLog;
 import org.apache.geronimo.transaction.manager.XidFactory;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  * "Last Resource optimization" for single servers wishing to have valid xa transactions with
@@ -203,13 +204,13 @@ public class JDBCLog implements TransactionLog, GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(JDBCLog.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(JDBCLog.class, NameFactory.JCA_RESOURCE);
 
         infoFactory.addAttribute("systemId", String.class, true);
 
         infoFactory.addInterface(TransactionLog.class);
 
-        infoFactory.addReference("ManagedConnectionFactoryWrapper", ManagedConnectionFactoryWrapper.class);
+        infoFactory.addReference("ManagedConnectionFactoryWrapper", ManagedConnectionFactoryWrapper.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
 
         infoFactory.setConstructor(new String[]{"systemId", "DataSource"});
 

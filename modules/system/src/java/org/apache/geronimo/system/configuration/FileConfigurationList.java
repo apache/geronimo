@@ -188,7 +188,7 @@ public class FileConfigurationList implements GBeanLifecycle, PersistentConfigur
         infoFactory.addInterface(PersistentConfigurationList.class);
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("kernelFullyStarted", boolean.class, false);
-        infoFactory.addReference("ServerInfo", ServerInfo.class);
+        infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
         infoFactory.addAttribute("configFile", String.class, true);
         infoFactory.setConstructor(new String[]{"kernel", "ServerInfo", "configFile"});
         GBEAN_INFO = infoFactory.getBeanInfo();

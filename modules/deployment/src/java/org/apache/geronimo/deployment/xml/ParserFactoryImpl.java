@@ -93,7 +93,7 @@ public class ParserFactoryImpl implements ParserFactory {
 
         infoFactory.addOperation("getParser");
 
-        infoFactory.addReference("EntityResolver", EntityResolver.class);
+        infoFactory.addReference("EntityResolver", EntityResolver.class, "GBean");
 
         infoFactory.setConstructor(new String[]{"EntityResolver"});
 

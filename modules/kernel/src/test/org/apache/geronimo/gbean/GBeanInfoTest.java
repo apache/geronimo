@@ -108,7 +108,7 @@ public class GBeanInfoTest extends TestCase {
 
     final static GOperationInfo opInfo = new GOperationInfo("operation");
 
-    final static GReferenceInfo refInfo = new GReferenceInfo("reference", String.class.getName(), String.class.getName(), "setReference");
+    final static GReferenceInfo refInfo = new GReferenceInfo("reference", String.class.getName(), String.class.getName(), "setReference", "Fooifier");
 
     public void setUp() {
         gbeanInfo = MockGBean.getGBeanInfo();

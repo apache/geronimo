@@ -32,6 +32,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.transaction.InstanceContext;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  * ConnectionTrackingCoordinator tracks connections that are in use by
@@ -145,7 +146,7 @@ public class ConnectionTrackingCoordinator implements TrackedConnectionAssociato
     }
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ConnectionTrackingCoordinator.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ConnectionTrackingCoordinator.class, NameFactory.JCA_RESOURCE);
         infoFactory.addInterface(TrackedConnectionAssociator.class);
         infoFactory.addInterface(ConnectionTracker.class);
         GBEAN_INFO = infoFactory.getBeanInfo();
