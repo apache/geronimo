@@ -29,7 +29,7 @@
     <!-- ================================================================ -->
     <mbean code="org.apache.geronimo.web.jetty.JettyWebConnector" 
            name="jetty:role=WebConnector, port=8080">
-        <attribute name="Port">8088</attribute>
+        <attribute name="Port">8080</attribute>
 	<attribute name="Contexts">/abc, /def, /geh</attribute>
         <depends name="jetty:role=WebContainer"/>
     </mbean>
