@@ -13,5 +13,11 @@
 <!--        <default attribute="MaxConnections" type="int">10</default>-->
 <!--        <default attribute="MaxIdleTime" type="int">10</default>-->
     </gbean>
-
+    <gbean class="org.apache.geronimo.jetty.JettyWebApplicationContext" objectName="geronimo.app:name=WebConsole">
+        <default attribute="URI" type="java.net.URI">file:./deploy/jetty/geronimo-web-console.war</default>
+        <default attribute="ContextPath" type="java.lang.String">/geronimo-web-console</default>
+        <endpoint name="JettyContainer">
+            <pattern>geronimo.web:type=WebContainer,container=Jetty</pattern>
+        </endpoint>
+    </gbean>
 </gbeans>
