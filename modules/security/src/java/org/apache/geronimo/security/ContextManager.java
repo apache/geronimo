@@ -37,7 +37,7 @@ import java.util.Set;
 
 
 /**
- * @version $Revision: 1.8 $ $Date: 2004/07/29 20:54:43 $
+ * @version $Revision: 1.9 $ $Date: 2004/07/30 23:40:12 $
  */
 public class ContextManager {
     private static ThreadLocal currentCallerId = new ThreadLocal();
@@ -254,18 +254,9 @@ public class ContextManager {
      * with the thread's call stack.  It is this Subject that will be used for
      * authentication checks.
      * <p/>
-     * It will first attempt to return a <code>IdentificationPrincipal</code>.
-     * This kind of principal is inserted into a subject if one uses one of
-     * the Geronimo LoginModules.  It is a secure id that identifies the Subject.
-     * <p/>
-     * If there is no <code>IdentificationPrincipal</code>, it will attempt to
-     * return an instance <code>PrimaryRealmPrincipal</code>.
-     * <p/>
-     * If there is no <code>PrimaryRealmPrincipal</code>, it will attempt to
-     * return an instance <code>RealmPrincipal</code>.
-     * <p/>
-     * If there is no <code>RealmPrincipal</code>, it will attempt to
-     * return an instance <code>Principal</code>.
+     * Return a <code>IdentificationPrincipal</code>.  This kind of principal
+     * is inserted into a subject if one uses one of the Geronimo LoginModules.
+     * It is a secure id that identifies the Subject.
      *
      * @return the principal that identifies the Subject of this thread.
      * @see Subject#doAs(javax.security.auth.Subject, java.security.PrivilegedAction)
@@ -273,23 +264,14 @@ public class ContextManager {
      * @see Subject#doAsPrivileged(javax.security.auth.Subject, java.security.PrivilegedAction, java.security.AccessControlContext)
      * @see Subject#doAsPrivileged(javax.security.auth.Subject, java.security.PrivilegedExceptionAction, java.security.AccessControlContext)
      */
-    public static Principal getThreadPrincipal() {
+    public static IdentificationPrincipal getThreadPrincipal() {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(GET_CONTEXT);
 
         Subject subject = Subject.getSubject(AccessController.getContext());
         if (subject != null) {
             Set set = subject.getPrincipals(IdentificationPrincipal.class);
-            if (!set.isEmpty()) return (Principal) set.iterator().next();
-
-            set = subject.getPrincipals(PrimaryRealmPrincipal.class);
-            if (!set.isEmpty()) return (Principal) set.iterator().next();
-
-            set = subject.getPrincipals(RealmPrincipal.class);
-            if (!set.isEmpty()) return (Principal) set.iterator().next();
-
-            set = subject.getPrincipals();
-            if (!set.isEmpty()) return (Principal) set.iterator().next();
+            if (!set.isEmpty()) return (IdentificationPrincipal) set.iterator().next();
         }
         return null;
     }
