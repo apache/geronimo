@@ -53,7 +53,7 @@
  *
  * ====================================================================
  */
-package org.apache.management.j2ee;
+package org.apache.geronimo.management;
 
 import javax.management.Notification;
 import javax.management.NotificationFilter;
@@ -62,7 +62,7 @@ import javax.management.NotificationFilter;
  * Static constants class which contains all of the J2EE notification types from the
  * J2EE management specification.
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/18 23:13:46 $
+ * @version $Revision: 1.1 $ $Date: 2003/08/20 07:13:09 $
  */
 public final class NotificationType {
     private NotificationType() {

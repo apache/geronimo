@@ -58,12 +58,12 @@ package org.apache.geronimo.deployment.dependency;
 import java.util.Set;
 import javax.management.ObjectName;
 
-import org.apache.management.j2ee.State;
+import org.apache.geronimo.management.State;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/18 22:02:05 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/20 07:13:26 $
  */
 public interface DependencyServiceMBean {
     void addStartDependencies(ObjectName dependent, Set dependencies);

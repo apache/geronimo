@@ -6,12 +6,12 @@ import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Map;
 import javax.management.ObjectName;
-import org.apache.management.j2ee.State;
+import org.apache.geronimo.management.State;
 
 /**
  * Base class for a Container that can be accecpt invocation.
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/18 13:30:19 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/20 07:13:25 $
  */
 public class AbstractRPCContainer extends AbstractContainer implements RPCContainer {
     // @todo access to these objects must be synchronized

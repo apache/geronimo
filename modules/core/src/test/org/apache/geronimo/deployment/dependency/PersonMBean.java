@@ -55,12 +55,12 @@
  */
 package org.apache.geronimo.deployment.dependency;
 
-import org.apache.management.j2ee.StateManageable;
+import org.apache.geronimo.management.StateManageable;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/20 03:26:06 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/20 07:13:40 $
  */
 public interface PersonMBean extends StateManageable {
     String getName();

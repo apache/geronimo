@@ -54,7 +54,7 @@
  * ====================================================================
  */
 package org.apache.geronimo.common;
-import org.apache.management.j2ee.State;
+import org.apache.geronimo.management.State;
 
 /**
  * A helper implementation of the Component interface that should
@@ -62,7 +62,7 @@ import org.apache.management.j2ee.State;
  *
  * @todo this is broken because name is required but there is no way to set it
  *
- * @version $Revision: 1.7 $ $Date: 2003/08/18 13:30:19 $
+ * @version $Revision: 1.8 $ $Date: 2003/08/20 07:13:25 $
  */
 public class AbstractComponent extends AbstractStateManageable implements Component {
     /**

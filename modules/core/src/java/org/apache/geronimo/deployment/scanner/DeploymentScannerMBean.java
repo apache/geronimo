@@ -58,13 +58,13 @@ package org.apache.geronimo.deployment.scanner;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Set;
-import org.apache.management.j2ee.StateManageable;
+import org.apache.geronimo.management.StateManageable;
 
 /**
  *
  *
  *
- * @version $Revision: 1.6 $ $Date: 2003/08/18 13:30:19 $
+ * @version $Revision: 1.7 $ $Date: 2003/08/20 07:13:26 $
  */
 public interface DeploymentScannerMBean extends StateManageable {
     static final String SCAN_COMPLETE = "org.apache.geronimo.deployment.SCAN_COMPLETE";

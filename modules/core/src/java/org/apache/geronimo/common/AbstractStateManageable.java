@@ -87,16 +87,16 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.deployment.dependency.DependencyServiceMBean;
 import org.apache.geronimo.deployment.service.MBeanRelationship;
 import org.apache.geronimo.jmx.JMXUtil;
-import org.apache.management.j2ee.NotificationType;
-import org.apache.management.j2ee.State;
-import org.apache.management.j2ee.StateManageable;
+import org.apache.geronimo.management.NotificationType;
+import org.apache.geronimo.management.State;
+import org.apache.geronimo.management.StateManageable;
 
 /**
  * Abstract implementation of JSR77 StateManageable.
  * Implementors of StateManageable may use this class and simply provide
  * doStart, doStop and doNotification methods.
  *
- * @version $Revision: 1.5 $ $Date: 2003/08/18 21:56:27 $
+ * @version $Revision: 1.6 $ $Date: 2003/08/20 07:13:25 $
  */
 public abstract class AbstractStateManageable extends NotificationBroadcasterSupport implements StateManageable, NotificationListener, MBeanRegistration {
     protected Log log = LogFactory.getLog(getClass());
@@ -270,7 +270,7 @@ public abstract class AbstractStateManageable extends NotificationBroadcasterSup
             if (state == State.STARTING || state == State.RUNNING) {
                 return;
             }
-            setState(State.STARTING);
+            setStateInstance(State.STARTING);
         }
         doNotification(State.STARTING.getEventTypeValue());
 
@@ -283,15 +283,15 @@ public abstract class AbstractStateManageable extends NotificationBroadcasterSup
                             dependencyService.canStart(objectName) && canStart()) {
                         enrollInRelationships();
                         doStart();
-                        setState(State.RUNNING);
+                        setStateInstance(State.RUNNING);
                         newState = State.RUNNING;
                     }
                 } catch (Exception e) {
-                    setState(State.FAILED);
+                    setStateInstance(State.FAILED);
                     newState = State.FAILED;
                     throw e;
                 } catch (Error e) {
-                    setState(State.FAILED);
+                    setStateInstance(State.FAILED);
                     newState = State.FAILED;
                     throw e;
                 }
@@ -322,7 +322,7 @@ public abstract class AbstractStateManageable extends NotificationBroadcasterSup
             if (state == State.STOPPED || state == State.STOPPING) {
                 return;
             }
-            setState(State.STOPPING);
+            setStateInstance(State.STOPPING);
         }
         doNotification(State.STOPPING.getEventTypeValue());
 
@@ -354,15 +354,15 @@ public abstract class AbstractStateManageable extends NotificationBroadcasterSup
                         if (dependencyService.canStop(objectName) && canStop()) {
                             unenrollInRelationships();
                             doStop();
-                            setState(State.STOPPED);
+                            setStateInstance(State.STOPPED);
                             newState = State.STOPPED;
                         }
                     } catch (Exception e) {
-                        setState(State.FAILED);
+                        setStateInstance(State.FAILED);
                         newState = State.FAILED;
                         throw e;
                     } catch (Error e) {
-                        setState(State.FAILED);
+                        setStateInstance(State.FAILED);
                         newState = State.FAILED;
                         throw e;
                     }
@@ -557,13 +557,13 @@ public abstract class AbstractStateManageable extends NotificationBroadcasterSup
                     if (dependencyService.canStart(objectName) && canStart()) {
                         try {
                             doStart();
-                            setState(State.RUNNING);
+                            setStateInstance(State.RUNNING);
                             newState = State.RUNNING;
                         } catch (Exception e) {
-                            setState(State.FAILED);
+                            setStateInstance(State.FAILED);
                             newState = State.FAILED;
                         } catch (Error e) {
-                            setState(State.FAILED);
+                            setStateInstance(State.FAILED);
                             newState = State.FAILED;
                         }
                     }
@@ -571,7 +571,7 @@ public abstract class AbstractStateManageable extends NotificationBroadcasterSup
                     // Someone stopping, stopped, failed or unregistered we need to change state
                     State recommendState = dependencyService.shouldChangeState(objectName);
                     if (recommendState != null) {
-                        setState(recommendState);
+                        setStateInstance(recommendState);
                         newState = recommendState;
                     }
                 } else if (state == State.STOPPING) {
@@ -579,13 +579,13 @@ public abstract class AbstractStateManageable extends NotificationBroadcasterSup
                         try {
                             unenrollInRelationships();
                             doStop();
-                            setState(State.STOPPED);
+                            setStateInstance(State.STOPPED);
                             newState = State.STOPPED;
                         } catch (Exception e) {
-                            setState(State.FAILED);
+                            setStateInstance(State.FAILED);
                             newState = State.FAILED;
                         } catch (Error e) {
-                            setState(State.FAILED);
+                            setStateInstance(State.FAILED);
                             newState = State.FAILED;
                         }
                     }
@@ -603,7 +603,7 @@ public abstract class AbstractStateManageable extends NotificationBroadcasterSup
      * @param newState the target state to transition
      * @throws IllegalStateException Thrown if the transition is not supported by the J2EE Management lifecycle.
      */
-    private synchronized void setState(State newState) throws IllegalStateException {
+    private synchronized void setStateInstance(State newState) throws IllegalStateException {
         switch (state.toInt()) {
         case State.STOPPED_INDEX:
             switch (newState.toInt()) {

@@ -53,78 +53,78 @@
  *
  * ====================================================================
  */
-package org.apache.management.j2ee;
+package org.apache.geronimo.management;
+
 
 /**
- * This class contains a type safe enumeration of the states from the J2EE Management specification.
+ * A Java interface the meets the J2EE Management specification for a state manageable object.
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/18 23:03:30 $
+ * @version $Revision: 1.1 $ $Date: 2003/08/20 07:13:09 $
  */
-public final class State {
-    public static final int STARTING_INDEX = 0;
-    public static final int RUNNING_INDEX = 1;
-    public static final int STOPPING_INDEX = 2;
-    public static final int STOPPED_INDEX = 3;
-    public static final int FAILED_INDEX = 4;
-
-    public static final State STARTING = new State("starting", STARTING_INDEX, NotificationType.STATE_STARTING);
-    public static final State RUNNING = new State("running", RUNNING_INDEX, NotificationType.STATE_RUNNING);
-    public static final State STOPPING = new State("stopping", STOPPING_INDEX, NotificationType.STATE_STOPPING);
-    public static final State STOPPED = new State("stopped", STOPPED_INDEX, NotificationType.STATE_STOPPED);
-    public static final State FAILED = new State("failed", FAILED_INDEX, NotificationType.STATE_FAILED);
-
-    private static final State[] fromInt = {STARTING, RUNNING, STOPPING, STOPPED, FAILED};
+public interface StateManageable {
+    /**
+     * Gets the state of this component as an int.
+     * The int return is required by the JSR77 specification.
+     * @see #getStateInstance to obtain the State instance
+     * @return the current state of this component
+     */
+    int getState();
 
     /**
-     * Get a State from an int index
-     * @param index int index of the state
-     * @return The State instance or null if no such State.
+     * Gets the state of this component as a State instance.
+     * @return the current state of this component
      */
-    public static State fromInt(int index) {
-        if (index < 0 || index >= fromInt.length) {
-            return null;
-        }
-        return fromInt[index];
-    }
+    State getStateInstance();
 
     /**
-     * The user readable name of this state from the J2EE Management specification
+     * Gets the start time of this component
+     * @return time in milliseonds since epoch that this component was started.
      */
-    private final String name;
+    long getStartTime();
+
 
     /**
-     * The state index from the J2EE Management specification
+     * Transitions the component to the starting state.  This method has access to the
+     * container.
+     *
+     * Normally a component uses this to cache data from other components. The other components will
+     * have been created at this stage, but not necessairly started and may not be ready to have methods
+     * invoked on them.
+     *
+     * @throws java.lang.Exception if a problem occurs during the transition
+     * @throws java.lang.IllegalStateException if this interceptor is not in the stopped or failed state
      */
-    private final int index;
+    void start() throws Exception, IllegalStateException;
 
     /**
-     * Type value to be broadcasted on entering this state.
+     * Transitions the component to the starting state.  This method has access to the
+     * container.
+     *
+     * If this Component is a Container, then startRecursive is called on all child Components
+     * that are in the STOPPED or FAILED state.
+     * Normally a component uses this to cache data from other components. The other components will
+     * have been created at this stage, but not necessairly started and may not be ready to have methods
+     * invoked on them.
+     *
+     * @throws java.lang.Exception if a problem occurs during the transition
+     * @throws java.lang.IllegalStateException if this interceptor is not in the STOPPED or FAILED state
      */
-    private final String eventTypeValue;
-
-    private State(String name, int index, String anEventTypeValue) {
-        this.name = name;
-        this.index = index;
-        eventTypeValue = anEventTypeValue;
-    }
+    void startRecursive() throws Exception, IllegalStateException;
 
     /**
-     * Gets the integer value of this state as specified in the J2EE Management specification
-     * @return
+     * Transitions the component to the stopping state.  This method has access to the
+     * container.
+     *
+     * If this is Component is a Container, then all its child components must be in the
+     * STOPPED or FAILED State.
+     *
+     * Normally a component uses this to drop references to data cached in the start method.
+     * The other components will not necessairly have been stopped at this stage and may not be ready
+     * to have methods invoked on them.
+     *
+     * @throws java.lang.Exception if a problem occurs during the transition
+     * @throws java.lang.IllegalStateException if this interceptor is not in the STOPPED or FAILED state
      */
-    public int toInt() {
-        return index;
-    }
+    void stop() throws Exception, IllegalStateException;
 
-    /**
-     * Gets the event type that should be send after changeing to this state.
-     * @return the event type that should be sent after a transistion to this state
-     */
-    public String getEventTypeValue() {
-        return eventTypeValue;
-    }
-
-    public String toString() {
-        return name;
-    }
 }
