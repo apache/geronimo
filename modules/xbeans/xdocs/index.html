@@ -41,12 +41,12 @@ Hopefully we can fix this going forward to reduce the size of this jar.
 <h1>Example</h1>
 
 <p>To parse some XML...</p>
+
+<pre>
 EjbJarDocument document = EjbJarDocument.Factory.parse(in);
 EjbJar jar = document.getEjbJar();
 SessionBeanType[] sessionBeans = jar.getEnterpriseBeans().getSessionArray();
 ...
-<pre>
-
 </pre>
 
 <p>To manually construct some of the XBeans for EJB...</p>
