@@ -56,33 +56,47 @@
 
 package org.apache.geronimo.common.task;
 
+import java.io.File;
+
+import java.net.URL;
+
+import java.util.Timer;
+
 import junit.framework.TestCase;
+
 import org.apache.geronimo.common.NullArgumentException;
 
-import java.io.File;
-import java.net.URL;
-import java.util.Timer;
+import org.apache.geronimo.common.net.protocol.Protocols;
+import org.apache.geronimo.common.net.protocol.URLStreamHandlerFactory;
 
 /**
  * Unit test for {@link URLMonitorTask} class.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/30 20:57:46 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/01 15:22:24 $
  */
-public class URLMonitorTaskTest extends TestCase {
-
+public class URLMonitorTaskTest
+    extends TestCase
+{
+    static {
+        //
+        // Have to install factory to make sure that our file handler is used
+        // and not Sun's
+        //
+        Protocols.prependHandlerPackage("org.apache.geronimo.common.net.protocol");
+        URLStreamHandlerFactory factory = new URLStreamHandlerFactory();
+        URL.setURLStreamHandlerFactory(factory);
+    }
+    
     private File file;
     private URL fileURL;
 
     protected void setUp() throws Exception {
-        super.setUp();
         file = File.createTempFile("URLMonitor", ".tmp");
-        file.setLastModified(0);
         fileURL = file.toURI().toURL();
     }
     
     protected void tearDown() throws Exception {
         file.delete();
-        super.tearDown();
     }
     
     public void testConstructorWithNull() {
@@ -132,25 +146,23 @@ public class URLMonitorTaskTest extends TestCase {
         
         // Change the last modified and get the last modified from the file,
         // since it might be truncated while setting
-        file.setLastModified(System.currentTimeMillis());
+        long mtime = System.currentTimeMillis();
+        file.setLastModified(mtime);
         long lastModifiedTime = file.lastModified();
+        // mtime is truncated so this may fail
+        // assertEquals(mtime, lastModifiedTime);
         
         // Wait until the event is fired
-        do {
+        while (mockListener.getFireCount() == 0) {
             Thread.sleep(50);
-        } while (mockListener.getFireCount() == 0);
-        
+        }
         timer.cancel();
+        assertEquals(1, mockListener.getFireCount());
         
         URLMonitorTask.Event event = mockListener.getEvent();
         
-        //
-        // FIXME (jason): Sun's file protocol handler is broken, need to
-        //                plug in a functional version berfore this will work
-        //                as expected.
-        //
-        // assertEquals(lastModifiedTime, event.getLastModified());
-        // assertEquals(lastModifiedTime, event.getURLMonitorTask().getLastChanged());
+        assertEquals(lastModifiedTime, event.getLastModified());
+        assertEquals(lastModifiedTime, event.getURLMonitorTask().getLastChanged());
         
         assertEquals(fileURL, event.getURL());
         assertEquals(fileURL, event.getURLMonitorTask().getURL());
