@@ -59,6 +59,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.Set;
+import java.io.File;
 import javax.management.MBeanServer;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
@@ -70,7 +71,7 @@ import org.apache.commons.logging.impl.LogFactoryImpl;
 import org.apache.geronimo.common.StopWatch;
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 
-import org.apache.geronimo.common.net.protocol.Protocols; 
+import org.apache.geronimo.common.net.protocol.Protocols;
 
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.jmx.JMXKernel;
@@ -79,7 +80,7 @@ import org.apache.geronimo.jmx.JMXKernel;
  *
  *
  *
- * @version $Revision: 1.17 $ $Date: 2003/09/05 04:49:58 $
+ * @version $Revision: 1.18 $ $Date: 2003/09/05 05:50:15 $
  */
 public class Main implements Runnable {
     static {
@@ -87,12 +88,21 @@ public class Main implements Runnable {
         if (System.getProperty(LogFactoryImpl.LOG_PROPERTY) == null) {
             System.setProperty(LogFactoryImpl.LOG_PROPERTY, "org.apache.geronimo.common.log.log4j.CachingLog4jLog");
         }
-        
+
         // Make the common URL protocol handlers available
         Protocols.appendHandlerPackage("org.apache.geronimo.common.net.protocol");
 
         // Make sure the property editor is initialized
         PropertyEditors.getEditorSearchPath();
+
+        // Set the home directory based on the start location of the Java process
+        if (System.getProperty("geronimo.home") == null) {
+            try {
+                System.setProperty("geronimo.home", (new File(".")).getAbsoluteFile().toURL().toString());
+            } catch (MalformedURLException e) {
+                throw new AssertionError(e);
+            }
+        }
     }
 
     private static final Log log = LogFactory.getLog("Geronimo");
@@ -113,10 +123,10 @@ public class Main implements Runnable {
     /**
      * Main entry point
      */
-    public void run() 
+    public void run()
     {
         StopWatch watch = new StopWatch(true);
-        
+
         Object[] deployArgs = {bootURL};
         JMXKernel kernel = null;
         ShutdownThread hook = new ShutdownThread("Shutdown-Thread", Thread.currentThread());
@@ -158,7 +168,7 @@ public class Main implements Runnable {
                 log.info("Deploying Bootstrap Services from " + bootURL);
                 MBeanServer mbServer = kernel.getMBeanServer();
                 mbServer.invoke(controllerName, "deploy", deployArgs, DEPLOY_ARG_TYPES);
-                
+
                 log.info("Started Server in " + watch.toDuration());
             } catch (Throwable e) {
                 log.error("Error starting Server", e);
@@ -200,7 +210,7 @@ public class Main implements Runnable {
             log.info("Shutdown complete");
         }
     }
-    
+
     static String GERONIMO_HOME = System.getProperty("geronimo.home","file:.");
 
     /**
