@@ -80,7 +80,7 @@ import javax.management.ReflectionException;
  *
  *
  *
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public interface Management extends EJBObject {
     public Object getAttribute(ObjectName name, String attribute) throws MBeanException, AttributeNotFoundException, InstanceNotFoundException, ReflectionException, RemoteException;
@@ -97,7 +97,7 @@ public interface Management extends EJBObject {
 
     public boolean isRegistered(ObjectName name) throws RemoteException;
 
-    public Set quertyNames(ObjectName name, QueryExp query) throws RemoteException;
+    public Set queryNames(ObjectName name, QueryExp query) throws RemoteException;
 
     public void setAttribute(ObjectName name, Attribute attribute) throws InstanceNotFoundException, AttributeNotFoundException, InvalidAttributeValueException, MBeanException, ReflectionException, RemoteException;
 
