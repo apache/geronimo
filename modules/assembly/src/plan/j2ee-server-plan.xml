@@ -103,7 +103,7 @@ by the server.
 <!--        <attribute name="MaxIdleTime" type="int">10</attribute>-->
     </gbean>
 
-    <!-- JMS container -->
+    <!-- JMS container 
     <gbean name="geronimo.server:type=JMSServer,container=ActiveMQ" class="org.codehaus.activemq.container.ActiveMQContainer">
     </gbean>
 
@@ -111,7 +111,7 @@ by the server.
         <attribute name="Url" type="java.lang.String">tcp://localhost:61616</attribute>
         <reference name="ActiveMQContainer">geronimo.server:type=JMSServer,container=ActiveMQ</reference>
     </gbean>
-
+-->
 
     <!-- EJB container -->
     <gbean name="openejb:type=ContainerIndex" class="org.openejb.ContainerIndex">
