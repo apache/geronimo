@@ -592,7 +592,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                 }
                 String type = attributeInfo.getType();
                 gbeanData.setAttribute(name,
-                        getValue(type, configProperties[i].getStringValue(), cl));
+                        getValue(type, configProperties[i].getStringValue().trim(), cl));
             }
         } catch (DeploymentException e) {
             throw e;
