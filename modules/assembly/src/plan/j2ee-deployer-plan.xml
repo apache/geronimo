@@ -36,6 +36,10 @@ Configuration for the Geronimo deployer
     <dependency>
         <uri>geronimo/jars/geronimo-core-1.0-SNAPSHOT.jar</uri>
     </dependency>
+    <!-- needed to load some connector and core classes-->
+    <dependency>
+        <uri>concurrent/jars/concurrent-1.3.4.jar</uri>
+    </dependency>
     <dependency>
         <uri>geronimo/jars/geronimo-j2ee-1.0-SNAPSHOT.jar</uri>
     </dependency>

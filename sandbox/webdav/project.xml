@@ -17,7 +17,7 @@
 -->
   
 
-<!-- $Revision: 1.18 $ $Date: 2004/07/08 05:13:29 $ -->
+<!-- $Revision: 1.19 $ $Date: 2004/07/11 21:48:46 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -144,7 +144,7 @@
         <dependency>
             <groupId>concurrent</groupId>
             <artifactId>concurrent</artifactId>
-            <version>1.3.2</version>
+            <version>1.3.4</version>
         </dependency>
 
         <dependency>
