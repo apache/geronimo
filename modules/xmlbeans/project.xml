@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: project.xml,v 1.1 2003/08/14 20:16:46 jstrachan Exp $ -->
+<!-- $Id: project.xml,v 1.2 2003/08/14 23:07:19 jstrachan Exp $ -->
 
 <project>
   <pomVersion>3</pomVersion>
@@ -37,6 +37,14 @@
     
     <!-- Thirdparty Dependencies -->
     
+    <!-- For XMLBeans -->
+     <dependency>
+      <id>xmlbeans</id>
+      <version>1.0</version>
+    </dependency>
+    
+    <!-- For JAXB -->
+<!--    
     <dependency>
       <id>jaxb+api</id>
       <version>1.2</version>
@@ -69,15 +77,15 @@
       <id>xsdlib</id>
       <version>20030225</version>
     </dependency>
+-->
 
-<!--    
+	<!-- for castor -->
+<!--	
     <dependency>
       <id>castor</id>
       <version>0.9.5</version>
       <url>http://castor.exolab.org</url>
     </dependency>
--->
-    
     <dependency>
       <id>xerces</id>
       <version>2.4.0</version>
@@ -94,6 +102,7 @@
       <version>1.0.3</version>
       <url>http://jakarta.apache.org/commons/logging.html</url>
     </dependency>
+-->    
     
   </dependencies>
   
@@ -103,6 +112,8 @@
   <!-- =================== -->
   
   <build>
+    <sourceDirectory>${basedir}/target/src</sourceDirectory>
+
     <unitTest>
       <!-- For some reason this is not pulled from the global project -->
       <includes>

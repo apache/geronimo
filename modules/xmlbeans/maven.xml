@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: maven.xml,v 1.1 2003/08/14 20:16:46 jstrachan Exp $ -->
+<!-- $Id: maven.xml,v 1.2 2003/08/14 23:07:19 jstrachan Exp $ -->
 
 <project
   xmlns:j="jelly:core"
@@ -20,8 +20,38 @@
   <!-- ================================= -->
   
   <preGoal name="java:compile">
-	<attainGoal name="generate:jaxb"/>      
+	<attainGoal name="generate:xmlbeans"/>      
   </preGoal>
+
+  <goal name="generate:xmlbeans"
+  	description="Generates the XML beans using XMLBeans">
+
+   	<!-- a dummy scope tag to change XML namespace to ant -->
+  	<j:scope xmlns="jelly:ant">
+
+<!--  	
+ 	   <j:set var="schema" value="${basedir}/src/schema/j2ee_1_4.xsd"/>
+--> 	   
+ 	   <j:set var="schema" value="${basedir}/src/schema/ejb-jar_2_1.xsd"/>
+ 	   <j:set var="dir" value="${basedir}/target/src"/>
+
+  	   <taskdef name="xmlbean" classname="com.bea.xbean.tool.XMLBean" classpathref="maven.dependency.classpath"/>
+  
+        <ant:mkdir dir="${dir}"/>
+	
+	    <xmlbean
+	      destfile="${basedir}/target/xmlbeans.jar"
+	      schema="${basedir}/src/schema"
+	      srcgendir="${basedir}/target/src"
+	      typesystemname="org.apache.geronimo.xmlbeans"
+	      classpathref="maven.dependency.classpath"
+	      srconly="true"
+	      download="true"
+	      failonerror="true" />
+	
+    </j:scope>
+  </goal>
+  	
 
 
   <goal name="generate:jaxb"
