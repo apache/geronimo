@@ -252,7 +252,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
 
             ServiceEndpointInterfaceMappingType[] endpointMappings = mapping.getServiceEndpointInterfaceMappingArray();
 
-            String credentialsName = (String) credentialsNameMap.get(port.getName());
+            String credentialsName = credentialsNameMap == null? null: (String) credentialsNameMap.get(port.getName());
 
             //port type corresponds to SEI
             List operations = portType.getOperations();
