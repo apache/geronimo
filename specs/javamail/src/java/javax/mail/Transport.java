@@ -43,7 +43,8 @@ public abstract class Transport extends Service {
      * @throws MessagingException if there was a problem sending the message
      */
     public static void send(Message message) throws MessagingException {
-        send(message, message.getAllRecipients());
+//        TODO: uncomment when MimeMessage imlements getAllRecipients();
+//        send(message, message.getAllRecipients());
     }
 
     /**
