@@ -56,16 +56,16 @@
 package org.apache.geronimo.deployment.service;
 
 import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.LinkedList;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -75,17 +75,17 @@ import javax.management.ObjectName;
 
 import org.apache.geronimo.deployment.ConfigurationCallback;
 import org.apache.geronimo.deployment.DeploymentModule;
-import org.apache.geronimo.kernel.deployment.DeploymentException;
-import org.apache.geronimo.kernel.deployment.scanner.URLInfo;
-import org.apache.geronimo.kernel.deployment.scanner.URLType;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.kernel.deployment.DeploymentException;
+import org.apache.geronimo.kernel.deployment.scanner.URLInfo;
+import org.apache.geronimo.kernel.deployment.scanner.URLType;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/16 22:19:51 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/19 06:40:07 $
  */
 public class ServiceModule implements DeploymentModule {
     private final URI moduleID;
@@ -203,7 +203,7 @@ public class ServiceModule implements DeploymentModule {
 
             GBeanMBean gbean;
             try {
-                gbean = new GBeanMBean(gbeanInfo);
+                gbean = new GBeanMBean(gbeanInfo, cl);
             } catch (InvalidConfigurationException e) {
                 throw new DeploymentException("Unable to create GMBean", e);
             }

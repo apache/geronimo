@@ -55,6 +55,7 @@
  */
 package org.apache.geronimo.deployment.service;
 
+import java.beans.PropertyEditor;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -64,21 +65,18 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.beans.PropertyEditor;
-import java.beans.PropertyEditorManager;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.xml.parsers.DocumentBuilder;
 
+import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 import org.apache.geronimo.deployment.DeploymentModule;
 import org.apache.geronimo.deployment.ModuleFactory;
 import org.apache.geronimo.deployment.util.DeploymentHelper;
 import org.apache.geronimo.kernel.deployment.DeploymentException;
 import org.apache.geronimo.kernel.deployment.scanner.URLInfo;
 import org.apache.geronimo.kernel.deployment.service.XMLUtil;
-import org.apache.geronimo.common.Classes;
-import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -87,7 +85,7 @@ import org.w3c.dom.NodeList;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/01/17 17:00:31 $
+ * @version $Revision: 1.6 $ $Date: 2004/01/19 06:40:07 $
  */
 public class ServiceDeployer implements ModuleFactory {
     private final DocumentBuilder parser;

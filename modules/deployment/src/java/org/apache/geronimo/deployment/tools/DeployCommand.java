@@ -65,21 +65,23 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.JarOutputStream;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.geronimo.deployment.BatchDeployer;
 import org.apache.geronimo.deployment.NoDeployerException;
+import org.apache.geronimo.deployment.util.FileUtil;
 import org.apache.geronimo.deployment.service.ServiceDeployer;
 import org.apache.geronimo.kernel.deployment.DeploymentException;
 import org.apache.geronimo.kernel.deployment.scanner.URLInfo;
 import org.apache.geronimo.kernel.deployment.scanner.URLType;
 
 /**
- * 
- * 
- * @version $Revision: 1.2 $ $Date: 2004/01/17 03:44:38 $
+ *
+ *
+ * @version $Revision: 1.3 $ $Date: 2004/01/19 06:40:07 $
  */
 public class DeployCommand {
     private final File configFile;
@@ -105,7 +107,7 @@ public class DeployCommand {
 
     public static void main(String[] args) {
         if (args.length < 3) {
-            System.err.println("usage: "+DeployCommand.class.getName()+" <configID> <outfile> <url>+");
+            System.err.println("usage: " + DeployCommand.class.getName() + " <configID> <outfile> <url>+");
             System.exit(1);
             throw new AssertionError();
         }
@@ -134,7 +136,7 @@ public class DeployCommand {
         DeployCommand deployer = new DeployCommand(configFile, configID, workDir, deployers);
         int status = 0;
         try {
-            for (int i=2; i < args.length; i++) {
+            for (int i = 2; i < args.length; i++) {
                 File source = new File(args[i]);
                 deployer.add(source.toURL());
             }
@@ -143,11 +145,7 @@ public class DeployCommand {
             e.printStackTrace();
             status = 2;
         } finally {
-            try {
-                recursiveDelete(workDir);
-            } catch (IOException e) {
-                // ignore
-            }
+            FileUtil.recursiveDelete(workDir);
         }
         System.exit(status);
     }
@@ -159,22 +157,8 @@ public class DeployCommand {
             deployers.add(new ServiceDeployer(parser));
             return deployers;
         } catch (ParserConfigurationException e) {
-            throw new AssertionError("Unable to instanciate XML Parser");
+            throw new AssertionError("Unable to instantiate XML Parser");
         }
     }
 
-    private static void recursiveDelete(File root) throws IOException {
-        File[] files = root.listFiles();
-        if (files != null) {
-            for (int i = 0; i < files.length; i++) {
-                File file = files[i];
-                if (file.isDirectory()) {
-                    recursiveDelete(file);
-                } else {
-                    file.delete();
-                }
-            }
-        }
-        root.delete();
-    }
 }
