@@ -721,51 +721,6 @@
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>catalina</artifactId>
-            <version>5.5.4</version>
-            <url>http://jakarta.apache.org/tomcat/</url>
-            <properties>
-                <repository>true</repository>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>tomcat</groupId>
-            <artifactId>catalina</artifactId>
-            <version>5.5.4</version>
-            <url>http://jakarta.apache.org/tomcat/</url>
-            <properties>
-                <repository>true</repository>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>tomcat</groupId>
-            <artifactId>catalina-optional</artifactId>
-            <version>5.5.4</version>
-            <url>http://jakarta.apache.org/tomcat/</url>
-            <properties>
-                <repository>true</repository>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>tomcat</groupId>
-            <artifactId>tomcat-coyote</artifactId>
-            <version>5.5.4</version>
-            <url>http://jakarta.apache.org/tomcat/</url>
-            <properties>
-                <repository>true</repository>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>tomcat</groupId>
-            <artifactId>tomcat-http</artifactId>
-            <version>5.5.4</version>
-            <url>http://jakarta.apache.org/tomcat/</url>
-            <properties>
-                <repository>true</repository>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>tomcat</groupId>
-            <artifactId>jasper-compiler</artifactId>
             <version>&tomcat-version;</version>
             <url>http://jakarta.apache.org/tomcat/</url>
             <properties>
@@ -774,7 +729,34 @@
         </dependency>
         <dependency>
             <groupId>tomcat</groupId>
-            <artifactId>jasper-runtime</artifactId>
+            <artifactId>catalina</artifactId>
+            <version>&tomcat-version;</version>
+            <url>http://jakarta.apache.org/tomcat/</url>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>tomcat</groupId>
+            <artifactId>catalina-optional</artifactId>
+            <version>&tomcat-version;</version>
+            <url>http://jakarta.apache.org/tomcat/</url>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>tomcat</groupId>
+            <artifactId>tomcat-coyote</artifactId>
+            <version>&tomcat-version;</version>
+            <url>http://jakarta.apache.org/tomcat/</url>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>tomcat</groupId>
+            <artifactId>tomcat-http</artifactId>
             <version>&tomcat-version;</version>
             <url>http://jakarta.apache.org/tomcat/</url>
             <properties>
@@ -784,7 +766,7 @@
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>tomcat-util</artifactId>
-            <version>5.5.4</version>
+            <version>&tomcat-version;</version>
             <url>http://jakarta.apache.org/tomcat/</url>
             <properties>
                 <repository>true</repository>
@@ -793,7 +775,7 @@
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>naming-resources</artifactId>
-            <version>5.5.4</version>
+            <version>&tomcat-version;</version>
             <url>http://jakarta.apache.org/tomcat/</url>
             <properties>
                 <repository>true</repository>
@@ -802,7 +784,7 @@
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>servlets-default</artifactId>
-            <version>5.5.4</version>
+            <version>&tomcat-version;</version>
             <url>http://jakarta.apache.org/tomcat/</url>
             <properties>
                 <repository>true</repository>
@@ -811,7 +793,7 @@
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>servlets-invoker</artifactId>
-            <version>5.5.4</version>
+            <version>&tomcat-version;</version>
             <url>http://jakarta.apache.org/tomcat/</url>
             <properties>
                 <repository>true</repository>
@@ -855,7 +837,6 @@
                 <repository>true</repository>
             </properties>
         </dependency>
-
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>jasper-compiler-jdt</artifactId>
@@ -864,7 +845,6 @@
                 <repository>true</repository>
             </properties>
         </dependency>
-
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>jasper-runtime</artifactId>

@@ -48,6 +48,8 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.tomcat.TomcatWebAppContext;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppDocument;
+import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
 import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
 import org.apache.geronimo.xbeans.j2ee.WebAppType;
 import org.apache.xmlbeans.XmlException;
@@ -58,10 +60,14 @@ import org.apache.xmlbeans.XmlObject;
  */
 public class TomcatModuleBuilder implements ModuleBuilder {
 
+    private final URI defaultParentId;
+
     private static final Log log = LogFactory.getLog(TomcatModuleBuilder.class);
 
-    public TomcatModuleBuilder() {
+    public TomcatModuleBuilder(URI defaultParentId) {
         log.debug("TomcatModuleBuilder()");
+
+        this.defaultParentId = defaultParentId;
     }
 
     public String addGBeans(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
@@ -131,15 +137,31 @@ public class TomcatModuleBuilder implements ModuleBuilder {
             return null;
         }
 
-        WebModule module = null;
+        // parse vendor dd
+        JettyWebAppType jettyWebApp = getJettyWebApp(plan, moduleFile, false, "war", webApp);
+
+        // get the ids from either the application plan or for a stand alone module from the specific deployer
+        URI configId = null;
         try {
-            long randomName = System.currentTimeMillis();
-            module = new WebModule(false, new URI("org/apache/geronimo/" + randomName), new URI(
-                    "org/apache/geronimo/Server"), moduleFile, "war", null, null, null);
-            module.setContextRoot("/" + randomName);
+            configId = new URI(jettyWebApp.getConfigId());
         } catch (URISyntaxException e) {
-            throw new DeploymentException(e);
+            throw new DeploymentException("Invalid configId " + jettyWebApp.getConfigId(), e);
         }
+
+        URI parentId = null;
+        if (jettyWebApp.isSetParentId()) {
+            try {
+                parentId = new URI(jettyWebApp.getParentId());
+            } catch (URISyntaxException e) {
+                throw new DeploymentException("Invalid parentId " + jettyWebApp.getParentId(), e);
+            }
+        } else {
+            parentId = defaultParentId;
+        }
+
+        WebModule module = new WebModule(false, configId, parentId, moduleFile, "war", webApp, jettyWebApp, specDD);
+        module.setContextRoot(jettyWebApp.getContextRoot());
+
         return module;
     }
 
@@ -190,6 +212,76 @@ public class TomcatModuleBuilder implements ModuleBuilder {
         }
     }
 
+    JettyWebAppType getJettyWebApp(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, WebAppType webApp) throws DeploymentException {
+        JettyWebAppType jettyWebApp = null;
+        try {
+            // load the geronimo-jetty.xml from either the supplied plan or from the earFile
+            try {
+                if (plan instanceof XmlObject) {
+                    jettyWebApp = (JettyWebAppType) SchemaConversionUtils.getNestedObjectAsType((XmlObject) plan,
+                            "web-app",
+                            JettyWebAppType.type);
+                } else {
+                    JettyWebAppDocument jettyWebAppdoc = null;
+                    if (plan != null) {
+                        jettyWebAppdoc = JettyWebAppDocument.Factory.parse((File) plan);
+                    } else {
+                        URL path = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/geronimo-jetty.xml");
+                        jettyWebAppdoc = JettyWebAppDocument.Factory.parse(path);
+                    }
+                    if (jettyWebAppdoc != null) {
+                        jettyWebApp = jettyWebAppdoc.getWebApp();
+                    }
+                }
+            } catch (IOException e) {
+            }
+
+            // if we got one extract and validate it otherwise create a default one
+            if (jettyWebApp != null) {
+                jettyWebApp = (JettyWebAppType) SchemaConversionUtils.convertToGeronimoNamingSchema(jettyWebApp);
+                jettyWebApp = (JettyWebAppType) SchemaConversionUtils.convertToGeronimoSecuritySchema(jettyWebApp);
+                SchemaConversionUtils.validateDD(jettyWebApp);
+            } else {
+                String path;
+                if (standAlone) {
+                    // default configId is based on the moduleFile name
+                    path = new File(moduleFile.getName()).getName();
+                } else {
+                    // default configId is based on the module uri from the application.xml
+                    path = targetPath;
+                }
+                jettyWebApp = createDefaultPlan(path, webApp);
+            }
+        } catch (XmlException e) {
+            throw new DeploymentException("xml problem", e);
+        }
+        return jettyWebApp;
+    }
+
+    private JettyWebAppType createDefaultPlan(String path, WebAppType webApp) {
+        String id = webApp.getId();
+        if (id == null) {
+            id = path;
+            if (id.endsWith(".war")) {
+                id = id.substring(0, id.length() - 4);
+            }
+            if (id.endsWith("/")) {
+                id = id.substring(0, id.length() - 1);
+            }
+        }
+
+        JettyWebAppType jettyWebApp = JettyWebAppType.Factory.newInstance();
+
+        // set the parentId, configId and context root
+        jettyWebApp.setParentId(defaultParentId.toString());
+        if (null != webApp.getId()) {
+            id = webApp.getId();
+        }
+        jettyWebApp.setConfigId(id);
+        jettyWebApp.setContextRoot(id);
+        return jettyWebApp;
+    }
+
     private static URI[] getWebClassPath(EARContext earContext, WebModule webModule) {
         LinkedList webClassPath = new LinkedList();
         File baseDir = earContext.getTargetFile(URI.create(webModule.getTargetPath() + "/"));
@@ -224,7 +316,10 @@ public class TomcatModuleBuilder implements ModuleBuilder {
 
     static {
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(TomcatModuleBuilder.class);
+        infoBuilder.addAttribute("defaultParentId", URI.class, true);
         infoBuilder.addInterface(ModuleBuilder.class);
+
+        infoBuilder.setConstructor(new String[]{"defaultParentId"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

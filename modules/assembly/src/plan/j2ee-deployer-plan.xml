@@ -90,13 +90,13 @@ Configuration for the Geronimo deployer
         <uri>geronimo/jars/geronimo-tomcat-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>tomcat/jars/catalina-5.5.4.jar</uri>
+        <uri>tomcat/jars/catalina-${tomcat_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>tomcat/jars/naming-resources-5.5.4.jar</uri>
+        <uri>tomcat/jars/naming-resources-${tomcat_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>tomcat/jars/tomcat-util-5.5.4.jar</uri>
+        <uri>tomcat/jars/tomcat-util-${tomcat_version}.jar</uri>
     </dependency>
    -->
     <dependency>
@@ -193,7 +193,9 @@ Configuration for the Geronimo deployer
 <!-- the tomcat module's requirement
    - uncomment it to run Apache Tomcat as a web container
    -
-    <gbean name="geronimo.deployer:role=ModuleBuilder,type=Web,config=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.tomcat.deployment.TomcatModuleBuilder"/>
+    <gbean name="geronimo.deployer:role=ModuleBuilder,type=Web,config=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.tomcat.deployment.TomcatModuleBuilder">
+        <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
+    </gbean>
    -->
 
     <gbean name="geronimo.deployer:role=DefaultServlet,config=org/apache/geronimo/J2EEDeployer,name=StaticContent" class="org.apache.geronimo.jetty.JettyServletHolder">

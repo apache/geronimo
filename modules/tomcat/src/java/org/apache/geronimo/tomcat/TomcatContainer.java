@@ -16,8 +16,6 @@
  */
 package org.apache.geronimo.tomcat;
 
-import mx4j.log.FileLogger;
-
 import org.apache.catalina.Context;
 import org.apache.catalina.Engine;
 import org.apache.catalina.Host;

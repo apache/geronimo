@@ -78,28 +78,28 @@ by the server.
         <uri>geronimo/jars/geronimo-tomcat-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>tomcat/jars/catalina-5.5.4.jar</uri>
+        <uri>tomcat/jars/catalina-${tomcat_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>tomcat/jars/catalina-optional-5.5.4.jar</uri>
+        <uri>tomcat/jars/catalina-optional-${tomcat_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>tomcat/jars/tomcat-coyote-5.5.4.jar</uri>
+        <uri>tomcat/jars/tomcat-coyote-${tomcat_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>tomcat/jars/tomcat-http-5.5.4.jar</uri>
+        <uri>tomcat/jars/tomcat-http-${tomcat_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>tomcat/jars/tomcat-util-5.5.4.jar</uri>
+        <uri>tomcat/jars/tomcat-util-${tomcat_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>tomcat/jars/naming-resources-5.5.4.jar</uri>
+        <uri>tomcat/jars/naming-resources-${tomcat_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>tomcat/jars/servlets-default-5.5.4.jar</uri>
+        <uri>tomcat/jars/servlets-default-${tomcat_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>tomcat/jars/servlets-invoker-5.5.4.jar</uri>
+        <uri>tomcat/jars/servlets-invoker-${tomcat_version}.jar</uri>
     </dependency>
     <dependency>
         <uri>commons-beanutils/jars/commons-beanutils-1.6.1.jar</uri>

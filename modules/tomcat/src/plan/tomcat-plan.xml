@@ -1,5 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
 
+    Copyright 2004 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<!-- $Rev: 111453 $ $Date: 2004-12-10 01:46:37 +0100 (Fri, 10 Dec 2004) $ -->
+
+<!--
+Configuration for the Apache Tomcat web container
+-->
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment"
     parentId="org/apache/geronimo/System"
@@ -16,31 +37,31 @@
         <uri>geronimo-spec/jars/geronimo-spec-j2ee-1.4-rc3.jar</uri>
     </dependency>
     <dependency>
-        <uri>tomcat/jars/catalina-5.5.4.jar</uri>
+        <uri>tomcat/jars/catalina-${tomcat_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>tomcat/jars/jasper-compiler-5.5.4.jar</uri>
+        <uri>tomcat/jars/jasper-compiler-${jasper_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>tomcat/jars/jasper-runtime-5.5.4.jar</uri>
+        <uri>tomcat/jars/jasper-runtime-${jasper_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>tomcat/jars/tomcat-coyote-5.5.4.jar</uri>
+        <uri>tomcat/jars/tomcat-coyote-${tomcat_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>tomcat/jars/tomcat-http-5.5.4.jar</uri>
+        <uri>tomcat/jars/tomcat-http-${tomcat_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>tomcat/jars/tomcat-util-5.5.4.jar</uri>
+        <uri>tomcat/jars/tomcat-util-${tomcat_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>tomcat/jars/naming-resources-5.5.4.jar</uri>
+        <uri>tomcat/jars/naming-resources-${tomcat_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>tomcat/jars/servlets-default-5.5.4.jar</uri>
+        <uri>tomcat/jars/servlets-default-${tomcat_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>tomcat/jars/servlets-invoker-5.5.4.jar</uri>
+        <uri>tomcat/jars/servlets-invoker-${tomcat_version}.jar</uri>
     </dependency>
     <dependency>
         <uri>commons-beanutils/jars/commons-beanutils-1.6.1.jar</uri>

@@ -46,10 +46,18 @@
         <attainGoal name="build"/>
     </goal>
 
+<!-- It doesn't work - Invalid geronimo-service.xml file during assembly
 	<preGoal name="jar:jar">
 		<mkdir dir="${maven.build.dest}/META-INF"/>
-		<copy todir="${maven.build.dest}/META-INF/geronimo-service.xml" file="src/plan/tomcat-plan.xml"/>
+
+        <j:set var="planName" value="tomcat-plan.xml"/>
+        <echo>Preprocessing ${planName}</echo>
+        <velocity:merge
+            basedir="src/plan"
+            template="tomcat-plan.xml"
+            name="${maven.build.dest}/META-INF/geronimo-service.xml"/>
 	</preGoal>
+-->
 
 </project>
 
