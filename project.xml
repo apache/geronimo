@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: project.xml,v 1.10 2003/08/12 19:56:15 jboynes Exp $ -->
+<!-- $Id: project.xml,v 1.11 2003/08/14 10:04:40 gregw Exp $ -->
 
 <project>
   <pomVersion>3</pomVersion>
@@ -53,6 +53,12 @@
         <id>mx4j+tools</id>
         <version>SNAPSHOT</version>
       </dependency>
+
+      <dependency>
+        <id>servletapi</id>
+        <version>SNAPSHOT</version>
+      </dependency>
+
     </dependencies>
 
   <!-- =================== -->
