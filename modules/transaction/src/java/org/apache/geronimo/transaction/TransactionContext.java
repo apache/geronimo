@@ -39,7 +39,7 @@ import org.tranql.cache.SimpleFlushStrategy;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/22 00:30:19 $
+ * @version $Revision: 1.6 $ $Date: 2004/04/11 17:00:05 $
  */
 public abstract class TransactionContext {
     protected static final Log log = LogFactory.getLog(TransactionContext.class);
@@ -104,6 +104,9 @@ public abstract class TransactionContext {
         }
         if (currentContext != null && currentContext.getId() != null) {
             dirtyContexts.put(currentContext.getContainerId(), currentContext.getId(), currentContext);
+        }
+        if(inTxCache != null) {
+            inTxCache.flush();
         }
     }
 
