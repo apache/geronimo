@@ -106,15 +106,16 @@ public class LightweightOperationDescBuilder extends OperationDescBuilder {
 
         // Map the return message, if there is one
         if (output != null && output.getParts().size() == 1) {
+            Part part = (Part) output.getParts().values().iterator().next();
+
             // Set the element name
-            operationDesc.setReturnQName(output.getQName());
+            QName returnName = part.getElementName() == null ? new QName(part.getName()) : part.getElementName();
+            operationDesc.setReturnQName(returnName);
 
             // Set the element type
-            Part part = (Part) output.getParts().values().iterator().next();
             QName returnType = part.getTypeName() == null ? part.getElementName() : part.getTypeName();
             operationDesc.setReturnType(returnType);
 
-            // Set the java class
             operationDesc.setReturnClass(method.getReturnType());
         }
 
