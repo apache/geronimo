@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.2 $ $Date: 2004/01/17 03:44:38 $ -->
+<!-- $Revision: 1.3 $ $Date: 2004/01/19 06:28:04 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -71,6 +71,17 @@
                 <module>true</module>
             </properties>
         </dependency>
+
+        <dependency>
+            <groupId>xml-commons-resolver</groupId>
+            <artifactId>xml-commons-resolver</artifactId>
+            <version>1.1</version>
+            <url>http://xml.apache.org/commons</url>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+
     </dependencies>
 
 

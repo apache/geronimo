@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.12 $ $Date: 2003/12/30 21:14:38 $ -->
+<!-- $Revision: 1.13 $ $Date: 2004/01/19 06:28:05 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -149,8 +149,9 @@
         </dependency>
 
         <dependency>
-            <id>xerces</id>
-            <version>2.4.0</version>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <version>2.6.0</version>
             <url>http://xml.apache.org</url>
             <properties>
                 <runtime>true</runtime>
