@@ -55,98 +55,48 @@
  */
 package org.apache.geronimo.deployment.plugin;
 
-import java.util.Enumeration;
-import java.io.FileNotFoundException;
+import java.io.OutputStream;
 import java.io.InputStream;
-import javax.enterprise.deploy.model.J2eeApplicationObject;
-import javax.enterprise.deploy.model.DDBeanRoot;
-import javax.enterprise.deploy.model.XpathListener;
-import javax.enterprise.deploy.model.DDBean;
+import javax.enterprise.deploy.spi.DeploymentConfiguration;
+import javax.enterprise.deploy.spi.DConfigBeanRoot;
+import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
+import javax.enterprise.deploy.spi.exceptions.BeanNotFoundException;
 import javax.enterprise.deploy.model.DeployableObject;
-import javax.enterprise.deploy.model.exceptions.DDBeanCreateException;
-import javax.enterprise.deploy.shared.ModuleType;
+import javax.enterprise.deploy.model.DDBeanRoot;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/22 00:51:09 $
+ * @version $Revision: 1.1 $ $Date: 2004/01/22 00:51:09 $
  */
-public class Application implements J2eeApplicationObject {
-    private final DDBeanRoot root;
+public abstract class DeploymentConfigurationSupport implements DeploymentConfiguration {
+    private final DeployableObject deployable;
 
-    public Application(DDBeanRoot root) {
-        this.root = root;
+    public DeploymentConfigurationSupport(DeployableObject deployable) {
+        this.deployable = deployable;
     }
 
-    public void addXpathListener(ModuleType type, String xpath, XpathListener xpl) {
-        throw new UnsupportedOperationException();
+    public DeployableObject getDeployableObject() {
+        return deployable;
     }
 
-    public Enumeration entries() {
-        throw new UnsupportedOperationException();
+    public DConfigBeanRoot getDConfigBeanRoot(DDBeanRoot bean) throws ConfigurationException {
+        return null;
     }
 
-    public DDBean[] getChildBean(ModuleType type, String xpath) {
-        throw new UnsupportedOperationException();
+    public void removeDConfigBean(DConfigBeanRoot bean) throws BeanNotFoundException {
     }
 
-    public DDBean[] getChildBean(String xpath) {
-        throw new UnsupportedOperationException();
+    public void save(OutputStream outputArchive) throws ConfigurationException {
     }
 
-    public Class getClassFromScope(String className) {
-        throw new UnsupportedOperationException();
+    public void restore(InputStream inputArchive) throws ConfigurationException {
     }
 
-    public DDBeanRoot getDDBeanRoot() {
-        return root;
+    public void saveDConfigBean(OutputStream outputArchive, DConfigBeanRoot bean) throws ConfigurationException {
     }
 
-    public DDBeanRoot getDDBeanRoot(String filename) throws FileNotFoundException, DDBeanCreateException {
-        throw new UnsupportedOperationException();
-    }
-
-    public DeployableObject getDeployableObject(String uri) {
-        throw new UnsupportedOperationException();
-    }
-
-    public DeployableObject[] getDeployableObjects() {
-        throw new UnsupportedOperationException();
-    }
-
-    public DeployableObject[] getDeployableObjects(ModuleType type) {
-        throw new UnsupportedOperationException();
-    }
-
-    public InputStream getEntry(String name) {
-        throw new UnsupportedOperationException();
-    }
-
-    public String getModuleDTDVersion() {
-        throw new UnsupportedOperationException();
-    }
-
-    public String[] getModuleUris() {
-        throw new UnsupportedOperationException();
-    }
-
-    public String[] getModuleUris(ModuleType type) {
-        throw new UnsupportedOperationException();
-    }
-
-    public String[] getText(ModuleType type, String xpath) {
-        throw new UnsupportedOperationException();
-    }
-
-    public String[] getText(String xpath) {
-        throw new UnsupportedOperationException();
-    }
-
-    public ModuleType getType() {
-        return ModuleType.EAR;
-    }
-
-    public void removeXpathListener(ModuleType type, String xpath, XpathListener xpl) {
-        throw new UnsupportedOperationException();
+    public DConfigBeanRoot restoreDConfigBean(InputStream inputArchive, DDBeanRoot bean) throws ConfigurationException {
+        return null;
     }
 }

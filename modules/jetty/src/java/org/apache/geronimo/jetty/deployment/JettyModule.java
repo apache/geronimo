@@ -53,100 +53,64 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.plugin;
+package org.apache.geronimo.jetty.deployment;
 
-import java.util.Enumeration;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import javax.enterprise.deploy.model.J2eeApplicationObject;
-import javax.enterprise.deploy.model.DDBeanRoot;
-import javax.enterprise.deploy.model.XpathListener;
-import javax.enterprise.deploy.model.DDBean;
-import javax.enterprise.deploy.model.DeployableObject;
-import javax.enterprise.deploy.model.exceptions.DDBeanCreateException;
-import javax.enterprise.deploy.shared.ModuleType;
+import java.net.URI;
+import java.util.Collections;
+import java.util.Properties;
+
+import javax.management.ObjectName;
+
+import org.apache.geronimo.deployment.ConfigurationCallback;
+import org.apache.geronimo.deployment.DeploymentModule;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.jetty.JettyWebApplicationContext;
+import org.apache.geronimo.kernel.deployment.DeploymentException;
 
 /**
- *
- *
- * @version $Revision: 1.2 $ $Date: 2004/01/22 00:51:09 $
+ * 
+ * 
+ * @version $Revision: 1.1 $ $Date: 2004/01/22 00:51:09 $
  */
-public class Application implements J2eeApplicationObject {
-    private final DDBeanRoot root;
+public class JettyModule implements DeploymentModule {
+    private final URI uri;
+    private final String contextPath;
 
-    public Application(DDBeanRoot root) {
-        this.root = root;
+    public JettyModule(URI uri, String contextPath) {
+        this.uri = uri;
+        this.contextPath = contextPath;
     }
 
-    public void addXpathListener(ModuleType type, String xpath, XpathListener xpl) {
-        throw new UnsupportedOperationException();
+    public void init() throws DeploymentException {
     }
 
-    public Enumeration entries() {
-        throw new UnsupportedOperationException();
+    public void generateClassPath(ConfigurationCallback callback) throws DeploymentException {
     }
 
-    public DDBean[] getChildBean(ModuleType type, String xpath) {
-        throw new UnsupportedOperationException();
+    public void defineGBeans(ConfigurationCallback callback, ClassLoader cl) throws DeploymentException {
+        try {
+            // @todo tie name to configuration
+            Properties nameProps = new Properties();
+            nameProps.put("J2EEServer", "null");
+            nameProps.put("J2EEApplication", "null");
+            nameProps.put("J2EEType", "WebModule");
+            nameProps.put("Path", contextPath);
+            ObjectName name = new ObjectName("geronimo.jetty", nameProps);
+
+            GBeanMBean app = new GBeanMBean(JettyWebApplicationContext.GBEAN_INFO);
+            app.setAttribute("URI", uri);
+            app.setAttribute("ContextPath", contextPath);
+            app.setAttribute("ComponentContext", null);
+            app.setAttribute("PolicyContextID", null);
+            app.setEndpointPatterns("JettyContainer", Collections.singleton(new ObjectName("geronimo.web:type=WebContainer,container=Jetty"))); // @todo configurable
+            app.setEndpointPatterns("TransactionManager", Collections.EMPTY_SET);
+            app.setEndpointPatterns("TrackedConnectionAssociator", Collections.EMPTY_SET);
+            callback.addGBean(name, app);
+        } catch (Exception e) {
+            throw new DeploymentException("Unable to build GBean for web application", e);
+        }
     }
 
-    public DDBean[] getChildBean(String xpath) {
-        throw new UnsupportedOperationException();
-    }
-
-    public Class getClassFromScope(String className) {
-        throw new UnsupportedOperationException();
-    }
-
-    public DDBeanRoot getDDBeanRoot() {
-        return root;
-    }
-
-    public DDBeanRoot getDDBeanRoot(String filename) throws FileNotFoundException, DDBeanCreateException {
-        throw new UnsupportedOperationException();
-    }
-
-    public DeployableObject getDeployableObject(String uri) {
-        throw new UnsupportedOperationException();
-    }
-
-    public DeployableObject[] getDeployableObjects() {
-        throw new UnsupportedOperationException();
-    }
-
-    public DeployableObject[] getDeployableObjects(ModuleType type) {
-        throw new UnsupportedOperationException();
-    }
-
-    public InputStream getEntry(String name) {
-        throw new UnsupportedOperationException();
-    }
-
-    public String getModuleDTDVersion() {
-        throw new UnsupportedOperationException();
-    }
-
-    public String[] getModuleUris() {
-        throw new UnsupportedOperationException();
-    }
-
-    public String[] getModuleUris(ModuleType type) {
-        throw new UnsupportedOperationException();
-    }
-
-    public String[] getText(ModuleType type, String xpath) {
-        throw new UnsupportedOperationException();
-    }
-
-    public String[] getText(String xpath) {
-        throw new UnsupportedOperationException();
-    }
-
-    public ModuleType getType() {
-        return ModuleType.EAR;
-    }
-
-    public void removeXpathListener(ModuleType type, String xpath, XpathListener xpl) {
-        throw new UnsupportedOperationException();
+    public void complete() {
     }
 }

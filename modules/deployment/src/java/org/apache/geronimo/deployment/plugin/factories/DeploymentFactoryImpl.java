@@ -57,16 +57,25 @@ package org.apache.geronimo.deployment.plugin.factories;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import javax.enterprise.deploy.spi.factories.DeploymentFactory;
+import java.util.Collections;
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
+import javax.enterprise.deploy.spi.factories.DeploymentFactory;
+import javax.management.ObjectName;
 
 import org.apache.geronimo.deployment.plugin.DeploymentManagerImpl;
+import org.apache.geronimo.deployment.plugin.application.EARConfigurationFactory;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.kernel.Kernel;
 
 /**
+ * Implementation of JSR88 DeploymentFactory.
+ *
+ * This will create a DeploymentManager using a local Geronimo kernel
+ * to contain the GBeans that are responsible for deploying each module
+ * type.
  * 
- * 
- * @version $Revision: 1.1 $ $Date: 2004/01/21 20:37:29 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/22 00:51:09 $
  */
 public class DeploymentFactoryImpl implements DeploymentFactory {
     public static final String URI_PREFIX = "deployer:geronimo:";
@@ -95,6 +104,7 @@ public class DeploymentFactoryImpl implements DeploymentFactory {
             throw (DeploymentManagerCreationException) new DeploymentManagerCreationException("Unable to parse URI "+uri).initCause(e);
         }
         assert "geronimo".equals(configURI.getScheme());
+
         String subURI = configURI.getSchemeSpecificPart();
         if (subURI.startsWith("//")) {
             throw new AssertionError();
@@ -102,7 +112,36 @@ public class DeploymentFactoryImpl implements DeploymentFactory {
             configURI = URI.create(subURI);
         }
 
-        return new DeploymentManagerImpl();
+        Kernel kernel = new Kernel("geronimo.deployment");
+        try {
+            kernel.boot();
+        } catch (Exception e) {
+            throw (DeploymentManagerCreationException) new DeploymentManagerCreationException("Unable to boot embedded kernel").initCause(e);
+        }
+
+        // @todo for now lets hard code the deployers to use - ultimately this should use a predefined Configuration
+        GBeanMBean manager;
+        try {
+            ObjectName managerName = new ObjectName("geronimo.deployment:role=DeploymentManager");
+            manager = new GBeanMBean(DeploymentManagerImpl.GBEAN_INFO);
+            loadFactory(kernel, manager, "EARFactory", EARConfigurationFactory.class.getName());
+
+            kernel.loadGBean(managerName, manager);
+            kernel.startGBean(managerName);
+
+        } catch (Exception e) {
+            // this should not happen - we own this kernel!
+            throw (IllegalStateException) new IllegalStateException("Unable to load DeploymentManager").initCause(e);
+        }
+        return (DeploymentManager) manager.getTarget();
+    }
+
+    private void loadFactory(Kernel kernel, GBeanMBean manager, String factory, String className) throws Exception {
+        ObjectName earFactoryName = new ObjectName("geronimo.deployment:role="+factory);
+        GBeanMBean earFactory = new GBeanMBean(className);
+        kernel.loadGBean(earFactoryName, earFactory);
+        kernel.startGBean(earFactoryName);
+        manager.setEndpointPatterns(factory, Collections.singleton(earFactoryName));
     }
 
     public DeploymentManager getDeploymentManager(String uri, String username, String password) throws DeploymentManagerCreationException {

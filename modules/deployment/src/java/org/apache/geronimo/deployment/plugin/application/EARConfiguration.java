@@ -53,100 +53,19 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.plugin;
+package org.apache.geronimo.deployment.plugin.application;
 
-import java.util.Enumeration;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import javax.enterprise.deploy.model.J2eeApplicationObject;
-import javax.enterprise.deploy.model.DDBeanRoot;
-import javax.enterprise.deploy.model.XpathListener;
-import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.model.DeployableObject;
-import javax.enterprise.deploy.model.exceptions.DDBeanCreateException;
-import javax.enterprise.deploy.shared.ModuleType;
+
+import org.apache.geronimo.deployment.plugin.DeploymentConfigurationSupport;
 
 /**
- *
- *
- * @version $Revision: 1.2 $ $Date: 2004/01/22 00:51:09 $
+ * 
+ * 
+ * @version $Revision: 1.1 $ $Date: 2004/01/22 00:51:09 $
  */
-public class Application implements J2eeApplicationObject {
-    private final DDBeanRoot root;
-
-    public Application(DDBeanRoot root) {
-        this.root = root;
-    }
-
-    public void addXpathListener(ModuleType type, String xpath, XpathListener xpl) {
-        throw new UnsupportedOperationException();
-    }
-
-    public Enumeration entries() {
-        throw new UnsupportedOperationException();
-    }
-
-    public DDBean[] getChildBean(ModuleType type, String xpath) {
-        throw new UnsupportedOperationException();
-    }
-
-    public DDBean[] getChildBean(String xpath) {
-        throw new UnsupportedOperationException();
-    }
-
-    public Class getClassFromScope(String className) {
-        throw new UnsupportedOperationException();
-    }
-
-    public DDBeanRoot getDDBeanRoot() {
-        return root;
-    }
-
-    public DDBeanRoot getDDBeanRoot(String filename) throws FileNotFoundException, DDBeanCreateException {
-        throw new UnsupportedOperationException();
-    }
-
-    public DeployableObject getDeployableObject(String uri) {
-        throw new UnsupportedOperationException();
-    }
-
-    public DeployableObject[] getDeployableObjects() {
-        throw new UnsupportedOperationException();
-    }
-
-    public DeployableObject[] getDeployableObjects(ModuleType type) {
-        throw new UnsupportedOperationException();
-    }
-
-    public InputStream getEntry(String name) {
-        throw new UnsupportedOperationException();
-    }
-
-    public String getModuleDTDVersion() {
-        throw new UnsupportedOperationException();
-    }
-
-    public String[] getModuleUris() {
-        throw new UnsupportedOperationException();
-    }
-
-    public String[] getModuleUris(ModuleType type) {
-        throw new UnsupportedOperationException();
-    }
-
-    public String[] getText(ModuleType type, String xpath) {
-        throw new UnsupportedOperationException();
-    }
-
-    public String[] getText(String xpath) {
-        throw new UnsupportedOperationException();
-    }
-
-    public ModuleType getType() {
-        return ModuleType.EAR;
-    }
-
-    public void removeXpathListener(ModuleType type, String xpath, XpathListener xpl) {
-        throw new UnsupportedOperationException();
+public class EARConfiguration extends DeploymentConfigurationSupport{
+    public EARConfiguration(DeployableObject deployable) {
+        super(deployable);
     }
 }

@@ -58,6 +58,9 @@ package org.apache.geronimo.deployment.plugin;
 import java.io.File;
 import java.io.InputStream;
 import java.util.Locale;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Arrays;
 import javax.enterprise.deploy.model.DeployableObject;
 import javax.enterprise.deploy.shared.DConfigBeanVersionType;
 import javax.enterprise.deploy.shared.ModuleType;
@@ -70,20 +73,42 @@ import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
 import javax.enterprise.deploy.spi.exceptions.TargetException;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 
+import org.apache.geronimo.deployment.plugin.factories.DeploymentConfigurationFactory;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GEndpointInfo;
+import org.apache.geronimo.gbean.GConstructorInfo;
+
 /**
- * 
- * 
- * @version $Revision: 1.1 $ $Date: 2004/01/21 20:37:29 $
+ *
+ *
+ * @version $Revision: 1.2 $ $Date: 2004/01/22 00:51:09 $
  */
 public class DeploymentManagerImpl implements DeploymentManager {
+    private final Map configurationFactories;
+
     private boolean connected;
 
-    public DeploymentManagerImpl() {
+    public DeploymentManagerImpl(
+            DeploymentConfigurationFactory earFactory,
+            DeploymentConfigurationFactory warFactory
+            ) {
         connected = false;
+        configurationFactories = new HashMap(5);
+        configurationFactories.put(ModuleType.EAR, earFactory);
+        configurationFactories.put(ModuleType.WAR, warFactory);
+        configurationFactories.put(ModuleType.EJB, null);
+        configurationFactories.put(ModuleType.RAR, null);
+        configurationFactories.put(ModuleType.CAR, null);
     }
 
-    public DeploymentConfiguration createConfiguration(DeployableObject dObj) throws InvalidModuleException {
-        return new DeploymentConfigurationImpl(dObj);
+    public DeploymentConfiguration createConfiguration(DeployableObject deployable) throws InvalidModuleException {
+        ModuleType type = deployable.getType();
+        DeploymentConfigurationFactory factory = (DeploymentConfigurationFactory) configurationFactories.get(type);
+        if (factory == null) {
+            throw new InvalidModuleException("Unable to load DeploymentConfigurationFactory");
+        }
+        return factory.createConfiguration(deployable);
     }
 
     public DConfigBeanVersionType getDConfigBeanVersion() {
@@ -202,5 +227,17 @@ public class DeploymentManagerImpl implements DeploymentManager {
             throw new IllegalStateException("Disconnected");
         }
         throw new UnsupportedOperationException();
+    }
+
+    public static final GBeanInfo GBEAN_INFO;
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory("JSR88 Deployment Manager", DeploymentManagerImpl.class.getName());
+        infoFactory.addEndpoint(new GEndpointInfo("EARFactory", DeploymentConfigurationFactory.class.getName()));
+        infoFactory.addEndpoint(new GEndpointInfo("WARFactory", DeploymentConfigurationFactory.class.getName()));
+        infoFactory.setConstructor(new GConstructorInfo(
+                Arrays.asList(new Object[] {"EARFactory", "WARFactory"}),
+                Arrays.asList(new Object[] {DeploymentConfigurationFactory.class, DeploymentConfigurationFactory.class})
+        ));
+        GBEAN_INFO = infoFactory.getBeanInfo();
     }
 }
