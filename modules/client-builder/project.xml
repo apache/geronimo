@@ -72,6 +72,9 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-connector</artifactId>
             <version>${pom.currentVersion}</version>
+            <properties>
+                <xmlbeans>true</xmlbeans>
+            </properties>
         </dependency>
 
         <dependency>
@@ -108,6 +111,9 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-naming</artifactId>
             <version>${pom.currentVersion}</version>
+            <properties>
+                <xmlbeans>true</xmlbeans>
+            </properties>
         </dependency>
 
         <dependency>

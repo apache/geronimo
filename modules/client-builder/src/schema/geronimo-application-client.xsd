@@ -43,7 +43,14 @@
             <!--                type="geronimo:fully-qualified-classType"-->
             <!--                minOccurs="0"/>-->
 
-            <xs:group ref="naming:jndiEnvironmentRefsGroup"/>
+            <!--xs:group ref="naming:jndiEnvironmentRefsGroup"/-->
+
+            <xs:element ref="naming:ejb-ref" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="naming:ejb-local-ref" minOccurs="0" maxOccurs="unbounded"/>
+            <!-- leave web services out until I know what they do -->
+            <!--xs:group ref="service-refGroup"/-->
+            <xs:element ref="naming:resource-ref" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="naming:resource-env-ref" minOccurs="0" maxOccurs="unbounded"/>
 
             <xs:element name="resource" type="geronimo:resourceType" minOccurs="0" maxOccurs="unbounded"/>
 

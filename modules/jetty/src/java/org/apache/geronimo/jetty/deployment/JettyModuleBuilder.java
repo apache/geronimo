@@ -103,6 +103,43 @@ public class JettyModuleBuilder implements ModuleBuilder {
         }
 
 
+        JettyWebAppType jettyWebApp = getJettyWebApp(plan, moduleFile, name, webApp);
+
+        // get the ids from either the application plan or for a stand alone module from the specific deployer
+        URI configId = null;
+        try {
+            configId = new URI(jettyWebApp.getConfigId());
+        } catch (URISyntaxException e) {
+            throw new DeploymentException("Invalid configId " + jettyWebApp.getConfigId(), e);
+        }
+
+        URI parentId = null;
+        if (jettyWebApp.isSetParentId()) {
+            try {
+                parentId = new URI(jettyWebApp.getParentId());
+            } catch (URISyntaxException e) {
+                throw new DeploymentException("Invalid parentId " + jettyWebApp.getParentId(), e);
+            }
+        }
+
+        URI moduleURI;
+        if (targetPath != null) {
+            moduleURI = URI.create(targetPath);
+            if (targetPath.endsWith("/")) {
+                throw new DeploymentException("targetPath must not end with a '/'");
+            }
+            targetPath += "/";
+        } else {
+            targetPath = "war/";
+            moduleURI = URI.create("");
+        }
+
+        WebModule module = new WebModule(name, configId, parentId, moduleURI, moduleFile, targetPath, webApp, jettyWebApp, specDD);
+        module.setContextRoot(jettyWebApp.getContextRoot());
+        return module;
+    }
+
+    JettyWebAppType getJettyWebApp(Object plan, JarFile moduleFile, String name, WebAppType webApp) throws DeploymentException {
         JettyWebAppType jettyWebApp = null;
         try {
             // load the geronimo-jetty.xml from either the supplied plan or from the earFile
@@ -137,39 +174,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
         } catch (XmlException e) {
             throw new DeploymentException(e);
         }
-
-        // get the ids from either the application plan or for a stand alone module from the specific deployer
-        URI configId = null;
-        try {
-            configId = new URI(jettyWebApp.getConfigId());
-        } catch (URISyntaxException e) {
-            throw new DeploymentException("Invalid configId " + jettyWebApp.getConfigId(), e);
-        }
-
-        URI parentId = null;
-        if (jettyWebApp.isSetParentId()) {
-            try {
-                parentId = new URI(jettyWebApp.getParentId());
-            } catch (URISyntaxException e) {
-                throw new DeploymentException("Invalid parentId " + jettyWebApp.getParentId(), e);
-            }
-        }
-
-        URI moduleURI;
-        if (targetPath != null) {
-            moduleURI = URI.create(targetPath);
-            if (targetPath.endsWith("/")) {
-                throw new DeploymentException("targetPath must not end with a '/'");
-            }
-            targetPath += "/";
-        } else {
-            targetPath = "war/";
-            moduleURI = URI.create("");
-        }
-
-        WebModule module = new WebModule(name, configId, parentId, moduleURI, moduleFile, targetPath, webApp, jettyWebApp, specDD);
-        module.setContextRoot(jettyWebApp.getContextRoot());
-        return module;
+        return jettyWebApp;
     }
 
     private JettyWebAppType createDefaultPlan(String name, WebAppType webApp) {

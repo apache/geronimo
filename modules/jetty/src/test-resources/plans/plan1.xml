@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://geronimo.apache.org/xml/ns/web/jetty"
+    configId="goodservlet"
+    parentId="org/apache/geronimo/DefaultDatabase">
+    <context-priority-classloader>false</context-priority-classloader>
+    <resource-ref>
+        <ref-name>jdbc/DB1</ref-name>
+        <target-name>DefaultDatabase</target-name>
+    </resource-ref>
+</web-app>

@@ -116,6 +116,41 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         }
 
         GerApplicationClientType gerAppClient = null;
+        gerAppClient = getApplicationClientType(plan, moduleFile, name, appClient);
+
+        // get the ids from either the application plan or for a stand alone module from the specific deployer
+        URI configId = null;
+        try {
+            configId = new URI(gerAppClient.getConfigId());
+        } catch (URISyntaxException e) {
+            throw new DeploymentException("Invalid configId " + gerAppClient.getConfigId(), e);
+        }
+
+        URI parentId = null;
+        if (gerAppClient.isSetParentId()) {
+            try {
+                parentId = new URI(gerAppClient.getParentId());
+            } catch (URISyntaxException e) {
+                throw new DeploymentException("Invalid parentId " + gerAppClient.getParentId(), e);
+            }
+        }
+
+        URI moduleURI;
+        if (targetPath != null) {
+            moduleURI = URI.create(targetPath);
+            if (targetPath.endsWith("/")) {
+                throw new DeploymentException("targetPath must not end with a '/'");
+            }
+        } else {
+            targetPath = "app-client";
+            moduleURI = URI.create("");
+        }
+
+        return new AppClientModule(name, configId, parentId, moduleURI, moduleFile, targetPath, appClient, gerAppClient, specDD);
+    }
+
+    GerApplicationClientType getApplicationClientType(Object plan, JarFile moduleFile, String name, ApplicationClientType appClient) throws DeploymentException {
+        GerApplicationClientType gerAppClient = null;
         try {
             // load the geronimo-application-client.xml from either the supplied plan or from the earFile
             try {
@@ -149,36 +184,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         } catch (XmlException e) {
             throw new DeploymentException(e);
         }
-
-        // get the ids from either the application plan or for a stand alone module from the specific deployer
-        URI configId = null;
-        try {
-            configId = new URI(gerAppClient.getConfigId());
-        } catch (URISyntaxException e) {
-            throw new DeploymentException("Invalid configId " + gerAppClient.getConfigId(), e);
-        }
-
-        URI parentId = null;
-        if (gerAppClient.isSetParentId()) {
-            try {
-                parentId = new URI(gerAppClient.getParentId());
-            } catch (URISyntaxException e) {
-                throw new DeploymentException("Invalid parentId " + gerAppClient.getParentId(), e);
-            }
-        }
-
-        URI moduleURI;
-        if (targetPath != null) {
-            moduleURI = URI.create(targetPath);
-            if (targetPath.endsWith("/")) {
-                throw new DeploymentException("targetPath must not end with a '/'");
-            }
-        } else {
-            targetPath = "app-client";
-            moduleURI = URI.create("");
-        }
-
-        return new AppClientModule(name, configId, parentId, moduleURI, moduleFile, targetPath, appClient, gerAppClient, specDD);
+        return gerAppClient;
     }
 
     private GerApplicationClientType createDefaultPlan(String name, ApplicationClientType appClient) {

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application-client xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-client"
+    configId="client"
+    parentId="org/apache/geronimo/DefaultDatabase">
+    <resource-ref>
+        <ref-name>jdbc/DB1</ref-name>
+        <target-name>DefaultDatabase</target-name>
+    </resource-ref>
+</application-client>

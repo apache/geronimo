@@ -34,8 +34,21 @@
         </xsd:documentation>
     </xsd:annotation>
 
-    <!--xsd:import namespace="http://java.sun.com/xml/ns/j2ee" schemaLocation="j2ee_1_4.xsd"/-->
+    <!--
+ temporary (I hope) individual elements while xmlbeans group handling is straightened out
+ -->
 
+    <xsd:element name="ejb-ref"
+        type="gernaming:remote-refType"/>
+    <xsd:element name="ejb-local-ref"
+        type="gernaming:local-refType"/>
+    <!-- leave web services out until I know what they do -->
+    <!--xsd:group ref="service-refGroup"/-->
+    <xsd:element name="resource-ref"
+        type="gernaming:local-refType"/>
+    <xsd:element name="resource-env-ref"
+        type="gernaming:local-refType"/>
+    
     <xsd:group name="jndiEnvironmentRefsGroup">
         <xsd:annotation>
             <xsd:documentation>
@@ -46,9 +59,6 @@
             </xsd:documentation>
         </xsd:annotation>
         <xsd:sequence>
-            <!--xsd:element name="env-entry"
-                type="env-entryType"
-                minOccurs="0" maxOccurs="unbounded"/-->
             <xsd:element name="ejb-ref"
                 type="gernaming:remote-refType"
                 minOccurs="0" maxOccurs="unbounded"/>
