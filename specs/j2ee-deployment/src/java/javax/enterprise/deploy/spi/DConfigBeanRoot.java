@@ -62,9 +62,35 @@ package javax.enterprise.deploy.spi;
 import javax.enterprise.deploy.model.DDBeanRoot;
 
 /**
+ * The DConfigBeanRoot interface represent the root of a deployment descriptor.
+ * A DConfigBeanRoot is associated with a DDRoot object which in turn is associated
+ * with a specific deployment descriptor file.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/16 12:28:26 $
+ * <p>Only DConfigBeanRoots are saved or restored by methods in
+ * DeploymentConfiguration.</p>
+ *
+ * @see DeploymentConfiguration
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/08/30 02:16:58 $
  */
 public interface DConfigBeanRoot extends DConfigBean {
+    /**
+     * Return a DConfigBean for a deployment descriptor that is not the module's
+     * primary deployment descriptor.   Web services provides a deployment descriptor
+     * in addition to the module's primary deployment descriptor.  Only the DDBeanRoot
+     * for this category of secondary deployment descriptors are to be passed as arguments
+     * through this method.
+     *
+     * Web service has two deployment descriptor files, one that defines the web service
+     * and one that defines a client of a web service.  See the Web Service specification for
+     * the details.
+     *
+     * @since 1.1
+     *
+     * @param ddBeanRoot represents the root element of a deployment descriptor file.
+     *
+     * @return a DConfigBean to be used for processing this deployment descriptor data. Null may be returned
+     *         if no DConfigBean is required for this deployment descriptor.
+     */
     public DConfigBean getDConfigBean(DDBeanRoot ddBeanRoot);
 }

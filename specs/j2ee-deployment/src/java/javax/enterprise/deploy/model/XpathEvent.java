@@ -62,44 +62,94 @@ package javax.enterprise.deploy.model;
 import java.beans.PropertyChangeEvent;
 
 /**
+ * An Event class describing DDBeans being added to or removed from a J2EE
+ * application, or updated in place.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/16 12:28:26 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/30 02:16:58 $
  */
 public class XpathEvent {
-    /**@todo is this the right ? */
+    /**
+     * Adding a DDBean
+     */
     public static final Object BEAN_ADDED = new Object();
+    /**
+     * Removing a DDBean
+     */
     public static final Object BEAN_REMOVED = new Object();
+    /**
+     * Changing a DDBean
+     */
     public static final Object BEAN_CHANGED = new Object();
 
     private PropertyChangeEvent pce;
     private DDBean bean;
     private Object type;
 
+    /**
+     * A description of a change in the DDBean tree.
+     *
+     * @param bean The DDBean being added, removed, or updated.
+     * @param type Indicates whether this is an add, remove, or update event.
+     */
     public XpathEvent(DDBean bean, Object type) {
         this.bean = bean;
         this.type = type;
     }
 
+    /**
+     * Gets the underlying property change event, with new and
+     * old values.  This is typically used for change events.
+     * It is not in the public API, but is included in the
+     * downloadable JSR-88 classes.
+     */
     public PropertyChangeEvent getChangeEvent() {
         return pce;
     }
 
+    /**
+     * Sets the underlying property change event, with new and
+     * old values.  This is typically used for change events.
+     * It is not in the public API, but is included in the
+     * downloadable JSR-88 classes.
+     *
+     * @param pce The property change event that triggered this XpathEvent.
+     */
     public void setChangeEvent(PropertyChangeEvent pce) {
         this.pce = pce;
     }
 
+    /**
+     * The bean being added/removed/changed.
+     *
+     * @return The bean being added/removed/changed.
+     */
     public DDBean getBean() {
         return bean;
     }
 
+    /**
+     * Is this an add event?
+     *
+     * @return <code>true</code> if this is an add event.
+     */
     public boolean isAddEvent() {
         return BEAN_ADDED == type;
     }
 
+    /**
+     * Is this a remove event?
+     *
+     * @return <code>true</code> if this is a remove event.
+     */
     public boolean isRemoveEvent() {
         return BEAN_REMOVED == type;
     }
 
+    /**
+     * Is this a change event?
+     *
+     * @return <code>true</code> if this is a change event.
+     */
     public boolean isChangeEvent() {
         return BEAN_CHANGED == type;
     }

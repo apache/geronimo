@@ -60,11 +60,20 @@
 package javax.enterprise.deploy.spi;
 
 /**
+ * A Target interface represents a single logical core server of one instance of a
+ * J2EE platform product.  It is a designator for a server and the implied location
+ * to copy a configured application for the server to access.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/16 12:28:26 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/30 02:16:58 $
  */
 public interface Target {
+    /**
+     * Retrieve the name of the target server.
+     */
     public String getName();
 
+    /**
+     * Retrieve other descriptive information about the target.
+     */
     public String getDescription();
 }

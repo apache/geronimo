@@ -60,9 +60,15 @@
 package javax.enterprise.deploy.model;
 
 /**
+ * The listener interface for receiving XpathEvents
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/16 12:28:26 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/30 02:16:58 $
  */
 public interface XpathListener {
+    /**
+     * Invoked when an XpathEvent is generated for this listener
+     *
+     * @param xpe The XpathEvent
+     */
     public void fireXpathEvent(XpathEvent xpe);
 }
