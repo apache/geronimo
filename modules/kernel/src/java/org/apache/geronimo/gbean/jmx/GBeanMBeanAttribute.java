@@ -31,7 +31,7 @@ import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.kernel.ClassLoading;
 
 /**
- * @version $Revision: 1.15 $ $Date: 2004/06/04 22:31:56 $
+ * @version $Revision: 1.16 $ $Date: 2004/06/12 18:37:16 $
  */
 public class GBeanMBeanAttribute {
     private static final Log log = LogFactory.getLog(GBeanMBeanAttribute.class);
@@ -289,7 +289,7 @@ public class GBeanMBeanAttribute {
                 persistentValue = getInvoker.invoke(gmbean.getTarget(), null);
             } catch (Throwable throwable) {
                 log.error("Could not get the current value of persistent attribute while going offline.  The "
-                        + "persistent attribute will not reflect the current state attribute: name=" + name, throwable);
+                        + "persistent attribute will not reflect the current state attribute. " + getDescription(), throwable);
             }
         }
     }
@@ -299,14 +299,14 @@ public class GBeanMBeanAttribute {
             if (persistent || special) {
                 return persistentValue;
             } else {
-                throw new IllegalStateException("Only persistent attributes can be accessed while offline");
+                throw new IllegalStateException("Only persistent or special attributes can be accessed while offline. " + getDescription());
             }
         } else {
             if (!readable) {
                 if (persistent) {
-                    throw new IllegalStateException("This persistent attribute is not accessible while online");
+                    throw new IllegalStateException("This persistent attribute is not accessible while online. " + getDescription());
                 } else {
-                    throw new IllegalArgumentException("This attribute is not readable");
+                    throw new IllegalArgumentException("This attribute is not readable. " + getDescription());
                 }
             }
             try {
@@ -322,33 +322,23 @@ public class GBeanMBeanAttribute {
         if (gmbean.isOffline()) {
             if (persistent || special) {
                 if (value == null && type.isPrimitive()) {
-                    throw new IllegalArgumentException("Cannot assign null to a primitive attribute:" +
-                            " name=" + name +
-                            ", type=" + type.getName());
+                    throw new IllegalArgumentException("Cannot assign null to a primitive attribute. " + getDescription());
                 }
                 // @todo actually check type
                 this.persistentValue = value;
             } else {
-                throw new IllegalStateException("Only persistent attributes can be modified while offline:" +
-                        " name=" + name +
-                        ", type=" + type.getName());
+                throw new IllegalStateException("Only persistent attributes can be modified while offline. " + getDescription());
             }
         } else {
             if (!writable) {
                 if (persistent) {
-                    throw new IllegalStateException("This persistent attribute is not modifable while online:" +
-                            " name=" + name +
-                            ", type=" + type.getName());
+                    throw new IllegalStateException("This persistent attribute is not modifable while online. " + getDescription());
                 } else {
-                    throw new IllegalArgumentException("This attribute is not writable:" +
-                            " name=" + name +
-                            ", type=" + type.getName());
+                    throw new IllegalArgumentException("This attribute is not writable. " + getDescription());
                 }
             }
             if (value == null && type.isPrimitive()) {
-                throw new IllegalArgumentException("Cannot assign null to a primitive attribute:" +
-                        " name=" + name +
-                        ", type=" + type.getName());
+                throw new IllegalArgumentException("Cannot assign null to a primitive attribute. " + getDescription());
             }
             // @todo actually check type
             try {
@@ -357,6 +347,10 @@ public class GBeanMBeanAttribute {
                 throw new ReflectionException(new InvocationTargetException(throwable));
             }
         }
+    }
+
+    private String getDescription() {
+        return "Attribute Name: " + getName() + ", Type: " + getType() + ", GBean: " + gmbean.getName();
     }
 
     private static Method searchForGetter(GBeanMBean gMBean, GAttributeInfo attributeInfo, Class type) throws InvalidConfigurationException {
