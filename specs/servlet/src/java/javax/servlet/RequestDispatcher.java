@@ -1,7 +1,7 @@
-/*
+/* ====================================================================
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 1999 The Apache Software Foundation.  All rights 
+ * Copyright (c) 2003 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -9,28 +9,28 @@
  * are met:
  *
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer. 
+ *    notice, this list of conditions and the following disclaimer.
  *
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in
  *    the documentation and/or other materials provided with the
  *    distribution.
  *
- * 3. The end-user documentation included with the redistribution, if
- *    any, must include the following acknowlegement:  
- *       "This product includes software developed by the 
+ * 3. The end-user documentation included with the redistribution,
+ *    if any, must include the following acknowledgment:
+ *       "This product includes software developed by the
  *        Apache Software Foundation (http://www.apache.org/)."
- *    Alternately, this acknowlegement may appear in the software itself,
- *    if and wherever such third-party acknowlegements normally appear.
+ *    Alternately, this acknowledgment may appear in the software itself,
+ *    if and wherever such third-party acknowledgments normally appear.
  *
- * 4. The names "The Jakarta Project", "Tomcat", and "Apache Software
- *    Foundation" must not be used to endorse or promote products derived
- *    from this software without prior written permission. For written 
- *    permission, please contact apache@apache.org.
+ * 4. The names "Apache" and "Apache Software Foundation" and
+ *    "Apache Geronimo" must not be used to endorse or promote products
+ *    derived from this software without prior written permission. For
+ *    written permission, please contact apache@apache.org.
  *
- * 5. Products derived from this software may not be called "Apache"
- *    nor may "Apache" appear in their names without prior written
- *    permission of the Apache Group.
+ * 5. Products derived from this software may not be called "Apache",
+ *    "Apache Geronimo", nor may "Apache" appear in their name, without
+ *    prior written permission of the Apache Software Foundation.
  *
  * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
@@ -52,21 +52,21 @@
  * <http://www.apache.org/>.
  *
  * ====================================================================
- *
- * This source code implements specifications defined by the Java
- * Community Process. In order to remain compliant with the specification
- * DO NOT add / change / or delete method signatures!
- */ 
+ */
 
+//
+// This source code implements specifications defined by the Java
+// Community Process. In order to remain compliant with the specification
+// DO NOT add / change / or delete method signatures!
+//
 
 package javax.servlet;
 
 import java.io.IOException;
 
-
 /**
  * Defines an object that receives requests from the client
- * and sends them to any resource (such as a servlet, 
+ * and sends them to any resource (such as a servlet,
  * HTML file, or JSP file) on the server. The servlet
  * container creates the <code>RequestDispatcher</code> object,
  * which is used as a wrapper around a server resource located
@@ -76,73 +76,57 @@ import java.io.IOException;
  * but a servlet container can create <code>RequestDispatcher</code>
  * objects to wrap any type of resource.
  *
- * @author 	Various
- * @version 	$Version$
+ * @see ServletContext#getRequestDispatcher(java.lang.String)
+ * @see ServletContext#getNamedDispatcher(java.lang.String)
+ * @see ServletRequest#getRequestDispatcher(java.lang.String)
  *
- * @see 	ServletContext#getRequestDispatcher(java.lang.String)
- * @see 	ServletContext#getNamedDispatcher(java.lang.String)
- * @see 	ServletRequest#getRequestDispatcher(java.lang.String)
- *
+ * @version $Revision: 1.2 $ $Date: 2003/09/19 05:25:44 $
  */
- 
 public interface RequestDispatcher {
-
-
-
-
-
-/**
- * Forwards a request from
- * a servlet to another resource (servlet, JSP file, or
- * HTML file) on the server. This method allows
- * one servlet to do preliminary processing of
- * a request and another resource to generate
- * the response.
- *
- * <p>For a <code>RequestDispatcher</code> obtained via 
- * <code>getRequestDispatcher()</code>, the <code>ServletRequest</code> 
- * object has its path elements and parameters adjusted to match
- * the path of the target resource.
- *
- * <p><code>forward</code> should be called before the response has been 
- * committed to the client (before response body output has been flushed).  
- * If the response already has been committed, this method throws
- * an <code>IllegalStateException</code>.
- * Uncommitted output in the response buffer is automatically cleared 
- * before the forward.
- *
- * <p>The request and response parameters must be either the same
- * objects as were passed to the calling servlet's service method or be
- * subclasses of the {@link ServletRequestWrapper} or {@link ServletResponseWrapper} classes
- * that wrap them.
- *
- *
- * @param request		a {@link ServletRequest} object
- *				that represents the request the client
- * 				makes of the servlet
- *
- * @param response		a {@link ServletResponse} object
- *				that represents the response the servlet
- *				returns to the client
- *
- * @exception ServletException	if the target resource throws this exception
- *
- * @exception IOException	if the target resource throws this exception
- *
- * @exception IllegalStateException	if the response was already committed
- *
- */
-
+    /**
+     * Forwards a request from
+     * a servlet to another resource (servlet, JSP file, or
+     * HTML file) on the server. This method allows
+     * one servlet to do preliminary processing of
+     * a request and another resource to generate
+     * the response.
+     *
+     * <p>For a <code>RequestDispatcher</code> obtained via
+     * <code>getRequestDispatcher()</code>, the <code>ServletRequest</code>
+     * object has its path elements and parameters adjusted to match
+     * the path of the target resource.
+     *
+     * <p><code>forward</code> should be called before the response has been
+     * committed to the client (before response body output has been flushed).
+     * If the response already has been committed, this method throws
+     * an <code>IllegalStateException</code>.
+     * Uncommitted output in the response buffer is automatically cleared
+     * before the forward.
+     *
+     * <p>The request and response parameters must be either the same
+     * objects as were passed to the calling servlet's service method or be
+     * subclasses of the {@link ServletRequestWrapper} or {@link ServletResponseWrapper} classes
+     * that wrap them.
+     *
+     *
+     * @param request a {@link ServletRequest} object
+     * that represents the request the client makes of the servlet
+     *
+     * @param response a {@link ServletResponse} object
+     * that represents the response the servlet returns to the client
+     *
+     * @exception ServletException if the target resource throws this exception
+     *
+     * @exception IOException if the target resource throws this exception
+     *
+     * @exception IllegalStateException if the response was already committed
+     */
     public void forward(ServletRequest request, ServletResponse response)
-	throws ServletException, IOException;
-
-
-
+            throws ServletException, IOException;
 
     /**
-     *
      * Includes the content of a resource (servlet, JSP page,
-     * HTML file) in the response. In essence, this method enables 
+     * HTML file) in the response. In essence, this method enables
      * programmatic server-side includes.
      *
      * <p>The {@link ServletResponse} object has its path elements
@@ -154,24 +138,19 @@ public interface RequestDispatcher {
      * objects as were passed to the calling servlet's service method or be
      * subclasses of the {@link ServletRequestWrapper} or {@link ServletResponseWrapper} classes
      * that wrap them.
-     * 
      *
+     * @param request a {@link ServletRequest} object
+     * that contains the client's request
      *
-     * @param request 			a {@link ServletRequest} object 
-     *					that contains the client's request
+     * @param response a {@link ServletResponse} object
+     * that contains the servlet's response
      *
-     * @param response 			a {@link ServletResponse} object 
-     * 					that contains the servlet's response
+     * @exception ServletException if the included resource throws this exception
      *
-     * @exception ServletException 	if the included resource throws this exception
-     *
-     * @exception IOException 		if the included resource throws this exception
-     *
-     *
+     * @exception IOException if the included resource throws this exception
      */
-     
     public void include(ServletRequest request, ServletResponse response)
-	throws ServletException, IOException;
+            throws ServletException, IOException;
 }
 
 

@@ -1,7 +1,7 @@
-/*
+/* ====================================================================
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 1999 The Apache Software Foundation.  All rights 
+ * Copyright (c) 2003 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -9,28 +9,28 @@
  * are met:
  *
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer. 
+ *    notice, this list of conditions and the following disclaimer.
  *
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in
  *    the documentation and/or other materials provided with the
  *    distribution.
  *
- * 3. The end-user documentation included with the redistribution, if
- *    any, must include the following acknowlegement:  
- *       "This product includes software developed by the 
+ * 3. The end-user documentation included with the redistribution,
+ *    if any, must include the following acknowledgment:
+ *       "This product includes software developed by the
  *        Apache Software Foundation (http://www.apache.org/)."
- *    Alternately, this acknowlegement may appear in the software itself,
- *    if and wherever such third-party acknowlegements normally appear.
+ *    Alternately, this acknowledgment may appear in the software itself,
+ *    if and wherever such third-party acknowledgments normally appear.
  *
- * 4. The names "The Jakarta Project", "Tomcat", and "Apache Software
- *    Foundation" must not be used to endorse or promote products derived
- *    from this software without prior written permission. For written 
- *    permission, please contact apache@apache.org.
+ * 4. The names "Apache" and "Apache Software Foundation" and
+ *    "Apache Geronimo" must not be used to endorse or promote products
+ *    derived from this software without prior written permission. For
+ *    written permission, please contact apache@apache.org.
  *
- * 5. Products derived from this software may not be called "Apache"
- *    nor may "Apache" appear in their names without prior written
- *    permission of the Apache Group.
+ * 5. Products derived from this software may not be called "Apache",
+ *    "Apache Geronimo", nor may "Apache" appear in their name, without
+ *    prior written permission of the Apache Software Foundation.
  *
  * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
@@ -52,22 +52,20 @@
  * <http://www.apache.org/>.
  *
  * ====================================================================
- *
- * This source code implements specifications defined by the Java
- * Community Process. In order to remain compliant with the specification
- * DO NOT add / change / or delete method signatures!
- */ 
+ */
 
+//
+// This source code implements specifications defined by the Java
+// Community Process. In order to remain compliant with the specification
+// DO NOT add / change / or delete method signatures!
+//
 
 package javax.servlet.http;
 
-
-
 /**
- *
  * Events of this type are either sent to an object that implements
- * {@link HttpSessionBindingListener} when it is bound or 
- * unbound from a session, or to a {@link HttpSessionAttributeListener} 
+ * {@link HttpSessionBindingListener} when it is bound or
+ * unbound from a session, or to a {@link HttpSessionAttributeListener}
  * that has been configured in the deployment descriptor when any attribute is
  * bound, unbound or replaced in a session.
  *
@@ -75,117 +73,90 @@ package javax.servlet.http;
  * <code>HttpSession.setAttribute</code> and unbinds the object
  * by a call to <code>HttpSession.removeAttribute</code>.
  *
+ * @see HttpSession
+ * @see HttpSessionBindingListener
+ * @see HttpSessionAttributeListener
  *
- *
- * @author		Various
- * @version		$Version$
- * 
- * @see 		HttpSession
- * @see 		HttpSessionBindingListener
- * @see			HttpSessionAttributeListener
+ * @version $Revision: 1.2 $ $Date: 2003/09/19 05:25:45 $
  */
-
 public class HttpSessionBindingEvent extends HttpSessionEvent {
-
-
-
-
-    /* The name to which the object is being bound or unbound */
-
+    /**
+     *  The name to which the object is being bound or unbound
+     */
     private String name;
-    
-    /* The object is being bound or unbound */
 
+    /**
+     *  The object is being bound or unbound
+     */
     private Object value;
-    
-  
 
     /**
-     *
      * Constructs an event that notifies an object that it
-     * has been bound to or unbound from a session. 
+     * has been bound to or unbound from a session.
      * To receive the event, the object must implement
      * {@link HttpSessionBindingListener}.
      *
+     * @param session the session to which the object is bound or unbound
      *
+     * @param name the name with which the object is bound or unbound
      *
-     * @param session 	the session to which the object is bound or unbound
-     *
-     * @param name 	the name with which the object is bound or unbound
-     *
-     * @see			#getName
-     * @see			#getSession
-     *
+     * @see #getName
+     * @see #getSession
      */
-
     public HttpSessionBindingEvent(HttpSession session, String name) {
-	super(session);
-	this.name = name;
+        super(session);
+        this.name = name;
     }
-    
+
     /**
-     *
      * Constructs an event that notifies an object that it
-     * has been bound to or unbound from a session. 
+     * has been bound to or unbound from a session.
      * To receive the event, the object must implement
      * {@link HttpSessionBindingListener}.
      *
+     * @param session the session to which the object is bound or unbound
      *
+     * @param name the name with which the object is bound or unbound
      *
-     * @param session 	the session to which the object is bound or unbound
-     *
-     * @param name 	the name with which the object is bound or unbound
-     *
-     * @see			#getName
-     * @see			#getSession
-     *
+     * @see #getName
+     * @see #getSession
      */
-    
     public HttpSessionBindingEvent(HttpSession session, String name, Object value) {
-	super(session);
-	this.name = name;
-	this.value = value;
+        super(session);
+        this.name = name;
+        this.value = value;
     }
-    
-    
-   	/** Return the session that changed. */
-    public HttpSession getSession () { 
-	return super.getSession();
-    }
- 
-   
-  
-    
-    /**
-     *
-     * Returns the name with which the attribute is bound to or
-     * unbound from the session.
-     *
-     *
-     * @return		a string specifying the name with which
-     *			the object is bound to or unbound from
-     *			the session
-     *
-     *
-     */
 
-    public String getName() {
-	return name;
-    }
-    
     /**
-	* Returns the value of the attribute that has been added, removed or replaced.
-	* If the attribute was added (or bound), this is the value of the attribute. If the attrubute was
-	* removed (or unbound), this is the value of the removed attribute. If the attribute was replaced, this
-	* is the old value of the attribute.
-	*
-        * @since 2.3
-	*/
-	
-	public Object getValue() {
-	    return this.value;   
-	}
-    
+     * Return the session that changed.
+     */
+    public HttpSession getSession() {
+        return super.getSession();
+    }
+
+    /**
+     * Returns the name with which the attribute is bound to or unbound from
+     * the session.
+     *
+     * @return a string specifying the name with which the object is bound to
+     * or unbound from the session
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Returns the value of the attribute that has been added, removed or
+     * replaced. If the attribute was added (or bound), this is the value of
+     * the attribute. If the attrubute was removed (or unbound), this is the
+     * value of the removed attribute. If the attribute was replaced, this
+     * is the old value of the attribute.
+     *
+     * @since Servlet 2.3
+     */
+    public Object getValue() {
+        return this.value;
+    }
 }
 
 

@@ -1,7 +1,7 @@
-/*
+/* ====================================================================
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 1999 The Apache Software Foundation.  All rights 
+ * Copyright (c) 2003 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -9,28 +9,28 @@
  * are met:
  *
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer. 
+ *    notice, this list of conditions and the following disclaimer.
  *
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in
  *    the documentation and/or other materials provided with the
  *    distribution.
  *
- * 3. The end-user documentation included with the redistribution, if
- *    any, must include the following acknowlegement:  
- *       "This product includes software developed by the 
+ * 3. The end-user documentation included with the redistribution,
+ *    if any, must include the following acknowledgment:
+ *       "This product includes software developed by the
  *        Apache Software Foundation (http://www.apache.org/)."
- *    Alternately, this acknowlegement may appear in the software itself,
- *    if and wherever such third-party acknowlegements normally appear.
+ *    Alternately, this acknowledgment may appear in the software itself,
+ *    if and wherever such third-party acknowledgments normally appear.
  *
- * 4. The names "The Jakarta Project", "Tomcat", and "Apache Software
- *    Foundation" must not be used to endorse or promote products derived
- *    from this software without prior written permission. For written 
- *    permission, please contact apache@apache.org.
+ * 4. The names "Apache" and "Apache Software Foundation" and
+ *    "Apache Geronimo" must not be used to endorse or promote products
+ *    derived from this software without prior written permission. For
+ *    written permission, please contact apache@apache.org.
  *
- * 5. Products derived from this software may not be called "Apache"
- *    nor may "Apache" appear in their names without prior written
- *    permission of the Apache Group.
+ * 5. Products derived from this software may not be called "Apache",
+ *    "Apache Geronimo", nor may "Apache" appear in their name, without
+ *    prior written permission of the Apache Software Foundation.
  *
  * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
@@ -52,39 +52,39 @@
  * <http://www.apache.org/>.
  *
  * ====================================================================
- *
- * This source code implements specifications defined by the Java
- * Community Process. In order to remain compliant with the specification
- * DO NOT add / change / or delete method signatures!
  */
+
+//
+// This source code implements specifications defined by the Java
+// Community Process. In order to remain compliant with the specification
+// DO NOT add / change / or delete method signatures!
+//
 
 package javax.servlet;
 
 import java.io.IOException;
 
-    /**
-    * A FilterChain is an object provided by the servlet container to the developer
-    * giving a view into the invocation chain of a filtered request for a resource. Filters
-    * use the FilterChain to invoke the next filter in the chain, or if the calling filter
-    * is the last filter in the chain, to invoke the rosource at the end of the chain.
-    *
-    * @see Filter
-    * @since Servlet 2.3
-    **/
-
+/**
+ * A FilterChain is an object provided by the servlet container to the developer
+ * giving a view into the invocation chain of a filtered request for a resource. Filters
+ * use the FilterChain to invoke the next filter in the chain, or if the calling filter
+ * is the last filter in the chain, to invoke the rosource at the end of the chain.
+ *
+ * @see Filter
+ * @since Servlet 2.3
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/09/19 05:25:44 $
+ */
 public interface FilterChain {
-	
-	/**
-	* Causes the next filter in the chain to be invoked, or if the calling filter is the last filter
-	* in the chain, causes the resource at the end of the chain to be invoked.
-	*
-	* @param request the request to pass along the chain.
-	* @param response the response to pass along the chain.
-	*
-	* @since 2.3
-	*/
-	
-    public void doFilter ( ServletRequest request, ServletResponse response ) throws IOException, ServletException;
-
+    /**
+     * Causes the next filter in the chain to be invoked, or if the calling filter is the last filter
+     * in the chain, causes the resource at the end of the chain to be invoked.
+     *
+     * @param request the request to pass along the chain.
+     * @param response the response to pass along the chain.
+     *
+     * @since Servlet 2.3
+     */
+    public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException;
 }
 

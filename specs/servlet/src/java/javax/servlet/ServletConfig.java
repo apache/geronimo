@@ -1,7 +1,7 @@
-/*
+/* ====================================================================
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 1999 The Apache Software Foundation.  All rights 
+ * Copyright (c) 2003 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -9,28 +9,28 @@
  * are met:
  *
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer. 
+ *    notice, this list of conditions and the following disclaimer.
  *
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in
  *    the documentation and/or other materials provided with the
  *    distribution.
  *
- * 3. The end-user documentation included with the redistribution, if
- *    any, must include the following acknowlegement:  
- *       "This product includes software developed by the 
+ * 3. The end-user documentation included with the redistribution,
+ *    if any, must include the following acknowledgment:
+ *       "This product includes software developed by the
  *        Apache Software Foundation (http://www.apache.org/)."
- *    Alternately, this acknowlegement may appear in the software itself,
- *    if and wherever such third-party acknowlegements normally appear.
+ *    Alternately, this acknowledgment may appear in the software itself,
+ *    if and wherever such third-party acknowledgments normally appear.
  *
- * 4. The names "The Jakarta Project", "Tomcat", and "Apache Software
- *    Foundation" must not be used to endorse or promote products derived
- *    from this software without prior written permission. For written 
- *    permission, please contact apache@apache.org.
+ * 4. The names "Apache" and "Apache Software Foundation" and
+ *    "Apache Geronimo" must not be used to endorse or promote products
+ *    derived from this software without prior written permission. For
+ *    written permission, please contact apache@apache.org.
  *
- * 5. Products derived from this software may not be called "Apache"
- *    nor may "Apache" appear in their names without prior written
- *    permission of the Apache Group.
+ * 5. Products derived from this software may not be called "Apache",
+ *    "Apache Geronimo", nor may "Apache" appear in their name, without
+ *    prior written permission of the Apache Software Foundation.
  *
  * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
@@ -52,88 +52,66 @@
  * <http://www.apache.org/>.
  *
  * ====================================================================
- *
- * This source code implements specifications defined by the Java
- * Community Process. In order to remain compliant with the specification
- * DO NOT add / change / or delete method signatures!
  */
+
+//
+// This source code implements specifications defined by the Java
+// Community Process. In order to remain compliant with the specification
+// DO NOT add / change / or delete method signatures!
+//
 
 package javax.servlet;
 
 import java.util.Enumeration;
 
-
-
 /**
- * 
  * A servlet configuration object used by a servlet container
- * to pass information to a servlet during initialization. 
+ * to pass information to a servlet during initialization.
  *
+ * @version $Revision: 1.2 $ $Date: 2003/09/19 05:25:44 $
  */
- 
 public interface ServletConfig {
-    
-
     /**
      * Returns the name of this servlet instance.
-     * The name may be provided via server administration, assigned in the 
+     * The name may be provided via server administration, assigned in the
      * web application deployment descriptor, or for an unregistered (and thus
      * unnamed) servlet instance it will be the servlet's class name.
      *
-     * @return		the name of the servlet instance
-     *
-     *
-     *
+     * @return the name of the servlet instance
      */
-
     public String getServletName();
 
     /**
      * Returns a reference to the {@link ServletContext} in which the caller
      * is executing.
+     * @return a {@link ServletContext} object, used
+     * by the caller to interact with its servlet container
      *
-     *
-     * @return		a {@link ServletContext} object, used
-     *			by the caller to interact with its servlet 
-     *                  container
-     * 
-     * @see		ServletContext
-     *
+     * @see ServletContext
      */
-
     public ServletContext getServletContext();
-    
+
     /**
-     * Returns a <code>String</code> containing the value of the 
-     * named initialization parameter, or <code>null</code> if 
+     * Returns a <code>String</code> containing the value of the
+     * named initialization parameter, or <code>null</code> if
      * the parameter does not exist.
      *
-     * @param name	a <code>String</code> specifying the name
-     *			of the initialization parameter
+     * @param name a <code>String</code> specifying the name
+     * of the initialization parameter
      *
-     * @return		a <code>String</code> containing the value 
-     *			of the initialization parameter
-     *
+     * @return a <code>String</code> containing the value
+     * of the initialization parameter
      */
-
     public String getInitParameter(String name);
-
 
     /**
      * Returns the names of the servlet's initialization parameters
-     * as an <code>Enumeration</code> of <code>String</code> objects, 
+     * as an <code>Enumeration</code> of <code>String</code> objects,
      * or an empty <code>Enumeration</code> if the servlet has
      * no initialization parameters.
      *
-     * @return		an <code>Enumeration</code> of <code>String</code> 
-     *			objects containing the names of the servlet's 
-     *			initialization parameters
-     *
-     *
-     *
+     * @return an <code>Enumeration</code> of <code>String</code>
+     * objects containing the names of the servlet's initialization parameters
      */
-
     public Enumeration getInitParameterNames();
-
-
 }

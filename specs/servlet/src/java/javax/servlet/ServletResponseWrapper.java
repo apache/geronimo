@@ -1,7 +1,7 @@
-/*
+/* ====================================================================
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 1999 The Apache Software Foundation.  All rights 
+ * Copyright (c) 2003 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -9,28 +9,28 @@
  * are met:
  *
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer. 
+ *    notice, this list of conditions and the following disclaimer.
  *
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in
  *    the documentation and/or other materials provided with the
  *    distribution.
  *
- * 3. The end-user documentation included with the redistribution, if
- *    any, must include the following acknowlegement:  
- *       "This product includes software developed by the 
+ * 3. The end-user documentation included with the redistribution,
+ *    if any, must include the following acknowledgment:
+ *       "This product includes software developed by the
  *        Apache Software Foundation (http://www.apache.org/)."
- *    Alternately, this acknowlegement may appear in the software itself,
- *    if and wherever such third-party acknowlegements normally appear.
+ *    Alternately, this acknowledgment may appear in the software itself,
+ *    if and wherever such third-party acknowledgments normally appear.
  *
- * 4. The names "The Jakarta Project", "Tomcat", and "Apache Software
- *    Foundation" must not be used to endorse or promote products derived
- *    from this software without prior written permission. For written 
- *    permission, please contact apache@apache.org.
+ * 4. The names "Apache" and "Apache Software Foundation" and
+ *    "Apache Geronimo" must not be used to endorse or promote products
+ *    derived from this software without prior written permission. For
+ *    written permission, please contact apache@apache.org.
  *
- * 5. Products derived from this software may not be called "Apache"
- *    nor may "Apache" appear in their names without prior written
- *    permission of the Apache Group.
+ * 5. Products derived from this software may not be called "Apache",
+ *    "Apache Geronimo", nor may "Apache" appear in their name, without
+ *    prior written permission of the Apache Software Foundation.
  *
  * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
@@ -52,11 +52,13 @@
  * <http://www.apache.org/>.
  *
  * ====================================================================
- *
- * This source code implements specifications defined by the Java
- * Community Process. In order to remain compliant with the specification
- * DO NOT add / change / or delete method signatures!
  */
+
+//
+// This source code implements specifications defined by the Java
+// Community Process. In order to remain compliant with the specification
+// DO NOT add / change / or delete method signatures!
+//
 
 package javax.servlet;
 
@@ -65,140 +67,123 @@ import java.io.PrintWriter;
 import java.util.Locale;
 
 /**
- * 
  * Provides a convenient implementation of the ServletResponse interface that
  * can be subclassed by developers wishing to adapt the response from a Servlet.
  * This class implements the Wrapper or Decorator pattern. Methods default to
  * calling through to the wrapped response object.
- * 
- * @author 	Various
- * @version 	$Version$
- * @since	v 2.3
  *
- * @see 	javax.servlet.ServletResponse
+ * @since Servlet 2.3
  *
+ * @see javax.servlet.ServletResponse
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/09/19 05:25:44 $
  */
-
- 
 public class ServletResponseWrapper implements ServletResponse {
-	private ServletResponse response;
-	/**
-	* Creates a ServletResponse adaptor wrapping the given response object.
-	* @throws java.lang.IllegalArgumentException if the response is null.
-	*/
+    private ServletResponse response;
 
+    /**
+     * Creates a ServletResponse adaptor wrapping the given response object.
+     * @throws java.lang.IllegalArgumentException if the response is null.
+     */
+    public ServletResponseWrapper(ServletResponse response) {
+        if (response == null) {
+            throw new IllegalArgumentException("Response cannot be null");
+        }
+        this.response = response;
+    }
 
-	public ServletResponseWrapper(ServletResponse response) {
-	    if (response == null) {
-		throw new IllegalArgumentException("Response cannot be null");
-	    }
-	    this.response = response;
-	}
+    /**
+     * Return the wrapped ServletResponse object.
+     */
+    public ServletResponse getResponse() {
+        return this.response;
+    }
 
-	/**
-	* Return the wrapped ServletResponse object.
-	*/
-
-	public ServletResponse getResponse() {
-		return this.response;
-	}	
-	
-	
-	/**
-	* Sets the response being wrapped. 
-	* @throws java.lang.IllegalArgumentException if the response is null.
-	*/
-	
-	public void setResponse(ServletResponse response) {
-	    if (response == null) {
-		throw new IllegalArgumentException("Response cannot be null");
-	    }
-	    this.response = response;
-	}
+    /**
+     * Sets the response being wrapped.
+     * @throws java.lang.IllegalArgumentException if the response is null.
+     */
+    public void setResponse(ServletResponse response) {
+        if (response == null) {
+            throw new IllegalArgumentException("Response cannot be null");
+        }
+        this.response = response;
+    }
 
     /**
      * The default behavior of this method is to call setCharacterEncoding(String charset)
      * on the wrapped response object.
      *
-     * @since 2.4
+     * @since Servlet 2.4
      */
-
     public void setCharacterEncoding(String charset) {
-	this.response.setCharacterEncoding(charset);
+        this.response.setCharacterEncoding(charset);
     }
 
     /**
      * The default behavior of this method is to return getCharacterEncoding()
      * on the wrapped response object.
      */
-
     public String getCharacterEncoding() {
-	return this.response.getCharacterEncoding();
-	}
-    
-    
-	  /**
+        return this.response.getCharacterEncoding();
+    }
+
+    /**
      * The default behavior of this method is to return getOutputStream()
      * on the wrapped response object.
      */
-
     public ServletOutputStream getOutputStream() throws IOException {
-	return this.response.getOutputStream();
-    }  
-      
-     /**
+        return this.response.getOutputStream();
+    }
+
+    /**
      * The default behavior of this method is to return getWriter()
      * on the wrapped response object.
      */
-
-
     public PrintWriter getWriter() throws IOException {
-	return this.response.getWriter();
-	}
-    
+        return this.response.getWriter();
+    }
+
     /**
      * The default behavior of this method is to call setContentLength(int len)
      * on the wrapped response object.
      */
-
     public void setContentLength(int len) {
-	this.response.setContentLength(len);
+        this.response.setContentLength(len);
     }
-    
+
     /**
      * The default behavior of this method is to call setContentType(String type)
      * on the wrapped response object.
      */
-
     public void setContentType(String type) {
-	this.response.setContentType(type);
+        this.response.setContentType(type);
     }
 
     /**
      * The default behavior of this method is to return getContentType()
      * on the wrapped response object.
      *
-     * @since 2.4
+     * @since Servlet 2.4
      */
-
     public String getContentType() {
-	return this.response.getContentType();
+        return this.response.getContentType();
     }
-    
+
     /**
      * The default behavior of this method is to call setBufferSize(int size)
      * on the wrapped response object.
      */
     public void setBufferSize(int size) {
-	this.response.setBufferSize(size);
+        this.response.setBufferSize(size);
     }
-    
+
     /**
      * The default behavior of this method is to return getBufferSize()
      * on the wrapped response object.
      */
     public int getBufferSize() {
-	return this.response.getBufferSize();
+        return this.response.getBufferSize();
     }
 
     /**
@@ -207,53 +192,48 @@ public class ServletResponseWrapper implements ServletResponse {
      */
 
     public void flushBuffer() throws IOException {
-	this.response.flushBuffer();
+        this.response.flushBuffer();
     }
-    
+
     /**
      * The default behavior of this method is to return isCommitted()
      * on the wrapped response object.
      */
     public boolean isCommitted() {
-	return this.response.isCommitted();
+        return this.response.isCommitted();
     }
 
     /**
      * The default behavior of this method is to call reset()
      * on the wrapped response object.
      */
-
     public void reset() {
-	this.response.reset();
+        this.response.reset();
     }
-    
+
     /**
      * The default behavior of this method is to call resetBuffer()
      * on the wrapped response object.
      */
-     
     public void resetBuffer() {
-	this.response.resetBuffer();
+        this.response.resetBuffer();
     }
-    
+
     /**
      * The default behavior of this method is to call setLocale(Locale loc)
      * on the wrapped response object.
      */
-
     public void setLocale(Locale loc) {
-	this.response.setLocale(loc);
+        this.response.setLocale(loc);
     }
-    
+
     /**
      * The default behavior of this method is to return getLocale()
      * on the wrapped response object.
      */
     public Locale getLocale() {
-	return this.response.getLocale();
+        return this.response.getLocale();
     }
-
-
 }
 
 

@@ -1,7 +1,7 @@
-/*
+/* ====================================================================
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 1999 The Apache Software Foundation.  All rights
+ * Copyright (c) 2003 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -16,24 +16,21 @@
  *    the documentation and/or other materials provided with the
  *    distribution.
  *
- * 3. The end-user documentation included with the redistribution, if
- *    any, must include the following acknowlegement:
+ * 3. The end-user documentation included with the redistribution,
+ *    if any, must include the following acknowledgment:
  *       "This product includes software developed by the
  *        Apache Software Foundation (http://www.apache.org/)."
- *    Alternately, this acknowlegement may appear in the software itself,
-"ServletContextListener.java" 81 lines, 3580 characters
- *        Apache Software Foundation (http://www.apache.org/)."
- *    Alternately, this acknowlegement may appear in the software itself,
- *    if and wherever such third-party acknowlegements normally appear.
+ *    Alternately, this acknowledgment may appear in the software itself,
+ *    if and wherever such third-party acknowledgments normally appear.
  *
- * 4. The names "The Jakarta Project", "Tomcat", and "Apache Software
- *    Foundation" must not be used to endorse or promote products derived
- *    from this software without prior written permission. For written
- *    permission, please contact apache@apache.org.
+ * 4. The names "Apache" and "Apache Software Foundation" and
+ *    "Apache Geronimo" must not be used to endorse or promote products
+ *    derived from this software without prior written permission. For
+ *    written permission, please contact apache@apache.org.
  *
- * 5. Products derived from this software may not be called "Apache"
- *    nor may "Apache" appear in their names without prior written
- *    permission of the Apache Group.
+ * 5. Products derived from this software may not be called "Apache",
+ *    "Apache Geronimo", nor may "Apache" appear in their name, without
+ *    prior written permission of the Apache Software Foundation.
  *
  * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
@@ -43,9 +40,6 @@
  * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
  * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
  * USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
-
  * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
  * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
@@ -58,33 +52,48 @@
  * <http://www.apache.org/>.
  *
  * ====================================================================
- *
- * This source code implements specifications defined by the Java
- * Community Process. In order to remain compliant with the specification
- * DO NOT add / change / or delete method signatures!
  */
+
+//
+// This source code implements specifications defined by the Java
+// Community Process. In order to remain compliant with the specification
+// DO NOT add / change / or delete method signatures!
+//
 
 package javax.servlet;
 
 import java.util.EventListener;
 
-    /** Implementations of this interface receive notifications of
-      * changes to the attribute list on the servlet request of a 
-      * web application. 
-      * To receive notification events, the implementation class
-      * must be configured in the deployment descriptor for the web application.
-      * @see ServletRequestAttributeEvent
-      * @since	v 2.4
-     */
-
+/**
+ * Implementations of this interface receive notifications of
+ * changes to the attribute list on the servlet request of a
+ * web application.
+ * To receive notification events, the implementation class
+ * must be configured in the deployment descriptor for the web application.
+ *
+ * @see ServletRequestAttributeEvent
+ *
+ * @since Servlet 2.4
+ *
+ * @version $Revision: 1.2 $ $Date: 2003/09/19 05:25:44 $
+ */
 public interface ServletRequestAttributeListener extends EventListener {
-    /** Notification that a new attribute was added to the servlet request. Called after the attribute is added.*/
+    /**
+     * Notification that a new attribute was added to the servlet request.
+     * Called after the attribute is added.
+     */
     public void attributeAdded(ServletRequestAttributeEvent srae);
 
-    /** Notification that an existing attribute has been removed from the servlet request. Called after the attribute is removed.*/
+    /**
+     * Notification that an existing attribute has been removed from the
+     * servlet request. Called after the attribute is removed.
+     */
     public void attributeRemoved(ServletRequestAttributeEvent srae);
 
-    /** Notification that an attribute on the servlet request has been replaced. Called after the attribute is replaced. */
+    /**
+     * Notification that an attribute on the servlet request has been
+     * replaced. Called after the attribute is replaced.
+     */
     public void attributeReplaced(ServletRequestAttributeEvent srae);
 }
 
