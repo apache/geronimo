@@ -84,6 +84,7 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
 import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
+import org.apache.geronimo.kernel.service.GeronimoMBeanEndpoint;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.deployment.scanner.URLInfo;
 import org.apache.geronimo.kernel.deployment.scanner.URLType;
@@ -98,14 +99,14 @@ import org.apache.geronimo.kernel.deployment.goal.DistributeURL;
  * Presumably, it will also be invoked by the local directory scanner
  * when a deployable J2EE module is encountered.
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/17 20:31:07 $
+ * @version $Revision: 1.3 $ $Date: 2003/12/09 04:23:33 $
  */
 public class ApplicationDeployer implements GeronimoMBeanTarget {
     private final static Log log = LogFactory.getLog(ApplicationDeployer.class);
-    private final static ObjectName DEPLOYER_NAME = JMXUtil.getObjectName("geronimo.deployment:role=DeploymentController");
     private ServerTarget localServerTarget;
     private File saveDir;
     private GeronimoMBeanContext context;
+    private DeploymentController deploymentController;
 
     public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws Exception {
         GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
@@ -215,6 +216,10 @@ public class ApplicationDeployer implements GeronimoMBeanTarget {
                 },
                 0,
                 "Begins the process of stopping one or more modules.  You must start the deployment job with the returned ID."));
+        mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("DeploymentController",
+                DeploymentController.class,
+                ObjectName.getInstance("geronimo.deployment:role=DeploymentController"),
+                true));
         return mbeanInfo;
     }
 
@@ -228,6 +233,14 @@ public class ApplicationDeployer implements GeronimoMBeanTarget {
         } catch(UnknownHostException e) {
             throw new RuntimeException("Unable to look up local hostname", e);
         }
+    }
+
+    public DeploymentController getDeploymentController() {
+        return deploymentController;
+    }
+
+    public void setDeploymentController(DeploymentController deploymentController) {
+        this.deploymentController = deploymentController;
     }
 
     /**
@@ -329,10 +342,9 @@ public class ApplicationDeployer implements GeronimoMBeanTarget {
         //todo: Create and start an MBean for the deployment, use that later to check status of the deployment
         GeronimoTargetModule tm = new GeronimoTargetModule(localServerTarget, name); //todo: specify URL for web apps
         try {
-            Integer id = (Integer)context.getServer().invoke(DEPLOYER_NAME, "prepareDeploymentJob", new Object[]{new DeploymentGoal[]{
-                new DistributeURL(tm, module.toURL(), URLType.PACKED_ARCHIVE)}}, new String[]{
-                    "[L"+DeploymentGoal.class.getName()+";"});
-            return id.intValue();
+            int id = deploymentController.prepareDeploymentJob(new DeploymentGoal[]{
+                new DistributeURL(tm, module.toURL(), URLType.PACKED_ARCHIVE)});
+            return id;
 //            if(!deployments.contains(tm)) {
 //                deployments.add(tm);
 //            }
@@ -469,20 +481,8 @@ public class ApplicationDeployer implements GeronimoMBeanTarget {
     }
 
     private void runDeployment(DeploymentGoal[] goals) {
-        try {
-            context.getServer().invoke(DEPLOYER_NAME, "runDeploymentJob", new Object[]{goals},
-                    new String[]{"[L"+DeploymentGoal.class.getName()+";"});
-        } catch(InstanceNotFoundException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Unable to execute deployment", e);
-        } catch(MBeanException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Unable to execute deployment", e);
-        } catch(ReflectionException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Unable to execute deployment", e);
-        }
-    }
+        deploymentController.runDeploymentJob(goals);
+   }
 
     // ------------------------ Moved from DeploymentController ------------------------------
     private final Map scanResults = new HashMap();
