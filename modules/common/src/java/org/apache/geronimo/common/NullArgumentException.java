@@ -60,7 +60,7 @@ package org.apache.geronimo.common;
  * Thrown to indicate that a method argument was <tt>null</tt> and 
  * should <b>not</b> have been.
  *
- * @version <tt>$Revision: 1.6 $</tt>
+ * @version <tt>$Revision: 1.7 $</tt>
  */
 public class NullArgumentException 
    extends IllegalArgumentException
@@ -71,6 +71,7 @@ public class NullArgumentException
      * 
      * @param name name of the argument
      * @param argument the value of the argument
+     *
      * @throws NullArgumentException if the argument is null
      */
     public static void checkForNull(String name, Object argument) throws NullArgumentException {

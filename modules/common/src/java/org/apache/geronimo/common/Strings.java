@@ -67,7 +67,7 @@ import java.io.File;
 /**
  * A collection of String utilities.
  *
- * @version <code>$Revision: 1.5 $</code>
+ * @version <code>$Revision: 1.6 $</code>
  */
 public final class Strings
 {
@@ -613,6 +613,10 @@ public final class Strings
      * @return           True if string is empty
      */
     public static boolean isEmpty(final String string) {
+        if (string == null) {
+            throw new NullArgumentException("string");
+        }
+        
         return string.equals(EMPTY);
     }
     
