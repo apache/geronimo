@@ -19,6 +19,8 @@ package org.apache.geronimo.deployment.plugin.jmx;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import javax.enterprise.deploy.model.DeployableObject;
 import javax.enterprise.deploy.shared.DConfigBeanVersionType;
@@ -31,20 +33,25 @@ import javax.enterprise.deploy.spi.exceptions.DConfigBeanVersionUnsupportedExcep
 import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
 import javax.enterprise.deploy.spi.exceptions.TargetException;
 import javax.enterprise.deploy.spi.status.ProgressObject;
-import javax.management.remote.JMXConnector;
 import javax.management.MBeanServerConnection;
+import javax.management.ObjectName;
+import javax.management.remote.JMXConnector;
 
-import org.apache.geronimo.kernel.KernelMBean;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
+import org.apache.geronimo.deployment.plugin.TargetImpl;
+import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 import org.apache.geronimo.deployment.plugin.local.StartCommand;
 import org.apache.geronimo.deployment.plugin.local.StopCommand;
-import org.apache.geronimo.deployment.plugin.TargetImpl;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelMBean;
+import org.apache.geronimo.kernel.config.ConfigurationInfo;
+import org.apache.geronimo.kernel.config.NoSuchStoreException;
+import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
+import org.apache.geronimo.kernel.management.State;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/06/02 07:05:30 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/02 19:50:40 $
  */
 public class JMXDeploymentManager implements DeploymentManager {
     private JMXConnector jmxConnector;
@@ -61,7 +68,7 @@ public class JMXDeploymentManager implements DeploymentManager {
         try {
             jmxConnector.close();
         } catch (IOException e) {
-            // can't do much with this
+            throw (IllegalStateException) new IllegalStateException("Unable to close connection").initCause(e);
         } finally {
             mbServerConnection = null;
             kernel = null;
@@ -72,20 +79,73 @@ public class JMXDeploymentManager implements DeploymentManager {
         if (kernel == null) {
             throw new IllegalStateException("Disconnected");
         }
-        Target target = new TargetImpl("default", null);
-        return new Target[]{target};
+        List stores = kernel.listConfigurationStores();
+        if (stores.size() == 0) {
+            return null;
+        }
+
+        Target[] targets = new Target[stores.size()];
+        for (int i = 0; i < stores.size(); i++) {
+            ObjectName storeName = (ObjectName) stores.get(i);
+            targets[i] = new TargetImpl(storeName, null);
+        }
+        return targets;
     }
 
     public TargetModuleID[] getAvailableModules(ModuleType moduleType, Target[] targetList) throws TargetException {
-        throw new UnsupportedOperationException();
+        ConfigFilter filter = new ConfigFilter() {
+            public boolean accept(ConfigurationInfo info) {
+                return true;
+            }
+        };
+        return getModules(targetList, filter);
     }
 
     public TargetModuleID[] getNonRunningModules(ModuleType moduleType, Target[] targetList) throws TargetException {
-        throw new UnsupportedOperationException();
+        ConfigFilter filter = new ConfigFilter() {
+            public boolean accept(ConfigurationInfo info) {
+                return info.getState() != State.RUNNING;
+            }
+        };
+        return getModules(targetList, filter);
     }
 
     public TargetModuleID[] getRunningModules(ModuleType moduleType, Target[] targetList) throws TargetException {
-        throw new UnsupportedOperationException();
+        ConfigFilter filter = new ConfigFilter() {
+            public boolean accept(ConfigurationInfo info) {
+                return info.getState() == State.RUNNING;
+            }
+        };
+        return getModules(targetList, filter);
+    }
+
+    private static interface ConfigFilter {
+        boolean accept(ConfigurationInfo info);
+    }
+
+    private TargetModuleID[] getModules(Target[] targetList, ConfigFilter filter) throws TargetException {
+        if (kernel == null) {
+            throw new IllegalStateException("Disconnected");
+        }
+
+        try {
+            ArrayList result = new ArrayList();
+            for (int i = 0; i < targetList.length; i++) {
+                TargetImpl target = (TargetImpl) targetList[i];
+                ObjectName storeName = target.getObjectName();
+                List infos = kernel.listConfigurations(storeName);
+                for (int j = 0; j < infos.size(); j++) {
+                    ConfigurationInfo info = (ConfigurationInfo) infos.get(j);
+                    if (filter.accept(info)) {
+                        TargetModuleID moduleID = new TargetModuleIDImpl(target, info.getConfigID().toString());
+                        result.add(moduleID);
+                    }
+                }
+            }
+            return result.size() == 0 ? null : (TargetModuleID[]) result.toArray(new TargetModuleID[result.size()]);
+        } catch (NoSuchStoreException e) {
+            throw (TargetException) new TargetException(e.getMessage()).initCause(e);
+        }
     }
 
     public ProgressObject distribute(Target[] targetList, File moduleArchive, File deploymentPlan) {

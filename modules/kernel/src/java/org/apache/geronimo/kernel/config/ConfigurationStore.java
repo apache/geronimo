@@ -20,13 +20,16 @@ package org.apache.geronimo.kernel.config;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
+import java.util.List;
+
+import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 
 /**
  * Interface to a store for Configurations.
  *
- * @version $Revision: 1.6 $ $Date: 2004/05/27 01:06:00 $
+ * @version $Revision: 1.7 $ $Date: 2004/06/02 19:50:41 $
  */
 public interface ConfigurationStore {
     /**
@@ -65,4 +68,16 @@ public interface ConfigurationStore {
      * @throws NoSuchConfigException if the store does not contain a Configuration with that id
      */
     URL getBaseURL(URI id) throws NoSuchConfigException;
+
+    /**
+     * Return the object name for the store.
+     * @return the object name for the store
+     */
+    ObjectName getObjectName();
+
+    /**
+     * Return the configurations in the store
+     * @return a List<URI> of configurations in the store
+     */
+    List listConfiguations();
 }

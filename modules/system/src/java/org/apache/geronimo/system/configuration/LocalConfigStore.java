@@ -32,8 +32,12 @@ import java.net.URI;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.Properties;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
+import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanContext;
@@ -51,7 +55,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 /**
  * Implementation of ConfigurationStore using the local filesystem.
  *
- * @version $Revision: 1.4 $ $Date: 2004/06/02 05:33:05 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/02 19:50:41 $
  */
 public class LocalConfigStore implements ConfigurationStore, GBean {
     private static final String INDEX_NAME = "index.properties";
@@ -60,6 +64,7 @@ public class LocalConfigStore implements ConfigurationStore, GBean {
     private File rootDir;
     private final Properties index = new Properties();
     private int maxId;
+    private GBeanContext context;
 
     /**
      * Constructor is only used for direct testing with out a kernel.
@@ -77,6 +82,11 @@ public class LocalConfigStore implements ConfigurationStore, GBean {
     }
 
     public void setGBeanContext(GBeanContext context) {
+        this.context = context;
+    }
+
+    public ObjectName getObjectName() {
+        return context.getObjectName();
     }
 
     public void doStart() throws WaitingException, FileNotFoundException, IOException {
@@ -155,6 +165,18 @@ public class LocalConfigStore implements ConfigurationStore, GBean {
 
     public synchronized GBeanMBean getConfiguration(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException {
         return loadConfig(getRoot(configID));
+    }
+
+    public List listConfiguations() {
+        List configs;
+        synchronized (this) {
+            configs = new ArrayList(index.size());
+            for (Iterator i = index.keySet().iterator(); i.hasNext();) {
+                String id = (String) i.next();
+                configs.add(URI.create(id));
+            }
+        }
+        return configs;
     }
 
     public URL getBaseURL(URI configID) throws NoSuchConfigException {
@@ -253,13 +275,9 @@ public class LocalConfigStore implements ConfigurationStore, GBean {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(LocalConfigStore.class);
 
         infoFactory.addAttribute("root", URI.class, true);
+        infoFactory.addInterface(ConfigurationStore.class);
 
         infoFactory.addReference("ServerInfo", ServerInfo.class);
-
-        infoFactory.addOperation("install", new Class[]{URL.class});
-        infoFactory.addOperation("containsConfiguration", new Class[]{URI.class});
-        infoFactory.addOperation("getConfiguration", new Class[]{URI.class});
-        infoFactory.addOperation("getBaseURL", new Class[]{URI.class});
 
         infoFactory.setConstructor(new String[]{"root", "ServerInfo"});
 

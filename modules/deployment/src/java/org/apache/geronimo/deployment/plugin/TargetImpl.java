@@ -18,23 +18,28 @@
 package org.apache.geronimo.deployment.plugin;
 
 import javax.enterprise.deploy.spi.Target;
+import javax.management.ObjectName;
 
 /**
- * 
- * 
- * @version $Revision: 1.4 $ $Date: 2004/06/02 18:05:46 $
+ *
+ *
+ * @version $Revision: 1.5 $ $Date: 2004/06/02 19:50:40 $
  */
 public class TargetImpl implements Target {
-    private final String name;
+    private final ObjectName name;
     private final String description;
 
-    public TargetImpl(String name, String description) {
+    public TargetImpl(ObjectName name, String description) {
         this.name = name;
         this.description = description;
     }
 
-    public String getName() {
+    public ObjectName getObjectName() {
         return name;
+    }
+
+    public String getName() {
+        return name.toString();
     }
 
     public String getDescription() {
@@ -42,7 +47,7 @@ public class TargetImpl implements Target {
     }
 
     public String toString() {
-        return name;
+        return name.toString();
     }
 
     public boolean equals(Object o) {

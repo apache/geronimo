@@ -25,6 +25,7 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.List;
 import javax.management.Attribute;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
@@ -46,6 +47,7 @@ import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 
@@ -66,7 +68,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
  * used hold the persistent state of each Configuration. This allows
  * Configurations to restart in he event of system failure.
  *
- * @version $Revision: 1.29 $ $Date: 2004/06/02 06:49:23 $
+ * @version $Revision: 1.30 $ $Date: 2004/06/02 19:50:40 $
  */
 public class Kernel extends NotificationBroadcasterSupport implements Serializable, KernelMBean {
 
@@ -283,6 +285,14 @@ public class Kernel extends NotificationBroadcasterSupport implements Serializab
         } catch (MBeanRegistrationException e) {
             throw (IllegalStateException) new IllegalStateException("Error unloading GBean " + name).initCause(e);
         }
+    }
+
+    public List listConfigurationStores() {
+        return getConfigurationManager().listStores();
+    }
+
+    public List listConfigurations(ObjectName storeName) throws NoSuchStoreException {
+        return getConfigurationManager().listConfigurations(storeName);
     }
 
     public ObjectName startConfiguration(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException {

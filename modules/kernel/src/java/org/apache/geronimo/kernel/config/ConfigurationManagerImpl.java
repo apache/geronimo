@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.ArrayList;
 import javax.management.InstanceNotFoundException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -36,9 +37,10 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.management.State;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/06/02 05:33:03 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/02 19:50:41 $
  */
 public class ConfigurationManagerImpl implements ConfigurationManager {
     private static final Log log = LogFactory.getLog(ConfigurationManagerImpl.class);
@@ -48,6 +50,49 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
     public ConfigurationManagerImpl(Kernel kernel, Collection stores) {
         this.kernel = kernel;
         this.stores = stores;
+    }
+
+    public List listStores() {
+        List storeSnapshot = getStores();
+        List result = new ArrayList(storeSnapshot.size());
+        for (int i=0; i < storeSnapshot.size(); i++) {
+            ConfigurationStore store = (ConfigurationStore) storeSnapshot.get(i);
+            result.add(store.getObjectName());
+        }
+        return result;
+    }
+
+    public List listConfigurations(ObjectName storeName) throws NoSuchStoreException {
+        List storeSnapshot = getStores();
+        for (int i=0; i < storeSnapshot.size(); i++) {
+            ConfigurationStore store = (ConfigurationStore) storeSnapshot.get(i);
+            if (storeName.equals(store.getObjectName())) {
+                List ids = store.listConfiguations();
+                List result = new ArrayList(ids.size());
+                for (int j = 0; j < ids.size(); j++) {
+                    URI configID = (URI) ids.get(j);
+                    ObjectName configName;
+                    try {
+                        configName = getConfigObjectName(configID);
+                    } catch (MalformedObjectNameException e) {
+                        throw new AssertionError("Store returned invalid configID: " + configID);
+                    }
+                    State state;
+                    if (kernel.isLoaded(configName)) {
+                        try {
+                            state = State.fromInteger((Integer)kernel.getAttribute(configName, "state"));
+                        } catch (Exception e) {
+                            state = null;
+                        }
+                    } else {
+                        state = null;
+                    }
+                    result.add(new ConfigurationInfo(storeName, configID, state));
+                }
+                return result;
+            }
+        }
+        throw new NoSuchStoreException("No such store: " + storeName);
     }
 
     public boolean isLoaded(URI configID) {
@@ -60,17 +105,17 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
     }
 
     public ObjectName load(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException {
-        Set storeSnapshot = getStoreSnapshot();
+        List storeSnapshot = getStores();
 
-        for (Iterator iterator = storeSnapshot.iterator(); iterator.hasNext();) {
-            ConfigurationStore store = (ConfigurationStore) iterator.next();
+        for (int i=0; i < storeSnapshot.size(); i++) {
+            ConfigurationStore store = (ConfigurationStore) storeSnapshot.get(i);
             if (store.containsConfiguration(configID)) {
                 GBeanMBean config = store.getConfiguration(configID);
                 URL baseURL = store.getBaseURL(configID);
                 return load(config, baseURL);
             }
         }
-        throw new NoSuchConfigException("A configuration with the specifiec id could not be found: " + configID);
+        throw new NoSuchConfigException("No configuration with id: " + configID);
     }
 
     public ObjectName load(GBeanMBean config, URL rootURL) throws InvalidConfigException {
@@ -151,8 +196,8 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
         log.info("Unloaded Configuration " + configName);
     }
 
-    private Set getStoreSnapshot() {
-        Set storeSnapshot = new HashSet(stores);
+    private List getStores() {
+        List storeSnapshot = new ArrayList(stores);
         if (storeSnapshot.size() == 0) {
             throw new UnsupportedOperationException("There are no installed ConfigurationStores");
         }

@@ -28,10 +28,24 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 /**
  * 
  * 
- * @version $Revision: 1.5 $ $Date: 2004/06/01 16:06:50 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/02 19:50:41 $
  */
 public interface ConfigurationManager {
     boolean isLoaded(URI configID);
+
+    /**
+     * Return a list of the stores this manager knows about.
+     * @return a List<ObjectName> of the stores this manager controls
+     */
+    List listStores();
+
+    /**
+     * Return a list of the configurations in a specific store.
+     * @param store the store to list
+     * @return a List<ConfigurationInfo> of all the configurations in the store
+     * @throws NoSuchStoreException if the store could not be located
+     */
+    List listConfigurations(ObjectName store) throws NoSuchStoreException;
 
     ObjectName getConfigObjectName(URI configID) throws MalformedObjectNameException;
 

@@ -49,7 +49,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.10 $ $Date: 2004/06/02 05:33:02 $
+ * @version $Revision: 1.11 $ $Date: 2004/06/02 19:50:40 $
  */
 public class LocalServer implements DeploymentServer, GBean {
     private final URI rootConfigID;
@@ -62,7 +62,7 @@ public class LocalServer implements DeploymentServer, GBean {
 
     public LocalServer(URI rootConfigID, File storeDir) throws Exception {
         this.rootConfigID = rootConfigID;
-        target = new TargetImpl(this.rootConfigID.toString(), null);
+        target = new TargetImpl(null, null);
         kernel = new Kernel(this.rootConfigID.toString(), "geronimo.localserver");
         this.storeDir = storeDir;
     }

@@ -19,6 +19,7 @@ package org.apache.geronimo.kernel;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.List;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanServer;
@@ -28,9 +29,10 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.config.NoSuchStoreException;
 
 /**
- * @version $Revision: 1.10 $ $Date: 2004/06/02 06:49:23 $
+ * @version $Revision: 1.11 $ $Date: 2004/06/02 19:50:41 $
  */
 public interface KernelMBean {
     /**
@@ -94,6 +96,20 @@ public interface KernelMBean {
     boolean isRunning();
 
     ConfigurationManager getConfigurationManager();
+
+    /**
+     * Return a list of the stores this kernel knows about.
+     * @return a List<ObjectName> of the stores this kernel controls
+     */
+    List listConfigurationStores();
+
+    /**
+     * Return info about the configurations in a store.
+     * @param storeName the store
+     * @return a List<ConfigurationInfo> of information about the store's configurations
+     * @throws NoSuchStoreException if this store does not exist
+     */
+    List listConfigurations(ObjectName storeName) throws NoSuchStoreException;
 
     ObjectName startConfiguration(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException;
 
