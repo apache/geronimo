@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.21 $ $Date: 2003/08/24 06:16:30 $ -->
+<!-- $Revision: 1.22 $ $Date: 2003/08/24 09:28:54 $ -->
 
 <project default="default"
-  xmlns:j="jelly:core" 
-  xmlns:ant="jelly:ant" 
+  xmlns:j="jelly:core"
+  xmlns:u="jelly:util"
+  xmlns:ant="jelly:ant"
   xmlns:maven="jelly:maven">
   
   <!-- ======= -->
@@ -86,45 +87,84 @@
   <goal name="modules:aggregate">
     <ant:echo>Aggregating modules...</ant:echo>
     
-    <j:scope>
-      <j:forEach var="module" items="${reactorProjects}">
-        <ant:echo>Processing ${module.id}...</ant:echo>
-        
-        <!-- Get the modules root directory -->
-        <j:set var="module.root" value="${module.file.parent}"/>
-        
-        <!--
-           | Execute the aggregation hook.
-           |
-           | TODO: Should check if there is an aggregate hook for this module
-           |       instead of using the catch hack.
-         -->
-        <j:set var="hook.name" value="modules:aggregate:${module.id}"/>
-        <j:catch var="e">
-          <attainGoal name="${hook.name}"/>
-        </j:catch>
-        <j:if test="${e != null}">
-          <ant:echo level="warning">Failed to invoke aggregate hook: ${e}</ant:echo>
+    <!-- Setup the target aggregation directory -->
+    <j:set var="aggregate.dir" value="${basedir}/target/${pom.standardToLegacyId(pom.id)}-${pom.currentVersion}"/>
+    <ant:mkdir dir="${aggregate.dir}"/>
+    
+    <j:forEach var="module" items="${reactorProjects}">
+      <ant:echo>Processing ${module.id}...</ant:echo>
+      
+      <!-- Get the modules root directory -->
+      <j:set var="module.root" value="${module.file.parent}"/>
+      
+      <!--
+         | Execute the aggregation hook.
+         |
+         | TODO: Should check if there is an aggregate hook for this module
+         |       instead of using the catch hack.
+       -->
+      <j:set var="hook.name" value="modules:aggregate:${module.id}"/>
+      <j:catch var="e">
+        <attainGoal name="${hook.name}"/>
+      </j:catch>
+      <j:if test="${e != null}">
+        <ant:echo level="warning">Failed to invoke aggregate hook: ${e}</ant:echo>
+      </j:if>
+      
+      <!-- Process dependencies -->
+      <j:forEach var="artifact" items="${module.artifacts}">
+        <j:set var="dependency" value="${artifact.dependency}"/>
+        <j:if test="${dependency.getProperty('runtime') == 'true'}">
+          <ant:echo>Processing dependency: ${dependency.id}</ant:echo>
+          
+          <!--
+             | TODO: Figure out a better way to allow artifact destination
+             |       to vary, but for now just dump them into lib
+           -->
+          
+          <ant:mkdir dir="${aggregate.dir}/lib"/>
+          <ant:copy todir="${aggregate.dir}/lib" file="${artifact.path}"/>
         </j:if>
-        
-        <!-- Process dependencies -->
-        <j:forEach var="dependency" items="${module.dependencies}">
-          <j:if test="${dependency.getProperty('runtime') == 'true'}">
-            <!-- 
-               | TODO: copy dependency artifact to lib/
-               |       probably need to have specifiers for where this lib will go?
-               |       or should this be put into a helper tag and called by the
-               |       module aggregation hook
-             -->
-          </j:if>
-        </j:forEach>
       </j:forEach>
-    </j:scope>
+    </j:forEach>
+    
+    <!-- Cleanse some stuff -->
+    <u:available file="${aggregate.dir}/bin">
+      <chmod dir="${aggregate.dir}/bin" perm="ugo+rx" includes="*"/>
+      <chmod dir="${aggregate.dir}/bin" perm="ugo-x" includes="*.bat"/>
+    </u:available>
   </goal>
   
   <goal name="modules:aggregate:geronimo:geronimo-common">
   </goal>
   
+  <goal name="modules:aggregate:geronimo:geronimo-twiddle">
+    <j:jelly xmlns="jelly:ant">
+      <!-- Scripts -->
+      <mkdir dir="${aggregate.dir}/bin"/>
+      <copy todir="${aggregate.dir}/bin">
+        <fileset dir="${module.root}/src/bin">
+          <include name="*"/>
+        </fileset>
+      </copy>
+      
+      <!-- Configuration -->
+      <mkdir dir="${aggregate.dir}/etc"/>
+      <copy todir="${aggregate.dir}/etc">
+        <fileset dir="${module.root}/src/conf">
+          <include name="**/*"/>
+        </fileset>
+      </copy>
+      
+      <!-- Libraries -->
+      <mkdir dir="${aggregate.dir}/lib"/>
+      <copy todir="${aggregate.dir}/lib">
+        <fileset dir="${module.root}/target">
+          <include name="*.jar"/>
+        </fileset>
+      </copy>
+    </j:jelly>
+  </goal>
   
   <!-- =============================== -->
   <!-- Documentation & Site Generation -->
