@@ -61,12 +61,16 @@ import java.net.URL;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.apache.geronimo.kernel.deployment.scanner.URLType;
+import org.apache.geronimo.kernel.deployment.scanner.URLInfo;
+import org.apache.geronimo.kernel.deployment.scanner.WebDAVScanner;
+
 import junit.framework.TestCase;
 
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/27 04:50:39 $
+ * @version $Revision: 1.4 $ $Date: 2003/09/08 04:35:12 $
  */
 public class WebDAVScannerTest extends TestCase {
     private boolean testedServer;

@@ -62,12 +62,17 @@ import java.util.Set;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 
+import org.apache.geronimo.kernel.deployment.scanner.URLType;
+import org.apache.geronimo.kernel.deployment.scanner.FileSystemScanner;
+import org.apache.geronimo.kernel.deployment.scanner.Scanner;
+import org.apache.geronimo.kernel.deployment.scanner.URLInfo;
+
 import junit.framework.TestCase;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/12 07:10:16 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/08 04:35:12 $
  */
 public class FileSystemScannerTest extends TestCase {
     private File testRoot;

@@ -60,14 +60,15 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 
-import org.apache.geronimo.deployment.scanner.URLType;
+import org.apache.geronimo.kernel.deployment.scanner.URLType;
+import org.apache.geronimo.kernel.deployment.goal.DeployURL;
 
 import junit.framework.TestCase;
 
 /**
- * Unit tests for {@link DeployURL} class.
+ * Unit tests for {@link org.apache.geronimo.kernel.deployment.goal.DeployURL} class.
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/01 20:38:49 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/08 04:35:12 $
  */
 public class DeployURLTest
     extends TestCase

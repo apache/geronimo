@@ -55,14 +55,14 @@
  */
 package org.apache.geronimo.deployment.dependency;
 
-import org.apache.geronimo.management.AbstractManagedObject;
+import org.apache.geronimo.kernel.service.AbstractManagedObject;
 
 /**
  *
  * @jmx:mbean
- *      extends="org.apache.geronimo.management.StateManageable,org.apache.geronimo.management.ManagedObject"
+ *      extends="org.apache.geronimo.kernel.management.StateManageable,org.apache.geronimo.kernel.management.ManagedObject"
  *
- * @version $Revision: 1.3 $ $Date: 2003/09/01 20:38:49 $
+ * @version $Revision: 1.4 $ $Date: 2003/09/08 04:35:12 $
  */
 public class Person
     extends AbstractManagedObject
