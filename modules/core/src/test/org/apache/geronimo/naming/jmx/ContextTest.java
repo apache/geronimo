@@ -68,13 +68,16 @@ import javax.naming.NamingException;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.kernel.jmx.JMXKernel;
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.kernel.service.GeronimoMBean;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.java.RootContext;
+import org.apache.geronimo.test.util.ServerUtil;
 
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/11/17 07:33:51 $
+ * @version $Revision: 1.5 $ $Date: 2003/11/19 02:08:42 $
  *
  * */
 public class ContextTest extends TestCase {
@@ -85,29 +88,38 @@ public class ContextTest extends TestCase {
     private MBeanServer server;
     private String agentId;
     private ObjectName objectName;
-    private JMXKernel kernel;
     private TestObject mbean;
 
     protected void setUp() throws Exception {
-        kernel = new JMXKernel("geronimo.test");
-        server = kernel.getMBeanServer();
-        agentId = kernel.getMBeanServerId();
+        server = ServerUtil.newLocalServer();
+
+        agentId = JMXKernel.getMBeanServerId(server);
         objectName = new ObjectName(on1);
-        mbean = new TestObject();
-        server.registerMBean(mbean, objectName);
+        mbean = registerTestObject(server, objectName);
+    }
+
+    public static TestObject registerTestObject(MBeanServer server, ObjectName objectName) throws Exception {
+        GeronimoMBeanInfo info = new GeronimoMBeanInfo();
+        TestObject to = new TestObject();
+        info.setTargetClass(TestObject.class.getName());
+        info.setTarget(to);
+        info.addOperationsDeclaredIn(TestObject.class);
+        GeronimoMBean gmb = new GeronimoMBean();
+        gmb.setMBeanInfo(info);
+        server.registerMBean(gmb, objectName);
+        return to;
     }
 
     protected void tearDown() throws Exception {
-        kernel.release();
     }
 
-    public void XtestLookupString() throws Exception {
+    public void testLookupString() throws Exception {
         JMXContext context = new JMXContext(new Hashtable());
         Object result = context.lookup(JMXContext.encode(agentId, on1, mn1));
         assertTrue("Expected the ", result == mbean.getEJBHome());
     }
 
-    public void XtestLookupName() throws Exception {
+    public void testLookupName() throws Exception {
         JMXContext context = new JMXContext(new Hashtable());
         Object result = context.lookup(new CompositeName(JMXContext.encode(agentId, on1, mn1)));
         assertTrue("Expected the supplied object back", result == mbean.getEJBHome());
