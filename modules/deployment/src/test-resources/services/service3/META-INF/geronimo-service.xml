@@ -2,5 +2,8 @@
     <path>classes/</path>
     <gbean class="org.apache.geronimo.deployment.MockGBean" objectName="geronimo.test:name=MyMockGMBean">
         <default attribute="Value">1234</default>
+        <endpoint name="MockEndpoint">
+            <pattern>geronimo.test:name=MockEndpoint</pattern>
+        </endpoint>
     </gbean>
 </gbeans>
