@@ -24,22 +24,27 @@
 package javax.security.jacc;
 
 import java.security.PermissionCollection;
+
 import java.security.Permission;
+
 import java.util.LinkedList;
+
 import java.util.HashMap;
+
 import java.util.Enumeration;
+
 import java.util.Collections;
 
 
 /**
  *
- * @version $Revision: 1.3 $ $Date: 2004/03/10 09:59:53 $
+ * @version $Revision: 1.4 $ $Date: 2004/07/25 00:57:00 $
  */
 public final class EJBMethodPermissionCollection extends PermissionCollection {
 
     private LinkedList collection = new LinkedList();
     private HashMap permissions = new HashMap();
-    private static final Object WILDCARD = new Object();
+    private static final String WILDCARD = new String();
 
     /**
      * Adds a permission object to the current collection of permission objects.
@@ -49,7 +54,9 @@ public final class EJBMethodPermissionCollection extends PermissionCollection {
      * @exception SecurityException -  if this PermissionCollection object
      *                                 has been marked readonly
      */
+
     public void add(Permission permission) {
+
         if (isReadOnly()) throw new IllegalArgumentException("Read only collection");
 
         if (!(permission instanceof EJBMethodPermission)) throw new IllegalArgumentException("Wrong permission type");
@@ -88,6 +95,8 @@ public final class EJBMethodPermissionCollection extends PermissionCollection {
             interfaces.put(interfaceKey, parameters);
         }
 
+
+
         // an empty string for a parameter spec indicates a method w/ no parameters
         Object parametersKey = (spec.methodParams == null? WILDCARD:spec.methodParams);
         Object parameter = parameters.get(parametersKey);
@@ -95,6 +104,7 @@ public final class EJBMethodPermissionCollection extends PermissionCollection {
             parameter = new Boolean(true);
             parameters.put(parametersKey, parameter);
         }
+
     }
 
     /**
@@ -107,6 +117,7 @@ public final class EJBMethodPermissionCollection extends PermissionCollection {
      * the collection, false if not.
      */
     public boolean implies(Permission permission) {
+
         if (!(permission instanceof EJBMethodPermission)) return false;
 
         EJBMethodPermission p = (EJBMethodPermission)permission;
@@ -130,7 +141,10 @@ public final class EJBMethodPermissionCollection extends PermissionCollection {
         return false;
     }
 
+
+
     protected boolean methodImplies(HashMap interfaces, EJBMethodPermission.MethodSpec spec) {
+
         if (interfaces == null) return false;
 
         Object interfaceKey = (spec.methodInterface == null || spec.methodInterface.length() == 0? WILDCARD:spec.methodInterface);
@@ -144,7 +158,10 @@ public final class EJBMethodPermissionCollection extends PermissionCollection {
         return false;
     }
 
+
+
     protected boolean interfaceImplies(HashMap parameters, EJBMethodPermission.MethodSpec spec) {
+
         if (parameters == null) return false;
 
         // An empty string for a parameter spec indicates a method w/ no parameters
@@ -160,6 +177,8 @@ public final class EJBMethodPermissionCollection extends PermissionCollection {
         return false;
     }
 
+
+
     /**
      * Returns an enumeration of all the Permission objects in the collection.
      *
@@ -169,3 +188,4 @@ public final class EJBMethodPermissionCollection extends PermissionCollection {
         return Collections.enumeration(collection);
     }
 }
+
