@@ -55,76 +55,246 @@
  */
 package org.apache.geronimo.kernel.service;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.digester.Digester;
 import org.apache.geronimo.kernel.deployment.DeploymentException;
-import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
-import org.apache.xerces.parsers.SAXParser;
+import org.apache.geronimo.kernel.deployment.service.XMLUtil;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 /**
  * Loads the GeronimoMBeanInfo from xml.
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:38:35 $
+ * @version $Revision: 1.2 $ $Date: 2003/10/24 22:37:00 $
  */
 public class GeronimoMBeanInfoXMLLoader {
-    private Digester digester;
+    private static final DocumentBuilder parser;
 
-    public GeronimoMBeanInfoXMLLoader() throws DeploymentException {
-        SAXParser parser = new SAXParser();
+    static {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         try {
-            parser.setFeature("http://xml.org/sax/features/validation", true);
-            parser.setFeature("http://apache.org/xml/features/validation/schema", true);
-            parser.setFeature("http://apache.org/xml/features/validation/dynamic", true);
-        } catch (Exception e) {
-            throw new DeploymentException(e);
+            parser = factory.newDocumentBuilder();
+        } catch (ParserConfigurationException e) {
+            throw new AssertionError("No XML parser available");
         }
-
-        digester = new Digester(parser);
-
-        // MBean
-        digester.addObjectCreate("mbean", GeronimoMBeanInfo.class);
-        digester.addCallMethod("mbean/target", "setTargetClass", 2);
-        digester.addCallParam("mbean/target", 0, "name");
-        digester.addCallParam("mbean/target", 1, "class");
-
-        // Attribute
-        digester.addObjectCreate("mbean/attribute", GeronimoAttributeInfo.class);
-        digester.addSetProperties("mbean/attribute", "cache", "cachePolicy");
-        digester.addSetNext("mbean/attribute", "addAttributeInfo");
-
-        // Operation
-        digester.addObjectCreate("mbean/operation", GeronimoOperationInfo.class);
-        digester.addSetProperties("mbean/operation", "cache", "cachePolicy");
-        digester.addObjectCreate("mbean/operation/parameter", GeronimoParameterInfo.class);
-        digester.addSetProperties("mbean/operation/parameter");
-        digester.addSetNext("mbean/operation/parameter", "addParameterInfo");
-        digester.addSetNext("mbean/operation", "addOperationInfo");
-
-        // Notification
-        digester.addObjectCreate("mbean/notification", GeronimoNotificationInfo.class);
-        digester.addSetProperties("mbean/notification", "class", "name");
-        digester.addCallMethod("mbean/notification/type", "addNotificationType", 1);
-        digester.addCallParam("mbean/notification/type", 0);
-        digester.addSetNext("mbean/notification", "addNotificationInfo");
     }
 
-    public GeronimoMBeanInfo loadXML(InputStream in) throws DeploymentException {
+    private GeronimoMBeanInfoXMLLoader() {
+    }
+
+    public static GeronimoMBeanInfo loadMBean(URI uri) throws DeploymentException {
         try {
-            return (GeronimoMBeanInfo) digester.parse(in);
-        } catch (Exception e) {
+            return loadMBean(uri.toURL());
+        } catch (MalformedURLException e) {
             throw new DeploymentException(e);
         }
     }
 
-    public GeronimoMBeanInfo loadXML(URI uri) throws DeploymentException {
+    public static GeronimoMBeanInfo loadMBean(URL url) throws DeploymentException {
+        InputStream is;
         try {
-            return (GeronimoMBeanInfo) digester.parse(uri.toURL().openStream());
-        } catch (Exception e) {
-            throw new DeploymentException(e);
+            is = url.openConnection().getInputStream();
+        } catch (IOException e) {
+            throw new DeploymentException("Failed to open stream for URL: " + url, e);
         }
+
+        Document doc;
+        try {
+            doc = parser.parse(is);
+        } catch (Exception e) {
+            throw new DeploymentException("Failed to parse document", e);
+        }
+
+        return loadMBean(doc.getDocumentElement());
+    }
+
+    public static GeronimoMBeanInfo loadMBean(Element mbeanElement) {
+        GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
+        mbeanInfo.setName(mbeanElement.getAttribute("name"));
+        mbeanInfo.setDescription(mbeanElement.getAttribute("description"));
+
+        loadTargets(mbeanElement, mbeanInfo);
+        loadAttributes(mbeanElement, mbeanInfo);
+        loadOperations(mbeanElement, mbeanInfo);
+        loadNotifications(mbeanElement, mbeanInfo);
+
+        return mbeanInfo;
+    }
+
+    public static void loadTargets(Element mbeanElement, GeronimoMBeanInfo mbeanInfo) {
+        NodeList nl = mbeanElement.getElementsByTagName("target");
+        for (int i = 0; i < nl.getLength(); i++) {
+            Element targetElement = (Element) nl.item(i);
+            String targetName = targetElement.getAttribute("name");
+            if (targetName == null || targetName.length() == 0) {
+                targetName = "default";
+            }
+            String targetClass = targetElement.getAttribute("class");
+            mbeanInfo.setTargetClass(targetName, targetClass);
+        }
+    }
+
+    public static void loadAttributes(Element mbeanElement, GeronimoMBeanInfo mbeanInfo) {
+        NodeList nl;
+        nl = mbeanElement.getElementsByTagName("attribute");
+        for (int i = 0; i < nl.getLength(); i++) {
+            Element attributeElement = (Element) nl.item(i);
+            mbeanInfo.addAttributeInfo(loadAttribute(attributeElement));
+        }
+    }
+
+    public static GeronimoAttributeInfo loadAttribute(Element attributeElement) {
+        GeronimoAttributeInfo attributeInfo = new GeronimoAttributeInfo();
+
+        attributeInfo.setName(attributeElement.getAttribute("name"));
+        attributeInfo.setDescription(attributeElement.getAttribute("description"));
+
+        String targetName = attributeElement.getAttribute("targetName");
+        if (targetName == null || targetName.length() == 0) {
+            targetName = "default";
+        }
+        attributeInfo.setTargetName(targetName);
+
+        String readableString = attributeElement.getAttribute("readable");
+        if (readableString == null || readableString.length() == 0) {
+            attributeInfo.setReadable(true);
+        } else {
+            if (readableString.equalsIgnoreCase("true") || readableString.equals("1")) {
+                attributeInfo.setReadable(true);
+            } else {
+                attributeInfo.setReadable(false);
+            }
+        }
+
+        String writableString = attributeElement.getAttribute("writable");
+        if (writableString == null || writableString.length() == 0) {
+            attributeInfo.setWritable(true);
+        } else {
+            if (writableString.equalsIgnoreCase("true") || writableString.equals("1")) {
+                attributeInfo.setWritable(true);
+            } else {
+                attributeInfo.setWritable(false);
+            }
+        }
+
+        String getterName = attributeElement.getAttribute("getterName");
+        if (getterName != null && getterName.length() > 0) {
+            attributeInfo.setGetterName(getterName);
+        }
+
+        String setterName = attributeElement.getAttribute("setterName");
+        if (setterName != null && setterName.length() > 0) {
+            attributeInfo.setSetterName(setterName);
+        }
+
+        String cacheString = attributeElement.getAttribute("cache");
+        if (cacheString == null || cacheString.length() == 0) {
+            attributeInfo.setCacheTimeLimit(-1);
+        } else {
+            attributeInfo.setCachePolicy(cacheString);
+        }
+        return attributeInfo;
+    }
+
+    public static void loadOperations(Element mbeanElement, GeronimoMBeanInfo mbeanInfo) {
+        NodeList nl;
+        nl = mbeanElement.getElementsByTagName("operation");
+        for (int i = 0; i < nl.getLength(); i++) {
+            Element operationElement = (Element) nl.item(i);
+            mbeanInfo.addOperationInfo(loadOperation(operationElement));
+        }
+    }
+
+    public static GeronimoOperationInfo loadOperation(Element operationElement) {
+        GeronimoOperationInfo operationInfo = new GeronimoOperationInfo();
+
+        operationInfo.setName(operationElement.getAttribute("name"));
+        operationInfo.setDescription(operationElement.getAttribute("description"));
+
+        String targetName = operationElement.getAttribute("targetName");
+        if (targetName == null || targetName.length() == 0) {
+            targetName = "default";
+        }
+        operationInfo.setTargetName(targetName);
+
+        String methodName = operationElement.getAttribute("methodName");
+        if (methodName != null && methodName.length() > 0) {
+            operationInfo.setMethodName(methodName);
+        }
+
+        String impactString = operationElement.getAttribute("impact");
+        if (impactString == null || impactString.length() == 0) {
+            operationInfo.setImpact(GeronimoOperationInfo.UNKNOWN);
+        } else if (impactString.equals("ACTION")) {
+            operationInfo.setImpact(GeronimoOperationInfo.ACTION);
+        } else if (impactString.equals("INFO")) {
+            operationInfo.setImpact(GeronimoOperationInfo.INFO);
+        } else if (impactString.equals("ACTION_INFO")) {
+            operationInfo.setImpact(GeronimoOperationInfo.ACTION_INFO);
+        } else {
+            operationInfo.setImpact(GeronimoOperationInfo.UNKNOWN);
+        }
+
+        String cacheString = operationElement.getAttribute("cache");
+        if (cacheString == null || cacheString.length() == 0) {
+            operationInfo.setCacheTimeLimit(-1);
+        } else {
+            operationInfo.setCachePolicy(cacheString);
+        }
+
+        loadParameters(operationElement, operationInfo);
+
+        return operationInfo;
+    }
+
+    public static void loadParameters(Element operationElement, GeronimoOperationInfo operationInfo) {
+        NodeList nl;
+        nl = operationElement.getElementsByTagName("parameter");
+        for (int i = 0; i < nl.getLength(); i++) {
+            Element parameterElement = (Element) nl.item(i);
+            operationInfo.addParameterInfo(loadParameter(parameterElement));
+        }
+    }
+
+    public static GeronimoParameterInfo loadParameter(Element parameterElement) {
+        GeronimoParameterInfo parameterInfo = new GeronimoParameterInfo();
+
+        parameterInfo.setName(parameterElement.getAttribute("name"));
+        parameterInfo.setDescription(parameterElement.getAttribute("description"));
+        parameterInfo.setType(parameterElement.getAttribute("type"));
+
+        return parameterInfo;
+    }
+
+    public static void loadNotifications(Element mbeanElement, GeronimoMBeanInfo mbeanInfo) {
+        NodeList nl = mbeanElement.getElementsByTagName("notification");
+        for (int i = 0; i < nl.getLength(); i++) {
+            Element notificationElement = (Element) nl.item(i);
+            mbeanInfo.addNotificationInfo(loadNotification(notificationElement));
+        }
+    }
+
+    public static GeronimoNotificationInfo loadNotification(Element notificationElement) {
+        GeronimoNotificationInfo notificationInfo = new GeronimoNotificationInfo();
+
+        notificationInfo.setName(notificationElement.getAttribute("class"));
+        notificationInfo.setDescription(notificationElement.getAttribute("description"));
+
+        NodeList nl = notificationElement.getElementsByTagName("type");
+        for (int i = 0; i < nl.getLength(); i++) {
+            String typeString = (String) XMLUtil.getContent((Element) nl.item(i));
+            notificationInfo.addNotificationType(typeString);
+        }
+
+        return notificationInfo;
     }
 }
