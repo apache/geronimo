@@ -56,6 +56,8 @@
 
 package org.apache.geronimo.system.logging.log4j.appender;
 
+import java.io.File;
+
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
@@ -69,7 +71,7 @@ import org.apache.log4j.FileAppender;
  * An extention of the default Log4j FileAppenderService which
  * will make the directory structure for the set log file.
  *
- * @version $Revision: 1.1 $ $Date: 2004/02/12 18:12:52 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/18 18:02:57 $
  */
 public class FileAppenderService extends AbstractAppenderService {
     private final ServerInfo serverInfo;
@@ -117,6 +119,7 @@ public class FileAppenderService extends AbstractAppenderService {
 
     private void setAppenderFile(String file) {
         file = serverInfo.resolvePath(file);
+        new File(file).getParentFile().mkdirs();
         ((FileAppender) appender).setFile(file);
     }
 

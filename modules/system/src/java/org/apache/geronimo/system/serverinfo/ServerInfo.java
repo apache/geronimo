@@ -56,9 +56,9 @@
 package org.apache.geronimo.system.serverinfo;
 
 import java.io.File;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.io.IOException;
 import java.net.JarURLConnection;
+import java.net.URI;
 import java.net.URL;
 
 import org.apache.geronimo.gbean.GAttributeInfo;
@@ -68,10 +68,9 @@ import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/02/13 23:21:39 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/18 18:02:57 $
  */
 public class ServerInfo {
-    private String baseDirectory;
     private final File base;
     private final URI baseURI;
 
@@ -87,71 +86,32 @@ public class ServerInfo {
         // Before we try the persistent value, we always check the
         // system properties first.  This lets an admin override this
         // on the command line.
-        String systemProperty = System.getProperty("geronimo.base.dir");
-        if (systemProperty != null && systemProperty.length() > 0) {
-            this.baseDirectory = systemProperty;
+        baseDirectory = System.getProperty("geronimo.base.dir", baseDirectory);
+        if (baseDirectory == null || baseDirectory.length() == 0) {
+            // guess from the location of the jar
+            URL url = getClass().getClassLoader().getResource("META-INF/startup-jar");
+            if (url == null) {
+                throw new IllegalArgumentException("Unable to determine location of startup jar");
+            }
+            try {
+                JarURLConnection jarConnection = (JarURLConnection) url.openConnection();
+                url = jarConnection.getJarFileURL();
+            } catch (IOException e) {
+                throw new IllegalArgumentException("Unable to extract base URL from location");
+            }
+            baseURI = new URI(url.toString()).resolve("..");
+            base = new File(baseURI);
         } else {
-            // next try the persistent value
-            if (baseDirectory != null && baseDirectory.length() > 0) {
-                this.baseDirectory = baseDirectory;
-            } else {
-                // last chance - guess where the base directory shoul be
-                URL url = getClass().getClassLoader().getResource("META-INF/startup-jar");
-                if(url != null) {
-                    try {
-                        JarURLConnection jarConnection = (JarURLConnection) url.openConnection();
-                        URI uri = new URI(jarConnection.getJarFileURL().toString()).resolve("..");
-                        this.baseDirectory = uri.getPath();
-                    } catch (Exception e) {
-                        // ignore exception is thrown below
-                    }
-                }
-            }
+            base = new File(baseDirectory);
+            baseURI = base.toURI();
         }
-
-        if(this.baseDirectory == null) {
-            throw new IllegalArgumentException("Could not find base directory. Please use the -Dgeronimo.base.dir=<your-directory> command line option.");
+        if (!base.isDirectory()) {
+            throw new IllegalArgumentException("Base directory is not a directory: "+baseDirectory);
         }
-
-        // now that we have the base directory, check that it is a valid directory
-        base = new File(this.baseDirectory);
-        if (base.exists()) {
-            if (!base.isDirectory()) {
-                throw new IllegalArgumentException("Base directory is not a directory: " + this.baseDirectory);
-            }
-        } else {
-            if (!base.mkdirs()) {
-                throw new IllegalArgumentException("Could not create base directory: " + this.baseDirectory);
-            }
-        }
-        baseURI = base.toURI();
     }
 
     public String resolvePath(final String filename) {
-        File dir;
-        File file;
-        try {
-            // uri supplied from the user
-            URI logURI = new URI(filename);
-
-            // if the log uri is relative, resolve it based on the baseDirectory
-            logURI = new URI(baseDirectory.trim() + "/.").resolve(logURI);
-
-            // the base directory may be relative to the server start directory
-            logURI = new File(".").toURI().resolve(logURI);
-
-            file = new File(logURI);
-            dir = file.getParentFile();
-        } catch (URISyntaxException e) {
-            throw (IllegalArgumentException) new IllegalArgumentException().initCause(e);
-        }
-
-        if (!dir.exists()) {
-            boolean success = dir.mkdirs();
-            if (!success) {
-                throw new IllegalArgumentException("Failed to create directory structure: " + dir);
-            }
-        }
+        File file = new File(base, filename);
         return file.getAbsolutePath();
     }
 
@@ -160,7 +120,7 @@ public class ServerInfo {
     }
 
     public String getBaseDirectory() {
-        return baseDirectory;
+        return base.getAbsolutePath();
     }
 
     public String getVersion() {
