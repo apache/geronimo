@@ -74,6 +74,35 @@ public abstract class ExceptionUtil {
         return "\nCaused by: " + getStackTrace(ex) + getDivider();
     }
 
+    public static String causedBy(String stackTrace)
+    {
+        return "\nCaused by: " + getTraceLines(stackTrace);
+    }
+
+    public static Throwable getCause(Throwable ex)
+    {
+        for (;;)
+        {
+            if (ex instanceof SystemException)
+            {
+                SystemException se = (SystemException)ex;
+                if (se.getCause() != null && se.getMessage() == null)
+                {
+                    ex = se.getCause();
+                }
+                else
+                {
+                    break;
+                }
+            }
+            else
+            {
+                break;
+            }
+        }
+        return ex;
+    }
+
     public static String getCauseChain(Throwable ex) {
         String stackTrace = getStackTrace(ex);
         return getCauseChain(stackTrace);
@@ -103,6 +132,37 @@ public abstract class ExceptionUtil {
         java.io.PrintWriter pw = new java.io.PrintWriter(sw);
         ex.printStackTrace(pw);
         return sw.toString().trim();
+    }
+
+    public static String getTraceLines(String stackTrace)
+    {
+        try
+        {
+            BufferedReader input = new BufferedReader(new StringReader(stackTrace));
+            StringBuffer output = new StringBuffer(100);
+            String line;
+            boolean first = true;
+            while ((line = input.readLine()) != null)
+            {
+                line = line.trim();
+                if (line.length() != 0)
+                {
+                    if (! first)
+                    {
+                        output.append("| ");
+                    }
+                    first = false;
+                    output.append(line);
+                    output.append('\n');
+                }
+            }
+            return output.toString();
+        }
+        catch (Exception ex2)
+        {
+            ex2.printStackTrace();
+            return stackTrace;
+        }
     }
 
     public static String getCurrentStackTrace() {
