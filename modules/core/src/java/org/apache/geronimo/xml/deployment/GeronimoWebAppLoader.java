@@ -55,38 +55,44 @@
  */
 package org.apache.geronimo.xml.deployment;
 
-import org.apache.geronimo.deployment.model.appclient.ApplicationClient;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbLocalRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.MessageDestination;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.MessageDestinationRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceEnvRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.ServiceRef;
+import org.apache.geronimo.deployment.model.geronimo.web.WebApp;
 import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
-import org.apache.geronimo.deployment.model.j2ee.EJBRef;
-import org.apache.geronimo.deployment.model.j2ee.ServiceRef;
-import org.apache.geronimo.deployment.model.j2ee.ResourceRef;
-import org.apache.geronimo.deployment.model.j2ee.ResourceEnvRef;
-import org.apache.geronimo.deployment.model.j2ee.MessageDestinationRef;
-import org.apache.geronimo.deployment.model.j2ee.MessageDestination;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/09/08 06:08:04 $
+ * @version $Revision: 1.1 $ $Date: 2003/09/08 06:08:04 $
  */
-public class AppClientLoader {
-    private J2EELoader j2eeLoader = new J2EELoader();
-    public ApplicationClient load(Document doc) {
+public class GeronimoWebAppLoader extends AbstractWebAppLoader {
+    public GeronimoWebAppLoader() {
+        super(new GeronimoJ2EELoader());
+    }
+
+    public WebApp load(Document doc) {
         Element root = doc.getDocumentElement();
-        if (!"application-client".equals(root.getLocalName())) {
-            throw new IllegalArgumentException("Document is not an application-client instance");
+        if (!"web-app".equals(root.getLocalName())) {
+            throw new IllegalArgumentException("Document is not a web-app instance");
         }
-        ApplicationClient appClient = new ApplicationClient();
-        appClient.setEnvEntry(j2eeLoader.loadEnvEntries(root, new EnvEntry[0]));
-        appClient.setEJBRef(j2eeLoader.loadEJBRefs(root, new EJBRef[0]));
-        appClient.setServiceRef(j2eeLoader.loadServiceRefs(root, new ServiceRef[0]));
-        appClient.setResourceRef(j2eeLoader.loadResourceRefs(root, new ResourceRef[0]));
-        appClient.setResourceEnvRef(j2eeLoader.loadResourceEnvRefs(root, new ResourceEnvRef[0]));
-        appClient.setMessageDestinationRef(j2eeLoader.loadMessageDestinationRefs(root, new MessageDestinationRef[0]));
-        appClient.setCallbackHandler(LoaderUtil.getChildContent(root, "callback-handler"));
-        appClient.setMessageDestination(j2eeLoader.loadMessageDestinations(root, new MessageDestination[0]));
-        return appClient;
+
+        WebApp webApp = new WebApp();
+        loadCommonElements(webApp, root);
+        webApp.setEnvEntry(j2eeLoader.loadEnvEntries(root, new EnvEntry[0]));
+        webApp.setEjbRef((EjbRef[]) j2eeLoader.loadEJBRefs(root, new EjbRef[0]));
+        webApp.setEjbLocalRef((EjbLocalRef[]) j2eeLoader.loadEJBLocalRefs(root, new EjbLocalRef[0]));
+        webApp.setServiceRef((ServiceRef[])j2eeLoader.loadServiceRefs(root, new ServiceRef[0]));
+        webApp.setResourceRef((ResourceRef[]) j2eeLoader.loadResourceRefs(root, new ResourceRef[0]));
+        webApp.setResourceEnvRef((ResourceEnvRef[]) j2eeLoader.loadResourceEnvRefs(root, new ResourceEnvRef[0]));
+        webApp.setMessageDestinationRef((MessageDestinationRef[]) j2eeLoader.loadMessageDestinationRefs(root, new MessageDestinationRef[0]));
+        webApp.setMessageDestination((MessageDestination[]) j2eeLoader.loadMessageDestinations(root, new MessageDestination[0]));
+        return webApp;
     }
 }

@@ -55,38 +55,39 @@
  */
 package org.apache.geronimo.xml.deployment;
 
-import org.apache.geronimo.deployment.model.appclient.ApplicationClient;
-import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
-import org.apache.geronimo.deployment.model.j2ee.EJBRef;
-import org.apache.geronimo.deployment.model.j2ee.ServiceRef;
-import org.apache.geronimo.deployment.model.j2ee.ResourceRef;
-import org.apache.geronimo.deployment.model.j2ee.ResourceEnvRef;
-import org.apache.geronimo.deployment.model.j2ee.MessageDestinationRef;
-import org.apache.geronimo.deployment.model.j2ee.MessageDestination;
-import org.w3c.dom.Document;
+import org.apache.geronimo.deployment.model.web.AbstractWebApp;
+import org.apache.geronimo.deployment.model.web.ContextParam;
 import org.w3c.dom.Element;
 
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/09/08 06:08:04 $
+ * @version $Revision: 1.1 $ $Date: 2003/09/08 06:08:04 $
  */
-public class AppClientLoader {
-    private J2EELoader j2eeLoader = new J2EELoader();
-    public ApplicationClient load(Document doc) {
-        Element root = doc.getDocumentElement();
-        if (!"application-client".equals(root.getLocalName())) {
-            throw new IllegalArgumentException("Document is not an application-client instance");
+public abstract class AbstractWebAppLoader {
+    protected final J2EELoader j2eeLoader;
+
+    public AbstractWebAppLoader(J2EELoader j2eeLoader) {
+        this.j2eeLoader = j2eeLoader;
+    }
+
+    protected void loadCommonElements(AbstractWebApp webApp, Element root) {
+        webApp.setVersion(LoaderUtil.getAttribute(root, "version"));
+        webApp.setDistributable(LoaderUtil.getBoolean(root, "distributable"));
+        loadContextParams(webApp, root);
+        // @todo the other common elements
+    }
+
+    private void loadContextParams(AbstractWebApp webApp, Element root) {
+        Element[] elements = LoaderUtil.getChildren(root, "context-param");
+        ContextParam[] params = new ContextParam[elements.length];
+        for (int i=0; i < elements.length; i++) {
+            Element e = elements[i];
+            ContextParam param = new ContextParam();
+            param.setParamName(LoaderUtil.getChildContent(e, "param-name"));
+            param.setParamValue(LoaderUtil.getChildContent(e, "param-value"));
+            params[i] = param;
         }
-        ApplicationClient appClient = new ApplicationClient();
-        appClient.setEnvEntry(j2eeLoader.loadEnvEntries(root, new EnvEntry[0]));
-        appClient.setEJBRef(j2eeLoader.loadEJBRefs(root, new EJBRef[0]));
-        appClient.setServiceRef(j2eeLoader.loadServiceRefs(root, new ServiceRef[0]));
-        appClient.setResourceRef(j2eeLoader.loadResourceRefs(root, new ResourceRef[0]));
-        appClient.setResourceEnvRef(j2eeLoader.loadResourceEnvRefs(root, new ResourceEnvRef[0]));
-        appClient.setMessageDestinationRef(j2eeLoader.loadMessageDestinationRefs(root, new MessageDestinationRef[0]));
-        appClient.setCallbackHandler(LoaderUtil.getChildContent(root, "callback-handler"));
-        appClient.setMessageDestination(j2eeLoader.loadMessageDestinations(root, new MessageDestination[0]));
-        return appClient;
+        webApp.setContextParam(params);
     }
 }

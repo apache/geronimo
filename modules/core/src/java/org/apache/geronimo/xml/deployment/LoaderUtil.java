@@ -76,7 +76,7 @@ import org.xml.sax.SAXException;
 /**
  * Holds utility methods for parsing a DOM tree.
  *
- * @version $Revision: 1.3 $ $Date: 2003/09/05 20:18:03 $
+ * @version $Revision: 1.4 $ $Date: 2003/09/08 06:08:04 $
  */
 public final class LoaderUtil {
     private static final Log log = LogFactory.getLog(LoaderUtil.class);
@@ -158,6 +158,15 @@ public final class LoaderUtil {
             result[i] = getContent(e);
         }
         return result;
+    }
+
+    public static boolean getBoolean(Element element, String child) {
+        String value = getChildContent(element, child);
+        if (value == null) {
+            return false;
+        } else {
+            return Boolean.getBoolean(value);
+        }
     }
 
     /**
