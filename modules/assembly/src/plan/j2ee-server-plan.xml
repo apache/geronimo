@@ -68,6 +68,9 @@ by the server.
     <dependency>
         <uri>activemq/jars/activemq-1.0-SNAPSHOT.jar</uri>
     </dependency>
+    <dependency>
+        <uri>howl/jars/howl-logger-GERONIMO-PRIVATE-0.1.jar</uri>
+    </dependency>
 
     <!-- required for rar 1.5 to load realms -->
     <dependency>
@@ -122,7 +125,24 @@ by the server.
         <reference name="XATerminator">geronimo.server:type=TransactionManager</reference>
     </gbean>
 
+    <gbean name="geronimo.server:type=HOWLTransactionLog" class="org.apache.geronimo.transaction.log.HOWLLog">
+        <attribute name="bufferClassName" type="java.lang.String">org.objectweb.howl.log.BlockLogBuffer</attribute>
+        <attribute name="bufferSizeKBytes" type="int">4096</attribute>
+        <attribute name="checksumEnabled" type="boolean">true</attribute>
+        <attribute name="flushSleepTimeMilliseconds" type="int">50</attribute>
+        <attribute name="logFileDir" type="java.lang.String">txlog</attribute>
+        <attribute name="logFileExt" type="java.lang.String">log</attribute>
+        <attribute name="logFileName" type="java.lang.String">howl</attribute>
+        <attribute name="maxBlocksPerFile" type="int">-1</attribute>
+        <attribute name="maxBuffers" type="int">0</attribute>
+        <attribute name="maxLogFiles" type="int">2</attribute>
+        <attribute name="minBuffers" type="int">4</attribute>
+        <attribute name="threadsWaitingForceThreshold" type="int">-1</attribute>
+
+    </gbean>
+
     <gbean name="geronimo.server:type=TransactionManager" class="org.apache.geronimo.transaction.GeronimoTransactionManager">
+        <reference name="transactionLog">geronimo.server:type=HOWLTransactionLog</reference>
         <references name="resourceManagers">
             <pattern>geronimo.server:j2eeType=JCAManagedConnectionFactory,*</pattern>
             <pattern>geronimo.server:j2eeType=MessageDrivenBean,*</pattern>
