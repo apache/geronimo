@@ -61,7 +61,7 @@ import java.io.Serializable;
 /**
  * Simulates a stop watch with a <em>lap</em> counter.
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/30 09:29:37 $
+ * @version $Revision: 1.3 $ $Date: 2003/12/08 01:00:36 $
  */
 public class StopWatch
     extends CloneableObject
@@ -69,24 +69,24 @@ public class StopWatch
 {
     /** Total time */
     protected long total = 0;
-    
+
     /** Start time */
     protected long start = -1;
-    
+
     /** Stop time */
     protected long stop = -1;
-    
+
     /** The <i>lap</i> count */
     protected int count = 0;
-    
+
     /** Is the watch started */
     protected boolean running = false;
-    
+
     /**
      * Default constructor.
      */
     public StopWatch() {}
-    
+
     /**
      * Construct a StopWatch.
      *
@@ -96,7 +96,7 @@ public class StopWatch
     {
         if (running) start();
     }
-    
+
     /**
      * Start the watch.
      *
@@ -110,7 +110,7 @@ public class StopWatch
             running = true;
         }
     }
-    
+
     /**
      * Start the watch.
      */
@@ -118,7 +118,7 @@ public class StopWatch
     {
         start(false);
     }
-    
+
     /**
      * Stop the watch.
      *
@@ -127,7 +127,7 @@ public class StopWatch
     public long stop()
     {
         long lap = 0;
-        
+
         if (running) {
             count++;
             stop = System.currentTimeMillis();
@@ -135,10 +135,10 @@ public class StopWatch
             total += lap;
             running = false;
         }
-        
+
         return lap;
     }
-    
+
     /**
      * Reset the watch.
      */
@@ -150,7 +150,7 @@ public class StopWatch
         count = 0;
         running = false;
     }
-    
+
     /**
      * Get the <i>lap</i> count.
      *
@@ -160,7 +160,7 @@ public class StopWatch
     {
         return count;
     }
-    
+
     /**
      * Get the elapsed <i>lap</i> time since the watch was started.
      *
@@ -178,7 +178,7 @@ public class StopWatch
             return stop - start;
         }
     }
-    
+
     /**
      * Get the average <i>lap</i> time since the watch was started.
      *
@@ -186,9 +186,9 @@ public class StopWatch
      */
     public long getAverageLapTime()
     {
-        return (count == 0) ? 0 : getLapTime() / getLapCount();
+        return (count == 0) ? 0 : total / getLapCount();
     }
-    
+
     /**
      * Get the elapsed time since the watch was created or last reset.
      *
@@ -206,7 +206,7 @@ public class StopWatch
             return total;
         }
     }
-    
+
     /**
      * Check if the watch is running.
      *
@@ -216,7 +216,7 @@ public class StopWatch
     {
         return running;
     }
-    
+
     /**
      * Convert to a duration value.
      */
@@ -224,18 +224,18 @@ public class StopWatch
     {
         return new Duration(getTime());
     }
-    
+
     /**
      * Return a string representation.
      */
     public String toString()
     {
         StringBuffer buff = new StringBuffer();
-        
+
         if (running) {
             // the watch has not been stopped
             formatElapsedTime(buff, getTime());
-            
+
             // add the current lap time too if there is more than one lap
             if (count >= 1) {
                 buff.append(", count=").append(count);
@@ -246,7 +246,7 @@ public class StopWatch
         else {
             // the watch has been stopped
             formatElapsedTime(buff, getTime());
-            
+
             // add extra info if there is more than one lap
             if (count > 1) {
                 buff.append(", count=").append(count);
@@ -254,10 +254,10 @@ public class StopWatch
                 formatElapsedTime(buff, getAverageLapTime());
             }
         }
-        
+
         return buff.toString();
     }
-    
+
     private void formatElapsedTime(final StringBuffer buff, final long lapsed)
     {
         buff.append(new Duration(lapsed));
@@ -275,52 +275,52 @@ public class StopWatch
         extends StopWatch
     {
         protected StopWatch watch;
-        
+
         public Wrapper(final StopWatch watch) {
             this.watch = watch;
         }
-        
+
         public void start(final boolean reset) {
             watch.start(reset);
         }
-        
+
         public void start() {
             watch.start();
         }
-        
+
         public long stop() {
             return watch.stop();
         }
-        
+
         public void reset() {
             watch.reset();
         }
-        
+
         public long getLapTime() {
             return watch.getLapTime();
         }
-        
+
         public long getAverageLapTime() {
             return watch.getAverageLapTime();
         }
-        
+
         public int getLapCount() {
             return watch.getLapCount();
         }
-        
+
         public long getTime() {
             return watch.getTime();
         }
-        
+
         public boolean isRunning() {
             return watch.isRunning();
         }
-        
+
         public Duration toDuration()
         {
             return watch.toDuration();
         }
-        
+
         public String toString() {
             return watch.toString();
         }
@@ -370,12 +370,12 @@ public class StopWatch
             public synchronized boolean isRunning() {
                 return this.watch.isRunning();
             }
-            
+
             public synchronized Duration toDuration()
             {
                 return this.watch.toDuration();
             }
-            
+
             public synchronized String toString() {
                 return this.watch.toString();
             }

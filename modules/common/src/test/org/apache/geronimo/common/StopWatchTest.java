@@ -60,7 +60,7 @@ import junit.framework.TestCase;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2003/12/07 02:54:12 $
+ * @version $Revision: 1.2 $ $Date: 2003/12/08 01:00:36 $
  */
 public class StopWatchTest extends TestCase {
 
@@ -90,7 +90,7 @@ public class StopWatchTest extends TestCase {
         assertFalse(sw.isRunning());
 
         assertEquals(1, sw.getLapCount());
-        assertTrue(sw.getLapTime() >= 1000L);
+        assertTrue("Expected more than one second, not " + sw.getLapTime(), sw.getLapTime() >= 1000L);
         assertTrue(sw.getTime() >= 1000L);
         assertEquals(sw.getLapTime(), sw.getAverageLapTime());
     }
@@ -110,7 +110,7 @@ public class StopWatchTest extends TestCase {
         assertFalse(sw.isRunning());
 
         assertEquals(1, sw.getLapCount());
-        assertTrue(sw.getLapTime() >= 1000L);
+        assertTrue("Expected more than one second, not " + sw.getLapTime(), sw.getLapTime() >= 1000L);
         assertTrue(sw.getTime() >= 1000L);
         assertEquals(sw.getLapTime(), sw.getAverageLapTime());
     }
@@ -130,7 +130,7 @@ public class StopWatchTest extends TestCase {
         assertFalse(sw.isRunning());
 
         assertEquals(1, sw.getLapCount());
-        assertTrue(sw.getLapTime() >= 1000L);
+        assertTrue("Expected more than one second, not " + sw.getLapTime(), sw.getLapTime() >= 1000L);
         assertTrue(sw.getTime() >= 1000L);
         assertEquals(sw.getLapTime(), sw.getAverageLapTime());
     }
@@ -146,7 +146,7 @@ public class StopWatchTest extends TestCase {
         sw.stop();
 
         assertEquals(1, sw.getLapCount());
-        assertTrue(sw.getLapTime() >= 1000L);
+        assertTrue("Expected more than one second, not " + sw.getLapTime(), sw.getLapTime() >= 1000L);
         assertTrue(sw.getTime() >= 1000L);
         assertEquals(sw.getLapTime(), sw.getAverageLapTime());
 
@@ -158,8 +158,9 @@ public class StopWatchTest extends TestCase {
         sw.stop();
 
         assertEquals(2, sw.getLapCount());
-        assertTrue(sw.getLapTime() >= 1000L);
-        assertTrue(sw.getTime() >= 2000L);
+        assertTrue("Expected more than one second, not " + sw.getLapTime(), sw.getLapTime() >= 1000L);
+        assertTrue("Expected more than two seconds, not " + sw.getTime(), sw.getTime() >= 2000L);
+        assertEquals(sw.getTime() / 2, sw.getAverageLapTime());
     }
 
     public void testReset() {
