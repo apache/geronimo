@@ -234,6 +234,15 @@
         </dependency>
 
         <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-webservices</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
             <groupId>activeio</groupId>
             <artifactId>activeio</artifactId>
             <version>${activeio_version}</version>
@@ -499,6 +508,15 @@
         </dependency>
 
         <dependency>
+            <groupId>oro</groupId>
+            <artifactId>oro</artifactId>
+            <version>${oro_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib-full</artifactId>
             <version>${cglib_version}</version>
@@ -670,6 +688,7 @@
             <artifactId>xercesImpl</artifactId>
             <version>${xerces_version}</version>
             <properties>
+                <repository>true</repository>
                 <server>true</server>
                 <client>true</client>
             </properties>
