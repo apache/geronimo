@@ -37,9 +37,9 @@ import org.apache.geronimo.security.RealmPrincipal;
  * @version $Rev$ $Date$
  */
 public class PolicyConfigurationGeneric implements GeronimoPolicyConfiguration {
-    private final static int OPEN = 1;
-    private final static int IN_SERVICE = 2;
-    private final static int DELETED = 3;
+    final static int OPEN = 1;
+    final static int IN_SERVICE = 2;
+    final static int DELETED = 3;
 
     private final String contextID;
     private int state;
@@ -222,6 +222,9 @@ public class PolicyConfigurationGeneric implements GeronimoPolicyConfiguration {
 
     //TODO I have no idea what side effects this might have, but it's needed in some form from GeronimoPolicyConfigurationFactory.
     //see JACC spec 1.0 section 3.1.1.1 discussion of in service and deleted.
+    //spec p. 31 3.1.7 on the effects of remove:
+    //If the getPolicyConfiguration method  is used, the value true should be passed as the second
+    //  argument to cause the  corresponding policy statements to be deleted from the context.
     public void open(boolean remove) {
         if (remove) {
             rolePermissionsMap.clear();
@@ -231,5 +234,9 @@ public class PolicyConfigurationGeneric implements GeronimoPolicyConfiguration {
             principalPermissionsMap.clear();
         }
         state = OPEN;
+    }
+
+    int getState() {
+        return state;
     }
 }
