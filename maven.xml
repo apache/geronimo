@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.77 $ $Date: 2004/07/13 02:25:13 $ -->
+<!-- $Revision: 1.78 $ $Date: 2004/07/28 19:16:08 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -11,19 +11,20 @@
     xmlns:modules="local:modules">
 
     <j:set var="release.id" value="${pom.standardToLegacyId(pom.id)}-${pom.currentVersion}"/>
+    <j:set var="distDir" value="target/${pom.groupId}-${pom.currentVersion}"/>
 
     <goal name="run">
         <attainGoal name="run:server"/>
     </goal>
 
     <goal name="run:server">
-        <j:set var="run.dir" value="target/bin"/>
+        <j:set var="run.dir" value="${distDir}/bin"/>
         <ant:echo message="Running in ${run.dir}"/>
 
         <j:jelly xmlns="jelly:ant">
 
             <property environment="env"/>
-            <java jar="target/bin/server.jar"
+            <java jar="${distDir}/bin/server.jar"
                 fork="true"
                 maxmemory="256m"
                 failonerror="true"
@@ -41,13 +42,13 @@
     </goal>
 
     <goal name="debug:server">
-        <j:set var="run.dir" value="target/bin"/>
+        <j:set var="run.dir" value="${distDir}/bin"/>
         <ant:echo message="Running in ${run.dir}"/>
 
         <j:jelly xmlns="jelly:ant">
 
             <property environment="env"/>
-            <java jar="target/bin/server.jar"
+            <java jar="${distDir}/bin/server.jar"
                 fork="true"
                 maxmemory="256m"
                 failonerror="true"
@@ -228,6 +229,7 @@
   </goal>
 
     <goal name="modules:clean">
+        <!-- DMB: don't know why we are cleaning this way when we could invoke clean on the submodules -->
         <attainGoal name="modules:reactor:init"/>
         <u:tokenize var="directories" delim=",">${modules.directories}</u:tokenize>
         <j:forEach var="directory" items="${directories}">
@@ -239,6 +241,10 @@
             <ant:echo></ant:echo>
         </j:forEach>
 
+        <ant:echo>+----------------------------------------</ant:echo>
+        <ant:echo>| Cleaning: ${distDir} </ant:echo>
+        <ant:echo>+----------------------------------------</ant:echo>
+        <ant:delete dir="${distDir}"/>
     </goal>
 
     <goal name="modules:clobber">
@@ -258,6 +264,10 @@
             </ant:delete>
             <ant:echo></ant:echo>
         </j:forEach>
+        <ant:echo>+----------------------------------------</ant:echo>
+        <ant:echo>| Clobbering: ${distDir} </ant:echo>
+        <ant:echo>+----------------------------------------</ant:echo>
+        <ant:delete dir="${distDir}"/>
     </goal>
 
     <preGoal name="clean:clean">
@@ -331,7 +341,7 @@
         <ant:echo>Aggregating module site documentation...</ant:echo>
 
         <!-- Setup the target aggregation directory -->
-        <j:set var="aggregate.dir" value="${basedir}/target/docs"/>
+        <j:set var="aggregate.dir" value="${basedir}/${distDir}/docs"/>
         <ant:mkdir dir="${aggregate.dir}"/>
 
         <j:forEach var="module" items="${reactorProjects}">
@@ -365,7 +375,7 @@
 
             <mkdir dir="${geronimo.cvs.docdir}"/>
             <copy todir="${geronimo.cvs.docdir}">
-                <fileset dir="${basedir}/target/docs"/>
+                <fileset dir="${basedir}/${distDir}/docs"/>
             </copy>
 
         </j:jelly>
