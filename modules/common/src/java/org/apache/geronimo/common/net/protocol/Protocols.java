@@ -63,6 +63,11 @@ import java.util.List;
 import java.util.LinkedList;
 import java.util.Iterator;
 import java.util.StringTokenizer;
+import java.util.Map;
+
+import java.lang.reflect.Field;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -75,11 +80,16 @@ import org.apache.geronimo.common.ThrowableHandler;
 /**
  * Protocol utilties.
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/01 15:16:39 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/03 09:25:32 $
  */
 public class Protocols
 {
     private static final Log log = LogFactory.getLog(Protocols.class);
+    
+    
+    /////////////////////////////////////////////////////////////////////////
+    //                     Protocol Handler Packages                       //
+    /////////////////////////////////////////////////////////////////////////
     
     public static final String HANDLER_PACKAGES = "java.protocol.handler.pkgs";
     public static final String SYSTEM_HANDLER_PACKAGES = System.getProperty(HANDLER_PACKAGES);
@@ -142,6 +152,11 @@ public class Protocols
         list.add(0, name);
         setHandlerPackages(list);
     }
+    
+    
+    /////////////////////////////////////////////////////////////////////////
+    //                        URL Stream Handlers                          //
+    /////////////////////////////////////////////////////////////////////////
     
     public static Class getURLStreamHandlerType(final String protocol)
     {
@@ -208,6 +223,39 @@ public class Protocols
                 URL url = new URL(protocols[i], "", -1, "");
             }
             catch (Exception ignore) {}
+        }
+    }
+    
+    public static void registerURLStreamHandler(final String protocol,
+                                                final URLStreamHandler handler)
+    {
+        if (protocol == null) {
+            throw new NullArgumentException("protocol");
+        }
+        if (handler == null) {
+            throw new NullArgumentException("handler");
+        }
+        
+        // This way is "naughty" but works great
+        Map handlers = (Map)AccessController.doPrivileged(
+            new PrivilegedAction() {
+                public Object run() { 
+                    try {
+                        Field field = URL.class.getDeclaredField("handlers");
+                        field.setAccessible(true);
+                        
+                        return field.get(null);
+                    }
+                    catch (Exception e) {
+                        log.warn("Failed to access URL 'handlers' field", e);
+                    }
+                    return null;
+                }
+            }
+        );
+        
+        if (handlers != null) {
+            handlers.put(protocol, handler);
         }
     }
 }
