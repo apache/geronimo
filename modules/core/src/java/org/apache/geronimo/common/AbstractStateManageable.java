@@ -69,9 +69,11 @@ import javax.management.NotificationBroadcasterSupport;
 import javax.management.NotificationFilterSupport;
 import javax.management.NotificationListener;
 import javax.management.ObjectName;
+import javax.management.ReflectionException;
 import javax.management.relation.InvalidRelationIdException;
 import javax.management.relation.InvalidRoleValueException;
 import javax.management.relation.RelationNotFoundException;
+import javax.management.relation.RelationNotification;
 import javax.management.relation.RelationServiceMBean;
 import javax.management.relation.RelationServiceNotRegisteredException;
 import javax.management.relation.RelationTypeNotFoundException;
@@ -85,16 +87,16 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.deployment.dependency.DependencyServiceMBean;
 import org.apache.geronimo.deployment.service.MBeanRelationship;
 import org.apache.geronimo.jmx.JMXUtil;
+import org.apache.management.j2ee.NotificationType;
 import org.apache.management.j2ee.State;
 import org.apache.management.j2ee.StateManageable;
-import org.apache.management.j2ee.NotificationType;
 
 /**
  * Abstract implementation of JSR77 StateManageable.
  * Implementors of StateManageable may use this class and simply provide
  * doStart, doStop and doNotification methods.
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/18 13:30:19 $
+ * @version $Revision: 1.5 $ $Date: 2003/08/18 21:56:27 $
  */
 public abstract class AbstractStateManageable extends NotificationBroadcasterSupport implements StateManageable, NotificationListener, MBeanRegistration {
     protected Log log = LogFactory.getLog(getClass());
@@ -104,20 +106,57 @@ public abstract class AbstractStateManageable extends NotificationBroadcasterSup
     private DependencyServiceMBean dependencyService;
     private RelationServiceMBean relationService;
     private long sequenceNumber;
-    private State state = State.STOPPED;
     private long startTime;
+
+    // This must be volatile otherwise getState must be synchronized which will result in deadlock as dependent
+    // objects check if each other are in one state or another (i.e., classic A calls B while B calls A)
+    private volatile State state = State.STOPPED;
+
+    /**
+     * Check if component can start.  Dependencies in the dependency service have already been
+     * checked at this point.
+     *
+     * Note: this method is called from within a synchronized block, so be careful what you call as you
+     * may create a deadlock.
+     *
+     * @return true if the component can start; otherwise false
+     */
+    protected boolean canStart() {
+        return true;
+    }
 
     /**
      * Do the start tasks for the component.  Called in the STARTING state by
      * the start() and startRecursive() methods to perform the tasks required to
      * start the component.
+     *
+     * Note: this method is called from within a synchronized block, so be careful what you call as you
+     * may create a deadlock.
+     *
      * @throws Exception
      */
     protected abstract void doStart() throws Exception;
 
     /**
+     * Check if component can stop.  Dependencies in the dependency service have already been
+     * checked at this point.
+     *
+     * Note: this method is called from within a synchronized block, so be careful what you call as you
+     * may create a deadlock.
+     *
+     * @return true if the component can stop; otherwise false
+     */
+    protected boolean canStop() {
+        return true;
+    }
+
+    /**
      * Do the stop tasks for the component.  Called in the STOPPING state by the stop()
      * method to perform the tasks required to stop the component.
+     *
+     * Note: this method is called from within a synchronized block, so be careful what you call as you
+     * may create a deadlock.
+     *
      * @throws Exception
      */
     protected abstract void doStop() throws Exception;
@@ -136,10 +175,15 @@ public abstract class AbstractStateManageable extends NotificationBroadcasterSup
         dependencyService = JMXUtil.getDependencyService(server);
         relationService = JMXUtil.getRelationService(server);
 
-        NotificationFilterSupport filter = new NotificationFilterSupport();
-        filter.enableType(MBeanServerNotification.REGISTRATION_NOTIFICATION);
-        filter.enableType(MBeanServerNotification.UNREGISTRATION_NOTIFICATION);
-        server.addNotificationListener(JMXUtil.DELEGATE_NAME, this, filter, null);
+        NotificationFilterSupport mbeanServerFilter = new NotificationFilterSupport();
+        mbeanServerFilter.enableType(MBeanServerNotification.REGISTRATION_NOTIFICATION);
+        mbeanServerFilter.enableType(MBeanServerNotification.UNREGISTRATION_NOTIFICATION);
+        server.addNotificationListener(JMXUtil.DELEGATE_NAME, this, mbeanServerFilter, null);
+
+        NotificationFilterSupport relationServiceFilter = new NotificationFilterSupport();
+        relationServiceFilter.enableType(RelationNotification.RELATION_BASIC_REMOVAL);
+        relationServiceFilter.enableType(RelationNotification.RELATION_MBEAN_REMOVAL);
+        server.addNotificationListener(JMXUtil.RELATION_SERVICE_NAME, this, relationServiceFilter, null);
 
         return objectName;
     }
@@ -168,6 +212,24 @@ public abstract class AbstractStateManageable extends NotificationBroadcasterSup
         } else if (MBeanServerNotification.UNREGISTRATION_NOTIFICATION.equals(type)) {
             MBeanServerNotification notification = (MBeanServerNotification) n;
             source = notification.getMBeanName();
+        } else if (RelationNotification.RELATION_BASIC_REMOVAL.equals(type) ||
+                RelationNotification.RELATION_MBEAN_REMOVAL.equals(type)) {
+
+            if(getStateInstance() == State.RUNNING) {
+                RelationNotification notification = (RelationNotification) n;
+                String relationType = notification.getRelationTypeName();
+                if(relationType != null) {
+                    Set relationships = dependencyService.getRelationships(objectName);
+                    for (Iterator i = relationships.iterator(); i.hasNext();) {
+                        MBeanRelationship relationship = (MBeanRelationship) i.next();
+                        if(relationType.equals(relationship.getType())){
+                            checkState();
+                            return;
+                        }
+                    }
+                }
+            }
+            return;
         } else {
             source = (ObjectName) n.getSource();
         }
@@ -185,67 +247,152 @@ public abstract class AbstractStateManageable extends NotificationBroadcasterSup
         return state.toInt();
     }
 
-    public final long getStartTime() {
+    public synchronized final long getStartTime() {
         return startTime;
     }
 
+    /**
+     * Moves this MBean to the STARTING state and then attempst to move this MBean immedately to the STARTED
+     * state.
+     *
+     * Note:  This method can not be call while the current thread holds a syncronized lock on this MBean,
+     * because this method sends JMX notifications.  Sending a general notification from a synchronized block
+     * is a bad idea and therefore not allowed.
+     *
+     * @throws Exception  If an exception occurs while starting this MBean
+     */
     public final void start() throws Exception {
-        State state = getStateInstance();
-        if (state == State.STARTING || state == State.RUNNING) {
-            return;
-        }
-        try {
+        assert !Thread.holdsLock(this): "This method cannot be called while holding a syncrhonized lock on this";
+
+        // Move to the starting state
+        synchronized (this) {
+            State state = getStateInstance();
+            if (state == State.STARTING || state == State.RUNNING) {
+                return;
+            }
             setState(State.STARTING);
-            if (dependencyService.canStart(objectName)) {
-                enrollInRelationships();
-                doStart();
-                setState(State.RUNNING);
-            }
-        } catch (Exception e) {
-            setState(State.FAILED);
-            throw e;
-        } catch (Error e) {
-            setState(State.FAILED);
-            throw e;
         }
-    }
+        doNotification(State.STARTING.getEventTypeValue());
 
-    public final void stop() throws Exception {
-        State state = getStateInstance();
-        if (state == State.STOPPED || state == State.STOPPING) {
-            return;
-        } else if (state == State.STARTING) {
-            setState(State.STOPPED);
-            return;
-        }
+        State newState = null;
         try {
-            setState(State.STOPPING);
-
-            // stop all of my dependent objects
-            Set dependents = dependencyService.getStartChildren(objectName);
-            for (Iterator iterator = dependents.iterator(); iterator.hasNext();) {
-                ObjectName name = (ObjectName) iterator.next();
-                server.invoke(name, "stop", null, null);
+            synchronized (this) {
+                try {
+                    // if we are still trying to start and can start now... start
+                    if(getStateInstance() == State.STARTING &&
+                            dependencyService.canStart(objectName) && canStart()) {
+                        enrollInRelationships();
+                        doStart();
+                        setState(State.RUNNING);
+                        newState = State.RUNNING;
+                    }
+                } catch (Exception e) {
+                    setState(State.FAILED);
+                    newState = State.FAILED;
+                    throw e;
+                } catch (Error e) {
+                    setState(State.FAILED);
+                    newState = State.FAILED;
+                    throw e;
+                }
             }
-
-            // stop myself
-            if (dependencyService.canStop(objectName)) {
-                doStop();
-                setState(State.STOPPED);
+        } finally {
+            if(newState != null) {
+                doNotification(newState.getEventTypeValue());
             }
-        } catch (Exception e) {
-            setState(State.FAILED);
-            throw e;
-        } catch (Error e) {
-            setState(State.FAILED);
-            throw e;
         }
     }
 
+    /**
+     * Moves this MBean to the STOPPING state, calls stop on all start dependent children, and then attempt
+     * to move this MBean to the STOPPED state.
+     *
+     * Note:  This method can not be call while the current thread holds a syncronized lock on this MBean,
+     * because this method sends JMX notifications.  Sending a general notification from a synchronized block
+     * is a bad idea and therefore not allowed.
+     *
+     * @throws Exception  If an exception occurs while stoping this MBean or any of the childern
+     */
+    public final void stop() throws Exception {
+        assert !Thread.holdsLock(this): "This method cannot be called while holding a syncrhonized lock on this";
+
+        // move to the stopping state
+        synchronized (this) {
+            State state = getStateInstance();
+            if (state == State.STOPPED || state == State.STOPPING) {
+                return;
+            }
+            setState(State.STOPPING);
+        }
+        doNotification(State.STOPPING.getEventTypeValue());
+
+        // Don't try to stop dependents from within a synchronized block... this should reduce deadlocks
+
+        // stop all of my dependent objects
+        Set dependents = dependencyService.getStartChildren(objectName);
+        for (Iterator iterator = dependents.iterator(); iterator.hasNext();) {
+            ObjectName name = (ObjectName) iterator.next();
+            try {
+                server.invoke(name, "stop", null, null);
+            } catch (ReflectionException e) {
+                if (e.getTargetException() instanceof NoSuchMethodException) {
+                    // did not have a stop method - ok
+                } else {
+                    throw e;
+                }
+            }
+        }
+
+        // Try to fully stop
+        State newState = null;
+        try {
+            synchronized (this) {
+                // if we are still trying to stop...
+                if (getStateInstance() == State.STOPPING) {
+                    try {
+                        // if we can stop, stop
+                        if (dependencyService.canStop(objectName) && canStop()) {
+                            unenrollInRelationships();
+                            doStop();
+                            setState(State.STOPPED);
+                            newState = State.STOPPED;
+                        }
+                    } catch (Exception e) {
+                        setState(State.FAILED);
+                        newState = State.FAILED;
+                        throw e;
+                    } catch (Error e) {
+                        setState(State.FAILED);
+                        newState = State.FAILED;
+                        throw e;
+                    }
+                }
+            }
+        } finally {
+            if(newState != null) {
+                doNotification(newState.getEventTypeValue());
+            }
+        }
+    }
+
+    /**
+     * Starts this MBean and then attempts to start all of the start dependent children of this MBean.
+     *
+     * Note:  This method can not be call while the current thread holds a syncronized lock on this MBean,
+     * because this method sends JMX notifications.  Sending a general notification from a synchronized block
+     * is a bad idea and therefore not allowed.
+     *
+     * @throws Exception  if a problem occurs will starting this MBean or any child MBean
+     */
     public final void startRecursive() throws Exception {
+        assert !Thread.holdsLock(this): "This method cannot be called while holding a syncrhonized lock on this";
+
         State state = getStateInstance();
-        if (state == State.STOPPING) {
-            throw new IllegalArgumentException("Cannot startRecursive while in the stopping state");
+        if (state != State.STOPPED && state != State.FAILED) {
+            // Cannot startRecursive while in the stopping state
+            // Dain: I don't think we can throw an exception here because there is no way for the caller
+            // to lock the instance and check the state before calling
+            return;
         }
 
         // get myself starting
@@ -255,15 +402,38 @@ public abstract class AbstractStateManageable extends NotificationBroadcasterSup
         Set dependents = dependencyService.getStartChildren(objectName);
         for (Iterator iterator = dependents.iterator(); iterator.hasNext();) {
             ObjectName dependent = (ObjectName) iterator.next();
-            server.invoke(dependent, "startRecursive", null, null);
+            try {
+                server.invoke(dependent, "startRecursive", null, null);
+            } catch (ReflectionException e) {
+                if (e.getTargetException() instanceof NoSuchMethodException) {
+                    // did not have a startRecursive method - ok
+                } else {
+                    throw e;
+                }
+            }
         }
     }
 
-    private final void doNotification(String s) {
-        sendNotification(new Notification(s, this, sequenceNumber++));
+    /**
+     * Sends the specified MBean notification.
+     *
+     * Note:  This method can not be call while the current thread holds a syncronized lock on this MBean,
+     * because this method sends JMX notifications.  Sending a general notification from a synchronized block
+     * is a bad idea and therefore not allowed.
+     *
+     * @param type the notification type to send
+     */
+    private final void doNotification(String type) {
+        assert !Thread.holdsLock(this): "This method cannot be called while holding a syncrhonized lock on this";
+        sendNotification(new Notification(type, this, sequenceNumber++));
     }
 
-    private final void enrollInRelationships() throws StartException {
+    /**
+     * Enrolls this MBean is all relationships specified in the dependency service.
+     *
+     * @throws StartException is this MBean can not be enrolled in a relationship
+     */
+    private synchronized final void enrollInRelationships() throws StartException {
         String relationshipType = null;
         String relationshipRole = null;
         String targetRoleName = null;
@@ -297,18 +467,21 @@ public abstract class AbstractStateManageable extends NotificationBroadcasterSup
                             } else {
                                 targetRoleName = ((RoleInfo) roles.get(0)).getName();
                             }
+                            relationship.setTargetRole(targetRoleName);
                         }
 
                         roleList.add(new Role(targetRoleName, Collections.singletonList(target)));
                     }
                     relationService.createRelation(relationshipName, relationshipType, roleList);
+                    relationship.setCreatedRelationship(true);
                 } else {
                     // We have an exiting relationship -- just add to the existing role
                     List members = relationService.getRole(relationshipName, relationshipRole);
-                    if(!members.contains(objectName)) {
+                    if (!members.contains(objectName)) {
                         members.add(objectName);
                         relationService.setRole(relationshipName, new Role(relationshipRole, members));
                     }
+                    relationship.setCreatedRelationship(false);
                 }
             }
         } catch (RelationTypeNotFoundException e) {
@@ -329,57 +502,108 @@ public abstract class AbstractStateManageable extends NotificationBroadcasterSup
         }
     }
 
-    private void checkState() {
-        State state = getStateInstance();
-        if (state == State.STARTING) {
-            if (dependencyService.canStart(objectName)) {
-                try {
-                    doStart();
-                    setState(State.RUNNING);
-                } catch (Exception e) {
-                    setState(State.FAILED);
-                } catch (Error e) {
-                    setState(State.FAILED);
-                }
-            }
-        } else if (state == State.RUNNING) {
-            if (dependencyService.shouldStop(objectName)) {
-                // we were running and someone stopped or unregisted without informing us
-                // try to stop immedately, or just fail
-                if (dependencyService.canStop(objectName)) {
-                    try {
-                        setState(State.STOPPING);
-                        doStop();
-                        setState(State.STOPPED);
-                    } catch (Exception e) {
-                        setState(State.FAILED);
-                    } catch (Error e) {
-                        setState(State.FAILED);
-                    }
+    /**
+     * Removes this MBean from all relationships specified in the dependency service.
+     *
+     * @throws StopException is this MBean can not be removed in a relationship
+     */
+    private synchronized final void unenrollInRelationships() throws StopException {
+        String relationshipType = null;
+        String relationshipRole = null;
+        try {
+            Set relationships = dependencyService.getRelationships(objectName);
+            for (Iterator i = relationships.iterator(); i.hasNext();) {
+                MBeanRelationship relationship = (MBeanRelationship) i.next();
+                String relationshipName = relationship.getName();
+                if(relationship.getCreatedRelationship()) {
+                    // drop the entire relationship
+                    relationService.removeRelation(relationshipName);
                 } else {
-                    setState(State.FAILED);
+                    // just remove myself from the relationship
+                    relationshipRole = relationship.getRole();
+                    List members = relationService.getRole(relationshipName, relationshipRole);
+                    if (members.contains(objectName)) {
+                        members.remove(objectName);
+                        relationService.setRole(relationshipName, new Role(relationshipRole, members));
+                    }
                 }
             }
-        } else if (state == State.STOPPING) {
-            if (dependencyService.canStop(objectName)) {
-                try {
-                    doStop();
-                    setState(State.STOPPED);
-                } catch (Exception e) {
-                    setState(State.FAILED);
-                } catch (Error e) {
-                    setState(State.FAILED);
+        } catch (RelationTypeNotFoundException e) {
+            throw new StopException("Relationship type is not registered: relationType=" + relationshipType);
+        } catch (RelationServiceNotRegisteredException e) {
+            throw new StopException("RelationshipService is not registered", e);
+        } catch (RoleNotFoundException e) {
+            throw new StopException("RelationshipService is not registered", e);
+        } catch (InvalidRoleValueException e) {
+            throw new StopException("Relationship role state is invalid", e);
+        } catch (RelationNotFoundException e) {
+            throw new StopException("Relation was unregistered while executing", e);
+        }
+    }
+
+    /**
+     * Checks if we need to make a state transition based on our dependencies registered with the dependency service.
+     *
+     * Note: Do not call this from within a synchronized block as it makes may send a JMX notification
+     */
+    protected void checkState() {
+        assert !Thread.holdsLock(this): "This method cannot be called while holding a syncrhonized lock on this";
+
+        State newState = null;
+        try {
+            synchronized (this) {
+                State state = getStateInstance();
+                if (state == State.STARTING) {
+                    if (dependencyService.canStart(objectName) && canStart()) {
+                        try {
+                            doStart();
+                            setState(State.RUNNING);
+                            newState = State.RUNNING;
+                        } catch (Exception e) {
+                            setState(State.FAILED);
+                            newState = State.FAILED;
+                        } catch (Error e) {
+                            setState(State.FAILED);
+                            newState = State.FAILED;
+                        }
+                    }
+                } else if (state == State.RUNNING) {
+                    // Someone stopping, stopped, failed or unregistered we need to change state
+                    State recommendState = dependencyService.shouldChangeState(objectName);
+                    if (recommendState != null) {
+                        setState(recommendState);
+                        newState = recommendState;
+                    }
+                } else if (state == State.STOPPING) {
+                    if (dependencyService.canStop(objectName) && canStop()) {
+                        try {
+                            unenrollInRelationships();
+                            doStop();
+                            setState(State.STOPPED);
+                            newState = State.STOPPED;
+                        } catch (Exception e) {
+                            setState(State.FAILED);
+                            newState = State.FAILED;
+                        } catch (Error e) {
+                            setState(State.FAILED);
+                            newState = State.FAILED;
+                        }
+                    }
                 }
+            }
+        } finally {
+            if (newState != null) {
+                doNotification(newState.getEventTypeValue());
             }
         }
     }
 
     /**
      * Set the Component state.
-     * @param newState
-     * @throws IllegalStateException Thrown if the transition is not supported by the JSR77 lifecycle.
+     * @param newState the target state to transition
+     * @throws IllegalStateException Thrown if the transition is not supported by the J2EE Management lifecycle.
      */
-    private void setState(State newState) throws IllegalStateException {
+    private synchronized void setState(State newState) throws IllegalStateException {
         switch (state.toInt()) {
         case State.STOPPED_INDEX:
             switch (newState.toInt()) {
@@ -447,12 +671,14 @@ public abstract class AbstractStateManageable extends NotificationBroadcasterSup
             }
             break;
         }
-        log.debug("State changed from " + state + " to " + newState);
+        log.debug(objectName.toString() + " State changed from " + state + " to " + newState);
         if (newState == State.RUNNING) {
             startTime = System.currentTimeMillis();
         }
         state = newState;
+    }
 
-        doNotification(state.getEventTypeValue());
+    public String toString() {
+        return objectName.toString();
     }
 }
