@@ -76,6 +76,9 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
         <reference name="XmlAttributeBuilders"><name>*</name></reference>
     </gbean>
 
+    <gbean name="CSSAttributeBuilder" class="org.openejb.corba.security.config.css.CSSConfigEditor"/>
+    <gbean name="TSSAttributeBuilder" class="org.openejb.corba.security.config.tss.TSSConfigEditor"/>
+
     <gbean name="EARBuilder" class="org.apache.geronimo.j2ee.deployment.EARConfigBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
         <attribute name="transactionContextManagerObjectName">geronimo.server:name=TransactionContextManager,*</attribute>
@@ -162,7 +165,7 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
     <gbean name="EJBBuilder" class="org.openejb.deployment.OpenEJBModuleBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
         <attribute name="listener">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=GBean,name=JettyWebContainer</attribute>
-        <!--        <reference name="SkeletonGenerator"><gbean-name>openejb.CORBA:type=SkeletonGenerator,vendor=OpenORB</gbean-name></reference>-->
+<!--        <reference name="SkeletonGenerator"><gbean-name>openejb.CORBA:type=SkeletonGenerator,vendor=OpenORB</gbean-name></reference>-->
         <reference name="Repository"><gbean-name>*:name=Repository,*</gbean-name></reference>
     </gbean>
 
@@ -194,14 +197,6 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
 
     <gbean name="WebServiceBuilder" class="org.apache.geronimo.axis.builder.AxisBuilder">
     </gbean>
-    <!--    <gbean gbeanName="openejb.CORBA:type=Compiler,vendor=Ant" class="org.openejb.corba.compiler.AntCompiler"/>-->
-    <!---->
-    <!--    <gbean gbeanName="openejb.CORBA:type=SkeletonGenerator,vendor=OpenORB" class="org.openejb.corba.compiler.OpenORBSkeletonGenerator">-->
-        <!--        <attribute name="props">-->
-            <!--        </attribute>-->
-        <!--        <reference name="Compiler"><gbean-name>openejb.CORBA:type=Compiler,vendor=Ant</gbean-name></reference>-->
-        <!--    </gbean>-->
-    <!---->
-    <!-- end deployment block -->
+
 
 </configuration>

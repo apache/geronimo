@@ -135,6 +135,9 @@ Configuration for the Geronimo deployer
         <reference name="XmlAttributeBuilders"><name>*</name></reference>
     </gbean>
 
+    <gbean name="CSSAttributeBuilder" class="org.openejb.corba.security.config.css.CSSConfigEditor"/>
+    <gbean name="TSSAttributeBuilder" class="org.openejb.corba.security.config.tss.TSSConfigEditor"/>
+
     <gbean name="EARBuilder" class="org.apache.geronimo.j2ee.deployment.EARConfigBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
         <!--domain set to wildcard so datasources may be deployed independently on client. -->
