@@ -56,6 +56,7 @@
 package org.apache.geronimo.jetty;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.Arrays;
@@ -70,6 +71,8 @@ import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.DefaultComponentContext;
 import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.DefaultTransactionContext;
@@ -94,9 +97,12 @@ import org.mortbay.jetty.servlet.WebApplicationContext;
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
  *
- * @version $Revision: 1.7 $ $Date: 2004/01/31 19:27:17 $
+ * @version $Revision: 1.8 $ $Date: 2004/02/05 01:37:56 $
  */
 public class JettyWebApplicationContext extends WebApplicationContext implements GBean {
+
+    private static Log log = LogFactory.getLog(JettyWebApplicationContext.class);
+    
     private final ConfigurationParent config;
     private final URI uri;
     private final JettyContainer container;
@@ -111,6 +117,7 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
     // @todo get these from DD
     private final Set unshareableResources = Collections.EMPTY_SET;
 
+    private boolean contextPriorityClassLoader=false;
 
     public JettyWebApplicationContext(
             ConfigurationParent config,
@@ -130,6 +137,43 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
         this.associator = associator;
     }
 
+    
+    /** getContextPriorityClassLoader.
+     * @return True if this context should give web application class in preference over the containers 
+      * classes, as per the servlet specification recommendations.
+     */
+    public boolean getContextPriorityClassLoader() {
+        return contextPriorityClassLoader;
+    }
+
+    /** setContextPriorityClassLoader.
+     * @param b True if this context should give web application class in preference over the containers 
+     * classes, as per the servlet specification recommendations.
+     */
+    public void setContextPriorityClassLoader(boolean b) {
+        contextPriorityClassLoader= b;
+    }
+    
+    /**
+     * init the classloader. Uses the value of contextPriorityClassLoader to 
+     * determine if the context needs to create its own classloader.
+     */
+    protected void initClassLoader(boolean forceContextLoader) 
+        throws MalformedURLException, IOException
+    {
+        setClassLoaderJava2Compliant(!contextPriorityClassLoader);
+        if (!contextPriorityClassLoader)
+        {
+            // TODO - once geronimo is correctly setting up the classpath, this should be uncommented.
+            // At the moment, the g classloader does not appear to know about the WEB-INF classes and lib.
+            // setClassLoader(Thread.currentThread().getContextClassLoader());
+        }
+        super.initClassLoader(forceContextLoader);
+        
+        if (log.isDebugEnabled())
+            log.debug("classloader for "+getContextPath()+": "+getClassLoader());
+    }
+    
     public void handle(String pathInContext,
                        String pathParams,
                        HttpRequest httpRequest,
@@ -232,9 +276,11 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
     public static final GBeanInfo GBEAN_INFO;
 
     static {
+
         GBeanInfoFactory infoFactory = new GBeanInfoFactory("Jetty WebApplication Context", JettyWebApplicationContext.class.getName());
         infoFactory.addAttribute(new GAttributeInfo("URI", true));
         infoFactory.addAttribute(new GAttributeInfo("ContextPath", true));
+        infoFactory.addAttribute(new GAttributeInfo("ContextPriorityClassLoader", true));
         infoFactory.addAttribute(new GAttributeInfo("ComponentContext", true));
         infoFactory.addAttribute(new GAttributeInfo("PolicyContextID", true));
         infoFactory.addReference(new GReferenceInfo("Configuration", ConfigurationParent.class.getName()));
@@ -251,4 +297,5 @@ public class JettyWebApplicationContext extends WebApplicationContext implements
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
+
 }

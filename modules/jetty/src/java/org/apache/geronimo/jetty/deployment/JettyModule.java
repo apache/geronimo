@@ -73,7 +73,7 @@ import org.w3c.dom.Document;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/01/27 06:05:43 $
+ * @version $Revision: 1.7 $ $Date: 2004/02/05 01:37:56 $
  */
 public class JettyModule extends AbstractModule {
     private final File moduleDirectory;
@@ -82,15 +82,19 @@ public class JettyModule extends AbstractModule {
     private URI classes;
     private URI lib;
 
-    public JettyModule(URI configID, InputStream moduleArchive, Document deploymentPlan) throws DeploymentException {
+    public JettyModule(URI configID, InputStream moduleArchive, Document deploymentPlan) throws DeploymentException
+    {
         super(configID);
-        moduleDirectory = null;
-        this.zipArchive = new ZipInputStream(moduleArchive);
-        closeStream = false;
-        contextPath = XMLUtil.getChildContent(deploymentPlan.getDocumentElement(), "context-root", null, null);
-        if (contextPath == null) {
+        moduleDirectory= null;
+        this.zipArchive= new ZipInputStream(moduleArchive);
+        closeStream= false;
+
+        // TODO - why does this not use the WebAppDConfigBean ??
+        contextPath= XMLUtil.getChildContent(deploymentPlan.getDocumentElement(), "context-root", null, null);
+        if (contextPath == null)
             throw new DeploymentException("No context root specified");
-        }
+        String t=XMLUtil.getChildContent(deploymentPlan.getDocumentElement(), "context-priority-classloader", null, null);
+        contextPriorityClassLoader= t != null && t.length() > 0 && t.toLowerCase().charAt(0) == 't';
     }
 
     public JettyModule(URI configID, File archiveFile, Document deploymentPlan) throws DeploymentException {
@@ -117,6 +121,10 @@ public class JettyModule extends AbstractModule {
         if (!contextPath.startsWith("/")) {
             contextPath = "/" + contextPath;
         }
+        
+        // TODO - why does this not use the WebAppDConfigBean ??
+        String t=XMLUtil.getChildContent(deploymentPlan.getDocumentElement(), "context-priority-classloader", null, null);
+        contextPriorityClassLoader= t != null && t.length() > 0 && t.toLowerCase().charAt(0) == 't';
     }
 
     public void init() throws DeploymentException {
@@ -132,29 +140,37 @@ public class JettyModule extends AbstractModule {
             // unpack archive into Configuration
             try {
                 ZipEntry entry;
-                boolean addedClasses = false;
-                while ((entry = zipArchive.getNextEntry()) != null) {
-                    String name = entry.getName();
+                boolean addedClasses= false;
+                while ((entry= zipArchive.getNextEntry()) != null) {
+                    String name= entry.getName();
                     if (name.endsWith("/")) {
                         continue;
                     }
                     callback.addFile(uri.resolve(name), zipArchive);
-                    if (!addedClasses && name.startsWith("WEB-INF/classes/")) {
-                        callback.addToClasspath(classes);
-                    } else if (name.startsWith("WEB-INF/lib/")) {
-                        if (name.indexOf('/', 12) == -1 && (name.endsWith(".jar") || name.endsWith(".zip"))) {
-                            callback.addToClasspath(uri.resolve(name));
+
+                    // If we do not give the context priority over classloading, then we add the standard locations to our classpath.
+                    if (!contextPriorityClassLoader) {
+                        if (!addedClasses && name.startsWith("WEB-INF/classes/")) {
+                            callback.addToClasspath(classes);
+                        }
+                        else if (name.startsWith("WEB-INF/lib/")) {
+                            if (name.indexOf('/', 12) == -1 && (name.endsWith(".jar") || name.endsWith(".zip"))) {
+                                callback.addToClasspath(uri.resolve(name));
+                            }
                         }
                     }
                 }
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 throw new DeploymentException("Unable to unpack WAR content", e);
             }
-        } else {
+        }
+        else {
             // copy directory into Configuration
             try {
                 copyDir(callback, uri, moduleDirectory);
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 throw new DeploymentException("Unable to copy archive directory", e);
             }
         }

@@ -64,9 +64,10 @@ import org.w3c.dom.Document;
 /**
  * 
  * 
- * @version $Revision: 1.2 $ $Date: 2004/01/26 05:55:27 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/05 01:37:56 $
  */
 public class UnpackedModule extends AbstractModule {
+   
     public UnpackedModule(URI configID, File archive, Document deploymentPlan) {
         super(configID);
         this.uri = archive.toURI();
@@ -75,6 +76,7 @@ public class UnpackedModule extends AbstractModule {
             contextPath = contextPath.substring(0, contextPath.length() - 4);
         }
         contextPath = XMLUtil.getChildContent(deploymentPlan.getDocumentElement(), "context-root", contextPath, contextPath);
-    }
-
+    }    
+    
+    // TODO - generate classpath?
 }

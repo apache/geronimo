@@ -70,10 +70,11 @@ import org.w3c.dom.Element;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/23 19:58:17 $
+ * @version $Revision: 1.4 $ $Date: 2004/02/05 01:37:56 $
  */
 public class WebAppDConfigBean extends DConfigBeanSupport {
     private String contextRoot;
+    private boolean contextPriorityClassLoader;
 
     private final ENCHelper encHelper;
 
@@ -90,6 +91,28 @@ public class WebAppDConfigBean extends DConfigBeanSupport {
         pcs.firePropertyChange("contextRoot", this.contextRoot, contextRoot);
         this.contextRoot = contextRoot;
     }
+    
+         
+         /* ------------------------------------------------------------------------------- */
+         /** getContextPriorityClassLoader.
+          * @return True if this context should give web application class in preference over the containers 
+          * classes, as per the servlet specification recommendations.
+          */
+         public boolean getContextPriorityClassLoader(){
+             return contextPriorityClassLoader;
+         }
+     
+         /* ------------------------------------------------------------------------------- */
+         /** setContextPriorityClassLoader.
+          * @param contextPriority True if this context should give web application class in preference over the containers 
+          * classes, as per the servlet specification recommendations.
+          */
+         public void setContextPriorityClassLoader(boolean p){
+             pcs.firePropertyChange("contextPriorityClassLoader", this.contextPriorityClassLoader, p);
+               this.contextPriorityClassLoader = p;
+         }
+
+
 
     public DConfigBean getDConfigBean(DDBean ddBean) throws ConfigurationException {
         return encHelper.getDConfigBean(ddBean);
@@ -108,6 +131,9 @@ public class WebAppDConfigBean extends DConfigBeanSupport {
             writer.print("<context-root>");
             writer.print(contextRoot);
             writer.println("</context-root>");
+            writer.print("<context-priority-classloader>");
+            writer.print(contextPriorityClassLoader);
+            writer.println("</context-priority-classloader>");
         }
         encHelper.toXML(writer);
     }

@@ -68,7 +68,7 @@ import org.w3c.dom.Element;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/02/04 05:54:08 $
+ * @version $Revision: 1.6 $ $Date: 2004/02/05 01:37:56 $
  */
 public class WARConfigurationFactoryTest extends DeployerTestCase {
 
@@ -96,6 +96,7 @@ public class WARConfigurationFactoryTest extends DeployerTestCase {
         DConfigBeanRoot configRoot = config.getDConfigBeanRoot(deployable.getDDBeanRoot());
         WebAppDConfigBean contextBean = (WebAppDConfigBean) configRoot.getDConfigBean(deployable.getChildBean("/web-app")[0]);
         contextBean.setContextRoot("/test");
+        contextBean.setContextPriorityClassLoader(false);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         config.save(baos);
@@ -104,6 +105,9 @@ public class WARConfigurationFactoryTest extends DeployerTestCase {
         assertEquals("web-app", root.getNodeName());
         Element contextRoot = XMLUtil.getChild(root, "context-root");
         assertEquals("/test", XMLUtil.getContent(contextRoot));
+        
+        Element contextPriority = XMLUtil.getChild(root, "context-priority-classloader");
+        assertEquals("false", XMLUtil.getContent(contextPriority));
     }
 
     public void testConfigSaveRestore() throws Exception {
@@ -112,6 +116,7 @@ public class WARConfigurationFactoryTest extends DeployerTestCase {
         DConfigBeanRoot configRoot = config.getDConfigBeanRoot(deployable.getDDBeanRoot());
         WebAppDConfigBean contextBean = (WebAppDConfigBean) configRoot.getDConfigBean(deployable.getChildBean("/web-app")[0]);
         contextBean.setContextRoot("/test");
+        contextBean.setContextPriorityClassLoader(true);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         config.save(baos);
@@ -123,6 +128,7 @@ public class WARConfigurationFactoryTest extends DeployerTestCase {
         assertNull(contextBean.getContextRoot());
         config.restore(new ByteArrayInputStream(baos.toByteArray()));
         assertEquals("/test", contextBean.getContextRoot());
+        contextBean.setContextPriorityClassLoader(true);
     }
 
     protected void setUp() throws Exception {

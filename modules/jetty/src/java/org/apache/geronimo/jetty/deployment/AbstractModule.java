@@ -71,13 +71,14 @@ import org.apache.geronimo.kernel.Kernel;
 /**
  * 
  * 
- * @version $Revision: 1.3 $ $Date: 2004/01/26 05:55:27 $
+ * @version $Revision: 1.4 $ $Date: 2004/02/05 01:37:56 $
  */
 public class AbstractModule implements DeploymentModule {
     protected final URI configID;
     protected URI uri;
     protected String contextPath;
-
+    protected boolean contextPriorityClassLoader;
+    
     public AbstractModule(URI configID) {
         this.configID = configID;
     }
@@ -101,6 +102,7 @@ public class AbstractModule implements DeploymentModule {
             GBeanMBean app = new GBeanMBean(JettyWebApplicationContext.GBEAN_INFO);
             app.setAttribute("URI", uri);
             app.setAttribute("ContextPath", contextPath);
+            app.setAttribute("ContextPriorityClassLoader", new Boolean(contextPriorityClassLoader));     
             app.setAttribute("ComponentContext", null);
             app.setAttribute("PolicyContextID", null);
             app.setReferencePatterns("Configuration", Collections.singleton(Kernel.getConfigObjectName(configID)));
@@ -108,7 +110,8 @@ public class AbstractModule implements DeploymentModule {
             app.setReferencePatterns("TransactionManager", Collections.EMPTY_SET);
             app.setReferencePatterns("TrackedConnectionAssociator", Collections.EMPTY_SET);
             callback.addGBean(name, app);
-        } catch (Exception e) {
+            
+        } catch (Throwable e) {
             throw new DeploymentException("Unable to build GBean for web application", e);
         }
     }

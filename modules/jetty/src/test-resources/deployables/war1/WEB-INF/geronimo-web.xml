@@ -1,3 +1,4 @@
 <web-app>
     <context-root>/test</context-root>
+    <context-priority-classloader>false</context-priority-classloader>
 </web-app>
