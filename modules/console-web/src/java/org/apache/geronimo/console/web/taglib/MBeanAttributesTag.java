@@ -242,24 +242,25 @@ public final class MBeanAttributesTag
                 attributeName = attributes[i].getName();
                 //value = attributes[i].toString();
 
-                Object attrObj = server.getAttribute(name, attributeName);
-                if ( attrObj == null ) {
-                    continue;
-                }
-                value = attrObj.toString();
+                if (attributes[i].isReadable()) {
+                    Object attrObj = server.getAttribute(name, attributeName);
+                    if ( attrObj == null ) {
+                        continue;
+                    }
+                    value = attrObj.toString();
 
-                if (i % 2 == 0) {
-                    trClass = "one";
-                } else if (i % 2 == 1) {
-                    trClass = "two";
-                }
-                out.println("\t<tr class=\"" + trClass + "\">");
-                out.println("\t\t<td class=\"name\">" + attributeName + "</td>");
-                out.println("\t\t<td class=\"center\">=</td>");
-                out.println("\t\t<td class=\"value\">" +
+                    if (i % 2 == 0) {
+                        trClass = "one";
+                    } else if (i % 2 == 1) {
+                        trClass = "two";
+                    }
+                    out.println("\t<tr class=\"" + trClass + "\">");
+                    out.println("\t\t<td class=\"name\">" + attributeName + "</td>");
+                    out.println("\t\t<td class=\"center\">=</td>");
+                    out.println("\t\t<td class=\"value\">" +
                         URLDecoder.decode(value, "UTF-8") + "</td>");
-                out.println("\t</tr>");
-
+                    out.println("\t</tr>");
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
