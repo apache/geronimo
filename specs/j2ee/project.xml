@@ -37,84 +37,126 @@
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-activation</artifactId>
             <version>${geronimo_spec_activation_version}</version>
+            <properties>
+                <geronimo.spec.bundle>true</geronimo.spec.bundle>
+            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-ejb</artifactId>
             <version>${geronimo_spec_ejb_version}</version>
+            <properties>
+                <geronimo.spec.bundle>true</geronimo.spec.bundle>
+            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-connector</artifactId>
             <version>${geronimo_spec_j2ee_connector_version}</version>
+            <properties>
+                <geronimo.spec.bundle>true</geronimo.spec.bundle>
+            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-deployment</artifactId>
             <version>${geronimo_spec_j2ee_deployment_version}</version>
+            <properties>
+                <geronimo.spec.bundle>true</geronimo.spec.bundle>
+            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-jacc</artifactId>
             <version>${geronimo_spec_j2ee_jacc_version}</version>
+            <properties>
+                <geronimo.spec.bundle>true</geronimo.spec.bundle>
+            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-management</artifactId>
             <version>${geronimo_spec_j2ee_management_version}</version>
+            <properties>
+                <geronimo.spec.bundle>true</geronimo.spec.bundle>
+            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jms</artifactId>
             <version>${geronimo_spec_jms_version}</version>
+            <properties>
+                <geronimo.spec.bundle>true</geronimo.spec.bundle>
+            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-javamail</artifactId>
             <version>${geronimo_spec_javamail_version}</version>
+            <properties>
+                <geronimo.spec.bundle>true</geronimo.spec.bundle>
+            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jaxr</artifactId>
             <version>${geronimo_spec_jaxr_version}</version>
+            <properties>
+                <geronimo.spec.bundle>true</geronimo.spec.bundle>
+            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jsp</artifactId>
             <version>${geronimo_spec_jsp_version}</version>
+            <properties>
+                <geronimo.spec.bundle>true</geronimo.spec.bundle>
+            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jta</artifactId>
             <version>${geronimo_spec_jta_version}</version>
+            <properties>
+                <geronimo.spec.bundle>true</geronimo.spec.bundle>
+            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-servlet</artifactId>
             <version>${geronimo_spec_servlet_version}</version>
+            <properties>
+                <geronimo.spec.bundle>true</geronimo.spec.bundle>
+            </properties>
         </dependency>
 
         <dependency>
             <groupId>axis</groupId>
             <artifactId>axis-jaxrpc</artifactId>
             <version>${axis_jaxrpc_version}</version>
+            <properties>
+                <geronimo.spec.bundle>true</geronimo.spec.bundle>
+            </properties>
         </dependency>
 
         <dependency>
             <groupId>axis</groupId>
             <artifactId>axis-saaj</artifactId>
             <version>${axis_saaj_version}</version>
+            <properties>
+                <geronimo.spec.bundle>true</geronimo.spec.bundle>
+            </properties>
         </dependency>
 
     </dependencies>

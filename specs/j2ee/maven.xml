@@ -44,7 +44,10 @@
                     <ant:include name="LICENSE.txt"/>
                 </ant:metainf>
                 <j:forEach var="artifact" items="${pom.artifacts}">
-                    <zipfileset src="${artifact.path}" excludes="META-INF/LICENSE.txt"/>
+                    <j:set var="dependency" value="${artifact.dependency}"/>
+                    <j:if test="${dependency.getProperty('geronimo.spec.bundle') == 'true'}">
+                        <zipfileset src="${artifact.path}" excludes="META-INF/LICENSE.txt"/>
+                    </j:if>
                 </j:forEach>
             </ant:jar>
         </j:if>
