@@ -68,7 +68,7 @@ import org.apache.geronimo.lock.LockContext;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:12 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/23 09:07:11 $
  */
 public abstract class ExecutionContext {
     private static Log log = LogFactory.getLog(ExecutionContext.class);
@@ -89,13 +89,13 @@ public abstract class ExecutionContext {
     }
 
     public static void push(ExecutionContext newContext) {
-        assert (newContext != null);
+        assert newContext != null;
         getList().addFirst(newContext);
     }
 
     public static void pop(ExecutionContext newContext) {
-        assert (newContext != null);
-        assert (getContext() == newContext);
+        assert newContext != null;
+        assert getContext() == newContext;
         getList().removeFirst();
     }
 

@@ -59,7 +59,7 @@ import java.io.Serializable;
 import java.net.URI;
 import org.apache.geronimo.common.Invocation;
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/22 02:23:26 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/23 09:07:12 $
  */
 public final class InvocationSupport implements Serializable {
 
@@ -92,8 +92,8 @@ public final class InvocationSupport implements Serializable {
     private final int ordinal;
 
     private InvocationSupport(String name, int ordinal) {
-        assert(ordinal < MAX_ORIDNAL);
-        assert(values[ordinal] == null);
+        assert ordinal < MAX_ORIDNAL;
+        assert values[ordinal] == null;
         this.name = name;
         this.ordinal = ordinal;
         values[ordinal] = this;

@@ -60,15 +60,15 @@ import java.net.URL;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/12 07:10:15 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/23 09:07:11 $
  */
 public class URLInfo {
     private final URL url;
     private final URLType type;
 
     public URLInfo(URL url, URLType type) {
-        assert (url != null) : "url was null";
-        assert (type != null) : "type was null";
+        assert url != null : "url was null";
+        assert type != null : "type was null";
         this.url = url;
         this.type = type;
     }

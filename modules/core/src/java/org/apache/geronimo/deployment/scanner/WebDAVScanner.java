@@ -86,7 +86,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * assumed to be deployable; others may be recursed into
  *
  * @todo we should cache results between scans to reduce network traffic
- * @version $Revision: 1.4 $ $Date: 2003/08/12 07:10:15 $
+ * @version $Revision: 1.5 $ $Date: 2003/08/23 09:07:11 $
  */
 public class WebDAVScanner implements Scanner {
     private final URL base;
@@ -102,7 +102,7 @@ public class WebDAVScanner implements Scanner {
      * @param recurse if true, the scan will recurse into sub-collections
      */
     public WebDAVScanner(URL base, boolean recurse) {
-        assert (base.toString().endsWith("/"));
+        assert base.toString().endsWith("/");
         this.base = base;
         this.recurse = recurse;
 
@@ -197,7 +197,7 @@ public class WebDAVScanner implements Scanner {
      * @throws IOException if there was a problem talking to the server
      */
     private Set scanCollection(URL collection) throws IOException {
-        assert (collection.toString().endsWith("/"));
+        assert collection.toString().endsWith("/");
         HttpMethod method = new PropfindMethod(collection.toString());
         try {
             method.setFollowRedirects(true);

@@ -70,7 +70,7 @@ import org.apache.geronimo.ejb.container.EJBPlugins;
 
 /**
  *
- * @version $Revision: 1.5 $ $Date: 2003/08/16 23:16:43 $
+ * @version $Revision: 1.6 $ $Date: 2003/08/23 09:07:11 $
  */
 public final class EnterpriseContextInstanceCache extends AbstractComponent implements InstanceCache {
     private LRUInstanceCache cache;
@@ -137,7 +137,7 @@ public final class EnterpriseContextInstanceCache extends AbstractComponent impl
         if (!(value instanceof EnterpriseContext)) {
             throw new IllegalArgumentException("Value is not an instance of EnterpriseContext");
         }
-        assert(key.equals(((EnterpriseContext) value).getId()));
+        assert key.equals(((EnterpriseContext) value).getId());
         synchronized (cache) {
             //addBeanToTx();
 
@@ -155,7 +155,7 @@ public final class EnterpriseContextInstanceCache extends AbstractComponent impl
         if (!(value instanceof EnterpriseContext)) {
             throw new IllegalArgumentException("Value is not an instance of EnterpriseContext");
         }
-        assert(key.equals(((EnterpriseContext) value).getId()));
+        assert key.equals(((EnterpriseContext) value).getId());
         synchronized (cache) {
             //removeBeanFromTx();
             cache.putInactive(key, value);

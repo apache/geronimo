@@ -63,7 +63,7 @@ import org.apache.log4j.spi.LoggingEvent;
  *
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 17:59:10 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/23 09:07:11 $
  */
 public final class NamedNDCConverter extends PatternConverter {
     private final NamedNDC namedNDC;
@@ -71,7 +71,7 @@ public final class NamedNDCConverter extends PatternConverter {
     public NamedNDCConverter(FormattingInfo formattingInfo, String key) {
         super(formattingInfo);
         namedNDC = NamedNDC.getNamedNDC(key);
-        assert (namedNDC != null);
+        assert namedNDC != null;
     }
 
     protected String convert(LoggingEvent loggingEvent) {

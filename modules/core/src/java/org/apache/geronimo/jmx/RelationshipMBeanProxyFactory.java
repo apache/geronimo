@@ -76,7 +76,7 @@ import javax.management.relation.RoleNotFoundException;
  * contains an IllegalStateException.  If an interface method that is not implemented by the MBean is invoked,
  * an InvocationTargetException is thrown, which contains an NoSuchMethodException.
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/20 22:43:53 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/23 09:07:11 $
  */
 public final class RelationshipMBeanProxyFactory {
     private RelationshipMBeanProxyFactory() {
@@ -143,9 +143,9 @@ public final class RelationshipMBeanProxyFactory {
      * @return a dynamic proxy to the relationship which implements the interface defined by the relationship\
      */
     public static Object getProxy(Class iface, MBeanServer server, String relationshipID, String targetRole) {
-        assert (iface != null);
-        assert (iface.isInterface());
-        assert (server != null);
+        assert iface != null;
+        assert iface.isInterface();
+        assert server != null;
 
         ClassLoader cl = iface.getClassLoader();
         return Proxy.newProxyInstance(cl, new Class[]{iface}, new LocalHandler(iface, server, relationshipID, targetRole));

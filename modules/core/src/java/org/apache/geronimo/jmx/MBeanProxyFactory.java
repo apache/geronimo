@@ -66,7 +66,7 @@ import javax.management.ObjectName;
  * is thrown, which contains an InstanceNotFoundException.  If an interface method that is not implemented by
  * the MBean is invoked, an InvocationTargetException is thrown, which contains an NoSuchMethodException.
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/13 21:18:47 $
+ * @version $Revision: 1.5 $ $Date: 2003/08/23 09:07:11 $
  */
 public final class MBeanProxyFactory {
     private MBeanProxyFactory() {
@@ -81,9 +81,9 @@ public final class MBeanProxyFactory {
      * @return the new MBean proxy, which implemnts the specified interface
      */
     public static Object getProxy(Class iface, MBeanServer server, ObjectName objectName) {
-        assert (iface != null);
-        assert (iface.isInterface());
-        assert (server != null);
+        assert iface != null;
+        assert iface.isInterface();
+        assert server != null;
 
         ClassLoader cl = iface.getClassLoader();
         return Proxy.newProxyInstance(cl, new Class[]{iface}, new LocalHandler(iface, server, objectName));

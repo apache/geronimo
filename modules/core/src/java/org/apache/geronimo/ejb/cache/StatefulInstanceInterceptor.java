@@ -76,7 +76,7 @@ import org.apache.geronimo.lock.LockReentranceException;
  *
  *
  *
- * @version $Revision: 1.5 $ $Date: 2003/08/16 23:16:43 $
+ * @version $Revision: 1.6 $ $Date: 2003/08/23 09:07:11 $
  */
 public final class StatefulInstanceInterceptor extends AbstractInterceptor {
     private InstancePool pool;
@@ -161,7 +161,7 @@ public final class StatefulInstanceInterceptor extends AbstractInterceptor {
                     // the instance was removed
                     cache.remove(id);
                 } else {
-                    assert (ctx.getId().equals(id));
+                    assert ctx.getId().equals(id);
                 }
             }
         }

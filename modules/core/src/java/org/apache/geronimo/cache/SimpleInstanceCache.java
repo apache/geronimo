@@ -63,7 +63,7 @@ import java.util.HashMap;
  * limits.
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 17:59:09 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/23 09:07:11 $
  */
 public final class SimpleInstanceCache implements InstanceCache {
     private HashMap active = new HashMap();
@@ -102,7 +102,7 @@ public final class SimpleInstanceCache implements InstanceCache {
             value = inactive.remove(key);
         } else {
             // this should never happen because we don't let a key be in both maps
-            // assert (inactive.remove(key) == null);
+            // assert inactive.remove(key) == null;
         }
 
         return value;

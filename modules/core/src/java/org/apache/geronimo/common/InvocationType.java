@@ -62,7 +62,7 @@ import java.io.Serializable;
  *
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 17:59:10 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/23 09:07:11 $
  */
 public final class InvocationType implements Serializable {
     private static final String INVOCATION_TYPE_KEY = "INVOCATION_TYPE_KEY";
@@ -89,8 +89,8 @@ public final class InvocationType implements Serializable {
     private final int ordinal;
 
     private InvocationType(String name, int ordinal, boolean local, boolean home) {
-        assert(ordinal < MAX_ORIDNAL);
-        assert(values[ordinal] == null);
+        assert ordinal < MAX_ORIDNAL;
+        assert values[ordinal] == null;
         this.name = name;
         this.local = local;
         this.home = home;

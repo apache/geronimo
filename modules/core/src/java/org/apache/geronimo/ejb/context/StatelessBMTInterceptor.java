@@ -71,7 +71,7 @@ import org.apache.geronimo.ejb.container.EJBPlugins;
  *
  *
  *
- * @version $Revision: 1.5 $ $Date: 2003/08/16 23:16:51 $
+ * @version $Revision: 1.6 $ $Date: 2003/08/23 09:07:11 $
  */
 public final class StatelessBMTInterceptor extends ExecutionContextInterceptor {
     private String ejbName;
@@ -159,7 +159,7 @@ public final class StatelessBMTInterceptor extends ExecutionContextInterceptor {
         ExecutionContext context = ExecutionContext.getContext();
         if (context instanceof TxExecutionContext) {
             ExecutionContext.pop(context);
-            assert (ExecutionContext.getContext() == noTxContext);
+            assert ExecutionContext.getContext() == noTxContext;
             context.abnormalTermination(e);
         }
 

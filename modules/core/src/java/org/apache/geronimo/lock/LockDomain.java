@@ -65,7 +65,7 @@ import java.util.Map;
  *
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 17:59:12 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/23 09:07:11 $
  */
 public class LockDomain {
     private final String name;
@@ -85,7 +85,7 @@ public class LockDomain {
     }
 
     public InstanceLock getLock(Object key) {
-        assert (key != null);
+        assert key != null;
         InstanceLock lock;
         synchronized (locks) {
             processQueue();

@@ -70,7 +70,7 @@ package org.apache.geronimo.lock;
  * starvation of shared requests.
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 17:59:12 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/23 09:07:11 $
  */
 public class WriterPreferredInstanceLock3 implements InstanceLock {
     private Object exclActive;
@@ -80,7 +80,7 @@ public class WriterPreferredInstanceLock3 implements InstanceLock {
     private final Object exclLock = new Object();
 
     public void sharedLock(Object context) throws InterruptedException {
-        assert (context != null);
+        assert context != null;
         synchronized (this) {
             // we can get the lock immediately if no-one has or is waiting
             // for an exclusive lock
@@ -111,7 +111,7 @@ public class WriterPreferredInstanceLock3 implements InstanceLock {
     }
 
     public void exclusiveLock(Object context) throws InterruptedException {
-        assert (context != null);
+        assert context != null;
         synchronized (exclLock) {
             synchronized (this) {
                 // we can get the lock immediately if no-one has it and
@@ -159,7 +159,7 @@ public class WriterPreferredInstanceLock3 implements InstanceLock {
     }
 
     public void release(Object context) {
-        assert (context != null);
+        assert context != null;
         synchronized (exclLock) {
             synchronized (this) {
                 if (exclActive == context) {

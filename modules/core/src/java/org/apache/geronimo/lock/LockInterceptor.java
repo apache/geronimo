@@ -70,7 +70,7 @@ import org.apache.geronimo.ejb.context.ExecutionContext;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2003/08/16 23:16:59 $
+ * @version $Revision: 1.6 $ $Date: 2003/08/23 09:07:11 $
  */
 public final class LockInterceptor extends AbstractInterceptor {
     private LockDomain lockDomain;
@@ -96,7 +96,7 @@ public final class LockInterceptor extends AbstractInterceptor {
         ExecutionContext context = ExecutionContext.getContext();
         LockContext lockContext = context.getLockContext();
         Object id = EJBInvocationUtil.getId(invocation);
-        assert (id != null);
+        assert id != null;
 
         try {
             lockContext.exclusiveLock(lockDomain, id);

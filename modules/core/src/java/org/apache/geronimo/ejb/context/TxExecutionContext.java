@@ -69,7 +69,7 @@ import org.apache.geronimo.lock.TxLockContext;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:12 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/23 09:07:11 $
  */
 public class TxExecutionContext extends ExecutionContext implements Synchronization {
     private static final Map contextsByTx = new HashMap();
@@ -100,7 +100,7 @@ public class TxExecutionContext extends ExecutionContext implements Synchronizat
     }
 
     public Transaction startTransaction() throws SystemException, NotSupportedException, RollbackException {
-        assert (tx == null);
+        assert tx == null;
         tm.begin();
         tx = tm.getTransaction();
         registerWithTransaction();

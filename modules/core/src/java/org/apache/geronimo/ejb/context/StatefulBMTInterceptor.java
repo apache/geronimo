@@ -71,7 +71,7 @@ import org.apache.geronimo.ejb.EJBInvocationUtil;
  * re-associated with the invocation the next time the bean is invoked.
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/11 17:59:12 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/23 09:07:11 $
  */
 public final class StatefulBMTInterceptor extends ExecutionContextInterceptor {
     private final static Map savedTransactions = new HashMap();
@@ -91,7 +91,7 @@ public final class StatefulBMTInterceptor extends ExecutionContextInterceptor {
                     result = getNext().invoke(invocation);
                 } finally {
                     suspendInstanceTx(id);
-                    assert (getTransaction() == null);
+                    assert getTransaction() == null;
                 }
             } catch (Error e) {
                 // system exception

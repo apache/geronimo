@@ -80,7 +80,7 @@ import org.apache.geronimo.transaction.GeronimoTransactionRolledbackLocalExcepti
 
 /**
  *
- * @version $Revision: 1.5 $ $Date: 2003/08/16 23:16:51 $
+ * @version $Revision: 1.6 $ $Date: 2003/08/23 09:07:11 $
  */
 public final class CMTInterceptor extends ExecutionContextInterceptor {
     private EJBMetadata ejbMetadata;
@@ -330,7 +330,7 @@ public final class CMTInterceptor extends ExecutionContextInterceptor {
     private InvocationResult sameTxContext(Invocation invocation, Transaction oldTransaction) throws EJBTransactionException, Exception {
         TxExecutionContext context = TxExecutionContext.getContext(oldTransaction);
         if (context == null) {
-            assert (oldTransaction != null);
+            assert oldTransaction != null;
             try {
                 context = new TxExecutionContext(tm, oldTransaction);
             } catch (RollbackException e) {
@@ -339,7 +339,7 @@ public final class CMTInterceptor extends ExecutionContextInterceptor {
                 throw new EJBTransactionException("Unable to register with Transaction", e);
             }
         } else {
-            assert (context.getTransaction() == oldTransaction);
+            assert context.getTransaction() == oldTransaction;
         }
         return invokeNext(context, invocation);
     }
