@@ -58,247 +58,141 @@ package org.apache.geronimo.deployment;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.ObjectOutputStream;
-import java.net.URI;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.jar.Attributes;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
-import javax.management.ObjectName;
 
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.deployment.xbeans.ConfigurationDocument;
+import org.apache.geronimo.deployment.xbeans.ConfigurationType;
 import org.apache.geronimo.system.configuration.LocalConfigStore;
 import org.apache.geronimo.system.main.CommandLine;
 import org.apache.geronimo.system.repository.ReadOnlyRepository;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlObject;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Helper class to bootstrap the Geronimo deployer.
  *
- * @version $Revision: 1.9 $ $Date: 2004/02/24 07:36:20 $
+ * @version $Revision: 1.10 $ $Date: 2004/02/25 08:03:53 $
  */
 public class Bootstrap {
-    public static final URI CONFIG_ID = URI.create("org/apache/geronimo/DeployerSystem");
-    private static final ObjectName REPOSITORY_NAME = JMXUtil.getObjectName("geronimo.deployer:role=Repository,root=repository");
-    private static final ObjectName SERVICE_BUILDER_NAME = JMXUtil.getObjectName("geronimo.deployer:role=Builder,type=Service,id=" + CONFIG_ID.toString());
+    private String deployerJar;
+    private String storeDir;
+    private String repositoryDir;
+    private String deployerSystemPlan;
+    private String j2eeDeployerPlan;
+    private String deployerClassPath;
+    private String deployerGBean;
 
-    private String outputFile;
-    private String baseDir;
-    private String store;
-    private String deploymentPlan;
-    private String classPath;
-    private String mainGBean;
-    private String mainMethod;
-    private String configurations;
-
-    public String getOutputFile() {
-        return outputFile;
+    public String getDeployerJar() {
+        return deployerJar;
     }
 
-    public void setOutputFile(String outputFile) {
-        this.outputFile = outputFile;
+    public void setDeployerJar(String deployerJar) {
+        this.deployerJar = deployerJar;
     }
 
-    public String getBaseDir() {
-        return baseDir;
+    public String getStoreDir() {
+        return storeDir;
     }
 
-    public void setBaseDir(String baseDir) {
-        this.baseDir = baseDir;
+    public void setStoreDir(String storeDir) {
+        this.storeDir = storeDir;
     }
 
-    public String getStore() {
-        return store;
+    public String getRepositoryDir() {
+        return repositoryDir;
     }
 
-    public void setStore(String store) {
-        this.store = store;
+    public void setRepositoryDir(String repositoryDir) {
+        this.repositoryDir = repositoryDir;
     }
 
-    public String getDeploymentPlan() {
-        return deploymentPlan;
+    public String getDeployerSystemPlan() {
+        return deployerSystemPlan;
     }
 
-    public void setDeploymentPlan(String deploymentPlan) {
-        this.deploymentPlan = deploymentPlan;
+    public void setDeployerSystemPlan(String deployerSystemPlan) {
+        this.deployerSystemPlan = deployerSystemPlan;
     }
 
-    public String getClassPath() {
-        return classPath;
+    public String getJ2eeDeployerPlan() {
+        return j2eeDeployerPlan;
     }
 
-    public void setClassPath(String classPath) {
-        this.classPath = classPath;
+    public void setJ2eeDeployerPlan(String j2eeDeployerPlan) {
+        this.j2eeDeployerPlan = j2eeDeployerPlan;
     }
 
-    public String getMainGBean() {
-        return mainGBean;
+    public String getDeployerClassPath() {
+        return deployerClassPath;
     }
 
-    public void setMainGBean(String mainGBean) {
-        this.mainGBean = mainGBean;
+    public void setDeployerClassPath(String deployerClassPath) {
+        this.deployerClassPath = deployerClassPath;
     }
 
-    public String getMainMethod() {
-        return mainMethod;
+    public String getDeployerGBean() {
+        return deployerGBean;
     }
 
-    public void setMainMethod(String mainMethod) {
-        this.mainMethod = mainMethod;
+    public void setDeployerGBean(String deployerGBean) {
+        this.deployerGBean = deployerGBean;
     }
 
-    public String getConfigurations() {
-        return configurations;
-    }
-
-    public void setConfigurations(String configurations) {
-        this.configurations = configurations;
-    }
-
-    public void bootstrap() {
-        File file = new File(outputFile);
-        File storeDir = new File(baseDir, store);
-
+    public void bootstrap() throws Exception {
         ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(Bootstrap.class.getClassLoader());
         try {
-            GBeanMBean deploymentSystemConfig = getDeploymentSystemConfig(new URI(store));
+            // parse the deployment-system and j2ee-deployer plans
+            XmlObject deployerSystemXML = XmlBeans.getContextTypeLoader().parse(new File(deployerSystemPlan), null, null);
+            XmlObject j2eeDeployerXML = XmlBeans.getContextTypeLoader().parse(new File(j2eeDeployerPlan), null, null);
+            ConfigurationType j2eeDeployerConfig = ((ConfigurationDocument) j2eeDeployerXML).getConfiguration();
+
+            // create the service builder, repository and config store objects
+            LocalConfigStore configStore = new LocalConfigStore(new File(storeDir));
+            ReadOnlyRepository repository = new ReadOnlyRepository(new File(repositoryDir));
+            ServiceConfigBuilder builder = new ServiceConfigBuilder(repository);
 
             // create the manifext
             Manifest manifest = new Manifest();
             Attributes mainAttributes = manifest.getMainAttributes();
             mainAttributes.putValue(Attributes.Name.MANIFEST_VERSION.toString(), "1.0");
             mainAttributes.putValue(Attributes.Name.MAIN_CLASS.toString(), CommandLine.class.getName());
-            mainAttributes.putValue(Attributes.Name.CLASS_PATH.toString(), classPath);
-            mainAttributes.putValue(CommandLine.MAIN_GBEAN.toString(), mainGBean);
-            mainAttributes.putValue(CommandLine.MAIN_METHOD.toString(), mainMethod);
-            mainAttributes.putValue(CommandLine.CONFIGURATIONS.toString(), configurations);
+            mainAttributes.putValue(Attributes.Name.CLASS_PATH.toString(), deployerClassPath);
+            mainAttributes.putValue(CommandLine.MAIN_GBEAN.toString(), deployerGBean);
+            mainAttributes.putValue(CommandLine.MAIN_METHOD.toString(), "deploy");
+            mainAttributes.putValue(CommandLine.CONFIGURATIONS.toString(), j2eeDeployerConfig.getConfigId());
 
+            // build and install the deployer-system configuration
             // write the deployer system out to a jar
-            JarOutputStream jos = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(file)), manifest);
+            File outputFile = new File(deployerJar);
+            JarOutputStream jos = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(outputFile)), manifest);
             try {
                 // add the startup jar entry which allows us to locat the startup directory
                 jos.putNextEntry(new ZipEntry("META-INF/startup-jar"));
                 jos.closeEntry();
 
-                // write the configuration to the jar
-                jos.putNextEntry(new ZipEntry("META-INF/config.ser"));
-                ObjectOutputStream ois = new ObjectOutputStream(jos);
-                Configuration.storeGMBeanState(deploymentSystemConfig, ois);
-                ois.flush();
-                jos.closeEntry();
+                // add the deployment system configuration to the jar
+                builder.buildConfiguration(jos, deployerSystemXML);
             } finally {
                 jos.close();
             }
+            configStore.install(outputFile.toURL());
 
-            // install the deployer systen in to the config store
-            LocalConfigStore configStore = new LocalConfigStore(storeDir);
-            configStore.install(file.toURL());
-
-            System.setProperty("geronimo.base.dir", baseDir);
-            Kernel kernel = new Kernel("geronimo.bootstrap");
-            kernel.boot();
-
-            ConfigurationManager configurationManager = kernel.getConfigurationManager();
-            ObjectName deploymentSystemName = configurationManager.load(deploymentSystemConfig, file.toURL());
-            kernel.startRecursiveGBean(deploymentSystemName);
-
-            GBeanMBean serviceDeployerConfig = getServiceDeployerConfig();
-            serviceDeployerConfig.setReferencePatterns("Parent", Collections.singleton(deploymentSystemName));
-            ObjectName serviceDeployerName = configurationManager.load(serviceDeployerConfig, file.toURL());
-            kernel.startRecursiveGBean(serviceDeployerName);
-
-            File tempFile = File.createTempFile("deployer", ".car");
+            // build and install the j2ee-deployer configuration
+            File tempFile = File.createTempFile("j2ee-deployer", ".car");
             try {
-                URL planURL = new File(deploymentPlan).toURL();
-                XmlObject plan = XmlBeans.getContextTypeLoader().parse(planURL, null, null);
-                kernel.getMBeanServer().invoke(
-                        SERVICE_BUILDER_NAME,
-                        "buildConfiguration",
-                        new Object[]{tempFile, null, plan},
-                        new String[]{File.class.getName(), JarInputStream.class.getName(), XmlObject.class.getName()});
+                builder.buildConfiguration(tempFile, (JarInputStream)null, j2eeDeployerXML);
                 configStore.install(tempFile.toURL());
             } finally {
                 tempFile.delete();
             }
-
-            kernel.stopGBean(deploymentSystemName);
-            kernel.shutdown();
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(2);
-            throw new AssertionError();
         } finally {
             Thread.currentThread().setContextClassLoader(oldCL);
         }
-    }
-
-    private static GBeanMBean getDeploymentSystemConfig(URI storeDir) throws Exception {
-        Map gbeans = new HashMap();
-
-        // Install ServerInfo GBean
-        ObjectName serverInfoName = new ObjectName("geronimo.deployer:role=ServerInfo");
-        GBeanMBean serverInfo = new GBeanMBean(ServerInfo.getGBeanInfo());
-        gbeans.put(serverInfoName, serverInfo);
-
-        // Install LocalConfigStore
-        GBeanMBean storeGBean = new GBeanMBean(LocalConfigStore.getGBeanInfo());
-        storeGBean.setAttribute("root", storeDir);
-        storeGBean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfoName));
-        gbeans.put(new ObjectName("geronimo.boot:role=ConfigurationStore"), storeGBean);
-
-        // Install default local Repository
-        GBeanMBean localRepo = new GBeanMBean(ReadOnlyRepository.GBEAN_INFO);
-        localRepo.setAttribute("Root", URI.create("repository/"));
-        localRepo.setReferencePatterns("ServerInfo", Collections.singleton(serverInfoName));
-        gbeans.put(REPOSITORY_NAME, localRepo);
-
-        // assemble the deployer system configuration
-        GBeanMBean config = new GBeanMBean(Configuration.GBEAN_INFO);
-        config.setAttribute("ID", CONFIG_ID);
-        config.setReferencePatterns("Parent", null);
-        config.setAttribute("ClassPath", new ArrayList());
-        config.setAttribute("GBeanState", Configuration.storeGBeans(gbeans));
-        config.setAttribute("Dependencies", Collections.EMPTY_LIST);
-        return config;
-    }
-
-    private static GBeanMBean getServiceDeployerConfig() throws Exception {
-        Map gbeans = new HashMap();
-
-        // Install ServiceConfigBuilder
-        GBeanMBean serviceBuilder = new GBeanMBean(ServiceConfigBuilder.GBEAN_INFO);
-        serviceBuilder.setReferencePatterns("Repository", Collections.singleton(REPOSITORY_NAME));
-        serviceBuilder.setReferencePatterns("Kernel", Collections.singleton(Kernel.KERNEL));
-        gbeans.put(SERVICE_BUILDER_NAME, serviceBuilder);
-
-        // Install Deployer
-        ObjectName deployerName = Deployer.getDeployerName(CONFIG_ID);
-        GBeanMBean deployer = new GBeanMBean(Deployer.GBEAN_INFO);
-        deployer.setReferencePatterns("Builders", Collections.singleton(SERVICE_BUILDER_NAME));
-        gbeans.put(deployerName, deployer);
-
-        GBeanMBean config = new GBeanMBean(Configuration.GBEAN_INFO);
-        config.setAttribute("ID", new URI("temp/deployment/ServiceDeployer"));
-        config.setAttribute("ClassPath", new ArrayList());
-        config.setAttribute("GBeanState", Configuration.storeGBeans(gbeans));
-        config.setAttribute("Dependencies", Collections.EMPTY_LIST);
-
-        return config;
     }
 }

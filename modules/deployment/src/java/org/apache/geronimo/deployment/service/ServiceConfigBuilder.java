@@ -97,11 +97,15 @@ import org.apache.xmlbeans.XmlObject;
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/02/24 06:05:37 $
+ * @version $Revision: 1.8 $ $Date: 2004/02/25 08:03:53 $
  */
 public class ServiceConfigBuilder implements ConfigurationBuilder {
     private final Repository repository;
     private final Kernel kernel;
+
+    public ServiceConfigBuilder(Repository repository) {
+        this(repository, null);
+    }
 
     public ServiceConfigBuilder(Repository repository, Kernel kernel) {
         this.repository = repository;
@@ -125,30 +129,13 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
     }
 
     public void buildConfiguration(File outfile, JarInputStream module, XmlObject plan) throws IOException, DeploymentException {
-        ConfigurationType configType = ((ConfigurationDocument) plan).getConfiguration();
-        URI configID;
-        try {
-            configID = new URI(configType.getConfigId());
-        } catch (URISyntaxException e) {
-            throw new DeploymentException("Invalid configId " + configType.getConfigId(), e);
-        }
-        URI parentID;
-        if (configType.isSetParentId()) {
-            try {
-                parentID = new URI(configType.getParentId());
-            } catch (URISyntaxException e) {
-                throw new DeploymentException("Invalid parentId " + configType.getParentId(), e);
-            }
-        } else {
-            parentID = null;
-        }
-
         // create the manifext
         Manifest manifest = new Manifest();
         Attributes mainAttributes = manifest.getMainAttributes();
         mainAttributes.putValue(Attributes.Name.MANIFEST_VERSION.toString(), "1.0");
 
         // add the manifest entries to make the archive executable
+        ConfigurationType configType = ((ConfigurationDocument) plan).getConfiguration();
         ExecutableType executable = configType.getExecutable();
         if(executable != null) {
             mainAttributes.putValue(Attributes.Name.MAIN_CLASS.toString(), executable.getMainClass());
@@ -167,22 +154,45 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
                 os.closeEntry();
             }
 
-            DeploymentContext context = null;
-            try {
-                context = new DeploymentContext(os, configID, parentID, kernel);
-            } catch (MalformedObjectNameException e) {
-                throw new DeploymentException(e);
-            }
-            addIncludes(context, configType);
-            addDependencies(context, configType.getDependencyArray());
-            ClassLoader cl = context.getClassLoader(repository);
-            addGBeans(context, configType.getGbeanArray(), cl);
-            context.close();
-            os.flush();
+            buildConfiguration(os, plan);
+
         } finally {
             fos.close();
         }
 
+    }
+
+    public void buildConfiguration(JarOutputStream os, XmlObject plan) throws DeploymentException, IOException {
+        ConfigurationType configType = ((ConfigurationDocument) plan).getConfiguration();
+        URI configID;
+        try {
+            configID = new URI(configType.getConfigId());
+        } catch (URISyntaxException e) {
+            throw new DeploymentException("Invalid configId " + configType.getConfigId(), e);
+        }
+        URI parentID;
+        if (configType.isSetParentId()) {
+            try {
+                parentID = new URI(configType.getParentId());
+            } catch (URISyntaxException e) {
+                throw new DeploymentException("Invalid parentId " + configType.getParentId(), e);
+            }
+        } else {
+            parentID = null;
+        }
+
+        DeploymentContext context = null;
+        try {
+            context = new DeploymentContext(os, configID, parentID, kernel);
+        } catch (MalformedObjectNameException e) {
+            throw new DeploymentException(e);
+        }
+        addIncludes(context, configType);
+        addDependencies(context, configType.getDependencyArray());
+        ClassLoader cl = context.getClassLoader(repository);
+        addGBeans(context, configType.getGbeanArray(), cl);
+        context.close();
+        os.flush();
     }
 
     private void addIncludes(DeploymentContext context, ConfigurationType configType) throws DeploymentException {

@@ -77,13 +77,23 @@ import org.apache.commons.logging.LogFactory;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/13 07:22:22 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/25 08:03:53 $
  */
 public class ReadOnlyRepository implements Repository, GBean {
     private static final Log log = LogFactory.getLog(ReadOnlyRepository.class);
     private final URI root;
     private final ServerInfo serverInfo;
     private URI rootURI;
+
+    public ReadOnlyRepository(File root) {
+        this(root.toURI());
+    }
+
+    public ReadOnlyRepository(URI rootURI) {
+        this.root = null;
+        this.serverInfo = null;
+        this.rootURI = rootURI;
+    }
 
     public ReadOnlyRepository(URI root, ServerInfo serverInfo) {
         this.root = root;
@@ -113,16 +123,16 @@ public class ReadOnlyRepository implements Repository, GBean {
     }
 
     public void doStart() throws WaitingException, Exception {
-        rootURI = serverInfo.resolve(root);
+        if(rootURI == null) {
+            rootURI = serverInfo.resolve(root);
+        }
         log.info("Repository root is "+rootURI);
     }
 
     public void doStop() throws WaitingException, Exception {
-        rootURI = null;
     }
 
     public void doFail() {
-        rootURI = null;
     }
 
     public static final GBeanInfo GBEAN_INFO;

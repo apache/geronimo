@@ -85,7 +85,7 @@ import org.apache.geronimo.kernel.repository.Repository;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/02/24 06:05:36 $
+ * @version $Revision: 1.5 $ $Date: 2004/02/25 08:03:53 $
  */
 public class DeploymentContext {
     private final URI configID;
@@ -115,7 +115,7 @@ public class DeploymentContext {
             throw new AssertionError();
         }
 
-        if (parentID != null) {
+        if (kernel != null && parentID != null) {
             ObjectName parentName = ConfigurationManager.getConfigObjectName(parentID);
             config.setReferencePatterns("Parent", Collections.singleton(parentName));
             try {
@@ -141,9 +141,11 @@ public class DeploymentContext {
             }
         } else {
             ancestors = null;
-            parentCL = ClassLoader.getSystemClassLoader();
+            // no explicit parent set, so use the class loader of this class as
+            // the parent... this class should be in the root geronimo classloader,
+            // which is normally the system class loader but not always, so be safe
+            parentCL = getClass().getClassLoader();
         }
-
     }
 
     public URI getConfigID() {
@@ -228,12 +230,12 @@ public class DeploymentContext {
         jos.flush();
         jos.close();
 
-        try {
-            if (ancestors != null && ancestors.size() > 0) {
+        if (kernel != null && ancestors != null && ancestors.size() > 0) {
+            try {
                 kernel.stopGBean((ObjectName) ancestors.get(0));
+            } catch (Exception e) {
+                throw new DeploymentException(e);
             }
-        } catch (Exception e) {
-            throw new DeploymentException(e);
         }
     }
 

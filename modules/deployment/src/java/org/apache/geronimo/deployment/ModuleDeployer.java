@@ -67,30 +67,27 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Collections;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 import javax.management.ObjectName;
-import javax.management.AttributeNotFoundException;
-import javax.management.InvalidAttributeValueException;
-import javax.management.MBeanException;
-import javax.management.ReflectionException;
 
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationParent;
+import org.apache.geronimo.kernel.Kernel;
 
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/02/10 22:34:04 $
+ * @version $Revision: 1.5 $ $Date: 2004/02/25 08:03:53 $
  */
 public class ModuleDeployer implements ConfigurationCallback {
     private final ConfigurationParent parent;
@@ -161,12 +158,10 @@ public class ModuleDeployer implements ConfigurationCallback {
             }
             ClassLoader cl;
             if (parent == null) {
-                //Use in maven plugin seems to require access to the classloader used to load this class,
-                //not just the SystemClassLoader.  DeployCommand sets the thread context classloader.
-                // If I understand Maven correctly it will load using a classloader including the
-                //dependencies specified in the plugins project.xml file.
-                //cl = new URLClassLoader(urls);
-                cl = new URLClassLoader(urls, Thread.currentThread().getContextClassLoader());
+                // no explicit parent set, so use the class loader of Kernel as the
+                // parent... the Kernel class should be in the root geronimo classloader,
+                // which is normally the system class loader but not always, so be safe
+                cl = new URLClassLoader(urls, Kernel.class.getClassLoader());
             } else {
                 cl = new URLClassLoader(urls, parent.getClassLoader());
             }

@@ -122,7 +122,7 @@ import org.apache.geronimo.kernel.repository.Repository;
  * a startRecursive() for all the GBeans it contains. Similarly, if the
  * Configuration is stopped then all of its GBeans will be stopped as well.
  *
- * @version $Revision: 1.14 $ $Date: 2004/02/24 18:41:45 $
+ * @version $Revision: 1.15 $ $Date: 2004/02/25 08:03:53 $
  */
 public class Configuration implements GBean {
     private static final Log log = LogFactory.getLog(Configuration.class);
@@ -193,7 +193,10 @@ public class Configuration implements GBean {
         log.debug("ClassPath for " + id + " resolved to " + Arrays.asList(urls));
 
         if (parent == null) {
-            classLoader = new URLClassLoader(urls, Thread.currentThread().getContextClassLoader());
+            // no explicit parent set, so use the class loader of this class as
+            // the parent... this class should be in the root geronimo classloader,
+            // which is normally the system class loader but not always, so be safe
+            classLoader = new URLClassLoader(urls, getClass().getClassLoader());
         } else {
             classLoader = new URLClassLoader(urls, parent.getClassLoader());
         }
