@@ -64,8 +64,7 @@ import org.apache.geronimo.common.ThrowableHandler;
 /**
  * ???
  *
- * @version <code>$Revision: 1.1 $ $Date: 2003/08/24 20:09:25 $</code>
- * @author <a href="mailto:jason@planet57.com">Jason Dillon</a>
+ * @version $Revision: 1.2 $ $Date: 2003/08/27 10:40:37 $
  */
 public class InteractiveConsole
     implements Runnable
