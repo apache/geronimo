@@ -93,6 +93,7 @@ import org.apache.geronimo.kernel.deployment.task.RegisterMBeanInstance;
 import org.apache.geronimo.kernel.deployment.task.StartMBeanInstance;
 import org.apache.geronimo.kernel.deployment.task.StopMBeanInstance;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfoXMLLoader;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -103,7 +104,7 @@ import org.w3c.dom.NodeList;
  *
  * @jmx:mbean extends="org.apache.geronimo.kernel.deployment.DeploymentPlanner"
  *
- * @version $Revision: 1.3 $ $Date: 2003/10/22 02:04:31 $
+ * @version $Revision: 1.4 $ $Date: 2003/10/27 21:29:46 $
  */
 public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, MBeanRegistration {
     private MBeanServer server;
@@ -244,20 +245,22 @@ public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, 
         return true;
     }
 
-    private ClassSpaceMetadata createClassSpaceMetadata(Element classSpaceElement, ObjectName deploymentName, URL baseURL) throws DeploymentException {
+    private ClassSpaceMetadata createClassSpaceMetadata(Element classSpaceElement, ObjectName deploymentName, URL deploymentURL) throws DeploymentException {
         ClassSpaceMetadata classSpaceMetadata;
         if (classSpaceElement == null) {
             classSpaceMetadata = new ClassSpaceMetadata();
             try {
-                classSpaceMetadata.setName(new ObjectName("geronimo.system:role=ClassSpace,name=Application"));
+                classSpaceMetadata.setName(new ObjectName("geronimo.system:role=ClassSpace,name=Application,url=" + ObjectName.quote(deploymentURL.toString())));
             } catch (MalformedObjectNameException e) {
                 // this will never happen as above is a valid object name
                 throw new AssertionError(e);
             }
-            classSpaceMetadata.setClassName("org.apache.geronimo.kernel.deployment.loader.ClassSpace");
+            classSpaceMetadata.setGeronimoMBeanInfo(GeronimoMBeanInfoXMLLoader.loadMBean(
+                    ClassLoader.getSystemResource("org/apache/geronimo/kernel/classspace/classspace-mbean.xml")
+            ));
             classSpaceMetadata.setCreate(ClassSpaceMetadata.CREATE_IF_NECESSARY);
         } else {
-            ClassSpaceMetadataXMLLoader classSpaceLoader = new ClassSpaceMetadataXMLLoader(baseURL);
+            ClassSpaceMetadataXMLLoader classSpaceLoader = new ClassSpaceMetadataXMLLoader(deploymentURL);
             classSpaceMetadata = classSpaceLoader.loadXML(classSpaceElement);
         }
         classSpaceMetadata.setDeploymentName(deploymentName);

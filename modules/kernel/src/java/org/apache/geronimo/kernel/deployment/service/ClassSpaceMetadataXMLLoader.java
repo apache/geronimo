@@ -65,24 +65,28 @@ import java.util.List;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
+import org.apache.geronimo.kernel.deployment.DeploymentException;
 import org.apache.geronimo.kernel.deployment.scanner.FileSystemScanner;
 import org.apache.geronimo.kernel.deployment.scanner.Scanner;
 import org.apache.geronimo.kernel.deployment.scanner.URLInfo;
 import org.apache.geronimo.kernel.deployment.scanner.WebDAVScanner;
-import org.apache.geronimo.kernel.deployment.DeploymentException;
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfoXMLLoader;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
+ * Loads class space metadata from xml.
  *
- *
- * @version $Revision: 1.2 $ $Date: 2003/10/22 02:04:31 $
+ * @version $Revision: 1.3 $ $Date: 2003/10/27 21:29:46 $
  */
 public class ClassSpaceMetadataXMLLoader {
+    private static final String DEFAULT_MBEAN_DESCRIPTOR = "org/apache/geronimo/kernel/classspace/classspace-mbean.xml";
+
     private final URL baseURL;
 
-    public ClassSpaceMetadataXMLLoader(URL baseURL) {
+    public ClassSpaceMetadataXMLLoader(URL baseURL) throws DeploymentException {
         this.baseURL = baseURL;
     }
 
@@ -94,13 +98,19 @@ public class ClassSpaceMetadataXMLLoader {
             throw new DeploymentException(e);
         }
 
-        // implementation class
-        String code = element.getAttribute("code").trim();
-        if (code.length() > 0) {
-            md.setClassName(code);
+        // Get the Geronimo MBean info for this class space
+        String descriptor = element.getAttribute("descriptor").trim();
+        URL descriptorURL = null;
+        if (descriptor.length() > 0) {
+            descriptorURL = ClassLoader.getSystemResource(descriptor);
+            if (descriptorURL == null) {
+                throw new DeploymentException("Could not load class space descriptor from system class loader: descriptor=" + descriptor);
+            }
         } else {
-            md.setClassName("org.apache.geronimo.kernel.deployment.loader.ClassSpace");
+            descriptorURL = ClassLoader.getSystemResource(DEFAULT_MBEAN_DESCRIPTOR);
         }
+        GeronimoMBeanInfo geronimoMBeanInfo = GeronimoMBeanInfoXMLLoader.loadMBean(descriptorURL);
+        md.setGeronimoMBeanInfo(geronimoMBeanInfo);
 
         // should we be creating the classloader
         String create = element.getAttribute("create").trim();

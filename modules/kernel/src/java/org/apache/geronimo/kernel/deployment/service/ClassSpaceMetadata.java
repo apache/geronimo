@@ -59,10 +59,12 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.management.ObjectName;
 
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+
 /**
+ * This class contains the information necessary to setup a class space for a deployment.
  *
- *
- * @version $Revision: 1.2 $ $Date: 2003/10/22 02:04:31 $
+ * @version $Revision: 1.3 $ $Date: 2003/10/27 21:29:46 $
  */
 public class ClassSpaceMetadata {
     public static final int CREATE_IF_NECESSARY = 0;
@@ -71,51 +73,99 @@ public class ClassSpaceMetadata {
 
     private ObjectName name;
     private ObjectName deploymentName;
-    private String className;
+    private GeronimoMBeanInfo geronimoMBeanInfo;
     private int create;
     private final List urls = new ArrayList();
     private ObjectName parent;
 
+    /**
+     * Gets the object name of the class space for the deployment.
+     * @return the object name of the class space
+     */
     public ObjectName getName() {
         return name;
     }
 
+    /**
+     * Sets the object name of the class space for the deployment.
+     * @param name the new class space name
+     */
     public void setName(ObjectName name) {
         this.name = name;
     }
 
+    /**
+     * Gets the object name of the deployment.
+     * @return the object name of the deployment
+     */
     public ObjectName getDeploymentName() {
         return deploymentName;
     }
 
+    /**
+     * Sets the object name of the deployment
+     * @param deploymentName the new deployment name
+     */
     public void setDeploymentName(ObjectName deploymentName) {
         this.deploymentName = deploymentName;
     }
 
-    public String getClassName() {
-        return className;
+    /**
+     * Gets the geronimo mbean info for the class space.  This is only used when
+     * constructing a new class space.
+     * @return the geronimo mbean info for the class spacce
+     */
+    public GeronimoMBeanInfo getGeronimoMBeanInfo() {
+        return geronimoMBeanInfo;
     }
 
-    public void setClassName(String className) {
-        this.className = className;
+    /**
+     * Sets the geronimo mbean info for the class space.  This is only used when
+     * constructing a new class space.
+     * @param geronimoMBeanInfo the geronimo mbean info for the class spacce
+     */
+    public void setGeronimoMBeanInfo(GeronimoMBeanInfo geronimoMBeanInfo) {
+        this.geronimoMBeanInfo = geronimoMBeanInfo;
     }
 
+    /**
+     * Gets the create flag for this class space.  The create flag controls the
+     * creation of the class space.
+     * @return the create flag
+     */
     public int getCreate() {
         return create;
     }
 
+    /**
+     * Sets the create flag for this class space.  The create flag controls the
+     * creation of the class space.
+     * @param create the create flag
+     */
     public void setCreate(int create) {
         this.create = create;
     }
 
+    /**
+     * Gets the urls to add to the class space for the deployment.
+     * @return the urls to add to the class space
+     */
     public List getUrls() {
         return urls;
     }
 
+    /**
+     * Gets the name of parent of this class space.
+     * @return the name of the parent class space
+     */
     public ObjectName getParent() {
         return parent;
     }
 
+    /**
+     * Sets the name of parent of this class space.
+     * @param parent the name of the parent
+     */
     public void setParent(ObjectName parent) {
         this.parent = parent;
     }
