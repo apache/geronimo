@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.9 $ $Date: 2003/11/06 13:13:11 $ -->
+<!-- $Revision: 1.10 $ $Date: 2003/11/24 04:42:10 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -112,6 +112,15 @@
                 <destinations>
                     deploy/jetty/lib
                 </destinations>
+            </properties>
+        </dependency>
+        
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-j2ee-jacc</artifactId>
+            <version>DEV</version>
+            <properties>
+                <module>true</module>
             </properties>
         </dependency>
 
