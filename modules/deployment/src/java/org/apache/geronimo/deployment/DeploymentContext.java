@@ -52,7 +52,7 @@ import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Repository;
 
 /**
- * @version $Revision: 1.15 $ $Date: 2004/07/23 06:06:19 $
+ * @version $Revision: 1.16 $ $Date: 2004/08/04 07:20:49 $
  */
 public class DeploymentContext {
     private final URI configID;
@@ -171,7 +171,7 @@ public class DeploymentContext {
         }
     }
 
-    protected void addToClassPath(URI path, URL url) {
+    public void addToClassPath(URI path, URL url) {
         classPath.add(path);
         includes.put(path, url);
     }
