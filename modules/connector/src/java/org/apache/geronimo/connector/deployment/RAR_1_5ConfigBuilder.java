@@ -74,7 +74,7 @@ import org.apache.xmlbeans.XmlOptions;
 /**
  *
  *
- * @version $Revision: 1.9 $ $Date: 2004/04/12 06:29:13 $
+ * @version $Revision: 1.10 $ $Date: 2004/04/12 21:54:19 $
  *
  * */
 public class RAR_1_5ConfigBuilder extends AbstractRARConfigBuilder {
@@ -211,7 +211,7 @@ public class RAR_1_5ConfigBuilder extends AbstractRARConfigBuilder {
                     }
                     managedConnectionFactoryGBean.setReferencePatterns("ConnectionManagerFactory", Collections.singleton(connectionManagerFactoryObjectName));
                     if (connectionfactoryInstance.getCredentialInterface() != null && PasswordCredential.class.getName().equals(connectionfactoryInstance.getCredentialInterface().getStringValue())) {
-                        GBeanMBean realmGBean = new GBeanMBean(PasswordCredentialRealm.class.getName(), PasswordCredentialRealm.class.getClassLoader());
+                        GBeanMBean realmGBean = new GBeanMBean(PasswordCredentialRealm.getGBeanInfo());
                         realmGBean.setAttribute("RealmName", BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME + connectionfactoryInstance.getName());
                         context.addGBean(ObjectName.getInstance(BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME + connectionfactoryInstance.getName()), realmGBean);
                         managedConnectionFactoryGBean.setReferencePatterns("ManagedConnectionFactoryListener", Collections.singleton(ObjectName.getInstance(BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME + connectionfactoryInstance.getName())));
