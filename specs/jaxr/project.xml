@@ -16,17 +16,12 @@
     limitations under the License.
 -->
   
-<!DOCTYPE project [
-<!ENTITY % locator SYSTEM "file:locator.ent">
-%locator;
-%versions;
-]>
                                    
 <!-- $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $ -->
 
 <project>
     <pomVersion>3</pomVersion>
-    <extend>${basedir}/../../etc/project.xml</extend>
+    <extend>../../etc/project.xml</extend>
 
     <name>Geronimo :: Java API for XML Registries (JAXR)</name>
     <groupId>geronimo-spec</groupId>
@@ -38,7 +33,7 @@
 
     <package>javax.xml.registry</package>
 
-    <currentVersion>&geronimo-spec-jaxr-version;</currentVersion>
+    <currentVersion>${geronimo_spec_jaxr_version}</currentVersion>
 
     <!-- ============ -->
     <!-- Dependencies -->
@@ -48,7 +43,7 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-activation</artifactId>
-            <version>&geronimo-spec-activation-version;</version>
+            <version>${geronimo_spec_activation_version}</version>
         </dependency>
     </dependencies>
 </project>

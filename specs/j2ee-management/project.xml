@@ -16,17 +16,12 @@
     limitations under the License.
 -->
   
-<!DOCTYPE project [
-<!ENTITY % locator SYSTEM "file:locator.ent">
-%locator;
-%versions;
-]>
                                    
 <!-- $Rev$ $Date$ -->
 
 <project>
     <pomVersion>3</pomVersion>
-    <extend>${basedir}/../../etc/project.xml</extend>
+    <extend>../../etc/project.xml</extend>
 
     <name>Geronimo :: J2EE Application Management Specification</name>
     <groupId>geronimo-spec</groupId>
@@ -38,7 +33,7 @@
 
     <package>javax.management</package>
 
-    <currentVersion>&geronimo-spec-j2ee-management-version;</currentVersion>
+    <currentVersion>${geronimo_spec_j2ee_management_version}</currentVersion>
 
     <!-- ============ -->
     <!-- Dependencies -->
@@ -51,7 +46,7 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-ejb</artifactId>
-            <version>&geronimo-spec-ejb-version;</version>
+            <version>${geronimo_spec_ejb_version}</version>
         </dependency>
 
         <!-- Thirdparty -->
@@ -59,7 +54,7 @@
         <dependency>
             <groupId>mx4j</groupId>
             <artifactId>mx4j-jmx</artifactId>
-            <version>&mx4j-version;</version>
+            <version>${mx4j_version}</version>
             <url>http://mx4j.sourceforge.net</url>
         </dependency>
 

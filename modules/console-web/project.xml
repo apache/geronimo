@@ -16,17 +16,11 @@
     limitations under the License.
 -->
   
-<!DOCTYPE project [
-<!ENTITY % locator SYSTEM "file:locator.ent">
-%locator;
-%versions;
-]>
-
 <!-- $Rev$ $Date$ -->
 
 <project>
     <pomVersion>3</pomVersion>
-    <extend>${basedir}/../../etc/project.xml</extend>
+    <extend>../../etc/project.xml</extend>
 
     <!-- ===================== -->
     <!-- Module Identification -->
@@ -50,26 +44,26 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-servlet</artifactId>
-            <version>&geronimo-spec-servlet-version;</version>
+            <version>${geronimo_spec_servlet_version}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jsp</artifactId>
-            <version>&geronimo-spec-jsp-version;</version>
+            <version>${geronimo_spec_jsp_version}</version>
         </dependency>
 
         <dependency>
             <groupId>mx4j</groupId>
             <artifactId>mx4j-jmx</artifactId>
-            <version>&mx4j-version;</version>
+            <version>${mx4j_version}</version>
             <url>http://mx4j.sourceforge.net</url>
         </dependency>
 
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-            <version>&commons-logging-version;</version>
+            <version>${commons_logging_version}</version>
             <url>http://jakarta.apache.org/commons/logging</url>
         </dependency>
     </dependencies>

@@ -16,17 +16,11 @@
     limitations under the License.
 -->
 
-<!DOCTYPE project [
-<!ENTITY % locator SYSTEM "file:locator.ent">
-%locator;
-%versions;
-]>
-
 <!-- $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $ -->
 
 <project>
     <pomVersion>3</pomVersion>
-    <extend>${basedir}/../../etc/project.xml</extend>
+    <extend>../../etc/project.xml</extend>
 
     <!-- ===================== -->
     <!-- Module Identification -->
@@ -51,18 +45,18 @@
         <dependency>
             <groupId>derby</groupId>
             <artifactId>derby</artifactId>
-            <version>&derby-version;</version>
+            <version>${derby_version}</version>
         </dependency>
         <dependency>
             <groupId>derby</groupId>
             <artifactId>derbynet</artifactId>
-            <version>&derby-version;</version>
+            <version>${derby_version}</version>
         </dependency>
 
         <dependency>
             <groupId>tranql</groupId>
             <artifactId>tranql-connector</artifactId>
-            <version>&tranql-connector-version;</version>
+            <version>${tranql_connector_version}</version>
             <properties>
                 <rar.bundle>true</rar.bundle>
             </properties>
@@ -71,7 +65,7 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-connector</artifactId>
-            <version>&geronimo-spec-j2ee-connector-version;</version>
+            <version>${geronimo_spec_j2ee_connector_version}</version>
         </dependency>
 
     </dependencies>

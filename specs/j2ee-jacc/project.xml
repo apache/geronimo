@@ -16,17 +16,12 @@
     limitations under the License.
 -->
   
-<!DOCTYPE project [
-<!ENTITY % locator SYSTEM "file:locator.ent">
-%locator;
-%versions;
-]>
                                            
 <!-- $Rev$ $Date$ -->
 
 <project>
     <pomVersion>3</pomVersion>
-    <extend>${basedir}/../../etc/project.xml</extend>
+    <extend>../../etc/project.xml</extend>
 
     <name>Geronimo :: Java Authorization Contract for Containers Specification</name>
     <groupId>geronimo-spec</groupId>
@@ -40,7 +35,7 @@
 
     <package>javax.security.jacc</package>
 
-    <currentVersion>&geronimo-spec-j2ee-jacc-version;</currentVersion>
+    <currentVersion>${geronimo_spec_j2ee_jacc_version}</currentVersion>
 
     <!-- ============ -->
     <!-- Dependencies -->
@@ -51,7 +46,7 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-servlet</artifactId>
-            <version>&geronimo-spec-servlet-version;</version>
+            <version>${geronimo_spec_servlet_version}</version>
         </dependency>
 
     </dependencies>

@@ -16,17 +16,11 @@
     limitations under the License.
 -->
 
-<!DOCTYPE project [
-<!ENTITY % locator SYSTEM "file:locator.ent">
-%locator;
-%versions;
-]>
-
 <!-- $Rev: 57362 $ $Date: 2004-11-10 15:40:05 -0500 (Wed, 10 Nov 2004) $ -->
 
 <project>
     <pomVersion>3</pomVersion>
-    <extend>${basedir}/../../etc/project.xml</extend>
+    <extend>../../etc/project.xml</extend>
 
     <!-- ===================== -->
     <!-- Module Identification -->
@@ -50,19 +44,19 @@
         <dependency>
             <groupId>xmlbeans</groupId>
             <artifactId>xbean-apache</artifactId>
-            <version>&xmlbeans-version;</version>
+            <version>${xmlbeans_version}</version>
         </dependency>
 
         <dependency>
             <groupId>mx4j</groupId>
             <artifactId>mx4j</artifactId>
-            <version>&mx4j-version;</version>
+            <version>${mx4j_version}</version>
         </dependency>
 
         <dependency>
             <groupId>mx4j</groupId>
             <artifactId>mx4j-remote</artifactId>
-            <version>&mx4j-version;</version>
+            <version>${mx4j_version}</version>
         </dependency>
 
         <!-- Module Dependencies -->
@@ -106,7 +100,7 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-deployment</artifactId>
-            <version>&geronimo-spec-j2ee-deployment-version;</version>
+            <version>${geronimo_spec_j2ee_deployment_version}</version>
         </dependency>
 
     </dependencies>

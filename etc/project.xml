@@ -1,9 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE project [
-<!ENTITY % locator SYSTEM "file:locator.ent">
-%locator;
-%versions;
- ]>
 <!--
 
     Copyright 2003-2004 The Apache Software Foundation
@@ -88,7 +83,7 @@
     <!-- Versions -->
     <!-- ======== -->
 
-    <currentVersion>&geronimo-version;</currentVersion>
+    <currentVersion>${geronimo_version}</currentVersion>
 
     <versions>
         <version>

@@ -16,17 +16,12 @@
     limitations under the License.
 -->
   
-<!DOCTYPE project [
-<!ENTITY % locator SYSTEM "file:locator.ent">
-%locator;
-%versions;
-]>
                                           
 <!-- $Rev$ $Date$ -->
 
 <project>
     <pomVersion>3</pomVersion>
-    <extend>${basedir}/../../etc/project.xml</extend>
+    <extend>../../etc/project.xml</extend>
 
     <name>Geronimo :: Servlet Specification</name>
     <groupId>geronimo-spec</groupId>
@@ -40,7 +35,7 @@
 
     <package>javax.servlet</package>
 
-    <currentVersion>&geronimo-spec-servlet-version;</currentVersion>
+    <currentVersion>${geronimo_spec_servlet_version}</currentVersion>
 
     <build>
         <resources>

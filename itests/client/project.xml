@@ -1,16 +1,10 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!DOCTYPE project [
-<!ENTITY % locator SYSTEM "file:locator.ent">
-%locator;
-%versions;
-]>
-
 <!-- $Revision: 1.17 $ $Date: 2004/09/12 17:11:54 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
-    <extend>${basedir}/../../etc/project.xml</extend>
+    <extend>../../etc/project.xml</extend>
 
     <!-- ===================== -->
     <!-- Module Identification -->
@@ -30,37 +24,37 @@
         <dependency>
             <groupId>tranql</groupId>
             <artifactId>tranql</artifactId>
-            <version>&tranql-version;</version>
+            <version>${tranql_version}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
-            <version>&geronimo-version;</version>
+            <version>${geronimo_version}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-core</artifactId>
-            <version>&geronimo-version;</version>
+            <version>${geronimo_version}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-remoting</artifactId>
-            <version>&geronimo-version;</version>
+            <version>${geronimo_version}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-security</artifactId>
-            <version>&geronimo-version;</version>
+            <version>${geronimo_version}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-jacc</artifactId>
-            <version>&geronimo-spec-j2ee-jacc-version;</version>
+            <version>${geronimo_spec_j2ee_jacc_version}</version>
             <properties>
                 <runtime>true</runtime>
             </properties>
@@ -69,26 +63,26 @@
         <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib-full</artifactId>
-            <version>&cglib-version;</version>
+            <version>${cglib_version}</version>
             <url>http://cglib.sf.net</url>
         </dependency>
 
         <dependency>
             <groupId>openejb</groupId>
             <artifactId>openejb-core</artifactId>
-            <version>&openejb-version;</version>
+            <version>${openejb_version}</version>
         </dependency>
 
         <dependency>
             <groupId>openejb</groupId>
             <artifactId>openejb-assembly</artifactId>
-            <version>&openejb-version;</version>
+            <version>${openejb_version}</version>
         </dependency>
 
         <dependency>
             <groupId>openejb</groupId>
             <artifactId>openejb-itests-ejb</artifactId>
-            <version>&openejb-version;</version>
+            <version>${openejb_version}</version>
             <type>ejb</type>
         </dependency>
 
@@ -97,31 +91,31 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jta</artifactId>
-            <version>&geronimo-spec-jta-version;</version>
+            <version>${geronimo_spec_jta_version}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-ejb</artifactId>
-            <version>&geronimo-spec-ejb-version;</version>
+            <version>${geronimo_spec_ejb_version}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-servlet</artifactId>
-            <version>&geronimo-spec-servlet-version;</version>
+            <version>${geronimo_spec_servlet_version}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-connector</artifactId>
-            <version>&geronimo-spec-j2ee-connector-version;</version>
+            <version>${geronimo_spec_j2ee_connector_version}</version>
         </dependency>
 
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>&junit-version;</version>
+            <version>${junit_version}</version>
             <properties>
                 <classloader>root</classloader>
             </properties>
@@ -130,13 +124,13 @@
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-            <version>&commons-logging-version;</version>
+            <version>${commons_logging_version}</version>
         </dependency>
 
         <dependency>
             <groupId>concurrent</groupId>
             <artifactId>concurrent</artifactId>
-            <version>&concurrent-version;</version>
+            <version>${concurrent_version}</version>
         </dependency>
     </dependencies>
 </project>

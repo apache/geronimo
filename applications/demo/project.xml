@@ -16,17 +16,11 @@
     limitations under the License.
 -->
 
-<!DOCTYPE project [
-<!ENTITY % locator SYSTEM "file:locator.ent">
-%locator;
-%versions;
-]>
-
 <!-- $Rev$ $Date$ -->
 
 <project>
     <pomVersion>3</pomVersion>
-    <extend>${basedir}/../../etc/project.xml</extend>
+    <extend>../../etc/project.xml</extend>
 
     <!-- ===================== -->
     <!-- Module Identification -->
@@ -49,13 +43,13 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-servlet</artifactId>
-            <version>&geronimo-spec-servlet-version;</version>
+            <version>${geronimo_spec_servlet_version}</version>
         </dependency>
 
         <dependency>
             <groupId>mx4j</groupId>
             <artifactId>mx4j-jmx</artifactId>
-            <version>&mx4j-version;</version>
+            <version>${mx4j_version}</version>
             <url>http://mx4j.sourceforge.net</url>
         </dependency>
 

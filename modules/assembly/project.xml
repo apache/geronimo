@@ -16,17 +16,11 @@
     limitations under the License.
 -->
 
-<!DOCTYPE project [
-<!ENTITY % locator SYSTEM "file:locator.ent">
-%locator;
-%versions;
-]>
-
 <!-- $Rev$ $Date$ -->
 
 <project>
     <pomVersion>3</pomVersion>
-    <extend>${basedir}/../../etc/project.xml</extend>
+    <extend>../../etc/project.xml</extend>
 
     <!-- ===================== -->
     <!-- Module Identification -->
@@ -49,12 +43,12 @@
         <dependency>
             <groupId>commons-jelly</groupId>
             <artifactId>commons-jelly-tags-velocity</artifactId>
-            <version>&jelly-velocity-tags-version;</version>
+            <version>${jelly_velocity_tags_version}</version>
         </dependency>
         <dependency>
             <groupId> velocity</groupId>
             <artifactId>velocity</artifactId>
-            <version>&velocity-version;</version>
+            <version>${velocity_version}</version>
         </dependency>
 
         <!-- ========================================================== -->
@@ -309,7 +303,7 @@
         <dependency>
             <groupId>howl</groupId>
             <artifactId>howl-logger</artifactId>
-            <version>&howl-version;</version>
+            <version>${howl_version}</version>
             <url>http://forge.objectweb.org/projects/howl</url>
             <properties>
                 <repository>true</repository>
@@ -319,7 +313,7 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee</artifactId>
-            <version>&geronimo-spec-j2ee-version;</version>
+            <version>${geronimo_spec_j2ee_version}</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -328,7 +322,7 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-deployment</artifactId>
-            <version>&geronimo-spec-j2ee-deployment-version;</version>
+            <version>${geronimo_spec_j2ee_deployment_version}</version>
             <properties>
                 <lib>true</lib>
                 <deploy>true</deploy>
@@ -339,7 +333,7 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-jacc</artifactId>
-            <version>&geronimo-spec-j2ee-jacc-version;</version>
+            <version>${geronimo_spec_j2ee_jacc_version}</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -357,7 +351,7 @@
         <dependency>
             <groupId>tranql</groupId>
             <artifactId>tranql-connector</artifactId>
-            <version>&tranql-connector-version;</version>
+            <version>${tranql_connector_version}</version>
             <type>rar</type>
             <properties>
                 <repository>true</repository>
@@ -367,7 +361,7 @@
         <dependency>
             <groupId>ant</groupId>
             <artifactId>ant</artifactId>
-            <version>&ant-version;</version>
+            <version>${ant_version}</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -377,7 +371,7 @@
         <dependency>
             <groupId>xstream</groupId>
             <artifactId>xstream</artifactId>
-            <version>&xstream-version;</version>
+            <version>${xstream_version}</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -390,7 +384,7 @@
             <artifactId>xpp3</artifactId>
             <url>http://www.extreme.indiana.edu/xgws/xsoap/xpp</url>
             <!-- can we get by with 1.1.3.3_min?-->
-            <version>&xpp3-version;</version>
+            <version>${xpp3_version}</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -400,7 +394,7 @@
         <dependency>
             <groupId>axion</groupId>
             <artifactId>axion</artifactId>
-            <version>&axion-version;</version>
+            <version>${axion_version}</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -410,7 +404,7 @@
         <dependency>
             <groupId>activemq</groupId>
             <artifactId>activemq-core</artifactId>
-            <version>&activemq-version;</version>
+            <version>${activemq_version}</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -418,7 +412,7 @@
         <dependency>
             <groupId>activemq</groupId>
             <artifactId>activemq-gbean</artifactId>
-            <version>&activemq-version;</version>
+            <version>${activemq_version}</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -426,7 +420,7 @@
         <dependency>
             <groupId>activemq</groupId>
             <artifactId>activemq-store-jdbm</artifactId>
-            <version>&activemq-version;</version>
+            <version>${activemq_version}</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -434,14 +428,15 @@
         <dependency>
             <groupId>activemq</groupId>
             <artifactId>activemq-ra</artifactId>
-            <version>&activemq-version;</version>
+            <version>${activemq_version}</version>
             <type>rar</type>
             <properties>
                 <repository>true</repository>
             </properties>
         </dependency>
         <dependency>
-            <id>jdbm</id>
+            <groupId>jdbm</groupId>
+            <artifactId>jdbm</artifactId>
             <version>0.20-dev</version>
             <properties>
                 <repository>true</repository>
@@ -451,7 +446,7 @@
         <dependency>
             <groupId>derby</groupId>
             <artifactId>derby</artifactId>
-            <version>&derby-version;</version>
+            <version>${derby_version}</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -460,7 +455,7 @@
         <dependency>
             <groupId>derby</groupId>
             <artifactId>derbynet</artifactId>
-            <version>&derby-version;</version>
+            <version>${derby_version}</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -469,7 +464,7 @@
         <dependency>
             <groupId>castor</groupId>
             <artifactId>castor</artifactId>
-            <version>&castor-version;</version>
+            <version>${castor_version}</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -478,7 +473,7 @@
         <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib-full</artifactId>
-            <version>&cglib-version;</version>
+            <version>${cglib_version}</version>
             <url>http://cglib.sf.net/</url>
             <properties>
                 <lib>true</lib>
@@ -491,7 +486,7 @@
         <dependency>
             <groupId>commons-cli</groupId>
             <artifactId>commons-cli</artifactId>
-            <version>&commons-cli-version;</version>
+            <version>${commons_cli_version}</version>
             <url>http://jakarta.apache.org/commons/cli/</url>
             <properties>
                 <lib>true</lib>
@@ -505,7 +500,7 @@
             <!--axion only-->
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
-            <version>&commons-collections-version;</version>
+            <version>${commons_collections_version}</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -514,7 +509,7 @@
         <dependency>
             <groupId>commons-el</groupId>
             <artifactId>commons-el</artifactId>
-            <version>&commons-el-version;</version>
+            <version>${commons_el_version}</version>
             <url>http://jakarta.apache.org/commons/el/</url>
             <properties>
                 <repository>true</repository>
@@ -524,7 +519,7 @@
         <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
-            <version>&commons-fileupload-version;</version>
+            <version>${commons_fileupload_version}</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -534,7 +529,7 @@
             <!--axion-->
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-            <version>&commons-logging-version;</version>
+            <version>${commons_logging_version}</version>
             <url>http://jakarta.apache.org/commons/logging/</url>
             <properties>
                 <lib>true</lib>
@@ -549,7 +544,7 @@
             <!--axion-->
             <groupId>commons-primitives</groupId>
             <artifactId>commons-primitives</artifactId>
-            <version>&commons-primitives-version;</version>
+            <version>${commons_primitives_version}</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -558,7 +553,7 @@
         <dependency>
             <groupId>concurrent</groupId>
             <artifactId>concurrent</artifactId>
-            <version>&concurrent-version;</version>
+            <version>${concurrent_version}</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -567,7 +562,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>&junit-version;</version>
+            <version>${junit_version}</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -576,7 +571,7 @@
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
-            <version>&log4j-version;</version>
+            <version>${log4j_version}</version>
             <url>http://jakarta.apache.org/log4j</url>
             <properties>
                 <lib>true</lib>
@@ -589,7 +584,7 @@
         <dependency>
             <groupId>mx4j</groupId>
             <artifactId>mx4j</artifactId>
-            <version>&mx4j-version;</version>
+            <version>${mx4j_version}</version>
             <properties>
                 <lib>true</lib>
                 <server>true</server>
@@ -607,7 +602,7 @@
         <dependency>
             <groupId>mx4j</groupId>
             <artifactId>mx4j-remote</artifactId>
-            <version>&mx4j-version;</version>
+            <version>${mx4j_version}</version>
             <properties>
                 <lib>true</lib>
                 <server>true</server>
@@ -620,7 +615,7 @@
         <dependency>
             <groupId>openejb</groupId>
             <artifactId>openejb-core</artifactId>
-            <version>&openejb-version;</version>
+            <version>${openejb_version}</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -629,7 +624,7 @@
         <dependency>
             <groupId>openejb</groupId>
             <artifactId>openejb-builder</artifactId>
-            <version>&openejb-version;</version>
+            <version>${openejb_version}</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -639,7 +634,7 @@
             <!--axion-->
             <groupId>regexp</groupId>
             <artifactId>regexp</artifactId>
-            <version>&regexp-version;</version>
+            <version>${regexp_version}</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -649,7 +644,7 @@
         <dependency>
             <groupId>xerces</groupId>
             <artifactId>xercesImpl</artifactId>
-            <version>&xerces-version;</version>
+            <version>${xerces_version}</version>
             <properties>
                 <lib>true</lib>
                 <server>true</server>
@@ -660,7 +655,7 @@
         <dependency>
             <groupId>xerces</groupId>
             <artifactId>xmlParserAPIs</artifactId>
-            <version>&xml-parser-apis-version;</version>
+            <version>${xml_parser_apis_version}</version>
             <properties>
                 <lib>true</lib>
                 <server>true</server>
@@ -671,7 +666,7 @@
         <dependency>
             <groupId>xmlbeans</groupId>
             <artifactId>xbean-apache</artifactId>
-            <version>&xmlbeans-version;</version>
+            <version>${xmlbeans_version}</version>
             <properties>
                 <lib>true</lib>
                 <deploy>true</deploy>
@@ -683,7 +678,7 @@
         <dependency>
             <groupId>tranql</groupId>
             <artifactId>tranql</artifactId>
-            <version>&tranql-version;</version>
+            <version>${tranql_version}</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -692,7 +687,7 @@
         <dependency>
             <groupId>antlr</groupId>
             <artifactId>antlr</artifactId>
-            <version>&antlr-version;</version>
+            <version>${antlr_version}</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -702,7 +697,7 @@
         <dependency>
             <groupId>jetty</groupId>
             <artifactId>org.mortbay.jetty</artifactId>
-            <version>&jetty-version;</version>
+            <version>${jetty_version}</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -721,7 +716,7 @@
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>catalina</artifactId>
-            <version>&tomcat-version;</version>
+            <version>${tomcat_version}</version>
             <url>http://jakarta.apache.org/tomcat/</url>
             <properties>
                 <repository>true</repository>
@@ -730,7 +725,7 @@
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>catalina</artifactId>
-            <version>&tomcat-version;</version>
+            <version>${tomcat_version}</version>
             <url>http://jakarta.apache.org/tomcat/</url>
             <properties>
                 <repository>true</repository>
@@ -739,7 +734,7 @@
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>catalina-optional</artifactId>
-            <version>&tomcat-version;</version>
+            <version>${tomcat_version}</version>
             <url>http://jakarta.apache.org/tomcat/</url>
             <properties>
                 <repository>true</repository>
@@ -748,7 +743,7 @@
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>tomcat-coyote</artifactId>
-            <version>&tomcat-version;</version>
+            <version>${tomcat_version}</version>
             <url>http://jakarta.apache.org/tomcat/</url>
             <properties>
                 <repository>true</repository>
@@ -757,7 +752,7 @@
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>tomcat-http</artifactId>
-            <version>&tomcat-version;</version>
+            <version>${tomcat_version}</version>
             <url>http://jakarta.apache.org/tomcat/</url>
             <properties>
                 <repository>true</repository>
@@ -766,7 +761,7 @@
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>tomcat-util</artifactId>
-            <version>&tomcat-version;</version>
+            <version>${tomcat_version}</version>
             <url>http://jakarta.apache.org/tomcat/</url>
             <properties>
                 <repository>true</repository>
@@ -775,7 +770,7 @@
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>naming-resources</artifactId>
-            <version>&tomcat-version;</version>
+            <version>${tomcat_version}</version>
             <url>http://jakarta.apache.org/tomcat/</url>
             <properties>
                 <repository>true</repository>
@@ -784,7 +779,7 @@
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>servlets-default</artifactId>
-            <version>&tomcat-version;</version>
+            <version>${tomcat_version}</version>
             <url>http://jakarta.apache.org/tomcat/</url>
             <properties>
                 <repository>true</repository>
@@ -793,7 +788,7 @@
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>servlets-invoker</artifactId>
-            <version>&tomcat-version;</version>
+            <version>${tomcat_version}</version>
             <url>http://jakarta.apache.org/tomcat/</url>
             <properties>
                 <repository>true</repository>
@@ -802,7 +797,7 @@
         <dependency>
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
-            <version>&commons-beanutils-version;</version>
+            <version>${commons_beanutils_version}</version>
             <url>http://jakarta.apache.org/commons/beanutils</url>
             <properties>
                 <repository>true</repository>
@@ -811,7 +806,7 @@
         <dependency>
             <groupId>commons-digester</groupId>
             <artifactId>commons-digester</artifactId>
-            <version>&commons-digester-version;</version>
+            <version>${commons_digester_version}</version>
             <url>http://jakarta.apache.org/commons/digester</url>
             <properties>
                 <repository>true</repository>
@@ -820,7 +815,7 @@
         <dependency>
             <groupId>commons-modeler</groupId>
             <artifactId>commons-modeler</artifactId>
-            <version>&commons-modeler-version;</version>
+            <version>${commons_modeler_version}</version>
             <url>http://jakarta.apache.org/commons/modeler</url>
             <properties>
                 <repository>true</repository>
@@ -832,7 +827,7 @@
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>jasper-compiler</artifactId>
-            <version>&jasper-version;</version>
+            <version>${jasper_version}</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -840,7 +835,7 @@
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>jasper-compiler-jdt</artifactId>
-            <version>&jasper-version;</version>
+            <version>${jasper_version}</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -848,7 +843,7 @@
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>jasper-runtime</artifactId>
-            <version>&jasper-version;</version>
+            <version>${jasper_version}</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -882,7 +877,7 @@
 	<dependency>
 	    <groupId>geronimo-spec</groupId>
 	    <artifactId>geronimo-spec-activation</artifactId>
-	    <version>&geronimo-spec-activation-version;</version>
+	    <version>${geronimo_spec_activation_version}</version>
 	    <properties>
 		<repository>true</repository>
 	    </properties>
@@ -891,7 +886,7 @@
 	<dependency>
 	    <groupId>geronimo-spec</groupId>
 	    <artifactId>geronimo-spec-javamail</artifactId>
-	    <version>&geronimo-spec-javamail-version;</version>
+	    <version>${geronimo_spec_javamail_version}</version>
 	    <properties>
 		<repository>true</repository>
 	    </properties>
@@ -900,7 +895,7 @@
         <dependency>
             <groupId>axis</groupId>
             <artifactId>axis</artifactId>
-            <version>&axis-version;</version>
+            <version>${axis_version}</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -909,7 +904,7 @@
         <dependency>
             <groupId>axis</groupId>
             <artifactId>commons-discovery</artifactId>
-            <version>&axis-commons-discovery-version;</version>
+            <version>${axis_commons_discovery_version}</version>
             <properties>
                 <repository>true</repository>
             </properties>

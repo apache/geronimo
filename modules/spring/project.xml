@@ -16,17 +16,11 @@
     limitations under the License.
 -->
   
-<!DOCTYPE project [
-<!ENTITY % locator SYSTEM "file:locator.ent">
-%locator;
-%versions;
-]>
-
 <!-- $Rev$ $Date$ -->
 
 <project>
     <pomVersion>3</pomVersion>
-    <extend>${basedir}/../../etc/project.xml</extend>
+    <extend>../../etc/project.xml</extend>
 
     <!-- ===================== -->
     <!-- Module Identification -->
@@ -58,33 +52,33 @@
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-            <version>&commons-logging-version;</version>
+            <version>${commons_logging_version}</version>
             <url>http://jakarta.apache.org/commons/logging/</url>
         </dependency>
 
         <dependency>
             <groupId>concurrent</groupId>
             <artifactId>concurrent</artifactId>
-            <version>&concurrent-version;</version>
+            <version>${concurrent_version}</version>
         </dependency>
 
         <dependency>
             <groupId>mx4j</groupId>
             <artifactId>mx4j</artifactId>
-            <version>&mx4j-version;</version>
+            <version>${mx4j_version}</version>
         </dependency>
 
         <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib-full</artifactId>
-            <version>&cglib-version;</version>
+            <version>${cglib_version}</version>
             <url>http://cglib.sf.net/</url>
         </dependency>
 
       <dependency>
         <id>springframework</id>
         <artifactId>spring-full</artifactId>
-        <version>&spring-version;</version>
+        <version>${spring_version}</version>
         <url>http://www.springframework.org</url>
       </dependency>
 

@@ -16,17 +16,11 @@
     limitations under the License.
 -->
 
-<!DOCTYPE project [
-<!ENTITY % locator SYSTEM "file:locator.ent">
-%locator;
-%versions;
-]>
-
 <!-- $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $ -->
 
 <project>
     <pomVersion>3</pomVersion>
-    <extend>${basedir}/../../etc/project.xml</extend>
+    <extend>../../etc/project.xml</extend>
 
     <!-- ===================== -->
     <!-- Module Identification -->
@@ -50,12 +44,12 @@
         <dependency>
             <groupId>xmlbeans</groupId>
             <artifactId>xbean-apache</artifactId>
-            <version>&xmlbeans-version;</version>
+            <version>${xmlbeans_version}</version>
         </dependency>
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-deployment</artifactId>
-            <version>&geronimo-spec-j2ee-deployment-version;</version>
+            <version>${geronimo_spec_j2ee_deployment_version}</version>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>

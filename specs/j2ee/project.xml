@@ -16,23 +16,17 @@
     limitations under the License.
 -->
   
-<!DOCTYPE project [
-<!ENTITY % locator SYSTEM "file:locator.ent">
-%locator;
-%versions;
-]>
-
 <!-- $Rev$ $Date$ -->
 
 <project>
     <pomVersion>3</pomVersion>
-    <extend>${basedir}/../../etc/project.xml</extend>
+    <extend>../../etc/project.xml</extend>
 
     <name>Geronimo :: J2EE Specification</name>
     <groupId>geronimo-spec</groupId>
     <id>geronimo-spec-j2ee</id>
 
-    <currentVersion>&geronimo-spec-j2ee-version;</currentVersion>
+    <currentVersion>${geronimo_spec_j2ee_version}</currentVersion>
 
     <!-- ============ -->
     <!-- Dependencies -->
@@ -42,85 +36,85 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-activation</artifactId>
-            <version>&geronimo-spec-activation-version;</version>
+            <version>${geronimo_spec_activation_version}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-ejb</artifactId>
-            <version>&geronimo-spec-ejb-version;</version>
+            <version>${geronimo_spec_ejb_version}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-connector</artifactId>
-            <version>&geronimo-spec-j2ee-connector-version;</version>
+            <version>${geronimo_spec_j2ee_connector_version}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-deployment</artifactId>
-            <version>&geronimo-spec-j2ee-deployment-version;</version>
+            <version>${geronimo_spec_j2ee_deployment_version}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-jacc</artifactId>
-            <version>&geronimo-spec-j2ee-jacc-version;</version>
+            <version>${geronimo_spec_j2ee_jacc_version}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-management</artifactId>
-            <version>&geronimo-spec-j2ee-management-version;</version>
+            <version>${geronimo_spec_j2ee_management_version}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jms</artifactId>
-            <version>&geronimo-spec-jms-version;</version>
+            <version>${geronimo_spec_jms_version}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-javamail</artifactId>
-            <version>&geronimo-spec-javamail-version;</version>
+            <version>${geronimo_spec_javamail_version}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jaxr</artifactId>
-            <version>&geronimo-spec-jaxr-version;</version>
+            <version>${geronimo_spec_jaxr_version}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jsp</artifactId>
-            <version>&geronimo-spec-jsp-version;</version>
+            <version>${geronimo_spec_jsp_version}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jta</artifactId>
-            <version>&geronimo-spec-jta-version;</version>
+            <version>${geronimo_spec_jta_version}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-servlet</artifactId>
-            <version>&geronimo-spec-servlet-version;</version>
+            <version>${geronimo_spec_servlet_version}</version>
         </dependency>
 
         <dependency>
             <groupId>axis</groupId>
             <artifactId>axis-jaxrpc</artifactId>
-            <version>&axis-jaxrpc-version;</version>
+            <version>${axis_jaxrpc_version}</version>
         </dependency>
 
         <dependency>
             <groupId>axis</groupId>
             <artifactId>axis-saaj</artifactId>
-            <version>&axis-saaj-version;</version>
+            <version>${axis_saaj_version}</version>
         </dependency>
 
     </dependencies>

@@ -16,17 +16,11 @@
     limitations under the License.
 -->
 
-<!DOCTYPE project [
-<!ENTITY % locator SYSTEM "file:locator.ent">
-%locator;
-%versions;
-]>
-
 <!-- $Rev$ $Date$ -->
 
 <project>
     <pomVersion>3</pomVersion>
-    <extend>${basedir}/../../etc/project.xml</extend>
+    <extend>../../etc/project.xml</extend>
 
     <name>Geronimo :: Java Activation Framework </name>
     <groupId>geronimo-spec</groupId>
@@ -38,5 +32,5 @@
 
     <package>javax.activation</package>
 
-    <currentVersion>&geronimo-spec-activation-version;</currentVersion>
+    <currentVersion>${geronimo_spec_activation_version}</currentVersion>
 </project>

@@ -21,7 +21,7 @@
 <project>
 
     <pomVersion>3</pomVersion>
-    <extend>${basedir}/etc/project.xml</extend>
+    <extend>etc/project.xml</extend>
     <id>geronimo</id>
     
     <!-- ===================== -->

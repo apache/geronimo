@@ -16,12 +16,6 @@
     limitations under the License.
 -->
 
-<!DOCTYPE project [
-<!ENTITY % locator SYSTEM "file:locator.ent">
-%locator;
-%versions;
-]>
-
 <!-- $Rev: 47116 $ $Date: 2004-09-23 13:35:58 -0700 (Thu, 23 Sep 2004) $ -->
 
 
@@ -30,7 +24,7 @@
   <!-- the version of maven's project object model -->
 
   <pomVersion>3</pomVersion>
-  <extend>${basedir}/../../../etc/project.xml</extend>
+  <extend>../../../etc/project.xml</extend>
   
   <groupId>geronimo-itest</groupId>
   <artifactId>geronimo-itest-naming-client</artifactId>
@@ -52,7 +46,7 @@
       <dependency>
           <groupId>mx4j</groupId>
           <artifactId>mx4j</artifactId>
-          <version>&mx4j-version;</version>
+          <version>${mx4j_version}</version>
       </dependency>
 
       <dependency>
@@ -64,13 +58,13 @@
       <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jms</artifactId>
-            <version>&geronimo-spec-jms-version;</version>
+            <version>${geronimo_spec_jms_version}</version>
         </dependency>
 
         <dependency>
            <groupId>axion</groupId>
            <artifactId>axion</artifactId>
-           <version>&axion-version;</version>
+           <version>${axion_version}</version>
            <properties>
                <repository>true</repository>
            </properties>
@@ -79,7 +73,7 @@
       <dependency>
           <groupId>tranql</groupId>
           <artifactId>tranql-connector</artifactId>
-          <version>&tranql-connector-version;</version>
+          <version>${tranql_connector_version}</version>
           <type>rar</type>
           <properties>
               <repository>true</repository>
@@ -90,7 +84,7 @@
            <!--axion only-->
            <groupId>commons-collections</groupId>
            <artifactId>commons-collections</artifactId>
-           <version>&commons-collections-version;</version>
+           <version>${commons_collections_version}</version>
            <properties>
                <repository>true</repository>
            </properties>
@@ -100,7 +94,7 @@
           <!--axion-->
           <groupId>commons-primitives</groupId>
           <artifactId>commons-primitives</artifactId>
-          <version>&commons-primitives-version;</version>
+          <version>${commons_primitives_version}</version>
           <properties>
               <repository>true</repository>
           </properties>
@@ -110,7 +104,7 @@
           <!--axion-->
           <groupId>regexp</groupId>
           <artifactId>regexp</artifactId>
-          <version>&regexp-version;</version>
+          <version>${regexp_version}</version>
           <properties>
               <repository>true</repository>
           </properties>
@@ -120,7 +114,7 @@
       <dependency>
            <groupId>activemq</groupId>
            <artifactId>activemq-ra</artifactId>
-           <version>&activemq-version;</version>
+           <version>${activemq_version}</version>
            <type>rar</type>
            <properties>
                <repository>true</repository>

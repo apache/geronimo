@@ -16,17 +16,11 @@
     limitations under the License.
 -->
 
-<!DOCTYPE project [
-<!ENTITY % locator SYSTEM "file:locator.ent">
-%locator;
-%versions;
-]>
-
 <!-- $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $ -->
 
 <project>
     <pomVersion>3</pomVersion>
-    <extend>${basedir}/../../etc/project.xml</extend>
+    <extend>../../etc/project.xml</extend>
 
     <!-- ===================== -->
     <!-- Module Identification -->
@@ -61,18 +55,18 @@
         <dependency>
             <groupId>derby</groupId>
             <artifactId>derby</artifactId>
-            <version>&derby-version;</version>
+            <version>${derby_version}</version>
         </dependency>
         <dependency>
             <groupId>derby</groupId>
             <artifactId>derbynet</artifactId>
-            <version>&derby-version;</version>
+            <version>${derby_version}</version>
         </dependency>
 
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-            <version>&commons-logging-version;</version>
+            <version>${commons_logging_version}</version>
             <url>http://jakarta.apache.org/commons/logging/</url>
         </dependency>
     </dependencies>

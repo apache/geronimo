@@ -16,17 +16,12 @@
     limitations under the License.
 -->
   
-<!DOCTYPE project [
-<!ENTITY % locator SYSTEM "file:locator.ent">
-%locator;
-%versions;
-]>
                                                     
 <!-- $Rev$ $Date$ -->
 
 <project>
     <pomVersion>3</pomVersion>
-    <extend>${basedir}/../../etc/project.xml</extend>
+    <extend>../../etc/project.xml</extend>
     <name>Geronimo :: JMS Specification</name>
     <groupId>geronimo-spec</groupId>
     <id>geronimo-spec-jms</id>
@@ -34,20 +29,20 @@
     <description>J2EE Java Message Service Specification</description>
     <package>javax.jms</package>
 
-    <currentVersion>&geronimo-spec-jms-version;</currentVersion>
+    <currentVersion>${geronimo_spec_jms_version}</currentVersion>
 
     <dependencies>
         <!-- Plugin Dependencies -->
         <dependency>
             <groupId>mockobjects</groupId>
             <artifactId>mockobjects-jdk1.4-j2ee1.3</artifactId>
-            <version>&mockobjects-version;</version>
+            <version>${mockobjects_version}</version>
         </dependency>
 
         <dependency>
             <groupId>mockobjects</groupId>
             <artifactId>mockobjects-core</artifactId>
-            <version>&mockobjects-version;</version>
+            <version>${mockobjects_version}</version>
         </dependency>
 
     </dependencies>

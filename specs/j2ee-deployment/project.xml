@@ -17,17 +17,11 @@
 -->
   
 
-<!DOCTYPE project [
-<!ENTITY % locator SYSTEM "file:locator.ent">
-%locator;
-%versions;
-]>
-
 <!-- $Rev$ $Date$ -->
 
 <project>
     <pomVersion>3</pomVersion>
-    <extend>${basedir}/../../etc/project.xml</extend>
+    <extend>../../etc/project.xml</extend>
 
     <name>Geronimo :: J2EE Application Deployment Specification</name>
     <groupId>geronimo-spec</groupId>
@@ -52,6 +46,6 @@
 
     <package>javax.enterprise.deploy</package>
 
-    <currentVersion>&geronimo-spec-j2ee-deployment-version;</currentVersion>
+    <currentVersion>${geronimo_spec_j2ee_deployment_version}</currentVersion>
 
 </project>
