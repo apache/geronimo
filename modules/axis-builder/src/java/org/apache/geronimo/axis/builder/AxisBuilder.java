@@ -72,13 +72,12 @@ import org.apache.geronimo.axis.client.SEIFactoryImpl;
 import org.apache.geronimo.axis.client.ServiceEndpointMethodInterceptor;
 import org.apache.geronimo.axis.client.ServiceImpl;
 import org.apache.geronimo.axis.client.ServiceMethodInterceptor;
-import org.apache.geronimo.axis.client.ServiceRefAddr;
+import org.apache.geronimo.axis.client.ServiceReference;
 import org.apache.geronimo.axis.client.SerializableNoOp;
 import org.apache.geronimo.axis.client.NoOverrideCallbackFilter;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
-import org.apache.geronimo.naming.reference.RefAddrContentObjectFactory;
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingDocument;
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingType;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -95,7 +94,7 @@ public class AxisBuilder implements ServiceReferenceBuilder {
     private static final URI ENHANCED_LOCATION = URI.create("cglib");
     private static final SOAPConstants SOAP_VERSION = SOAPConstants.SOAP11_CONSTANTS;
 
-    public Reference createServiceReference(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlers, DeploymentContext deploymentContext, ClassLoader classLoader) throws DeploymentException {
+    public ServiceReference createServiceReference(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlers, DeploymentContext deploymentContext, ClassLoader classLoader) throws DeploymentException {
 
         Enhancer enhancer = new Enhancer();
         enhancer.setClassLoader(classLoader);
@@ -109,12 +108,7 @@ public class AxisBuilder implements ServiceReferenceBuilder {
         Class enhanced = enhancer.createClass();
 
         saveClass(deploymentContext, enhanced.getName(), strategy.getClassBytes());
-        ServiceRefAddr refAddr = new ServiceRefAddr(enhanced, null, null);
-
-        Reference ref = new Reference(null, RefAddrContentObjectFactory.class.getName(), null);
-        ref.add(refAddr);
-
-        return ref;
+        return new ServiceReference(enhanced, null, null);
     }
 
     public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlers, DeploymentContext deploymentContext, ClassLoader classLoader) throws DeploymentException {
