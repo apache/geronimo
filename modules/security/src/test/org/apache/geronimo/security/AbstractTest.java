@@ -44,9 +44,6 @@ public abstract class AbstractTest extends TestCase {
     protected ObjectName loginService;
     protected ObjectName testLoginModule;
     protected ObjectName testRealm;
-    protected ObjectName subsystemRouter;
-    protected ObjectName asyncTransport;
-    protected ObjectName jmxRouter;
     protected ObjectName serverStub;
 
     protected void setUp() throws Exception {
@@ -80,49 +77,26 @@ public abstract class AbstractTest extends TestCase {
         gbean.setAttribute("loginModuleConfiguration", props);
         kernel.loadGBean(testRealm, gbean);
 
-        gbean = new GBeanMBean("org.apache.geronimo.remoting.router.SubsystemRouter");
-        subsystemRouter = new ObjectName("geronimo.remoting:router=SubsystemRouter");
-        kernel.loadGBean(subsystemRouter, gbean);
-
-        gbean = new GBeanMBean("org.apache.geronimo.remoting.transport.TransportLoader");
-        gbean.setAttribute("bindURI", new URI("async://0.0.0.0:4242"));
-        gbean.setReferencePatterns("Router", Collections.singleton(subsystemRouter));
-        asyncTransport = new ObjectName("geronimo.remoting:transport=async");
-        kernel.loadGBean(asyncTransport, gbean);
-
-        gbean = new GBeanMBean("org.apache.geronimo.remoting.router.JMXRouter");
-        gbean.setReferencePatterns("SubsystemRouter", Collections.singleton(subsystemRouter));
-        jmxRouter = new ObjectName("geronimo.remoting:router=JMXRouter");
-        kernel.loadGBean(jmxRouter, gbean);
-
         gbean = new GBeanMBean("org.apache.geronimo.security.remoting.jmx.JaasLoginServiceRemotingServer");
-        gbean.setReferencePatterns("Router", Collections.singleton(jmxRouter));
+        gbean.setAttribute("bindURI", new URI("tcp://0.0.0.0:4242"));
+        gbean.setReferencePattern("loginService", loginService);
         serverStub = new ObjectName("geronimo.remoting:target=JaasLoginServiceRemotingServer");
         kernel.loadGBean(serverStub, gbean);
 
         kernel.startGBean(loginService);
         kernel.startGBean(testLoginModule);
         kernel.startGBean(testRealm);
-        kernel.startGBean(subsystemRouter);
-        kernel.startGBean(asyncTransport);
-        kernel.startGBean(jmxRouter);
         kernel.startGBean(serverStub);
     }
 
     protected void tearDown() throws Exception {
         kernel.stopGBean(serverStub);
-        kernel.stopGBean(jmxRouter);
-        kernel.stopGBean(asyncTransport);
-        kernel.stopGBean(subsystemRouter);
         kernel.stopGBean(testRealm);
         kernel.stopGBean(loginService);
 
         kernel.unloadGBean(loginService);
         kernel.unloadGBean(testRealm);
         kernel.unloadGBean(testLoginModule);
-        kernel.unloadGBean(subsystemRouter);
-        kernel.unloadGBean(asyncTransport);
-        kernel.unloadGBean(jmxRouter);
         kernel.unloadGBean(serverStub);
 
         kernel.shutdown();

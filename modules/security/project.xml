@@ -59,12 +59,13 @@
             <artifactId>geronimo-kernel</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
-
+	<!--
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-remoting</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
+	-->
 
         <dependency>
             <groupId>geronimo</groupId>
@@ -97,6 +98,12 @@
             <groupId>concurrent</groupId>
             <artifactId>concurrent</artifactId>
             <version>${concurrent_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>activeio</groupId>
+            <artifactId>activeio</artifactId>
+            <version>${activeio_version}</version>
         </dependency>
 
         <dependency>

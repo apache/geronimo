@@ -17,14 +17,11 @@
 
 package org.apache.geronimo.security.remoting.jmx;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.proxy.ProxyContainer;
-import org.apache.geronimo.remoting.MarshalingInterceptor;
-import org.apache.geronimo.remoting.jmx.NotificationRemoterInterceptor;
-import org.apache.geronimo.remoting.transport.RemoteTransportInterceptor;
 import org.apache.geronimo.security.jaas.JaasLoginServiceMBean;
 
 
@@ -38,21 +35,23 @@ public class JaasLoginServiceRemotingClient {
         URI target;
         try {
             target = new URI("async", null, host, port, "/JMX", null, "geronimo.remoting:target=JaasLoginServiceRemotingServer");
+            return create(target);
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("Bad host or port.");
+        } catch (IOException e) {
+            throw new RuntimeException("IOException: "+e.getMessage(), e);
         }
-        return create(target);
     }
 
-    static public JaasLoginServiceMBean create(URI target) {
+    static public JaasLoginServiceMBean create(URI target) throws IOException, URISyntaxException {
+        
+        ClassLoader cl = JaasLoginServiceMBean.class.getClassLoader();
+        
         // Setup the client side container..
-        RemoteTransportInterceptor remoteInterceptor = new RemoteTransportInterceptor(target);
-        remoteInterceptor.setRemoteURI(target);
-
-        Interceptor firstInterceptor = new MarshalingInterceptor(remoteInterceptor);
-        firstInterceptor = new NotificationRemoterInterceptor(firstInterceptor);
-
-        ProxyContainer clientContainer = new ProxyContainer(firstInterceptor);
-        return (JaasLoginServiceMBean) clientContainer.createProxy(JaasLoginServiceMBean.class.getClassLoader(), new Class[]{JaasLoginServiceMBean.class});
+        RequestChannelInterceptor remoteInterceptor = new RequestChannelInterceptor(target, cl);
+        ProxyContainer clientContainer = new ProxyContainer(remoteInterceptor);
+        return (JaasLoginServiceMBean) clientContainer.createProxy(cl , new Class[]{JaasLoginServiceMBean.class});
+        
     }
+        
 }

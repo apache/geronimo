@@ -65,30 +65,14 @@ public class TimeoutTest extends AbstractTest {
         gbean.setAttribute("password", "secret");
         kernel.loadGBean(loginService, gbean);
 
-        gbean = new GBeanMBean("org.apache.geronimo.remoting.router.SubsystemRouter");
-        subsystemRouter = new ObjectName("geronimo.remoting:router=SubsystemRouter");
-        kernel.loadGBean(subsystemRouter, gbean);
-
-        gbean = new GBeanMBean("org.apache.geronimo.remoting.transport.TransportLoader");
-        gbean.setAttribute("bindURI", new URI("async://0.0.0.0:4242"));
-        gbean.setReferencePatterns("Router", Collections.singleton(subsystemRouter));
-        asyncTransport = new ObjectName("geronimo.remoting:transport=async");
-        kernel.loadGBean(asyncTransport, gbean);
-
-        gbean = new GBeanMBean("org.apache.geronimo.remoting.router.JMXRouter");
-        gbean.setReferencePatterns("SubsystemRouter", Collections.singleton(subsystemRouter));
-        jmxRouter = new ObjectName("geronimo.remoting:router=JMXRouter");
-        kernel.loadGBean(jmxRouter, gbean);
 
         gbean = new GBeanMBean("org.apache.geronimo.security.remoting.jmx.JaasLoginServiceRemotingServer");
-        gbean.setReferencePatterns("Router", Collections.singleton(jmxRouter));
+        gbean.setAttribute("bindURI", new URI("tcp://0.0.0.0:4242"));
+        gbean.setReferencePattern("loginService", loginService);
         serverStub = new ObjectName("geronimo.remoting:target=JaasLoginServiceRemotingServer");
         kernel.loadGBean(serverStub, gbean);
 
         kernel.startGBean(loginService);
-        kernel.startGBean(subsystemRouter);
-        kernel.startGBean(asyncTransport);
-        kernel.startGBean(jmxRouter);
         kernel.startGBean(serverStub);
 
         gbean = new GBeanMBean(ServerInfo.GBEAN_INFO);
@@ -166,15 +150,9 @@ public class TimeoutTest extends AbstractTest {
         kernel.unloadGBean(serverInfo);
 
         kernel.stopGBean(serverStub);
-        kernel.stopGBean(jmxRouter);
-        kernel.stopGBean(asyncTransport);
-        kernel.stopGBean(subsystemRouter);
         kernel.stopGBean(loginService);
 
         kernel.unloadGBean(loginService);
-        kernel.unloadGBean(subsystemRouter);
-        kernel.unloadGBean(asyncTransport);
-        kernel.unloadGBean(jmxRouter);
         kernel.unloadGBean(serverStub);
 
         kernel.shutdown();

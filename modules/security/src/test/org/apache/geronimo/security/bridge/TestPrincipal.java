@@ -26,6 +26,8 @@ import java.security.Principal;
  */
 public class TestPrincipal implements Principal, Serializable {
 
+    private static final long serialVersionUID = 3546361729958426674L;
+    
     private String name;
 
     public TestPrincipal(String name) {

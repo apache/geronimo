@@ -17,21 +17,27 @@
 
 package org.apache.geronimo.security.remoting.jmx;
 
-import javax.management.ObjectName;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
+import org.activeio.AcceptListener;
+import org.activeio.AsynchChannelServer;
+import org.activeio.Channel;
+import org.activeio.RequestChannel;
+import org.activeio.SynchChannel;
+import org.activeio.SynchChannelServer;
+import org.activeio.adapter.AsynchChannelToServerRequestChannel;
+import org.activeio.adapter.SynchToAsynchChannelAdapter;
+import org.activeio.adapter.SynchToAsynchChannelServerAdapter;
+import org.activeio.filter.PacketAggregatingAsynchChannel;
+import org.activeio.net.TcpSynchChannelFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.proxy.ProxyContainer;
 import org.apache.geronimo.proxy.ReflexiveInterceptor;
-import org.apache.geronimo.remoting.DeMarshalingInterceptor;
-import org.apache.geronimo.remoting.router.JMXRouter;
-import org.apache.geronimo.remoting.router.JMXTarget;
 import org.apache.geronimo.security.jaas.JaasLoginServiceMBean;
 
 
@@ -42,69 +48,85 @@ import org.apache.geronimo.security.jaas.JaasLoginServiceMBean;
  * 
  * @version $Rev: 56022 $ $Date: 2004-10-30 01:16:18 -0400 (Sat, 30 Oct 2004) $
  */
-public class JaasLoginServiceRemotingServer implements GBeanLifecycle, JMXTarget {
+public class JaasLoginServiceRemotingServer implements GBeanLifecycle {
     private static final Log log = LogFactory.getLog(JaasLoginServiceRemotingServer.class);
-    private final Kernel kernel;
-    private final ObjectName objectName;
-    private ProxyContainer serverContainer;
-    private DeMarshalingInterceptor demarshaller;
-    private JMXRouter router;
+    private AsynchChannelServer server;
     private JaasLoginServiceMBean loginService;
+    private final URI bindURI;
 
-    public JaasLoginServiceRemotingServer(Kernel kernel, String objectName) {
-        this.kernel = kernel;
-        this.objectName = JMXUtil.getObjectName(objectName);
+    public JaasLoginServiceRemotingServer(URI bindURI, JaasLoginServiceMBean loginService) {
+        this.bindURI = bindURI;
+        this.loginService = loginService;
     }
 
-    public Interceptor getRemotingEndpointInterceptor() {
-        return demarshaller;
+    public URI getClientConnectURI() {
+        return server.getConnectURI();
     }
-
-    public JMXRouter getRouter() {
-        return router;
-    }
-
-    public void setRouter(JMXRouter router) {
-        this.router = router;
-    }
-
+    
     public void doStart() throws Exception {
-        router.register(objectName, this);
+        final ReflexiveInterceptor loginServiceInterceptor = new ReflexiveInterceptor(loginService);
+        
+        server = createAsynchChannelServer();
+        server.setAcceptListener(new AcceptListener() {
+            public void onAccept(Channel channel) {
+                RequestChannel requestChannel=null;
+                try {
+                    requestChannel = createRequestChannel((SynchChannel) channel);     
+                    
+                    RequestChannelInterceptorInvoker invoker = new RequestChannelInterceptorInvoker(loginServiceInterceptor, loginService.getClass().getClassLoader() ); 
+                    requestChannel.setRequestListener(invoker);
+                    requestChannel.start();
+                } catch (IOException e) {
+                    log.info("Failed to accept connection.", e);
+                    if( requestChannel!=null )
+                        requestChannel.dispose();
+                    else
+                        channel.dispose();
+                }                
+            }
+            public void onAcceptError(IOException error) {
+                log.info("Accept Failed: "+error);
+            }
+        });
+        
+        server.start();
+        log.info("Remote login service started on: "+server.getConnectURI()+" clients can connect to: "+server.getConnectURI());
+    }
+    
+    private AsynchChannelServer createAsynchChannelServer() throws IOException, URISyntaxException {
+        TcpSynchChannelFactory factory = new TcpSynchChannelFactory();
+        SynchChannelServer server = factory.bindSynchChannel(bindURI);
+        return new SynchToAsynchChannelServerAdapter(server);        
+    }
 
-        // Setup the server side contianer..
-        // todo dain: alan, why is this not a dependency?
-        // todo dain: hard coded object names are very very bery bad
-        loginService = (JaasLoginServiceMBean) kernel.getProxyManager().createProxy(JMXUtil.getObjectName("geronimo.security:type=JaasLoginService"), JaasLoginServiceMBean.class);
-        Interceptor firstInterceptor = new ReflexiveInterceptor(loginService);
-        demarshaller = new DeMarshalingInterceptor(firstInterceptor, getClass().getClassLoader());
-        serverContainer = new ProxyContainer(firstInterceptor);
-
-        log.info("Started login service stub");
+    private RequestChannel createRequestChannel(SynchChannel channel) throws IOException {
+        return new AsynchChannelToServerRequestChannel( 
+                new PacketAggregatingAsynchChannel(
+                        new SynchToAsynchChannelAdapter(channel)));
     }
 
     public void doStop() {
-        router.unregister(objectName);
-        kernel.getProxyManager().destroyProxy(loginService);
-        serverContainer = null;
-        demarshaller = null;
-        log.info("Stopped login service stub");
+        server.dispose();
+        server=null;        
+        log.info("Stopped remote login service.");
     }
 
     public void doFail() {
-        serverContainer = null;
-        demarshaller = null;
-        log.info("Failed login service stub");
+        if( server !=null ) {
+            server.dispose();
+	        server=null;        
+        }
+        log.info("Failed remote login service.");
     }
 
     public static final GBeanInfo GBEAN_INFO;
 
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(JaasLoginServiceRemotingServer.class);
-        infoFactory.addAttribute("kernel", Kernel.class, false);
-        infoFactory.addAttribute("objectName", String.class, false);
-        infoFactory.addReference("Router", JMXRouter.class);
-        infoFactory.addOperation("getRemotingEndpointInterceptor");
-        infoFactory.setConstructor(new String[]{"kernel", "objectName"});
+        infoFactory.addAttribute("bindURI", URI.class, true);
+        infoFactory.addAttribute("clientConnectURI", URI.class, false);        
+        infoFactory.addReference("loginService", JaasLoginServiceMBean.class);
+        infoFactory.setConstructor(new String[]{"bindURI", "loginService"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

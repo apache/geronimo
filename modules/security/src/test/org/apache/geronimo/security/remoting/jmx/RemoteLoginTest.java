@@ -49,13 +49,6 @@ public class RemoteLoginTest extends TestCase {
     ObjectName loginService;
     protected ObjectName testCE;
     protected ObjectName testRealm;
-    ObjectName subsystemRouter;
-    ObjectName secureSubsystemRouter;
-    ObjectName asyncTransport;
-    ObjectName saslTransport;
-    ObjectName gssapiTransport;
-    ObjectName jmxRouter;
-    ObjectName secureJmxRouter;
     ObjectName serverStub;
     JaasLoginServiceMBean asyncRemoteProxy;
     JaasLoginServiceMBean saslRemoteProxy;
@@ -127,78 +120,30 @@ public class RemoteLoginTest extends TestCase {
         gbean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfo));
         kernel.loadGBean(testRealm, gbean);
 
-        gbean = new GBeanMBean("org.apache.geronimo.remoting.router.SubsystemRouter");
-        subsystemRouter = new ObjectName("geronimo.remoting:router=SubsystemRouter");
-        kernel.loadGBean(subsystemRouter, gbean);
-
-        gbean = new GBeanMBean("org.apache.geronimo.remoting.transport.TransportLoader");
-        gbean.setAttribute("bindURI", new URI("async://0.0.0.0:0"));
-        gbean.setReferencePatterns("Router", Collections.singleton(subsystemRouter));
-        asyncTransport = new ObjectName("geronimo.remoting:transport=async");
-        kernel.loadGBean(asyncTransport, gbean);
-
-        gbean = new GBeanMBean("org.apache.geronimo.remoting.router.JMXRouter");
-        gbean.setReferencePatterns("SubsystemRouter", Collections.singleton(subsystemRouter));
-        jmxRouter = new ObjectName("geronimo.remoting:router=JMXRouter");
-        kernel.loadGBean(jmxRouter, gbean);
-
-        gbean = new GBeanMBean("org.apache.geronimo.remoting.router.SubsystemRouter");
-        secureSubsystemRouter = new ObjectName("geronimo.remoting:router=SubsystemRouter,type=secure");
-        kernel.loadGBean(secureSubsystemRouter, gbean);
-
-        gbean = new GBeanMBean("org.apache.geronimo.remoting.transport.TransportLoader");
-        gbean.setAttribute("bindURI", new URI("async://0.0.0.0:4242"));
-        gbean.setReferencePatterns("Router", Collections.singleton(secureSubsystemRouter));
-        saslTransport = new ObjectName("geronimo.remoting:transport=async,subprotocol=sasl");
-        kernel.loadGBean(saslTransport, gbean);
-
-        gbean = new GBeanMBean("org.apache.geronimo.remoting.transport.TransportLoader");
-        gbean.setAttribute("bindURI", new URI("async://0.0.0.0:4243"));
-        gbean.setReferencePatterns("Router", Collections.singleton(secureSubsystemRouter));
-        gssapiTransport = new ObjectName("geronimo.remoting:transport=async,subprotocol=gssapi");
-        kernel.loadGBean(gssapiTransport, gbean);
-
-        gbean = new GBeanMBean("org.apache.geronimo.remoting.router.JMXRouter");
-        gbean.setReferencePatterns("SubsystemRouter", Collections.singleton(secureSubsystemRouter));
-        secureJmxRouter = new ObjectName("geronimo.remoting:router=JMXRouter,type=secure");
-        kernel.loadGBean(secureJmxRouter, gbean);
 
         gbean = new GBeanMBean("org.apache.geronimo.security.remoting.jmx.JaasLoginServiceRemotingServer");
-        gbean.setReferencePatterns("Router", Collections.singleton(secureJmxRouter));
+        gbean.setAttribute("bindURI", new URI("tcp://0.0.0.0:4242"));
+        gbean.setReferencePattern("loginService", loginService);
         serverStub = new ObjectName("geronimo.remoting:target=JaasLoginServiceRemotingServer");
         kernel.loadGBean(serverStub, gbean);
 
         kernel.startGBean(loginService);
         kernel.startGBean(testCE);
         kernel.startGBean(testRealm);
-        kernel.startGBean(subsystemRouter);
-        kernel.startGBean(secureSubsystemRouter);
-        kernel.startGBean(asyncTransport);
-        kernel.startGBean(saslTransport);
-        kernel.startGBean(gssapiTransport);
-        kernel.startGBean(jmxRouter);
-        kernel.startGBean(secureJmxRouter);
         kernel.startGBean(serverStub);
 
-        URI connectURI = (URI) kernel.getAttribute(asyncTransport, "clientConnectURI");
+        URI connectURI = (URI) kernel.getAttribute(serverStub, "clientConnectURI");
         asyncRemoteProxy = JaasLoginServiceRemotingClient.create(connectURI.getHost(), connectURI.getPort());
 
-        connectURI = (URI) kernel.getAttribute(saslTransport, "clientConnectURI");
+        connectURI = (URI) kernel.getAttribute(serverStub, "clientConnectURI");
         saslRemoteProxy = JaasLoginServiceRemotingClient.create(connectURI.getHost(), connectURI.getPort());
 
-        connectURI = (URI) kernel.getAttribute(gssapiTransport, "clientConnectURI");
+        connectURI = (URI) kernel.getAttribute(serverStub, "clientConnectURI");
         gssapiRemoteProxy = JaasLoginServiceRemotingClient.create(connectURI.getHost(), connectURI.getPort());
     }
 
     protected void tearDown() throws Exception {
         kernel.stopGBean(serverStub);
-        kernel.stopGBean(secureJmxRouter);
-        kernel.stopGBean(jmxRouter);
-        kernel.stopGBean(gssapiTransport);
-        kernel.stopGBean(saslTransport);
-        kernel.stopGBean(asyncTransport);
-        kernel.stopGBean(secureSubsystemRouter);
-        kernel.stopGBean(subsystemRouter);
         kernel.stopGBean(testRealm);
         kernel.stopGBean(testCE);
         kernel.stopGBean(loginService);
@@ -207,13 +152,6 @@ public class RemoteLoginTest extends TestCase {
         kernel.unloadGBean(loginService);
         kernel.unloadGBean(testCE);
         kernel.unloadGBean(testRealm);
-        kernel.unloadGBean(subsystemRouter);
-        kernel.unloadGBean(secureSubsystemRouter);
-        kernel.unloadGBean(asyncTransport);
-        kernel.unloadGBean(saslTransport);
-        kernel.unloadGBean(gssapiTransport);
-        kernel.unloadGBean(jmxRouter);
-        kernel.unloadGBean(secureJmxRouter);
         kernel.unloadGBean(serverStub);
         kernel.unloadGBean(serverInfo);
 
