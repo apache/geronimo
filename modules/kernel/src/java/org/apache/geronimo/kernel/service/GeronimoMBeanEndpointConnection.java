@@ -75,7 +75,7 @@ import net.sf.cglib.reflect.FastClass;
 /**
  * This handles a connection to another mbean.
  *
- * @version $Revision: 1.3 $ $Date: 2003/11/14 02:36:44 $
+ * @version $Revision: 1.4 $ $Date: 2003/11/14 02:59:17 $
  */
 class GeronimoMBeanEndpointConnection {
     /**
@@ -161,7 +161,7 @@ class GeronimoMBeanEndpointConnection {
         Method[] methods = iface.getMethods();
         for (int i = 0; i < methods.length; i++) {
             Method method = methods[i];
-            if((method.getModifiers() & (Modifier.FINAL | Modifier.PUBLIC)) == Modifier.PUBLIC) {
+            if((method.getModifiers() & (Modifier.FINAL | Modifier.PUBLIC | Modifier.STATIC)) == Modifier.PUBLIC) {
                 int index = getSuperIndex(fastClass, method);
                 methodTable[index] = new InvokeMBean(method, false, false);
             }
