@@ -30,15 +30,19 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
  * @version $Rev$ $Date$
  */
 public class ServerInfo {
+    private final String baseDirectory;
     private final File base;
     private final URI baseURI;
 
     public ServerInfo() {
+        baseDirectory = null;
         base = null;
         baseURI = null;
     }
 
     public ServerInfo(String baseDirectory) throws Exception {
+        this.baseDirectory = baseDirectory;
+
         // force load of server constants
         ServerConstants.getVersion();
 
@@ -83,7 +87,7 @@ public class ServerInfo {
     }
 
     public String getBaseDirectory() {
-        return base.getAbsolutePath();
+        return baseDirectory;
     }
 
     public String getVersion() {

@@ -76,29 +76,86 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
 
     /**
      * The JMX name used by a Kernel to register itself when it boots.
+     * todo drop "geronimo.boot:" from this name so the kernel shows up in the kernel default domain
      */
     public static final ObjectName KERNEL = JMXUtil.getObjectName("geronimo.boot:role=Kernel");
 
+    /**
+     * Index of kernel (Weak) references by kernel name
+     */
     private static final Map kernels = new HashMap();
+
+    /**
+     * ReferenceQueue that watches the weak references to our kernels
+     */
     private static final ReferenceQueue queue = new ReferenceQueue();
-    private final String kernelName;
-    private final String domainName;
 
-    private Log log;
-    private boolean running;
-    private Date bootTime;
-    private MBeanServer mbServer;
-    private LinkedList shutdownHooks = new LinkedList();
-
-    private DependencyManager dependencyManager;
-
-    private ConfigurationManager configurationManager;
-    private GBeanMBean configurationManagerGBean;
-
+    /**
+     * Helper objects for invoke and getAttribute
+     */
     private static final String[] NO_TYPES = new String[0];
     private static final Object[] NO_ARGS = new Object[0];
+
+    /**
+     * Name of the configuration manager
+     * todo drop "geronimo.boot:" from this name so the configuration manger shows up in the kernel default domain
+     */
     private static final ObjectName CONFIGURATION_MANAGER_NAME = JMXUtil.getObjectName("geronimo.boot:role=ConfigurationManager");
+
+    /**
+     * Te pattern we use to find all the configuation stores registered with the kernel
+     */
     private static final ObjectName CONFIGURATION_STORE_PATTERN = JMXUtil.getObjectName("*:role=ConfigurationStore,*");
+
+    /**
+     * Name of this kernel
+     */
+    private final String kernelName;
+
+    /**
+     * JMX domain name of this kernel
+     */
+    private final String domainName;
+
+    /**
+     * The log
+     */
+    private Log log;
+
+    /**
+     * Is this kernel running?
+     */
+    private boolean running;
+
+    /**
+     * The timestamp when the kernel was started
+     */
+    private Date bootTime;
+
+    /**
+     * The MBean server used by this kernel
+     */
+    private MBeanServer mbServer;
+
+    /**
+     * Listeners for when the kernel shutdown
+     */
+    private LinkedList shutdownHooks = new LinkedList();
+
+    /**
+     * This manager is used by the kernel to manage dependencies between gbeans
+     */
+    private DependencyManager dependencyManager;
+
+    /**
+     * The kernel uses this manager to load configurations which are collections of GBeans
+     */
+    private ConfigurationManager configurationManager;
+
+    /**
+     * The GBeanMbean that wraps the configuration manager
+     */
+    private GBeanMBean configurationManagerGBean;
 
     /**
      * No-arg constructor allowing this class to be used as a GBean reference.
@@ -111,10 +168,11 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
     /**
      * Construct a Kernel which does not have a config store.
      *
-     * @param domainName the domain name to be used for the JMX MBeanServer
+     * @param kernelName the domain name to be used for the JMX MBeanServer
      */
-    public Kernel(String domainName) {
-        this(domainName, domainName);
+    public Kernel(String kernelName) {
+        this.kernelName = kernelName;
+        this.domainName = kernelName;
     }
 
     /**
@@ -122,6 +180,8 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
      *
      * @param kernelName the name of the kernel that uniquely indentifies the kernel in a VM
      * @param domainName the domain name to be used for the JMX MBeanServer
+     * @deprecated we are dropping the ability to have multiple kernels in a single mbean server, as the kernels will
+     * stomp on each others namespace
      */
     public Kernel(String kernelName, String domainName) {
         this.kernelName = kernelName;
@@ -380,7 +440,6 @@ public class Kernel extends NotificationBroadcasterSupport implements KernelMBea
     }
 
     public int getConfigurationState(URI configID) throws NoSuchConfigException {
-        ConfigurationManager configurationManager = getConfigurationManager();
          try {
              ObjectName configName = Configuration.getConfigurationObjectName(configID);
              return ((Integer)getAttribute(configName, "state")).intValue();
