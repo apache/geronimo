@@ -56,7 +56,6 @@
 package org.apache.geronimo.gbean.jmx;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -99,7 +98,7 @@ import org.apache.geronimo.kernel.management.NotificationType;
  * GeronimoMBeanInfo instance.  The GeronimoMBean also support caching of attribute values and invocation results
  * which can reduce the number of calls to a target.
  *
- * @version $Revision: 1.7 $ $Date: 2004/02/12 17:21:16 $
+ * @version $Revision: 1.8 $ $Date: 2004/02/12 17:21:42 $
  */
 public class GBeanMBean extends AbstractManagedObject implements DynamicMBean {
     public static final FastClass fastClass = FastClass.create(GBeanMBean.class);
