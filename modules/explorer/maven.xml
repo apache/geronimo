@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Revision: 1.1 $ $Date: 2003/10/29 09:01:53 $ -->
+
+<project default="default"
+  xmlns:j="jelly:core"
+  xmlns:ant="jelly:ant">
+  
+  <goal name="setclasspath">
+	<path id="test.classpath">
+	    <pathelement path="${maven.build.dest}"/>
+	    <pathelement path="target/classes"/>
+	    <pathelement path="target/test-classes"/>
+	    <path refid="maven.dependency.classpath"/>
+	</path>
+  </goal>
+
+  <postGoal name="java:compile">
+    <attainGoal name="groovy:compile"/>
+  </postGoal>
+  
+  <!-- this will move into the groovy plugin soon -->
+  <goal name="groovy:compile" prereqs="setclasspath"
+  		description="Compiles the Groovy source files">
+    <taskdef name="groovyc" classname="org.codehaus.groovy.ant.Groovyc" classpathref="test.classpath"/> 
+    <groovyc destdir="${basedir}/target/classes" srcdir="${basedir}/src/java" listfiles="false">
+      <classpath refid="test.classpath"/>
+    </groovyc>
+  </goal>
+  
+  <goal name="run" prereqs="test:compile"
+		description="Runs the JMX explorer">
+    <java classname="org.apache.geronimo.explorer.ExplorerMain" fork="yes">
+      <classpath refid="test.classpath"/>
+    </java>
+  </goal>
+  
+</project>

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Revision: 1.1 $ $Date: 2003/10/29 09:01:53 $ -->
+
+<project>
+  <pomVersion>3</pomVersion>
+  <extend>${basedir}/../../etc/project.xml</extend>
+  
+  <!-- ===================== -->
+  <!-- Module Identification -->
+  <!-- ===================== -->
+  
+  <name>Geronimo :: Explorer</name>
+  <id>geronimo-explorer</id>
+  <shortDescription></shortDescription>
+  <description></description>
+  <siteDirectory></siteDirectory>
+  <distributionDirectory></distributionDirectory>
+  
+  <package>org.apache.geronimo.explorer</package>
+  <currentVersion>DEV</currentVersion>
+  
+  
+  <!-- ============ -->
+  <!-- Dependencies -->
+  <!-- ============ -->
+  
+  <dependencies>
+  
+    <!-- Module Dependencies -->
+    
+    <dependency>
+      <groupId>geronimo</groupId>
+      <artifactId>geronimo-common</artifactId>
+      <version>DEV</version>
+      <properties>
+        <module>true</module>
+        <runtime>true</runtime>
+      </properties>
+    </dependency>
+    
+    <!-- Thirdparty Dependencies -->
+    
+    <dependency>
+      <id>mx4j</id>
+      <version>SNAPSHOT</version>
+      <properties>
+          <bootstrap>true</bootstrap>
+      </properties>
+    </dependency>
+
+    <dependency>
+      <id>groovy</id>
+      <version>1.0-alpha-1</version>
+      <url>http://groovy.codehaus.org</url>
+      <properties>
+        <runtime>true</runtime>
+      </properties>
+    </dependency>
+
+    <dependency>
+      <id>commons-logging</id>
+      <version>1.0.3</version>
+      <url>http://jakarta.apache.org/commons/logging</url>
+      <properties>
+        <runtime>true</runtime>
+      </properties>
+    </dependency>
+
+    <dependency>
+      <id>asm</id>
+      <version>1.3.4</version>
+    </dependency>   
+    
+	<!-- temp hack - won't need this soon -->
+    <dependency>
+      <id>asm+util</id>
+      <version>1.3.4</version>
+      <url>http://asm.objectweb.org/</url>
+    </dependency>
+
+  </dependencies>
+  
+  
+  <!-- =================== -->
+  <!-- Build Specification -->
+  <!-- =================== -->
+  
+  <build>
+    <unitTest>
+      <!-- For some reason this is not pulled from the global project -->
+      <includes>
+        <include>**/*Test.java</include>
+      </includes>
+      <excludes>
+        <exclude>**/Abstract*.java</exclude>
+      </excludes>
+      
+      <resources>
+        <resource>
+          <directory>${basedir}/src/test</directory>
+          <includes>
+            <include>**/*.xml</include>
+          </includes>
+        </resource>
+      </resources>
+    </unitTest>
+  </build>
+
+</project>
