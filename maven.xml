@@ -1,565 +1,613 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.36 $ $Date: 2003/09/06 14:31:31 $ -->
+<!-- $Revision: 1.37 $ $Date: 2003/09/08 04:57:32 $ -->
 
 <project default="default"
-  xmlns:j="jelly:core"
-  xmlns:u="jelly:util"
-  xmlns:ant="jelly:ant"
-  xmlns:maven="jelly:maven"
-  xmlns:define="jelly:define"
-  xmlns:aggregate="local:aggregate"
-  xmlns:modules="local:modules">
-  
-  <j:set var="release.id" value="${pom.standardToLegacyId(pom.id)}-${pom.currentVersion}"/>
-  
-  <!-- ======= -->
-  <!-- Modules -->
-  <!-- ======= -->
-  
-  <goal name="modules:reactor:init">
-    <!--
-       | Determine the includes which the reactor will use.
-       |
-       | Uses 4 properties to control which modules will be include:
-       |
-       | modules.types      Comma seperated list of module types (ie. specs or modules)
-       | modules.includes   Comma seperated list of module names (ie. common, core, ...)
-       | modules            Same as modules.includes, modules.includes initializes to this value
-       | modules.excludes   Comma seperated list of module names to exclude
-       |
-       | The end result is that modules.reactor.includes is set to the project.xml files
-       | to include.  This is the value the reactor will use.
-       |
-       | Example, to only build the common and core modules:
-       |
-       | maven -Dmodules=common,core
-     -->
-    
-    <j:if test="${context.getVariable('module.types') == null}">
-      <j:set var="module.types" value="modules,specs"/>
-    </j:if>
-    
-    <j:if test="${context.getVariable('modules') == null}">
-      <!-- The default it to build everything -->
-      <j:set var="modules" value="*"/>
-    </j:if>
-    
-    <j:if test="${context.getVariable('module.includes') == null}">
-      <j:set var="module.includes" value="${modules}"/>
-    </j:if>
-    
-    <j:if test="${context.getVariable('module.excludes') == null}">
-      <j:set var="module.excludes" value=""/>
-    </j:if>
-    
-    <u:tokenize var="types" delim=",">${module.types}</u:tokenize>
-    
-    <ant:fileScanner var="scanner">
-      <ant:fileset dir="${basedir}">
-        <j:forEach var="type" items="${types}">
-          <j:choose>
-            <j:when test="${context.getVariable('module.includes') == '*'}">
-              <ant:include name="${type}/*/project.xml"/>
-            </j:when>
-            <j:otherwise>
-              <u:tokenize var="includes" delim=",">${module.includes}</u:tokenize>
-              <j:forEach var="include" items="${includes}">
-                <u:available file="${basedir}/${type}/${include}/project.xml">
-                  <ant:include name="${type}/${include}/project.xml"/>
-                </u:available>
-              </j:forEach>
-            </j:otherwise>
-          </j:choose>
-        
-          <j:choose>
-            <j:when test="${context.getVariable('module.excludes') == '*'}">
-              <ant:exclude name="${type}/*/project.xml"/>
-            </j:when>
-            <j:otherwise>
-              <u:tokenize var="excludes" delim=",">${module.excludes}</u:tokenize>
-              <j:forEach var="exclude" items="${excludes}">
-                <u:available file="${basedir}/${type}/${exclude}/project.xml">
-                  <ant:exclude name="${type}/${exclude}/project.xml"/>
-                </u:available>
-              </j:forEach>
-            </j:otherwise>
-          </j:choose>
+    xmlns:j="jelly:core"
+    xmlns:u="jelly:util"
+    xmlns:ant="jelly:ant"
+    xmlns:maven="jelly:maven"
+    xmlns:define="jelly:define"
+    xmlns:aggregate="local:aggregate"
+    xmlns:modules="local:modules">
+
+    <j:set var="release.id" value="${pom.standardToLegacyId(pom.id)}-${pom.currentVersion}"/>
+
+    <!-- ======= -->
+    <!-- Modules -->
+    <!-- ======= -->
+
+    <goal name="modules:reactor:init">
+        <!--
+           | Determine the includes which the reactor will use.
+           |
+           | Uses 4 properties to control which modules will be include:
+           |
+           | modules.types      Comma seperated list of module types (ie. specs or modules)
+           | modules.includes   Comma seperated list of module names (ie. common, core, ...)
+           | modules            Same as modules.includes, modules.includes initializes to this value
+           | modules.excludes   Comma seperated list of module names to exclude
+           |
+           | The end result is that modules.reactor.includes is set to the project.xml files
+           | to include.  This is the value the reactor will use.
+           |
+           | Example, to only build the common and core modules:
+           |
+           | maven -Dmodules=common,core
+         -->
+
+        <j:if test="${context.getVariable('module.types') == null}">
+            <j:set var="module.types" value="modules,specs"/>
+        </j:if>
+
+        <j:if test="${context.getVariable('modules') == null}">
+            <!-- The default it to build everything -->
+            <j:set var="modules" value="*"/>
+        </j:if>
+
+        <j:if test="${context.getVariable('module.includes') == null}">
+            <j:set var="module.includes" value="${modules}"/>
+        </j:if>
+
+        <j:if test="${context.getVariable('module.excludes') == null}">
+            <j:set var="module.excludes" value=""/>
+        </j:if>
+
+        <u:tokenize var="types" delim=",">${module.types}</u:tokenize>
+
+        <ant:fileScanner var="scanner">
+            <ant:fileset dir="${basedir}">
+                <j:forEach var="type" items="${types}">
+                    <j:choose>
+                        <j:when test="${context.getVariable('module.includes') == '*'}">
+                            <ant:include name="${type}/*/project.xml"/>
+                        </j:when>
+                        <j:otherwise>
+                            <u:tokenize var="includes" delim=",">${module.includes}</u:tokenize>
+                            <j:forEach var="include" items="${includes}">
+                                <u:available file="${basedir}/${type}/${include}/project.xml">
+                                    <ant:include name="${type}/${include}/project.xml"/>
+                                </u:available>
+                            </j:forEach>
+                        </j:otherwise>
+                    </j:choose>
+
+                    <j:choose>
+                        <j:when test="${context.getVariable('module.excludes') == '*'}">
+                            <ant:exclude name="${type}/*/project.xml"/>
+                        </j:when>
+                        <j:otherwise>
+                            <u:tokenize var="excludes" delim=",">${module.excludes}</u:tokenize>
+                            <j:forEach var="exclude" items="${excludes}">
+                                <u:available file="${basedir}/${type}/${exclude}/project.xml">
+                                    <ant:exclude name="${type}/${exclude}/project.xml"/>
+                                </u:available>
+                            </j:forEach>
+                        </j:otherwise>
+                    </j:choose>
+                </j:forEach>
+            </ant:fileset>
+        </ant:fileScanner>
+
+        <!-- Setup the includes which will be used by the reactor -->
+        <j:forEach var="file" items="${scanner.iterator()}">
+            <!--
+               | Would be nice if reactor would take a file set, but for now just remove
+               | the baseddir portion of the file's name.  So this will essential strip off
+               | ${basedir}
+             -->
+            <j:set var="filename"
+                value="${file.parentFile.parentFile.name}/${file.parentFile.name}/${file.name}"/>
+            <j:choose>
+                <j:when test="${context.getVariable('modules.reactor.includes') == null}">
+                    <j:set var="modules.reactor.includes" value="${filename}"/>
+                </j:when>
+                <j:otherwise>
+                    <j:set var="modules.reactor.includes" value="${modules.reactor.includes},${filename}"/>
+                </j:otherwise>
+            </j:choose>
         </j:forEach>
-      </ant:fileset>
-    </ant:fileScanner>
-    
-    <!-- Setup the includes which will be used by the reactor -->
-    <j:forEach var="file" items="${scanner.iterator()}">
-      <!--
-         | Would be nice if reactor would take a file set, but for now just remove
-         | the baseddir portion of the file's name.  So this will essential strip off
-         | ${basedir}
-       -->
-      <j:set var="filename"
-             value="${file.parentFile.parentFile.name}/${file.parentFile.name}/${file.name}"/>
-      <j:choose>
-        <j:when test="${context.getVariable('modules.reactor.includes') == null}">
-          <j:set var="modules.reactor.includes" value="${filename}"/>
-        </j:when>
-        <j:otherwise>
-          <j:set var="modules.reactor.includes" value="${modules.reactor.includes},${filename}"/>
-        </j:otherwise>
-      </j:choose>
-    </j:forEach>
-  </goal>
-  
-  <!-- Helper tags for modules -->
-  <define:taglib uri="local:modules">
-    
-    <define:tag name="reactor">
-      <j:if test="${aggregate != null}">
-        <j:set var="modules.aggregate.skip" value="true"/>
-        <j:if test="${aggregate}">
-          <j:set var="modules.aggregate.skip" value="false"/>
-        </j:if>
-      </j:if>
-      
-      <attainGoal name="modules:reactor:init"/>
-      
-      <j:choose>
-        <j:when test="${goals != null}">
-          <maven:reactor
-              basedir="${basedir}"
-              includes="${modules.reactor.includes}"
-              banner="Executing (${goals}):"
-              ignoreFailures="false"
-              goals="${goals}"
-              postProcessing="true"
-          />
-        </j:when>
-        <j:when test="${goals == null}">
-          <maven:reactor
-              basedir="${basedir}"
-              includes="${modules.reactor.includes}"
-              banner="Executing (${goals}):"
-              ignoreFailures="false"
-              postProcessing="true"
-          />
-        </j:when>
-      </j:choose>
-      
-      <!-- Set resctor projects in parent scope so goals have access to it -->
-      <j:set var="reactorProjects" value="${reactorProjects}" scope="parent"/>
-      
-      <!-- Optionaly perform module aggregation -->
-      <j:if test="${context.getVariable('modules.aggregate.skip') != 'true'}">
-        <attainGoal name="modules:aggregate"/>
-      </j:if>
-    </define:tag>
-  
-  </define:taglib>
-  
-  <goal name="modules:reactor">
-    <modules:reactor/>
-  </goal>
-  
-  <goal name="modules:default">
-    <modules:reactor goals="default"/>
-  </goal>
-  
-  <goal name="modules:build">
-    <modules:reactor goals="build"/>
-  </goal>
-   
-  <goal name="modules:site">
-    <modules:reactor goals="site" aggregate="false"/>
-  </goal>
-  
-  <goal name="modules:javadoc">
-    <modules:reactor goals="javadoc" aggregate="false"/>
-  </goal>
-  
-  <goal name="modules:clean">
-    <modules:reactor goals="clean" aggregate="false"/>
-  </goal>
-  
-  <goal name="modules:clobber">
-    <modules:reactor goals="clobber" aggregate="false"/>
-  </goal>
-  
-  <goal name="modules:jar:deploy">
-    <modules:reactor goals="jar:deploy"/>
-  </goal>
-  
-  <preGoal name="clean:clean">
-    <!-- Do not clean modules if are clobbering them -->
-    <j:if test="${clobbering != 'true'}">
-      <attainGoal name="modules:clean"/>
-    </j:if>
-  </preGoal>
-  
-  <preGoal name="clobber">
-    <j:set var="clobbering" value="true"/>
-    <attainGoal name="modules:clobber"/>
-  </preGoal>
-  
-  <goal name="jar:deploy">
-    <attainGoal name="modules:jar:deploy"/>
-  </goal>
-  
-  <goal name="default">
-    <attainGoal name="modules:default"/>
-  </goal>
-  
-  
-  <!-- ========================= -->
-  <!-- Module Output Aggregation -->
-  <!-- ========================= -->
-  
-  <!-- Helper tags for module aggregation -->
-  <define:taglib uri="local:aggregate">
-    
-    <define:tag name="copy">
-      <u:available file="${source}" xmlns="jelly:ant">
-        <mkdir dir="${target}"/>
-        <copy todir="${target}">
-          <fileset dir="${source}">
-            <include name="${include}"/>
-          </fileset>
-        </copy>
-      </u:available>
-    </define:tag>
-    
-    <define:tag name="scripts">
-      <aggregate:copy
-        source="${module.root}/src/bin"
-        target="${aggregate.dir}/bin"
-        include="**/*"/>
-    </define:tag>
-    
-    <define:tag name="config">
-      <aggregate:copy
-        source="${module.root}/src/conf"
-        target="${aggregate.dir}/etc"
-        include="**/*"/>
-    </define:tag>
+    </goal>
 
-    <define:tag name="deploy">
-      <aggregate:copy
-        source="${module.root}/src/deploy"
-        target="${aggregate.dir}/deploy"
-        include="**/*"/>
-    </define:tag>
-    
-    <define:tag name="libraries">
-      <aggregate:copy
-        source="${module.root}/target"
-        target="${aggregate.dir}/lib"
-        include="*.jar"/>
-    </define:tag>
-    
-    <define:tag name="default">
-      <j:if test="${scripts == null || scripts == 'true'}">
-        <aggregate:scripts/>
-      </j:if>
-      
-      <j:if test="${config == null || config == 'true'}">
-        <aggregate:config/>
-      </j:if>
-      
-      <j:if test="${deploy == null || deploy == 'true'}">
-        <aggregate:deploy/>
-      </j:if>
-      
-      <j:if test="${libraries == null || libraries == 'true'}">
-        <aggregate:libraries/>
-      </j:if>
-    </define:tag>
-    
-  </define:taglib>
-  
-  <goal name="modules:aggregate"
+    <!-- Helper tags for modules -->
+    <define:taglib uri="local:modules">
+
+        <define:tag name="reactor">
+            <j:if test="${aggregate != null}">
+                <j:set var="modules.aggregate.skip" value="true"/>
+                <j:if test="${aggregate}">
+                    <j:set var="modules.aggregate.skip" value="false"/>
+                </j:if>
+            </j:if>
+
+            <attainGoal name="modules:reactor:init"/>
+
+            <j:choose>
+                <j:when test="${goals != null}">
+                    <maven:reactor
+                        basedir="${basedir}"
+                        includes="${modules.reactor.includes}"
+                        banner="Executing (${goals}):"
+                        ignoreFailures="false"
+                        goals="${goals}"
+                        postProcessing="true"
+                        />
+                </j:when>
+                <j:when test="${goals == null}">
+                    <maven:reactor
+                        basedir="${basedir}"
+                        includes="${modules.reactor.includes}"
+                        banner="Executing (${goals}):"
+                        ignoreFailures="false"
+                        postProcessing="true"
+                        />
+                </j:when>
+            </j:choose>
+
+            <!-- Set resctor projects in parent scope so goals have access to it -->
+            <j:set var="reactorProjects" value="${reactorProjects}" scope="parent"/>
+
+            <!-- Optionaly perform module aggregation -->
+            <j:if test="${context.getVariable('modules.aggregate.skip') != 'true'}">
+                <attainGoal name="modules:aggregate"/>
+            </j:if>
+        </define:tag>
+
+    </define:taglib>
+
+    <goal name="modules:reactor">
+        <modules:reactor/>
+    </goal>
+
+    <goal name="modules:default">
+        <modules:reactor goals="default"/>
+    </goal>
+
+    <goal name="modules:build">
+        <modules:reactor goals="build"/>
+    </goal>
+
+    <goal name="modules:site">
+        <modules:reactor goals="site" aggregate="false"/>
+    </goal>
+
+    <goal name="modules:javadoc">
+        <modules:reactor goals="javadoc" aggregate="false"/>
+    </goal>
+
+    <goal name="modules:clean">
+        <modules:reactor goals="clean" aggregate="false"/>
+    </goal>
+
+    <goal name="modules:clobber">
+        <modules:reactor goals="clobber" aggregate="false"/>
+    </goal>
+
+    <goal name="modules:jar:deploy">
+        <modules:reactor goals="jar:deploy"/>
+    </goal>
+
+    <preGoal name="clean:clean">
+        <!-- Do not clean modules if are clobbering them -->
+        <j:if test="${clobbering != 'true'}">
+            <attainGoal name="modules:clean"/>
+        </j:if>
+    </preGoal>
+
+    <preGoal name="clobber">
+        <j:set var="clobbering" value="true"/>
+        <attainGoal name="modules:clobber"/>
+    </preGoal>
+
+    <goal name="jar:deploy">
+        <attainGoal name="modules:jar:deploy"/>
+    </goal>
+
+    <goal name="default">
+        <attainGoal name="modules:default"/>
+    </goal>
+
+
+    <!-- ========================= -->
+    <!-- Module Output Aggregation -->
+    <!-- ========================= -->
+
+    <!-- Helper tags for module aggregation -->
+    <define:taglib uri="local:aggregate">
+
+        <define:tag name="copy">
+            <u:available file="${source}" xmlns="jelly:ant">
+                <mkdir dir="${target}"/>
+                <copy todir="${target}">
+                    <fileset dir="${source}">
+                        <include name="${include}"/>
+                    </fileset>
+                </copy>
+            </u:available>
+        </define:tag>
+
+        <define:tag name="scripts">
+            <aggregate:copy
+                source="${module.root}/src/bin"
+                target="${aggregate.dir}/bin"
+                include="**/*"/>
+        </define:tag>
+
+        <define:tag name="config">
+            <aggregate:copy
+                source="${module.root}/src/conf"
+                target="${aggregate.dir}/etc"
+                include="**/*"/>
+        </define:tag>
+
+        <define:tag name="deploy">
+            <aggregate:copy
+                source="${module.root}/src/deploy"
+                target="${aggregate.dir}/deploy"
+                include="**/*"/>
+        </define:tag>
+
+        <define:tag name="libraries">
+            <aggregate:copy
+                source="${module.root}/target"
+                target="${aggregate.dir}/lib"
+                include="*.jar"/>
+        </define:tag>
+
+        <define:tag name="bootlib">
+            <aggregate:copy
+                source="${module.root}/target"
+                target="${aggregate.dir}/bootlib"
+                include="*.jar"/>
+        </define:tag>
+
+        <define:tag name="default">
+            <j:if test="${scripts == null || scripts == 'true'}">
+                <aggregate:scripts/>
+            </j:if>
+
+            <j:if test="${config == null || config == 'true'}">
+                <aggregate:config/>
+            </j:if>
+
+            <j:if test="${deploy == null || deploy == 'true'}">
+                <aggregate:deploy/>
+            </j:if>
+
+            <j:if test="${libraries == null || libraries == 'true'}">
+                <aggregate:libraries/>
+            </j:if>
+
+            <j:if test="${bootlib == null || bootlib == 'true'}">
+                <aggregate:libraries/>
+            </j:if>
+        </define:tag>
+
+    </define:taglib>
+
+    <goal name="modules:aggregate"
         description="Aggregates module target output.">
-    
-    <ant:echo>Aggregating modules...</ant:echo>
-    
-    <!-- Setup the target aggregation directory -->
-    <j:set var="aggregate.dir" value="${basedir}/target/${release.id}"/>
-    <ant:mkdir dir="${aggregate.dir}"/>
-    
-    <j:forEach var="module" items="${reactorProjects}">
-      <ant:echo>Processing ${module.id}...</ant:echo>
-      
-      <!-- Get the modules root directory -->
-      <j:set var="module.root" value="${module.file.parent}"/>
-      
-      <!-- Invoke the aggregation hook -->
-      <j:set var="hook_name" value="modules:aggregate:${module.id}"/>
-      <!-- If there is no goal defined then use the default -->
-      <j:set var="werkzProject" value="${org.apache.commons.jelly.werkz.Project}"/>
-      <j:if test="${werkzProject.getGoal(hook_name) == null}">
-        <j:set var="hook_name" value="modules:aggregate:default"/>
-      </j:if>
-      <attainGoal name="${hook_name}"/>
-      
-      <!-- Process dependencies -->
-      <j:forEach var="artifact" items="${module.artifacts}">
-        <j:set var="dependency" value="${artifact.dependency}"/>
-        <j:if test="${dependency.getProperty('runtime') == 'true'}">
-          <ant:echo>Processing dependency: ${dependency.id}</ant:echo>
-          
-          <j:choose>
-            <j:when test="${dependency.getProperty('destinations') == null}">
-              <j:set var="destinations" value="lib"/>
-            </j:when>
-            <j:otherwise>
-              <j:set var="destinations" value="${dependency.getProperty('destinations')}"/>
-            </j:otherwise>
-          </j:choose>
-          
-          <u:tokenize var="destinationSet" delim="," trim="true">${destinations}</u:tokenize>
-          
-          <j:forEach var="destination" items="${destinationSet}" trim="true">
-            <j:set var="targetDir" value="${aggregate.dir}/${destination.trim()}"/>
-            <ant:mkdir dir="${targetDir}"/>
-            <ant:copy todir="${targetDir}" file="${artifact.path}"/>
-          </j:forEach>
-        </j:if>
-      </j:forEach>
-    </j:forEach>
-    
-    <!-- Cleanse some stuff -->
-    <u:available file="${aggregate.dir}/bin" xmlns="jelly:ant">
-      <!-- Fix permissions -->
-      <chmod perm="ugo+x">
-        <fileset dir="${aggregate.dir}/bin">
-          <include name="*"/>
-          <exclude name="*.bat"/>
-          <exclude name="*.cmd"/>
-        </fileset>
-      </chmod>
-      <chmod perm="ugo-x">
-        <fileset dir="${aggregate.dir}/bin">
-          <include name="*.bat"/>
-          <include name="*.cmd"/>
-        </fileset>
-      </chmod>
-      
-      <!-- Fix CRLF -->
-      <fixcrlf srcdir="${aggregate.dir}/bin" eol="lf" eof="remove">
-        <include name="*"/>
-        <exclude name="*.bat"/>
-        <exclude name="*.cmd"/>
-      </fixcrlf>
-      <fixcrlf srcdir="${aggregate.dir}/bin" eol="crlf">
-        <include name="*.bat"/>
-        <include name="*.cmd"/>
-      </fixcrlf>
-    </u:available>
-  </goal>
-  
-  
-  <!-- =============================== -->
-  <!-- Module Output Aggregation Hooks -->
-  <!-- =============================== -->
-  
-  <goal name="modules:aggregate:default">
-    <aggregate:default/>
-  </goal>
-  
-  <goal name="modules:aggregate:geronimo:geronimo-web">
-    <!-- Do not do the default libraries stuff -->
-    <aggregate:default libraries="false"/>
-    
-    <!-- Put geronimo-web into deploy/jetty/lib -->
-    <aggregate:copy
-      source="${module.root}/target"
-      target="${aggregate.dir}/deploy/jetty/lib"
-      include="*.jar"/>
-  </goal>
-  
-  <!--
-  <goal name="modules:aggregate:geronimo:geronimo-common">
-    <aggregate:default/>
-  </goal>
-  
-  <goal name="modules:aggregate:geronimo:geronimo-twiddle">
-    <aggregate:scripts/>
-    <aggregate:config/>
-    <aggregate:libraries/>
-  </goal>
-  
-  <goal name="modules:aggregate:geronimo:geronimo-core">
-    <aggregate:default/>
-  </goal>
-  -->
-  
-  
-  <!-- =============================== -->
-  <!-- Documentation & Site Generation -->
-  <!-- =============================== -->
-  
-  <goal name="javadoc">
-    <attainGoal name="modules:javadoc"/>
-  </goal>
-  
-  <preGoal name="xdoc:jelly-transform">
-    <attainGoal name="html2xdoc"/>
-    <attainGoal name="faq"/>
-  </preGoal>
-  
-  <!-- Turn off reports for the top-level project -->
-  <postGoal name="xdoc:register-reports">
-    <attainGoal name="maven-license-plugin:deregister"/>
-    <attainGoal name="maven-checkstyle-plugin:deregister"/>
-    <attainGoal name="maven-pmd-plugin:deregister"/>
-    <attainGoal name="maven-simian-plugin:deregister"/>
-    <attainGoal name="maven-jdepend-plugin:deregister"/>
-    <attainGoal name="maven-statcvs-plugin:deregister"/>
-    <attainGoal name="maven-jxr-plugin:deregister"/>
-    <attainGoal name="maven-javadoc-plugin:deregister"/>
-    <attainGoal name="maven-junit-report-plugin:deregister"/>
-    <attainGoal name="maven-clover-plugin:deregister"/>
-    
-    <!-- Run some useful top-level reports -->
-    <!--<attainGoal name="maven-changelog-plugin:deregister"/>-->
-    <!--<attainGoal name="maven-file-activity-plugin:deregister"/>-->
-    <!--<attainGoal name="maven-developer-activity-plugin:deregister"/>-->
-  </postGoal>
-  
-  <preGoal name="site">
-    <attainGoal name="modules:aggregate:site"/>
-  </preGoal>
-  
-  <goal name="modules:aggregate:site" prereqs="modules:site"
-        description="Copy the generated websites of all the modules into the root project">
-    
-    <ant:echo>Aggregating module site documentation...</ant:echo>
-    
-    <!-- Setup the target aggregation directory -->
-    <j:set var="aggregate.dir" value="${basedir}/target/docs"/>
-    <ant:mkdir dir="${aggregate.dir}"/>
-    
-    <j:forEach var="module" items="${reactorProjects}">
-      <ant:echo>Processing ${module.id}...</ant:echo>
-      
-      <!-- Get the modules root directory -->
-      <j:set var="module.root" value="${module.file.parent}"/>
-      
-      <!-- Setup the target dir under docs -->
-      <j:set var="moduleDirName">${module.file.parentFile.name}</j:set>
-      <j:set var="moduleTypeDirName">${module.file.parentFile.parentFile.name}</j:set>
-      <j:set var="outputDir">${aggregate.dir}/${moduleTypeDirName}/${moduleDirName}</j:set>
-      
-      <!-- Copy module docs -->
-      <ant:echo>Copying docs to ${outputDir}...</ant:echo>
-      <ant:mkdir dir="${outputDir}"/>
-      <ant:copy todir="${outputDir}">
-        <ant:fileset dir="${module.root}/target/docs"/>
-      </ant:copy>
-    </j:forEach>
-  </goal>
-  
-  <goal name="site:tocvs"
-        description="Creates the entire website and copies it to the local CVS repository so that it can be checked in to update the Incubator site">
-    
-    <j:jelly xmlns="jelly:ant">
-    
-      <j:if test="${empty(geronimo.cvs.docdir)}">
-        <j:set var="geronimo.cvs.docdir" value="../incubator-site/build/site/projects/geronimo"/>
-      </j:if>
-      
-      <mkdir dir="${geronimo.cvs.docdir}"/>
-      <copy todir="${geronimo.cvs.docdir}">
-        <fileset dir="${basedir}/target/docs"/>
-      </copy>
-      
-    </j:jelly>
-  </goal>
-  
-  
-  <!-- ==================================================== -->
-  <!-- Helper to run Apache Geronimo from the current build -->
-  <!-- ==================================================== -->
-  
-  <goal name="run">
-    <j:set var="run.dir" value="${basedir}/target/${release.id}"/>
-    
+
+        <ant:echo>Aggregating modules...</ant:echo>
+
+        <!-- Setup the target aggregation directory -->
+        <j:set var="aggregate.dir" value="${basedir}/target/${release.id}"/>
+        <ant:mkdir dir="${aggregate.dir}"/>
+
+        <j:forEach var="module" items="${reactorProjects}">
+            <ant:echo>Processing ${module.id}...</ant:echo>
+
+            <!-- Get the modules root directory -->
+            <j:set var="module.root" value="${module.file.parent}"/>
+
+            <!-- Invoke the aggregation hook -->
+            <j:set var="hook_name" value="modules:aggregate:${module.id}"/>
+            <!-- If there is no goal defined then use the default -->
+            <j:set var="werkzProject" value="${org.apache.commons.jelly.werkz.Project}"/>
+            <j:if test="${werkzProject.getGoal(hook_name) == null}">
+                <j:set var="hook_name" value="modules:aggregate:default"/>
+            </j:if>
+            <attainGoal name="${hook_name}"/>
+
+            <!-- Process dependencies -->
+            <j:forEach var="artifact" items="${module.artifacts}">
+                <j:set var="dependency" value="${artifact.dependency}"/>
+                <j:if test="${dependency.getProperty('runtime') == 'true'}">
+                    <ant:echo>Processing dependency: ${dependency.id}</ant:echo>
+
+                    <j:choose>
+                        <j:when test="${dependency.getProperty('destinations') == null}">
+                            <j:set var="destinations" value="lib"/>
+                        </j:when>
+                        <j:otherwise>
+                            <j:set var="destinations" value="${dependency.getProperty('destinations')}"/>
+                        </j:otherwise>
+                    </j:choose>
+
+                    <u:tokenize var="destinationSet" delim="," trim="true">${destinations}</u:tokenize>
+
+                    <j:forEach var="destination" items="${destinationSet}" trim="true">
+                        <j:set var="targetDir" value="${aggregate.dir}/${destination.trim()}"/>
+                        <ant:mkdir dir="${targetDir}"/>
+                        <ant:copy todir="${targetDir}" file="${artifact.path}"/>
+                    </j:forEach>
+                </j:if>
+
+                <j:if test="${dependency.getProperty('bootstrap') == 'true'}">
+                    <ant:echo>Processing bootstrap dependency: ${dependency.id}</ant:echo>
+
+                    <j:choose>
+                        <j:when test="${dependency.getProperty('destinations') == null}">
+                            <j:set var="destinations" value="bootlib"/>
+                        </j:when>
+                        <j:otherwise>
+                            <j:set var="destinations" value="${dependency.getProperty('destinations')}"/>
+                        </j:otherwise>
+                    </j:choose>
+
+                    <u:tokenize var="destinationSet" delim="," trim="true">${destinations}</u:tokenize>
+
+                    <j:forEach var="destination" items="${destinationSet}" trim="true">
+                        <j:set var="targetDir" value="${aggregate.dir}/${destination.trim()}"/>
+                        <ant:mkdir dir="${targetDir}"/>
+                        <ant:copy todir="${targetDir}" file="${artifact.path}"/>
+                    </j:forEach>
+                </j:if>
+            </j:forEach>
+        </j:forEach>
+
+        <!-- Cleanse some stuff -->
+        <u:available file="${aggregate.dir}/bin" xmlns="jelly:ant">
+            <!-- Fix permissions -->
+            <chmod perm="ugo+x">
+                <fileset dir="${aggregate.dir}/bin">
+                    <include name="*"/>
+                    <exclude name="*.bat"/>
+                    <exclude name="*.cmd"/>
+                </fileset>
+            </chmod>
+            <chmod perm="ugo-x">
+                <fileset dir="${aggregate.dir}/bin">
+                    <include name="*.bat"/>
+                    <include name="*.cmd"/>
+                </fileset>
+            </chmod>
+
+            <!-- Fix CRLF -->
+            <fixcrlf srcdir="${aggregate.dir}/bin" eol="lf" eof="remove">
+                <include name="*"/>
+                <exclude name="*.bat"/>
+                <exclude name="*.cmd"/>
+            </fixcrlf>
+            <fixcrlf srcdir="${aggregate.dir}/bin" eol="crlf">
+                <include name="*.bat"/>
+                <include name="*.cmd"/>
+            </fixcrlf>
+        </u:available>
+    </goal>
+
+
+    <!-- =============================== -->
+    <!-- Module Output Aggregation Hooks -->
+    <!-- =============================== -->
+
+    <goal name="modules:aggregate:default">
+        <aggregate:default/>
+    </goal>
+
+    <goal name="modules:aggregate:geronimo:geronimo-web">
+        <!-- Do not do the default libraries stuff -->
+        <aggregate:default libraries="false"/>
+
+        <!-- Put geronimo-web into deploy/jetty/lib -->
+        <aggregate:copy
+            source="${module.root}/target"
+            target="${aggregate.dir}/deploy/jetty/lib"
+            include="*.jar"/>
+    </goal>
+
+    <goal name="modules:aggregate:geronimo:geronimo-kernel">
+        <!-- Do not do the default libraries stuff -->
+        <aggregate:default libraries="false"/>
+
+        <!-- Put geronimo-kernel into deploy/bootlib -->
+        <aggregate:copy
+            source="${module.root}/target"
+            target="${aggregate.dir}/bootlib"
+            include="*.jar"/>
+    </goal>
+
+    <goal name="modules:aggregate:geronimo:geronimo-core">
+        <!-- Do not do the default libraries stuff -->
+        <aggregate:default deploy="false"/>
+    </goal>
+
     <!--
-       | Should really execute the system script but for now...
-     -->
-    
-    <j:jelly xmlns="jelly:ant">
-      <java
-        classname="org.codehaus.classworlds.Launcher"
-        fork="true"
-        maxmemory="128m"
-        failonerror="true"
-        dir="${run.dir}">
-        
-        <classpath>
-          <pathelement location="${run.dir}/lib/classworlds-SNAPSHOT.jar"/>
-          <pathelement location="${run.dir}/lib/geronimo-core-rmiclassloaderspi.jar"/>
-        </classpath>
-        
-        <sysproperty key="classworlds.conf" value="${run.dir}/etc/classworlds.conf"/>
-        <sysproperty key="program.name" value="maven:run"/>
-        <sysproperty key="twiddle.home" value="${run.dir}"/>
-        <sysproperty key="java.rmi.server.RMIClassLoaderSpi" value="org.apache.geronimo.rmi.RMIClassLoaderSpiImpl"/>
-        <arg value="geronimo/start"/>
-      </java>
-    </j:jelly>
-  </goal>
+    <goal name="modules:aggregate:geronimo:geronimo-common">
+      <aggregate:default/>
+    </goal>
 
-  <goal name="run:main">
-    <j:set var="run.dir" value="${basedir}/target/${release.id}"/>
-    
-    <j:jelly xmlns="jelly:ant">
+    <goal name="modules:aggregate:geronimo:geronimo-twiddle">
+      <aggregate:scripts/>
+      <aggregate:config/>
+      <aggregate:libraries/>
+    </goal>
 
-        <java classname="org.apache.geronimo.Main"
-            fork="true"
-            maxmemory="128m"
-            failonerror="true"
-            dir="${run.dir}">
+    <goal name="modules:aggregate:geronimo:geronimo-core">
+      <aggregate:default/>
+    </goal>
+    -->
 
-        <classpath>
-          <pathelement path="${run.dir}/etc"/>
-          <fileset dir="${run.dir}/lib">
-            <include name="*.jar"/>
-          </fileset>
-        </classpath>
 
-        <sysproperty key="program.name" value="maven:run"/>
-        <sysproperty key="geronimo.home" value="file:${run.dir}/"/>
-        <sysproperty key="java.rmi.server.RMIClassLoaderSpi" value="org.apache.geronimo.rmi.RMIClassLoaderSpiImpl"/>
-      </java>
-    </j:jelly>
-  </goal>
+    <!-- =============================== -->
+    <!-- Documentation & Site Generation -->
+    <!-- =============================== -->
 
-  <goal name="debug:main">
-    <j:set var="run.dir" value="${basedir}/target/${release.id}"/>
-    <j:jelly xmlns="jelly:ant">
+    <goal name="javadoc">
+        <attainGoal name="modules:javadoc"/>
+    </goal>
 
-        <java classname="org.apache.geronimo.Main" 
-            fork="true"
-            maxmemory="128m"
-            failonerror="true"
-            dir="${run.dir}">
+    <preGoal name="xdoc:jelly-transform">
+        <attainGoal name="html2xdoc"/>
+        <attainGoal name="faq"/>
+    </preGoal>
 
-        <classpath>
-          <pathelement path="${run.dir}/etc"/>
-          <fileset dir="${run.dir}/lib">
-            <include name="*.jar"/>
-          </fileset>              
-        </classpath>
+    <!-- Turn off reports for the top-level project -->
+    <postGoal name="xdoc:register-reports">
+        <attainGoal name="maven-license-plugin:deregister"/>
+        <attainGoal name="maven-checkstyle-plugin:deregister"/>
+        <attainGoal name="maven-pmd-plugin:deregister"/>
+        <attainGoal name="maven-simian-plugin:deregister"/>
+        <attainGoal name="maven-jdepend-plugin:deregister"/>
+        <attainGoal name="maven-statcvs-plugin:deregister"/>
+        <attainGoal name="maven-jxr-plugin:deregister"/>
+        <attainGoal name="maven-javadoc-plugin:deregister"/>
+        <attainGoal name="maven-junit-report-plugin:deregister"/>
+        <attainGoal name="maven-clover-plugin:deregister"/>
 
-        <jvmarg value="-Xdebug"/>
-        <jvmarg value="-Xnoagent"/>
-        <jvmarg value="-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y"/>
+        <!-- Run some useful top-level reports -->
+        <!--<attainGoal name="maven-changelog-plugin:deregister"/>-->
+        <!--<attainGoal name="maven-file-activity-plugin:deregister"/>-->
+        <!--<attainGoal name="maven-developer-activity-plugin:deregister"/>-->
+    </postGoal>
 
-        <sysproperty key="program.name" value="maven:debug"/>
-        <sysproperty key="geronimo.home" value="file:${run.dir}/"/>
-        <sysproperty key="java.compiler" value="NONE"/>
-        <sysproperty key="java.rmi.server.RMIClassLoaderSpi" value="org.apache.geronimo.rmi.RMIClassLoaderSpiImpl"/>
+    <preGoal name="site">
+        <attainGoal name="modules:aggregate:site"/>
+    </preGoal>
 
-      </java>
-    </j:jelly>
-  </goal>
+    <goal name="modules:aggregate:site" prereqs="modules:site"
+        description="Copy the generated websites of all the modules into the root project">
+
+        <ant:echo>Aggregating module site documentation...</ant:echo>
+
+        <!-- Setup the target aggregation directory -->
+        <j:set var="aggregate.dir" value="${basedir}/target/docs"/>
+        <ant:mkdir dir="${aggregate.dir}"/>
+
+        <j:forEach var="module" items="${reactorProjects}">
+            <ant:echo>Processing ${module.id}...</ant:echo>
+
+            <!-- Get the modules root directory -->
+            <j:set var="module.root" value="${module.file.parent}"/>
+
+            <!-- Setup the target dir under docs -->
+            <j:set var="moduleDirName">${module.file.parentFile.name}</j:set>
+            <j:set var="moduleTypeDirName">${module.file.parentFile.parentFile.name}</j:set>
+            <j:set var="outputDir">${aggregate.dir}/${moduleTypeDirName}/${moduleDirName}</j:set>
+
+            <!-- Copy module docs -->
+            <ant:echo>Copying docs to ${outputDir}...</ant:echo>
+            <ant:mkdir dir="${outputDir}"/>
+            <ant:copy todir="${outputDir}">
+                <ant:fileset dir="${module.root}/target/docs"/>
+            </ant:copy>
+        </j:forEach>
+    </goal>
+
+    <goal name="site:tocvs"
+        description="Creates the entire website and copies it to the local CVS repository so that it can be checked in to update the Incubator site">
+
+        <j:jelly xmlns="jelly:ant">
+
+            <j:if test="${empty(geronimo.cvs.docdir)}">
+                <j:set var="geronimo.cvs.docdir" value="../incubator-site/build/site/projects/geronimo"/>
+            </j:if>
+
+            <mkdir dir="${geronimo.cvs.docdir}"/>
+            <copy todir="${geronimo.cvs.docdir}">
+                <fileset dir="${basedir}/target/docs"/>
+            </copy>
+
+        </j:jelly>
+    </goal>
+
+
+    <!-- ==================================================== -->
+    <!-- Helper to run Apache Geronimo from the current build -->
+    <!-- ==================================================== -->
+
+    <goal name="run">
+        <j:set var="run.dir" value="${basedir}/target/${release.id}"/>
+
+        <!--
+           | Should really execute the system script but for now...
+         -->
+
+        <j:jelly xmlns="jelly:ant">
+            <java
+                classname="org.codehaus.classworlds.Launcher"
+                fork="true"
+                maxmemory="128m"
+                failonerror="true"
+                dir="${run.dir}">
+
+                <classpath>
+                    <pathelement location="${run.dir}/lib/classworlds-SNAPSHOT.jar"/>
+                    <pathelement location="${run.dir}/lib/geronimo-core-rmiclassloaderspi.jar"/>
+                </classpath>
+
+                <sysproperty key="classworlds.conf" value="${run.dir}/etc/classworlds.conf"/>
+                <sysproperty key="program.name" value="maven:run"/>
+                <sysproperty key="twiddle.home" value="${run.dir}"/>
+                <sysproperty key="java.rmi.server.RMIClassLoaderSpi" value="org.apache.geronimo.rmi.RMIClassLoaderSpiImpl"/>
+                <arg value="geronimo/start"/>
+            </java>
+        </j:jelly>
+    </goal>
+
+    <goal name="run:main">
+        <j:set var="run.dir" value="${basedir}/target/${release.id}"/>
+
+        <j:jelly xmlns="jelly:ant">
+
+            <java classname="org.apache.geronimo.kernel.Main"
+                fork="true"
+                maxmemory="128m"
+                failonerror="true"
+                dir="${run.dir}">
+
+                <classpath>
+                    <pathelement path="${run.dir}/etc"/>
+                    <fileset dir="${run.dir}/bootlib">
+                        <include name="*.jar"/>
+                    </fileset>
+                </classpath>
+
+                <sysproperty key="program.name" value="maven:run"/>
+                <sysproperty key="geronimo.home" value="file:${run.dir}/"/>
+                <sysproperty key="java.rmi.server.RMIClassLoaderSpi" value="org.apache.geronimo.rmi.RMIClassLoaderSpiImpl"/>
+            </java>
+        </j:jelly>
+    </goal>
+
+    <goal name="debug:main">
+        <j:set var="run.dir" value="${basedir}/target/${release.id}"/>
+        <j:jelly xmlns="jelly:ant">
+
+            <java classname="org.apache.geronimo.kernel.Main"
+                fork="true"
+                maxmemory="128m"
+                failonerror="true"
+                dir="${run.dir}">
+
+                <classpath>
+                    <pathelement path="${run.dir}/etc"/>
+                    <fileset dir="${run.dir}/lib">
+                        <include name="*.jar"/>
+                    </fileset>
+                </classpath>
+
+                <jvmarg value="-Xdebug"/>
+                <jvmarg value="-Xnoagent"/>
+                <jvmarg value="-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y"/>
+
+                <sysproperty key="program.name" value="maven:debug"/>
+                <sysproperty key="geronimo.home" value="file:${run.dir}/"/>
+                <sysproperty key="java.compiler" value="NONE"/>
+                <sysproperty key="java.rmi.server.RMIClassLoaderSpi" value="org.apache.geronimo.rmi.RMIClassLoaderSpiImpl"/>
+
+            </java>
+        </j:jelly>
+    </goal>
 
 </project>
