@@ -51,7 +51,7 @@ import org.apache.geronimo.security.util.URLPattern;
  * JettyXMLConfiguration reads the web-app configuration and translates them
  * into corresponding JACC policy permissions.
  *
- * @version $Revision: 1.2 $ $Date: 2004/06/27 20:37:38 $
+ * @version $Revision: 1.3 $ $Date: 2004/09/09 12:17:52 $
  */
 public class JettyXMLConfiguration extends XMLConfiguration {
 
@@ -309,6 +309,7 @@ public class JettyXMLConfiguration extends XMLConfiguration {
             while (rollMappings.hasNext()) {
                 Role role = (Role) rollMappings.next();
                 String roleName = role.getRoleName();
+                Set principalSet = new HashSet();
 
                 if (!securityRoles.contains(roleName)) throw new GeronimoSecurityException("Role does not exist in this configuration");
 
@@ -316,7 +317,6 @@ public class JettyXMLConfiguration extends XMLConfiguration {
 
                 Iterator realms = role.getRealms().iterator();
                 while (realms.hasNext()) {
-                    Set principalSet = new HashSet();
                     Realm realm = (Realm) realms.next();
 
                     Iterator principals = realm.getPrincipals().iterator();
@@ -330,8 +330,8 @@ public class JettyXMLConfiguration extends XMLConfiguration {
                         principalSet.add(realmPrincipal);
                         if (principal.isDesignatedRunAs()) roleDesignate.getPrincipals().add(realmPrincipal);
                     }
-                    roleMapper.addRoleMapping(roleName, principalSet);
                 }
+                roleMapper.addRoleMapping(roleName, principalSet);
 
                 if (roleDesignate.getPrincipals().size() > 0) context.setRoleDesignate(roleName, roleDesignate);
             }
