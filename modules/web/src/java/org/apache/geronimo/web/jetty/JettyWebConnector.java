@@ -78,7 +78,7 @@ import org.mortbay.http.ajp.AJP13Listener;
 import org.mortbay.util.ThreadedServer;
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/01/16 02:19:23 $
+ * @version $Revision: 1.8 $ $Date: 2004/01/16 23:00:19 $
  */
 public class JettyWebConnector extends AbstractWebConnector implements GeronimoMBeanTarget {
     private final static GBeanInfo GBEAN_INFO;
@@ -94,7 +94,7 @@ public class JettyWebConnector extends AbstractWebConnector implements GeronimoM
 
     }
 
-    public JettyWebConnector(String protocol, String iface, int port, int maxConnections, int maxIdleTime, List contexts) {
+    public JettyWebConnector(String protocol, String iface, int port, int maxConnections, int maxIdleTime, String[] contexts) {
         super(protocol, iface, port, maxConnections, maxIdleTime, contexts);
     }
 
@@ -242,12 +242,12 @@ public class JettyWebConnector extends AbstractWebConnector implements GeronimoM
     }
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Jetty Web Connector", "Wrapped Jetty listener", JettyWebConnector.class.getName(), AbstractWebConnector.getGbeanInfo());
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Jetty Web Connector", "Wrapped Jetty listener", JettyWebConnector.class.getName(), AbstractWebConnector.getGBeanInfo());
         infoFactory.addOperation(new GOperationInfo("getListener", Collections.EMPTY_LIST));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
-    public static GBeanInfo getGbeanInfo() {
+    public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
 

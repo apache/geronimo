@@ -17,7 +17,7 @@ import org.apache.geronimo.gbean.GConstructorInfo;
  *
  * Created: Mon Sep  8 20:39:02 2003
  *
- * @version $Revision: 1.6 $ $Date: 2004/01/16 02:19:23 $
+ * @version $Revision: 1.7 $ $Date: 2004/01/16 23:00:19 $
  */
 public abstract class AbstractWebConnector implements WebConnector {
 
@@ -41,13 +41,13 @@ public abstract class AbstractWebConnector implements WebConnector {
 
     }
 
-    public AbstractWebConnector(String protocol, String iface, int port, int maxConnections, int maxIdleTime, List contexts) {
+    public AbstractWebConnector(String protocol, String iface, int port, int maxConnections, int maxIdleTime, String[] contexts) {
         this.protocol = protocol;
         this.iface = iface;
         this.port = port;
         this.maxConnections = maxConnections;
         this.maxIdleTime = maxIdleTime;
-        this.contexts = contexts;
+        this.contexts = Arrays.asList(contexts);
     }
 
     /* (non-Javadoc)
@@ -156,12 +156,12 @@ public abstract class AbstractWebConnector implements WebConnector {
         infoFactory.addAttribute(new GAttributeInfo("Contexts", true, "Contexts that must be registered in the web container before this connector will start accepting connections"));
         infoFactory.setConstructor(new GConstructorInfo(
                 Arrays.asList(new Object[] {"Protocol", "Interface", "Port", "MaxConnections", "MaxIdleTime", "Contexts"}),
-                Arrays.asList(new Object[] {String.class, String.class, Integer.class, Integer.class, Integer.class, List.class})
+                Arrays.asList(new Object[] {String.class, String.class, Integer.TYPE, Integer.TYPE, Integer.TYPE, String[].class})
                 ));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
-    public static GBeanInfo getGbeanInfo() {
+    public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
 

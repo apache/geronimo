@@ -72,6 +72,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GEndpointInfo;
 import org.apache.geronimo.gbean.GConstructorInfo;
+import org.apache.geronimo.gbean.GAttributeInfo;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.servlet.WebApplicationContext;
 import org.w3c.dom.Document;
@@ -80,7 +81,7 @@ import org.w3c.dom.Document;
  * Base class for jetty web containers.
  *
  *
- * @version $Revision: 1.11 $ $Date: 2004/01/16 02:19:23 $
+ * @version $Revision: 1.12 $ $Date: 2004/01/16 23:00:19 $
  */
 public class JettyWebContainer extends AbstractWebContainer {
     private final static GBeanInfo GBEAN_INFO;
@@ -228,7 +229,7 @@ public class JettyWebContainer extends AbstractWebContainer {
          GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
-    public static GBeanInfo getGbeanInfo() {
+    public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
 
