@@ -130,19 +130,18 @@ public class ContextManager {
         return context.context;
     }
 
-    public static Principal getCurrentPrincipal() {
+    public static Principal getCurrentPrincipal(Subject callerSubject) {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(GET_CONTEXT);
 
-        Object caller = currentCaller.get();
-        if (caller == null) {
+        if (callerSubject == null) {
             return new Principal() {
                 public String getName() {
                     return "";
                 }
             };
         }
-        Context context = (Context) subjectContexts.get(currentCaller.get());
+        Context context = (Context) subjectContexts.get(callerSubject);
 
         assert context != null : "No registered context";
 
