@@ -56,40 +56,31 @@
 
 package org.apache.geronimo.security.bridge;
 
-import java.util.Collections;
-
 import javax.security.auth.Subject;
 
-import junit.framework.TestCase;
-import org.apache.geronimo.security.SecurityService;
+import org.apache.geronimo.security.AbstractTest;
+import org.apache.geronimo.security.SecurityServiceMBean;
 import org.apache.geronimo.security.realm.providers.GeronimoPasswordCredential;
 
+
 /**
- *
- *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:08 $
- *
- * */
-public abstract class AbstractUserPasswordBridgeTest extends TestCase {
-    private SecurityService securityService;
+ * @version $Revision: 1.2 $ $Date: 2004/02/17 00:05:40 $
+ */
+public abstract class AbstractUserPasswordBridgeTest extends AbstractTest {
+    private SecurityServiceMBean securityService;
     protected final static String USER = "testuser";
     protected final static String PASSWORD = "testpassword";
-
-    protected void setUp() {
-        securityService = new SecurityService();
-        securityService.setRealms(Collections.singleton(new TestRealm()));
-    }
 
     protected void checkValidSubject(Subject targetSubject) {
         assertEquals("Expected one  TestPrincipal", 1, targetSubject.getPrincipals(TestPrincipal.class).size());
         Object p = targetSubject.getPrincipals(TestPrincipal.class).iterator().next();
         assertSame("Expected ResourcePrincipal", TestPrincipal.class, p.getClass());
-        assertEquals("Expected name of TestPrincipal to be " + ConfiguredIdentityUserPasswordBridgeTest.USER, ConfiguredIdentityUserPasswordBridgeTest.USER, ((TestPrincipal) p).getName());
+        assertEquals("Expected name of TestPrincipal to be " + USER, USER, ((TestPrincipal) p).getName());
         assertEquals("Expected no public credential", 0, targetSubject.getPublicCredentials().size());
         assertEquals("Expected one private credential", 1, targetSubject.getPrivateCredentials().size());
         Object cred = targetSubject.getPrivateCredentials().iterator().next();
         assertSame("Expected GeronimoPasswordCredential", GeronimoPasswordCredential.class, cred.getClass());
-        assertEquals("Expected user", ConfiguredIdentityUserPasswordBridgeTest.USER, ((GeronimoPasswordCredential) cred).getUserName());
-        assertEquals("Expected password", ConfiguredIdentityUserPasswordBridgeTest.PASSWORD, new String(((GeronimoPasswordCredential) cred).getPassword()));
+        assertEquals("Expected user", USER, ((GeronimoPasswordCredential) cred).getUserName());
+        assertEquals("Expected password", PASSWORD, new String(((GeronimoPasswordCredential) cred).getPassword()));
     }
 }

@@ -68,17 +68,17 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
 
+
 /**
  * works off a property file with lines of the format:
  * sourceprincipalname=targetprincipal:targetuser:targetpassword
- *
+ * <p/>
  * all three can be mapped separately; the source for each key is
  * from the appropriate principal class and possibly
  * callback name.
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:07 $
- *
- * */
+ * @version $Revision: 1.2 $ $Date: 2004/02/17 00:05:39 $
+ */
 public class PropertiesFilePrincipalMappingUserPasswordRealmBridge extends AbstractPrincipalMappingUserPasswordRealmBridge {
 
     private static final GBeanInfo GBEAN_INFO;
@@ -96,11 +96,11 @@ public class PropertiesFilePrincipalMappingUserPasswordRealmBridge extends Abstr
                                                                  Class passwordSourceType,
                                                                  URL propertyFileURL) {
         super(targetRealm,
-                principalSourceType,
-                principalTargetCallbackName,
-                userNameSourceType,
-                userNameTargetCallbackName,
-                passwordSourceType);
+              principalSourceType,
+              principalTargetCallbackName,
+              userNameSourceType,
+              userNameTargetCallbackName,
+              passwordSourceType);
         this.propertyFileURL = propertyFileURL;
     }
 
@@ -136,9 +136,8 @@ public class PropertiesFilePrincipalMappingUserPasswordRealmBridge extends Abstr
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(PropertiesFilePrincipalMappingUserPasswordRealmBridge.class.getName(), AbstractPrincipalMappingUserPasswordRealmBridge.getGBeanInfo());
         infoFactory.addAttribute(new GAttributeInfo("PropertyFileURL", true));
-        infoFactory.setConstructor(new GConstructorInfo(
-                new String[]{"TargetRealm", "PrincipalSourceType", "PrincipalTargetCallbackName", "UserNameSourceType", "UserNameTargetCallbackName", "PasswordSourceType", "PropertyFileURL"},
-                new Class[]{String.class, Class.class, String.class, Class.class, String.class, Class.class, URL.class}));
+        infoFactory.setConstructor(new GConstructorInfo(new String[]{"TargetRealm", "PrincipalSourceType", "PrincipalTargetCallbackName", "UserNameSourceType", "UserNameTargetCallbackName", "PasswordSourceType", "PropertyFileURL"},
+                                                        new Class[]{String.class, Class.class, String.class, Class.class, String.class, Class.class, URL.class}));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

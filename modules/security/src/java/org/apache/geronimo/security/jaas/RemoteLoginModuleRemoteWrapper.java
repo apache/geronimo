@@ -1,7 +1,7 @@
 /* ====================================================================
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 2003 The Apache Software Foundation.  All rights
+ * Copyright (c) 2004 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,18 +55,17 @@
  */
 package org.apache.geronimo.security.jaas;
 
+import javax.security.auth.Subject;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.login.LoginException;
+import javax.security.auth.spi.LoginModule;
+
 import java.security.Principal;
 import java.security.PrivilegedActionException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import javax.security.auth.Subject;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.login.LoginException;
-import javax.security.auth.spi.LoginModule;
-
-import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.GeronimoSecurityException;
 import org.apache.geronimo.security.RealmPrincipal;
 
@@ -77,9 +76,9 @@ import org.apache.geronimo.security.RealmPrincipal;
  * which, in turn, also get placed into the subject.  It is these RealmPrincipals
  * that are used in the principal to role mapping.
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/25 01:47:09 $
+ * @version $Revision: 1.1 $ $Date: 2004/02/17 00:05:39 $
  */
-public class LoginModuleWrapper implements LoginModule {
+public class RemoteLoginModuleRemoteWrapper implements LoginModule {
     private String realm;
     private LoginModule module;
     private Subject internalSubject = new Subject();
@@ -87,30 +86,24 @@ public class LoginModuleWrapper implements LoginModule {
     private static ClassLoader classLoader;
 
     static {
-        classLoader = (ClassLoader) java.security.AccessController.doPrivileged(
-                new java.security.PrivilegedAction() {
-                    public Object run() {
-                        return Thread.currentThread().getContextClassLoader();
-                    }
-                });
+        classLoader = (ClassLoader) java.security.AccessController.doPrivileged(new java.security.PrivilegedAction() {
+            public Object run() {
+                return Thread.currentThread().getContextClassLoader();
+            }
+        });
     }
-
-    public final static String REALM_NAME = "org.apache.geronimo.security.jaas.LoginModuleWrapper.REALM_NAME";
-    public final static String MODULE = "org.apache.geronimo.security.jaas.LoginModuleWrapper.MODULE";
-
 
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
 
         externalSubject = subject;
-        realm = (String) options.get(REALM_NAME);
+        realm = (String) options.get(LoginModuleConstants.REALM_NAME);
         try {
-            final String finalClass = (String) options.get(MODULE);
-            module = (LoginModule) java.security.AccessController.doPrivileged(
-                    new java.security.PrivilegedExceptionAction() {
-                        public Object run() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-                            return Class.forName(finalClass, true, classLoader).newInstance();
-                        }
-                    });
+            final String finalClass = (String) options.get(LoginModuleConstants.MODULE);
+            module = (LoginModule) java.security.AccessController.doPrivileged(new java.security.PrivilegedExceptionAction() {
+                public Object run() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+                    return Class.forName(finalClass, true, classLoader).newInstance();
+                }
+            });
             module.initialize(internalSubject, callbackHandler, sharedState, options);
         } catch (PrivilegedActionException pae) {
             Exception e = pae.getException();
@@ -135,13 +128,11 @@ public class LoginModuleWrapper implements LoginModule {
         Iterator iter = set.iterator();
         while (iter.hasNext()) {
             principal = new RealmPrincipal(realm, (Principal) iter.next());
-            externalSubject.getPrincipals().add(ContextManager.registerPrincipal(principal));
+            externalSubject.getPrincipals().add(principal);
         }
         externalSubject.getPrincipals().addAll(internalSubject.getPrincipals());
         externalSubject.getPrivateCredentials().addAll(internalSubject.getPrivateCredentials());
         externalSubject.getPublicCredentials().addAll(internalSubject.getPublicCredentials());
-
-        ContextManager.registerSubject(externalSubject);
 
         return true;
     }
@@ -151,8 +142,24 @@ public class LoginModuleWrapper implements LoginModule {
     }
 
     public boolean logout() throws LoginException {
-        ContextManager.unregisterSubject(externalSubject);
+        Iterator pricipals = externalSubject.getPrincipals().iterator();
+        while (pricipals.hasNext()) {
+            Object o = pricipals.next();
+            if (o instanceof RealmPrincipal) pricipals.remove();
+            if (internalSubject.getPrincipals().contains(o)) pricipals.remove();
+        }
 
+        Iterator privateCredentials = externalSubject.getPrivateCredentials().iterator();
+        while (privateCredentials.hasNext()) {
+            Object o = privateCredentials.next();
+            if (internalSubject.getPrivateCredentials().contains(o)) privateCredentials.remove();
+        }
+
+        Iterator publicCredentials = externalSubject.getPublicCredentials().iterator();
+        while (publicCredentials.hasNext()) {
+            Object o = publicCredentials.next();
+            if (internalSubject.getPublicCredentials().contains(o)) publicCredentials.remove();
+        }
         return module.logout();
     }
 }

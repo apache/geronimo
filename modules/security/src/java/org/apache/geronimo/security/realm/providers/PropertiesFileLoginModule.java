@@ -55,9 +55,6 @@
  */
 package org.apache.geronimo.security.realm.providers;
 
-import java.io.IOException;
-import java.util.Map;
-
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -67,10 +64,15 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
 
 /**
- *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:07 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/17 00:05:39 $
  */
 public class PropertiesFileLoginModule implements LoginModule {
     PropertiesFileSecurityRealm realm;
@@ -105,13 +107,28 @@ public class PropertiesFileLoginModule implements LoginModule {
     }
 
     public boolean commit() throws LoginException {
-        subject.getPrincipals().add(new PropertiesFileUserPrincipal(username));
+        Set principals = subject.getPrincipals();
+
+        principals.add(new PropertiesFileUserPrincipal(username));
+
+        Enumeration enum = realm.groups.keys();
+        while (enum.hasMoreElements()) {
+            String groupName = (String) enum.nextElement();
+            Set users = (Set) realm.groups.get(groupName);
+            Iterator iter = users.iterator();
+            while (iter.hasNext()) {
+                String user = (String) iter.next();
+                if (username.equals(user)) {
+                    principals.add(new PropertiesFileGroupPrincipal(groupName));
+                    break;
+                }
+            }
+        }
 
         return true;
     }
 
     public boolean abort() throws LoginException {
-        subject = null;
         username = null;
         password = null;
 
@@ -119,7 +136,6 @@ public class PropertiesFileLoginModule implements LoginModule {
     }
 
     public boolean logout() throws LoginException {
-        subject = null;
         username = null;
         password = null;
 

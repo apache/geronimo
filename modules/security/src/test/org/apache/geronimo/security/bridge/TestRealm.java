@@ -56,28 +56,34 @@
 
 package org.apache.geronimo.security.bridge;
 
-import java.util.Set;
-import java.util.HashMap;
-
 import javax.security.auth.login.AppConfigurationEntry;
-import javax.security.auth.login.LoginContext;
-import javax.security.auth.spi.LoginModule;
 
-import org.apache.geronimo.security.realm.SecurityRealm;
+import java.util.HashMap;
+import java.util.Set;
+
+import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GConstructorInfo;
+import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.security.GeronimoSecurityException;
+import org.apache.geronimo.security.realm.providers.AbstractSecurityRealm;
 import org.apache.regexp.RE;
 
-/**
- *
- *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:08 $
- *
- * */
-public class TestRealm implements SecurityRealm {
-    public final static String REALM_NAME = "testrealm";
 
-    public String getRealmName() {
-        return REALM_NAME;
+/**
+ * @version $Revision: 1.2 $ $Date: 2004/02/17 00:05:40 $
+ */
+public class TestRealm extends AbstractSecurityRealm {
+    public final static String REALM_NAME = "bridge-realm";
+    public final static String JAAS_NAME = "bridge";
+    private static final GBeanInfo GBEAN_INFO;
+
+    public TestRealm() {
+    }
+
+    public TestRealm(String realmName) {
+        super(realmName);
     }
 
     public Set getGroupPrincipals() throws GeronimoSecurityException {
@@ -99,10 +105,26 @@ public class TestRealm implements SecurityRealm {
     public void refresh() throws GeronimoSecurityException {
     }
 
-    public AppConfigurationEntry[] getAppConfigurationEntry() {
-        return new AppConfigurationEntry[] {
-            new AppConfigurationEntry(TestLoginModule.class.getName(), AppConfigurationEntry.LoginModuleControlFlag.REQUISITE, new HashMap()
-            )
-        };
+    public AppConfigurationEntry getAppConfigurationEntry() {
+        return new AppConfigurationEntry(TestLoginModule.class.getName(),
+                                         AppConfigurationEntry.LoginModuleControlFlag.REQUISITE,
+                                         new HashMap());
+    }
+
+    public boolean isLoginModuleLocal() {
+        return true;
+    }
+
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(TestRealm.class.getName(), AbstractSecurityRealm.getGBeanInfo());
+        infoFactory.addAttribute(new GAttributeInfo("debug", true));
+        infoFactory.addOperation(new GOperationInfo("isLoginModuleLocal"));
+        infoFactory.setConstructor(new GConstructorInfo(new String[]{"RealmName"},
+                                                        new Class[]{String.class}));
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
     }
 }

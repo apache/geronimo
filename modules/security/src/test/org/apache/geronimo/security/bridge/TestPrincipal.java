@@ -56,15 +56,14 @@
 
 package org.apache.geronimo.security.bridge;
 
+import java.io.Serializable;
 import java.security.Principal;
 
+
 /**
- *
- *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:08 $
- *
- * */
-public class TestPrincipal implements Principal {
+ * @version $Revision: 1.2 $ $Date: 2004/02/17 00:05:40 $
+ */
+public class TestPrincipal implements Principal, Serializable {
 
     private String name;
 

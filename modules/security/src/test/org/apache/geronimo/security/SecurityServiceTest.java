@@ -56,23 +56,23 @@
 package org.apache.geronimo.security;
 
 import java.io.File;
-import java.util.Collections;
 import java.util.Arrays;
+import java.util.Collections;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.security.realm.providers.PropertiesFileSecurityRealm;
+
 import org.apache.geronimo.security.jacc.EJBModuleConfiguration;
-import org.apache.geronimo.security.jacc.ModuleConfiguration;
 import org.apache.geronimo.security.jacc.WebModuleConfiguration;
-import org.apache.geronimo.xbeans.j2ee.EjbJarType;
-import org.apache.geronimo.xbeans.j2ee.AssemblyDescriptorType;
-import org.apache.geronimo.xbeans.j2ee.WebAppType;
+import org.apache.geronimo.security.realm.providers.PropertiesFileSecurityRealm;
 import org.apache.geronimo.xbeans.geronimo.security.GerSecurityType;
+import org.apache.geronimo.xbeans.j2ee.AssemblyDescriptorType;
+import org.apache.geronimo.xbeans.j2ee.EjbJarType;
+import org.apache.geronimo.xbeans.j2ee.WebAppType;
 
 /**
  * Unit test for web module configuration
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/12 08:14:05 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/17 00:05:40 $
  */
 public class SecurityServiceTest extends TestCase {
     SecurityService securityService;
@@ -102,9 +102,5 @@ public class SecurityServiceTest extends TestCase {
     }
 
     public void testConfig() throws Exception {
-        ModuleConfiguration ejbModuleConfiguration = securityService.getModuleConfiguration("Foo", false);
-        assertTrue("expected an ejbModuleConfiguration", ejbModuleConfiguration != null);
-        ModuleConfiguration webModuleConfiguration = securityService.getModuleConfiguration("Bar", false);
-        assertTrue("expected a webModuleConfiguration", webModuleConfiguration != null);
     }
 }

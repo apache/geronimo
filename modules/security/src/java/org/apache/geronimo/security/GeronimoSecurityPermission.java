@@ -59,8 +59,7 @@ import java.security.BasicPermission;
 
 
 /**
- *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:06 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/17 00:05:39 $
  */
 public class GeronimoSecurityPermission extends BasicPermission {
 

@@ -61,25 +61,23 @@ import javax.security.auth.login.LoginException;
 
 import org.apache.geronimo.security.realm.providers.GeronimoPasswordCredential;
 
+
 /**
- *
- *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:08 $
- *
- * */
-public class CallerIdentityUserPasswordBridgeTest extends AbstractUserPasswordBridgeTest{
+ * @version $Revision: 1.2 $ $Date: 2004/02/17 00:05:40 $
+ */
+public class CallerIdentityUserPasswordBridgeTest extends AbstractBridgeTest {
 
     private CallerIdentityUserPasswordRealmBridge bridge;
 
-    protected void setUp() {
+    protected void setUp() throws Exception {
         super.setUp();
         bridge = new CallerIdentityUserPasswordRealmBridge();
-        bridge.setTargetRealm(TestRealm.REALM_NAME);
+        bridge.setTargetRealm(TestRealm.JAAS_NAME);
     }
 
     public void testCallerIdentityBridge() throws Exception {
         Subject sourceSubject = new Subject();
-        sourceSubject.getPrivateCredentials().add(new GeronimoPasswordCredential(AbstractUserPasswordBridgeTest.USER, AbstractUserPasswordBridgeTest.PASSWORD.toCharArray()));
+        sourceSubject.getPrivateCredentials().add(new GeronimoPasswordCredential(AbstractBridgeTest.USER, AbstractBridgeTest.PASSWORD.toCharArray()));
         Subject targetSubject = bridge.mapSubject(sourceSubject);
         checkValidSubject(targetSubject);
     }

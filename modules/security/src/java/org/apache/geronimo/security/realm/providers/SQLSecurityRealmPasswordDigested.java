@@ -59,12 +59,10 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import mx4j.util.Base64Codec;
-import org.apache.geronimo.security.realm.providers.SQLSecurityRealm;
 
 
 /**
- *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:07 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/17 00:05:39 $
  */
 
 public class SQLSecurityRealmPasswordDigested extends SQLSecurityRealm {

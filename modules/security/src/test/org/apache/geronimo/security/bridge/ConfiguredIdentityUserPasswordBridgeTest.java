@@ -53,25 +53,23 @@
  *
  * ====================================================================
  */
-
 package org.apache.geronimo.security.bridge;
 
 import javax.security.auth.Subject;
 
+
 /**
- *
- *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:08 $
- *
- * */
-public class ConfiguredIdentityUserPasswordBridgeTest extends AbstractUserPasswordBridgeTest {
+ * @version $Revision: 1.2 $ $Date: 2004/02/17 00:05:40 $
+ */
+public class ConfiguredIdentityUserPasswordBridgeTest extends AbstractBridgeTest {
 
     private ConfiguredIdentityUserPasswordRealmBridge bridge;
 
-    protected void setUp() {
+    protected void setUp() throws Exception {
         super.setUp();
-        bridge = new ConfiguredIdentityUserPasswordRealmBridge(TestRealm.REALM_NAME, AbstractUserPasswordBridgeTest.USER, AbstractUserPasswordBridgeTest.PASSWORD);
+        bridge = new ConfiguredIdentityUserPasswordRealmBridge(TestRealm.JAAS_NAME, AbstractBridgeTest.USER, AbstractBridgeTest.PASSWORD);
     }
+
     public void testConfiguredIdentityBridge() throws Exception {
         Subject sourceSubject = new Subject();
         Subject targetSubject = bridge.mapSubject(sourceSubject);

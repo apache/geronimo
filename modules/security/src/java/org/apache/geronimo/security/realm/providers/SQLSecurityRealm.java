@@ -55,6 +55,8 @@
  */
 package org.apache.geronimo.security.realm.providers;
 
+import javax.security.auth.login.AppConfigurationEntry;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -67,25 +69,27 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import javax.security.auth.login.AppConfigurationEntry;
-
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
+import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.security.GeronimoSecurityException;
-import org.apache.geronimo.security.realm.providers.PropertiesFileSecurityRealm;
 import org.apache.regexp.RE;
 
 
 /**
- *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:07 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/17 00:05:39 $
  */
 
 public class SQLSecurityRealm extends AbstractSecurityRealm {
 
     private static final GBeanInfo GBEAN_INFO;
+    public final static String USER_SELECT = "org.apache.geronimo.security.realm.providers.SQLSecurityRealm.USER_SELECT";
+    public final static String GROUP_SELECT = "org.apache.geronimo.security.realm.providers.SQLSecurityRealm.GROUP_SELECT";
+    public final static String CONNECTION_URL = "org.apache.geronimo.security.realm.providers.SQLSecurityRealm.CONNECTION_URL";
+    public final static String USERNAME = "org.apache.geronimo.security.realm.providers.SQLSecurityRealm.USERNAME";
+    public final static String PASSWORD = "org.apache.geronimo.security.realm.providers.SQLSecurityRealm.PASSWORD";
 
     private boolean running = false;
     private String connectionURL;
@@ -96,12 +100,11 @@ public class SQLSecurityRealm extends AbstractSecurityRealm {
     final Map users = new HashMap();
     final Map groups = new HashMap();
 
-    final static String REALM_INSTANCE = "org.apache.geronimo.security.realm.providers.SQLSecurityRealm";
-
     /**
      * @deprecated
      */
-    public SQLSecurityRealm() {}
+    public SQLSecurityRealm() {
+    }
 
     public SQLSecurityRealm(String realmName, String connectionURL, String user, String password, String userSelect, String groupSelect) {
         super(realmName);
@@ -299,28 +302,36 @@ public class SQLSecurityRealm extends AbstractSecurityRealm {
         return password;
     }
 
-    public AppConfigurationEntry[] getAppConfigurationEntry() {
+    public AppConfigurationEntry getAppConfigurationEntry() {
         HashMap options = new HashMap();
 
-        options.put(REALM_INSTANCE, this);
-        AppConfigurationEntry entry = new AppConfigurationEntry("org.apache.geronimo.security.realm.providers.SQLLoginModule",
-                AppConfigurationEntry.LoginModuleControlFlag.SUFFICIENT,
-                options);
-        AppConfigurationEntry[] configuration = {entry};
+        options.put(USER_SELECT, userSelect);
+        options.put(GROUP_SELECT, groupSelect);
+        options.put(CONNECTION_URL, connectionURL);
+        options.put(USERNAME, user);
+        options.put(PASSWORD, password);
 
-        return configuration;
+        AppConfigurationEntry entry = new AppConfigurationEntry("org.apache.geronimo.security.realm.providers.SQLLoginModule",
+                                                                AppConfigurationEntry.LoginModuleControlFlag.SUFFICIENT,
+                                                                options);
+
+        return entry;
+    }
+
+    public boolean isLoginModuleLocal() {
+        return true;
     }
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(PropertiesFileSecurityRealm.class.getName(), AbstractSecurityRealm.getGBeanInfo());
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(SQLSecurityRealm.class.getName(), AbstractSecurityRealm.getGBeanInfo());
         infoFactory.addAttribute(new GAttributeInfo("ConnectionURL", true));
         infoFactory.addAttribute(new GAttributeInfo("User", true));
         infoFactory.addAttribute(new GAttributeInfo("Password", true));
         infoFactory.addAttribute(new GAttributeInfo("UserSelect", true));
         infoFactory.addAttribute(new GAttributeInfo("GroupSelect", true));
-        infoFactory.setConstructor(new GConstructorInfo(
-                new String[] {"RealmName", "ConnectionURL", "User", "UserSelect", "GroupSelect"},
-                new Class[] {String.class, String.class, String.class, String.class, String.class}));
+        infoFactory.addOperation(new GOperationInfo("isLoginModuleLocal"));
+        infoFactory.setConstructor(new GConstructorInfo(new String[]{"RealmName", "ConnectionURL", "User", "Password", "UserSelect", "GroupSelect"},
+                                                        new Class[]{String.class, String.class, String.class, String.class, String.class, String.class}));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

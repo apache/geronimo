@@ -55,19 +55,20 @@
  */
 package org.apache.geronimo.security;
 
+import javax.xml.parsers.DocumentBuilder;
+
 import java.io.File;
 import java.net.URI;
 
-import javax.xml.parsers.DocumentBuilder;
-
 import junit.framework.TestCase;
+
 import org.apache.geronimo.deployment.xml.LocalEntityResolver;
 import org.apache.geronimo.deployment.xml.ParserFactory;
 import org.apache.geronimo.deployment.xml.ParserFactoryImpl;
 
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:08 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/17 00:05:40 $
  */
 public abstract class AbstractLoaderUtilTest extends TestCase {
 

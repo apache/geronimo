@@ -56,12 +56,6 @@
 
 package org.apache.geronimo.security.bridge;
 
-import java.io.IOException;
-import java.security.Principal;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -69,17 +63,21 @@ import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
+import java.io.IOException;
+import java.security.Principal;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
 
+
 /**
- *
- *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:07 $
- *
- * */
+ * @version $Revision: 1.2 $ $Date: 2004/02/17 00:05:39 $
+ */
 public abstract class AbstractPrincipalMappingUserPasswordRealmBridge extends AbstractRealmBridge {
 
     private static final GBeanInfo GBEAN_INFO;
@@ -94,7 +92,8 @@ public abstract class AbstractPrincipalMappingUserPasswordRealmBridge extends Ab
     private Class passwordSourceType;
 
 
-    public AbstractPrincipalMappingUserPasswordRealmBridge() {}
+    public AbstractPrincipalMappingUserPasswordRealmBridge() {
+    }
 
     public AbstractPrincipalMappingUserPasswordRealmBridge(String targetRealm,
                                                            Class principalSourceType,
@@ -170,16 +169,16 @@ public abstract class AbstractPrincipalMappingUserPasswordRealmBridge extends Ab
                 for (int i = 0; i < callbacks.length; i++) {
                     Callback callback = callbacks[i];
                     if (callback instanceof NameCallback) {
-                        NameCallback nameCallback = (NameCallback)callback;
+                        NameCallback nameCallback = (NameCallback) callback;
                         if (nameCallback.getPrompt().equals(principalTargetCallbackName)) {
-                            nameCallback.setName((String)principalMap.get(principalSourcePrincipal.getName()));
+                            nameCallback.setName((String) principalMap.get(principalSourcePrincipal.getName()));
                         } else if (nameCallback.getPrompt().equals(userNameTargetCallbackName)) {
-                            nameCallback.setName((String)userNameMap.get(userNameSourcePrincipal.getName()));
+                            nameCallback.setName((String) userNameMap.get(userNameSourcePrincipal.getName()));
                         } else {
                             throw new UnsupportedCallbackException(callback, "Only name callbacks with prompts " + principalTargetCallbackName + " or " + userNameTargetCallbackName + " are supported");
                         }
                     } else if (callback instanceof PasswordCallback) {
-                        ((PasswordCallback)callback).setPassword((char[])passwordMap.get(passwordSourcePrincipal.getName()));
+                        ((PasswordCallback) callback).setPassword((char[]) passwordMap.get(passwordSourcePrincipal.getName()));
                     } else {
                         throw new UnsupportedCallbackException(callback, "Only name and password callbacks supported");
                     }
@@ -192,7 +191,7 @@ public abstract class AbstractPrincipalMappingUserPasswordRealmBridge extends Ab
                 if (principalPrincipals == null || principalPrincipals.size() != 1) {
                     throw new UnsupportedCallbackException(null, "No principals of type " + principalClass + " to read");
                 }
-                Principal principal = (Principal)principalPrincipals.iterator().next();
+                Principal principal = (Principal) principalPrincipals.iterator().next();
                 return principal;
             }
 
@@ -206,9 +205,8 @@ public abstract class AbstractPrincipalMappingUserPasswordRealmBridge extends Ab
         infoFactory.addAttribute(new GAttributeInfo("UserNameSourceType", true));
         infoFactory.addAttribute(new GAttributeInfo("UserNameTargetCallbackName", true));
         infoFactory.addAttribute(new GAttributeInfo("PasswordSourceType", true));
-        infoFactory.setConstructor(new GConstructorInfo(
-                new String[] {"TargetRealm", "PrincipalSourceType", "PrincipalTargetCallbackName", "UserNameSourceType", "UserNameTargetCallbackName", "PasswordSourceType"},
-        new Class[] {String.class, Class.class, String.class, Class.class, String.class, Class.class}));
+        infoFactory.setConstructor(new GConstructorInfo(new String[]{"TargetRealm", "PrincipalSourceType", "PrincipalTargetCallbackName", "UserNameSourceType", "UserNameTargetCallbackName", "PasswordSourceType"},
+                                                        new Class[]{String.class, Class.class, String.class, Class.class, String.class, Class.class}));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

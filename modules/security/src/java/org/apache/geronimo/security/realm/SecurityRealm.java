@@ -55,21 +55,20 @@
  */
 package org.apache.geronimo.security.realm;
 
-import java.util.Set;
-
 import javax.security.auth.login.AppConfigurationEntry;
 
-import org.apache.regexp.RE;
+import java.util.Set;
+
 import org.apache.geronimo.security.GeronimoSecurityException;
+import org.apache.regexp.RE;
 
 
 /**
- *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:07 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/17 00:05:39 $
  */
 public interface SecurityRealm {
 
-    static final String BASE_OBJECT_NAME="geronimo.security:type=SecurityRealm";
+    static final String BASE_OBJECT_NAME = "geronimo.security:type=SecurityRealm";
 
     public String getRealmName();
 
@@ -83,5 +82,9 @@ public interface SecurityRealm {
 
     public void refresh() throws GeronimoSecurityException;
 
-    public AppConfigurationEntry[] getAppConfigurationEntry();
+    public AppConfigurationEntry getAppConfigurationEntry();
+
+    public boolean isLoginModuleLocal();
+
+    public long getMaxLoginModuleAge();
 }

@@ -56,26 +56,22 @@
 
 package org.apache.geronimo.security.realm.providers;
 
-import java.util.Map;
-
-import javax.security.auth.spi.LoginModule;
 import javax.security.auth.Subject;
-import javax.security.auth.login.LoginException;
-import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.login.LoginException;
+import javax.security.auth.spi.LoginModule;
 
-import org.apache.geronimo.security.realm.providers.GeronimoPasswordCredential;
+import java.util.Map;
+
 
 /**
- *
- *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:07 $
- *
- * */
-public class GeronimoPasswordCredentialLoginModule implements LoginModule{
+ * @version $Revision: 1.2 $ $Date: 2004/02/17 00:05:39 $
+ */
+public class GeronimoPasswordCredentialLoginModule implements LoginModule {
 
     private Subject subject;
     private CallbackHandler callbackHandler;
@@ -96,11 +92,10 @@ public class GeronimoPasswordCredentialLoginModule implements LoginModule{
             callbackHandler.handle(callbacks);
         } catch (java.io.IOException e) {
         } catch (UnsupportedCallbackException e) {
-            throw (LoginException)new LoginException("Unlikely UnsupportedCallbackException").initCause(e);
+            throw (LoginException) new LoginException("Unlikely UnsupportedCallbackException").initCause(e);
         }
-        geronimoPasswordCredential = new GeronimoPasswordCredential(
-                ((NameCallback)callbacks[0]).getName(),
-                ((PasswordCallback)callbacks[1]).getPassword());
+        geronimoPasswordCredential = new GeronimoPasswordCredential(((NameCallback) callbacks[0]).getName(),
+                                                                    ((PasswordCallback) callbacks[1]).getPassword());
         return true;
     }
 

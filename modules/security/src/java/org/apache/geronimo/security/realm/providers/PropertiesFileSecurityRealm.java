@@ -55,6 +55,8 @@
  */
 package org.apache.geronimo.security.realm.providers;
 
+import javax.security.auth.login.AppConfigurationEntry;
+
 import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
@@ -64,19 +66,17 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
-import javax.security.auth.login.AppConfigurationEntry;
-
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
+import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.security.GeronimoSecurityException;
 import org.apache.regexp.RE;
 
 
 /**
- *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:07 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/17 00:05:39 $
  */
 public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
 
@@ -89,6 +89,7 @@ public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
     Properties groups = new Properties();
 
     final static String REALM_INSTANCE = "org.apache.geronimo.security.realm.providers.PropertiesFileSecurityRealm";
+
     //deprecated for geronimombeans only
     public PropertiesFileSecurityRealm() {
     }
@@ -188,33 +189,53 @@ public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
     public void refresh() throws GeronimoSecurityException {
         try {
             users.load(usersURI.toURL().openStream());
-            groups.load(groupsURI.toURL().openStream());
-            //users.load(new FileInputStream(new File(usersURI)));
-            //groups.load(new FileInputStream(new File(groupsURI)));
+
+            Properties temp = new Properties();
+            temp.load(groupsURI.toURL().openStream());
+
+            Enumeration enum = temp.keys();
+            while (enum.hasMoreElements()) {
+                String groupName = (String) enum.nextElement();
+                String[] userList = ((String) temp.get(groupName)).split(",");
+
+                Set userset = (Set) groups.get(groupName);
+                if (userset == null) {
+                    userset = new HashSet();
+                    groups.put(groupName, userset);
+                }
+
+                for (int i = 0; i < userList.length; i++) {
+                    userset.add(userList[i]);
+                }
+            }
+
         } catch (IOException e) {
             throw new GeronimoSecurityException(e);
         }
     }
 
-    public AppConfigurationEntry[] getAppConfigurationEntry() {
+    public AppConfigurationEntry getAppConfigurationEntry() {
         HashMap options = new HashMap();
 
         options.put(REALM_INSTANCE, this);
         AppConfigurationEntry entry = new AppConfigurationEntry("org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule",
-                AppConfigurationEntry.LoginModuleControlFlag.SUFFICIENT,
-                options);
-        AppConfigurationEntry[] configuration = {entry};
+                                                                AppConfigurationEntry.LoginModuleControlFlag.SUFFICIENT,
+                                                                options);
 
-        return configuration;
+        return entry;
+    }
+
+    public boolean isLoginModuleLocal() {
+        return true;
     }
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(PropertiesFileSecurityRealm.class.getName(), AbstractSecurityRealm.getGBeanInfo());
         infoFactory.addAttribute(new GAttributeInfo("UsersURI", true));
         infoFactory.addAttribute(new GAttributeInfo("GroupsURI", true));
-        infoFactory.setConstructor(new GConstructorInfo(
-                new String[]{"RealmName", "UsersURI", "GroupsURI"},
-                new Class[]{String.class, URI.class, URI.class}));
+        infoFactory.addOperation(new GOperationInfo("isLoginModuleLocal"));
+        infoFactory.setConstructor(new GConstructorInfo(new String[]{"RealmName", "UsersURI", "GroupsURI"},
+                                                        new Class[]{String.class, URI.class, URI.class}));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

@@ -56,19 +56,17 @@
 
 package org.apache.geronimo.security.bridge;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.security.Principal;
-
 import javax.security.auth.Subject;
 
+import java.security.Principal;
+import java.util.HashMap;
+import java.util.Map;
+
+
 /**
- *
- *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:08 $
- *
- * */
-public class MappingUserPasswordBridgeTest extends AbstractUserPasswordBridgeTest {
+ * @version $Revision: 1.2 $ $Date: 2004/02/17 00:05:40 $
+ */
+public class MappingUserPasswordBridgeTest extends AbstractBridgeTest {
     private static final String SOURCE_USER_1 = "sourceUser1";
     private static final String SOURCE_USER_2 = "sourceUser2";
     private static final String SOURCE_PRINCIPAL_1 = "sourcePrincipal1";
@@ -78,25 +76,25 @@ public class MappingUserPasswordBridgeTest extends AbstractUserPasswordBridgeTes
 
     private TestMappingBridge bridge;
 
-    protected void setUp() {
+    protected void setUp() throws Exception {
         super.setUp();
         bridge = new TestMappingBridge();
-        bridge.setTargetRealm(TestRealm.REALM_NAME);
+        bridge.setTargetRealm(TestRealm.JAAS_NAME);
         bridge.setPrincipalSourceType(TestPrincipalPrincipal.class);
         bridge.setPrincipalTargetCallbackName("Resource Principal");
         Map principalMap = new HashMap();
-        principalMap.put(SOURCE_PRINCIPAL_1, AbstractUserPasswordBridgeTest.USER);
+        principalMap.put(SOURCE_PRINCIPAL_1, AbstractBridgeTest.USER);
         principalMap.put(SOURCE_PRINCIPAL_2, "no-one");
         bridge.setPrincipalMap(principalMap);
         bridge.setUserNameSourceType(TestUserNamePrincipal.class);
         bridge.setUserNameTargetCallbackName("User Name");
         Map userNameMap = new HashMap();
-        userNameMap.put(SOURCE_USER_1, AbstractUserPasswordBridgeTest.USER);
+        userNameMap.put(SOURCE_USER_1, AbstractBridgeTest.USER);
         userNameMap.put(SOURCE_USER_2, "no-one");
         bridge.setUserNameMap(userNameMap);
         bridge.setPasswordSourceType(TestPasswordPrincipal.class);
         Map passwordMap = new HashMap();
-        passwordMap.put(SOURCE_PASSWORD_1, AbstractUserPasswordBridgeTest.PASSWORD.toCharArray());
+        passwordMap.put(SOURCE_PASSWORD_1, AbstractBridgeTest.PASSWORD.toCharArray());
         passwordMap.put(SOURCE_PASSWORD_2, "no-password".toCharArray());
         bridge.setPasswordMap(passwordMap);
     }
@@ -135,9 +133,11 @@ public class MappingUserPasswordBridgeTest extends AbstractUserPasswordBridgeTes
 
     public static class TestPrincipalPrincipal implements Principal {
         private String name;
+
         public TestPrincipalPrincipal(String name) {
             this.name = name;
         }
+
         public String getName() {
             return name;
         }
@@ -145,9 +145,11 @@ public class MappingUserPasswordBridgeTest extends AbstractUserPasswordBridgeTes
 
     public static class TestUserNamePrincipal implements Principal {
         private String name;
+
         public TestUserNamePrincipal(String name) {
             this.name = name;
         }
+
         public String getName() {
             return name;
         }
@@ -155,9 +157,11 @@ public class MappingUserPasswordBridgeTest extends AbstractUserPasswordBridgeTes
 
     public static class TestPasswordPrincipal implements Principal {
         private String name;
+
         public TestPasswordPrincipal(String name) {
             this.name = name;
         }
+
         public String getName() {
             return name;
         }

@@ -56,9 +56,6 @@
 
 package org.apache.geronimo.security.bridge;
 
-import java.io.IOException;
-import java.util.Map;
-
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -68,18 +65,19 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
+import java.io.IOException;
+import java.util.Map;
+
 import org.apache.geronimo.security.realm.providers.GeronimoPasswordCredential;
 
+
 /**
- *
- *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:08 $
- *
- * */
+ * @version $Revision: 1.2 $ $Date: 2004/02/17 00:05:40 $
+ */
 public class TestLoginModule implements LoginModule {
 
     private Subject subject;
-    private  CallbackHandler callbackHandler;
+    private CallbackHandler callbackHandler;
 
     private String resourcePrincipalName;
     private String userName;

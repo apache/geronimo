@@ -67,18 +67,19 @@ import org.apache.regexp.RE;
 
 
 /**
- *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:07 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/17 00:05:39 $
  */
-public abstract class AbstractSecurityRealm  implements SecurityRealm, GBean {
+public abstract class AbstractSecurityRealm implements SecurityRealm, GBean {
 
     private static final GBeanInfo GBEAN_INFO;
 
     private String realmName;
+    private long maxLoginModuleAge;
 
     //default constructor for use as endpoint
     //TODO we probably always use the SecurityRealm interface and don't need this
-    public AbstractSecurityRealm() {}
+    public AbstractSecurityRealm() {
+    }
 
 
     public AbstractSecurityRealm(String realmName) {
@@ -87,6 +88,14 @@ public abstract class AbstractSecurityRealm  implements SecurityRealm, GBean {
 
     public String getRealmName() {
         return realmName;
+    }
+
+    public long getMaxLoginModuleAge() {
+        return maxLoginModuleAge;
+    }
+
+    public void setMaxLoginModuleAge(long maxLoginModuleAge) {
+        this.maxLoginModuleAge = maxLoginModuleAge;
     }
 
     public void setRealmName(String realmName) {
@@ -108,13 +117,14 @@ public abstract class AbstractSecurityRealm  implements SecurityRealm, GBean {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(AbstractSecurityRealm.class.getName());
         infoFactory.addAttribute(new GAttributeInfo("RealmName", true));
+        infoFactory.addAttribute(new GAttributeInfo("MaxLoginModuleAge", true));
         infoFactory.addOperation(new GOperationInfo("getGroupPrincipals"));
-        infoFactory.addOperation(new GOperationInfo("getGroupPrincipals", new String[] {RE.class.getName()}));
+        infoFactory.addOperation(new GOperationInfo("getGroupPrincipals", new String[]{RE.class.getName()}));
         infoFactory.addOperation(new GOperationInfo("getUserPrincipals"));
-        infoFactory.addOperation(new GOperationInfo("getUserPrincipals", new String[] {RE.class.getName()}));
+        infoFactory.addOperation(new GOperationInfo("getUserPrincipals", new String[]{RE.class.getName()}));
         infoFactory.addOperation(new GOperationInfo("refresh"));
         infoFactory.addOperation(new GOperationInfo("getAppConfigurationEntry"));
-        infoFactory.setConstructor(new GConstructorInfo(new String[] {"RealmName"}, new Class[] {String.class}));
+        infoFactory.setConstructor(new GConstructorInfo(new String[]{"realmName"}, new Class[]{String.class}));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

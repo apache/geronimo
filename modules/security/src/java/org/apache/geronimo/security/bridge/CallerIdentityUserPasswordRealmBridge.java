@@ -56,9 +56,6 @@
 
 package org.apache.geronimo.security.bridge;
 
-import java.io.IOException;
-import java.util.Set;
-
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -66,21 +63,23 @@ import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
+import java.io.IOException;
+import java.util.Set;
+
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.security.realm.providers.GeronimoPasswordCredential;
 
+
 /**
- *
- *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:07 $
- *
- * */
+ * @version $Revision: 1.2 $ $Date: 2004/02/17 00:05:39 $
+ */
 public class CallerIdentityUserPasswordRealmBridge extends AbstractRealmBridge {
 
     private static final GBeanInfo GBEAN_INFO;
 
-    public CallerIdentityUserPasswordRealmBridge() {}
+    public CallerIdentityUserPasswordRealmBridge() {
+    }
 
     public CallerIdentityUserPasswordRealmBridge(String targetRealm) {
         super(targetRealm);
@@ -95,13 +94,13 @@ public class CallerIdentityUserPasswordRealmBridge extends AbstractRealmBridge {
                 if (credentials == null || credentials.size() != 1) {
                     throw new UnsupportedCallbackException(null, "No GeronimoPasswordCredential to read");
                 }
-                GeronimoPasswordCredential geronimoPasswordCredential = (GeronimoPasswordCredential)credentials.iterator().next();
+                GeronimoPasswordCredential geronimoPasswordCredential = (GeronimoPasswordCredential) credentials.iterator().next();
                 for (int i = 0; i < callbacks.length; i++) {
                     Callback callback = callbacks[i];
                     if (callback instanceof NameCallback) {
-                        ((NameCallback)callback).setName(geronimoPasswordCredential.getUserName());
+                        ((NameCallback) callback).setName(geronimoPasswordCredential.getUserName());
                     } else if (callback instanceof PasswordCallback) {
-                        ((PasswordCallback)callback).setPassword(geronimoPasswordCredential.getPassword());
+                        ((PasswordCallback) callback).setPassword(geronimoPasswordCredential.getPassword());
                     } else {
                         throw new UnsupportedCallbackException(callback, "Only name and password callbacks supported");
                     }

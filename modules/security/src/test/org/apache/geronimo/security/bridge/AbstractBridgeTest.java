@@ -53,74 +53,31 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.security;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Collections;
+package org.apache.geronimo.security.bridge;
 
 import javax.security.auth.Subject;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.NameCallback;
-import javax.security.auth.callback.PasswordCallback;
-import javax.security.auth.callback.UnsupportedCallbackException;
-import javax.security.auth.login.LoginContext;
 
-import junit.framework.TestCase;
-import org.apache.geronimo.security.realm.providers.PropertiesFileSecurityRealm;
+import org.apache.geronimo.security.AbstractTest;
+import org.apache.geronimo.security.realm.providers.GeronimoPasswordCredential;
 
 
 /**
- *
- * @version $Revision: 1.2 $ $Date: 2004/01/25 01:47:30 $
+ * @version $Revision: 1.1 $ $Date: 2004/02/17 00:05:40 $
  */
-public class LoginPropertiesFileTest extends TestCase {
-    SecurityService securityService;
+public abstract class AbstractBridgeTest extends AbstractTest {
+    protected final static String USER = "testuser";
+    protected final static String PASSWORD = "testpassword";
 
-    public void setUp() throws Exception {
-
-        securityService = new SecurityService();
-
-        PropertiesFileSecurityRealm securityRealm = new PropertiesFileSecurityRealm("Foo",
-                (new File(new File("."), "src/test-data/data/users.properties")).toURI(),
-                (new File(new File("."), "src/test-data/data/groups.properties")).toURI());
-        securityRealm.doStart();
-        securityService.setRealms(Collections.singleton(securityRealm));
-
-    }
-
-    public void tearDown() throws Exception {
-    }
-
-    public void testLogin() throws Exception {
-
-        CallbackHandler handler = new CallbackHandler() {
-            public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-                for (int i = 0; i < callbacks.length; i++) {
-                    if (callbacks[i] instanceof PasswordCallback) {
-                        ((PasswordCallback) callbacks[i]).setPassword("starcraft".toCharArray());
-                    } else if (callbacks[i] instanceof NameCallback) {
-                        ((NameCallback) callbacks[i]).setName("alan");
-                    }
-                }
-            }
-
-        };
-        LoginContext context = new LoginContext("Foo", handler);
-
-        context.login();
-        Subject subject = context.getSubject();
-
-        assertTrue("expected non-null subject", subject != null);
-        assertTrue("id of subject should be non-null", ContextManager.getSubjectId(subject) != null);
-        assertTrue("subject should have two principals", subject.getPrincipals().size() == 2);
-        assertTrue("subject should have one realm principal", subject.getPrincipals(RealmPrincipal.class).size() == 1);
-        RealmPrincipal principal = (RealmPrincipal)subject.getPrincipals(RealmPrincipal.class).iterator().next();
-        assertTrue("id of principal should be non-zero", principal.getId() != 0);
-
-        context.logout();
-
-        assertTrue("id of subject should be null", ContextManager.getSubjectId(subject) == null);
+    protected void checkValidSubject(Subject targetSubject) {
+        assertEquals("Expected one  TestPrincipal", 1, targetSubject.getPrincipals(TestPrincipal.class).size());
+        Object p = targetSubject.getPrincipals(TestPrincipal.class).iterator().next();
+        assertSame("Expected ResourcePrincipal", TestPrincipal.class, p.getClass());
+        assertEquals("Expected name of TestPrincipal to be " + ConfiguredIdentityUserPasswordBridgeTest.USER, ConfiguredIdentityUserPasswordBridgeTest.USER, ((TestPrincipal) p).getName());
+        assertEquals("Expected no public credential", 0, targetSubject.getPublicCredentials().size());
+        assertEquals("Expected one private credential", 1, targetSubject.getPrivateCredentials().size());
+        Object cred = targetSubject.getPrivateCredentials().iterator().next();
+        assertSame("Expected GeronimoPasswordCredential", GeronimoPasswordCredential.class, cred.getClass());
+        assertEquals("Expected user", ConfiguredIdentityUserPasswordBridgeTest.USER, ((GeronimoPasswordCredential) cred).getUserName());
+        assertEquals("Expected password", ConfiguredIdentityUserPasswordBridgeTest.PASSWORD, new String(((GeronimoPasswordCredential) cred).getPassword()));
     }
 }

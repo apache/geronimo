@@ -55,59 +55,46 @@
  */
 package org.apache.geronimo.security.jaas;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-
 import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.Configuration;
 
-import org.apache.geronimo.security.jaas.LoginModuleWrapper;
+import java.util.Hashtable;
+import java.util.Map;
+
 import org.apache.geronimo.security.SecurityService;
-import org.apache.geronimo.security.realm.SecurityRealm;
 
 
 /**
- *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:07 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/17 00:05:39 $
  */
 public class GeronimoLoginConfiguration extends Configuration {
 
-    private final SecurityService securityService;
+    private static Map entries = new Hashtable();
 
-    public GeronimoLoginConfiguration(SecurityService securityService) {
-        this.securityService = securityService;
-    }
+    public AppConfigurationEntry[] getAppConfigurationEntry(String JAASId) {
+        ConfigurationEntry entry = (ConfigurationEntry) entries.get(JAASId);
 
-    public AppConfigurationEntry[] getAppConfigurationEntry(String realmName) {
+        if (entry == null) return null;
 
-        ArrayList list = new ArrayList();
-        for (Iterator iter = securityService.getRealms().iterator(); iter.hasNext();) {
-            SecurityRealm securityRealm = (SecurityRealm) iter.next();
-
-            if (realmName.equals(securityRealm.getRealmName())) {
-                AppConfigurationEntry[] appConfigurationEntries = securityRealm.getAppConfigurationEntry();
-
-                for (int i = 0; i < appConfigurationEntries.length; i++) {
-                    AppConfigurationEntry entry = appConfigurationEntries[i];
-                    HashMap options = new HashMap();
-
-                    options.putAll(entry.getOptions());
-                    options.put(LoginModuleWrapper.REALM_NAME, realmName);
-                    options.put(LoginModuleWrapper.MODULE, entry.getLoginModuleName());
-
-                    AppConfigurationEntry wrapper = new AppConfigurationEntry("org.apache.geronimo.security.jaas.LoginModuleWrapper",
-                                                                              entry.getControlFlag(),
-                                                                              options);
-                    list.add(wrapper);
-                }
-                break;
-            }
-        }
-        return (AppConfigurationEntry[]) list.toArray(new AppConfigurationEntry[0]);
+        return entry.getAppConfigurationEntry();
     }
 
     public void refresh() {
     }
 
+    public static void register(ConfigurationEntry entry) {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) sm.checkPermission(SecurityService.CONFIGURE);
+
+        if (entries.containsKey(entry.getJAASId())) throw new java.lang.IllegalArgumentException("ConfigurationEntry already registered");
+
+        entries.put(entry.getJAASId(), entry);
+    }
+
+    public static void unRegister(ConfigurationEntry entry) {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) sm.checkPermission(SecurityService.CONFIGURE);
+
+        entries.remove(entry.getJAASId());
+    }
 }

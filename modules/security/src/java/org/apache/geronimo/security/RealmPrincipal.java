@@ -55,15 +55,16 @@
  */
 package org.apache.geronimo.security;
 
+import java.io.Serializable;
 import java.security.Principal;
 
 
 /**
  * Represents a principal in an realm.
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/25 01:47:09 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/17 00:05:39 $
  */
-public class RealmPrincipal implements Principal {
+public class RealmPrincipal implements Principal, Serializable {
     private final String realm;
     private final Principal principal;
     private transient String name = null;
@@ -91,10 +92,8 @@ public class RealmPrincipal implements Principal {
      * the implementation of this interface.
      *
      * @param another principal to compare with.
-     *
      * @return true if the principal passed in is the same as that
-     * encapsulated by this principal, and false otherwise.
-
+     *         encapsulated by this principal, and false otherwise.
      */
     public boolean equals(Object another) {
         if (!(another instanceof RealmPrincipal)) return false;
@@ -145,6 +144,7 @@ public class RealmPrincipal implements Principal {
 
     /**
      * Returns the principal that is associated with the realm.
+     *
      * @return the principal that is associated with the realm.
      */
     public Principal getPrincipal() {
@@ -153,6 +153,7 @@ public class RealmPrincipal implements Principal {
 
     /**
      * Returns the realm that is associated with the principal.
+     *
      * @return the realm that is associated with the principal.
      */
     public String getRealm() {

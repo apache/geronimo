@@ -56,13 +56,13 @@
 
 package org.apache.geronimo.security.realm.providers;
 
+import java.io.Serializable;
+
+
 /**
- *
- *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:07 $
- *
- * */
-public class GeronimoPasswordCredential {
+ * @version $Revision: 1.2 $ $Date: 2004/02/17 00:05:39 $
+ */
+public class GeronimoPasswordCredential implements Serializable {
 
     private String userName;
     private char[] password;

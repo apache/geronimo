@@ -56,8 +56,6 @@
 
 package org.apache.geronimo.security.bridge;
 
-import java.io.IOException;
-
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -65,19 +63,21 @@ import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
+import java.io.IOException;
+
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
+
 
 /**
  * ConfiguredIdentityRealmBridge supplies a constant mapping between realms:
  * it always returns the configured user and password, no matter what the
  * source realm or source subject.
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:07 $
- *
- * */
+ * @version $Revision: 1.2 $ $Date: 2004/02/17 00:05:39 $
+ */
 public class ConfiguredIdentityUserPasswordRealmBridge extends AbstractRealmBridge {
 
     private static final GBeanInfo GBEAN_INFO;
@@ -85,7 +85,8 @@ public class ConfiguredIdentityUserPasswordRealmBridge extends AbstractRealmBrid
     private String configuredUser;
     private char[] configuredPassword;
 
-    public ConfiguredIdentityUserPasswordRealmBridge() {}
+    public ConfiguredIdentityUserPasswordRealmBridge() {
+    }
 
     public ConfiguredIdentityUserPasswordRealmBridge(String targetRealm, String configuredUser, String configuredPassword) {
         super(targetRealm);
@@ -102,11 +103,11 @@ public class ConfiguredIdentityUserPasswordRealmBridge extends AbstractRealmBrid
     }
 
     public String getConfiguredPassword() {
-        return configuredPassword == null? null:new String(configuredPassword);
+        return configuredPassword == null ? null : new String(configuredPassword);
     }
 
     public void setConfiguredPassword(String configuredPassword) {
-        this.configuredPassword = configuredPassword == null? null: configuredPassword.toCharArray();
+        this.configuredPassword = configuredPassword == null ? null : configuredPassword.toCharArray();
     }
 
     protected CallbackHandler getCallbackHandler(Subject sourceSubject) {
@@ -116,9 +117,9 @@ public class ConfiguredIdentityUserPasswordRealmBridge extends AbstractRealmBrid
                 for (int i = 0; i < callbacks.length; i++) {
                     Callback callback = callbacks[i];
                     if (callback instanceof NameCallback) {
-                        ((NameCallback)callback).setName(configuredUser);
+                        ((NameCallback) callback).setName(configuredUser);
                     } else if (callback instanceof PasswordCallback) {
-                        ((PasswordCallback)callback).setPassword(configuredPassword);
+                        ((PasswordCallback) callback).setPassword(configuredPassword);
                     } else {
                         throw new UnsupportedCallbackException(callback);
                     }
@@ -132,9 +133,8 @@ public class ConfiguredIdentityUserPasswordRealmBridge extends AbstractRealmBrid
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(ConfiguredIdentityUserPasswordRealmBridge.class.getName(), AbstractRealmBridge.getGBeanInfo());
         infoFactory.addAttribute(new GAttributeInfo("ConfiguredUser", true));
         infoFactory.addAttribute(new GAttributeInfo("ConfiguredPassword", true));
-        infoFactory.setConstructor(new GConstructorInfo(
-                new String[] {"TargetRealm", "ConfiguredUser", "ConfiguredPassword"},
-                new Class[] {String.class, String.class, String.class}));
+        infoFactory.setConstructor(new GConstructorInfo(new String[]{"TargetRealm", "ConfiguredUser", "ConfiguredPassword"},
+                                                        new Class[]{String.class, String.class, String.class}));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

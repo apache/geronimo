@@ -57,20 +57,21 @@ package org.apache.geronimo.security;
 
 import javax.security.auth.Subject;
 import javax.security.jacc.EJBRoleRefPermission;
+
+import java.io.Serializable;
 import java.security.AccessControlContext;
 import java.security.AccessControlException;
 import java.security.AccessController;
 import java.security.Principal;
 import java.security.PrivilegedAction;
-import java.util.Map;
-import java.util.IdentityHashMap;
 import java.util.Hashtable;
-import java.io.Serializable;
+import java.util.IdentityHashMap;
+import java.util.Map;
 
 
 /**
  *
- * @version $Revision: 1.3 $ $Date: 2004/02/10 11:06:27 $
+ * @version $Revision: 1.4 $ $Date: 2004/02/17 00:05:39 $
  */
 public class ContextManager {
     private static ThreadLocal currentCallerId = new ThreadLocal();
@@ -175,7 +176,7 @@ public class ContextManager {
 
         Context context = (Context) subjectContexts.get(subject);
 
-        return (context != null? context.id : null);
+        return (context != null ? context.id : null);
     }
 
     public static boolean isCallerInRole(String EJBName, String role) {

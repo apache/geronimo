@@ -72,27 +72,16 @@ import org.apache.regexp.RE;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/23 06:47:05 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/17 00:09:19 $
  *
  * */
-public class PasswordCredentialRealm implements SecurityRealm, ManagedConnectionFactoryListener {
+public class PasswordCredentialRealm extends AbstractSecurityRealm implements SecurityRealm, ManagedConnectionFactoryListener {
 
     private static final GBeanInfo GBEAN_INFO;
-
-    private String realmName;
 
     ManagedConnectionFactory managedConnectionFactory;
 
     static final String REALM_INSTANCE = "org.apache.connector.outbound.security.PasswordCredentialRealm";
-
-
-    public void setRealmName(String realmName) {
-        this.realmName = realmName;
-    }
-
-    public String getRealmName() {
-        return realmName;
-    }
 
     public Set getGroupPrincipals() throws GeronimoSecurityException {
         return null;
@@ -113,13 +102,20 @@ public class PasswordCredentialRealm implements SecurityRealm, ManagedConnection
     public void refresh() throws GeronimoSecurityException {
     }
 
-    public AppConfigurationEntry[] getAppConfigurationEntry() {
+    public AppConfigurationEntry getAppConfigurationEntry() {
         Map options = new HashMap();
+
+        // TODO: This can be a bad thing, passing a reference to a realm to the login module
+        // since the SerializableACE can be sent remotely
         options.put(REALM_INSTANCE, this);
         AppConfigurationEntry appConfigurationEntry = new AppConfigurationEntry(PasswordCredentialLoginModule.class.getName(),
                 AppConfigurationEntry.LoginModuleControlFlag.REQUISITE,
                 options);
-        return new AppConfigurationEntry[]{appConfigurationEntry};
+        return appConfigurationEntry;
+    }
+
+    public boolean isLoginModuleLocal() {
+        return true;
     }
 
     public void setManagedConnectionFactory(ManagedConnectionFactory managedConnectionFactory) {

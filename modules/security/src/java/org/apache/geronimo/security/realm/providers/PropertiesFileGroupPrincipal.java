@@ -55,14 +55,14 @@
  */
 package org.apache.geronimo.security.realm.providers;
 
+import java.io.Serializable;
 import java.security.Principal;
 
 
 /**
- *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 06:47:07 $
+ * @version $Revision: 1.2 $ $Date: 2004/02/17 00:05:39 $
  */
-public class PropertiesFileGroupPrincipal implements Principal {
+public class PropertiesFileGroupPrincipal implements Principal, Serializable {
     private final String name;
 
     public PropertiesFileGroupPrincipal(String name) {
@@ -75,10 +75,8 @@ public class PropertiesFileGroupPrincipal implements Principal {
      * the implementation of this interface.
      *
      * @param another principal to compare with.
-     *
      * @return true if the principal passed in is the same as that
-     * encapsulated by this principal, and false otherwise.
-
+     *         encapsulated by this principal, and false otherwise.
      */
     public boolean equals(Object another) {
         if (!(another instanceof PropertiesFileGroupPrincipal)) return false;
