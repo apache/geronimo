@@ -18,7 +18,7 @@
 
 <project>
     <pomVersion>3</pomVersion>
-    <extend>../../etc/project.xml</extend>
+<!--    <extend>../../etc/project.xml</extend> -->
     
     <groupId>geronimo</groupId>
     <id>geronimo-deployment-plugin</id>
@@ -31,6 +31,8 @@
     <inceptionYear>2004</inceptionYear>
     <package>org.apache.geronimo</package>
     <logo></logo>
+
+    <currentVersion>1.0-SNAPSHOT</currentVersion>
     
     <dependencies>
         <dependency>
