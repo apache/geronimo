@@ -75,7 +75,7 @@ import org.apache.geronimo.deployment.service.ClassSpaceMetadata;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/14 00:02:38 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/20 22:37:17 $
  */
 public class CreateClassSpace implements DeploymentTask {
     private final Log log = LogFactory.getLog(this.getClass());
@@ -99,7 +99,7 @@ public class CreateClassSpace implements DeploymentTask {
             try {
                 // @todo add trace logging
                 // @todo use metadata to determine implementation
-                ClassSpace space = new ClassSpace((URL[]) urls.toArray(new URL[urls.size()]));
+                ClassSpace space = new ClassSpace(metadata.getName().toString(), (URL[]) urls.toArray(new URL[urls.size()]));
                 actualName = server.registerMBean(space, name).getObjectName();
             } catch (RuntimeException e) {
                 throw new DeploymentException(e);
