@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.9 $ $Date: 2003/08/16 17:15:12 $ -->
+<!-- $Revision: 1.10 $ $Date: 2003/08/16 20:45:42 $ -->
 
 <project name="Apache Geronimo">
 
@@ -9,6 +9,11 @@
 
   <body>
     <search/>
+    
+    <links>
+      <item name="Apache" href="http://apache.org"/>
+    </links>
+    
     <menu name="Geronimo">
       <item name="Overview"                href="/index.html"/>
       <item name="FAQ"                     href="/faq.html"/>
