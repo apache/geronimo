@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ejb-jar xmlns="http://java.sun.com/xml/ns/j2ee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:ger="http://geronimo.apache.org/xml/schema/j2ee"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
+         http://geronimo.apache.org/xml/schema/1.0/j2ee14/geronimo-ejb-jar.xsd"
+         version="2.1">
+    <description>This is a test EJB JAR DD for JSR-88 purposes</description>
+    <display-name>Test EJB JAR</display-name>
+    <enterprise-beans>
+        <session>
+            <description>This is a sample stateless session bean</description>
+            <display-name>Stateless Session Bean</display-name>
+            <ejb-name>StatelessTest</ejb-name>
+            <home>org.apache.geronimo.enterprise.deploy.test.StatelessHome</home>
+            <remote>org.apache.geronimo.enterprise.deploy.test.Stateless</remote>
+            <ejb-class>org.apache.geronimo.enterprise.deploy.test.StatelessBean</ejb-class>
+            <session-type>Stateless</session-type>
+            <transaction-type>Container</transaction-type>
+            <env-entry>
+                <env-entry-name>Variable 1</env-entry-name>
+                <env-entry-type>java.lang.String</env-entry-type>
+                <env-entry-value>OverrideExample</env-entry-value>
+            </env-entry>
+            <resource-env-ref>
+                <resource-env-ref-name>jdbc/StatelessDatabase</resource-env-ref-name>
+                <resource-env-ref-type>javax.sql.DataSource</resource-env-ref-type>
+                <ger:jndi-name>java:jdbc/MyDatabase</ger:jndi-name>
+            </resource-env-ref>
+            <jndi-name>StatelessTestJNDI</jndi-name>
+        </session>
+        <session>
+            <description>This is a sample stateful session bean</description>
+            <display-name>Stateful Session Bean</display-name>
+            <ejb-name>StatefulTest</ejb-name>
+            <home>org.apache.geronimo.enterprise.deploy.test.StatefulHome</home>
+            <remote>org.apache.geronimo.enterprise.deploy.test.Stateful</remote>
+            <ejb-class>org.apache.geronimo.enterprise.deploy.test.StatefulBean</ejb-class>
+            <session-type>Stateful</session-type>
+            <transaction-type>Container</transaction-type>
+            <ejb-ref>
+                <ejb-ref-name>ejb/MyStateless</ejb-ref-name>
+                <ejb-ref-type>Session</ejb-ref-type>
+                <home>org.apache.geronimo.enterprise.deploy.test.StatelessHome</home>
+                <remote>org.apache.geronimo.enterprise.deploy.test.Stateless</remote>
+                <ejb-link>Stateless</ejb-link>
+            </ejb-ref>
+            <resource-env-ref>
+                <resource-env-ref-name>jdbc/StatefulDatabase</resource-env-ref-name>
+                <resource-env-ref-type>javax.sql.DataSource</resource-env-ref-type>
+                <ger:jndi-name></ger:jndi-name>
+            </resource-env-ref>
+            <jndi-name>StatefulTestJNDI</jndi-name>
+        </session>
+    </enterprise-beans>
+</ejb-jar>
