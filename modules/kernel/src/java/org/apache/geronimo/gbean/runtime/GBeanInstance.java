@@ -763,6 +763,7 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
                 target = constructor.newInstance(parameters);
             } catch (InvocationTargetException e) {
                 Throwable targetException = e.getTargetException();
+                if (targetException instanceof Exception) {
                     throw (Exception) targetException;
                 } else if (targetException instanceof Error) {
                     throw (Error) targetException;
