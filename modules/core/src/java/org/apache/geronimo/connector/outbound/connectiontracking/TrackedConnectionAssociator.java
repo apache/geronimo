@@ -10,17 +10,21 @@ import org.apache.geronimo.connector.outbound.ConnectorTransactionContext;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/12/09 04:13:20 $
+ * @version $Revision: 1.2 $ $Date: 2003/12/10 09:39:46 $
  *
  * */
 public interface TrackedConnectionAssociator {
-    ConnectorComponentContext enter(ConnectorComponentContext newConnectorComponentContext,
-                                    Set unshareableResources)
+    ConnectorComponentContext enter(ConnectorComponentContext newConnectorComponentContext
+                                    )
             throws ResourceException;
 
     void exit(ConnectorComponentContext reenteringConnectorComponentContext,
               Set unshareableResources)
             throws ResourceException;
 
-    ConnectorTransactionContext setConnectorTransactionContext(ConnectorTransactionContext newConnectorTransactionContext);
+    ConnectorTransactionContext setConnectorTransactionContext(ConnectorTransactionContext newConnectorTransactionContext) throws ResourceException;
+
+    Set setUnshareableResources(Set unshareableResources);
+
+    void resetConnectorTransactionContext(ConnectorTransactionContext connectorTransactionContext);
 }

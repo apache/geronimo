@@ -71,7 +71,7 @@ import org.apache.geronimo.connector.outbound.ConnectorTransactionContext;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/12/09 04:13:20 $
+ * @version $Revision: 1.2 $ $Date: 2003/12/10 09:39:46 $
  *
  * */
 public class DefaultComponentInterceptor implements DefaultInterceptor{
@@ -103,13 +103,15 @@ public class DefaultComponentInterceptor implements DefaultInterceptor{
                 newConnectorTransactionContext = new DefaultTransactionContext(transaction);
             }
         }
-        ConnectorComponentContext oldConnectorComponentContext = cachedConnectionAssociator.enter(newConnectorComponentContext, unshareableResources);
+        Set oldUnshareableResources = cachedConnectionAssociator.setUnshareableResources(unshareableResources);
+        ConnectorComponentContext oldConnectorComponentContext = cachedConnectionAssociator.enter(newConnectorComponentContext);
         ConnectorTransactionContext oldConnectorTransactionContext = cachedConnectionAssociator.setConnectorTransactionContext(newConnectorTransactionContext);
         try {
             return next.invoke(newConnectorComponentContext);
         } finally {
             cachedConnectionAssociator.exit(oldConnectorComponentContext, unshareableResources);
-            cachedConnectionAssociator.setConnectorTransactionContext(oldConnectorTransactionContext);
+            cachedConnectionAssociator.resetConnectorTransactionContext(oldConnectorTransactionContext);
+            cachedConnectionAssociator.setUnshareableResources(oldUnshareableResources);
         }
     }
 }

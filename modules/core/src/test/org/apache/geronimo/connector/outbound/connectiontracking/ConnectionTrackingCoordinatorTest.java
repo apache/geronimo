@@ -78,7 +78,7 @@ import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/12/09 04:17:39 $
+ * @version $Revision: 1.2 $ $Date: 2003/12/10 09:39:46 $
  *
  * */
 public class ConnectionTrackingCoordinatorTest extends TestCase
@@ -99,6 +99,7 @@ public class ConnectionTrackingCoordinatorTest extends TestCase
         key1 = new ConnectionTrackingInterceptor(null, name1, connectionTrackingCoordinator, this);
         key2 = new ConnectionTrackingInterceptor(null, name2, connectionTrackingCoordinator, this);
         unshareableResources = new HashSet();
+        connectionTrackingCoordinator.setUnshareableResources(unshareableResources);
         transactionManager = new TransactionManagerImpl();
     }
 
@@ -111,7 +112,7 @@ public class ConnectionTrackingCoordinatorTest extends TestCase
 
     public void testSimpleComponentContextLifecyle() throws Exception {
         DefaultComponentContext componentContext = new DefaultComponentContext();
-        ConnectorComponentContext oldComponentContext = connectionTrackingCoordinator.enter(componentContext, unshareableResources);
+        ConnectorComponentContext oldComponentContext = connectionTrackingCoordinator.enter(componentContext);
         assertNull("Expected old component context to be null", oldComponentContext);
         //give the context a ConnectionInfo
         ManagedConnectionInfo managedConnectionInfo = new ManagedConnectionInfo(null, null);
@@ -124,7 +125,7 @@ public class ConnectionTrackingCoordinatorTest extends TestCase
         assertTrue("Expected to get supplied ConnectionInfo from infos", connectionInfo == infos.iterator().next());
 
         //Enter again, and close the handle
-        oldComponentContext = connectionTrackingCoordinator.enter(componentContext, unshareableResources);
+        oldComponentContext = connectionTrackingCoordinator.enter(componentContext);
         assertNull("Expected old component context to be null", oldComponentContext);
         connectionTrackingCoordinator.handleReleased(key1, connectionInfo);
         connectionTrackingCoordinator.exit(oldComponentContext, unshareableResources);
@@ -135,7 +136,7 @@ public class ConnectionTrackingCoordinatorTest extends TestCase
 
     public void testNestedComponentContextLifecyle() throws Exception {
         DefaultComponentContext componentContext1 = new DefaultComponentContext();
-        ConnectorComponentContext oldComponentContext1 = connectionTrackingCoordinator.enter(componentContext1, unshareableResources);
+        ConnectorComponentContext oldComponentContext1 = connectionTrackingCoordinator.enter(componentContext1);
         assertNull("Expected old component context to be null", oldComponentContext1);
         //give the context a ConnectionInfo
         ManagedConnectionInfo managedConnectionInfo1 = new ManagedConnectionInfo(null, null);
@@ -144,7 +145,7 @@ public class ConnectionTrackingCoordinatorTest extends TestCase
 
         //Simulate calling another component
         DefaultComponentContext componentContext2 = new DefaultComponentContext();
-        ConnectorComponentContext oldComponentContext2 = connectionTrackingCoordinator.enter(componentContext2, unshareableResources);
+        ConnectorComponentContext oldComponentContext2 = connectionTrackingCoordinator.enter(componentContext2);
         assertTrue("Expected returned component context to be componentContext1", oldComponentContext2 == componentContext1);
         //give the context a ConnectionInfo
         ManagedConnectionInfo managedConnectionInfo2 = new ManagedConnectionInfo(null, null);
@@ -167,7 +168,7 @@ public class ConnectionTrackingCoordinatorTest extends TestCase
         assertEquals("Expected no connection for key2", null, connectionManagerMap1.get(key2));
 
         //Enter again, and close the handle
-        oldComponentContext1 = connectionTrackingCoordinator.enter(componentContext1, unshareableResources);
+        oldComponentContext1 = connectionTrackingCoordinator.enter(componentContext1);
         assertNull("Expected old component context to be null", oldComponentContext1);
         connectionTrackingCoordinator.handleReleased(key1, connectionInfo1);
         connectionTrackingCoordinator.exit(oldComponentContext1, unshareableResources);
@@ -177,6 +178,8 @@ public class ConnectionTrackingCoordinatorTest extends TestCase
     }
 
     public void testSimpleTransactionContextLifecycle() throws Exception {
+        DefaultComponentContext componentContext = new DefaultComponentContext();
+        ConnectorComponentContext oldComponentContext = connectionTrackingCoordinator.enter(componentContext);
         transactionManager.begin();
         Transaction transaction = transactionManager.getTransaction();
         DefaultTransactionContext transactionContext = new DefaultTransactionContext(transaction);

@@ -83,30 +83,21 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
  * ConnectionManager stacks so the existing ManagedConnections can be
  * enrolled properly.
  *
- * TODO make sure tx enlistment on method entry works
- * TODO implement UserTransaction notifications and tx enlistment.
  *
- * @version $Revision: 1.1 $ $Date: 2003/12/09 04:13:20 $
+ * @version $Revision: 1.2 $ $Date: 2003/12/10 09:39:46 $
  *
  * */
 public class ConnectionTrackingCoordinator implements TrackedConnectionAssociator, ConnectionTracker {
 
     private final ThreadLocal currentConnectorComponentContexts = new ThreadLocal();
     private final ThreadLocal currentConnectorTransactionContexts = new ThreadLocal();
+    private final ThreadLocal currentUnshareableResources = new ThreadLocal();
 
-    public ConnectorComponentContext enter(ConnectorComponentContext newConnectorComponentContext,
-                                           Set unshareableResources)
+    public ConnectorComponentContext enter(ConnectorComponentContext newConnectorComponentContext
+                                           )
             throws ResourceException {
         ConnectorComponentContext oldConnectorComponentContext = (ConnectorComponentContext) currentConnectorComponentContexts.get();
         currentConnectorComponentContexts.set(newConnectorComponentContext);
-        Map connectionManagerToManagedConnectionInfoMap = newConnectorComponentContext.getConnectionManagerMap();
-        for (Iterator i = connectionManagerToManagedConnectionInfoMap.entrySet().iterator(); i.hasNext();) {
-            Map.Entry entry = (Map.Entry) i.next();
-            ConnectionTrackingInterceptor mcci =
-                    (ConnectionTrackingInterceptor) entry.getKey();
-            Set connections = (Set) entry.getValue();
-            mcci.enter(connections, unshareableResources);
-        }
         return oldConnectorComponentContext;
     }
 
@@ -128,10 +119,30 @@ public class ConnectionTrackingCoordinator implements TrackedConnectionAssociato
         currentConnectorComponentContexts.set(reenteringConnectorComponentContext);
     }
 
-    public ConnectorTransactionContext setConnectorTransactionContext(ConnectorTransactionContext newConnectorTransactionContext) {
+    public Set setUnshareableResources(Set unshareableResources) {
+        Set oldUnshareableResources = (Set) currentUnshareableResources.get();
+        currentUnshareableResources.set(unshareableResources);
+        return oldUnshareableResources;
+    }
+
+    public ConnectorTransactionContext setConnectorTransactionContext(ConnectorTransactionContext newConnectorTransactionContext) throws ResourceException {
         ConnectorTransactionContext oldConnectorTransactionContext = (ConnectorTransactionContext) currentConnectorTransactionContexts.get();
         currentConnectorTransactionContexts.set(newConnectorTransactionContext);
+        ConnectorComponentContext connectorComponentContext = (ConnectorComponentContext) currentConnectorComponentContexts.get();
+        Set unshareableResources = (Set) currentUnshareableResources.get();
+        Map connectionManagerToManagedConnectionInfoMap = connectorComponentContext.getConnectionManagerMap();
+        for (Iterator i = connectionManagerToManagedConnectionInfoMap.entrySet().iterator(); i.hasNext();) {
+            Map.Entry entry = (Map.Entry) i.next();
+            ConnectionTrackingInterceptor mcci =
+                    (ConnectionTrackingInterceptor) entry.getKey();
+            Set connections = (Set) entry.getValue();
+            mcci.enter(connections, unshareableResources);
+        }
         return oldConnectorTransactionContext;
+    }
+
+    public void resetConnectorTransactionContext(ConnectorTransactionContext connectorTransactionContext) {
+        currentConnectorTransactionContexts.set(connectorTransactionContext);
     }
 
     public void handleObtained(
