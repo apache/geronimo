@@ -60,7 +60,7 @@ import org.apache.xmlbeans.XmlObject;
  * result. Results are consolidated by the admin server, which provides a 
  * consistent view of the deployment operations.
  *
- * @version $Revision: 1.2 $ $Date: 2004/05/27 15:46:54 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/01 12:41:33 $
  */
 public class ManagedServer
     extends AbstractEndPoint
@@ -233,7 +233,7 @@ public class ManagedServer
                 byte[] buffer = new byte[1024];
                 int nbRead;
                 while ( -1 != (nbRead = module.read(buffer)) ) {
-                    bufOut.write(buffer);
+                    bufOut.write(buffer, 0, nbRead);
                 }
                 bufOut.flush();
             } finally {
