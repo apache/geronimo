@@ -58,101 +58,43 @@ package org.apache.geronimo.deployment.plan;
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorManager;
 import java.lang.reflect.Constructor;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.Map;
+import javax.management.Attribute;
+import javax.management.AttributeList;
 import javax.management.InstanceNotFoundException;
-import javax.management.MBeanException;
-import javax.management.MBeanRegistrationException;
+import javax.management.IntrospectionException;
+import javax.management.MBeanAttributeInfo;
+import javax.management.MBeanInfo;
 import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import javax.management.ReflectionException;
-import javax.management.relation.RelationServiceMBean;
-import javax.management.relation.Role;
-import javax.management.relation.RoleInfo;
-import javax.management.relation.RoleList;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.core.util.ClassUtil;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.service.MBeanMetadata;
-import org.apache.geronimo.deployment.service.MBeanOperation;
-import org.apache.geronimo.deployment.service.MBeanRelationship;
-import org.apache.geronimo.jmx.JMXUtil;
 
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/14 00:02:38 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/16 23:16:24 $
  */
 public class InitializeMBeanInstance implements DeploymentTask {
     private final Log log = LogFactory.getLog(this.getClass());
-    private final Set plans;
     private final MBeanServer server;
-    private final RelationServiceMBean relationService;
-    private final ObjectName parent;
-    private final ObjectName loaderName;
     private final MBeanMetadata metadata;
-    private ObjectName objectName;
-    private boolean createCalled;
 
-    public InitializeMBeanInstance(Set plans, MBeanServer server, ObjectName objectName, ObjectName parent, MBeanMetadata metadata, ObjectName loaderName) {
-        this.plans = plans;
+    public InitializeMBeanInstance(MBeanServer server, MBeanMetadata metadata) {
         this.server = server;
-        this.objectName = objectName;
-        this.parent = parent;
         this.metadata = metadata;
-        this.loaderName = loaderName;
-        relationService = JMXUtil.getRelationService(server);
     }
 
     public boolean canRun() throws DeploymentException {
-        boolean canRun = true;
-
-        if (!server.isRegistered(objectName)) {
-            log.trace("Plan can run because MBean has been unregistered.  Plan will execute but will do nothing");
-            return true;
-        }
-
-        Set relationships = metadata.getRelationships();
-        for (Iterator i = relationships.iterator(); i.hasNext();) {
-            MBeanRelationship relationship = (MBeanRelationship) i.next();
-
-            // if there is no existing relationship...
-            String relationshipName = relationship.getName();
-            if (!relationService.hasRelation(relationshipName).booleanValue()) {
-                // check if the relationship type has been registered
-                String relationshipType = relationship.getType();
-                if (!relationService.getAllRelationTypeNames().contains(relationshipType)) {
-                    log.trace("Cannot run because relationship type is not registered: relationType=" + relationshipType);
-                    canRun = false;
-                }
-
-                // if we have a target, check that is is registered
-                String target = relationship.getTarget();
-                if (target != null && target.length() > 0) {
-                    try {
-                        if (!server.isRegistered(new ObjectName(target))) {
-                            log.trace("Cannot run because relationship target object is not registered: target=" + target);
-                            canRun = false;
-                        }
-                    } catch (MalformedObjectNameException e) {
-                        throw new DeploymentException("Target is not a valid ObjectName: target=" + target);
-                    }
-                }
-            }
-        }
-        return canRun;
+        return true;
     }
 
     public void perform() throws DeploymentException {
-        if (!server.isRegistered(objectName)) {
-            return;
-        }
-
         ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
         ClassLoader newCL;
 
@@ -160,153 +102,63 @@ public class InitializeMBeanInstance implements DeploymentTask {
         try {
             // Get the class loader
             try {
-                newCL = server.getClassLoader(loaderName);
+                newCL = server.getClassLoader(metadata.getLoaderName());
                 Thread.currentThread().setContextClassLoader(newCL);
             } catch (InstanceNotFoundException e) {
                 throw new DeploymentException(e);
             }
 
 
-            // Resolve and enroll in all relationships
-            Set relationships = metadata.getRelationships();
+            MBeanInfo mbeanInfo;
             try {
-                for (Iterator i = relationships.iterator(); i.hasNext();) {
-                    MBeanRelationship relationship = (MBeanRelationship) i.next();
-
-                    // if we don't have a relationship instance create one
-                    String relationshipName = relationship.getName();
-                    String relationshipRole = relationship.getRole();
-                    if (!relationService.hasRelation(relationshipName).booleanValue()) {
-                        // if  we don't have a relationship of the
-                        String relationshipType = relationship.getType();
-                        if (!relationService.getAllRelationTypeNames().contains(relationshipType)) {
-                            throw new DeploymentException("Relationship type is not registered: relationType=" + relationshipType);
-                        }
-
-                        RoleList roleList = new RoleList();
-                        roleList.add(new Role(relationshipRole, Collections.singletonList(objectName)));
-
-                        // if we have a target we need to add it to the role list
-                        String target = relationship.getTarget();
-                        if (target != null && target.length() > 0) {
-                            String targetRoleName = relationship.getTargetRole();
-                            if (targetRoleName == null || targetRoleName.length() == 0) {
-                                List roles = relationService.getRoleInfos(relationshipType);
-                                if (roles.size() < 2) {
-                                    throw new DeploymentException("Relationship has less than two roles. You cannot specify a target");
-                                }
-                                if (roles.size() > 2) {
-                                    throw new DeploymentException("Relationship has more than two roles. You must use targetRoleName");
-                                }
-                                if (((RoleInfo) roles.get(0)).getName().equals(relationshipRole)) {
-                                    targetRoleName = ((RoleInfo) roles.get(1)).getName();
-                                } else {
-                                    targetRoleName = ((RoleInfo) roles.get(0)).getName();
-                                }
-                            }
-
-                            roleList.add(new Role(targetRoleName, Collections.singletonList(new ObjectName(target))));
-                        }
-                        relationService.createRelation(relationshipName, relationshipType, roleList);
-                    } else {
-                        // We have an exiting relationship -- just add to the existing role
-                        List members = relationService.getRole(relationshipName, relationshipRole);
-                        members.add(objectName);
-                        relationService.setRole(relationshipName, new Role(relationshipRole, members));
-                    }
-                }
-            } catch (DeploymentException e) {
-                throw e;
-            } catch (Exception e) {
-                throw new DeploymentException(e);
-            }
-
-            // Invoke the create callback method
-            try {
-                server.invoke(objectName, "create", null, null);
-                createCalled = true;
-            } catch (RuntimeException e) {
-                throw new DeploymentException(e);
+                mbeanInfo = server.getMBeanInfo(metadata.getName());
             } catch (InstanceNotFoundException e) {
                 throw new DeploymentException(e);
-            } catch (MBeanException e) {
+            } catch (IntrospectionException e) {
                 throw new DeploymentException(e);
             } catch (ReflectionException e) {
-                if (e.getTargetException() instanceof NoSuchMethodException) {
-                    // did not have a create method - ok
-                } else {
-                    throw new DeploymentException(e);
+                throw new DeploymentException(e);
+            }
+            MBeanAttributeInfo[] attributeInfos = mbeanInfo.getAttributes();
+            Map attributeValues = metadata.getAttributeValues();
+            AttributeList attributeList = new AttributeList(attributeValues.size());
+            for (int i = 0; i < attributeInfos.length; i++) {
+                MBeanAttributeInfo attributeInfo = attributeInfos[i];
+                String attributeName = attributeInfo.getName();
+                if (!attributeValues.containsKey(attributeName)) {
+                    continue;
                 }
+                Object value = attributeValues.get(attributeName);
+                if (value instanceof String) {
+                    value = getValue(newCL, attributeInfo.getType(), (String) value);
+                }
+
+                attributeList.add(new Attribute(attributeName, value));
             }
 
-            // Add a deployment plan to start the MBean
-            DeploymentPlan startPlan = new DeploymentPlan();
-            startPlan.addTask(new StartMBeanInstance(server, objectName));
-            List operations = metadata.getOperations();
-            for (Iterator i = operations.iterator(); i.hasNext();) {
-                MBeanOperation operation = (MBeanOperation) i.next();
-                int argCount = operation.getTypes().size();
-                String[] argTypes = (String[]) operation.getTypes().toArray(new String[argCount]);
-                List values = operation.getArgs();
-                Object[] args = new Object[argCount];
-                for (int j = 0; j < argCount; j++) {
-                    Object value = values.get(j);
-                    if (value instanceof String) {
-                        value = getValue(newCL, argTypes[j], (String) value);
-                    }
-                    args[j] = value;
+            if (log.isTraceEnabled()) {
+                for (Iterator i = attributeList.iterator(); i.hasNext();) {
+                    Attribute attr = (Attribute) i.next();
+                    log.trace("Attribute " + attr.getName() + " will be set to " + attr.getValue());
                 }
-                startPlan.addTask(new InvokeMBeanOperation(server, objectName, operation.getOperation(), argTypes, args));
             }
-            plans.add(startPlan);
-        } catch (DeploymentException e) {
-            undo();
-            throw e;
+            try {
+                AttributeList attributeResults = server.setAttributes(metadata.getName(), attributeList);
+                if (attributeResults.size() != attributeList.size()) {
+                    throw new DeploymentException("Unable to set all supplied attributes");
+                }
+            } catch (InstanceNotFoundException e) {
+                throw new DeploymentException(e);
+            } catch (ReflectionException e) {
+                throw new DeploymentException(e);
+            }
         } finally {
             Thread.currentThread().setContextClassLoader(oldCL);
         }
+
     }
 
     public void undo() {
-        if (objectName == null) {
-            return;
-        }
-
-        try {
-            if (createCalled) {
-                server.invoke(objectName, "destroy", null, null);
-            }
-        } catch (InstanceNotFoundException e) {
-            log.warn("MBean was already removed " + objectName, e);
-            return;
-        } catch (MBeanException e) {
-            log.error("Error while destroying MBean " + objectName, e);
-        } catch (ReflectionException e) {
-            if (e.getTargetException() instanceof NoSuchMethodException) {
-                // did not have a destroy method - ok
-            } else {
-                log.error("Error while destroying MBean " + objectName, e);
-            }
-        }
-
-        try {
-            server.invoke(parent, "removeChild", new Object[]{objectName}, new String[]{"javax.management.ObjectName"});
-        } catch (InstanceNotFoundException e) {
-            log.warn("Could not remove from parent", e);
-        } catch (MBeanException e) {
-            log.error("Error while removing MBean " + objectName + " from parent", e);
-        } catch (ReflectionException e) {
-            log.error("Error while removing MBean " + objectName + " from parent", e);
-        }
-
-        try {
-            server.unregisterMBean(objectName);
-        } catch (InstanceNotFoundException e) {
-            log.warn("MBean was already removed " + objectName, e);
-            return;
-        } catch (MBeanRegistrationException e) {
-            log.error("Error while unregistering MBean " + objectName, e);
-        }
     }
 
     private static final Class[] stringArg = new Class[]{String.class};

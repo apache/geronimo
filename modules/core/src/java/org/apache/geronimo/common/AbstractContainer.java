@@ -57,41 +57,55 @@ package org.apache.geronimo.common;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+
+import org.apache.geronimo.deployment.dependency.DependencyServiceMBean;
+import org.apache.geronimo.jmx.JMXUtil;
 
 /**
  * Abstract implementation of Container interface.
- * 
- * @version $Revision: 1.2 $ $Date: 2003/08/15 14:11:26 $ 
- * 
-*/
-public abstract class AbstractContainer
-    extends AbstractComponent
-    implements Container
-{
-    private ArrayList components = new ArrayList();
+ *
+ * @version $Revision: 1.3 $ $Date: 2003/08/16 23:16:18 $
+ *
+ */
+public abstract class AbstractContainer extends AbstractComponent implements Container {
+    /**
+     * The Dependency Service manager.  We register our components with the is service because
+     * we need to stop if any of our services fail or stop.
+     */
+    private DependencyServiceMBean dependency;
 
     /**
-     * A Container cannot be itself contained in a Container. 
+     * The components owned by this container
+     * @todo all accss to this must be synchronized
+     */
+    private ArrayList components = new ArrayList();
+
+    public ObjectName preRegister(MBeanServer server, ObjectName objectName) throws Exception {
+        dependency = JMXUtil.getDependencyService(server);
+        return super.preRegister(server, objectName);
+    }
+
+    /**
+     * A Container cannot be itself contained in a Container.
      *
      * NB. Do we agree this is the model?
      * @return always null
      */
-    public Container getContainer()
-    {
+    public Container getContainer() {
         return null;
     }
 
     /**
      * A Container cannot be itself contained in a Container.
-     *     
+     *
      * NB. Do we agree this is the model?
      * @throws java.lang.UnsupportedOperationException
      */
-    public void setContainer()
-    {
+    public void setContainer() {
         throw new UnsupportedOperationException("Cannot call setContainer on a Container");
     }
 
@@ -100,13 +114,17 @@ public abstract class AbstractContainer
      * Subclasses might like to override this in order
      * to check their state before allowing the addition.
      *
-     * @param component 
+     * @param component
      */
-    public void addComponent(Component component)
-    {
-        if (component == null)
-            return;
-
+    public void addComponent(Component component) {
+        if (component == null) {
+            throw new NullArgumentException("component");
+        }
+        try {
+            dependency.addStartDependency(objectName, new ObjectName(component.getObjectName()));
+        } catch (MalformedObjectNameException e) {
+            throw new IllegalArgumentException("Component does not have a valid object name: objectName=" + component.getObjectName());
+        }
         components.add(component);
     }
 
@@ -115,8 +133,7 @@ public abstract class AbstractContainer
      *
      * @return an immutable List of Components
      */
-    public List getComponents()
-    {
+    public List getComponents() {
         return Collections.unmodifiableList(components);
     }
 
@@ -131,68 +148,15 @@ public abstract class AbstractContainer
      *
      * @param component the Component to remove
      */
-    public void removeComponent(Component component) throws Exception
-    {
-        if (component == null)
-            return;
-
+    public void removeComponent(Component component) throws Exception {
+        if (component == null) {
+            throw new NullArgumentException("component");
+        }
+        try {
+            dependency.removeStartDependency(objectName, new ObjectName(component.getObjectName()));
+        } catch (MalformedObjectNameException e) {
+            throw new IllegalArgumentException("Component does not have a valid object name: objectName=" + component.getObjectName());
+        }
         components.remove(component);
     }
-
-    /**
-     * Start the Container, and all of its Components.
-     *
-     * @exception Exception if an error occurs
-     */
-    public void startRecursive() throws Exception
-    {
-        //start the container itself
-        start();
-
-        //start the Components
-        Iterator itor = components.iterator();
-        while (itor.hasNext())
-        {
-            //only start stopped or failed Components as per JSR77
-            Component c = (Component) itor.next();
-            if ((c.getStateInstance() == State.STOPPED)
-                || 
-                (c.getStateInstance() == State.FAILED))
-                c.startRecursive();
-        }
-
-        //NOTE: it is perfectly possible that some Components will be
-        //in the RUNNING state and some of them in the STOPPED or FAILED state
-    }
-
-
-    /* -------------------------------------------------------------------------------------- */
-    /** Do a recursive stop.
-     * 
-     * @see org.apache.geronimo.common.StateManageable#stop()
-     */
-    public void stop()
-    {
-        // Stop all the Components in reverse insertion order
-        try
-        {
-            setState(State.STOPPING);
-
-            for (ListIterator iterator =
-                components.listIterator(components.size());
-                iterator.hasPrevious();
-                )
-            {
-                Interceptor interceptor = (Interceptor) iterator.previous();
-                interceptor.stop();
-            }
-            setState(State.STOPPED);
-        }
-        finally
-        {
-            if (getStateInstance() != State.STOPPED)
-                setState(State.FAILED);
-        }
-    }
-
 }

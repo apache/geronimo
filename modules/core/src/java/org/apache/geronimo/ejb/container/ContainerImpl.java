@@ -59,24 +59,7 @@ import org.apache.geronimo.common.AbstractRPCContainer;
 
 /**
  *
- *
- * @todo Currently this class implements the startRecursive method of 
- * the JSR77 lifecycle. This should be moved to the AbstractContainer class
- * @todo The stop method is implemented as stopRecursive, which should be moved
- * to an abstractContainer class
- * @version $Revision: 1.6 $ $Date: 2003/08/15 14:12:19 $
+ * @version $Revision: 1.7 $ $Date: 2003/08/16 23:16:46 $
  */
-public class ContainerImpl extends AbstractRPCContainer
-{
-  
- 
-    // @todo destroy not supported in JSR77 lifecycle, needs to be
-    // integrated or removed.
-    public void destroy()
-    {
-        plugins.clear();
-        pluginObjects.clear();
-    }
-
-
+public class ContainerImpl extends AbstractRPCContainer {
 }

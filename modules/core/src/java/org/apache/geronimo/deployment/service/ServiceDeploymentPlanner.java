@@ -78,7 +78,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.geronimo.deployment.DeploymentException;
-import org.apache.geronimo.deployment.scanner.URLType;
 import org.apache.geronimo.deployment.goal.DeployURL;
 import org.apache.geronimo.deployment.goal.DeploymentGoal;
 import org.apache.geronimo.deployment.goal.RedeployURL;
@@ -89,6 +88,9 @@ import org.apache.geronimo.deployment.plan.DeploymentPlan;
 import org.apache.geronimo.deployment.plan.DeploymentTask;
 import org.apache.geronimo.deployment.plan.DestroyMBeanInstance;
 import org.apache.geronimo.deployment.plan.RegisterMBeanInstance;
+import org.apache.geronimo.deployment.plan.InitializeMBeanInstance;
+import org.apache.geronimo.deployment.plan.StartMBeanInstance;
+import org.apache.geronimo.deployment.scanner.URLType;
 import org.apache.geronimo.jmx.JMXUtil;
 
 import org.w3c.dom.Document;
@@ -99,7 +101,7 @@ import org.xml.sax.SAXException;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/15 15:27:42 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/16 23:16:34 $
  */
 public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, MBeanRegistration {
     private MBeanServer server;
@@ -152,7 +154,7 @@ public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, 
             if (goal instanceof DeployURL) {
                 progress = addURL((DeployURL) goal, goals, plans);
             } else if (goal instanceof RedeployURL) {
-                progress = verifyURL((RedeployURL) goal, goals, plans);
+                progress = verifyURL((RedeployURL) goal, goals);
             } else if (goal instanceof UndeployURL) {
                 progress = removeURL((UndeployURL) goal, goals, plans);
             }
@@ -195,7 +197,8 @@ public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, 
             throw new DeploymentException(e);
         }
 
-        DeploymentPlan createPlan = new DeploymentPlan();
+        // Create a plan to register the deployment unit and create the class loader
+        DeploymentPlan createDeploymentUnitPlan = new DeploymentPlan();
         ObjectName deploymentName = null;
         try {
             deploymentName = new ObjectName("geronimo.deployment:role=DeploymentUnit,type=Service,url=" + ObjectName.quote(url.toString()));
@@ -203,23 +206,33 @@ public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, 
             throw new DeploymentException(e);
         }
         ServiceDeployment serviceInfo = new ServiceDeployment(deploymentName, null, url);
-        createPlan.addTask(new RegisterMBeanInstance(server, deploymentName, serviceInfo));
+        createDeploymentUnitPlan.addTask(new RegisterMBeanInstance(server, deploymentName, serviceInfo));
 
-        ObjectName loaderName = addClassSpaces(doc.getElementsByTagName("class-space"), createPlan, url);
+        ObjectName loaderName = addClassSpaces(doc.getElementsByTagName("class-space"), createDeploymentUnitPlan, url);
+        plans.add(createDeploymentUnitPlan);
 
+        // register a plan to create each mbean
         NodeList nl = doc.getElementsByTagName("mbean");
         for (int i = 0; i < nl.getLength(); i++) {
+            DeploymentPlan createPlan = new DeploymentPlan();
+
             Element mbeanElement = (Element) nl.item(i);
             MBeanMetadata md = mbeanLoader.loadXML(mbeanElement);
             if (server.isRegistered(md.getName())) {
                 throw new DeploymentException("MBean already exists " + md.getName());
             }
-
-            CreateMBeanInstance createTask = new CreateMBeanInstance(plans, server, deploymentName, md, loaderName);
+            md.setLoaderName(loaderName);
+            md.setParentName(deploymentName);
+            CreateMBeanInstance createTask = new CreateMBeanInstance(server, md);
             createPlan.addTask(createTask);
+            InitializeMBeanInstance initTask = new InitializeMBeanInstance(server, md);
+            createPlan.addTask(initTask);
+            StartMBeanInstance startTask = new StartMBeanInstance(server, md);
+            createPlan.addTask(startTask);
+
+            plans.add(createPlan);
         }
 
-        plans.add(createPlan);
         goals.remove(goal);
         return true;
     }
@@ -275,15 +288,13 @@ public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, 
         return true;
     }
 
-    private boolean verifyURL(RedeployURL goal, Set goals, Set plans) throws DeploymentException {
+    private boolean verifyURL(RedeployURL goal, Set goals) throws DeploymentException {
         URL url = goal.getUrl();
-        ObjectName deploymentName = null;
         try {
-            deploymentName = new ObjectName("geronimo.deployment:role=DeploymentUnit,type=Service,url=" + ObjectName.quote(url.toString()));
+            new ObjectName("geronimo.deployment:role=DeploymentUnit,type=Service,url=" + ObjectName.quote(url.toString()));
         } catch (MalformedObjectNameException e) {
             throw new DeploymentException(e);
         }
-
         goals.remove(goal);
         return true;
     }

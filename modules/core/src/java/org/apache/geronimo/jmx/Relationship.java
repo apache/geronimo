@@ -55,25 +55,22 @@
  */
 package org.apache.geronimo.jmx;
 
-import javax.management.MBeanRegistration;
-import javax.management.ObjectName;
-import javax.management.MBeanServer;
-import javax.management.relation.RoleInfo;
 import javax.management.relation.RelationServiceMBean;
 import javax.management.relation.RelationServiceNotRegisteredException;
 import javax.management.relation.RelationTypeNotFoundException;
+import javax.management.relation.RoleInfo;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.common.AbstractStateManageable;
 
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/13 21:17:28 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/16 23:16:55 $
  */
-public class Relationship implements MBeanRegistration, RelationshipMBean{
+public class Relationship extends AbstractStateManageable implements RelationshipMBean {
     private final Log log = LogFactory.getLog(getClass());
-    private MBeanServer server;
 
     private String name;
 
@@ -95,35 +92,7 @@ public class Relationship implements MBeanRegistration, RelationshipMBean{
     private int rightRoleMaximum = RoleInfo.ROLE_CARDINALITY_INFINITY;
     private String rightRoleDescription;
 
-    public ObjectName preRegister(MBeanServer server, ObjectName objectName) throws Exception {
-        if(objectName == null) {
-            // we have no way to generate a logical default name
-            throw new IllegalArgumentException("Name cannot be null");
-        }
-        this.server = server;
-        return objectName;
-    }
-
-    public void postRegister(Boolean aBoolean) {
-    }
-
     public void preDeregister() throws Exception {
-    }
-
-    public void postDeregister() {
-    }
-
-    public void create() throws Exception {
-        RelationServiceMBean relationService = JMXUtil.getRelationService(server);
-        RoleInfo[] roleInfo = {
-            new RoleInfo(leftRoleName, leftRoleClass, leftRoleReadable, leftRoleWritable, leftRoleMinimum, leftRoleMaximum, leftRoleDescription),
-            new RoleInfo(rightRoleName, rightRoleClass, rightRoleReadable, rightRoleWritable, rightRoleMinimum, rightRoleMaximum, rightRoleDescription),
-            new RoleInfo("dummy", "java.lang.Object", true, true, 0, 0, "dummy role to test three way relationship code"),
-        };
-        relationService.createRelationType(name, roleInfo);
-    }
-
-    public void destroy() {
         RelationServiceMBean relationService = JMXUtil.getRelationService(server);
         try {
             relationService.removeRelationType(name);
@@ -134,6 +103,20 @@ public class Relationship implements MBeanRegistration, RelationshipMBean{
         } catch (RelationTypeNotFoundException e) {
             log.warn("Could not remove relation type: name=" + name, e);
         }
+        super.preDeregister();
+    }
+
+    public void doStart() throws Exception {
+        RelationServiceMBean relationService = JMXUtil.getRelationService(server);
+        RoleInfo[] roleInfo = {
+            new RoleInfo(leftRoleName, leftRoleClass, leftRoleReadable, leftRoleWritable, leftRoleMinimum, leftRoleMaximum, leftRoleDescription),
+            new RoleInfo(rightRoleName, rightRoleClass, rightRoleReadable, rightRoleWritable, rightRoleMinimum, rightRoleMaximum, rightRoleDescription),
+            new RoleInfo("dummy", "java.lang.Object", true, true, 0, 0, "dummy role to test three way relationship code"),
+        };
+        relationService.createRelationType(name, roleInfo);
+    }
+
+    public void doStop() throws Exception {
     }
 
     public String getName() {

@@ -66,16 +66,18 @@ import javax.management.ObjectName;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 19:46:28 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/16 23:16:34 $
  */
 public class MBeanMetadata {
     private String code;
     private ObjectName name;
+    private ObjectName loaderName;
+    private ObjectName parentName;
     private final List constructorTypes = new ArrayList();
     private final List constructorArgs = new ArrayList();
     private final Map attributeValues = new HashMap();
     private final Set relationships = new HashSet();
-    private final List operations = new ArrayList();
+    private final Set dependencies = new HashSet();
 
     public String getCode() {
         return code;
@@ -93,6 +95,22 @@ public class MBeanMetadata {
         this.name = name;
     }
 
+    public ObjectName getLoaderName() {
+        return loaderName;
+    }
+
+    public void setLoaderName(ObjectName loaderName) {
+        this.loaderName = loaderName;
+    }
+
+    public ObjectName getParentName() {
+        return parentName;
+    }
+
+    public void setParentName(ObjectName parentName) {
+        this.parentName = parentName;
+    }
+
     public Map getAttributeValues() {
         return attributeValues;
     }
@@ -105,11 +123,11 @@ public class MBeanMetadata {
         return constructorTypes;
     }
 
-    public Set getRelationships() {
-        return relationships;
+    public Set getDependencies() {
+        return dependencies;
     }
 
-    public List getOperations() {
-        return operations;
+    public Set getRelationships() {
+        return relationships;
     }
 }

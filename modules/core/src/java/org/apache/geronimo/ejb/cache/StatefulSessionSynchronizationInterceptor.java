@@ -82,15 +82,15 @@ import org.apache.geronimo.ejb.metadata.EJBMetadata;
  *
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/15 14:12:19 $
+ * @version $Revision: 1.5 $ $Date: 2003/08/16 23:16:43 $
  */
 public final class StatefulSessionSynchronizationInterceptor extends AbstractInterceptor {
     protected TransactionManager tm;
     private InstanceCache cache;
     private boolean hasSynchronization;
 
-    public void start() throws Exception {
-        super.start();
+    protected void doStart() throws Exception {
+        super.doStart();
         RPCContainer container = (RPCContainer)getContainer();
         tm = EJBPlugins.getTransactionManager(container);
         cache = EJBPlugins.getInstanceCache(container);
@@ -98,10 +98,10 @@ public final class StatefulSessionSynchronizationInterceptor extends AbstractInt
         hasSynchronization = SessionSynchronization.class.isAssignableFrom(ejbMetadata.getBeanClass());
     }
 
-    public void stop() {
+    protected void doStop() throws Exception {
         cache = null;
         tm = null;
-        super.stop();
+        super.doStop();
     }
 
     public InvocationResult invoke(Invocation invocation) throws Exception {

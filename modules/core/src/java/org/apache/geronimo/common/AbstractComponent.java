@@ -56,19 +56,22 @@
 package org.apache.geronimo.common;
 
 /**
- * A helper implementation of the Component interface that should 
+ * A helper implementation of the Component interface that should
  * be used as a base class for Component implementations.
  *
- * @version $Revision: 1.5 $ $Date: 2003/08/15 14:11:26 $
+ * @todo this is broken because name is required but there is no way to set it
+ *
+ * @version $Revision: 1.6 $ $Date: 2003/08/16 23:16:18 $
  */
-public class AbstractComponent 
-    extends AbstractStateManageable
-    implements Component
-{
-    //the Container this Component belongs to
+public class AbstractComponent extends AbstractStateManageable implements Component {
+    /**
+     *  the Container this Component belongs to
+     */
     private Container container;
 
-    //the identity of this Component
+    /**
+     * the identity of this Component
+     */
     private String name;
 
 
@@ -77,8 +80,7 @@ public class AbstractComponent
      *
      * @return a <code>Container</code> value
      */
-    public Container getContainer()
-    {
+    public Container getContainer() {
         return container;
     }
 
@@ -92,46 +94,40 @@ public class AbstractComponent
      * parameter is null, or the component has been destroyed and the container parameter is NOT null
      */
     public void setContainer(Container container)
-        throws IllegalStateException, IllegalArgumentException
-    {
-        if (getStateInstance() != State.STOPPED)
-        {
+            throws IllegalStateException, IllegalArgumentException {
+        if (getStateInstance() != State.STOPPED) {
             throw new IllegalStateException(
-                "Set container can only be called while in the stopped state: state=" + getStateInstance());
+                    "Set container can only be called while in the stopped state: state=" + getStateInstance());
         }
-        this.container= container;
+        this.container = container;
     }
 
     /* Start the Component
      * @see org.apache.geronimo.common.AbstractStateManageable#doStart()
      */
-    public void doStart() throws Exception
-    {
+    protected void doStart() throws Exception {
     }
 
     /* Stop the Component
      * @see org.apache.geronimo.common.AbstractStateManageable#doStop()
      */
-    public void doStop() throws Exception
-    {
+    protected void doStop() throws Exception {
     }
 
-    /* 
+    /*
      * @see org.apache.geronimo.common.AbstractStateManageable#doNotification(java.lang.String)
      */
-    public void doNotification(String eventTypeValue)
-    {
-        log.debug("notification: "+eventTypeValue+" from "+this);
+    public void doNotification(String eventTypeValue) {
+        log.debug("notification: " + eventTypeValue + " from " + this);
     }
-    
+
 
     /**
      * Get the unique identity of this Component
      *
      * @return the name (formatted according to JSR 77)
      */
-    public String getObjectName ()
-    {
+    public String getObjectName() {
         return name;
     }
 
@@ -141,14 +137,11 @@ public class AbstractComponent
      * @param component to test
      * @return true if the names are the same, false otherwise
      */
-    public boolean equals (Component component)
-    {
-        if (component == null)
-            return false;
-
-        if (component.getObjectName().equals(name))
-            return true;
-
+    public boolean equals(Object o) {
+        if (o instanceof Component) {
+            Component component = (Component)o;
+            return component.getObjectName().equals(name);
+        }
         return false;
     }
 
@@ -160,11 +153,10 @@ public class AbstractComponent
      *
      * @return hash of Component name
      */
-    public int hashCode ()
-    {
-        if (name == null)
+    public int hashCode() {
+        if (name == null) {
             return 0;
-
+        }
         return name.hashCode();
     }
 }

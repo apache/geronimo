@@ -73,39 +73,26 @@ import javax.management.relation.RelationServiceMBean;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.jmx.JMXUtil;
+import org.apache.geronimo.common.AbstractStateManageable;
 
 /**
  * An MBean that maintains a list of URLs and periodically invokes a Scanner
  * to search them for deployments.
  *
  *
- * @version $Revision: 1.6 $ $Date: 2003/08/13 01:56:06 $
+ * @version $Revision: 1.7 $ $Date: 2003/08/16 23:16:30 $
  */
-public class DeploymentScanner implements DeploymentScannerMBean, MBeanRegistration {
+public class DeploymentScanner extends AbstractStateManageable implements DeploymentScannerMBean {
     private static final Log log = LogFactory.getLog(DeploymentScanner.class);
-    private MBeanServer server;
     private RelationServiceMBean relationService;
-    private ObjectName objectName;
-
     private final Map scanners = new HashMap();
     private long scanInterval;
     private boolean run;
     private Thread scanThread;
 
-    public ObjectName preRegister(MBeanServer mBeanServer, ObjectName objectName) throws Exception {
-        this.server = mBeanServer;
-        this.objectName = objectName;
+    public ObjectName preRegister(MBeanServer server, ObjectName objectName) throws Exception {
         relationService = JMXUtil.getRelationService(server);
-        return objectName;
-    }
-
-    public void postRegister(Boolean aBoolean) {
-    }
-
-    public void preDeregister() throws Exception {
-    }
-
-    public void postDeregister() {
+        return super.preRegister(server, objectName);
     }
 
     public synchronized long getScanInterval() {
@@ -154,7 +141,7 @@ public class DeploymentScanner implements DeploymentScannerMBean, MBeanRegistrat
         return run;
     }
 
-    public synchronized void start() {
+    public synchronized void doStart() throws Exception {
         if (scanThread == null) {
             run = true;
             scanThread = new Thread("DeploymentScanner: ObjectName=" + objectName) {
@@ -172,7 +159,7 @@ public class DeploymentScanner implements DeploymentScannerMBean, MBeanRegistrat
         }
     }
 
-    public synchronized void stop() {
+    public synchronized void doStop() throws Exception {
         run = false;
         if (scanThread != null) {
             scanThread.interrupt();
@@ -208,6 +195,7 @@ public class DeploymentScanner implements DeploymentScannerMBean, MBeanRegistrat
 
         try {
             Map controllers = relationService.findAssociatedMBeans(objectName, "DeploymentController-DeploymentScanner", "DeploymentScanner");
+            log.trace("Found " + controllers.size() + " controller(s)");
             if (!controllers.isEmpty()) {
                 Set set = controllers.keySet();
                 ObjectName controller = (ObjectName) set.iterator().next();

@@ -69,19 +69,19 @@ import org.apache.geronimo.ejb.container.EJBPlugins;
  *
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/15 14:12:19 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/16 23:16:51 $
  */
 public abstract class ExecutionContextInterceptor extends AbstractInterceptor {
     protected TransactionManager tm;
 
-    public void start() throws Exception {
-        super.start();
+    protected void doStart() throws Exception {
+        super.doStart();
         tm = EJBPlugins.getTransactionManager((RPCContainer)getContainer());
     }
 
-    public void stop() {
+    protected void doStop() throws Exception {
         tm = null;
-        super.stop();
+        super.doStop();
     }
 
     /**

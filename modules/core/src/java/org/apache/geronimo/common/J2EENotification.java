@@ -53,99 +53,80 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.service;
+package org.apache.geronimo.common;
 
-import javax.management.ObjectName;
+import javax.management.Notification;
+import javax.management.NotificationFilterSupport;
+import javax.management.MBeanServerNotification;
+import javax.management.NotificationFilter;
 
 /**
- * This class contains metadata necessary to enroll an MBean in a relationship.
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/16 23:16:34 $
+ *
+ * @version $Revision: 1.1 $ $Date: 2003/08/16 23:16:18 $
  */
-public class MBeanRelationship {
+public interface J2EENotification {
     /**
-     * The name of the relationship (A.K.A relationshipID)
+     * A new managed object was created.
      */
-    private final String name;
+    String OBJECT_CREATED = "j2ee.object.created";
 
     /**
-     * The type of the relationship.  This is used if a new relationship instance is created during deployment.
+     * A managed object was deleted
      */
-    private final String type;
+    String OBJECT_DELETED = "j2ee.object.deleted";
 
     /**
-     * The name of the role to enroll the MBean
+     * A state manageable object entered the starting state
      */
-    private final String role;
+    String STATE_STARTING = "j2ee.state.starting";
 
     /**
-     * The name of the target MBean to which this MBean will be related.  This is only used if a new relationship
-     * is created during deployment.
+     * A state manageable object entered the running state
      */
-    private final ObjectName target;
+    String STATE_RUNNING = "j2ee.state.running";
 
     /**
-     * The name of the role to assign the target MBean.  This is only used if a new relationship is created during
-     * deployment.  This is only neccessary if the relationship has more then two roles.
+     * A state manageable object entered the stopping state
      */
-    private final String targetRole;
+    String STATE_STOPPING = "j2ee.state.stopping";
 
     /**
-     * Creates a new MBeanRelationship, which is used during deployment to enroll the new MBean in a relationship.
-     *
-     * @param name name of the relationship
-     * @param type type of the relationship
-     * @param role role to which this MBean will be added
-     * @param target the object name of another MBean to add to relationship if a new relationship is created
-     * @param targetRole the role to assign the target MBean
+     * A state manageable object entered the stopped state.
      */
-    public MBeanRelationship(String name, String type, String role, ObjectName target, String targetRole) {
-        this.name = name;
-        this.type = type;
-        this.role = role;
-        this.target = target;
-        this.targetRole = targetRole;
-    }
+    String STATE_STOPPED = "j2ee.state.stopped";
 
     /**
-     * The name of the relationship (A.K.A relationshipID)
-     * @return the name of the relationship
+     * A state manageable object entered the failed state
      */
-    public String getName() {
-        return name;
-    }
+    String STATE_FAILED = "j2ee.state.failed";
 
     /**
-     * The type of the relationship.  This is used if a new relationship instance is created during deployment.
-     * @return the relationship type
+     * An attribute has change value
      */
-    public String getType() {
-        return type;
-    }
+    String ATTRIBUTE_CHANGED = "j2ee.attribute.changed";
 
     /**
-     * The name of the role to enroll the MBean.
-     * @return name of the role to which this MBean will be assigned
+     * An array containg all of the know J2EE notification types
      */
-    public String getRole() {
-        return role;
-    }
+    String[] TYPES = new String[]{
+        OBJECT_CREATED, OBJECT_DELETED,
+        STATE_STARTING, STATE_RUNNING, STATE_STOPPING, STATE_STOPPED, STATE_FAILED,
+        ATTRIBUTE_CHANGED
+    };
 
     /**
-     * The name of the target MBean to which this MBean will be related.  This is only used if a new relationship
-     * is created during deployment.
-     * @return object name of the target MBean
+     * A notification filter which lets all J2EE notifications pass
      */
-    public ObjectName getTarget() {
-        return target;
-    }
-
-    /**
-     * The name of the role to assign the target MBean.  This is only used if a new relationship is created during
-     * deployment.  This is only neccessary if the relationship has more then two roles.
-     * @return name of the role to which the target MBean will be assigned
-     */
-    public String getTargetRole() {
-        return targetRole;
-    }
+    NotificationFilter NOTIFICATION_FILTER = new NotificationFilter() {
+        public boolean isNotificationEnabled(Notification notification) {
+            String type = notification.getType();
+            for (int i = 0; i < TYPES.length; i++) {
+                if(TYPES[i].equals(type)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    };
 }

@@ -68,7 +68,7 @@ import org.apache.geronimo.ejb.metadata.EJBMetadata;
  *
  *
  *
- * @version $Revision: 1.6 $ $Date: 2003/08/15 14:12:19 $
+ * @version $Revision: 1.7 $ $Date: 2003/08/16 23:16:51 $
  */
 public class TransactionInterceptor implements Interceptor {
     private Interceptor transactionInterceptor;
@@ -119,12 +119,8 @@ public class TransactionInterceptor implements Interceptor {
         transactionInterceptor.startRecursive();
     }
 
-    public void stop() {
+    public void stop() throws Exception {
         transactionInterceptor.stop();
-    }
-
-    // @todo not supported by JSR77 lifecycle 
-    public void destroy() {
         transactionInterceptor.setContainer(null);
         transactionInterceptor = null;
     }
@@ -144,6 +140,6 @@ public class TransactionInterceptor implements Interceptor {
      */
     public String getObjectName ()
     {
-        return null;
+        return transactionInterceptor.getObjectName();
     }
 }

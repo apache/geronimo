@@ -72,22 +72,22 @@ import org.apache.geronimo.ejb.container.EJBPlugins;
  *
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/15 14:12:19 $
+ * @version $Revision: 1.5 $ $Date: 2003/08/16 23:16:43 $
  */
 public class StatelessInstanceFactory extends AbstractComponent implements InstanceFactory {
     private Class beanClass;
     private Method ejbCreate;
 
-    public void start() throws Exception {
-        super.start();
+    protected void doStart() throws Exception {
+        super.doStart();
         beanClass = EJBPlugins.getEJBMetadata((RPCContainer)getContainer()).getBeanClass();
         ejbCreate = beanClass.getMethod("ejbCreate", null);
     }
 
-    public void stop() {
+    protected void doStop() throws Exception {
         beanClass = null;
         ejbCreate = null;
-        super.stop();
+        super.doStop();
     }
 
     public Object createInstance() throws Exception {

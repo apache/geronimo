@@ -53,90 +53,45 @@
 *
 * ====================================================================
 */
-
 package org.apache.geronimo.web;
-
-
-
-
 
 import org.apache.geronimo.common.AbstractContainer;
 
-
-
-
-/* -------------------------------------------------------------------------------------- */
 /**
- * AbstractWebContainer
- * 
- * 
- * @version $Revision: 1.2 $
+ * Base class for web containers.
+ *
+ * @version $Revision: 1.3 $ $Date: 2003/08/16 23:17:02 $
  */
-public class AbstractWebContainer
-	extends  AbstractContainer
-	implements WebContainer {
-        
-        private String defaultWebXmlURL = null;
-	
-    
-    
-    
-    
-	
+public class AbstractWebContainer extends AbstractContainer implements WebContainer {
+    /**
+     * Location of the defualt web.xml file
+     */
+    private String defaultWebXmlURL;
 
-    /* -------------------------------------------------------------------------------------- */
-	/* Start the container
-	 * @throws Exception
-	 * @see org.apache.geronimo.common.AbstractComponent#doStart()
-	 */
-	public void doStart() throws Exception {
-        
-    }
-	
-	
-    /* -------------------------------------------------------------------------------------- */
-	/* Stop the container
-	 * @throws Exception
-	 * @see org.apache.geronimo.common.AbstractStateManageable#doStop()
-	 */
-	public void doStop() throws Exception {
+    /**
+     * Creates a WebApplication from the url and associates it with this container.
+     * @param url the location of the web application to deploy
+     * @throws Exception
+     * @see org.apache.geronimo.web.WebContainer#deploy(java.lang.String)
+     */
+    public void deploy(String url) throws Exception {
     }
 
+    /**
+     * Get the URL of the web defaults.
+     * @return the location of the default web.xml file for this container
+     * @see org.apache.geronimo.web.WebContainer#getDefaultWebXmlURL()
+     */
+    public String getDefaultWebXmlURL() {
+        return defaultWebXmlURL;
+    }
 
-	/* -------------------------------------------------------------------------------------- */
-	/* Convenience method. Creates a WebApplication from the url
-     * and associates it with this container.
-	 * @param url
-	 * @throws Exception
-	 * @see org.apache.geronimo.web.WebContainer#deploy(java.lang.String)
-	 */
-	public void deploy(String url) throws Exception {
-	 
-	}
-
-	
-
-
-	/* -------------------------------------------------------------------------------------- */
-	/* Get the URL of the web defaults
-	 * @return
-	 * @see org.apache.geronimo.web.WebContainer#getDefaultWebXmlURL()
-	 */
-	public String getDefaultWebXmlURL() {
-		  return defaultWebXmlURL;
-	}
-
-	
-	
-	/* -------------------------------------------------------------------------------------- */
-	/* Set a url of a web.xml containing defaults for the continer
-	 * @param url
-	 * @see org.apache.geronimo.web.WebContainer#setDefaultWebXmlURL(java.lang.String)
-	 */
-	public void setDefaultWebXmlURL(String url) {
-	   defaultWebXmlURL = url;
-	}
-
-
-
+    /**
+     * Set a url of a web.xml containing defaults for this continer.
+     * @param url the location of the default web.xml file
+     * @see org.apache.geronimo.web.WebContainer#setDefaultWebXmlURL(java.lang.String)
+     */
+    public void setDefaultWebXmlURL(String url) {
+        defaultWebXmlURL = url;
+    }
 }

@@ -42,14 +42,11 @@
                                     <xs:attribute name="targetRole" type="xs:string" use="optional"/>
 								</xs:complexType>
 							</xs:element>
-							<xs:element name="invoke" minOccurs="0" maxOccurs="unbounded">
-								<xs:complexType>
-									<xs:sequence minOccurs="0" maxOccurs="unbounded">
-										<xs:element ref="arg"/>
-									</xs:sequence>
-									<xs:attribute name="operation" type="xs:string" use="required"/>
-								</xs:complexType>
-							</xs:element>
+                            <xs:element name="depends" minOccurs="0" maxOccurs="unbounded">
+                                <xs:complexType>
+                                    <xs:attribute name="name" type="objectName" use="required"/>
+                                </xs:complexType>
+                            </xs:element>
 						</xs:sequence>
 						<xs:attribute name="code" type="className" use="required"/>
 						<xs:attribute name="name" type="objectName" use="optional"/>

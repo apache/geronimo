@@ -55,60 +55,320 @@
  */
 package org.apache.geronimo.common;
 
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanNotificationInfo;
+import javax.management.MBeanRegistration;
+import javax.management.MBeanServer;
+import javax.management.MBeanServerNotification;
+import javax.management.Notification;
+import javax.management.NotificationBroadcasterSupport;
+import javax.management.NotificationFilterSupport;
+import javax.management.NotificationListener;
+import javax.management.ObjectName;
+import javax.management.relation.InvalidRelationIdException;
+import javax.management.relation.InvalidRoleValueException;
+import javax.management.relation.RelationNotFoundException;
+import javax.management.relation.RelationServiceMBean;
+import javax.management.relation.RelationServiceNotRegisteredException;
+import javax.management.relation.RelationTypeNotFoundException;
+import javax.management.relation.Role;
+import javax.management.relation.RoleInfo;
+import javax.management.relation.RoleList;
+import javax.management.relation.RoleNotFoundException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.deployment.dependency.DependencyServiceMBean;
+import org.apache.geronimo.deployment.service.MBeanRelationship;
+import org.apache.geronimo.jmx.JMXUtil;
 
 /**
  * Abstract implementation of JSR77 StateManageable.
- * Implementors of StateManageable may use this class and simply provide 
+ * Implementors of StateManageable may use this class and simply provide
  * doStart, doStop and doNotification methods.
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/15 14:11:26 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/16 23:16:18 $
  */
-public abstract class AbstractStateManageable implements StateManageable
-{
-    protected Log log= LogFactory.getLog(getClass());
-    
-    private State state= State.STOPPED;
+public abstract class AbstractStateManageable extends NotificationBroadcasterSupport implements StateManageable, NotificationListener, MBeanRegistration {
+    protected Log log = LogFactory.getLog(getClass());
+    protected MBeanServer server;
+    protected ObjectName objectName;
+
+    private DependencyServiceMBean dependencyService;
+    private RelationServiceMBean relationService;
+    private long sequenceNumber;
+    private State state = State.STOPPED;
     private long startTime;
 
     /**
-     * Do the start tasks for the component.  Called in the STARTING state by 
-     * the start() and startRecursive() methods to perform the tasks required to 
+     * Do the start tasks for the component.  Called in the STARTING state by
+     * the start() and startRecursive() methods to perform the tasks required to
      * start the component.
      * @throws Exception
      */
-    public abstract void doStart() throws Exception;
-    
+    protected abstract void doStart() throws Exception;
+
     /**
      * Do the stop tasks for the component.  Called in the STOPPING state by the stop()
      * method to perform the tasks required to stop the component.
      * @throws Exception
      */
-    public abstract void doStop() throws Exception;
+    protected abstract void doStop() throws Exception;
 
-    /**
-     * Do the notification of a state change.
-     * @param eventTypeValue Event to notify
-     */
-    public abstract void doNotification(String eventTypeValue);
+    public MBeanNotificationInfo[] getNotificationInfo() {
+        return new MBeanNotificationInfo[]{
+            new MBeanNotificationInfo(J2EENotification.TYPES,
+                    "javax.management.Notification",
+                    "J2EE Notifications")
+        };
+    }
 
+    public ObjectName preRegister(MBeanServer server, ObjectName objectName) throws Exception {
+        this.server = server;
+        this.objectName = objectName;
+        dependencyService = JMXUtil.getDependencyService(server);
+        relationService = JMXUtil.getRelationService(server);
 
+        NotificationFilterSupport filter = new NotificationFilterSupport();
+        filter.enableType(MBeanServerNotification.REGISTRATION_NOTIFICATION);
+        filter.enableType(MBeanServerNotification.UNREGISTRATION_NOTIFICATION);
+        server.addNotificationListener(JMXUtil.DELEGATE_NAME, this, filter, null);
 
-    /* (non-Javadoc)
-     * @see org.apache.geronimo.common.StateManageable#getStateInstance()
-     */
-    public State getStateInstance()
-    {
+        return objectName;
+    }
+
+    public void postRegister(Boolean aBoolean) {
+    }
+
+    public void preDeregister() throws Exception {
+    }
+
+    public void postDeregister() {
+    }
+
+    public void handleNotification(Notification n, Object o) {
+        String type = n.getType();
+        ObjectName source = null;
+        if (MBeanServerNotification.REGISTRATION_NOTIFICATION.equals(type)) {
+            MBeanServerNotification notification = (MBeanServerNotification) n;
+            source = notification.getMBeanName();
+            try {
+                server.addNotificationListener(source, this, J2EENotification.NOTIFICATION_FILTER, null);
+            } catch (InstanceNotFoundException e) {
+                // the instance died before we could get going... not a big deal
+                return;
+            }
+        } else if (MBeanServerNotification.UNREGISTRATION_NOTIFICATION.equals(type)) {
+            MBeanServerNotification notification = (MBeanServerNotification) n;
+            source = notification.getMBeanName();
+        } else {
+            source = (ObjectName) n.getSource();
+        }
+        Set dependencies = dependencyService.getStartParents(objectName);
+        if (dependencies.contains(source)) {
+            checkState();
+        }
+    }
+
+    public final State getStateInstance() {
         return state;
     }
-    
-    /* (non-Javadoc)
-     * @see org.apache.geronimo.common.StateManageable#getState()
-     */
-    public int getState()
-    {
+
+    public final int getState() {
         return state.toInt();
+    }
+
+    public final long getStartTime() {
+        return startTime;
+    }
+
+    public final void start() throws Exception {
+        State state = getStateInstance();
+        if (state == State.STARTING || state == State.RUNNING) {
+            return;
+        }
+        try {
+            setState(State.STARTING);
+            if (dependencyService.canStart(objectName)) {
+                enrollInRelationships();
+                doStart();
+                setState(State.RUNNING);
+            }
+        } catch (Exception e) {
+            setState(State.FAILED);
+            throw e;
+        } catch (Error e) {
+            setState(State.FAILED);
+            throw e;
+        }
+    }
+
+    public final void stop() throws Exception {
+        State state = getStateInstance();
+        if (state == State.STOPPED || state == State.STOPPING) {
+            return;
+        } else if (state == State.STARTING) {
+            setState(State.STOPPED);
+            return;
+        }
+        try {
+            setState(State.STOPPING);
+
+            // stop all of my dependent objects
+            Set dependents = dependencyService.getStartChildren(objectName);
+            for (Iterator iterator = dependents.iterator(); iterator.hasNext();) {
+                ObjectName name = (ObjectName) iterator.next();
+                server.invoke(name, "stop", null, null);
+            }
+
+            // stop myself
+            if (dependencyService.canStop(objectName)) {
+                doStop();
+                setState(State.STOPPED);
+            }
+        } catch (Exception e) {
+            setState(State.FAILED);
+            throw e;
+        } catch (Error e) {
+            setState(State.FAILED);
+            throw e;
+        }
+    }
+
+    public final void startRecursive() throws Exception {
+        State state = getStateInstance();
+        if (state == State.STOPPING) {
+            throw new IllegalArgumentException("Cannot startRecursive while in the stopping state");
+        }
+
+        // get myself starting
+        start();
+
+        // startRecursive all of objects that depend on me
+        Set dependents = dependencyService.getStartChildren(objectName);
+        for (Iterator iterator = dependents.iterator(); iterator.hasNext();) {
+            ObjectName dependent = (ObjectName) iterator.next();
+            server.invoke(dependent, "startRecursive", null, null);
+        }
+    }
+
+    private final void doNotification(String s) {
+        sendNotification(new Notification(s, this, sequenceNumber++));
+    }
+
+    private final void enrollInRelationships() throws StartException {
+        String relationshipType = null;
+        String relationshipRole = null;
+        String targetRoleName = null;
+        try {
+            Set relationships = dependencyService.getRelationships(objectName);
+            for (Iterator i = relationships.iterator(); i.hasNext();) {
+                MBeanRelationship relationship = (MBeanRelationship) i.next();
+
+                // if we don't have a relationship instance create one
+                String relationshipName = relationship.getName();
+                relationshipRole = relationship.getRole();
+                if (!relationService.hasRelation(relationshipName).booleanValue()) {
+                    relationshipType = relationship.getType();
+                    RoleList roleList = new RoleList();
+                    roleList.add(new Role(relationshipRole, Collections.singletonList(objectName)));
+
+                    // if we have a target we need to add it to the role list
+                    ObjectName target = relationship.getTarget();
+                    if (target != null) {
+                        targetRoleName = relationship.getTargetRole();
+                        if (targetRoleName == null || targetRoleName.length() == 0) {
+                            List roles = relationService.getRoleInfos(relationshipType);
+                            if (roles.size() < 2) {
+                                throw new StartException("Relationship has less than two roles. You cannot specify a target");
+                            }
+                            if (roles.size() > 2) {
+                                throw new StartException("Relationship has more than two roles. You must use targetRoleName");
+                            }
+                            if (((RoleInfo) roles.get(0)).getName().equals(relationshipRole)) {
+                                targetRoleName = ((RoleInfo) roles.get(1)).getName();
+                            } else {
+                                targetRoleName = ((RoleInfo) roles.get(0)).getName();
+                            }
+                        }
+
+                        roleList.add(new Role(targetRoleName, Collections.singletonList(target)));
+                    }
+                    relationService.createRelation(relationshipName, relationshipType, roleList);
+                } else {
+                    // We have an exiting relationship -- just add to the existing role
+                    List members = relationService.getRole(relationshipName, relationshipRole);
+                    if(!members.contains(objectName)) {
+                        members.add(objectName);
+                        relationService.setRole(relationshipName, new Role(relationshipRole, members));
+                    }
+                }
+            }
+        } catch (RelationTypeNotFoundException e) {
+            throw new StartException("Relationship type is not registered: relationType=" + relationshipType);
+        } catch (RelationServiceNotRegisteredException e) {
+            throw new StartException("RelationshipService is not registered", e);
+        } catch (RoleNotFoundException e) {
+            throw new StartException("RelationshipService is not registered", e);
+        } catch (InvalidRelationIdException e) {
+            throw new StartException("Relationship type does not contain role:" +
+                    " relationType=" + relationshipType +
+                    " sourceRole=" + relationshipRole +
+                    " targetRole=" + targetRoleName, e);
+        } catch (InvalidRoleValueException e) {
+            throw new StartException("Relationship role state is invalid", e);
+        } catch (RelationNotFoundException e) {
+            throw new StartException("Relation was unregistered while executing", e);
+        }
+    }
+
+    private void checkState() {
+        State state = getStateInstance();
+        if (state == State.STARTING) {
+            if (dependencyService.canStart(objectName)) {
+                try {
+                    doStart();
+                    setState(State.RUNNING);
+                } catch (Exception e) {
+                    setState(State.FAILED);
+                } catch (Error e) {
+                    setState(State.FAILED);
+                }
+            }
+        } else if (state == State.RUNNING) {
+            if (dependencyService.shouldStop(objectName)) {
+                // we were running and someone stopped or unregisted without informing us
+                // try to stop immedately, or just fail
+                if (dependencyService.canStop(objectName)) {
+                    try {
+                        setState(State.STOPPING);
+                        doStop();
+                        setState(State.STOPPED);
+                    } catch (Exception e) {
+                        setState(State.FAILED);
+                    } catch (Error e) {
+                        setState(State.FAILED);
+                    }
+                } else {
+                    setState(State.FAILED);
+                }
+            }
+        } else if (state == State.STOPPING) {
+            if (dependencyService.canStop(objectName)) {
+                try {
+                    doStop();
+                    setState(State.STOPPED);
+                } catch (Exception e) {
+                    setState(State.FAILED);
+                } catch (Error e) {
+                    setState(State.FAILED);
+                }
+            }
+        }
     }
 
     /**
@@ -116,155 +376,80 @@ public abstract class AbstractStateManageable implements StateManageable
      * @param newState
      * @throws IllegalStateException Thrown if the transition is not supported by the JSR77 lifecycle.
      */
-    protected void setState(State newState) throws IllegalStateException
-    {
-        State oldState = state;
+    private void setState(State newState) throws IllegalStateException {
+        switch (state.toInt()) {
+        case State.STOPPED_INDEX:
+            switch (newState.toInt()) {
+            case State.STARTING_INDEX:
+                break;
+            case State.STOPPED_INDEX:
+            case State.RUNNING_INDEX:
+            case State.STOPPING_INDEX:
+            case State.FAILED_INDEX:
+                throw new IllegalStateException(
+                        "Can not transition to " + newState + " state from " + state);
+            }
+            break;
 
-        switch (state.toInt())
-        {
-            case State.STOPPED_INDEX :
-                {
-                    switch (newState.toInt())
-                    {
-                        case State.STARTING_INDEX :
-                            break;
-                        case State.STOPPED_INDEX :
-                        case State.RUNNING_INDEX :
-                        case State.STOPPING_INDEX :
-                        case State.FAILED_INDEX :
-                            throw new IllegalStateException(
-                                "Can not transition to " + newState + " state from " + state);
-                    }
-                    break;
-                }
+        case State.STARTING_INDEX:
+            switch (newState.toInt()) {
+            case State.RUNNING_INDEX:
+            case State.FAILED_INDEX:
+            case State.STOPPING_INDEX:
+                break;
+            case State.STOPPED_INDEX:
+            case State.STARTING_INDEX:
+                throw new IllegalStateException(
+                        "Can not transition to " + newState + " state from " + state);
+            }
+            break;
 
-            case State.STARTING_INDEX :
-                {
-                    switch (newState.toInt())
-                    {
-                        case State.RUNNING_INDEX :
-                        case State.FAILED_INDEX :
-                        case State.STOPPING_INDEX :
-                            break;
-                        case State.STOPPED_INDEX :
-                        case State.STARTING_INDEX :
-                            throw new IllegalStateException(
-                                "Can not transition to " + newState + " state from " + state);
-                    }
-                    break;
-                }
+        case State.RUNNING_INDEX:
+            switch (newState.toInt()) {
+            case State.STOPPING_INDEX:
+            case State.FAILED_INDEX:
+                break;
+            case State.STOPPED_INDEX:
+            case State.STARTING_INDEX:
+            case State.RUNNING_INDEX:
+                throw new IllegalStateException(
+                        "Can not transition to " + newState + " state from " + state);
 
-            case State.RUNNING_INDEX :
-                {
-                    switch (state.toInt())
-                    {
-                        case State.STOPPING_INDEX :
-                        case State.FAILED_INDEX :
-                            break;
-                        case State.STOPPED_INDEX :
-                        case State.STARTING_INDEX :
-                        case State.RUNNING_INDEX :
-                            throw new IllegalStateException(
-                                "Can not transition to " + newState + " state from " + state);
+            }
+            break;
 
-                    }
-                    break;
-                }
+        case State.STOPPING_INDEX:
+            switch (newState.toInt()) {
+            case State.STOPPED_INDEX:
+            case State.FAILED_INDEX:
+                break;
+            case State.STARTING_INDEX:
+            case State.RUNNING_INDEX:
+            case State.STOPPING_INDEX:
+                throw new IllegalStateException(
+                        "Can not transition to " + newState + " state from " + state);
+            }
+            break;
 
-            case State.STOPPING_INDEX :
-                {
-                    switch (newState.toInt())
-                    {
-                        case State.STOPPED_INDEX :
-                        case State.FAILED_INDEX :
-                            break;
-                        case State.STARTING_INDEX :
-                        case State.RUNNING_INDEX :
-                        case State.STOPPING_INDEX :
-                            throw new IllegalStateException(
-                                "Can not transition to " + newState + " state from " + state);
-                    }
-                    break;
-                }
-
-            case State.FAILED_INDEX :
-                {
-                    switch (newState.toInt())
-                    {
-                        case State.STARTING_INDEX :
-                        case State.STOPPING_INDEX :
-                            break;
-                        case State.STOPPED_INDEX :
-                        case State.RUNNING_INDEX :
-                        case State.FAILED_INDEX :
-                            throw new IllegalStateException(
-                                "Can not transition to " + newState + " state from " + state);
-                    }
-                    break;
-                }
+        case State.FAILED_INDEX:
+            switch (newState.toInt()) {
+            case State.STARTING_INDEX:
+            case State.STOPPING_INDEX:
+                break;
+            case State.RUNNING_INDEX:
+            case State.STOPPED_INDEX:
+            case State.FAILED_INDEX:
+                throw new IllegalStateException(
+                        "Can not transition to " + newState + " state from " + state);
+            }
+            break;
         }
         log.debug("State changed from " + state + " to " + newState);
-        if (newState==State.RUNNING)
-            startTime= System.currentTimeMillis();
-        state= newState;
-      
-       doNotification(state.getEventTypeValue());
-    }
-
-    /* (non-Javadoc)
-     * @see org.apache.geronimo.common.StateManageable#getStartTime()
-     */
-    public long getStartTime()
-    {
-        return startTime;
-    }
-
-
-    /* (non-Javadoc)
-     * @see org.apache.geronimo.common.StateManageable#start()
-     */
-    public void start() throws Exception
-    {
-        try
-        {
-            setState(State.STARTING);
-            doStart();
-            setState(State.RUNNING);
+        if (newState == State.RUNNING) {
+            startTime = System.currentTimeMillis();
         }
-        finally
-        {
-            if (state != State.RUNNING)
-                setState(State.FAILED);
-        }
+        state = newState;
+
+        doNotification(state.getEventTypeValue());
     }
-
-    /* (non-Javadoc)
-     * @see org.apache.geronimo.common.StateManageable#startRecursive()
-     */
-    public void startRecursive() throws Exception
-    {
-        start();
-    }
-
-
-    /* (non-Javadoc)
-     * @see org.apache.geronimo.common.StateManageable#stop()
-     */
-    public void stop()
-    {
-        // Do the actual stop tasks
-        try
-        {
-            setState(State.STOPPING);
-            doStop();
-            setState(State.STOPPED);
-        }
-        catch (Exception e)
-        {
-            log.warn("Stop failed", e);
-            setState(State.FAILED);
-        }
-    }
-
-
 }

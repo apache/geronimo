@@ -70,7 +70,7 @@ import org.w3c.dom.NodeList;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/13 21:17:24 $
+ * @version $Revision: 1.4 $ $Date: 2003/08/16 23:16:34 $
  */
 public class MBeanMetadataXMLLoader {
     public MBeanMetadata loadXML(Element element) throws DeploymentException {
@@ -114,27 +114,27 @@ public class MBeanMetadataXMLLoader {
             String name = argElement.getAttribute("name");
             String type = argElement.getAttribute("type");
             String role = argElement.getAttribute("role");
-            String target = argElement.getAttribute("target");
+
+            ObjectName target = null;
+            String targetString = argElement.getAttribute("target");
+            if(targetString != null && targetString.length() > 0) {
+                try {
+                    target = new ObjectName(targetString);
+                } catch (MalformedObjectNameException e) {
+                    throw new DeploymentException("Invalid ObjectName" + s, e);
+                }
+            }
             String targetRole = argElement.getAttribute("targetRole");
             MBeanRelationship relationship = new MBeanRelationship(name, type, role, target, targetRole);
             relationships.add(relationship);
         }
 
-        nl = element.getElementsByTagName("invoke");
-        List operations = md.getOperations();
+        nl = element.getElementsByTagName("depends");
+        Set dependancies = md.getDependencies();
         for (int i = 0; i < nl.getLength(); i++) {
-            Element invokeElement = (Element) nl.item(i);
-            String operation = invokeElement.getAttribute("operation");
-            NodeList argList = invokeElement.getElementsByTagName("arg");
-            List types = new ArrayList(argList.getLength());
-            List args = new ArrayList(argList.getLength());
-            for (int j=0; j < argList.getLength(); j++) {
-                Element argElement = (Element) argList.item(j);
-                String type = argElement.getAttribute("type");
-                types.add(type);
-                args.add(getValue(argElement));
-            }
-            operations.add(new MBeanOperation(operation, types, args));
+            Element argElement = (Element) nl.item(i);
+            String name = argElement.getAttribute("name");
+            dependancies.add(new MBeanDependency(name));
         }
 
         return md;

@@ -55,33 +55,23 @@
  */
 package org.apache.geronimo.deployment.service;
 
-import java.util.List;
-
 /**
- * 
- * 
- * @version $Revision: 1.1 $ $Date: 2003/08/11 19:46:28 $
+ *
+ *
+ * @version $Revision: 1.1 $ $Date: 2003/08/16 23:16:34 $
  */
-public class MBeanOperation {
-    private final String operation;
-    private final List types;
-    private final List args;
+public class MBeanDependency {
+    private String name;
 
-    public MBeanOperation(String operation, List types, List args) {
-        this.operation = operation;
-        this.types = types;
-        this.args = args;
+    public MBeanDependency(String name) {
+        this.name = name;
     }
 
-    public String getOperation() {
-        return operation;
+    public String getName() {
+        return name;
     }
 
-    public List getTypes() {
-        return types;
-    }
-
-    public List getArgs() {
-        return args;
+    public String toString() {
+        return "MBeanDependency on " + name;
     }
 }

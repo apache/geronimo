@@ -61,20 +61,24 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.deployment.service.MBeanMetadata;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/14 00:02:38 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/16 23:16:24 $
  */
 public class StartMBeanInstance implements DeploymentTask {
+    private final Log log = LogFactory.getLog(getClass());
     private final MBeanServer server;
-    private final ObjectName name;
+    private final MBeanMetadata metadata;
 
-    public StartMBeanInstance(MBeanServer server, ObjectName name) {
+    public StartMBeanInstance(MBeanServer server, MBeanMetadata metadata) {
         this.server = server;
-        this.name = name;
+        this.metadata = metadata;
     }
 
     public boolean canRun() throws DeploymentException {
@@ -82,27 +86,76 @@ public class StartMBeanInstance implements DeploymentTask {
     }
 
     public void perform() throws DeploymentException {
+        ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
+        ClassLoader newCL;
         try {
-            server.invoke(name, "start", null, null);
-        } catch (RuntimeException e) {
-            throw new DeploymentException(e);
-        } catch (InstanceNotFoundException e) {
-            throw new DeploymentException(e);
-        } catch (MBeanException e) {
-            throw new DeploymentException(e);
-        } catch (ReflectionException e) {
-            if (e.getTargetException() instanceof NoSuchMethodException) {
-                // did not have a start method - ok
-            } else {
+            // Get the class loader
+            try {
+                newCL = server.getClassLoader(metadata.getLoaderName());
+                Thread.currentThread().setContextClassLoader(newCL);
+            } catch (InstanceNotFoundException e) {
                 throw new DeploymentException(e);
             }
+
+            try {
+                server.invoke(metadata.getName(), "start", null, null);
+            } catch (RuntimeException e) {
+                throw new DeploymentException(e);
+            } catch (InstanceNotFoundException e) {
+                throw new DeploymentException(e);
+            } catch (MBeanException e) {
+                throw new DeploymentException(e);
+            } catch (ReflectionException e) {
+                if (e.getTargetException() instanceof NoSuchMethodException) {
+                    // did not have a start method - ok
+                } else {
+                    throw new DeploymentException(e);
+                }
+            }
+        } catch (DeploymentException e) {
+            undo();
+            throw e;
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldCL);
         }
     }
 
     public void undo() {
+        ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
+        ClassLoader newCL;
+        try {
+            // Get the class loader
+            try {
+                newCL = server.getClassLoader(metadata.getLoaderName());
+                Thread.currentThread().setContextClassLoader(newCL);
+            } catch (InstanceNotFoundException e) {
+                log.warn("Class loader not found", e);
+                return;
+            }
+
+            // Add a deployment plan to initialize the MBeans
+            ObjectName objectName = metadata.getName();
+            try {
+                server.invoke(objectName, "stop", null, null);
+            } catch (RuntimeException e) {
+                log.error("Error while stopping MBean: name=" + objectName, e);
+            } catch (InstanceNotFoundException e) {
+                // ok -- instance has already been removed
+            } catch (MBeanException e) {
+                log.error("Error while stopping MBean: name=" + objectName, e);
+            } catch (ReflectionException e) {
+                if (e.getTargetException() instanceof NoSuchMethodException) {
+                    // did not have a start method - ok
+                } else {
+                    log.error("Error while stopping MBean: name=" + objectName, e);
+                }
+            }
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldCL);
+        }
     }
 
     public String toString() {
-        return "StartMBeanInstance " + name;
+        return "StartMBeanInstance " + metadata.getName();
     }
 }

@@ -70,7 +70,7 @@ import org.apache.geronimo.ejb.container.EJBPlugins;
 
 /**
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/15 14:12:19 $
+ * @version $Revision: 1.5 $ $Date: 2003/08/16 23:16:43 $
  */
 public final class EnterpriseContextInstanceCache extends AbstractComponent implements InstanceCache {
     private LRUInstanceCache cache;
@@ -79,21 +79,21 @@ public final class EnterpriseContextInstanceCache extends AbstractComponent impl
     private Passivator passivator = new Passivator();
     private Log log = LogFactory.getLog(getClass());
 
-    public void start() throws Exception {
-        super.start();
+    protected void doStart() throws Exception {
+        super.doStart();
         cache = new LRUInstanceCache();
         passivator = new Passivator();
         passivator.start();
     }
 
-    public void stop() {
+    protected void doStop() throws Exception {
         passivator.stopRunning();
         passivator = null;
 
         // clean up cache
         cache = null;
 
-        super.stop();
+        super.doStop();
     }
 
     public Object get(Object id) throws Exception {

@@ -53,73 +53,26 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.jmx;
-
-import org.apache.geronimo.common.StateManageable;
+package org.apache.geronimo.common;
 
 /**
  * 
  * 
- * @version $Revision: 1.2 $ $Date: 2003/08/16 23:16:55 $
+ * @version $Revision: 1.1 $ $Date: 2003/08/16 23:16:18 $
  */
-public interface RelationshipMBean extends StateManageable {
-    String getName();
+public class StartException extends Exception {
+    public StartException() {
+    }
 
-    void setName(String name);
+    public StartException(String message) {
+        super(message);
+    }
 
-    String getLeftRoleName();
+    public StartException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-    void setLeftRoleName(String leftRoleName);
-
-    String getLeftRoleClass();
-
-    void setLeftRoleClass(String leftRoleClass);
-
-    boolean isLeftRoleReadable();
-
-    void setLeftRoleReadable(boolean leftRoleReadable);
-
-    boolean isLeftRoleWritable();
-
-    void setLeftRoleWritable(boolean leftRoleWritable);
-
-    int getLeftRoleMinimum();
-
-    void setLeftRoleMinimum(int leftRoleMinimum);
-
-    int getLeftRoleMaximum();
-
-    void setLeftRoleMaximum(int leftRoleMaximum);
-
-    String getLeftRoleDescription();
-
-    void setLeftRoleDescription(String leftRoleDescription);
-
-    String getRightRoleName();
-
-    void setRightRoleName(String rightRoleName);
-
-    String getRightRoleClass();
-
-    void setRightRoleClass(String rightRoleClass);
-
-    boolean isRightRoleReadable();
-
-    void setRightRoleReadable(boolean rightRoleReadable);
-
-    boolean isRightRoleWritable();
-
-    void setRightRoleWritable(boolean rightRoleWritable);
-
-    int getRightRoleMinimum();
-
-    void setRightRoleMinimum(int rightRoleMinimum);
-
-    int getRightRoleMaximum();
-
-    void setRightRoleMaximum(int rightRoleMaximum);
-
-    String getRightRoleDescription();
-
-    void setRightRoleDescription(String rightRoleDescription);
+    public StartException(Throwable cause) {
+        super(cause);
+    }
 }

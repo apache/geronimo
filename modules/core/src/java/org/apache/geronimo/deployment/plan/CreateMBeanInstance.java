@@ -58,58 +58,79 @@ package org.apache.geronimo.deployment.plan;
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorManager;
 import java.lang.reflect.Constructor;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import javax.management.Attribute;
-import javax.management.AttributeList;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
-import javax.management.IntrospectionException;
-import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanException;
-import javax.management.MBeanInfo;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
+import javax.management.relation.RelationServiceMBean;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.core.util.ClassUtil;
 import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.deployment.dependency.DependencyServiceMBean;
+import org.apache.geronimo.deployment.service.MBeanDependency;
 import org.apache.geronimo.deployment.service.MBeanMetadata;
+import org.apache.geronimo.deployment.service.MBeanRelationship;
+import org.apache.geronimo.jmx.JMXUtil;
 
 /**
  * Creates an new MBean instance and intializes it according to the specified MBeanMetadata metadata
  *
- * @version $Revision: 1.5 $ $Date: 2003/08/14 00:02:38 $
+ * @version $Revision: 1.6 $ $Date: 2003/08/16 23:16:24 $
  */
 public class CreateMBeanInstance implements DeploymentTask {
     private final Log log = LogFactory.getLog(this.getClass());
-    private final Set plans;
     private final MBeanServer server;
-    private final ObjectName parent;
-    private final ObjectName loaderName;
     private final MBeanMetadata metadata;
+    private final DependencyServiceMBean dependencyService;
+    private final RelationServiceMBean relationService;
     private ObjectName actualName;
 
-    public CreateMBeanInstance(Set plans, MBeanServer server, ObjectName parent, MBeanMetadata metadata, ObjectName loaderName) {
-        this.plans = plans;
+    public CreateMBeanInstance(MBeanServer server, MBeanMetadata metadata) {
         this.server = server;
-        this.parent = parent;
         this.metadata = metadata;
-        this.loaderName = loaderName;
+        dependencyService = JMXUtil.getDependencyService(server);
+        relationService = JMXUtil.getRelationService(server);
     }
 
     public boolean canRun() throws DeploymentException {
-        return true;
+        boolean canRun = true;
+
+        ObjectName loaderName = metadata.getLoaderName();
+        if (loaderName != null && !server.isRegistered(loaderName)) {
+            log.trace("Cannot run because class loader is not registered: loaderName=" + loaderName);
+            canRun = false;
+        }
+
+        Set relationships = metadata.getRelationships();
+        for (Iterator i = relationships.iterator(); i.hasNext();) {
+            MBeanRelationship relationship = (MBeanRelationship) i.next();
+
+            // if there is no existing relationship...
+            String relationshipName = relationship.getName();
+            if (!relationService.hasRelation(relationshipName).booleanValue()) {
+                // check if the relationship type has been registered
+                String relationshipType = relationship.getType();
+                if (!relationService.getAllRelationTypeNames().contains(relationshipType)) {
+                    log.trace("Cannot run because relationship type is not registered: relationType=" + relationshipType);
+                    canRun = false;
+                }
+            }
+        }
+        return canRun;
     }
 
     public void perform() throws DeploymentException {
-        boolean trace = log.isTraceEnabled();
         ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
         ClassLoader newCL;
 
@@ -117,7 +138,7 @@ public class CreateMBeanInstance implements DeploymentTask {
         try {
             // Get the class loader
             try {
-                newCL = server.getClassLoader(loaderName);
+                newCL = server.getClassLoader(metadata.getLoaderName());
                 Thread.currentThread().setContextClassLoader(newCL);
             } catch (InstanceNotFoundException e) {
                 throw new DeploymentException(e);
@@ -125,6 +146,7 @@ public class CreateMBeanInstance implements DeploymentTask {
 
             // Create and register the MBean
             try {
+                // Get the constructor arguments
                 Object[] consValues = metadata.getConstructorArgs().toArray();
                 List constructorTypes = metadata.getConstructorTypes();
                 String[] consTypes = (String[]) constructorTypes.toArray(new String[constructorTypes.size()]);
@@ -136,14 +158,33 @@ public class CreateMBeanInstance implements DeploymentTask {
                         consValues[i] = value;
                     }
                 }
-                if (trace) {
+
+                // Create the mbean
+                if (log.isTraceEnabled()) {
                     log.trace("Creating MBean name=" + metadata.getName() + " class=" + metadata.getCode());
                 }
-                actualName = server.createMBean(metadata.getCode(), metadata.getName(), loaderName, consValues, consTypes).getObjectName();
-                if (trace && !actualName.equals(metadata.getName())) {
+                actualName = server.createMBean(metadata.getCode(), metadata.getName(), metadata.getLoaderName(), consValues, consTypes).getObjectName();
+                if (log.isTraceEnabled() && !actualName.equals(metadata.getName())) {
                     log.trace("Actual MBean name is " + actualName);
                 }
-                server.invoke(parent, "addChild", new Object[]{actualName}, new String[]{"javax.management.ObjectName"});
+                metadata.setName(actualName);
+
+                // Add the mbean to it's parent
+                ObjectName parentName = metadata.getParentName();
+                if (parentName != null) {
+                    server.invoke(metadata.getParentName(), "addChild", new Object[]{actualName}, new String[]{"javax.management.ObjectName"});
+                }
+
+                // Register the dependencies with the dependecy service
+                Set dependencies = new HashSet();
+                for (Iterator i = metadata.getDependencies().iterator(); i.hasNext();) {
+                    MBeanDependency dependency = (MBeanDependency) i.next();
+                    dependencies.add(new ObjectName(dependency.getName()));
+                }
+                dependencyService.addStartDependencies(actualName, dependencies);
+                dependencyService.addRelationships(actualName, metadata.getRelationships());
+            } catch (MalformedObjectNameException e) {
+                throw new DeploymentException(e);
             } catch (RuntimeException e) {
                 throw new DeploymentException(e);
             } catch (InstanceNotFoundException e) {
@@ -157,55 +198,6 @@ public class CreateMBeanInstance implements DeploymentTask {
             } catch (NotCompliantMBeanException e) {
                 throw new DeploymentException(e);
             }
-
-            // Set the MBean attributes
-            MBeanInfo mbInfo;
-            try {
-                mbInfo = server.getMBeanInfo(actualName);
-            } catch (InstanceNotFoundException e) {
-                throw new DeploymentException(e);
-            } catch (IntrospectionException e) {
-                throw new DeploymentException(e);
-            } catch (ReflectionException e) {
-                throw new DeploymentException(e);
-            }
-            MBeanAttributeInfo[] attrInfo = mbInfo.getAttributes();
-            Map attributeValues = metadata.getAttributeValues();
-            AttributeList attrs = new AttributeList(attributeValues.size());
-            for (int i = 0; i < attrInfo.length; i++) {
-                MBeanAttributeInfo mBeanAttributeInfo = attrInfo[i];
-                String attrName = mBeanAttributeInfo.getName();
-                if (!attributeValues.containsKey(attrName)) {
-                    continue;
-                }
-                Object value = attributeValues.get(attrName);
-                if (value instanceof String) {
-                    value = getValue(newCL, mBeanAttributeInfo.getType(), (String) value);
-                }
-
-                attrs.add(new Attribute(attrName, value));
-            }
-
-            if (trace) {
-                for (Iterator i = attrs.iterator(); i.hasNext();) {
-                    Attribute attr = (Attribute) i.next();
-                    log.trace("Attribute " + attr.getName() + " will be set to " + attr.getValue());
-                }
-            }
-            try {
-                AttributeList attrsSet = server.setAttributes(actualName, attrs);
-                if (attrsSet.size() != attrs.size()) {
-                    throw new DeploymentException("Unable to set all supplied attributes");
-                }
-            } catch (InstanceNotFoundException e) {
-                throw new DeploymentException(e);
-            } catch (ReflectionException e) {
-                throw new DeploymentException(e);
-            }
-
-            // Add a deployment plan to initialize the MBeans
-            DeploymentTask initTask = new InitializeMBeanInstance(plans, server, actualName, parent, metadata, loaderName);
-            plans.add(new DeploymentPlan(initTask));
         } catch (DeploymentException e) {
             undo();
             throw e;
@@ -219,23 +211,38 @@ public class CreateMBeanInstance implements DeploymentTask {
             return;
         }
 
+        ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
+        ClassLoader newCL;
         try {
-            server.invoke(parent, "removeChild", new Object[]{actualName}, new String[]{"javax.management.ObjectName"});
-        } catch (InstanceNotFoundException e) {
-            log.warn("Could not remove from parent", e);
-        } catch (MBeanException e) {
-            log.error("Error while removing MBean " + actualName + " from parent", e);
-        } catch (ReflectionException e) {
-            log.error("Error while removing MBean " + actualName + " from parent", e);
-        }
+            // Get the class loader
+            try {
+                newCL = server.getClassLoader(metadata.getLoaderName());
+                Thread.currentThread().setContextClassLoader(newCL);
+            } catch (InstanceNotFoundException e) {
+                log.warn("Class loader not found", e);
+                return;
+            }
 
-        try {
-            server.unregisterMBean(actualName);
-        } catch (InstanceNotFoundException e) {
-            log.warn("MBean was already removed " + actualName, e);
-            return;
-        } catch (MBeanRegistrationException e) {
-            log.error("Error while unregistering MBean " + actualName, e);
+            try {
+                server.invoke(metadata.getParentName(), "removeChild", new Object[]{actualName}, new String[]{"javax.management.ObjectName"});
+            } catch (InstanceNotFoundException e) {
+                log.warn("Could not remove from parent", e);
+            } catch (MBeanException e) {
+                log.error("Error while removing MBean " + actualName + " from parent", e);
+            } catch (ReflectionException e) {
+                log.error("Error while removing MBean " + actualName + " from parent", e);
+            }
+
+            try {
+                server.unregisterMBean(actualName);
+            } catch (InstanceNotFoundException e) {
+                log.warn("MBean was already removed " + actualName, e);
+                return;
+            } catch (MBeanRegistrationException e) {
+                log.error("Error while unregistering MBean " + actualName, e);
+            }
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldCL);
         }
     }
 

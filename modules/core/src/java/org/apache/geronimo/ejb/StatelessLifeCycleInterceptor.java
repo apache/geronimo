@@ -71,7 +71,7 @@ import org.apache.geronimo.ejb.metadata.EJBMetadata;
  *
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/15 14:12:19 $
+ * @version $Revision: 1.5 $ $Date: 2003/08/16 23:16:38 $
  */
 public class StatelessLifeCycleInterceptor extends AbstractInterceptor {
     private static final Method removeRemote;
@@ -89,8 +89,8 @@ public class StatelessLifeCycleInterceptor extends AbstractInterceptor {
     private Method createRemote;
     private Method createLocal;
 
-    public void start() throws Exception {
-        super.start();
+    protected void doStart() throws Exception {
+        super.doStart();
         EJBMetadata ejbMetadata = EJBPlugins.getEJBMetadata((RPCContainer)getContainer());
         Class homeInterface = ejbMetadata.getHomeInterface();
         if (homeInterface != null) {
@@ -103,10 +103,10 @@ public class StatelessLifeCycleInterceptor extends AbstractInterceptor {
         }
     }
 
-    public void stop() {
+    protected void doStop() throws Exception {
         createRemote = null;
         createLocal = null;
-        super.stop();
+        super.doStop();
     }
 
     public InvocationResult invoke(Invocation invocation) throws Exception {

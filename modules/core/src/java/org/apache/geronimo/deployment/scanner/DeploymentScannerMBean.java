@@ -59,13 +59,15 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Set;
 
+import org.apache.geronimo.common.StateManageable;
+
 /**
  *
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/13 01:56:06 $
+ * @version $Revision: 1.5 $ $Date: 2003/08/16 23:16:30 $
  */
-public interface DeploymentScannerMBean {
+public interface DeploymentScannerMBean extends StateManageable {
     static final String SCAN_COMPLETE = "org.apache.geronimo.deployment.SCAN_COMPLETE";
 
     long getScanInterval();
@@ -81,10 +83,6 @@ public interface DeploymentScannerMBean {
     void removeURL(String url) throws MalformedURLException;
 
     void scanNow();
-
-    void start();
-
-    void stop();
 
     Set getWatchedURLs();
 }
