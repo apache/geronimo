@@ -20,13 +20,14 @@ package org.apache.geronimo.messaging.admin.deployment;
 import java.io.IOException;
 
 import javax.enterprise.deploy.shared.ModuleType;
+import javax.enterprise.deploy.spi.status.DeploymentStatus;
 
 import org.apache.geronimo.deployment.plugin.TargetImpl;
 import org.apache.geronimo.messaging.io.AbstractReplacerResolver;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/27 14:45:59 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/01 12:44:22 $
  */
 public class DeploymentReplacerResolver
     extends AbstractReplacerResolver
@@ -37,6 +38,10 @@ public class DeploymentReplacerResolver
             return new TargetImpl2((TargetImpl) obj);
         } else if ( obj instanceof ModuleType ) {
             return new ModuleTypeWrapper((ModuleType) obj);
+        } else if ( obj instanceof DeploymentStatus ) {
+            DeploymentStatus status = (DeploymentStatus) obj;
+            return new DeploymentStatusImpl(status.getCommand(),
+                status.getAction(), status.getState(), status.getMessage());
         }
         return null;
     }

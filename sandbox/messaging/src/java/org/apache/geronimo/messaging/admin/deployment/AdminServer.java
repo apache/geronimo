@@ -31,11 +31,7 @@ import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.shared.ModuleType;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
-import javax.enterprise.deploy.spi.exceptions.OperationUnsupportedException;
 import javax.enterprise.deploy.spi.exceptions.TargetException;
-import javax.enterprise.deploy.spi.status.ClientConfiguration;
-import javax.enterprise.deploy.spi.status.DeploymentStatus;
-import javax.enterprise.deploy.spi.status.ProgressListener;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 
 import org.apache.geronimo.deployment.ConfigurationBuilder;
@@ -61,7 +57,7 @@ import org.apache.xmlbeans.XmlObject;
  *
  * TODO This implementation assumes that the set of Targets is static.
  *
- * @version $Revision: 1.2 $ $Date: 2004/05/27 15:46:54 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/01 12:44:22 $
  */
 public class AdminServer
     extends AbstractEndPoint
@@ -381,58 +377,7 @@ public class AdminServer
         }
         
     }
-    
 
-    private static class MultiProgressObject implements ProgressObject {
-
-        private final Collection progressObjects = new ArrayList();        
-
-        private void consolidate() {
-            
-        }
-        
-        private void addProgressObject(ProgressObject aProgObject) {
-            synchronized(progressObjects) {
-                progressObjects.add(aProgObject);
-            }
-        }
-
-        public DeploymentStatus getDeploymentStatus() {
-            return null;
-        }
-
-        public TargetModuleID[] getResultTargetModuleIDs() {
-            return null;
-        }
-
-        public ClientConfiguration getClientConfiguration(TargetModuleID id) {
-            return null;
-        }
-
-        public boolean isCancelSupported() {
-            return false;
-        }
-
-        public void cancel() throws OperationUnsupportedException {
-            throw new OperationUnsupportedException("Not supported");
-        }
-
-        public boolean isStopSupported() {
-            return false;
-        }
-
-        public void stop() throws OperationUnsupportedException {
-            throw new OperationUnsupportedException("Not supported");
-        }
-
-        public void addProgressListener(ProgressListener pol) {
-        }
-
-        public void removeProgressListener(ProgressListener pol) {
-        }
-        
-    }
-    
     private static class ServerInfo {
         private DeploymentServer server;
         private Target target;
