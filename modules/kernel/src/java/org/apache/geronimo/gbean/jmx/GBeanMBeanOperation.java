@@ -33,7 +33,7 @@ import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.kernel.ClassLoading;
 
 /**
- * @version $Revision: 1.11 $ $Date: 2004/06/02 20:10:08 $
+ * @version $Revision: 1.12 $ $Date: 2004/06/03 07:24:19 $
  */
 public final class GBeanMBeanOperation {
     private final GBeanMBean gmbean;
@@ -137,16 +137,12 @@ public final class GBeanMBeanOperation {
             throw new IllegalStateException("Operations can not be called while offline");
         }
 
-        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
-            Thread.currentThread().setContextClassLoader(gmbean.getClassLoader());
             return methodInvoker.invoke(gmbean.getTarget(), arguments);
         } catch (Exception e) {
             throw new ReflectionException(e);
         } catch (Throwable throwable) {
             throw new ReflectionException(new InvocationTargetException(throwable));
-        } finally {
-            Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
     }
 }

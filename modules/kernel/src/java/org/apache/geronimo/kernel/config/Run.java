@@ -28,7 +28,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/05/27 01:06:00 $
+ * @version $Revision: 1.7 $ $Date: 2004/06/03 07:24:20 $
  */
 public class Run {
     static {
@@ -61,7 +61,7 @@ public class Run {
         try {
             kernel.boot();
 
-            GBeanMBean config = new GBeanMBean(Configuration.GBEAN_INFO);
+            GBeanMBean config = new GBeanMBean(Configuration.GBEAN_INFO, cl);
             ObjectInputStream ois = new ObjectInputStream(cl.getResourceAsStream("META-INF/config.ser"));
             try {
                 Configuration.loadGMBeanState(config, ois);

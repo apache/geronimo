@@ -86,7 +86,7 @@ import org.apache.geronimo.xbeans.j2ee.WebAppType;
 
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/06/01 16:06:50 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/03 07:24:19 $
  */
 public class JettyModuleBuilder implements ModuleBuilder {
 
@@ -224,7 +224,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
         UserTransaction userTransaction = new UserTransactionImpl();
         ReadOnlyContext compContext = buildComponentContext(earContext, webModule, webApp, jettyWebApp, userTransaction, cl);
 
-        GBeanMBean gbean = new GBeanMBean(JettyWebApplicationContext.GBEAN_INFO);
+        GBeanMBean gbean = new GBeanMBean(JettyWebApplicationContext.GBEAN_INFO, cl);
         try {
             URI warRoot = null;
             if (!webModule.getURI().equals(URI.create("/"))) {

@@ -55,7 +55,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 /**
  * Implementation of ConfigurationStore using the local filesystem.
  *
- * @version $Revision: 1.5 $ $Date: 2004/06/02 19:50:41 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/03 07:24:21 $
  */
 public class LocalConfigStore implements ConfigurationStore, GBean {
     private static final String INDEX_NAME = "index.properties";
@@ -204,10 +204,9 @@ public class LocalConfigStore implements ConfigurationStore, GBean {
         FileInputStream fis = new FileInputStream(new File(configRoot, "META-INF/config.ser"));
         try {
             ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(fis));
-            GBeanInfo gbeanInfo = Configuration.GBEAN_INFO;
             GBeanMBean config;
             try {
-                config = new GBeanMBean(gbeanInfo);
+                config = new GBeanMBean(Configuration.GBEAN_INFO);
             } catch (InvalidConfigurationException e) {
                 throw new InvalidConfigException("Unable to instantiate Configuration GBeanMBean", e);
             }

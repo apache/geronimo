@@ -31,7 +31,7 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/05/26 03:22:21 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/03 07:24:17 $
  */
 public class GBeanBuilder {
     private final ObjectName name;
@@ -53,7 +53,7 @@ public class GBeanBuilder {
     public void setAttribute(String name, String type, String text) throws DeploymentException {
         try {
             // @todo we should not need all of common just for this
-            PropertyEditor editor = PropertyEditors.findEditor(type);
+            PropertyEditor editor = PropertyEditors.findEditor(type, gbean.getClassLoader());
             if (editor == null) {
                 throw new DeploymentException("Unable to find PropertyEditor for " + type);
             }

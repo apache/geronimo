@@ -60,7 +60,7 @@ import org.apache.xmlbeans.XmlOptions;
 /**
  *
  *
- * @version $Revision: 1.9 $ $Date: 2004/06/02 05:33:02 $
+ * @version $Revision: 1.10 $ $Date: 2004/06/03 07:24:15 $
  *
  * */
 public class RAR_1_0ConfigBuilder extends AbstractRARConfigBuilder {
@@ -109,7 +109,7 @@ public class RAR_1_0ConfigBuilder extends AbstractRARConfigBuilder {
                     throw new DeploymentException("Could not construct ManagedConnectionFactory object name", e);
                 }
                 GBeanInfoFactory managedConnectionFactoryInfoFactory = new GBeanInfoFactory(ManagedConnectionFactoryWrapper.class, ManagedConnectionFactoryWrapper.getGBeanInfo());
-                GBeanMBean managedConnectionFactoryGBean = setUpDynamicGBean(managedConnectionFactoryInfoFactory, resourceAdapter.getConfigPropertyArray(), connectionfactoryInstance.getConfigPropertySettingArray());
+                GBeanMBean managedConnectionFactoryGBean = setUpDynamicGBean(managedConnectionFactoryInfoFactory, resourceAdapter.getConfigPropertyArray(), connectionfactoryInstance.getConfigPropertySettingArray(), cl);
                 try {
                     managedConnectionFactoryGBean.setAttribute("ManagedConnectionFactoryClass", cl.loadClass(resourceAdapter.getManagedconnectionfactoryClass().getStringValue()));
                     managedConnectionFactoryGBean.setAttribute("ConnectionFactoryInterface", cl.loadClass(resourceAdapter.getConnectionfactoryInterface().getStringValue()));
@@ -137,12 +137,12 @@ public class RAR_1_0ConfigBuilder extends AbstractRARConfigBuilder {
     }
 
 
-    private GBeanMBean setUpDynamicGBean(GBeanInfoFactory infoFactory, ConfigPropertyType[] configProperties, GerConfigPropertySettingType[] configPropertySettings) throws DeploymentException {
+    private GBeanMBean setUpDynamicGBean(GBeanInfoFactory infoFactory, ConfigPropertyType[] configProperties, GerConfigPropertySettingType[] configPropertySettings, ClassLoader cl) throws DeploymentException {
         addDynamicAttributes(infoFactory, configProperties);
         GBeanInfo gbeanInfo = infoFactory.getBeanInfo();
         GBeanMBean gbean;
         try {
-            gbean = new GBeanMBean(gbeanInfo);
+            gbean = new GBeanMBean(gbeanInfo, cl);
         } catch (InvalidConfigurationException e) {
             throw new DeploymentException("Unable to create GMBean", e);
         }
@@ -162,7 +162,7 @@ public class RAR_1_0ConfigBuilder extends AbstractRARConfigBuilder {
             ConfigPropertyType configProperty = configProperties[i];
             Object value;
             try {
-                PropertyEditor editor = PropertyEditors.findEditor(configProperty.getConfigPropertyType().getStringValue());
+                PropertyEditor editor = PropertyEditors.findEditor(configProperty.getConfigPropertyType().getStringValue(), gBean.getClassLoader());
                 String valueString = null;
                 if (editor != null) {
                     //look for explicit value setting

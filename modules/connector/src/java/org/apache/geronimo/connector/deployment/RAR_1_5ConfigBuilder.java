@@ -70,7 +70,7 @@ import org.apache.xmlbeans.XmlOptions;
 /**
  *
  *
- * @version $Revision: 1.14 $ $Date: 2004/06/02 05:33:02 $
+ * @version $Revision: 1.15 $ $Date: 2004/06/03 07:24:16 $
  *
  * */
 public class RAR_1_5ConfigBuilder extends AbstractRARConfigBuilder {
@@ -110,7 +110,7 @@ public class RAR_1_5ConfigBuilder extends AbstractRARConfigBuilder {
             String resourceAdapterClassName = resourceadapterClass.getStringValue();
             resourceAdapterObjectName = null;
             GBeanInfoFactory resourceAdapterInfoFactory = new GBeanInfoFactory(ResourceAdapterWrapper.class, ResourceAdapterWrapper.getGBeanInfo());
-            GBeanMBean resourceAdapterGBean = setUpDynamicGBean(resourceAdapterInfoFactory, resourceadapter.getConfigPropertyArray(), geronimoResourceAdapter.getResourceadapterInstance().getConfigPropertySettingArray());
+            GBeanMBean resourceAdapterGBean = setUpDynamicGBean(resourceAdapterInfoFactory, resourceadapter.getConfigPropertyArray(), geronimoResourceAdapter.getResourceadapterInstance().getConfigPropertySettingArray(), cl);
             try {
                 resourceAdapterGBean.setAttribute("ResourceAdapterClass", cl.loadClass(resourceAdapterClassName));
             } catch (Exception e) {
@@ -160,7 +160,7 @@ public class RAR_1_5ConfigBuilder extends AbstractRARConfigBuilder {
                     throw new DeploymentException("Could not construct ManagedConnectionFactory object name", e);
                 }
                 GBeanInfoFactory managedConnectionFactoryInfoFactory = new GBeanInfoFactory(ManagedConnectionFactoryWrapper.class, ManagedConnectionFactoryWrapper.getGBeanInfo());
-                GBeanMBean managedConnectionFactoryGBean = setUpDynamicGBean(managedConnectionFactoryInfoFactory, connectionDefinition.getConfigPropertyArray(), connectionfactoryInstance.getConfigPropertySettingArray());
+                GBeanMBean managedConnectionFactoryGBean = setUpDynamicGBean(managedConnectionFactoryInfoFactory, connectionDefinition.getConfigPropertyArray(), connectionfactoryInstance.getConfigPropertySettingArray(), cl);
                 try {
                     managedConnectionFactoryGBean.setAttribute("ManagedConnectionFactoryClass", cl.loadClass(connectionDefinition.getManagedconnectionfactoryClass().getStringValue()));
                     managedConnectionFactoryGBean.setAttribute("ConnectionFactoryInterface", cl.loadClass(connectionDefinition.getConnectionfactoryInterface().getStringValue()));
@@ -173,7 +173,7 @@ public class RAR_1_5ConfigBuilder extends AbstractRARConfigBuilder {
                     }
                     managedConnectionFactoryGBean.setReferencePatterns("ConnectionManagerFactory", Collections.singleton(connectionManagerObjectName));
                     if (connectionfactoryInstance.getCredentialInterface() != null && PasswordCredential.class.getName().equals(connectionfactoryInstance.getCredentialInterface().getStringValue())) {
-                        GBeanMBean realmGBean = new GBeanMBean(PasswordCredentialRealm.getGBeanInfo());
+                        GBeanMBean realmGBean = new GBeanMBean(PasswordCredentialRealm.getGBeanInfo(), cl);
                         realmGBean.setAttribute("RealmName", BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME + connectionfactoryInstance.getName());
                         context.addGBean(ObjectName.getInstance(BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME + connectionfactoryInstance.getName()), realmGBean);
                         managedConnectionFactoryGBean.setReferencePatterns("ManagedConnectionFactoryListener", Collections.singleton(ObjectName.getInstance(BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME + connectionfactoryInstance.getName())));
@@ -200,7 +200,7 @@ public class RAR_1_5ConfigBuilder extends AbstractRARConfigBuilder {
             for (int j = 0; j < gerAdminObject.getAdminobjectInstanceArray().length; j++) {
                 GerAdminobjectInstanceType gerAdminobjectInstance = gerAdminObject.getAdminobjectInstanceArray()[j];
                 GBeanInfoFactory adminObjectInfoFactory = new GBeanInfoFactory(AdminObjectWrapper.class, AdminObjectWrapper.getGBeanInfo());
-                GBeanMBean adminObjectGBean = setUpDynamicGBean(adminObjectInfoFactory, adminobject.getConfigPropertyArray(), gerAdminobjectInstance.getConfigPropertySettingArray());
+                GBeanMBean adminObjectGBean = setUpDynamicGBean(adminObjectInfoFactory, adminobject.getConfigPropertyArray(), gerAdminobjectInstance.getConfigPropertySettingArray(), cl);
                 try {
                     ObjectName adminObjectObjectName = ObjectName.getInstance(JMXReferenceFactory.BASE_ADMIN_OBJECT_NAME + gerAdminobjectInstance.getAdminobjectName());
                     adminObjectGBean.setAttribute("AdminObjectInterface", cl.loadClass(adminobject.getAdminobjectInterface().getStringValue()));
@@ -217,12 +217,12 @@ public class RAR_1_5ConfigBuilder extends AbstractRARConfigBuilder {
     }
 
 
-    private GBeanMBean setUpDynamicGBean(GBeanInfoFactory infoFactory, ConfigPropertyType[] configProperties, GerConfigPropertySettingType[] configPropertySettings) throws DeploymentException {
+    private GBeanMBean setUpDynamicGBean(GBeanInfoFactory infoFactory, ConfigPropertyType[] configProperties, GerConfigPropertySettingType[] configPropertySettings, ClassLoader cl) throws DeploymentException {
         addDynamicAttributes(infoFactory, configProperties);
         GBeanInfo gbeanInfo = infoFactory.getBeanInfo();
         GBeanMBean gbean;
         try {
-            gbean = new GBeanMBean(gbeanInfo);
+            gbean = new GBeanMBean(gbeanInfo, cl);
         } catch (InvalidConfigurationException e) {
             throw new DeploymentException("Unable to create GMBean", e);
         }
@@ -242,7 +242,7 @@ public class RAR_1_5ConfigBuilder extends AbstractRARConfigBuilder {
             ConfigPropertyType configProperty = configProperties[i];
             Object value;
             try {
-                PropertyEditor editor = PropertyEditors.findEditor(configProperty.getConfigPropertyType().getStringValue());
+                PropertyEditor editor = PropertyEditors.findEditor(configProperty.getConfigPropertyType().getStringValue(), gBean.getClassLoader());
                 String valueString = null;
                 if (editor != null) {
                     //look for explicit value setting

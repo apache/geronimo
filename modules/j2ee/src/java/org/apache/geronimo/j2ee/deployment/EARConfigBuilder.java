@@ -59,7 +59,7 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/06/02 05:33:02 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/03 07:24:18 $
  */
 public class EARConfigBuilder implements ConfigurationBuilder {
     private final Kernel kernel;
@@ -194,7 +194,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
             // Create the J2EEApplication managed object
             if (application != null) {
-                GBeanMBean gbean = new GBeanMBean(J2EEApplicationImpl.GBEAN_INFO);
+                GBeanMBean gbean = new GBeanMBean(J2EEApplicationImpl.GBEAN_INFO, cl);
                 try {
                     gbean.setAttribute("deploymentDescriptor", application.toString());
                 } catch (Exception e) {

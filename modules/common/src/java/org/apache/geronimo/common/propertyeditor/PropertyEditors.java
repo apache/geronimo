@@ -30,7 +30,7 @@ import org.apache.geronimo.kernel.ClassLoading;
  *
  * <p>Allows editors to be nested sub-classes named PropertyEditor.
  *
- * @version $Revision: 1.9 $ $Date: 2004/03/21 22:24:38 $
+ * @version $Revision: 1.10 $ $Date: 2004/06/03 07:24:15 $
  */
 public class PropertyEditors
 {
@@ -76,7 +76,7 @@ public class PropertyEditors
      * @param typeName    The class name of the object to be edited.
      * @return            An editor for the given type or null if none was found.
      */
-    public static PropertyEditor findEditor(final String typeName)
+    public static PropertyEditor findEditor(final String typeName, ClassLoader classLoader)
         throws ClassNotFoundException
     {
         if (typeName == null) {
@@ -85,11 +85,11 @@ public class PropertyEditors
 
         Class type = null;
         try {
-            type = ClassLoading.loadClass(typeName);
+            type = ClassLoading.loadClass(typeName, classLoader);
         }
         catch (ClassNotFoundException e) {
             // look for a nested class
-            type = ClassLoading.loadClass(typeName + "$PropertyEditor");
+            type = ClassLoading.loadClass(typeName + "$PropertyEditor", classLoader);
         }
 
         return findEditor(type);
@@ -108,25 +108,6 @@ public class PropertyEditors
         PropertyEditor editor = findEditor(type);
         if (editor == null) {
             throw new PropertyEditorException("No property editor for type: " + type);
-        }
-
-        return editor;
-    }
-
-    /**
-     * Get a value editor for a given target type.
-     *
-     * @param typeName    The class name of the object to be edited.
-     * @return            An editor for the given type.
-     *
-     * @throws PropertyEditorException   No editor was found.
-     */
-    public static PropertyEditor getEditor(final String typeName)
-        throws ClassNotFoundException
-    {
-        PropertyEditor editor = findEditor(typeName);
-        if (editor == null) {
-            throw new PropertyEditorException("No property editor for type: " + typeName);
         }
 
         return editor;
