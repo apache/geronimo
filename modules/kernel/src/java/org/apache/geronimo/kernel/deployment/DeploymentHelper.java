@@ -59,12 +59,8 @@ package org.apache.geronimo.kernel.deployment;
 import java.net.URL;
 import java.net.MalformedURLException;
 import java.util.List;
-import java.util.Enumeration;
-import java.util.jar.JarFile;
-import java.util.jar.JarEntry;
 import java.io.IOException;
-import java.io.File;
-import java.io.FileFilter;
+import java.io.InputStream;
 
 import javax.management.ObjectName;
 
@@ -76,14 +72,14 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/15 07:37:37 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/16 02:09:36 $
  *
  * */
 public class DeploymentHelper {
     protected final URL url;
     protected final URLType urlType;
-    protected final URL j2eeURL;
-    protected final URL geronimoURL;
+    protected URL j2eeURL;
+    protected URL geronimoURL;
     private final String objectNameTypeName;
 
     /**
@@ -116,6 +112,22 @@ public class DeploymentHelper {
         } catch (MalformedURLException e1) {
             throw new DeploymentException("Should never occur", e1);
         }
+        InputStream is = null;
+        try {
+            is = j2eeURL.openStream();
+        } catch (IOException e) {
+            //not there, not for us.
+            j2eeURL = null;
+            geronimoURL = null;
+        } finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) { //ignore
+                }
+            }
+        }
+
     }
     /**
      * Locates the URL referencing the ra.xml deployment descriptor.

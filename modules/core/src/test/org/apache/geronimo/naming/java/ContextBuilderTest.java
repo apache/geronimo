@@ -77,13 +77,14 @@ import org.apache.geronimo.naming.jmx.TestObject;
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2003/11/13 04:30:56 $
+ * @version $Revision: 1.8 $ $Date: 2003/11/16 02:09:36 $
  */
 public class ContextBuilderTest extends TestCase {
     private static final String objectName1 = "geronimo.test:name=test1";
     private static final String objectName2 = "geronimo.test:name=test2";
 
     private ApplicationClient client;
+
     private Context compCtx;
     private JMXKernel kernel;
     private ReferenceFactory referenceFactory;
