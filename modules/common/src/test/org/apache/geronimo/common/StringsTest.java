@@ -64,7 +64,7 @@ import java.util.Map;
 /**
  * Unit test for {@link Strings} class.
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/16 15:08:53 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/16 19:22:39 $
  */
 public class StringsTest extends TestCase {
     
