@@ -47,7 +47,7 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
     private String message;
     private final Set listeners = new HashSet();
     private final List moduleIDs = new ArrayList();
-    private CommandContext commandContext;
+    private CommandContext commandContext = new CommandContext();
 
     private ProgressEvent event = null;
 
