@@ -73,7 +73,7 @@ import org.w3c.dom.Element;
  * Knows how to load a set of POJOs from a DOM representing a ra.xml
  * deployment descriptor.
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/11 08:28:15 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/14 08:29:38 $
  */
 public class GeronimoConnectorLoader {
 
@@ -166,9 +166,11 @@ public class GeronimoConnectorLoader {
                         ConfigProperty[] configProperty = conDefinition[i].getConfigProperty();
                         loadConfigSettings(root, configProperty);
                         conDefinition[i].setName(LoaderUtil.getChildContent(root, "name"));
+                        conDefinition[i].setGlobalJndiName(LoaderUtil.getChildContent(root, "global-jndi-name"));
                         GeronimoConnectionManagerFactory connectionManagerFactory = new GeronimoConnectionManagerFactory();
                         Element ecmf = LoaderUtil.getChild(root, "connectionmanager-factory");
                         connectionManagerFactory.setConnectionManagerFactoryDescriptor(LoaderUtil.getChildContent(ecmf, "connectionmanagerfactory-descriptor"));
+                        connectionManagerFactory.setRealmBridge(LoaderUtil.getChildContent(ecmf, "realm-bridge"));
                         connectionManagerFactory.setConfigProperty(loadConfigPropertySettings(ecmf));
                         conDefinition[i].setGeronimoConnectionManagerFactory(connectionManagerFactory);
                         break loaded;

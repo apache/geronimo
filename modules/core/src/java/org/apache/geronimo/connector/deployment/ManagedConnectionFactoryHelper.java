@@ -59,6 +59,7 @@ package org.apache.geronimo.connector.deployment;
 import javax.management.ObjectName;
 import javax.resource.ResourceException;
 import javax.resource.spi.ManagedConnectionFactory;
+import javax.naming.NamingException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -67,11 +68,13 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
 import org.apache.geronimo.kernel.service.GeronimoMBeanEndpoint;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
+import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
+import org.apache.geronimo.naming.ger.GerContextManager;
 
 /**
  * ManagedConnectionFactoryHelper
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/13 22:22:30 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/14 08:29:38 $
  */
 public class ManagedConnectionFactoryHelper implements GeronimoMBeanTarget {
 
@@ -87,6 +90,8 @@ public class ManagedConnectionFactoryHelper implements GeronimoMBeanTarget {
     private String ConnectionManagerFactoryClass;
 
     private String managedConnectionFactoryClass;
+
+    private String globalJNDIName;
 
     private ResourceAdapterHelper resourceAdapterHelper;
     private ConnectionManagerFactory connectionManagerFactory;
@@ -159,62 +164,60 @@ public class ManagedConnectionFactoryHelper implements GeronimoMBeanTarget {
         } catch (ResourceException re) {
             throw new RuntimeException(re);
         }
+        if (globalJNDIName != null) {
+            try {
+                GerContextManager.bind(globalJNDIName, connectionFactory);
+            } catch (NamingException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     /* (non-Javadoc)
      * @see org.apache.geronimo.kernel.service.GeronimoMBeanTarget#doStop()
      */
     public void doStop() {
-        // TODO Auto-generated method stub
+        if (globalJNDIName != null) {
+            try {
+                GerContextManager.unbind(globalJNDIName);
+            } catch (NamingException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
     }
 
-    /**
-     * @jmx.managed-attribute
-     */
     public String getConnectionFactoryImplClass() {
         return connectionFactoryImplClass;
     }
 
-    /**
-     * @jmx.managed-attribute
-     */
     public String getConnectionFactoryInterface() {
         return connectionFactoryInterface;
     }
 
-    /**
-     * @jmx.managed-attribute
-     */
     public String getConnectionImplClass() {
         return connectionImplClass;
     }
 
-    /**
-     * @jmx.managed-attribute
-     */
     public String getConnectionInterface() {
         return connectionInterface;
     }
 
     /**
      * @return Returns the connectionManagerFactoryClass.
-     * @jmx.managed-attribute
      */
     public String getConnectionManagerFactoryClass() {
         return ConnectionManagerFactoryClass;
     }
 
     /**
-     * @jmx.managed-attribute
      */
     public String getManagedConnectionFactoryClass() {
         return managedConnectionFactoryClass;
     }
 
     /**
-     * @param string
-     * @jmx.managed-attribute
+     * @param clazz
      */
     public void setConnectionFactoryImplClass(String clazz) {
         connectionFactoryImplClass = clazz;
@@ -222,8 +225,7 @@ public class ManagedConnectionFactoryHelper implements GeronimoMBeanTarget {
     }
 
     /**
-     * @param string
-     * @jmx.managed-attribute
+     * @param clazz
      */
     public void setConnectionFactoryInterface(String clazz) {
         connectionFactoryInterface = clazz;
@@ -231,8 +233,7 @@ public class ManagedConnectionFactoryHelper implements GeronimoMBeanTarget {
     }
 
     /**
-     * @param string
-     * @jmx.managed-attribute
+     * @param clazz
      */
     public void setConnectionImplClass(String clazz) {
         connectionImplClass = clazz;
@@ -240,8 +241,7 @@ public class ManagedConnectionFactoryHelper implements GeronimoMBeanTarget {
     }
 
     /**
-     * @param string
-     * @jmx.managed-attribute
+     * @param clazz
      */
     public void setConnectionInterface(String clazz) {
         connectionInterface = clazz;
@@ -250,25 +250,30 @@ public class ManagedConnectionFactoryHelper implements GeronimoMBeanTarget {
 
     /**
      * @param connectionManagerFactoryClass The connectionManagerFactoryClass to set.
-     * @jmx.managed-attribute
      */
     public void setConnectionManagerFactoryClass(String connectionManagerFactoryClass) {
         ConnectionManagerFactoryClass = connectionManagerFactoryClass;
     }
 
     /**
-     * @param string
-     * @jmx.managed-attribute
+     * @param clazz
      */
     public void setManagedConnectionFactoryClass(String clazz) {
         managedConnectionFactoryClass = clazz;
 
     }
 
+    public String getGlobalJNDIName() {
+        return globalJNDIName;
+    }
+
+    public void setGlobalJNDIName(String globalJNDIName) {
+        this.globalJNDIName = globalJNDIName;
+    }
+
 
     /**
      * @return Returns the connectionFactory.
-     * @jmx.managed-attribute
      */
     public Object getConnectionFactory() {
         return connectionFactory;
@@ -283,7 +288,7 @@ public class ManagedConnectionFactoryHelper implements GeronimoMBeanTarget {
     }
 
     /**
-     * @param resourceAdapter The resourceAdapter to set.
+     * @param resourceAdapterHelper The resourceAdapterHelper to set.
      */
     public void setResourceAdapterHelper(ResourceAdapterHelper resourceAdapterHelper) {
         this.resourceAdapterHelper = resourceAdapterHelper;
@@ -310,24 +315,15 @@ public class ManagedConnectionFactoryHelper implements GeronimoMBeanTarget {
 
         mbeanInfo.setTargetClass(TARGET_NAME, ManagedConnectionFactoryHelper.class.getName());
 
-        GeronimoAttributeInfo attributeInfo;
         //These should all be read only, but this would need values set from attribute info on startup
-        attributeInfo = new GeronimoAttributeInfo("ConnectionFactoryInterface", true, true, "Interface implemented by the ConnectionFactory", TARGET_NAME);
-        mbeanInfo.addAttributeInfo(attributeInfo);
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ConnectionFactoryInterface", true, true, "Interface implemented by the ConnectionFactory", TARGET_NAME));
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ConnectionFactoryImplClass", true, true, "Class of the the ConnectionFactory", TARGET_NAME));
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ConnectionInterface", true, true, "Interface implemented by the Connection", TARGET_NAME));
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ConnectionImplClass", true, true, "Class of the Connection", TARGET_NAME));
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ManagedConnectionFactoryClass", true, true, "Class of the ManagedConnectionFactory", TARGET_NAME));
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("GlobalJNDIName", true, true, "Optional name to bind ConnectionFactory under in ger: context"));
 
-        attributeInfo = new GeronimoAttributeInfo("ConnectionFactoryImplClass", true, true, "Class of the the ConnectionFactory", TARGET_NAME);
-        mbeanInfo.addAttributeInfo(attributeInfo);
-
-        attributeInfo = new GeronimoAttributeInfo("ConnectionInterface", true, true, "Interface implemented by the Connection", TARGET_NAME);
-        mbeanInfo.addAttributeInfo(attributeInfo);
-
-        attributeInfo = new GeronimoAttributeInfo("ConnectionImplClass", true, true, "Class of the Connection", TARGET_NAME);
-        mbeanInfo.addAttributeInfo(attributeInfo);
-
-        attributeInfo = new GeronimoAttributeInfo("ManagedConnectionFactoryClass", true, true, "Class of the ManagedConnectionFactory", TARGET_NAME);
-        mbeanInfo.addAttributeInfo(attributeInfo);
-
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ConnectionFactory", true, false, "The ConnectionFactory we deployed", TARGET_NAME));
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("getConnectionFactory", null, GeronimoOperationInfo.INFO, "Retrieve the ConnectionFactory we deployed", TARGET_NAME));
 
         if (resourceAdapterName != null) {
             mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("ResourceAdapterHelper", ResourceAdapterHelper.class.getName(), resourceAdapterName, true, TARGET_NAME));

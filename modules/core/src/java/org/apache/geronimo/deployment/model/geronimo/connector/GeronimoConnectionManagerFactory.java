@@ -62,11 +62,13 @@ import org.apache.geronimo.deployment.model.connector.Configurable;
 /**
  * GeronimoConnectionManagerFactory
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/13 22:22:30 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/14 08:29:38 $
  */
 public class GeronimoConnectionManagerFactory implements Configurable {
 
     private String connectionManagerFactoryDescriptor;
+
+    private String realmBridge;
 
     private ConfigProperty[] configProperty = new ConfigProperty[0];
 
@@ -110,6 +112,14 @@ public class GeronimoConnectionManagerFactory implements Configurable {
      */
     public void setConnectionManagerFactoryDescriptor(String connectionManagerFactoryDescriptor) {
         this.connectionManagerFactoryDescriptor = connectionManagerFactoryDescriptor;
+    }
+
+    public String getRealmBridge() {
+        return realmBridge;
+    }
+
+    public void setRealmBridge(String realmBridge) {
+        this.realmBridge = realmBridge;
     }
 
 }

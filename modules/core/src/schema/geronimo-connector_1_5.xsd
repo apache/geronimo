@@ -25,7 +25,7 @@
 
 	This is the XML Schema for the geronimo Connector 1.5 deployment
 	descriptor.  The deployment descriptor must be named
-	"META-INF/geronimo-ra.xml" in the connector's rar file.  
+	"META-INF/geronimo-ra.xml" in the connector's rar file.
 	      ...
 	    </connector>
 
@@ -232,7 +232,7 @@ unique name for admin object instance.  Used in object name of mbean for it.
     <xsd:annotation>
       <xsd:documentation>
 
-	The config-property-settingType contains a name-value pair for a 
+	The config-property-settingType contains a name-value pair for a
 	config-property or required-config-property
 
       </xsd:documentation>
@@ -254,7 +254,7 @@ unique name for admin object instance.  Used in object name of mbean for it.
 	type. This also includes configurable properties for
 	ManagedConnectionFactory instances that may be produced out
 	of this set.
-	
+
 	The name element uniquely identifies this instance
 
       </xsd:documentation>
@@ -281,9 +281,10 @@ connectionfactory-interface is unique in ra.xml so is used to index into ra.xml
       <xsd:element name="connectionmanager-factory"
 		   type="connectionmanager-factoryType">
       </xsd:element>
-      <xsd:element name="security-domain"
-		   type="j2ee:string"
-		   minOccurs="0"/>
+        <!-- will be bound in ger: context if present -->
+      <xsd:element name="global-jndi-name"
+                   type="j2ee:xsdStringType"
+                   minOccurs="0"/>
 
     </xsd:sequence>
     <xsd:attribute name="id" type="xsd:ID"/>
@@ -310,6 +311,10 @@ location of the GeronimoMbeanInfo xml for the Class that implements getConnectio
 	  </xsd:documentation>
 	</xsd:annotation>
       </xsd:element>
+        <!--realm-bridge is an object name-->
+      <xsd:element name="realm-bridge"
+                   type="j2ee:xsdStringType"
+                   minOccurs="0"/>
       <xsd:element name="config-property-setting"
 		   type="config-property-settingType"
 		   minOccurs="0"

@@ -15,11 +15,12 @@ xmlns="http://java.sun.com/xml/ns/j2ee"
           <config-property-setting name="OutboundStringProperty1">newvalue1</config-property-setting>
           <config-property-setting name="OutboundStringProperty3">newvalue2</config-property-setting>
         <connectionmanager-factory>
-          <connectionmanagerfactory-descriptor>org/apache/geronimo/connector/outbound/ConnectionManagerDeployer.xml</connectionmanagerfactory-descriptor>
+          <connectionmanagerfactory-descriptor>org.apache.geronimo.connector.outbound.ConnectionManagerDeployer</connectionmanagerfactory-descriptor>
+          <realm-bridge>geronimo.security:role=RealmBridge,target=TargetRealm</realm-bridge>
           <config-property-setting name="CacheByTransaction">true</config-property-setting>
         </connectionmanager-factory>
-          
-        <security-domain>MySecurityDomain</security-domain>            
+
+        <global-jndi-name>connectionfactories/testcf</global-jndi-name>
       </connection-definition>
       <connection-definition>
         <connectionfactory-interface>javax.resource.cci.ConnectionFactory</connectionfactory-interface>
@@ -30,8 +31,8 @@ xmlns="http://java.sun.com/xml/ns/j2ee"
           <connectionmanagerfactory-class>org.apache.geronimo.connector.outbound.ConnectionManagerDeployer</connectionmanagerfactory-class>
           <config-property-setting name="CacheByTransaction">true</config-property-setting>
         </connectionmanager-factory>
-          
-        <security-domain>YourSecurityDomain</security-domain>            
+
+        <security-domain>YourSecurityDomain</security-domain>
       </connection-definition>
       <connection-definition>
         <connectionfactory-interface>org.apache.geronimo.test.ConnectionFactory</connectionfactory-interface>
@@ -41,8 +42,8 @@ xmlns="http://java.sun.com/xml/ns/j2ee"
           <connectionmanagerfactory-class>org.apache.geronimo.connector.outbound.ConnectionManagerDeployer</connectionmanagerfactory-class>
           <config-property-setting name="CacheByTransaction">true</config-property-setting>
         </connectionmanager-factory>
-          
-        <security-domain>TheirSecurityDomain</security-domain>            
+
+        <security-domain>TheirSecurityDomain</security-domain>
       </connection-definition>
       <transaction-support>XATransaction</transaction-support>
     </outbound-resourceadapter>

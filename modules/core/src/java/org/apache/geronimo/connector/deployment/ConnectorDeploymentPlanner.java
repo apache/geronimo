@@ -99,7 +99,7 @@ import org.xml.sax.SAXException;
  * DeploymentPlanner in charge of the plannification of Connector deployments.
  *
  *
- * @version $Revision: 1.10 $ $Date: 2004/01/02 04:31:44 $
+ * @version $Revision: 1.11 $ $Date: 2004/01/14 08:29:38 $
  */
 public class ConnectorDeploymentPlanner
         extends AbstractDeploymentPlanner {
@@ -224,6 +224,9 @@ public class ConnectorDeploymentPlanner
             attributes.put("ResourceAdapterName", resourceAdapterName);
         }
         attributes.put("ConnectionManagerFactoryName", cmfMD.getName());
+        if (gcd.getGlobalJndiName() != null) {
+            attributes.put("GlobalJNDIName", gcd.getGlobalJndiName());
+        }
         addTasks(mcfMD, deploymentPlan);
     }
 

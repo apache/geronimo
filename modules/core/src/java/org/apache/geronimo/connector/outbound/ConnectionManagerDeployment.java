@@ -77,7 +77,7 @@ import org.apache.geronimo.security.bridge.RealmBridge;
  * and connection manager stack according to the policies described in the attributes.
  * It's used by deserialized copies of the proxy to get a reference to the actual stack.
  *
- * @version $Revision: 1.8 $ $Date: 2004/01/11 08:28:15 $
+ * @version $Revision: 1.9 $ $Date: 2004/01/14 08:29:38 $
  * */
 public class ConnectionManagerDeployment
 
@@ -107,6 +107,8 @@ public class ConnectionManagerDeployment
     //dependencies
     private RealmBridge realmBridge;
     private ConnectionTracker connectionTracker;
+
+    private String globalJNDIName;
 
     //GeronimoMBeanTarget support.
     private GeronimoMBeanContext context;
@@ -347,6 +349,7 @@ public class ConnectionManagerDeployment
         mBeanInfo.addAttributeInfo(new GeronimoAttributeInfo("UseLocalTransactions", true, true, "Use local rather than xa transactions"));
         mBeanInfo.addAttributeInfo(new GeronimoAttributeInfo("UseTransactionCaching", true, true, "Always use the same connection in a transaction"));
         mBeanInfo.addAttributeInfo(new GeronimoAttributeInfo("UseSubject", true, true, "Select pool using SecurityDomain supplied subject"));
+        mBeanInfo.addAttributeInfo(new GeronimoAttributeInfo("GlobalJNDIName", true, true, "Optional name to bind ConnectionFactory under in ger: context"));
 
         mBeanInfo.addOperationInfo(new GeronimoOperationInfo("getStack"));
 
