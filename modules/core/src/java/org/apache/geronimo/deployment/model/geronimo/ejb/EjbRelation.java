@@ -53,59 +53,23 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.model.ejb;
 
-import org.apache.geronimo.deployment.model.j2ee.Describable;
+package org.apache.geronimo.deployment.model.geronimo.ejb;
 
 /**
- *  JavaBean for the ejb-jar.xml tag ejb-relationship-role
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/19 08:01:52 $
- */
-public class EjbRelationshipRole extends Describable {
-    private String ejbRelationshipRoleName;  //description
-    private String multiplicity;
-    private boolean cascadeDelete;
-    private RelationshipRoleSource relationshipRoleSource;//ejb name
-    private CmrField cmrField;
+ *
+ * @version $Revision: 1.1 $ $Date: 2003/11/19 08:01:52 $
+ *
+ * */
+public class EjbRelation extends org.apache.geronimo.deployment.model.ejb.EjbRelation {
 
-    public boolean isCascadeDelete() {
-        return cascadeDelete;
+    public EjbRelationshipRole[] getGeronimoEjbRelationshipRole() {
+        return (EjbRelationshipRole[])super.getEjbRelationshipRole();
     }
 
-    public void setCascadeDelete(boolean cascadeDelete) {
-        this.cascadeDelete = cascadeDelete;
+    public EjbRelationshipRole getGeronimoEjbRelationshipRole(int i) {
+        return (EjbRelationshipRole)super.getEjbRelationshipRole(i);
     }
 
-    public CmrField getCmrField() {
-        return cmrField;
-    }
-
-    public void setCmrField(CmrField cmrField) {
-        this.cmrField = cmrField;
-    }
-
-    public String getEjbRelationshipRoleName() {
-        return ejbRelationshipRoleName;
-    }
-
-    public void setEjbRelationshipRoleName(String ejbRelationshipRoleName) {
-        this.ejbRelationshipRoleName = ejbRelationshipRoleName;
-    }
-
-    public String getMultiplicity() {
-        return multiplicity;
-    }
-
-    public void setMultiplicity(String multiplicity) {
-        this.multiplicity = multiplicity;
-    }
-
-    public RelationshipRoleSource getRelationshipRoleSource() {
-        return relationshipRoleSource;
-    }
-
-    public void setRelationshipRoleSource(RelationshipRoleSource relationshipRoleSource) {
-        this.relationshipRoleSource = relationshipRoleSource;
-    }
 }

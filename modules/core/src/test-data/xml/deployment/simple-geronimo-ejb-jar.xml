@@ -145,4 +145,68 @@
             </update>
         </entity>
     </enterprise-beans>
+    <relationships>
+        <ejb-relation>
+            <ejb-relation-name>ab-relationship</ejb-relation-name>
+            <ejb-relationship-role>
+                <multiplicity>One</multiplicity>
+                <relationship-role-source>
+                    <ejb-name>Something</ejb-name>
+                </relationship-role-source>
+                <cmr-field>
+                    <cmr-field-name>field</cmr-field-name>
+                </cmr-field>
+                <query>
+                    <sql>select something from somewhere</sql>
+                    <input-binding>
+                        <binding type="org.openejb.nova.persistence.binding.jdbc.StringBinding" param="0"/>
+                        <binding type="org.openejb.nova.persistence.binding.jdbc.IntBinding" param="1"/>
+                    </input-binding>
+                    <output-binding abstract-schema-name="OtherThingy" multiplicity="Many">
+                        <binding type="org.openejb.nova.persistence.binding.jdbc.StringBinding" param="0"/>
+                    </output-binding>
+                </query>
+                <update>
+                    <sql>select something from somewhere</sql>
+                    <input-binding>
+                        <binding type="org.openejb.nova.persistence.binding.jdbc.StringBinding" param="0"/>
+                        <binding type="org.openejb.nova.persistence.binding.jdbc.IntBinding" param="1"/>
+                    </input-binding>
+                    <output-binding abstract-schema-name="OtherThingy" multiplicity="Many">
+                        <binding type="org.openejb.nova.persistence.binding.jdbc.StringBinding" param="0"/>
+                    </output-binding>
+                </update>
+            </ejb-relationship-role>
+            <ejb-relationship-role>
+                <multiplicity>Many</multiplicity>
+                <relationship-role-source>
+                    <ejb-name>SomethingElse</ejb-name>
+                </relationship-role-source>
+                <cmr-field>
+                    <cmr-field-name>field2</cmr-field-name>
+                </cmr-field>
+                <query>
+                    <sql>select something from somewhere</sql>
+                    <input-binding>
+                        <binding type="org.openejb.nova.persistence.binding.jdbc.StringBinding" param="0"/>
+                        <binding type="org.openejb.nova.persistence.binding.jdbc.IntBinding" param="1"/>
+                    </input-binding>
+                    <output-binding abstract-schema-name="OtherThingy" multiplicity="Many">
+                        <binding type="org.openejb.nova.persistence.binding.jdbc.StringBinding" param="0"/>
+                    </output-binding>
+                </query>
+                <update>
+                    <sql>select something from somewhere</sql>
+                    <input-binding>
+                        <binding type="org.openejb.nova.persistence.binding.jdbc.StringBinding" param="0"/>
+                        <binding type="org.openejb.nova.persistence.binding.jdbc.IntBinding" param="1"/>
+                    </input-binding>
+                    <output-binding abstract-schema-name="OtherThingy" multiplicity="Many">
+                        <binding type="org.openejb.nova.persistence.binding.jdbc.StringBinding" param="0"/>
+                    </output-binding>
+                </update>
+            </ejb-relationship-role>
+        </ejb-relation>
+
+    </relationships>
 </ejb-jar>

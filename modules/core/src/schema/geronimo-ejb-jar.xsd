@@ -131,6 +131,8 @@
             <xsd:element name="cascade-delete" type="j2ee:emptyType" minOccurs="0"/>
             <xsd:element name="relationship-role-source" type="j2ee:relationship-role-sourceType"/>
             <xsd:element name="cmr-field" type="j2ee:cmr-fieldType" minOccurs="0"/>
+            <xsd:element name="query" type="relationship-queryType"/>
+            <xsd:element name="update" type="relationship-queryType"/>
         </xsd:sequence>
         <xsd:attribute name="id" type="xsd:ID"/>
     </xsd:complexType>
@@ -348,7 +350,16 @@
         </xsd:sequence>
         <xsd:attribute name="id" type="xsd:ID"/>
     </xsd:complexType>
+    <xsd:complexType name="relationship-queryType">
+        <xsd:sequence>
+            <xsd:element name="sql" type="j2ee:xsdStringType"/>
+            <xsd:element name="input-binding" type="ger:input-bindingType"/>
+            <xsd:element name="output-binding" type="ger:input-bindingType"/>
+        </xsd:sequence>
+        <xsd:attribute name="id" type="xsd:ID"/>
+    </xsd:complexType>
     <xsd:complexType name="input-bindingType">
+        <!-- this should be named something like simple-bindingType-->
         <xsd:sequence>
             <xsd:element name="binding" type="ger:bindingType" minOccurs="0" maxOccurs="unbounded"/>
         </xsd:sequence>

@@ -61,7 +61,7 @@ import org.apache.geronimo.deployment.model.geronimo.j2ee.Security;
 /**
  * JavaBean for the geronimo-ejb-jar.xml tag ejb-jar
  *
- * @version $Revision: 1.4 $ $Date: 2003/11/18 04:16:09 $
+ * @version $Revision: 1.5 $ $Date: 2003/11/19 08:01:52 $
  */
 public class EjbJar extends org.apache.geronimo.deployment.model.ejb.EjbJar {
 
@@ -113,6 +113,10 @@ public class EjbJar extends org.apache.geronimo.deployment.model.ejb.EjbJar {
 
     public void setDatasourceName(String datasourceName) {
         this.datasourceName = datasourceName;
+    }
+
+    public Relationships getGeronimoRelationships() {
+        return (Relationships)super.getRelationships();
     }
 
 

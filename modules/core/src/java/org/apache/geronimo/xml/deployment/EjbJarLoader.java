@@ -86,7 +86,7 @@ import org.w3c.dom.Element;
  * Knows how to load a set of POJOs from a DOM representing an ejb-jar.xml
  * deployment descriptor.
  *
- * @version $Revision: 1.12 $ $Date: 2003/11/19 00:33:59 $
+ * @version $Revision: 1.13 $ $Date: 2003/11/19 08:01:52 $
  */
 public class EjbJarLoader {
     public static EjbJarDocument load(Document doc) {
@@ -192,27 +192,35 @@ public class EjbJarLoader {
         for(int i = 0; i < roots.length; i++) {
             Element root = roots[i];
             rels[i] = new EjbRelation();
-            J2EELoader.loadDescribable(root, rels[i]);
-            rels[i].setEjbRelationName(LoaderUtil.getChildContent(root, "ejb-relation-name"));
+            loadEjbRelation(root, rels[i]);
             rels[i].setEjbRelationshipRole(loadRelationshipRoles(root));
         }
         return rels;
     }
 
+    static void loadEjbRelation(Element root, EjbRelation rel) {
+        J2EELoader.loadDescribable(root, rel);
+        rel.setEjbRelationName(LoaderUtil.getChildContent(root, "ejb-relation-name"));
+    }
+
     private static EjbRelationshipRole[] loadRelationshipRoles(Element parent) {
         Element[] roots = LoaderUtil.getChildren(parent, "ejb-relationship-role");
         EjbRelationshipRole[] roles = new EjbRelationshipRole[roots.length];
-        for(int i = 0; i < roots.length; i++) {
+        for(int i = 0; i < roots.length; i++) { //i == 0 or 1
             Element root = roots[i];
             roles[i] = new EjbRelationshipRole();
-            J2EELoader.loadDescribable(root, roles[i]);
-            roles[i].setEjbRelationshipRoleName(LoaderUtil.getChildContent(root, "ejb-relationship-role-name"));
-            roles[i].setMultiplicity(LoaderUtil.getChildContent(root, "multiplicity"));
-            roles[i].setCascadeDelete(LoaderUtil.getChild(root, "cascade-delete") != null);
-            roles[i].setRelationshipRoleSource(loadRelationshipRoleSource(LoaderUtil.getChild(root, "relationship-role-source")));
-            roles[i].setCmrField(loadCmrField(LoaderUtil.getChild(root, "cmr-field")));
+            loadEjbRelationshipRole(root, roles[i]);
         }
         return roles;
+    }
+
+    static void loadEjbRelationshipRole(Element root, EjbRelationshipRole role) {
+        J2EELoader.loadDescribable(root, role);
+        role.setEjbRelationshipRoleName(LoaderUtil.getChildContent(root, "ejb-relationship-role-name"));
+        role.setMultiplicity(LoaderUtil.getChildContent(root, "multiplicity"));
+        role.setCascadeDelete(LoaderUtil.getChild(root, "cascade-delete") != null);
+        role.setRelationshipRoleSource(loadRelationshipRoleSource(LoaderUtil.getChild(root, "relationship-role-source")));
+        role.setCmrField(loadCmrField(LoaderUtil.getChild(root, "cmr-field")));
     }
 
     private static RelationshipRoleSource loadRelationshipRoleSource(Element parent) {

@@ -67,13 +67,16 @@ import org.apache.geronimo.deployment.model.geronimo.ejb.Query;
 import org.apache.geronimo.deployment.model.geronimo.ejb.Binding;
 import org.apache.geronimo.deployment.model.geronimo.ejb.ActivationConfig;
 import org.apache.geronimo.deployment.model.ejb.Ejb;
-import org.apache.geronimo.deployment.model.ejb.Relationships;
+import org.apache.geronimo.deployment.model.geronimo.ejb.Relationships;
+import org.apache.geronimo.deployment.model.geronimo.ejb.EjbRelationshipRole;
+import org.apache.geronimo.deployment.model.geronimo.ejb.RelationshipQuery;
 import org.apache.geronimo.deployment.model.ejb.AssemblyDescriptor;
+import org.apache.geronimo.deployment.model.geronimo.ejb.EjbRelation;
 
 /**
  * Loads a Geronimo ejb-jar.xml file into POJOs
  *
- * @version $Revision: 1.12 $ $Date: 2003/11/19 00:33:59 $
+ * @version $Revision: 1.13 $ $Date: 2003/11/19 08:01:52 $
  */
 public class GeronimoEjbJarLoader {
     public static GeronimoEjbJarDocument load(Document doc) {
@@ -104,7 +107,7 @@ public class GeronimoEjbJarLoader {
         if (re != null) {
             Relationships rel = new Relationships();
             J2EELoader.loadDescribable(re, rel);
-            rel.setEjbRelation(EjbJarLoader.loadEjbRelations(re));
+            rel.setEjbRelation(loadEjbRelations(re));
             jar.setRelationships(rel);
         }
         //todo: override any Geronimo-specific assembly-descriptor content
@@ -117,6 +120,38 @@ public class GeronimoEjbJarLoader {
         GeronimoEjbJarDocument result = new GeronimoEjbJarDocument();
         result.setEjbJar(jar);
         return result;
+    }
+
+    private static EjbRelation[] loadEjbRelations(Element re) {
+        Element[] roots = LoaderUtil.getChildren(re, "ejb-relation");
+        EjbRelation[] ejbRelations = new EjbRelation[roots.length];
+        for (int i = 0; i < ejbRelations.length; i++) {
+            EjbRelation ejbRelation = new EjbRelation();
+            EjbJarLoader.loadEjbRelation(roots[i], ejbRelation);
+            Element[] roles = LoaderUtil.getChildren(roots[i], "ejb-relationship-role");
+            EjbRelationshipRole[] ejbRelationshipRoles = new EjbRelationshipRole[roles.length];
+            for (int j = 0; j < roles.length; j++) {  //j == 0 or 1
+                Element role = roles[j];
+                EjbRelationshipRole ejbRelationshipRole = new EjbRelationshipRole();
+                EjbJarLoader.loadEjbRelationshipRole(role, ejbRelationshipRole);
+                ejbRelationshipRole.setQuery(loadRelationshipQuery(LoaderUtil.getChild(role, "query")));
+                ejbRelationshipRole.setUpdate(loadRelationshipQuery(LoaderUtil.getChild(role, "update")));
+                ejbRelationshipRoles[j] = ejbRelationshipRole;
+            }
+            ejbRelation.setEjbRelationshipRole(ejbRelationshipRoles);
+            ejbRelations[i] = ejbRelation;
+        }
+        return ejbRelations;
+    }
+
+    private static RelationshipQuery loadRelationshipQuery(Element query) {
+        RelationshipQuery relationshipQuery = new RelationshipQuery();
+        relationshipQuery.setSql(LoaderUtil.getChildContent(query, "sql"));
+        Element inputBinding = LoaderUtil.getChild(query, "input-binding");
+        relationshipQuery.setInputBinding(loadBinding(inputBinding));
+        Element outputBinding = LoaderUtil.getChild(query, "output-binding");
+        relationshipQuery.setOutputBinding(loadBinding(outputBinding));
+        return relationshipQuery;
     }
 
     private static MessageDriven[] loadMessageDrivens(Element parent) {

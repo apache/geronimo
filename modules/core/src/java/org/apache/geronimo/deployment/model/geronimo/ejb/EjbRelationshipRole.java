@@ -53,59 +53,37 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.model.ejb;
 
-import org.apache.geronimo.deployment.model.j2ee.Describable;
+package org.apache.geronimo.deployment.model.geronimo.ejb;
 
 /**
- *  JavaBean for the ejb-jar.xml tag ejb-relationship-role
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/19 08:01:52 $
- */
-public class EjbRelationshipRole extends Describable {
-    private String ejbRelationshipRoleName;  //description
-    private String multiplicity;
-    private boolean cascadeDelete;
-    private RelationshipRoleSource relationshipRoleSource;//ejb name
-    private CmrField cmrField;
+ *
+ * @version $Revision: 1.1 $ $Date: 2003/11/19 08:01:52 $
+ *
+ * */
+public class EjbRelationshipRole extends org.apache.geronimo.deployment.model.ejb.EjbRelationshipRole {
+    //We might want to include the Abstract schema name here to avoid a lookup during deployment
+    private RelationshipQuery query;
 
-    public boolean isCascadeDelete() {
-        return cascadeDelete;
+    private RelationshipQuery update;
+
+    public RelationshipQuery getQuery() {
+        return query;
     }
 
-    public void setCascadeDelete(boolean cascadeDelete) {
-        this.cascadeDelete = cascadeDelete;
+    public void setQuery(RelationshipQuery query) {
+        this.query = query;
     }
 
-    public CmrField getCmrField() {
-        return cmrField;
+    public RelationshipQuery getUpdate() {
+        return update;
     }
 
-    public void setCmrField(CmrField cmrField) {
-        this.cmrField = cmrField;
+    public void setUpdate(RelationshipQuery update) {
+        this.update = update;
     }
 
-    public String getEjbRelationshipRoleName() {
-        return ejbRelationshipRoleName;
-    }
-
-    public void setEjbRelationshipRoleName(String ejbRelationshipRoleName) {
-        this.ejbRelationshipRoleName = ejbRelationshipRoleName;
-    }
-
-    public String getMultiplicity() {
-        return multiplicity;
-    }
-
-    public void setMultiplicity(String multiplicity) {
-        this.multiplicity = multiplicity;
-    }
-
-    public RelationshipRoleSource getRelationshipRoleSource() {
-        return relationshipRoleSource;
-    }
-
-    public void setRelationshipRoleSource(RelationshipRoleSource relationshipRoleSource) {
-        this.relationshipRoleSource = relationshipRoleSource;
-    }
 }
+
+

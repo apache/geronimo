@@ -58,6 +58,8 @@ package org.apache.geronimo.xml.deployment;
 import java.io.File;
 import java.io.FileReader;
 
+import javax.management.relation.Relation;
+
 import junit.framework.TestCase;
 import org.w3c.dom.Document;
 import org.apache.geronimo.deployment.model.geronimo.ejb.GeronimoEjbJarDocument;
@@ -69,6 +71,10 @@ import org.apache.geronimo.deployment.model.geronimo.ejb.Query;
 import org.apache.geronimo.deployment.model.geronimo.ejb.Binding;
 import org.apache.geronimo.deployment.model.geronimo.ejb.MessageDriven;
 import org.apache.geronimo.deployment.model.geronimo.ejb.ActivationConfig;
+import org.apache.geronimo.deployment.model.geronimo.ejb.Relationships;
+import org.apache.geronimo.deployment.model.geronimo.ejb.EjbRelation;
+import org.apache.geronimo.deployment.model.geronimo.ejb.EjbRelationshipRole;
+import org.apache.geronimo.deployment.model.geronimo.ejb.RelationshipQuery;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceEnvRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ClassSpace;
@@ -78,7 +84,7 @@ import org.apache.geronimo.deployment.model.ejb.QueryMethod;
 /**
  * Tests basic Geronimo EJB JAR DD loading (not very comprehensive)
  *
- * @version $Revision: 1.6 $ $Date: 2003/11/19 00:33:59 $
+ * @version $Revision: 1.7 $ $Date: 2003/11/19 08:01:53 $
  */
 public class GeronimoEjbJarLoaderTest extends TestCase {
     private File docDir;
@@ -89,6 +95,15 @@ public class GeronimoEjbJarLoaderTest extends TestCase {
         Document xmlDoc = LoaderUtil.parseXML(new FileReader(f));
         GeronimoEjbJarDocument doc = loader.load(xmlDoc);
         checkGeronimoJar(doc);
+    }
+
+    public void testRelationshipLoad() throws Exception {
+        File f = new File(docDir, "simple-geronimo-ejb-jar.xml");
+        Document xmlDoc = LoaderUtil.parseXML(new FileReader(f));
+        GeronimoEjbJarDocument doc = loader.load(xmlDoc);
+        EjbJar jar = doc.getEjbJar();
+        Relationships relationships = jar.getGeronimoRelationships();
+        checkRelationships(relationships);
     }
 
     static void checkGeronimoJar(GeronimoEjbJarDocument doc) {
@@ -185,6 +200,19 @@ public class GeronimoEjbJarLoaderTest extends TestCase {
         assertEquals(1, outputBinding.length);
         assertEquals("org.openejb.nova.persistence.binding.jdbc.StringBinding", outputBinding[0].getType());
         assertEquals(0, outputBinding[0].getParam());
+    }
+
+    protected static void checkRelationships(Relationships relationships) throws Exception {
+        EjbRelation[] ejbRelation = relationships.getGeronimoEjbRelation();
+        assertEquals(1, ejbRelation.length);
+        EjbRelationshipRole[] roles = ejbRelation[0].getGeronimoEjbRelationshipRole();
+        assertEquals(2, roles.length);
+        assertEquals("One", roles[0].getMultiplicity());
+        assertEquals("Something", roles[0].getRelationshipRoleSource().getEjbName());
+        RelationshipQuery query = roles[0].getQuery();
+        assertEquals("select something from somewhere", query.getSql());
+        assertEquals(2, query.getInputBinding().length);
+
     }
 
     protected void setUp() throws Exception {
