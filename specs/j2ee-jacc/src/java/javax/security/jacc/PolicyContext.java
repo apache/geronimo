@@ -61,33 +61,37 @@
 package javax.security.jacc;
 
 import java.security.SecurityPermission;
+import java.security.AccessControlContext;
+import java.security.AccessController;
 import java.util.Hashtable;
 import java.util.Set;
 
+
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/30 01:55:12 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/18 05:30:16 $
  */
 public final class PolicyContext {
 
     private static ThreadLocal contextId = new ThreadLocal();
     private static ThreadLocal handlerData = new ThreadLocal();
     private static Hashtable handlers = new Hashtable();
+    private final static SecurityPermission SET_POLICY = new SecurityPermission("setPolicy");
 
     public static void setContextID(String contextID) {
         SecurityManager sm = System.getSecurityManager();
-        if (sm != null) sm.checkPermission(new SecurityPermission("setPolicy"));
+        if (sm != null) sm.checkPermission(SET_POLICY);
 
         contextId.set(contextID);
     }
 
     public static String getContextID() {
-        return (String)contextId.get();
+        return (String) contextId.get();
     }
 
     public static void setHandlerData(Object data) {
         SecurityManager sm = System.getSecurityManager();
-        if (sm != null) sm.checkPermission(new SecurityPermission("setPolicy"));
+        if (sm != null) sm.checkPermission(SET_POLICY);
 
         handlerData.set(data);
     }
@@ -95,10 +99,10 @@ public final class PolicyContext {
     public static void registerHandler(String key, PolicyContextHandler handler, boolean replace) throws PolicyContextException {
         if (key == null) throw new IllegalArgumentException("Key must not be null");
         if (handler == null) throw new IllegalArgumentException("Handler must not be null");
-        if (!replace && handlers.containsKey(key)) throw new IllegalArgumentException ("A handler has already been registered under '" + key + "' and replace is false.");
+        if (!replace && handlers.containsKey(key)) throw new IllegalArgumentException("A handler has already been registered under '" + key + "' and replace is false.");
 
         SecurityManager sm = System.getSecurityManager();
-        if (sm != null) sm.checkPermission(new SecurityPermission("setPolicy"));
+        if (sm != null) sm.checkPermission(SET_POLICY);
 
         handlers.put(key, handler);
     }
@@ -110,13 +114,13 @@ public final class PolicyContext {
     public static Object getContext(String key) throws PolicyContextException {
         if (key == null) throw new IllegalArgumentException("Key must not be null");
 
-        PolicyContextHandler handler = (PolicyContextHandler)handlers.get(key);
+        PolicyContextHandler handler = (PolicyContextHandler) handlers.get(key);
 
         if (handler == null) throw new IllegalArgumentException("No handler can be found for the key '" + key + "'");
-        if (!handler.supports(key)) throw new IllegalArgumentException ("Registered handler no longer supports the key '" + key + "'");
+        if (!handler.supports(key)) throw new IllegalArgumentException("Registered handler no longer supports the key '" + key + "'");
 
         SecurityManager sm = System.getSecurityManager();
-        if (sm != null) sm.checkPermission(new SecurityPermission("setPolicy"));
+        if (sm != null) sm.checkPermission(SET_POLICY);
 
         return handler.getContext(key, handlerData.get());
     }
