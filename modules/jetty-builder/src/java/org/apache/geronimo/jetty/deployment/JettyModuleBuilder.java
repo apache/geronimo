@@ -831,6 +831,8 @@ public class JettyModuleBuilder implements ModuleBuilder {
 
     private void buildSpecSecurityConfig(WebAppType webApp, GBeanData webModuleData, Set securityRoles) {
         Map uncheckedPatterns = new HashMap();
+        Map uncheckedResourcePatterns = new HashMap();
+        Map uncheckedUserPatterns = new HashMap();
         Map excludedPatterns = new HashMap();
         Map rolesPatterns = new HashMap();
         Set allSet = new HashSet();   // == allMap.values()
@@ -948,7 +950,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
             String name = pattern.getQualifiedPattern(allSet);
             String actions = pattern.getMethods();
 
-            uncheckedPermissions.add(new WebResourcePermission(name, actions));
+            addOrUpdatePattern(uncheckedResourcePatterns, name, actions);
         }
 
         iter = rolesPatterns.keySet().iterator();
@@ -957,7 +959,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
             String name = pattern.getQualifiedPattern(allSet);
             String actions = pattern.getMethodsWithTransport();
 
-            uncheckedPermissions.add(new WebUserDataPermission(name, actions));
+            addOrUpdatePattern(uncheckedUserPatterns, name, actions);
         }
 
         iter = uncheckedPatterns.keySet().iterator();
@@ -966,7 +968,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
             String name = pattern.getQualifiedPattern(allSet);
             String actions = pattern.getMethodsWithTransport();
 
-            uncheckedPermissions.add(new WebUserDataPermission(name, actions));
+            addOrUpdatePattern(uncheckedUserPatterns, name, actions);
         }
 
         /**
@@ -988,8 +990,8 @@ public class JettyModuleBuilder implements ModuleBuilder {
                 continue;
             }
 
-            uncheckedPermissions.add(new WebResourcePermission(name, actions));
-            uncheckedPermissions.add(new WebUserDataPermission(name, actions));
+            addOrUpdatePattern(uncheckedResourcePatterns, name, actions);
+            addOrUpdatePattern(uncheckedUserPatterns, name, actions);
         }
 
         URLPattern pattern = new URLPattern("/");
@@ -997,13 +999,40 @@ public class JettyModuleBuilder implements ModuleBuilder {
             String name = pattern.getQualifiedPattern(allSet);
             String actions = pattern.getComplementedMethods();
 
+            addOrUpdatePattern(uncheckedResourcePatterns, name, actions);
+            addOrUpdatePattern(uncheckedUserPatterns, name, actions);
+        }
+
+        //Create the uncheckedPermissions for WebResourcePermissions
+        iter = uncheckedResourcePatterns.keySet().iterator();
+        while (iter.hasNext()) {
+            String name = (String)iter.next();
+            String actions = (String)uncheckedResourcePatterns.get(name);
+
             uncheckedPermissions.add(new WebResourcePermission(name, actions));
+        }
+        //Create the uncheckedPermissions for WebUserDataPermissions
+        iter = uncheckedUserPatterns.keySet().iterator();
+        while (iter.hasNext()) {
+            String name = (String)iter.next();
+            String actions = (String)uncheckedUserPatterns.get(name);
+
             uncheckedPermissions.add(new WebUserDataPermission(name, actions));
         }
 
         webModuleData.setAttribute("excludedPermissions", excludedPermissions);
         webModuleData.setAttribute("uncheckedPermissions", uncheckedPermissions);
         webModuleData.setAttribute("rolePermissions", rolePermissions);
+    }
+
+    private void addOrUpdatePattern(Map patternMap, String name, String actions){
+        String oldActions = (String)patternMap.get(name);
+        if (oldActions != null){
+            patternMap.put(name,actions + "," + oldActions);
+            return;
+        }
+
+        patternMap.put(name, actions);
     }
 
     private static Set collectRoleNames(WebAppType webApp) {
