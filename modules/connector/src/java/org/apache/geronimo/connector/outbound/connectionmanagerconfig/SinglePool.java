@@ -34,7 +34,7 @@ public class SinglePool implements PoolingSupport {
     private boolean matchAll;
     private boolean selectOneAssumeMatch;
 
-    private PoolingAttributes pool;
+    private transient PoolingAttributes pool;
 
     public SinglePool(int maxSize, int minSize, int blockingTimeoutMilliseconds, int idleTimeoutMinutes, boolean matchOne, boolean matchAll, boolean selectOneAssumeMatch) {
         this.maxSize = maxSize;

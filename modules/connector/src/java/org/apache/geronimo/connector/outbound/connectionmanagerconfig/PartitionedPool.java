@@ -22,11 +22,8 @@ import org.apache.geronimo.connector.outbound.MultiPoolConnectionInterceptor;
 import org.apache.geronimo.connector.outbound.PoolingAttributes;
 
 /**
- *
- *
  * @version $Rev$ $Date$
- *
- * */
+ */
 public class PartitionedPool implements PoolingSupport {
 
     private boolean partitionByConnectionRequestInfo;
@@ -34,7 +31,7 @@ public class PartitionedPool implements PoolingSupport {
 
     private final SinglePool singlePool;
 
-    private PoolingAttributes poolingAttributes;
+    private transient PoolingAttributes poolingAttributes;
 
     public PartitionedPool(int maxSize, int minSize, int blockingTimeoutMilliseconds, int idleTimeoutMinutes, boolean matchOne, boolean matchAll, boolean selectOneAssumeMatch, boolean partitionByConnectionRequestInfo, boolean partitionBySubject) {
         singlePool = new SinglePool(maxSize, minSize, blockingTimeoutMilliseconds, idleTimeoutMinutes, matchOne, matchAll, selectOneAssumeMatch);
@@ -106,15 +103,14 @@ public class PartitionedPool implements PoolingSupport {
         singlePool.setSelectOneAssumeMatch(selectOneAssumeMatch);
     }
 
-        public ConnectionInterceptor addPoolingInterceptors(ConnectionInterceptor tail) {
-            MultiPoolConnectionInterceptor pool = new MultiPoolConnectionInterceptor(
-                            tail,
-                            singlePool,
-                            isPartitionBySubject(),
-                            isPartitionByConnectionRequestInfo());
-            this.poolingAttributes = pool;
-            return pool;
-        }
+    public ConnectionInterceptor addPoolingInterceptors(ConnectionInterceptor tail) {
+        MultiPoolConnectionInterceptor pool = new MultiPoolConnectionInterceptor(tail,
+                singlePool,
+                isPartitionBySubject(),
+                isPartitionByConnectionRequestInfo());
+        this.poolingAttributes = pool;
+        return pool;
+    }
 
     public int getPartitionCount() {
         return poolingAttributes.getPartitionCount();
