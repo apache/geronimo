@@ -59,7 +59,7 @@ package org.apache.geronimo.common;
 /**
  * Primitive utilities.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/24 20:55:07 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/27 08:55:27 $
  */
 public final class Primitives
 {
@@ -96,11 +96,15 @@ public final class Primitives
      * @param bbegin  The begining index of the second byte array.
      * @param length  The length of the sub-section.
      * @return        True if sub-sections are equal.
+     * 
+     * @todo what should be returned for non-positive length arguments? (bw)
      */
     public static boolean equals(final byte a[], final int abegin,
                                  final byte b[], final int bbegin,
                                  final int length)
     {
+        if (a == null || b == null) return false;
+
         try {
             int i=length;
             while (--i >= 0) {
@@ -128,15 +132,10 @@ public final class Primitives
         if (a == null || b == null) return false;
         if (a.length != b.length) return false;
         
-        try {
-            for (int i=0; i<a.length; i++) {
-                if (a[i] != b[i]) {
-                    return false;
-                }
+        for (int i=0; i<a.length; i++) {
+            if (a[i] != b[i]) {
+                return false;
             }
-        }
-        catch (ArrayIndexOutOfBoundsException e) {
-            return false;
         }
         
         return true;
