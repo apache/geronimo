@@ -35,7 +35,7 @@ import org.apache.geronimo.network.URISupport;
 
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/04/25 02:03:37 $
+ * @version $Revision: 1.7 $ $Date: 2004/05/01 17:23:55 $
  */
 public class ServerSocketAcceptor implements SelectionEventListner {
 
@@ -46,7 +46,8 @@ public class ServerSocketAcceptor implements SelectionEventListner {
 
     private ServerSocketChannel serverSocketChannel;
     private int timeOut;
-    private boolean enableTcpNoDelay;
+    private boolean TCPNoDelay;
+    private boolean reuseAddress = true;
     private SelectorManager selectorManager;
     private SelectionKey selectionKey;
 
@@ -88,13 +89,22 @@ public class ServerSocketAcceptor implements SelectionEventListner {
         this.timeOut = timeOut;
     }
 
-    public boolean isEnableTcpNoDelay() {
-        return enableTcpNoDelay;
+    public boolean isTCPNoDelay() {
+        return TCPNoDelay;
     }
 
-    public void setEnableTcpNoDelay(boolean enableTcpNoDelay) {
+    public void setTCPNoDelay(boolean TCPNoDelay) {
         if (state == STARTED || state == FAILED) throw new IllegalStateException("Protocol already started");
-        this.enableTcpNoDelay = enableTcpNoDelay;
+        this.TCPNoDelay = TCPNoDelay;
+    }
+
+    public boolean isReuseAddress() {
+        return reuseAddress;
+    }
+
+    public void setReuseAddress(boolean reuseAddress) {
+        if (state == STARTED || state == FAILED) throw new IllegalStateException("Protocol already started");
+        this.reuseAddress = reuseAddress;
     }
 
     public ServerSocketAcceptorListener getAcceptorListener() {
@@ -119,13 +129,14 @@ public class ServerSocketAcceptor implements SelectionEventListner {
         String serverBindAddress = uri.getHost();
         int serverBindPort = uri.getPort();
         int connectBackLog = 50;
-        enableTcpNoDelay = true;
+        TCPNoDelay = true;
 
         Properties params = URISupport.parseQueryParameters(uri);
-        enableTcpNoDelay = params.getProperty("tcp.nodelay", "true").equals("true");
+        TCPNoDelay = params.getProperty("tcp.nodelay", "true").equals("true");
         connectBackLog = Integer.parseInt(params.getProperty("tcp.backlog", "50"));
 
         serverSocketChannel = ServerSocketChannel.open();
+        serverSocketChannel.socket().setReuseAddress(reuseAddress);
         serverSocketChannel.socket().bind(new InetSocketAddress(InetAddress.getByName(serverBindAddress), serverBindPort), connectBackLog);
         serverSocketChannel.socket().setSoTimeout(timeOut);
         serverSocketChannel.configureBlocking(false);
@@ -133,7 +144,7 @@ public class ServerSocketAcceptor implements SelectionEventListner {
 
         // Create the client URI:
         Properties clientParms = new Properties();
-        clientParms.put("tcp.nodelay", enableTcpNoDelay ? "true" : "false");
+        clientParms.put("tcp.nodelay", TCPNoDelay ? "true" : "false");
         connectURI = new URI("async",
                              null,
                              InetAddress.getByName(serverBindAddress).getHostName(),
@@ -168,7 +179,7 @@ public class ServerSocketAcceptor implements SelectionEventListner {
 
                 if (channel == null) return;
 
-                channel.socket().setTcpNoDelay(enableTcpNoDelay);
+                channel.socket().setTcpNoDelay(TCPNoDelay);
                 acceptorListener.accept(channel);
 
                 selectorManager.addInterestOps(selectionKey, SelectionKey.OP_ACCEPT);

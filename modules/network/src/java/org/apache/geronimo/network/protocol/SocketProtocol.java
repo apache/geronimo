@@ -37,7 +37,7 @@ import org.apache.geronimo.network.SelectorManager;
 
 
 /**
- * @version $Revision: 1.10 $ $Date: 2004/04/25 02:03:37 $
+ * @version $Revision: 1.11 $ $Date: 2004/05/01 17:23:55 $
  */
 public class SocketProtocol implements AcceptableProtocol, SelectionEventListner {
 
@@ -50,6 +50,8 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
     private SocketAddress socketInterface;
 
     private long timeout;
+    private boolean TCPNoDelay;
+    private boolean reuseAddress = true;
     private Mutex sendMutex;
     private SelectorManager selectorManager;
     private SelectionKey selectionKey;
@@ -129,6 +131,24 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
         this.timeout = timeout;
     }
 
+    public boolean isTCPNoDelay() {
+        return TCPNoDelay;
+    }
+
+    public void setTCPNoDelay(boolean TCPNoDelay) {
+        if (state == STARTED) throw new IllegalStateException("Protocol already started");
+        this.TCPNoDelay = TCPNoDelay;
+    }
+
+    public boolean isReuseAddress() {
+        if (state == STARTED) throw new IllegalStateException("Protocol already started");
+        return reuseAddress;
+    }
+
+    public void setReuseAddress(boolean reuseAddress) {
+        this.reuseAddress = reuseAddress;
+    }
+
     public SelectorManager getSelectorManager() {
         return selectorManager;
     }
@@ -170,9 +190,9 @@ public class SocketProtocol implements AcceptableProtocol, SelectionEventListner
             try {
                 socketChannel = SocketChannel.open();
                 socketChannel.configureBlocking(true);
+                socketChannel.socket().setReuseAddress(reuseAddress);
+                socketChannel.socket().setTcpNoDelay(TCPNoDelay);
                 if (socketInterface != null) socketChannel.socket().bind(socketInterface);
-                socketChannel.socket().setReuseAddress(true);
-                socketChannel.socket().setTcpNoDelay(true);
                 socketChannel.connect(address);
             } catch (SocketException e) {
                 state = STOPPED;
