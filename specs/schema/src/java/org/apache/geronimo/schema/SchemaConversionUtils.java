@@ -20,6 +20,7 @@ package org.apache.geronimo.schema;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 
 import javax.xml.namespace.QName;
 
@@ -33,7 +34,7 @@ import org.apache.xmlbeans.XmlOptions;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/06/17 23:49:25 $
+ * @version $Revision: 1.3 $ $Date: 2004/07/06 17:12:58 $
  *
  * */
 public class SchemaConversionUtils {
@@ -54,7 +55,7 @@ public class SchemaConversionUtils {
         return parsed;
     }
 
-    public static EjbJarDocument convertToEJBSchema(XmlObject xmlObject) {
+    public static EjbJarDocument convertToEJBSchema(XmlObject xmlObject) throws XmlException {
         XmlCursor cursor = xmlObject.newCursor();
         XmlCursor moveable = xmlObject.newCursor();
         String schemaLocationURL = "http://java.sun.com/xml/ns/j2ee/ejb-jar_2_1.xsd";
@@ -69,12 +70,18 @@ public class SchemaConversionUtils {
         }
         XmlObject result = xmlObject.changeType(EjbJarDocument.type);
         if (result != null) {
+            validateDD(result);
             return (EjbJarDocument) result;
         }
+        validateDD(xmlObject);
         return (EjbJarDocument) xmlObject;
     }
 
-    public static WebAppDocument convertToServletSchema(XmlObject xmlObject) {
+    public static WebAppDocument convertToServletSchema(XmlObject xmlObject) throws XmlException {
+        if (WebAppDocument.type.equals(xmlObject.schemaType())) {
+            validateDD(xmlObject);
+            return (WebAppDocument) xmlObject;
+        }
         XmlCursor cursor = xmlObject.newCursor();
         XmlCursor moveable = xmlObject.newCursor();
         String schemaLocationURL = "http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd";
@@ -105,8 +112,10 @@ public class SchemaConversionUtils {
         }
         XmlObject result = xmlObject.changeType(WebAppDocument.type);
         if (result != null) {
+            validateDD(result);
             return (WebAppDocument) result;
         }
+        validateDD(xmlObject);
         return (WebAppDocument) xmlObject;
     }
 
@@ -156,26 +165,38 @@ public class SchemaConversionUtils {
                     cursor.toNextSibling();
                     convertToJNDIEnvironmentRefsGroup(cursor, moveable);
                 } else if ("message-driven".equals(type)) {
-                    cursor.toChild(J2EE_NAMESPACE, "transaction-type");
-                    //add messaging-type
-                    cursor.insertElementWithText("messaging-type", J2EE_NAMESPACE, "javax.jms.MessageListener");
-                    //skip transaction-type
-                    cursor.toNextSibling();
-                    //add activation-config-properties.
-                    moveable.toCursor(cursor);
-                    cursor.push();
-                    cursor.beginElement("activation-config", J2EE_NAMESPACE);
-                    addActivationConfigProperty(moveable, cursor, "message-selector", "messageSelector");
-                    addActivationConfigProperty(moveable, cursor, "acknowledge-mode", "acknowledgeMode");
-                    if (moveable.toNextSibling(J2EE_NAMESPACE, "message-driven-destination")) {
-                        moveable.push();
-                        moveable.toFirstChild();
-                        addActivationConfigProperty(moveable, cursor, "destination-type", "destinationType");
-                        addActivationConfigProperty(moveable, cursor, "subscription-durability", "subscriptionDurability");
-                        moveable.pop();
-                        moveable.removeXml();
+                    cursor.toFirstChild();
+                    if (cursor.toNextSibling(J2EE_NAMESPACE, "messaging-type")) {
+                        cursor.toNextSibling(J2EE_NAMESPACE, "transaction-type");
+                    } else {
+                        cursor.toNextSibling(J2EE_NAMESPACE, "transaction-type");
+                        //add messaging-type
+                        cursor.insertElementWithText("messaging-type", J2EE_NAMESPACE, "javax.jms.MessageListener");
                     }
-                    cursor.pop();
+                    if (!cursor.toNextSibling(J2EE_NAMESPACE, "activation-config")) {
+                        boolean hasProperties = false;
+                        //skip transaction-type
+                        cursor.toNextSibling();
+                        //add activation-config-properties.
+                        moveable.toCursor(cursor);
+                        cursor.push();
+                        cursor.beginElement("activation-config", J2EE_NAMESPACE);
+                        hasProperties |= addActivationConfigProperty(moveable, cursor, "message-selector", "messageSelector");
+                        hasProperties |= addActivationConfigProperty(moveable, cursor, "acknowledge-mode", "acknowledgeMode");
+                        if (moveable.toNextSibling(J2EE_NAMESPACE, "message-driven-destination")) {
+                            moveable.push();
+                            moveable.toFirstChild();
+                            hasProperties |= addActivationConfigProperty(moveable, cursor, "destination-type", "destinationType");
+                            hasProperties |= addActivationConfigProperty(moveable, cursor, "subscription-durability", "subscriptionDurability");
+                            moveable.pop();
+                            moveable.removeXml();
+                        }
+                        cursor.pop();
+                        if (!hasProperties) {
+                            cursor.toPrevSibling();
+                            cursor.removeXml();
+                        }
+                    }
                     cursor.toNextSibling();
                     convertToJNDIEnvironmentRefsGroup(cursor, moveable);
                 }
@@ -184,8 +205,9 @@ public class SchemaConversionUtils {
         }
     }
 
-    private static void addActivationConfigProperty(XmlCursor moveable, XmlCursor cursor, String elementName, String propertyName) {
-        if (moveable.toNextSibling(J2EE_NAMESPACE, elementName)) {
+    private static boolean addActivationConfigProperty(XmlCursor moveable, XmlCursor cursor, String elementName, String propertyName) {
+        QName name = new QName(J2EE_NAMESPACE, elementName);
+        if (name.equals(moveable.getName()) || moveable.toNextSibling(name)) {
             cursor.push();
             cursor.beginElement("activation-config-property", J2EE_NAMESPACE);
             cursor.insertElementWithText("activation-config-property-name", J2EE_NAMESPACE, propertyName);
@@ -193,7 +215,9 @@ public class SchemaConversionUtils {
             moveable.removeXml();
             cursor.pop();
             cursor.toNextSibling();
+            return true;
         }
+        return false;
     }
 
     /**
@@ -216,9 +240,24 @@ public class SchemaConversionUtils {
         moveElements("message-destination-ref", moveable, cursor);
     }
 
-    private static void moveElements(String localName, XmlCursor moveable, XmlCursor cursor) {
-        while (moveable.toNextSibling(J2EE_NAMESPACE, localName)) {
-            moveable.moveXml(cursor);
+    public static void validateDD(XmlObject dd) throws XmlException {
+        XmlOptions xmlOptions = new XmlOptions();
+        xmlOptions.setLoadLineNumbers();
+        Collection errors = new ArrayList();
+        xmlOptions.setErrorListener(errors);
+        if (!dd.validate(xmlOptions)) {
+            throw new XmlException("Invalid deployment descriptor: " + errors, null, errors);
+        }
+    }
+
+    private static void moveElements(String localName, XmlCursor moveable, XmlCursor toHere) {
+        QName name = new QName(J2EE_NAMESPACE, localName);
+        //skip elements already in the correct order.
+        while (toHere.getName().equals(name) && toHere.toNextSibling()) {
+        }
+        moveable.toCursor(toHere);
+        while (moveable.toNextSibling(name)) {
+            moveable.moveXml(toHere);
         }
     }
 

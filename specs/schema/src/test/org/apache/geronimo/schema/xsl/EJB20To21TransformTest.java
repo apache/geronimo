@@ -30,7 +30,7 @@ import junit.framework.TestCase;
  * ejb 1.1 dtd appears to be a subset of ejb 2.0 dtd so the same xsl should
  * work for both.
  *
- * @version $Revision: 1.2 $ $Date: 2004/06/17 23:49:25 $
+ * @version $Revision: 1.3 $ $Date: 2004/07/06 17:12:58 $
  *
  * */
 public class EJB20To21TransformTest extends TestCase {
@@ -52,14 +52,20 @@ public class EJB20To21TransformTest extends TestCase {
 //
 //        Radu
 
+    //I've taken option (1) and fixed the schemas
+
     public void testXMLBeansTransform() throws Exception {
         File srcXml = new File("src/test-data/j2ee_1_3dtd/ejb-jar.xml");
         File expectedOutputXml = new File("src/test-data/j2ee_1_3dtd/ejb-jar-21.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
-        xmlObject = SchemaConversionUtils.convertToEJBSchema(xmlObject);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
+        SchemaConversionUtils.validateDD(expected);
+        xmlObject = SchemaConversionUtils.convertToEJBSchema(xmlObject);
+//        System.out.println(xmlObject.toString());
+//        System.out.println(expected.toString());
         List problems = new ArrayList();
-        assertTrue("Differences: " + problems, compareXmlObjects(xmlObject, expected, problems));
+        boolean ok = compareXmlObjects(xmlObject, expected, problems);
+        assertTrue("Differences: " + problems, ok);
         //make sure trying to convert twice has no bad effects
         XmlCursor cursor2 = xmlObject.newCursor();
         try {
@@ -69,7 +75,12 @@ public class EJB20To21TransformTest extends TestCase {
         } finally {
             cursor2.dispose();
         }
-        assertTrue("Differences after reconverting to schema: " + problems, compareXmlObjects(xmlObject, expected, problems));
+        boolean ok2 = compareXmlObjects(xmlObject, expected, problems);
+        assertTrue("Differences after reconverting to schema: " + problems, ok2);
+        //do the whole transform twice...
+        xmlObject = SchemaConversionUtils.convertToEJBSchema(xmlObject);
+        boolean ok3 = compareXmlObjects(xmlObject, expected,  problems);
+        assertTrue("Differences after reconverting to ejb schema: " + problems, ok3);
     }
 
     public void testOrderDescriptionGroup() throws Exception {
@@ -94,9 +105,8 @@ public class EJB20To21TransformTest extends TestCase {
 //        System.out.println(srcObject.toString());
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
         List problems = new ArrayList();
-        assertTrue("Differences: " + problems, compareXmlObjects(srcObject, expected, problems));
-
-
+        boolean ok = compareXmlObjects(srcObject, expected, problems);
+        assertTrue("Differences: " + problems, ok);
     }
 
     public void testOrderJNDIEnvironmentRefsGroup() throws Exception {
@@ -114,6 +124,7 @@ public class EJB20To21TransformTest extends TestCase {
                 srcCursor.toFirstChild();
                 srcCursor.toNextSibling();
                 srcCursor.toNextSibling();
+                moveable.toCursor(srcCursor);
                 SchemaConversionUtils.convertToJNDIEnvironmentRefsGroup(srcCursor, moveable);
                 srcCursor.pop();
             } while (srcCursor.toNextSibling());
@@ -123,9 +134,8 @@ public class EJB20To21TransformTest extends TestCase {
 //        System.out.println(srcObject.toString());
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
         List problems = new ArrayList();
-        assertTrue("Differences: " + problems, compareXmlObjects(srcObject, expected, problems));
-
-
+        boolean ok = compareXmlObjects(srcObject, expected, problems);
+        assertTrue("Differences: " + problems, ok);
     }
 
     public void testWeb23To24Transform() throws Exception {
@@ -135,8 +145,22 @@ public class EJB20To21TransformTest extends TestCase {
         xmlObject = SchemaConversionUtils.convertToServletSchema(xmlObject);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
         List problems = new ArrayList();
-        assertTrue("Differences: " + problems, compareXmlObjects(xmlObject, expected, problems));
+        boolean ok = compareXmlObjects(xmlObject, expected, problems);
+        assertTrue("Differences: " + problems, ok);
+        xmlObject = SchemaConversionUtils.convertToServletSchema(xmlObject);
+        boolean ok2 = compareXmlObjects(xmlObject, expected, problems);
+        assertTrue("Differences: " + problems, ok2);
+    }
 
+    public void testEJB21To21DoesNothing() throws Exception {
+        File srcXml = new File("src/test-data/j2ee_1_4schema/ejb-jar.xml");
+        File expectedOutputXml = new File("src/test-data/j2ee_1_4schema/ejb-jar.xml");
+        XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
+        xmlObject = SchemaConversionUtils.convertToEJBSchema(xmlObject);
+        XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
+        List problems = new ArrayList();
+        boolean ok = compareXmlObjects(xmlObject, expected, problems);
+        assertTrue("Differences: " + problems, ok);
     }
 
     private boolean compareXmlObjects(XmlObject xmlObject, XmlObject expectedObject, List problems) {
@@ -150,8 +174,10 @@ public class EJB20To21TransformTest extends TestCase {
                 problems.add("test longer than expected at element: " + elementCount);
                 return false;
             }
-            if (!test.getChars().equals(expected.getChars())) {
-                problems.add("Different elements at elementCount: " + elementCount + ", test: " + test.getChars() + ", expected: " + expected.getChars());
+            String actualChars = test.getName().getLocalPart();
+            String expectedChars = expected.getName().getLocalPart();
+            if (!actualChars.equals(expectedChars)) {
+                problems.add("Different elements at elementCount: " + elementCount + ", test: " + actualChars + ", expected: " + expectedChars);
                 similar = false;
             }
             test.toNextToken();

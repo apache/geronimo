@@ -38,7 +38,9 @@
             <description>description</description>
         </init-param>
         <load-on-startup>1</load-on-startup>
-        <run-as>me</run-as>
+        <run-as>
+            <role-name>me</role-name>
+        </run-as>
     </servlet>
 
 </web-app>
