@@ -22,7 +22,7 @@
 -->
 
 
-<!-- $Revision: 1.34 $ $Date: 2004/09/02 18:32:25 $ -->
+<!-- $Revision: 1.34 $ $Date$ -->
 
 <project>
 
@@ -55,13 +55,12 @@
     <distributionDirectory>/www/geronimo.apache.org/builds</distributionDirectory>
 
     <repository>
-        <connection>scm:cvs:pserver:anoncvs@cvs.apache.org:/home/cvspublic:incubator-geronimo</connection>
-        <developerConnection>scm:cvs:ext:${geronimo.username}@cvs.apache.org:/home/cvs:incubator-geronimo</developerConnection>
-        <url>http://cvs.apache.org/viewcvs/incubator-geronimo/</url>
+        <connection>scm:subversion:http://svn.apache.org/repos/asf/geronimo/trunk</connection>
+        <developerConnection>scm:subversion:https://svn.apache.org/repos/asf/geronimo/trunk</developerConnection>
+        <url>http://svn.apache.org/viewcvs.cgi/geronimo/trunk/?root=Apache-SVN</url>
     </repository>
 
     <mailingLists>
-
         <mailingList>
           <name>Geronimo User List</name>
           <subscribe>user-subscribe@geronimo.apache.org</subscribe>
@@ -75,6 +74,13 @@
             <unsubscribe>dev-unsubscribe@geronimo.apache.org</unsubscribe>
             <archive>http://nagoya.apache.org/eyebrowse/SummarizeList?listName=dev@geronimo.apache.org</archive>
         </mailingList>
+
+        <mailingList>
+            <name>Geronimo Source Control List</name>
+            <subscribe>scm-subscribe@geronimo.apache.org</subscribe>
+            <unsubscribe>scm-unsubscribe@geronimo.apache.org</unsubscribe>
+            <archive>http://nagoya.apache.org/eyebrowse/SummarizeList?listName=scm@geronimo.apache.org</archive>
+        </mailingList>
     </mailingLists>
 
 
@@ -86,14 +92,19 @@
 
     <versions>
         <version>
-            <id>1.0-alpha-1</id>
-            <name>1.0-alpha-1</name>
-            <tag>GERONIMO_1_0_ALPHA_1</tag>
+            <id>1.0-M3</id>
+            <name>1.0-M3</name>
+            <tag>HEAD</tag>
         </version>
         <version>
-            <id>1.0-alpha-2</id>
-            <name>1.0-alpha-2</name>
-            <tag>HEAD</tag>
+            <id>1.0-M2</id>
+            <name>1.0-M2</name>
+            <tag>v1_0_M2</tag>
+        </version>
+        <version>
+            <id>1.0-M1</id>
+            <name>1.0-M1</name>
+            <tag>v1_0_M1</tag>
         </version>
     </versions>
 
