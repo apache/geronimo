@@ -58,64 +58,56 @@ package org.apache.geronimo.web;
 
 import java.net.URI;
 
-import org.apache.geronimo.common.Container;
+import org.apache.geronimo.core.service.Container;
+
 import org.w3c.dom.Document;
 
 /*
  * WebContainer
- *  
- * 
- * @version $Revision: 1.4 $  $Date: 2003/08/27 10:32:05 $
+ *
+ *
+ * @version $Revision: 1.5 $  $Date: 2003/09/08 04:51:14 $
  */
-public interface WebContainer extends Container
-{
 
-    /*-------------------------------------------------------------------------------- */
-    /** Deploy a web application. Convenience method to 
+public interface WebContainer extends Container {
+    /**
+     * Deploy a web application. Convenience method to
      * have the container create the WebApplication and add it to itself.
-    * @param uri
-    * @throws Exception
-    */
+     * @param uri
+     * @throws Exception
+     */
     public void deploy(String uri) throws Exception;
 
-
-
-    /*-------------------------------------------------------------------------------- */
-    /** Set up a web.xml descriptor for the Container to use as
-     * defaults.
-    * @param url 
-    */
+    /**
+     * Set up a web.xml descriptor for the Container to use as defaults.
+     * @param uri
+     */
     public void setDefaultWebXmlURI(URI uri);
 
-    /*-------------------------------------------------------------------------------- */
-    /** Get the uri of the default web.xml descriptor used 
+    /**
+     * Get the uri of the default web.xml descriptor used
      * by this container.
-    * @return
-    */
-    public URI getDefaultWebXmlURI();
-    
-    
-    /* -------------------------------------------------------------------------------------- */
-    /**Get the parsed web defaults
      * @return
      */
-    public Document getDefaultWebXmlDoc ();
-        
+    public URI getDefaultWebXmlURI();
 
-    
-    /* -------------------------------------------------------------------------------------- */
-    /** Control if wars will be unpacked to temporary location or not
+    /**
+     * Get the parsed web defaults
+     * @return
+     */
+    public Document getDefaultWebXmlDoc();
+
+    /**
+     * Control if wars will be unpacked to temporary location or not
      * @param state
      * @todo this might be handled by the deployer instead
      */
     //public void setUnpackWars (boolean state);
-    
-    /* -------------------------------------------------------------------------------------- */
-    /**Getter for whether wars will be unpacked to temporary location or not
+
+    /**
+     * Getter for whether wars will be unpacked to temporary location or not
      * @return
      * @todo this might be handled by the deployer instead
      */
     //public boolean getUnpackWars ();
-    
-
 }

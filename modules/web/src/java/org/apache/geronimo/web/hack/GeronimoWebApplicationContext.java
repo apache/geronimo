@@ -66,7 +66,7 @@ import org.mortbay.jetty.servlet.WebApplicationContext;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/08 04:40:50 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/08 04:51:14 $
  */
 public class GeronimoWebApplicationContext extends WebApplicationContext {
     private static final String SEPERATOR = System.getProperty("path.separator");
@@ -100,7 +100,7 @@ public class GeronimoWebApplicationContext extends WebApplicationContext {
             cl = cl.getParent();
         }
         String s = path.toString();
-        if(log.isTraceEnabled()) {
+        if (log.isTraceEnabled()) {
             log.trace("File Class Path = " + s);
         }
         return s;

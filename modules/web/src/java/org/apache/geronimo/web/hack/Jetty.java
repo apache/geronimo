@@ -61,7 +61,6 @@ import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.web.hack.GeronimoWebApplicationContext;
 
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.servlet.WebApplicationContext;
@@ -70,7 +69,7 @@ import org.mortbay.util.MultiException;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/05 10:26:17 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/08 04:51:14 $
  */
 public class Jetty extends Server implements JettyMBean {
     private static final Log log = LogFactory.getLog(Jetty.class.getName());

@@ -57,34 +57,29 @@
 package org.apache.geronimo.web;
 
 import java.net.URI;
-
 import javax.naming.Context;
 import javax.naming.InitialContext;
-import javax.naming.LinkRef;
 import javax.naming.NamingException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.geronimo.common.AbstractComponent;
+import org.apache.geronimo.core.service.AbstractComponent;
+
 import org.w3c.dom.Document;
 
-/* -------------------------------------------------------------------------------------- */
 /**
  * AbstractWebApplication
- * 
- * Instances are created by a deployer. The deployer finds the 
+ *
+ * Instances are created by a deployer. The deployer finds the
  * WebContainer and associates it with the WebApplication.
- * 
- * @version $Revision: 1.5 $ $Date: 2003/08/27 10:32:05 $
+ *
+ * @version $Revision: 1.6 $ $Date: 2003/09/08 04:51:14 $
  */
-public abstract class AbstractWebApplication
-    extends AbstractComponent
-    implements WebApplication
-{
+public abstract class AbstractWebApplication extends AbstractComponent implements WebApplication {
     /**
-     * Class loading delegation model 
+     * Class loading delegation model
      */
     private boolean java2ClassloadingCompliance = false;
 
@@ -97,118 +92,86 @@ public abstract class AbstractWebApplication
     private Document geronimoXmlDoc = null;
     private Context initialContext = null;
 
-    /* -------------------------------------------------------------------------------------- */
-    /** Constructor
-     * @param location uri of webapp war or dir
-     * @param context context path for webapp
-     */
-    public AbstractWebApplication()
-    {
+    public AbstractWebApplication() {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        try
-        {
+        try {
             parser = factory.newDocumentBuilder();
             initialContext = new InitialContext();
-        }
-        catch (FactoryConfigurationError e)
-        {
+        } catch (FactoryConfigurationError e) {
             throw new AssertionError("No XML parser available");
-        }
-        catch (ParserConfigurationException e)
-        {
+        } catch (ParserConfigurationException e) {
             throw new AssertionError("No XML parser available");
-        }
-        catch (NamingException e)
-        {
+        } catch (NamingException e) {
             throw new AssertionError("No initial JNDI context");
         }
     }
 
-    /* -------------------------------------------------------------------------------------- */
-    /* Start the webapp. Called by the container or management interface
+    /**
+     * Start the webapp. Called by the container or management interface
      * @throws Exception
      * @throws IllegalStateException
-     * @see org.apache.geronimo.common.Component#start()
      */
-    public void doStart() throws Exception
-    {
+    public void doStart() throws Exception {
         if (getContainer() == null)
             throw new IllegalStateException("WebApplication must have a container set before START can be called");
 
         //probably not necessary if deployer wil do this on our behalf
-        // set up the JNDI context for this webapp 
+        // set up the JNDI context for this webapp
         //setupENC();
-        
+
         //setupClassLoader();
     }
 
-    /* -------------------------------------------------------------------------------------- */
-    /* Stop the webapp. Called by the container, or by mangement
+    /**
+     * Stop the webapp. Called by the container, or by mangement
      * interface
-     * 
-     * @see org.apache.geronimo.common.Component#stop()
      */
-    public void doStop()
-    {
-
+    public void doStop() {
     }
 
-    /* -------------------------------------------------------------------------------------- */
-    /* Return the list of Servlets of this webapp
+    /**
+     * Return the list of Servlets of this webapp
      * @return
      * @see org.apache.geronimo.web.WebApplication#getServlets()
      */
-    public String[] getServlets()
-    {
+    public String[] getServlets() {
         Document doc = getDeploymentDescriptorDocument();
         return null;
     }
 
-    /* -------------------------------------------------------------------------------------- */
-    /* 
+    /**
      * @return
      * @see org.apache.geronimo.web.WebApplication#getDeploymentDescriptor()
      */
-    public String getDeploymentDescriptor()
-    {
-        try
-        {
+    public String getDeploymentDescriptor() {
+        try {
             parseWebXml();
-
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             throw new IllegalStateException(e.toString());
         }
-
         return null;
     }
 
-    /* -------------------------------------------------------------------------------------- */
-    /* Get the URI of the web.xml deployment descriptor
+    /**
+     * Get the URI of the web.xml deployment descriptor
      * @return
      * @see org.apache.geronimo.web.WebApplication#getDeploymentDescriptorURI()
      */
-    public URI getDeploymentDescriptorURI()
-    {
+    public URI getDeploymentDescriptorURI() {
         return webXmlURI;
     }
 
-    /* -------------------------------------------------------------------------------------- */
-    /* Get the Document representing the web.xml descriptor
+    /**
+     * Get the Document representing the web.xml descriptor
      * @return
      * @see org.apache.geronimo.web.WebApplication#getDeploymentDescriptorDocument()
      */
-    public Document getDeploymentDescriptorDocument()
-    {
+    public Document getDeploymentDescriptorDocument() {
         //TODO - may not be required depending on deployer interface
-        try
-        {
+        try {
             parseWebXml();
             return webXmlDoc;
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             throw new IllegalStateException(e.toString());
         }
 
@@ -216,66 +179,61 @@ public abstract class AbstractWebApplication
 
 
     //the geronimo methods may not be required, depending on the interface to the deployer
-    public URI getGeronimoDeploymentDescriptorURI()
-    {
+    public URI getGeronimoDeploymentDescriptorURI() {
         return geronimoXmlURI;
     }
 
-    public Document getGeronimoDeploymentDescriptorDocument()
-    {
+    public Document getGeronimoDeploymentDescriptorDocument() {
         return geronimoXmlDoc;
     }
 
-    public String getGeronimoDeploymentDescriptor()
-    {
+    public String getGeronimoDeploymentDescriptor() {
         //TODO
         return null;
     }
-  
-  
-    /* -------------------------------------------------------------------------------------- */
-    /** Setter for classloading compliance. If true, then classloading will
+
+
+    /**
+     * Setter for classloading compliance. If true, then classloading will
      * delegate first to parent classloader a la Java2 spec. If false, then
      * webapps wanting to load class will try their own context class loader first.
      * @param state
      */
-    public void setJava2ClassloadingCompliance(boolean state)
-    {
+    public void setJava2ClassloadingCompliance(boolean state) {
         java2ClassloadingCompliance = state;
     }
 
-    /* -------------------------------------------------------------------------------------- */
-    /**Getter for classloading compliance.
-     * @see setJava2ClassloadingCompliance
-     * @return
+    /**
+     * Getter for classloading compliance.
+     * @return truen if application is using Java 2 compliant class loading
      */
-    public boolean getJava2ClassloadingCompliance()
-    {
+    public boolean getJava2ClassloadingCompliance() {
         return java2ClassloadingCompliance;
     }
 
-    /* -------------------------------------------------------------------------------------- */
-    /** Parse the deployment descriptor, if it hasn't been already
+    /**
+     * Parse the deployment descriptor, if it hasn't been already
      *
      * @exception Exception if an error occurs
      */
-    protected synchronized void parseWebXml() throws Exception
-    {
-        if (webXmlURI == null)
+    protected synchronized void parseWebXml() throws Exception {
+        if (webXmlURI == null) {
             return;
-
-        if (webXmlDoc != null)
+        }
+        if (webXmlDoc != null) {
             return;
+        }
 
         webXmlDoc = parser.parse(webXmlURI.toString());
     }
 
-    protected synchronized void parseGeronimoXml() throws Exception
-    {
-        if (geronimoXmlURI == null)
+    protected synchronized void parseGeronimoXml() throws Exception {
+        if (geronimoXmlURI == null) {
             return;
-        if (geronimoXmlDoc != null)
+        }
+        if (geronimoXmlDoc != null) {
             return;
+        }
 
         geronimoXmlDoc = parser.parse(geronimoXmlURI.toString());
     }
@@ -285,25 +243,24 @@ public abstract class AbstractWebApplication
         {
             //parse the standard descriptor
             parseWebXml();
-    
+
             //parse the geronimo web descriptor?
             parseGeronimoXml();
-    
+
             //create the java:comp/env context
             Context enc = null;
-            
+
             //populate the resources
-    
+
             //populate the ejbs
-    
+
             //populate the UserTransaction
             enc.bind ("UserTransaction",  new LinkRef ("javax.transaction.UserTransaction"));
-            
+
             //populate the security
-    
+
             //secure the context as read-only (if necessary)
-    
+
         }
         */
-
 }

@@ -56,65 +56,60 @@
 
 package org.apache.geronimo.web;
 
-import org.apache.geronimo.common.Component;
+import org.apache.geronimo.core.service.Component;
 
-/* -------------------------------------------------------------------------------------- */
 /**
  * WebConnector
- * 
- * 
- * @version $Revision: 1.2 $ $Date: 2003/08/27 10:32:05 $
+ *
+ * @version $Revision: 1.3 $ $Date: 2003/09/08 04:51:14 $
  */
-public interface WebConnector extends Component
-{
-
-    /*-------------------------------------------------------------------------------- */
-    /** Port number of connector
-    * @param port number on which to listen
-    */
+public interface WebConnector extends Component {
+    /**
+     * Port number of connector
+     * @param port number on which to listen
+     */
     public void setPort(int port);
 
     public int getPort();
 
-    /*-------------------------------------------------------------------------------- */
-    /** Protocol of connector
-    * @param protocol eg http, https, ftp etc
-    */
+    /**
+     * Protocol of connector
+     * @param protocol eg http, https, ftp etc
+     */
     public void setProtocol(String protocol);
 
     public String getProtocol();
 
-    /*-------------------------------------------------------------------------------- */
-    /** Interface of connector
-    * @param iface (hostname or IP) on which to listen
-    */
+    /**
+     * Interface of connector
+     * @param iface (hostname or IP) on which to listen
+     */
     public void setInterface(String iface);
 
     public String getInterface();
 
-    /*-------------------------------------------------------------------------------- */
-    /** Maximum number of connections supported by connector
-    * @param maxConnects
-    */
+    /**
+     * Maximum number of connections supported by connector
+     * @param maxConnects
+     */
     public void setMaxConnections(int maxConnects);
 
     public int getMaxConnections();
 
-    /*-------------------------------------------------------------------------------- */
-    /** Maximum time (in ms) that a connection can be idle
+    /**
+     * Maximum time (in ms) that a connection can be idle
      * before the connector will close it.
-    * @param maxIdleTime time in msec
-    */
+     * @param maxIdleTime time in msec
+     */
     public void setMaxIdleTime(int maxIdleTime);
 
     public int getMaxIdleTime();
 
-    /*-------------------------------------------------------------------------------- */
-    /** Names of contexts that must be registered and started
-     * in the associated web container before this connector will
-     * accept connections.
-    * @param contexts
-    */
+    /**
+     * Names of contexts that must be registered and started in the associated web container before
+     * this connector will accept connections.
+     * @param contexts
+     */
     public void setContexts(String[] contexts);
 
     public String[] getContexts();

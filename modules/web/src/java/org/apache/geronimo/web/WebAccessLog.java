@@ -58,29 +58,26 @@ package org.apache.geronimo.web;
 
 import java.net.URI;
 
-import org.apache.geronimo.common.Component;
+import org.apache.geronimo.core.service.Component;
 
-/* -------------------------------------------------------------------------------------- */
 /**
  * WebAccessLog
- * 
- * 
- * @version $Revision: 1.2 $ $Date: 2003/08/27 10:32:05 $
+ *
+ * @version $Revision: 1.3 $ $Date: 2003/09/08 04:51:14 $
  */
-public interface WebAccessLog extends Component
-{
-    public void setLogLocation (URI uri);
-    
-    public URI getLogLocation ();
-    
+public interface WebAccessLog extends Component {
+    public void setLogLocation(URI uri);
+
+    public URI getLogLocation();
+
     // extendedNCSAFormat
-    
+
     // rollover retention days
-    
+
     // date format
-    
+
     // append
-    
+
     // buffering
-    
+
 }

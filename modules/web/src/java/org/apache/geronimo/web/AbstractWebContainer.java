@@ -57,143 +57,118 @@
 package org.apache.geronimo.web;
 
 import java.net.URI;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.apache.geronimo.common.AbstractContainer;
-import org.apache.geronimo.common.Component;
+import org.apache.geronimo.core.service.AbstractContainer;
+import org.apache.geronimo.core.service.Component;
+
 import org.w3c.dom.Document;
 
-/* -------------------------------------------------------------------------------------- */
 /**
  * AbstractWebContainer
- * 
+ *
  * Base class for web containers.
  *
- * @version $Revision: 1.6 $ $Date: 2003/08/27 10:32:05 $
+ * @version $Revision: 1.7 $ $Date: 2003/09/08 04:51:14 $
  */
-public abstract class AbstractWebContainer
-    extends AbstractContainer
-    implements WebContainer
-{
+public abstract class AbstractWebContainer extends AbstractContainer implements WebContainer {
     /**
      * Location of the default web.xml file
      */
     private URI defaultWebXmlURI = null;
 
     /**
-     * Parsed default web.xml 
+     * Parsed default web.xml
      */
     private Document defaultWebXmlDoc = null;
-
 
     /**
      * Controls unpacking of wars to tmp runtime location
      */
     private boolean unpackWars = true;
 
-
     private final DocumentBuilder parser;
 
-
-
-    /* -------------------------------------------------------------------------------------- */
     /**
-     *  Constructor
+     * Constructor
      */
-    public AbstractWebContainer()
-    {
+    public AbstractWebContainer() {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        try
-        {
+        try {
             parser = factory.newDocumentBuilder();
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             throw new AssertionError("No XML parser available");
         }
     }
 
-    /* -------------------------------------------------------------------------------------- */
     /**
-    * Creates a WebApplication from the url and associates it with this container.
-    * @param url the location of the web application to deploy
-    * @throws Exception
-    * @see org.apache.geronimo.web.WebContainer#deploy(java.lang.String)
-    * @todo this is likely to change when the deployment interface becomes available
-    */
-    public void deploy(String uri) throws Exception
-    {
+     * Creates a WebApplication from the url and associates it with this container.
+     * @param url the location of the web application to deploy
+     * @throws Exception
+     * @see org.apache.geronimo.web.WebContainer#deploy(java.lang.String)
+     * @todo this is likely to change when the deployment interface becomes available
+     */
+    public void deploy(String uri) throws Exception {
         //TODO what will be the interface to the deployer?
-        
+
         //sort out the contextPath  - if the geronimo web descriptor doesn't
         //provide one, and there is no application descriptor, then it will be
         //the name of the webapp. NOTE, we need to somehow access
         //these descriptors - is it by JSR88 beans or by xml?
         String contextPath = null;
-        
+
         //this is only necessary for compilation, the interface to the deployer will change
         URI location = new URI(uri);
-        
-        WebApplication webapp = createWebApplication ();
+
+        WebApplication webapp = createWebApplication();
         webapp.setURI(location);
         webapp.setContextPath(contextPath);
-        addComponent (webapp);
+        addComponent(webapp);
     }
 
-
-    /* -------------------------------------------------------------------------------------- */
-    /** Create a WebApplication suitable to the container's type.
+    /**
+     * Create a WebApplication suitable to the container's type.
      * @return WebApplication instance, preferably derived from AbstractWebApplication suitable to the container
      */
-    public abstract WebApplication createWebApplication ();
-    
-    
-    
-    /* -------------------------------------------------------------------------------------- */
+    public abstract WebApplication createWebApplication();
+
     /**
      * Get the URI of the web defaults.
      * @return the location of the default web.xml file for this container
      */
-    public URI getDefaultWebXmlURI()
-    {
+    public URI getDefaultWebXmlURI() {
         return defaultWebXmlURI;
     }
 
-    /* -------------------------------------------------------------------------------------- */
-    /**Set a uri of a web.xml containing defaults for this container.
+    /**
+     * Set a uri of a web.xml containing defaults for this container.
      * @param uri the location of the default web.xml file
      */
-    public void setDefaultWebXmlURI(URI uri)
-    {
+    public void setDefaultWebXmlURI(URI uri) {
         defaultWebXmlURI = uri;
     }
 
-    /* -------------------------------------------------------------------------------------- */
-    /**Get the parsed web defaults
+    /**
+     * Get the parsed web defaults
      * @return
      */
-    public Document getDefaultWebXmlDoc()
-    {
+    public Document getDefaultWebXmlDoc() {
         return defaultWebXmlDoc;
     }
 
-
-    /* -------------------------------------------------------------------------------------- */
-    /**Parse the web defaults descriptor
+    /**
+     * Parse the web defaults descriptor
      * @throws Exception
      */
-    protected void parseWebDefaults() throws Exception
-    {
+    protected void parseWebDefaults() throws Exception {
         if (defaultWebXmlURI == null)
             return;
 
         defaultWebXmlDoc = parser.parse(defaultWebXmlURI.toString());
     }
 
-    /* -------------------------------------------------------------------------------------- */
-    /* 
+    /**
      * @return
      * @see org.apache.geronimo.web.WebContainer#getUnpackWars()
      */
@@ -202,8 +177,7 @@ public abstract class AbstractWebContainer
     //    return unpackWars;
     //}
 
-    /* -------------------------------------------------------------------------------------- */
-    /* 
+    /**
      * @param state
      * @see org.apache.geronimo.web.WebContainer#setUnpackWars(boolean)
      */
@@ -212,88 +186,74 @@ public abstract class AbstractWebContainer
     //    unpackWars = state;
     //}
 
-    /* -------------------------------------------------------------------------------------- */
-    /* Add a component to this container's containment hierarchy
-     * @see org.apache.geronimo.common.Container#addComponent(org.apache.geronimo.common.Component)
+    /**
+     * Add a component to this container's containment hierarchy
+     * @see org.apache.geronimo.core.service.Container#addComponent(org.apache.geronimo.core.service.Component)
      */
-    public void addComponent(Component component)
-    {
+    public void addComponent(Component component) {
         super.addComponent(component);
-        
-        if (component instanceof WebConnector)
-            webConnectorAdded((WebConnector)component);
-        else if (component instanceof WebApplication)
-            webApplicationAdded((WebApplication)component);
-        else if (component instanceof WebAccessLog)
-            webAccessLogAdded ((WebAccessLog)component);
+
+        if (component instanceof WebConnector) {
+            webConnectorAdded((WebConnector) component);
+        } else if (component instanceof WebApplication) {
+            webApplicationAdded((WebApplication) component);
+        } else if (component instanceof WebAccessLog) {
+            webAccessLogAdded((WebAccessLog) component);
+        }
     }
-    
-    /* -------------------------------------------------------------------------------------- */
-    /* Remove a component from this container's hierarchy
-     * @see org.apache.geronimo.common.Container#removeComponent(org.apache.geronimo.common.Component)
+
+    /**
+     *  Remove a component from this container's hierarchy
+     * @see org.apache.geronimo.core.service.Container#removeComponent(org.apache.geronimo.core.service.Component)
      */
-    public void removeComponent(Component component)
-    {
-        if (component instanceof WebConnector)
-            webConnectorRemoval((WebConnector)component);
-        else if (component instanceof WebApplication)
-            webApplicationRemoval((WebApplication)component);
-            
+    public void removeComponent(Component component) {
+        if (component instanceof WebConnector) {
+            webConnectorRemoval((WebConnector) component);
+        } else if (component instanceof WebApplication) {
+            webApplicationRemoval((WebApplication) component);
+        }
+
         super.removeComponent(component);
     }
-    
-    
-    /* -------------------------------------------------------------------------------------- */
+
     /**
      * Method called by addComponent after a WebConnector has been added.
      * @param connector
      */
-    protected void webConnectorAdded(WebConnector connector)
-    {
+    protected void webConnectorAdded(WebConnector connector) {
     }
 
-
-    /* -------------------------------------------------------------------------------------- */
     /**
      * Method called by addComponment after a WebApplication has been added.
      * @param connector
      */
-    protected void webApplicationAdded(WebApplication connector)
-    {
+    protected void webApplicationAdded(WebApplication connector) {
     }
-    
-    
-    /* -------------------------------------------------------------------------------------- */
+
     /**
      * @param log
      */
-    protected void webAccessLogAdded (WebAccessLog log)
-    {
+    protected void webAccessLogAdded(WebAccessLog log) {
     }
-    
-    /* -------------------------------------------------------------------------------------- */
+
     /**
      * Method called by removeComponent before a WebConnector has been removed.
      * @param connector
      */
-    protected void webConnectorRemoval(WebConnector connector)
-    {
+    protected void webConnectorRemoval(WebConnector connector) {
     }
 
-    /* -------------------------------------------------------------------------------------- */   
     /**
      * Method called by removeComponment before a WebApplication has been removed.
      * @param connector
      */
-    protected void webApplicationRemoval(WebApplication connector)
-    {
+    protected void webApplicationRemoval(WebApplication connector) {
     }
-    
-    /* -------------------------------------------------------------------------------------- */
-    /** Remove an access log service from the container
+
+    /**
+     * Remove an access log service from the container
      * @param log
      */
-    protected void webAccessLogRemoval (WebAccessLog log)
-    {
+    protected void webAccessLogRemoval(WebAccessLog log) {
     }
 }
