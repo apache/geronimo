@@ -20,6 +20,7 @@ package org.apache.geronimo.timer.jdbc;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.Date;
 import java.util.Collection;
 
@@ -66,6 +67,11 @@ public class JDBCWorkerPersistenceTest extends TestCase {
 
     protected void tearDown() throws Exception {
         jdbcWorkerPersistence.doStop();
+        Connection c = datasource.getConnection();
+        Statement s = c.createStatement();
+        s.execute("SHUTDOWN");
+        s.close();
+        c.close();
     }
 
     public void testSaveCancel() throws Exception {
