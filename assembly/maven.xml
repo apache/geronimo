@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- $Revision: 1.5 $ $Date: 2004/02/11 03:14:10 $ -->
+<!-- $Revision: 1.6 $ $Date: 2004/02/12 18:31:16 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -25,12 +25,13 @@
     <!-- ==================== -->
 
     <goal name="default">
-        <attainGoal name="deploy:server"/>
-        <attainGoal name="install:server"/>
+<!--        <attainGoal name="deploy:server"/>-->
+<!--        <attainGoal name="install:server"/>-->
+        <attainGoal name="build"/>
     </goal>
 
     <goal name="build">
-        <attainGoal name="default"/>
+        <attainGoal name="assemble"/>
     </goal>
 
     <goal name="rebuild">
@@ -39,34 +40,116 @@
     </goal>
 
     <!-- ==================================================== -->
-    <!-- Helper to run Apache Geronimo from the current build -->
+    <!-- Assemble server installation from generated modules  -->
     <!-- ==================================================== -->
-    <goal name="deploy:server">
+    <goal name="assemble">
         <!-- Copy  the runtime dependencies into lib and create a classpath for the server.jar file -->
         <j:set var="libDir" value="target/lib"/>
         <ant:mkdir dir="${libDir}"/>
         <j:forEach var="artifact" items="${pom.artifacts}">
             <j:set var="dependency" value="${artifact.dependency}"/>
-            <j:if test="${dependency.getProperty('runtime') == 'true'}">
-                <ant:echo>Processing dependency: ${dependency.id}</ant:echo>
+            <j:if test="${dependency.getProperty('lib') == 'true'}">
                 <ant:copy todir="${libDir}" file="${artifact.path}"/>
                 <j:set var="classpath" value="${classpath} ../lib/${artifact.name}"/>
             </j:if>
+            <j:if test="${dependency.getProperty('server') == 'true'}">
+                <j:set var="server.classpath" value="${server.classpath} ../lib/${artifact.name}"/>
+            </j:if>
+            <j:if test="${dependency.getProperty('deploy') == 'true'}">
+                <j:set var="deploy.classpath" value="${deploy.classpath} ../lib/${artifact.name}"/>
+            </j:if>
+            <j:if test="${dependency.artifactId == 'geronimo-system'}">
+                <j:set var="system.artifact" value="${artifact.path}"/>
+            </j:if>
         </j:forEach>
-        <j:set var="classpath" value="${classpath.trim()}"/>
 
-        <!-- Create the server.jar file -->
+        <!-- Create directory for XML schema documents -->
+        <ant:mkdir dir="target/schema"/>
+        <ant:copy todir="target/schema" flatten="true">
+            <ant:fileset dir="${project.root}/specs/schema">
+                <ant:include name="src/j2ee_1_4schema/*.xsd"/>
+                <ant:include name="src/j2ee_1_3dtd/*.dtd"/>
+            </ant:fileset>
+            <ant:fileset dir="${project.root}/modules/deployment">
+                <ant:include name="src/schema/*.xsd"/>
+            </ant:fileset>
+            <ant:fileset dir="src/etc"/>
+        </ant:copy>
+
+        <!-- Pre-load the server's repository -->
+        <ant:mkdir dir="target/repository"/>
+        <ant:copy todir="target/repository">
+            <ant:fileset dir="${maven.repo.local}">
+                <ant:include name="geronimo/**"/>
+                <ant:include name="geronimo-spec/**"/>
+                <ant:include name="geronimo-j2ee/**"/>
+                <ant:include name="log4j/jars/log4j-1.2.8.jar"/>
+                <ant:include name="jetty/jars/org.mortbay.jetty-5.0.beta0.jar"/>
+                <ant:include name="tomcat/jars/jasper-compiler-5.0.16.jar"/>
+                <ant:include name="tomcat/jars/jasper-runtime-5.0.16.jar"/>
+                <ant:include name="commons-el/jars/commons-el-1.0.jar"/>
+                <ant:include name="ant/jars/ant-1.5.jar"/>
+            </ant:fileset>
+        </ant:copy>
+
+        <!-- Create the server.jar file used to run the server-->
         <ant:mkdir dir="target/bin"/>
         <ant:jar destfile="target/bin/server.jar">
             <!-- include the log4j.properties file from the kernel module -->
             <fileset file="../modules/kernel/src/conf/log4j.properties"/>
             <manifest>
                 <attribute name="Main-Class" value="org.apache.geronimo.Geronimo"/>
-                <attribute name="Class-Path" value="${classpath}"/>
+                <attribute name="Class-Path" value="${server.classpath}"/>
             </manifest>
         </ant:jar>
 
-        <!-- build the server.car configuration -->
+        <!-- Create the deploy.jar file used to deploy things -->
+        <ant:jar destfile="target/bin/deploy.jar">
+            <!-- include the log4j.properties file from the kernel module -->
+            <fileset file="../modules/kernel/src/conf/log4j.properties"/>
+            <manifest>
+                <attribute name="Main-Class" value="org.apache.geronimo.deployment.Deployer"/>
+                <attribute name="Class-Path" value="${deploy.classpath}"/>
+            </manifest>
+        </ant:jar>
+
+        <!-- bootstrap the service deployer -->
+        <ant:mkdir dir="target/config"/>
+        <ant:mkdir dir="target/config-store"/>
+        <j:invokeStatic className="org.apache.geronimo.deployment.Bootstrap" method="bootstrap">
+            <j:arg type="java.lang.String" value="${basedir}/target/config/service-deployer.car"/>
+            <j:arg type="java.lang.String" value="${basedir}/target/config-store"/>
+            <j:arg type="java.lang.String" value="${system.artifact}"/>
+        </j:invokeStatic>
+
+        <!-- build the system configuration -->
+        <ant:java fork="true" jar="target/bin/deploy.jar">
+            <ant:sysproperty key="geronimo.base.dir" value="target"/>
+            <ant:arg value="--install"/>
+            <ant:arg value="--plan"/>
+            <ant:arg value="src/plan/system-config.xml"/>
+            <ant:arg value="--outfile"/>
+            <ant:arg value="target/config/system.car"/>
+            <ant:arg value="--store"/>
+            <ant:arg value="target/config-store"/>
+            <ant:arg value="--deployer"/>
+            <ant:arg value="org/apache/geronimo/ServiceDeployer"/>
+        </ant:java>
+
+        <!-- build the J2EEServer configuration -->
+        <ant:java fork="true" jar="target/bin/deploy.jar">
+            <ant:sysproperty key="geronimo.base.dir" value="target"/>
+            <ant:arg value="--install"/>
+            <ant:arg value="--plan"/>
+            <ant:arg value="src/plan/server-config.xml"/>
+            <ant:arg value="--outfile"/>
+            <ant:arg value="target/config/J2EEServer.car"/>
+            <ant:arg value="--store"/>
+            <ant:arg value="target/config-store"/>
+            <ant:arg value="--deployer"/>
+            <ant:arg value="org/apache/geronimo/ServiceDeployer"/>
+        </ant:java>
+        <!--
         <j:set var="g.repo" value="${maven.repo.local}/geronimo/jars"/>
         <ant:mkdir dir="${basedir}/target/config"/>
         <ant:echo message="in deploy:server"/>
@@ -75,6 +158,7 @@
             deployoutfile="target/config/server.car"
             deployurl="${g.repo}/geronimo-security-package-DEV.jar,${g.repo}/geronimo-transaction-package-DEV.jar,${g.repo}/geronimo-connector-package-DEV.jar,${g.repo}/geronimo-jetty-package-DEV.jar,${g.repo}/geronimo-web-console-package-DEV.jar,${maven.repo.local}/concurrent/jars/concurrent-1.3.2.jar,${maven.repo.local}/xerces/jars/xercesImpl-2.6.0.jar,${maven.repo.local}/xml-apis/jars/xml-apis-1.0.b2.jar,${maven.repo.local}/xml-commons-resolver/jars/xml-commons-resolver-1.1.jar,${maven.repo.local}/geronimo/jars/geronimo-core-${pom.currentVersion}.jar,${maven.repo.local}/geronimo/jars/geronimo-deployment-${pom.currentVersion}.jar,${maven.repo.local}/geronimo/jars/geronimo-common-${pom.currentVersion}.jar,${maven.repo.local}/geronimo/jars/log4j-service-${pom.currentVersion}.jar,${maven.repo.local}/geronimo/jars/server-info-${pom.currentVersion}.jar"/>
         <ant:echo message="did deploy:server"/>
+-->
     </goal>
 
     <goal name="install:server">

@@ -51,11 +51,39 @@
                 <classloader>root</classloader>
             </properties>
         </dependency>
-<!-- TODO remove this stupid dependency -->
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-system</artifactId>
+            <version>DEV</version>
+            <properties>
+                <classloader>root</classloader>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-j2ee-deployment</artifactId>
+            <version>DEV</version>
+            <properties>
+                <classloader>root</classloader>
+            </properties>
+        </dependency>
+
+        <!-- TODO remove this stupid dependency -->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-core</artifactId>
             <version>DEV</version>
+            <properties>
+                <classloader>root</classloader>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <id>commons-cli</id>
+            <version>1.0</version>
+            <url>http://jakarta.apache.org/commons/cli/</url>
             <properties>
                 <classloader>root</classloader>
             </properties>
@@ -97,6 +125,14 @@
             </properties>
         </dependency>
 
+        <dependency>
+            <groupId>xmlbeans</groupId>
+            <artifactId>xbean-apache</artifactId>
+            <version>1.0-DEV</version>
+            <properties>
+                <classloader>root</classloader>
+            </properties>
+        </dependency>
     </dependencies>
 
     <build>

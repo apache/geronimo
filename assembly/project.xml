@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.3 $ $Date: 2004/02/11 03:14:10 $ -->
+<!-- $Revision: 1.4 $ $Date: 2004/02/12 18:31:16 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -30,8 +30,41 @@
             <artifactId>geronimo-kernel</artifactId>
             <version>DEV</version>
             <properties>
-                <runtime>true</runtime>
+                <lib>true</lib>
+                <server>true</server>
+                <deploy>true</deploy>
                 <module>true</module>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-deployment</artifactId>
+            <version>DEV</version>
+            <properties>
+                <lib>true</lib>
+                <deploy>true</deploy>
+                <module>true</module>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-common</artifactId>
+            <version>DEV</version>
+            <properties>
+                <lib>true</lib>
+                <deploy>true</deploy>
+                <module>true</module>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-system</artifactId>
+            <version>DEV</version>
+            <properties>
+                <classloader>root</classloader>
             </properties>
         </dependency>
 
@@ -41,7 +74,9 @@
             <version>2.0-RC2</version>
             <url>http://cglib.sf.net/</url>
             <properties>
-                <runtime>true</runtime>
+                <lib>true</lib>
+                <server>true</server>
+                <deploy>true</deploy>
             </properties>
         </dependency>
 
@@ -50,26 +85,43 @@
             <version>1.0.3</version>
             <url>http://jakarta.apache.org/commons/logging/</url>
             <properties>
-                <runtime>true</runtime>
+                <lib>true</lib>
+                <server>true</server>
+                <deploy>true</deploy>
             </properties>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <id>log4j</id>-->
-<!--            <version>1.2.8</version>-->
-<!--            <url>http://jakarta.apache.org/log4j</url>-->
-<!--            <properties>-->
-<!--                <runtime>true</runtime>-->
-<!--            </properties>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>commons-cli</groupId>
+            <artifactId>commons-cli</artifactId>
+            <version>1.0</version>
+            <url>http://jakarta.apache.org/commons/cli/</url>
+            <properties>
+                <lib>true</lib>
+                <deploy>true</deploy>
+                <classloader>root</classloader>
+            </properties>
+        </dependency>
 
         <dependency>
             <id>mx4j</id>
             <version>SNAPSHOT</version>
             <properties>
-                <runtime>true</runtime>
+                <lib>true</lib>
+                <server>true</server>
+                <deploy>true</deploy>
             </properties>
         </dependency>
 
+        <dependency>
+            <groupId>xmlbeans</groupId>
+            <artifactId>xbean-apache</artifactId>
+            <version>1.0-DEV</version>
+            <properties>
+                <lib>true</lib>
+                <deploy>true</deploy>
+                <classloader>root</classloader>
+            </properties>
+        </dependency>
     </dependencies>
 </project>
