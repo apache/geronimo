@@ -94,7 +94,7 @@ import org.apache.xmlbeans.XmlBeans;
 
 
 /**
- * @version $Revision: 1.16 $ $Date: 2004/07/23 06:06:19 $
+ * @version $Revision: 1.17 $ $Date: 2004/07/30 00:25:13 $
  */
 public class JettyModuleBuilder implements ModuleBuilderWithUnpack {
     static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderUnion(new SchemaTypeLoader[] {
@@ -437,7 +437,7 @@ public class JettyModuleBuilder implements ModuleBuilderWithUnpack {
         }
         ENCConfigBuilder.addResourceEnvRefs(webApp.getResourceEnvRefArray(), cl, resourceEnvRefMap, builder);
 
-        // todo message-destination-ref
+        ENCConfigBuilder.addMessageDestinationRefs(webApp.getMessageDestinationRefArray(), cl, builder);
 
         return builder.getContext();
     }
