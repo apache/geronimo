@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.78 $ $Date: 2004/07/28 19:16:08 $ -->
+<!-- $Revision: 1.79 $ $Date: 2004/08/21 15:57:01 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -334,6 +334,15 @@
     <preGoal name="site">
         <attainGoal name="modules:aggregate:site"/>
     </preGoal>
+
+    <postGoal name="site">
+        <j:set var="aggregate.dir" value="${basedir}/${distDir}/docs"/>
+        <!-- Copy project docs -->
+        <ant:echo>Copying project docs to ${aggregate.dir}...</ant:echo>
+        <ant:copy todir="${aggregate.dir}">
+           <ant:fileset dir="${basedir}/target/docs"/>
+        </ant:copy>
+    </postGoal>
 
     <goal name="modules:aggregate:site" prereqs="modules:site"
         description="Copy the generated websites of all the modules into the root project">
