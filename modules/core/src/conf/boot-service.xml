@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.22 $ $Date: 2003/11/17 00:46:09 $ -->
+<!-- $Revision: 1.23 $ $Date: 2003/11/17 10:51:53 $ -->
 
 <components>
     <class-space name="geronimo.system:role=ClassSpace,name=System">
@@ -27,10 +27,6 @@
             <arg type="java.net.URL[]">${geronimo.home}/deploy/,</arg>
             <arg type="long">5000</arg>
         </constructor>
-    </mbean>
-
-    <mbean code="org.apache.geronimo.deployment.app.ApplicationDeployer"
-           name="geronimo.deployment:role=ApplicationDeployer">
     </mbean>
 
     <mbean name="geronimo.transaction:role=TransactionManager"
