@@ -18,6 +18,8 @@
 package org.apache.geronimo.messaging.remotenode;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.geronimo.messaging.Msg;
 import org.apache.geronimo.messaging.MsgBody;
@@ -37,7 +39,7 @@ import org.apache.geronimo.messaging.io.StreamOutputStream;
  * Its goal is to compress Msgs to be sent to other nodes. The compression is
  * based on a shared knowledge such as a Topology.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:42 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/24 23:52:12 $
  */
 public class LogicalCompression
     implements PopSynchronization, PushSynchronization
@@ -51,22 +53,22 @@ public class LogicalCompression
     /**
      * No logical compression.
      */
-    private final static byte NULL = 0x00;
+    private final static byte NULL = (byte) 0;
     
     /**
      * Compression based on the Topology shared knowledge.
      */
-    private final static byte TOPOLOGY = 0x01;
+    private final static byte TOPOLOGY = (byte) 1;
 
     /**
      * Identifies a request.
      */
-    private final static byte REQUEST = 0x01;
+    private final static byte REQUEST = (byte) 0;
     
     /**
      * Identifies a response.
      */
-    private final static byte RESPONSE = 0x02;
+    private final static byte RESPONSE = (byte) 1;
 
     public NodeTopology getTopology() {
         return topology;
@@ -78,60 +80,68 @@ public class LogicalCompression
     
     public Object beforePop(StreamInputStream anIn)
         throws IOException {
+        List result = new ArrayList(5);
+        int bodyType = anIn.readByte();
+        if ( REQUEST == bodyType ) {
+            result.add(MsgBody.Type.REQUEST);
+        } else {
+            result.add(MsgBody.Type.RESPONSE);
+        }
+        byte reqID = anIn.readByte();
+        result.add(new RequestSender.RequestID(reqID));
         byte type = anIn.readByte(); 
         if ( type == NULL ) {
-            return null;
+            return result;
         }
         if ( null == topology ) {
             throw new IllegalArgumentException("No topology is defined.");
         }
-        Object[] result = new Object[5];
         int id = anIn.readInt();
         NodeInfo nodeInfo = topology.getNodeById(id);
-        result[0] = nodeInfo;
+        result.add(nodeInfo);
 
         id = anIn.readInt();
         nodeInfo = topology.getNodeById(id);
-        result[1] = nodeInfo;
+        result.add(nodeInfo);
         
         id = anIn.readInt();
         nodeInfo = topology.getNodeById(id);
-        result[2] = nodeInfo;
-        
-        int bodyType = anIn.read();
-        if ( REQUEST == bodyType ) {
-            result[3] = MsgBody.Type.REQUEST;
-        } else {
-            result[3] = MsgBody.Type.RESPONSE;
-        }
-        
-        int reqID = anIn.readInt();
-        result[4] = new RequestSender.RequestID(new Integer(reqID));
-        return result;
+        result.add(nodeInfo);
+        return result.toArray();
     }
     
     public void afterPop(StreamInputStream anIn, Msg aMsg, Object anOpaque)
         throws IOException {
-        if ( null == anOpaque ) {
+        List prePop = (List) anOpaque;
+        MsgHeader header = aMsg.getHeader();
+        header.addHeader(MsgHeaderConstants.BODY_TYPE, prePop.get(0));
+        header.addHeader(MsgHeaderConstants.CORRELATION_ID, prePop.get(1));
+        if ( 5 != prePop.size() ) {
             return;
         }
-        Object[] prePop = (Object[]) anOpaque;
-        MsgHeader header = aMsg.getHeader();
-        header.addHeader(MsgHeaderConstants.SRC_NODE, prePop[0]);
-        header.addHeader(MsgHeaderConstants.DEST_NODE, prePop[1]);
-        header.addHeader(MsgHeaderConstants.DEST_NODES, prePop[2]);
-        header.addHeader(MsgHeaderConstants.BODY_TYPE, prePop[3]);
-        header.addHeader(MsgHeaderConstants.CORRELATION_ID, prePop[4]);
+        header.addHeader(MsgHeaderConstants.SRC_NODE, prePop.get(2));
+        header.addHeader(MsgHeaderConstants.DEST_NODE, prePop.get(3));
+        header.addHeader(MsgHeaderConstants.DEST_NODES, prePop.get(4));
     }
     
     public Object beforePush(StreamOutputStream anOut, Msg aMsg)
         throws IOException {
+        MsgHeader header = aMsg.getHeader();
+        MsgBody.Type type  = (MsgBody.Type)
+            header.resetHeader(MsgHeaderConstants.BODY_TYPE);
+        if ( type == MsgBody.Type.REQUEST ) {
+            anOut.writeByte(REQUEST);
+        } else {
+            anOut.writeByte(RESPONSE);
+        }
+        RequestSender.RequestID reqID  = (RequestSender.RequestID)
+            header.resetHeader(MsgHeaderConstants.CORRELATION_ID);
+        anOut.writeByte(reqID.getID());
         if ( null == topology ) {
             anOut.writeByte(NULL);
             return null;
         }
         anOut.writeByte(TOPOLOGY);
-        MsgHeader header = aMsg.getHeader();
         
         NodeInfo info =
             (NodeInfo) header.resetHeader(MsgHeaderConstants.SRC_NODE);
@@ -144,19 +154,6 @@ public class LogicalCompression
         NodeInfo target =
             (NodeInfo) header.resetHeader(MsgHeaderConstants.DEST_NODES);
         anOut.writeInt(topology.getIDOfNode(target));
-        
-        MsgBody.Type type  = (MsgBody.Type)
-        header.resetHeader(MsgHeaderConstants.BODY_TYPE);
-        if ( type == MsgBody.Type.REQUEST ) {
-            anOut.write(REQUEST);
-        } else {
-            anOut.write(RESPONSE);
-        }
-        
-        RequestSender.RequestID reqID  = (RequestSender.RequestID)
-            header.resetHeader(MsgHeaderConstants.CORRELATION_ID);
-        anOut.writeInt(reqID.getID());
-        
         return null;
     }
     

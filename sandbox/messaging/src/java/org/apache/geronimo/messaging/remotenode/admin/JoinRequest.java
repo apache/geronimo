@@ -21,6 +21,7 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.apache.geronimo.messaging.CommunicationException;
 import org.apache.geronimo.messaging.Msg;
+import org.apache.geronimo.messaging.MsgBody;
 import org.apache.geronimo.messaging.MsgHeader;
 import org.apache.geronimo.messaging.MsgHeaderConstants;
 import org.apache.geronimo.messaging.NodeInfo;
@@ -34,7 +35,7 @@ import EDU.oswego.cs.dl.util.concurrent.TimeoutException;
 /**
  * Join request.
  *
- * @version $Revision: 1.2 $ $Date: 2004/06/03 14:51:16 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/24 23:52:12 $
  */
 public class JoinRequest
     implements RemoteNodeConnectionCommand
@@ -74,8 +75,9 @@ public class JoinRequest
         header.addHeader(MsgHeaderConstants.DEST_NODES, joined);
         header.addHeader(MsgHeaderConstants.SRC_ENDPOINT, "");
         header.addHeader(MsgHeaderConstants.CORRELATION_ID,
-            new RequestSender.RequestID(new Integer(0)));
-
+            new RequestSender.RequestID((byte) 0));
+        header.addHeader(MsgHeaderConstants.BODY_TYPE, MsgBody.Type.REQUEST);
+        
         msg.getBody().setContent(joiner);
 
         final FutureResult result = new FutureResult();

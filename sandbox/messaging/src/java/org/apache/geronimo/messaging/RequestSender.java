@@ -22,8 +22,6 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,7 +33,7 @@ import EDU.oswego.cs.dl.util.concurrent.TimeoutException;
 /**
  * Request Msgs sender.
  *
- * @version $Revision: 1.3 $ $Date: 2004/06/10 23:08:07 $
+ * @version $Revision: 1.4 $ $Date: 2004/06/24 23:52:12 $
  */
 public class RequestSender
 {
@@ -45,17 +43,27 @@ public class RequestSender
     /**
      * Number of milliseconds to wait for a response.
      */
-    private static final long WAIT_RESPONSE = 5000;
+    private static final long WAIT_RESPONSE = 2000;
+
+    /**
+     * Maximum number of requests that this instance can performed concurrently.
+     */
+    private static final int MAX_CONCURRENT_REQUEST = 255;
+    
+    /**
+     * Memory barrier for seqID counter.
+     */
+    private final Object seqMemBarrier = new Object(); 
     
     /**
      * Used to generate request identifiers.
      */
-    private static volatile int seqID = 0;
+    private int seqID = 0;
     
     /**
-     * Request id to FuturResult map.
+     * Request id to FuturResult[].
      */
-    private final Map responses;
+    private final Object[] responses;
 
     
     /**
@@ -66,7 +74,7 @@ public class RequestSender
      * request.
      */
     public RequestSender() {
-        responses = new HashMap();
+        responses = new Object[MAX_CONCURRENT_REQUEST + 1];
     }
 
     /**
@@ -101,8 +109,8 @@ public class RequestSender
         Msg msg = new Msg();
         
         MsgHeader header = msg.getHeader();
-        RequestID id = createID(aTargetNodes);
-        header.addHeader(MsgHeaderConstants.CORRELATION_ID, id);
+        IDTOFutureResult futurResult = createID(aTargetNodes);
+        header.addHeader(MsgHeaderConstants.CORRELATION_ID, futurResult.id);
         header.addHeader(MsgHeaderConstants.DEST_NODES, aTargetNodes);
         header.addHeader(MsgHeaderConstants.BODY_TYPE, MsgBody.Type.REQUEST);
         header.addHeader(MsgHeaderConstants.DEST_ENDPOINT, aTargetID);
@@ -112,7 +120,7 @@ public class RequestSender
         
         anOut.push(msg);
 
-        Result result = waitResponse(id, WAIT_RESPONSE);
+        Result result = waitResponse(futurResult.futurResults, WAIT_RESPONSE);
         if ( !result.isSuccess() ) {
             throw new CommunicationException(result.getThrowable());
         }
@@ -124,16 +132,27 @@ public class RequestSender
      * identifier for this slot.
      * 
      * @param aTargetNodes Nodes to which the request is to be sent.
-     * @return Request identifier.
+     * @return Request identifier and FutureResults.
      */
-    private RequestID createID(NodeInfo[] aTargetNodes) {
+    private IDTOFutureResult createID(NodeInfo[] aTargetNodes) {
         FutureResult[] results = new FutureResult[aTargetNodes.length];
         for (int i = 0; i < results.length; i++) {
             results[i] = new FutureResult();
         }
-        RequestID id = new RequestID(new Integer(seqID++));
-        responses.put(id, results);
-        return id;
+        int idAsInt;
+        synchronized (seqMemBarrier) {
+            // Implementation note: it is unlikely to have more than
+            // MAX_CONCURRENT_REQUEST Threads sending requests concurrently;
+            // This implementation assumes this unlikelihood. 
+            if ( MAX_CONCURRENT_REQUEST == ++seqID ) seqID = 1;
+            responses[seqID] = results;
+            idAsInt = seqID;
+        }
+        RequestID id = new RequestID((byte)idAsInt);
+        IDTOFutureResult result = new IDTOFutureResult();
+        result.id = id;
+        result.futurResults = results;
+        return result;
     }
     
     /**
@@ -143,15 +162,13 @@ public class RequestSender
      * @param aWaitTime number of milliseconds to wait for a response.
      * @return Result of the request.
      */
-    private Result waitResponse(RequestID anID, long aWaitTime) {
-        FutureResult[] results = (FutureResult[]) responses.get(anID);
+    private Result waitResponse(FutureResult[] aResults, long aWaitTime) {
         Exception ex;
         try {
             Result returned = null;
-            for (int i = 0; i < results.length; i++) {
-                returned = (Result) results[i].timedGet(aWaitTime);
+            for (int i = 0; i < aResults.length; i++) {
+                returned = (Result) aResults[i].timedGet(aWaitTime);
             }
-            responses.remove(anID);
             return returned;
         } catch (TimeoutException e) {
             log.error(e);
@@ -176,46 +193,60 @@ public class RequestSender
         if ( false == anID instanceof RequestID ) {
             throw new IllegalArgumentException("ID is of the wrong type.");
         }
-        FutureResult[] results = (FutureResult[]) responses.get(anID);
-        for (int i = 0; i < results.length; i++) {
-            FutureResult result = results[i];
-            if ( null == result.peek() ) {
-                result.set(aResult);
-                break;
+        RequestID id = (RequestID) anID;
+        int index = id.id <= 0 ? id.id & 127 + 128 : id.id;
+        FutureResult[] results;
+        results = (FutureResult[]) responses[index];
+        if ( null == results ) {
+            log.error("Invalid request ID {" + anID + "}");
+            return;
+        }
+        synchronized (results) {
+            for (int i = 0; i < results.length; i++) {
+                FutureResult result = results[i];
+                if ( null == result.peek() ) {
+                    result.set(aResult);
+                    break;
+                }
             }
         }
+    }
+    
+    private static class IDTOFutureResult {
+        private RequestID id;
+        private FutureResult[] futurResults;
     }
     
     /**
      * Request identifier.
      */
     public static class RequestID implements Externalizable {
-        protected Integer id;
+        protected byte id;
         /**
          * Required for Externalization.
          */
         public RequestID() {}
-        public RequestID(Integer anID) {
+        public RequestID(byte anID) {
             id = anID;
         }
-        public int getID() {
-            return id.intValue();
+        public byte getID() {
+            return id;
         }
         public void writeExternal(ObjectOutput out) throws IOException {
-            out.writeInt(id.intValue());
+            out.write(id);
         }
         public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-            id = new Integer(in.readInt());
+            id = (byte) in.read();
         }
         public int hashCode() {
-            return id.hashCode();
+            return id;
         }
         public boolean equals(Object obj) {
             if ( false == obj instanceof RequestID ) {
                 return false;
             }
             RequestID otherID = (RequestID) obj;
-            return id.equals(otherID.id);
+            return id == otherID.id;
         }
         public String toString() {
             return "ID=" + id;
