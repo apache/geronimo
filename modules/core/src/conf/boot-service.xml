@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.20 $ $Date: 2003/11/14 16:27:34 $ -->
+<!-- $Revision: 1.21 $ $Date: 2003/11/16 00:52:22 $ -->
 
 <components>
     <class-space name="geronimo.system:role=ClassSpace,name=System">
@@ -23,8 +23,10 @@
 
     <mbean descriptor="org.apache.geronimo.kernel.deployment.scanner.DeploymentScanner"
         name="geronimo.deployment:role=DeploymentScanner">
-        <attribute name="RecursiveURLs">${geronimo.home}/deploy/,</attribute>
-        <attribute name="ScanInterval">5000</attribute>
+        <constructor>
+            <arg type="java.net.URL[]">${geronimo.home}/deploy/,</arg>
+            <arg type="long">5000</arg>
+        </constructor>
     </mbean>
 
     <mbean code="org.apache.geronimo.deployment.app.ApplicationDeployer"

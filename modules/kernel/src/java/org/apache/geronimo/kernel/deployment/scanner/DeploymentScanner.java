@@ -87,7 +87,7 @@ import org.apache.geronimo.kernel.deployment.DeploymentController;
  * An MBean that maintains a list of URLs and periodically invokes a Scanner
  * to search them for deployments.
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/14 16:27:34 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/16 00:52:22 $
  */
 public class DeploymentScanner implements GeronimoMBeanTarget {
 
@@ -107,12 +107,6 @@ public class DeploymentScanner implements GeronimoMBeanTarget {
         mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ScanInterval",
                 true, true,
                 "Milliseconds between deployment scans"));
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("RecursiveURLs",
-                false, true,
-                "Array of URLs to scan recursively"));
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("NonRecursiveURLs",
-                false, true,
-                "Array of URLs to scan non-recursively"));
         mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("WatchedURLs",
                 true, false,
                 "Set of scanned URLs, without recursive information"));
@@ -140,73 +134,29 @@ public class DeploymentScanner implements GeronimoMBeanTarget {
         this.deploymentController = deploymentController;
     }
 
-    /**
-     * @jmx:managed-constructor
-     */
     public DeploymentScanner() {
     }
 
-    /**
-     * @jmx:managed-constructor
-     */
-    public DeploymentScanner(final URL[] urls, final boolean recurse) {
-        addURLs(urls, recurse);
-    }
-
-    private void addURLs(final URL[] urls, final boolean recurse) {
+    public DeploymentScanner(final URL[] urls, final long scanInterval) {
         for (int i = 0; i < urls.length; i++) {
-            addURL(urls[i], recurse);
+            addURL(urls[i], true);
         }
+        setScanInterval(scanInterval);
     }
 
 
-    /**
-     * @jmx:managed-attribute
-     */
     public synchronized long getScanInterval() {
         return scanInterval;
     }
 
-    /**
-     * @jmx:managed-attribute
-     */
     public synchronized void setScanInterval(long scanInterval) {
         this.scanInterval = scanInterval;
     }
 
-    public void setRecursiveURLs(URL[] urls) {
-        if (urls != null) {
-            addURLs(urls, true);
-        }
-    }
-
-
-    public void setNonRecursiveURLs(URL[] urls) {
-        if (urls != null) {
-            addURLs(urls, false);
-        }
-    }
-
-    /**
-     * @jmx:managed-attribute
-     */
     public synchronized Set getWatchedURLs() {
         return Collections.unmodifiableSet(new HashSet(scanners.keySet()));
     }
 
-    /**
-     * @jmx:managed-operation
-     */
-    public void addURL(String url, boolean recurse) throws MalformedURLException {
-        //
-        // TODO: remove these evil string adapters, let the JMX interface deal with this
-        //
-        addURL(new URL(url), recurse);
-    }
-
-    /**
-     * @jmx:managed-operation
-     */
     public synchronized void addURL(URL url, boolean recurse) {
         if (!scanners.containsKey(url)) {
             log.debug("Watching URL: " + url);
@@ -226,19 +176,6 @@ public class DeploymentScanner implements GeronimoMBeanTarget {
         }
     }
 
-    /**
-     * @jmx:managed-operation
-     */
-    public void removeURL(String url) throws MalformedURLException {
-        //
-        // TODO: remove these evil string adapters, let the JMX interface deal with this
-        //
-        removeURL(new URL(url));
-    }
-
-    /**
-     * @jmx:managed-operation
-     */
     public synchronized void removeURL(URL url) {
         scanners.remove(url);
     }
@@ -288,9 +225,6 @@ public class DeploymentScanner implements GeronimoMBeanTarget {
     public void doFail() {
     }
 
-    /**
-     * @jmx:managed-operation
-     */
     public void scanNow() {
         boolean logTrace = log.isTraceEnabled();
 
