@@ -32,6 +32,9 @@ Configuration for the Geronimo deployer
         <uri>geronimo-spec/jars/geronimo-spec-j2ee-DEV.jar</uri>
     </include>
     <include>
+        <uri>geronimo-spec/jars/geronimo-spec-j2eeschema-DEV.jar</uri>
+    </include>
+    <include>
         <uri>log4j/jars/log4j-1.2.8.jar</uri>
     </include>
     <include>
