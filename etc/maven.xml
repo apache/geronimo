@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.26 $ $Date: 2004/01/25 17:55:35 $ -->
+<!-- $Revision: 1.27 $ $Date: 2004/01/29 02:43:41 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -147,6 +147,12 @@
 
     </goal>
 
+    <!-- If there is no src/test directory you can
+    turn off clover in that module by overriding this goal to do nothing -->
+    <goal name="clover.wrapper">
+        <attainGoal name="clover"/>
+    </goal>
+
     <preGoal name="clover:test">
         <j:set var="cloveroverride" value="true"/>
     </preGoal>
@@ -201,13 +207,13 @@
     <postGoal name="jar:install">
         <ant:available property="geronimoPackagePresent" file="${basedir}/target/${pom.artifactId}-package-${pom.currentVersion}.jar"/>
         <j:if test="${geronimoPackagePresent == 'true'}">
-        <ant:property name="jardir__" value="${maven.repo.local}/${pom.artifactDirectory}/jars"/>
-        <ant:mkdir dir="${jardir__}"/>
-        <ant:copy
-            file="${basedir}/target/${pom.artifactId}-package-${pom.currentVersion}.jar"
-            todir="${jardir__}"
-            overwrite="true"
-            />
+            <ant:property name="jardir__" value="${maven.repo.local}/${pom.artifactDirectory}/jars"/>
+            <ant:mkdir dir="${jardir__}"/>
+            <ant:copy
+                file="${basedir}/target/${pom.artifactId}-package-${pom.currentVersion}.jar"
+                todir="${jardir__}"
+                overwrite="true"
+                />
         </j:if>
     </postGoal>
 </project>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.1 $ $Date: 2004/01/24 19:50:04 $ -->
+<!-- $Revision: 1.2 $ $Date: 2004/01/29 02:43:41 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -38,5 +38,9 @@
         <attainGoal name="build"/>
     </goal>
 
+    <goal name="clover.wrapper">
+        <!-- no src/test, don't run clover -->
+        <!--attainGoal name="clover"/-->
+    </goal>
 
 </project>

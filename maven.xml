@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.62 $ $Date: 2004/01/28 23:03:22 $ -->
+<!-- $Revision: 1.63 $ $Date: 2004/01/29 02:43:41 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -177,7 +177,7 @@
     </goal>
 
     <goal name="modules:clover">
-        <modules:reactor goals="clover" aggregate="false"/>
+        <modules:reactor goals="clover.wrapper" aggregate="false"/>
     </goal>
 
     <goal name="modules:clean">
