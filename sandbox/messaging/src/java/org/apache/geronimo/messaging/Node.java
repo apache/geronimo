@@ -19,6 +19,7 @@ package org.apache.geronimo.messaging;
 
 import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.messaging.io.ReplacerResolver;
+import org.apache.geronimo.messaging.proxy.EndPointProxyInfo;
 
 /**
  * Abstract a node in a clustered deployment.
@@ -31,7 +32,7 @@ import org.apache.geronimo.messaging.io.ReplacerResolver;
  * EndPoint -- MTO -- Node -- MTM -- Node -- OTM -- EndPoint
  * </PRE>
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:41 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/20 13:37:11 $
  */
 public interface Node extends GBean
 {
@@ -89,5 +90,25 @@ public interface Node extends GBean
      * @param anEndPoint EndPoint to be deregistered.
      */
     public void removeEndPoint(EndPoint anEndPoint);
+
+    /**
+     * Creates a proxy for the EndPoint defined by anInfo.
+     * 
+     * @param anInfo EndPoint meta-data.
+     * @return A proxy for the EndPoint defined by anInfo. This proxy implements
+     * all the EndPoint interfaces plus the EndPointProxy interface.
+     */
+    public Object factoryEndPointProxy(EndPointProxyInfo anInfo);
+    
+    /**
+     * Releases the resources of the specified EndPoint proxy.
+     * <BR>
+     * From this point, the proxy can no more be used.
+     * 
+     * @param aProxy EndPoint proxy.
+     * @exception IllegalArgumentException Indicates that the provided instance
+     * is not a proxy.
+     */
+    public void releaseEndPointProxy(Object aProxy);
     
 }

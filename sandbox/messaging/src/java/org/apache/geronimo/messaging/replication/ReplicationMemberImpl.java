@@ -26,6 +26,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.sf.cglib.proxy.Callback;
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.LazyLoader;
 import net.sf.cglib.proxy.MethodInterceptor;
 
 import org.apache.geronimo.gbean.GAttributeInfo;
@@ -37,13 +39,13 @@ import org.apache.geronimo.messaging.AbstractEndPoint;
 import org.apache.geronimo.messaging.Node;
 import org.apache.geronimo.messaging.NodeInfo;
 import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
-import org.apache.geronimo.messaging.util.EndPointCallback;
-import org.apache.geronimo.messaging.util.ProxyFactory;
+import org.apache.geronimo.messaging.proxy.EndPointCallback;
+import org.apache.geronimo.messaging.proxy.HOPPFilter;
 
 /**
  * ReplicationMember implementation.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:40 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/20 13:37:11 $
  */
 public class ReplicationMemberImpl
     extends AbstractEndPoint
@@ -63,7 +65,7 @@ public class ReplicationMemberImpl
     /**
      * EndPointCallback used under the cover by otherMembers.
      */
-    private final EndPointCallback endPointCallback;
+    private final EndPointCallback endPointCB;
     
     /**
      * Creates a replication group member.
@@ -82,14 +84,24 @@ public class ReplicationMemberImpl
         
         idToReplicant = new HashMap();
         
-        endPointCallback = new EndPointCallback(sender);
-        endPointCallback.setEndPointId(anID);
-        endPointCallback.setTargets(aTargetNodes);
-        ProxyFactory factory =
-            new ProxyFactory(new Class[] {ReplicationMember.class},
-                new Callback[] {endPointCallback},
-                new Class[] {MethodInterceptor.class}, null);
-        otherMembers = (ReplicationMember) factory.getProxy();
+        endPointCB = new EndPointCallback(sender);
+        endPointCB.setEndPointId(anID);
+        endPointCB.setTargets(aTargetNodes);
+        
+        Class[] interfaces = new Class[] {ReplicationMember.class};
+        Enhancer enhancer = new Enhancer();
+        enhancer.setInterfaces(interfaces);
+        enhancer.setCallbackTypes(
+            new Class[] {MethodInterceptor.class, LazyLoader.class});
+        enhancer.setUseFactory(false);
+        enhancer.setCallbacks(new Callback[] {endPointCB,
+            new LazyLoader() {
+                public Object loadObject() throws Exception {
+                    throw new UnsupportedOperationException("Empty local half.");
+                }
+            }});
+        enhancer.setCallbackFilter(new HOPPFilter(interfaces));
+        otherMembers = (ReplicationMember) enhancer.create();
     }
     
     public Object getReplicationGroupID() {
@@ -98,7 +110,7 @@ public class ReplicationMemberImpl
     
     public void setMsgProducerOut(MsgOutInterceptor aMsgOut) {
         super.setMsgProducerOut(aMsgOut);
-        endPointCallback.setOut(out);
+        endPointCB.setOut(out);
     }
     
     public void fireUpdateEvent(UpdateEvent anEvent)

@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.messaging.util;
+package org.apache.geronimo.messaging.proxy;
 
 import java.lang.reflect.Method;
 
@@ -28,10 +28,12 @@ import org.apache.geronimo.messaging.RequestSender;
 import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
 
 /**
+ * This Callback sends Request to an EndPoint hosted by a set of Nodes. 
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:43 $
+ * @version $Revision: 1.1 $ $Date: 2004/05/20 13:37:11 $
  */
-public class EndPointCallback  implements MethodInterceptor
+public class EndPointCallback
+    implements MethodInterceptor
 {
 
     /**
@@ -54,6 +56,10 @@ public class EndPointCallback  implements MethodInterceptor
      */
     private Object id;
 
+    /**
+     * @param aSender RequestSender to be used to send Request to the
+     * associated EndPoint.
+     */
     public EndPointCallback(RequestSender aSender) {
         if ( null == aSender ) {
             throw new IllegalArgumentException("Sender is required.");
@@ -62,6 +68,8 @@ public class EndPointCallback  implements MethodInterceptor
     }
 
     /**
+     * Gets the target EndPoint identifier.
+     * 
      * @return Returns the id.
      */
     public Object getEndPointId() {
@@ -69,6 +77,8 @@ public class EndPointCallback  implements MethodInterceptor
     }
 
     /**
+     * Sets the identifier of the target EndPoint.
+     * 
      * @param anID The id to set.
      */
     public void setEndPointId(Object anID) {
@@ -76,6 +86,8 @@ public class EndPointCallback  implements MethodInterceptor
     }
 
     /**
+     * Gets the Msg transport used to sent Requests.
+     * 
      * @return Returns the out.
      */
     public MsgOutInterceptor getOut() {
@@ -83,6 +95,8 @@ public class EndPointCallback  implements MethodInterceptor
     }
 
     /**
+     * Sets the Msg output to be used to sent Requests. 
+     * 
      * @param anOut The out to set.
      */
     public void setOut(MsgOutInterceptor anOut) {
@@ -90,6 +104,8 @@ public class EndPointCallback  implements MethodInterceptor
     }
 
     /**
+     * Gets the Nodes hosting the target EndPoint.
+     * 
      * @return Returns the targets.
      */
     public NodeInfo[] getTargets() {
@@ -97,6 +113,8 @@ public class EndPointCallback  implements MethodInterceptor
     }
 
     /**
+     * Sets the Nodes hosting the target EndPoints.
+     * 
      * @param aTargets The targets to set.
      */
     public void setTargets(NodeInfo[] aTargets) {
@@ -105,6 +123,13 @@ public class EndPointCallback  implements MethodInterceptor
     
     public Object intercept(Object arg0, Method arg1,
                             Object[] arg2, MethodProxy arg3) throws Throwable {
+        if ( null == out ) {
+            throw new IllegalStateException("No Msg out is defined");
+        } else if ( null == id ) {
+            throw new IllegalStateException("No EndPoint id is defined");
+        } else if ( null == targets ) {
+            throw new IllegalStateException("No target nodes is defined");
+        }
         try {
             Object opaque = sender.sendSyncRequest(
                     new Request(arg1.getName(), arg2), out, id, targets);

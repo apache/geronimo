@@ -21,10 +21,11 @@ import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.messaging.io.NullReplacerResolver;
 import org.apache.geronimo.messaging.io.ReplacerResolver;
+import org.apache.geronimo.messaging.proxy.EndPointProxyInfo;
 
 /**
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:41 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/20 13:37:11 $
  */
 public class MockNode implements Node
 {
@@ -69,6 +70,13 @@ public class MockNode implements Node
     }
 
     public void doFail() {
+    }
+
+    public Object factoryEndPointProxy(EndPointProxyInfo anInfo) {
+        return null;
+    }
+
+    public void releaseEndPointProxy(Object aProxy) {
     }
 
 }

@@ -17,23 +17,21 @@
 
 package org.apache.geronimo.messaging.reference;
 
-import java.lang.reflect.Method;
-
 import net.sf.cglib.proxy.Callback;
-import net.sf.cglib.proxy.CallbackFilter;
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.LazyLoader;
 import net.sf.cglib.proxy.MethodInterceptor;
-import net.sf.cglib.proxy.MethodProxy;
 
 import org.apache.geronimo.messaging.NodeInfo;
 import org.apache.geronimo.messaging.RequestSender;
 import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
-import org.apache.geronimo.messaging.util.EndPointCallback;
-import org.apache.geronimo.messaging.util.ProxyFactory;
+import org.apache.geronimo.messaging.proxy.EndPointCallback;
+import org.apache.geronimo.messaging.proxy.HOPPFilter;
 
 /**
  * Factory of Referenceable proxies.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:42 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/20 13:37:11 $
  */
 public class ReferenceFactory
 {
@@ -75,12 +73,11 @@ public class ReferenceFactory
      * @param aReferenceInfo Referenceable meta-data.
      * @return A Referenceable proxy.
      */
-    public Object factory(ReferenceableInfo aReferenceInfo) {
-        EndPointCallback endPointCallback = new EndPointCallback(sender);
-        endPointCallback.setEndPointId(aReferenceInfo.getID());
-        endPointCallback.setOut(out);
-        endPointCallback.setTargets(
-            new NodeInfo[] {aReferenceInfo.getHostingNode()});
+    public Object factory(final ReferenceableInfo aReferenceInfo) {
+        EndPointCallback endPointCB = new EndPointCallback(sender);
+        endPointCB.setEndPointId(aReferenceInfo.getID());
+        endPointCB.setOut(out);
+        endPointCB.setTargets(new NodeInfo[] {aReferenceInfo.getHostingNode()});
 
         Class[] refIntfs = aReferenceInfo.getRefClass();
         // Automatically adds the Reference interface to this array of
@@ -91,20 +88,25 @@ public class ReferenceFactory
         }
         interfaces[interfaces.length - 1] = Reference.class;
         
-        HalfObjectLocal halfObjLocal = new HalfObjectLocal(aReferenceInfo);
-        ProxyFactory factory =
-            new ProxyFactory(interfaces,
-                new Callback[] {endPointCallback, halfObjLocal},
-                new Class[] {MethodInterceptor.class, MethodInterceptor.class},
-                new HOPPFilter(refIntfs));
-        return factory.getProxy();
+        Enhancer enhancer = new Enhancer();
+        enhancer.setInterfaces(interfaces);
+        enhancer.setCallbackTypes(
+            new Class[] {MethodInterceptor.class, LazyLoader.class});
+        enhancer.setUseFactory(false);
+        enhancer.setCallbacks(new Callback[] {endPointCB,
+            new LazyLoader() {
+                public Object loadObject() throws Exception {
+                    return new HalfObjectLocal(aReferenceInfo);
+                }
+            }});
+        enhancer.setCallbackFilter(new HOPPFilter(refIntfs));
+        return enhancer.create();
     }
     
     /**
      * Implements the local half of a Referenceable proxy. 
      */
-    private static class HalfObjectLocal
-        implements Reference, MethodInterceptor {
+    private static class HalfObjectLocal implements Reference {
         private ReferenceableInfo referenceInfo;
         private HalfObjectLocal(ReferenceableInfo aReferenceInfo) {
             referenceInfo = aReferenceInfo;
@@ -118,32 +120,6 @@ public class ReferenceFactory
         }
         public ReferenceableInfo getReferenceableInfo() {
             return referenceInfo;
-        }
-        public Object intercept(Object arg0, Method arg1, Object[] arg2,
-            MethodProxy arg3) throws Throwable {
-            return arg3.invoke(this, arg2);
-        }
-    }
-    
-    /**
-     * Maps the methods defined by the Referenceable interfaces to the first
-     * Callback of a ProxyFactory.
-     * <BR>
-     * The other methods are mapped to the second one.
-     */
-    private class HOPPFilter implements CallbackFilter {
-        private final Class[] interfaces;
-        private HOPPFilter(Class[] anInterfaces) {
-            interfaces = anInterfaces;
-        }
-        public int accept(Method arg0) {
-            Class declaringClass = arg0.getDeclaringClass(); 
-            for (int i = 0; i < interfaces.length; i++) {
-                if ( interfaces[i].equals(declaringClass) ) {
-                    return 0;
-                }
-            }
-            return 1;  
         }
     }
     

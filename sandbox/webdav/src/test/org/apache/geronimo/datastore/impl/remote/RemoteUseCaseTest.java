@@ -33,6 +33,7 @@ import org.apache.geronimo.messaging.NodeTopology.NodePath;
 import org.apache.geronimo.messaging.NodeTopology.PathWeight;
 import org.apache.geronimo.messaging.remotenode.MessagingTransportFactory;
 import org.apache.geronimo.messaging.remotenode.network.NetworkTransportFactory;
+import org.apache.geronimo.messaging.proxy.EndPointProxyInfo;
 import org.apache.geronimo.network.SelectorManager;
 import org.apache.geronimo.system.ClockPool;
 import org.apache.geronimo.system.ThreadPool;
@@ -40,7 +41,7 @@ import org.apache.geronimo.system.ThreadPool;
 /**
  * This is a remote use-case.
  *
- * @version $Revision: 1.5 $ $Date: 2004/05/11 12:24:59 $
+ * @version $Revision: 1.6 $ $Date: 2004/05/20 13:37:11 $
  */
 public class RemoteUseCaseTest extends AbstractUseCaseTest {
 
@@ -87,9 +88,12 @@ public class RemoteUseCaseTest extends AbstractUseCaseTest {
         ctx2.init("Node2");
         ctx2.start();
         node2 = new NodeImpl(nodeInfo2, ctx2.tp, ctx2.factoryTransport());
-        fileManager = new GFileManagerClient(node2, fileSystem, nodeInfo1);
+        EndPointProxyInfo proxyInfo =
+            new EndPointProxyInfo(fileSystem,
+                new Class[] {GFileManager.class},
+                new NodeInfo[] {nodeInfo1});
+        fileManager = (GFileManager) node2.factoryEndPointProxy(proxyInfo);
         node2.doStart();
-        fileManager.doStart();
         node2.join(nodeInfo1);
         
         NodeTopology topology = new NodeTopology();

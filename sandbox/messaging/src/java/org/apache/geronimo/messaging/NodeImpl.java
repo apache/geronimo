@@ -33,6 +33,9 @@ import org.apache.geronimo.messaging.io.NullReplacerResolver;
 import org.apache.geronimo.messaging.io.ReplacerResolver;
 import org.apache.geronimo.messaging.io.StreamManager;
 import org.apache.geronimo.messaging.io.StreamManagerImpl;
+import org.apache.geronimo.messaging.proxy.EndPointProxyFactory;
+import org.apache.geronimo.messaging.proxy.EndPointProxyFactoryImpl;
+import org.apache.geronimo.messaging.proxy.EndPointProxyInfo;
 import org.apache.geronimo.messaging.reference.ReferenceableManager;
 import org.apache.geronimo.messaging.reference.ReferenceableManagerImpl;
 import org.apache.geronimo.messaging.remotenode.LogicalCompression;
@@ -47,7 +50,7 @@ import org.apache.geronimo.system.ThreadPool;
 /**
  * Node implementation.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:41 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/20 13:37:11 $
  */
 public class NodeImpl
     implements Node, GBean
@@ -70,6 +73,11 @@ public class NodeImpl
      * resolving the ReferenceInfo when unmarshalled.
      */
     private final ReferenceableManager referenceableManager;
+    
+    /**
+     * Used to create/release EndPoint proxies.
+     */
+    private final EndPointProxyFactory endPointProxyFactory;
     
     /**
      * Used to replace or resolve objects during the Serialization of
@@ -119,6 +127,7 @@ public class NodeImpl
         replacerResolver = new NullReplacerResolver();
         streamManager = newStreamManager();
         referenceableManager = newReferenceableManager();
+        endPointProxyFactory = newEndPointProxyFactory();
         
         compression = new LogicalCompression();
         IOContext ioContext = new IOContext();
@@ -172,10 +181,19 @@ public class NodeImpl
         inDispatcher.unregister(id);
     }
     
+    public Object factoryEndPointProxy(EndPointProxyInfo anInfo) {
+        return endPointProxyFactory.factory(anInfo);
+    }
+    
+    public void releaseEndPointProxy(Object aProxy) {
+        endPointProxyFactory.releaseProxy(aProxy);
+    }
+    
     public void setGBeanContext(GBeanContext aContext) {
     }
 
     public void doStart() throws WaitingException, Exception {
+        endPointProxyFactory.doStart();
         referenceableManager.doStart();
         streamManager.doStart();
         nodeManager.start();
@@ -186,6 +204,7 @@ public class NodeImpl
         nodeManager.stop();
         streamManager.doStop();
         referenceableManager.doStop();
+        endPointProxyFactory.doStop();
     }
 
     public void doFail() {
@@ -194,16 +213,9 @@ public class NodeImpl
         } catch (NodeException e) {
             log.error("Can not stop node manager.", e);
         }
-        try {
-            streamManager.doStop();
-        } catch (Exception e) {
-            log.error("Can not stop stream manager.", e);
-        }
-        try {
-            referenceableManager.doStop();
-        } catch (Exception e) {
-            log.error("Can not stop referenceable manager.", e);
-        }
+        streamManager.doFail();
+        referenceableManager.doFail();
+        endPointProxyFactory.doFail();
     }
     
     public String toString() {
@@ -226,6 +238,10 @@ public class NodeImpl
      */
     protected ReferenceableManager newReferenceableManager() {
         return new ReferenceableManagerImpl(this, "ReferenceableManager");
+    }
+    
+    protected EndPointProxyFactory newEndPointProxyFactory() {
+        return new EndPointProxyFactoryImpl(this, "EndPointProxyFactory");
     }
     
     private MsgOutInterceptor newOutboundMsgProviderOut() {

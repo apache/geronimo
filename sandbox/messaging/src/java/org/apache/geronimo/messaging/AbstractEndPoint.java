@@ -30,7 +30,7 @@ import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
 /**
  * Based implementation for the EndPoint contracts.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:41 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/20 13:37:11 $
  */
 public abstract class AbstractEndPoint
     implements EndPoint
@@ -119,8 +119,7 @@ public abstract class AbstractEndPoint
     protected void handleResponse(Msg aMsg) {
         MsgBody body = aMsg.getBody();
         MsgHeader header = aMsg.getHeader();
-        Result result;
-        result = (Result) body.getContent();
+        Result result = (Result) body.getContent();
         sender.setResponse(
             header.getHeader(MsgHeaderConstants.CORRELATION_ID),
             result);

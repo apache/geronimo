@@ -35,7 +35,7 @@ import EDU.oswego.cs.dl.util.concurrent.TimeoutException;
 /**
  * Request Msgs sender.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:41 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/20 13:37:11 $
  */
 public class RequestSender
 {
@@ -45,7 +45,7 @@ public class RequestSender
     /**
      * Number of milliseconds to wait for a response.
      */
-    private static final long WAIT_RESPONSE = 1000;
+    private static final long WAIT_RESPONSE = 5000;
     
     /**
      * Used to generate request identifiers.
@@ -95,6 +95,9 @@ public class RequestSender
      */
     public Object sendSyncRequest(Object anOpaque, MsgOutInterceptor anOut,
         Object aTargetID, NodeInfo[] aTargetNodes) {
+        if ( null == anOut ) {
+            throw new IllegalArgumentException("Msg out is not required");
+        }
         Msg msg = new Msg();
         
         MsgHeader header = msg.getHeader();
