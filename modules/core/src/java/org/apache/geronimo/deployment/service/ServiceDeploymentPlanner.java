@@ -90,6 +90,7 @@ import org.apache.geronimo.deployment.plan.DestroyMBeanInstance;
 import org.apache.geronimo.deployment.plan.RegisterMBeanInstance;
 import org.apache.geronimo.deployment.plan.InitializeMBeanInstance;
 import org.apache.geronimo.deployment.plan.StartMBeanInstance;
+import org.apache.geronimo.deployment.plan.StopMBeanInstance;
 import org.apache.geronimo.deployment.scanner.URLType;
 import org.apache.geronimo.jmx.JMXUtil;
 
@@ -101,7 +102,7 @@ import org.xml.sax.SAXException;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/08/16 23:16:34 $
+ * @version $Revision: 1.5 $ $Date: 2003/08/18 22:13:18 $
  */
 public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, MBeanRegistration {
     private MBeanServer server;
@@ -205,8 +206,11 @@ public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, 
         } catch (MalformedObjectNameException e) {
             throw new DeploymentException(e);
         }
+
         ServiceDeployment serviceInfo = new ServiceDeployment(deploymentName, null, url);
         createDeploymentUnitPlan.addTask(new RegisterMBeanInstance(server, deploymentName, serviceInfo));
+        MBeanMetadata metadata = new MBeanMetadata(deploymentName);
+        createDeploymentUnitPlan.addTask(new StartMBeanInstance(server, metadata));
 
         ObjectName loaderName = addClassSpaces(doc.getElementsByTagName("class-space"), createDeploymentUnitPlan, url);
         plans.add(createDeploymentUnitPlan);
@@ -217,17 +221,17 @@ public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, 
             DeploymentPlan createPlan = new DeploymentPlan();
 
             Element mbeanElement = (Element) nl.item(i);
-            MBeanMetadata md = mbeanLoader.loadXML(mbeanElement);
-            if (server.isRegistered(md.getName())) {
-                throw new DeploymentException("MBean already exists " + md.getName());
+            metadata = mbeanLoader.loadXML(mbeanElement);
+            if (server.isRegistered(metadata.getName())) {
+                throw new DeploymentException("MBean already exists " + metadata.getName());
             }
-            md.setLoaderName(loaderName);
-            md.setParentName(deploymentName);
-            CreateMBeanInstance createTask = new CreateMBeanInstance(server, md);
+            metadata.setLoaderName(loaderName);
+            metadata.setParentName(deploymentName);
+            CreateMBeanInstance createTask = new CreateMBeanInstance(server, metadata);
             createPlan.addTask(createTask);
-            InitializeMBeanInstance initTask = new InitializeMBeanInstance(server, md);
+            InitializeMBeanInstance initTask = new InitializeMBeanInstance(server, metadata);
             createPlan.addTask(initTask);
-            StartMBeanInstance startTask = new StartMBeanInstance(server, md);
+            StartMBeanInstance startTask = new StartMBeanInstance(server, metadata);
             createPlan.addTask(startTask);
 
             plans.add(createPlan);
@@ -272,17 +276,20 @@ public class ServiceDeploymentPlanner implements ServiceDeploymentPlannerMBean, 
             throw new DeploymentException(e);
         }
 
+        // Stop the main deployment which stopps all dependents including its children
+        DeploymentPlan stopPlan = new DeploymentPlan();
+        stopPlan.addTask(new StopMBeanInstance(server, deploymentName));
+        plans.add(stopPlan);
+
+        // Plan the destruction of all the children and then the deployment
+        DeploymentPlan destroyPlan = new DeploymentPlan();
         for (Iterator i = mbeans.iterator(); i.hasNext();) {
             ObjectName name = (ObjectName) i.next();
-            DeploymentTask task = new DestroyMBeanInstance(server, name);
-            DeploymentPlan destroyPlan = new DeploymentPlan();
-            destroyPlan.addTask(task);
-            plans.add(destroyPlan);
+            destroyPlan.addTask(new DestroyMBeanInstance(server, name));
         }
 
-        DeploymentPlan undeployPlan = new DeploymentPlan();
-        undeployPlan.addTask(new DestroyMBeanInstance(server, deploymentName));
-        plans.add(undeployPlan);
+        destroyPlan.addTask(new DestroyMBeanInstance(server, deploymentName));
+        plans.add(destroyPlan);
 
         goals.remove(goal);
         return true;
