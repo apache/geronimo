@@ -23,7 +23,9 @@
     xmlns:ant="jelly:ant"
     xmlns:define="jelly:define"
     xmlns:velocity="jelly:velocity"
-    xmlns:bootstrap="geronimo:bootstrap">
+    xmlns:bootstrap="geronimo:bootstrap"
+    xmlns:deploy="geronimo:deploy"
+    >
 
     <!-- ================= -->
     <!-- Global Properties -->
@@ -55,13 +57,22 @@
 
     <preGoal name="jar:jar">
         <attainGoal name="assemble"/>
-        <j:set var="maven.build.dest" value="${basedir}/target/${pom.groupId}-${pom.currentVersion}"/>
+        <j:if test="${context.getVariable('geronimo.assemble.delete.logs') == 'true'}">
+            <delete>
+                <fileset dir="${distDir}/var/log" includes="*.log"/>
+            </delete>
+        </j:if>
+        <j:set var="maven.build.dest" value="${distDir}"/>
     </preGoal>
 
     <!-- ==================================================== -->
     <!-- Assemble server installation from generated modules  -->
     <!-- ==================================================== -->
     <goal name="assemble">
+        <j:if test="${context.getVariable('geronimo.assemble.clean') == 'true'}">
+            <echo>Deleting target directory</echo>
+            <delete dir="${basedir}/target"/>
+        </j:if>
 
         <!-- Copy  the runtime dependencies into lib and create a classpath for the server.jar file -->
         <j:set var="libDir" value="${distDir}/lib"/>
@@ -133,6 +144,7 @@
         </j:forEach>
 
         <!-- copy in data files -->
+        <!-- the persistent config list will need to be recopied if the online deployer is used -->
         <ant:copy todir="${distDir}/var">
             <ant:fileset dir="src/var"/>
         </ant:copy>
@@ -250,49 +262,6 @@
             <ant:arg value="target/plan/j2ee-runtime-deployer-plan.xml"/>
         </ant:java>
 
-        <!-- building tranql connector default database configuration-->
-        <ant:echo>Building default database configuration</ant:echo>
-        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
-            <ant:jvmarg value="-ea"/>
-            <ant:arg value="distribute"/>
-            <ant:arg value="target/plan/default-database-plan.xml"/>
-            <ant:arg value="${maven.repo.local}/tranql/rars/tranql-connector-${tranql_connector_version}.rar"/>
-        </ant:java>
-
-        <!-- building system database configuration-->
-        <ant:echo>Building system database configuration</ant:echo>
-        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
-            <ant:jvmarg value="-ea"/>
-            <ant:arg value="distribute"/>
-            <ant:arg value="target/plan/system-database-plan.xml"/>
-            <ant:arg value="${maven.repo.local}/tranql/rars/tranql-connector-${tranql_connector_version}.rar"/>
-        </ant:java>
-
-        <!-- building system activemq configuration-->
-        <ant:echo>Building system activemq configuration</ant:echo>
-        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
-            <ant:jvmarg value="-ea"/>
-            <ant:arg value="distribute"/>
-            <ant:arg value="target/plan/system-activemq-plan.xml"/>
-        </ant:java>
-
-        <!-- building system jms configuration-->
-        <ant:echo>Building system jms configuration</ant:echo>
-        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
-            <ant:jvmarg value="-ea"/>
-            <ant:arg value="distribute"/>
-            <ant:arg value="target/plan/system-jms-plan.xml"/>
-            <ant:arg value="${maven.repo.local}/activemq/rars/activemq-ra-${activemq_version}.rar"/>
-        </ant:java>
-
-        <!-- build the J2EEServer secure configuration -->
-        <ant:echo>Building secure server configuration</ant:echo>
-        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
-            <ant:jvmarg value="-ea"/>
-            <ant:arg value="distribute"/>
-            <ant:arg value="target/plan/j2ee-secure-plan.xml"/>
-        </ant:java>
-
         <!-- build the system configuration and client.jar -->
         <ant:echo>Building client.jar</ant:echo>
         <ant:mkdir dir="${distDir}/bin"/>
@@ -308,40 +277,143 @@
             <ant:arg value="${distDir}/bin/client.jar"/>
         </ant:java>
 
+        <j:if test="${context.getVariable('geronimo.assemble.offline') != 'true'}">
+            <deploy:startRemoteServer
+                geronimoTarget="${distDir}"
+                vmArgs="-Xmx512m -XX:MaxPermSize=128m -Djava.rmi.server.RMIClassLoaderSpi=org.apache.geronimo.system.rmi.RMIClassLoaderSpiImpl"
+                configs="org/apache/geronimo/RuntimeDeployer"/>
+            <ant:echo message="Waiting for server at: ${distDir}"/>
+            <deploy:waitForStarted
+                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                username="system"
+                password="manager"
+                id="org/apache/geronimo/RuntimeDeployer"/>
+            <echo message="server has started"/>
+        </j:if>
+
+        <!-- building tranql connector default database configuration-->
+        <ant:echo>Building default database configuration</ant:echo>
+        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
+            <ant:jvmarg value="-ea"/>
+            <ant:arg value="--user"/>
+            <ant:arg value="system"/>
+            <ant:arg value="--password"/>
+            <ant:arg value="manager"/>
+            <ant:arg value="distribute"/>
+            <ant:arg value="target/plan/default-database-plan.xml"/>
+            <ant:arg value="${maven.repo.local}/tranql/rars/tranql-connector-${tranql_connector_version}.rar"/>
+        </ant:java>
+
+        <!-- building system database configuration-->
+        <ant:echo>Building system database configuration</ant:echo>
+        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
+            <ant:jvmarg value="-ea"/>
+            <ant:arg value="--user"/>
+            <ant:arg value="system"/>
+            <ant:arg value="--password"/>
+            <ant:arg value="manager"/>
+            <ant:arg value="distribute"/>
+            <ant:arg value="target/plan/system-database-plan.xml"/>
+            <ant:arg value="${maven.repo.local}/tranql/rars/tranql-connector-${tranql_connector_version}.rar"/>
+        </ant:java>
+
+        <!-- building system activemq configuration-->
+        <ant:echo>Building system activemq configuration</ant:echo>
+        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
+            <ant:jvmarg value="-ea"/>
+            <ant:arg value="--user"/>
+            <ant:arg value="system"/>
+            <ant:arg value="--password"/>
+            <ant:arg value="manager"/>
+            <ant:arg value="distribute"/>
+            <ant:arg value="target/plan/system-activemq-plan.xml"/>
+        </ant:java>
+
+        <!-- building system jms configuration-->
+        <ant:echo>Building system jms configuration</ant:echo>
+        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
+            <ant:jvmarg value="-ea"/>
+            <ant:arg value="--user"/>
+            <ant:arg value="system"/>
+            <ant:arg value="--password"/>
+            <ant:arg value="manager"/>
+            <ant:arg value="distribute"/>
+            <ant:arg value="target/plan/system-jms-plan.xml"/>
+            <ant:arg value="${maven.repo.local}/activemq/rars/activemq-ra-${activemq_version}.rar"/>
+        </ant:java>
+
+        <!-- build the J2EEServer secure configuration -->
+        <ant:echo>Building secure server configuration</ant:echo>
+        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
+            <ant:jvmarg value="-ea"/>
+            <ant:arg value="--user"/>
+            <ant:arg value="system"/>
+            <ant:arg value="--password"/>
+            <ant:arg value="manager"/>
+            <ant:arg value="distribute"/>
+            <ant:arg value="target/plan/j2ee-secure-plan.xml"/>
+        </ant:java>
+
         <!-- build the J2EE client configuration -->
         <ant:echo>Building J2EE Client configuration</ant:echo>
         <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
             <ant:jvmarg value="-ea"/>
+            <ant:arg value="--user"/>
+            <ant:arg value="system"/>
+            <ant:arg value="--password"/>
+            <ant:arg value="manager"/>
             <ant:arg value="distribute"/>
             <ant:arg value="target/plan/j2ee-client-plan.xml"/>
         </ant:java>
-        
+
         <!-- build the J2EEServer with Apache Tomcat (as the web container) configuration -->
         <ant:echo>Building Apache Tomcat server configuration</ant:echo>
         <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
             <ant:jvmarg value="-ea"/>
+            <ant:arg value="--user"/>
+            <ant:arg value="system"/>
+            <ant:arg value="--password"/>
+            <ant:arg value="manager"/>
             <ant:arg value="distribute"/>
             <ant:arg value="target/plan/j2ee-server-tomcat-plan.xml"/>
         </ant:java>
 
-        <ant:copy todir="${distDir}/var/catalina/conf"  file="${project.root}/modules/tomcat/src/var/web.xml"/>
+        <ant:copy todir="${distDir}/var/catalina/conf" file="${project.root}/modules/tomcat/src/var/web.xml"/>
 
         <!-- build the Demo configuration -->
-<!--        <ant:echo>Building demo website configuration</ant:echo>-->
-<!--        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">-->
-<!--            <ant:jvmarg value="-ea"/>-->
-<!--            <ant:arg value="distribute"/>-->
-<!--            <ant:arg value="${maven.repo.local}/geronimo/wars/geronimo-demo-${pom.currentVersion}.war"/>-->
-<!--        </ant:java>-->
+        <!--        <ant:echo>Building demo website configuration</ant:echo>-->
+        <!--        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">-->
+        <!--            <ant:jvmarg value="-ea"/>-->
+        <!--            <ant:arg value="distribute"/>-->
+        <!--            <ant:arg value="${maven.repo.local}/geronimo/wars/geronimo-demo-${pom.currentVersion}.war"/>-->
+        <!--        </ant:java>-->
 
         <!-- build the Debug Tool configuration "org/apache/geronimo/DebugConsole"-->
         <ant:echo>Building debug tool configuration</ant:echo>
         <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
             <ant:jvmarg value="-ea"/>
+            <ant:arg value="--user"/>
+            <ant:arg value="system"/>
+            <ant:arg value="--password"/>
+            <ant:arg value="manager"/>
             <ant:arg value="distribute"/>
             <ant:arg value="${maven.repo.local}/geronimo/wars/geronimo-jmxdebug-${pom.currentVersion}.war"/>
         </ant:java>
-        
+
+        <j:if test="${context.getVariable('geronimo.assemble.offline') != 'true'}">
+            <deploy:stopRemoteServer
+                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                username="system"
+                password="manager"/>
+            <echo message="server has stopped"/>
+            <!-- re-copy in persistent config list -->
+            <echo message="refreshing persistent configuration list"/>
+            <ant:copy todir="${distDir}/var" overwrite="true">
+                <ant:fileset dir="src/var">
+                    <include name="config/config.list"/>
+                </ant:fileset>
+            </ant:copy>
+        </j:if>
     </goal>
 
     <goal name="cli">
