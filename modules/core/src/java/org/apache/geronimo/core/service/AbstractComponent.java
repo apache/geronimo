@@ -62,19 +62,13 @@ import org.apache.geronimo.kernel.management.State;
  *
  * @todo this is broken because name is required but there is no way to set it
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:25:19 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/14 12:05:49 $
  */
 public class AbstractComponent extends AbstractStateManageable implements Component {
     /**
      *  the Container this Component belongs to
      */
-    private Container container;
-
-    /**
-     * the identity of this Component
-     */
-    private String name;
-
+    protected Container container;
 
     /**
      * The Container that this Component belongs to
@@ -123,14 +117,17 @@ public class AbstractComponent extends AbstractStateManageable implements Compon
     }
 
 
-    /**
+   /**
      * Get the unique identity of this Component
      *
      * @return the name (formatted according to JSR 77)
      */
     public String getObjectName() {
-        return name;
+        return super.toString();
     }
+
+
+
 
     /**
      * Two Components are equal if they have the same name;
@@ -141,7 +138,7 @@ public class AbstractComponent extends AbstractStateManageable implements Compon
     public boolean equals(Object o) {
         if (o instanceof Component) {
             Component component = (Component)o;
-            return component.getObjectName().equals(name);
+            return component.getObjectName().equals(objectName);
         }
         return false;
     }
@@ -155,9 +152,9 @@ public class AbstractComponent extends AbstractStateManageable implements Compon
      * @return hash of Component name
      */
     public int hashCode() {
-        if (name == null) {
+        if (objectName == null) {
             return 0;
         }
-        return name.hashCode();
+        return objectName.toString().hashCode();
     }
 }

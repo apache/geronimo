@@ -98,15 +98,15 @@ import org.apache.geronimo.kernel.service.StopException;
  * Implementors of StateManageable may use this class and simply provide
  * doStart, doStop and doNotification methods.
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:25:19 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/14 12:05:49 $
  */
 public abstract class AbstractStateManageable extends NotificationBroadcasterSupport implements StateManageable, NotificationListener, MBeanRegistration {
     protected Log log = LogFactory.getLog(getClass());
     protected MBeanServer server;
     protected ObjectName objectName;
 
-    private DependencyServiceMBean dependencyService;
-    private RelationServiceMBean relationService;
+    protected DependencyServiceMBean dependencyService;
+    protected RelationServiceMBean relationService;
     private long sequenceNumber;
     private long startTime;
 
