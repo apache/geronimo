@@ -76,12 +76,13 @@ import org.apache.geronimo.core.service.RPCContainer;
 import org.apache.geronimo.ejb.container.EJBPlugins;
 import org.apache.geronimo.ejb.context.GeronimoUserTransaction;
 import org.apache.geronimo.ejb.metadata.EJBMetadata;
+import org.apache.geronimo.security.util.ContextManager;
 
 /**
  *
  *
  *
- * @version $Revision: 1.7 $ $Date: 2003/09/08 04:28:26 $
+ * @version $Revision: 1.8 $ $Date: 2003/11/12 04:35:39 $
  */
 public class GeronimoSessionContext implements SessionContext {
     private final RPCContainer container;
@@ -139,11 +140,12 @@ public class GeronimoSessionContext implements SessionContext {
     }
 
     public Principal getCallerPrincipal() {
-        return null;
+        return ContextManager.getCallerPrincipal();
     }
 
     public boolean isCallerInRole(String roleName) {
-        return false;
+        EJBMetadata ejbMetadata = EJBPlugins.getEJBMetadata(container);
+        return ContextManager.isCallerInRole(ejbMetadata.getName(), roleName);
     }
 
     public UserTransaction getUserTransaction() throws IllegalStateException {
