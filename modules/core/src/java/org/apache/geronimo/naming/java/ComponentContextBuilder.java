@@ -60,7 +60,7 @@ import java.util.Map;
 import javax.naming.Context;
 import javax.naming.LinkRef;
 
-import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.kernel.deployment.DeploymentException;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.JNDIEnvironmentRefs;
 import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
@@ -68,7 +68,7 @@ import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2003/09/05 20:44:24 $
+ * @version $Revision: 1.5 $ $Date: 2003/09/08 04:30:29 $
  */
 public class ComponentContextBuilder {
     /**
