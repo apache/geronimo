@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- $Revision: 1.1 $ $Date: 2004/01/29 05:17:25 $ -->
+
+<project>
+    <pomVersion>3</pomVersion>
+    <extend>${basedir}/../etc/project.xml</extend>
+
+    <!-- ===================== -->
+    <!-- Module Identification -->
+    <!-- ===================== -->
+
+    <name>Geronimo :: Assembly</name>
+    <id>geronimo-assembly</id>
+    <shortDescription>Geronimo Assembly</shortDescription>
+    <description>Geronimo Assembly</description>
+    <url>http://incubator.apache.org/projects/geronimo/</url>
+    <siteDirectory>/www/incubator.apache.org/projects/geronimo</siteDirectory>
+    <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds</distributionDirectory>
+
+    <!--package>org.apache.geronimo.connector</package-->
+    <currentVersion>DEV</currentVersion>
+
+    <!-- ============ -->
+    <!-- Dependencies -->
+    <!-- ============ -->
+
+    <dependencies>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-common</artifactId>
+            <version>DEV</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-core</artifactId>
+            <version>DEV</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-deployment</artifactId>
+            <version>DEV</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-kernel</artifactId>
+            <version>DEV</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-security</artifactId>
+            <version>DEV</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-transaction</artifactId>
+            <version>DEV</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-j2ee-jacc</artifactId>
+            <version>DEV</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-j2ee-connector</artifactId>
+            <version>DEV</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-j2ee-deployment</artifactId>
+            <version>DEV</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-jta</artifactId>
+            <version>DEV</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <id>commons-logging</id>
+            <version>1.0.3</version>
+            <url>http://jakarta.apache.org/commons/logging/</url>
+            <properties>
+                <runtime>false</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <id>concurrent</id>
+            <version>1.3.2</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <id>mx4j</id>
+            <version>SNAPSHOT</version>
+            <properties>
+                <runtime>false</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <id>regexp</id>
+            <version>1.3-dev</version>
+            <url>http://jakarta.apache.org/regexp</url>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+
+    </dependencies>
+</project>

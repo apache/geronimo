@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- $Revision: 1.1 $ $Date: 2004/01/29 05:17:25 $ -->
+
+<project default="default"
+    xmlns:j="jelly:core"
+    xmlns:u="jelly:util"
+    xmlns:ant="jelly:ant"
+    xmlns:maven="jelly:maven"
+    xmlns:define="jelly:define"
+    xmlns:deploy="geronimo:deploy">
+
+    <!-- ================= -->
+    <!-- Global Properties -->
+    <!-- ================= -->
+
+    <!-- Determine what the top-level project root is -->
+    <j:set var="project.root" value="${pom.parentBasedir().getParentFile().getCanonicalFile()}"/>
+
+    <!-- Load the global properties -->
+    <ant:property file="${project.root}/etc/global.properties"/>
+
+
+    <!-- ==================== -->
+    <!-- Default Global Goals -->
+    <!-- ==================== -->
+
+    <goal name="default">
+        <attainGoal name="deploy:server"/>
+        <attainGoal name="install:server"/>
+    </goal>
+
+    <goal name="build">
+        <attainGoal name="default"/>
+    </goal>
+
+    <goal name="rebuild">
+        <attainGoal name="clean"/>
+        <attainGoal name="build"/>
+    </goal>
+
+    <!-- ==================================================== -->
+    <!-- Helper to run Apache Geronimo from the current build -->
+    <!-- ==================================================== -->
+
+    <goal name="deploy:server">
+        <j:set var="g.repo" value="${maven.repo.local}/geronimo/jars"/>
+        <ant:mkdir dir="${basedir}/target"/>
+        <ant:echo message="in deploy:server"/>
+        <deploy:deploy
+            deployconfigid="org/apache/geronimo/Server"
+            deployoutfile="target/Server.car"
+            deployurl="${g.repo}/geronimo-security-package-DEV.jar,${g.repo}/geronimo-transaction-package-DEV.jar,${g.repo}/geronimo-connector-package-DEV.jar,${g.repo}/geronimo-jetty-package-DEV.jar"/>
+        <ant:echo message="did deploy:server"/>
+    </goal>
+
+    <goal name="install:server">
+        <ant:echo message="in install:server"/>
+        <deploy:install
+            installDomain="geronimo"
+            installStoreDir="target/localConfigStore"
+            installConfig="target/Server.car"/>
+        <ant:echo message="did install:server"/>
+    </goal>
+
+    <goal name="load:server">
+        <ant:echo message="in load:server"/>
+        <deploy:loadAndReturn
+            runDomain="geronimo"
+            runStoreDir="target/localConfigStore"
+            runConfigID="org/apache/geronimo/Server"/>
+        <ant:echo message="did load:server"/>
+    </goal>
+
+    <goal name="loadAndWait:server">
+        <ant:echo message="in loadAndWait:server"/>
+        <deploy:loadAndWait
+            runDomain="geronimo"
+            runStoreDir="target/localConfigStore"
+            runConfigID="org/apache/geronimo/Server"/>
+        <ant:echo message="did loadAndWait:server"/>
+    </goal>
+
+    <goal name="run:server">
+        <j:set var="run.dir" value="${basedir}"/>
+
+        <j:jelly xmlns="jelly:ant">
+
+            <property environment="env"/>
+            <java classname="org.apache.geronimo.Geronimo"
+                fork="true"
+                maxmemory="256m"
+                failonerror="true"
+                dir="${run.dir}">
+
+                <jvmarg value="-ea"/>
+
+                <classpath>
+                    <pathelement path="${env.JAVA_HOME}/lib/tools.jar"/>
+                    <!--pathelement path="${run.dir}/etc"/-->
+                    <fileset dir="${maven.repo.local}/cglib/jars">
+                        <include name="cglib-full-2.0-RC2.jar"/>
+                    </fileset>
+                    <fileset dir="${maven.repo.local}/commons-logging/jars">
+                        <include name="commons-logging-1.0.3.jar"/>
+                    </fileset>
+                    <fileset dir="${maven.repo.local}/log4j/jars">
+                        <include name="log4j-1.2.8.jar"/>
+                    </fileset>
+                    <fileset dir="${maven.repo.local}/mx4j/jars">
+                        <include name="mx4j-SNAPSHOT.jar"/>
+                    </fileset>
+                    <fileset dir="${maven.repo.local}/xerces/jars">
+                        <include name="xercesImpl-2.6.0.jar"/>
+                    </fileset>
+                    <fileset dir="${maven.repo.local}/xml-apis/jars">
+                        <include name="xml-apis-1.0.b2.jar"/>
+                    </fileset>
+                    <fileset dir="${maven.repo.local}/xml-commons-resolver/jars">
+                        <include name="xml-commons-resolver-1.1.jar"/>
+                    </fileset>
+                    <fileset dir="${maven.repo.local}/geronimo/jars">
+                        <include name="geronimo-kernel-${pom.currentVersion}.jar"/>
+                        <include name="geronimo-deployment-${pom.currentVersion}.jar"/>
+                        <include name="geronimo-common-${pom.currentVersion}.jar"/>
+                    </fileset>
+                </classpath>
+
+                <!--sysproperty key="program.name" value="maven:run"/>
+                <sysproperty key="java.rmi.server.RMIClassLoaderSpi" value="org.apache.geronimo.rmi.RMIClassLoaderSpiImpl"/-->
+
+                <arg value="target/localConfigStore"/>
+                <arg value="org/apache/geronimo/Server"/>
+            </java>
+        </j:jelly>
+    </goal>
+
+    <goal name="debug:server">
+        <j:set var="run.dir" value="${basedir}"/>
+        <j:jelly xmlns="jelly:ant">
+
+            <property environment="env"/>
+            <java classname="org.apache.geronimo.Geronimo"
+                fork="true"
+                maxmemory="256m"
+                failonerror="true"
+                dir="${run.dir}">
+
+                <jvmarg value="-ea"/>
+
+                <classpath>
+                    <pathelement path="${env.JAVA_HOME}/lib/tools.jar"/>
+                    <!--pathelement path="${run.dir}/etc"/-->
+                    <fileset dir="${maven.repo.local}/cglib/jars">
+                        <include name="cglib-full-2.0-RC2.jar"/>
+                    </fileset>
+                    <fileset dir="${maven.repo.local}/commons-logging/jars">
+                        <include name="commons-logging-1.0.3.jar"/>
+                    </fileset>
+                    <fileset dir="${maven.repo.local}/log4j/jars">
+                        <include name="log4j-1.2.8.jar"/>
+                    </fileset>
+                    <fileset dir="${maven.repo.local}/mx4j/jars">
+                        <include name="mx4j-SNAPSHOT.jar"/>
+                    </fileset>
+                    <fileset dir="${maven.repo.local}/xerces/jars">
+                        <include name="xercesImpl-2.6.0.jar"/>
+                    </fileset>
+                    <fileset dir="${maven.repo.local}/xml-apis/jars">
+                        <include name="xml-apis-1.0.b2.jar"/>
+                    </fileset>
+                    <fileset dir="${maven.repo.local}/xml-commons-resolver/jars">
+                        <include name="xml-commons-resolver-1.1.jar"/>
+                    </fileset>
+                    <fileset dir="${maven.repo.local}/geronimo/jars">
+                        <include name="geronimo-kernel-${pom.currentVersion}.jar"/>
+                        <include name="geronimo-deployment-${pom.currentVersion}.jar"/>
+                        <include name="geronimo-common-${pom.currentVersion}.jar"/>
+                    </fileset>
+                </classpath>
+
+                <jvmarg value="-Xdebug"/>
+                <jvmarg value="-Xnoagent"/>
+                <jvmarg value="-Xrunjdwp:transport=dt_socket,address=80000,server=y,suspend=y"/>
+
+                <sysproperty key="java.compiler" value="NONE"/>
+                <!--sysproperty key="program.name" value="maven:run"/>
+                <sysproperty key="java.rmi.server.RMIClassLoaderSpi" value="org.apache.geronimo.rmi.RMIClassLoaderSpiImpl"/-->
+
+                <arg value="target/localConfigStore"/>
+                <arg value="org/apache/geronimo/Server"/>
+            </java>
+        </j:jelly>
+    </goal>
+
+    <goal name="deployinstallrun">
+        <attainGoal name="deploy:server"/>
+        <attainGoal name="install:server"/>
+        <attainGoal name="run:server"/>
+    </goal>
+
+    <goal name="run:main">
+        <ant:echo></ant:echo>
+        <ant:echo>Please use "maven run:server or maven deployinstallrun" instead</ant:echo>
+        <ant:echo></ant:echo>
+    </goal>
+
+
+</project>
