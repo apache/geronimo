@@ -24,7 +24,7 @@ import java.util.ArrayList;
 public class ExceptionUtil {
 
     private static final String[] excludedPackages = {
-        "org.apache.geronimo.gbean.jmx.", "mx4j.", "net.sf.cglib.reflect"
+        "org.apache.geronimo.gbean.jmx.", "mx4j.", "net.sf.cglib.reflect.", "sun.reflect."
     };
 
     private static final String[] excludedStrings = {
