@@ -19,7 +19,6 @@ package org.apache.geronimo.deployment.plugin.local;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.enterprise.deploy.shared.ActionType;
@@ -36,7 +35,7 @@ import javax.enterprise.deploy.spi.status.ProgressObject;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:49 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/02 06:50:41 $
  */
 public abstract class CommandSupport implements ProgressObject, Runnable {
     private final CommandType command;
@@ -93,47 +92,29 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
         listeners.remove(pol);
     }
 
-    protected void setState(StateType state) {
-        Set toNotify;
+    protected final void fail(String message) {
+        sendEvent(message, StateType.FAILED);
+    }
+
+    protected final void complete(String message) {
+        sendEvent(message, StateType.COMPLETED);
+    }
+
+    private void sendEvent(String message, StateType state) {
+        assert !Thread.holdsLock(this) : "Trying to send event whilst holding lock";
+
+        ProgressListener[] toNotify;
         DeploymentStatus newStatus;
         synchronized (this) {
+            this.message = message;
             this.state = state;
             newStatus = getDeploymentStatus();
-            toNotify = listeners;
+            toNotify = (ProgressListener[]) listeners.toArray(new ProgressListener[listeners.size()]);
         }
-        sendEvent(toNotify, newStatus);
-    }
 
-    protected void fail(String message) {
-        Set toNotify;
-        DeploymentStatus newStatus;
-        synchronized (this) {
-            this.message = message;
-            this.state = StateType.FAILED;
-            newStatus = getDeploymentStatus();
-            toNotify = listeners;
-        }
-        sendEvent(toNotify, newStatus);
-    }
-
-    protected synchronized void complete(String message) {
-        Set toNotify;
-        DeploymentStatus newStatus;
-        synchronized (this) {
-            this.message = message;
-            this.state = StateType.COMPLETED;
-            newStatus = getDeploymentStatus();
-            toNotify = listeners;
-        }
-        sendEvent(toNotify, newStatus);
-    }
-
-    private void sendEvent(Set toNotify, DeploymentStatus newStatus) {
-        assert !Thread.holdsLock(this) : "Trying to send event whilst holding lock";
         ProgressEvent event = new ProgressEvent(this, null, newStatus);
-        for (Iterator i = toNotify.iterator(); i.hasNext();) {
-            ProgressListener listener = (ProgressListener) i.next();
-            listener.handleProgressEvent(event);
+        for (int i = 0; i < toNotify.length; i++) {
+            toNotify[i].handleProgressEvent(event);
         }
     }
 

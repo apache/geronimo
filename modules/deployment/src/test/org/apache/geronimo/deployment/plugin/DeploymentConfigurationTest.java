@@ -28,7 +28,7 @@ import junit.framework.TestCase;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:58:50 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/02 06:50:41 $
  */
 public class DeploymentConfigurationTest extends TestCase {
     private DeploymentFactory factory;
@@ -36,7 +36,7 @@ public class DeploymentConfigurationTest extends TestCase {
     private Application deployable;
 
     public void testInit() throws Exception {
-        DeploymentManager manager = factory.getDisconnectedDeploymentManager("deployer:geronimo:test");
+//        DeploymentManager manager = factory.getDisconnectedDeploymentManager("deployer:geronimo:test");
         //DeploymentConfiguration config = manager.createConfiguration(deployable);
         //assertEquals(deployable, config.getDeployableObject());
         //assertNull(config.getDConfigBeanRoot(root));
