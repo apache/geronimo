@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.7 $ $Date: 2003/08/17 08:29:20 $ -->
+<!-- $Revision: 1.8 $ $Date: 2003/08/25 15:42:20 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
@@ -66,7 +66,23 @@
     </j:if>
   </preGoal>
   
-  <!-- TODO: add same thing for test:compile -->
+  <!-- Remove the log files -->
+  <goal name="clobber" 
+        description="Removes all (non-repository installed) build generated files">
+        
+    <!-- Let clean:clean do some work first -->
+    <attainGoal name="clean:clean"/>
+    
+    <j:jelly xmlns="jelly:ant">
+      <delete quiet="false" failonerror="false">
+        <fileset dir="${basedir}">
+          <include name="maven.log"/>
+          <include name="velocity.log*"/>
+        </fileset>
+      </delete>
+    </j:jelly>
+  
+  </goal>
   
   <!-- Cleanse source files -->
   <goal name="cleanse-sources"
@@ -114,6 +130,14 @@
         <include name="project.xml"/>
         <include name="maven.xml"/>
       </fixcrlf>
+      
+      <!-- Cleanse scripts -->
+      <j:set var="srcdir" value="${basedir}/src/bin"/>
+      <u:available file="${srcdir}">
+        <fixcrlf srcdir="${srcdir}" eol="lf" eof="remove" tab="remove" tablength="4">
+          <include name="**/*"/>
+        </fixcrlf>
+      </u:available>
       
     </j:scope>
     
