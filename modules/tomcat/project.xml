@@ -36,9 +36,9 @@
     <id>geronimo-tomcat</id>
     <shortDescription>Geronimo Tomcat</shortDescription>
     <description>Geronimo Tomcat integration</description>
-    <url>http://incubator.apache.org/projects/geronimo/tomcat</url>
+    <url>http://geronimo.apache.org/modules/tomcat</url>
     <siteDirectory>/www/geronimo.apache.org/modules/tomcat</siteDirectory>
-    <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds/tomcat</distributionDirectory>
+    <distributionDirectory>/www/www.apache.org/projects/geronimo/builds/tomcat</distributionDirectory>
 
     <package>org.apache.geronimo.tomcat</package>
 
@@ -53,10 +53,9 @@
             <version>${pom.currentVersion}</version>
         </dependency>
         <dependency>
-            <groupId>tomcat</groupId>
-            <artifactId>bootstrap</artifactId>
-            <version>&tomcat-version;</version>
-            <url>http://jakarta.apache.org/tomcat/</url>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-j2ee</artifactId>
+            <version>&geronimo-spec-j2ee-version;</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -72,9 +71,54 @@
         </dependency>
         <dependency>
             <groupId>tomcat</groupId>
+            <artifactId>tomcat-coyote</artifactId>
+            <version>&tomcat-version;</version>
+            <url>http://jakarta.apache.org/tomcat/</url>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>tomcat</groupId>
+            <artifactId>tomcat-http11</artifactId>
+            <version>&tomcat-version;</version>
+            <url>http://jakarta.apache.org/tomcat/</url>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>tomcat</groupId>
             <artifactId>tomcat-util</artifactId>
             <version>&tomcat-version;</version>
             <url>http://jakarta.apache.org/tomcat/</url>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>tomcat</groupId>
+            <artifactId>naming-common</artifactId>
+            <version>&tomcat-version;</version>
+            <url>http://jakarta.apache.org/tomcat/</url>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <version>&commons-beanutils-version;</version>
+            <url>http://jakarta.apache.org/commons/beanutils</url>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+            <version>&commons-collections-version;</version>
+            <url>http://jakarta.apache.org/commons/collections</url>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -95,10 +139,19 @@
             <url>http://jakarta.apache.org/commons/logging</url>
         </dependency>
         <dependency>
-            <groupId>commons-collections</groupId>
-            <artifactId>commons-collections</artifactId>
-            <version>&commons-collections-version;</version>
-            <url>http://jakarta.apache.org/commons/collections</url>
+            <groupId>commons-modeler</groupId>
+            <artifactId>commons-modeler</artifactId>
+            <version>&commons-modeler-version;</version>
+            <url>http://jakarta.apache.org/commons/modeler</url>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>regexp</groupId>
+            <artifactId>regexp</artifactId>
+            <version>&regexp-version;</version>
+            <url>http://jakarta.apache.org/regexp/</url>
             <properties>
                 <repository>true</repository>
             </properties>

@@ -56,6 +56,8 @@ public class TomcatGBean implements GBeanLifecycle {
 
     private String catalinaBase;
 
+    private String catalinaConfig = "var/catalina/server.xml";
+
     /**
      * Reference to the Catalina shell, to which calls are delegated.
      * 
@@ -65,10 +67,11 @@ public class TomcatGBean implements GBeanLifecycle {
      * want them as persistent attributes in a server configuration. This will
      * make them more easily manageable (in theory--we'll see)
      */
-    public TomcatGBean(ServerInfo serverInfo, String catalinaHome, String catalinaBase) {
+    public TomcatGBean(ServerInfo serverInfo, String catalinaHome, String catalinaBase, String catalinaConfig) {
         this.serverInfo = serverInfo;
         this.catalinaHome = catalinaHome;
         this.catalinaBase = catalinaBase;
+        this.catalinaConfig = catalinaConfig;
     }
 
     public void doFail() {
@@ -79,16 +82,21 @@ public class TomcatGBean implements GBeanLifecycle {
     }
 
     public void doStart() throws Exception {
-        log.debug("catalinaHome: " + catalinaHome + ", catalinaBase: " + catalinaBase);
+        log.debug("catalinaHome: " + catalinaHome + ", catalinaBase: " + catalinaBase + ", catalinaConfig: "
+                + catalinaConfig);
         if (shell == null) {
             shell = new Catalina();
         }
-        if (catalinaHome != null) {
-            shell.setCatalinaHome("catalina.home");
+        if (catalinaHome != null && catalinaHome.length() > 0) {
+            shell.setCatalinaHome(catalinaHome);
         }
-        if (catalinaBase != null) {
-            shell.setCatalinaBase("catalina.base");
+        if (catalinaBase != null && catalinaBase.length() > 0) {
+            shell.setCatalinaBase(catalinaBase);
         }
+        if (catalinaConfig != null && catalinaConfig.length() > 0) {
+            shell.setConfig(catalinaConfig);
+        }
+        shell.setParentClassLoader(this.getClass().getClassLoader());
         shell.start();
     }
 
@@ -104,11 +112,12 @@ public class TomcatGBean implements GBeanLifecycle {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(TomcatGBean.class.getName());
 
-        infoFactory.setConstructor(new String[] { "ServerInfo", "CatalinaHome", "CatalinaBase" });
+        infoFactory.setConstructor(new String[] { "ServerInfo", "CatalinaHome", "CatalinaBase", "CatalinaConfig" });
 
         infoFactory.addReference(new GReferenceInfo("ServerInfo", ServerInfo.class.getName()));
         infoFactory.addAttribute("CatalinaHome", String.class, true);
         infoFactory.addAttribute("CatalinaBase", String.class, true);
+        infoFactory.addAttribute("CatalinaConfig", String.class, true);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

@@ -1,8 +1,22 @@
 <Server port="8005" shutdown="SHUTDOWN" debug="0">
-	<Service name="Catalina">
-		<Connector port="8080"
-		           maxThreads="150" minSpareThreads="25" maxSpareThreads="75"
-		           enableLookups="false" acceptCount="100"
-		           debug="0" connectionTimeout="20000"/>
-	</Service>
+       <Service name="Catalina">
+                <Connector port="8080"
+                           maxThreads="150" minSpareThreads="25" maxSpareThreads="75"
+                           enableLookups="false" acceptCount="100"
+                           debug="0" connectionTimeout="20000"/>
+
+                <Engine name="Geronimo" defaultHost="localhost" debug="0">
+<Logger className="org.apache.catalina.logger.FileLogger"
+                directory="var/log"
+                prefix="catalina_log." suffix=".txt"
+                timestamp="true"/>
+                        <Host name="localhost" debug="0" appBase="webapps"
+                            unpackWARs="true" autoDeploy="true"
+                            xmlValidation="false" xmlNamespaceAware="false">
+                            <Logger className="org.apache.catalina.logger.FileLogger"
+                                directory="var/log"  prefix="localhost_log." suffix=".txt"
+                                timestamp="true"/>
+                        </Host>
+                </Engine>
+        </Service>
 </Server>

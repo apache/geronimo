@@ -16,6 +16,12 @@
     limitations under the License.
 -->
 
+<!DOCTYPE project [
+<!ENTITY % locator SYSTEM "file:locator.ent">
+%locator;
+%versions;
+]>
+
 <!-- $Rev: 46019 $ $Date: 2004-09-14 11:56:06 +0200 (Tue, 14 Sep 2004) $ -->
 
 <project default="default"
@@ -52,18 +58,27 @@
 		<!-- 
 		   - TODO: There must be a better way!
 		   - copy the dependencies (specified in tomcat-plan.xml)
-		   - note the version is explicity referenced
 		  -->
 		<copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/geronimo/jars"
 		      file="target/${maven.final.name}.jar"/>
 		<copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/tomcat/jars"
-		      file="${maven.repo.local}/tomcat/jars/catalina-5.0.16.jar"/>
+		      file="${maven.repo.local}/tomcat/jars/catalina-&tomcat-version;.jar"/>
 		<copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/tomcat/jars"
-		      file="${maven.repo.local}/tomcat/jars/tomcat-util-5.0.16.jar"/>
-		<copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/commons-digester/jars"
-		      file="${maven.repo.local}/commons-digester/jars/commons-digester-1.6.jar"/>
+		      file="${maven.repo.local}/tomcat/jars/tomcat-coyote-&tomcat-version;.jar"/>
+		<copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/tomcat/jars"
+		      file="${maven.repo.local}/tomcat/jars/tomcat-http11-&tomcat-version;.jar"/>
+		<copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/tomcat/jars"
+		      file="${maven.repo.local}/tomcat/jars/tomcat-util-&tomcat-version;.jar"/>
+		<copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/tomcat/jars"
+		      file="${maven.repo.local}/tomcat/jars/naming-common-&tomcat-version;.jar"/>
+		<copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/commons-beanutils/jars"
+		      file="${maven.repo.local}/commons-beanutils/jars/commons-beanutils-&commons-beanutils-version;.jar"/>
 		<copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/commons-collections/jars"
-		      file="${maven.repo.local}/commons-collections/jars/commons-collections-2.1.jar"/>
+		      file="${maven.repo.local}/commons-collections/jars/commons-collections-&commons-collections-version;.jar"/>
+		<copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/commons-digester/jars"
+		      file="${maven.repo.local}/commons-digester/jars/commons-digester-&commons-digester-version;.jar"/>
+		<copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/commons-modeler/jars"
+		      file="${maven.repo.local}/commons-modeler/jars/commons-modeler-&commons-modeler-version;.jar"/>
 
         <!-- Pre-load the server's repository (copied from assembly's maven.xml) -->
         <!--
