@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.1 $ $Date: 2004/01/23 06:47:06 $ -->
+<!-- $Revision: 1.2 $ $Date: 2004/01/23 08:17:48 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -18,6 +18,7 @@
     <siteDirectory>/www/incubator.apache.org/projects/geronimo/security</siteDirectory>
     <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds/security</distributionDirectory>
 
+    <package>org.apache.geronimo.security</package>
     <currentVersion>DEV</currentVersion>
 
     <!-- ============ -->
@@ -25,19 +26,6 @@
     <!-- ============ -->
 
     <dependencies>
-
-        <!-- Plugin Dependencies -->
-
-        <dependency>
-            <id>commons-collections</id>
-            <version>2.1</version>
-            <properties>
-                <runtime>false</runtime>
-            </properties>
-        </dependency>
-
-
-       <!-- Module Dependencies -->
 
         <dependency>
             <groupId>geronimo</groupId>
@@ -49,15 +37,6 @@
         </dependency>
 
         <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-tools</artifactId>
-            <version>DEV</version>
-            <properties>
-                <module>true</module>
-            </properties>
-        </dependency>
-
-	<dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-common</artifactId>
             <version>DEV</version>
@@ -85,51 +64,6 @@
         </dependency>
 
         <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-twiddle</artifactId>
-            <version>DEV</version>
-            <properties>
-                <module>true</module>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>geronimo-spec</groupId>
-            <artifactId>geronimo-spec-jta</artifactId>
-            <version>DEV</version>
-            <properties>
-                <module>true</module>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>geronimo-spec</groupId>
-            <artifactId>geronimo-spec-ejb</artifactId>
-            <version>DEV</version>
-            <properties>
-                <module>true</module>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>geronimo-spec</groupId>
-            <artifactId>geronimo-spec-j2ee-management</artifactId>
-            <version>DEV</version>
-            <properties>
-                <module>true</module>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>geronimo-spec</groupId>
-            <artifactId>geronimo-spec-j2ee-deployment</artifactId>
-            <version>DEV</version>
-            <properties>
-                <module>true</module>
-            </properties>
-        </dependency>
-
-        <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-jacc</artifactId>
             <version>DEV</version>
@@ -147,25 +81,7 @@
             </properties>
         </dependency>
 
-        <dependency>
-            <groupId>geronimo-spec</groupId>
-            <artifactId>geronimo-spec-j2ee-connector</artifactId>
-            <version>DEV</version>
-            <properties>
-                <module>true</module>
-            </properties>
-        </dependency>
-
         <!-- Thirdparty -->
-
-        <dependency>
-            <id>commons-digester</id>
-            <version>1.5</version>
-            <url>http://jakarta.apache.org/commons/digester/</url>
-            <properties>
-                <runtime>false</runtime>
-            </properties>
-        </dependency>
 
         <dependency>
             <id>commons-logging</id>
@@ -177,61 +93,10 @@
         </dependency>
 
         <dependency>
-            <id>commons-jxpath</id>
-            <version>1.1</version>
-            <url>http://jakarta.apache.org/commons/jxpath/</url>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <id>log4j</id>
-            <version>1.2.8</version>
-            <url>http://jakarta.apache.org/log4j</url>
-            <properties>
-                <runtime>false</runtime>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <id>commons-httpclient</id>
-            <version>2.0-beta1</version>
-            <url>http://jakarta.apache.org/commons/httpclient/</url>
-            <properties>
-                <runtime>false</runtime>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <id>concurrent</id>
-            <version>1.3.2</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <id>javacc</id>
-            <jar>JavaCC.zip</jar>
-            <properties>
-                <runtime>false</runtime>
-            </properties>
-        </dependency>
-
-        <dependency>
             <id>mx4j</id>
             <version>SNAPSHOT</version>
             <properties>
                 <runtime>false</runtime>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <id>mx4j+tools</id>
-            <version>SNAPSHOT</version>
-            <properties>
-                <runtime>true</runtime>
             </properties>
         </dependency>
 
@@ -254,44 +119,9 @@
         </dependency>
 
         <dependency>
-            <id>dom4j</id>
-            <version>1.4</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <id>commons-cli</id>
-            <version>1.0</version>
-            <url>http://jakarta.apache.org/commons/cli</url>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <id>commons-lang</id>
-            <version>SNAPSHOT</version>
-            <url>http://jakarta.apache.org/commons/lang</url>
-            <properties>
-                <runtime>false</runtime>
-            </properties>
-        </dependency>
-
-        <dependency>
             <id>regexp</id>
             <version>1.3-dev</version>
             <url>http://jakarta.apache.org/regexp</url>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <id>cglib</id>
-            <version>HEAD-20031109</version>
-            <url>http://cglib.sourceforge.net</url>
             <properties>
                 <runtime>true</runtime>
             </properties>
@@ -316,7 +146,6 @@
             </properties>
         </dependency>
 
-
     </dependencies>
 
 
@@ -325,28 +154,6 @@
     <!-- =================== -->
 
     <build>
-        <resources>
-            <resource>
-                <directory>${basedir}/src/conf</directory>
-                <includes>
-                    <include>*.properties</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>${basedir}/src/java/org/apache/geronimo/security</directory>
-                <targetPath>org/apache/geronimo/security</targetPath>
-                <includes>
-                    <include>*.properties</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>${basedir}/src/test/org/apache/geronimo/security</directory>
-                <targetPath>org/apache/geronimo/security</targetPath>
-                <includes>
-                    <include>*.properties</include>
-                </includes>
-            </resource>
-        </resources>
         <unitTest>
             <includes>
                 <include>**/*Test.java</include>
@@ -354,15 +161,6 @@
             <excludes>
                 <exclude>**/Abstract*.java</exclude>
             </excludes>
-            <resources>
-                <resource>
-                    <directory>${basedir}/src/schema</directory>
-                    <includes>
-                        <include>*.xsd</include>
-                        <include>*.dtd</include>
-                    </includes>
-                </resource>
-            </resources>
         </unitTest>
     </build>
 </project>
