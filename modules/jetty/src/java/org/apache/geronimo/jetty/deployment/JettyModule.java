@@ -68,12 +68,13 @@ import java.util.zip.ZipInputStream;
 import org.apache.geronimo.deployment.ConfigurationCallback;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.util.XMLUtil;
+import org.apache.geronimo.xbeans.geronimo.deployment.jetty.JettyWebAppType;
 import org.w3c.dom.Document;
 
 /**
  *
  *
- * @version $Revision: 1.7 $ $Date: 2004/02/05 01:37:56 $
+ * @version $Revision: 1.8 $ $Date: 2004/02/06 08:55:49 $
  */
 public class JettyModule extends AbstractModule {
     private final File moduleDirectory;
@@ -121,10 +122,21 @@ public class JettyModule extends AbstractModule {
         if (!contextPath.startsWith("/")) {
             contextPath = "/" + contextPath;
         }
-        
+
         // TODO - why does this not use the WebAppDConfigBean ??
         String t=XMLUtil.getChildContent(deploymentPlan.getDocumentElement(), "context-priority-classloader", null, null);
         contextPriorityClassLoader= t != null && t.length() > 0 && t.toLowerCase().charAt(0) == 't';
+    }
+
+    public JettyModule(URI configID, InputStream moduleArchive, JettyWebAppType webApp) throws DeploymentException {
+        super(configID);
+        moduleDirectory = null;
+        this.zipArchive = new ZipInputStream(moduleArchive);
+        closeStream = false;
+        contextPath = webApp.getContextRoot().getStringValue();
+        if (contextPath == null) {
+            throw new DeploymentException("No context root specified");
+        }
     }
 
     public void init() throws DeploymentException {

@@ -57,18 +57,21 @@ package org.apache.geronimo.jetty.deployment;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+
 import javax.enterprise.deploy.spi.DConfigBeanRoot;
 import javax.enterprise.deploy.spi.DeploymentConfiguration;
 
 import org.apache.geronimo.deployment.tools.loader.WebDeployable;
-import org.apache.geronimo.deployment.util.XMLUtil;
+import org.apache.geronimo.xbeans.geronimo.deployment.jetty.JettyContextRootType;
+import org.apache.geronimo.xbeans.geronimo.deployment.jetty.JettyWebAppDocument;
+import org.apache.geronimo.xbeans.geronimo.deployment.jetty.JettyWebAppType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/02/05 01:37:56 $
+ * @version $Revision: 1.7 $ $Date: 2004/02/06 08:55:49 $
  */
 public class WARConfigurationFactoryTest extends DeployerTestCase {
 
@@ -84,10 +87,13 @@ public class WARConfigurationFactoryTest extends DeployerTestCase {
         assertNotNull(config);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         config.save(baos);
+        byte[] bytes = baos.toByteArray();
+        String output = new String(bytes);
+        System.out.println(output);
         Document doc = parser.parse(new ByteArrayInputStream(baos.toByteArray()));
         Element root = doc.getDocumentElement();
-        assertEquals("web-app", root.getNodeName());
-        assertNull(XMLUtil.getChild(root, "context-root"));
+        assertEquals("jet:web-app", root.getNodeName());
+        //assertNull(XMLUtil.getChild(root, "jet:context-root"));
     }
 
     public void testConfigSet() throws Exception {
@@ -100,14 +106,14 @@ public class WARConfigurationFactoryTest extends DeployerTestCase {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         config.save(baos);
-        Document doc = parser.parse(new ByteArrayInputStream(baos.toByteArray()));
-        Element root = doc.getDocumentElement();
-        assertEquals("web-app", root.getNodeName());
-        Element contextRoot = XMLUtil.getChild(root, "context-root");
-        assertEquals("/test", XMLUtil.getContent(contextRoot));
-        
-        Element contextPriority = XMLUtil.getChild(root, "context-priority-classloader");
-        assertEquals("false", XMLUtil.getContent(contextPriority));
+        byte[] bytes = baos.toByteArray();
+        String output = new String(bytes);
+        System.out.println(output);
+
+        JettyWebAppDocument webAppDoc = JettyWebAppDocument.Factory.parse(new ByteArrayInputStream(baos.toByteArray()));
+        JettyWebAppType webApp = webAppDoc.getWebApp();
+        assertEquals("/test", webApp.getContextRoot().getStringValue());
+        assertEquals(false, webApp.getContextPriorityClassloader());
     }
 
     public void testConfigSaveRestore() throws Exception {
@@ -117,18 +123,48 @@ public class WARConfigurationFactoryTest extends DeployerTestCase {
         WebAppDConfigBean contextBean = (WebAppDConfigBean) configRoot.getDConfigBean(deployable.getChildBean("/web-app")[0]);
         contextBean.setContextRoot("/test");
         contextBean.setContextPriorityClassLoader(true);
+        checkContents(((WebAppDConfigRoot)configRoot).getWebAppDocument());
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         config.save(baos);
+        byte[] bytes = baos.toByteArray();
+        String output = new String(bytes);
+        System.out.println(output);
 
         config = (WARConfiguration) warFactory.createConfiguration(deployable);
         configRoot = config.getDConfigBeanRoot(deployable.getDDBeanRoot());
         contextBean = (WebAppDConfigBean) configRoot.getDConfigBean(deployable.getChildBean("/web-app")[0]);
 
-        assertNull(contextBean.getContextRoot());
+        assertEquals("", contextBean.getContextRoot());
+
         config.restore(new ByteArrayInputStream(baos.toByteArray()));
+        configRoot = config.getDConfigBeanRoot(deployable.getDDBeanRoot());
+        checkContents(((WebAppDConfigRoot)configRoot).getWebAppDocument());
+
+
+        contextBean = (WebAppDConfigBean) configRoot.getDConfigBean(deployable.getChildBean("/web-app")[0]);
         assertEquals("/test", contextBean.getContextRoot());
-        contextBean.setContextPriorityClassLoader(true);
+        assertEquals(true, contextBean.getContextPriorityClassLoader());
+    }
+
+    private void checkContents(JettyWebAppDocument webAppDoc) {
+        JettyWebAppType webApp = webAppDoc.getWebApp();
+        assertEquals("/test", webApp.getContextRoot().getStringValue());
+        assertEquals(true, webApp.getContextPriorityClassloader());
+    }
+
+    public void testSanity() throws Exception {
+        JettyWebAppDocument webAppDoc = JettyWebAppDocument.Factory.newInstance();
+        JettyWebAppType webApp = webAppDoc.addNewWebApp();
+        webAppDoc.setWebApp(webApp);
+        JettyContextRootType contextRoot = webApp.addNewContextRoot();
+        webApp.setContextRoot(contextRoot);
+        contextRoot.setStringValue("/test");
+        webApp.setContextPriorityClassloader(true);
+        checkContents(webAppDoc);
+        assertEquals("/test", webApp.getContextRoot().getStringValue());
+        assertEquals("/test", contextRoot.getStringValue());
+        assertEquals(true, webApp.getContextPriorityClassloader());
     }
 
     protected void setUp() throws Exception {

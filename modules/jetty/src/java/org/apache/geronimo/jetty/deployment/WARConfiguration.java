@@ -68,50 +68,19 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.geronimo.deployment.plugin.DeploymentConfigurationSupport;
+import org.apache.xmlbeans.XmlException;
 import org.xml.sax.SAXException;
 import org.w3c.dom.Document;
 
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/23 19:58:17 $
+ * @version $Revision: 1.4 $ $Date: 2004/02/06 08:55:49 $
  */
 public class WARConfiguration extends DeploymentConfigurationSupport {
-    private final WebAppDConfigRoot root;
 
     public WARConfiguration(DeployableObject deployable) {
-        super(deployable);
-        root = new WebAppDConfigRoot(deployable.getDDBeanRoot());
+        super(deployable, new WebAppDConfigRoot(deployable.getDDBeanRoot()));
     }
 
-    public DConfigBeanRoot getDConfigBeanRoot(DDBeanRoot bean) throws ConfigurationException {
-        if (getDeployableObject().getDDBeanRoot().equals(bean)) {
-            return root;
-        }
-        return null;
-    }
-
-    public void save(OutputStream outputArchive) throws ConfigurationException {
-        PrintWriter writer = new PrintWriter(outputArchive);
-        try {
-            root.toXML(writer);
-            writer.flush();
-        } catch (IOException e) {
-            throw (ConfigurationException) new ConfigurationException("Unable to save configuration").initCause(e);
-        }
-    }
-
-    public void restore(InputStream inputArchive) throws ConfigurationException {
-        try {
-            DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            Document doc = parser.parse(inputArchive);
-            root.fromXML(doc.getDocumentElement());
-        } catch (SAXException e) {
-            throw (ConfigurationException) new ConfigurationException("Error parsing configuration input").initCause(e);
-        } catch (IOException e) {
-            throw (ConfigurationException) new ConfigurationException("Error reading configuration input").initCause(e);
-        } catch (ParserConfigurationException e) {
-            throw (ConfigurationException) new ConfigurationException("Unable to get XML parser").initCause(e);
-        }
-    }
 }

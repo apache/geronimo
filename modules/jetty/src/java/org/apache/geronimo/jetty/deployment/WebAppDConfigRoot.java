@@ -55,31 +55,47 @@
  */
 package org.apache.geronimo.jetty.deployment;
 
+import java.io.InputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
+
 import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.model.DDBeanRoot;
 import javax.enterprise.deploy.spi.DConfigBean;
 import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
 
 import org.apache.geronimo.deployment.plugin.DConfigBeanRootSupport;
-import org.w3c.dom.Element;
+import org.apache.geronimo.xbeans.geronimo.deployment.jetty.JettyWebAppDocument;
+import org.apache.geronimo.xbeans.geronimo.deployment.jetty.JettyWebAppType;
+import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.XmlException;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/23 19:58:17 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/06 08:55:49 $
  */
 public class WebAppDConfigRoot extends DConfigBeanRootSupport {
+    private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
     private static String[] XPATHS = {
         "web-app"
     };
 
-    private final WebAppDConfigBean webAppBean;
+    private WebAppDConfigBean webAppBean;
 
     public WebAppDConfigRoot(DDBeanRoot ddBean) {
-        super(ddBean);
-        webAppBean = new WebAppDConfigBean(ddBean.getChildBean("web-app")[0]);
+        super(ddBean, JettyWebAppDocument.Factory.newInstance(), SCHEMA_TYPE_LOADER);
+        JettyWebAppType webApp = getWebAppDocument().addNewWebApp();
+        replaceWebAppDConfigBean(webApp);
+    }
+
+    private void replaceWebAppDConfigBean(JettyWebAppType webApp) {
+        DDBean ddBean = getDDBean();
+        webAppBean = new WebAppDConfigBean(ddBean.getChildBean("/web-app")[0], webApp);
+    }
+
+    JettyWebAppDocument getWebAppDocument() {
+        return (JettyWebAppDocument)xmlObject;
     }
 
     public String[] getXpaths() {
@@ -93,13 +109,10 @@ public class WebAppDConfigRoot extends DConfigBeanRootSupport {
         return null;
     }
 
-    public void toXML(PrintWriter writer) throws IOException {
-        writer.println("<web-app>");
-        webAppBean.toXML(writer);
-        writer.println("</web-app>");
+    public void fromXML(InputStream inputStream) throws XmlException, IOException {
+        super.fromXML(inputStream);
+        replaceWebAppDConfigBean(getWebAppDocument().getWebApp());
     }
 
-    public void fromXML(Element element) {
-        webAppBean.fromXML(element);
-    }
+
 }

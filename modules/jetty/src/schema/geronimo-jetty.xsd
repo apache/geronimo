@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns="http://www.w3.org/2001/XMLSchema"
+    xmlns:ger="http://org.apache.geronimo/xml/ns/web/jetty"
+    targetNamespace="http://org.apache.geronimo/xml/ns/web/jetty"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified"
+    version="1.0">
+
+    <xsd:element name="web-app" type="ger:web-appType"/>
+
+    <xsd:complexType name="web-appType">
+        <xsd:sequence>
+            <xsd:element name="context-root" type="ger:context-rootType"/>
+            <xsd:element name="context-priority-classloader" type="xsd:boolean"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="context-rootType">
+        <xsd:simpleContent>
+            <xsd:extension base="xsd:string"/>
+        </xsd:simpleContent>
+    </xsd:complexType>
+
+</xsd:schema>

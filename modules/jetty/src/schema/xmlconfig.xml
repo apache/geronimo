@@ -1,0 +1,9 @@
+<xb:config xmlns:xb="http://www.bea.com/2002/09/xbean/config"
+    >
+
+    <xb:namespace uri="http://org.apache.geronimo/xml/ns/web/jetty">
+        <xb:package>org.apache.geronimo.xbeans.geronimo.deployment.jetty</xb:package>
+        <xb:prefix>Jetty</xb:prefix>
+    </xb:namespace>
+
+</xb:config>

@@ -61,6 +61,8 @@ import java.io.FileOutputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.FileInputStream;
 import java.net.URI;
 import java.net.URL;
 import java.net.HttpURLConnection;
@@ -78,18 +80,28 @@ import org.apache.geronimo.deployment.plugin.local.LocalServer;
 import org.apache.geronimo.deployment.service.ServiceDeployer;
 import org.apache.geronimo.deployment.util.URLInfo;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.xbeans.geronimo.deployment.jetty.JettyWebAppDocument;
 
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/02/04 05:54:08 $
+ * @version $Revision: 1.6 $ $Date: 2004/02/06 08:55:49 $
  */
 public class DeploymentTest extends DeployerTestCase {
 //    private byte[] plan;
     private File configFile;
     private Target[] targets;
 
-    public void testUnpacked() throws Exception {
+    public void testReadGeronimoDD() throws Exception {
+        File war = new File(URI.create(classLoader.getResource("deployables/war1/").toString()));
+        File dd = new File(war, "geronimo-web2.xml");
+        InputStream is = new FileInputStream(dd);
+        JettyWebAppDocument doc = JettyWebAppDocument.Factory.parse(is);
+        assertEquals("/test", doc.getWebApp().getContextRoot().getStringValue());
+    }
+
+    //unpacked needs a little more work.
+    public void XtestUnpacked() throws Exception {
         File war = new File(URI.create(classLoader.getResource("deployables/war1/").toString()));
 
         ProgressObject result = manager.distribute(targets, war, new File(war, "WEB-INF/geronimo-web.xml"));

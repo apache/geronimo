@@ -55,8 +55,6 @@
  */
 package org.apache.geronimo.jetty.deployment;
 
-import java.io.IOException;
-import java.io.PrintWriter;
 import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.spi.DConfigBean;
 import javax.enterprise.deploy.spi.exceptions.BeanNotFoundException;
@@ -64,54 +62,60 @@ import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
 
 import org.apache.geronimo.deployment.plugin.DConfigBeanSupport;
 import org.apache.geronimo.deployment.plugin.j2ee.ENCHelper;
-import org.apache.geronimo.deployment.util.XMLUtil;
-import org.w3c.dom.Element;
+import org.apache.geronimo.xbeans.geronimo.deployment.jetty.JettyWebAppType;
+import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.XmlBeans;
 
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/02/05 01:37:56 $
+ * @version $Revision: 1.5 $ $Date: 2004/02/06 08:55:49 $
  */
 public class WebAppDConfigBean extends DConfigBeanSupport {
-    private String contextRoot;
-    private boolean contextPriorityClassLoader;
+    private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
 
     private final ENCHelper encHelper;
 
-    WebAppDConfigBean(DDBean ddBean) {
-        super(ddBean);
+    WebAppDConfigBean(DDBean ddBean, JettyWebAppType webApp) {
+        super(ddBean, webApp, SCHEMA_TYPE_LOADER);
+        if (webApp.getContextRoot() == null) {
+            webApp.addNewContextRoot();
+        }
         encHelper = new ENCHelper(ddBean);
     }
 
+    JettyWebAppType getWebApp() {
+        return (JettyWebAppType)xmlObject;
+    }
+
     public String getContextRoot() {
-        return contextRoot;
+        return getWebApp().getContextRoot().getStringValue();
     }
 
     public void setContextRoot(String contextRoot) {
-        pcs.firePropertyChange("contextRoot", this.contextRoot, contextRoot);
-        this.contextRoot = contextRoot;
+        pcs.firePropertyChange("contextRoot", getContextRoot(), contextRoot);
+        getWebApp().getContextRoot().setStringValue(contextRoot);
     }
-    
-         
-         /* ------------------------------------------------------------------------------- */
-         /** getContextPriorityClassLoader.
-          * @return True if this context should give web application class in preference over the containers 
-          * classes, as per the servlet specification recommendations.
-          */
-         public boolean getContextPriorityClassLoader(){
-             return contextPriorityClassLoader;
-         }
-     
-         /* ------------------------------------------------------------------------------- */
-         /** setContextPriorityClassLoader.
-          * @param contextPriority True if this context should give web application class in preference over the containers 
-          * classes, as per the servlet specification recommendations.
-          */
-         public void setContextPriorityClassLoader(boolean p){
-             pcs.firePropertyChange("contextPriorityClassLoader", this.contextPriorityClassLoader, p);
-               this.contextPriorityClassLoader = p;
-         }
 
+
+    /* ------------------------------------------------------------------------------- */
+    /** getContextPriorityClassLoader.
+     * @return True if this context should give web application class in preference over the containers
+     * classes, as per the servlet specification recommendations.
+     */
+    public boolean getContextPriorityClassLoader() {
+        return getWebApp().getContextPriorityClassloader();
+    }
+
+    /* ------------------------------------------------------------------------------- */
+    /** setContextPriorityClassLoader.
+     * @param contextPriority True if this context should give web application class in preference over the containers
+     * classes, as per the servlet specification recommendations.
+     */
+    public void setContextPriorityClassLoader(boolean contextPriority) {
+        pcs.firePropertyChange("contextPriorityClassLoader", getContextPriorityClassLoader(), contextPriority);
+        getWebApp().setContextPriorityClassloader(contextPriority);
+    }
 
 
     public DConfigBean getDConfigBean(DDBean ddBean) throws ConfigurationException {
@@ -126,20 +130,4 @@ public class WebAppDConfigBean extends DConfigBeanSupport {
         return ENCHelper.ENC_XPATHS;
     }
 
-    public void toXML(PrintWriter writer) throws IOException {
-        if (contextRoot != null) {
-            writer.print("<context-root>");
-            writer.print(contextRoot);
-            writer.println("</context-root>");
-            writer.print("<context-priority-classloader>");
-            writer.print(contextPriorityClassLoader);
-            writer.println("</context-priority-classloader>");
-        }
-        encHelper.toXML(writer);
-    }
-
-    public void fromXML(Element element) {
-        contextRoot = XMLUtil.getChildContent(element, "context-root", null, null);
-        encHelper.fromXML(element);
-    }
 }

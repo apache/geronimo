@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jetty:web-app xmlns:jetty="http://org.apache.geronimo/xml/ns/web/jetty">
     <jetty:context-root>/test</jetty:context-root>
-    <jetty:context-priority-classloader>false</jetty:context-priority-classloader>
 </jetty:web-app>

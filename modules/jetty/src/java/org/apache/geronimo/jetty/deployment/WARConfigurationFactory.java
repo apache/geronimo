@@ -58,6 +58,7 @@ package org.apache.geronimo.jetty.deployment;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URI;
+
 import javax.enterprise.deploy.model.DeployableObject;
 import javax.enterprise.deploy.shared.ModuleType;
 import javax.enterprise.deploy.spi.DeploymentConfiguration;
@@ -68,15 +69,22 @@ import org.apache.geronimo.deployment.DeploymentModule;
 import org.apache.geronimo.deployment.plugin.factories.DeploymentConfigurationFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.xbeans.geronimo.deployment.jetty.JettyWebAppDocument;
+import org.apache.xmlbeans.SchemaType;
+import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.XmlObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/26 05:55:27 $
+ * @version $Revision: 1.5 $ $Date: 2004/02/06 08:55:49 $
  */
 public class WARConfigurationFactory implements DeploymentConfigurationFactory {
+    private static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
+
     public DeploymentConfiguration createConfiguration(DeployableObject deployable) throws InvalidModuleException {
         if (!ModuleType.WAR.equals(deployable.getType())) {
             throw new InvalidModuleException("DeployableObject must be a WAR");
@@ -84,13 +92,18 @@ public class WARConfigurationFactory implements DeploymentConfigurationFactory {
         return new WARConfiguration(deployable);
     }
 
-    public DeploymentModule createModule(InputStream moduleArchive, Document deploymentPlan, URI configID) throws DeploymentException {
-        Element root = deploymentPlan.getDocumentElement();
-        if (!"web-app".equals(root.getNodeName())) {
-            return null;
-        }
+    public DeploymentModule createModule(InputStream moduleArchive, XmlObject deploymentPlan, URI configID, boolean isLocal) throws DeploymentException {
+        JettyWebAppDocument webAppDoc = (JettyWebAppDocument)deploymentPlan;
+        return new JettyModule(configID, moduleArchive, webAppDoc.getWebApp());
+    }
 
-        return new JettyModule(configID, moduleArchive, deploymentPlan);
+    //these might be temporary
+    public SchemaType getSchemaType() {
+        return JettyWebAppDocument.type;
+    }
+
+    public SchemaTypeLoader getSchemaTypeLoader() {
+        return SCHEMA_TYPE_LOADER;
     }
 
     public DeploymentModule createModule(File moduleArchive, Document deploymentPlan, URI configID, boolean isLocal) throws DeploymentException {
