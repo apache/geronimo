@@ -57,40 +57,42 @@
 package org.apache.geronimo.core.logging;
 
 import java.net.URL;
-
 import java.util.Timer;
 
 import org.apache.geronimo.common.NullArgumentException;
 import org.apache.geronimo.common.task.URLMonitorTask;
-
-import org.apache.geronimo.kernel.service.AbstractManagedObject;
+import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
+import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
+import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
+import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
 
 /**
  * An abstract logging service.
  *
  * <p>Sub-classes only need to provide a {@link #configure(URL)}.
  *
- * @version $Revision: 1.3 $ $Date: 2003/09/08 04:24:49 $
+ * @version $Revision: 1.4 $ $Date: 2003/12/30 21:17:14 $
  */
 public abstract class AbstractLoggingService
-    extends AbstractManagedObject
-    implements LoggingService
+    implements LoggingService, GeronimoMBeanTarget
 {
     /** The default refresh period (60 seconds) */
     public static final int DEFAULT_REFRESH_PERIOD = 60;
-    
+
     /** The URL to the configuration file. */
     protected URL configURL;
-    
+
     /** The time (in seconds) between checking for new config. */
     protected int refreshPeriod;
-    
+
     /** The URL watch timer (in daemon mode). */
     protected Timer timer = new Timer(true);
-    
+
     /** A monitor to check when the config URL changes. */
     protected URLMonitorTask monitor;
-    
+
     /**
      * Initialize <code>AbstractLoggingService</code>.
      *
@@ -102,7 +104,7 @@ public abstract class AbstractLoggingService
         setRefreshPeriod(period);
         setConfigurationURL(url);
     }
-    
+
     /**
      * Initialize <code>AbstractLoggingService</code> using the default
      * refresh period.
@@ -113,46 +115,50 @@ public abstract class AbstractLoggingService
     {
         this(url, DEFAULT_REFRESH_PERIOD);
     }
-    
+
     public int getRefreshPeriod()
     {
         return refreshPeriod;
     }
-    
+
     public void setRefreshPeriod(final int period)
     {
         if (period < 1) {
             throw new IllegalArgumentException("Refresh period must be > 0");
         }
-        
+
         this.refreshPeriod = period;
     }
-    
+
     public URL getConfigurationURL()
     {
         return configURL;
     }
-    
+
     public void setConfigurationURL(final URL url)
     {
         if (url == null) {
             throw new NullArgumentException("url");
         }
-        
+
         this.configURL = url;
     }
-    
+
     public void reconfigure()
     {
         configure(configURL);
     }
-    
-    
-    ///////////////////////////////////////////////////////////////////////////
-    //                         AbstractManagedObject                         //
-    ///////////////////////////////////////////////////////////////////////////
-    
-    protected void doStart() throws Exception
+
+
+    //GeronimoMBeanTarget
+    public void setMBeanContext(GeronimoMBeanContext context) {
+    }
+
+    public boolean canStart() {
+        return true;
+    }
+
+    public void doStart()
     {
         monitor = new URLMonitorTask(configURL);
         monitor.addListener(new URLMonitorTask.Listener() {
@@ -163,10 +169,29 @@ public abstract class AbstractLoggingService
         monitor.run();
         timer.schedule(monitor, 1000 * refreshPeriod, 1000 * refreshPeriod);
     }
-    
-    protected void doStop() throws Exception
+
+    public void doStop()
     {
         monitor.cancel();
         monitor = null;
     }
+
+    public boolean canStop() {
+        return true;
+    }
+
+    public void doFail() {
+    }
+
+    public static GeronimoMBeanInfo getGeronimoMBeanInfo() {
+        GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
+        //set class in caller
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("RefreshPeriod", true, true, "Period in seconds at which configuration refreshes"));
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ConfigurationURL", true, true, "Location of the logging configuration"));
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("reconfigure", new GeronimoParameterInfo[] {}, GeronimoOperationInfo.ACTION, "reconfigure now from previously set url"));
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("configure",
+                new GeronimoParameterInfo[] {new GeronimoParameterInfo("url", URL.class, "URL to read configuration from")}, GeronimoOperationInfo.ACTION, "configure now from supplied url"));
+        return mbeanInfo;
+    }
+
 }

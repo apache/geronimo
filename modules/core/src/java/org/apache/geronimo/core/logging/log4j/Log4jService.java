@@ -58,61 +58,54 @@ package org.apache.geronimo.core.logging.log4j;
 
 import java.net.URL;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.geronimo.common.NullArgumentException;
-
+import org.apache.geronimo.common.log.log4j.URLConfigurator;
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 import org.apache.geronimo.common.propertyeditor.TextPropertyEditorSupport;
-
-import org.apache.geronimo.kernel.log.XLevel;
-import org.apache.geronimo.common.log.log4j.URLConfigurator;
-
 import org.apache.geronimo.core.logging.AbstractLoggingService;
+import org.apache.geronimo.kernel.log.XLevel;
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
+import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 /**
  * A Log4j logging service.
  *
- * @jmx:mbean
- *      extends="org.apache.geronimo.core.logging.LoggingServiceMBean"
  *
- * @version $Revision: 1.3 $ $Date: 2003/09/08 04:24:49 $
+ * @version $Revision: 1.4 $ $Date: 2003/12/30 21:17:14 $
  */
 public class Log4jService
     extends AbstractLoggingService
-    implements Log4jServiceMBean
 {
     private static final Log log = LogFactory.getLog(Log4jService.class);
-    
+
     /**
      * Construct a <code>Log4jService</code>.
-     * 
+     *
      * @param url       The configuration URL.
      * @param period    The refresh period (in seconds).
      *
-     * @jmx:managed-constructor
      */
     public Log4jService(final URL url, final int period)
     {
         super(url, period);
     }
-    
+
     /**
      * Construct a <code>Log4jService</code>.
-     * 
+     *
      * @param url   The configuration URL.
      *
-     * @jmx:managed-constructor
      */
     public Log4jService(final URL url)
     {
         super(url);
     }
-    
+
     /**
      * Force the logging system to configure from the given URL.
      *
@@ -123,15 +116,15 @@ public class Log4jService
         if (url == null) {
             throw new NullArgumentException("url");
         }
-        
+
         URLConfigurator.configure(url);
     }
-    
-    
+
+
     ///////////////////////////////////////////////////////////////////////////
     //                    Log4j Level Accessors & Mutators                   //
     ///////////////////////////////////////////////////////////////////////////
-    
+
     /**
      * A property editor for Log4j Levels.
      */
@@ -143,7 +136,7 @@ public class Log4jService
             return XLevel.toLevel(getAsText().trim());
         }
     }
-    
+
     /**
      * A property editor for Log4j Loggers.
      */
@@ -155,21 +148,20 @@ public class Log4jService
             return Logger.getLogger(getAsText().trim());
         }
     }
-    
+
     /** Install property editors for Logger and Level. */
     static
     {
         PropertyEditors.registerEditor(Logger.class, LoggerEditor.class);
         PropertyEditors.registerEditor(Level.class, LevelEditor.class);
     }
-    
+
     /**
      * Sets the level for a logger of the give name.
      *
      * @param logger    The logger to change level
      * @param level     The level to change the logger to.
      *
-     * @jmx:managed-operation
      */
     public void setLoggerLevel(final Logger logger, final Level level)
     {
@@ -179,43 +171,52 @@ public class Log4jService
         if (level == null) {
             throw new NullArgumentException("level");
         }
-        
+
         logger.setLevel(level);
         log.info("Changed logger '" + logger.getName() + "' level: " + level);
     }
-    
+
     /**
      * Gets the level of the logger of the give name.
      *
      * @param logger    The logger to inspect.
      *
-     * @jmx:managed-operation
      */
     public String getLoggerLevel(final Logger logger)
     {
         if (logger == null) {
             throw new NullArgumentException("logger");
         }
-        
+
         Level level = logger.getLevel();
-        
+
         if (level != null) {
             return level.toString();
         }
-        
+
         return null;
     }
-    
-    
-    ///////////////////////////////////////////////////////////////////////////
-    //                         AbstractManagedObject                         //
-    ///////////////////////////////////////////////////////////////////////////
-    
-    protected void doStart() throws Exception
+
+
+    //GeronimoMBeanTarget
+    public void doStart()
     {
         super.doStart();
-        
+
         // Make sure the root Logger has loaded
         Logger.getRootLogger();
+    }
+
+    public static GeronimoMBeanInfo getGeronimoMBeanInfo() {
+        GeronimoMBeanInfo mbeanInfo = AbstractLoggingService.getGeronimoMBeanInfo();
+        mbeanInfo.setTargetClass(Log4jService.class.getName());
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("setLoggerLevel", new GeronimoParameterInfo[] {
+            new GeronimoParameterInfo("logger", Logger.class, "Logger to configure"),
+            new GeronimoParameterInfo("level", Level.class, "Level to set the Logger to")},
+                GeronimoOperationInfo.ACTION, "Configure the logger to the level"));
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("getLoggerLevel", new GeronimoParameterInfo[] {
+            new GeronimoParameterInfo("logger", Logger.class, "Logger to configure")},
+                GeronimoOperationInfo.INFO, "Get the level the logger is configured to"));
+        return mbeanInfo;
     }
 }

@@ -63,23 +63,19 @@ import java.net.URL;
  *
  * <p>Currently assumes URL based configuration.
  *
- * @jmx:mbean
- *      extends="org.apache.geronimo.kernel.management.StateManageable, org.apache.geronimo.kernel.management.ManagedObject"
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/08 04:24:49 $
+ * @version $Revision: 1.3 $ $Date: 2003/12/30 21:17:14 $
  */
 public interface LoggingService
-    extends LoggingServiceMBean
 {
     /**
      * Get the refresh period.
      *
      * @return The refresh period (in seconds).
      *
-     * @jmx:managed-attribute
      */
     int getRefreshPeriod();
-    
+
     /**
      * Set the refresh period.
      *
@@ -87,41 +83,36 @@ public interface LoggingService
      *
      * @throws IllegalArgumentException     Refresh period must be > 0
      *
-     * @jmx:managed-attribute
      */
     void setRefreshPeriod(int period);
-    
+
     /**
      * Get the logging configuration URL.
      *
      * @return The logging configuration URL.
      *
-     * @jmx:managed-attribute
      */
     URL getConfigurationURL();
-    
+
     /**
      * Set the logging configuration URL.
      *
      * @param url   The logging configuration URL.
      *
-     * @jmx:managed-attribute
      */
     void setConfigurationURL(URL url);
-    
+
     /**
      * Force the logging system to reconfigure.
      *
-     * @jmx:managed-operation
      */
     void reconfigure();
-    
+
     /**
      * Force the logging system to configure from the given URL.
      *
      * @param url   The URL to configure the logging system from.
      *
-     * @jmx:managed-operation
      */
     void configure(URL url);
 }
