@@ -35,7 +35,7 @@ import EDU.oswego.cs.dl.util.concurrent.TimeoutException;
 /**
  * Request Msgs sender.
  *
- * @version $Revision: 1.2 $ $Date: 2004/05/20 13:37:11 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/10 23:08:07 $
  */
 public class RequestSender
 {
@@ -114,7 +114,7 @@ public class RequestSender
 
         Result result = waitResponse(id, WAIT_RESPONSE);
         if ( !result.isSuccess() ) {
-            throw new RuntimeException(result.getException());
+            throw new CommunicationException(result.getThrowable());
         }
         return result.getResult();
     }
@@ -163,7 +163,7 @@ public class RequestSender
             log.error(e);
             ex = e;
         }
-        throw new RuntimeException(ex);
+        throw new CommunicationException(ex);
     }
     
     /**
