@@ -81,6 +81,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.kernel.classspace.ClassSpaceUtil;
 import org.apache.geronimo.kernel.deployment.DeploymentException;
 import org.apache.geronimo.kernel.management.NotificationType;
+import org.apache.geronimo.kernel.jmx.MBeanOperationSignature;
 
 import net.sf.cglib.reflect.FastClass;
 
@@ -90,7 +91,7 @@ import net.sf.cglib.reflect.FastClass;
  * GeronimoMBeanInfo instance.  The GeronimoMBean also support caching of attribute values and invocation results
  * which can reduce the number of calls to a target.
  *
- * @version $Revision: 1.4 $ $Date: 2003/11/06 19:57:28 $
+ * @version $Revision: 1.5 $ $Date: 2003/11/09 20:00:05 $
  */
 public class GeronimoMBean extends AbstractManagedObject2 implements DynamicMBean {
     public static final FastClass fastClass = FastClass.create(GeronimoMBean.class);
@@ -143,17 +144,17 @@ public class GeronimoMBean extends AbstractManagedObject2 implements DynamicMBea
                 if (attributeInfo.isReadable()) {
                     String getterName = (attributeInfo.isIs() ? "is" : "get") +
                             Character.toUpperCase(name.charAt(0)) + name.substring(1);
-                    operationInfoMap.put(new MethodKey(getterName, null), attributeInfo);
+                    operationInfoMap.put(new MBeanOperationSignature(getterName, null), attributeInfo);
                 }
                 if (attributeInfo.isWritable()) {
                     String setterName = "set" + Character.toUpperCase(name.charAt(0)) + name.substring(1);
-                    operationInfoMap.put(new MethodKey(setterName, new String[]{attributeInfo.getType()}), attributeInfo);
+                    operationInfoMap.put(new MBeanOperationSignature(setterName, new String[]{attributeInfo.getType()}), attributeInfo);
                 }
             }
             Set operations = mbeanInfo.getOperationsSet();
             for (Iterator iterator = operations.iterator(); iterator.hasNext();) {
                 GeronimoOperationInfo operationInfo = (GeronimoOperationInfo) iterator.next();
-                operationInfoMap.put(new MethodKey(operationInfo.getName(), operationInfo.getParameterTypes()), operationInfo);
+                operationInfoMap.put(new MBeanOperationSignature(operationInfo.getName(), operationInfo.getParameterTypes()), operationInfo);
             }
 
             for (Iterator i = mbeanInfo.targets.values().iterator(); i.hasNext();) {
@@ -424,7 +425,7 @@ public class GeronimoMBean extends AbstractManagedObject2 implements DynamicMBea
     }
 
     public Object invoke(String methodName, Object[] arguments, String[] types) throws MBeanException, ReflectionException {
-        MethodKey key = new MethodKey(methodName, types);
+        MBeanOperationSignature key = new MBeanOperationSignature(methodName, types);
         Object info = operationInfoMap.get(key);
         if (info == null) {
             throw new ReflectionException(new NoSuchMethodException("Unknown operation " + key));
@@ -614,64 +615,5 @@ public class GeronimoMBean extends AbstractManagedObject2 implements DynamicMBea
         attributeInfo.setCacheTimeLimit(-1);
         mbeanInfo.addAttributeInfo(attributeInfo);
 
-    }
-
-    private final static String[] NO_TYPES = new String[0];
-
-    private final class MethodKey {
-        private final String name;
-        private final String[] argumentTypes;
-
-        public MethodKey(String name, String[] argumentTypes) {
-            this.name = name;
-            if (argumentTypes != null) {
-                this.argumentTypes = argumentTypes;
-            } else {
-                this.argumentTypes = NO_TYPES;
-            }
-        }
-
-        public boolean equals(Object object) {
-            if (!(object instanceof MethodKey)) {
-                return false;
-            }
-
-            // match names
-            MethodKey methodKey = (MethodKey) object;
-            if (!methodKey.name.equals(name)) {
-                return false;
-            }
-
-            // match arg length
-            int length = methodKey.argumentTypes.length;
-            if (length != argumentTypes.length) {
-                return false;
-            }
-
-            // match each arg
-            for (int i = 0; i < length; i++) {
-                if (!methodKey.argumentTypes[i].equals(argumentTypes[i])) {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        public int hashCode() {
-            int result = 17;
-            result = 37 * result + name.hashCode();
-            for (int i = 0; i < argumentTypes.length; i++) {
-                result = 37 * result + argumentTypes[i].hashCode();
-            }
-            return result;
-        }
-
-        public String toString() {
-            StringBuffer buffer = new StringBuffer(name);
-            for (int i = 0; i < argumentTypes.length; i++) {
-                buffer.append(argumentTypes[i]);
-            }
-            return buffer.toString();
-        }
     }
 }
