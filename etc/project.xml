@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.9 $ $Date: 2003/08/16 15:14:11 $ -->
+<!-- $Revision: 1.10 $ $Date: 2003/08/19 21:13:15 $ -->
 
 <project>
   
@@ -26,16 +26,17 @@
   <description>Geronimo J2EE Application Server</description>
   <shortDescription>Geronimo J2EE Application Server</shortDescription>
   <url>http://incubator.apache.org/projects/geronimo/</url>
-
-  <!--
-     | I hope we can use JIRA but will probably have to settle for bugzilla
-     |
-  <issueTrackingUrl>http://jira.codehaus.org/secure/BrowseProject.jspa?id=XXXX</issueTrackingUrl>
-  -->
+  <issueTrackingUrl>http://jira.codehaus.org/secure/BrowseProject.jspa?id=10220</issueTrackingUrl>
 
   <siteAddress>incubator.apache.org</siteAddress>
 
-  <!-- <siteDirectory>/www/incubator.apache.org/projects/geronimo</siteDirectory> -->
+  <!-- 
+  	hopefully we can deploy directly here one day...
+  	
+  <siteDirectory>/www/incubator.apache.org/projects/geronimo</siteDirectory> 
+  
+  	until then lets put it in James's home directory for now
+  -->
   <siteDirectory>/home/jstrachan/public_html/geronimo</siteDirectory>
   <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds</distributionDirectory>
 
