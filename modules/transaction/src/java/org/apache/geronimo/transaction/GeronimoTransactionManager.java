@@ -38,21 +38,21 @@ import org.apache.geronimo.transaction.manager.XidImporter;
 /**
  * Class to set up the standard objects for a geronimo transaction manager.
  *
- * @version $Revision: 1.1 $ $Date: 2004/06/11 19:20:54 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/20 07:40:15 $
  *
  * */
 public class GeronimoTransactionManager extends TransactionManagerProxy {
 
-    public GeronimoTransactionManager(Collection resourceManagers) {
-        super(getConstructorParams((ReferenceCollection)resourceManagers));
+    public GeronimoTransactionManager(TransactionLog transactionLog, Collection resourceManagers) {
+        super(getConstructorParams(transactionLog, (ReferenceCollection)resourceManagers));
     }
 
-    private static TransactionManagerProxy.ConstructorParams getConstructorParams(ReferenceCollection resourceManagers) {
+    private static TransactionManagerProxy.ConstructorParams getConstructorParams(TransactionLog transactionLog, ReferenceCollection resourceManagers) {
         TransactionManagerProxy.ConstructorParams params = new TransactionManagerProxy.ConstructorParams();
         XidFactory xidFactory = new XidFactoryImpl("WHAT DO WE CALL IT?".getBytes());
-        //soon we hope
-//        TransactionLog transactionLog = new HOWLLog();
-        TransactionLog transactionLog = new UnrecoverableLog();
+        if (transactionLog == null) {
+            transactionLog = new UnrecoverableLog();
+        }
         TransactionManager delegate = new TransactionManagerImpl(transactionLog, xidFactory);
         Recovery recovery = new RecoveryImpl(transactionLog, xidFactory);
         params.delegate = delegate;
@@ -67,6 +67,7 @@ public class GeronimoTransactionManager extends TransactionManagerProxy {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(GeronimoTransactionManager.class);
 
+        infoFactory.addReference("transactionLog", TransactionLog.class);
         infoFactory.addReference("resourceManagers", ResourceManager.class);
 
         infoFactory.addOperation("setTransactionTimeout", new Class[]{int.class});
@@ -79,7 +80,7 @@ public class GeronimoTransactionManager extends TransactionManagerProxy {
         infoFactory.addOperation("rollback");
         infoFactory.addOperation("setRollbackOnly");
 
-        infoFactory.setConstructor(new String[]{"resourceManagers"});
+        infoFactory.setConstructor(new String[]{"transactionLog", "resourceManagers"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
