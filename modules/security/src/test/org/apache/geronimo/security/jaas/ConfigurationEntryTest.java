@@ -55,6 +55,7 @@ public class ConfigurationEntryTest extends TestCase {
     protected ObjectName serverStub;
 
     public void test() throws Exception {
+        // First try with explicit configuration entry
         LoginContext context = new LoginContext("properties-client", new AbstractTest.UsernamePasswordCallback("alan", "starcraft"));
 
         context.login();
@@ -72,6 +73,27 @@ public class ConfigurationEntryTest extends TestCase {
         assertTrue("server subject should have two realm principals ("+subject.getPrincipals(RealmPrincipal.class).size()+")", subject.getPrincipals(RealmPrincipal.class).size() == 2);
         assertTrue("server subject should have five principals ("+subject.getPrincipals().size()+")", subject.getPrincipals().size() == 5);
         RealmPrincipal principal = (RealmPrincipal) subject.getPrincipals(RealmPrincipal.class).iterator().next();
+        assertTrue("id of principal should be non-zero", principal.getId() != 0);
+
+        context.logout();
+
+        assertTrue("id of subject should be null", ContextManager.getSubjectId(subject) == null);
+
+        // next try the automatic configuration entry
+        context = new LoginContext("properties-realm", new AbstractTest.UsernamePasswordCallback("alan", "starcraft"));
+
+        context.login();
+        subject = context.getSubject();
+        assertTrue("expected non-null client subject", subject != null);
+        subject = ContextManager.getServerSideSubject(subject);
+
+        assertTrue("expected non-null server subject", subject != null);
+        assertTrue("server subject should have one remote principal", subject.getPrincipals(IdentificationPrincipal.class).size() == 1);
+        remote = (IdentificationPrincipal) subject.getPrincipals(IdentificationPrincipal.class).iterator().next();
+        assertTrue("server subject should be associated with remote id", ContextManager.getRegisteredSubject(remote.getId()) != null);
+        assertTrue("server subject should have two realm principals ("+subject.getPrincipals(RealmPrincipal.class).size()+")", subject.getPrincipals(RealmPrincipal.class).size() == 2);
+        assertTrue("server subject should have five principals ("+subject.getPrincipals().size()+")", subject.getPrincipals().size() == 5);
+        principal = (RealmPrincipal) subject.getPrincipals(RealmPrincipal.class).iterator().next();
         assertTrue("id of principal should be non-zero", principal.getId() != 0);
 
         context.logout();

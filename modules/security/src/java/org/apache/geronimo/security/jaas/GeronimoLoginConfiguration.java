@@ -46,7 +46,7 @@ public class GeronimoLoginConfiguration extends Configuration implements GBeanLi
 
     private static Map entries = new Hashtable();
     private Configuration oldConfiguration;
-    private Kernel kernel;
+    private static Kernel kernel; //todo: this restricts you to one Kernel per JVM
 
     public GeronimoLoginConfiguration(Kernel kernel) {
         this.kernel = kernel;
@@ -92,7 +92,13 @@ public class GeronimoLoginConfiguration extends Configuration implements GBeanLi
         if (sm != null) sm.checkPermission(SecurityService.CONFIGURE);
 
         if (entries.containsKey(realm.getRealmName())) throw new java.lang.IllegalArgumentException("ConfigurationEntry already registered");
-        entries.put(realm.getRealmName(), new AppConfigurationEntry("org.apache.geronimo.security.jaas.JaasLoginCoordinator", AppConfigurationEntry.LoginModuleControlFlag.REQUIRED, new Properties()));
+        Map options = new HashMap();
+        options.put("realm", realm.getRealmName());
+        if(kernel != null) {
+            options.put("kernel", kernel.getKernelName());
+        }
+
+        entries.put(realm.getRealmName(), new AppConfigurationEntry("org.apache.geronimo.security.jaas.JaasLoginCoordinator", AppConfigurationEntry.LoginModuleControlFlag.REQUIRED, options));
     }
 
     public static void unRegister(String name) {
