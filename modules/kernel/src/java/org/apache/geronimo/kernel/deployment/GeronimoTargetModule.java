@@ -68,7 +68,7 @@ import javax.enterprise.deploy.spi.Target;
  * well as the ObjectName of the MBean for the specified Target where this
  * module can be found.
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/22 20:01:46 $
+ * @version $Revision: 1.3 $ $Date: 2003/12/14 16:26:46 $
  */
 public class GeronimoTargetModule implements TargetModuleID, Serializable {
     private Target target;
@@ -82,20 +82,17 @@ public class GeronimoTargetModule implements TargetModuleID, Serializable {
     public GeronimoTargetModule(Target target, String moduleID) {
         this.target = target;
         this.moduleID = moduleID;
-        this.deploymentID = deploymentID;
     }
 
     public GeronimoTargetModule(Target target, String moduleID, String webURL) {
         this.target = target;
         this.moduleID = moduleID;
-        this.deploymentID = deploymentID;
         this.webURL = webURL;
     }
 
     public GeronimoTargetModule(Target target, String moduleID, GeronimoTargetModule parent) {
         this.target = target;
         this.moduleID = moduleID;
-        this.deploymentID = deploymentID;
         this.parent = parent;
         parent.children.add(this);
     }
@@ -103,7 +100,6 @@ public class GeronimoTargetModule implements TargetModuleID, Serializable {
     public GeronimoTargetModule(Target target, String moduleID, String webURL, GeronimoTargetModule parent) {
         this.target = target;
         this.moduleID = moduleID;
-        this.deploymentID = deploymentID;
         this.webURL = webURL;
         this.parent = parent;
         parent.children.add(this);
