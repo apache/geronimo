@@ -42,57 +42,17 @@
             <artifactId>geronimo-security</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
+
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-webservices</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
+
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-ejb</artifactId>
             <version>${geronimo_spec_ejb_version}</version>
-        </dependency>
-        <!-- these are just needed to run the unit tests -->
-        <dependency>
-            <groupId>geronimo-spec</groupId>
-            <artifactId>geronimo-spec-servlet</artifactId>
-            <version>${geronimo_spec_servlet_version}</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>${commons_logging_version}</version>
-            <url>http://jakarta.apache.org/commons/logging/</url>
-        </dependency>
-        <dependency>
-            <groupId>cglib</groupId>
-            <artifactId>cglib-full</artifactId>
-            <version>${cglib_version}</version>
-            <url>http://cglib.sf.net/</url>
-        </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>${log4j_version}</version>
-            <url>http://jakarta.apache.org/log4j</url>
-        </dependency>
-
-        <!-- Module Dependencies -->
-        <dependency>
-            <groupId>axis</groupId>
-            <artifactId>axis</artifactId>
-            <version>${axis_version}</version>
-            <properties>
-                <module>true</module>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>axis</groupId>
-            <artifactId>commons-discovery</artifactId>
-            <version>${axis_commons_discovery_version}</version>
-            <properties>
-                <module>true</module>
-            </properties>
         </dependency>
 
         <dependency>
@@ -103,54 +63,61 @@
 
         <dependency>
             <groupId>geronimo-spec</groupId>
-            <artifactId>geronimo-spec-saaj</artifactId>
-            <version>${geronimo_spec_saaj_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
+            <artifactId>geronimo-spec-qname</artifactId>
+            <version>${geronimo_spec_qname_version}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
-            <artifactId>geronimo-spec-qname</artifactId>
-            <version>${geronimo_spec_qname_version}</version>
+            <artifactId>geronimo-spec-saaj</artifactId>
+            <version>${geronimo_spec_saaj_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-servlet</artifactId>
+            <version>${geronimo_spec_servlet_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>axis</groupId>
+            <artifactId>axis</artifactId>
+            <version>${axis_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>axis</groupId>
+            <artifactId>commons-discovery</artifactId>
+            <version>${axis_commons_discovery_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib-full</artifactId>
+            <version>${cglib_version}</version>
+            <url>http://cglib.sf.net/</url>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>${commons_logging_version}</version>
+            <url>http://jakarta.apache.org/commons/logging/</url>
+        </dependency>
+
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>${log4j_version}</version>
+            <url>http://jakarta.apache.org/log4j</url>
         </dependency>
 
         <dependency>
             <groupId>wsdl4j</groupId>
             <artifactId>wsdl4j</artifactId>
             <version>${wsdl4j_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
-        </dependency>
-<!--
-        <dependency>
-            <groupId>ant</groupId>
-            <artifactId>ant</artifactId>
-            <version>${ant_version}</version>
-            <properties>
-                <module>true</module>
-            </properties>
         </dependency>
 
-        <dependency>
-            <groupId>openejb</groupId>
-            <artifactId>openejb-core</artifactId>
-            <version>${openejb_version}</version>
-            <properties>
-                <module>true</module>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>openejb</groupId>
-            <artifactId>openejb-builder</artifactId>
-            <version>${openejb_version}</version>
-            <properties>
-                <module>true</module>
-            </properties>
-        </dependency>
--->
      </dependencies>
 
 
