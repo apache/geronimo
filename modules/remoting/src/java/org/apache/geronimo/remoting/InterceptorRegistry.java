@@ -60,28 +60,23 @@ import java.util.HashMap;
 import org.apache.geronimo.core.service.Interceptor;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2003/11/23 10:56:35 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/30 05:44:39 $
  */
 public class InterceptorRegistry {
+    public static final InterceptorRegistry instance = new InterceptorRegistry();
 
-    static final public InterceptorRegistry instance = new InterceptorRegistry();
+    private long nextID = System.currentTimeMillis();
+    private HashMap map = new HashMap();
 
     private InterceptorRegistry() {
-
     }
 
-    long nextID = System.currentTimeMillis();
-    private synchronized long getNextID() {
-        return nextID++;
-    }
-    HashMap map = new HashMap();
-
-    public Long register(Interceptor o) {
-        Long id = new Long(getNextID());
+    public Long register(Interceptor interceptor) {
         synchronized (map) {
-            map.put(id, o);
+            Long id = new Long(nextID++);
+            map.put(id, interceptor);
+            return id;
         }
-        return id;
     }
 
     public Interceptor unregister(Long id) {
@@ -95,5 +90,4 @@ public class InterceptorRegistry {
             return (Interceptor) map.get(id);
         }
     }
-
 }
