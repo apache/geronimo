@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.23 $ $Date: 2003/11/18 05:19:03 $ -->
+<!-- $Revision: 1.24 $ $Date: 2004/01/22 08:47:26 $ -->
 
 <project default="default"
   xmlns:j="jelly:core"
@@ -12,21 +12,6 @@
   <preGoal name="xdoc:jelly-transform">
     <attainGoal name="html2xdoc"/>
   </preGoal>
-  
-  <preGoal name="test:compile">
-    <attainGoal name="xdoclet:jmxdoclet:test-compile"/>
-  </preGoal>
-  
-  <preGoal name="java:compile">
-    <attainGoal name="xdoclet:jmxdoclet:compile"/>
-  </preGoal>
-    
-  <preGoal name="java:compile">
-    <castor:generate
-      schema="${basedir}/src/schema/geronimo-ejb-jar.xsd"
-      package="org.apache.geronimo.enterprise.deploy.common"
-      types="j2"/>
-  </preGoal>
 
   <postGoal name="jar:jar">
     <ant:jar destfile="${basedir}/target/jsr88-geronimo-plugin.jar"
@@ -34,28 +19,28 @@
              includes="org/apache/geronimo/enterprise/deploy/server/**/*.class"
              manifest="${basedir}/src/etc/jsr88-product-provider-manifest.mf" />
   </postGoal>
-  
+
   <postGoal name="jar:jar">
     <ant:jar destfile="${basedir}/target/geronimo-core-rmiclassloaderspi.jar"
              basedir="${basedir}/target/classes"
              includes="org/apache/geronimo/rmi/RMIClassLoaderSpiImpl.class"/>
   </postGoal>
-  
+
   <postGoal name="jar:jar">
     <ant:jar destfile="${basedir}/target/geronimo-schemas.jar"
              basedir="${basedir}/src/schema"
              includes="*.xsd"/>
   </postGoal>
-  
+
   <!-- Set up the test files -->
   <postGoal name="test:test-resources">
-    
+
     <j:jelly xmlns="jelly:ant">
       <!-- Create the directory where the test databases will reside -->
       <delete dir="${maven.build.dir}/database"/>
       <mkdir dir="${maven.build.dir}/database"/>
     </j:jelly>
-    
+
   </postGoal>
 
 </project>

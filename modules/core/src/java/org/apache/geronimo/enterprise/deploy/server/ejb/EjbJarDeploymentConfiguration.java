@@ -55,26 +55,26 @@
  */
 package org.apache.geronimo.enterprise.deploy.server.ejb;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.IOException;
-import java.io.Reader;
-import javax.enterprise.deploy.spi.DeploymentConfiguration;
-import javax.enterprise.deploy.spi.DConfigBeanRoot;
-import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
-import javax.enterprise.deploy.spi.exceptions.BeanNotFoundException;
-import javax.enterprise.deploy.model.DeployableObject;
+
 import javax.enterprise.deploy.model.DDBeanRoot;
-import org.w3c.dom.Document;
-import org.apache.geronimo.enterprise.deploy.server.ejb.EjbConverter;
-import org.apache.geronimo.enterprise.deploy.server.ejb.EjbJarRoot;
+import javax.enterprise.deploy.model.DeployableObject;
+import javax.enterprise.deploy.spi.DConfigBeanRoot;
+import javax.enterprise.deploy.spi.DeploymentConfiguration;
+import javax.enterprise.deploy.spi.exceptions.BeanNotFoundException;
+import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.apache.geronimo.deployment.model.geronimo.ejb.GeronimoEjbJarDocument;
+import org.apache.geronimo.deployment.xml.ParserFactory;
 import org.apache.geronimo.enterprise.deploy.server.DConfigBeanLookup;
 import org.apache.geronimo.xml.deployment.GeronimoEjbJarLoader;
-import org.apache.geronimo.xml.deployment.LoaderUtil;
 import org.apache.geronimo.xml.deployment.GeronimoEjbJarStorer;
-import org.apache.geronimo.deployment.model.geronimo.ejb.GeronimoEjbJarDocument;
+import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 /**
@@ -82,17 +82,19 @@ import org.xml.sax.SAXException;
  * knows how to load and save server-specific deployment information, and to
  * generate a default set based on the J2EE deployment descriptors.
  *
- * @version $Revision: 1.1 $ $Date: 2003/10/07 17:16:36 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/22 08:47:26 $
  */
 public class EjbJarDeploymentConfiguration implements DeploymentConfiguration {
     private DeployableObject ejbDD;
     private EjbJarRoot geronimoDD;
     private DConfigBeanLookup lookup;
+    private ParserFactory parserFactory;
 
-    public EjbJarDeploymentConfiguration(DeployableObject ejbDD, EjbJarRoot geronimoDD, DConfigBeanLookup lookup) {
+    public EjbJarDeploymentConfiguration(DeployableObject ejbDD, EjbJarRoot geronimoDD, DConfigBeanLookup lookup, ParserFactory parserFactory) {
         this.ejbDD = ejbDD;
         this.geronimoDD = geronimoDD;
         this.lookup = lookup;
+        this.parserFactory = parserFactory;
     }
 
     public DeployableObject getDeployableObject() {
@@ -127,14 +129,16 @@ public class EjbJarDeploymentConfiguration implements DeploymentConfiguration {
     }
 
     public void restore(InputStream inputArchive) throws ConfigurationException {
-        Reader reader = new InputStreamReader(inputArchive);
         Document doc = null;
         try {
-            doc = LoaderUtil.parseXML(reader);
+            DocumentBuilder parser = parserFactory.getParser();
+            doc = parser.parse(inputArchive);
         } catch (SAXException e) {
             throw new ConfigurationException("Invalid deployment descriptor", e);
         } catch (IOException e) {
             throw new ConfigurationException("Error reading deployment descriptor", e);
+        } catch (ParserConfigurationException e) {
+            throw new ConfigurationException("Error creating parser", e);
         }
         GeronimoEjbJarDocument parsed = GeronimoEjbJarLoader.load(doc);
         geronimoDD = EjbConverter.loadDConfigBeans(parsed.getEjbJar(), ejbDD.getDDBeanRoot(), lookup);

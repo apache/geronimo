@@ -55,10 +55,9 @@
  */
 package org.apache.geronimo.xml.deployment;
 
-import java.io.FileReader;
 
 /**
- * @version $Revision: 1.2 $ $Date: 2004/01/05 00:05:36 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/22 08:47:26 $
  */
 public class LoaderUtilTest extends AbstractLoaderUtilTest {
 
@@ -88,25 +87,6 @@ public class LoaderUtilTest extends AbstractLoaderUtilTest {
 
     public void testGetBoolean() {
         assertFalse(LoaderUtil.getBoolean(null, null));
-    }
-
-    public void testParseXML() {
-        try {
-            LoaderUtil.parseXML(null);
-            assertTrue("reader == null", false);
-        } catch (Exception expected) {
-        }
-    }
-
-    public void testParseNoneValidXML() {
-
-        try {
-            LoaderUtil.parseXML(new FileReader("src/test-data/xml/deployment/simple-dtd-example.xml"));
-            LoaderUtil.parseXML2(new FileReader("src/test-data/xml/deployment/simple-dtd-example.xml"));
-            //fail("should throw a SAXParserException");
-        } catch (Exception expected) {
-
-        }
     }
 
 }

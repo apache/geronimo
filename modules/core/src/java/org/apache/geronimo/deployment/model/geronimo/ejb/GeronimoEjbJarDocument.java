@@ -71,7 +71,7 @@ import org.apache.geronimo.xml.deployment.GeronimoEjbJarStorer;
 /**
  * Top-level Deployment Descriptor element for the Geronimo EJB JAR DD.
  *
- * @version $Revision: 1.2 $ $Date: 2003/10/19 01:56:14 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/22 08:47:26 $
  */
 public class GeronimoEjbJarDocument implements DeploymentDescriptor, Serializable {
     private transient EjbJar ejbJar;
@@ -88,22 +88,4 @@ public class GeronimoEjbJarDocument implements DeploymentDescriptor, Serializabl
         this.ejbJar = ejbJar;
     }
 
-    private void writeObject(ObjectOutputStream out) throws IOException {
-        out.defaultWriteObject();
-        StringWriter writer = new StringWriter();
-        GeronimoEjbJarStorer.store(this, writer);
-        out.writeUTF(writer.toString());
-    }
-
-    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-        in.defaultReadObject();
-        StringReader reader = new StringReader(in.readUTF());
-        Document doc = null;
-        try {
-            doc = LoaderUtil.parseXML(reader);
-        } catch(SAXException e) {
-            throw new IOException("Unable to read serialized DD: "+e);
-        }
-        ejbJar = GeronimoEjbJarLoader.load(doc).getEjbJar();
-    }
 }

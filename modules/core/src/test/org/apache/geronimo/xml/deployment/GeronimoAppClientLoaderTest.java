@@ -56,7 +56,6 @@
 package org.apache.geronimo.xml.deployment;
 
 import java.io.File;
-import java.io.FileReader;
 
 import org.apache.geronimo.deployment.model.geronimo.appclient.ApplicationClient;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbRef;
@@ -71,14 +70,14 @@ import org.w3c.dom.Document;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/01/02 23:32:39 $
+ * @version $Revision: 1.7 $ $Date: 2004/01/22 08:47:26 $
  */
 public class GeronimoAppClientLoaderTest extends AbstractLoaderUtilTest {
     private File docDir;
 
     public void testLoad() throws Exception {
         File f = new File(docDir, "geronimo-app-client.xml");
-        Document doc = LoaderUtil.parseXML(new FileReader(f));
+        Document doc = parser.parse(f);
         ApplicationClient client = GeronimoAppClientLoader.load(doc).getApplicationClient();
 
         EnvEntry[] envEntries = client.getEnvEntry();

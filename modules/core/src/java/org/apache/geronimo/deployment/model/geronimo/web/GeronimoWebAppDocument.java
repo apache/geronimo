@@ -70,7 +70,7 @@ import org.apache.geronimo.xml.deployment.LoaderUtil;
 /**
  * Top-level Deployment Descriptor element for the Geronimo Web App DD.
  *
- * @version $Revision: 1.2 $ $Date: 2003/10/19 01:56:14 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/22 08:47:26 $
  */
 public class GeronimoWebAppDocument implements DeploymentDescriptor, Serializable {
     private transient WebApp webApp;
@@ -87,22 +87,4 @@ public class GeronimoWebAppDocument implements DeploymentDescriptor, Serializabl
         this.webApp = webApp;
     }
 
-    private void writeObject(ObjectOutputStream out) throws IOException {
-        out.defaultWriteObject();
-        StringWriter writer = new StringWriter();
-        //todo: write XML to String
-        out.writeUTF(writer.toString());
-    }
-
-    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-        in.defaultReadObject();
-        StringReader reader = new StringReader(in.readUTF());
-        Document doc = null;
-        try {
-            doc = LoaderUtil.parseXML(reader);
-        } catch(SAXException e) {
-            throw new IOException("Unable to read serialized DD: "+e);
-        }
-        webApp = GeronimoWebAppLoader.load(doc).getWebApp();
-    }
 }

@@ -56,12 +56,18 @@
 package org.apache.geronimo.xml.deployment;
 
 import java.io.File;
+import java.net.URI;
+
+import javax.xml.parsers.DocumentBuilder;
 
 import junit.framework.TestCase;
+import org.apache.geronimo.deployment.xml.LocalEntityResolver;
+import org.apache.geronimo.deployment.xml.ParserFactory;
+import org.apache.geronimo.deployment.xml.ParserFactoryImpl;
 
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/01/05 17:44:30 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/22 08:47:26 $
  */
 public abstract class AbstractLoaderUtilTest extends TestCase {
 
@@ -69,15 +75,17 @@ public abstract class AbstractLoaderUtilTest extends TestCase {
     private static final File docDir = new File("src/test-data/xml/deployment");
     private static final File catalogFile = new File(docDir, "resolver-catalog.xml");
     protected LocalEntityResolver resolver;
+    protected ParserFactory parserFactory;
+    protected DocumentBuilder parser;
 
     protected void setUp() throws Exception {
-        setUp(catalogFile.toURI().toString(), repoDir.toURI().toString());
+        setUp(catalogFile.toURI(), repoDir.toURI());
     }
 
-    protected void setUp(String catalogFile, String docDirectory) {
-        resolver = new LocalEntityResolver(catalogFile, docDirectory, true);
-        new LoaderUtil().setEntityResolver(resolver);
-        new StorerUtil().setEntityResolver(resolver);
+    protected void setUp(URI catalogFileURI, URI docDirectoryURI) throws Exception {
+        resolver = new LocalEntityResolver(catalogFileURI, docDirectoryURI, true);
+        parserFactory = new ParserFactoryImpl(resolver);
+        parser = parserFactory.getParser();
     }
 
     /**
@@ -85,8 +93,6 @@ public abstract class AbstractLoaderUtilTest extends TestCase {
      */
     protected void tearDown() throws Exception {
         resolver = null;
-        new LoaderUtil().setEntityResolver(null);
-        new StorerUtil().setEntityResolver(null);
     }
 
 }

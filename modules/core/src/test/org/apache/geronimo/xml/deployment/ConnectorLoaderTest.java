@@ -57,7 +57,6 @@
 package org.apache.geronimo.xml.deployment;
 
 import java.io.File;
-import java.io.FileReader;
 
 import org.apache.geronimo.deployment.model.connector.ConfigProperty;
 import org.apache.geronimo.deployment.model.connector.Connector;
@@ -70,7 +69,7 @@ import org.w3c.dom.Document;
 /**
  * ConnectorLoaderTest
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/02 23:32:39 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/22 08:47:26 $
  */
 public class ConnectorLoaderTest extends AbstractLoaderUtilTest {
     private File docDir_1_5;
@@ -78,7 +77,7 @@ public class ConnectorLoaderTest extends AbstractLoaderUtilTest {
 
     public void testSimpleLoad_1_5() throws Exception {
         File f = new File(docDir_1_5, "ra.xml");
-        Document xmlDoc = LoaderUtil.parseXML(new FileReader(f));
+        Document xmlDoc = parser.parse(f);
         ConnectorDocument doc = ConnectorLoader.load(xmlDoc);
         Connector connector = doc.getConnector();
         checkResourceAdapter_1_5(connector.getResourceAdapter());
@@ -117,7 +116,7 @@ public class ConnectorLoaderTest extends AbstractLoaderUtilTest {
 
     public void testSimpleLoad_1_0() throws Exception {
         File f = new File(docDir_1_0, "ra.xml");
-        Document xmlDoc = LoaderUtil.parseXML(new FileReader(f));
+        Document xmlDoc = parser.parse(f);
         ConnectorDocument doc = ConnectorLoader.load(xmlDoc);
         Connector connector = doc.getConnector();
         checkResourceAdapter_1_0(connector.getResourceAdapter());

@@ -55,28 +55,29 @@
  */
 package org.apache.geronimo.validator.ejb;
 
-import java.net.URLClassLoader;
-import java.net.URL;
 import java.io.File;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.BufferedReader;
+import java.net.URL;
+import java.net.URLClassLoader;
+
 import javax.enterprise.deploy.shared.ModuleType;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.apache.geronimo.deployment.model.DeploymentDescriptor;
+import org.apache.geronimo.deployment.model.ejb.EjbJarDocument;
 import org.apache.geronimo.validator.AbstractValidator;
 import org.apache.geronimo.validator.Validator;
-import org.apache.geronimo.xml.deployment.LoaderUtil;
 import org.apache.geronimo.xml.deployment.EjbJarLoader;
-import org.apache.geronimo.deployment.model.ejb.EjbJarDocument;
-import org.apache.geronimo.deployment.model.DeploymentDescriptor;
 import org.w3c.dom.Document;
 
 /**
  * The validator class for validating an EJB JAR.  Right now just does enough
  * to prove that this whole thing works.
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/05 20:18:04 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/22 08:47:26 $
  */
 public class EjbValidator extends AbstractValidator {
     public Class[] getTestClasses() {
@@ -92,7 +93,9 @@ public class EjbValidator extends AbstractValidator {
         try {
             ClassLoader loader = new URLClassLoader(new URL[]{new File(args[0]).toURL()});
             InputStream in = loader.getResourceAsStream("META-INF/ejb-jar.xml");
-            Document doc = LoaderUtil.parseXML(new BufferedReader(new InputStreamReader(in)));
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document doc = builder.parse(in);
             EjbJarLoader jarLoader = new EjbJarLoader();
             EjbJarDocument jar = jarLoader.load(doc);
             Validator v =new EjbValidator();

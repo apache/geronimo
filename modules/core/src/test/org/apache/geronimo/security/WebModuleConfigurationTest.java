@@ -57,20 +57,18 @@
 package org.apache.geronimo.security;
 
 import java.io.File;
-import java.io.FileReader;
 
 import org.apache.geronimo.deployment.model.geronimo.web.GeronimoWebAppDocument;
 import org.apache.geronimo.deployment.model.geronimo.web.WebApp;
 import org.apache.geronimo.xml.deployment.AbstractLoaderUtilTest;
 import org.apache.geronimo.xml.deployment.GeronimoWebAppLoader;
-import org.apache.geronimo.xml.deployment.LoaderUtil;
 import org.w3c.dom.Document;
 
 
 /**
  * Unit test for web module configuration
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/02 23:32:39 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/22 08:47:26 $
  */
 public class WebModuleConfigurationTest extends AbstractLoaderUtilTest {
     private File docDir;
@@ -89,7 +87,7 @@ public class WebModuleConfigurationTest extends AbstractLoaderUtilTest {
 
 
         File f = new File(docDir, "geronimo-web-app-testRead.xml");
-        Document xmlDoc = LoaderUtil.parseXML(new FileReader(f));
+        Document xmlDoc = parser.parse(f);
         GeronimoWebAppDocument doc = GeronimoWebAppLoader.load(xmlDoc);
         client = doc.getWebApp();
 

@@ -56,7 +56,6 @@
 package org.apache.geronimo.xml.deployment;
 
 import java.io.File;
-import java.io.FileReader;
 
 import org.apache.geronimo.deployment.model.ejb.EjbJar;
 import org.apache.geronimo.deployment.model.ejb.EjbJarDocument;
@@ -72,14 +71,14 @@ import org.w3c.dom.Document;
 /**
  * Tests basic EJB JAR DD loading (not very comprehensive)
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/02 23:32:39 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/22 08:47:26 $
  */
 public class EjbJarLoaderTest extends AbstractLoaderUtilTest {
     private File docDir;
 
     public void testSimpleLoad() throws Exception {
         File f = new File(docDir, "simple-ejb-jar.xml");
-        Document xmlDoc = LoaderUtil.parseXML(new FileReader(f));
+        Document xmlDoc = parser.parse(f);
         EjbJarDocument doc = EjbJarLoader.load(xmlDoc);
         EjbJar jar = doc.getEjbJar();
         checkEjbJar(jar, "example");

@@ -58,49 +58,28 @@ package org.apache.geronimo.xml.deployment;
 import java.io.Writer;
 import java.util.Properties;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.dom.DOMSource;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
+import javax.xml.transform.stream.StreamResult;
 
-import org.w3c.dom.Element;
 import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.xml.sax.EntityResolver;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
-import org.apache.geronimo.kernel.service.GeronimoMBeanEndpoint;
+import org.w3c.dom.NodeList;
 
 /**
  * Holds utility methods for writing to a DOM tree
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/05 17:44:30 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/22 08:47:26 $
  */
 public class StorerUtil {
 
-    private static EntityResolver entityResolver;
-
-    public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws MalformedObjectNameException {
-        GeronimoMBeanInfo mBeanInfo = new GeronimoMBeanInfo();
-        mBeanInfo.setTargetClass(StorerUtil.class);
-        mBeanInfo.addEndpoint(new GeronimoMBeanEndpoint("EntityResolver", EntityResolver.class, ObjectName.getInstance("geronimo.xml:role=EntityResolver"), true));
-        return mBeanInfo;
-    }
-
-    public EntityResolver getEntityResolver() {
-        return entityResolver;
-    }
-
-    public void setEntityResolver(EntityResolver entityResolver) {
-        StorerUtil.entityResolver = entityResolver;
-    }
 
     /**
      * Creates a new child of the specified element, adds it as a child, and
@@ -178,7 +157,6 @@ public class StorerUtil {
         fac.setNamespaceAware(true);
         fac.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaLanguage", "http://www.w3.org/2001/XMLSchema");
         DocumentBuilder builder = fac.newDocumentBuilder();
-        builder.setEntityResolver(entityResolver);
         return builder.newDocument();
     }
 

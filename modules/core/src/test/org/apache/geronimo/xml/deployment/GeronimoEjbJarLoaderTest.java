@@ -56,7 +56,6 @@
 package org.apache.geronimo.xml.deployment;
 
 import java.io.File;
-import java.io.FileReader;
 
 import org.apache.geronimo.deployment.model.ejb.QueryMethod;
 import org.apache.geronimo.deployment.model.geronimo.ejb.ActivationConfig;
@@ -81,21 +80,21 @@ import org.w3c.dom.Document;
 /**
  * Tests basic Geronimo EJB JAR DD loading (not very comprehensive)
  *
- * @version $Revision: 1.8 $ $Date: 2004/01/02 23:32:39 $
+ * @version $Revision: 1.9 $ $Date: 2004/01/22 08:47:26 $
  */
 public class GeronimoEjbJarLoaderTest extends AbstractLoaderUtilTest {
     private File docDir;
 
     public void testSimpleLoad() throws Exception {
         File f = new File(docDir, "simple-geronimo-ejb-jar.xml");
-        Document xmlDoc = LoaderUtil.parseXML(new FileReader(f));
+        Document xmlDoc = parser.parse(f);
         GeronimoEjbJarDocument doc = GeronimoEjbJarLoader.load(xmlDoc);
         checkGeronimoJar(doc);
     }
 
     public void testRelationshipLoad() throws Exception {
         File f = new File(docDir, "simple-geronimo-ejb-jar.xml");
-        Document xmlDoc = LoaderUtil.parseXML(new FileReader(f));
+        Document xmlDoc = parser.parse(f);
         GeronimoEjbJarDocument doc = GeronimoEjbJarLoader.load(xmlDoc);
         EjbJar jar = doc.getEjbJar();
         Relationships relationships = jar.getGeronimoRelationships();

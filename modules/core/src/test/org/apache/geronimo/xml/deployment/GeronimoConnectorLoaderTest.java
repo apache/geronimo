@@ -57,7 +57,6 @@
 package org.apache.geronimo.xml.deployment;
 
 import java.io.File;
-import java.io.FileReader;
 
 import org.apache.geronimo.deployment.model.connector.ConfigProperty;
 import org.apache.geronimo.deployment.model.connector.ConnectorDocument;
@@ -71,7 +70,7 @@ import org.w3c.dom.Document;
 /**
  * ConnectorLoaderTest
  *
- * @version $Revision: 1.5 $ $Date: 2004/01/21 22:21:27 $
+ * @version $Revision: 1.6 $ $Date: 2004/01/22 08:47:26 $
  */
 public class GeronimoConnectorLoaderTest extends AbstractLoaderUtilTest {
     private File docDir_1_5;
@@ -79,10 +78,10 @@ public class GeronimoConnectorLoaderTest extends AbstractLoaderUtilTest {
 
     public void testSimpleLoad_1_5() throws Exception {
         File f = new File(docDir_1_5, "ra.xml");
-        Document xmlDoc = LoaderUtil.parseXML(new FileReader(f));
+        Document xmlDoc = parser.parse(f);
         ConnectorDocument doc = ConnectorLoader.load(xmlDoc);
         File g = new File(docDir_1_5, "geronimo-ra.xml");
-        Document xmlGDoc = LoaderUtil.parseXML(new FileReader(g));
+        Document xmlGDoc = parser.parse(g);
         GeronimoConnectorDocument gdoc = GeronimoConnectorLoader.load(xmlGDoc, doc);
         GeronimoConnector gconnector = gdoc.getGeronimoConnector();
         checkResourceAdapter_1_5(gconnector.getGeronimoResourceAdapter());
@@ -136,10 +135,10 @@ public class GeronimoConnectorLoaderTest extends AbstractLoaderUtilTest {
 
     public void testSimpleLoad_1_0() throws Exception {
         File f = new File(docDir_1_0, "ra.xml");
-        Document xmlDoc = LoaderUtil.parseXML(new FileReader(f));
+        Document xmlDoc = parser.parse(f);
         ConnectorDocument doc = ConnectorLoader.load(xmlDoc);
         File g = new File(docDir_1_0, "geronimo-ra.xml");
-        Document xmlGDoc = LoaderUtil.parseXML(new FileReader(g));
+        Document xmlGDoc = parser.parse(g);
         GeronimoConnectorDocument gdoc = GeronimoConnectorLoader.load(xmlGDoc, doc);
         GeronimoConnector gconnector = gdoc.getGeronimoConnector();
         checkResourceAdapter_1_0(gconnector.getGeronimoResourceAdapter());

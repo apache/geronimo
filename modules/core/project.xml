@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.34 $ $Date: 2004/01/21 22:21:26 $ -->
+<!-- $Revision: 1.35 $ $Date: 2004/01/22 08:47:26 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -36,37 +36,6 @@
             </properties>
         </dependency>
 
-        <dependency>
-            <id>xdoclet</id>
-            <version>1.2b2</version>
-            <properties>
-                <runtime>false</runtime>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <id>xdoclet+xdoclet-module</id>
-            <version>1.2b2</version>
-            <properties>
-                <runtime>false</runtime>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <id>xdoclet+jmx-module</id>
-            <version>1.2b2</version>
-            <properties>
-                <runtime>false</runtime>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <id>xdoclet+xjavadoc</id>
-            <version>1.2b2</version>
-            <properties>
-                <runtime>false</runtime>
-            </properties>
-        </dependency>
 
        <!-- Module Dependencies -->
 
@@ -252,15 +221,6 @@
         <dependency>
             <id>mx4j+tools</id>
             <version>SNAPSHOT</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <id>castor</id>
-            <version>0.9.5</version>
-            <url>http://castor.exolab.org</url>
             <properties>
                 <runtime>true</runtime>
             </properties>

@@ -55,58 +55,20 @@
  */
 package org.apache.geronimo.xml.deployment;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.Reader;
 import java.util.LinkedList;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.ErrorHandler;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
-import org.xml.sax.EntityResolver;
-
-import org.apache.xerces.parsers.DOMParser;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
-import org.apache.geronimo.kernel.service.GeronimoMBeanEndpoint;
 
 /**
  * Holds utility methods for parsing a DOM tree.
  *
- * @version $Revision: 1.13 $ $Date: 2004/01/05 17:44:30 $
+ * @version $Revision: 1.14 $ $Date: 2004/01/22 08:47:26 $
  */
 public final class LoaderUtil {
-
-    private static final Log log = LogFactory.getLog(LoaderUtil.class);
-
-    private static EntityResolver entityResolver;
-
-    public static GeronimoMBeanInfo getGeronimoMBeanInfo() throws MalformedObjectNameException {
-        GeronimoMBeanInfo mBeanInfo = new GeronimoMBeanInfo();
-        mBeanInfo.setTargetClass(LoaderUtil.class);
-        mBeanInfo.addEndpoint(new GeronimoMBeanEndpoint("EntityResolver", EntityResolver.class, ObjectName.getInstance("geronimo.xml:role=EntityResolver"), true));
-        return mBeanInfo;
-    }
-
-    public EntityResolver getEntityResolver() {
-        return entityResolver;
-    }
-
-    public void setEntityResolver(EntityResolver entityResolver) {
-        LoaderUtil.entityResolver = entityResolver;
-    }
 
     public static String getContent(Element element) {
         if (element == null) {
@@ -216,77 +178,4 @@ public final class LoaderUtil {
         }
     }
 
-    /**
-     * Utility method to parse the contents of a Reader into a DOM Document.
-     *
-     * @param reader  The reader with the XML content
-     * @return the Document read from the Reader
-     * @throws SAXException if there was a parsing problem
-     * @throws IOException if there was a problem reading the input
-     */
-    public static Document parseXML(Reader reader)
-            throws SAXException, IOException {
-        DOMParser parser = new DOMParser();
-        parser.setFeature("http://xml.org/sax/features/validation", true);
-        parser.setFeature(
-                "http://apache.org/xml/features/validation/schema",
-                true);
-        parser.setEntityResolver(entityResolver);
-        parser.setErrorHandler(new ErrorHandler() {
-            public void error(SAXParseException exception)
-                    throws SAXException {
-                log.warn("SAX parse error (ignored)", exception);
-                //throw exception;
-            }
-
-            public void fatalError(SAXParseException exception)
-                    throws SAXException {
-                log.warn("Fatal SAX parse error (ignored)", exception);
-                //throw exception;
-            }
-
-            public void warning(SAXParseException exception)
-                    throws SAXException {
-                log.warn("SAX parse warning", exception);
-            }
-        });
-        parser.parse(new InputSource(new BufferedReader(reader)));
-        return parser.getDocument();
-    }
-
-    //It looks to me as if this does the same things, but with jaxp.
-    public static Document parseXML2(Reader reader)
-            throws SAXException, IOException {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        factory.setNamespaceAware(true);
-        factory.setValidating(true);
-        factory.setAttribute(
-                "http://java.sun.com/xml/jaxp/properties/schemaLanguage",
-                "http://www.w3.org/2001/XMLSchema");
-        try {
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            builder.setEntityResolver(entityResolver);
-            builder.setErrorHandler(new ErrorHandler() {
-                public void error(SAXParseException exception)
-                        throws SAXException {
-                    log.warn("SAX parse error (ignored)", exception);
-                    //throw exception;
-                }
-
-                public void fatalError(SAXParseException exception)
-                        throws SAXException {
-                    log.warn("Fatal SAX parse error (ignored)", exception);
-                    //throw exception;
-                }
-
-                public void warning(SAXParseException exception)
-                        throws SAXException {
-                    log.warn("SAX parse warning", exception);
-                }
-            });
-            return builder.parse(new InputSource(new BufferedReader(reader)));
-        } catch (ParserConfigurationException e) {
-            throw new AssertionError("Unable to obtain suitable DocumentBuilder");
-        }
-    }
 }

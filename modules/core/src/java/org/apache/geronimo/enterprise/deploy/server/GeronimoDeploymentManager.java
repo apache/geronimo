@@ -75,26 +75,29 @@ import org.apache.geronimo.enterprise.deploy.server.ejb.EjbJarRoot;
 import org.apache.geronimo.enterprise.deploy.server.ejb.EjbJarDeploymentConfiguration;
 import org.apache.geronimo.enterprise.deploy.server.web.WebAppDeploymentConfiguration;
 import org.apache.geronimo.enterprise.deploy.server.web.WebAppRoot;
+import org.apache.geronimo.deployment.xml.ParserFactory;
 
 /**
  * The Geronimo implementation of the JSR-88 DeploymentManager interface.
  * This same class is used for both connected mode and disconnected mode.
  * It uses a plugin to manage that.  Currently only J2EE 1.4 is supported.
  *
- * @version $Revision: 1.2 $ $Date: 2003/10/07 17:16:36 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/22 08:47:26 $
  */
 public class GeronimoDeploymentManager implements DeploymentManager, DConfigBeanLookup {
     private ServerConnection server; // a connection to an application server
+    private final ParserFactory parserFactory;
 
-    GeronimoDeploymentManager(ServerConnection server) {
+    GeronimoDeploymentManager(ServerConnection server, ParserFactory parserFactory) {
         this.server = server;
+        this.parserFactory = parserFactory;
     }
 
     public DeploymentConfiguration createConfiguration(DeployableObject dObj) throws InvalidModuleException {
         if(dObj.getType().getValue() == ModuleType.EJB.getValue()) {
-            return new EjbJarDeploymentConfiguration(dObj, new EjbJarRoot(dObj.getDDBeanRoot(), this), this);
+            return new EjbJarDeploymentConfiguration(dObj, new EjbJarRoot(dObj.getDDBeanRoot(), this), this, parserFactory);
         } else if(dObj.getType().getValue() == ModuleType.WAR.getValue()) {
-            return new WebAppDeploymentConfiguration(dObj, new WebAppRoot(dObj.getDDBeanRoot(), this), this);
+            return new WebAppDeploymentConfiguration(dObj, new WebAppRoot(dObj.getDDBeanRoot(), this), this, parserFactory);
         } else {
             throw new InvalidModuleException("Can't handle modules of type " + dObj.getType());
         }

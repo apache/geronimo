@@ -56,7 +56,6 @@
 package org.apache.geronimo.xml.deployment;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 
 import org.apache.geronimo.deployment.model.geronimo.ejb.GeronimoEjbJarDocument;
@@ -65,7 +64,7 @@ import org.w3c.dom.Document;
 /**
  * Tests for storing a Geronimo EJB JAR
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/02 23:32:39 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/22 08:47:26 $
  */
 public class GeronimoEjbJarStorerTest extends AbstractLoaderUtilTest {
     private File docDir;
@@ -77,7 +76,7 @@ public class GeronimoEjbJarStorerTest extends AbstractLoaderUtilTest {
 
     public void testLoadStoreLoad() throws Exception {
         File f = new File(docDir, "simple-geronimo-ejb-jar.xml");
-        Document xmlDoc = LoaderUtil.parseXML(new FileReader(f));
+        Document xmlDoc = parser.parse(f);
         GeronimoEjbJarDocument doc = GeronimoEjbJarLoader.load(xmlDoc);
         GeronimoEjbJarLoaderTest.checkGeronimoJar(doc);
 
@@ -88,7 +87,7 @@ public class GeronimoEjbJarStorerTest extends AbstractLoaderUtilTest {
         out.close();
 
         f = new File(docDir, "test-copy-geronimo-ejb-jar.xml");
-        xmlDoc = LoaderUtil.parseXML(new FileReader(f));
+        xmlDoc = parser.parse(f);
         doc = GeronimoEjbJarLoader.load(xmlDoc);
         GeronimoEjbJarLoaderTest.checkGeronimoJar(doc);
     }

@@ -60,6 +60,10 @@ import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
 import javax.enterprise.deploy.shared.factories.DeploymentFactoryManager;
 
+import org.apache.geronimo.deployment.xml.ParserFactory;
+import org.apache.geronimo.deployment.xml.ParserFactoryImpl;
+import org.apache.geronimo.deployment.xml.LocalEntityResolver;
+
 /**
  * The Geronimo implementation of the JSR-88 DeploymentFactory.  This is
  * analagous to a JDBC driver.  It provides access to usable
@@ -77,7 +81,7 @@ import javax.enterprise.deploy.shared.factories.DeploymentFactoryManager;
  *
  * (Note that connected mode is not yet implemented)
  *
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class GeronimoDeploymentFactory implements DeploymentFactory {
     static { // Auto-registers a GeronimoDeploymentFactory
@@ -85,6 +89,9 @@ public class GeronimoDeploymentFactory implements DeploymentFactory {
     }
     // All Geronimo URLs must start with this
     private final static String URI_PREFIX = "deployer:geronimo:";
+
+    //this entity resolver won't do anyone much good.
+    private ParserFactory parserFactory = new ParserFactoryImpl(new LocalEntityResolver(null, null, false));
 
     /**
      * Ensures that the URI starts with the blessed Geronimo prefix.
@@ -161,13 +168,13 @@ public class GeronimoDeploymentFactory implements DeploymentFactory {
                 //todo: Figure out a way around this (either make everything try the current CL as well as the TCCL, or set/unset the TCCL on every operation...)
                 System.err.println("Replacing Context ClassLoader: "+old);
                 Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
-                return new GeronimoDeploymentManager(new JmxServerConnection(add.server));
+                return new GeronimoDeploymentManager(new JmxServerConnection(add.server), parserFactory);
             } catch(Exception e) {
                 e.printStackTrace();
                 throw new DeploymentManagerCreationException("Unable to connect to Geronimo server at "+uri+": "+e.getMessage());
             }
         } else {
-            return new GeronimoDeploymentManager(new NoServerConnection());
+            return new GeronimoDeploymentManager(new NoServerConnection(), parserFactory);
         }
     }
 
@@ -181,7 +188,7 @@ public class GeronimoDeploymentFactory implements DeploymentFactory {
         if(!handlesURI(uri)) {
             throw new DeploymentManagerCreationException("Invalid URI for "+getDisplayName()+" "+getProductVersion()+" DeploymentFactory ("+uri+"), expecting "+URI_PREFIX+"...");
         }
-        return new GeronimoDeploymentManager(new NoServerConnection());
+        return new GeronimoDeploymentManager(new NoServerConnection(), parserFactory);
     }
 
     public String getDisplayName() {

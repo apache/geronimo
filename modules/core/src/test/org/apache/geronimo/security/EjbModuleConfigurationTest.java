@@ -57,21 +57,19 @@
 package org.apache.geronimo.security;
 
 import java.io.File;
-import java.io.FileReader;
 
 import org.apache.geronimo.deployment.model.geronimo.ejb.EjbJar;
 import org.apache.geronimo.deployment.model.geronimo.ejb.GeronimoEjbJarDocument;
 import org.apache.geronimo.deployment.model.geronimo.web.WebApp;
 import org.apache.geronimo.xml.deployment.AbstractLoaderUtilTest;
 import org.apache.geronimo.xml.deployment.GeronimoEjbJarLoader;
-import org.apache.geronimo.xml.deployment.LoaderUtil;
 import org.w3c.dom.Document;
 
 
 /**
  * Unit test for EJB module configuration
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/02 23:32:39 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/22 08:47:26 $
  */
 public class EjbModuleConfigurationTest extends AbstractLoaderUtilTest {
     private File docDir;
@@ -88,7 +86,8 @@ public class EjbModuleConfigurationTest extends AbstractLoaderUtilTest {
     public void testRead() throws Exception {
 
         File f = new File(docDir, "geronimo-ejb-jar-testRead.xml");
-        Document xmlDoc = LoaderUtil.parseXML(new FileReader(f));
+        System.out.println("file at: " + f.getAbsolutePath());
+        Document xmlDoc = parser.parse(f);
         GeronimoEjbJarDocument doc = GeronimoEjbJarLoader.load(xmlDoc);
         EjbJar jar = doc.getEjbJar();
 

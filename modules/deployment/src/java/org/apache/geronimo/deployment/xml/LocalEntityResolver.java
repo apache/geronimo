@@ -92,7 +92,7 @@ import org.xml.sax.SAXException;
  * (see http://www.oasis-open.org/committees/entity/spec-2001-08-01.html
  * and http://www.oasis-open.org/html/a401.htm)
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/21 22:15:58 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/22 08:47:27 $
  */
 public class LocalEntityResolver implements EntityResolver {
 
@@ -290,11 +290,15 @@ public class LocalEntityResolver implements EntityResolver {
             return null;
         }
 
-        URI resolvedSystemIDURI = localRepositoryURI.resolve(fileName);
         InputStream inputStream = null;
+        URI resolvedSystemIDURI;
         try {
+            resolvedSystemIDURI = localRepositoryURI.resolve(fileName);
             inputStream = resolvedSystemIDURI.toURL().openStream();
         } catch (IOException e) {
+            return null;
+        } catch (IllegalArgumentException e) {
+            //typically "uri is not absolute"
             return null;
         }
         if (inputStream != null) {
