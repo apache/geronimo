@@ -60,6 +60,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
+import java.io.Serializable;
 
 import javax.naming.Binding;
 import javax.naming.CompositeName;
@@ -93,9 +94,9 @@ import javax.naming.spi.NamingManager;
  *   String envEntry2 = (String) componentContext.lookup("env/myEntry2");
  * </code>
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/13 23:41:47 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/21 17:01:24 $
  */
-public class ReadOnlyContext implements Context {
+public class ReadOnlyContext implements Context,Serializable {
     protected final Hashtable env;        // environment for this context
     protected final Map bindings;         // bindings at my level
     protected final Map treeBindings;     // all bindings under me
@@ -112,7 +113,7 @@ public class ReadOnlyContext implements Context {
         if (env == null) {
             this.env = new Hashtable();
         } else {
-        this.env = new Hashtable(env);
+            this.env = new Hashtable(env);
         }
         this.bindings = Collections.EMPTY_MAP;
         this.treeBindings = Collections.EMPTY_MAP;
