@@ -60,11 +60,11 @@ package org.apache.geronimo.deployment.model.j2ee;
  * display names, and a list of icons (different entries of each type for
  * different languages).
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/02 17:04:20 $
+ * @version $Revision: 1.3 $ $Date: 2003/10/01 21:55:15 $
  */
 public abstract class Displayable extends Describable {
-    private DisplayName[] displayName;
-    private Icon[] icon;
+    private DisplayName[] displayName = new DisplayName[0];
+    private Icon[] icon = new Icon[0];
 
     public DisplayName[] getDisplayName() {
         return displayName;

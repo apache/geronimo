@@ -72,6 +72,7 @@ import org.apache.geronimo.enterprise.deploy.provider.jar.EjbConverter;
 import org.apache.geronimo.enterprise.deploy.provider.jar.EjbJarRoot;
 import org.apache.geronimo.xml.deployment.GeronimoEjbJarLoader;
 import org.apache.geronimo.xml.deployment.LoaderUtil;
+import org.apache.geronimo.xml.deployment.GeronimoEjbJarStorer;
 import org.apache.geronimo.deployment.model.geronimo.ejb.GeronimoEjbJarDocument;
 import org.xml.sax.SAXException;
 
@@ -80,7 +81,7 @@ import org.xml.sax.SAXException;
  * knows how to load and save server-specific deployment information, and to
  * generate a default set based on the J2EE deployment descriptors.
  *
- * @version $Revision: 1.3 $ $Date: 2003/09/05 20:18:03 $
+ * @version $Revision: 1.4 $ $Date: 2003/10/01 21:55:15 $
  */
 public class EjbJarDeploymentConfiguration implements DeploymentConfiguration {
     private DeployableObject ejbDD;
@@ -137,14 +138,12 @@ public class EjbJarDeploymentConfiguration implements DeploymentConfiguration {
     }
 
     public void save(OutputStream outputArchive) throws ConfigurationException {
-//        try {
-//            new Marshaller(new OutputStreamWriter(outputArchive)).marshal(EjbConverter.storeDConfigBeans(geronimoDD));
-//        } catch(MarshalException e) {
-//            throw new ConfigurationException("Unable to save configuration: "+e.getMessage());
-//        } catch(ValidationException e) {
-//            throw new ConfigurationException("Unable to save configuration: "+e.getMessage());
-//        } catch(IOException e) {
-//            throw new ConfigurationException("Unable to save configuration: "+e.getMessage());
-//        }
+        GeronimoEjbJarDocument doc = new GeronimoEjbJarDocument();
+        doc.setEjbJar(EjbConverter.storeDConfigBeans(geronimoDD));
+        try {
+            GeronimoEjbJarStorer.store(doc, new OutputStreamWriter(outputArchive));
+        } catch(IOException e) {
+            throw new ConfigurationException("Unable to store Geronimo-specific EJB deployment information", e);
+        }
     }
 }

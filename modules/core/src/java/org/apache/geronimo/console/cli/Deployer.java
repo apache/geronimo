@@ -73,7 +73,7 @@ import org.apache.geronimo.enterprise.deploy.tool.EjbDeployableObject;
 /**
  * Initializes a command-line JSR-88 deployer.
  *
- * @version $Revision: 1.3 $ $Date: 2003/10/01 04:46:41 $
+ * @version $Revision: 1.4 $ $Date: 2003/10/01 21:55:15 $
  */
 public class Deployer {
     private static final Log log = LogFactory.getLog(Deployer.class);
@@ -305,14 +305,14 @@ public class Deployer {
             out.println("  -- Edit the standard EJB deployment descriptor (ejb-jar.xml)");
             out.println("  2) Edit the corresponding server-specific deployment information");
             out.println("  3) Load a saved set of server-specific deployment information");
-            out.println("  -- Save the current set of server-specific deployment information");
+            out.println("  4) Save the current set of server-specific deployment information");
             out.println("  -- Edit web services deployment information");
             out.println("  -- Deploy or redeploy the JAR into the application server");
             out.println("  7) Select a new EJB JAR to work with"); //todo: adjust text when other modules are accepted
             out.println("  8) Manage existing deployments in the server");
             String choice;
             while(true) {
-                out.print("Action ([2-3,7,8] or [Q]uit): ");
+                out.print("Action ([2-4,7,8] or [Q]uit): ");
                 out.flush();
                 try {
                     choice = in.readLine().trim().toLowerCase();
@@ -420,7 +420,7 @@ public class Deployer {
                     out.print("File already exists.  Overwrite (Y/N)? ");
                     out.flush();
                     choice = in.readLine().trim().toLowerCase();
-                    if(choice.equals("n")) { // todo: makre sure they entered y or n
+                    if(choice.equals("n")) { // todo: make sure they entered y or n
                         continue;
                     }
                 }
