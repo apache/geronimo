@@ -21,13 +21,13 @@ import java.util.Random;
 
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/17 03:11:59 $
+ * @version $Revision: 1.4 $ $Date: 2004/04/15 23:15:55 $
  */
 public class LossyProtocol extends AbstractProtocol {
 
     private final int STARTED = 0;
     private final int STOPPED = 1;
-    private int state = STARTED;
+    private int state = STOPPED;
 
     private Random upRandom = new Random();
     private Random downRandom = new Random();
