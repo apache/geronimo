@@ -85,7 +85,7 @@ import org.apache.geronimo.kernel.config.ConfigurationParent;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/01/23 19:58:16 $
+ * @version $Revision: 1.2 $ $Date: 2004/01/24 02:56:23 $
  */
 public class ModuleDeployer implements ConfigurationCallback {
     private final ConfigurationParent parent;
@@ -149,7 +149,7 @@ public class ModuleDeployer implements ConfigurationCallback {
                 URI uri = (URI) i.next();
                 uri = configRoot.resolve(uri);
                 try {
-                    urls[idx] = uri.toURL();
+                    urls[idx++] = uri.toURL();
                 } catch (MalformedURLException e) {
                     throw new DeploymentException("Unable to convert classPath URI to absolute URL: " + uri, e);
                 }
