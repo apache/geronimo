@@ -248,7 +248,7 @@ public class ENCConfigBuilder {
     }
 
     public static ReadOnlyContext buildComponentContext(EARContext earContext, URI uri, UserTransaction userTransaction, EnvEntryType[] envEntries, EjbRefType[] ejbRefs, Map ejbRefMap, EjbLocalRefType[] ejbLocalRefs, Map ejbLocalRefMap, ResourceRefType[] resourceRefs, Map resourceRefMap, ResourceEnvRefType[] resourceEnvRefs, Map resourceEnvRefMap, MessageDestinationRefType[] messageDestinationRefs, ClassLoader cl) throws DeploymentException {
-        ComponentContextBuilder builder = new ComponentContextBuilder(new JMXReferenceFactory());
+        ComponentContextBuilder builder = new ComponentContextBuilder(new JMXReferenceFactory(earContext.getJ2EEDomainName(), earContext.getJ2EEServerName()));
 
         if (userTransaction != null) {
             try {

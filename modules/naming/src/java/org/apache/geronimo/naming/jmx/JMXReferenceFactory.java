@@ -34,28 +34,31 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerRemoteRefType;
 public class JMXReferenceFactory implements ReferenceFactory {
 
     //TODO these names are constructed in a more generic fashion in ConnectorModuleBuilder.
-    public static final String BASE_MANAGED_CONNECTION_FACTORY_NAME = "geronimo.server:J2EEServer=geronimo,j2eeType=JCAManagedConnectionFactory,name=";
-    public static final String BASE_ADMIN_OBJECT_NAME = "geronimo.server:J2EEServer=geronimo,j2eeType=JCAAdminObject,name=";
+    public static final String BASE_MANAGED_CONNECTION_FACTORY_NAME = ",j2eeType=JCAManagedConnectionFactory,name=";
+    public static final String BASE_ADMIN_OBJECT_NAME = ",j2eeType=JCAAdminObject,name=";
 
-    public JMXReferenceFactory() {
+    private final String baseName;
+
+    public JMXReferenceFactory(String domainName, String serverName) {
+        baseName = domainName + ":J2EEServer=" + serverName;
     }
 
     public Reference buildConnectionFactoryReference(GerLocalRefType localRef, Class iface) throws MalformedObjectNameException {
         Reference ref = new Reference(null, JMXObjectFactory.class.getName(), null);
-        ref.add(new JMXRefAddr(localRef.getServer(), localRef.getKernelName(), ObjectName.getInstance(BASE_MANAGED_CONNECTION_FACTORY_NAME + localRef.getTargetName()), iface));
+        ref.add(new JMXRefAddr(localRef.getServer(), localRef.getKernelName(), ObjectName.getInstance(baseName + BASE_MANAGED_CONNECTION_FACTORY_NAME + localRef.getTargetName()), iface));
         return ref;
     }
 
     public Reference buildAdminObjectReference(GerLocalRefType localRef, Class iface) throws MalformedObjectNameException {
         Reference ref = new Reference(null, JMXObjectFactory.class.getName(), null);
-        ref.add(new JMXRefAddr(localRef.getServer(), localRef.getKernelName(), ObjectName.getInstance(BASE_ADMIN_OBJECT_NAME + localRef.getTargetName()), iface));
+        ref.add(new JMXRefAddr(localRef.getServer(), localRef.getKernelName(), ObjectName.getInstance(baseName + BASE_ADMIN_OBJECT_NAME + localRef.getTargetName()), iface));
         return ref;
     }
 
     //TODO warning: this only works if there is only one kernel!
     public Reference buildMessageDestinationReference(String linkName, Class iface) throws MalformedObjectNameException {
         Reference ref = new Reference(null, JMXObjectFactory.class.getName(), null);
-        ref.add(new JMXRefAddr(null, null, ObjectName.getInstance(BASE_ADMIN_OBJECT_NAME + linkName), iface));
+        ref.add(new JMXRefAddr(null, null, ObjectName.getInstance(baseName + BASE_ADMIN_OBJECT_NAME + linkName), iface));
         return ref;
     }
 

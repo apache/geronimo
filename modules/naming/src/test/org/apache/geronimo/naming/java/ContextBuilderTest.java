@@ -131,7 +131,7 @@ public class ContextBuilderTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        ReferenceFactory referenceFactory = new JMXReferenceFactory();
+        ReferenceFactory referenceFactory = new JMXReferenceFactory("geronimo.server", "geronimo");
         builder = new ComponentContextBuilder(referenceFactory);
     }
 

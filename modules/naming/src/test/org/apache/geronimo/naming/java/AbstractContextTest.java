@@ -45,6 +45,10 @@ public class AbstractContextTest extends TestCase {
     public void testNothing() { }
 
     protected void setUp() throws Exception {
+        System.setProperty("java.naming.factory.initial", "com.sun.jndi.rmi.registry.RegistryContextFactory");
+        System.setProperty("java.naming.factory.url.pkgs", "org.apache.geronimo.naming");
+        System.setProperty("java.naming.provider.url", "rmi://localhost:1099");
+
         initialContext = new InitialContext();
 
         readOnlyContext = new ReadOnlyContext();

@@ -125,7 +125,7 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
     }
 
     public void testLocalLookup() throws Exception {
-        ReferenceFactory referenceFactory = new JMXReferenceFactory();
+        ReferenceFactory referenceFactory = new JMXReferenceFactory("geronimo.server", "geronimo");
         ComponentContextBuilder builder = new ComponentContextBuilder(referenceFactory);
         GerLocalRefType localRef = GerLocalRefType.Factory.newInstance();
         localRef.setRefName("resourceref");

@@ -30,6 +30,10 @@ import junit.framework.TestCase;
 public class GeronimoRootContextTest extends TestCase {
 
     protected void setUp() throws Exception {
+        System.setProperty("java.naming.factory.initial", "com.sun.jndi.rmi.registry.RegistryContextFactory");
+        System.setProperty("java.naming.factory.url.pkgs", "org.apache.geronimo.naming");
+        System.setProperty("java.naming.provider.url", "rmi://localhost:1099");
+
         GeronimoContextManager.bind("one", "one");
         GeronimoContextManager.bind("this/is/a/compound/name", "two");
         GeronimoContextManager.bind("this/is/another/compound/name", "three");
