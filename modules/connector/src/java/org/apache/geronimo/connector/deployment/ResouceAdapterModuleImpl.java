@@ -30,7 +30,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/06/15 03:00:37 $
+ * @version $Revision: 1.2 $ $Date: 2004/08/04 07:18:20 $
  */
 public class ResouceAdapterModuleImpl {
     private final Kernel kernel;
@@ -47,7 +47,7 @@ public class ResouceAdapterModuleImpl {
         Hashtable keyPropertyList = myObjectName.getKeyPropertyList();
         String name = (String) keyPropertyList.get("name");
         String j2eeServerName = (String) keyPropertyList.get("J2EEServer");
-        String j2eeApplicationName = (String) keyPropertyList.get("J2EEServer");
+        String j2eeApplicationName = (String) keyPropertyList.get("J2EEApplication");
         baseName = myObjectName.getDomain() + ":J2EEServer=" + j2eeServerName + ",J2EEApplication=" + j2eeApplicationName + ",ResouceAdapterModule=" + name + ",";
 
         this.kernel = kernel;
