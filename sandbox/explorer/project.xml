@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.5 $ $Date: 2004/02/19 09:00:29 $ -->
+<!-- $Revision: 1.6 $ $Date: 2004/02/24 15:01:12 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -50,29 +50,34 @@
         <!-- Thirdparty Dependencies -->
 
         <dependency>
+            <groupId>mx4j</groupId>
             <artifactId>mx4j</artifactId>
             <version>SNAPSHOT</version>
         </dependency>
 
         <dependency>
+            <groupId>groovy</groupId>
             <artifactId>groovy</artifactId>
             <version>1.0-alpha-1</version>
             <url>http://groovy.codehaus.org</url>
         </dependency>
 
         <dependency>
+            <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
             <version>1.0.3</version>
-            <url>http://jakarta.apache.org/commons/logging</url>
+            <url>http://jakarta.apache.org/commons/logging/</url>
         </dependency>
 
         <dependency>
+            <groupId>asm</groupId>
             <artifactId>asm</artifactId>
             <version>1.3.4</version>
         </dependency>
 
         <!-- temp hack - won't need this soon -->
         <dependency>
+            <groupId>asm+util</groupId>
             <artifactId>asm+util</artifactId>
             <version>1.3.4</version>
             <url>http://asm.objectweb.org/</url>
@@ -80,16 +85,17 @@
 
         <!-- Runtime dependencies due to remoting -->
         <dependency>
+            <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
             <version>SNAPSHOT</version>
             <url>http://jakarta.apache.org/commons/lang</url>
         </dependency>
 
         <dependency>
+            <groupId>concurrent</groupId>
             <artifactId>concurrent</artifactId>
             <version>1.3.2</version>
-        </dependency>   s
-
+        </dependency>
 
     </dependencies>
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.5 $ $Date: 2004/02/19 09:00:29 $ -->
+<!-- $Revision: 1.6 $ $Date: 2004/02/24 15:01:12 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -37,12 +37,14 @@
         <!-- Thirdparty Dependencies -->
 
         <dependency>
+            <groupId>classworlds</groupId>
             <artifactId>classworlds</artifactId>
             <version>SNAPSHOT</version>
             <url>http://classworlds.codehaus.org</url>
         </dependency>
 
         <dependency>
+            <groupId>castor</groupId>
             <artifactId>castor</artifactId>
             <version>0.9.5</version>
             <url>http://castor.exolab.org</url>
@@ -56,41 +58,48 @@
         </dependency>
 
         <dependency>
+            <groupId>xml-apis</groupId>
             <artifactId>xml-apis</artifactId>
             <version>1.0.b2</version>
         </dependency>
 
         <dependency>
+            <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <version>1.2.8</version>
             <url>http://jakarta.apache.org/log4j</url>
         </dependency>
 
         <dependency>
+            <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
             <version>SNAPSHOT</version>
             <url>http://jakarta.apache.org/commons/beanutils</url>
         </dependency>
 
         <dependency>
+            <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
             <version>SNAPSHOT</version>
             <url>http://jakarta.apache.org/commons/collections</url>
         </dependency>
 
         <dependency>
+            <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
             <version>SNAPSHOT</version>
             <url>http://jakarta.apache.org/commons/lang</url>
         </dependency>
 
         <dependency>
+            <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
             <version>1.0.3</version>
-            <url>http://jakarta.apache.org/commons/logging</url>
+            <url>http://jakarta.apache.org/commons/logging/</url>
         </dependency>
 
         <dependency>
+            <groupId>commons-cli</groupId>
             <artifactId>commons-cli</artifactId>
             <version>1.0</version>
             <url>http://jakarta.apache.org/commons/cli</url>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.6 $ $Date: 2004/02/19 09:00:29 $ -->
+<!-- $Revision: 1.7 $ $Date: 2004/02/24 15:01:12 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -32,16 +32,18 @@
             <artifactId>geronimo-kernel</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
-
+	
         <dependency>
+            <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
             <version>1.0.3</version>
             <url>http://jakarta.apache.org/commons/logging/</url>
         </dependency>
 
         <dependency>
-            <artifactId>jetty</artifactId>
-            <version>SNAPSHOT</version>
+            <groupId>jetty</groupId>
+            <artifactId>org.mortbay.jetty</artifactId>
+            <version>5.0.beta0</version>
         </dependency>
 
         <dependency>
@@ -93,21 +95,5 @@
         </dependency>
 
     </dependencies>
-
-
-    <!-- =================== -->
-    <!-- Build Specification -->
-    <!-- =================== -->
-
-    <build>
-        <resources>
-            <resource>
-                <directory>${basedir}/src/conf</directory>
-                <includes>
-                    <include>*.properties</include>
-                </includes>
-            </resource>
-        </resources>
-    </build>
 
 </project>
