@@ -80,7 +80,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Basic local transaction with support for multiple resources.
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/29 00:32:40 $
+ * @version $Revision: 1.2 $ $Date: 2003/10/15 19:36:47 $
  */
 public class TransactionImpl implements Transaction {
     private static final Log log = LogFactory.getLog("Transaction");
@@ -160,8 +160,13 @@ public class TransactionImpl implements Transaction {
             for (Iterator i = resourceManagers.iterator(); i.hasNext();) {
                 ResourceManager manager = (ResourceManager) i.next();
                 boolean sameRM;
+                //if the xares is already known, we must be resuming after a suspend.
+                if (xaRes == manager.committer) {
+                    xaRes.start(manager.branchId, XAResource.TMRESUME);
+                    return true;
+                }
+                //Otherwise, see if this is a new xares for the same resource manager
                 try {
-                    // @todo should we check if xaRes.equals(manager.committer) ?
                     sameRM = xaRes.isSameRM(manager.committer);
                 } catch (XAException e) {
                     log.warn("Unexpected error checking for same RM", e);
