@@ -115,5 +115,8 @@ public final class SimpleInstancePoolTest extends TestCase {
         public Object createInstance() {
             return new Object();
         }
+
+        public void destroyInstance(Object instance) {
+        }
     }
 }

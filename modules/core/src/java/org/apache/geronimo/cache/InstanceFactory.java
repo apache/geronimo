@@ -56,10 +56,24 @@
 package org.apache.geronimo.cache;
 
 /**
+ * A factory for instances of Pooled or Cached objects
  *
- *
- * @version $Revision: 1.2 $ $Date: 2003/08/11 17:59:09 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/01 22:49:33 $
  */
 public interface InstanceFactory {
+    /**
+     * Create an instance ready for insertion into the pool. This method
+     * should have performed any initialization needed by the object's
+     * lifecycle
+     * @return an instance ready to be used
+     * @throws Exception if there was a problem initializing the instance
+     */
     Object createInstance() throws Exception;
+
+    /**
+     * Destroy an instance that the pool decided was not needed any longer.
+     * This method should perform any shutdown needed by the lifecycle
+     * @param instance the instance to destroy
+     */
+    void destroyInstance(Object instance);
 }

@@ -72,7 +72,7 @@ import org.apache.geronimo.ejb.container.EJBPlugins;
  *
  *
  *
- * @version $Revision: 1.7 $ $Date: 2003/10/30 07:47:04 $
+ * @version $Revision: 1.8 $ $Date: 2003/11/01 22:49:33 $
  */
 public class StatelessInstanceFactory extends AbstractManagedComponent implements InstanceFactory {
     private Class beanClass;
@@ -118,5 +118,9 @@ public class StatelessInstanceFactory extends AbstractManagedComponent implement
         EnterpriseContext enterpriseContext = new SimpleEnterpriseContext();
         enterpriseContext.setInstance(instance);
         return enterpriseContext;
+    }
+
+    public void destroyInstance(Object instance) {
+        throw new UnsupportedOperationException();
     }
 }
