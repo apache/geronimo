@@ -202,10 +202,7 @@
                 type="j2ee:fully-qualified-classType">
                 <xsd:annotation>
                     <xsd:documentation>
-                        <![CDATA[
-
-          connectionfactory-interface is unique in ra.xml so is used to index into ra.xml
-                        ]]>
+                        connectionfactory-interface is unique in ra.xml so is used to index into ra.xml
                     </xsd:documentation>
                 </xsd:annotation>
             </xsd:element>
@@ -215,6 +212,7 @@
                 maxOccurs="unbounded"/>
         </xsd:sequence>
     </xsd:complexType>
+
     <xsd:complexType name="connectiondefinition-instanceType">
         <xsd:sequence>
             <xsd:element name="name"
@@ -226,7 +224,7 @@
                 maxOccurs="unbounded">
                 <xsd:annotation>
                     <xsd:documentation>
-                        <![CDATA[Additional interfaces implemented by the connectionfactory, used by the application]]>
+                        Additional interfaces implemented by the connectionfactory, used by the application
                     </xsd:documentation>
                 </xsd:annotation>
             </xsd:element>
@@ -322,6 +320,7 @@
         <xsd:sequence>
             <xsd:element name="dependency" type="ger:dependencyType" minOccurs="0" maxOccurs="unbounded"/>
 
+            <!--TODO make this maxOccurs=unbounded-->
             <xsd:element name="resourceadapter" type="ger:resourceadapterType"/>
 
             <xsd:element name="gbean" type="ger:gbeanType" minOccurs="0" maxOccurs="unbounded"/>
