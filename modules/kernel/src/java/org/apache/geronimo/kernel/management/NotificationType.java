@@ -69,7 +69,7 @@ import javax.management.NotificationFilter;
  * Static constants class which contains all of the J2EE notification types from the
  * J2EE management specification.
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:38:34 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/06 19:44:28 $
  */
 public final class NotificationType {
     private NotificationType() {
@@ -141,6 +141,27 @@ public final class NotificationType {
                 }
             }
             return false;
+        }
+    }
+
+    /**
+     * A notification filter which only lets all J2EE state change notifications pass.
+     * Specifically this is STATE_STARTING, STATE_RUNNING, STATE_STOPPING, STATE_STOPPED
+     * and STATE_FAILED.
+     */
+    public static final NotificationFilter STATE_CHANGE_FILTER = new J2EEStateChangeFilter();
+
+    private static final class J2EEStateChangeFilter implements NotificationFilter {
+        private J2EEStateChangeFilter() {
+        }
+
+        public boolean isNotificationEnabled(Notification notification) {
+            String type = notification.getType();
+            return STATE_STARTING.equals(type) ||
+                    STATE_RUNNING.equals(type) ||
+                    STATE_STOPPING.equals(type) ||
+                    STATE_STOPPED.equals(type) ||
+                    STATE_FAILED.equals(type);
         }
     }
 }
