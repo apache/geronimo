@@ -79,7 +79,7 @@ import org.apache.geronimo.common.NullArgumentException;
 /**
  * This class handles invocations for MBean proxies.
  *
- * @version $Revision: 1.3 $ $Date: 2003/08/30 20:38:46 $
+ * @version $Revision: 1.4 $ $Date: 2003/09/01 15:11:57 $
  */
 public class MBeanProxyHandler
     implements InvocationHandler, MBeanProxyContext
@@ -297,19 +297,16 @@ public class MBeanProxyHandler
     protected Task getTask(final Method method, final Object[] args)
         throws Exception
     {
-        // Key off of method name & arg count
-        Object key = method.getName() + (args == null ? 0 : args.length);
-        
         // Check if there is a cached task
         Task task = null;
         if (taskCache != null) {
-            task = (Task)taskCache.get(key);
+            task = (Task)taskCache.get(method);
         }
         
         // If not create one and cache it
         if (task == null) {
             task = createTask(method, args);
-            taskCache.put(key, task);
+            taskCache.put(method, task);
         }
         
         return task;
