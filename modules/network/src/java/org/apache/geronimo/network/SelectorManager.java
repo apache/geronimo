@@ -40,7 +40,7 @@ import org.apache.geronimo.pool.ThreadPool;
  * The SelectorManager will manage one Selector and the thread that checks
  * the selector.
  *
- * @version $Revision: 1.17 $ $Date: 2004/08/02 23:38:03 $
+ * @version $Revision: 1.18 $ $Date: 2004/08/03 12:53:10 $
  */
 public class SelectorManager implements Runnable, GBeanLifecycle {
 
@@ -153,6 +153,21 @@ public class SelectorManager implements Runnable, GBeanLifecycle {
                     if (selector.select(timeout) == 0) {
                         log.trace("timeout == 0");
 
+                        Iterator list = selector.keys().iterator();
+                        while (list.hasNext()) {
+                            SelectionKey key = (SelectionKey) list.next();
+                            log.trace("Still watching " + key + " key is "
+                                      + ((key.interestOps() & SelectionKey.OP_READ) != 0 ? "RF " : "")
+                                      + ((key.interestOps() & SelectionKey.OP_WRITE) != 0 ? "WF " : "")
+                                      + ((key.interestOps() & SelectionKey.OP_ACCEPT) != 0 ? "AF " : "")
+                                      + (key.isValid() ? "V " : "IV ")
+                                      + (key.isReadable() ? "RD " : "IRD ")
+                                      + (key.isWritable() ? "WR " : "IWR ")
+                                      + (key.isAcceptable() ? "AC " : "IAC ")
+                                      + (key.isConnectable() ? "CN " : "ICN ")
+                            );
+                        }
+
                         /**
                          * Clean stale connections that do not have and data: select
                          * returns indicating that the count of active connections with
@@ -162,7 +177,7 @@ public class SelectorManager implements Runnable, GBeanLifecycle {
                          *
                          * http://nagoya.apache.org/jira/secure/ViewIssue.jspa?key=DIR-18
                          */
-                        Iterator list = selector.selectedKeys().iterator();
+                        list = selector.selectedKeys().iterator();
 
                         while (list.hasNext()) {
                             SelectionKey key = (SelectionKey) list.next();
@@ -173,6 +188,21 @@ public class SelectorManager implements Runnable, GBeanLifecycle {
                         }
 
                         continue;
+                    }
+
+                    Iterator list = selector.keys().iterator();
+                    while (list.hasNext()) {
+                        SelectionKey key = (SelectionKey) list.next();
+                        log.trace("Still watching " + key + " key is "
+                                  + ((key.interestOps() & SelectionKey.OP_READ) != 0 ? "RF " : "")
+                                  + ((key.interestOps() & SelectionKey.OP_WRITE) != 0 ? "WF " : "")
+                                  + ((key.interestOps() & SelectionKey.OP_ACCEPT) != 0 ? "AF " : "")
+                                  + (key.isValid() ? "V " : "IV ")
+                                  + (key.isReadable() ? "RD " : "IRD ")
+                                  + (key.isWritable() ? "WR " : "IWR ")
+                                  + (key.isAcceptable() ? "AC " : "IAC ")
+                                  + (key.isConnectable() ? "CN " : "ICN ")
+                        );
                     }
 
                     // Get a java.util.Set containing the SelectionKey objects for
