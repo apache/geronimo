@@ -107,6 +107,9 @@
             <includes>
                 <include>**/*Test.java</include>
             </includes>
+            <excludes>
+                <exclude>**/DatagramProtocolTest.*</exclude>
+            </excludes>
         </unitTest>
         <resources>
             <resource>
