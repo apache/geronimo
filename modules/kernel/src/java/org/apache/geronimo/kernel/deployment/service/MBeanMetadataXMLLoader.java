@@ -63,8 +63,6 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.kernel.deployment.DeploymentException;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfoXMLLoader;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -72,7 +70,7 @@ import org.w3c.dom.NodeList;
 /**
  * Loads MBean metadata from xml.
  *
- * @version $Revision: 1.2 $ $Date: 2003/10/24 22:47:28 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/11 04:37:48 $
  */
 public class MBeanMetadataXMLLoader {
     public MBeanMetadata loadXML(URI baseURI, Element element) throws DeploymentException {
@@ -84,9 +82,7 @@ public class MBeanMetadataXMLLoader {
         }
         String descriptor = element.getAttribute("descriptor").trim();
         if (descriptor.length() > 0) {
-            URI descriptorURI = baseURI.resolve(descriptor);
-            GeronimoMBeanInfo geronimoMBeanInfo = GeronimoMBeanInfoXMLLoader.loadMBean(descriptorURI);
-            md.setGeronimoMBeanInfo(geronimoMBeanInfo);
+            md.setGeronimoMBeanDescriptor(descriptor);
         }
         String s = element.getAttribute("name").trim();
         try {
