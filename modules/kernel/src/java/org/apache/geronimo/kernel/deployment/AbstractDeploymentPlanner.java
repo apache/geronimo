@@ -56,33 +56,29 @@
 
 package org.apache.geronimo.kernel.deployment;
 
-import java.util.Set;
+import java.net.URI;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.net.URI;
+import java.util.Set;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
-import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
-import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
-import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
-import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
-import org.apache.geronimo.kernel.deployment.goal.DeploymentGoal;
 import org.apache.geronimo.kernel.deployment.goal.DeployURL;
+import org.apache.geronimo.kernel.deployment.goal.DeploymentGoal;
 import org.apache.geronimo.kernel.deployment.goal.RedeployURL;
 import org.apache.geronimo.kernel.deployment.goal.UndeployURL;
 import org.apache.geronimo.kernel.deployment.service.MBeanMetadata;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
+import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
+import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
 
 /**
- * @version $Revision: 1.5 $ $Date: 2003/12/14 16:20:23 $
+ * @version $Revision: 1.6 $ $Date: 2004/01/02 04:34:39 $
  */
 public abstract class AbstractDeploymentPlanner implements DeploymentPlanner, GeronimoMBeanTarget {
-
-    private static final Log log = LogFactory.getLog(AbstractDeploymentPlanner.class);
 
     private GeronimoMBeanContext context;
 
@@ -94,7 +90,7 @@ public abstract class AbstractDeploymentPlanner implements DeploymentPlanner, Ge
         GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
         mbeanInfo.setTargetClass(subclassName);
         mbeanInfo.addOperationInfo(new GeronimoOperationInfo("plan",
-                new GeronimoParameterInfo[] {
+                new GeronimoParameterInfo[]{
                     new GeronimoParameterInfo("Goals",
                             java.util.Set.class.getName(),
                             "Goals needing deployment"),
@@ -104,18 +100,14 @@ public abstract class AbstractDeploymentPlanner implements DeploymentPlanner, Ge
                 },
                 0,
                 "Plan to deploy as many goals as possible"));
-
         return mbeanInfo;
     }
 
-
     public boolean plan(Set goals, Set plans) throws DeploymentException {
-//        log.info(context.getObjectName().toString() + " Got to plan method with goals " + goals);
         boolean progress = false;
         Set x = new HashSet(goals);
         for (Iterator i = x.iterator(); i.hasNext();) {
             DeploymentGoal goal = (DeploymentGoal) i.next();
-//            log.info("Considering goal " + goal + " by planner " + context.getObjectName());
             if (goal instanceof DeployURL) {
                 progress = addURL((DeployURL) goal, goals, plans);
             } else if (goal instanceof RedeployURL) {
