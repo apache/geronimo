@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<components>
+    <class-space name="geronimo.system:role=ClassSpace,name=System"/>
+
+    <mbean descriptor="org.apache.geronimo.security.SecurityService"
+           name="geronimo.security:type=SecurityService">
+    </mbean>
+
+</components>
