@@ -178,12 +178,12 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
 
 
     /**
-     * Constructa a GBeanMBean using the supplied GBeanData and class loader
+     * Construct a GBeanMBean using the supplied GBeanData and class loader
      *
      * @param gbeanData the data for the new GBean including GBeanInfo, intial attribute values, and reference patterns
      * @param classLoader the class loader used to load the gbean instance and attribute/reference types
      * @throws org.apache.geronimo.gbean.InvalidConfigurationException if the gbeanInfo is inconsistent with the actual java classes, such as
-     * mismatched attribute types or the intial data can not be set
+     * mismatched attribute types or the intial data cannot be set
      */
     public GBeanInstance(GBeanData gbeanData, Kernel kernel, DependencyManager dependencyManager, LifecycleBroadcaster lifecycleBroadcaster, ClassLoader classLoader) throws InvalidConfigurationException {
         this.objectName = gbeanData.getName();
