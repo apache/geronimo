@@ -70,6 +70,7 @@ import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlCursor;
 
 /**
  * @version $Rev$ $Date$
@@ -433,7 +434,16 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                     altVendorDDs.put(path, dd);
                 } else {
                     //dd is included explicitly
-                    altVendorDDs.put(path, gerModuleType.getModuleDd());
+                    XmlCursor cursor = gerModuleType.newCursor();
+                    try {
+                        cursor.toFirstChild();
+                        cursor.toNextSibling();
+                        //should be at the "any" element
+                        XmlObject any = cursor.getObject();
+                        altVendorDDs.put(path, any);
+                    } finally {
+                        cursor.dispose();
+                    }
                 }
             }
 

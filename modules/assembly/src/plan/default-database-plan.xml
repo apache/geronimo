@@ -18,7 +18,7 @@
 
 <!-- $Rev$ $Date$ -->
 
-<connector xmlns="http://geronimo.apache.org/xml/ns/j2ee"
+<connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector"
     version="1.5"
     configId="org/apache/geronimo/DefaultDatabase"
     parentId="org/apache/geronimo/Server">

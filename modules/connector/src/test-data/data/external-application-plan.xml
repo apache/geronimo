@@ -23,161 +23,157 @@
 
     <module>
         <connector>test-rar-10-noger.rar</connector>
-        <module-dd>
-            <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee" version="1.0"
-                configId="org/apache/geronimo/j2ee/deployment/test"
-                parentId="org/apache/geronimo/Server">
+        <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector" version="1.0"
+            configId="org/apache/geronimo/j2ee/deployment/test"
+            parentId="org/apache/geronimo/Server">
 
-                <resourceadapter>
-                    <outbound-resourceadapter>
-                        <connection-definition>
-                            <connectionfactory-interface>javax.resource.cci.ConnectionFactory</connectionfactory-interface>
-                            <connectiondefinition-instance>
-                                <name>FirstTestOutboundConnectionFactory</name>
-                                <config-property-setting name="OutboundStringProperty1">newvalue1</config-property-setting>
-                                <config-property-setting name="OutboundStringProperty3">newvalue2</config-property-setting>
-                                <connectionmanager>
-                                    <realm-bridge>TargetRealm</realm-bridge>
-                                    <xa-transaction>
-                                        <transaction-caching/>
-                                    </xa-transaction>
-                                    <partitioned-pool>
-                                        <max-size>10</max-size>
-                                        <blocking-timeout-milliseconds>5000</blocking-timeout-milliseconds>
-                                        <match-one/>
-                                        <partition-by-subject/>
-                                    </partitioned-pool>
-                                </connectionmanager>
-                                <global-jndi-name>connectionfactories/testcf</global-jndi-name>
-                                <credential-interface>javax.resource.spi.security.PasswordCredential</credential-interface>
-                            </connectiondefinition-instance>
-                            <connectiondefinition-instance>
-                                <name>SecondTestOutboundConnectionFactory</name>
-                                <config-property-setting name="OutboundStringProperty4">newvalue3</config-property-setting>
-                                <config-property-setting name="OutboundStringProperty1">newvalue4</config-property-setting>
-                                <connectionmanager>
-                                    <xa-transaction>
-                                        <transaction-caching/>
-                                    </xa-transaction>
-                                    <single-pool>
-                                        <max-size>10</max-size>
-                                        <blocking-timeout-milliseconds>5000</blocking-timeout-milliseconds>
-                                        <match-one/>
-                                    </single-pool>
-                                </connectionmanager>
-                            </connectiondefinition-instance>
-                            <connectiondefinition-instance>
-                                <name>ThirdTestOutboundConnectionFactory</name>
-                                <config-property-setting name="OutboundStringProperty">StringValue3</config-property-setting>
-                                <connectionmanager>
-                                    <realm-bridge>TargetRealm</realm-bridge>
-                                    <xa-transaction>
-                                        <transaction-caching/>
-                                    </xa-transaction>
-                                    <partitioned-pool>
-                                        <max-size>10</max-size>
-                                        <blocking-timeout-milliseconds>5000</blocking-timeout-milliseconds>
-                                        <match-one/>
-                                        <partition-by-subject/>
-                                    </partitioned-pool>
-                                </connectionmanager>
-                            </connectiondefinition-instance>
-                        </connection-definition>
-                    </outbound-resourceadapter>
-                </resourceadapter>
+            <resourceadapter>
+                <outbound-resourceadapter>
+                    <connection-definition>
+                        <connectionfactory-interface>javax.resource.cci.ConnectionFactory</connectionfactory-interface>
+                        <connectiondefinition-instance>
+                            <name>FirstTestOutboundConnectionFactory</name>
+                            <config-property-setting name="OutboundStringProperty1">newvalue1</config-property-setting>
+                            <config-property-setting name="OutboundStringProperty3">newvalue2</config-property-setting>
+                            <connectionmanager>
+                                <realm-bridge>TargetRealm</realm-bridge>
+                                <xa-transaction>
+                                    <transaction-caching/>
+                                </xa-transaction>
+                                <partitioned-pool>
+                                    <max-size>10</max-size>
+                                    <blocking-timeout-milliseconds>5000</blocking-timeout-milliseconds>
+                                    <match-one/>
+                                    <partition-by-subject/>
+                                </partitioned-pool>
+                            </connectionmanager>
+                            <global-jndi-name>connectionfactories/testcf</global-jndi-name>
+                            <credential-interface>javax.resource.spi.security.PasswordCredential</credential-interface>
+                        </connectiondefinition-instance>
+                        <connectiondefinition-instance>
+                            <name>SecondTestOutboundConnectionFactory</name>
+                            <config-property-setting name="OutboundStringProperty4">newvalue3</config-property-setting>
+                            <config-property-setting name="OutboundStringProperty1">newvalue4</config-property-setting>
+                            <connectionmanager>
+                                <xa-transaction>
+                                    <transaction-caching/>
+                                </xa-transaction>
+                                <single-pool>
+                                    <max-size>10</max-size>
+                                    <blocking-timeout-milliseconds>5000</blocking-timeout-milliseconds>
+                                    <match-one/>
+                                </single-pool>
+                            </connectionmanager>
+                        </connectiondefinition-instance>
+                        <connectiondefinition-instance>
+                            <name>ThirdTestOutboundConnectionFactory</name>
+                            <config-property-setting name="OutboundStringProperty">StringValue3</config-property-setting>
+                            <connectionmanager>
+                                <realm-bridge>TargetRealm</realm-bridge>
+                                <xa-transaction>
+                                    <transaction-caching/>
+                                </xa-transaction>
+                                <partitioned-pool>
+                                    <max-size>10</max-size>
+                                    <blocking-timeout-milliseconds>5000</blocking-timeout-milliseconds>
+                                    <match-one/>
+                                    <partition-by-subject/>
+                                </partitioned-pool>
+                            </connectionmanager>
+                        </connectiondefinition-instance>
+                    </connection-definition>
+                </outbound-resourceadapter>
+            </resourceadapter>
 
-            </connector>
-        </module-dd>
+        </connector>
     </module>
     <module>
         <connector>test-rar-15-noger.rar</connector>
-        <module-dd>
-            <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee" version="1.5"
-                configId="org/apache/geronimo/j2ee/deployment/test"
-                parentId="org/apache/geronimo/Server">
+        <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector" version="1.5"
+            configId="org/apache/geronimo/j2ee/deployment/test"
+            parentId="org/apache/geronimo/Server">
 
-                <resourceadapter>
-                    <resourceadapter-instance>
-                        <resourceadapter-name>testRA</resourceadapter-name>
-                        <config-property-setting name="RAStringProperty">NewStringValue</config-property-setting>
-                        <workmanager-name>DefaultWorkManager</workmanager-name>
-                    </resourceadapter-instance>
-                    <outbound-resourceadapter>
-                        <connection-definition>
-                            <connectionfactory-interface>javax.resource.cci.ConnectionFactory</connectionfactory-interface>
-                            <connectiondefinition-instance>
-                                <name>FirstTestOutboundConnectionFactory</name>
-                                <config-property-setting name="OutboundStringProperty1">newvalue1</config-property-setting>
-                                <config-property-setting name="OutboundStringProperty3">newvalue2</config-property-setting>
-                                <connectionmanager>
-                                    <realm-bridge>TargetRealm</realm-bridge>
-                                    <xa-transaction>
-                                        <transaction-caching/>
-                                    </xa-transaction>
-                                    <partitioned-pool>
-                                        <max-size>10</max-size>
-                                        <blocking-timeout-milliseconds>5000</blocking-timeout-milliseconds>
-                                        <match-one/>
-                                        <partition-by-subject/>
-                                    </partitioned-pool>
-                                </connectionmanager>
-                                <global-jndi-name>connectionfactories/testcf</global-jndi-name>
-                                <credential-interface>javax.resource.spi.security.PasswordCredential</credential-interface>
-                            </connectiondefinition-instance>
-                            <connectiondefinition-instance>
-                                <name>SecondTestOutboundConnectionFactory</name>
-                                <config-property-setting name="OutboundStringProperty4">newvalue3</config-property-setting>
-                                <config-property-setting name="OutboundStringProperty1">newvalue4</config-property-setting>
-                                <connectionmanager>
-                                    <realm-bridge>TargetRealm</realm-bridge>
-                                    <xa-transaction>
-                                        <transaction-caching/>
-                                    </xa-transaction>
-                                    <partitioned-pool>
-                                        <max-size>10</max-size>
-                                        <blocking-timeout-milliseconds>5000</blocking-timeout-milliseconds>
-                                        <match-one/>
-                                        <partition-by-subject/>
-                                    </partitioned-pool>
-                                </connectionmanager>
-                            </connectiondefinition-instance>
-                        </connection-definition>
-                        <connection-definition>
-                            <connectionfactory-interface>org.apache.geronimo.connector.mock.ConnectionFactoryExtension</connectionfactory-interface>
-                            <connectiondefinition-instance>
-                                <name>ThirdTestOutboundConnectionFactory</name>
-                                <config-property-setting name="OutboundStringProperty1">StringValue3</config-property-setting>
-                                <connectionmanager>
-                                    <realm-bridge>TargetRealm</realm-bridge>
-                                    <xa-transaction>
-                                        <transaction-caching/>
-                                    </xa-transaction>
-                                    <partitioned-pool>
-                                        <max-size>10</max-size>
-                                        <blocking-timeout-milliseconds>5000</blocking-timeout-milliseconds>
-                                        <match-one/>
-                                        <partition-by-subject/>
-                                    </partitioned-pool>
-                                </connectionmanager>
-                            </connectiondefinition-instance>
-                        </connection-definition>
-                    </outbound-resourceadapter>
-                    <adminobject>
-                        <adminobject-interface>org.apache.geronimo.connector.mock.MockAdminObject</adminobject-interface>
-                        <adminobject-class>org.apache.geronimo.connector.mock.MockAdminObjectImpl</adminobject-class>
-                        <adminobject-instance>
-                            <message-destination-name>tweedledee</message-destination-name>
-                            <config-property-setting name="Tweedle">Dee-value</config-property-setting>
-                        </adminobject-instance>
-                        <adminobject-instance>
-                            <message-destination-name>tweedledum</message-destination-name>
-                            <config-property-setting name="Tweedle">Dum-value</config-property-setting>
-                        </adminobject-instance>
-                    </adminobject>
-                </resourceadapter>
+            <resourceadapter>
+                <resourceadapter-instance>
+                    <resourceadapter-name>testRA</resourceadapter-name>
+                    <config-property-setting name="RAStringProperty">NewStringValue</config-property-setting>
+                    <workmanager-name>DefaultWorkManager</workmanager-name>
+                </resourceadapter-instance>
+                <outbound-resourceadapter>
+                    <connection-definition>
+                        <connectionfactory-interface>javax.resource.cci.ConnectionFactory</connectionfactory-interface>
+                        <connectiondefinition-instance>
+                            <name>FirstTestOutboundConnectionFactory</name>
+                            <config-property-setting name="OutboundStringProperty1">newvalue1</config-property-setting>
+                            <config-property-setting name="OutboundStringProperty3">newvalue2</config-property-setting>
+                            <connectionmanager>
+                                <realm-bridge>TargetRealm</realm-bridge>
+                                <xa-transaction>
+                                    <transaction-caching/>
+                                </xa-transaction>
+                                <partitioned-pool>
+                                    <max-size>10</max-size>
+                                    <blocking-timeout-milliseconds>5000</blocking-timeout-milliseconds>
+                                    <match-one/>
+                                    <partition-by-subject/>
+                                </partitioned-pool>
+                            </connectionmanager>
+                            <global-jndi-name>connectionfactories/testcf</global-jndi-name>
+                            <credential-interface>javax.resource.spi.security.PasswordCredential</credential-interface>
+                        </connectiondefinition-instance>
+                        <connectiondefinition-instance>
+                            <name>SecondTestOutboundConnectionFactory</name>
+                            <config-property-setting name="OutboundStringProperty4">newvalue3</config-property-setting>
+                            <config-property-setting name="OutboundStringProperty1">newvalue4</config-property-setting>
+                            <connectionmanager>
+                                <realm-bridge>TargetRealm</realm-bridge>
+                                <xa-transaction>
+                                    <transaction-caching/>
+                                </xa-transaction>
+                                <partitioned-pool>
+                                    <max-size>10</max-size>
+                                    <blocking-timeout-milliseconds>5000</blocking-timeout-milliseconds>
+                                    <match-one/>
+                                    <partition-by-subject/>
+                                </partitioned-pool>
+                            </connectionmanager>
+                        </connectiondefinition-instance>
+                    </connection-definition>
+                    <connection-definition>
+                        <connectionfactory-interface>org.apache.geronimo.connector.mock.ConnectionFactoryExtension</connectionfactory-interface>
+                        <connectiondefinition-instance>
+                            <name>ThirdTestOutboundConnectionFactory</name>
+                            <config-property-setting name="OutboundStringProperty1">StringValue3</config-property-setting>
+                            <connectionmanager>
+                                <realm-bridge>TargetRealm</realm-bridge>
+                                <xa-transaction>
+                                    <transaction-caching/>
+                                </xa-transaction>
+                                <partitioned-pool>
+                                    <max-size>10</max-size>
+                                    <blocking-timeout-milliseconds>5000</blocking-timeout-milliseconds>
+                                    <match-one/>
+                                    <partition-by-subject/>
+                                </partitioned-pool>
+                            </connectionmanager>
+                        </connectiondefinition-instance>
+                    </connection-definition>
+                </outbound-resourceadapter>
+                <adminobject>
+                    <adminobject-interface>org.apache.geronimo.connector.mock.MockAdminObject</adminobject-interface>
+                    <adminobject-class>org.apache.geronimo.connector.mock.MockAdminObjectImpl</adminobject-class>
+                    <adminobject-instance>
+                        <message-destination-name>tweedledee</message-destination-name>
+                        <config-property-setting name="Tweedle">Dee-value</config-property-setting>
+                    </adminobject-instance>
+                    <adminobject-instance>
+                        <message-destination-name>tweedledum</message-destination-name>
+                        <config-property-setting name="Tweedle">Dum-value</config-property-setting>
+                    </adminobject-instance>
+                </adminobject>
+            </resourceadapter>
 
-            </connector>
+        </connector>
 
-        </module-dd>
     </module>
 </application>

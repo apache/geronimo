@@ -139,7 +139,6 @@ public class ConnectorModuleBuilder implements ModuleBuilder {
         try {
             dd = SchemaConversionUtils.getNestedObjectAsType(dd, "connector", GerConnectorType.type);
             SchemaConversionUtils.validateDD(dd);
-            System.out.println("Successfully validated: " + dd);
             return dd;
         } catch (Exception e) {
             throw new DeploymentException(e);

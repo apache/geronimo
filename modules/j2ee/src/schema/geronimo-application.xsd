@@ -62,13 +62,14 @@
                         </xs:documentation>
                     </xs:annotation>
                 </xs:element>
-                <xs:element name="module-dd" type="geronimo:module-ddType">
+                <xs:any namespace="##other"/>
+                <!--xs:element name="module-dd" type="geronimo:module-ddType">
                     <xs:annotation>
                         <xs:documentation>
                             Include the literal vendor dd in the appropriate namespace.
                         </xs:documentation>
                     </xs:annotation>
-                </xs:element>
+                </xs:element-->
             </xs:choice>
         </xs:sequence>
     </xs:complexType>

@@ -289,21 +289,24 @@ public class RAR_1_0ConfigBuilderTest extends TestCase {
         ObjectName j2eeServer = new ObjectName(j2eeDomainName + ":name=" + j2eeServerName);
         Kernel kernel = new Kernel("blah");
         kernel.boot();
-
-        EARConfigBuilder configBuilder = new EARConfigBuilder(j2eeServer, null, connectionTrackerName, null, null, null, null, null, null, new ConnectorModuleBuilder(), null, kernel);
-        File rarFile = new File(basedir, "target/test-ear-noger.ear");
-        File outFile = File.createTempFile("EARTest", ".car");
         try {
-            File planFile = new File(basedir, "src/test-data/data/external-application-plan.xml");
-            XmlObject planDoc = SchemaConversionUtils.parse(planFile.toURL().openStream());
-            XmlCursor cursor = planDoc.newCursor();
-            cursor.toFirstChild();
-            XmlObject plan = cursor.getObject();
-            cursor.dispose();
-            configBuilder.buildConfiguration(outFile, null, rarFile, plan);
+            EARConfigBuilder configBuilder = new EARConfigBuilder(j2eeServer, null, connectionTrackerName, null, null, null, null, null, null, new ConnectorModuleBuilder(), null, kernel);
+            File rarFile = new File(basedir, "target/test-ear-noger.ear");
+            File outFile = File.createTempFile("EARTest", ".car");
+            try {
+                File planFile = new File(basedir, "src/test-data/data/external-application-plan.xml");
+                XmlObject planDoc = SchemaConversionUtils.parse(planFile.toURL().openStream());
+                XmlCursor cursor = planDoc.newCursor();
+                cursor.toFirstChild();
+                XmlObject plan = cursor.getObject();
+                cursor.dispose();
+                configBuilder.buildConfiguration(outFile, null, rarFile, plan);
 
+            } finally {
+                outFile.delete();
+            }
         } finally {
-            outFile.delete();
+            kernel.shutdown();
         }
     }
 
