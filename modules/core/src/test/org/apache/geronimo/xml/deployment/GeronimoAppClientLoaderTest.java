@@ -60,7 +60,7 @@ import java.io.FileReader;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.deployment.model.geronimo.appclient.ApplicationClient;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.EJBRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ServiceRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceEnvRef;
@@ -73,7 +73,7 @@ import org.w3c.dom.Document;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/05 20:18:03 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/05 20:47:15 $
  */
 public class GeronimoAppClientLoaderTest extends TestCase {
     private File docDir;
@@ -91,9 +91,9 @@ public class GeronimoAppClientLoaderTest extends TestCase {
         assertEquals("java.lang.String", envEntry.getEnvEntryType());
         assertEquals("Hello World", envEntry.getEnvEntryValue());
 
-        EJBRef[] ejbRefs = client.getEJBRef();
+        EjbRef[] ejbRefs = client.getEJBRef();
         assertEquals(1, ejbRefs.length);
-        EJBRef ejbRef = ejbRefs[0];
+        EjbRef ejbRef = ejbRefs[0];
         assertEquals("ejb/MyEJB", ejbRef.getEJBRefName());
         assertEquals("Session", ejbRef.getEJBRefType());
         assertEquals("my.EJB.Home", ejbRef.getHome());

@@ -55,8 +55,8 @@
  */
 package org.apache.geronimo.deployment.model.geronimo.appclient;
 
-import org.apache.geronimo.deployment.model.geronimo.j2ee.EJBLocalRef;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.EJBRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbLocalRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbRef;
 import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.MessageDestinationRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceEnvRef;
@@ -70,12 +70,12 @@ import org.apache.geronimo.deployment.model.geronimo.j2ee.MessageDestination;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/05 20:18:03 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/05 20:44:24 $
  */
 public class ApplicationClient extends Displayable implements JNDIEnvironmentRefs {
     private String version;
     private EnvEntry[] envEntry;
-    private EJBRef[] ejbRef;
+    private EjbRef[] ejbRef;
     private ServiceRef[] serviceRef;
     private ResourceRef[] resourceRef;
     private ResourceEnvRef[] resourceEnvRef;
@@ -99,16 +99,16 @@ public class ApplicationClient extends Displayable implements JNDIEnvironmentRef
         this.callbackHandler = callbackHandler;
     }
 
-    public EJBRef[] getEJBRef() {
+    public EjbRef[] getEJBRef() {
         return ejbRef;
     }
 
-    public void setEJBRef(EJBRef[] ejbRef) {
+    public void setEJBRef(EjbRef[] ejbRef) {
         this.ejbRef = ejbRef;
     }
 
-    public EJBLocalRef[] getEJBLocalRef() {
-        return new EJBLocalRef[0];
+    public EjbLocalRef[] getEJBLocalRef() {
+        return new EjbLocalRef[0];
     }
 
     public EnvEntry[] getEnvEntry() {

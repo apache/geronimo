@@ -61,14 +61,14 @@ import javax.naming.Context;
 import javax.naming.LinkRef;
 
 import org.apache.geronimo.deployment.DeploymentException;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.EJBRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.JNDIEnvironmentRefs;
 import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
 
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/09/05 20:18:03 $
+ * @version $Revision: 1.4 $ $Date: 2003/09/05 20:44:24 $
  */
 public class ComponentContextBuilder {
     /**
@@ -127,9 +127,9 @@ public class ComponentContextBuilder {
         }
     }
 
-    private static void buildEJBRefs(Map envMap, EJBRef[] ejbRefs) {
+    private static void buildEJBRefs(Map envMap, EjbRef[] ejbRefs) {
         for (int i = 0; i < ejbRefs.length; i++) {
-            EJBRef ejbRef = ejbRefs[i];
+            EjbRef ejbRef = ejbRefs[i];
             String name = ejbRef.getEJBRefName();
             String jndiName = ejbRef.getJndiName();
             LinkRef ref = new LinkRef(jndiName);

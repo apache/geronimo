@@ -56,7 +56,7 @@
 package org.apache.geronimo.xml.deployment;
 
 import org.apache.geronimo.deployment.model.geronimo.appclient.ApplicationClient;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.EJBRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ServiceRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceEnvRef;
@@ -69,7 +69,7 @@ import org.w3c.dom.Element;
 /**
  * 
  * 
- * @version $Revision: 1.1 $ $Date: 2003/09/05 20:18:03 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/05 20:44:24 $
  */
 public class GeronimoAppClientLoader {
     private GeronimoJ2EELoader j2eeLoader = new GeronimoJ2EELoader();
@@ -81,7 +81,7 @@ public class GeronimoAppClientLoader {
         }
         ApplicationClient appClient = new ApplicationClient();
         appClient.setEnvEntry(j2eeLoader.loadEnvEntries(root, new EnvEntry[0]));
-        appClient.setEJBRef((EJBRef[])j2eeLoader.loadEJBRefs(root, new EJBRef[0]));
+        appClient.setEJBRef((EjbRef[])j2eeLoader.loadEJBRefs(root, new EjbRef[0]));
         appClient.setServiceRef((ServiceRef[])j2eeLoader.loadServiceRefs(root, new ServiceRef[0]));
         appClient.setResourceRef((ResourceRef[])j2eeLoader.loadResourceRefs(root, new ResourceRef[0]));
         appClient.setResourceEnvRef((ResourceEnvRef[])j2eeLoader.loadResourceEnvRefs(root, new ResourceEnvRef[0]));

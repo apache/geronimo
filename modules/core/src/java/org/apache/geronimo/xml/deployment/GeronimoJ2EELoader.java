@@ -56,8 +56,8 @@
 package org.apache.geronimo.xml.deployment;
 
 
-import org.apache.geronimo.deployment.model.geronimo.j2ee.EJBRef;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.EJBLocalRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbLocalRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceEnvRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ServiceRef;
@@ -68,25 +68,25 @@ import org.w3c.dom.Element;
 /**
  * Loads common Geronimo DD tags
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/05 20:18:03 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/05 20:44:24 $
  */
 public class GeronimoJ2EELoader extends J2EELoader {
     protected org.apache.geronimo.deployment.model.j2ee.EJBRef newEJBRef() {
-        return new EJBRef();
+        return new EjbRef();
     }
 
     protected org.apache.geronimo.deployment.model.j2ee.EJBRef loadEJBRef(Element e) {
-        EJBRef ejbRef = (EJBRef) super.loadEJBRef(e);
+        EjbRef ejbRef = (EjbRef) super.loadEJBRef(e);
         ejbRef.setJndiName(LoaderUtil.getChildContent(e, "jndi-name"));
         return ejbRef;
     }
 
     protected org.apache.geronimo.deployment.model.j2ee.EJBLocalRef newEJBLocalRef() {
-        return new EJBLocalRef();
+        return new EjbLocalRef();
     }
 
     protected org.apache.geronimo.deployment.model.j2ee.EJBLocalRef loadEJBLocalRef(Element e) {
-        EJBLocalRef ejbRef = (EJBLocalRef) super.loadEJBLocalRef(e);
+        EjbLocalRef ejbRef = (EjbLocalRef) super.loadEJBLocalRef(e);
         ejbRef.setJndiName(LoaderUtil.getChildContent(e, "jndi-name"));
         return ejbRef;
     }

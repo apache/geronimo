@@ -60,12 +60,12 @@ import javax.naming.Context;
 import junit.framework.TestCase;
 import org.apache.geronimo.deployment.model.geronimo.appclient.ApplicationClient;
 import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.EJBRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbRef;
 
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2003/09/05 20:18:03 $
+ * @version $Revision: 1.4 $ $Date: 2003/09/05 20:47:15 $
  */
 public class ContextBuilderTest extends TestCase {
     private ApplicationClient client;
@@ -81,7 +81,7 @@ public class ContextBuilderTest extends TestCase {
         intEntry.setEnvEntryType("java.lang.Integer");
         intEntry.setEnvEntryValue("12345");
         client.setEnvEntry(new EnvEntry[] { stringEntry, intEntry });
-        client.setEJBRef(new EJBRef[0]);
+        client.setEJBRef(new EjbRef[0]);
     }
 
     public void testEnvEntries() throws Exception {

@@ -59,14 +59,14 @@ import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
 /**
  * Interface for accessing the objects for a components JNDI context.
  * 
- * @version $Revision: 1.1 $ $Date: 2003/09/05 20:18:03 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/05 20:44:24 $
  */
 public interface JNDIEnvironmentRefs {
     EnvEntry[] getEnvEntry();
 
-    EJBRef[] getEJBRef();
+    EjbRef[] getEJBRef();
 
-    EJBLocalRef[] getEJBLocalRef();
+    EjbLocalRef[] getEJBLocalRef();
 
     ServiceRef[] getServiceRef();
 

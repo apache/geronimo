@@ -58,9 +58,9 @@ package org.apache.geronimo.deployment.model.geronimo.j2ee;
 /**
  * JavaBean for the Geronimo DD tag ejb-local-ref
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/05 20:18:03 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/05 20:44:24 $
  */
-public class EJBLocalRef extends org.apache.geronimo.deployment.model.j2ee.EJBLocalRef {
+public class EjbLocalRef extends org.apache.geronimo.deployment.model.j2ee.EJBLocalRef {
     private String jndiName;
     private JndiContextParam[] jndiContextParam;
 

@@ -56,8 +56,8 @@
 package org.apache.geronimo.deployment.model.geronimo.ejb;
 
 import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.EJBLocalRef;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.EJBRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbLocalRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceEnvRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.MessageDestinationRef;
@@ -66,13 +66,13 @@ import org.apache.geronimo.deployment.model.geronimo.j2ee.ServiceRef;
 /**
  * Base JavaBean for all geronimo EJBs in the geronimo-ejb-jar.xml DD
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/05 20:18:03 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/05 20:44:24 $
  */
 public class Ejb {
     private String ejbName;
     private EnvEntry[] envEntry = new EnvEntry[0];
-    private EJBLocalRef[] ejbLocalRef = new EJBLocalRef[0];
-    private EJBRef[] ejbRef = new EJBRef[0];
+    private EjbLocalRef[] ejbLocalRef = new EjbLocalRef[0];
+    private EjbRef[] ejbRef = new EjbRef[0];
     private MessageDestinationRef[] messageDestinationRef = new MessageDestinationRef[0];
     private ResourceRef[] resourceRef = new ResourceRef[0];
     private ResourceEnvRef[] resourceEnvRef = new ResourceEnvRef[0];
@@ -86,19 +86,19 @@ public class Ejb {
         this.ejbName = ejbName;
     }
 
-    public EJBLocalRef[] getEjbLocalRef() {
+    public EjbLocalRef[] getEjbLocalRef() {
         return ejbLocalRef;
     }
 
-    public void setEjbLocalRef(EJBLocalRef[] ejbLocalRef) {
+    public void setEjbLocalRef(EjbLocalRef[] ejbLocalRef) {
         this.ejbLocalRef = ejbLocalRef;
     }
 
-    public EJBRef[] getEjbRef() {
+    public EjbRef[] getEjbRef() {
         return ejbRef;
     }
 
-    public void setEjbRef(EJBRef[] ejbRef) {
+    public void setEjbRef(EjbRef[] ejbRef) {
         this.ejbRef = ejbRef;
     }
 

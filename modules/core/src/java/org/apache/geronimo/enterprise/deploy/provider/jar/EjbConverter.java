@@ -72,9 +72,9 @@ import org.apache.geronimo.deployment.model.geronimo.ejb.MessageDriven;
 import org.apache.geronimo.deployment.model.geronimo.ejb.Entity;
 import org.apache.geronimo.deployment.model.geronimo.ejb.Session;
 import org.apache.geronimo.deployment.model.j2ee.EnvEntry;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.EJBRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.JndiContextParam;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.EJBLocalRef;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.EjbLocalRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.ResourceEnvRef;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.SecurityRoleRef;
@@ -82,7 +82,7 @@ import org.apache.geronimo.deployment.model.geronimo.j2ee.SecurityRoleRef;
 /**
  * Maps DConfigBeans to POJOs and vice versa.
  *
- * @version $Revision: 1.4 $ $Date: 2003/09/05 20:18:03 $
+ * @version $Revision: 1.5 $ $Date: 2003/09/05 20:44:24 $
  */
 public class EjbConverter {
     private static final Log log = LogFactory.getLog(EjbConverter.class);
@@ -179,7 +179,7 @@ public class EjbConverter {
         while(it.hasNext()) {
             EjbRefBean bean = (EjbRefBean)it.next();
             if(isValid(bean.getJndiName())) {
-                EJBRef ref = new EJBRef();
+                EjbRef ref = new EjbRef();
                 ref.setEJBRefName(bean.getEjbRefName());
                 ref.setJndiName(bean.getJndiName());
                 ContextParam[] params = bean.getContextParam();
@@ -198,7 +198,7 @@ public class EjbConverter {
                 outer.add(ref);
             }
         }
-        dest.setEjbRef((EJBRef[])outer.toArray(new EJBRef[outer.size()]));
+        dest.setEjbRef((EjbRef[])outer.toArray(new EjbRef[outer.size()]));
     }
 
     private static void storeEjbLocalRefs(Ejb dest, Iterator it) {
@@ -206,7 +206,7 @@ public class EjbConverter {
         while(it.hasNext()) {
             EjbLocalRefBean bean = (EjbLocalRefBean)it.next();
             if(isValid(bean.getJndiName())) {
-                EJBLocalRef ref = new EJBLocalRef();
+                EjbLocalRef ref = new EjbLocalRef();
                 ref.setEJBRefName(bean.getEjbRefName());
                 ref.setJndiName(bean.getJndiName());
                 ContextParam[] params = bean.getContextParam();
@@ -225,7 +225,7 @@ public class EjbConverter {
                 outer.add(ref);
             }
         }
-        dest.setEjbLocalRef((EJBLocalRef[])outer.toArray(new EJBLocalRef[outer.size()]));
+        dest.setEjbLocalRef((EjbLocalRef[])outer.toArray(new EjbLocalRef[outer.size()]));
     }
 
     private static void storeResourceRefs(Ejb dest, Iterator it) {
@@ -432,7 +432,7 @@ public class EjbConverter {
         }
     }
 
-    private static void assignEjbRefs(BaseEjbBean dest, EJBRef[] refs, DDBean[] beans) throws ConfigurationException {
+    private static void assignEjbRefs(BaseEjbBean dest, EjbRef[] refs, DDBean[] beans) throws ConfigurationException {
         Set found = new HashSet();
         for(int i=0; i<refs.length; i++) {
             DDBean match = null;
@@ -468,7 +468,7 @@ public class EjbConverter {
         }
     }
 
-    private static void assignEjbLocalRefs(BaseEjbBean dest, EJBLocalRef[] refs, DDBean[] beans) throws ConfigurationException {
+    private static void assignEjbLocalRefs(BaseEjbBean dest, EjbLocalRef[] refs, DDBean[] beans) throws ConfigurationException {
         Set found = new HashSet();
         for(int i=0; i<refs.length; i++) {
             DDBean match = null;
