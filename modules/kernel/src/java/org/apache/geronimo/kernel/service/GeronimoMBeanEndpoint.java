@@ -85,7 +85,7 @@ import net.sf.cglib.reflect.FastMethod;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/06 19:52:50 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/09 20:01:12 $
  */
 public class GeronimoMBeanEndpoint implements NotificationListener, GeronimoMBeanTarget {
     private static final Log log = LogFactory.getLog(GeronimoMBeanEndpoint.class);
@@ -245,9 +245,9 @@ public class GeronimoMBeanEndpoint implements NotificationListener, GeronimoMBea
         } catch (ClassNotFoundException e) {
             throw new IllegalArgumentException("Interface class could not be loaded: type=" + type);
         }
-        if (!iface.isInterface()) {
-            throw new IllegalArgumentException("Interface class is not an interface: type=" + type);
-        }
+//        if (!iface.isInterface()) {
+//            throw new IllegalArgumentException("Interface class is not an interface: type=" + type);
+//        }
 
         // required
         required = source.required;

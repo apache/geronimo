@@ -55,30 +55,29 @@
  */
 package org.apache.geronimo.kernel.service;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.util.Map;
-import java.util.HashMap;
-import javax.management.MBeanException;
-import javax.management.ReflectionException;
-import javax.management.RuntimeOperationsException;
-import javax.management.RuntimeMBeanException;
-import javax.management.RuntimeErrorException;
+import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
+
+import org.apache.geronimo.kernel.jmx.InvokeMBean;
+
+import net.sf.cglib.proxy.Callbacks;
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.Factory;
+import net.sf.cglib.proxy.MethodInterceptor;
+import net.sf.cglib.proxy.MethodProxy;
+import net.sf.cglib.proxy.SimpleCallbacks;
+import net.sf.cglib.proxy.SimpleFilter;
+import net.sf.cglib.reflect.FastClass;
 
 /**
  * This handles a connection to another mbean.
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/06 19:52:50 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/09 20:01:12 $
  */
-class GeronimoMBeanEndpointConnection  {
-    /**
-     * Map from method proxies to mbeanInvoker.
-     */
-    private Map methodMap = new HashMap();
-
+class GeronimoMBeanEndpointConnection {
     /**
      * The MBean server to Invoke.
      */
@@ -90,9 +89,19 @@ class GeronimoMBeanEndpointConnection  {
     private ObjectName objectName;
 
     /**
-     * The interface for the proxy
+     * A factory to create instances
      */
-    private Class iface;
+    private Factory factory;
+
+    /**
+     * Map from interface method ids to InvokeMBean objects.
+     */
+    private InvokeMBean[] methodTable;
+
+    /**
+     * Is this connection open?
+     */
+    private boolean open = false;
 
     /**
      * Proxy to the to this connection.
@@ -102,12 +111,7 @@ class GeronimoMBeanEndpointConnection  {
     /**
      * The invocation handler for the proxy
      */
-    private ConnectionInvocationHandler invocationHandler;
-
-    /**
-     * Is this connection open?
-     */
-    private boolean open = false;
+    private ConnectionMethodInterceptor methodInterceptor;
 
     /**
      * Creates a new connection to the specified component using the specified interface.
@@ -118,19 +122,51 @@ class GeronimoMBeanEndpointConnection  {
      */
     public GeronimoMBeanEndpointConnection(Class iface, MBeanServer server, ObjectName objectName) {
         assert iface != null: "iface can not be null";
-        assert iface.isInterface(): "iface must be an interface";
         assert server != null: "Server can not be null";
         assert objectName != null: "Object name can not be null";
-        assert !objectName.isPattern(): "Object name can not be a pattern";
 
-        this.iface = iface;
+        if(Modifier.isFinal(iface.getModifiers())) {
+            throw new IllegalArgumentException("Proxy interface cannot be a final class: " + iface.getName());
+        }
+        if(objectName.isPattern()) {
+            throw new IllegalArgumentException("Object name can not be a pattern");
+        }
+
         this.server = server;
         this.objectName = objectName;
 
+        MethodInterceptor dummyInterceptor = new MethodInterceptor() {
+            public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
+                return null;
+            }
+        };
+
+        // get the factory
+        Enhancer enhancer = new Enhancer();
+        enhancer.setSuperclass(iface);
+        enhancer.setCallbackFilter(new SimpleFilter(Callbacks.INTERCEPT));
+        enhancer.setCallbacks(new SimpleCallbacks());
+        factory = enhancer.create();
+
+        final Class javaClass = factory.newInstance(dummyInterceptor).getClass();
+        FastClass fastClass = FastClass.create(javaClass);
+        methodTable = new InvokeMBean[fastClass.getMaxIndex() + 1];
         Method[] methods = iface.getMethods();
         for (int i = 0; i < methods.length; i++) {
             Method method = methods[i];
-            methodMap.put(method, new MBeanInvoker(method));
+            if((method.getModifiers() & (Modifier.FINAL | Modifier.PUBLIC)) == Modifier.PUBLIC) {
+                int index = getSuperIndex(fastClass, method);
+                methodTable[index] = new InvokeMBean(method, false, false);
+            }
+        }
+
+        try {
+            methodTable[getSuperIndex(fastClass, javaClass.getMethod("equals", new Class[]{Object.class}))] = new EqualsInvoke();
+            methodTable[getSuperIndex(fastClass, javaClass.getMethod("hashCode", null))] = new HashCodeInvoke();
+            methodTable[getSuperIndex(fastClass, javaClass.getMethod("toString", null))] = new ToStringInvoke(iface.getName());
+        } catch (Exception e) {
+            // this can not happen... all classes must implement equals, hashCode and toString
+            throw new AssertionError(e);
         }
     }
 
@@ -139,16 +175,15 @@ class GeronimoMBeanEndpointConnection  {
      */
     public synchronized void invalidate() {
         open = false;
-        if(invocationHandler != null) {
-            invocationHandler.invalidate();
-            invocationHandler = null;
+        if (methodInterceptor != null) {
+            methodInterceptor.invalidate();
+            methodInterceptor = null;
         }
         proxy = null;
 
         server = null;
         objectName = null;
-        methodMap.clear();
-        methodMap = null;
+        methodTable = null;
         proxy = null;
     }
 
@@ -173,11 +208,12 @@ class GeronimoMBeanEndpointConnection  {
      * Opens a connection to the component.  This cretes the proxy used to communicate with the component
      */
     public synchronized void open() {
-        if(open) {
+        if (open) {
             throw new IllegalStateException("Connection is already open");
         }
-        invocationHandler = new ConnectionInvocationHandler(new HashMap(methodMap), server, objectName);
-        proxy = Proxy.newProxyInstance(iface.getClassLoader(), new Class[]{iface}, invocationHandler);
+
+        methodInterceptor = new ConnectionMethodInterceptor(methodTable, server, objectName);
+        proxy = factory.newInstance(methodInterceptor);
         open = true;
     }
 
@@ -185,41 +221,44 @@ class GeronimoMBeanEndpointConnection  {
      * Closes the connection to the component.
      */
     public synchronized void close() {
-        if(!open) {
+        if (!open) {
             throw new IllegalStateException("Connection is already closed");
         }
-        invocationHandler.invalidate();
-        invocationHandler = null;
+        methodInterceptor.invalidate();
+        methodInterceptor = null;
         proxy = null;
         open = false;
     }
 
-    private static class ConnectionInvocationHandler implements InvocationHandler {
+    private static class ConnectionMethodInterceptor implements MethodInterceptor {
         private boolean valid;
-        private Map methodMap;
+        private InvokeMBean[] methodTable;
         private MBeanServer server;
         private ObjectName objectName;
 
-        public ConnectionInvocationHandler(Map methodMap, MBeanServer server, ObjectName objectName) {
+        public ConnectionMethodInterceptor(InvokeMBean[] methodTable, MBeanServer server, ObjectName objectName) {
             valid = true;
-            this.methodMap = methodMap;
+            this.methodTable = methodTable;
             this.server = server;
             this.objectName = objectName;
         }
 
-        public Object invoke(Object proxy, Method method, Object[] arguments) throws Throwable {
+        public Object intercept(Object obj, Method method, Object[] arguments, MethodProxy proxy) throws Throwable {
             MBeanServer server;
             ObjectName objectName;
-            MBeanInvoker mbeanInvoker;
+            InvokeMBean mbeanInvoker;
 
             // grab references to the variables in a static block
             synchronized (this) {
                 if (!valid) {
-                    throw new IllegalStateException("This proxy has been invalidated");
+                    throw new IllegalStateException("The connection in this proxy has been closed");
                 }
                 server = this.server;
                 objectName = this.objectName;
-                mbeanInvoker = (MBeanInvoker) methodMap.get(method);
+                mbeanInvoker = methodTable[proxy.getSuperIndex()];
+            }
+            if (mbeanInvoker == null) {
+                throw new AssertionError("Unknown operation " + method);
             }
             return mbeanInvoker.invoke(server, objectName, arguments);
         }
@@ -228,59 +267,72 @@ class GeronimoMBeanEndpointConnection  {
             valid = false;
             server = null;
             objectName = null;
-            methodMap.clear();
-            methodMap = null;
+            methodTable = null;
         }
     }
 
-    private static class MBeanInvoker {
-        private final String methodName;
-        private final String[] argumentTypes;
-        private final Class[] declaredExceptions;
-
-        public MBeanInvoker(Method method) {
-            methodName = method.getName();
-
-            // conver the parameters to a MBeanServer friendly string array
-            Class[] parameters = method.getParameterTypes();
-            argumentTypes = new String[parameters.length];
-            for (int i = 0; i < parameters.length; i++) {
-                argumentTypes[i] = parameters[i].getName();
-            }
-
-            declaredExceptions = method.getExceptionTypes();
+    private static final class HashCodeInvoke extends InvokeMBean {
+        public HashCodeInvoke() {
+            super("hashCode", new String[0], new Class[0], false, false, 0);
         }
 
         public Object invoke(MBeanServer server, ObjectName objectName, Object[] arguments) throws Throwable {
-            try {
-                return server.invoke(objectName, methodName, arguments, argumentTypes);
-            } catch (Throwable t) {
-                Throwable throwable = t;
-                while (true) {
-                    for (int i = 0; i < declaredExceptions.length; i++) {
-                        Class declaredException = declaredExceptions[i];
-                        if (declaredException.isInstance(throwable)) {
-                            throw throwable;
-                        }
-                    }
+            return new Integer(objectName.hashCode());
+        }
+    }
 
-                    // Unwrap the exceptions we understand
-                    if (throwable instanceof MBeanException) {
-                        throwable = (((MBeanException) throwable).getTargetException());
-                    } else if (throwable instanceof ReflectionException) {
-                        throwable = (((ReflectionException) throwable).getTargetException());
-                    } else if (throwable instanceof RuntimeOperationsException) {
-                        throwable = (((RuntimeOperationsException) throwable).getTargetException());
-                    } else if (throwable instanceof RuntimeMBeanException) {
-                        throwable = (((RuntimeMBeanException) throwable).getTargetException());
-                    } else if (throwable instanceof RuntimeErrorException) {
-                        throwable = (((RuntimeErrorException) throwable).getTargetError());
-                    } else {
-                        // don't know how to unwrap this, just throw it
-                        throw throwable;
-                    }
-                }
+    private static final class EqualsInvoke extends InvokeMBean {
+        public EqualsInvoke() {
+            super("hashCode", new String[]{"java.lang.Object"}, new Class[]{Object.class}, false, false, 1);
+        }
+
+        public Object invoke(MBeanServer server, ObjectName objectName, Object[] arguments) throws Throwable {
+            return new Boolean(objectName.equals(arguments[0]));
+        }
+    }
+
+
+    private static final class ToStringInvoke extends InvokeMBean {
+        private final String interfaceName;
+
+        public ToStringInvoke(String interfaceName) {
+            super("toString", new String[0], new Class[0], false, false, 0);
+            this.interfaceName = "[" + interfaceName + ": ";
+        }
+
+        public Object invoke(MBeanServer server, ObjectName objectName, Object[] arguments) throws Throwable {
+            return interfaceName + objectName + "]";
+        }
+    }
+
+
+    private static String ACCESS_PREFIX = "CGLIB$$ACCESS_";
+
+    /**
+     * Returns the name of the synthetic method created by CGLIB which is
+     * used by invokesuper to invoke the superclass
+     * (non-intercepted) method implementation. The parameter types are
+     * guaranteed to be the same.
+     * @param enhancedClass the class generated by Enhancer
+     * @param method the original method; only the name and parameter types are used.
+     * @return the name of the synthetic proxy method, or null if no matching method can be found
+     */
+    public static int getSuperIndex(FastClass enhancedClass, Method method) {
+        String prefix = ACCESS_PREFIX + method.getName() + "_";
+        int lastUnderscore = prefix.length() - 1;
+        Class[] params = method.getParameterTypes();
+
+        Method[] methods = enhancedClass.getJavaClass().getDeclaredMethods();
+        for (int i = 0; i < methods.length; i++) {
+            String name = methods[i].getName();
+            Class[] parameterTypes = methods[i].getParameterTypes();
+            if (name.startsWith(prefix) &&
+                    name.lastIndexOf('_') == lastUnderscore &&
+                    Arrays.equals(parameterTypes, params)) {
+                return enhancedClass.getIndex(name, parameterTypes);
             }
         }
+        throw new IllegalArgumentException("Method not found on enhancedClass:" +
+                " enhancedClass=" + enhancedClass.getJavaClass() + " method=" + method);
     }
 }
