@@ -94,13 +94,11 @@
             </properties>
         </dependency>
 
-<!--
        <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-spring</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
--->
 
        <dependency>
             <groupId>geronimo</groupId>

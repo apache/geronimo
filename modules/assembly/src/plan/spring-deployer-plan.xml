@@ -18,29 +18,33 @@
 
 <!-- $Rev: 126313 $ $Date: 2005-01-24 21:03:52 +0000 (Mon, 24 Jan 2005) $ -->
 
-<!--
-Child of the org/apache/geronimo/RuntimeDeployer configuration that adds the Spring deployer
--->
 <configuration
-    xmlns="http://geronimo.apache.org/xml/ns/deployment"
-    configId="org/apache/geronimo/SpringDeployer"
-    parentId="org/apache/geronimo/RuntimeDeployer"
-    >
+  xmlns="http://geronimo.apache.org/xml/ns/deployment"
+  configId="org/apache/geronimo/SpringDeployer"
+  parentId="org/apache/geronimo/SpringRuntime"
+  >
 
-    <!-- moved into j2ee-runtime-deployer-plan.xml because it doesn't work here -->
+  <dependency>
+    <uri>springframework/jars/${spring_artifact}-${spring_version}.jar</uri><!-- lose later -->
+  </dependency>
+  <dependency>
+    <uri>geronimo/jars/geronimo-common-${geronimo_version}.jar</uri>
+  </dependency>
+  <dependency>
+    <uri>geronimo/jars/geronimo-deployment-${geronimo_version}.jar</uri>
+  </dependency>
+  <dependency>
+    <uri>geronimo/jars/geronimo-spring-builder-${geronimo_version}.jar</uri>
+  </dependency>
 
-<!--
-    <dependency>
-        <uri>springframework/jars/${spring_artifact}-${spring_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-spring-builder-${geronimo_version}.jar</uri>
-    </dependency>
+  <gbean namePart="Deployer" class="org.apache.geronimo.deployment.Deployer">
+    <reference name="Builders">geronimo.server:j2eeType=ConfigBuilder,J2EEModule=org/apache/geronimo/SpringDeployer,*</reference>
+    <reference name="Store">geronimo.server:j2eeType=ConfigurationStore,*</reference>
+  </gbean>
 
-    <gbean namePart="SPRBuilder" class="org.apache.geronimo.spring.deployment.SPRConfigBuilder">
-        <attribute name="defaultParentId">org/apache/geronimo/RuntimeDeployer</attribute>
-        <reference name="Repository">*:name=Repository,*</reference>
-    </gbean>
--->
+  <gbean namePart="SPRBuilder" class="org.apache.geronimo.spring.deployment.SPRConfigBuilder">
+    <attribute name="defaultParentId">org/apache/geronimo/SpringRuntime</attribute>
+    <reference name="Repository">*:name=Repository,*</reference>
+  </gbean>
 
 </configuration>

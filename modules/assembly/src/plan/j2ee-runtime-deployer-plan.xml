@@ -64,14 +64,6 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
          <uri>geronimo/jars/geronimo-axis-builder-${geronimo_version}.jar</uri>
     </dependency>
 
-    <!-- should be in spring-deployer-plan.xml but...  -->
-    <dependency>
-        <uri>springframework/jars/${spring_artifact}-${spring_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-spring-builder-${geronimo_version}.jar</uri>
-    </dependency>
-
     <!-- deployer gbeans -->
     <gbean namePart="Deployer" class="org.apache.geronimo.deployment.Deployer">
         <reference name="Builders">geronimo.server:j2eeType=ConfigBuilder,J2EEModule=org/apache/geronimo/RuntimeDeployer,*</reference>
@@ -176,11 +168,5 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
 <!--    </gbean>-->
 <!---->
     <!-- end deployment block -->
-
-    <!-- should be in spring-deployer-plan.xml but...  -->
-    <gbean namePart="SPRBuilder" class="org.apache.geronimo.spring.deployment.SPRConfigBuilder">
-        <attribute name="defaultParentId">org/apache/geronimo/RuntimeDeployer</attribute>
-        <reference name="Repository">*:name=Repository,*</reference>
-    </gbean>
 
 </configuration>

@@ -15,22 +15,13 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.j2ee.management.impl;
+package org.apache.geronimo.spring;
 
-import java.util.Hashtable;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
+//import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-
-// I know that this should not be here (in the j2ee package) but,
-// until someone who knows what they are doing has time to have a look
-// at it, this seems the path of least resistance...
 
 /**
  * @version $Rev: 126313 $ $Date: 2005-01-24 21:03:52 +0000 (Mon, 24 Jan 2005) $
