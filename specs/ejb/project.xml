@@ -17,7 +17,7 @@
 -->
   
 
-<!-- $Revision: 1.7 $ $Date: 2004/03/10 09:59:39 $ -->
+<!-- $Revision: 1.8 $ $Date: 2004/05/01 06:40:20 $ -->
 
 <project>
   <pomVersion>3</pomVersion>
@@ -33,6 +33,8 @@
   
   <package>javax.ejb</package>
 
+  <currentVersion>2.1-rc1</currentVersion>
+
   <!-- ============ -->
   <!-- Dependencies -->
   <!-- ============ -->
@@ -41,7 +43,7 @@
     <dependency>
       <groupId>geronimo-spec</groupId>
       <artifactId>geronimo-spec-jta</artifactId>
-      <version>${pom.currentVersion}</version>
+      <version>1.0.1B-rc1</version>
     </dependency>
   </dependencies>
   

@@ -17,7 +17,7 @@
 -->
   
 
-<!-- $Revision: 1.8 $ $Date: 2004/04/26 20:18:58 $ -->
+<!-- $Revision: 1.9 $ $Date: 2004/05/01 06:40:20 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -27,6 +27,8 @@
     <groupId>geronimo-spec</groupId>
     <id>geronimo-spec-j2ee</id>
 
+    <currentVersion>1.4-rc1</currentVersion>
+
     <!-- ============ -->
     <!-- Dependencies -->
     <!-- ============ -->
@@ -35,55 +37,55 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-ejb</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>2.1-rc1</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-connector</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>1.5-rc1</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-deployment</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>1.1-rc1</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-jacc</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>1.0-rc1</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-management</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>1.0-rc1</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jms</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>1.1-rc1</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jsp</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>2.0-rc1</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jta</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>1.0.1B-rc1</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-servlet</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>2.4-rc1</version>
         </dependency>
 
     </dependencies>
