@@ -66,18 +66,18 @@ import javax.security.jacc.PolicyContextException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanEndpoint;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
 import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
-import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
 import org.apache.geronimo.security.util.ConfigurationUtil;
 
 
 /**
  * An MBean that maintains a list of security realms.
  *
- * @version $Revision: 1.6 $ $Date: 2004/01/04 22:59:34 $
+ * @version $Revision: 1.7 $ $Date: 2004/01/16 02:10:46 $
  */
 public class SecurityService  {
 
@@ -86,8 +86,7 @@ public class SecurityService  {
 
     private String policyConfigurationFactory;
     private Collection realms = Collections.EMPTY_SET;
-    private Collection ejbModuleConfigurations = Collections.EMPTY_SET;
-    private Collection webModuleConfigurations = Collections.EMPTY_SET;
+    private Collection moduleConfigurations = Collections.EMPTY_SET;
 
 
     /**
@@ -99,19 +98,12 @@ public class SecurityService  {
         GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
         mbeanInfo.setTargetClass(SecurityService.class.getName());
 
-        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("getEjbModuleConfiguration",
+        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("getModuleConfiguration",
                 new GeronimoParameterInfo[] {
                     new GeronimoParameterInfo("contextID", String.class, ""),
                     new GeronimoParameterInfo("remove", Boolean.TYPE, "")},
                 GeronimoOperationInfo.ACTION_INFO,
-                "Get security configuration for ejb module identified by contextID"));
-
-        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("getWebModuleConfiguration",
-                new GeronimoParameterInfo[] {
-                    new GeronimoParameterInfo("contextID", String.class, ""),
-                    new GeronimoParameterInfo("remove", Boolean.TYPE, "")},
-                GeronimoOperationInfo.ACTION_INFO,
-                "Get security configuration for web module identified by contextID"));
+                "Get security configuration for module identified by contextID"));
 
         mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("PolicyConfigurationFactory",
                                                              true, true,
@@ -119,8 +111,7 @@ public class SecurityService  {
                                                              (Object)"org.apache.geronimo.security.GeronimoPolicyConfigurationFactory"));
 
         mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("Realms", SecurityRealm.class, ObjectName.getInstance(SecurityRealm.BASE_OBJECT_NAME + ",*")));
-        mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("EJBModuleConfigurations", EJBModuleConfiguration.class, ObjectName.getInstance(EJBModuleConfiguration.BASE_OBJECT_NAME + ",*")));
-        mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("WebModuleConfigurations", WebModuleConfiguration.class, ObjectName.getInstance(WebModuleConfiguration.BASE_OBJECT_NAME + ",*")));
+        mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("ModuleConfigurations", ModuleConfiguration.class, ObjectName.getInstance(AbstractModuleConfiguration.BASE_OBJECT_NAME + ",*")));
 
         return mbeanInfo;
     }
@@ -178,20 +169,12 @@ public class SecurityService  {
         this.realms = realms;
     }
 
-    public Collection getEJBModuleConfigurations() {
-        return ejbModuleConfigurations;
+    public Collection getModuleConfigurations() {
+        return moduleConfigurations;
     }
 
-    public void setEJBModuleConfigurations(Collection ejbModuleConfigurations) {
-        this.ejbModuleConfigurations = ejbModuleConfigurations;
-    }
-
-    public Collection getWebModuleConfigurations() {
-        return webModuleConfigurations;
-    }
-
-    public void setWebModuleConfigurations(Collection webModuleConfigurations) {
-        this.webModuleConfigurations = webModuleConfigurations;
+    public void setModuleConfigurations(Collection moduleConfigurations) {
+        this.moduleConfigurations = moduleConfigurations;
     }
 
     /**
@@ -222,67 +205,22 @@ public class SecurityService  {
      * @return an MBean that implements the <code>WebModuleConfigurationMBean</code> Interface matched to the
      *                  identified policy context.
      * @throws GeronimoSecurityException if the implementation throws a checked exception that has not been accounted for by
-     *                  the <code>getWebModuleConfiguration</code> method signature.
+     *                  the <code>getModuleConfiguration</code> method signature.
      */
-    public WebModuleConfiguration getWebModuleConfiguration(String contextID, boolean remove) throws GeronimoSecurityException {
+    public ModuleConfiguration getModuleConfiguration(String contextID, boolean remove) throws GeronimoSecurityException {
         assert contextID != null : "ContextID must be supplied!";
         SecurityManager sm = System.getSecurityManager();
-        if (sm != null) sm.checkPermission(CONFIGURE);
-
-        for (Iterator iterator = webModuleConfigurations.iterator(); iterator.hasNext();) {
-            WebModuleConfiguration webModuleConfiguration = (WebModuleConfiguration) iterator.next();
-            if (contextID.equals(webModuleConfiguration.getContextID())) {
-                if (remove) {
-                    webModuleConfiguration.delete();
-                }
-                return webModuleConfiguration;
-            }
+        if (sm != null) {
+            sm.checkPermission(CONFIGURE);
         }
-        return null;
-    }
 
-    /**
-     * <p>This method is used to obtain a EJB module configuration that corresponds to the identified policy context.
-     * The methods of the <code>EjbModuleConfigurationMBean</code> class are used to map deployment descriptor
-     * information into policy statements needed by the identified policy context as well as the principal to roll
-     * mapping.</p>
-     *
-     * <p>If at the time of the call, the identified EJB module configuration does not exist, then the EJB module
-     * configuration will be created and the JMX MBean that implements the context's
-     * <code>EjbModuleConfigurationMBean</code> interface will be returned. If the state of the identified context is
-     * "deleted" or "inService" it will be transitioned to the "open" state as a result of the call. The states in the
-     * lifecycle of a policy context are defined by the <code>EjbModuleConfigurationMBean</code> interface.</p>
-     *
-     * <p>For a given value of policy context identifier, this method must always return the same instance of
-     * <code>EjbModuleConfigurationMBean</code> and there must be at most one actual instance of a
-     * <code>EjbModuleConfigurationMBean</code> with a given policy context identifier (during a process context).</p>
-     *
-     * <p>To preserve the invariant that there be at most one <code>EjbModuleConfigurationMBean</code> object for a
-     * given policy context, it may be necessary for this method to be thread safe.</p>
-     *
-     * @param contextID A String identifying the EJB module configuration to be returned. The value passed to this
-     *                  parameter must not be null.
-     * @param remove A boolean value that establishes whether or not the security configuration of an existing EJB
-     *                  module is to be removed before its <code>EjbModuleConfigurationMBean</code> object is returned.
-     *                  If the value passed to this parameter is <code>true</code> the security configuration of an
-     *                  existing EJB module will be removed. If the value is <code>false</code>, it will not be removed.
-     * @return an MBean that implements the <code>EjbModuleConfigurationMBean</code> Interface matched to the
-     *                  identified policy context.
-     * @throws GeronimoSecurityException if the implementation throws a checked exception that has not been accounted for by
-     *                  the <code>getEjbModuleConfiguration</code> method signature.
-     */
-    public EJBModuleConfiguration getEjbModuleConfiguration(String contextID, boolean remove) throws GeronimoSecurityException {
-        assert contextID != null : "ContextID must be supplied!";
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) sm.checkPermission(CONFIGURE);
-
-        for (Iterator iterator = ejbModuleConfigurations.iterator(); iterator.hasNext();) {
-            EJBModuleConfiguration ejbModuleConfiguration = (EJBModuleConfiguration) iterator.next();
-            if (contextID.equals(ejbModuleConfiguration.getContextID())) {
+        for (Iterator iterator = moduleConfigurations.iterator(); iterator.hasNext();) {
+            ModuleConfiguration moduleConfiguration = (ModuleConfiguration) iterator.next();
+            if (contextID.equals(moduleConfiguration.getContextID())) {
                 if (remove) {
-                    ejbModuleConfiguration.delete();
+                    moduleConfiguration.delete();
                 }
-                return ejbModuleConfiguration;
+                return moduleConfiguration;
             }
         }
         return null;

@@ -82,13 +82,11 @@ import org.apache.geronimo.security.util.ConfigurationUtil;
  * <p>It is expected that deployment tools will configure modules through
  * these utility MBeans and not directly access the
  * <code>PolicyConfiguration</code> objects.
- * @version $Revision: 1.6 $ $Date: 2004/01/03 01:09:31 $
+ * @version $Revision: 1.7 $ $Date: 2004/01/16 02:10:46 $
  * @see javax.security.jacc.PolicyConfiguration
  * @see "Java Authorization Contract for Containers", section 3.1.3
  */
 public class WebModuleConfiguration extends AbstractModuleConfiguration {
-
-    public static final String BASE_OBJECT_NAME = "geronimo.security:type=WebModuleConfiguration";
 
     public WebModuleConfiguration(String contextId, WebApp webApp) throws GeronimoSecurityException {
         super(contextId);

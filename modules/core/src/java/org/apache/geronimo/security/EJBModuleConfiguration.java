@@ -76,11 +76,9 @@ import org.apache.geronimo.security.util.ConfigurationUtil;
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/01/03 01:09:31 $
+ * @version $Revision: 1.7 $ $Date: 2004/01/16 02:10:46 $
  */
 public class EJBModuleConfiguration extends AbstractModuleConfiguration {
-
-    public static final String BASE_OBJECT_NAME = "geronimo.security:type=EJBModuleConfiguration";
 
     public EJBModuleConfiguration(String contextId, EjbJar ejbJar) throws GeronimoSecurityException {
         super(contextId);

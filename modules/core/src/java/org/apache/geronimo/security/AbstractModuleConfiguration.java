@@ -71,9 +71,11 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
 
 /**
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/02 04:31:44 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/16 02:10:46 $
  */
 public abstract class AbstractModuleConfiguration implements ModuleConfiguration, GeronimoMBeanTarget {
+
+    public static final String BASE_OBJECT_NAME = "geronimo.security:type=ModuleConfiguration";
 
     private String contextId;
     private GeronimoMBeanContext context;

@@ -57,6 +57,7 @@ package org.apache.geronimo.security;
 
 import java.io.File;
 import java.util.Collections;
+import java.util.Arrays;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.security.providers.PropertiesFileSecurityRealm;
@@ -71,7 +72,7 @@ import org.apache.geronimo.deployment.model.ejb.ExcludeList;
 /**
  * Unit test for web module configuration
  *
- * @version $Revision: 1.2 $ $Date: 2003/12/28 19:34:05 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/16 02:10:46 $
  */
 public class SecurityServiceTest extends TestCase {
     SecurityService securityService;
@@ -93,19 +94,18 @@ public class SecurityServiceTest extends TestCase {
         assemblyDescriptor.setExcludeList(new ExcludeList());
         ejbJar.setAssemblyDescriptor(assemblyDescriptor);
         ejbJar.setSecurity(new Security());
-        securityService.setEJBModuleConfigurations(Collections.singleton(new EJBModuleConfiguration("Foo", ejbJar)));
         WebApp webApp = new WebApp();
         webApp.setSecurity(new Security());
-        securityService.setWebModuleConfigurations(Collections.singleton(new WebModuleConfiguration("Bar", webApp)));
+        securityService.setModuleConfigurations(Arrays.asList(new Object[] {new EJBModuleConfiguration("Foo", ejbJar),new WebModuleConfiguration("Bar", webApp)}));
     }
 
     public void tearDown() throws Exception {
     }
 
     public void testConfig() throws Exception {
-        EJBModuleConfiguration ejbModuleConfiguration = securityService.getEjbModuleConfiguration("Foo", false);
+        ModuleConfiguration ejbModuleConfiguration = securityService.getModuleConfiguration("Foo", false);
         assertTrue("expected an ejbModuleConfiguration", ejbModuleConfiguration != null);
-        WebModuleConfiguration webModuleConfiguration = securityService.getWebModuleConfiguration("Bar", false);
+        ModuleConfiguration webModuleConfiguration = securityService.getModuleConfiguration("Bar", false);
         assertTrue("expected a webModuleConfiguration", webModuleConfiguration != null);
     }
 }
