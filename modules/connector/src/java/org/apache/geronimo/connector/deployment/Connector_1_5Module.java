@@ -92,6 +92,8 @@ import org.apache.geronimo.xbeans.geronimo.GerConnectionDefinitionType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectionmanagerType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
 import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
+import org.apache.geronimo.xbeans.geronimo.GerConnectionfactoryInstanceType;
+import org.apache.geronimo.xbeans.geronimo.GerAdminobjectInstanceType;
 import org.apache.geronimo.xbeans.j2ee.AdminobjectType;
 import org.apache.geronimo.xbeans.j2ee.ConfigPropertyType;
 import org.apache.geronimo.xbeans.j2ee.ConnectionDefinitionType;
@@ -102,7 +104,7 @@ import org.apache.xmlbeans.XmlException;
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/02/06 08:56:42 $
+ * @version $Revision: 1.4 $ $Date: 2004/02/08 20:21:57 $
  *
  * */
 public class Connector_1_5Module extends AbstractConnectorModule {
@@ -153,76 +155,80 @@ public class Connector_1_5Module extends AbstractConnectorModule {
             String connectionFactoryInterfaceName = geronimoConnectionDefinition.getConnectionfactoryInterface().getStringValue();
             ConnectionDefinitionType connectionDefinition = (ConnectionDefinitionType) connectionDefinitions.get(connectionFactoryInterfaceName);
             assert connectionDefinition != null: "No connection definition for ConnectionFactory class: " + connectionFactoryInterfaceName;
-            //ConnectionManagerFactory
-            GerConnectionmanagerType connectionManagerFactory = geronimoConnectionDefinition.getConnectionmanager();
-            GBeanInfo connectionManagerFactoryGBeanInfo;
-            try {
-                connectionManagerFactoryGBeanInfo = GBeanInfo.getGBeanInfo(ConnectionManagerDeployment.class.getName(), cl);
-            } catch (InvalidConfigurationException e) {
-                throw new DeploymentException("Unable to get GBeanInfo from ConnectionManagerDeployment", e);
-            }
+            for (int j = 0; j < geronimoConnectionDefinition.getConnectionfactoryInstanceArray().length; j++) {
+                GerConnectionfactoryInstanceType connectionfactoryInstance = geronimoConnectionDefinition.getConnectionfactoryInstanceArray()[j];
 
-            GBeanMBean connectionManagerFactoryGBean;
-            try {
-                connectionManagerFactoryGBean = new GBeanMBean(connectionManagerFactoryGBeanInfo, cl);
-            } catch (InvalidConfigurationException e) {
-                throw new DeploymentException("Unable to create GMBean", e);
-            }
-            try {
-                connectionManagerFactoryGBean.setAttribute("Name", connectionManagerFactory.getName());
-                connectionManagerFactoryGBean.setAttribute("BlockingTimeout", new Integer(connectionManagerFactory.getBlockingTimeout().intValue()));
-                connectionManagerFactoryGBean.setAttribute("MaxSize", new Integer(connectionManagerFactory.getMaxSize().intValue()));
-                connectionManagerFactoryGBean.setAttribute("UseTransactions", Boolean.valueOf(connectionManagerFactory.getUseTransactions()));
-                connectionManagerFactoryGBean.setAttribute("UseLocalTransactions", Boolean.valueOf(connectionManagerFactory.getUseLocalTransactions()));
-                connectionManagerFactoryGBean.setAttribute("UseTransactionCaching", Boolean.valueOf(connectionManagerFactory.getUseTransactionCaching()));
-                connectionManagerFactoryGBean.setAttribute("UseConnectionRequestInfo", Boolean.valueOf(connectionManagerFactory.getUseConnectionRequestInfo()));
-                connectionManagerFactoryGBean.setAttribute("UseSubject", Boolean.valueOf(connectionManagerFactory.getUseSubject()));
-                connectionManagerFactoryGBean.setReferencePatterns("Kernel", Collections.singleton(Kernel.KERNEL));
-                connectionManagerFactoryGBean.setReferencePatterns("ConnectionTracker", Collections.singleton(connectionTrackerNamePattern));
-                if (connectionManagerFactory.getRealmBridge() != null) {
-                    connectionManagerFactoryGBean.setReferencePatterns("RealmBridge", Collections.singleton(ObjectName.getInstance(BASE_REALM_BRIDGE_NAME + connectionManagerFactory.getRealmBridge())));
+                //ConnectionManagerFactory
+                GerConnectionmanagerType connectionManagerFactory = connectionfactoryInstance.getConnectionmanager();
+                GBeanInfo connectionManagerFactoryGBeanInfo;
+                try {
+                    connectionManagerFactoryGBeanInfo = GBeanInfo.getGBeanInfo(ConnectionManagerDeployment.class.getName(), cl);
+                } catch (InvalidConfigurationException e) {
+                    throw new DeploymentException("Unable to get GBeanInfo from ConnectionManagerDeployment", e);
                 }
-            } catch (Exception e) {
-                throw new DeploymentException("Problem setting up ConnectionManagerFactory", e);
-            }
-            ObjectName connectionManagerFactoryObjectName = null;
-            try {
-                connectionManagerFactoryObjectName = ObjectName.getInstance(BASE_CONNECTION_MANAGER_FACTORY_NAME + geronimoConnectionDefinition.getName());
-            } catch (MalformedObjectNameException e) {
-                throw new DeploymentException("Could not name ConnectionManagerFactory", e);
-            }
-            callback.addGBean(connectionManagerFactoryObjectName, connectionManagerFactoryGBean);
-            //ManagedConnectionFactory
 
-            GBeanInfoFactory managedConnectionFactoryInfoFactory = new GBeanInfoFactory(ManagedConnectionFactoryWrapper.class.getName(), ManagedConnectionFactoryWrapper.getGBeanInfo());
-            GBeanMBean managedConnectionFactoryGBean = setUpDynamicGBean(managedConnectionFactoryInfoFactory, connectionDefinition.getConfigPropertyArray(), geronimoConnectionDefinition.getConfigPropertySettingArray());
-            try {
-                managedConnectionFactoryGBean.setAttribute("ManagedConnectionFactoryClass", cl.loadClass(connectionDefinition.getManagedconnectionfactoryClass().getStringValue()));
-                managedConnectionFactoryGBean.setAttribute("ConnectionFactoryInterface", cl.loadClass(connectionDefinition.getConnectionfactoryInterface().getStringValue()));
-                managedConnectionFactoryGBean.setAttribute("ConnectionFactoryImplClass", cl.loadClass(connectionDefinition.getConnectionfactoryImplClass().getStringValue()));
-                managedConnectionFactoryGBean.setAttribute("ConnectionInterface", cl.loadClass(connectionDefinition.getConnectionInterface().getStringValue()));
-                managedConnectionFactoryGBean.setAttribute("ConnectionImplClass", cl.loadClass(connectionDefinition.getConnectionImplClass().getStringValue()));
-                managedConnectionFactoryGBean.setAttribute("GlobalJNDIName", geronimoConnectionDefinition.getGlobalJndiName());
-                if (resourceAdapterClassName != null) {
-                    managedConnectionFactoryGBean.setReferencePatterns("ResourceAdapterWrapper", Collections.singleton(resourceAdapterObjectName));
+                GBeanMBean connectionManagerFactoryGBean;
+                try {
+                    connectionManagerFactoryGBean = new GBeanMBean(connectionManagerFactoryGBeanInfo, cl);
+                } catch (InvalidConfigurationException e) {
+                    throw new DeploymentException("Unable to create GMBean", e);
                 }
-                managedConnectionFactoryGBean.setReferencePatterns("ConnectionManagerFactory", Collections.singleton(connectionManagerFactoryObjectName));
-                /*
-                //TODO also set up the login module
-                if (geronimoConnectionDefinition.getAuthentication().equals("BasicUserPassword")) {
-                    managedConnectionFactoryGBean.setReferencePatterns("ManagedConnectionFactoryListener", Collections.singleton(ObjectName.getInstance(BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME + geronimoConnectionDefinition.getName())));
+                try {
+                    connectionManagerFactoryGBean.setAttribute("Name", connectionManagerFactory.getName());
+                    connectionManagerFactoryGBean.setAttribute("BlockingTimeout", new Integer(connectionManagerFactory.getBlockingTimeout().intValue()));
+                    connectionManagerFactoryGBean.setAttribute("MaxSize", new Integer(connectionManagerFactory.getMaxSize().intValue()));
+                    connectionManagerFactoryGBean.setAttribute("UseTransactions", Boolean.valueOf(connectionManagerFactory.getUseTransactions()));
+                    connectionManagerFactoryGBean.setAttribute("UseLocalTransactions", Boolean.valueOf(connectionManagerFactory.getUseLocalTransactions()));
+                    connectionManagerFactoryGBean.setAttribute("UseTransactionCaching", Boolean.valueOf(connectionManagerFactory.getUseTransactionCaching()));
+                    connectionManagerFactoryGBean.setAttribute("UseConnectionRequestInfo", Boolean.valueOf(connectionManagerFactory.getUseConnectionRequestInfo()));
+                    connectionManagerFactoryGBean.setAttribute("UseSubject", Boolean.valueOf(connectionManagerFactory.getUseSubject()));
+                    connectionManagerFactoryGBean.setReferencePatterns("Kernel", Collections.singleton(Kernel.KERNEL));
+                    connectionManagerFactoryGBean.setReferencePatterns("ConnectionTracker", Collections.singleton(connectionTrackerNamePattern));
+                    if (connectionManagerFactory.getRealmBridge() != null) {
+                        connectionManagerFactoryGBean.setReferencePatterns("RealmBridge", Collections.singleton(ObjectName.getInstance(BASE_REALM_BRIDGE_NAME + connectionManagerFactory.getRealmBridge())));
+                    }
+                } catch (Exception e) {
+                    throw new DeploymentException("Problem setting up ConnectionManagerFactory", e);
                 }
-                */
-            } catch (Exception e) {
-                throw new DeploymentException(e);
+                ObjectName connectionManagerFactoryObjectName = null;
+                try {
+                    connectionManagerFactoryObjectName = ObjectName.getInstance(BASE_CONNECTION_MANAGER_FACTORY_NAME + connectionfactoryInstance.getName());
+                } catch (MalformedObjectNameException e) {
+                    throw new DeploymentException("Could not name ConnectionManagerFactory", e);
+                }
+                callback.addGBean(connectionManagerFactoryObjectName, connectionManagerFactoryGBean);
+                //ManagedConnectionFactory
+
+                GBeanInfoFactory managedConnectionFactoryInfoFactory = new GBeanInfoFactory(ManagedConnectionFactoryWrapper.class.getName(), ManagedConnectionFactoryWrapper.getGBeanInfo());
+                GBeanMBean managedConnectionFactoryGBean = setUpDynamicGBean(managedConnectionFactoryInfoFactory, connectionDefinition.getConfigPropertyArray(), connectionfactoryInstance.getConfigPropertySettingArray());
+                try {
+                    managedConnectionFactoryGBean.setAttribute("ManagedConnectionFactoryClass", cl.loadClass(connectionDefinition.getManagedconnectionfactoryClass().getStringValue()));
+                    managedConnectionFactoryGBean.setAttribute("ConnectionFactoryInterface", cl.loadClass(connectionDefinition.getConnectionfactoryInterface().getStringValue()));
+                    managedConnectionFactoryGBean.setAttribute("ConnectionFactoryImplClass", cl.loadClass(connectionDefinition.getConnectionfactoryImplClass().getStringValue()));
+                    managedConnectionFactoryGBean.setAttribute("ConnectionInterface", cl.loadClass(connectionDefinition.getConnectionInterface().getStringValue()));
+                    managedConnectionFactoryGBean.setAttribute("ConnectionImplClass", cl.loadClass(connectionDefinition.getConnectionImplClass().getStringValue()));
+                    managedConnectionFactoryGBean.setAttribute("GlobalJNDIName", connectionfactoryInstance.getGlobalJndiName());
+                    if (resourceAdapterClassName != null) {
+                        managedConnectionFactoryGBean.setReferencePatterns("ResourceAdapterWrapper", Collections.singleton(resourceAdapterObjectName));
+                    }
+                    managedConnectionFactoryGBean.setReferencePatterns("ConnectionManagerFactory", Collections.singleton(connectionManagerFactoryObjectName));
+                    /*
+                    //TODO also set up the login module
+                    if (geronimoConnectionDefinition.getAuthentication().equals("BasicUserPassword")) {
+                        managedConnectionFactoryGBean.setReferencePatterns("ManagedConnectionFactoryListener", Collections.singleton(ObjectName.getInstance(BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME + geronimoConnectionDefinition.getName())));
+                    }
+                    */
+                } catch (Exception e) {
+                    throw new DeploymentException(e);
+                }
+                ObjectName managedConnectionFactoryObjectName = null;
+                try {
+                    managedConnectionFactoryObjectName = ObjectName.getInstance(BASE_MANAGED_CONNECTION_FACTORY_NAME + connectionfactoryInstance.getName());
+                } catch (MalformedObjectNameException e) {
+                    throw new DeploymentException("Could not construct ManagedConnectionFactory object name", e);
+                }
+                callback.addGBean(managedConnectionFactoryObjectName, managedConnectionFactoryGBean);
             }
-            ObjectName managedConnectionFactoryObjectName = null;
-            try {
-                managedConnectionFactoryObjectName = ObjectName.getInstance(BASE_MANAGED_CONNECTION_FACTORY_NAME + geronimoConnectionDefinition.getName());
-            } catch (MalformedObjectNameException e) {
-                throw new DeploymentException("Could not construct ManagedConnectionFactory object name", e);
-            }
-            callback.addGBean(managedConnectionFactoryObjectName, managedConnectionFactoryGBean);
 
         }
         //admin objects
@@ -235,15 +241,19 @@ public class Connector_1_5Module extends AbstractConnectorModule {
             GerAdminobjectType gerAdminObject = geronimoResourceAdapter.getAdminobjectArray()[i];
             AdminobjectType adminobject = (AdminobjectType) adminObjectInterfaceMap.get(gerAdminObject.getAdminobjectInterface().getStringValue());
             assert adminobject != null;
-            GBeanInfoFactory adminObjectInfoFactory = new GBeanInfoFactory(AdminObjectWrapper.class.getName(), AdminObjectWrapper.getGBeanInfo());
-            GBeanMBean adminObjectGBean = setUpDynamicGBean(adminObjectInfoFactory, adminobject.getConfigPropertyArray(), gerAdminObject.getConfigPropertySettingArray());
-            ObjectName adminObjectObjectName = null;
-            try {
-                adminObjectObjectName = ObjectName.getInstance(BASE_ADMIN_OBJECT_NAME + gerAdminObject.getAdminObjectName());
-            } catch (MalformedObjectNameException e) {
-                throw new DeploymentException("Could not construct ManagedConnectionFactory object name", e);
+            for (int j = 0; j < gerAdminObject.getAdminobjectInstanceArray().length; j++) {
+                GerAdminobjectInstanceType gerAdminobjectInstance = gerAdminObject.getAdminobjectInstanceArray()[j];
+                GBeanInfoFactory adminObjectInfoFactory = new GBeanInfoFactory(AdminObjectWrapper.class.getName(), AdminObjectWrapper.getGBeanInfo());
+                GBeanMBean adminObjectGBean = setUpDynamicGBean(adminObjectInfoFactory, adminobject.getConfigPropertyArray(), gerAdminobjectInstance.getConfigPropertySettingArray());
+                ObjectName adminObjectObjectName = null;
+                try {
+                    adminObjectObjectName = ObjectName.getInstance(BASE_ADMIN_OBJECT_NAME + gerAdminobjectInstance.getAdminobjectName());
+                } catch (MalformedObjectNameException e) {
+                    throw new DeploymentException("Could not construct ManagedConnectionFactory object name", e);
+                }
+                callback.addGBean(adminObjectObjectName, adminObjectGBean);
+
             }
-            callback.addGBean(adminObjectObjectName, adminObjectGBean);
         }
 
     }

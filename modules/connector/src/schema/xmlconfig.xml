@@ -1,9 +1,9 @@
 <xb:config xmlns:xb="http://www.bea.com/2002/09/xbean/config"
     >
 
-    <xb:namespace uri="http://java.sun.com/xml/ns/j2ee">
+    <!--xb:namespace uri="http://java.sun.com/xml/ns/j2ee">
         <xb:package>org.apache.geronimo.xbeans.j2ee</xb:package>
-    </xb:namespace>
+    </xb:namespace-->
 
     <xb:namespace uri="##local">
         <xb:package>org.apache.geronimo.xbeans.j2ee.connector_1_0</xb:package>

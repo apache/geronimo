@@ -43,14 +43,7 @@
     <xsd:complexType name="adminobjectType">
         <xsd:annotation>
             <xsd:documentation>
-
-                The adminobjectType specifies information about an
-                administered object.  Administered objects are specific to a
-                messaging style or message provider.  This contains
-                information on the Java type of the interface implemented by
-                an administered object, its Java class name and its
-                configuration properties.
-
+                reference back into standard dd
             </xsd:documentation>
         </xsd:annotation>
 
@@ -59,17 +52,7 @@
                 type="j2ee:fully-qualified-classType">
                 <xsd:annotation>
                     <xsd:documentation>
-                        <![CDATA[
-
-                        The element adminobject-interface specifies the
-                        fully qualified name of the Java type of the
-                        interface implemented by an administered object.
-
-                        Example:
-                          <adminobject-interface>javax.jms.Destination
-                          </adminobject-interface>
-
-                        ]]>
+                        believe it or not, there are no uniqueness constraints on admin object intf or class
                     </xsd:documentation>
                 </xsd:annotation>
 
@@ -77,30 +60,24 @@
             <xsd:element name="adminobject-class"
                 type="j2ee:fully-qualified-classType">
                 <xsd:annotation>
-                    <xsd:documentation>
-                        <![CDATA[
-
-                        The element adminobject-class specifies the fully
-                        qualified Java class name of an administered object.
-
-                        Example:
-                            <adminobject-class>com.wombat.DestinationImpl
-                            </adminobject-class>
-
-                        ]]>
-                    </xsd:documentation>
+                    <xsd:documentation>reference back into the standard dd</xsd:documentation>
                 </xsd:annotation>
             </xsd:element>
+            <xsd:element name="adminobject-instance"
+                type="ger:adminobject-instanceType"
+                minOccurs="0"
+                maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
 
-            <xsd:element name="admin-object-name"
-                         type="xsd:string">
-              <xsd:annotation>
-                <xsd:documentation>
-                  <![CDATA[
-      unique name for admin object instance.  Used in object name of mbean for it.
-                    ]]>
-                </xsd:documentation>
-              </xsd:annotation>
+    <xsd:complexType name="adminobject-instanceType">
+        <xsd:sequence>
+            <xsd:element name="adminobject-name"
+                type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation>unique name for admin object instance.  Used in object name of mbean for it.
+                    </xsd:documentation>
+                </xsd:annotation>
             </xsd:element>
             <xsd:element name="config-property-setting"
                 type="ger:config-property-settingType"
@@ -213,6 +190,14 @@
                     </xsd:documentation>
                 </xsd:annotation>
             </xsd:element>
+            <xsd:element name="connectionfactory-instance"
+                type="ger:connectionfactory-instanceType"
+                minOccurs="0"
+                maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="connectionfactory-instanceType">
+        <xsd:sequence>
             <xsd:element name="name"
                 type="xsd:string"/>
             <xsd:element name="config-property-setting"
@@ -280,8 +265,16 @@
                 type="ger:resourceadapterType"/>
 
         </xsd:sequence>
+        <xsd:attribute name="version" type="ger:versionType" use="required"/>
     </xsd:complexType>
 
+    <xsd:simpleType name="versionType">
+      <xsd:restriction base="xsd:string">
+        <xsd:whiteSpace value="collapse"/>
+          <xsd:enumeration value="1.0"/>
+          <xsd:enumeration value="1.5"/>
+      </xsd:restriction>
+    </xsd:simpleType>
     <!-- **************************************************** -->
 
     <xsd:complexType name="credential-interfaceType">

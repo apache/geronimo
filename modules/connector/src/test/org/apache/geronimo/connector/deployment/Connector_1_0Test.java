@@ -60,6 +60,8 @@ import java.net.URL;
 import java.net.URI;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.jar.JarOutputStream;
 import java.io.InputStream;
@@ -76,11 +78,12 @@ import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConnectorDocument;
 import org.apache.geronimo.deployment.DeploymentModule;
 import org.apache.geronimo.deployment.ConfigurationCallback;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.xmlbeans.XmlOptions;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/03 06:51:21 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/08 20:21:57 $
  *
  * */
 public class Connector_1_0Test extends TestCase implements ConfigurationCallback {
@@ -88,17 +91,26 @@ public class Connector_1_0Test extends TestCase implements ConfigurationCallback
     private URL geronimoDD;
     private URI configID = URI.create("geronimo/connector10/test");
     private Map gbeans = new HashMap();
+    XmlOptions xmlOptions;
+    private List errors;
 
     public void testLoadJ2eeDeploymentDescriptor() throws Exception {
         InputStream j2eeInputStream = j2eeDD.openStream();
         ConnectorDocument connectorDocument = ConnectorDocument.Factory.parse(j2eeInputStream);
         assertNotNull(connectorDocument.getConnector().getResourceadapter());
+        if (!connectorDocument.validate(xmlOptions)) {
+            fail(errors.toString());
+        }
     }
 
     public void testLoadGeronimoDeploymentDescriptor() throws Exception {
         InputStream geronimoInputStream = geronimoDD.openStream();
         GerConnectorDocument connectorDocument = GerConnectorDocument.Factory.parse(geronimoInputStream);
         assertNotNull(connectorDocument.getConnector().getResourceadapter());
+        if (!connectorDocument.validate(xmlOptions)) {
+            fail(errors.toString());
+        }
+
     }
 
     public void testCreateConnector_1_0Module() throws Exception {
@@ -119,7 +131,7 @@ public class Connector_1_0Test extends TestCase implements ConfigurationCallback
         InputStream moduleArchive = new ByteArrayInputStream(baos.toByteArray());
         InputStream geronimoInputStream = geronimoDD.openStream();
         GerConnectorDocument connectorDocument = GerConnectorDocument.Factory.parse(geronimoInputStream);
-        RAR_1_0ConfigurationFactory rarConfigurationFactory = new RAR_1_0ConfigurationFactory(ObjectName.getInstance("geronimo.test:role=ConnectionTracker"));
+        RARConfigurationFactory rarConfigurationFactory = new RARConfigurationFactory(ObjectName.getInstance("geronimo.test:role=ConnectionTracker"));
         DeploymentModule connector_1_0Module = rarConfigurationFactory.createModule(moduleArchive, connectorDocument, configID, true);
         connector_1_0Module.init();
         connector_1_0Module.generateClassPath(this);
@@ -130,6 +142,10 @@ public class Connector_1_0Test extends TestCase implements ConfigurationCallback
         File docDir = new File("src/test-data/connector_1_0");
         j2eeDD = new File(docDir, "ra.xml").toURL();
         geronimoDD = new File(docDir, "geronimo-ra.xml").toURL();
+        xmlOptions = new XmlOptions();
+        xmlOptions.setLoadLineNumbers();
+        errors = new ArrayList();
+        xmlOptions.setErrorListener(errors);
     }
 
     public void addFile(URI path, InputStream source) throws IOException {

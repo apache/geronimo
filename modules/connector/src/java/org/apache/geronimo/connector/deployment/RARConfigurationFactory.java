@@ -59,34 +59,66 @@ package org.apache.geronimo.connector.deployment;
 import java.io.InputStream;
 import java.net.URI;
 
+import javax.enterprise.deploy.model.DeployableObject;
+import javax.enterprise.deploy.shared.ModuleType;
+import javax.enterprise.deploy.spi.DeploymentConfiguration;
+import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentModule;
+import org.apache.geronimo.deployment.plugin.factories.DeploymentConfigurationFactory;
+import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
-import org.apache.xmlbeans.XmlObject;
+import org.apache.geronimo.xbeans.geronimo.GerVersionType;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.XmlObject;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/06 08:56:42 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/08 20:21:57 $
  *
  * */
-public class RAR_1_0ConfigurationFactory extends AbstractRARConfigurationFactory {
-
+public class RARConfigurationFactory implements DeploymentConfigurationFactory {
+    private final ObjectName connectionTrackerNamePattern;
     public static final GBeanInfo GBEAN_INFO;
+    private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
 
-    public RAR_1_0ConfigurationFactory(ObjectName connectionTrackerNamePattern) {
-        super(connectionTrackerNamePattern);
+    public RARConfigurationFactory(ObjectName connectionTrackerNamePattern) {
+        this.connectionTrackerNamePattern = connectionTrackerNamePattern;
+    }
+
+    public ObjectName getConnectionTrackerNamePattern() {
+        return connectionTrackerNamePattern;
+    }
+
+    public DeploymentConfiguration createConfiguration(DeployableObject deployable) throws InvalidModuleException {
+        if (!ModuleType.RAR.equals(deployable.getType())) {
+            throw new InvalidModuleException("DeployableObject must be a RAR");
+        }
+        return new RARConfiguration(deployable);
     }
 
     public DeploymentModule createModule(InputStream moduleArchive, XmlObject geronimoDD, URI configID, boolean isLocal) throws DeploymentException {
         GerConnectorDocument geronimoConnectorDocument = (GerConnectorDocument) geronimoDD;
+        GerVersionType.Enum version = geronimoConnectorDocument.getConnector().getVersion();
+        if (version.equals(GerVersionType.X_1_0)) {
         return new Connector_1_0Module(configID, moduleArchive, geronimoConnectorDocument, getConnectionTrackerNamePattern());
+        } else if (version.equals(GerVersionType.X_1_5)) {
+            return new Connector_1_5Module(configID, moduleArchive, geronimoConnectorDocument, getConnectionTrackerNamePattern());
+        } else {
+            throw new DeploymentException("Invalid plan version: " + version);
+        }
+    }
+
+    public SchemaTypeLoader getSchemaTypeLoader() {
+        return SCHEMA_TYPE_LOADER;
     }
 
     //these might be temporary
@@ -95,11 +127,17 @@ public class RAR_1_0ConfigurationFactory extends AbstractRARConfigurationFactory
     }
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(RAR_1_0ConfigurationFactory.class.getName(), AbstractRARConfigurationFactory.GBEAN_INFO);
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory("Geronimo RAR Configuration Factory", RARConfigurationFactory.class.getName());
+        infoFactory.addInterface(DeploymentConfigurationFactory.class);
+        infoFactory.addAttribute(new GAttributeInfo("ConnectionTrackerNamePattern", true));
+        infoFactory.setConstructor(new GConstructorInfo(
+                new String[]{"ConnectionTrackerNamePattern"},
+                new Class[]{ObjectName.class}));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
     public static GBeanInfo getGBeanInfo() {
-        return RAR_1_0ConfigurationFactory.GBEAN_INFO;
+        return RARConfigurationFactory.GBEAN_INFO;
     }
+
 }
