@@ -69,7 +69,7 @@ import org.apache.geronimo.common.NullArgumentException;
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 import org.apache.geronimo.common.propertyeditor.TextPropertyEditorSupport;
 
-import org.apache.geronimo.common.log.log4j.XLevel;
+import org.apache.geronimo.kernel.log.XLevel;
 import org.apache.geronimo.common.log.log4j.URLConfigurator;
 
 import org.apache.geronimo.core.logging.AbstractLoggingService;
@@ -80,7 +80,7 @@ import org.apache.geronimo.core.logging.AbstractLoggingService;
  * @jmx:mbean
  *      extends="org.apache.geronimo.core.logging.LoggingServiceMBean"
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/01 19:40:43 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/08 04:24:49 $
  */
 public class Log4jService
     extends AbstractLoggingService

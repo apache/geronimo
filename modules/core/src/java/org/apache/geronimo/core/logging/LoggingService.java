@@ -64,9 +64,9 @@ import java.net.URL;
  * <p>Currently assumes URL based configuration.
  *
  * @jmx:mbean
- *      extends="org.apache.geronimo.management.StateManageable, org.apache.geronimo.management.ManagedObject"
+ *      extends="org.apache.geronimo.kernel.management.StateManageable, org.apache.geronimo.kernel.management.ManagedObject"
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/01 19:31:33 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/08 04:24:49 $
  */
 public interface LoggingService
     extends LoggingServiceMBean

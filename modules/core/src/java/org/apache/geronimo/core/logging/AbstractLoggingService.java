@@ -63,14 +63,14 @@ import java.util.Timer;
 import org.apache.geronimo.common.NullArgumentException;
 import org.apache.geronimo.common.task.URLMonitorTask;
 
-import org.apache.geronimo.management.AbstractManagedObject;
+import org.apache.geronimo.kernel.service.AbstractManagedObject;
 
 /**
  * An abstract logging service.
  *
  * <p>Sub-classes only need to provide a {@link #configure(URL)}.
  *
- * @version $Revision: 1.2 $ $Date: 2003/09/01 19:34:14 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/08 04:24:49 $
  */
 public abstract class AbstractLoggingService
     extends AbstractManagedObject

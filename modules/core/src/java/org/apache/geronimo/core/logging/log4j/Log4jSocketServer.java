@@ -67,7 +67,7 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.spi.LoggerRepository;
 import org.apache.log4j.net.SocketNode;
 
-import org.apache.geronimo.management.AbstractManagedObject;
+import org.apache.geronimo.kernel.service.AbstractManagedObject;
 
 /**
  * A Log4j SocketServer service.  Listens for client connections on the
@@ -80,9 +80,9 @@ import org.apache.geronimo.management.AbstractManagedObject;
  * will simply return the current repository.
  *
  * @jmx:mbean
- *      extends="org.apache.geronimo.management.StateManageable,org.apache.geronimo.management.ManagedObject"
+ *      extends="org.apache.geronimo.kernel.management.StateManageable,org.apache.geronimo.kernel.management.ManagedObject"
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/01 20:53:33 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/08 04:24:49 $
  */
 public class Log4jSocketServer
     extends AbstractManagedObject
