@@ -59,6 +59,7 @@ import org.apache.geronimo.security.GeronimoSecurityPermission;
 import org.apache.geronimo.security.RealmPrincipal;
 
 import javax.security.jacc.EJBRoleRefPermission;
+import javax.security.jacc.WebRoleRefPermission;
 import javax.security.auth.Subject;
 import java.util.Stack;
 import java.util.Hashtable;
@@ -71,7 +72,7 @@ import java.security.Principal;
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/12 04:29:04 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/23 17:43:01 $
  */
 
 public class ContextManager {
@@ -145,6 +146,15 @@ public class ContextManager {
     public static boolean isCallerInRole(String EJBName, String role) {
         try {
             contexts.peek().context.checkPermission(new EJBRoleRefPermission(EJBName, role));
+        } catch (AccessControlException e) {
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean isUserInRole(String resourceName, String role) {
+        try {
+            contexts.peek().context.checkPermission(new WebRoleRefPermission(resourceName, role));
         } catch (AccessControlException e) {
             return false;
         }
