@@ -65,7 +65,7 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
 
-import org.apache.geronimo.Main;
+import org.apache.geronimo.kernel.Main;
 
 import org.apache.geronimo.common.NullArgumentException;
 import org.apache.geronimo.common.net.URLFactory;
@@ -80,7 +80,7 @@ import org.apache.geronimo.twiddle.util.HelpFormatter;
 /**
  * A <em>Twiddle</em> command to start a Apache Geronimo server instance.
  *
- * @version $Revision: 1.7 $ $Date: 2003/09/03 13:50:29 $
+ * @version $Revision: 1.8 $ $Date: 2003/09/08 04:23:04 $
  */
 public class StartCommand
     extends AbstractCommand
