@@ -62,29 +62,67 @@ package javax.enterprise.deploy.shared.factories;
 import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.factories.DeploymentFactory;
+import java.util.Iterator;
+import java.util.ArrayList;
 
 public class DeploymentFactoryManager {
-    /**@todo imlement */
+    private static DeploymentFactoryManager instance;
+
+    private ArrayList deploymentFactories = new ArrayList();
+
     public static DeploymentFactoryManager getInstance() {
-        return null;
+        if (instance == null) {
+            instance = new DeploymentFactoryManager();
+        }
+        return instance;
     }
 
-    /**@todo imlement */
-    public DeploymentFactory[] getDeploymentFactories() {
-        return null;
-    }
-
-    /**@todo imlement */
-    public DeploymentManager getDeploymentManager(String uri, String username, String password) throws DeploymentManagerCreationException {
-        return null;
-    }
-
-    /**@todo imlement */
     public void registerDeploymentFactory(DeploymentFactory factory) {
+          // apparently we dont care about null values, the Sun RI even adds the null
+          // to the list. So after registerDeploymentFactory(null) getDeploymentFactories()
+          // return an array with length 1.
+          deploymentFactories.add(factory);
+      }
+
+    public DeploymentFactory[] getDeploymentFactories() {
+        return (DeploymentFactory[]) deploymentFactories.toArray(new DeploymentFactory[]{});
     }
 
-    /**@todo imlement */
+    public DeploymentManager getDeploymentManager(String uri, String username, String password) throws DeploymentManagerCreationException {
+        // RI doesn't care about uri being null, neither do we
+
+        for (Iterator i = deploymentFactories.iterator(); i.hasNext();) {
+            DeploymentFactory factory = (DeploymentFactory) i.next();
+            if (factory != null) {
+                if (factory.handlesURI(uri)) {
+                    try {
+                        return factory.getDeploymentManager(uri, username, password);
+                    } catch (DeploymentManagerCreationException e) {
+                        // Just like the RI we throw a new exception with a generic message
+                        throw new DeploymentManagerCreationException("Could not get DeploymentManager");
+                    }
+                }
+            }
+        }
+        throw new DeploymentManagerCreationException("Could not get DeploymentManager");
+    }
+
     public DeploymentManager getDisconnectedDeploymentManager(String uri) throws DeploymentManagerCreationException {
-        return null;
+        // RI doesn't care about uri being null, neither do we
+
+        for (Iterator i = deploymentFactories.iterator(); i.hasNext();) {
+            DeploymentFactory factory = (DeploymentFactory) i.next();
+            if (factory != null) {
+                if (factory.handlesURI(uri)) {
+                    try {
+                        return factory.getDisconnectedDeploymentManager(uri);
+                    } catch (DeploymentManagerCreationException e) {
+                        // Just like the RI we throw a new exception with a generic message
+                        throw new DeploymentManagerCreationException("Could not get DeploymentManager");
+                    }
+                }
+            }
+        }
+        throw new DeploymentManagerCreationException("Could not get DeploymentManager");
     }
 }
