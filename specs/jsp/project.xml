@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Revision: 1.1 $ $Date: 2003/09/05 23:04:42 $ -->
+
+<project>
+  <pomVersion>3</pomVersion>
+  <extend>${basedir}/../../etc/project.xml</extend>
+  
+  <name>Geronimo :: Java Server Pages Specification</name>
+  <groupId>geronimo-spec</groupId>
+  <id>geronimo-spec-jsp</id>
+  <shortDescription>
+  </shortDescription>
+  <description>
+  </description>
+  <siteDirectory></siteDirectory>
+  <distributionDirectory></distributionDirectory>
+  
+  <package>javax.servlet.jsp</package>
+  <currentVersion>DEV</currentVersion>
+  
+  <!-- ============ -->
+  <!-- Dependencies -->
+  <!-- ============ -->
+  
+  <dependencies>
+    
+    <!-- Module Dependencies -->
+    
+    <dependency>
+      <groupId>geronimo-spec</groupId>
+      <artifactId>geronimo-spec-servlet</artifactId>
+      <version>DEV</version>
+      <properties>
+        <module>true</module>
+      </properties>
+    </dependency>
+    
+  </dependencies>
+  
+</project>
