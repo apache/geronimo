@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.11 $ $Date: 2003/08/19 07:33:53 $ -->
+<!-- $Revision: 1.12 $ $Date: 2003/11/23 02:21:05 $ -->
 
 <project name="Apache Geronimo">
 
   <title>Apache Geronimo</title>
-  <organizationLogo href="/images/group-logo.gif">Apache</organizationLogo>
+  <organizationLogo href="/images/apache-incubator.png">Apache</organizationLogo>
 
   <body>
     <search/>
