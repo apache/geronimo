@@ -24,38 +24,38 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-common</artifactId>
-            <version>DEV</version>
+            <version>${pom.currentVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
-            <version>DEV</version>
+            <version>${pom.currentVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-deployment</artifactId>
-            <version>DEV</version>
+            <version>${pom.currentVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
-            <version>DEV</version>
+            <version>${pom.currentVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-deployment</artifactId>
-            <version>DEV</version>
+            <version>${pom.currentVersion}</version>
         </dependency>
 
         <!-- TODO remove this stupid dependency -->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-core</artifactId>
-            <version>DEV</version>
+            <version>${pom.currentVersion}</version>
         </dependency>
 
         <dependency>

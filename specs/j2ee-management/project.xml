@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.6 $ $Date: 2004/02/18 22:09:58 $ -->
+<!-- $Revision: 1.7 $ $Date: 2004/02/19 09:00:30 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -15,8 +15,6 @@
     <distributionDirectory></distributionDirectory>
 
     <package>javax.management</package>
-    <currentVersion>DEV</currentVersion>
-
 
     <!-- ============ -->
     <!-- Dependencies -->
@@ -29,7 +27,7 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-ejb</artifactId>
-            <version>DEV</version>
+            <version>${pom.currentVersion}</version>
         </dependency>
 
         <!-- Thirdparty -->

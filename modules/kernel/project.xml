@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.18 $ $Date: 2004/02/18 22:09:57 $ -->
+<!-- $Revision: 1.19 $ $Date: 2004/02/19 09:00:28 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -11,7 +11,6 @@
     <!-- ===================== -->
 
     <name>Geronimo :: Kernel</name>
-    <groupId>geronimo</groupId>
     <id>geronimo-kernel</id>
     <shortDescription>Geronimo Kernel</shortDescription>
     <description>Geronimo Kernel</description>
@@ -20,7 +19,6 @@
     <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds/kernel</distributionDirectory>
 
     <package>org.apache.geronimo.kernel</package>
-    <currentVersion>DEV</currentVersion>
 
     <!-- ============ -->
     <!-- Dependencies -->
@@ -31,13 +29,13 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-management</artifactId>
-            <version>DEV</version>
+            <version>${pom.currentVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-deployment</artifactId>
-            <version>DEV</version>
+            <version>${pom.currentVersion}</version>
         </dependency>
 
         <!-- Thirdparty -->

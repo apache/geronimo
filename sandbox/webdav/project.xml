@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.5 $ $Date: 2004/02/18 22:09:58 $ -->
+<!-- $Revision: 1.6 $ $Date: 2004/02/19 09:00:29 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -20,7 +20,6 @@
     <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds/webdav</distributionDirectory>
 
     <package>org.apache.geronimo.webdav</package>
-    <currentVersion>DEV</currentVersion>
 
     <!-- ============ -->
     <!-- Dependencies -->
@@ -31,7 +30,7 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
-            <version>DEV</version>
+            <version>${pom.currentVersion}</version>
         </dependency>
 
         <dependency>

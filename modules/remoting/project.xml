@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.7 $ $Date: 2004/02/18 22:09:57 $ -->
+<!-- $Revision: 1.8 $ $Date: 2004/02/19 09:00:28 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -19,8 +19,6 @@
     <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds/remoting</distributionDirectory>
 
     <package>org.apache.geronimo.remoting</package>
-    <currentVersion>DEV</currentVersion>
-
 
     <!-- ============ -->
     <!-- Dependencies -->
@@ -31,19 +29,19 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-common</artifactId>
-            <version>DEV</version>
+            <version>${pom.currentVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-core</artifactId>
-            <version>DEV</version>
+            <version>${pom.currentVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
-            <version>DEV</version>
+            <version>${pom.currentVersion}</version>
         </dependency>
 
         <!-- Thirdparty Dependencies -->

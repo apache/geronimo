@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.5 $ $Date: 2004/02/18 22:09:57 $ -->
+<!-- $Revision: 1.6 $ $Date: 2004/02/19 09:00:28 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -19,8 +19,6 @@
     <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds/naming</distributionDirectory>
 
     <package>org.apache.geronimo.naming</package>
-    <currentVersion>DEV</currentVersion>
-
 
     <!-- ============ -->
     <!-- Dependencies -->
@@ -39,31 +37,31 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-core</artifactId>
-            <version>DEV</version>
+            <version>${pom.currentVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
-            <version>DEV</version>
+            <version>${pom.currentVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-deployment</artifactId>
-            <version>DEV</version>
+            <version>${pom.currentVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-deployment</artifactId>
-            <version>DEV</version>
+            <version>${pom.currentVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2eeschema</artifactId>
-            <version>DEV</version>
+            <version>${pom.currentVersion}</version>
             <properties>
                 <xmlbeans>true</xmlbeans>
             </properties>
@@ -72,7 +70,7 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jta</artifactId>
-            <version>DEV</version>
+            <version>${pom.currentVersion}</version>
         </dependency>
     </dependencies>
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: project.xml,v 1.4 2004/02/18 22:09:58 dain Exp $ -->
+<!-- $Id: project.xml,v 1.5 2004/02/19 09:00:30 dain Exp $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -17,7 +17,6 @@
     <distributionDirectory></distributionDirectory>
 
     <package>javax.security.jacc</package>
-    <currentVersion>DEV</currentVersion>
 
     <!-- ============ -->
     <!-- Dependencies -->
@@ -28,7 +27,7 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-servlet</artifactId>
-            <version>DEV</version>
+            <version>${pom.currentVersion}</version>
         </dependency>
 
     </dependencies>

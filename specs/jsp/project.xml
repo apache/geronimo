@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.4 $ $Date: 2004/02/18 22:09:58 $ -->
+<!-- $Revision: 1.5 $ $Date: 2004/02/19 09:00:30 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -9,15 +9,12 @@
     <name>Geronimo :: JavaServer Pages Specification</name>
     <groupId>geronimo-spec</groupId>
     <id>geronimo-spec-jsp</id>
-    <shortDescription>
-    </shortDescription>
-    <description>
-    </description>
+    <shortDescription></shortDescription>
+    <description></description>
     <siteDirectory></siteDirectory>
     <distributionDirectory></distributionDirectory>
 
     <package>javax.servlet.jsp</package>
-    <currentVersion>DEV</currentVersion>
 
     <!-- ============ -->
     <!-- Dependencies -->
@@ -25,12 +22,10 @@
 
     <dependencies>
 
-        <!-- Module Dependencies -->
-
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-servlet</artifactId>
-            <version>DEV</version>
+            <version>${pom.currentVersion}</version>
         </dependency>
 
     </dependencies>

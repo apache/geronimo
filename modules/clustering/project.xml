@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.5 $ $Date: 2004/02/18 22:09:56 $ -->
+<!-- $Revision: 1.6 $ $Date: 2004/02/19 09:00:27 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -18,8 +18,6 @@
     <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds/clustering</distributionDirectory>
 
     <package>org.apache.geronimo.clustering</package>
-    <currentVersion>DEV</currentVersion>
-
 
     <!-- ============ -->
     <!-- Dependencies -->

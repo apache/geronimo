@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.2 $ $Date: 2004/02/18 22:09:57 $ -->
+<!-- $Revision: 1.3 $ $Date: 2004/02/19 09:00:29 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -25,7 +25,6 @@
     <distributionDirectory></distributionDirectory>
 
     <package>org.apache.geronimo.mail</package>
-    <currentVersion>DEV</currentVersion>
 
     <!-- ============ -->
     <!-- Dependencies -->
@@ -38,13 +37,13 @@
         <dependency>
             <groupId>geronimo-sandbox</groupId>
             <artifactId>geronimo-sandbox-activation</artifactId>
-            <version>DEV</version>
+            <version>${pom.currentVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-sandbox</groupId>
             <artifactId>geronimo-sandbox-javamail</artifactId>
-            <version>DEV</version>
+            <version>${pom.currentVersion}</version>
         </dependency>
 
     </dependencies>

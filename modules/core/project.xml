@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.47 $ $Date: 2004/02/18 22:09:57 $ -->
+<!-- $Revision: 1.48 $ $Date: 2004/02/19 09:00:27 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -12,13 +12,11 @@
 
     <name>Geronimo :: Core</name>
     <id>geronimo-core</id>
-    <shortDescription>Geronimo Core J2EE Container</shortDescription>
+    <shortDescription>Geronimo Core J2EE Container </shortDescription>
     <description>Geronimo Core J2EE Container</description>
     <url>http://incubator.apache.org/projects/geronimo/core/</url>
     <siteDirectory>/www/incubator.apache.org/projects/geronimo/core</siteDirectory>
     <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds/core</distributionDirectory>
-
-    <currentVersion>DEV</currentVersion>
 
     <!-- ============ -->
     <!-- Dependencies -->
@@ -46,25 +44,25 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-common</artifactId>
-            <version>DEV</version>
+            <version>${pom.currentVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
-            <version>DEV</version>
+            <version>${pom.currentVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-deployment</artifactId>
-            <version>DEV</version>
+            <version>${pom.currentVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2eeschema</artifactId>
-            <version>DEV</version>
+            <version>${pom.currentVersion}</version>
             <properties>
                 <xmlbeans>true</xmlbeans>
             </properties>
@@ -73,31 +71,31 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jta</artifactId>
-            <version>DEV</version>
+            <version>${pom.currentVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-ejb</artifactId>
-            <version>DEV</version>
+            <version>${pom.currentVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-management</artifactId>
-            <version>DEV</version>
+            <version>${pom.currentVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-deployment</artifactId>
-            <version>DEV</version>
+            <version>${pom.currentVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-servlet</artifactId>
-            <version>DEV</version>
+            <version>${pom.currentVersion}</version>
         </dependency>
 
         <!-- Thirdparty -->

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.11 $ $Date: 2004/02/17 07:26:47 $ -->
+<!-- $Revision: 1.12 $ $Date: 2004/02/19 09:00:27 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -18,7 +18,7 @@
     <siteDirectory>/www/incubator.apache.org/projects/geronimo/deployment</siteDirectory>
     <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds/deployment</distributionDirectory>
 
-    <currentVersion>DEV</currentVersion>
+    <package>org.apache.geronimo.deployment</package>
 
     <!-- ============ -->
     <!-- Dependencies -->
@@ -28,7 +28,7 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-xmlbeans-plugin</artifactId>
-            <version>DEV</version>
+            <version>${pom.currentVersion}</version>
             <type>plugin</type>
         </dependency>
 
@@ -42,25 +42,25 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
-            <version>DEV</version>
+            <version>${pom.currentVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-common</artifactId>
-            <version>DEV</version>
+            <version>${pom.currentVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
-            <version>DEV</version>
+            <version>${pom.currentVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-deployment</artifactId>
-            <version>DEV</version>
+            <version>${pom.currentVersion}</version>
         </dependency>
 
         <dependency>

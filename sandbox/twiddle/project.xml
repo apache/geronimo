@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.4 $ $Date: 2004/02/18 22:09:57 $ -->
+<!-- $Revision: 1.5 $ $Date: 2004/02/19 09:00:29 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -19,8 +19,6 @@
     <distributionDirectory></distributionDirectory>
 
     <package>org.apache.geronimo.twiddle</package>
-    <currentVersion>DEV</currentVersion>
-
 
     <!-- ============ -->
     <!-- Dependencies -->
@@ -33,7 +31,7 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-common</artifactId>
-            <version>DEV</version>
+            <version>${pom.currentVersion}</version>
         </dependency>
 
         <!-- Thirdparty Dependencies -->

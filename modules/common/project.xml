@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.20 $ $Date: 2004/02/18 22:09:56 $ -->
+<!-- $Revision: 1.21 $ $Date: 2004/02/19 09:00:27 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -18,8 +18,8 @@
     <url>http://incubator.apache.org/projects/geronimo/common/</url>
     <siteDirectory>/www/incubator.apache.org/projects/geronimo/common</siteDirectory>
     <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds/common</distributionDirectory>
+
     <package>org.apache.geronimo.common</package>
-    <currentVersion>DEV</currentVersion>
 
     <!-- ============ -->
     <!-- Dependencies -->

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.6 $ $Date: 2004/02/18 22:09:57 $ -->
+<!-- $Revision: 1.7 $ $Date: 2004/02/19 09:00:28 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -18,7 +18,7 @@
     <siteDirectory>/www/incubator.apache.org/projects/geronimo/transaction</siteDirectory>
     <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds/transaction</distributionDirectory>
 
-    <currentVersion>DEV</currentVersion>
+    <package>org.apache.geronimo.transaction</package>
 
     <!-- ============ -->
     <!-- Dependencies -->
@@ -29,25 +29,25 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
-            <version>DEV</version>
+            <version>${pom.currentVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jta</artifactId>
-            <version>DEV</version>
+            <version>${pom.currentVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-ejb</artifactId>
-            <version>DEV</version>
+            <version>${pom.currentVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-connector</artifactId>
-            <version>DEV</version>
+            <version>${pom.currentVersion}</version>
         </dependency>
 
         <!-- Thirdparty -->
