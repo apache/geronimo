@@ -31,6 +31,8 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * @version $Rev$ $Date$
@@ -59,7 +61,7 @@ public class MailcapCommandMap extends CommandMap {
         // process /META-INF/mailcap resources
         try {
             cl = MailcapCommandMap.class.getClassLoader();
-            Enumeration e = cl.getResources("/META-INF/mailcap");
+            Enumeration e = cl.getResources("META-INF/mailcap");
             while (e.hasMoreElements()) {
                 url = ((URL) e.nextElement());
                 try {
@@ -271,11 +273,15 @@ public class MailcapCommandMap extends CommandMap {
     }
 
     public synchronized CommandInfo getCommand(String mimeType, String cmdName) {
-        Map commands = (Map) preferredCommands.get(mimeType.toLowerCase());
-        if (commands == null) {
-            return null;
-        }
-        return (CommandInfo) commands.get(cmdName.toLowerCase());
+        HashMap commands = (HashMap) preferredCommands.get(mimeType.toLowerCase());
+        if(commands != null)
+            return (CommandInfo) commands.get(cmdName.toLowerCase());
+        int i = mimeType.indexOf('/');
+        String mimeType2 = mimeType.substring(0, i + 1) + "*";
+        HashMap commands2 = (HashMap) preferredCommands.get(mimeType2.toLowerCase());
+        if(commands2 != null)
+            return (CommandInfo) commands2.get(cmdName.toLowerCase());
+        return null;
     }
 
     public synchronized DataContentHandler createDataContentHandler(String mimeType) {
