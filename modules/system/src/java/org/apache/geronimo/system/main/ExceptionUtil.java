@@ -39,22 +39,39 @@ public class ExceptionUtil {
         StackTraceElement[] trace = t.getStackTrace();
         ArrayList list = new ArrayList();
 
-        TRIM: for (int i = 0; i < trace.length; i++) {
-            String className = trace[i].getClassName();
-            for (int j = 0; j < excludedPackages.length; j++) {
-                if (className.startsWith(excludedPackages[j])) {
-                    continue TRIM;
-                }
+        boolean skip = true;
+
+        int i = 0;
+
+        // If the start of the stack trace is something
+        // on the exclude list, don't exclude it.
+        for (; i < trace.length && skip; i++) {
+            skip = skip && isExcluded(trace[i].getClassName());
+        }
+        list.add(trace[i-1]);
+
+
+        for (; i < trace.length; i++) {
+            if ( !isExcluded(trace[i].getClassName()) ){
+                list.add(trace[i]);
             }
-            for (int j = 0; j < excludedStrings.length; j++) {
-                if (className.indexOf(excludedStrings[j]) != -1) {
-                    continue TRIM;
-                }
-            }
-            list.add(trace[i]);
         }
 
         t.setStackTrace((StackTraceElement[]) list.toArray(new StackTraceElement[0]));
         trimStackTrace(t.getCause());
+    }
+
+    private static boolean isExcluded(String className) {
+        for (int j = 0; j < excludedPackages.length; j++) {
+            if (className.startsWith(excludedPackages[j])) {
+                return true;
+            }
+        }
+        for (int j = 0; j < excludedStrings.length; j++) {
+            if (className.indexOf(excludedStrings[j]) != -1) {
+                return true;
+            }
+        }
+        return false;
     }
 }
