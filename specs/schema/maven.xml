@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.1 $ $Date: 2004/02/05 20:51:55 $ -->
+<!-- $Revision: 1.2 $ $Date: 2004/02/06 04:46:22 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -10,7 +10,7 @@
 
     <preGoal name="java:compile">
         <xmlbeans:schema2java
-            sourceschema="${basedir}/src/j2ee_1_3schema/connector_1_0.xsd,${basedir}/src/j2ee_1_4schema/j2ee_web_services_client_1_1.xsd,${basedir}/src/j2ee_1_4schema/j2ee_1_4.xsd,${basedir}/src/j2ee_1_4schema/connector_1_5.xsd"
+            sourceschema="${basedir}/src/j2ee_1_3schema/connector_1_0.xsd,${basedir}/src/j2ee_1_4schema/j2ee_1_4.xsd,${basedir}/src/j2ee_1_4schema/connector_1_5.xsd"
             xmlconfigs="${basedir}/src/conf/xmlconfig.xml"
             targetdir="${basedir}/target/xmlbeans"/>
     </preGoal>
