@@ -7,6 +7,8 @@ remaining open issues.
 
 
 ** Bug Fixes
+    * [GERONIMO-260] - NullPointerException deploying EAR files
+    * [GERONIMO-261] - NullPointerException deploying EAR jetty module
     * [GERONIMO-294] - NPE on some Windows installations stops server from booting
     * [GERONIMO-321] - Don't process JSP EL for v2.3 web apps
     * [GERONIMO-349] - Don't assume ResourceAdapter.getXAResources != null
