@@ -69,7 +69,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * The DConfigBean corresponding to the EJB JAR XPath /ejb-jar/enterprise-beans
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/22 19:03:37 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/27 10:33:34 $
  */
 public class EnterpriseBeansBean extends BaseDConfigBean {
     private static final Log log = LogFactory.getLog(EnterpriseBeansBean.class);

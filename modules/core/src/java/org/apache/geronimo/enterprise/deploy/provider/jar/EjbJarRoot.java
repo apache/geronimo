@@ -66,7 +66,7 @@ import javax.enterprise.deploy.model.DDBeanRoot;
 /**
  * The DConfigBeanRoot for the top level of the EJB JAR DD ("/").
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/22 19:03:37 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/27 10:33:34 $
  */
 public class EjbJarRoot extends BaseDConfigBean implements DConfigBeanRoot {
     final static String EJB_JAR_XPATH = "ejb-jar";

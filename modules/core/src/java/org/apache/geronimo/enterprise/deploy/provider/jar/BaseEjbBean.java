@@ -71,7 +71,7 @@ import org.apache.commons.logging.LogFactory;
  * A common base class for the DConfigBeans representing different
  * types of EJBs.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/22 19:03:37 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/27 10:33:34 $
  */
 public class BaseEjbBean extends BaseDConfigBean {
     private static final Log log = LogFactory.getLog(EnterpriseBeansBean.class);

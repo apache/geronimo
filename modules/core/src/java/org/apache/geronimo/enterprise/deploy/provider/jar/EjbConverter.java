@@ -83,7 +83,7 @@ import org.apache.geronimo.enterprise.deploy.common.JndiContextParams;
 /**
  * Maps DConfigBeans to POJOs and vice versa.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/22 19:03:37 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/27 10:33:34 $
  */
 public class EjbConverter {
     private static final Log log = LogFactory.getLog(EjbConverter.class);

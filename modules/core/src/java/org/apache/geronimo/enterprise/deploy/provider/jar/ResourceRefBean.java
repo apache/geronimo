@@ -65,7 +65,7 @@ import javax.enterprise.deploy.spi.exceptions.BeanNotFoundException;
 /**
  * The DConfigBean representing /ejb-jar/enterprise-beans/.../resource-ref
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/22 19:03:37 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/27 10:33:34 $
  */
 public class ResourceRefBean extends BaseDConfigBean {
     final static String RES_REF_NAME_XPATH = "res-ref-name";

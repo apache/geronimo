@@ -60,7 +60,7 @@ package org.apache.geronimo.enterprise.deploy.provider.jar;
  * /ejb-jar/enterprise-beans/.../ejb-ref/context-params/context-param
  * in the Geronimo DD.
  *
- * @version $Revision: 1.1 $ $Date: 2003/08/22 19:03:37 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/27 10:33:34 $
  */
 public class ContextParam {
     private String paramName = "";
