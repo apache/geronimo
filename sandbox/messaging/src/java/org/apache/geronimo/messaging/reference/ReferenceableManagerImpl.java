@@ -18,6 +18,7 @@
 package org.apache.geronimo.messaging.reference;
 
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 
 import org.apache.geronimo.messaging.AbstractEndPoint;
@@ -31,7 +32,7 @@ import org.apache.geronimo.messaging.interceptors.MsgOutInterceptor;
 /**
  * ReferenceableManager implementation.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:42 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/24 13:02:55 $
  */
 public class ReferenceableManagerImpl
     extends AbstractEndPoint
@@ -41,13 +42,20 @@ public class ReferenceableManagerImpl
     /**
      * Used to generate reference identifiers.
      */
-    private static int seqID = 0;
+    private int seqID = 0;
 
+    private final Object mapsLock = new Object();
+    
     /**
      * identifier to Referenceable map.
      */
-    private final Map registered;
-
+    private final Map idToReferenceable;
+    
+    /**
+     * Referenceable to ReferenceableInfo map.
+     */
+    private final IdentityHashMap referenceableToID;
+    
     /**
      * Creates a manager mounted by the specified node and having the specified
      * identifier.
@@ -58,7 +66,9 @@ public class ReferenceableManagerImpl
     public ReferenceableManagerImpl(Node aNode, Object anID) {
         super(aNode, anID);
         
-        registered = new HashMap();
+        idToReferenceable = new HashMap();
+        referenceableToID = new IdentityHashMap();
+        
         // Adds the ReferenceReplacerResolver to the current chain.
         node.getReplacerResolver().append(new ReferenceReplacerResolver(this));
     }
@@ -70,8 +80,8 @@ public class ReferenceableManagerImpl
             // The referenceble is contained by this EndPoint. Returns it.
             Integer refID = new Integer(aReferenceInfo.getRefID());
             Object opaque;
-            synchronized(registered) {
-                opaque = registered.get(refID);
+            synchronized(idToReferenceable) {
+                opaque = idToReferenceable.get(refID);
             }
             if ( null == opaque ) {
                 throw new IllegalArgumentException("Referenceable {" +
@@ -86,26 +96,32 @@ public class ReferenceableManagerImpl
     }
 
     public ReferenceableInfo register(Referenceable aReference) {
-        Integer refID;
-        synchronized(registered) {
-            refID = new Integer(++seqID);
-            registered.put(refID, aReference);
+        ReferenceableInfo info;
+        synchronized(mapsLock) {
+            // Checks if the Referenceable has already been registered.
+            info = (ReferenceableInfo) referenceableToID.get(aReference);
+            if ( null == info ) {
+                Integer refID = new Integer(++seqID);
+                info = new ReferenceableInfo(node.getNodeInfo(), id,
+                    aReference.getClass().getInterfaces(), refID.intValue());
+                idToReferenceable.put(refID, aReference);
+                referenceableToID.put(aReference, info);
+            }
         }
-        return new ReferenceableInfo(node.getNodeInfo(), id,
-            aReference.getClass().getInterfaces(),
-            refID.intValue());
+        return info;
     }
 
     public void unregister(ReferenceableInfo aReferenceInfo) {
-        synchronized(registered) {
-            registered.remove(new Integer(aReferenceInfo.getRefID()));
+        synchronized(mapsLock) {
+            idToReferenceable.remove(new Integer(aReferenceInfo.getRefID()));
+            referenceableToID.remove(aReferenceInfo);
         }
     }
     
     public Object invoke(int anId, Request aRequest) throws Exception {
         Referenceable reference;
-        synchronized(registered) {
-            reference = (Referenceable) registered.get(new Integer(anId));
+        synchronized(mapsLock) {
+            reference = (Referenceable) idToReferenceable.get(new Integer(anId));
         }
         if ( null == reference ) {
             throw new IllegalArgumentException("Unknown Reference.");

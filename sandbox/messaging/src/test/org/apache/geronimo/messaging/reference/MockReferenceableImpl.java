@@ -31,4 +31,15 @@ public class MockReferenceableImpl implements MockReferenceable, Referenceable
         return param;
     }
     
+    public int hashCode() {
+        return 1;
+    }
+    
+    public boolean equals(Object obj) {
+        if ( false == obj instanceof MockReferenceableImpl ) {
+            return false;
+        }
+        return true;
+    }
+    
 }

@@ -23,7 +23,7 @@ import org.apache.geronimo.messaging.Request;
 /**
  * Referenceable manager.
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/11 12:06:42 $
+ * @version $Revision: 1.2 $ $Date: 2004/05/24 13:02:55 $
  */
 public interface ReferenceableManager extends EndPoint
 {
@@ -42,6 +42,13 @@ public interface ReferenceableManager extends EndPoint
     
     /**
      * Registers a Referenceable.
+     * <BR>
+     * If the same Referenceable is registered twice, then the returned
+     * ReferenceableInfos have the same identifier.
+     * <BR>
+     * If a Referenceable is equal to another Referenceable via the equals
+     * contract, then the ReferenceableInfos have distinct Referenceable
+     * identifiers. 
      * 
      * @param aReference Referenceable to be registered.
      * @return Referenceable meta-data.

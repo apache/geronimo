@@ -27,7 +27,7 @@ import org.apache.geronimo.messaging.NodeInfo;
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2004/05/24 12:03:34 $
+ * @version $Revision: 1.3 $ $Date: 2004/05/24 13:02:55 $
  */
 public class ReferenceManagerImplTest extends TestCase
 {
@@ -67,4 +67,23 @@ public class ReferenceManagerImplTest extends TestCase
         Object opaque = manager.factoryProxy(info);
         assertTrue(reference == opaque);
     }
+    
+    public void testRegister() throws Exception {
+        InetAddress address = InetAddress.getLocalHost();
+        NodeInfo nodeInfo = new NodeInfo("Node", address, 8081);
+        MockNode node = new MockNode();
+        node.setNodeInfo(nodeInfo);
+        
+        ReferenceableManager manager = new ReferenceableManagerImpl(node, "A");
+        MockReferenceableImpl reference1 = new MockReferenceableImpl();
+
+        ReferenceableInfo info1 = manager.register(reference1);
+        ReferenceableInfo info2 = manager.register(reference1);
+        assertTrue(info1.getRefID() == info2.getRefID());
+        
+        MockReferenceableImpl reference2 = new MockReferenceableImpl();
+        ReferenceableInfo info3 = manager.register(reference2);
+        assertTrue(info1.getRefID() != info3.getRefID());
+    }
+    
 }
