@@ -77,6 +77,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
     private ConnectorMethodInterceptor interceptor;
     private final Kernel kernel;
     private final String objectName;
+    private final boolean isProxyable;
 
     //default constructor for enhancement proxy endpoint
     public ManagedConnectionFactoryWrapper() {
@@ -89,6 +90,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         kernel = null;
         objectName = null;
         allImplementedInterfaces = null;
+        isProxyable = false;
     }
 
     public ManagedConnectionFactoryWrapper(Class managedConnectionFactoryClass,
@@ -113,6 +115,15 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         allImplementedInterfaces = new Class[1 + implementedInterfaces.length];
         allImplementedInterfaces[0]= connectionFactoryInterface;
         System.arraycopy(implementedInterfaces, 0, allImplementedInterfaces, 1, implementedInterfaces.length);
+        boolean mightBeProxyable = true;
+        for (int i = 0; i < implementedInterfaces.length; i++) {
+            Class implementedInterface = implementedInterfaces[i];
+            if (!implementedInterface.isInterface()) {
+                mightBeProxyable = false;
+                break;
+            }
+        }
+        isProxyable = mightBeProxyable;
 
         this.globalJNDIName = globalJNDIName;
         this.resourceAdapterWrapper = resourceAdapterWrapper;
@@ -191,16 +202,23 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         connectionFactory = connectionManagerFactory.createConnectionFactory(managedConnectionFactory);
         //build proxy
         if (proxy == null) {
-            Enhancer enhancer = new Enhancer();
-            enhancer.setInterfaces(allImplementedInterfaces);
-            enhancer.setCallbackType(net.sf.cglib.proxy.MethodInterceptor.class);
-            enhancer.setUseFactory(false);//????
-            interceptor = new ConnectorMethodInterceptor(kernel.getKernelName(), ObjectName.getInstance(objectName));
-            enhancer.setCallbacks(new Callback[]{interceptor});
-            proxy = enhancer.create(new Class[0], new Object[0]);
+
+            if (isProxyable) {
+                Enhancer enhancer = new Enhancer();
+                enhancer.setInterfaces(allImplementedInterfaces);
+                enhancer.setCallbackType(net.sf.cglib.proxy.MethodInterceptor.class);
+                enhancer.setUseFactory(false);//????
+                interceptor = new ConnectorMethodInterceptor(kernel.getKernelName(), ObjectName.getInstance(objectName));
+                enhancer.setCallbacks(new Callback[]{interceptor});
+                proxy = enhancer.create(new Class[0], new Object[0]);
+            } else {
+                proxy = connectionFactory;
+            }
         }
         //connect proxy
-        interceptor.setInternalProxy(connectionFactory);
+        if (isProxyable) {
+            interceptor.setInternalProxy(connectionFactory);
+        }
         //If a globalJNDIName is supplied, bind it.
         if (globalJNDIName != null) {
             GeronimoContextManager.bind(globalJNDIName, proxy);
@@ -210,7 +228,9 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
     }
 
     public void doStop() throws WaitingException {
-        interceptor.setInternalProxy(null);
+        if (isProxyable) {
+            interceptor.setInternalProxy(null);
+        }
         //tear down login if present
         if (managedConnectionFactoryListener != null) {
             managedConnectionFactoryListener.setManagedConnectionFactory(null);
