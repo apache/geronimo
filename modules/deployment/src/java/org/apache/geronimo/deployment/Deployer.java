@@ -162,7 +162,7 @@ public class Deployer {
                 }
             }
             if (builder == null) {
-                throw new DeploymentException("No deployer found:" +
+                throw new DeploymentException("Syntax error in deployment plan or no deployer service available (currently I can't tell the difference):" +
                         (planFile == null ? "" : " planFile=" + planFile.getAbsolutePath()) +
                         (moduleFile == null ? "" : ", moduleFile" + moduleFile.getAbsolutePath()));
             }
