@@ -18,22 +18,24 @@
 package javax.mail;
 
 /**
+ * A data holder used by Authenticator to contain a username and password.
+ *
  * @version $Rev$ $Date$
  */
 public final class PasswordAuthentication {
-    private String _user;
-    private String _password;
+    private final String user;
+    private final String password;
 
     public PasswordAuthentication(String user, String password) {
-        _user = user;
-        _password = password;
+        this.user = user;
+        this.password = password;
     }
 
     public String getUserName() {
-        return _user;
+        return user;
     }
 
     public String getPassword() {
-        return _password;
+        return password;
     }
 }

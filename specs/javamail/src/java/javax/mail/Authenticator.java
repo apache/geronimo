@@ -23,13 +23,23 @@ import java.net.InetAddress;
  * @version $Rev$ $Date$
  */
 public abstract class Authenticator {
-    private InetAddress _host;
-    private int _port;
-    private String _prompt;
-    private String _protocol;
+    private InetAddress host;
+    private int port;
+    private String prompt;
+    private String protocol;
+    private String username;
+
+    synchronized PasswordAuthentication authenticate(InetAddress host, int port, String protocol, String prompt, String username) {
+        this.host = host;
+        this.port = port;
+        this.protocol = protocol;
+        this.prompt = prompt;
+        this.username = username;
+        return getPasswordAuthentication();
+    }
 
     protected final String getDefaultUserName() {
-        return System.getProperty("mail.user");
+        return username;
     }
 
     protected PasswordAuthentication getPasswordAuthentication() {
@@ -37,18 +47,18 @@ public abstract class Authenticator {
     }
 
     protected final int getRequestingPort() {
-        return _port;
+        return port;
     }
 
     protected final String getRequestingPrompt() {
-        return _prompt;
+        return prompt;
     }
 
     protected final String getRequestingProtocol() {
-        return _protocol;
+        return protocol;
     }
 
     protected final InetAddress getRequestingSite() {
-        return _host;
+        return host;
     }
 }

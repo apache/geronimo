@@ -21,72 +21,66 @@ package javax.mail;
  * @version $Rev$ $Date$
  */
 public class Provider {
-    Provider(String protocol,
-             String className,
-             Type type,
-             String vendor,
-             String version) {
-        _protocol = protocol;
-        _className = className;
-        _type = type;
-        _vendor = vendor;
-        _version = version;
-    }
-
+    /**
+     * A enumeration inner class that defines Provider types.
+     */
     public static class Type {
-        private String _name;
-        public static final Type STORE = new Type("store");
-        public static final Type TRANSPORT = new Type("transport");
+        /**
+         * A message store provider such as POP3 or IMAP4.
+         */
+        public static final Type STORE = new Type();
 
-        private Type(String name) {
-            _name = name;
-        }
+        /**
+         * A message transport provider such as SMTP.
+         */
+        public static final Type TRANSPORT = new Type();
 
-        static Type getType(String name) {
-            if (name.equals("store")) {
-                return STORE;
-            } else if (name.equals("transport")) {
-                return TRANSPORT;
-            } else {
-                return null;
-            }
+        private Type() {
         }
     }
 
-    private String _className;
-    private String _protocol;
-    private Type _type;
-    private String _vendor;
-    private String _version;
+    private final String className;
+    private final String protocol;
+    private final Type type;
+    private final String vendor;
+    private final String version;
+
+    Provider(String protocol, String className, Type type, String vendor, String version) {
+        this.protocol = protocol;
+        this.className = className;
+        this.type = type;
+        this.vendor = vendor;
+        this.version = version;
+    }
 
     public String getClassName() {
-        return _className;
+        return className;
     }
 
     public String getProtocol() {
-        return _protocol;
+        return protocol;
     }
 
     public Type getType() {
-        return _type;
+        return type;
     }
 
     public String getVendor() {
-        return _vendor;
+        return vendor;
     }
 
     public String getVersion() {
-        return _version;
+        return version;
     }
 
     public String toString() {
         return "protocol="
-                + _protocol
+                + protocol
                 + "; type="
-                + _type
+                + type
                 + "; class="
-                + _className
-                + (_vendor == null ? "" : "; vendor=" + _vendor)
-                + (_version == null ? "" : ";version=" + _version);
+                + className
+                + (vendor == null ? "" : "; vendor=" + vendor)
+                + (version == null ? "" : ";version=" + version);
     }
 }

@@ -41,8 +41,8 @@ public class MailGBeanTest extends TestCase {
 
     public void testProperties() throws Exception {
         Properties properties = new Properties();
-        properties.put("mail.store.protocol", "test");
-        properties.put("mail.transport.protocol", "test");
+        properties.put("mail.store.protocol", "testStore");
+        properties.put("mail.transport.protocol", "testTransport");
 
         GBeanMBean cmf = new GBeanMBean(MailGBean.getGBeanInfo());
         cmf.setAttribute("useDefault", new Boolean(true));
@@ -200,8 +200,8 @@ public class MailGBeanTest extends TestCase {
         cmf.setReferencePattern("Protocols", new ObjectName("geronimo.server:J2EEServer=geronimo,J2EEApplication=null,type=JavaMailProtocol,*"));
         cmf.setAttribute("useDefault", new Boolean(true));
         cmf.setAttribute("properties", properties);
-        cmf.setAttribute("storeProtocol", "test");
-        cmf.setAttribute("transportProtocol", "test");
+        cmf.setAttribute("storeProtocol", "testStore");
+        cmf.setAttribute("transportProtocol", "testTransport");
 
         mailName = ObjectName.getInstance("geronimo.server:J2EEServer=geronimo,J2EEApplication=null,J2EEType=JavaMailResource,name=default");
 

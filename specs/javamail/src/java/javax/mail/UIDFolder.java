@@ -21,6 +21,10 @@ package javax.mail;
  * @version $Rev$ $Date$
  */
 public interface UIDFolder {
+    /**
+     * A special value than can be passed as the <code>end</code> parameter to
+     * {@link Folder#getMessages(int, int)} to indicate the last message in this folder.
+     */
     public static final long LASTUID = -1;
 
     public abstract long getUIDValidity() throws MessagingException;

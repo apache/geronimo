@@ -18,15 +18,12 @@
 package javax.mail;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import javax.mail.Flags.Flag;
 import javax.mail.event.ConnectionEvent;
 import javax.mail.event.ConnectionListener;
 import javax.mail.event.FolderEvent;
 import javax.mail.event.FolderListener;
-import javax.mail.event.MailEvent;
 import javax.mail.event.MessageChangedEvent;
 import javax.mail.event.MessageChangedListener;
 import javax.mail.event.MessageCountEvent;
@@ -84,6 +81,7 @@ public abstract class Folder {
     private final List folderListeners = new ArrayList(2);
     private final List messageChangedListeners = new ArrayList(2);
     private final List messageCountListeners = new ArrayList(2);
+    private final EventQueue queue = new EventQueue();
 
     /**
      * Constructor that initializes the Store.
@@ -644,7 +642,7 @@ public abstract class Folder {
     }
 
     protected void notifyConnectionListeners(int type) {
-        notifyListeners(connectionListeners, new ConnectionEvent(this, type));
+        queue.queueEvent(new ConnectionEvent(this, type), connectionListeners);
     }
 
     public void addFolderListener(FolderListener listener) {
@@ -656,11 +654,11 @@ public abstract class Folder {
     }
 
     protected void notifyFolderListeners(int type) {
-        notifyListeners(folderListeners, new FolderEvent(this, this, type));
+        queue.queueEvent(new FolderEvent(this, this, type), folderListeners);
     }
 
     protected void notifyFolderRenamedListeners(Folder newFolder) {
-        notifyListeners(folderListeners, new FolderEvent(this, this, newFolder, FolderEvent.RENAMED));
+        queue.queueEvent(new FolderEvent(this, this, newFolder, FolderEvent.RENAMED), folderListeners);
     }
 
     public void addMessageCountListener(MessageCountListener listener) {
@@ -672,13 +670,11 @@ public abstract class Folder {
     }
 
     protected void notifyMessageAddedListeners(Message[] messages) {
-        MailEvent event = new MessageCountEvent(this, MessageCountEvent.ADDED, false, messages);
-        notifyListeners(messageChangedListeners, event);
+        queue.queueEvent(new MessageCountEvent(this, MessageCountEvent.ADDED, false, messages), messageChangedListeners);
     }
 
     protected void notifyMessageRemovedListeners(boolean removed, Message[] messages) {
-        MessageCountEvent event = new MessageCountEvent(this, MessageCountEvent.REMOVED, removed, messages);
-        notifyListeners(messageChangedListeners, event);
+        queue.queueEvent(new MessageCountEvent(this, MessageCountEvent.REMOVED, removed, messages), messageChangedListeners);
     }
 
     public void addMessageChangedListener(MessageChangedListener listener) {
@@ -690,21 +686,14 @@ public abstract class Folder {
     }
 
     protected void notifyMessageChangedListeners(int type, Message message) {
-        MessageChangedEvent event = new MessageChangedEvent(this, type, message);
-        notifyListeners(messageChangedListeners, event);
-    }
-
-    private void notifyListeners(Collection listeners, MailEvent event) {
-        // todo do we need to dispatch these events using a different thread?
-        for (Iterator iterator = listeners.iterator(); iterator.hasNext();) {
-            event.dispatch(iterator.next());
-        }
+        queue.queueEvent(new MessageChangedEvent(this, type, message), messageChangedListeners);
     }
 
     /**
      * Unregisters all listeners.
      */
     protected void finalize() throws Throwable {
+        queue.stop();
         connectionListeners.clear();
         folderListeners.clear();
         messageChangedListeners.clear();

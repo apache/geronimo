@@ -24,6 +24,9 @@ import java.util.Enumeration;
 import javax.activation.DataHandler;
 
 /**
+ * Note: Parts are used in Collections so implementing classes must provide
+ * a suitable implementation of equals and hashCode.
+ * 
  * @version $Rev$ $Date$
  */
 public interface Part {

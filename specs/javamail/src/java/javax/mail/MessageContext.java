@@ -18,37 +18,46 @@
 package javax.mail;
 
 /**
+ * The context in which a piece of message content is contained.
+ *
  * @version $Rev$ $Date$
  */
 public class MessageContext {
-    private Part _part;
+    private final Part part;
 
+    /**
+     * Create a MessageContext object describing the context of the supplied Part.
+     *
+     * @param part the containing part
+     */
     public MessageContext(Part part) {
-        _part = part;
+        this.part = part;
     }
 
-    public Message getMessage() {
-        return getMessageFrom(getPart());
-    }
-
-    private Message getMessageFrom(Part part) {
-        if (part instanceof Message) {
-            return (Message) part;
-        } else if (part instanceof BodyPart) {
-            Part parent = ((Multipart) part).getParent();
-            return getMessageFrom(parent);
-        } else if (part instanceof Multipart) {
-            Part parent = ((Multipart) part).getParent();
-            return getMessageFrom(parent);
-        } else {
-            return null;
-        }
-    }
-
+    /**
+     * Return the {@link Part} that contains the content.
+     *
+     * @return the part
+     */
     public Part getPart() {
-        return _part;
+        return part;
     }
 
+    /**
+     * Return the message that contains the content; if the Part is a {@link Multipart}
+     * then recurse up the chain until a {@link Message} is found.
+     *
+     * @return
+     */
+    public Message getMessage() {
+        return getMessageFrom(part);
+    }
+
+    /**
+     * Return the session associated with the Message containing this Part.
+     *
+     * @return the session associated with this context's root message
+     */
     public Session getSession() {
         Message message = getMessage();
         if (message == null) {
@@ -56,5 +65,20 @@ public class MessageContext {
         } else {
             return message.session;
         }
+    }
+
+    // recurse up the chain of MultiPart/BodyPart paris until we hit a message
+    private Message getMessageFrom(Part p) {
+        while (p != null) {
+            if (p instanceof Message) {
+                return (Message) p;
+            }
+            Multipart mp = ((BodyPart) p).getParent();
+            if (mp == null) {
+                return null;
+            }
+            p = mp.getParent();
+        }
+        return null;
     }
 }
