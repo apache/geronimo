@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema xmlns="http://www.w3.org/2001/XMLSchema"
-    xmlns:ger="http://org.apache.geronimo/xml/ns/j2ee"
-    targetNamespace="http://org.apache.geronimo/xml/ns/j2ee"
+    xmlns:ger="http://geronimo.apache.org/xml/ns/j2ee"
+    targetNamespace="http://geronimo.apache.org/xml/ns/j2ee"
     xmlns:j2ee="http://java.sun.com/xml/ns/j2ee"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     elementFormDefault="qualified"
@@ -13,7 +13,7 @@
         <xsd:documentation>
             <![CDATA[
             documents using this schema should start like:
-<connector xmlns="http://org.apache.geronimo/xml/ns/j2ee"
+<connector xmlns="http://geronimo.apache.org/xml/ns/j2ee"
     version="1.5">
 
           @(#)geronimo-connector_1_5.xsds

@@ -9,7 +9,7 @@
         <xb:package>org.apache.geronimo.xbeans.j2ee.connector_1_0</xb:package>
     </xb:namespace-->
 
-    <xb:namespace uri="http://org.apache.geronimo/xml/ns/j2ee">
+    <xb:namespace uri="http://geronimo.apache.org/xml/ns/j2ee">
         <xb:package>org.apache.geronimo.xbeans.geronimo</xb:package>
         <xb:prefix>Ger</xb:prefix>
     </xb:namespace>

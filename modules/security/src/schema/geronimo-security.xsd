@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema
-    targetNamespace="http://org.apache.geronimo/xml/ns/security"
-    xmlns:ger="http://org.apache.geronimo/xml/ns/security"
+    targetNamespace="http://geronimo.apache.org/xml/ns/security"
+    xmlns:ger="http://geronimo.apache.org/xml/ns/security"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     xmlns:j2ee="http://java.sun.com/xml/ns/j2ee"
     elementFormDefault="qualified"

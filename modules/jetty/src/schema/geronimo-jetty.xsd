@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema xmlns="http://www.w3.org/2001/XMLSchema"
-    xmlns:ger="http://org.apache.geronimo/xml/ns/web/jetty"
-    targetNamespace="http://org.apache.geronimo/xml/ns/web/jetty"
+    xmlns:ger="http://geronimo.apache.org/xml/ns/web/jetty"
+    targetNamespace="http://geronimo.apache.org/xml/ns/web/jetty"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     elementFormDefault="qualified"
     attributeFormDefault="unqualified"
