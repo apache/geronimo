@@ -86,7 +86,7 @@ import org.apache.geronimo.jmx.JMXUtil;
 /**
  * Creates an new MBean instance and intializes it according to the specified MBeanMetadata metadata
  *
- * @version $Revision: 1.6 $ $Date: 2003/08/16 23:16:24 $
+ * @version $Revision: 1.7 $ $Date: 2003/08/18 22:03:38 $
  */
 public class CreateMBeanInstance implements DeploymentTask {
     private final Log log = LogFactory.getLog(this.getClass());
@@ -113,6 +113,7 @@ public class CreateMBeanInstance implements DeploymentTask {
         }
 
         Set relationships = metadata.getRelationships();
+        List relationTypeNames = relationService.getAllRelationTypeNames();
         for (Iterator i = relationships.iterator(); i.hasNext();) {
             MBeanRelationship relationship = (MBeanRelationship) i.next();
 
@@ -121,7 +122,7 @@ public class CreateMBeanInstance implements DeploymentTask {
             if (!relationService.hasRelation(relationshipName).booleanValue()) {
                 // check if the relationship type has been registered
                 String relationshipType = relationship.getType();
-                if (!relationService.getAllRelationTypeNames().contains(relationshipType)) {
+                if (!relationTypeNames.contains(relationshipType)) {
                     log.trace("Cannot run because relationship type is not registered: relationType=" + relationshipType);
                     canRun = false;
                 }
@@ -182,6 +183,7 @@ public class CreateMBeanInstance implements DeploymentTask {
                     dependencies.add(new ObjectName(dependency.getName()));
                 }
                 dependencyService.addStartDependencies(actualName, dependencies);
+                dependencyService.addStartDependency(actualName, metadata.getParentName());
                 dependencyService.addRelationships(actualName, metadata.getRelationships());
             } catch (MalformedObjectNameException e) {
                 throw new DeploymentException(e);
