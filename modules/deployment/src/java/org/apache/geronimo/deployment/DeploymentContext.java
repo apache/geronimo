@@ -84,7 +84,7 @@ import org.apache.geronimo.kernel.repository.Repository;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/20 16:18:14 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/20 16:56:08 $
  */
 public class DeploymentContext {
     private final URI configID;
@@ -174,6 +174,10 @@ public class DeploymentContext {
             URI target = path.resolve(src.getName());
             addFile(target, archive);
         }
+    }
+
+    public void addToClassPath(URI path) {
+        classPath.add(path);
     }
 
     public ClassLoader getClassLoader(Repository repository) throws DeploymentException {
