@@ -19,8 +19,8 @@ package org.apache.geronimo.client;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import org.apache.geronimo.naming.java.ReadOnlyContext;
-import org.apache.geronimo.naming.java.RootContext;
+import javax.management.ObjectName;
+
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 
@@ -31,12 +31,14 @@ public final class AppClientContainer {
     private static final Class[] MAIN_ARGS = {String[].class};
 
     private final String mainClassName;
-    private final ReadOnlyContext compContext;
+    private final AppClientJNDIProvider jndiProvider;
+    private final ObjectName appClientModuleName;
     private final Method mainMethod;
 
-    public AppClientContainer(String mainClassName, ReadOnlyContext compContext, ClassLoader classLoader) throws Exception {
+    public AppClientContainer(String mainClassName,  ObjectName appClientModuleName, AppClientJNDIProvider jndiProvider,ClassLoader classLoader) throws Exception {
         this.mainClassName = mainClassName;
-        this.compContext = compContext;
+        this.jndiProvider = jndiProvider;
+        this.appClientModuleName = appClientModuleName;
 
         try {
             Class mainClass = classLoader.loadClass(mainClassName);
@@ -48,32 +50,37 @@ public final class AppClientContainer {
         }
     }
 
+    public ObjectName getAppClientModuleName() {
+        return appClientModuleName;
+    }
+
     public String getMainClassName() {
         return mainClassName;
     }
 
-    public ReadOnlyContext getComponentContext() {
-        return compContext;
-    }
-
     public void main(String[] args) throws Exception {
-        ReadOnlyContext oldContext = RootContext.getComponentContext();
+        Throwable throwable = null;
         try {
-            RootContext.setComponentContext(compContext);
+            jndiProvider.startClient(null);
 
-            try {
-                mainMethod.invoke(null, args);
-            } catch (InvocationTargetException e) {
-                Throwable cause = e.getCause();
-                if (cause instanceof Exception) {
-                    throw (Exception) cause;
-                } else if (cause instanceof Error) {
-                    throw (Error) cause;
-                }
-                throw e;
+            mainMethod.invoke(null, args);
+
+        } catch (InvocationTargetException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof Exception) {
+                throwable = cause;
+            } else if (cause instanceof Error) {
+                throwable =  cause;
             }
+            throwable = e;
         } finally {
-            RootContext.setComponentContext(oldContext);
+            jndiProvider.stopClient(null);
+
+            if (throwable instanceof Exception) {
+                throw (Exception) throwable;
+            } else {
+                throw (Error) throwable;
+            }
         }
     }
 
@@ -84,10 +91,11 @@ public final class AppClientContainer {
 
         infoFactory.addOperation("main", new Class[]{String[].class});
         infoFactory.addAttribute("mainClassName", String.class, true);
-        infoFactory.addAttribute("componentContext", ReadOnlyContext.class, true);
+        infoFactory.addAttribute("appClientModuleObjectName", ObjectName.class, true);
+        infoFactory.addReference("JNDIProvider", AppClientJNDIProvider.class);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
 
-        infoFactory.setConstructor(new String[]{"mainClassname", "componentContext", "classLoader"});
+        infoFactory.setConstructor(new String[]{"mainClassName", "appClientModuleName", "JNDIProvider", "classLoader"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
