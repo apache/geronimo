@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.20 $ $Date: 2003/09/03 13:53:04 $ -->
+<!-- $Revision: 1.21 $ $Date: 2003/09/05 02:48:19 $ -->
 
 <project>
   <pomVersion>3</pomVersion>
@@ -35,26 +35,6 @@
         <runtime>false</runtime>
       </properties>
     </dependency>
-    
-    <!-- Already a dependent
-    <dependency>
-      <id>commons-logging</id>
-      <version>1.1-dev</version>
-      <properties>
-        <runtime>false</runtime>
-      </properties>
-    </dependency>
-    -->
-    
-    <!-- Already a dependent
-    <dependency>
-      <id>log4j</id>
-      <version>1.2.8</version>
-      <properties>
-        <runtime>false</runtime>
-      </properties>
-    </dependency>
-    -->
     
     <dependency>
       <id>xdoclet</id>
@@ -165,6 +145,24 @@
     <!-- Thirdparty -->
 
     <dependency>
+      <id>cglib</id>
+      <version>1.0</version>
+      <url>http://cglib.sf.net/</url>
+      <properties>
+        <runtime>true</runtime>
+      </properties>
+    </dependency>
+ 
+    <dependency>
+      <id>commons-digester</id>
+      <version>1.5</version>
+      <url>http://jakarta.apache.org/commons/digester/</url>
+      <properties>
+        <runtime>true</runtime>
+      </properties>
+    </dependency>
+    
+     <dependency>
       <id>commons-logging</id>
       <version>1.0.3</version>
       <url>http://jakarta.apache.org/commons/logging/</url>
