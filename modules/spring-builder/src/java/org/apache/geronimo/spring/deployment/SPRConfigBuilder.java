@@ -108,6 +108,33 @@ public class SPRConfigBuilder
     return xbdr;
   }
 
+  // TODO - it would be nice if this printed out original names of
+  // jars, rather than name of file that has been copied out...
+  protected void
+    addJarToClassPath(DeploymentContext ctx, JarFile jar)
+    throws Exception
+  {
+    String name=jar.getName();
+    log.info("Adding Jar to application ClassLoader: "+name);
+    ctx.addIncludeAsPackedJar(new URI(name+".tmp"), jar); // without the .tmp this crashes horribly
+
+    // if NestedJarFile was transparent we could remove this test and
+    // recurse to the bottom of the innermost jar - but instead we end
+    // up hanging waiting for the first entry of the first nested jar
+    // - So we are stuck with just supporting one level of nesting for
+    // the moment - shame :-(
+    if (!(jar instanceof NestedJarFile))
+    {
+      for (Enumeration e=jar.entries(); e.hasMoreElements();)
+      {
+	ZipEntry entry = (ZipEntry) e.nextElement();
+	String ename=entry.getName();
+	if (ename.endsWith(".jar"))
+	  addJarToClassPath(ctx, new NestedJarFile(jar, ename));
+      }
+    }
+  }
+
   public List
     buildConfiguration(Object plan, JarFile sprFile, File outfile)
     throws IOException, DeploymentException
@@ -131,20 +158,13 @@ public class SPRConfigBuilder
 				    kernel);
 
       // set up classpath
-      log.info("Adding jar to classpath: "+sprFile.getName());
-      ctx.addIncludeAsPackedJar(new URI(sprFile.getName()+"-root.jar"), sprFile);
+      addJarToClassPath(ctx, sprFile);
 
       for (Enumeration e=sprFile.entries(); e.hasMoreElements();)
       {
 	ZipEntry entry = (ZipEntry) e.nextElement();
 	String name=entry.getName();
 	ctx.addFile(URI.create(name), sprFile, entry);
-
-	if (name.endsWith(".jar"))
-	{
-	  log.info("Adding jar to classpath: "+sprFile.getName()+"/"+name);
-	  ctx.addIncludeAsPackedJar(new URI(sprFile.getName()+"-nested-"+name), new NestedJarFile(sprFile, name));
-	}
       }
 
       // now we can get ClassLoader...
