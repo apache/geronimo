@@ -23,20 +23,10 @@ import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.jar.JarFile;
-import javax.wsdl.Definition;
-import javax.wsdl.Types;
-import javax.wsdl.WSDLException;
-import javax.wsdl.Service;
-import javax.wsdl.Port;
-import javax.wsdl.Import;
+import java.lang.reflect.Method;
+import javax.wsdl.*;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.UnknownExtensibilityElement;
 import javax.wsdl.extensions.soap.SOAPAddress;
@@ -139,6 +129,15 @@ public class WSDescriptorParser {
 
     }
 
+    /**
+     * Parses a webservice.xml file and returns a map PortInfo instances indexed by the
+     * corresponding ejb-link or servlet-link element .
+     * @param webservicesType
+     * @param moduleFile
+     * @param isEJB
+     * @return
+     * @throws DeploymentException
+     */
     public static Map parseWebServiceDescriptor(WebservicesType webservicesType, JarFile moduleFile, boolean isEJB) throws DeploymentException {
         Map portMap = new HashMap();
         WebserviceDescriptionType[] webserviceDescriptions = webservicesType.getWebserviceDescriptionArray();
@@ -157,7 +156,16 @@ public class WSDescriptorParser {
                 throw new DeploymentException("Could not construct jaxrpc mapping uri from " + webserviceDescription.getJaxrpcMappingFile(), e);
             }
             Definition definition = readWsdl(moduleFile, wsdlURI);
+            Map wsdlPortMap = WSDescriptorParser.getPortMap(definition);
+
             JavaWsdlMappingType javaWsdlMapping = readJaxrpcMapping(moduleFile, jaxrpcMappingURI);
+            HashMap seiMappings = new HashMap();
+            org.apache.geronimo.xbeans.j2ee.ServiceEndpointInterfaceMappingType[] mappings = javaWsdlMapping.getServiceEndpointInterfaceMappingArray();
+            for (int j = 0; j < mappings.length; j++) {
+                ServiceEndpointInterfaceMappingType seiMapping = mappings[j];
+                seiMappings.put(seiMapping.getServiceEndpointInterface().getStringValue(), seiMapping);
+            }
+
             PortComponentType[] portComponents = webserviceDescription.getPortComponentArray();
             for (int j = 0; j < portComponents.length; j++) {
                 PortComponentType portComponent = portComponents[j];
@@ -175,7 +183,16 @@ public class WSDescriptorParser {
                     linkName = serviceImplBeanType.getEjbLink().getStringValue().trim();
                 }
                 PortComponentHandlerType[] handlers = portComponent.getHandlerArray();
-                PortInfo portInfo = new PortInfo(portComponentName, portQName, definition, javaWsdlMapping, seiInterfaceName, handlers);
+
+                Port port = (Port) wsdlPortMap.get(portQName.getLocalPart());
+                if (port == null) {
+                    throw new DeploymentException("No WSDL Port definition for port-component " + portComponentName);
+                }
+
+                ServiceEndpointInterfaceMappingType seiMapping = (ServiceEndpointInterfaceMappingType)seiMappings.get(seiInterfaceName);
+
+                PortInfo portInfo = new PortInfo(portComponentName, portQName, definition, javaWsdlMapping, seiInterfaceName, handlers, port, seiMapping);
+
                 if (portMap.put(linkName, portInfo) != null) {
                     throw new DeploymentException("Ambiguous description of port associated with j2ee component " + linkName);
                 }
@@ -184,11 +201,37 @@ public class WSDescriptorParser {
         return portMap;
     }
 
+
+    /**
+     * Gets a map of all the javax.wsdl.Port instance in the WSDL definition keyed by the port's QName
+     *
+     * WSDL 1.1 spec: 2.6 "The name attribute provides a unique name among all ports defined within in the enclosing WSDL document."
+     *
+     * @param definition
+     * @return
+     * @throws DeploymentException
+     */
+
+    public static Map getPortMap(Definition definition) throws DeploymentException {
+        HashMap ports = new HashMap();
+        Collection services = definition.getServices().values();
+        for (Iterator iterator = services.iterator(); iterator.hasNext();) {
+            Service service = (Service) iterator.next();
+            ports.putAll(service.getPorts());
+        }
+        return ports;
+    }
+
     public static JavaWsdlMappingType readJaxrpcMapping(JarFile moduleFile, URI jaxrpcMappingURI) throws DeploymentException {
+        String jaxrpcMappingPath = jaxrpcMappingURI.toString();
+        return readJaxrpcMapping(moduleFile, jaxrpcMappingPath);
+    }
+
+    public static JavaWsdlMappingType readJaxrpcMapping(JarFile moduleFile, String jaxrpcMappingPath) throws DeploymentException {
         JavaWsdlMappingType mapping;
         InputStream jaxrpcInputStream = null;
         try {
-            jaxrpcInputStream = moduleFile.getInputStream(moduleFile.getEntry(jaxrpcMappingURI.toString()));
+            jaxrpcInputStream = moduleFile.getInputStream(moduleFile.getEntry(jaxrpcMappingPath));
         } catch (IOException e) {
             throw new DeploymentException("Could not open stream to jaxrpc mapping document", e);
         }
@@ -563,6 +606,23 @@ public class WSDescriptorParser {
         throw new DeploymentException("Could not find service endpoint interface for port named " + portTypeQName);
     }
 
+    public static javax.wsdl.Service getService(QName serviceQName, Definition definition) throws DeploymentException {
+        javax.wsdl.Service service;
+        if (serviceQName != null) {
+            service = definition.getService(serviceQName);
+        } else {
+            Map services = definition.getServices();
+            if (services.size() != 1) {
+                throw new DeploymentException("no serviceQName supplied, and there are " + services.size() + " services");
+            }
+            service = (javax.wsdl.Service) services.values().iterator().next();
+        }
+        if (service == null) {
+            throw new DeploymentException("No service wsdl for supplied service qname " + serviceQName);
+        }
+        return service;
+    }
+
     public static ExtensibilityElement getExtensibilityElement(Class clazz, List extensibilityElements) throws DeploymentException {
         for (Iterator iterator = extensibilityElements.iterator(); iterator.hasNext();) {
             ExtensibilityElement extensibilityElement = (ExtensibilityElement) iterator.next();
@@ -585,6 +645,25 @@ public class WSDescriptorParser {
             SOAPAddress soapAddress = (SOAPAddress) WSDescriptorParser.getExtensibilityElement(SOAPAddress.class, port.getExtensibilityElements());
             soapAddress.setLocationURI(location);
         }
+    }
+
+    public static Method getMethodForOperation(Class serviceEndpointInterface, Operation operation) throws DeploymentException {
+        Method[] methods = serviceEndpointInterface.getMethods();
+        String opName = operation.getName();
+        Method found = null;
+        for (int i = 0; i < methods.length; i++) {
+            Method method = methods[i];
+            if (method.getName().equals(opName)) {
+                if (found != null) {
+                    throw new DeploymentException("Overloaded methods NYI");
+                }
+                found = method;
+            }
+        }
+        if (found == null) {
+            throw new DeploymentException("No method found for operation named " + opName);
+        }
+        return found;
     }
 
     static class JarWSDLLocator implements WSDLLocator {

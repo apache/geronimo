@@ -18,9 +18,11 @@ package org.apache.geronimo.axis.builder;
 
 import javax.xml.namespace.QName;
 import javax.wsdl.Definition;
+import javax.wsdl.Port;
 
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingType;
 import org.apache.geronimo.xbeans.j2ee.PortComponentHandlerType;
+import org.apache.geronimo.xbeans.j2ee.ServiceEndpointInterfaceMappingType;
 
 /**
  * @version $Rev:  $ $Date:  $
@@ -30,24 +32,32 @@ public class PortInfo {
     private final QName portQName;
     private final Definition definition;
     private final JavaWsdlMappingType javaWsdlMapping;
-    private final String seiInterfaceName;
+    private final ServiceEndpointInterfaceMappingType seiMapping;
+    private final String seInterfaceName;
     private final PortComponentHandlerType[] handlers;
+    private final Port port;
 
-    public PortInfo(String portName, QName portQName, Definition definition, JavaWsdlMappingType javaWsdlMapping, String seiInterfaceName, PortComponentHandlerType[] handlers) {
+    public PortInfo(String portName, QName portQName, Definition definition, JavaWsdlMappingType javaWsdlMapping, String seiInterfaceName, PortComponentHandlerType[] handlers, Port port, ServiceEndpointInterfaceMappingType seiMapping) {
         this.portName = portName;
         this.portQName = portQName;
         this.definition = definition;
         this.javaWsdlMapping = javaWsdlMapping;
-        this.seiInterfaceName = seiInterfaceName;
+        this.seInterfaceName = seiInterfaceName;
         this.handlers = handlers;
+        this.port = port;
+        this.seiMapping = seiMapping;
     }
 
-    public String getPortName() {
+    public String getPortComponentName() {
         return portName;
     }
 
     public QName getPortQName() {
         return portQName;
+    }
+
+    public Port getPort() {
+        return port;
     }
 
     public Definition getDefinition() {
@@ -58,8 +68,13 @@ public class PortInfo {
         return javaWsdlMapping;
     }
 
-    public String getSeiInterfaceName() {
-        return seiInterfaceName;
+    public String getServiceEndpointInterfaceName() {
+        return seInterfaceName;
+    }
+
+
+    public ServiceEndpointInterfaceMappingType getServiceEndpointInterfaceMapping() {
+        return seiMapping;
     }
 
     public PortComponentHandlerType[] getHandlers() {
