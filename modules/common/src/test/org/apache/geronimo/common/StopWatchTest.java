@@ -60,7 +60,7 @@ import junit.framework.TestCase;
 
 /**
  *
- * @version $Revision: 1.2 $ $Date: 2003/12/08 01:00:36 $
+ * @version $Revision: 1.3 $ $Date: 2003/12/11 22:11:47 $
  */
 public class StopWatchTest extends TestCase {
 
@@ -115,6 +115,7 @@ public class StopWatchTest extends TestCase {
         assertEquals(sw.getLapTime(), sw.getAverageLapTime());
     }
 
+    /*  BAD TEST:  sleep is not an accurate measure of time
     public void testTwoStops() {
         StopWatch sw = new StopWatch();
 
@@ -134,6 +135,7 @@ public class StopWatchTest extends TestCase {
         assertTrue(sw.getTime() >= 1000L);
         assertEquals(sw.getLapTime(), sw.getAverageLapTime());
     }
+    */
 
     public void testTwoLaps() {
         StopWatch sw = new StopWatch();
