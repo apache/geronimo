@@ -84,7 +84,7 @@ by the server.
     </gbean>
 
     <gbean name="geronimo.security:type=ConfigurationEntry,jaasId=JMX" class="org.apache.geronimo.security.jaas.ConfigurationEntryRealmLocal">
-        <attribute name="JAASId" type="java.lang.String">JMX</attribute>
+        <attribute name="ApplicationConfigName" type="java.lang.String">JMX</attribute>
         <attribute name="RealmName" type="java.lang.String">geronimo-properties-realm</attribute>
         <attribute name="ControlFlag" type="org.apache.geronimo.security.jaas.LoginModuleControlFlag">REQUIRED</attribute>
     </gbean>

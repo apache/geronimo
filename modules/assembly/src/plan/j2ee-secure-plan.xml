@@ -37,7 +37,7 @@ by the server.
 
     <!-- JAAS Application Config Entry -->
     <gbean name="geronimo.security:type=ConfigurationEntry,jaasId=jaasTest" class="org.apache.geronimo.security.jaas.ConfigurationEntryRealmLocal">
-        <attribute name="JAASId" type="java.lang.String">jaasTest</attribute>
+        <attribute name="ApplicationConfigName" type="java.lang.String">jaasTest</attribute>
         <attribute name="RealmName" type="java.lang.String">demo-properties-realm</attribute>
         <attribute name="ControlFlag" type="org.apache.geronimo.security.jaas.LoginModuleControlFlag">REQUIRED</attribute>
         <attribute name="Options" type="java.util.Properties">foo=bar</attribute>

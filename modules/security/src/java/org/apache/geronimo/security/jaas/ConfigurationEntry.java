@@ -41,7 +41,7 @@ import org.apache.geronimo.gbean.jmx.GBeanMBeanContext;
  * <p>More specifically, you can only use this method or Sun's JAAS config
  * file.
  *
- * @version $Revision: 1.5 $ $Date: 2004/05/30 19:43:01 $
+ * @version $Revision: 1.6 $ $Date: 2004/05/31 00:05:24 $
  * @see org.apache.geronimo.security.jaas.GeronimoLoginConfiguration
  * @see javax.security.auth.login.Configuration
  */
@@ -50,7 +50,7 @@ public abstract class ConfigurationEntry implements GBean {
     private static final GBeanInfo GBEAN_INFO;
 
     protected GBeanMBeanContext context;
-    protected String JAASId;
+    protected String applicationConfigName;
     protected LoginModuleControlFlag controlFlag;
     protected Properties options = new Properties();
 
@@ -59,17 +59,17 @@ public abstract class ConfigurationEntry implements GBean {
      *
      * @return the JAAS config id for this configuration entry
      */
-    public String getJAASId() {
-        return JAASId;
+    public String getApplicationConfigName() {
+        return applicationConfigName;
     }
 
     /**
-     * Set the JAAS config id for this configuration entry.
+     * Set the JAAS application configuration name for this configuration entry.
      *
-     * @param JAASId the JAAS config id for this configuration entry
+     * @param applicationConfigName the JAAS config id for this configuration entry
      */
-    public void setJAASId(String JAASId) {
-        this.JAASId = JAASId;
+    public void setApplicationConfigName(String applicationConfigName) {
+        this.applicationConfigName = applicationConfigName;
     }
 
     public LoginModuleControlFlag getControlFlag() {
@@ -111,7 +111,7 @@ public abstract class ConfigurationEntry implements GBean {
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(ConfigurationEntry.class.getName());
-        infoFactory.addAttribute(new GAttributeInfo("JAASId", true));
+        infoFactory.addAttribute(new GAttributeInfo("ApplicationConfigName", true));
         infoFactory.addAttribute(new GAttributeInfo("ControlFlag", true));
         infoFactory.addAttribute(new GAttributeInfo("Options", true));
         GBEAN_INFO = infoFactory.getBeanInfo();

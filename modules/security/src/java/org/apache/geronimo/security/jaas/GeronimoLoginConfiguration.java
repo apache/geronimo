@@ -31,15 +31,15 @@ import org.apache.geronimo.security.SecurityService;
 
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/05/30 19:44:05 $
+ * @version $Revision: 1.7 $ $Date: 2004/05/31 00:05:24 $
  */
 public class GeronimoLoginConfiguration extends Configuration implements GBean {
 
     private static Map entries = new Hashtable();
     private Configuration oldConfiguration;
 
-    public AppConfigurationEntry[] getAppConfigurationEntry(String JAASId) {
-        ConfigurationEntry entry = (ConfigurationEntry) entries.get(JAASId);
+    public AppConfigurationEntry[] getAppConfigurationEntry(String name) {
+        ConfigurationEntry entry = (ConfigurationEntry) entries.get(name);
 
         if (entry == null) return null;
 
@@ -53,16 +53,16 @@ public class GeronimoLoginConfiguration extends Configuration implements GBean {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(SecurityService.CONFIGURE);
 
-        if (entries.containsKey(entry.getJAASId())) throw new java.lang.IllegalArgumentException("ConfigurationEntry already registered");
+        if (entries.containsKey(entry.getApplicationConfigName())) throw new java.lang.IllegalArgumentException("ConfigurationEntry already registered");
 
-        entries.put(entry.getJAASId(), entry);
+        entries.put(entry.getApplicationConfigName(), entry);
     }
 
     public static void unRegister(ConfigurationEntry entry) {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(SecurityService.CONFIGURE);
 
-        entries.remove(entry.getJAASId());
+        entries.remove(entry.getApplicationConfigName());
     }
 
     public void setGBeanContext(GBeanContext context) {

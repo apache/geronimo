@@ -39,7 +39,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/05/30 18:39:40 $
+ * @version $Revision: 1.7 $ $Date: 2004/05/31 00:05:40 $
  */
 public class ConfigurationEntryTest extends TestCase {
 
@@ -99,7 +99,7 @@ public class ConfigurationEntryTest extends TestCase {
 
         gbean = new GBeanMBean("org.apache.geronimo.security.jaas.ConfigurationEntryRealmLocal");
         testCE = new ObjectName("geronimo.security:type=ConfigurationEntry,jaasId=properties");
-        gbean.setAttribute("JAASId", "properties");
+        gbean.setAttribute("ApplicationConfigName", "properties");
         gbean.setAttribute("RealmName", "properties-realm");
         gbean.setAttribute("ControlFlag", LoginModuleControlFlag.REQUIRED);
         gbean.setAttribute("Options", new Properties());
