@@ -24,7 +24,7 @@ import org.apache.commons.logging.LogFactory;
 
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/17 03:11:59 $
+ * @version $Revision: 1.4 $ $Date: 2004/07/22 03:25:30 $
  */
 public class ProtocolStack extends Stack implements Protocol {
 
@@ -90,7 +90,7 @@ public class ProtocolStack extends Stack implements Protocol {
         ProtocolStack stack = new ProtocolStack();
 
         for (int i = 0; i < size(); i++) {
-            Protocol protocol = (Protocol) ((Protocol) get(i)).cloneProtocol();
+            Protocol protocol = ((Protocol) get(i)).cloneProtocol();
             protocol.clearLinks();
             stack.push(protocol);
         }
