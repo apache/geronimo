@@ -33,7 +33,7 @@ import org.apache.geronimo.security.IdentificationPrincipal;
 
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/17 03:16:10 $
+ * @version $Revision: 1.4 $ $Date: 2004/08/01 13:41:16 $
  */
 public class SubjectCarryingClientProtocol extends AbstractProtocol {
 
@@ -84,4 +84,7 @@ public class SubjectCarryingClientProtocol extends AbstractProtocol {
         }
     }
 
+    public void flush() throws ProtocolException {
+        getDownProtocol().flush();
+    }
 }

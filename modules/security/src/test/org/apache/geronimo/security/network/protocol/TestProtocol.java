@@ -42,7 +42,7 @@ import org.apache.geronimo.pool.ThreadPool;
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/07/08 05:13:29 $
+ * @version $Revision: 1.5 $ $Date: 2004/08/01 13:41:16 $
  */
 public class TestProtocol extends AbstractProtocol implements BootstrapCook {
 
@@ -115,6 +115,9 @@ public class TestProtocol extends AbstractProtocol implements BootstrapCook {
     public void sendDown(DownPacket packet) throws ProtocolException {
         log.trace("sendDown");
         getDownProtocol().sendDown(packet);
+    }
+
+    public void flush() throws ProtocolException {
     }
 
     public Collection cook(ControlContext context) {

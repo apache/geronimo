@@ -38,7 +38,7 @@ import org.apache.geronimo.security.ContextManager;
 
 
 /**
- * @version $Revision: 1.3 $ $Date: 2004/03/17 03:16:10 $
+ * @version $Revision: 1.4 $ $Date: 2004/08/01 13:41:16 $
  */
 public class SubjectCarryingServerProtocol extends AbstractProtocol implements BootstrapCook {
 
@@ -75,6 +75,10 @@ public class SubjectCarryingServerProtocol extends AbstractProtocol implements B
     public void sendDown(DownPacket packet) throws ProtocolException {
         log.trace("sendDown");
         getDownProtocol().sendDown(packet);
+    }
+
+    public void flush() throws ProtocolException {
+        getDownProtocol().flush();
     }
 
     public Collection cook(ControlContext context) {
