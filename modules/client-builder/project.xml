@@ -98,6 +98,12 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee</artifactId>
+            <version>${pom.currentVersion}</version>   
+        </dependency>
+ 
+       <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-j2ee-builder</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
 
@@ -117,11 +123,17 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-naming</artifactId>
             <version>${pom.currentVersion}</version>
+        </dependency>
+           
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-naming-builder</artifactId>
+            <version>${pom.currentVersion}</version>
             <properties>
                 <xmlbeans>true</xmlbeans>
             </properties>
         </dependency>
-
+ 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>

@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+
+    Copyright 2004 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+  
+       http://www.apache.org/licenses/LICENSE-2.0
+  
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+  
+
+<!-- $Rev$ $Date$ -->
+
+<project default="default"
+    xmlns:j="jelly:core"
+    xmlns:ant="jelly:ant"
+    xmlns:maven="jelly:maven"
+    xmlns:xmlbeans="geronimo:xmlbeans">
+
+    <preGoal name="java:compile">
+        <xmlbeans:schema2java
+            sourcedir="${basedir}/src"
+            sourceschema="schema/geronimo-application.xsd"
+            xmlconfigs="${basedir}/src/schema/xmlconfig.xml"
+            targetdir="${basedir}/target/xmlbeans"
+            cataloglocation="${basedir}/../j2ee-schema/src/catalog/resolver-catalog.xml"/>
+    </preGoal>
+
+    <preGoal name="test:compile">
+        <!-- Build test-ejb-jar -->
+        <j:set var="ear.src.base.dir" value="${basedir}/src/test-ear"/>
+        <j:set var="ear.target.base.dir" value="${basedir}/target/test-ear14"/>
+
+        <attainGoal name="setupEar"/>
+        <!-- Build test-ejb-jar -->
+        <j:set var="ear.src.base.dir" value="${basedir}/src/test-ear13"/>
+        <j:set var="ear.target.base.dir" value="${basedir}/target/test-ear13"/>
+
+        <attainGoal name="setupEar"/>
+        
+        <attainGoal name="setupUnpackedEar"/>
+    </preGoal>
+
+    <goal name="setupEar">
+        <ant:mkdir dir="${ear.target.base.dir}/test-ejb-jar/META-INF"/>
+        
+        <ant:mkdir dir="${ear.target.base.dir}/test-ejb-jar/META-INF"/>
+        <copy todir="${ear.target.base.dir}/test-ejb-jar/META-INF">
+            <fileset dir="${ear.src.base.dir}/test-ejb-jar/META-INF"/>
+        </copy>
+
+        <ant:javac srcdir="${ear.src.base.dir}/test-ejb-jar"
+            destdir="${ear.target.base.dir}/test-ejb-jar"
+            source="${maven.compile.source}"
+            target="${maven.compile.target}"
+            debug="on"
+            fork="true">
+            <ant:classpath>
+                <ant:path refid="maven.dependency.classpath"/>
+                <ant:pathelement path="${maven.build.dest}"/>
+            </ant:classpath>
+        </ant:javac>
+
+        <ant:jar destfile="${ear.target.base.dir}/test-ejb-jar.jar"
+            basedir="${ear.target.base.dir}/test-ejb-jar"/>
+
+
+        <!-- Build test-war -->
+        <ant:jar destfile="${ear.target.base.dir}/test-war.war"
+            basedir="${ear.src.base.dir}/test-war"/>
+
+        <!-- Build test-rar -->
+        <ant:jar destfile="${ear.target.base.dir}/test-rar.rar"
+            basedir="${ear.src.base.dir}/test-rar"/>
+
+        <!-- Build test-ear -->
+        <ant:jar destfile="${ear.target.base.dir}/test-ear.ear">
+            <fileset dir="${ear.target.base.dir}">
+                <include name="test-ejb-jar.jar"/>
+                <include name="test-war.war"/>
+                <include name="test-rar.rar"/>
+            </fileset>
+            <fileset dir="${ear.src.base.dir}">
+                <include name="META-INF/*"/>
+            </fileset>
+        </ant:jar>
+
+        <!-- Build test-naked-ear -->
+        <ant:jar destfile="${ear.target.base.dir}/test-naked-ear.ear">
+            <fileset dir="${ear.target.base.dir}">
+                <include name="test-ejb-jar.jar"/>
+                <include name="test-war.war"/>
+                <include name="test-rar.rar"/>
+            </fileset>
+            <fileset dir="${ear.src.base.dir}">
+                <include name="META-INF/*"/>
+                <exclude name="META-INF/geronimo-application.xml"/>
+            </fileset>
+        </ant:jar>
+    </goal>
+
+    <goal name="setupUnpackedEar">
+        <j:set var="ear.unpacked.relative" value="full"/>
+        <attainGoal name="setupBaseUnpackedEar"/>
+        <copy todir="${basedir}/target/test-unpacked-ear/${ear.unpacked.relative}/META-INF">
+            <fileset dir="${basedir}/src/test-unpacked-ear/META-INF">
+                <include name="application.xml"/>
+                <include name="geronimo-application.xml"/>
+            </fileset>
+        </copy>
+
+
+        <j:set var="ear.unpacked.relative" value="naked"/>
+        <attainGoal name="setupBaseUnpackedEar"/>
+        <copy todir="${basedir}/target/test-unpacked-ear/${ear.unpacked.relative}/META-INF">
+            <fileset dir="${basedir}/src/test-unpacked-ear/META-INF">
+                <include name="application.xml"/>
+            </fileset>
+        </copy>
+
+
+
+        <j:set var="ear.unpacked.relative" value="alt-dd"/>
+        <attainGoal name="setupBaseUnpackedEar"/>
+        <copy todir="${basedir}/target/test-unpacked-ear/${ear.unpacked.relative}/META-INF">
+            <fileset dir="${basedir}/src/test-unpacked-ear/META-INF">
+                <include name="application-alt-dd.xml"/>
+            </fileset>
+            <mapper type="merge" to="application.xml"/>
+        </copy>
+        <copy todir="${basedir}/target/test-unpacked-ear/${ear.unpacked.relative}/META-INF">
+            <fileset dir="${basedir}/src/test-unpacked-ear/META-INF">
+                <include name="geronimo-application-alt-dd.xml"/>
+            </fileset>
+            <mapper type="merge" to="geronimo-application.xml"/>
+        </copy>
+        <copy todir="${basedir}/target/test-unpacked-ear/${ear.unpacked.relative}">
+            <fileset dir="${basedir}/src/test-unpacked-ear">
+                <include name="*.xml"/>
+            </fileset>
+        </copy>
+
+        <ant:jar destfile="${basedir}/target/test-unpacked-ear/alt-dd.ear">
+            <fileset dir="${basedir}/target/test-unpacked-ear/${ear.unpacked.relative}"/>
+        </ant:jar>
+    </goal>
+    
+    <goal name="setupBaseUnpackedEar">
+        <ant:mkdir dir="${basedir}/target/test-unpacked-ear/${ear.unpacked.relative}/META-INF"/>
+        <ant:mkdir dir="${basedir}/target/test-unpacked-ear/${ear.unpacked.relative}/test-ejb-jar"/>
+        <ant:mkdir dir="${basedir}/target/test-unpacked-ear/${ear.unpacked.relative}/test-war"/>
+        <ant:mkdir dir="${basedir}/target/test-unpacked-ear/${ear.unpacked.relative}/test-rar"/>
+    </goal>
+
+</project>

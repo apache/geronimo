@@ -19,16 +19,5 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project default="default"
-    xmlns:xmlbeans="geronimo:xmlbeans">
-
-    <preGoal name="java:compile">
-        <xmlbeans:schema2java
-            sourcedir="${basedir}/src"
-            sourceschema="schema/geronimo-naming.xsd"
-            xmlconfigs="${basedir}/src/schema/xmlconfig.xml"
-            targetdir="${basedir}/target/xmlbeans"
-            cataloglocation="${basedir}/../j2ee-schema/src/catalog/resolver-catalog.xml"/>
-    </preGoal>
-
+<project default="default">
 </project>

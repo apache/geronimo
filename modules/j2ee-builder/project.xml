@@ -6,16 +6,16 @@
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
-
+  
        http://www.apache.org/licenses/LICENSE-2.0
-
+  
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-
+  
 <!DOCTYPE project [
 <!ENTITY % locator SYSTEM "file:locator.ent">
 %locator;
@@ -32,15 +32,15 @@
     <!-- Module Identification -->
     <!-- ===================== -->
 
-    <name>Geronimo :: Connector :: Builder</name>
-    <id>geronimo-connector-builder</id>
-    <shortDescription>Geronimo Connector Builder</shortDescription>
-    <description>Geronimo Connector Builder</description>
-    <url>http://geronimo.apache.org/modules/connector/</url>
-    <siteDirectory>/www/geronimo.apache.org/modules/connector</siteDirectory>
-    <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds/connector</distributionDirectory>
+    <name>Geronimo :: J2EE</name>
+    <id>geronimo-j2ee-builder</id>
+    <shortDescription>J2EE Deployment Services</shortDescription>
+    <description>Geronimo Deployment J2EE Services</description>
+    <url>http://geronimo.apache.org/modules/j2ee/</url>
+    <siteDirectory>/www/geronimo.apache.org/modules/j2ee</siteDirectory>
+    <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds/j2ee</distributionDirectory>
 
-    <package>org.apache.geronimo.connector</package>
+    <package>org.apache.geronimo.j2ee</package>
 
     <!-- ============ -->
     <!-- Dependencies -->
@@ -61,74 +61,29 @@
             <version>&xmlbeans-version;</version>
         </dependency>
 
-
-        <!-- real stuff -->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-common</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
-
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-naming</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-naming-builder</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
-    
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-deployment</artifactId>
             <version>${pom.currentVersion}</version>
-        </dependency> 
-
-      <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-connector</artifactId>
-            <version>${pom.currentVersion}</version>
         </dependency>
- 
-
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
-
-      <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-j2ee-builder</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
-
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
-
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-security</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
-
-        <!-- test only-->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
-
-        <!-- test only-->
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-transaction</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
 
@@ -136,29 +91,15 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee-schema</artifactId>
             <version>${pom.currentVersion}</version>
-            <properties>
-                <xmlbeans>true</xmlbeans>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
-            <artifactId>geronimo-spec-j2ee-connector</artifactId>
-            <version>&geronimo-spec-j2ee-connector-version;</version>
+            <artifactId>geronimo-spec-ejb</artifactId>
+            <version>&geronimo-spec-ejb-version;</version>
         </dependency>
 
-        <dependency>
-            <groupId>geronimo-spec</groupId>
-            <artifactId>geronimo-spec-j2ee-deployment</artifactId>
-            <version>&geronimo-spec-j2ee-deployment-version;</version>
-        </dependency>
-
-        <dependency>
-            <groupId>geronimo-spec</groupId>
-            <artifactId>geronimo-spec-jta</artifactId>
-            <version>&geronimo-spec-jta-version;</version>
-        </dependency>
-
+        <!-- test only -->
         <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib-full</artifactId>
@@ -174,9 +115,10 @@
         </dependency>
 
         <dependency>
-            <groupId>concurrent</groupId>
-            <artifactId>concurrent</artifactId>
-            <version>&concurrent-version;</version>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>&log4j-version;</version>
+            <url>http://jakarta.apache.org/log4j</url>
         </dependency>
 
         <dependency>
@@ -184,20 +126,21 @@
             <artifactId>mx4j</artifactId>
             <version>&mx4j-version;</version>
         </dependency>
-
-        <dependency>
-            <groupId>tranql</groupId>
-            <artifactId>tranql</artifactId>
-            <version>&tranql-version;</version>
-            <url>http://tranql.codehaus.org</url>
-        </dependency>
-
-        <!-- needed for passwordcredential realm-->
-        <dependency>
-            <groupId>regexp</groupId>
-            <artifactId>regexp</artifactId>
-            <version>&regexp-version;</version>
-            <url>http://jakarta.apache.org/regexp</url>
-        </dependency>
     </dependencies>
+
+
+    <!-- =================== -->
+    <!-- Build Specification -->
+    <!-- =================== -->
+
+    <build>
+        <unitTest>
+            <includes>
+                <include>**/*Test.java</include>
+            </includes>
+            <excludes>
+                <exclude>**/Abstract*.java</exclude>
+            </excludes>
+        </unitTest>
+    </build>
 </project>

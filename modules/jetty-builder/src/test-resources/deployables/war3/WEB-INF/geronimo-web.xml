@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 
     Copyright 2004 The Apache Software Foundation
@@ -15,13 +15,13 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-  
 
-<!-- $Rev$ $Date$ -->
-
-<project default="default"
-    xmlns:j="jelly:core"
-    xmlns:ant="jelly:ant"
-    xmlns:maven="jelly:maven">
-
-</project>
+<web-app xmlns="http://geronimo.apache.org/xml/ns/web/jetty" configId="org/apache/geronimo/test">
+    <context-root>/test</context-root>
+    <context-priority-classloader>false</context-priority-classloader>
+    <security>
+        <default-principal realm-name="demo-properties-realm">
+            <principal class="org.apache.geronimo.security.realm.providers.PropertiesFileUserPrincipal" name="izumi"/>
+        </default-principal>
+    </security>
+</web-app>

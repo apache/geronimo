@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 
     Copyright 2004 The Apache Software Foundation
@@ -32,28 +32,21 @@
     <!-- Module Identification -->
     <!-- ===================== -->
 
-    <name>Geronimo :: Connector :: Builder</name>
-    <id>geronimo-connector-builder</id>
-    <shortDescription>Geronimo Connector Builder</shortDescription>
-    <description>Geronimo Connector Builder</description>
-    <url>http://geronimo.apache.org/modules/connector/</url>
-    <siteDirectory>/www/geronimo.apache.org/modules/connector</siteDirectory>
-    <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds/connector</distributionDirectory>
+    <name>Geronimo :: Naming</name>
+    <id>geronimo-naming-builder</id>
+    <shortDescription>Geronimo Naming Builder</shortDescription>
+    <description>Geronimo Naming Builder</description>
+    <url>http://incubator.apache.org/projects/geronimo/naming/</url>
+    <siteDirectory>/www/incubator.apache.org/projects/geronimo/naming</siteDirectory>
+    <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds/naming</distributionDirectory>
 
-    <package>org.apache.geronimo.connector</package>
+    <package>org.apache.geronimo.naming</package>
 
     <!-- ============ -->
     <!-- Dependencies -->
     <!-- ============ -->
 
     <dependencies>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-xmlbeans-plugin</artifactId>
-            <version>${pom.currentVersion}</version>
-            <type>plugin</type>
-        </dependency>
-
         <!-- needed for xmlbeans runtime-->
         <dependency>
             <groupId>xmlbeans</groupId>
@@ -61,48 +54,11 @@
             <version>&xmlbeans-version;</version>
         </dependency>
 
-
-        <!-- real stuff -->
+        <!-- Module Dependencies -->
+        <!-- only for ComponentContextInterceptor -->
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-common</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-naming</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-naming-builder</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
-    
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-deployment</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency> 
-
-      <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-connector</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
- 
-
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-j2ee</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
-
-      <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-j2ee-builder</artifactId>
+            <artifactId>geronimo-core</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
 
@@ -114,22 +70,26 @@
 
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-security</artifactId>
+            <artifactId>geronimo-deployment</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
 
-        <!-- test only-->
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-system</artifactId>
+            <artifactId>geronimo-j2ee</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
 
-        <!-- test only-->
-        <dependency>
+       <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-transaction</artifactId>
+            <artifactId>geronimo-j2ee-builder</artifactId>
             <version>${pom.currentVersion}</version>
+        </dependency>
+
+         <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-j2ee-deployment</artifactId>
+            <version>&geronimo-spec-j2ee-deployment-version;</version>
         </dependency>
 
         <dependency>
@@ -141,18 +101,12 @@
             </properties>
         </dependency>
 
-        <dependency>
-            <groupId>geronimo-spec</groupId>
-            <artifactId>geronimo-spec-j2ee-connector</artifactId>
-            <version>&geronimo-spec-j2ee-connector-version;</version>
+       <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-naming</artifactId>
+            <version>${pom.currentVersion}</version>
         </dependency>
-
-        <dependency>
-            <groupId>geronimo-spec</groupId>
-            <artifactId>geronimo-spec-j2ee-deployment</artifactId>
-            <version>&geronimo-spec-j2ee-deployment-version;</version>
-        </dependency>
-
+            
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jta</artifactId>
@@ -174,30 +128,28 @@
         </dependency>
 
         <dependency>
-            <groupId>concurrent</groupId>
-            <artifactId>concurrent</artifactId>
-            <version>&concurrent-version;</version>
-        </dependency>
-
-        <dependency>
             <groupId>mx4j</groupId>
             <artifactId>mx4j</artifactId>
             <version>&mx4j-version;</version>
         </dependency>
 
-        <dependency>
-            <groupId>tranql</groupId>
-            <artifactId>tranql</artifactId>
-            <version>&tranql-version;</version>
-            <url>http://tranql.codehaus.org</url>
-        </dependency>
-
-        <!-- needed for passwordcredential realm-->
-        <dependency>
-            <groupId>regexp</groupId>
-            <artifactId>regexp</artifactId>
-            <version>&regexp-version;</version>
-            <url>http://jakarta.apache.org/regexp</url>
-        </dependency>
     </dependencies>
+
+    <build>
+        <resources>
+        </resources>
+        <unitTest>
+            <includes>
+                <include>**/*Test.java</include>
+            </includes>
+            <resources>
+                <resource>
+                    <directory>${basedir}/src/test-data</directory>
+                    <includes>
+                        <include>*.properties</include>
+                    </includes>
+                </resource>
+            </resources>
+        </unitTest>
+    </build>
 </project>

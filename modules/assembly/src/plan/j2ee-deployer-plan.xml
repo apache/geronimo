@@ -28,13 +28,35 @@ Configuration for the Geronimo deployer
     >
 
     <dependency>
+        <uri>geronimo/jars/geronimo-j2ee-schema-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-deployment-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-connector-builder-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-j2ee-builder-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-naming-builder-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-jetty-builder-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-client-builder-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>xmlbeans/jars/xbean-apache-${xmlbeans_version}.jar</uri>
+    </dependency>
+
+    <dependency>
         <uri>openejb/jars/openejb-core-${openejb_version}.jar</uri>
     </dependency>
     <dependency>
         <uri>geronimo/jars/geronimo-connector-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-connector-builder-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>
         <uri>geronimo/jars/geronimo-core-${geronimo_version}.jar</uri>

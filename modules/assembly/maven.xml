@@ -94,16 +94,16 @@
             <ant:fileset dir="${project.root}/modules/deployment">
                 <ant:include name="src/schema/*.xsd"/>
             </ant:fileset>
-            <ant:fileset dir="${project.root}/modules/j2ee">
+            <ant:fileset dir="${project.root}/modules/j2ee-builder">
                 <ant:include name="src/schema/*.xsd"/>
             </ant:fileset>
-            <ant:fileset dir="${project.root}/modules/jetty">
+            <ant:fileset dir="${project.root}/modules/jetty-builder">
                 <ant:include name="src/schema/*.xsd"/>
             </ant:fileset>
             <ant:fileset dir="${project.root}/modules/connector-builder">
                 <ant:include name="src/schema/*.xsd"/>
             </ant:fileset>
-            <ant:fileset dir="${project.root}/modules/naming">
+            <ant:fileset dir="${project.root}/modules/naming-builder">
                 <ant:include name="src/schema/*.xsd"/>
             </ant:fileset>
             <ant:fileset dir="${project.root}/modules/security">

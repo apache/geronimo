@@ -154,7 +154,25 @@
 
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-j2ee-builder</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-jetty</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-jetty-builder</artifactId>
             <version>${pom.currentVersion}</version>
             <properties>
                 <repository>true</repository>
@@ -187,6 +205,15 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-naming</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-naming-builder</artifactId>
             <version>${pom.currentVersion}</version>
             <properties>
                 <repository>true</repository>
