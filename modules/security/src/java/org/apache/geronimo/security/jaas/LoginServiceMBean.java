@@ -29,6 +29,10 @@ import org.apache.geronimo.security.GeronimoSecurityException;
 /**
  * An MBean that maintains a list of security realms.
  *
+ * A LoginModuleId represents the configuration of a single security realm,
+ * which may in fact include multiple login modules under the covers, but
+ * that is not really important here.
+ *
  * @version $Rev$ $Date$
  */
 public interface LoginServiceMBean {
@@ -37,11 +41,11 @@ public interface LoginServiceMBean {
 
     void setRealms(Collection realms);
 
-    SerializableACE getAppConfigurationEntry(String realmName);
+    SerializableACE[] getAppConfigurationEntries(String realmName);
 
-    LoginModuleId allocateLoginModule(String realmName) throws LoginException;
+    LoginModuleId allocateLoginModules(String realmName) throws LoginException;
 
-    void removeLoginModule(LoginModuleId loginModuleId) throws ExpiredLoginModuleException;
+    void removeLoginModules(LoginModuleId loginModuleId) throws ExpiredLoginModuleException;
 
     Collection getCallbacks(LoginModuleId loginModuleId) throws ExpiredLoginModuleException;
 

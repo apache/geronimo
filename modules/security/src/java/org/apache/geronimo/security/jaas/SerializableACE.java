@@ -48,7 +48,7 @@ public class SerializableACE implements Serializable {
     Map getOptions() {
         return options;
     }
-
+/*
     public static final class LoginModuleControlFlag implements Serializable {
 
         // Be careful here.  If you change the ordinals, this class must be changed on evey client.
@@ -78,4 +78,5 @@ public class SerializableACE implements Serializable {
             return values[ordinal];
         }
     }
+*/
 }

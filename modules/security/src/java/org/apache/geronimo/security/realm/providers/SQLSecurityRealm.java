@@ -267,7 +267,7 @@ public class SQLSecurityRealm extends AbstractSecurityRealm {
         return password;
     }
 
-    public AppConfigurationEntry getAppConfigurationEntry() {
+    public AppConfigurationEntry[] getAppConfigurationEntries() {
         HashMap options = new HashMap();
 
         options.put(USER_SELECT, userSelect);
@@ -280,7 +280,7 @@ public class SQLSecurityRealm extends AbstractSecurityRealm {
                 AppConfigurationEntry.LoginModuleControlFlag.SUFFICIENT,
                 options);
 
-        return entry;
+        return new AppConfigurationEntry[]{entry};
     }
 
     public boolean isLoginModuleLocal() {

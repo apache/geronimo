@@ -207,7 +207,7 @@ public class KerberosSecurityRealm extends AbstractSecurityRealm {
         log.info("Kerberos Realm - " + getRealmName() + " - refresh");
     }
 
-    public javax.security.auth.login.AppConfigurationEntry getAppConfigurationEntry() {
+    public javax.security.auth.login.AppConfigurationEntry[] getAppConfigurationEntries() {
         HashMap options = new HashMap();
 
         options.put("debug", (debug ? "true" : "false"));
@@ -228,7 +228,7 @@ public class KerberosSecurityRealm extends AbstractSecurityRealm {
                                                                 AppConfigurationEntry.LoginModuleControlFlag.SUFFICIENT,
                                                                 options);
 
-        return entry;
+        return new AppConfigurationEntry[]{entry};
     }
 
     public boolean isLoginModuleLocal() {

@@ -64,7 +64,7 @@ public class LocalLoginModule implements LoginModule {
 
             loginService = (LoginServiceMBean) MBeanProxyFactory.getProxy(LoginServiceMBean.class, kernel.getMBeanServer(), LoginService.LOGIN_SERVICE);
 
-            this.loginModuleId = loginService.allocateLoginModule(realmName);
+            this.loginModuleId = loginService.allocateLoginModules(realmName);
         } catch (Exception e) {
             throw (GeronimoSecurityException) new GeronimoSecurityException("Initialize error: " + e.toString() + "\n").initCause(e);
         }
@@ -77,7 +77,7 @@ public class LocalLoginModule implements LoginModule {
             return tryLogin();
         } catch (ExpiredLoginModuleException ele) {
             try {
-                loginModuleId = loginService.allocateLoginModule(realmName);
+                loginModuleId = loginService.allocateLoginModules(realmName);
                 return tryLogin();
             } catch (Exception e) {
                 throw (LoginException) new LoginException().initCause(e);
@@ -143,7 +143,7 @@ public class LocalLoginModule implements LoginModule {
         Collection collection = loginService.getCallbacks(loginModuleId);
         Callback[] callbacks = new Callback[0];
 
-        callbacks = (Callback[]) collection.toArray(new Callback[]{});
+        callbacks = (Callback[]) collection.toArray(new Callback[collection.size()]);
 
         try {
             callbackHandler.handle(callbacks);

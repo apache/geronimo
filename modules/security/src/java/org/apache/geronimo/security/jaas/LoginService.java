@@ -31,6 +31,8 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.List;
+import java.util.Arrays;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -144,39 +146,44 @@ public class LoginService implements LoginServiceMBean, GBeanLifecycle {
         this.password = password;
     }
 
-    public SerializableACE getAppConfigurationEntry(String realmName) {
+    public SerializableACE[] getAppConfigurationEntries(String realmName) {
 
         for (Iterator iter = getRealms().iterator(); iter.hasNext();) {
             SecurityRealm securityRealm = (SecurityRealm) iter.next();
 
             if (realmName.equals(securityRealm.getRealmName())) {
-                javax.security.auth.login.AppConfigurationEntry entry = securityRealm.getAppConfigurationEntry();
+                javax.security.auth.login.AppConfigurationEntry[] entries = securityRealm.getAppConfigurationEntries();
+                SerializableACE[] results = new SerializableACE[entries.length];
+                for(int i = 0; i < entries.length; i++) {
+                    AppConfigurationEntry entry = entries[i];
 
-                HashMap options = new HashMap();
+                    HashMap options = new HashMap();
 
-                options.put(LoginModuleConstants.REALM_NAME, realmName);
-                options.put(LoginModuleConstants.MODULE, entry.getLoginModuleName());
+                    options.put(LoginModuleConstants.REALM_NAME, realmName);
+                    options.put(LoginModuleConstants.MODULE, entry.getLoginModuleName());
 
-                SerializableACE wrapper;
+                    SerializableACE wrapper;
 
-                if (securityRealm.isLoginModuleLocal()) {
-                    wrapper = new SerializableACE("org.apache.geronimo.security.jaas.RemoteLoginModuleLocalWrapper",
-                            SerializableACE.LoginModuleControlFlag.REQUIRED,
-                            options);
+                    if (securityRealm.isLoginModuleLocal()) {
+                        wrapper = new SerializableACE("org.apache.geronimo.security.jaas.RemoteLoginModuleLocalWrapper",
+                                LoginModuleControlFlag.REQUIRED,
+                                options);
 
-                } else {
-                    options.putAll(entry.getOptions());
-                    wrapper = new SerializableACE("org.apache.geronimo.security.jaas.RemoteLoginModuleRemoteWrapper",
-                            SerializableACE.LoginModuleControlFlag.REQUIRED,
-                            options);
+                    } else {
+                        options.putAll(entry.getOptions());
+                        wrapper = new SerializableACE("org.apache.geronimo.security.jaas.RemoteLoginModuleRemoteWrapper",
+                                LoginModuleControlFlag.REQUIRED,
+                                options);
+                    }
+                    results[i] = wrapper;
                 }
-                return wrapper;
+                return results;
             }
         }
         return null;
     }
 
-    public LoginModuleId allocateLoginModule(String realmName) {
+    public LoginModuleId allocateLoginModules(String realmName) {
         LoginModuleCacheObject lm = null;
 
         synchronized (LoginService.class) {
@@ -185,38 +192,43 @@ public class LoginService implements LoginServiceMBean, GBeanLifecycle {
                     SecurityRealm securityRealm = (SecurityRealm) iter.next();
 
                     if (realmName.equals(securityRealm.getRealmName())) {
-                        AppConfigurationEntry entry = securityRealm.getAppConfigurationEntry();
-
-                        final String finalClass = entry.getLoginModuleName();
-
-                        LoginModule module = (LoginModule) AccessController.doPrivileged(new java.security.PrivilegedExceptionAction() {
-                            public Object run() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-                                return Class.forName(finalClass, true, classLoader).newInstance();
-                            }
-                        });
+                        AppConfigurationEntry[] entries = securityRealm.getAppConfigurationEntries();
                         Subject subject = new Subject();
                         CallbackProxy callback = new CallbackProxy();
-                        module.initialize(subject, callback, new HashMap(), entry.getOptions());
+                        LoginModuleConfiguration[] modules = new LoginModuleConfiguration[entries.length];
+                        for(int i = 0; i < entries.length; i++) {
+                            AppConfigurationEntry entry = entries[i];
 
+                            final String finalClass = entry.getLoginModuleName();
+
+                            LoginModule module = (LoginModule) AccessController.doPrivileged(new java.security.PrivilegedExceptionAction() {
+                                public Object run() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+                                    return Class.forName(finalClass, true, classLoader).newInstance();
+                                }
+                            });
+                            module.initialize(subject, callback, new HashMap(), entry.getOptions());
+                            modules[i] = new LoginModuleConfiguration(module, LoginModuleControlFlag.getInstance(entry.getControlFlag()));
+
+                        }
                         lm = allocateLoginModuleCacheObject(securityRealm.getMaxLoginModuleAge());
                         lm.setRealmName(realmName);
-                        lm.setLoginModule(module);
+                        lm.setLoginModules(modules);
                         lm.setSubject(subject);
                         lm.setCallbackHandler(callback);
-
                         log.trace("LoginModule [" + lm.getLoginModuleId() + "] created for realm " + realmName);
 
                         break;
                     }
                 }
             } catch (Exception e) {
+                e.printStackTrace();
                 return null;
             }
         }
         return lm.getLoginModuleId();
     }
 
-    public void removeLoginModule(LoginModuleId loginModuleId) throws ExpiredLoginModuleException {
+    public void removeLoginModules(LoginModuleId loginModuleId) throws ExpiredLoginModuleException {
         LoginModuleCacheObject lm = (LoginModuleCacheObject) loginCache.get(loginModuleId);
         if (lm == null) throw new ExpiredLoginModuleException();
 
@@ -224,26 +236,27 @@ public class LoginService implements LoginServiceMBean, GBeanLifecycle {
         log.trace("LoginModule [" + lm.getLoginModuleId() + "] marked done");
     }
 
+    //todo: this is pretty cheesy
     public Collection getCallbacks(LoginModuleId loginModuleId) throws ExpiredLoginModuleException {
         LoginModuleCacheObject lm = (LoginModuleCacheObject) loginCache.get(loginModuleId);
         if (lm == null) throw new ExpiredLoginModuleException();
 
-        LoginModule module = lm.getLoginModule();
-        CallbackProxy callback = (CallbackProxy) lm.getCallbackHandler();
+        LoginModuleConfiguration[] modules = lm.getLoginModules();
 
-        try {
-            module.login();
-        } catch (LoginException e) {
+        CallbackProxy proxy = (CallbackProxy) lm.getCallbackHandler();
+        proxy.setExploring();
+        for(int i = 0; i < modules.length; i++) {
+            LoginModuleConfiguration module = modules[i];
+            try {
+                module.getModule().login();
+            } catch (LoginException e) {
+            }
+            try {
+                module.getModule().abort();
+            } catch (LoginException e) {
+            }
         }
-        try {
-            module.abort();
-        } catch (LoginException e) {
-        }
-        ArrayList callbacks = new ArrayList();
-        for (int i = 0; i < callback.callbacks.length; i++) {
-            callbacks.add(callback.callbacks[i]);
-        }
-        return callbacks;
+        return proxy.finalizeCallbackList();
     }
 
     /**
@@ -251,41 +264,55 @@ public class LoginService implements LoginServiceMBean, GBeanLifecycle {
      * that a login module will use and to fill in the reply that a remote
      * client has provided.
      */
-    class CallbackProxy implements CallbackHandler {
-        Callback[] callbacks;
+    static class CallbackProxy implements CallbackHandler {
+        private List callbacks = new ArrayList();
+        private boolean exploring = true;
 
         public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-            if (this.callbacks == null) {
-                this.callbacks = callbacks;
+            if (exploring) {
+                this.callbacks.addAll(Arrays.asList(callbacks));
                 throw new UnsupportedCallbackException(callbacks[0], "DO NOT PROCEED WITH THIS LOGIN");
             } else {
-                assert this.callbacks.length == callbacks.length : "Callback lengths should not have changed";
+                assert this.callbacks.size() == callbacks.length : "Callback lengths should not have changed";
 
                 for (int i = 0; i < callbacks.length; i++) {
-                    callbacks[i] = this.callbacks[i];
+                    callbacks[i] = (Callback) this.callbacks.get(i);
                 }
             }
+        }
+
+        public void setExploring() {
+            exploring = true;
+            callbacks.clear();
+        }
+
+        public List finalizeCallbackList() {
+            exploring = false;
+            return callbacks;
         }
     }
 
     public boolean login(LoginModuleId loginModuleId, Collection callbacks) throws LoginException {
         LoginModuleCacheObject lm = (LoginModuleCacheObject) loginCache.get(loginModuleId);
         if (lm == null) throw new ExpiredLoginModuleException();
-
-        LoginModule module = lm.getLoginModule();
-
+        LoginModuleConfiguration[] modules = lm.getLoginModules();
+        if(modules.length == 0) {
+            throw new LoginException("No login modules configured for realm "+lm.getRealmName());
+        }
         CallbackProxy callback = (CallbackProxy) lm.getCallbackHandler();
-        callback.callbacks = (Callback[]) callbacks.toArray(new Callback[]{});
-
-        return module.login();
+        callback.callbacks = new ArrayList(callbacks);
+        return LoginUtils.computeLogin(modules);
     }
 
     public boolean commit(LoginModuleId loginModuleId) throws LoginException {
         LoginModuleCacheObject lm = (LoginModuleCacheObject) loginCache.get(loginModuleId);
         if (lm == null) throw new ExpiredLoginModuleException();
 
-        LoginModule module = lm.getLoginModule();
-        if (!module.commit()) return false;
+        LoginModuleConfiguration[] modules = lm.getLoginModules();
+        for(int i = 0; i < modules.length; i++) {
+            LoginModuleConfiguration configuration = modules[i];
+            configuration.getModule().commit();
+        }
 
         Subject subject = lm.getSubject();
         RealmPrincipal principal;
@@ -310,9 +337,13 @@ public class LoginService implements LoginServiceMBean, GBeanLifecycle {
         LoginModuleCacheObject lm = (LoginModuleCacheObject) loginCache.get(loginModuleId);
         if (lm == null) throw new ExpiredLoginModuleException();
 
-        LoginModule module = lm.getLoginModule();
+        LoginModuleConfiguration[] modules = lm.getLoginModules();
+        for(int i = 0; i < modules.length; i++) {
+            LoginModuleConfiguration configuration = modules[i];
+            configuration.getModule().abort();
+        }
 
-        return module.abort();
+        return true;
     }
 
     public boolean logout(LoginModuleId loginModuleId) throws LoginException {
@@ -320,10 +351,13 @@ public class LoginService implements LoginServiceMBean, GBeanLifecycle {
         if (lm == null) throw new ExpiredLoginModuleException();
 
         lm.getSubject().getPrincipals(RealmPrincipal.class).clear();
-
-        LoginModule module = lm.getLoginModule();
-
-        return module.logout();
+        lm.getSubject().getPrincipals(IdentificationPrincipal.class).clear();
+        LoginModuleConfiguration[] modules = lm.getLoginModules();
+        for(int i = 0; i < modules.length; i++) {
+            LoginModuleConfiguration configuration = modules[i];
+            configuration.getModule().logout();
+        }
+        return true;
     }
 
     public Subject retrieveSubject(LoginModuleId loginModuleId) throws LoginException {
@@ -439,8 +473,8 @@ public class LoginService implements LoginServiceMBean, GBeanLifecycle {
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(LoginService.class);
 
-        infoFactory.addOperation("getAppConfigurationEntry", new Class[]{String.class});
-        infoFactory.addOperation("allocateLoginModule", new Class[]{String.class});
+        infoFactory.addOperation("getAppConfigurationEntries", new Class[]{String.class});
+        infoFactory.addOperation("allocateLoginModules", new Class[]{String.class});
         infoFactory.addOperation("getCallbacks", new Class[]{LoginModuleId.class});
         infoFactory.addOperation("login", new Class[]{LoginModuleId.class, Collection.class});
         infoFactory.addOperation("commit", new Class[]{LoginModuleId.class});

@@ -112,13 +112,13 @@ public class SimpleSecurityRealm extends AbstractSecurityRealm {
         log.info("Simple Realm - " + getRealmName() + " - refresh");
     }
 
-    public javax.security.auth.login.AppConfigurationEntry getAppConfigurationEntry() {
+    public javax.security.auth.login.AppConfigurationEntry[] getAppConfigurationEntries() {
 
         AppConfigurationEntry entry = new AppConfigurationEntry(loginModuleName,
                                                                 AppConfigurationEntry.LoginModuleControlFlag.SUFFICIENT,
                                                                 options);
 
-        return entry;
+        return new AppConfigurationEntry[]{entry};
     }
 
     public boolean isLoginModuleLocal() {

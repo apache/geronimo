@@ -51,4 +51,13 @@ public class LoginModuleControlFlag implements Serializable {
     Object readResolve() throws ObjectStreamException {
         return values[ordinal];
     }
+
+    public static LoginModuleControlFlag getInstance(AppConfigurationEntry.LoginModuleControlFlag flag) {
+        for(int i = 0; i < values.length; i++) {
+            if(values[i].flag == flag) {
+                return values[i];
+            }
+        }
+        return null;
+    }
 }

@@ -30,7 +30,7 @@ class LoginModuleCacheObject {
     private final LoginModuleId loginModuleId;
     private String realmName;
     private Subject subject;
-    private LoginModule loginModule;
+    private LoginModuleConfiguration[] loginModules;
     private CallbackHandler callbackHandler;
     private long created;
     private boolean done;
@@ -73,12 +73,12 @@ class LoginModuleCacheObject {
         this.subject = subject;
     }
 
-    LoginModule getLoginModule() {
-        return loginModule;
+    LoginModuleConfiguration[] getLoginModules() {
+        return loginModules;
     }
 
-    void setLoginModule(LoginModule loginModule) {
-        this.loginModule = loginModule;
+    void setLoginModules(LoginModuleConfiguration[] loginModules) {
+        this.loginModules = loginModules;
     }
 
     CallbackHandler getCallbackHandler() {

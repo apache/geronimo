@@ -61,10 +61,10 @@ public class TestRealm extends AbstractSecurityRealm {
     public void refresh() throws GeronimoSecurityException {
     }
 
-    public AppConfigurationEntry getAppConfigurationEntry() {
-        return new AppConfigurationEntry(TestLoginModule.class.getName(),
+    public AppConfigurationEntry[] getAppConfigurationEntries() {
+        return new AppConfigurationEntry[]{new AppConfigurationEntry(TestLoginModule.class.getName(),
                 AppConfigurationEntry.LoginModuleControlFlag.REQUISITE,
-                new HashMap());
+                new HashMap())};
     }
 
     public boolean isLoginModuleLocal() {

@@ -34,19 +34,41 @@ public interface SecurityRealm {
 
     public String getRealmName();
 
-    public Set getGroupPrincipals() throws GeronimoSecurityException;
+    public long getMaxLoginModuleAge();
 
-    public Set getGroupPrincipals(RE regexExpression) throws GeronimoSecurityException;
-
-    public Set getUserPrincipals() throws GeronimoSecurityException;
-
-    public Set getUserPrincipals(RE regexExpression) throws GeronimoSecurityException;
-
-    public void refresh() throws GeronimoSecurityException;
-
-    public AppConfigurationEntry getAppConfigurationEntry();
+    public AppConfigurationEntry[] getAppConfigurationEntries();
 
     public boolean isLoginModuleLocal();
 
-    public long getMaxLoginModuleAge();
+    /**
+     * @deprecated Will be removed in favor of (some kind of realm editor object) in
+     *             a future milestone release.
+     */
+    public Set getGroupPrincipals() throws GeronimoSecurityException;
+
+    /**
+     * @deprecated Will be removed in favor of (some kind of realm editor object) in
+     *             a future milestone release.
+     */
+    public Set getGroupPrincipals(RE regexExpression) throws GeronimoSecurityException;
+
+    /**
+     * @deprecated Will be removed in favor of (some kind of realm editor object) in
+     *             a future milestone release.
+     */
+    public Set getUserPrincipals() throws GeronimoSecurityException;
+
+    /**
+     * @deprecated Will be removed in favor of (some kind of realm editor object) in
+     *             a future milestone release.
+     */
+    public Set getUserPrincipals(RE regexExpression) throws GeronimoSecurityException;
+
+    /**
+     * @deprecated Will be removed a future milestone release.  The refreshing should
+     *             be done by a login module or editor when appropriate to its own
+     *             needs.
+     */
+    public void refresh() throws GeronimoSecurityException;
+
 }

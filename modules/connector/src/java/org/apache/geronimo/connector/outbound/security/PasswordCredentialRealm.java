@@ -68,7 +68,7 @@ public class PasswordCredentialRealm extends AbstractSecurityRealm implements Se
     public void refresh() throws GeronimoSecurityException {
     }
 
-    public AppConfigurationEntry getAppConfigurationEntry() {
+    public AppConfigurationEntry[] getAppConfigurationEntries() {
         Map options = new HashMap();
 
         // TODO: This can be a bad thing, passing a reference to a realm to the login module
@@ -77,7 +77,7 @@ public class PasswordCredentialRealm extends AbstractSecurityRealm implements Se
         AppConfigurationEntry appConfigurationEntry = new AppConfigurationEntry(PasswordCredentialLoginModule.class.getName(),
                 AppConfigurationEntry.LoginModuleControlFlag.REQUISITE,
                 options);
-        return appConfigurationEntry;
+        return new AppConfigurationEntry[]{appConfigurationEntry};
     }
 
     public boolean isLoginModuleLocal() {

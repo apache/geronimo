@@ -45,7 +45,7 @@ public class RemoteLoginModule implements javax.security.auth.spi.LoginModule {
     private boolean debug;
     private URI connectURI;
     private LoginServiceMBean remoteLoginService;
-    private LoginModule wrapper;
+    private LoginModuleConfiguration[] modules;
     private static ClassLoader classLoader;
 
     static {
@@ -68,19 +68,25 @@ public class RemoteLoginModule implements javax.security.auth.spi.LoginModule {
             connectURI = new URI(uri);
             remoteLoginService = RemoteLoginServiceFactory.create(connectURI.getHost(), connectURI.getPort());
 
-            SerializableACE entry = remoteLoginService.getAppConfigurationEntry(realm);
+            SerializableACE[] entries = remoteLoginService.getAppConfigurationEntries(realm);
+            modules = new LoginModuleConfiguration[entries.length];
+            for(int i = 0; i < entries.length; i++) {
+                SerializableACE entry = entries[i];
 
-            final String finalClass = entry.getLoginModuleName();
-            wrapper = (LoginModule) AccessController.doPrivileged(new PrivilegedExceptionAction() {
-                public Object run() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-                    return Class.forName(finalClass, true, classLoader).newInstance();
-                }
-            });
+                final String finalClass = entry.getLoginModuleName();
+                LoginModule wrapper;
+                wrapper = (LoginModule) AccessController.doPrivileged(new PrivilegedExceptionAction() {
+                    public Object run() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+                        return Class.forName(finalClass, true, classLoader).newInstance();
+                    }
+                });
 
-            HashMap map = new HashMap(entry.getOptions());
-            map.put(LOGIN_SERVICE, remoteLoginService);
+                HashMap map = new HashMap(entry.getOptions());
+                map.put(LOGIN_SERVICE, remoteLoginService);
 
-            wrapper.initialize(subject, callbackHandler, sharedState, map);
+                wrapper.initialize(subject, callbackHandler, sharedState, map);
+                modules[i] = new LoginModuleConfiguration(wrapper, entry.getControlFlag());
+            }
 
             if (debug) {
                 System.out.print("[GeronimoLoginModule] Debug is  " + debug + " uri " + uri + " realm " + realm + "\n");
@@ -98,22 +104,34 @@ public class RemoteLoginModule implements javax.security.auth.spi.LoginModule {
     }
 
     public boolean login() throws LoginException {
-        if (wrapper == null) throw new LoginException("RemoteLoginModule not properly initialzied");
-        return wrapper.login();
+        if (modules == null || modules.length == 0) throw new LoginException("RemoteLoginModule not properly initialzied");
+        return LoginUtils.computeLogin(modules);
     }
 
     public boolean commit() throws LoginException {
-        if (wrapper == null) throw new LoginException("RemoteLoginModule not properly initialzied");
-        return wrapper.commit();
+        if (modules == null || modules.length == 0) throw new LoginException("RemoteLoginModule not properly initialzied");
+        for(int i = 0; i < modules.length; i++) {
+            LoginModuleConfiguration configuration = modules[i];
+            configuration.getModule().commit();
+        }
+        return true;
     }
 
     public boolean abort() throws LoginException {
-        if (wrapper == null) throw new LoginException("RemoteLoginModule not properly initialzied");
-        return wrapper.abort();
+        if (modules == null || modules.length == 0) throw new LoginException("RemoteLoginModule not properly initialzied");
+        for(int i = 0; i < modules.length; i++) {
+            LoginModuleConfiguration configuration = modules[i];
+            configuration.getModule().abort();
+        }
+        return true;
     }
 
     public boolean logout() throws LoginException {
-        if (wrapper == null) throw new LoginException("RemoteLoginModule not properly initialzied");
-        return wrapper.logout();
+        if (modules == null || modules.length == 0) throw new LoginException("RemoteLoginModule not properly initialzied");
+        for(int i = 0; i < modules.length; i++) {
+            LoginModuleConfiguration configuration = modules[i];
+            configuration.getModule().logout();
+        }
+        return true;
     }
 }

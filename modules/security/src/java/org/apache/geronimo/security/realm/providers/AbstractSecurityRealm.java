@@ -80,7 +80,7 @@ public abstract class AbstractSecurityRealm implements SecurityRealm, GBeanLifec
         infoFactory.addOperation("getUserPrincipals");
         infoFactory.addOperation("getUserPrincipals", new Class[]{RE.class});
         infoFactory.addOperation("refresh");
-        infoFactory.addOperation("getAppConfigurationEntry");
+        infoFactory.addOperation("getAppConfigurationEntries");
 
         infoFactory.setConstructor(new String[]{"realmName"});
 

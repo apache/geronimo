@@ -179,7 +179,7 @@ public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
         }
     }
 
-    public AppConfigurationEntry getAppConfigurationEntry() {
+    public AppConfigurationEntry[] getAppConfigurationEntries() {
         HashMap options = new HashMap();
 
         options.put(REALM_INSTANCE, this);
@@ -187,7 +187,7 @@ public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
                 AppConfigurationEntry.LoginModuleControlFlag.SUFFICIENT,
                 options);
 
-        return entry;
+        return new AppConfigurationEntry[]{entry};
     }
 
     public boolean isLoginModuleLocal() {

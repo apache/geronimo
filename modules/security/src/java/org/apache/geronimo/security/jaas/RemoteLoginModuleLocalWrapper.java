@@ -55,7 +55,7 @@ public class RemoteLoginModuleLocalWrapper implements LoginModule {
         this.realmName = (String) options.get(LoginModuleConstants.REALM_NAME);
         this.remoteLoginService = (LoginServiceMBean) options.get(RemoteLoginModule.LOGIN_SERVICE);
         try {
-            this.loginModuleId = remoteLoginService.allocateLoginModule(realmName);
+            this.loginModuleId = remoteLoginService.allocateLoginModules(realmName);
         } catch (LoginException e) {
         }
     }
@@ -81,7 +81,7 @@ public class RemoteLoginModuleLocalWrapper implements LoginModule {
             return tryLogin();
         } catch (ExpiredLoginModuleException ele) {
             try {
-                loginModuleId = remoteLoginService.allocateLoginModule(realmName);
+                loginModuleId = remoteLoginService.allocateLoginModules(realmName);
                 return tryLogin();
             } catch (Exception e) {
                 throw (LoginException) new LoginException().initCause(e);
@@ -157,7 +157,7 @@ public class RemoteLoginModuleLocalWrapper implements LoginModule {
      */
     protected void finalize() throws Throwable {
         if (loginModuleId != null) {
-            remoteLoginService.removeLoginModule(loginModuleId);
+            remoteLoginService.removeLoginModules(loginModuleId);
         }
     }
 }
