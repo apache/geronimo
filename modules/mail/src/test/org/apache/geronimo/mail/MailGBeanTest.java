@@ -16,16 +16,15 @@
  */
 package org.apache.geronimo.mail;
 
+import java.util.Properties;
 import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.Transport;
 import javax.management.ObjectName;
-import java.util.Collection;
-import java.util.Properties;
 
 import junit.framework.TestCase;
 
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
 
 
@@ -44,13 +43,11 @@ public class MailGBeanTest extends TestCase {
         properties.put("mail.store.protocol", "testStore");
         properties.put("mail.transport.protocol", "testTransport");
 
-        GBeanMBean cmf = new GBeanMBean(MailGBean.getGBeanInfo());
+        mailName = ObjectName.getInstance("geronimo.server:J2EEServer=geronimo,J2EEApplication=null,J2EEType=JavaMailResource,name=default");
+        GBeanData cmf = new GBeanData(mailName, MailGBean.getGBeanInfo());
         cmf.setAttribute("useDefault", new Boolean(true));
         cmf.setAttribute("properties", properties);
-
-        mailName = ObjectName.getInstance("geronimo.server:J2EEServer=geronimo,J2EEApplication=null,J2EEType=JavaMailResource,name=default");
-
-        kernel.loadGBean(mailName, cmf);
+        kernel.loadGBean(cmf, MailGBean.class.getClassLoader());
         kernel.startGBean(mailName);
 
         Object proxy = kernel.invoke(mailName, "$getResource");
@@ -74,15 +71,13 @@ public class MailGBeanTest extends TestCase {
         properties.put("mail.store.protocol", "POOKIE");
         properties.put("mail.transport.protocol", "BEAR");
 
-        GBeanMBean cmf = new GBeanMBean(MailGBean.getGBeanInfo());
+        mailName = ObjectName.getInstance("geronimo.server:J2EEServer=geronimo,J2EEApplication=null,J2EEType=JavaMailResource,name=default");
+        GBeanData cmf = new GBeanData(mailName, MailGBean.getGBeanInfo());
         cmf.setAttribute("useDefault", new Boolean(true));
         cmf.setAttribute("properties", properties);
         cmf.setAttribute("storeProtocol", "test");
         cmf.setAttribute("transportProtocol", "test");
-
-        mailName = ObjectName.getInstance("geronimo.server:J2EEServer=geronimo,J2EEApplication=null,J2EEType=JavaMailResource,name=default");
-
-        kernel.loadGBean(mailName, cmf);
+        kernel.loadGBean(cmf, MailGBean.class.getClassLoader());
         kernel.startGBean(mailName);
 
         Object proxy = kernel.invoke(mailName, "$getResource");
@@ -107,27 +102,23 @@ public class MailGBeanTest extends TestCase {
         properties.put("mail.transport.protocol", "BEAR");
         properties.put("mail.smtp.ehlo", "true");
 
-        GBeanMBean cmf = new GBeanMBean(MailGBean.getGBeanInfo());
+        mailName = ObjectName.getInstance("geronimo.server:J2EEServer=geronimo,J2EEApplication=null,J2EEType=JavaMailResource,name=default");
+        GBeanData cmf = new GBeanData(mailName, MailGBean.getGBeanInfo());
         cmf.setReferencePattern("Protocols", new ObjectName("geronimo.server:J2EEServer=geronimo,J2EEApplication=null,type=JavaMailProtocol,*"));
         cmf.setAttribute("useDefault", new Boolean(true));
         cmf.setAttribute("properties", properties);
         cmf.setAttribute("storeProtocol", "test");
         cmf.setAttribute("transportProtocol", "test");
 
-        mailName = ObjectName.getInstance("geronimo.server:J2EEServer=geronimo,J2EEApplication=null,J2EEType=JavaMailResource,name=default");
 
-        kernel.loadGBean(mailName, cmf);
+        kernel.loadGBean(cmf, MailGBean.class.getClassLoader());
         kernel.startGBean(mailName);
 
-        GBeanMBean smtp = new GBeanMBean(SMTPTransportGBean.getGBeanInfo());
-
         protocolName = ObjectName.getInstance("geronimo.server:J2EEServer=geronimo,J2EEApplication=null,type=JavaMailProtocol,name=smtp");
-
-        kernel.loadGBean(protocolName, smtp);
+        GBeanData smtp = new GBeanData(protocolName, SMTPTransportGBean.getGBeanInfo());
+        kernel.loadGBean(smtp, SMTPTransportGBean.class.getClassLoader());
         kernel.startGBean(protocolName);
 
-        Collection protocols = (Collection) kernel.invoke(mailName, "getProtocols");
-        int size = protocols.size();
         Object proxy = kernel.invoke(mailName, "$getResource");
 
         assertNotNull(proxy);
@@ -154,23 +145,19 @@ public class MailGBeanTest extends TestCase {
         properties.put("mail.transport.protocol", "BEAR");
         properties.put("mail.pop3.ehlo", "true");
 
-        GBeanMBean cmf = new GBeanMBean(MailGBean.getGBeanInfo());
+        mailName = ObjectName.getInstance("geronimo.server:J2EEServer=geronimo,J2EEApplication=null,J2EEType=JavaMailResource,name=default");
+        GBeanData cmf = new GBeanData(mailName, MailGBean.getGBeanInfo());
         cmf.setReferencePattern("Protocols", new ObjectName("geronimo.server:J2EEServer=geronimo,J2EEApplication=null,type=JavaMailProtocol,*"));
         cmf.setAttribute("useDefault", new Boolean(true));
         cmf.setAttribute("properties", properties);
         cmf.setAttribute("storeProtocol", "test");
         cmf.setAttribute("transportProtocol", "test");
-
-        mailName = ObjectName.getInstance("geronimo.server:J2EEServer=geronimo,J2EEApplication=null,J2EEType=JavaMailResource,name=default");
-
-        kernel.loadGBean(mailName, cmf);
+        kernel.loadGBean(cmf, MailGBean.class.getClassLoader());
         kernel.startGBean(mailName);
 
-        GBeanMBean pop3 = new GBeanMBean(SMTPTransportGBean.getGBeanInfo());
-
         protocolName = ObjectName.getInstance("geronimo.server:J2EEServer=geronimo,J2EEApplication=null,type=JavaMailProtocol,name=pop3");
-
-        kernel.loadGBean(protocolName, pop3);
+        GBeanData pop3 = new GBeanData(protocolName, SMTPTransportGBean.getGBeanInfo()); // todo shouldn't this be POP3Store?
+        kernel.loadGBean(pop3, SMTPTransportGBean.class.getClassLoader());
         kernel.startGBean(protocolName);
 
         Object proxy = kernel.invoke(mailName, "$getResource");
@@ -196,23 +183,21 @@ public class MailGBeanTest extends TestCase {
         properties.put("mail.transport.protocol", "BEAR");
         properties.put("mail.imap.ehlo", "true");
 
-        GBeanMBean cmf = new GBeanMBean(MailGBean.getGBeanInfo());
+        mailName = ObjectName.getInstance("geronimo.server:J2EEServer=geronimo,J2EEApplication=null,J2EEType=JavaMailResource,name=default");
+        GBeanData cmf = new GBeanData(mailName, MailGBean.getGBeanInfo());
         cmf.setReferencePattern("Protocols", new ObjectName("geronimo.server:J2EEServer=geronimo,J2EEApplication=null,type=JavaMailProtocol,*"));
         cmf.setAttribute("useDefault", new Boolean(true));
         cmf.setAttribute("properties", properties);
         cmf.setAttribute("storeProtocol", "testStore");
         cmf.setAttribute("transportProtocol", "testTransport");
-
-        mailName = ObjectName.getInstance("geronimo.server:J2EEServer=geronimo,J2EEApplication=null,J2EEType=JavaMailResource,name=default");
-
-        kernel.loadGBean(mailName, cmf);
+        kernel.loadGBean(cmf, MailGBean.class.getClassLoader());
         kernel.startGBean(mailName);
 
-        GBeanMBean imap = new GBeanMBean(IMAPStoreGBean.getGBeanInfo());
-
         protocolName = ObjectName.getInstance("geronimo.server:J2EEServer=geronimo,J2EEApplication=null,type=JavaMailProtocol,name=imap");
+        GBeanData imap = new GBeanData(protocolName, IMAPStoreGBean.getGBeanInfo());
 
-        kernel.loadGBean(protocolName, imap);
+
+        kernel.loadGBean(imap, IMAPStoreGBean.class.getClassLoader());
         kernel.startGBean(protocolName);
 
         Object proxy = kernel.invoke(mailName, "$getResource");
