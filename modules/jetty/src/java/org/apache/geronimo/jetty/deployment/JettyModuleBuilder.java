@@ -80,12 +80,14 @@ import org.apache.geronimo.xbeans.j2ee.EnvEntryType;
 import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
 import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
 import org.apache.geronimo.xbeans.j2ee.WebAppType;
+import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
+import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
 
 /**
- * @version $Revision: 1.9 $ $Date: 2004/06/15 03:00:37 $
+ * @version $Revision: 1.10 $ $Date: 2004/06/17 06:56:02 $
  */
 public class JettyModuleBuilder implements ModuleBuilder {
     private static final String PARENT_ID = "org/apache/geronimo/Server";
@@ -195,7 +197,8 @@ public class JettyModuleBuilder implements ModuleBuilder {
                     byte[] buffer = getBytes(jarIS);
                     earContext.addFile(target, new ByteArrayInputStream(buffer));
                     try {
-                        WebAppDocument doc = (WebAppDocument) XmlBeansUtil.parse(new ByteArrayInputStream(buffer), WebAppDocument.type);
+                        XmlObject dd = SchemaConversionUtils.parse(new ByteArrayInputStream(buffer));
+                        WebAppDocument doc = SchemaConversionUtils.convertToServletSchema(dd);
                         webApp = doc.getWebApp();
                     } catch (XmlException e) {
                         throw new DeploymentException("Unable to parse web.xml", e);
