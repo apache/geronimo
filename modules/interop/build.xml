@@ -21,42 +21,63 @@
             <arg value="-i"/>
             <arg file="${maven.src.dir}/idl"/>
             <arg value="${idlj.verbose}"/>
-            <arg value="-pkgPrefix"/>
-            <arg value="IOP"/>
-            <arg value="${pkg.prefix}"/>
-            <arg value="-pkgPrefix"/>
-            <arg value="IIOP"/>
-            <arg value="${pkg.prefix}"/>
-            <arg value="-pkgPrefix"/>
-            <arg value="GIOP"/>
-            <arg value="${pkg.prefix}"/>
+
             <arg value="-pkgPrefix"/>
             <arg value="CosNaming"/>
             <arg value="${pkg.prefix}"/>
-            <arg value="-pkgPrefix"/>
-            <arg value="CSI"/>
-            <arg value="${pkg.prefix}"/>
-            <arg value="-pkgPrefix"/>
-            <arg value="GSSUP"/>
-            <arg value="${pkg.prefix}"/>
-            <arg value="-pkgPrefix"/>
-            <arg value="CSIIOP"/>
-            <arg value="${pkg.prefix}"/>
-            <arg value="-pkgPrefix"/>
-            <arg value="TimeBase"/>
-            <arg value="${pkg.prefix}"/>
-            <arg value="-pkgPrefix"/>
-            <arg value="SecurityService"/>
-            <arg value="${pkg.prefix}"/>
+
             <arg value="-pkgPrefix"/>
             <arg value="CosTransactions"/>
             <arg value="${pkg.prefix}"/>
+
             <arg value="-pkgPrefix"/>
             <arg value="CosTSInteroperation"/>
             <arg value="${pkg.prefix}"/>
+
             <arg value="-pkgPrefix"/>
             <arg value="CosTSPortability"/>
             <arg value="${pkg.prefix}"/>
+
+            <arg value="-pkgPrefix"/>
+            <arg value="CSI"/>
+            <arg value="${pkg.prefix}"/>
+
+            <arg value="-pkgPrefix"/>
+            <arg value="CSIIOP"/>
+            <arg value="${pkg.prefix}"/>
+
+            <arg value="-pkgPrefix"/>
+            <arg value="GIOP"/>
+            <arg value="${pkg.prefix}"/>
+
+            <arg value="-pkgPrefix"/>
+            <arg value="GSSUP"/>
+            <arg value="${pkg.prefix}"/>
+
+            <arg value="-pkgPrefix"/>
+            <arg value="IIOP"/>
+            <arg value="${pkg.prefix}"/>
+
+            <arg value="-pkgPrefix"/>
+            <arg value="IOP"/>
+            <arg value="${pkg.prefix}"/>
+
+            <arg value="-pkgPrefix"/>
+            <arg value="Security"/>
+            <arg value="${pkg.prefix}"/>
+
+            <arg value="-pkgPrefix"/>
+            <arg value="SecurityService"/>
+            <arg value="${pkg.prefix}"/>
+
+            <arg value="-pkgPrefix"/>
+            <arg value="SSLIOP"/>
+            <arg value="${pkg.prefix}"/>
+
+            <arg value="-pkgPrefix"/>
+            <arg value="TimeBase"/>
+            <arg value="${pkg.prefix}"/>
+
             <arg file="${maven.src.dir}/idl/${idl.file}.idl"/>
     </exec>
   </target>
