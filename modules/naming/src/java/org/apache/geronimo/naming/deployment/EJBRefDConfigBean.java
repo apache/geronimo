@@ -53,29 +53,41 @@
  *
  * ====================================================================
  */
-package org.apache.geronimo.deployment.plugin.j2ee;
+package org.apache.geronimo.naming.deployment;
 
 import javax.enterprise.deploy.model.DDBean;
 
 import org.apache.geronimo.deployment.plugin.DConfigBeanSupport;
+import org.apache.geronimo.xbeans.geronimo.GerEjbRefType;
+import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.XmlBeans;
 
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/06 08:55:04 $
+ * @version $Revision: 1.1 $ $Date: 2004/02/18 20:58:43 $
  */
-public class URIRefConfigBean extends DConfigBeanSupport {
-    private String targetURI;
+public class EJBRefDConfigBean extends DConfigBeanSupport {
+    private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
 
-    public URIRefConfigBean(DDBean ddBean) {
-        super(ddBean, null, null);
+    public EJBRefDConfigBean(DDBean ddBean, GerEjbRefType ejbRef) {
+        super(ddBean, ejbRef, SCHEMA_TYPE_LOADER);
+        assert ddBean.getChildBean("ejb-ref-name")[0].equals(getEjbRefName());
+    }
+
+    GerEjbRefType getEjbRef() {
+        return (GerEjbRefType)getXmlObject();
+    }
+
+    String getEjbRefName() {
+        return getEjbRef().getEjbRefName().getStringValue();
     }
 
     public String getTargetURI() {
-        return targetURI;
+        return getEjbRef().getUri();
     }
 
     public void setTargetURI(String targetURI) {
-        this.targetURI = targetURI;
+        getEjbRef().setUri(targetURI);
     }
 }

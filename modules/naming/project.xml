@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.3 $ $Date: 2004/02/17 07:26:47 $ -->
+<!-- $Revision: 1.4 $ $Date: 2004/02/18 20:58:43 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -67,6 +67,12 @@
 
         <dependency>
             <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-j2ee-deployment</artifactId>
+            <version>DEV</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2eeschema</artifactId>
             <version>DEV</version>
             <properties>
@@ -84,14 +90,14 @@
         </dependency>
 
         <!-- Thirdparty Dependencies -->
-        <dependency>
+        <!--dependency>
             <groupId>mx4j</groupId>
             <artifactId>mx4j</artifactId>
             <version>SNAPSHOT</version>
             <properties>
                 <runtime>false</runtime>
             </properties>
-        </dependency>
+        </dependency-->
 
     </dependencies>
 

@@ -57,10 +57,6 @@ package org.apache.geronimo.naming.deployment;
 
 import java.net.URL;
 
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.MBeanRegistrationException;
-import javax.management.MalformedObjectNameException;
-import javax.management.NotCompliantMBeanException;
 import javax.naming.Context;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
@@ -91,7 +87,7 @@ import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
  * THIS IS A COPY OF org.apache.geronimo.naming.java.ContextBuilderTest.
  * Copied because maven doesn't share test classes.
  *
- * @version $Revision: 1.2 $ $Date: 2004/02/15 16:33:44 $
+ * @version $Revision: 1.3 $ $Date: 2004/02/18 20:58:43 $
  */
 public class ContextBuilderTest extends TestCase {
 
@@ -117,7 +113,7 @@ public class ContextBuilderTest extends TestCase {
     private static final String RESOURCE_REF1_NAME = "url/testURL";
     private static final String RESOURCE_REF2_NAME = "DefaultCF";
 
-    protected void setUpContext(UserTransaction userTransaction) throws InstanceAlreadyExistsException, MBeanRegistrationException, NotCompliantMBeanException, MalformedObjectNameException, DeploymentException {
+    protected void setUpContext(UserTransaction userTransaction) throws DeploymentException {
 
         proxyFactory = new ProxyFactory() {
             public Object getProxy(Class homeInterface, Class remoteInterface, Object targetId) throws NamingException {

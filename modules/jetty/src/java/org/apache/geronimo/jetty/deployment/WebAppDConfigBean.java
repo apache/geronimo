@@ -61,27 +61,93 @@ import javax.enterprise.deploy.spi.exceptions.BeanNotFoundException;
 import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
 
 import org.apache.geronimo.deployment.plugin.DConfigBeanSupport;
-import org.apache.geronimo.deployment.plugin.j2ee.ENCHelper;
+import org.apache.geronimo.naming.deployment.ENCHelper;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
+import org.apache.geronimo.xbeans.geronimo.GerEjbRefType;
+import org.apache.geronimo.xbeans.geronimo.GerEjbLocalRefType;
+import org.apache.geronimo.xbeans.geronimo.GerMessageDestinationRefType;
+import org.apache.geronimo.xbeans.geronimo.GerResourceEnvRefType;
+import org.apache.geronimo.xbeans.geronimo.GerResourceRefType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 
 /**
  *
  *
- * @version $Revision: 1.8 $ $Date: 2004/02/14 01:50:15 $
+ * @version $Revision: 1.9 $ $Date: 2004/02/18 20:58:43 $
  */
 public class WebAppDConfigBean extends DConfigBeanSupport {
     private final static SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.getContextTypeLoader();
 
-    private final ENCHelper encHelper;
+    private ENCHelper encHelper;
 
     WebAppDConfigBean(DDBean ddBean, JettyWebAppType webApp) {
         super(ddBean, webApp, SCHEMA_TYPE_LOADER);
         if (webApp.getContextRoot() == null) {
             webApp.addNewContextRoot();
         }
-        encHelper = new ENCHelper(ddBean);
+        encHelper = new ENCHelper(ddBean, new ENCHelper.XmlEnvRefs() {
+            public GerEjbRefType[] getEjbRefs() {
+                return getWebApp().getEjbRefArray();
+            }
+
+            public GerEjbRefType addNewEjbRef() {
+                return getWebApp().addNewEjbRef();
+            }
+
+            public void removeEjbRef(int i) {
+                getWebApp().removeEjbRef(i);
+            }
+
+            public GerEjbLocalRefType[] getEjbLocalRefs() {
+                return getWebApp().getEjbLocalRefArray();
+            }
+
+            public GerEjbLocalRefType addNewEjbLocalRef() {
+                return getWebApp().addNewEjbLocalRef();
+            }
+
+            public void removeEjbLocalRef(int i) {
+                getWebApp().removeEjbLocalRef(i);
+            }
+
+            public GerMessageDestinationRefType[] getMessageDestinationRefs() {
+                return getWebApp().getMessageDestinationRefArray();
+            }
+
+            public GerMessageDestinationRefType addNewMessageDestinationRef() {
+                return getWebApp().addNewMessageDestinationRef();
+            }
+
+            public void removeMessageDestinationRef(int i) {
+                getWebApp().removeMessageDestinationRef(i);
+            }
+
+            public GerResourceEnvRefType[] getResourceEnvRefs() {
+                return getWebApp().getResourceEnvRefArray();
+            }
+
+            public GerResourceEnvRefType addNewResourceEnvRef() {
+                return getWebApp().addNewResourceEnvRef();
+            }
+
+            public void removeResourceEnvRef(int i) {
+                getWebApp().removeResourceEnvRef(i);
+            }
+
+            public GerResourceRefType[] getResourceRefs() {
+                return getWebApp().getResourceRefArray();
+            }
+
+            public GerResourceRefType addNewResourceRef() {
+                return getWebApp().addNewResourceRef();
+            }
+
+            public void removeResourceRef(int i) {
+                getWebApp().removeResourceRef(i);
+            }
+
+        });
     }
 
     JettyWebAppType getWebApp() {
@@ -119,7 +185,7 @@ public class WebAppDConfigBean extends DConfigBeanSupport {
     }
 
     public void removeDConfigBean(DConfigBean dcBean) throws BeanNotFoundException {
-        encHelper.removeDConfigBean(dcBean);
+        //encHelper.removeDConfigBean(dcBean);
     }
 
     public String[] getXpaths() {
