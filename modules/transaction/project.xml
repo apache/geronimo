@@ -17,7 +17,7 @@
 -->
 
 
-<!-- $Revision: 1.15 $ $Date: 2004/06/19 17:17:13 $ -->
+<!-- $Revision: 1.16 $ $Date: 2004/06/20 07:39:34 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -81,15 +81,15 @@
              <groupId>howl</groupId>
             <artifactId>howl-logger</artifactId>
             <version>GERONIMO-PRIVATE-0.1</version>
-            <url>http://www.objectweb.org</url>
+            <url>http://forge.objectweb.org/projects/howl</url>
         </dependency>
 
-        <dependency>
+        <!--dependency>
             <groupId>pyrasun</groupId>
             <artifactId>PyrasunLog</artifactId>
             <version>0.2_Alpha</version>
             <url>http://www.krisnmike.com/mike</url>
-        </dependency>
+        </dependency-->
 
         <dependency>
             <groupId>tranql</groupId>
