@@ -78,6 +78,9 @@ import javax.management.relation.RelationServiceMBean;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import org.apache.geronimo.common.StringValueParser;
+
 import org.apache.geronimo.core.util.ClassUtil;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.dependency.DependencyServiceMBean;
@@ -89,7 +92,7 @@ import org.apache.geronimo.jmx.JMXUtil;
 /**
  * Creates an new MBean instance and intializes it according to the specified MBeanMetadata metadata
  *
- * @version $Revision: 1.9 $ $Date: 2003/08/21 04:32:41 $
+ * @version $Revision: 1.10 $ $Date: 2003/08/24 22:40:24 $
  */
 public class CreateMBeanInstance implements DeploymentTask {
     private final Log log = LogFactory.getLog(this.getClass());
@@ -256,6 +259,9 @@ public class CreateMBeanInstance implements DeploymentTask {
     private static final Class[] stringArg = new Class[]{String.class};
 
     private Object getValue(ClassLoader cl, String typeName, String value) throws DeploymentException {
+        StringValueParser parser = new StringValueParser();
+        value = parser.parse(value);
+        
         if("java.net.URI".equals(typeName)) {
             return baseURI.resolve(value);
         }

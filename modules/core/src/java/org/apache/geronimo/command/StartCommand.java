@@ -83,7 +83,7 @@ import org.apache.geronimo.Main;
 /**
  * A <em>Twiddle</em> command to start a Apache Geronimo server instance.
  *
- * @version $Revision: 1.2 $ $Date: 2003/08/24 19:49:09 $
+ * @version $Revision: 1.3 $ $Date: 2003/08/24 22:40:24 $
  */
 public class StartCommand
     extends AbstractCommand
@@ -148,6 +148,7 @@ public class StartCommand
             log.debug("Deploy URL: " + deployURL);
         }
         
+        System.setProperty("geronimo.home", System.getProperty("twiddle.home"));
         Main main = new Main("geronimo", mletURL, deployURL);
         
         ThreadGroup group = new ThreadGroup("Geronimo");
