@@ -1,6 +1,5 @@
-target
-*.log
-junit*.properties
-.classpath
 .project
-
+.classpath
+maven.log
+junit*.properties
+target

@@ -1,4 +1,5 @@
-target
-*.log
+.project
+.classpath
+maven.log
 junit*.properties
-
+target
