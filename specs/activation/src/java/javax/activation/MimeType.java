@@ -67,86 +67,119 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+
 /**
- *
- *
- *
- * @version $Revision: 1.1 $ $Date: 2003/08/16 18:07:45 $
+ * @version $Revision: 1.2 $ $Date: 2003/12/07 16:11:44 $
  */
 public class MimeType implements Externalizable {
+    private final static String TYPE_SEPARATOR = "/";
+    private final static String PARAMETER_SEPARATOR = ";";
+    private final static String STAR_SUB_TYPE = "*";
+
+    private String primaryType = "text";
+    private String subType = "plain";
+    private MimeTypeParameterList parameterList = new MimeTypeParameterList();;
+
     public MimeType() {
-        /*@todo implement*/
     }
 
     public MimeType(String rawdata) throws MimeTypeParseException {
-        /*@todo implement*/
+        parseMimeType(rawdata);
     }
 
     public MimeType(String primary, String sub) throws MimeTypeParseException {
-        /*@todo implement*/
+        setPrimaryType(primary);
+        setSubType(sub);
     }
 
     public String getPrimaryType() {
-        /*@todo implement*/
-        return null;
+        return primaryType;
     }
 
     public void setPrimaryType(String primary) throws MimeTypeParseException {
-        /*@todo implement*/
+        primaryType = parseToken(primary);
     }
 
     public String getSubType() {
-        /*@todo implement*/
-        return null;
+        return subType;
     }
 
     public void setSubType(String sub) throws MimeTypeParseException {
-        /*@todo implement*/
+        subType = parseToken(sub);
     }
 
     public MimeTypeParameterList getParameters() {
-        /*@todo implement*/
-        return null;
+        return parameterList;
     }
 
     public String getParameter(String name) {
-        /*@todo implement*/
-        return null;
+        return parameterList.get(name);
     }
 
     public void setParameter(String name, String value) {
-        /*@todo implement*/
+        parameterList.set(name, value);
     }
 
     public void removeParameter(String name) {
-        /*@todo implement*/
+        parameterList.remove(name);
     }
 
     public String toString() {
-        /*@todo implement*/
-        return null;
+        return getBaseType() +
+                (parameterList == null
+                ? ""
+                : PARAMETER_SEPARATOR + parameterList.toString());
     }
 
     public String getBaseType() {
-        /*@todo implement*/
-        return null;
+        return getPrimaryType() + TYPE_SEPARATOR + getSubType();
     }
 
     public boolean match(MimeType type) {
-        /*@todo implement*/
-        return false;
+        return (
+                getPrimaryType().equals(type.getPrimaryType())
+                && (getSubType().equals(STAR_SUB_TYPE)
+                || type.getSubType().equals(STAR_SUB_TYPE)
+                || getSubType().equals(type.getSubType())));
     }
 
     public boolean match(String rawdata) throws MimeTypeParseException {
-         /*@todo implement*/
-        return false;
+        return match(new MimeType(rawdata));
     }
 
     public void writeExternal(ObjectOutput out) throws IOException {
-        /*@todo implement*/
+        out.writeUTF(toString());
+        out.flush();
     }
 
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-        /*@todo implement*/
+        try {
+            parseMimeType(in.readUTF());
+        } catch (MimeTypeParseException mtpex) {
+            throw new IOException(mtpex.getMessage());
+        }
     }
+
+    private void parseMimeType(String rawData) throws MimeTypeParseException {
+        int typeSeparatorPos = rawData.indexOf(TYPE_SEPARATOR);
+        int parameterSeparatorPos = rawData.indexOf(PARAMETER_SEPARATOR);
+
+        if (typeSeparatorPos < 0) {
+            throw new MimeTypeParseException("Unable to find subtype");
+        }
+
+        setPrimaryType(rawData.substring(0, typeSeparatorPos));
+        if (parameterSeparatorPos < 0) {
+            setSubType(rawData.substring(typeSeparatorPos + 1));
+        } else {
+            setSubType(rawData.substring(typeSeparatorPos + 1, parameterSeparatorPos));
+            parameterList = new MimeTypeParameterList(rawData.substring(parameterSeparatorPos + 1));
+        }
+    }
+
+    private static String parseToken(String tokenString) {
+        // TODO it seems to have unauthorized chars
+        return tokenString;
+    }
+
 }
