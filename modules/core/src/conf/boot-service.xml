@@ -2,17 +2,18 @@
 <components>
 <!--
     <class-space name="geronimo.system:role=ClassSpace,name=System">
-        <codebase url="file:/D:/temp/jetty/">
+        <codebase url="file:/Users/dain/work/geronimo/jetty-hack/lib/">
             <archive name="*"/>
         </codebase>
     </class-space>
 
     <mbean code="jetty.Jetty" name="jetty:role=WebContainer">
         <constructor>
-            <arg type="java.net.URL">file:/D:/temp/jetty.xml</arg>
+            <arg type="java.net.URL">file:/Users/dain/work/geronimo/jetty-hack/jetty.xml</arg>
         </constructor>
     </mbean>
 -->
+
     <!-- RMI adaptor to support MC4J -->
     <mbean code="mx4j.tools.naming.NamingService" name="Naming:type=rmiregistry">
     </mbean>
@@ -21,12 +22,13 @@
     </mbean>
 
     <mbean code="org.apache.geronimo.deployment.scanner.DeploymentScanner" name="geronimo.deployment:role=DeploymentScanner">
+        <constructor>
+            <arg type="java.lang.String">
+                file:../../deploy/
+            </arg>
+            <arg type="boolean">false</arg>
+        </constructor>
         <attribute name="ScanInterval">5000</attribute>
         <relationship type="DeploymentController-DeploymentScanner" name="DeploymentController-DeploymentScanner" role="DeploymentScanner"/>
-        <invoke operation="addURL">
-            <arg type="java.lang.String">file:deploy/</arg>
-            <arg type="boolean">false</arg>
-        </invoke>
     </mbean>
-
 </components>
