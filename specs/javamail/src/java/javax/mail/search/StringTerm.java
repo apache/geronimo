@@ -60,7 +60,7 @@
 //
 package javax.mail.search;
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/16 01:55:48 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/04 00:27:58 $
  */
 public abstract class StringTerm extends SearchTerm {
     protected boolean ignoreCase;
@@ -77,7 +77,7 @@ public abstract class StringTerm extends SearchTerm {
             && ((StringTerm) other).pattern.equals(pattern)
             && ((StringTerm) other).ignoreCase == ignoreCase;
     }
-    public boolean getInoreCase() {
+    public boolean getIgnoreCase() {
         return ignoreCase;
     }
     public String getPattern() {
