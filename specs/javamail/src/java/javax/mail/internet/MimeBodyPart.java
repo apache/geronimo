@@ -205,7 +205,10 @@ public class MimeBodyPart extends BodyPart implements MimePart {
     }
 
     public void writeTo(OutputStream out) throws IOException, MessagingException {
-        throw new UnsupportedOperationException("Method not yet implemented");
+        headers.writeTo(out, null);
+        out.write(13);
+        out.write(10);
+        out.write(content);
     }
 
     public String[] getHeader(String name) throws MessagingException {

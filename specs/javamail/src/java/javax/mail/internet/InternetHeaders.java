@@ -17,13 +17,17 @@
 
 package javax.mail.internet;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import javax.mail.Address;
 import javax.mail.Header;
 import javax.mail.MessagingException;
@@ -99,6 +103,7 @@ public class InternetHeaders {
 
     /**
      * Return all the values for the specified header.
+     *
      * @param name the header to return
      * @return the values for that header, or null if the header is not present
      */
@@ -121,7 +126,7 @@ public class InternetHeaders {
      * If the header has more than one value then all values are concatenated
      * together separated by the supplied delimiter.
      *
-     * @param name the header to return
+     * @param name      the header to return
      * @param delimiter the delimiter used in concatenation
      * @return the header as a single String
      */
@@ -132,10 +137,10 @@ public class InternetHeaders {
         } else if (list.isEmpty()) {
             return "";
         } else if (list.size() == 1) {
-            return ((InternetHeader)list.get(0)).getValue();
+            return ((InternetHeader) list.get(0)).getValue();
         } else {
             StringBuffer buf = new StringBuffer(20 * list.size());
-            buf.append(((InternetHeader)list.get(0)).getValue());
+            buf.append(((InternetHeader) list.get(0)).getValue());
             for (int i = 1; i < list.size(); i++) {
                 buf.append(delimiter);
                 buf.append(((InternetHeader) list.get(i)).getValue());
@@ -148,7 +153,7 @@ public class InternetHeaders {
      * Set the value of the header to the supplied value; any existing
      * headers are removed.
      *
-     * @param name the name of the header
+     * @param name  the name of the header
      * @param value the new value
      */
     public void setHeader(String name, String value) {
@@ -159,7 +164,8 @@ public class InternetHeaders {
 
     /**
      * Add a new value to the header with the supplied name.
-     * @param name the name of the header to add a new value for
+     *
+     * @param name  the name of the header to add a new value for
      * @param value another value
      */
     public void addHeader(String name, String value) {
@@ -172,6 +178,7 @@ public class InternetHeaders {
 
     /**
      * Remove all header entries with the supplied name
+     *
      * @param name the header to remove
      */
     public void removeHeader(String name) {
@@ -181,6 +188,7 @@ public class InternetHeaders {
 
     /**
      * Return all headers.
+     *
      * @return an Enumeration<Header> containing all headers
      */
     public Enumeration getAllHeaders() {
@@ -188,7 +196,9 @@ public class InternetHeaders {
         Iterator it = headers.values().iterator();
         while (it.hasNext()) {
             List list = (List) it.next();
-            result.addAll(list);
+            if (list != null) {
+                result.addAll(list);
+            }
         }
         return Collections.enumeration(result);
     }
@@ -259,6 +269,28 @@ public class InternetHeaders {
 
     private void setHeaderList(String name, List list) {
         headers.put(name.toLowerCase(), list);
+    }
+
+    void writeTo(OutputStream out, String[] ignore) throws IOException {
+        Map map = new LinkedHashMap(headers);
+        if (ignore != null) {
+            map.keySet().removeAll(Arrays.asList(ignore));
+        }
+        for (Iterator i = map.entrySet().iterator(); i.hasNext();) {
+            Map.Entry entry = (Map.Entry) i.next();
+            String name = (String) entry.getKey();
+            List headers = (List) entry.getValue();
+            if (headers != null) {
+                for (int j = 0; j < headers.size(); j++) {
+                    InternetHeader header = (InternetHeader) headers.get(j);
+                    out.write(name.getBytes());
+                    out.write(':');
+                    out.write(header.getValue().getBytes());
+                    out.write(13);
+                    out.write(10);
+                }
+            }
+        }
     }
 
     private static class InternetHeader extends Header {

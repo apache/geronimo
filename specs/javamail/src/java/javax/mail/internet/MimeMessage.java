@@ -472,13 +472,21 @@ public class MimeMessage extends Message implements MimePart {
     }
 
     public void writeTo(OutputStream out) throws MessagingException, IOException {
-        // TODO Implement method
-        throw new UnsupportedOperationException("Method not yet implemented");
+        writeTo(out, null);
     }
 
     public void writeTo(OutputStream out, String[] ignoreHeaders) throws MessagingException, IOException {
-        // TODO Implement method
-        throw new UnsupportedOperationException("Method not yet implemented");
+        if (!saved) {
+            saveChanges();
+        }
+        headers.writeTo(out, ignoreHeaders);
+        out.write(13);
+        out.write(10);
+        if (modified) {
+            dh.writeTo(MimeUtility.encode(out, getEncoding()));
+        } else {
+            out.write(content);
+        }
     }
 
     public String[] getHeader(String name) throws MessagingException {
