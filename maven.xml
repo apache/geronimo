@@ -1,3 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Id: maven.xml,v 1.5 2003/08/12 12:13:43 jdillon Exp $ -->
+
 <project default="jar:install" 
          xmlns:j="jelly:core" 
          xmlns:ant="jelly:ant" 
@@ -9,19 +13,56 @@
   </preGoal>
 
   <goal name="run" prereqs="set.classpath"
-      description="Runs the Geronimo Server using the current build">
-    <java classname="org.apache.geronimo.Main" fork="yes">
-      <classpath refid="test.classpath"/>
-    </java>
+        description="Runs the Geronimo Server using the current build">
+    <ant:java classname="org.apache.geronimo.Main" fork="yes">
+      <ant:classpath refid="test.classpath"/>
+    </ant:java>
   </goal>
 
   <goal name="set.classpath" prereqs="java:compile, test:compile"
-      description="Sets up the classpath for running things">
-    <path id="test.classpath">
-      <pathelement path="target/test-classes"/>
-      <pathelement path="modules/core/src/conf/"/>
-      <pathelement path="${maven.build.dest}"/>
-      <path refid="maven.dependency.classpath"/>
-    </path>
+        description="Sets up the classpath for running things">
+    <ant:path id="test.classpath">
+      <ant:pathelement path="target/test-classes"/>
+      <ant:pathelement path="modules/core/src/conf/"/>
+      <ant:pathelement path="${maven.build.dest}"/>
+      <ant:path refid="maven.dependency.classpath"/>
+    </ant:path>
   </goal>
+  
+  
+  <!-- ======= -->
+  <!-- Modules -->
+  <!-- ======= -->
+  
+  <goal name="modules:reactor">
+    <maven:reactor
+        basedir="${basedir}/modules"
+        includes="*/project.xml"
+        banner="Executing (${goals}):"
+        ignoreFailures="false"
+        goals="${goals}"
+    />
+  </goal>
+  
+  <goal name="modules:build">
+    <j:set var="goals" value="jar:install"/>
+    <attainGoal name="modules:reactor"/>
+  </goal>
+   
+  <goal name="modules:site">
+    <j:set var="goals" value="site"/>
+    <attainGoal name="modules:reactor"/>
+  </goal>
+  
+  <goal name="modules:clean">
+    <j:set var="goals" value="clean"/>
+    <attainGoal name="modules:reactor"/>
+  </goal>
+  
+  <!-- Need to refactor project globals before this will function properly
+  <preGoal name="clean">
+    <attainGoal name="modules:clean"/>
+  </preGoal>
+  -->
+   
 </project>
