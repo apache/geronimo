@@ -58,26 +58,126 @@ package org.apache.geronimo.kernel;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
+import java.util.List;
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.InstanceNotFoundException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
+import javax.management.NotificationBroadcaster;
 
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
 
 /**
  *
  *
- * @version $Revision: 1.3 $ $Date: 2004/02/04 05:42:57 $
+ * @version $Revision: 1.4 $ $Date: 2004/02/12 18:22:55 $
  */
 public interface KernelMBean {
-    public MBeanServer getMBeanServer();
+    /**
+     * Get the MBeanServer used by this kernel
+     * @return the MBeanServer used by this kernel
+     */
+    MBeanServer getMBeanServer();
 
-    public String getKernelName();
+    /**
+     * Get the name of this kernel
+     * @return the name of this kernel
+     */
+    String getKernelName();
 
-    public ObjectName load(GBeanMBean config, URL baseURL) throws InvalidConfigException;
+    /**
+     * Load the specified configuration and all of its parents.
+     * Stops at the root or when a previously loaded configuration is found.
+     * @param configID the configuration to load
+     * @return a List<ObjectName> of configurations that were actually loaded; an empty List if none were
+     * @throws NoSuchConfigException if the store does not contain the specified Configuration
+     * @throws IOException if the Configuration could not be read from the store
+     * @throws InvalidConfigException if the Configuration is not valid
+     */
+    List loadRecursive(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException;
 
-    public void unload(ObjectName configName) throws NoSuchConfigException;
+    /**
+     * Load the specified Configuration from the store into this Kernel
+     * @param configID the unique id of the Configuration to load
+     * @return the JMX ObjectName the Kernel registered the Configuration under
+     * @throws NoSuchConfigException if the store does not contain the specified Configuration
+     * @throws IOException if the Configuration could not be read from the store
+     * @throws InvalidConfigException if the Configuration is not valid
+     * @throws UnsupportedOperationException if this kernel does not have a store
+     */
+    ObjectName load(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException;
 
-    public ObjectName load(URI configID) throws IOException, NoSuchConfigException, InvalidConfigException;
+    /**
+     * Determine if the given configuration is loaded.
+     * @param configID
+     * @return true if the configuration is loaded
+     */
+    boolean isLoaded(URI configID);
+
+    /**
+     * Unload the specified Configuration from the Kernel
+     * @param configName the JMX name of the Configuration that should be unloaded
+     * @throws NoSuchConfigException if the specified Configuration is not loaded
+     */
+    void unload(ObjectName configName) throws NoSuchConfigException;
+
+    /**
+     * Load a specific GBean into this kernel.
+     * This is intended for applications that are embedding the kernel.
+     * @param name the name to register the GBean under
+     * @param gbean the GBean to register
+     * @throws InstanceAlreadyExistsException if the name is already used
+     * @throws org.apache.geronimo.kernel.config.InvalidConfigException if there is a problem during registration
+     */
+    void loadGBean(ObjectName name, GBeanMBean gbean) throws InstanceAlreadyExistsException, InvalidConfigException;
+
+    /**
+     * Start a specific GBean.
+     * @param name the GBean to start
+     * @throws InstanceNotFoundException if the GBean could not be found
+     */
+    void startGBean(ObjectName name) throws InstanceNotFoundException, InvalidConfigException;
+
+    /**
+     * Start a specific GBean and its children.
+     * @param name the GBean to start
+     * @throws javax.management.InstanceNotFoundException if the GBean could not be found
+     */
+    void startRecursiveGBean(ObjectName name) throws InstanceNotFoundException, InvalidConfigException;
+
+    /**
+     * Stop a specific GBean.
+     * @param name the GBean to stop
+     * @throws javax.management.InstanceNotFoundException if the GBean could not be found
+     */
+    void stopGBean(ObjectName name) throws InstanceNotFoundException, InvalidConfigException;
+
+    /**
+     * Unload a specific GBean.
+     * This is intended for applications that are embedding the kernel.
+     * @param name the name of the GBean to unregister
+     * @throws javax.management.InstanceNotFoundException if the GBean could not be found
+     */
+    void unloadGBean(ObjectName name) throws InstanceNotFoundException;
+
+    /**
+     * Load the supplied Configuration into the Kernel and define its root using the specified URL.
+     * @param config the GBeanMBean representing the Configuration
+     * @param rootURL the URL to be used to resolve relative paths in the configuration
+     * @return the JMX ObjectName the Kernel registered the Configuration under
+     * @throws InvalidConfigException if the Configuration is not valid
+     */
+    ObjectName load(GBeanMBean config, URL rootURL) throws InvalidConfigException;
+
+    /**
+     * Install the CAR at the supplied URL into this kernel's store
+     * @param source the URL of a CAR format archive
+     * @throws IOException if the CAR could not be read
+     * @throws InvalidConfigException if there is a configuration problem with the CAR
+     */
+    void install(URL source) throws IOException, InvalidConfigException;
+
+    boolean isRunning();
 }
