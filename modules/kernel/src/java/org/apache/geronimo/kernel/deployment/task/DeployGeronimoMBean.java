@@ -80,7 +80,7 @@ import org.apache.geronimo.kernel.service.ParserUtil;
 /**
  *
  *
- * @version $Revision: 1.8 $ $Date: 2003/11/18 02:19:37 $
+ * @version $Revision: 1.9 $ $Date: 2003/12/28 19:28:58 $
  */
 public class DeployGeronimoMBean implements DeploymentTask {
     private static final Log log = LogFactory.getLog(DeployGeronimoMBean.class);
@@ -124,7 +124,7 @@ public class DeployGeronimoMBean implements DeploymentTask {
                     try {
                         metadata.setGeronimoMBeanInfo(GeronimoMBean.getGeronimoMBeanInfo(metadata.getGeronimoMBeanDescriptor()));
                     } catch (Exception e) {
-                        //ignore
+                        log.trace("Failed to obtain coded GeronimoMBeanInfo", e);
                     }
                 }
                 GeronimoMBean mbean = new GeronimoMBean();
