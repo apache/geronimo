@@ -46,6 +46,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.ApplicationInfo;
+import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEApplicationImpl;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
@@ -135,7 +136,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         return new ApplicationInfo(module.getType(),
                 module.getConfigId(),
                 module.getParentId(),
-                "null",
+                NameFactory.NULL,
                 null,
                 null,
                 Collections.singleton(module),
@@ -222,10 +223,12 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             throw new DeploymentException(e);
         }
 
+        String applicationName = gerApplication.isSetApplicationName()? gerApplication.getApplicationName(): configId.toString();
+
         return new ApplicationInfo(ConfigurationModuleType.EAR,
                 configId,
                 parentId,
-                configId.toString(),
+                applicationName,
                 application,
                 gerApplication,
                 modules,
