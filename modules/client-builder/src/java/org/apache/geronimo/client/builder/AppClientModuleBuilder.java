@@ -251,6 +251,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         // get the app client main class
         JarFile moduleFile = module.getModuleFile();
         String mainClasss = null;
+        String classPath = null;
         try {
             Manifest manifest = moduleFile.getManifest();
             if (manifest == null) {
@@ -259,6 +260,10 @@ public class AppClientModuleBuilder implements ModuleBuilder {
             mainClasss = manifest.getMainAttributes().getValue(Attributes.Name.MAIN_CLASS);
             if (mainClasss == null) {
                 throw new DeploymentException("App client module jar does not have Main-Class defined in the manifest: " + moduleFile.getName());
+            }
+            classPath = manifest.getMainAttributes().getValue(Attributes.Name.CLASS_PATH);
+            if (module.isStandAlone() && classPath != null) {
+                throw new DeploymentException("Manifest class path entry is not allowed in a standalone jar (J2EE 1.4 Section 8.2)");
             }
         } catch (IOException e) {
             throw new DeploymentException("Could not get manifest from app client module: " + moduleFile.getName());
@@ -341,7 +346,8 @@ public class AppClientModuleBuilder implements ModuleBuilder {
 
             // extract the client Jar file into a standalone packed jar file and add the contents to the output
             File appClientJarFile = JarUtil.extractToPackedJar(moduleFile);
-            appClientDeploymentContext.addInclude(URI.create(module.getTargetPath()), appClientJarFile.toURL());
+            URI moduleBase = new URI(appClientModule.getTargetPath());
+            appClientDeploymentContext.addInclude(moduleBase, appClientJarFile.toURL());
 
             // add the includes
             GerDependencyType[] includes = geronimoAppClient.getIncludeArray();
@@ -373,6 +379,9 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 appClientDeploymentContext.addDependency(getDependencyURI(dependencies[i]));
             }
 
+            appClientDeploymentContext.addManifestClassPath(appClientModule.getEarFile(), appClientModule, moduleFile, moduleBase);
+
+
             // get the classloader
             ClassLoader appClientClassLoader = appClientDeploymentContext.getClassLoader(repository);
 
@@ -399,7 +408,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                         connectorFile = new JarFile(pathURL.getFile());
                     } else {
                         path = resource.getInternalRar();
-                      connectorFile = new NestedJarFile(appClientModule.getEarFile(), path);
+                        connectorFile = new NestedJarFile(appClientModule.getEarFile(), path);
                     }
                     XmlObject connectorPlan = resource.getConnector();
                     Module connectorModule = connectorModuleBuilder.createModule(connectorPlan, connectorFile, path, null);

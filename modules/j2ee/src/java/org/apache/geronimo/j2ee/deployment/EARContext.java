@@ -17,15 +17,23 @@
 package org.apache.geronimo.j2ee.deployment;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.StringTokenizer;
 import java.util.jar.JarOutputStream;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
+import java.util.jar.Attributes;
+import java.io.IOException;
+import java.io.File;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.deployment.util.JarUtil;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 
@@ -156,4 +164,48 @@ public class EARContext extends DeploymentContext {
     public String getResourceAdapterModule(String resourceAdapterName) {
         return (String) resourceAdapterModules.get(resourceAdapterName);
     }
+
+    public void addManifestClassPath(JarFile earFile, Module module, JarFile jarFile, URI baseUri) throws DeploymentException, URISyntaxException, IOException {
+        String classPath = null;
+        try {
+            Manifest manifest = jarFile.getManifest();
+            if (manifest == null) {
+                return;
+            }
+            classPath = manifest.getMainAttributes().getValue(Attributes.Name.CLASS_PATH);
+            if (classPath == null) {
+                return;
+            }
+        } catch (IOException e) {
+            throw new DeploymentException("Could not get manifest from app client module: " + jarFile.getName());
+        }
+
+        for (StringTokenizer tokenizer = new StringTokenizer(classPath, " "); tokenizer.hasMoreTokens();) {
+            URI uri = new URI(tokenizer.nextToken());
+            if (!uri.getPath().endsWith(".jar")) {
+                throw new DeploymentException("Manifest class path entries must end with the .jar extension (J2EE 1.4 Section 8.2)");
+            }
+            if (uri.isAbsolute()) {
+                throw new DeploymentException("Manifest class path entries must be relative (J2EE 1.4 Section 8.2)");
+            }
+
+            URI path = baseUri.resolve(uri);
+            File classPathFile = JarUtil.toFile(earFile, path.getPath());
+
+            // before going to the work of adding this file, let's make sure it really is a jar file
+            JarFile classPathJar;
+            try {
+                classPathJar = new JarFile(classPathFile);
+            } catch (IOException e) {
+                throw new DeploymentException("Manifest class path entries must be a valid jar file (J2EE 1.4 Section 8.2)", e);
+            }
+
+            // add this class path jar to the output context
+            addInclude(path, classPathFile.toURL());
+
+            // add the client jars of this class path jar
+            addManifestClassPath(earFile, module, classPathJar, path);
+        }
+    }
+
 }
