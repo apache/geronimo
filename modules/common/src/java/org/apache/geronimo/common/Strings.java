@@ -67,7 +67,7 @@ import java.io.File;
 /**
  * A collection of String utilities.
  *
- * @version $Revision: 1.7 $ $Date: 2003/08/16 15:14:11 $
+ * @version $Revision: 1.8 $ $Date: 2003/08/25 18:34:38 $
  */
 public final class Strings
 {
@@ -709,10 +709,10 @@ public final class Strings
                 url = makeURLFromFilespec(urlspec, relativePrefix);
             }
             catch (IOException n) {
-                //
-                // jason: or should we rethrow e?
-                //
-                throw new MalformedURLException(n.toString());
+                MalformedURLException mue = 
+                    new MalformedURLException("Failed to create URL from filespec: " + urlspec);
+                mue.initCause(n);
+                throw mue;
             }
         }
         
