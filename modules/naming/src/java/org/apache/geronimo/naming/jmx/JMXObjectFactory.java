@@ -30,7 +30,7 @@ import org.apache.geronimo.kernel.Kernel;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/03/09 18:03:11 $
+ * @version $Revision: 1.2 $ $Date: 2004/07/06 17:13:54 $
  *
  * */
 public class JMXObjectFactory implements ObjectFactory {
@@ -51,6 +51,9 @@ public class JMXObjectFactory implements ObjectFactory {
                 kernel = Kernel.getKernel(jmxRefAddr.getKernelName());
             }
             Object proxy = kernel.invoke(jmxRefAddr.getTargetName(), "getProxy");
+            if (proxy == null) {
+                throw new IllegalStateException("Proxy not returned. Target " + jmxRefAddr.getTargetName() + " not started");
+            }
             if (!jmxRefAddr.getInterface().isAssignableFrom(proxy.getClass())) {
                 throw new IllegalStateException("Proxy does not implement expected interface " + jmxRefAddr.getInterface());
             }
