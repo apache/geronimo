@@ -53,6 +53,11 @@
             <version>${pom.currentVersion}</version>
         </dependency>
         <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-system</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+        <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee</artifactId>
             <version>&geronimo-spec-j2ee-version;</version>
@@ -63,7 +68,9 @@
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>catalina</artifactId>
-            <version>&tomcat-version;</version>
+            <!-- Don't want to break the other modules that rely on the libs -->
+            <!--version>&tomcat-version;</version-->
+            <version>5.5.4</version>
             <url>http://jakarta.apache.org/tomcat/</url>
             <properties>
                 <repository>true</repository>
@@ -72,7 +79,9 @@
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>tomcat-coyote</artifactId>
-            <version>&tomcat-version;</version>
+            <!-- Don't want to break the other modules that rely on the libs -->
+            <!--version>&tomcat-version;</version-->
+            <version>5.5.4</version>
             <url>http://jakarta.apache.org/tomcat/</url>
             <properties>
                 <repository>true</repository>
@@ -80,8 +89,10 @@
         </dependency>
         <dependency>
             <groupId>tomcat</groupId>
-            <artifactId>tomcat-http11</artifactId>
-            <version>&tomcat-version;</version>
+            <artifactId>tomcat-http</artifactId>
+            <!-- Don't want to break the other modules that rely on the libs -->
+            <!--version>&tomcat-version;</version-->
+            <version>5.5.4</version>
             <url>http://jakarta.apache.org/tomcat/</url>
             <properties>
                 <repository>true</repository>
@@ -90,7 +101,9 @@
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>jasper-compiler</artifactId>
-            <version>&tomcat-version;</version>
+            <!-- Don't want to break the other modules that rely on the libs -->
+            <!--version>&tomcat-version;</version-->
+            <version>5.5.4</version>
             <url>http://jakarta.apache.org/tomcat/</url>
             <properties>
                 <repository>true</repository>
@@ -99,7 +112,9 @@
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>jasper-runtime</artifactId>
-            <version>&tomcat-version;</version>
+            <!-- Don't want to break the other modules that rely on the libs -->
+            <!--version>&tomcat-version;</version-->
+            <version>5.5.4</version>
             <url>http://jakarta.apache.org/tomcat/</url>
             <properties>
                 <repository>true</repository>
@@ -108,16 +123,9 @@
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>tomcat-util</artifactId>
-            <version>&tomcat-version;</version>
-            <url>http://jakarta.apache.org/tomcat/</url>
-            <properties>
-                <repository>true</repository>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>tomcat</groupId>
-            <artifactId>naming-common</artifactId>
-            <version>&tomcat-version;</version>
+            <!-- Don't want to break the other modules that rely on the libs -->
+            <!--version>&tomcat-version;</version-->
+            <version>5.5.4</version>
             <url>http://jakarta.apache.org/tomcat/</url>
             <properties>
                 <repository>true</repository>
@@ -126,16 +134,9 @@
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>naming-resources</artifactId>
-            <version>&tomcat-version;</version>
-            <url>http://jakarta.apache.org/tomcat/</url>
-            <properties>
-                <repository>true</repository>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>tomcat</groupId>
-            <artifactId>servlets-common</artifactId>
-            <version>&tomcat-version;</version>
+            <!-- Don't want to break the other modules that rely on the libs -->
+            <!--version>&tomcat-version;</version-->
+            <version>5.5.4</version>
             <url>http://jakarta.apache.org/tomcat/</url>
             <properties>
                 <repository>true</repository>
@@ -144,7 +145,9 @@
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>servlets-default</artifactId>
-            <version>&tomcat-version;</version>
+            <!-- Don't want to break the other modules that rely on the libs -->
+            <!--version>&tomcat-version;</version-->
+            <version>5.5.4</version>
             <url>http://jakarta.apache.org/tomcat/</url>
             <properties>
                 <repository>true</repository>
@@ -153,7 +156,9 @@
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>servlets-invoker</artifactId>
-            <version>&tomcat-version;</version>
+            <!-- Don't want to break the other modules that rely on the libs -->
+            <!--version>&tomcat-version;</version-->
+            <version>5.5.4</version>
             <url>http://jakarta.apache.org/tomcat/</url>
             <properties>
                 <repository>true</repository>
@@ -220,6 +225,14 @@
             <artifactId>regexp</artifactId>
             <version>&regexp-version;</version>
             <url>http://jakarta.apache.org/regexp/</url>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>mx4j</groupId>
+            <artifactId>mx4j</artifactId>
+            <version>&mx4j-version;</version>
             <properties>
                 <repository>true</repository>
             </properties>

@@ -74,52 +74,22 @@
 		      file="${maven.repo.local}/commons-modeler/jars/commons-modeler-&commons-modeler-version;.jar"/>
 		<copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/xerces/jars"
 		      file="${maven.repo.local}/xerces/jars/xercesImpl-&xerces-version;.jar"/>
-
-        <!-- Pre-load the server's repository (copied from assembly's maven.xml) -->
-        <!--
-        <j:set var="repoDir" value="../assembly/target/${pom.groupId}-${pom.currentVersion}/repository"/>
-        <ant:mkdir dir="${repoDir}"/>
-        <ant:copy todir="${repoDir}">
-            <ant:fileset dir="${maven.repo.local}">
-                <j:forEach var="artifact" items="${pom.artifacts}">
-                    <j:set var="dependency" value="${artifact.dependency}"/>
-                    <j:if test="${dependency.getProperty('repository') == 'true'}">
-                        <ant:include name="${dependency.getArtifactDirectory()}/${dependency.getType()}s/${dependency.getArtifact()}"/>
-                    </j:if>
-                </j:forEach>
-            </ant:fileset>
-        </ant:copy>
-        -->
+		<copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/mx4j/jars"
+		      file="${maven.repo.local}/mx4j/jars/mx4j-&mx4j-version;.jar"/>
         
         <copy todir="${geronimoHome}/var/catalina/conf" file="src/var/server.xml"/>
         <copy todir="${geronimoHome}/var/catalina/conf" file="src/var/web.xml"/>
         
+        <j:set var="tomcatWebappDir" value="${geronimoHome}/var/catalina/webapps"/>
+        <echo>Deploy your webapps to ${tomcatWebappDir}</echo>
+		<mkdir dir="${tomcatWebappDir}"/>
+        
         <echo>Deploying Apache Tomcat configuration</echo>
-        <java fork="true" jar="../assembly/target/geronimo-${pom.currentVersion}/bin/deployer.jar"
-              failonerror="true">
+        <java fork="true" jar="../assembly/target/geronimo-${pom.currentVersion}/bin/deployer.jar" failonerror="true">
             <jvmarg value="-ea"/>
-            <arg value="--install"/>
-            <arg value="--plan"/>
+            <arg value="distribute"/>
             <arg value="src/plan/tomcat-plan.xml"/>
         </java>
 	</postGoal>	
-	
-<!--
-	<postGoal name="jar:jar">
-		<copy todir="../assembly/target/geronimo-${pom.currentVersion}/repository/geronimo/jars"
-		      file="target/${maven.final.name}.jar"/>
-	</postGoal>
-	
-    <goal name="deploy">
-        <echo>Deploying Apache Tomcat configuration</echo>
-        <java fork="true" jar="../assembly/target/geronimo-${pom.currentVersion}/bin/deployer.jar"
-              failonerror="true">
-            <jvmarg value="-ea"/>
-            <arg value="- -install"/>
-            <arg value="- -plan"/>
-            <arg value="src/plan/tomcat-plan.xml"/>
-        </java>
-    </goal>
--->
 </project>
 
