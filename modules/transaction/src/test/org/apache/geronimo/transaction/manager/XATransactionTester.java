@@ -19,7 +19,7 @@ package org.apache.geronimo.transaction.manager;
 
 import java.sql.Connection;
 import java.sql.Statement;
-import java.util.List;
+import java.util.Map;
 
 import javax.sql.XAConnection;
 import javax.sql.XADataSource;
@@ -31,7 +31,7 @@ import javax.transaction.xa.Xid;
  *
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/05/06 04:00:51 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/08 17:33:43 $
  */
 public class XATransactionTester {
     private TransactionLog log;
@@ -104,7 +104,7 @@ public class XATransactionTester {
             XATransactionTester.this.xid = xid;
         }
 
-        public void prepare(Xid xid) throws LogException {
+        public void prepare(Xid xid, String[] names) throws LogException {
         }
 
         public void commit(Xid xid) throws LogException {
@@ -113,7 +113,7 @@ public class XATransactionTester {
         public void rollback(Xid xid) throws LogException {
         }
 
-        public List recover() throws LogException {
+        public Map recover(XidFactory xidFactory) throws LogException {
             return null;
         }
 

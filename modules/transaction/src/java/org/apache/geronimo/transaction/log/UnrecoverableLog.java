@@ -17,27 +17,27 @@
 
 package org.apache.geronimo.transaction.log;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.transaction.xa.Xid;
 
-import org.apache.geronimo.transaction.manager.TransactionLog;
 import org.apache.geronimo.transaction.manager.LogException;
+import org.apache.geronimo.transaction.manager.TransactionLog;
+import org.apache.geronimo.transaction.manager.XidFactory;
 
 /**
  * A log sink that doesn't actually do anything.
  * Not recommended for production use as heuristic recovery will be needed if
  * the transaction coordinator dies.
  *
- * @version $Revision: 1.4 $ $Date: 2004/05/06 04:00:51 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/08 17:33:42 $
  */
 public class UnrecoverableLog implements TransactionLog {
     public void begin(Xid xid) throws LogException {
     }
 
-    public void prepare(Xid xid) throws LogException {
+    public void prepare(Xid xid, String[] names) throws LogException {
     }
 
     public void commit(Xid xid) throws LogException {
@@ -46,8 +46,8 @@ public class UnrecoverableLog implements TransactionLog {
     public void rollback(Xid xid) throws LogException {
     }
 
-    public List recover() throws LogException {
-        return new ArrayList();
+    public Map recover(XidFactory xidFactory) throws LogException {
+        return new HashMap();
     }
 
     public String getXMLStats() {

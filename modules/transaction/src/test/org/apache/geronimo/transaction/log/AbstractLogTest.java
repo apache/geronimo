@@ -18,9 +18,9 @@
 package org.apache.geronimo.transaction.log;
 
 import java.io.File;
-import java.io.Writer;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 
 import javax.transaction.xa.Xid;
 
@@ -30,7 +30,7 @@ import org.apache.geronimo.transaction.manager.TransactionLog;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/05/06 04:00:51 $
+ * @version $Revision: 1.2 $ $Date: 2004/06/08 17:33:43 $
  *
  * */
 public abstract class AbstractLogTest extends TestCase {
@@ -40,6 +40,7 @@ public abstract class AbstractLogTest extends TestCase {
     private int stoppedThreads = 0;
     long totalDuration = 0;
     private Xid xid;
+    private String[] names;
     final Object mutex = new Object();
     long totalXidCount = 0;
     private Writer resultsXML;
@@ -87,6 +88,7 @@ public abstract class AbstractLogTest extends TestCase {
         TransactionLog transactionLog = createTransactionLog();
 
         xid = new XidImpl2(new byte[Xid.MAXGTRIDSIZE]);
+        names = new String[] {"SAMPLE.NAME"};
 
         long startTime = journalTest(transactionLog, workers, xidCount);
 
@@ -123,7 +125,7 @@ public abstract class AbstractLogTest extends TestCase {
 
                         for (int i = 0; i < xidCount; i++) {
                             // journalize COMMITTING record
-                            logger.prepare(xid);
+                            logger.prepare(xid, names);
                             //localXidCount++;
 
                             // journalize FORGET record

@@ -26,7 +26,7 @@ import javax.transaction.xa.Xid;
  * Unique id for a transaction.  This implementation is backed by a single byte buffer
  * so can do less copying than one backed by several byte buffers for the different components.
  *
- * @version $Revision: 1.2 $ $Date: 2004/05/06 04:15:06 $
+ * @version $Revision: 1.3 $ $Date: 2004/06/08 17:33:42 $
  */
 public class XidImpl2 implements Xid, Serializable {
     private static int HEADER_SIZE = 4;
@@ -49,7 +49,7 @@ public class XidImpl2 implements Xid, Serializable {
      */
     public XidImpl2(byte[] globalId) {
         System.arraycopy(FORMAT_ID_BYTES, 0, buffer, HEADER_SIZE, FORMAT_SIZE);
-        buffer[GLOBALID_SIZE_POS] = (byte)globalId.length;
+        buffer[GLOBALID_SIZE_POS] = (byte) globalId.length;
         System.arraycopy(globalId, 0, buffer, HEADER_SIZE + FORMAT_SIZE, Xid.MAXGTRIDSIZE);
 
         //this.hash = hash(buffer);
@@ -62,13 +62,22 @@ public class XidImpl2 implements Xid, Serializable {
      */
     public XidImpl2(Xid global, byte[] branch) {
         if (global instanceof XidImpl2) {
-            System.arraycopy(((XidImpl2)global).buffer, 0, buffer, 0, HEADER_SIZE +FORMAT_SIZE + Xid.MAXGTRIDSIZE);
+            System.arraycopy(((XidImpl2) global).buffer, 0, buffer, 0, HEADER_SIZE + FORMAT_SIZE + Xid.MAXGTRIDSIZE);
         } else {
             System.arraycopy(FORMAT_ID_BYTES, 0, buffer, HEADER_SIZE, FORMAT_SIZE);
             byte[] globalId = global.getGlobalTransactionId();
             System.arraycopy(globalId, 0, buffer, HEADER_SIZE + FORMAT_SIZE, globalId.length);
         }
-        buffer[BRANCHID_SIZE_POS] = (byte)branch.length;
+        buffer[BRANCHID_SIZE_POS] = (byte) branch.length;
+        System.arraycopy(branch, 0, buffer, HEADER_SIZE + FORMAT_SIZE + Xid.MAXGTRIDSIZE, Xid.MAXBQUALSIZE);
+        //hash = hash(buffer);
+    }
+
+    public XidImpl2(int formatId, byte[] globalId, byte[] branch) {
+        //todo this is wrong, it ignores formatId supplied.  Maybe this is ok?
+        System.arraycopy(FORMAT_ID_BYTES, 0, buffer, HEADER_SIZE, FORMAT_SIZE);
+        System.arraycopy(globalId, 0, buffer, HEADER_SIZE + FORMAT_SIZE, globalId.length);
+        buffer[BRANCHID_SIZE_POS] = (byte) branch.length;
         System.arraycopy(branch, 0, buffer, HEADER_SIZE + FORMAT_SIZE + Xid.MAXGTRIDSIZE, Xid.MAXBQUALSIZE);
         //hash = hash(buffer);
     }

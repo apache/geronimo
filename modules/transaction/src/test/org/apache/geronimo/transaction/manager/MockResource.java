@@ -24,9 +24,10 @@ import javax.transaction.xa.Xid;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/03/10 09:59:37 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/08 17:33:43 $
  */
-public class MockResource implements XAResource {
+public class MockResource implements NamedXAResource {
+    private String name = "mockResource";
     private Xid xid;
     private MockResourceManager manager;
     private int timeout = 0;
@@ -108,6 +109,10 @@ public class MockResource implements XAResource {
 
     public boolean isRolledback() {
         return rolledback;
+    }
+
+    public String getName() {
+        return name;
     }
 
 }

@@ -42,7 +42,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Basic local transaction with support for multiple resources.
  *
- * @version $Revision: 1.5 $ $Date: 2004/05/06 04:00:51 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/08 17:33:42 $
  */
 public class TransactionImpl implements Transaction {
     private static final Log log = LogFactory.getLog("Transaction");
@@ -324,29 +324,24 @@ public class TransactionImpl implements Transaction {
 
     //helper method used by Transaction.commit and XATerminator prepare.
     private boolean internalPrepare() throws SystemException {
-        try {
-            txnLog.prepare(xid);
-        } catch (LogException e) {
-            try {
-                rollbackResources(resourceManagers);
-            } catch (Exception se) {
-                log.error("Unable to rollback after failure to log prepare", se.getCause());
-            }
-            throw (SystemException) new SystemException("Error logging prepare; transaction was rolled back)").initCause(e);
-        }
-        for (Iterator i = resourceManagers.iterator(); i.hasNext();) {
+        String[] names = new String[resourceManagers.size()];
+        int i = 0;
+        for (Iterator rms = resourceManagers.iterator(); rms.hasNext();) {
             synchronized (this) {
                 if (status != Status.STATUS_PREPARING) {
                     // we were marked for rollback
                     break;
                 }
             }
-            ResourceManager manager = (ResourceManager) i.next();
+            ResourceManager manager = (ResourceManager) rms.next();
             try {
                 int vote = manager.committer.prepare(manager.branchId);
                 if (vote == XAResource.XA_RDONLY) {
                     // we don't need to consider this RM any more
-                    i.remove();
+                    rms.remove();
+                } else {
+                    names[i] = manager.committer.getName();
+                    i++;
                 }
             } catch (XAException e) {
                 synchronized (this) {
@@ -365,19 +360,17 @@ public class TransactionImpl implements Transaction {
         }
 
         // log our decision
-        try {
-            if (willCommit) {
-                txnLog.commit(xid);
-            } else {
-                txnLog.rollback(xid);
-            }
-        } catch (LogException e) {
+        if (willCommit) {
             try {
-                rollbackResources(resourceManagers);
-            } catch (Exception se) {
-                log.error("Unable to rollback after failure to log decision", se.getCause());
+                txnLog.prepare(xid, names);
+            } catch (LogException e) {
+                try {
+                    rollbackResources(resourceManagers);
+                } catch (Exception se) {
+                    log.error("Unable to rollback after failure to log prepare", se.getCause());
+                }
+                throw (SystemException) new SystemException("Error logging prepare; transaction was rolled back)").initCause(e);
             }
-            throw (SystemException) new SystemException("Error logging decision (outcome is unknown)").initCause(e);
         }
         return willCommit;
     }
@@ -400,6 +393,7 @@ public class TransactionImpl implements Transaction {
         beforeCompletion();
         endResources();
         try {
+            rollbackResources(rms);
             try {
                 txnLog.rollback(xid);
             } catch (LogException e) {
@@ -410,7 +404,6 @@ public class TransactionImpl implements Transaction {
                 }
                 throw (SystemException) new SystemException("Error logging rollback").initCause(e);
             }
-            rollbackResources(rms);
         } finally {
             afterCompletion();
             synchronized (this) {
@@ -522,6 +515,12 @@ public class TransactionImpl implements Transaction {
                 continue;
             }
         }
+        try {
+            txnLog.commit(xid);
+        } catch (LogException e) {
+            log.error("Unexpected exception logging commit completion for xid " + xid, e);
+            throw (SystemException)new SystemException("Unexpected error logging commit completion for xid " + xid).initCause(e);
+        }
         synchronized (this) {
             status = Status.STATUS_COMMITTED;
         }
@@ -574,11 +573,11 @@ public class TransactionImpl implements Transaction {
 
 
     private static class ResourceManager {
-        private final XAResource committer;
+        private final NamedXAResource committer;
         private final Xid branchId;
 
         public ResourceManager(XAResource xaRes, Xid branchId) {
-            committer = xaRes;
+            committer = (NamedXAResource)xaRes;
             this.branchId = branchId;
         }
     }
