@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.5 $ $Date: 2003/08/16 19:31:46 $ -->
+<!-- $Revision: 1.6 $ $Date: 2003/08/24 09:27:44 $ -->
 
 <project>
   <pomVersion>3</pomVersion>
@@ -35,10 +35,41 @@
       <version>DEV</version>
       <properties>
         <module>true</module>
+        <runtime>true</runtime>
       </properties>
     </dependency>
     
     <!-- Thirdparty Dependencies -->
+    
+    <!-- this does not work because the artifact on ibiblio does not contain version info
+    <dependency>
+      <groupId>javacc</groupId>
+      <artifactId>JavaCC</artifactId>
+      <type>zip</type>
+      <version></version>
+      <properties>
+        <runtime>false</runtime>
+      </properties>
+    </dependency>
+    -->
+    
+    <dependency>
+      <id>forehead</id>
+      <version>SNAPSHOT</version>
+      <url>http://forehead.werken.com</url>
+      <properties>
+        <runtime>true</runtime>
+      </properties>
+    </dependency>
+    
+    <dependency>
+      <id>classworlds</id>
+      <version>SNAPSHOT</version>
+      <url>http://werken.com</url>
+      <properties>
+        <runtime>true</runtime>
+      </properties>
+    </dependency>
     
     <dependency>
       <id>castor</id>
