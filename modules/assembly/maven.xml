@@ -227,6 +227,13 @@
             <ant:arg value="${distDir}/bin/server.jar"/>
         </ant:java>
 
+        <!-- to debug one of these deployer calls, include these jvmargs right after the -ea arg
+        <ant:jvmarg value="-Xdebug"/>
+        <ant:jvmarg value="-Xnoagent"/>
+        <ant:jvmarg value="-Djava.compiler=NONE"/>
+        <ant:jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"/>
+        -->
+        
         <!-- build the J2EEServer configuration -->
         <ant:echo>Building server configuration</ant:echo>
         <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
