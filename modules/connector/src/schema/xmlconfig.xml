@@ -5,9 +5,9 @@
         <xb:package>org.apache.geronimo.xbeans.j2ee</xb:package>
     </xb:namespace-->
 
-    <xb:namespace uri="##local">
+    <!--xb:namespace uri="##local">
         <xb:package>org.apache.geronimo.xbeans.j2ee.connector_1_0</xb:package>
-    </xb:namespace>
+    </xb:namespace-->
 
     <xb:namespace uri="http://org.apache.geronimo/xml/ns/j2ee">
         <xb:package>org.apache.geronimo.xbeans.geronimo</xb:package>

@@ -60,9 +60,9 @@ import java.beans.PropertyEditor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.Collections;
-import java.util.Collection;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.jar.JarInputStream;
 
 import javax.management.AttributeNotFoundException;
@@ -71,7 +71,6 @@ import javax.management.MBeanException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
-import javax.enterprise.deploy.shared.CommandType;
 
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 import org.apache.geronimo.connector.outbound.ConnectionManagerDeployment;
@@ -79,7 +78,6 @@ import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
 import org.apache.geronimo.deployment.ConfigurationCallback;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentModule;
-import org.apache.geronimo.deployment.plugin.FailedProgressObject;
 import org.apache.geronimo.deployment.util.UnclosableInputStream;
 import org.apache.geronimo.gbean.DynamicGAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -89,10 +87,10 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectionDefinitionType;
+import org.apache.geronimo.xbeans.geronimo.GerConnectiondefinitionInstanceType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectionmanagerType;
-import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
-import org.apache.geronimo.xbeans.geronimo.GerConnectionfactoryInstanceType;
+import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
 import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConfigPropertyType;
 import org.apache.geronimo.xbeans.j2ee.connector_1_0.ConnectorDocument;
 import org.apache.geronimo.xbeans.j2ee.connector_1_0.ResourceadapterType;
@@ -102,7 +100,7 @@ import org.apache.xmlbeans.XmlOptions;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/02/09 07:10:25 $
+ * @version $Revision: 1.6 $ $Date: 2004/02/09 23:13:27 $
  *
  * */
 public class Connector_1_0Module extends AbstractConnectorModule implements DeploymentModule {
@@ -132,8 +130,8 @@ public class Connector_1_0Module extends AbstractConnectorModule implements Depl
             GerConnectionDefinitionType geronimoConnectionDefinition = geronimoResourceAdapter.getOutboundResourceadapter().getConnectionDefinitionArray(i);
             assert geronimoConnectionDefinition != null: "Null GeronimoConnectionDefinition";
             //ConnectionManagerFactory
-            for (int j = 0; j < geronimoConnectionDefinition.getConnectionfactoryInstanceArray().length; j++) {
-                GerConnectionfactoryInstanceType gerConnectionfactoryInstance = geronimoConnectionDefinition.getConnectionfactoryInstanceArray()[j];
+            for (int j = 0; j < geronimoConnectionDefinition.getConnectiondefinitionInstanceArray().length; j++) {
+                GerConnectiondefinitionInstanceType gerConnectionfactoryInstance = geronimoConnectionDefinition.getConnectiondefinitionInstanceArray()[j];
 
                 GerConnectionmanagerType connectionManagerFactory = gerConnectionfactoryInstance.getConnectionmanager();
                 GBeanInfo connectionManagerFactoryGBeanInfo;

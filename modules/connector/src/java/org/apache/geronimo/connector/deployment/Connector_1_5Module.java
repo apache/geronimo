@@ -94,7 +94,7 @@ import org.apache.geronimo.xbeans.geronimo.GerConnectionDefinitionType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectionmanagerType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
 import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
-import org.apache.geronimo.xbeans.geronimo.GerConnectionfactoryInstanceType;
+import org.apache.geronimo.xbeans.geronimo.GerConnectiondefinitionInstanceType;
 import org.apache.geronimo.xbeans.geronimo.GerAdminobjectInstanceType;
 import org.apache.geronimo.xbeans.j2ee.AdminobjectType;
 import org.apache.geronimo.xbeans.j2ee.ConfigPropertyType;
@@ -107,7 +107,7 @@ import org.apache.xmlbeans.XmlOptions;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/02/09 07:10:25 $
+ * @version $Revision: 1.6 $ $Date: 2004/02/09 23:13:27 $
  *
  * */
 public class Connector_1_5Module extends AbstractConnectorModule {
@@ -165,8 +165,8 @@ public class Connector_1_5Module extends AbstractConnectorModule {
             String connectionFactoryInterfaceName = geronimoConnectionDefinition.getConnectionfactoryInterface().getStringValue();
             ConnectionDefinitionType connectionDefinition = (ConnectionDefinitionType) connectionDefinitions.get(connectionFactoryInterfaceName);
             assert connectionDefinition != null: "No connection definition for ConnectionFactory class: " + connectionFactoryInterfaceName;
-            for (int j = 0; j < geronimoConnectionDefinition.getConnectionfactoryInstanceArray().length; j++) {
-                GerConnectionfactoryInstanceType connectionfactoryInstance = geronimoConnectionDefinition.getConnectionfactoryInstanceArray()[j];
+            for (int j = 0; j < geronimoConnectionDefinition.getConnectiondefinitionInstanceArray().length; j++) {
+                GerConnectiondefinitionInstanceType connectionfactoryInstance = geronimoConnectionDefinition.getConnectiondefinitionInstanceArray()[j];
 
                 //ConnectionManagerFactory
                 GerConnectionmanagerType connectionManagerFactory = connectionfactoryInstance.getConnectionmanager();

@@ -6,7 +6,7 @@
         <outbound-resourceadapter>
             <connection-definition>
                 <connectionfactory-interface>javax.resource.cci.ConnectionFactory</connectionfactory-interface>
-                <connectionfactory-instance>
+                <connectiondefinition-instance>
                     <name>FirstTestOutboundConnectionFactory</name>
                     <config-property-setting name="OutboundStringProperty1">newvalue1</config-property-setting>
                     <config-property-setting name="OutboundStringProperty3">newvalue2</config-property-setting>
@@ -22,8 +22,8 @@
                         <useSubject>true</useSubject>
                     </connectionmanager>
                     <global-jndi-name>connectionfactories/testcf</global-jndi-name>
-                </connectionfactory-instance>
-                <connectionfactory-instance>
+                </connectiondefinition-instance>
+                <connectiondefinition-instance>
                     <name>SecondTestOutboundConnectionFactory</name>
                     <config-property-setting name="OutboundStringProperty4">newvalue3</config-property-setting>
                     <config-property-setting name="OutboundStringProperty1">newvalue4</config-property-setting>
@@ -38,11 +38,11 @@
                         <useConnectionRequestInfo>false</useConnectionRequestInfo>
                         <useSubject>true</useSubject>
                      </connectionmanager>
-                </connectionfactory-instance>
+                </connectiondefinition-instance>
             </connection-definition>
             <connection-definition>
                 <connectionfactory-interface>org.apache.geronimo.connector.mock.MockConnectionFactory</connectionfactory-interface>
-                <connectionfactory-instance>
+                <connectiondefinition-instance>
                     <name>ThirdTestOutboundConnectionFactory</name>
                     <config-property-setting name="OutboundStringProperty">StringValue3</config-property-setting>
                     <connectionmanager>
@@ -56,7 +56,7 @@
                         <useConnectionRequestInfo>false</useConnectionRequestInfo>
                         <useSubject>true</useSubject>
                     </connectionmanager>
-                </connectionfactory-instance>
+                </connectiondefinition-instance>
             </connection-definition>
             <transaction-support>XATransaction</transaction-support>
         </outbound-resourceadapter>
