@@ -56,32 +56,24 @@
 package org.apache.management.j2ee;
 
 /**
+ * This class contains a type safe enumeration of the states from the J2EE Management specification.
  *
- *
- *
- * @version $Revision: 1.1 $ $Date: 2003/08/18 13:29:30 $
+ * @version $Revision: 1.2 $ $Date: 2003/08/18 23:03:30 $
  */
 public final class State {
-
     public static final int STARTING_INDEX = 0;
     public static final int RUNNING_INDEX = 1;
     public static final int STOPPING_INDEX = 2;
     public static final int STOPPED_INDEX = 3;
     public static final int FAILED_INDEX = 4;
 
-    public static final State STARTING =
-            new State("starting", STARTING_INDEX, NotificationType.STATE_STARTING);
-    public static final State RUNNING =
-            new State("running", RUNNING_INDEX, NotificationType.STATE_RUNNING);
-    public static final State STOPPING =
-            new State("stopping", STOPPING_INDEX, NotificationType.STATE_STOPPING);
-    public static final State STOPPED =
-            new State("stopped", STOPPED_INDEX, NotificationType.STATE_STOPPED);
-    public static final State FAILED =
-            new State("failed", FAILED_INDEX, NotificationType.STATE_FAILED);
+    public static final State STARTING = new State("starting", STARTING_INDEX, NotificationType.STATE_STARTING);
+    public static final State RUNNING = new State("running", RUNNING_INDEX, NotificationType.STATE_RUNNING);
+    public static final State STOPPING = new State("stopping", STOPPING_INDEX, NotificationType.STATE_STOPPING);
+    public static final State STOPPED = new State("stopped", STOPPED_INDEX, NotificationType.STATE_STOPPED);
+    public static final State FAILED = new State("failed", FAILED_INDEX, NotificationType.STATE_FAILED);
 
-    private static final State[] fromInt =
-            {STARTING, RUNNING, STOPPING, STOPPED, FAILED};
+    private static final State[] fromInt = {STARTING, RUNNING, STOPPING, STOPPED, FAILED};
 
     /**
      * Get a State from an int index
@@ -89,12 +81,20 @@ public final class State {
      * @return The State instance or null if no such State.
      */
     public static State fromInt(int index) {
-        if (index < 0 || index >= fromInt.length)
+        if (index < 0 || index >= fromInt.length) {
             return null;
+        }
         return fromInt[index];
     }
 
+    /**
+     * The user readable name of this state from the J2EE Management specification
+     */
     private final String name;
+
+    /**
+     * The state index from the J2EE Management specification
+     */
     private final int index;
 
     /**
@@ -102,17 +102,24 @@ public final class State {
      */
     private final String eventTypeValue;
 
-
     private State(String name, int index, String anEventTypeValue) {
         this.name = name;
         this.index = index;
         eventTypeValue = anEventTypeValue;
     }
 
+    /**
+     * Gets the integer value of this state as specified in the J2EE Management specification
+     * @return
+     */
     public int toInt() {
         return index;
     }
 
+    /**
+     * Gets the event type that should be send after changeing to this state.
+     * @return the event type that should be sent after a transistion to this state
+     */
     public String getEventTypeValue() {
         return eventTypeValue;
     }
