@@ -16,6 +16,12 @@
 
 package org.apache.geronimo.axis.testUtils;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.management.ObjectName;
+
 import org.apache.axis.AxisFault;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,11 +36,6 @@ import org.apache.geronimo.timer.vm.VMStoreThreadPooledNonTransactionalTimer;
 import org.apache.geronimo.timer.vm.VMStoreThreadPooledTransactionalTimer;
 import org.apache.geronimo.transaction.GeronimoTransactionManager;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
-
-import javax.management.ObjectName;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 public class J2EEManager {
     public static final Log log = LogFactory.getLog(J2EEManager.class);

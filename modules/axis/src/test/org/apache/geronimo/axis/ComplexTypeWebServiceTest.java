@@ -15,25 +15,32 @@
  */
 package org.apache.geronimo.axis;
 
-import org.apache.axis.utils.ClassUtils;
-import org.apache.geronimo.axis.testUtils.AxisGeronimoConstants;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.kernel.Kernel;
-
-import javax.management.ObjectName;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-public class ComplexTypeWebServiceTest extends AbstractTestCase {
+import javax.management.ObjectName;
+
+import org.apache.axis.utils.ClassUtils;
+import org.apache.geronimo.axis.testUtils.AxisGeronimoConstants;
+import org.apache.geronimo.gbean.WaitingException;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.kernel.Kernel;
+
+public class ComplexTypeWebServiceTest extends AbstractWebServiceTest {
     private ObjectName axisname;
     private Kernel kernel;
 
     /**
      * @param testName
+     * @throws IOException
+     * @throws WaitingException
+     * @throws FileNotFoundException
      */
-    public ComplexTypeWebServiceTest(String testName) {
+    public ComplexTypeWebServiceTest(String testName) throws FileNotFoundException, WaitingException, IOException {
         super(testName);
     }
 
@@ -46,6 +53,7 @@ public class ComplexTypeWebServiceTest extends AbstractTestCase {
         kernel.loadGBean(axisname, axisgbean);
         kernel.startGBean(axisname);
         File jarfile = new File(getTestFile("target/generated/samples/echo-ewsimpl.jar"));
+        
         kernel.getMBeanServer().invoke(axisname,
                 "deployEWSModule",
                 new Object[]{
@@ -67,8 +75,10 @@ public class ComplexTypeWebServiceTest extends AbstractTestCase {
         Class echoClass = echoPort.getClass();
         Method echostuctMethod = echoClass.getMethod("echoStruct", new Class[]{structClass});
         Object structval = structClass.newInstance();
+        
         Object structret = echostuctMethod.invoke(echoPort, new Object[]{null});
         structret = echostuctMethod.invoke(echoPort, new Object[]{structval});
+        
         assertEquals(structval, structret);
         //Thread.currentThread().setContextClassLoader(ocl); 
          

@@ -15,11 +15,8 @@
  */
 package org.apache.geronimo.axis;
 
-import org.apache.axis.AxisEngine;
-import org.apache.axis.client.Call;
-import org.apache.axis.client.Service;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.kernel.Kernel;
+import java.net.URL;
+import java.net.URLClassLoader;
 
 import javax.management.ObjectName;
 import javax.xml.messaging.URLEndpoint;
@@ -32,8 +29,13 @@ import javax.xml.soap.SOAPConnectionFactory;
 import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPEnvelope;
 import javax.xml.soap.SOAPMessage;
-import java.net.URL;
-import java.net.URLClassLoader;
+
+import org.apache.axis.AxisEngine;
+import org.apache.axis.client.Call;
+import org.apache.axis.client.Service;
+import org.apache.geronimo.axis.testUtils.TestingUtils;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.kernel.Kernel;
 
 public class EchoHeadersTest extends AbstractTestCase {
     private ObjectName name;
@@ -53,6 +55,8 @@ public class EchoHeadersTest extends AbstractTestCase {
         kernel.boot();
         ClassLoader cl = getClass().getClassLoader();
         ClassLoader myCl = new URLClassLoader(new URL[]{}, cl);
+        
+        TestingUtils.startJ2EEContinerAndAxisServlet(kernel);
         GBeanMBean gbean = new GBeanMBean(AxisGbean.getGBeanInfo(), myCl);
         gbean.setAttribute("Name", "Test");
         kernel.loadGBean(name, gbean);
@@ -136,6 +140,7 @@ public class EchoHeadersTest extends AbstractTestCase {
     }
 
     protected void tearDown() throws Exception {
+        TestingUtils.stopJ2EEContinerAndAxisServlet(kernel);
         kernel.stopGBean(name);
         kernel.unloadGBean(name);
         kernel.shutdown();

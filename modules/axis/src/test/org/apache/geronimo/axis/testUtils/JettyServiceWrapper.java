@@ -16,6 +16,13 @@
 
 package org.apache.geronimo.axis.testUtils;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+
 import org.apache.geronimo.axis.AxisGeronimoUtils;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
@@ -24,12 +31,6 @@ import org.apache.geronimo.jetty.connector.HTTPConnector;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.transaction.GeronimoTransactionManager;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
-
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * <p>This class wrap the Jetty service, This is a test utility only</p>

@@ -16,9 +16,9 @@
 
 package org.apache.geronimo.axis;
 
-import junit.framework.TestCase;
-
 import java.io.File;
+
+import junit.framework.TestCase;
 
 /**
  * Abstract base class for test cases.
@@ -45,7 +45,7 @@ public abstract class AbstractTestCase
             if (!(basedir.endsWith("axis")
                     || basedir.endsWith("axis\\")
                     || basedir.endsWith("axis/"))) {
-                basedir = new File("./modules/axis").getAbsolutePath();
+                basedir = new File("./modules/axis/").getAbsolutePath();
             }
         }
         testDir = new File(basedir, testDir).getAbsolutePath();

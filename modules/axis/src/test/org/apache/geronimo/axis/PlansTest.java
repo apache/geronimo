@@ -17,34 +17,30 @@ package org.apache.geronimo.axis;
 
 import javax.management.ObjectName;
 
-import org.apache.geronimo.axis.testUtils.J2EEManager;
 import org.apache.geronimo.kernel.Kernel;
 
-/**
- * <p>This test case represents the code generation with the EWS module.
- * This test case needed the $JAVA_HOME/lib.tools.jar at the classapth.</p>
- */
-public class J2EEManagerTest extends AbstractTestCase {
-    private ObjectName name;
+public class PlansTest extends AbstractTestCase {
+    private ObjectName configBuilderName;
     private Kernel kernel;
 
-    public J2EEManagerTest(String testName) {
+    /**
+     * @param testName
+     */
+    public PlansTest(String testName) {
         super(testName);
     }
 
-    public void testEcho() throws Exception {
-        J2EEManager j2eem = new J2EEManager();
-        j2eem.startJ2EEContainer(kernel);
-        j2eem.stopJ2EEContainer(kernel);
+    public void testSetUpSystemWithPlans() throws Exception {
+        //TODO This test should bring up the Axis module using a plan rather than setting 
+        //up them with the code. When we find out how to do it we should remove this test case 
+        //do all the test cases with plans
+        
+        //kernel.getConfigurationManager().load(new File("modules/axis/test-resources/plans/plan1.xml").toURI());
     }
 
     protected void setUp() throws Exception {
-        name = new ObjectName("test:name=AxisGBean");
-        kernel = new Kernel("test.kernel", "test");
-        kernel.boot();
     }
 
     protected void tearDown() throws Exception {
-        kernel.shutdown();
     }
 }

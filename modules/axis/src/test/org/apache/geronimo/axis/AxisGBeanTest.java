@@ -15,15 +15,17 @@
  */
 package org.apache.geronimo.axis;
 
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.kernel.Kernel;
-
-import javax.management.ObjectName;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLClassLoader;
+
+import javax.management.ObjectName;
+
+import org.apache.geronimo.axis.testUtils.TestingUtils;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.kernel.Kernel;
 
 /**
  * <p> This test case start the AxisGbean and test retiving the index.html of the
@@ -62,12 +64,15 @@ public class AxisGBeanTest extends AbstractTestCase {
     }
 
     protected void setUp() throws Exception {
+        
         name = new ObjectName("test:name=AxisGBean");
         kernel = new Kernel("test.kernel", "test");
         kernel.boot();
+        TestingUtils.startJ2EEContinerAndAxisServlet(kernel);
     }
 
     protected void tearDown() throws Exception {
+        TestingUtils.stopJ2EEContinerAndAxisServlet(kernel);
         kernel.shutdown();
     }
 }

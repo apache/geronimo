@@ -27,8 +27,6 @@ import java.lang.reflect.Method;
 
 /**
  * register the MessageContext in the jax-rpc runtime of the JSR109
- *
- * @author Srinath Perera(hemapani@opensource.lk)
  */
 public class GeronimoProvider extends RPCProvider {
     public static final String OPTION_EJB_NAME = "beanName";

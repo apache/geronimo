@@ -15,11 +15,6 @@
  */
 package org.apache.geronimo.axis;
 
-import org.apache.geronimo.axis.testUtils.AxisGeronimoConstants;
-import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
-
-import javax.management.ObjectName;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -27,9 +22,17 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
+import java.util.List;
+
+import javax.management.ObjectName;
+
+import org.apache.geronimo.gbean.WaitingException;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
 
 public class SimpleEJBWebServiceTest extends AbstractWebServiceTest {
 
@@ -41,21 +44,26 @@ public class SimpleEJBWebServiceTest extends AbstractWebServiceTest {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         ClassLoader myCl = new URLClassLoader(new URL[]{}, cl);
 
-  
+        File jarfile = new File(getTestFile("target/generated/samples/echo-jar/echo-ewsimpl.jar"));
+        ObjectName configName = new ObjectName("geronimo.test:name=" + jarfile.getName());
+        
         //axis gbean        
         GBeanMBean axisgbean = new GBeanMBean(AxisGbean.getGBeanInfo(), myCl);
         kernel.loadGBean(axisname, axisgbean);
         kernel.startGBean(axisname);
-        File jarfile = new File(getTestFile("target/generated/samples/echo-jar/echo-ewsimpl.jar"));
+        
         WSConfigBuilder wsconfBuilder = new WSConfigBuilder(getEARConfigBuilder(), store);
-        File out = new File("target/temp");
-        out.mkdirs();
-        File ws = wsconfBuilder.installWebService(jarfile, out, Thread.currentThread().getContextClassLoader());
-        GBeanMBean[] gbeans = wsconfBuilder.loadtheWSConfigurations(ws, jarfile, cl);
-        ObjectName wsName = ObjectName.getInstance("test:configuration=" + "echo");
-        ObjectName wsEJBName = ObjectName.getInstance("test:configuration=" + "echoEJB");
-        AxisGeronimoUtils.startGBean(wsName, gbeans[0], kernel);
-        AxisGeronimoUtils.startGBean(wsEJBName, gbeans[1], kernel);
+        List uri = wsconfBuilder.buildConfiguration(null, jarfile, outFile);
+        
+        for(int i = 0; i< uri.size();i++){
+            GBeanMBean config = store.getConfiguration((URI) uri.get(i));
+            ConfigurationManager configurationManager = kernel.getConfigurationManager();
+            configName = configurationManager.load(config, null);
+            kernel.startRecursiveGBean(configName);
+        }
+        
+        
+
 
 
         //let us try to brows the WSDL of the service
@@ -160,12 +168,4 @@ public class SimpleEJBWebServiceTest extends AbstractWebServiceTest {
         kernel.stopGBean(axisname);
         kernel.unloadGBean(axisname);
     }
-
-    protected void tearDown() throws Exception {
-        j2eeManager.stopJ2EEContainer(kernel);
-        kernel.shutdown();
-        File file = new File(AxisGeronimoConstants.AXIS_CONFIG_STORE);
-        AxisGeronimoUtils.delete(file);
-    }
-
 }

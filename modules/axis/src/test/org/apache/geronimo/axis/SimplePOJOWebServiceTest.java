@@ -15,12 +15,6 @@
  */
 package org.apache.geronimo.axis;
 
-import org.apache.axis.utils.ClassUtils;
-import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-
-import javax.management.ObjectName;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -33,6 +27,13 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.List;
 
+import javax.management.ObjectName;
+
+import org.apache.axis.utils.ClassUtils;
+import org.apache.geronimo.gbean.WaitingException;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+
 public class SimplePOJOWebServiceTest extends AbstractWebServiceTest {
 
     public SimplePOJOWebServiceTest(String testName) throws FileNotFoundException, WaitingException, IOException {
@@ -44,16 +45,22 @@ public class SimplePOJOWebServiceTest extends AbstractWebServiceTest {
         ClassLoader myCl = new URLClassLoader(new URL[]{}, cl);
         File jarfile = new File(getTestFile("target/generated/samples/echo-war/echo-ewsimpl.jar"));
   
-        //axis gbean        
+        //Start axis gbean        
         GBeanMBean axisgbean = new GBeanMBean(AxisGbean.getGBeanInfo(), myCl);
         kernel.loadGBean(axisname, axisgbean);
         kernel.startGBean(axisname);
+
+        //build the configuration
         WSConfigBuilder wsconfBuilder = new WSConfigBuilder(getEARConfigBuilder(), store);
         List uri = wsconfBuilder.buildConfiguration(null, jarfile, outFile);
-        GBeanMBean config = store.getConfiguration((URI) uri.get(0));
-        ConfigurationManager configurationManager = kernel.getConfigurationManager();
-        ObjectName configName = configurationManager.load(config, null);
-        kernel.getMBeanServer().invoke(configName, "startRecursive", null, null);
+        //start the configuration
+        for(int i = 0; i< uri.size();i++){
+            GBeanMBean config = store.getConfiguration((URI) uri.get(i));
+            ConfigurationManager configurationManager = kernel.getConfigurationManager();
+            ObjectName configName = configurationManager.load(config, null);
+            kernel.startRecursiveGBean(configName);
+        }
+
 
         //let us try to brows the WSDL of the service
         URL wsdlrequestUrl = AxisGeronimoUtils.getURL("/axis/services/echoPort?wsdl");

@@ -15,9 +15,10 @@
  */
 package org.apache.geronimo.axis.testUtils;
 
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-
 import javax.management.ObjectName;
+import org.apache.geronimo.connector.ActivationSpecWrapper;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 public class AxisGeronimoConstants {
     public static final String J2EE_DOMAIN_NAME = "openejb.server";
@@ -48,5 +49,6 @@ public class AxisGeronimoConstants {
     public static final ObjectName THREADPOOL_NAME = JMXUtil.getObjectName(J2EE_SERVER_PREFIX + ":type=ThreadPool,name=DefaultThreadPool");
     public static final ObjectName TRANSACTIONAL_TIMER_NAME = JMXUtil.getObjectName(J2EE_SERVER_PREFIX + ":type=ThreadPooledTimer,name=TransactionalThreaPooledTimer");
     public static final ObjectName NONTRANSACTIONAL_TIMER_NAME = JMXUtil.getObjectName(J2EE_SERVER_PREFIX + ":type=ThreadPooledTimer,name=NonTransactionalThreaPooledTimer");
-
+    public static final GBeanData ACTIVATION_SPEC_INFO = new GBeanData(ActivationSpecWrapper.getGBeanInfo());
+    
 }

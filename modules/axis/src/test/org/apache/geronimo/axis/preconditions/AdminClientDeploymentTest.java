@@ -44,7 +44,7 @@ public class AdminClientDeploymentTest extends AbstractWebServiceTest {
     }
 
     public void testDeployWithAdminClientDinamically() throws Exception {
-        File jarFile = new File(outDir + "echo-jar/echo-ewsimpl.jar");
+        File jarFile = new File(outDir , "echo-jar/echo-ewsimpl.jar");
         URLClassLoader cl = new URLClassLoader(new URL[]{jarFile.toURL()});
         InputStream deplydd = cl.getResourceAsStream("deploy.wsdd");
         assertNotNull(deplydd);

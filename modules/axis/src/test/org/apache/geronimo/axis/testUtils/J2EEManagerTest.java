@@ -15,10 +15,10 @@
  */
 package org.apache.geronimo.axis.testUtils;
 
+import javax.management.ObjectName;
+
 import org.apache.geronimo.axis.AbstractTestCase;
 import org.apache.geronimo.kernel.Kernel;
-
-import javax.management.ObjectName;
 
 /**
  * <p>This test case represents the code generation with the EWS module.

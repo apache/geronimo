@@ -16,20 +16,24 @@
 
 package org.apache.geronimo.axis.preconditions;
 
-import org.apache.geronimo.axis.AbstractTestCase;
-import org.apache.geronimo.axis.testUtils.J2EEManager;
-import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.kernel.management.State;
-import org.openejb.deployment.OpenEJBModuleBuilder;
-
-import javax.management.ObjectName;
 import java.io.File;
 import java.net.URI;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.jar.JarFile;
+
+import javax.management.ObjectName;
+import javax.naming.Reference;
+
+import org.apache.geronimo.axis.AbstractTestCase;
+import org.apache.geronimo.axis.AxisGeronimoUtils;
+import org.apache.geronimo.axis.testUtils.AxisGeronimoConstants;
+import org.apache.geronimo.axis.testUtils.J2EEManager;
+import org.apache.geronimo.axis.testUtils.TestingUtils;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
+import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.openejb.deployment.OpenEJBModuleBuilder;
 
 /**
  * <p>This test case show the infomation about openEJB that we assumed. And the
@@ -63,51 +67,57 @@ public class DynamicEJBDeploymentTest extends AbstractTestCase {
         System.setProperty(javax.naming.Context.URL_PKG_PREFIXES, str);
         kernel = new Kernel("blah");
         kernel.boot();
-        j2eeManager = new J2EEManager();
-        j2eeManager.startJ2EEContainer(kernel);
+        TestingUtils.startJ2EEContinerAndAxisServlet(kernel);
     }
 
+    private ResourceReferenceBuilder resourceReferenceBuilder = TestingUtils.RESOURCE_REFERANCE_BUILDER;
     public void testEJBJarDeploy() throws Exception {
+        File jarFile = new File(outDir , "echo-jar/echo-ewsimpl.jar");
+        
+        URI defaultParentId = new URI("org/apache/geronimo/Server");
         OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(null, defaultParentId, null);
-        File jarFile = new File(outDir + "echo-jar/echo-ewsimpl.jar");
-        ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
-        ClassLoader cl = new URLClassLoader(new URL[]{jarFile.toURL()}, oldCl);
-        Thread.currentThread().setContextClassLoader(cl);
-        File carFile = File.createTempFile("OpenEJBTest", ".car");
-        try {
-            EARConfigBuilder earConfigBuilder =
-                    new EARConfigBuilder(defaultParentId,
-                            new ObjectName(j2eeDomainName + ":j2eeType=J2EEServer,name=" + j2eeServerName),
-                            transactionManagerObjectName,
-                            connectionTrackerObjectName,
-                            null,
-                            null,
-                            null,
-                            moduleBuilder,
-                            moduleBuilder,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null);
+        
+        
+        EARConfigBuilder earConfigBuilder =
+                new EARConfigBuilder(defaultParentId,
+                        new ObjectName(j2eeDomainName + ":j2eeType=J2EEServer,name=" + j2eeServerName),
+                        transactionManagerObjectName,
+                        connectionTrackerObjectName,
+                        null,
+                        null,
+                        null,
+                        moduleBuilder,
+                        moduleBuilder,
+                        null,
+                        null,
+                        resourceReferenceBuilder,
+                        null,
+                        null);
+
+        
             File unpackedDir = new File(tempDir, "OpenEJBTest-ear-Unpacked");
             JarFile jarFileModules = null;
+            System.out.println("**"+jarFile +"**");
             try {
                 jarFileModules = new JarFile(jarFile);
                 Object plan = earConfigBuilder.getDeploymentPlan(null, jarFileModules);
                 earConfigBuilder.buildConfiguration(plan, jarFileModules, unpackedDir);
             } finally {
-                if (jarFile != null) {
+                if (jarFileModules != null) {
                     jarFileModules.close();
                 }
             }
-        } finally {
-            carFile.delete();
-        }
+            ObjectName name = new ObjectName("geronimo.test:name=" + jarFile.getName());
+            GBeanMBean gbean = AxisGeronimoUtils.loadConfig(unpackedDir);
+            kernel.loadGBean(name,gbean);
+            gbean.setAttribute("baseURL",unpackedDir.toURL());
+            kernel.startGBean(name);
+            
     }
 
     protected void tearDown() throws Exception {
-        j2eeManager.stopJ2EEContainer(kernel);
+        TestingUtils.stopJ2EEContinerAndAxisServlet(kernel);
+        kernel.shutdown();
     }
 }
 

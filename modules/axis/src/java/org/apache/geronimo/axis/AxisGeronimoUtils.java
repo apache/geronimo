@@ -23,23 +23,38 @@ import org.apache.axis.utils.NetworkUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.openejb.ContainerIndex;
 import org.openejb.EJBContainer;
 
 import javax.ejb.EJBHome;
 import javax.management.ObjectName;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.Method;
+import java.net.URI;
 import java.net.URL;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
@@ -255,6 +270,38 @@ public class AxisGeronimoUtils {
     public static URL getURL(String file) throws MalformedURLException {
         URL requestUrl = new URL("http", NetworkUtils.getLocalHostname(), AXIS_SERVICE_PORT, file);
         return requestUrl;
+    }
+    public static URI saveConfiguration(GBeanMBean config, ConfigurationStore store)throws Exception{
+        File sourceFile = null;
+        try {
+            sourceFile = File.createTempFile("test", ".car");
+            URL source = sourceFile.toURL();
+            JarOutputStream jos = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(sourceFile)));
+            jos.putNextEntry(new ZipEntry("META-INF/config.ser"));
+            ObjectOutputStream oos = new ObjectOutputStream(jos);
+            config.getGBeanData().writeExternal(oos);
+            oos.flush();
+            jos.closeEntry();
+            jos.close();
+            ArrayList list = new ArrayList(1);
+            return store.install(source);
+        } finally {
+            if (sourceFile != null) {
+                sourceFile.delete();
+            }
+        }
+    }
+    
+    public static GBeanMBean loadConfig(File unpackedCar) throws Exception {
+        InputStream in = new FileInputStream(new File(unpackedCar, "META-INF/config.ser"));
+        try {
+            ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(in));
+            GBeanData config = new GBeanData();
+            config.readExternal(ois);
+            return new GBeanMBean(config, Thread.currentThread().getContextClassLoader());
+        } finally {
+            in.close();
+        }
     }
 
 }

@@ -123,6 +123,14 @@
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-security-builder</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <xmlbeans>true</xmlbeans>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-transaction</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
@@ -354,9 +362,21 @@
         </resources>
         <unitTest>
             <includes>
+	            <include>**/**Test.java</include>
                 <include>**/SimplePOJO*Test.java</include>
             </includes>
             <excludes>
+				<!-- these are none testing classes need not to worry about -->
+                <exclude>**/*Abstract**.java</exclude>  
+                <exclude>**/testUtils**</exclude>                            
+
+				<!-- This one runs EWS, can run IFF the tools.jar avalible -->
+                <exclude>**/*EWS*Test.java</exclude>            
+
+				<!-- Those are the ones we need to worry about -->                                          
+                <exclude>**/SimpleEJB*Test.java</exclude>            
+                <exclude>**/*Complex*Test.java</exclude>            
+                <exclude>**/Echo**</exclude>                                            
             </excludes>
             <resources>
                 <resource>
