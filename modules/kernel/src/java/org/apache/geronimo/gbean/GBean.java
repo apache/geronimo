@@ -62,7 +62,7 @@ import org.apache.geronimo.gbean.WaitingException;
  * An optional interface for a GBean.  When a GBean implements this interface, the implementation
  * will get life-cycle callbacks.
  *
- * @version $Revision: 1.3 $ $Date: 2004/01/22 02:46:27 $
+ * @version $Revision: 1.4 $ $Date: 2004/01/22 03:51:53 $
  */
 public interface GBean {
     /**
@@ -82,7 +82,7 @@ public interface GBean {
      * Stops the target.  This informs the GBean that it is about to transition to the stopped state.
      * @throws org.apache.geronimo.gbean.WaitingException if the target is waiting for an external condition before it can fully stop
      */
-    void doStop() throws WaitingException;
+    void doStop() throws WaitingException, Exception;
 
     /**
      * Fails the GBean.  This informs the GBean that it is about to transition to the failed state.
