@@ -121,6 +121,9 @@ public class SubjectCarryingChannel extends FilterAsynchChannel {
                             }
                             return super.narrow(target);
                         }
+                        public Packet filter(Packet packet) {
+                            return packet;
+                        }
                     });
             }
         } catch (IOException e) {
