@@ -37,7 +37,7 @@ import org.apache.geronimo.transaction.BeanTransactionContext;
  * This adds the ability to enable or disable the operations depending on
  * the lifecycle of the EJB instance.
  *
- * @version $Revision: 1.2 $ $Date: 2004/04/06 18:33:36 $
+ * @version $Revision: 1.3 $ $Date: 2004/04/07 23:38:18 $
  */
 public class UserTransactionImpl implements UserTransaction, Serializable {
     private transient TransactionManager txnManager;
@@ -131,10 +131,13 @@ public class UserTransactionImpl implements UserTransaction, Serializable {
                 throw e;
             }
             TransactionContext.setContext(newContext);
-            try {
-                trackedConnectionAssociator.newTransaction();
-            } catch (ResourceException e) {
-                throw (SystemException)new SystemException().initCause(e);
+
+            if(trackedConnectionAssociator != null) {
+                try {
+                    trackedConnectionAssociator.newTransaction();
+                } catch (ResourceException e) {
+                    throw (SystemException)new SystemException().initCause(e);
+                }
             }
         }
 
