@@ -64,7 +64,7 @@ import org.apache.geronimo.remoting.DeMarshalingInterceptor;
 import org.apache.geronimo.remoting.router.JMXTarget;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2003/11/26 20:54:29 $
+ * @version $Revision: 1.5 $ $Date: 2003/12/30 21:19:22 $
  */
 public class MBeanServerStub
         implements GeronimoMBeanTarget, JMXTarget {
@@ -73,9 +73,6 @@ public class MBeanServerStub
     private DeMarshalingInterceptor demarshaller;
     private GeronimoMBeanContext geronimoMBeanContext;
 
-    /**
-     * @see org.apache.geronimo.kernel.service.AbstractManagedObject#doStart()
-     */
     public void doStart() {
 
         // Setup the server side contianer..
@@ -84,9 +81,6 @@ public class MBeanServerStub
         serverContainer = new ProxyContainer(firstInterceptor);
     }
 
-    /**
-     * @see org.apache.geronimo.kernel.service.AbstractManagedObject#doStop()
-     */
     public void doStop() {
         serverContainer = null;
         demarshaller = null;

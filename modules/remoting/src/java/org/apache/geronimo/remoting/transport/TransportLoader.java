@@ -62,13 +62,12 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
 import org.apache.geronimo.remoting.router.Router;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/11/16 05:27:27 $
+ * @version $Revision: 1.2 $ $Date: 2003/12/30 21:19:22 $
  */
 public class TransportLoader implements GeronimoMBeanTarget {
     URI bindURI;
     TransportServer transportServer;
     Router router;
-    private GeronimoMBeanContext geronimoMBeanContext;
 
     /**
      * @return
@@ -92,7 +91,7 @@ public class TransportLoader implements GeronimoMBeanTarget {
     }
 
     /**
-     * @param dispatchingRouter
+     * @param router
      */
     public void setRouter(Router router) {
         this.router = router;
@@ -111,7 +110,6 @@ public class TransportLoader implements GeronimoMBeanTarget {
      * @see org.apache.geronimo.kernel.service.GeronimoMBeanTarget#setMBeanContext(org.apache.geronimo.kernel.service.GeronimoMBeanContext)
      */
     public void setMBeanContext(GeronimoMBeanContext geronimoMBeanContext) {
-        this.geronimoMBeanContext = geronimoMBeanContext;
     }
 
     /**
@@ -119,7 +117,7 @@ public class TransportLoader implements GeronimoMBeanTarget {
     public void doStart() {
 
         try {
-            
+
             if (router == null) {
                 throw new IllegalStateException("Target router was not set.");
             }
@@ -127,16 +125,13 @@ public class TransportLoader implements GeronimoMBeanTarget {
             transportServer = tf.createSever();
             transportServer.bind(bindURI, router);
             transportServer.start();
-            
+
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
 
-    /**
-     * @see org.apache.geronimo.core.service.AbstractManagedComponent#doStop()
-     */
     public void doStop() {
         try {
             transportServer.stop();
@@ -147,7 +142,7 @@ public class TransportLoader implements GeronimoMBeanTarget {
             e.printStackTrace();
         }
     }
-    
+
     /**
      * @see org.apache.geronimo.kernel.service.GeronimoMBeanTarget#canStart()
      */
