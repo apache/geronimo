@@ -204,6 +204,15 @@
 
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-derby</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
             <version>${pom.currentVersion}</version>
             <properties>
@@ -314,6 +323,15 @@
             <groupId>axion</groupId>
             <artifactId>axion</artifactId>
             <version>&axion-version;</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>derby</groupId>
+            <artifactId>derby</artifactId>
+            <version>&derby-version;</version>
             <properties>
                 <repository>true</repository>
             </properties>

@@ -240,6 +240,17 @@
             <ant:arg value="${maven.repo.local}/tranql/rars/tranql-connector-${tranql_connector_version}.rar"/>
         </ant:java>
 
+        <!-- building system database configuration-->
+        <ant:echo>Building system database configuration</ant:echo>
+        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
+            <ant:jvmarg value="-ea"/>
+            <ant:arg value="--install"/>
+            <ant:arg value="--plan"/>
+            <ant:arg value="target/plan/system-database-plan.xml"/>
+            <ant:arg value="--module"/>
+            <ant:arg value="${maven.repo.local}/tranql/rars/tranql-connector-${tranql_connector_version}.rar"/>
+        </ant:java>
+
         <!-- build the J2EEServer secure configuration -->
         <ant:echo>Building secure server configuration</ant:echo>
         <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">

@@ -1,0 +1,84 @@
+/**
+ *
+ * Copyright 2003-2004 The Apache Software Foundation
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+package org.apache.geronimo.derby;
+
+import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.WaitingException;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
+
+import java.io.File;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+/**
+ * A GBean that represents an instance of an Apache Derby system (a system being
+ * a collection of different databases).
+ *
+ * @version $Rev: 47413 $ $Date: 2004-09-28 11:46:39 -0700 (Tue, 28 Sep 2004) $
+ */
+public class DerbySystemGBean implements GBeanLifecycle {
+    private static final String SYSTEM_HOME = "derby.system.home";
+    private static final String SHUTDOWN_ALL = "jdbc:derby:;shutdown=true";
+
+    private final ServerInfo serverInfo;
+    private final String systemHome;
+
+    public DerbySystemGBean(ServerInfo serverInfo, String derbySystemHome) {
+        this.serverInfo = serverInfo;
+        this.systemHome = derbySystemHome;
+    }
+
+    public void doStart() throws WaitingException, Exception {
+        // set up the system property for the database home
+        String actualHome = System.getProperty(SYSTEM_HOME);
+        if (actualHome == null) {
+            actualHome = serverInfo.resolvePath(systemHome);
+        }
+        System.setProperty(SYSTEM_HOME, actualHome);
+        // load the Embedded driver to initialize the home
+        new org.apache.derby.jdbc.EmbeddedDriver();
+    }
+
+    public void doStop() throws WaitingException, Exception {
+        doFail();
+    }
+
+    public void doFail() {
+        try {
+            DriverManager.getConnection(SHUTDOWN_ALL, null, null);
+        } catch (SQLException e) {
+            // SQLException gets thrown on successful shutdown so ignore
+        }
+    }
+
+    public static final GBeanInfo GBEAN_INFO;
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
+
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(DerbySystemGBean.class);
+        infoFactory.addAttribute("derbySystemHome", String.class, true);
+        infoFactory.addReference("serverInfo", ServerInfo.class);
+        infoFactory.setConstructor(new String[]{"serverInfo", "derbySystemHome"});
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+}
