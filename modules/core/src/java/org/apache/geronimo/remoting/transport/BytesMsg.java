@@ -55,15 +55,19 @@
  */
 package org.apache.geronimo.remoting.transport;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInput;
+import java.io.DataInputStream;
 import java.io.DataOutput;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
 import org.apache.geronimo.remoting.MarshalledObject;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/22 02:23:26 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/06 13:52:11 $
  */
 public class BytesMsg implements Msg {
 
@@ -83,6 +87,10 @@ public class BytesMsg implements Msg {
         if (objectStack.size() == 0)
             throw new ArrayIndexOutOfBoundsException("Object stack is empty.");
         return (MarshalledObject) objectStack.remove(objectStack.size() - 1);
+    }
+    
+    public int getStackSize() {
+        return objectStack.size();
     }
 
     /**
@@ -113,5 +121,19 @@ public class BytesMsg implements Msg {
             mo.setBytes(t);
             objectStack.add(mo);
         }
+    }
+    
+    public byte[] getAsBytes() throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream os = new DataOutputStream(baos);
+        writeExternal(os);
+        os.close();
+        return baos.toByteArray();
+    }
+    
+    public void setFromBytes(byte data[]) throws IOException {
+        ByteArrayInputStream bais = new ByteArrayInputStream(data);
+        DataInputStream is = new DataInputStream(bais);
+        readExternal(is);
     }
 }

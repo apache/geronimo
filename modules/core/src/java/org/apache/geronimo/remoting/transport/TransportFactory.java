@@ -59,10 +59,8 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.apache.geronimo.remoting.transport.async.AsyncTransportFactory;
-
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/22 02:23:26 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/06 13:52:11 $
  */
 public abstract class TransportFactory {
 
@@ -71,9 +69,14 @@ public abstract class TransportFactory {
         // Try our best to add a few known TransportFactory objects.
         // We may not be able to load due to ClassNotFound problems.
         try {
-            addFactory(AsyncTransportFactory.instance);
+            addFactory(loadFactory("async"));
         } catch (Throwable ignore) {
         }
+    }
+    
+    static private TransportFactory loadFactory(String type) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+        String className = "org.apache.geronimo.remoting.transport."+type+".TransportFactory";
+        return (TransportFactory) Thread.currentThread().getContextClassLoader().loadClass(className).newInstance();
     }
 
     public static TransportFactory getTransportFactory(URI uri) {
@@ -82,6 +85,16 @@ public abstract class TransportFactory {
             TransportFactory i = (TransportFactory) iterator.next();
             if (i.handles(uri))
                 return i;
+        }
+
+        // Not found.. see if we can dynamicly load a new Factory for it based on scheme.        
+        try {
+            TransportFactory factory = loadFactory(uri.getScheme());
+            if (factory.handles(uri)) {
+                addFactory(factory);
+                return factory;                
+            }
+        } catch (Throwable ignore) {
         }
         return null;
 

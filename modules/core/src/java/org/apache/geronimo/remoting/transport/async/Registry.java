@@ -70,7 +70,7 @@ import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
  * An application wide registry to hold objects that
  * must be shared accross application components. 
  * 
- * @version $Revision: 1.1 $ $Date: 2003/08/22 02:23:26 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/06 13:52:11 $
  */
 public class Registry {
 
@@ -160,7 +160,7 @@ public class Registry {
                 return dynamicServer;
             }
 
-            dynamicServer = (AbstractServer) AsyncTransportFactory.instance.createSever();
+            dynamicServer = (AbstractServer) TransportFactory.instance.createSever();
 
             // TODO: find a way to get a dispatcher to pass to the bind call.
             dynamicServer.bind(new URI("async://0.0.0.0:0"), null);

@@ -77,7 +77,7 @@ import EDU.oswego.cs.dl.util.concurrent.Semaphore;
  * - It pools AsychChannel connections to be able concurrently do multiple
  * asyc sends. 
  *   
- * @version $Revision: 1.2 $ $Date: 2003/08/29 19:16:53 $
+ * @version $Revision: 1.3 $ $Date: 2003/09/06 13:52:11 $
  */
 public class ChannelPool implements Router {
 
@@ -293,7 +293,7 @@ public class ChannelPool implements Router {
         try {
 
             log.debug("channel connecting to: " + uri);
-            PooledAsynchChannel c = new PooledAsynchChannel(AsyncTransportFactory.instance.createAsynchChannel());
+            PooledAsynchChannel c = new PooledAsynchChannel(TransportFactory.instance.createAsynchChannel());
             c.open(uri);
 
             return c;

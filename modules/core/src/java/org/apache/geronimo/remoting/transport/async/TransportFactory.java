@@ -59,7 +59,6 @@ package org.apache.geronimo.remoting.transport.async;
 import java.net.URI;
 
 import org.apache.geronimo.remoting.transport.TransportClient;
-import org.apache.geronimo.remoting.transport.TransportFactory;
 import org.apache.geronimo.remoting.transport.TransportServer;
 import org.apache.geronimo.remoting.transport.async.bio.BlockingChannel;
 import org.apache.geronimo.remoting.transport.async.bio.BlockingServer;
@@ -67,9 +66,9 @@ import org.apache.geronimo.remoting.transport.async.nio.NonBlockingChannel;
 import org.apache.geronimo.remoting.transport.async.nio.NonBlockingServer;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2003/08/22 02:23:26 $
+ * @version $Revision: 1.1 $ $Date: 2003/09/06 13:52:11 $
  */
-public class AsyncTransportFactory extends TransportFactory {
+public class TransportFactory extends org.apache.geronimo.remoting.transport.TransportFactory {
 
     /** 
      * Should we used Blocking IO instead of Non-blocking IO.  We default
@@ -79,8 +78,8 @@ public class AsyncTransportFactory extends TransportFactory {
         new Boolean(System.getProperty("org.apache.geronimo.remoting.transport.async.use_blocking_io", "true"))
             .booleanValue();
 
-    static final public AsyncTransportFactory instance = new AsyncTransportFactory();
-    private AsyncTransportFactory() {
+    static final public TransportFactory instance = new TransportFactory();
+    public TransportFactory() {
     }
 
     /**
