@@ -39,8 +39,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.jmx.DependencyService;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 
@@ -61,7 +62,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
  * used hold the persistent state of each Configuration. This allows
  * Configurations to restart in he event of system failure.
  *
- * @version $Revision: 1.26 $ $Date: 2004/05/27 01:06:00 $
+ * @version $Revision: 1.27 $ $Date: 2004/06/01 16:06:51 $
  */
 public class Kernel extends NotificationBroadcasterSupport implements Serializable, KernelMBean {
 
@@ -303,7 +304,7 @@ public class Kernel extends NotificationBroadcasterSupport implements Serializab
         mbServer.registerMBean(this, KERNEL);
         mbServer.registerMBean(new DependencyService(), DEPENDENCY_SERVICE);
 
-        configurationManagerGBean = new GBeanMBean(ConfigurationManager.GBEAN_INFO);
+        configurationManagerGBean = new GBeanMBean(ConfigurationManagerImpl.GBEAN_INFO);
         configurationManagerGBean.setReferencePatterns("Kernel", Collections.singleton(KERNEL));
         configurationManagerGBean.setReferencePatterns("Stores", Collections.singleton(CONFIGURATION_STORE_PATTERN));
         mbServer.registerMBean(configurationManagerGBean, CONFIGURATION_MANAGER_NAME);

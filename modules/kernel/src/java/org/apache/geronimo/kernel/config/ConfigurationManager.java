@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,86 +14,30 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.apache.geronimo.kernel.config;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
-import javax.management.InstanceNotFoundException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.kernel.Kernel;
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/05/27 01:06:00 $
+ * 
+ * 
+ * @version $Revision: 1.5 $ $Date: 2004/06/01 16:06:50 $
  */
-public class ConfigurationManager {
-    private static final Log log = LogFactory.getLog(ConfigurationManager.class);
-    private final Kernel kernel;
-    private final Collection stores;
+public interface ConfigurationManager {
+    boolean isLoaded(URI configID);
 
-    public ConfigurationManager() {
-        kernel = null;
-        stores = null;
-    }
+    ObjectName getConfigObjectName(URI configID) throws MalformedObjectNameException;
 
-    public ConfigurationManager(Kernel kernel, Collection stores) {
-        this.kernel = kernel;
-        this.stores = stores;
-    }
+    ObjectName load(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException;
 
-    public boolean isLoaded(URI configID) {
-        try {
-            ObjectName name = getConfigObjectName(configID);
-            return kernel.isLoaded(name);
-        } catch (MalformedObjectNameException e) {
-            return false;
-        }
-    }
-
-    public ObjectName load(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException {
-        Set storeSnapshot = getStoreSnapshot();
-
-        for (Iterator iterator = storeSnapshot.iterator(); iterator.hasNext();) {
-            ConfigurationStore store = (ConfigurationStore) iterator.next();
-            if (store.containsConfiguration(configID)) {
-                GBeanMBean config = store.getConfiguration(configID);
-                URL baseURL = store.getBaseURL(configID);
-                return load(config, baseURL);
-            }
-        }
-        throw new NoSuchConfigException("A configuration with the specifiec id could not be found: " + configID);
-    }
-
-    public ObjectName load(GBeanMBean config, URL rootURL) throws InvalidConfigException {
-        URI configID;
-        try {
-            configID = (URI) config.getAttribute("ID");
-        } catch (Exception e) {
-            throw new InvalidConfigException("Cannot get config ID", e);
-        }
-        ObjectName configName;
-        try {
-            configName = getConfigObjectName(configID);
-        } catch (MalformedObjectNameException e) {
-            throw new InvalidConfigException("Cannot convert ID to ObjectName: ", e);
-        }
-        load(config, rootURL, configName);
-        return configName;
-    }
+    ObjectName load(GBeanMBean config, URL rootURL) throws InvalidConfigException;
 
     /**
      * Load the supplied Configuration into the Kernel and override the default JMX name.
@@ -103,101 +47,13 @@ public class ConfigurationManager {
      * @param config the GBeanMBean representing the Configuration
      * @param rootURL the URL to be used to resolve relative paths in the configuration
      * @param configName the JMX ObjectName to register the Configuration under
-     * @throws InvalidConfigException if the Configuration is not valid
+     * @throws org.apache.geronimo.kernel.config.InvalidConfigException if the Configuration is not valid
      */
-    public void load(GBeanMBean config, URL rootURL, ObjectName configName) throws InvalidConfigException {
-        try {
-            kernel.loadGBean(configName, config);
-        } catch (InvalidConfigException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new InvalidConfigException("Unable to register configuraton", e);
-        }
+    void load(GBeanMBean config, URL rootURL, ObjectName configName) throws InvalidConfigException;
 
-        try {
-            config.setAttribute("BaseURL", rootURL);
-        } catch (Exception e) {
-            try {
-                kernel.unloadGBean(configName);
-            } catch (Exception ignored) {
-                // ignore
-            }
-            throw new InvalidConfigException("Cannot set BaseURL", e);
-        }
-        log.info("Loaded Configuration " + configName);
-    }
+    List loadRecursive(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException;
 
-    public List loadRecursive(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException {
-        try {
-            LinkedList ancestors = new LinkedList();
-            while (configID != null && !isLoaded(configID)) {
-                ObjectName name = load(configID);
-                ancestors.addFirst(name);
-                configID = (URI) kernel.getAttribute(name, "ParentID");
-            }
-            return ancestors;
-        } catch (NoSuchConfigException e) {
-            throw e;
-        } catch (IOException e) {
-            throw e;
-        } catch (InvalidConfigException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new InvalidConfigException(e);
-        }
-    }
+    void unload(URI configID) throws NoSuchConfigException;
 
-    public void unload(URI configID) throws NoSuchConfigException {
-        ObjectName configName;
-        try {
-            configName = getConfigObjectName(configID);
-        } catch (MalformedObjectNameException e) {
-            throw new NoSuchConfigException("Cannot convert ID to ObjectName: ", e);
-        }
-        unload(configName);
-    }
-
-    public void unload(ObjectName configName) throws NoSuchConfigException {
-        try {
-            kernel.unloadGBean(configName);
-        } catch (InstanceNotFoundException e) {
-            throw new NoSuchConfigException("No config registered: " + configName, e);
-        }
-        log.info("Unloaded Configuration " + configName);
-    }
-
-    private Set getStoreSnapshot() {
-        Set storeSnapshot = new HashSet(stores);
-        if (storeSnapshot.size() == 0) {
-            throw new UnsupportedOperationException("There are no installed ConfigurationStores");
-        }
-        return storeSnapshot;
-    }
-
-    public static ObjectName getConfigObjectName(URI configID) throws MalformedObjectNameException {
-        return new ObjectName("geronimo.config:name=" + ObjectName.quote(configID.toString()));
-    }
-
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ConfigurationManager.class);
-        infoFactory.addReference("Kernel", Kernel.class);
-        infoFactory.addReference("Stores", ConfigurationStore.class);
-        infoFactory.addOperation("isLoaded", new Class[]{URI.class});
-        infoFactory.addOperation("load", new Class[]{URI.class});
-        infoFactory.addOperation("load", new Class[]{GBeanMBean.class, URL.class});
-        infoFactory.addOperation("load", new Class[]{GBeanMBean.class, URL.class, ObjectName.class});
-        infoFactory.addOperation("loadRecursive", new Class[]{URI.class});
-        infoFactory.addOperation("unload", new Class[]{URI.class});
-        infoFactory.addOperation("unload", new Class[]{ObjectName.class});
-
-        infoFactory.setConstructor(new String[]{"Kernel", "Stores"},
-                new Class[]{Kernel.class, Collection.class});
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
+    void unload(ObjectName configName) throws NoSuchConfigException;
 }

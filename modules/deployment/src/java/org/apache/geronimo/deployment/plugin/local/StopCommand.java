@@ -28,7 +28,7 @@ import org.apache.geronimo.kernel.config.ConfigurationManager;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/03/10 09:58:49 $
+ * @version $Revision: 1.6 $ $Date: 2004/06/01 16:06:51 $
  */
 public class StopCommand extends CommandSupport {
     private final Kernel kernel;
@@ -46,7 +46,8 @@ public class StopCommand extends CommandSupport {
                 TargetModuleID module = modules[i];
 
                 URI moduleID = URI.create(module.getModuleID());
-                ObjectName name = ConfigurationManager.getConfigObjectName(moduleID);
+                ConfigurationManager configurationManager = kernel.getConfigurationManager();
+                ObjectName name = configurationManager.getConfigObjectName(moduleID);
                 kernel.getMBeanServer().invoke(name, "stop", null, null);
                 addModule(module);
             }

@@ -56,7 +56,6 @@ import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.jetty.JettyWebApplicationContext;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.java.ComponentContextBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
@@ -87,7 +86,7 @@ import org.apache.geronimo.xbeans.j2ee.WebAppType;
 
 
 /**
- * @version $Revision: 1.4 $ $Date: 2004/05/30 19:09:57 $
+ * @version $Revision: 1.5 $ $Date: 2004/06/01 16:06:50 $
  */
 public class JettyModuleBuilder implements ModuleBuilder {
 
@@ -244,7 +243,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
             gbean.setAttribute("ComponentContext", compContext);
             gbean.setAttribute("UserTransaction", userTransaction);
             setResourceEnvironment(gbean, webApp.getResourceRefArray(), jettyWebApp.getResourceRefArray());
-            gbean.setReferencePatterns("Configuration", Collections.singleton(ConfigurationManager.getConfigObjectName(configID)));
+            gbean.setReferencePatterns("Configuration", Collections.singleton(new ObjectName("geronimo.config:name=" + ObjectName.quote(configID.toString())))); // @todo this is used to resolve relative URIs, we should fix this
             gbean.setReferencePatterns("JettyContainer", Collections.singleton(new ObjectName("*:type=WebContainer,container=Jetty"))); // @todo configurable
             gbean.setReferencePatterns("TransactionManager", Collections.singleton(new ObjectName("*:type=TransactionManager,*")));
             gbean.setReferencePatterns("TrackedConnectionAssociator", Collections.singleton(new ObjectName("*:type=ConnectionTracker,*")));

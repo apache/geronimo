@@ -49,7 +49,7 @@ import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.repository.Repository;
 
 /**
- * @version $Revision: 1.10 $ $Date: 2004/05/19 20:53:59 $
+ * @version $Revision: 1.11 $ $Date: 2004/06/01 16:06:50 $
  */
 public class DeploymentContext {
     private final URI configID;
@@ -81,10 +81,11 @@ public class DeploymentContext {
         }
 
         if (kernel != null && parentID != null) {
-            ObjectName parentName = ConfigurationManager.getConfigObjectName(parentID);
+            ConfigurationManager configurationManager = kernel.getConfigurationManager();
+            ObjectName parentName = configurationManager.getConfigObjectName(parentID);
             config.setReferencePatterns("Parent", Collections.singleton(parentName));
             try {
-                ancestors = kernel.getConfigurationManager().loadRecursive(parentID);
+                ancestors = configurationManager.loadRecursive(parentID);
             } catch (Exception e) {
                 throw new DeploymentException("Unable to load parents", e);
             }
