@@ -51,6 +51,7 @@ import org.apache.geronimo.xbeans.j2ee.PortComponentHandlerType;
 import org.apache.geronimo.xbeans.j2ee.ParamValueType;
 import org.apache.geronimo.xbeans.j2ee.XsdQNameType;
 import org.apache.geronimo.axis.server.ReadOnlyServiceDesc;
+import org.apache.geronimo.axis.server.ServiceInfo;
 import org.apache.xmlbeans.SchemaType;
 
 /**

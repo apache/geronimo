@@ -58,6 +58,7 @@ import org.apache.axis.Handler;
 import org.apache.geronimo.axis.client.*;
 import org.apache.geronimo.axis.server.AxisWebServiceContainer;
 import org.apache.geronimo.axis.server.POJOProvider;
+import org.apache.geronimo.axis.server.ServiceInfo;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.gbean.GBeanData;
