@@ -65,8 +65,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.geronimo.kernel.jmx.MBeanOperationSignature;
+
 /**
- * @version $Revision: 1.13 $ $Date: 2004/02/24 22:36:01 $
+ * @version $Revision: 1.14 $ $Date: 2004/02/25 07:49:10 $
  */
 public class GBeanInfoFactory {
 
@@ -91,7 +93,7 @@ public class GBeanInfoFactory {
     }
 
     public GBeanInfoFactory(Class clazz) {
-        this(((Class) checkNotNull(clazz)).getName(), clazz.getName(), null);
+        this(checkNotNull(clazz).getName(), clazz.getName(), null);
     }
 
     public GBeanInfoFactory(String name, String className) {
@@ -103,7 +105,7 @@ public class GBeanInfoFactory {
     }
 
     public GBeanInfoFactory(Class clazz, GBeanInfo source) {
-        this(((Class) checkNotNull(clazz)).getName(), clazz.getName(), source);
+        this(checkNotNull(clazz).getName(), clazz.getName(), source);
     }
 
     public GBeanInfoFactory(String name, String className, GBeanInfo source) {
@@ -113,19 +115,21 @@ public class GBeanInfoFactory {
         this.name = name;
         this.className = className;
         if (source != null) {
-            Set sourceAttrs = source.getAttributes();
-            if (sourceAttrs != null && !sourceAttrs.isEmpty()) {
-                for (Iterator it = sourceAttrs.iterator(); it.hasNext();) {
-                    GAttributeInfo gattrInfo = (GAttributeInfo) it.next();
-                    attributes.put(gattrInfo.getName(), gattrInfo);
+            Set sourceAttributes = source.getAttributes();
+            if (sourceAttributes != null && !sourceAttributes.isEmpty()) {
+                for (Iterator it = sourceAttributes.iterator(); it.hasNext();) {
+                    GAttributeInfo attributeInfo = (GAttributeInfo) it.next();
+                    attributes.put(attributeInfo.getName(), attributeInfo);
                 }
             }
 
-            Set sourceOps = source.getOperations();
-            if (sourceOps != null && !sourceOps.isEmpty()) {
-                for (Iterator it = sourceOps.iterator(); it.hasNext();) {
-                    GOperationInfo gopInfo = (GOperationInfo) it.next();
-                    operations.put(gopInfo.getName(), gopInfo);
+            Set sourceOperations = source.getOperations();
+            if (sourceOperations != null && !sourceOperations.isEmpty()) {
+                for (Iterator it = sourceOperations.iterator(); it.hasNext();) {
+                    GOperationInfo operationInfo = (GOperationInfo) it.next();
+                    operations.put(
+                            new MBeanOperationSignature(operationInfo.getName(), operationInfo.getParameterList()),
+                            operationInfo);
                 }
             }
             references.addAll(source.getReferences());
@@ -138,15 +142,29 @@ public class GBeanInfoFactory {
     /**
      * Checks whether or not the input argument is null; otherwise it throws
      * {@link IllegalArgumentException}.
-     * 
-     * @param obj
-     *            the input argument to validate
+     *
+     * @param clazz the input argument to validate
+     * @throws IllegalArgumentException if input is null
      */
-    private static final Object checkNotNull(final Object obj) {
-        if (obj == null) {
+    private static Class checkNotNull(final Class clazz) {
+        if (clazz == null) {
             throw new IllegalArgumentException("null argument supplied");
         }
-        return obj;
+        return clazz;
+    }
+
+    /**
+     * Checks whether or not the input argument is null; otherwise it throws
+     * {@link IllegalArgumentException}.
+     *
+     * @param string the input argument to validate
+     * @throws IllegalArgumentException if input is null
+     */
+    private static String checkNotNull(final String string) {
+        if (string == null) {
+            throw new IllegalArgumentException("null argument supplied");
+        }
+        return string;
     }
 
     public void addInterface(Class intf) {
@@ -207,8 +225,10 @@ public class GBeanInfoFactory {
         constructor = new GConstructorInfo(names, types);
     }
 
-    public void addOperation(GOperationInfo info) {
-        operations.put(info.getName(), info);
+    public void addOperation(GOperationInfo operationInfo) {
+        operations.put(
+                new MBeanOperationSignature(operationInfo.getName(), operationInfo.getParameterList()),
+                operationInfo);
     }
 
     public void addOperation(String name) {
@@ -232,7 +252,13 @@ public class GBeanInfoFactory {
     }
 
     public GBeanInfo getBeanInfo() {
-        return new GBeanInfo(name, className, attributes.values(), constructor, operations.values(), references,
+        return new GBeanInfo(
+                name,
+                className,
+                attributes.values(),
+                constructor,
+                operations.values(),
+                references,
                 notifications);
     }
 }
