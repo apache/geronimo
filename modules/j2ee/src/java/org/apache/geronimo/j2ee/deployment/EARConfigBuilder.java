@@ -46,7 +46,7 @@ import org.apache.geronimo.deployment.util.NestedJarFile;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.j2ee.dd.ApplicationInfo;
+import org.apache.geronimo.j2ee.ApplicationInfo;
 import org.apache.geronimo.j2ee.management.impl.J2EEApplicationImpl;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
@@ -142,6 +142,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 module.getConfigId(),
                 module.getParentId(),
                 "null",
+                null,
+                null,
                 Collections.singleton(module),
                 Collections.EMPTY_SET,
                 null);
@@ -216,6 +218,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 configId,
                 parentId,
                 configId.toString(),
+                application,
+                gerApplication,
                 modules,
                 moduleLocations,
                 application.toString());
@@ -281,8 +285,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             }
 
             // add dependencies declared in the geronimo-application.xml
-            if (plan instanceof GerApplicationType) {
-                GerApplicationType geronimoApplication = (GerApplicationType) plan;
+            GerApplicationType geronimoApplication = (GerApplicationType) applicationInfo.getVendorDD();
+            if (geronimoApplication != null) {
                 GerDependencyType[] dependencies = geronimoApplication.getDependencyArray();
                 for (int i = 0; i < dependencies.length; i++) {
                     earContext.addDependency(getDependencyURI(dependencies[i]));
@@ -304,8 +308,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             }
 
             // add gbeans declared in the geronimo-application.xml
-            if (plan instanceof GerApplicationType) {
-                GerApplicationType geronimoApplication = (GerApplicationType) plan;
+            if (geronimoApplication != null) {
                 GerGbeanType[] gbeans = geronimoApplication.getGbeanArray();
                 for (int i = 0; i < gbeans.length; i++) {
                     GBeanHelper.addGbean(new GerGBeanAdapter(gbeans[i]), cl, earContext);
@@ -316,7 +319,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             if (ConfigurationModuleType.EAR == applicationType) {
                 GBeanMBean gbean = new GBeanMBean(J2EEApplicationImpl.GBEAN_INFO, cl);
                 try {
-                    gbean.setAttribute("deploymentDescriptor", applicationInfo.getSpecDD());
+                    gbean.setAttribute("deploymentDescriptor", applicationInfo.getOriginalSpecDD());
                 } catch (Exception e) {
                     throw new DeploymentException("Error initializing J2EEApplication managed object");
                 }

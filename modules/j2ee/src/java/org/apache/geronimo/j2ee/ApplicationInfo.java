@@ -14,12 +14,13 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.j2ee.dd;
+package org.apache.geronimo.j2ee;
 
 import java.net.URI;
 import java.util.Set;
 
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Revision$ $Date$
@@ -29,21 +30,25 @@ public class ApplicationInfo {
     private URI configId;
     private URI parentId;
     private String applicationName;
+    private XmlObject specDD;
+    private XmlObject vendorDD;
     private Set modules;
     private Set moduleLocations;
-    private String specDD;
+    private String originalSpecDD;
 
     public ApplicationInfo() {
     }
 
-    public ApplicationInfo(ConfigurationModuleType type, URI configId, URI parentId, String applicationName, Set modules, Set moduleLocations, String specDD) {
+    public ApplicationInfo(ConfigurationModuleType type, URI configId, URI parentId, String applicationName, XmlObject specDD, XmlObject vendorDD, Set modules, Set moduleLocations, String originalSpecDD) {
         this.type = type;
         this.configId = configId;
         this.parentId = parentId;
         this.applicationName = applicationName;
+        this.specDD = specDD;
+        this.vendorDD = vendorDD;
         this.modules = modules;
         this.moduleLocations = moduleLocations;
-        this.specDD = specDD;
+        this.originalSpecDD = originalSpecDD;
     }
 
     public ConfigurationModuleType getType() {
@@ -78,6 +83,22 @@ public class ApplicationInfo {
         this.applicationName = applicationName;
     }
 
+    public XmlObject getVendorDD() {
+        return vendorDD;
+    }
+
+    public void setVendorDD(XmlObject vendorDD) {
+        this.vendorDD = vendorDD;
+    }
+
+    public XmlObject getSpecDD() {
+        return specDD;
+    }
+
+    public void setSpecDD(XmlObject specDD) {
+        this.specDD = specDD;
+    }
+
     public Set getModules() {
         return modules;
     }
@@ -94,11 +115,11 @@ public class ApplicationInfo {
         this.moduleLocations = moduleLocations;
     }
 
-    public String getSpecDD() {
-        return specDD;
+    public String getOriginalSpecDD() {
+        return originalSpecDD;
     }
 
-    public void setSpecDD(String specDD) {
-        this.specDD = specDD;
+    public void setOriginalSpecDD(String originalSpecDD) {
+        this.originalSpecDD = originalSpecDD;
     }
 }
