@@ -30,7 +30,7 @@ import org.apache.geronimo.gbean.WaitingException;
 
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/07/11 21:22:30 $
+ * @version $Revision: 1.6 $ $Date: 2004/07/18 21:53:03 $
  */
 public class ThreadPool implements Executor, GBeanLifecycle {
 
@@ -103,7 +103,7 @@ public class ThreadPool implements Executor, GBeanLifecycle {
         }
     }
 
-    private static final GBeanInfo GBEAN_INFO;
+    public static final GBeanInfo GBEAN_INFO;
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(ThreadPool.class);
