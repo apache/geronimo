@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.6 $ $Date: 2004/02/06 08:56:42 $ -->
+<!-- $Revision: 1.7 $ $Date: 2004/02/09 05:52:01 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -35,14 +35,6 @@
             <properties>
             </properties>
         </dependency>
-
-        <!--dependency>
-            <groupId>maven</groupId>
-            <artifactId>geronimo-maven-xmlbeans-plugin</artifactId>
-            <version>DEV</version>
-            <properties>
-            </properties>
-        </dependency-->
 
         <!-- real stuff -->
         <dependency>
@@ -97,6 +89,14 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-jacc</artifactId>
+            <version>DEV</version>
+            <properties>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-j2eeschema</artifactId>
             <version>DEV</version>
             <properties>
             </properties>

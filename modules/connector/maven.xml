@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.1 $ $Date: 2004/02/02 22:10:35 $ -->
+<!-- $Revision: 1.2 $ $Date: 2004/02/09 05:52:01 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -10,9 +10,9 @@
 
     <preGoal name="java:compile">
         <xmlbeans:schema2java
-            sourceschema="${basedir}/src/schema/connector_1_0.xsd,${basedir}/src/schema/connector_1_5.xsd,${basedir}/src/schema/geronimo-connector_1_5.xsd"
+            sourceschema="${basedir}/src/schema/geronimo-connector_1_5.xsd"
             xmlconfigs="${basedir}/src/schema/xmlconfig.xml"
             targetdir="${basedir}/target/xmlbeans"/>
     </preGoal>
-
+    <!--${basedir}/src/schema/connector_1_0.xsd,${basedir}/src/schema/connector_1_5.xsd,-->
 </project>
