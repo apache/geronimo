@@ -74,7 +74,7 @@ import net.sf.cglib.proxy.SimpleCallbacks;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/15 05:36:53 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/19 06:33:24 $
  */
 public class SingleProxy implements Proxy {
     private static final Log log = LogFactory.getLog(SingleProxy.class);
@@ -120,8 +120,12 @@ public class SingleProxy implements Proxy {
         this.name = name;
         this.patterns = patterns;
         Enhancer enhancer = new Enhancer();
-        enhancer.setSuperclass(Object.class);
-        enhancer.setInterfaces(new Class[]{type});
+        if (type.isInterface()) {
+            enhancer.setSuperclass(Object.class);
+            enhancer.setInterfaces(new Class[]{type});
+        } else {
+            enhancer.setSuperclass(type);
+        }
         enhancer.setCallbackFilter(new CallbackFilter() {
             public int accept(Method method) {
                 return Callbacks.INTERCEPT;

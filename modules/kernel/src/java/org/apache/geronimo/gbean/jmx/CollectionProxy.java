@@ -64,6 +64,8 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.ArrayList;
+import java.lang.reflect.Method;
+
 import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.WaitingException;
@@ -77,11 +79,13 @@ import org.apache.commons.logging.LogFactory;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.Factory;
 import net.sf.cglib.proxy.SimpleCallbacks;
+import net.sf.cglib.proxy.CallbackFilter;
+import net.sf.cglib.proxy.Callbacks;
 
 /**
  *
  *
- * @version $Revision: 1.6 $ $Date: 2004/01/17 16:59:20 $
+ * @version $Revision: 1.7 $ $Date: 2004/01/19 06:33:24 $
  */
 public class CollectionProxy implements Proxy {
     private static final Log log = LogFactory.getLog(CollectionProxy.class);
@@ -131,7 +135,13 @@ public class CollectionProxy implements Proxy {
         } else {
             enhancer.setSuperclass(type);
         }
-        enhancer.setCallbackFilter(new InterfaceCallbackFilter(type));
+        //enhancer.setCallbackFilter(new InterfaceCallbackFilter(type));
+        enhancer.setCallbackFilter(new CallbackFilter() {
+            public int accept(Method method) {
+                return Callbacks.INTERCEPT;
+            }
+        });
+
         enhancer.setCallbacks(new SimpleCallbacks());
         enhancer.setClassLoader(type.getClassLoader());
         factory = enhancer.create();

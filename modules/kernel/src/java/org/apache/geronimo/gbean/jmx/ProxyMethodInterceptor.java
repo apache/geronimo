@@ -75,7 +75,7 @@ import net.sf.cglib.reflect.FastClass;
 /**
  *
  *
- * @version $Revision: 1.2 $ $Date: 2004/01/15 00:45:54 $
+ * @version $Revision: 1.3 $ $Date: 2004/01/19 06:33:24 $
  */
 public final class ProxyMethodInterceptor implements MethodInterceptor {
     /**
@@ -154,6 +154,10 @@ public final class ProxyMethodInterceptor implements MethodInterceptor {
                 throw new IllegalStateException("Proxy is stopped");
             }
         }
+        InvokeMBean invoker = methodTable[proxy.getSuperIndex()];
+        if (invoker == null) {
+            System.out.println("NO INVOKER FOR ");
+        }
         return methodTable[proxy.getSuperIndex()].invoke(server, objectName, args);
     }
 
@@ -207,6 +211,7 @@ public final class ProxyMethodInterceptor implements MethodInterceptor {
             methodTable[getSuperIndex(fastClass, proxyType.getMethod("hashCode", null))] = new HashCodeInvoke();
             methodTable[getSuperIndex(fastClass, proxyType.getMethod("toString", null))] = new ToStringInvoke(proxyType.getName());
         } catch (Exception e) {
+            System.out.println("Missing method for " + proxyType + " object name " + objectName);
             // this can not happen... all classes must implement equals, hashCode and toString
             throw new AssertionError(e);
         }
