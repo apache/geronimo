@@ -31,7 +31,7 @@ Configuration for the Geronimo deployer
 
     <gbean name="geronimo.deployment:role=Deployer,config=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.deployment.Deployer">
         <reference name="Builders">geronimo.deployer:role=Builder,config=org/apache/geronimo/J2EEDeployer,*</reference>
-        <reference name="Store">geronimo.boot:role=ConfigurationStore</reference>
+        <reference name="Store">geronimo.deployment:role=ConfigurationStore,type=Local</reference>
     </gbean>
 
     <gbean name="geronimo.deployer:role=Builder,type=Service,config=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.deployment.service.ServiceConfigBuilder">

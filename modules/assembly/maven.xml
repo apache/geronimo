@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- $Revision: 1.4 $ $Date: 2004/02/24 07:36:20 $ -->
+<!-- $Revision: 1.5 $ $Date: 2004/02/25 08:01:08 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -116,26 +116,14 @@
         </define:taglib>
 
         <bootstrap:bootstrap
-            outputFile="${distDir}/bin/deployer.jar"
-            baseDir="${distDir}"
-            store="config-store"
-            deploymentPlan="${basedir}/src/plan/deployer-config.xml"
-            classPath="${deploy.classpath}"
-            mainGBean="geronimo.deployment:role=Deployer,config=org/apache/geronimo/J2EEDeployer"
-            mainMethod="deploy"
-            configurations="org/apache/geronimo/J2EEDeployer"
+            deployerJar="${distDir}/bin/deployer.jar"
+            storeDir="${distDir}/config-store"
+            repositoryDir="${distDir}/repository"
+            deployerSystemPlan="${basedir}/src/plan/deployer-system-plan.xml"
+            j2eeDeployerPlan="${basedir}/src/plan/j2ee-deployer-plan.xml"
+            deployerClassPath="${deploy.classpath}"
+            deployerGBean="geronimo.deployment:role=Deployer,config=org/apache/geronimo/J2EEDeployer"
             />
-
-        <!--        <j:invokeStatic className="org.apache.geronimo.deployment.Bootstrap" method="bootstrap">-->
-        <!--            <j:arg type="java.lang.String" value="${distDir}/bin/deployer.jar"/>-->
-        <!--            <j:arg type="java.lang.String" value="${distDir}"/>-->
-        <!--            <j:arg type="java.lang.String" value="config-store"/>-->
-        <!--            <j:arg type="java.lang.String" value="${basedir}/src/plan/deployer-config.xml"/>-->
-        <!--            <j:arg type="java.lang.String" value="${deploy.classpath}"/>-->
-        <!--            <j:arg type="java.lang.String" value="geronimo.deployment:role=Deployer,config=org/apache/geronimo/J2EEDeployer"/>-->
-        <!--            <j:arg type="java.lang.String" value="deploy"/>-->
-        <!--            <j:arg type="java.lang.String" value="org/apache/geronimo/J2EEDeployer"/>-->
-        <!--        </j:invokeStatic>-->
 
         <!-- build the system configuration and server.jar -->
         <ant:echo>Building system configuration</ant:echo>
@@ -143,7 +131,7 @@
         <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
             <ant:arg value="--install"/>
             <ant:arg value="--plan"/>
-            <ant:arg value="src/plan/system-config.xml"/>
+            <ant:arg value="src/plan/system-plan.xml"/>
             <ant:arg value="--outfile"/>
             <ant:arg value="${distDir}/bin/server.jar"/>
         </ant:java>
@@ -153,7 +141,7 @@
         <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
             <ant:arg value="--install"/>
             <ant:arg value="--plan"/>
-            <ant:arg value="src/plan/server-config.xml"/>
+            <ant:arg value="src/plan/j2ee-server-plan.xml"/>
         </ant:java>
 
         <!-- build the Debug Tool configuration -->
