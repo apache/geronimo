@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    xmlns="http://geronimo.apache.org/xml/schema/Geronimo/ejb-jar"
-    targetNamespace="http://geronimo.apache.org/xml/schema/Geronimo/ejb-jar"
-    elementFormDefault="qualified">
+<xsd:schema xmlns="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://geronimo.apache.org/xml/schema/1.0/j2ee14"
+    xmlns:ger="http://geronimo.apache.org/xml/schema/1.0/j2ee14"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified">
     <!--
         The top-level element is ejb-jar.
         Elements and named types are ordered alphabetically.
     -->
+
+    <xsd:include schemaLocation="geronimo-j2ee.xsd"/>
 
     <xsd:annotation>
         <xsd:documentation>
@@ -23,14 +27,14 @@
             </xsd:documentation>
         </xsd:annotation>
         <xsd:sequence>
-            <xsd:element ref="ejb-name" minOccurs="1" maxOccurs="1"/>
-            <xsd:element ref="jndi-name" minOccurs="0" maxOccurs="1"/>
-            <xsd:element ref="env-entry" minOccurs="0" maxOccurs="unbounded"/>
-            <xsd:element ref="ejb-ref" minOccurs="0" maxOccurs="unbounded"/>
-            <xsd:element ref="ejb-local-ref" minOccurs="0" maxOccurs="unbounded"/>
-            <xsd:element ref="security-role-ref" minOccurs="0" maxOccurs="unbounded"/>
-            <xsd:element ref="resource-ref" minOccurs="0" maxOccurs="unbounded"/>
-            <xsd:element ref="resource-env-ref" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element ref="ger:ejb-name" minOccurs="1" maxOccurs="1"/>
+            <xsd:element ref="ger:env-entry" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element ref="ger:ejb-ref" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element ref="ger:ejb-local-ref" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element ref="ger:message-destination-ref" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element ref="ger:resource-ref" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element ref="ger:resource-env-ref" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element ref="ger:service-ref" minOccurs="0" maxOccurs="unbounded"/>
         </xsd:sequence>
     </xsd:complexType>
 
@@ -42,26 +46,8 @@
         </xsd:annotation>
         <xsd:complexType>
             <xsd:sequence>
-                <xsd:element ref="enterprise-beans" minOccurs="0" maxOccurs="1"/>
-                <!-- also need top-level configuration and assembly-descriptor -->
-            </xsd:sequence>
-        </xsd:complexType>
-    </xsd:element>
-
-    <xsd:element name="ejb-local-ref">
-        <xsd:annotation>
-            <xsd:documentation>
-                Configuration for a local EJB reference.  Note that a local
-                EJB must be in the same JVM, so if context parameters are
-                provided, they must almost certainly simply refer to a
-                different application within the same server.
-            </xsd:documentation>
-        </xsd:annotation>
-        <xsd:complexType>
-            <xsd:sequence>
-                <xsd:element ref="ejb-ref-name" minOccurs="1" maxOccurs="1"/>
-                <xsd:element ref="jndi-name" minOccurs="1" maxOccurs="1"/>
-                <xsd:element ref="jndi-context-params" minOccurs="0" maxOccurs="1"/>
+                <xsd:element ref="ger:enterprise-beans" minOccurs="0" maxOccurs="1"/>
+                <!-- also need top-level configuration, relationships, and assembly-descriptor -->
             </xsd:sequence>
         </xsd:complexType>
     </xsd:element>
@@ -76,31 +62,6 @@
         </xsd:annotation>
     </xsd:element>
 
-    <xsd:element name="ejb-ref">
-        <xsd:annotation>
-            <xsd:documentation>
-                Configuration for an EJB reference
-            </xsd:documentation>
-        </xsd:annotation>
-        <xsd:complexType>
-            <xsd:sequence>
-                <xsd:element ref="ejb-ref-name" minOccurs="1" maxOccurs="1"/>
-                <xsd:element ref="jndi-name" minOccurs="1" maxOccurs="1"/>
-                <xsd:element ref="jndi-context-params" minOccurs="0" maxOccurs="1"/>
-            </xsd:sequence>
-        </xsd:complexType>
-    </xsd:element>
-
-    <xsd:element name="ejb-ref-name" type="xsd:string">
-        <xsd:annotation>
-            <xsd:documentation>
-                The unique identifier for an EJB reference within this EJB.  This
-                must match the ejb-ref-name for the same EJB reference for the
-                same EJB in the standard ejb-jar.xml deployment descriptor.
-            </xsd:documentation>
-        </xsd:annotation>
-    </xsd:element>
-
     <xsd:element name="enterprise-beans">
         <xsd:annotation>
             <xsd:documentation>
@@ -109,14 +70,14 @@
         </xsd:annotation>
         <xsd:complexType>
             <xsd:sequence>
-                <xsd:element ref="session" minOccurs="0" maxOccurs="unbounded"/>
-                <xsd:element ref="entity" minOccurs="0" maxOccurs="unbounded"/>
-                <xsd:element ref="message-driven" minOccurs="0" maxOccurs="unbounded"/>
+                <xsd:element ref="ger:session" minOccurs="0" maxOccurs="unbounded"/>
+                <xsd:element ref="ger:entity" minOccurs="0" maxOccurs="unbounded"/>
+                <xsd:element ref="ger:message-driven" minOccurs="0" maxOccurs="unbounded"/>
             </xsd:sequence>
         </xsd:complexType>
     </xsd:element>
 
-    <xsd:element name="entity" extends="ejb">
+    <xsd:element name="entity">
         <xsd:annotation>
             <xsd:documentation>
                 Configuration for a single entity bean
@@ -124,88 +85,14 @@
         </xsd:annotation>
         <xsd:complexType>
             <xsd:complexContent>
-                <xsd:extension base="ejb">
+                <xsd:extension base="ger:ejb">
                     <xsd:sequence>
+                        <xsd:element ref="ger:jndi-name" minOccurs="0" maxOccurs="1"/>
+                        <xsd:element ref="ger:security-role-ref" minOccurs="0" maxOccurs="unbounded"/>
                     </xsd:sequence>
                 </xsd:extension>
             </xsd:complexContent>
         </xsd:complexType>
-    </xsd:element>
-
-    <xsd:element name="env-entry">
-        <xsd:annotation>
-            <xsd:documentation>
-                Configuration for an environment entry.  Normally an env-entry
-                is fully configured by the assembler in the standard ejb-jar.xml
-                deployment descriptor.  However, the deployer can specify a
-                value here if there was no value specified in ejb-jar.xml, or
-                if the deployer wants to override the value specified there.
-            </xsd:documentation>
-        </xsd:annotation>
-        <xsd:complexType>
-            <xsd:sequence>
-                <xsd:element ref="env-entry-name" minOccurs="1" maxOccurs="1"/>
-                <xsd:element ref="env-entry-value" minOccurs="1" maxOccurs="1"/>
-            </xsd:sequence>
-        </xsd:complexType>
-    </xsd:element>
-
-    <xsd:element name="env-entry-name" type="xsd:string">
-        <xsd:annotation>
-            <xsd:documentation>
-                The unique name for this environment entry.  This must match the
-                env-entry-name for the env-entry in the standard ejb-jar.xml
-                deployment descriptor.
-            </xsd:documentation>
-        </xsd:annotation>
-    </xsd:element>
-
-    <xsd:element name="env-entry-value" type="xsd:string">
-        <xsd:annotation>
-            <xsd:documentation>
-                A value to use for this environment entry.  A value specified here
-                takes precedence over a value in the standard ejb-jar.xml
-                deployment descriptor.
-            </xsd:documentation>
-        </xsd:annotation>
-    </xsd:element>
-
-    <xsd:element name="jndi-context-param">
-        <xsd:annotation>
-            <xsd:documentation>
-                A single JNDI context parameter (name and value)
-            </xsd:documentation>
-        </xsd:annotation>
-        <xsd:complexType>
-            <xsd:sequence>
-                <xsd:element ref="param-name" minOccurs="1" maxOccurs="1"/>
-                <xsd:element ref="param-value" minOccurs="1" maxOccurs="1"/>
-            </xsd:sequence>
-        </xsd:complexType>
-    </xsd:element>
-
-    <xsd:element name="jndi-context-params">
-        <xsd:annotation>
-            <xsd:documentation>
-                Configuration for the JNDI context used to access a remote EJB
-                or resources
-            </xsd:documentation>
-        </xsd:annotation>
-        <xsd:complexType>
-            <xsd:sequence>
-                <xsd:element ref="jndi-context-param" minOccurs="1" maxOccurs="unbounded"/>
-            </xsd:sequence>
-        </xsd:complexType>
-    </xsd:element>
-
-    <xsd:element name="jndi-name" type="xsd:string">
-        <xsd:annotation>
-            <xsd:documentation>
-                A JNDI name.  This may be the location where an EJB should be
-                bound, or the location where an EJB or resource can be found to
-                resolve a reference.
-            </xsd:documentation>
-        </xsd:annotation>
     </xsd:element>
 
     <xsd:element name="message-driven">
@@ -216,7 +103,7 @@
         </xsd:annotation>
         <xsd:complexType>
             <xsd:complexContent>
-                <xsd:extension base="ejb">
+                <xsd:extension base="ger:ejb">
                     <xsd:sequence>
                     </xsd:sequence>
                 </xsd:extension>
@@ -224,115 +111,7 @@
         </xsd:complexType>
     </xsd:element>
 
-    <xsd:element name="param-name" type="xsd:string">
-        <xsd:annotation>
-            <xsd:documentation>
-                The name of a parameter
-            </xsd:documentation>
-        </xsd:annotation>
-    </xsd:element>
-
-    <xsd:element name="param-value" type="xsd:string">
-        <xsd:annotation>
-            <xsd:documentation>
-                The value of a parameter
-            </xsd:documentation>
-        </xsd:annotation>
-    </xsd:element>
-
-    <xsd:element name="res-ref-name" type="xsd:string">
-        <xsd:annotation>
-            <xsd:documentation>
-                The unique identifier for a resource reference within this EJB.
-                This must match the res-ref-name for the same resource reference for
-                the same EJB in the standard ejb-jar.xml deployment descriptor.
-            </xsd:documentation>
-        </xsd:annotation>
-    </xsd:element>
-
-    <xsd:element name="resource-env-ref">
-        <xsd:annotation>
-            <xsd:documentation>
-                Configuration for a resource reference for a resource within
-                the application server.
-            </xsd:documentation>
-        </xsd:annotation>
-        <xsd:complexType>
-            <xsd:sequence>
-                <xsd:element ref="resource-env-ref-name" minOccurs="1" maxOccurs="1"/>
-                <xsd:element ref="jndi-name" minOccurs="1" maxOccurs="1"/>
-            </xsd:sequence>
-        </xsd:complexType>
-    </xsd:element>
-
-    <xsd:element name="resource-env-ref-name" type="xsd:string">
-        <xsd:annotation>
-            <xsd:documentation>
-                The unique identifier for a resource env reference within this EJB.
-                This must match the resource-env-ref-name for the same resource env
-                reference for the same EJB in the standard ejb-jar.xml deployment
-                descriptor.
-            </xsd:documentation>
-        </xsd:annotation>
-    </xsd:element>
-
-    <xsd:element name="resource-ref">
-        <xsd:annotation>
-            <xsd:documentation>
-                Configuration for a resource reference for a resource which may
-                be within the application server or may be an external resource.
-            </xsd:documentation>
-        </xsd:annotation>
-        <xsd:complexType>
-            <xsd:sequence>
-                <xsd:element ref="res-ref-name" minOccurs="1" maxOccurs="1"/>
-                <xsd:element ref="jndi-name" minOccurs="1" maxOccurs="1"/>
-                <xsd:element ref="jndi-context-params" minOccurs="0" maxOccurs="1"/>
-            </xsd:sequence>
-        </xsd:complexType>
-    </xsd:element>
-
-    <xsd:element name="role-name" type="xsd:string">
-        <xsd:annotation>
-            <xsd:documentation>
-                The unique name for this security role.  If used in a security
-                role reference, this must match the role-name for the
-                security-role-ref in the standard ejb-jar.xml deployment
-                descriptor.
-            </xsd:documentation>
-        </xsd:annotation>
-    </xsd:element>
-
-    <xsd:element name="role-link" type="xsd:string">
-        <xsd:annotation>
-            <xsd:documentation>
-                The security role that this security role reference should be
-                linked to.  A role specified here takes precedence over a role
-                specified in the standard ejb-jar.xml deployment descriptor.
-            </xsd:documentation>
-        </xsd:annotation>
-    </xsd:element>
-
-    <xsd:element name="security-role-ref">
-        <xsd:annotation>
-            <xsd:documentation>
-                Configuration for a security role reference.  Normally a
-                security role reference is fully configured by the assembler
-                in the standard ejb-jar.xml deployment descriptor (with the
-                role-link element).  However, the deployer can specify a value
-                here if there was no value specified in ejb-jar.xml, or
-                if the deployer wants to override the value specified there.
-            </xsd:documentation>
-        </xsd:annotation>
-        <xsd:complexType>
-            <xsd:sequence>
-                <xsd:element ref="role-name" minOccurs="1" maxOccurs="1"/>
-                <xsd:element ref="role-link" minOccurs="1" maxOccurs="1"/>
-            </xsd:sequence>
-        </xsd:complexType>
-    </xsd:element>
-
-    <xsd:element name="session" extends="ejb">
+    <xsd:element name="session">
         <xsd:annotation>
             <xsd:documentation>
                 Configuration for a single session bean
@@ -340,8 +119,10 @@
         </xsd:annotation>
         <xsd:complexType>
             <xsd:complexContent>
-                <xsd:extension base="ejb">
+                <xsd:extension base="ger:ejb">
                     <xsd:sequence>
+                        <xsd:element ref="ger:jndi-name" minOccurs="0" maxOccurs="1"/>
+                        <xsd:element ref="ger:security-role-ref" minOccurs="0" maxOccurs="unbounded"/>
                     </xsd:sequence>
                 </xsd:extension>
             </xsd:complexContent>
