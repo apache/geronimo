@@ -122,9 +122,9 @@ by the server.
         <reference name="Realms">geronimo.security:type=SecurityRealm,*</reference>
     </gbean>
 
-    <gbean name="geronimo.security:type=LoginService" class="org.apache.geronimo.security.jaas.LoginService">
+    <gbean name="geronimo.security:type=JaasLoginService" class="org.apache.geronimo.security.jaas.JaasLoginService">
         <reference name="Realms">geronimo.security:type=SecurityRealm,*</reference>
-        <attribute name="reclaimPeriod" type="long">100000</attribute>
+<!--        <attribute name="reclaimPeriod" type="long">100000</attribute>-->
         <attribute name="algorithm" type="java.lang.String">HmacSHA1</attribute>
         <attribute name="password" type="java.lang.String">secret</attribute>
     </gbean>

@@ -41,24 +41,42 @@ import org.apache.geronimo.kernel.Kernel;
  * @see javax.security.auth.login.Configuration
  */
 public class ConfigurationEntryRealmRemote extends ConfigurationEntryRealmLocal {
-    private String URI;
+    private String realmName;
+    private String host;
+    private int port;
 
     public ConfigurationEntryRealmRemote(Kernel kernel) {
         super(kernel);
     }
 
-    public String getURI() {
-        return URI;
+    public String getHost() {
+        return host;
     }
 
-    public void setURI(String URI) {
-        this.URI = URI;
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public String getRealmName() {
+        return realmName;
+    }
+
+    public void setRealmName(String realmName) {
+        this.realmName = realmName;
     }
 
     public AppConfigurationEntry[] getAppConfigurationEntry() {
         try {
             return new AppConfigurationEntry[]{
-                new AppConfigurationEntry("org.apache.geronimo.security.jaas.LocalLoginModule",
+                new AppConfigurationEntry("org.apache.geronimo.security.jaas.JaasLoginCoordinator",
                         getControlFlag().getFlag(),
                         getOptions())};
         } catch (Exception e) {
@@ -69,7 +87,9 @@ public class ConfigurationEntryRealmRemote extends ConfigurationEntryRealmLocal 
     public void doStart() throws WaitingException, Exception {
         super.doStart();
 
-        options.put("uri", URI);
+        options.put("host", host);
+        options.put("realm", realmName);
+        options.put("port", Integer.toString(port));
     }
 
     public void doStop() throws WaitingException, Exception {
@@ -80,7 +100,9 @@ public class ConfigurationEntryRealmRemote extends ConfigurationEntryRealmLocal 
 
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ConfigurationEntryRealmRemote.class, ConfigurationEntryRealmLocal.GBEAN_INFO);
-        infoFactory.addAttribute("URI", String.class, true);
+        infoFactory.addAttribute("host", String.class, true);
+        infoFactory.addAttribute("port", int.class, true);
+        infoFactory.addAttribute("realmName", String.class, true);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

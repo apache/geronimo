@@ -24,19 +24,22 @@ import java.io.File;
 import java.util.Collections;
 import java.util.Properties;
 import java.util.Set;
+import java.net.URI;
 
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.security.AbstractTest;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
+import org.apache.geronimo.security.bridge.TestRealm;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.kernel.Kernel;
 
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
-public class LoginPropertiesFileTest extends AbstractTest {
+public class TimeoutTest extends AbstractTest {
 
     protected ObjectName serverInfo;
     protected ObjectName loginConfiguration;
@@ -44,9 +47,55 @@ public class LoginPropertiesFileTest extends AbstractTest {
     protected ObjectName propertiesCE;
 
     public void setUp() throws Exception {
-        super.setUp();
+        kernel = new Kernel("test.kernel", "simple.geronimo.test");
+        kernel.boot();
 
         GBeanMBean gbean;
+
+        // Create all the parts
+
+        gbean = new GBeanMBean("org.apache.geronimo.security.jaas.JaasLoginService");
+        loginService = new ObjectName("geronimo.security:type=JaasLoginService");
+        gbean.setReferencePatterns("Realms", Collections.singleton(new ObjectName("geronimo.security:type=SecurityRealm,*")));
+        gbean.setAttribute("expiredLoginScanIntervalMillis", new Integer(50));
+        gbean.setAttribute("maxLoginDurationMillis", new Integer(1000));
+        gbean.setAttribute("algorithm", "HmacSHA1");
+        gbean.setAttribute("password", "secret");
+        kernel.loadGBean(loginService, gbean);
+
+        gbean = new GBeanMBean("org.apache.geronimo.security.bridge.TestRealm");
+        testRealm = new ObjectName("geronimo.security:type=SecurityRealm,realm=testrealm");
+        gbean.setAttribute("realmName", TestRealm.REALM_NAME);
+        gbean.setAttribute("maxLoginModuleAge", new Long(1 * 1000));
+        gbean.setAttribute("debug", new Boolean(true));
+        kernel.loadGBean(testRealm, gbean);
+
+        gbean = new GBeanMBean("org.apache.geronimo.remoting.router.SubsystemRouter");
+        subsystemRouter = new ObjectName("geronimo.remoting:router=SubsystemRouter");
+        kernel.loadGBean(subsystemRouter, gbean);
+
+        gbean = new GBeanMBean("org.apache.geronimo.remoting.transport.TransportLoader");
+        gbean.setAttribute("bindURI", new URI("async://0.0.0.0:4242"));
+        gbean.setReferencePatterns("Router", Collections.singleton(subsystemRouter));
+        asyncTransport = new ObjectName("geronimo.remoting:transport=async");
+        kernel.loadGBean(asyncTransport, gbean);
+
+        gbean = new GBeanMBean("org.apache.geronimo.remoting.router.JMXRouter");
+        gbean.setReferencePatterns("SubsystemRouter", Collections.singleton(subsystemRouter));
+        jmxRouter = new ObjectName("geronimo.remoting:router=JMXRouter");
+        kernel.loadGBean(jmxRouter, gbean);
+
+        gbean = new GBeanMBean("org.apache.geronimo.security.remoting.jmx.JaasLoginServiceRemotingServer");
+        gbean.setReferencePatterns("Router", Collections.singleton(jmxRouter));
+        serverStub = new ObjectName("geronimo.remoting:target=JaasLoginServiceRemotingServer");
+        kernel.loadGBean(serverStub, gbean);
+
+        kernel.startGBean(loginService);
+        kernel.startGBean(testRealm);
+        kernel.startGBean(subsystemRouter);
+        kernel.startGBean(asyncTransport);
+        kernel.startGBean(jmxRouter);
+        kernel.startGBean(serverStub);
 
         gbean = new GBeanMBean(ServerInfo.GBEAN_INFO);
         serverInfo = new ObjectName("geronimo.system:role=ServerInfo");
@@ -91,10 +140,24 @@ public class LoginPropertiesFileTest extends AbstractTest {
         kernel.unloadGBean(loginConfiguration);
         kernel.unloadGBean(serverInfo);
 
-        super.tearDown();
+        kernel.stopGBean(serverStub);
+        kernel.stopGBean(jmxRouter);
+        kernel.stopGBean(asyncTransport);
+        kernel.stopGBean(subsystemRouter);
+        kernel.stopGBean(testRealm);
+        kernel.stopGBean(loginService);
+
+        kernel.unloadGBean(loginService);
+        kernel.unloadGBean(testRealm);
+        kernel.unloadGBean(subsystemRouter);
+        kernel.unloadGBean(asyncTransport);
+        kernel.unloadGBean(jmxRouter);
+        kernel.unloadGBean(serverStub);
+
+        kernel.shutdown();
     }
 
-    public void testLogin() throws Exception {
+    public void testTimeout() throws Exception {
 
         LoginContext context = new LoginContext("properties", new AbstractTest.UsernamePasswordCallback("alan", "starcraft"));
 
@@ -103,7 +166,7 @@ public class LoginPropertiesFileTest extends AbstractTest {
         assertTrue("expected non-null client subject", subject != null);
         Set set = subject.getPrincipals(IdentificationPrincipal.class);
         assertEquals("client subject should have one ID principal", set.size(), 1);
-        IdentificationPrincipal idp = (IdentificationPrincipal)set.iterator().next();
+        IdentificationPrincipal idp = (IdentificationPrincipal) set.iterator().next();
         subject = ContextManager.getRegisteredSubject(idp.getId());
 
         assertTrue("expected non-null server subject", subject != null);
@@ -115,7 +178,13 @@ public class LoginPropertiesFileTest extends AbstractTest {
         RealmPrincipal principal = (RealmPrincipal) subject.getPrincipals(RealmPrincipal.class).iterator().next();
         assertTrue("id of principal should be non-zero", principal.getId() != 0);
 
-        context.logout();
+        assertTrue("id of server subject should be non-null", ContextManager.getSubjectId(subject) != null);
+
+        Thread.sleep(300); // wait for timeout to kick in
+
+        assertTrue("id of server subject should be non-null", ContextManager.getSubjectId(subject) != null);
+
+        Thread.sleep(1700); // wait for timeout to kick in
 
         assertTrue("id of server subject should be null", ContextManager.getSubjectId(subject) == null);
     }

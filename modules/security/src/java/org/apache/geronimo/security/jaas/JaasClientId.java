@@ -21,21 +21,21 @@ import java.io.Serializable;
 
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
-public class LoginModuleId implements Serializable {
-    private final Long loginModuleId;
+public class JaasClientId implements Serializable {
+    private final long clientId;
     private final byte[] hash;
     private transient int hashCode;
     private transient String name;
 
-    public LoginModuleId(Long loginModuleId, byte[] hash) {
-        this.loginModuleId = loginModuleId;
+    public JaasClientId(long clientId, byte[] hash) {
+        this.clientId = clientId;
         this.hash = hash;
     }
 
-    public Long getLoginModuleId() {
-        return loginModuleId;
+    public long getClientId() {
+        return clientId;
     }
 
     public byte[] getHash() {
@@ -43,10 +43,10 @@ public class LoginModuleId implements Serializable {
     }
 
     public boolean equals(Object obj) {
-        if (!(obj instanceof LoginModuleId)) return false;
+        if (!(obj instanceof JaasClientId)) return false;
 
-        LoginModuleId another = (LoginModuleId) obj;
-        if (!another.loginModuleId.equals(loginModuleId)) return false;
+        JaasClientId another = (JaasClientId) obj;
+        if (another.clientId != clientId) return false;
         for (int i = 0; i < hash.length; i++) {
             if (another.hash[i] != hash[i]) return false;
         }
@@ -57,7 +57,7 @@ public class LoginModuleId implements Serializable {
         if (name == null) {
             StringBuffer buffer = new StringBuffer();
             buffer.append('[');
-            buffer.append(loginModuleId);
+            buffer.append(clientId);
             buffer.append(":0x");
             for (int i = 0; i < hash.length; i++) {
                 buffer.append(HEXCHAR[(hash[i]>>>4)&0x0F]);
@@ -79,7 +79,7 @@ public class LoginModuleId implements Serializable {
             for (int i = 0; i < hash.length; i++) {
                 hashCode ^= hash[i];
             }
-            hashCode ^= loginModuleId.hashCode();
+            hashCode ^= (int)(clientId ^ (clientId >>> 32));
         }
         return hashCode;
     }

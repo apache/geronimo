@@ -22,6 +22,7 @@ import java.security.Principal;
 import java.util.HashMap;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
+import javax.security.auth.Subject;
 import javax.security.jacc.WebRoleRefPermission;
 
 import org.apache.commons.logging.Log;
@@ -92,12 +93,12 @@ public class JAASJettyRealm implements UserRealm, GBeanLifecycle {
             loginContext.login();
             callbackHandler.clear();
 
-            ContextManager.registerSubject(loginContext.getSubject());
-            ContextManager.setCurrentCaller(loginContext.getSubject());
+            Subject subject = ContextManager.getServerSideSubject(loginContext.getSubject());
+            ContextManager.setCurrentCaller(subject);
 
             //login success
             userPrincipal = new JAASJettyPrincipal(username);
-            userPrincipal.setSubject(loginContext.getSubject());
+            userPrincipal.setSubject(subject);
 
             userMap.put(username, userPrincipal);
 

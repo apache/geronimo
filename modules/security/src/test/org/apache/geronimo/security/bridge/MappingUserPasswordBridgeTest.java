@@ -17,9 +17,13 @@
 
 package org.apache.geronimo.security.bridge;
 
+import org.apache.geronimo.security.IdentificationPrincipal;
+import org.apache.geronimo.security.ContextManager;
+
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import javax.security.auth.Subject;
 
 
@@ -65,6 +69,11 @@ public class MappingUserPasswordBridgeTest extends AbstractBridgeTest {
         subject.getPrincipals().add(new TestUserNamePrincipal(SOURCE_USER_1));
         subject.getPrincipals().add(new TestPasswordPrincipal(SOURCE_PASSWORD_1));
         Subject targetSubject = bridge.mapSubject(subject);
+        assertTrue("expected non-null client subject", targetSubject != null);
+        Set set = targetSubject.getPrincipals(IdentificationPrincipal.class);
+        assertEquals("client subject should have one ID principal", set.size(), 1);
+        IdentificationPrincipal idp = (IdentificationPrincipal)set.iterator().next();
+        targetSubject = ContextManager.getRegisteredSubject(idp.getId());
         checkValidSubject(targetSubject);
     }
 
@@ -75,7 +84,7 @@ public class MappingUserPasswordBridgeTest extends AbstractBridgeTest {
         try {
             bridge.mapSubject(subject);
             fail();
-        } catch (Exception e) {
+        } catch (Throwable e) {
         }
     }
 
@@ -87,7 +96,7 @@ public class MappingUserPasswordBridgeTest extends AbstractBridgeTest {
         try {
             bridge.mapSubject(subject);
             fail();
-        } catch (Exception e) {
+        } catch (Throwable e) {
         }
     }
 

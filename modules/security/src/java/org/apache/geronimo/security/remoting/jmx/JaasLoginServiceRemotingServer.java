@@ -34,21 +34,21 @@ import org.apache.geronimo.proxy.ReflexiveInterceptor;
 import org.apache.geronimo.remoting.DeMarshalingInterceptor;
 import org.apache.geronimo.remoting.router.JMXRouter;
 import org.apache.geronimo.remoting.router.JMXTarget;
-import org.apache.geronimo.security.jaas.LoginServiceMBean;
+import org.apache.geronimo.security.jaas.JaasLoginServiceMBean;
 
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 56022 $ $Date: 2004-10-30 01:16:18 -0400 (Sat, 30 Oct 2004) $
  */
-public class LoginServiceStub implements GBeanLifecycle, JMXTarget {
-    private static final Log log = LogFactory.getLog(LoginServiceStub.class);
+public class JaasLoginServiceRemotingServer implements GBeanLifecycle, JMXTarget {
+    private static final Log log = LogFactory.getLog(JaasLoginServiceRemotingServer.class);
     private final Kernel kernel;
     private final ObjectName objectName;
     private ProxyContainer serverContainer;
     private DeMarshalingInterceptor demarshaller;
     private JMXRouter router;
 
-    public LoginServiceStub(Kernel kernel, String objectName) {
+    public JaasLoginServiceRemotingServer(Kernel kernel, String objectName) {
         this.kernel = kernel;
         this.objectName = JMXUtil.getObjectName(objectName);
     }
@@ -69,9 +69,9 @@ public class LoginServiceStub implements GBeanLifecycle, JMXTarget {
         router.register(objectName, this);
 
         // Setup the server side contianer..
-        LoginServiceMBean loginService = (LoginServiceMBean) MBeanProxyFactory.getProxy(LoginServiceMBean.class,
+        JaasLoginServiceMBean loginService = (JaasLoginServiceMBean) MBeanProxyFactory.getProxy(JaasLoginServiceMBean.class,
                 kernel.getMBeanServer(),
-                JMXUtil.getObjectName("geronimo.security:type=LoginService"));
+                JMXUtil.getObjectName("geronimo.security:type=JaasLoginService"));
         Interceptor firstInterceptor = new ReflexiveInterceptor(loginService);
         demarshaller = new DeMarshalingInterceptor(firstInterceptor, getClass().getClassLoader());
         serverContainer = new ProxyContainer(firstInterceptor);
@@ -96,7 +96,7 @@ public class LoginServiceStub implements GBeanLifecycle, JMXTarget {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(LoginServiceStub.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(JaasLoginServiceRemotingServer.class);
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addReference("Router", JMXRouter.class);

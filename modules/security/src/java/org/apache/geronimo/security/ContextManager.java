@@ -63,6 +63,20 @@ public class ContextManager {
     public static final GeronimoSecurityPermission GET_CONTEXT = new GeronimoSecurityPermission("getContext");
     public static final GeronimoSecurityPermission SET_CONTEXT = new GeronimoSecurityPermission("setContext");
 
+    /**
+     * After a login, the client is left with a relatively empty Subject, while
+     * the Subject used by the server has more important contents.  This method
+     * lets a server-side component acting as an authentication client (such
+     * as Tocmat/Jetty) access the fully populated server-side Subject.
+     */ 
+    public static Subject getServerSideSubject(Subject clientSideSubject) {
+        Set set = clientSideSubject.getPrincipals(IdentificationPrincipal.class);
+        if(set == null || set.size() == 0) {
+            return null;
+        }
+        IdentificationPrincipal idp = (IdentificationPrincipal)set.iterator().next();
+        return getRegisteredSubject(idp.getId());
+    }
 
     public static void setCurrentCallerId(Serializable id) {
         SecurityManager sm = System.getSecurityManager();

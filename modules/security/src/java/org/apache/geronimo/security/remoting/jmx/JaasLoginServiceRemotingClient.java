@@ -25,30 +25,24 @@ import org.apache.geronimo.proxy.ProxyContainer;
 import org.apache.geronimo.remoting.MarshalingInterceptor;
 import org.apache.geronimo.remoting.jmx.NotificationRemoterInterceptor;
 import org.apache.geronimo.remoting.transport.RemoteTransportInterceptor;
-import org.apache.geronimo.security.jaas.LoginServiceMBean;
+import org.apache.geronimo.security.jaas.JaasLoginServiceMBean;
 
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
-public class RemoteLoginServiceFactory extends org.apache.geronimo.security.remoting.RemoteLoginServiceFactory {
-
-    static public LoginServiceMBean create(String host) throws IllegalArgumentException {
-        return create(host, 3434);
-    }
-
-    static public LoginServiceMBean create(String host, int port) throws IllegalArgumentException {
+public class JaasLoginServiceRemotingClient {
+    static public JaasLoginServiceMBean create(String host, int port) throws IllegalArgumentException {
         URI target;
         try {
-            target = new URI("async", null, host, port, "/JMX", null, "geronimo.remoting:target=LoginServiceStub");
+            target = new URI("async", null, host, port, "/JMX", null, "geronimo.remoting:target=JaasLoginServiceRemotingServer");
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("Bad host or port.");
         }
         return create(target);
     }
 
-    static public LoginServiceMBean create(URI target) {
-
+    static public JaasLoginServiceMBean create(URI target) {
         // Setup the client side container..
         RemoteTransportInterceptor remoteInterceptor = new RemoteTransportInterceptor(target);
         remoteInterceptor.setRemoteURI(target);
@@ -57,12 +51,6 @@ public class RemoteLoginServiceFactory extends org.apache.geronimo.security.remo
         firstInterceptor = new NotificationRemoterInterceptor(firstInterceptor);
 
         ProxyContainer clientContainer = new ProxyContainer(firstInterceptor);
-        return (LoginServiceMBean) clientContainer.createProxy(LoginServiceMBean.class.getClassLoader(), new Class[]{LoginServiceMBean.class});
+        return (JaasLoginServiceMBean) clientContainer.createProxy(JaasLoginServiceMBean.class.getClassLoader(), new Class[]{JaasLoginServiceMBean.class});
     }
-
-    protected LoginServiceMBean factoryCreate(String hostname) {
-        return RemoteLoginServiceFactory.create(hostname);
-    }
-
-
 }

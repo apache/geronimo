@@ -37,7 +37,7 @@ import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
 import org.apache.geronimo.remoting.transport.TransportLoader;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
-import org.apache.geronimo.security.jaas.LoginServiceMBean;
+import org.apache.geronimo.security.jaas.JaasLoginServiceMBean;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 
@@ -57,9 +57,9 @@ public class RemoteLoginTest extends TestCase {
     ObjectName jmxRouter;
     ObjectName secureJmxRouter;
     ObjectName serverStub;
-    LoginServiceMBean asyncRemoteProxy;
-    LoginServiceMBean saslRemoteProxy;
-    LoginServiceMBean gssapiRemoteProxy;
+    JaasLoginServiceMBean asyncRemoteProxy;
+    JaasLoginServiceMBean saslRemoteProxy;
+    JaasLoginServiceMBean gssapiRemoteProxy;
 
     public void testNothing() {
     }
@@ -100,10 +100,10 @@ public class RemoteLoginTest extends TestCase {
         kernel.loadGBean(serverInfo, gbean);
         kernel.startGBean(serverInfo);
 
-        gbean = new GBeanMBean("org.apache.geronimo.security.jaas.LoginService");
-        loginService = new ObjectName("geronimo.security:type=LoginService");
+        gbean = new GBeanMBean("org.apache.geronimo.security.jaas.JaasLoginService");
+        loginService = new ObjectName("geronimo.security:type=JaasLoginService");
         gbean.setReferencePatterns("Realms", Collections.singleton(new ObjectName("geronimo.security:type=SecurityRealm,*")));
-        gbean.setAttribute("reclaimPeriod", new Long(100));
+//        gbean.setAttribute("reclaimPeriod", new Long(100));
         gbean.setAttribute("algorithm", "HmacSHA1");
         gbean.setAttribute("password", "secret");
         kernel.loadGBean(loginService, gbean);
@@ -153,9 +153,9 @@ public class RemoteLoginTest extends TestCase {
         secureJmxRouter = new ObjectName("geronimo.remoting:router=JMXRouter,type=secure");
         kernel.loadGBean(secureJmxRouter, gbean);
 
-        gbean = new GBeanMBean("org.apache.geronimo.security.remoting.jmx.LoginServiceStub");
+        gbean = new GBeanMBean("org.apache.geronimo.security.remoting.jmx.JaasLoginServiceRemotingServer");
         gbean.setReferencePatterns("Router", Collections.singleton(secureJmxRouter));
-        serverStub = new ObjectName("geronimo.remoting:target=LoginServiceStub");
+        serverStub = new ObjectName("geronimo.remoting:target=JaasLoginServiceRemotingServer");
         kernel.loadGBean(serverStub, gbean);
 
         kernel.startGBean(loginService);
@@ -171,15 +171,15 @@ public class RemoteLoginTest extends TestCase {
 
         TransportLoader bean = (TransportLoader) MBeanProxyFactory.getProxy(TransportLoader.class, kernel.getMBeanServer(), asyncTransport);
         URI connectURI = bean.getClientConnectURI();
-        asyncRemoteProxy = RemoteLoginServiceFactory.create(connectURI.getHost(), connectURI.getPort());
+        asyncRemoteProxy = JaasLoginServiceRemotingClient.create(connectURI.getHost(), connectURI.getPort());
 
         bean = (TransportLoader) MBeanProxyFactory.getProxy(TransportLoader.class, kernel.getMBeanServer(), saslTransport);
         connectURI = bean.getClientConnectURI();
-        saslRemoteProxy = RemoteLoginServiceFactory.create(connectURI.getHost(), connectURI.getPort());
+        saslRemoteProxy = JaasLoginServiceRemotingClient.create(connectURI.getHost(), connectURI.getPort());
 
         bean = (TransportLoader) MBeanProxyFactory.getProxy(TransportLoader.class, kernel.getMBeanServer(), gssapiTransport);
         connectURI = bean.getClientConnectURI();
-        gssapiRemoteProxy = RemoteLoginServiceFactory.create(connectURI.getHost(), connectURI.getPort());
+        gssapiRemoteProxy = JaasLoginServiceRemotingClient.create(connectURI.getHost(), connectURI.getPort());
     }
 
     protected void tearDown() throws Exception {

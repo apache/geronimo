@@ -112,7 +112,7 @@ public class LoginSQLTest extends AbstractTest {
     public void testNothing() {
     }
 
-    public void XtestLogin() throws Exception {
+    public void testLogin() throws Exception {
         LoginContext context = new LoginContext("sql", new UsernamePasswordCallback("alan", "starcraft"));
 
         context.login();
@@ -128,7 +128,7 @@ public class LoginSQLTest extends AbstractTest {
         context.logout();
     }
 
-    public void XtestLogoutTimeout() throws Exception {
+    public void testLogoutTimeout() throws Exception {
 
         assertEquals(new Integer(State.RUNNING_INDEX), kernel.getAttribute(sqlRealm, "state"));
 
@@ -171,7 +171,7 @@ public class LoginSQLTest extends AbstractTest {
         }
     }
 
-    public void XtestReloginTimeout() throws Exception {
+    public void testReloginTimeout() throws Exception {
         LoginContext context = new LoginContext("sql", new UsernamePasswordCallback("alan", "starcraft"));
 
         context.login();

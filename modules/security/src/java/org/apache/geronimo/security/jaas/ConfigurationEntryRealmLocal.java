@@ -58,7 +58,7 @@ public class ConfigurationEntryRealmLocal extends ConfigurationEntry {
     public AppConfigurationEntry[] getAppConfigurationEntry() {
         try {
             return new AppConfigurationEntry[]{
-                new AppConfigurationEntry("org.apache.geronimo.security.jaas.LocalLoginModule",
+                new AppConfigurationEntry("org.apache.geronimo.security.jaas.JaasLoginCoordinator",
                         getControlFlag().getFlag(),
                         getOptions())};
         } catch (Exception e) {

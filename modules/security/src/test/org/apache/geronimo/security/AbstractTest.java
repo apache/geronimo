@@ -55,10 +55,10 @@ public abstract class AbstractTest extends TestCase {
 
         // Create all the parts
 
-        gbean = new GBeanMBean("org.apache.geronimo.security.jaas.LoginService");
-        loginService = new ObjectName("geronimo.security:type=LoginService");
+        gbean = new GBeanMBean("org.apache.geronimo.security.jaas.JaasLoginService");
+        loginService = new ObjectName("geronimo.security:type=JaasLoginService");
         gbean.setReferencePatterns("Realms", Collections.singleton(new ObjectName("geronimo.security:type=SecurityRealm,*")));
-        gbean.setAttribute("reclaimPeriod", new Long(10 * 1000));  // todo check other tests to see if ok
+//        gbean.setAttribute("reclaimPeriod", new Long(10 * 1000));  // todo check other tests to see if ok
         gbean.setAttribute("algorithm", "HmacSHA1");
         gbean.setAttribute("password", "secret");
         kernel.loadGBean(loginService, gbean);
@@ -85,9 +85,9 @@ public abstract class AbstractTest extends TestCase {
         jmxRouter = new ObjectName("geronimo.remoting:router=JMXRouter");
         kernel.loadGBean(jmxRouter, gbean);
 
-        gbean = new GBeanMBean("org.apache.geronimo.security.remoting.jmx.LoginServiceStub");
+        gbean = new GBeanMBean("org.apache.geronimo.security.remoting.jmx.JaasLoginServiceRemotingServer");
         gbean.setReferencePatterns("Router", Collections.singleton(jmxRouter));
-        serverStub = new ObjectName("geronimo.remoting:target=LoginServiceStub");
+        serverStub = new ObjectName("geronimo.remoting:target=JaasLoginServiceRemotingServer");
         kernel.loadGBean(serverStub, gbean);
 
         kernel.startGBean(loginService);

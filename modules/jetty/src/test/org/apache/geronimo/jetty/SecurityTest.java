@@ -91,6 +91,7 @@ public class SecurityTest extends BaseSecurityTest {
         connection.setRequestProperty("Cookie", cookie);
         connection.setInstanceFollowRedirects(false);
         BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        System.out.println("Headers: "+connection.getHeaderFields());
 
         assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
         assertEquals("Hello World", reader.readLine());

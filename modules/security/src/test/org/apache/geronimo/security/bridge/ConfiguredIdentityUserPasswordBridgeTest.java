@@ -17,7 +17,11 @@
 
 package org.apache.geronimo.security.bridge;
 
+import org.apache.geronimo.security.IdentificationPrincipal;
+import org.apache.geronimo.security.ContextManager;
+
 import javax.security.auth.Subject;
+import java.util.Set;
 
 
 /**
@@ -35,6 +39,13 @@ public class ConfiguredIdentityUserPasswordBridgeTest extends AbstractBridgeTest
     public void testConfiguredIdentityBridge() throws Exception {
         Subject sourceSubject = new Subject();
         Subject targetSubject = bridge.mapSubject(sourceSubject);
+
+        assertTrue("expected non-null client subject", targetSubject != null);
+        Set set = targetSubject.getPrincipals(IdentificationPrincipal.class);
+        assertEquals("client subject should have one ID principal", set.size(), 1);
+        IdentificationPrincipal idp = (IdentificationPrincipal)set.iterator().next();
+        targetSubject = ContextManager.getRegisteredSubject(idp.getId());
+
         checkValidSubject(targetSubject);
     }
 

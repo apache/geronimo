@@ -30,6 +30,12 @@ import org.apache.geronimo.security.SecurityService;
 
 
 /**
+ * A JAAS configuration mechanism (associating JAAS configuration names with
+ * specific LoginModule configurations).  This is a drop-in replacement for the
+ * normal file-reading JAAS configuration mechanism.  Instead of getting
+ * its configuration from its file, it gets its configuration from other
+ * GBeans running in Geronimo.
+ *
  * @version $Rev$ $Date$
  */
 public class GeronimoLoginConfiguration extends Configuration implements GBeanLifecycle {

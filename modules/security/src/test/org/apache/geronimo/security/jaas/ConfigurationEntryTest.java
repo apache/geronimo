@@ -24,6 +24,7 @@ import java.io.File;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Properties;
+import java.util.Set;
 
 import junit.framework.TestCase;
 
@@ -57,13 +58,18 @@ public class ConfigurationEntryTest extends TestCase {
 
         context.login();
         Subject subject = context.getSubject();
+        assertTrue("expected non-null client subject", subject != null);
+        Set set = subject.getPrincipals(IdentificationPrincipal.class);
+        assertEquals("client subject should have one ID principal", set.size(), 1);
+        IdentificationPrincipal idp = (IdentificationPrincipal)set.iterator().next();
+        subject = ContextManager.getRegisteredSubject(idp.getId());
 
-        assertTrue("expected non-null subject", subject != null);
-        assertTrue("subject should have one remote principal", subject.getPrincipals(IdentificationPrincipal.class).size() == 1);
+        assertTrue("expected non-null server subject", subject != null);
+        assertTrue("server subject should have one remote principal", subject.getPrincipals(IdentificationPrincipal.class).size() == 1);
         IdentificationPrincipal remote = (IdentificationPrincipal) subject.getPrincipals(IdentificationPrincipal.class).iterator().next();
-        assertTrue("subject should be associated with remote id", ContextManager.getRegisteredSubject(remote.getId()) != null);
-        assertTrue("subject should have five principals", subject.getPrincipals().size() == 5);
-        assertTrue("subject should have two realm principal", subject.getPrincipals(RealmPrincipal.class).size() == 2);
+        assertTrue("server subject should be associated with remote id", ContextManager.getRegisteredSubject(remote.getId()) != null);
+        assertTrue("server subject should have two realm principals ("+subject.getPrincipals(RealmPrincipal.class).size()+")", subject.getPrincipals(RealmPrincipal.class).size() == 2);
+        assertTrue("server subject should have five principals ("+subject.getPrincipals().size()+")", subject.getPrincipals().size() == 5);
         RealmPrincipal principal = (RealmPrincipal) subject.getPrincipals(RealmPrincipal.class).iterator().next();
         assertTrue("id of principal should be non-zero", principal.getId() != 0);
 
@@ -90,10 +96,10 @@ public class ConfigurationEntryTest extends TestCase {
         loginConfiguration = new ObjectName("geronimo.security:type=LoginConfiguration");
         kernel.loadGBean(loginConfiguration, gbean);
 
-        gbean = new GBeanMBean("org.apache.geronimo.security.jaas.LoginService");
-        loginService = new ObjectName("geronimo.security:type=LoginService");
+        gbean = new GBeanMBean("org.apache.geronimo.security.jaas.JaasLoginService");
+        loginService = new ObjectName("geronimo.security:type=JaasLoginService");
         gbean.setReferencePatterns("Realms", Collections.singleton(new ObjectName("geronimo.security:type=SecurityRealm,*")));
-        gbean.setAttribute("reclaimPeriod", new Long(100));
+//        gbean.setAttribute("reclaimPeriod", new Long(100));
         gbean.setAttribute("algorithm", "HmacSHA1");
         gbean.setAttribute("password", "secret");
         kernel.loadGBean(loginService, gbean);
@@ -130,9 +136,9 @@ public class ConfigurationEntryTest extends TestCase {
         jmxRouter = new ObjectName("geronimo.remoting:router=JMXRouter");
         kernel.loadGBean(jmxRouter, gbean);
 
-        gbean = new GBeanMBean("org.apache.geronimo.security.remoting.jmx.LoginServiceStub");
+        gbean = new GBeanMBean("org.apache.geronimo.security.remoting.jmx.JaasLoginServiceRemotingServer");
         gbean.setReferencePatterns("Router", Collections.singleton(jmxRouter));
-        serverStub = new ObjectName("geronimo.remoting:target=LoginServiceStub");
+        serverStub = new ObjectName("geronimo.remoting:target=JaasLoginServiceRemotingServer");
         kernel.loadGBean(serverStub, gbean);
 
         kernel.startGBean(loginConfiguration);

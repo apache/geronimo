@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.security.Principal;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.security.AbstractTest;
@@ -109,13 +110,18 @@ public class LoginSimpleRealmTest extends AbstractTest {
 
         context.login();
         Subject subject = context.getSubject();
+        assertTrue("expected non-null client subject", subject != null);
+        Set set = subject.getPrincipals(IdentificationPrincipal.class);
+        assertEquals("client subject should have one ID principal", set.size(), 1);
+        IdentificationPrincipal idp = (IdentificationPrincipal)set.iterator().next();
+        subject = ContextManager.getRegisteredSubject(idp.getId());
 
-        assertTrue("expected non-null subject", subject != null);
-        assertTrue("subject should have one remote principal", subject.getPrincipals(IdentificationPrincipal.class).size() == 1);
+        assertTrue("expected non-null server subject", subject != null);
+        assertTrue("server subject should have one remote principal", subject.getPrincipals(IdentificationPrincipal.class).size() == 1);
         IdentificationPrincipal remote = (IdentificationPrincipal) subject.getPrincipals(IdentificationPrincipal.class).iterator().next();
-        assertTrue("subject should be associated with remote id", ContextManager.getRegisteredSubject(remote.getId()) != null);
-        assertTrue("subject should have five principals", subject.getPrincipals().size() == 5);
-        assertTrue("subject should have two realm principal", subject.getPrincipals(RealmPrincipal.class).size() == 2);
+        assertTrue("server subject should be associated with remote id", ContextManager.getRegisteredSubject(remote.getId()) != null);
+        assertTrue("server subject should have five principals", subject.getPrincipals().size() == 5);
+        assertTrue("server subject should have two realm principal", subject.getPrincipals(RealmPrincipal.class).size() == 2);
         RealmPrincipal principal = (RealmPrincipal) subject.getPrincipals(RealmPrincipal.class).iterator().next();
         assertTrue("id of principal should be non-zero", principal.getId() != 0);
 

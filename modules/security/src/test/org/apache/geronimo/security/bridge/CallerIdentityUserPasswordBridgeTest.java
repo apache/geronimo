@@ -21,6 +21,10 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.LoginException;
 
 import org.apache.geronimo.security.realm.providers.GeronimoPasswordCredential;
+import org.apache.geronimo.security.IdentificationPrincipal;
+import org.apache.geronimo.security.ContextManager;
+
+import java.util.Set;
 
 
 /**
@@ -40,6 +44,11 @@ public class CallerIdentityUserPasswordBridgeTest extends AbstractBridgeTest {
         Subject sourceSubject = new Subject();
         sourceSubject.getPrivateCredentials().add(new GeronimoPasswordCredential(AbstractBridgeTest.USER, AbstractBridgeTest.PASSWORD.toCharArray()));
         Subject targetSubject = bridge.mapSubject(sourceSubject);
+        assertTrue("expected non-null client subject", targetSubject != null);
+        Set set = targetSubject.getPrincipals(IdentificationPrincipal.class);
+        assertEquals("client subject should have one ID principal", set.size(), 1);
+        IdentificationPrincipal idp = (IdentificationPrincipal)set.iterator().next();
+        targetSubject = ContextManager.getRegisteredSubject(idp.getId());
         checkValidSubject(targetSubject);
     }
 
