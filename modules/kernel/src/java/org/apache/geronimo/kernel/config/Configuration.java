@@ -84,7 +84,7 @@ import org.apache.geronimo.kernel.repository.Repository;
  * a startRecursive() for all the GBeans it contains. Similarly, if the
  * Configuration is stopped then all of its GBeans will be stopped as well.
  *
- * @version $Revision: 1.17 $ $Date: 2004/03/10 09:59:01 $
+ * @version $Revision: 1.18 $ $Date: 2004/04/09 18:46:22 $
  */
 public class Configuration implements GBean {
     private static final Log log = LogFactory.getLog(Configuration.class);
@@ -163,28 +163,35 @@ public class Configuration implements GBean {
             classLoader = new URLClassLoader(urls, parent.getClassLoader());
         }
 
-        // create and initialize GBeans
-        gbeans = loadGBeans(gbeanState, classLoader);
+        ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
+        try {
+            Thread.currentThread().setContextClassLoader(classLoader);
 
-        // register all the GBeans
-        MBeanServer mbServer = context.getServer();
-        for (Iterator i = gbeans.entrySet().iterator(); i.hasNext();) {
-            Map.Entry entry = (Map.Entry) i.next();
-            ObjectName name = (ObjectName) entry.getKey();
-            GBeanMBean gbean = (GBeanMBean) entry.getValue();
-            log.trace("Registering GBean " + name);
-            try {
-                mbServer.registerMBean(gbean, name);
-            } catch (JMRuntimeException e) {
-                Throwable cause = e.getCause();
-                if (cause instanceof Exception) {
-                    throw (Exception) cause;
-                } else if (cause instanceof Error) {
-                    throw (Error) cause;
+            // create and initialize GBeans
+            gbeans = loadGBeans(gbeanState, classLoader);
+
+            // register all the GBeans
+            MBeanServer mbServer = context.getServer();
+            for (Iterator i = gbeans.entrySet().iterator(); i.hasNext();) {
+                Map.Entry entry = (Map.Entry) i.next();
+                ObjectName name = (ObjectName) entry.getKey();
+                GBeanMBean gbean = (GBeanMBean) entry.getValue();
+                log.trace("Registering GBean " + name);
+                try {
+                    mbServer.registerMBean(gbean, name);
+                } catch (JMRuntimeException e) {
+                    Throwable cause = e.getCause();
+                    if (cause instanceof Exception) {
+                        throw (Exception) cause;
+                    } else if (cause instanceof Error) {
+                        throw (Error) cause;
+                    }
+                    throw e;
                 }
-                throw e;
+                mbServer.invoke(Kernel.DEPENDENCY_SERVICE, "addDependency", new Object[]{name, context.getObjectName()}, new String[]{ObjectName.class.getName(), ObjectName.class.getName()});
             }
-            mbServer.invoke(Kernel.DEPENDENCY_SERVICE, "addDependency", new Object[]{name, context.getObjectName()}, new String[]{ObjectName.class.getName(), ObjectName.class.getName()});
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldCl);
         }
 
         log.info("Started configuration " + id);
