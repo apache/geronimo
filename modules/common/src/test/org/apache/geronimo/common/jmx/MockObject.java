@@ -67,83 +67,83 @@ import junit.framework.TestCase;
  *
  * @jmx:mbean
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/01 19:18:47 $
+ * @version $Revision: 1.2 $ $Date: 2003/09/08 04:10:07 $
  */
-public class MockObject
-    implements MockObjectMBean
+public class MockObject //implements MockObjectMBean
 {
-    protected String string = "MyString";
-    protected boolean something;
-    
-    /**
-     * @jmx:managed-attribute
-     */
-    public void setString(String value)
-    {
-        this.string = value;
-    }
-    
-    /**
-     * @jmx:managed-attribute
-     */
-    public String getString()
-    {
-        return string;
-    }
-    
-    /**
-     * @jmx:managed-attribute
-     */
-    public void setSomething(boolean flag)
-    {
-        something = flag;
-    }
-    
-    /**
-     * @jmx:managed-attribute
-     */
-    public boolean isSomething()
-    {
-        return something;
-    }
-    
-    /**
-     * @jmx:managed-operation
-     */
-    public String doIt()
-    {
-        return "done";
-    }
-    
-    /**
-     * @jmx:managed-operation
-     */
-    public String setPoorlyNameOperation()
-    {
-        return "bad";
-    }
-    
-    /**
-     * @jmx:managed-operation
-     */
-    public String someOperation()
-    {
-        return "someop";
-    }
-    
-    /**
-     * @jmx:managed-operation
-     */
-    public String someOperation(Object arg)
-    {
-        return "someop" + arg;
-    }
-    
-    /**
-     * @jmx:managed-operation
-     */
-    public String someOperation(boolean arg)
-    {
-        return "somebooleanop" + arg;
-    }
+//
+//    protected String string = "MyString";
+//    protected boolean something;
+//
+//    /**
+//     * @jmx:managed-attribute
+//     */
+//    public void setString(String value)
+//    {
+//        this.string = value;
+//    }
+//
+//    /**
+//     * @jmx:managed-attribute
+//     */
+//    public String getString()
+//    {
+//        return string;
+//    }
+//
+//    /**
+//     * @jmx:managed-attribute
+//     */
+//    public void setSomething(boolean flag)
+//    {
+//        something = flag;
+//    }
+//
+//    /**
+//     * @jmx:managed-attribute
+//     */
+//    public boolean isSomething()
+//    {
+//        return something;
+//    }
+//
+//    /**
+//     * @jmx:managed-operation
+//     */
+//    public String doIt()
+//    {
+//        return "done";
+//    }
+//
+//    /**
+//     * @jmx:managed-operation
+//     */
+//    public String setPoorlyNameOperation()
+//    {
+//        return "bad";
+//    }
+//
+//    /**
+//     * @jmx:managed-operation
+//     */
+//    public String someOperation()
+//    {
+//        return "someop";
+//    }
+//
+//    /**
+//     * @jmx:managed-operation
+//     */
+//    public String someOperation(Object arg)
+//    {
+//        return "someop" + arg;
+//    }
+//
+//    /**
+//     * @jmx:managed-operation
+//     */
+//    public String someOperation(boolean arg)
+//    {
+//        return "somebooleanop" + arg;
+//    }
 }
