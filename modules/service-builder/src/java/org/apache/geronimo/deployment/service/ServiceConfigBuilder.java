@@ -53,6 +53,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.xmlbeans.XmlException;
 
 /**
@@ -153,7 +154,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
     public static void addIncludes(DeploymentContext context, DependencyType[] includes, Repository repository) throws DeploymentException {
         for (int i = 0; i < includes.length; i++) {
             DependencyType include = includes[i];
-            URI uri = getDependencyURI(include);
+            URI uri = getDependencyURI(include, repository);
             String name = uri.toString();
             int idx = name.lastIndexOf('/');
             if (idx != -1) {
@@ -176,7 +177,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
 
     public static void addDependencies(DeploymentContext context, DependencyType[] deps, Repository repository) throws DeploymentException {
         for (int i = 0; i < deps.length; i++) {
-            URI dependencyURI = getDependencyURI(deps[i]);
+            URI dependencyURI = getDependencyURI(deps[i], repository);
             context.addDependency(dependencyURI);
 
             URL url;
@@ -264,7 +265,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         return gBeanData;
     }
 
-    private static URI getDependencyURI(DependencyType dep) throws DeploymentException {
+    private static URI getDependencyURI(DependencyType dep, Repository repository) throws DeploymentException {
         URI uri;
         if (dep.isSetUri()) {
             try {
@@ -280,6 +281,9 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
             } catch (URISyntaxException e) {
                 throw new DeploymentException("Unable to construct URI for groupId=" + dep.getGroupId() + ", artifactId=" + dep.getArtifactId() + ", version=" + dep.getVersion(), e);
             }
+        }
+        if (!repository.hasURI(uri)) {
+            throw new DeploymentException(new MissingDependencyException("uri " + uri + " not found in repository"));
         }
         return uri;
     }
