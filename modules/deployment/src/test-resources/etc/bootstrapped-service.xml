@@ -122,11 +122,14 @@
 
     <!-- web -->
 
-    <gbean class="org.apache.geronimo.jetty.JettyContainer" objectName="geronimo.web:type=WebContainer,container=Jetty">
+    <gbean class="org.apache.geronimo.jetty.JettyContainerImpl" objectName="geronimo.web:type=WebContainer,container=Jetty">
     </gbean>
 
     <gbean class="org.apache.geronimo.jetty.connector.HTTPConnector" objectName="geronimo.web:type=WebConnector,container=Jetty,port=8080">
         <default attribute="Port" type="int">8080</default>
+        <endpoint name="JettyContainer">
+            <pattern>geronimo.web:type=WebContainer,container=Jetty</pattern>
+        </endpoint>
 <!--        <default attribute="MaxConnections" type="int">10</default>-->
 <!--        <default attribute="MaxIdleTime" type="int">10</default>-->
         <!--default attribute="Contexts" type="java.lang.String[]"></default-->
