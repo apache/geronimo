@@ -503,7 +503,11 @@ public class InternetAddress extends Address implements Cloneable {
      */
     private static InternetAddress[] parse(String addresses, boolean strict, boolean veryStrict) throws AddressException {
         List addrs = new ArrayList();
+        parseHeader(addrs, addresses, strict, veryStrict);
+        return (InternetAddress[]) addrs.toArray(new InternetAddress[addrs.size()]);
+    }
 
+    static void parseHeader(List target, String addresses, boolean strict, boolean veryStrict) throws AddressException {
         // todo we need to parse the addresses per the RFC822 spec with certain relaxations which are not documented by JavaMail
         // for now, we ignore all flags and simply tokenize based on commas
 
@@ -515,10 +519,8 @@ public class InternetAddress extends Address implements Cloneable {
             if (strict || veryStrict) {
                 addr.validate();
             }
-            addrs.add(addr);
+            target.add(addr);
         }
-
-        return (InternetAddress[]) addrs.toArray(new InternetAddress[addrs.size()]);
     }
 
     private static void init(InternetAddress addr, String text) {

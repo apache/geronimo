@@ -34,71 +34,53 @@ public class MimeUtility {
     private MimeUtility() {
     }
 
-    // From J2SE 1.4 API Docs (Constant Values)
     public static final int ALL = -1;
 
-    public static InputStream decode(InputStream in, String encoding)
-            throws MessagingException {
+    private static String defaultJavaCharset;
+
+    public static InputStream decode(InputStream in, String encoding) throws MessagingException {
         // TODO - take account of encoding
         return in;
     }
 
-    public static String decodeText(String word)
-            throws UnsupportedEncodingException {
+    public static String decodeText(String word) throws UnsupportedEncodingException {
         // TODO - take account of encoding
         return word;
     }
 
-    public static String decodeWord(String word)
-            throws ParseException, UnsupportedEncodingException {
+    public static String decodeWord(String word) throws ParseException, UnsupportedEncodingException {
         // TODO - take account of encoding
         return word;
     }
 
-    public static OutputStream encode(OutputStream out, String encoding)
-            throws MessagingException {
+    public static OutputStream encode(OutputStream out, String encoding) throws MessagingException {
         // TODO - take account of encoding
         return out;
     }
 
-    public static OutputStream encode(OutputStream out,
-                                      String encoding,
-                                      String filename)
-            throws MessagingException {
+    public static OutputStream encode(OutputStream out, String encoding, String filename) throws MessagingException {
         // TODO - take account of encoding
         return out;
     }
 
-    public static String encodeText(String word)
-            throws UnsupportedEncodingException {
+    public static String encodeText(String word) throws UnsupportedEncodingException {
         // TODO - take account of encoding
         return word;
     }
 
-    public static String encodeText(String word,
-                                    String characterset,
-                                    String encoding)
-            throws UnsupportedEncodingException {
+    public static String encodeText(String word, String characterset, String encoding) throws UnsupportedEncodingException {
         // TODO - take account of encoding
         return word;
     }
 
-    public static String encodeWord(String word)
-            throws UnsupportedEncodingException {
+    public static String encodeWord(String word) throws UnsupportedEncodingException {
         // TODO - take account of encoding
         return word;
     }
 
-    public static String encodeWord(String word,
-                                    String characteset,
-                                    String encoding)
-            throws UnsupportedEncodingException {
+    public static String encodeWord(String word, String characteset, String encoding) throws UnsupportedEncodingException {
         // TODO - take account of encoding
         return word;
-    }
-
-    public static String getDefaultJavaCharset() {
-        return "utf-8";
     }
 
     public static String getEncoding(DataHandler handler) {
@@ -111,8 +93,13 @@ public class MimeUtility {
         return "binary";
     }
 
+    public static String quote(String word, String specials) {
+        // TODO Check for specials
+        return word;
+    }
+
     public static String javaCharset(String charset) {
-        // TODO Perform translations as appropriate        
+        // TODO Perform translations as appropriate
         return charset;
     }
 
@@ -121,8 +108,19 @@ public class MimeUtility {
         return charset;
     }
 
-    public static String quote(String word, String specials) {
-        // TODO Check for specials
-        return word;
+    public static String getDefaultJavaCharset() {
+        try {
+            String charset = System.getProperty("mail.mime.charset");
+            if (charset != null) {
+                return javaCharset(charset);
+            }
+            charset = System.getProperty("file.encoding");
+            if (charset != null) {
+                return charset;
+            }
+        } catch (SecurityException e) {
+                // ignore
+        }
+        return "utf-8";
     }
 }

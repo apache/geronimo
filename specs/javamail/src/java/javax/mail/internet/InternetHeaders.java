@@ -17,101 +17,175 @@
 
 package javax.mail.internet;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
+import javax.mail.Address;
 import javax.mail.Header;
 import javax.mail.MessagingException;
 
 /**
+ * Class that represents the RFC822 headers associated with a message.
+ *
  * @version $Rev$ $Date$
  */
 public class InternetHeaders {
-    private static final String[] STRING_ARRAY = new String[0];
+    // RFC822 imposes an ordering on its headers so we use a LinkedHashedMap
+    private final LinkedHashMap headers = new LinkedHashMap();
 
     /**
-     * Parse the line into a <code>Header</code?
-     *
-     * @param line in the form <code>To: Apache Geronimo Users &lt;geronimo-user@apache.org&gt;</code>
-     * @return the parsed <code>Header</code>
+     * Create an empty InternetHeaders
      */
-    private static Header parse(String line) {
-        // Could use HeaderTokenizer here, but not really much point
-        int colon = line.indexOf(":");
-        String name = line.substring(0, colon).trim();
-        String value = line.substring(colon + 1).trim();
-        return new Header(name, value);
-    }
-
-    /**
-     * Stores the list of Headers, indexed by name (uppercased)
-     */
-    private Map _headers = new HashMap();
-    /**
-     * The last <code>Header</code> we added
-     */
-    private Header _last;
-    /**
-     * Stores the list of lines, in the order they were entered.
-     */
-    private List _lines = new LinkedList();
-
     public InternetHeaders() {
+        // we need to initialize the headers in the correct order
+        // fields: dates source destination optional-field
+        // dates:
+        setHeaderList("Date", null);
+        setHeaderList("Resent-Date", null);
+        // source: trace originator resent
+        // trace: return received
+        setHeaderList("Return-path", null);
+        setHeaderList("Received", null);
+        // originator: authentic reply-to
+        setHeaderList("Sender", null);
+        setHeaderList("From", null);
+        setHeaderList("Reply-To", null);
+        // resent: resent-authentic resent-reply-to
+        setHeaderList("Resent-Sender", null);
+        setHeaderList("Resent-From", null);
+        setHeaderList("Resent-Reply-To", null);
+        // destination:
+        setHeaderList("To", null);
+        setHeaderList("Resent-To", null);
+        setHeaderList("cc", null);
+        setHeaderList("Resent-cc", null);
+        setHeaderList("bcc", null);
+        setHeaderList("Resent-bcc", null);
+        // optional-field:
+        setHeaderList("Message-ID", null);
+        setHeaderList("Resent-Message-ID", null);
+        setHeaderList("In-Reply-To", null);
+        setHeaderList("References", null);
+        setHeaderList("Keywords", null);
+        setHeaderList("Subject", null);
+        setHeaderList("Comments", null);
+        setHeaderList("Encrypted", null);
     }
 
+    /**
+     * Create a new InternetHeaders initialized by reading headers from the stream.
+     *
+     * @param in the RFC822 input stream to load from
+     * @throws MessagingException if there is a problem pasring the stream
+     */
     public InternetHeaders(InputStream in) throws MessagingException {
         load(in);
     }
 
     /**
-     * Add the given header and original line into the store.
-     * A maximum of one of the arguments can be null; if it is, it
-     * is dynamically created from the other. If both are <code>null</code>,
-     * then a <code>NullPointerException</code> will be raised.
+     * Read and parse the supplied stream and add all headers to the current set.
      *
-     * @param header the pre-parsed header
-     * @param line   the header line
+     * @param in the RFC822 input stream to load from
+     * @throws MessagingException if there is a problem pasring the stream
      */
-    private void add(Header header, String line) {
-        if (line == null) {
-            line = header.getName() + ": " + header.getValue();
-        } else if (header == null) {
-            header = parse(line);
+    public void load(InputStream in) throws MessagingException {
+        // todo implement
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Return all the values for the specified header.
+     * @param name the header to return
+     * @return the values for that header, or null if the header is not present
+     */
+    public String[] getHeader(String name) {
+        List headers = getHeaderList(name);
+        if (headers == null) {
+            return null;
+        } else {
+            String[] result = new String[headers.size()];
+            for (int i = 0; i < headers.size(); i++) {
+                InternetHeader header = (InternetHeader) headers.get(i);
+                result[i] = header.getValue();
+            }
+            return result;
         }
-        String NAME = header.getName().toUpperCase();
-        List list = (List) _headers.get(NAME);
+    }
+
+    /**
+     * Return the values for the specified header as a single String.
+     * If the header has more than one value then all values are concatenated
+     * together separated by the supplied delimiter.
+     *
+     * @param name the header to return
+     * @param delimiter the delimiter used in concatenation
+     * @return the header as a single String
+     */
+    public String getHeader(String name, String delimiter) {
+        List list = getHeaderList(name);
         if (list == null) {
-            list = new LinkedList();
-            _headers.put(NAME, list);
+            return null;
+        } else if (list.isEmpty()) {
+            return "";
+        } else if (list.size() == 1) {
+            return ((InternetHeader)list.get(0)).getValue();
+        } else {
+            StringBuffer buf = new StringBuffer(20 * list.size());
+            buf.append(((InternetHeader)list.get(0)).getValue());
+            for (int i = 1; i < list.size(); i++) {
+                buf.append(delimiter);
+                buf.append(((InternetHeader) list.get(i)).getValue());
+            }
+            return buf.toString();
         }
-        list.add(header);
-        _lines.add(line);
-        _last = header;
     }
 
+    /**
+     * Set the value of the header to the supplied value; any existing
+     * headers are removed.
+     *
+     * @param name the name of the header
+     * @param value the new value
+     */
+    public void setHeader(String name, String value) {
+        List list = new ArrayList();
+        list.add(new InternetHeader(name, value));
+        setHeaderList(name, list);
+    }
+
+    /**
+     * Add a new value to the header with the supplied name.
+     * @param name the name of the header to add a new value for
+     * @param value another value
+     */
     public void addHeader(String name, String value) {
-        add(new Header(name, value), null);
+        List list = getHeaderList(name);
+        if (list == null) {
+            list = new ArrayList();
+        }
+        list.add(new InternetHeader(name, value));
     }
 
-    public void addHeaderLine(String line) {
-        add(null, line);
+    /**
+     * Remove all header entries with the supplied name
+     * @param name the header to remove
+     */
+    public void removeHeader(String name) {
+        List list = getHeaderList(name);
+        list.clear();
     }
 
-    public Enumeration getAllHeaderLines() {
-        return Collections.enumeration(_lines);
-    }
-
+    /**
+     * Return all headers.
+     * @return an Enumeration<Header> containing all headers
+     */
     public Enumeration getAllHeaders() {
-        List result = new LinkedList();
-        Iterator it = _headers.values().iterator();
+        List result = new ArrayList(headers.size() * 2);
+        Iterator it = headers.values().iterator();
         while (it.hasNext()) {
             List list = (List) it.next();
             result.addAll(list);
@@ -119,171 +193,88 @@ public class InternetHeaders {
         return Collections.enumeration(result);
     }
 
-    public String[] getHeader(String name) {
-        List headers = getHeaderList(name);
-        if (headers == null) {
-            return null;
-        } else {
-            List result = new LinkedList();
-            Iterator it = headers.iterator();
-            while (it.hasNext()) {
-                Header element = (Header) it.next();
-                result.add(element.getValue());
-            }
-            return (String[]) result.toArray(STRING_ARRAY);
-        }
-    }
-
-    public String getHeader(String name, String delimiter) {
-        List list = getHeaderList(name);
-        if (list == null || list.isEmpty()) {
-            return null;
-        } else {
-            Iterator it = list.iterator();
-            StringBuffer result = new StringBuffer();
-            boolean first = true;
-            while (it.hasNext()) {
-                if (first) {
-                    first = false;
-                } else {
-                    if (delimiter == null) {
-                        break;
-                    } else {
-                        result.append(delimiter);
-                    }
-                }
-                Header header = (Header) it.next();
-                result.append(header.getValue());
-            }
-            return result.toString();
-        }
-    }
-
-    private List getHeaderList(String name) {
-        return (List) _headers.get(name.toUpperCase());
-    }
-
-    private Enumeration getHeaders(String[] names, boolean match) {
-        List matches = new ArrayList(names.length);
-        for (int i = 0; i < names.length; i++) {
-            matches.add(names[i].toUpperCase());
-        }
-        List result = new LinkedList();
-        Iterator entries = _headers.entrySet().iterator();
-        while (entries.hasNext()) {
-            Map.Entry entry = (Map.Entry) entries.next();
-            if (matches.contains(entry.getKey()) == match) {
-                result.addAll((Collection) entry.getValue());
-            }
-        }
-        return Collections.enumeration(result);
-    }
-
-    private Enumeration getLines(String[] names, boolean match) {
-        List matches = new ArrayList(names.length);
-        for (int i = 0; i < names.length; i++) {
-            matches.add(names[i].toUpperCase());
-        }
-        Iterator it = _lines.iterator();
-        List result = new LinkedList();
-        while (it.hasNext()) {
-            String line = (String) it.next();
-            int colon = line.indexOf(":");
-            String name = line.substring(0, colon).toUpperCase();
-            if (matches.contains(name) == match) {
-                result.add(line);
-            }
-
-        }
-        return Collections.enumeration(result);
-    }
-
-    public Enumeration getMatchingHeaderLines(String[] names) {
-        return getLines(names, true);
-    }
-
     public Enumeration getMatchingHeaders(String[] names) {
-        return getHeaders(names, true);
-    }
-
-    public Enumeration getNonMatchingHeaderLines(String[] names) {
-        return getLines(names, false);
+        // todo implement
+        throw new UnsupportedOperationException();
     }
 
     public Enumeration getNonMatchingHeaders(String[] names) {
-        return getHeaders(names, false);
+        // todo implement
+        throw new UnsupportedOperationException();
     }
 
-    public void load(InputStream in) throws MessagingException {
-        try {
-            StringBuffer buffer = new StringBuffer();
-            boolean cr = false;
-            boolean lf = false;
-            boolean flush = true;
-            String line = null;
-            while (true) {
-                int c = in.read();
-                boolean start = buffer.length() == 0;
-                boolean white = c == '\t' || c == ' ';
-                if (start) {
-                    if (line != null) {
-                        if (white) {
-                            // skip any further whitespace
-                            while (c == '\t' || c == ' ')
-                                c = in.read();
-                            buffer.append(line);
-                            buffer.append(' ');
-                            // and replace with single whitespace char
-                        } else {
-                            addHeaderLine(line);
-                            line = null;
-                        }
-                    }
-                }
-                if (c == '\r') {
-                    cr = true;
-                } else if (c == '\n') {
-                    lf = true;
-                } else {
-                    buffer.append((char) c);
-                    // if we've only got one of them,
-                    // followed by a non\r\n character,
-                    // pretend we've seen both
-                    if (cr || lf) {
-                        cr = lf = true;
-                    }
-                }
-                if (cr && lf) {
-                    line = buffer.toString().trim();
-                    if (line.length() == 0) {
-                        break;
-                    }
-                    buffer = new StringBuffer();
-                    cr = lf = false; // reset for next line
-                }
+    public void addHeaderLine(String line) {
+        // todo implement
+        throw new UnsupportedOperationException();
+    }
 
-            }
-        } catch (IOException e) {
-            throw new MessagingException(e.getMessage());
+    public Enumeration getAllHeaderLines() {
+        // todo implement
+        throw new UnsupportedOperationException();
+    }
+
+    public Enumeration getMatchingHeaderLines(String[] names) {
+        // todo implement
+        throw new UnsupportedOperationException();
+    }
+
+    public Enumeration getNonMatchingHeaderLines(String[] names) {
+        // todo implement
+        throw new UnsupportedOperationException();
+    }
+
+
+    /**
+     * Return a header as a list of InternetAddresses
+     *
+     * @param name   the header to get
+     * @param strict whether the header should be strictly parser; see {@link InternetAddress#parseHeader(java.util.List, String, boolean, boolean)}
+     * @return
+     */
+    InternetAddress[] getHeaderAsAddresses(String name, boolean strict) throws MessagingException {
+        List addrs = new ArrayList();
+        List headers = getHeaderList(name);
+        if (headers == null) {
+            return null;
         }
-    }
-
-    public void removeHeader(String name) {
-        String NAME = name.toUpperCase();
-        _headers.remove(NAME);
-        NAME = NAME + ":";
-        // go through list as well
-        Iterator it = _lines.iterator();
-        while (it.hasNext()) {
-            String line = (String) it.next();
-            if (line.toUpperCase().startsWith(NAME)) {
-                it.remove();
-            }
+        for (Iterator i = headers.iterator(); i.hasNext();) {
+            String header = (String) i.next();
+            InternetAddress.parseHeader(addrs, header, strict, true);
         }
+        return (InternetAddress[]) addrs.toArray(new InternetAddress[addrs.size()]);
     }
 
-    public void setHeader(String name, String value) {
-        removeHeader(name);
-        addHeader(name, value);
+    void setHeader(String name, Address[] addresses) {
+        List list = new ArrayList(addresses.length);
+        for (int i = 0; i < addresses.length; i++) {
+            Address address = addresses[i];
+            list.add(address.toString());
+        }
+        headers.put(name, list);
+    }
+
+    private List getHeaderList(String name) {
+        return (List) headers.get(name.toLowerCase());
+    }
+
+    private void setHeaderList(String name, List list) {
+        headers.put(name.toLowerCase(), list);
+    }
+
+    private static class InternetHeader extends Header {
+        public InternetHeader(String name, String value) {
+            super(name, value);
+        }
+
+        public boolean equals(Object obj) {
+            if (this == obj) return true;
+            if (obj instanceof InternetHeader == false) return false;
+            final InternetHeader other = (InternetHeader) obj;
+            return getName().equalsIgnoreCase(other.getName());
+        }
+
+        public int hashCode() {
+            return getName().toLowerCase().hashCode();
+        }
     }
 }
