@@ -37,7 +37,7 @@ import org.apache.log4j.Logger;
 /**
  * A Log4j logging service.
  *
- * @version $Revision: 1.7 $ $Date: 2004/06/25 20:48:54 $
+ * @version $Revision: 1.8 $ $Date: 2004/07/25 08:15:35 $
  */
 public class Log4jService implements GBeanLifecycle {
     /**
@@ -89,7 +89,7 @@ public class Log4jService implements GBeanLifecycle {
     public Log4jService(final String rootLoggerLevel, final String configurationFile, final int refreshPeroid, ServerInfo serverInfo) {
         LogFactory logFactory = LogFactory.getFactory();
         if (!(logFactory instanceof GeronimoLogFactory)) {
-            throw new IllegalStateException("Commons log factory is not a GeronimoLogFactory");
+            throw new IllegalStateException("Commons log factory: " + logFactory + " is not a GeronimoLogFactory");
         }
         this.rootLoggerLevel = XLevel.toLevel(rootLoggerLevel);
         this.refreshPeriod = refreshPeroid;
