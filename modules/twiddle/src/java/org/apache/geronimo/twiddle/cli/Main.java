@@ -81,7 +81,7 @@ import org.apache.geronimo.twiddle.util.HelpFormatter;
 /**
  * Command-line interface to <code>Twiddle</code>.
  *
- * @version <code>$Id: Main.java,v 1.4 2003/08/14 20:24:34 bsnyder Exp $</code>
+ * @version <code>$Id: Main.java,v 1.5 2003/08/16 09:26:16 jdillon Exp $</code>
  */
 public class Main
 {
@@ -165,7 +165,7 @@ public class Main
         String temp = System.getProperty("twiddle.home");
         if (temp == null) {
             String path = Main.class.getProtectionDomain().getCodeSource().getLocation().getFile();
-            path = URLDecoder.decode(path);
+            path = URLDecoder.decode(path, "UTF-8");
             temp = new File(path).getParentFile().getParentFile().getCanonicalPath();
         }
         File homeDir = new File(temp);
