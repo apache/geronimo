@@ -46,10 +46,15 @@
                     <touch file="${uptodateFile}"/>
                 </j:if>
 
-                <ant:path id="maven.xmlbeans.compile.src.set"
-                          location="${targetdir}"/>
-                <maven:addPath id="maven.compile.src.set"
-                               refid="maven.xmlbeans.compile.src.set"/>
+                <j:if test="${context.antProject.getReference('maven.compile.src.set') != null}">
+                    <ant:path id="maven.xmlbeans.compile.src.set"
+                        location="${targetdir}"/>
+                    <maven:addPath id="maven.compile.src.set"
+                        refid="maven.xmlbeans.compile.src.set"/>
+                </j:if>
+                <j:if test="${context.antProject.getReference('maven.compile.src.set') == null}">
+                    <ant:path id="maven.compile.src.set" location="${targetdir}"/>
+                </j:if>
 
 
             </j:jelly>
