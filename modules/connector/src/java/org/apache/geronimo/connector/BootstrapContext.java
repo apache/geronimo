@@ -30,7 +30,7 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
  * GBean BootstrapContext implementation that refers to externally configured WorkManager
  * and XATerminator gbeans.
  *
- * @version $Revision: 1.7 $ $Date: 2004/06/12 18:43:31 $
+ * @version $Revision: 1.8 $ $Date: 2004/07/06 17:17:41 $
  */
 public class BootstrapContext implements javax.resource.spi.BootstrapContext {
     private final WorkManager workManager;
@@ -84,6 +84,8 @@ public class BootstrapContext implements javax.resource.spi.BootstrapContext {
 //        infoFactory.addInterface(javax.resource.spi.BootstrapContext.class);
 
         infoFactory.addOperation("createTimer");
+        infoFactory.addOperation("getWorkManager");
+        infoFactory.addOperation("getXATerminator");
 
         infoFactory.addReference("WorkManager", WorkManager.class);
         infoFactory.addReference("XATerminator", XATerminator.class);
