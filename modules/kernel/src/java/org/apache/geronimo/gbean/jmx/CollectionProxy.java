@@ -81,7 +81,7 @@ import net.sf.cglib.proxy.SimpleCallbacks;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2004/01/15 05:36:53 $
+ * @version $Revision: 1.5 $ $Date: 2004/01/17 01:07:33 $
  */
 public class CollectionProxy implements Proxy {
     private static final Log log = LogFactory.getLog(CollectionProxy.class);
@@ -125,8 +125,12 @@ public class CollectionProxy implements Proxy {
         this.gmbean = gmbean;
         this.name = name;
         Enhancer enhancer = new Enhancer();
-        enhancer.setSuperclass(Object.class);
-        enhancer.setInterfaces(new Class[]{type});
+        if (type.isInterface()) {
+            enhancer.setSuperclass(Object.class);
+            enhancer.setInterfaces(new Class[]{type});
+        } else {
+            enhancer.setSuperclass(type);
+        }
         enhancer.setCallbackFilter(new InterfaceCallbackFilter(type));
         enhancer.setCallbacks(new SimpleCallbacks());
         enhancer.setClassLoader(type.getClassLoader());
