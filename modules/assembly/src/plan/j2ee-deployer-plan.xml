@@ -155,6 +155,7 @@ Configuration for the Geronimo deployer
 
     <gbean namePart="SecurityService" class="org.apache.geronimo.security.SecurityServiceImpl">
         <attribute name="policyConfigurationFactory">org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory</attribute>
+        <attribute name="policyProvider">org.apache.geronimo.security.jacc.GeronimoPolicy</attribute>
     </gbean>
 
     <gbean namePart="WebBuilder" class="org.apache.geronimo.jetty.deployment.JettyModuleBuilder">

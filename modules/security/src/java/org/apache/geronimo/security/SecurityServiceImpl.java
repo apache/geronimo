@@ -17,19 +17,19 @@
 
 package org.apache.geronimo.security;
 
-import java.security.Policy;
-import javax.security.jacc.PolicyConfigurationFactory;
-import javax.security.jacc.PolicyContextException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.security.jacc.GeronimoPolicy;
 import org.apache.geronimo.security.jacc.PolicyContextHandlerContainerSubject;
 import org.apache.geronimo.security.jacc.PolicyContextHandlerHttpServletRequest;
 import org.apache.geronimo.security.jacc.PolicyContextHandlerSOAPMessage;
 import org.apache.geronimo.security.util.ConfigurationUtil;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
+
+import javax.security.jacc.PolicyConfigurationFactory;
+import javax.security.jacc.PolicyContextException;
+import java.security.Policy;
 
 
 /**
@@ -37,9 +37,11 @@ import org.apache.geronimo.security.util.ConfigurationUtil;
  *
  * @version $Rev$ $Date$
  */
-public class SecurityServiceImpl {
+public class SecurityServiceImpl implements SecurityService {
 
     public static boolean POLICY_INSTALLED = false;
+
+    private final ServerInfo serverInfo;
 
     private final Log log = LogFactory.getLog(SecurityServiceImpl.class);
 
@@ -48,7 +50,13 @@ public class SecurityServiceImpl {
      */
     public static final GeronimoSecurityPermission CONFIGURE = new GeronimoSecurityPermission("configure");
 
-    public SecurityServiceImpl(ClassLoader classLoader, String policyConfigurationFactory, String policyProvider) throws PolicyContextException, ClassNotFoundException, IllegalAccessException, InstantiationException {
+    public SecurityServiceImpl(ClassLoader classLoader, ServerInfo serverInfo, String policyConfigurationFactory,
+                               String policyProvider, String keyStore, String keyStorePassword,
+                               String trustStore, String trustStorePassword)
+            throws PolicyContextException, ClassNotFoundException, IllegalAccessException, InstantiationException {
+
+        this.serverInfo = serverInfo;
+
         /**
          *  @see "JSR 115 4.6.1" Container Subject Policy Context Handler
          */
@@ -56,44 +64,51 @@ public class SecurityServiceImpl {
         ConfigurationUtil.registerPolicyContextHandler(new PolicyContextHandlerSOAPMessage(), true);
         ConfigurationUtil.registerPolicyContextHandler(new PolicyContextHandlerHttpServletRequest(), true);
 
-        /**
-         * javax.security.jacc.PolicyConfigurationFactory.provider gets preference over policyConfigurationFactory
-         */
-        String sysFactory = System.getProperty("javax.security.jacc.PolicyConfigurationFactory.provider");
-        if (sysFactory != null)
-            policyConfigurationFactory = sysFactory;
-        if (policyConfigurationFactory != null) {
-            System.setProperty("javax.security.jacc.PolicyConfigurationFactory.provider", policyConfigurationFactory);
-        }
-
-        /**
-         * javax.security.jacc.policy.provider gets preference over policyProvider
-         */
-
-        if (!POLICY_INSTALLED){
-            String sysProvider = System.getProperty("javax.security.jacc.policy.provider");
-            if (sysProvider != null)
-                policyProvider = sysProvider;
+        if (!POLICY_INSTALLED) {
+            policyProvider = sysOverRide(policyProvider, POLICY_PROVIDER);
 
             if (policyProvider != null) {
-                System.setProperty("javax.security.jacc.policy.provider", policyProvider);
-                Policy customPolicy = (Policy) classLoader.loadClass(policyProvider).newInstance();
-                customPolicy.refresh();
-                Policy.setPolicy(customPolicy);
-            } else {
-                Policy gPolicy = new GeronimoPolicy();
-                gPolicy.refresh();
-                Policy.setPolicy(gPolicy);
+                Policy policy = (Policy) classLoader.loadClass(policyProvider).newInstance();
+                policy.refresh();
+                Policy.setPolicy(policy);
             }
 
             POLICY_INSTALLED = true;
         }
 
-        PolicyConfigurationFactory.getPolicyConfigurationFactory();
+        policyConfigurationFactory = sysOverRide(policyConfigurationFactory, POLICY_CONFIG_FACTORY);
+        if (policyConfigurationFactory != null)
+            PolicyConfigurationFactory.getPolicyConfigurationFactory();
+
+        if (keyStore != null)
+            keyStore = sysOverRide(serverInfo.resolvePath(keyStore), KEYSTORE);
+        sysOverRide(keyStorePassword, KEYSTORE_PASSWORD);
+
+        if (trustStore != null)
+            trustStore = sysOverRide(serverInfo.resolvePath(trustStore), TRUSTSTORE);
+        sysOverRide(trustStore, TRUSTSTORE);
+        sysOverRide(trustStorePassword, TRUSTSTORE_PASSWORD);
 
         log.info("JACC factory registered");
     }
 
+    private String sysOverRide(String attribute, String sysVar) {
+
+        String sysValue = System.getProperty(sysVar);
+
+        /**
+         * System variable gets highest priority
+         */
+        if (sysValue != null)
+            return sysValue;
+
+        if (attribute != null) {
+            System.setProperty(sysVar, attribute);
+        }
+
+        return attribute;
+
+    }
 
     public static final GBeanInfo GBEAN_INFO;
 
@@ -101,10 +116,17 @@ public class SecurityServiceImpl {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(SecurityServiceImpl.class);
 
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
+        infoFactory.addReference("ServerInfo", ServerInfo.class);
         infoFactory.addAttribute("policyConfigurationFactory", String.class, true);
         infoFactory.addAttribute("policyProvider", String.class, true);
+        infoFactory.addAttribute("keyStore", String.class, true);
+        infoFactory.addAttribute("keyStorePassword", String.class, true);
+        infoFactory.addAttribute("trustStore", String.class, true);
+        infoFactory.addAttribute("trustStorePassword", String.class, true);
 
-        infoFactory.setConstructor(new String[]{"classLoader", "policyConfigurationFactory", "policyProvider"});
+        infoFactory.setConstructor(new String[]{"classLoader", "ServerInfo", "policyConfigurationFactory",
+                                                "policyProvider", "keyStore", "keyStorePassword", "trustStore",
+                                                "trustStorePassword"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

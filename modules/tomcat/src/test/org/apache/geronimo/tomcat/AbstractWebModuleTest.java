@@ -200,7 +200,9 @@ public class AbstractWebModuleTest extends TestCase {
 
         securityServiceName = new ObjectName("geronimo.server:j2eeType=SecurityService");
         securityServiceGBean = new GBeanData(securityServiceName, SecurityServiceImpl.GBEAN_INFO);
+        securityServiceGBean.setReferencePattern("ServerInfo", serverInfoName);
         securityServiceGBean.setAttribute("policyConfigurationFactory", "org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory");
+        securityServiceGBean.setAttribute("policyProvider", "org.apache.geronimo.security.jacc.GeronimoPolicy");
 
         loginServiceName = JaasLoginService.OBJECT_NAME;
         loginServiceGBean = new GBeanData(loginServiceName, JaasLoginService.GBEAN_INFO);

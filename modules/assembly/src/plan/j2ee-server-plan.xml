@@ -152,7 +152,9 @@ by the server.
     </gbean>
 
     <gbean namePart="SecurityService" class="org.apache.geronimo.security.SecurityServiceImpl">
+        <reference name="ServerInfo">geronimo.server:name=ServerInfo,*</reference>
         <attribute name="policyConfigurationFactory">org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory</attribute>
+        <attribute name="policyProvider">org.apache.geronimo.security.jacc.GeronimoPolicy</attribute>
     </gbean>
 
     <gbean namePart="JaasLoginService" class="org.apache.geronimo.security.jaas.JaasLoginService">

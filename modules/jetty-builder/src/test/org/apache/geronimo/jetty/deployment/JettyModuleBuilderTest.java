@@ -64,6 +64,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.registry.BasicGBeanRegistry;
 import org.apache.geronimo.security.SecurityServiceImpl;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.apache.geronimo.xbeans.j2ee.ServiceRefHandlerType;
@@ -78,6 +79,10 @@ public class JettyModuleBuilderTest extends TestCase {
     private ObjectName containerName;
     private ObjectName connectorName;
     private GBeanData connector;
+    private GBeanData securityServiceGBean;
+    private ObjectName securityServiceName;
+    private ObjectName serverInfoName;
+    private GBeanData serverInfoGBean;
     private ObjectName tmName;
     private ObjectName ctcName;
     private GBeanData tm;
@@ -154,43 +159,43 @@ public class JettyModuleBuilderTest extends TestCase {
                         return null;
                     }
                 },
-                        new ResourceReferenceBuilder() {
+                new ResourceReferenceBuilder() {
 
-                            public Reference createResourceRef(String containerId, Class iface) throws DeploymentException {
-                                return null;
-                            }
+                    public Reference createResourceRef(String containerId, Class iface) throws DeploymentException {
+                        return null;
+                    }
 
-                            public Reference createAdminObjectRef(String containerId, Class iface) throws DeploymentException {
-                                return null;
-                            }
+                    public Reference createAdminObjectRef(String containerId, Class iface) throws DeploymentException {
+                        return null;
+                    }
 
-                            public ObjectName locateResourceName(ObjectName query) throws DeploymentException {
-                                return null;
-                            }
+                    public ObjectName locateResourceName(ObjectName query) throws DeploymentException {
+                        return null;
+                    }
 
-                            public GBeanData locateActivationSpecInfo(ObjectName resourceAdapterName, String messageListenerInterface) throws DeploymentException {
-                                return null;
-                            }
+                    public GBeanData locateActivationSpecInfo(ObjectName resourceAdapterName, String messageListenerInterface) throws DeploymentException {
+                        return null;
+                    }
 
-                            public GBeanData locateResourceAdapterGBeanData(ObjectName resourceAdapterModuleName) throws DeploymentException {
-                                return null;
-                            }
+                    public GBeanData locateResourceAdapterGBeanData(ObjectName resourceAdapterModuleName) throws DeploymentException {
+                        return null;
+                    }
 
-                            public GBeanData locateAdminObjectInfo(ObjectName resourceAdapterModuleName, String adminObjectInterfaceName) throws DeploymentException {
-                                return null;
-                            }
+                    public GBeanData locateAdminObjectInfo(ObjectName resourceAdapterModuleName, String adminObjectInterfaceName) throws DeploymentException {
+                        return null;
+                    }
 
-                            public GBeanData locateConnectionFactoryInfo(ObjectName resourceAdapterModuleName, String connectionFactoryInterfaceName) throws DeploymentException {
-                                return null;
-                            }
-                        },
-                        new ServiceReferenceBuilder() {
-                            //it could return a Service or a Reference, we don't care
-                            public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlerInfos, Map portLocationMap, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException {
-                                return null;
-                            }
-                        }, kernel));
-        return earContext;
+                    public GBeanData locateConnectionFactoryInfo(ObjectName resourceAdapterModuleName, String connectionFactoryInterfaceName) throws DeploymentException {
+                        return null;
+                    }
+                },
+                new ServiceReferenceBuilder() {
+                    //it could return a Service or a Reference, we don't care
+                    public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlerInfos, Map portLocationMap, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException {
+                        return null;
+                    }
+                }, kernel));
+                return earContext;
     }
 
     private void recursiveDelete(File path) {
@@ -209,7 +214,7 @@ public class JettyModuleBuilderTest extends TestCase {
         cl = this.getClass().getClassLoader();
         containerName = NameFactory.getWebComponentName(null, null, null, null, "jettyContainer", "WebResource", moduleContext);
         connectorName = NameFactory.getWebComponentName(null, null, null, null, "jettyConnector", "WebResource", moduleContext);
-//        webModuleName = NameFactory.getWebComponentName(null, null, null, null, NameFactory.WEB_MODULE, "WebResource", moduleContext);
+        //        webModuleName = NameFactory.getWebComponentName(null, null, null, null, NameFactory.WEB_MODULE, "WebResource", moduleContext);
 
         tmName = NameFactory.getComponentName(null, null, null, null, null, "TransactionManager", NameFactory.JTA_RESOURCE, moduleContext);
         tcmName = NameFactory.getComponentName(null, null, null, null, null, "TransactionContextManager", NameFactory.JTA_RESOURCE, moduleContext);
@@ -229,8 +234,20 @@ public class JettyModuleBuilderTest extends TestCase {
         ObjectName defaultServlets = ObjectName.getInstance("test:name=test,type=none,*");
         ObjectName pojoWebServiceTemplate = null;
         WebServiceBuilder webServiceBuilder = null;
+
+        serverInfoName = new ObjectName("geronimo.system:name=ServerInfo");
+        serverInfoGBean = new GBeanData(serverInfoName, ServerInfo.GBEAN_INFO);
+        serverInfoGBean.setAttribute("baseDirectory", ".");
+        start(serverInfoGBean);
+
         //install the policy configuration factory
-        SecurityServiceImpl securityService = new SecurityServiceImpl(null, "org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory", null);
+        securityServiceName = new ObjectName("foo:j2eeType=SecurityService");
+        securityServiceGBean = new GBeanData(securityServiceName, SecurityServiceImpl.GBEAN_INFO);
+        securityServiceGBean.setReferencePattern("ServerInfo", serverInfoName);
+        securityServiceGBean.setAttribute("policyConfigurationFactory", "org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory");
+        securityServiceGBean.setAttribute("policyProvider", "org.apache.geronimo.security.jacc.GeronimoPolicy");
+        start(securityServiceGBean);
+
 
         builder = new JettyModuleBuilder(new URI("null"), new Integer(1800), Collections.EMPTY_LIST, containerName, defaultServlets, null, null, pojoWebServiceTemplate, webServiceBuilder, null, kernel);
 
@@ -261,6 +278,8 @@ public class JettyModuleBuilderTest extends TestCase {
     protected void tearDown() throws Exception {
         stop(ctcName);
         stop(tmName);
+        stop(serverInfoName);
+        stop(securityServiceName);
         stop(connectorName);
         stop(containerName);
         kernel.shutdown();

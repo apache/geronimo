@@ -167,9 +167,15 @@ public class AbstractWebModuleTest extends TestCase {
         configurations.add(new ObjectName("geronimo.server:j2eeType=ConfigurationEntry,*"));
         loginConfigurationGBean.setReferencePatterns("Configurations", configurations);
 
+        serverInfoName = new ObjectName("geronimo.system:name=ServerInfo");
+        serverInfoGBean = new GBeanData(serverInfoName, ServerInfo.GBEAN_INFO);
+        serverInfoGBean.setAttribute("baseDirectory", ".");
+
         securityServiceName = new ObjectName("geronimo.server:j2eeType=SecurityService");
         securityServiceGBean = new GBeanData(securityServiceName, SecurityServiceImpl.GBEAN_INFO);
+        securityServiceGBean.setReferencePattern("ServerInfo", serverInfoName);
         securityServiceGBean.setAttribute("policyConfigurationFactory", "org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory");
+        securityServiceGBean.setAttribute("policyProvider", "org.apache.geronimo.security.jacc.GeronimoPolicy");
 
         loginServiceName = JaasLoginService.OBJECT_NAME;
         loginServiceGBean = new GBeanData(loginServiceName, JaasLoginService.GBEAN_INFO);
@@ -177,10 +183,6 @@ public class AbstractWebModuleTest extends TestCase {
 //        loginServiceGBean.setAttribute("reclaimPeriod", new Long(1000 * 1000));
         loginServiceGBean.setAttribute("algorithm", "HmacSHA1");
         loginServiceGBean.setAttribute("password", "secret");
-
-        serverInfoName = new ObjectName("geronimo.system:name=ServerInfo");
-        serverInfoGBean = new GBeanData(serverInfoName, ServerInfo.GBEAN_INFO);
-        serverInfoGBean.setAttribute("baseDirectory", ".");
 
         propertiesLMName = new ObjectName("geronimo.security:type=LoginModule,name=demo-properties-login");
         propertiesLMGBean = new GBeanData(propertiesLMName, LoginModuleGBean.GBEAN_INFO);
@@ -205,9 +207,9 @@ public class AbstractWebModuleTest extends TestCase {
         propertiesRealmGBean.setAttribute("defaultPrincipal", principalEditor.getValue());
 
         start(loginConfigurationGBean);
+        start(serverInfoGBean);
         start(securityServiceGBean);
         start(loginServiceGBean);
-        start(serverInfoGBean);
         start(propertiesLMGBean);
         start(propertiesRealmGBean);
 
@@ -216,9 +218,9 @@ public class AbstractWebModuleTest extends TestCase {
     protected void tearDownSecurity() throws Exception {
         stop(propertiesRealmName);
         stop(propertiesLMName);
-        stop(serverInfoName);
         stop(loginServiceName);
         stop(securityServiceName);
+        stop(serverInfoName);
         stop(loginConfigurationName);
     }
 
