@@ -93,15 +93,14 @@ import javax.naming.spi.NamingManager;
  *   String envEntry2 = (String) componentContext.lookup("env/myEntry2");
  * </code>
  *
- * @version $Revision: 1.8 $ $Date: 2004/01/12 06:19:52 $
+ * @version $Revision: 1.9 $ $Date: 2004/01/14 08:28:33 $
  */
 public class ReadOnlyContext implements Context {
-    private final Hashtable env;        // environment for this context
-    private final Map bindings;         // bindings at my level
-    private final Map treeBindings;     // all bindings under me
+    protected final Hashtable env;        // environment for this context
+    protected final Map bindings;         // bindings at my level
+    protected final Map treeBindings;     // all bindings under me
 
-
-    ReadOnlyContext() {
+    protected ReadOnlyContext() {
         env = new Hashtable();
         bindings = new HashMap();
         treeBindings = new HashMap();
@@ -117,7 +116,7 @@ public class ReadOnlyContext implements Context {
         this.treeBindings = Collections.EMPTY_MAP;
     }
 
-    ReadOnlyContext(ReadOnlyContext clone, Hashtable env) {
+    protected ReadOnlyContext(ReadOnlyContext clone, Hashtable env) {
         this.bindings = clone.bindings;
         this.treeBindings = clone.treeBindings;
         this.env = new Hashtable(env);
@@ -135,7 +134,7 @@ public class ReadOnlyContext implements Context {
      * @return
      * @throws NamingException
      */
-    Map internalBind(String name, Object value) throws NamingException {
+    protected Map internalBind(String name, Object value) throws NamingException {
         assert name != null;
         assert !name.equals("");
         Map newBindings = new HashMap();
@@ -152,7 +151,7 @@ public class ReadOnlyContext implements Context {
             assert !segment.equals("");
             Object o = treeBindings.get(segment);
             if (o == null) {
-                o = new ReadOnlyContext();
+                o = newContext();
                 treeBindings.put(segment, o);
                 bindings.put(segment, o);
                 newBindings.put(segment, o);
@@ -171,6 +170,10 @@ public class ReadOnlyContext implements Context {
             }
         }
         return newBindings;
+    }
+
+    protected ReadOnlyContext newContext() {
+        return new ReadOnlyContext();
     }
 
     public Object addToEnvironment(String propName, Object propVal) throws NamingException {
