@@ -79,10 +79,10 @@ import java.lang.reflect.InvocationTargetException;
  * <p>It is expected that deployment tools will configure modules through
  * these utility MBeans and not directly access the
  * <code>PolicyConfiguration</code> objects.
- * @version $Revision: 1.1 $ $Date: 2003/11/18 05:17:17 $
+ * @version $Revision: 1.2 $ $Date: 2003/11/18 05:36:57 $
  * @see javax.security.jacc.PolicyConfiguration
  * @see "Java Authorization Contract for Containers", section 3.1.3
- * @jmx:mbean extends="org.apache.geronimo.security.AbstractModuleConfigurationMBean"
+ * @jmx:mbean extends="org.apache.geronimo.security.ModuleConfigurationMBean"
  */
 public class WebModuleConfiguration extends AbstractModuleConfiguration implements WebModuleConfigurationMBean {
 

@@ -71,7 +71,7 @@ import org.apache.geronimo.deployment.model.geronimo.ejb.GeronimoEjbJarDocument;
 /**
  * Knows how to store geronimo-ejb-jar.xml POJOs to a DOM
  *
- * @version $Revision: 1.2 $ $Date: 2003/11/17 02:03:16 $
+ * @version $Revision: 1.3 $ $Date: 2003/11/18 05:41:09 $
  */
 public class GeronimoEjbJarStorer {
     public static void store(GeronimoEjbJarDocument jarDoc, Writer out) throws IOException {
@@ -88,6 +88,8 @@ public class GeronimoEjbJarStorer {
             Element cs = StorerUtil.createChild(root, "class-space");
             cs.setAttribute("name", jar.getClassSpace().getClassSpace());
             cs.setAttribute("parent", jar.getClassSpace().getParentClassSpace());
+            //todo: write out the full security descriptor
+            Element s = StorerUtil.createChild(root, "security");
             J2EEStorer.storeDisplayable(root, jar);
             StorerUtil.createChildText(root, "module-name", jar.getModuleName());
             if (jar.getDatasourceName() != null) {

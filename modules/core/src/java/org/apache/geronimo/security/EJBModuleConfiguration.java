@@ -73,8 +73,8 @@ import java.lang.reflect.InvocationTargetException;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2003/11/18 05:17:17 $
- * @jmx:mbean extends="org.apache.geronimo.security.AbstractModuleConfigurationMBean"
+ * @version $Revision: 1.2 $ $Date: 2003/11/18 05:36:57 $
+ * @jmx:mbean extends="org.apache.geronimo.security.ModuleConfigurationMBean"
  */
 public class EJBModuleConfiguration extends AbstractModuleConfiguration implements EJBModuleConfigurationMBean {
 
