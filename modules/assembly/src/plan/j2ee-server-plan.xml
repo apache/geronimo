@@ -122,29 +122,29 @@ by the server.
     <!-- Default security realm using properties files -->
     <gbean name="geronimo.security:type=LoginModule,name=properties-login"
         class="org.apache.geronimo.security.jaas.LoginModuleGBean">
-        <attribute name="loginModuleClass" type="java.lang.String">org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule</attribute>
-        <attribute name="serverSide" type="boolean">true</attribute>
-        <attribute name="options" type="java.util.Properties">
+        <attribute name="loginModuleClass">org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule</attribute>
+        <attribute name="serverSide">true</attribute>
+        <attribute name="options">
             usersURI=var/security/users.properties
             groupsURI=var/security/groups.properties
         </attribute>
         <attribute name="loginDomainName" type="java.lang.String">geronimo-properties-realm</attribute>
     </gbean>
 
-    <gbean name="geronimo.security:type=SecurityRealm,realm=geronimo-properties-realm"
+    <gbean name="geronimo.security:type=SecurityRealm,name=geronimo-properties-realm"
         class="org.apache.geronimo.security.realm.GenericSecurityRealm">
-        <attribute name="realmName" type="java.lang.String">geronimo-properties-realm</attribute>
-        <attribute name="loginModuleConfiguration" type="java.util.Properties">
+        <attribute name="realmName">geronimo-properties-realm</attribute>
+        <attribute name="loginModuleConfiguration">
             LoginModule.1.REQUIRED=geronimo.security:type=LoginModule,name=properties-login
         </attribute>
         <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
-        <attribute name="autoMapPrincipalClasses" type="java.lang.String">org.apache.geronimo.security.realm.providers.PropertiesFileGroupPrincipal</attribute>
+        <attribute name="autoMapPrincipalClasses">geronimo-properties-realm=org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal</attribute>
     </gbean>
 
     <gbean name="geronimo.security:type=ConfigurationEntry,jaasId=JMX"
         class="org.apache.geronimo.security.jaas.ServerRealmConfigurationEntry">
-        <attribute name="applicationConfigName" type="java.lang.String">JMX</attribute>
-        <attribute name="realmName" type="java.lang.String">geronimo-properties-realm</attribute>
+        <attribute name="applicationConfigName">JMX</attribute>
+        <attribute name="realmName">geronimo-properties-realm</attribute>
     </gbean>
 
     <!-- Register GeronimoLoginConfiguration as the LoginConfiguration handler -->
@@ -156,51 +156,50 @@ by the server.
     </gbean>
 
     <gbean name="geronimo.security:type=SecurityService" class="org.apache.geronimo.security.SecurityServiceImpl">
-        <attribute name="policyConfigurationFactory" type="java.lang.String">org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory</attribute>
-        <reference name="Mappers">geronimo.security:type=SecurityRealm,*</reference>
+        <attribute name="policyConfigurationFactory">org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory</attribute>
     </gbean>
 
     <gbean name="geronimo.security:type=JaasLoginService" class="org.apache.geronimo.security.jaas.JaasLoginService">
         <reference name="Realms">geronimo.security:type=SecurityRealm,*</reference>
         <!--        <attribute name="reclaimPeriod" type="long">100000</attribute>-->
-        <attribute name="algorithm" type="java.lang.String">HmacSHA1</attribute>
-        <attribute name="password" type="java.lang.String">secret</attribute>
+        <attribute name="algorithm">HmacSHA1</attribute>
+        <attribute name="password">secret</attribute>
     </gbean>
 
     <gbean name="geronimo.server:type=ThreadPool,name=DefaultThreadPool" class="org.apache.geronimo.pool.ThreadPool">
-        <attribute name="keepAliveTime" type="long">5000</attribute>
-        <attribute name="poolSize" type="int">10</attribute>
-        <attribute name="poolName" type="java.lang.String">DefaultThreadPool</attribute>
+        <attribute name="keepAliveTime">5000</attribute>
+        <attribute name="poolSize">10</attribute>
+        <attribute name="poolName">DefaultThreadPool</attribute>
     </gbean>
 
     <gbean name="geronimo.server:type=ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator">
     </gbean>
 
     <gbean name="geronimo.server:J2EEServer=geronimo,j2eeType=JCAWorkManager,name=DefaultWorkManager" class="org.apache.geronimo.connector.work.GeronimoWorkManager">
-        <attribute name="syncMaximumPoolSize" type="int">10</attribute>
-        <attribute name="startMaximumPoolSize" type="int">10</attribute>
-        <attribute name="scheduledMaximumPoolSize" type="int">10</attribute>
+        <attribute name="syncMaximumPoolSize">10</attribute>
+        <attribute name="startMaximumPoolSize">10</attribute>
+        <attribute name="scheduledMaximumPoolSize">10</attribute>
         <reference name="TransactionContextManager">geronimo.server:type=TransactionContextManager</reference>
     </gbean>
 
     <gbean name="geronimo.server:type=HOWLTransactionLog" class="org.apache.geronimo.transaction.log.HOWLLog">
-        <attribute name="bufferClassName" type="java.lang.String">org.objectweb.howl.log.BlockLogBuffer</attribute>
-        <attribute name="bufferSizeKBytes" type="int">32</attribute>
-        <attribute name="checksumEnabled" type="boolean">true</attribute>
-        <attribute name="flushSleepTimeMilliseconds" type="int">50</attribute>
-        <attribute name="logFileDir" type="java.lang.String">var/txlog</attribute>
-        <attribute name="logFileExt" type="java.lang.String">log</attribute>
-        <attribute name="logFileName" type="java.lang.String">howl</attribute>
-        <attribute name="maxBlocksPerFile" type="int">-1</attribute>
-        <attribute name="maxBuffers" type="int">0</attribute>
-        <attribute name="maxLogFiles" type="int">2</attribute>
-        <attribute name="minBuffers" type="int">4</attribute>
-        <attribute name="threadsWaitingForceThreshold" type="int">-1</attribute>
+        <attribute name="bufferClassName">org.objectweb.howl.log.BlockLogBuffer</attribute>
+        <attribute name="bufferSizeKBytes">32</attribute>
+        <attribute name="checksumEnabled">true</attribute>
+        <attribute name="flushSleepTimeMilliseconds">50</attribute>
+        <attribute name="logFileDir">var/txlog</attribute>
+        <attribute name="logFileExt">log</attribute>
+        <attribute name="logFileName">howl</attribute>
+        <attribute name="maxBlocksPerFile">-1</attribute>
+        <attribute name="maxBuffers">0</attribute>
+        <attribute name="maxLogFiles">2</attribute>
+        <attribute name="minBuffers">4</attribute>
+        <attribute name="threadsWaitingForceThreshold">-1</attribute>
         <reference name="serverInfo">geronimo.system:role=ServerInfo</reference>
     </gbean>
 
     <gbean name="geronimo.server:type=TransactionManager" class="org.apache.geronimo.transaction.manager.TransactionManagerImpl">
-        <attribute name="defaultTransactionTimeoutSeconds" type="int">300</attribute>
+        <attribute name="defaultTransactionTimeoutSeconds">300</attribute>
         <reference name="TransactionLog">geronimo.server:type=HOWLTransactionLog</reference>
         <references name="ResourceManagers">
             <pattern>geronimo.server:j2eeType=JCAManagedConnectionFactory,*</pattern>
@@ -225,7 +224,7 @@ by the server.
     </gbean>
 
     <gbean name="geronimo.server:type=WebConnector,container=Jetty,port=8080" class="org.apache.geronimo.jetty.connector.HTTPConnector">
-        <attribute name="port" type="int">8080</attribute>
+        <attribute name="port">8080</attribute>
         <reference name="JettyContainer">geronimo.server:type=WebContainer,container=Jetty</reference>
         <!--        <attribute name="MaxConnections" type="int">10</attribute>-->
         <!--        <attribute name="MaxIdleTime" type="int">10</attribute>-->
@@ -243,13 +242,13 @@ by the server.
 
     <!-- EJB Protocol -->
     <gbean name="openejb:type=SocketService,name=EJB" class="org.openejb.server.SimpleSocketService">
-        <attribute name="serviceClassName" type="java.lang.String">org.openejb.server.ejbd.EjbServer</attribute>
-        <attribute name="onlyFrom" type="java.net.InetAddress[]">127.0.0.1</attribute>
+        <attribute name="serviceClassName">org.openejb.server.ejbd.EjbServer</attribute>
+        <attribute name="onlyFrom">127.0.0.1</attribute>
         <reference name="ContainerIndex">openejb:type=ContainerIndex</reference>
     </gbean>
     <gbean name="openejb:type=ServiceDaemon,name=EJB" class="org.openejb.server.ServiceDaemon">
-        <attribute name="port" type="int">4201</attribute>
-        <attribute name="inetAddress" type="java.net.InetAddress">127.0.0.1</attribute>
+        <attribute name="port">4201</attribute>
+        <attribute name="inetAddress">127.0.0.1</attribute>
         <reference name="SocketService">openejb:type=SocketService,name=EJB</reference>
     </gbean>
 
@@ -262,8 +261,8 @@ by the server.
 
     <!-- JMX Remoting -->
     <gbean name="geronimo.server:role=JMXService,name=localhost" class="org.apache.geronimo.jmxremoting.JMXConnector">
-        <attribute name="URL" type="java.lang.String">service:jmx:rmi://localhost/jndi/rmi:/JMXConnector</attribute>
-        <attribute name="applicationConfigName" type="java.lang.String">JMX</attribute>
+        <attribute name="URL">service:jmx:rmi://localhost/jndi/rmi:/JMXConnector</attribute>
+        <attribute name="applicationConfigName">JMX</attribute>
     </gbean>
 
 </configuration>

@@ -127,7 +127,7 @@ public class AbstractWebServiceTest extends AbstractTestCase {
 //        
 //        kernel.loadGBean(AxisGeronimoConstants.EAR_CONF_BUILDER_NAME,moduleBuilder);
 //        
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(null, defaultParentId, null);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, null, kernel);
         
        EARConfigBuilder earConfigBuilder =
                 new EARConfigBuilder(defaultParentId,

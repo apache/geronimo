@@ -16,8 +16,7 @@
  */
 package org.apache.geronimo.security.realm;
 
-import java.util.Set;
-
+import org.apache.geronimo.security.deploy.MapOfSets;
 import org.apache.geronimo.security.deploy.Principal;
 
 
@@ -44,13 +43,13 @@ public interface AutoMapAssistant {
      *
      * @return the default principal
      */
-    public Principal obtainDefaultPrincipal();
+    public Principal getDefaultPrincipal();
 
     /**
      * Provides a set of principal class names to be used when automatically
      * mapping principals to roles.
      *
-     * @return a set of principal class names
+     * @return a map of logindomain name to set of principal class names
      */
-    public Set obtainRolePrincipalClasses(String loginDomain);
+    public MapOfSets getAutoMapPrincipalClasses();
 }

@@ -125,8 +125,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
                                   TransactionContextManager transactionContextManager,
                                   TrackedConnectionAssociator trackedConnectionAssociator,
-                                  JettyContainer jettyContainer,
-                                  AutoMapAssistant assistant) throws Exception, IllegalAccessException, InstantiationException, ClassNotFoundException {
+                                  JettyContainer jettyContainer) throws Exception, IllegalAccessException, InstantiationException, ClassNotFoundException {
 
         assert uri != null;
         assert componentContext != null;
@@ -185,7 +184,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
             //set the JAASJettyRealm as our realm.
             JAASJettyRealm realm = new JAASJettyRealm(realmName, loginDomainName);
             setRealm(realm);
-            this.securityInterceptor = new SecurityContextBeforeAfter(interceptor, index++, index++, policyContextID, securityConfig, loginDomainName, assistant, authenticator, securityRoles, uncheckedPermissions, excludedPermissions, rolePermissions, realm);
+            this.securityInterceptor = new SecurityContextBeforeAfter(interceptor, index++, index++, policyContextID, securityConfig, loginDomainName, authenticator, securityRoles, uncheckedPermissions, excludedPermissions, rolePermissions, realm);
             interceptor = securityInterceptor;
         } else {
             securityInterceptor = null;
@@ -412,8 +411,6 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         infoBuilder.addAttribute("excludedPermissions", PermissionCollection.class, true);
         infoBuilder.addAttribute("rolePermissions", Map.class, true);
 
-        infoBuilder.addReference("SecurityRealm", AutoMapAssistant.class);
-
         infoBuilder.setConstructor(new String[]{
             "uri",
             "componentContext",
@@ -449,8 +446,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
             "TransactionContextManager",
             "TrackedConnectionAssociator",
-            "JettyContainer",
-            "SecurityRealm",
+            "JettyContainer"
         });
 
         GBEAN_INFO = infoBuilder.getBeanInfo();

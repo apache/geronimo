@@ -23,8 +23,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.geronimo.security.SecurityService;
-
 
 /**
  * @version $Rev$ $Date$
@@ -37,7 +35,6 @@ public class Security implements Serializable {
     private DefaultPrincipal defaultPrincipal;
     private Map roleMappings = new HashMap();
     private Set roleNames = new HashSet();
-    private AutoMapAssistant assistant;
 
     public Security() {
     }
@@ -82,14 +79,6 @@ public class Security implements Serializable {
         return roleNames;
     }
 
-    public AutoMapAssistant getAssistant() {
-        return assistant;
-    }
-
-    public void setAssistant(AutoMapAssistant assistant) {
-        this.assistant = assistant;
-    }
-
     public void append(Role role) {
         if (roleMappings.containsKey(role.getRoleName())) {
             Role existing = (Role) roleMappings.get(role.getRoleName());
@@ -106,16 +95,8 @@ public class Security implements Serializable {
      * <p/>
      * NOTE: This method should be called during deployment.
      *
-     * @param securityService used to obtain the configured auto map assistant.
      */
-    public void autoGenerate(SecurityService securityService) {
-        if (securityService == null) return;
-        if (assistant == null) return;
-
-        String realmName = assistant.getSecurityRealm();
-        org.apache.geronimo.security.realm.AutoMapAssistant autoMapAssistant = securityService.getMapper(realmName);
-        if (autoMapAssistant == null) return;
-
+    public void autoGenerate(String loginDomainName, String realmName, Set principalClasseSet) {
         /**
          * Append roles
          */
@@ -127,10 +108,9 @@ public class Security implements Serializable {
 
             Realm realm = new Realm();
 
-            realm.setRealmName(assistant.getSecurityRealm());
+            realm.setRealmName(realmName);
 
-            //todo: the usage of the realm name in the next call instead of the login domain name is an error!
-            for (Iterator principalClasses = autoMapAssistant.obtainRolePrincipalClasses(realmName).iterator(); principalClasses.hasNext();) {
+            for (Iterator principalClasses = principalClasseSet.iterator(); principalClasses.hasNext();) {
                 Principal principal = new Principal();
                 //todo: Principal class needs to handle login domain as well
                 principal.setClassName((String) principalClasses.next());
@@ -144,14 +124,5 @@ public class Security implements Serializable {
             append(role);
         }
 
-        /**
-         * Add default principal
-         */
-        if (defaultPrincipal != null) return;
-
-        defaultPrincipal = new DefaultPrincipal();
-
-        defaultPrincipal.setPrincipal(autoMapAssistant.obtainDefaultPrincipal());
-        defaultPrincipal.setRealmName(realmName);
     }
 }

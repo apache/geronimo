@@ -72,7 +72,7 @@ public class DynamicEJBDeploymentTest extends AbstractTestCase {
         File jarFile = new File(outDir , "echo-jar/echo-ewsimpl.jar");
         
         URI defaultParentId = new URI("org/apache/geronimo/Server");
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(null, defaultParentId, null);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, null, kernel);
         
         
         EARConfigBuilder earConfigBuilder =

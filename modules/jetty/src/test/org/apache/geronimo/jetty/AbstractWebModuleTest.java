@@ -39,6 +39,8 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.security.SecurityServiceImpl;
 import org.apache.geronimo.security.deploy.Security;
+import org.apache.geronimo.security.deploy.MapOfSets;
+import org.apache.geronimo.security.deploy.Principal;
 import org.apache.geronimo.security.jaas.GeronimoLoginConfiguration;
 import org.apache.geronimo.security.jaas.JaasLoginService;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
@@ -76,10 +78,11 @@ public class AbstractWebModuleTest extends TestCase {
     private GBeanData loginServiceGBean;
     protected GBeanData propertiesLMGBean;
     protected ObjectName propertiesLMName;
-    private ObjectName propertiesRealmName;
+    protected ObjectName propertiesRealmName;
     private GBeanData propertiesRealmGBean;
     private ObjectName serverInfoName;
     private GBeanData serverInfoGBean;
+    protected final static String securityRealmName = "demo-properties-realm";
 
     public void testDummy() throws Exception {
     }
@@ -151,7 +154,6 @@ public class AbstractWebModuleTest extends TestCase {
         app.setReferencePattern("TransactionContextManager", tcmName);
         app.setReferencePattern("TrackedConnectionAssociator", ctcName);
         app.setReferencePattern("JettyContainer", containerName);
-        app.setReferencePattern("SecurityRealm", propertiesRealmName);
 
         app.setAttribute("contextPath", "/test");
 
@@ -169,12 +171,11 @@ public class AbstractWebModuleTest extends TestCase {
 
         securityServiceName = new ObjectName("geronimo.security:type=SecurityService");
         securityServiceGBean = new GBeanData(securityServiceName, SecurityServiceImpl.GBEAN_INFO);
-        securityServiceGBean.setReferencePatterns("Mappers", Collections.singleton(new ObjectName("geronimo.security:type=SecurityRealm,*")));
         securityServiceGBean.setAttribute("policyConfigurationFactory", "org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory");
 
         loginServiceName = new ObjectName("geronimo.security:type=JaasLoginService");
         loginServiceGBean = new GBeanData(loginServiceName, JaasLoginService.GBEAN_INFO);
-        loginServiceGBean.setReferencePatterns("Realms", Collections.singleton(new ObjectName("geronimo.security:type=SecurityRealm,*")));
+        loginServiceGBean.setReferencePattern("Realms", new ObjectName("geronimo.security:type=SecurityRealm,*"));
 //        loginServiceGBean.setAttribute("reclaimPeriod", new Long(1000 * 1000));
         loginServiceGBean.setAttribute("algorithm", "HmacSHA1");
         loginServiceGBean.setAttribute("password", "secret");
@@ -195,13 +196,17 @@ public class AbstractWebModuleTest extends TestCase {
 
         propertiesRealmName = new ObjectName("geronimo.security:type=SecurityRealm,realm=demo-properties-realm");
         propertiesRealmGBean = new GBeanData(propertiesRealmName, GenericSecurityRealm.GBEAN_INFO);
-        propertiesRealmGBean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfoName));
+        propertiesRealmGBean.setReferencePattern("ServerInfo", serverInfoName);
         propertiesRealmGBean.setAttribute("realmName", "demo-properties-realm");
         Properties config = new Properties();
         config.setProperty("LoginModule.1.REQUIRED", propertiesLMName.getCanonicalName());
         propertiesRealmGBean.setAttribute("loginModuleConfiguration", config);
-//        propertiesRealmGBean.setAttribute("autoMapPrincipalClasses", "org.apache.geronimo.security.realm.providers.PropertiesFileGroupPrincipal");
-        propertiesRealmGBean.setAttribute("defaultPrincipal", "metro=org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
+        MapOfSets.MapOfSetsEditor mapEditor = new MapOfSets.MapOfSetsEditor();
+        mapEditor.setAsText(securityRealmName + "=org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
+        propertiesRealmGBean.setAttribute("autoMapPrincipalClasses", mapEditor.getValue());
+        Principal.PrincipalEditor principalEditor = new Principal.PrincipalEditor();
+        principalEditor.setAsText("metro=org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
+        propertiesRealmGBean.setAttribute("defaultPrincipal", principalEditor.getValue());
 
         start(loginConfigurationGBean);
         start(securityServiceGBean);

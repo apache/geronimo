@@ -24,6 +24,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.PermissionCollection;
 import java.security.Permissions;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -31,8 +32,6 @@ import java.util.Set;
 import javax.security.jacc.WebResourcePermission;
 import javax.security.jacc.WebUserDataPermission;
 
-import org.apache.geronimo.security.SecurityService;
-import org.apache.geronimo.security.deploy.AutoMapAssistant;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.deploy.Principal;
 import org.apache.geronimo.security.deploy.Realm;
@@ -46,6 +45,8 @@ import org.apache.geronimo.security.deploy.Security;
  * @version $Rev$ $Date$
  */
 public class SecurityTest extends AbstractWebModuleTest {
+
+    private final static Set autoMapPrincipalClasses = Collections.singleton("org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
 
     /**
      * Test the explicit map feature.  Only Alan should be able to log in.
@@ -170,19 +171,17 @@ public class SecurityTest extends AbstractWebModuleTest {
         Security securityConfig = new Security();
         securityConfig.setUseContextHandler(false);
 
-        AutoMapAssistant assistant = new AutoMapAssistant();
-        assistant.setSecurityRealm("demo-properties-realm");
-        securityConfig.setAssistant(assistant);
-
         securityConfig.getRoleNames().add("content-administrator");
         securityConfig.getRoleNames().add("auto-administrator");
 
-        SecurityService securityService = (SecurityService) kernel.getProxyManager().createProxy(securityServiceName, SecurityService.class);
-        try {
-            securityConfig.autoGenerate(securityService);
-        } finally {
-            kernel.getProxyManager().destroyProxy(securityService);
-        }
+        securityConfig.autoGenerate(securityRealmName, securityRealmName, autoMapPrincipalClasses);
+
+        //cribbed from SecurityBuilder
+        Principal principal = (Principal) kernel.getAttribute(propertiesRealmName, "defaultPrincipal");
+        DefaultPrincipal defaultPrincipal = new DefaultPrincipal();
+        defaultPrincipal.setPrincipal(principal);
+        defaultPrincipal.setRealmName(securityRealmName);
+        securityConfig.setDefaultPrincipal(defaultPrincipal);
 
         PermissionCollection uncheckedPermissions = new Permissions();
 
@@ -278,22 +277,13 @@ public class SecurityTest extends AbstractWebModuleTest {
         Security securityConfig = new Security();
         securityConfig.setUseContextHandler(false);
 
-        AutoMapAssistant assistant = new AutoMapAssistant();
-        assistant.setSecurityRealm("demo-properties-realm");
-        securityConfig.setAssistant(assistant);
-
         securityConfig.getRoleNames().add("content-administrator");
         securityConfig.getRoleNames().add("auto-administrator");
 
-        SecurityService securityService = (SecurityService) kernel.getProxyManager().createProxy(securityServiceName, SecurityService.class);
-        try {
-            securityConfig.autoGenerate(securityService);
-        } finally {
-            kernel.getProxyManager().destroyProxy(securityService);
-        }
+        securityConfig.autoGenerate(securityRealmName, securityRealmName, autoMapPrincipalClasses);
 
         DefaultPrincipal defaultPrincipal = new DefaultPrincipal();
-        defaultPrincipal.setRealmName("demo-properties-realm");
+        defaultPrincipal.setRealmName(securityRealmName);
         Principal principal = new Principal();
         principal.setClassName("org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
         principal.setPrincipalName("izumi");

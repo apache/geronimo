@@ -69,11 +69,10 @@ import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.schema.SchemaConversionUtils;
-import org.apache.geronimo.security.SecurityService;
 import org.apache.geronimo.security.deploy.Security;
-import org.apache.geronimo.security.deploy.AutoMapAssistant;
 import org.apache.geronimo.security.deployment.SecurityBuilder;
 import org.apache.geronimo.security.util.URLPattern;
+import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.transaction.OnlineUserTransaction;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyDependencyType;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyGbeanType;
@@ -121,7 +120,6 @@ public class JettyModuleBuilder implements ModuleBuilder {
     private final ObjectName defaultServlets;
     private final ObjectName defaultFilters;
     private final ObjectName defaultFilterMappings;
-    private final SecurityService securityService;
 
     private final List defaultWelcomeFiles;
     private final Integer defaultSessionTimeoutSeconds;
@@ -135,12 +133,10 @@ public class JettyModuleBuilder implements ModuleBuilder {
                               ObjectName defaultServlets,
                               ObjectName defaultFilters,
                               ObjectName defaultFilterMappings,
-                              SecurityService securityService,
                               Kernel kernel) {
         this.defaultParentId = defaultParentId;
         this.defaultSessionTimeoutSeconds = (defaultSessionTimeoutSeconds == null) ? new Integer(30 * 60) : defaultSessionTimeoutSeconds;
         this.jettyContainerObjectName = jettyContainerObjectName;
-        this.securityService = securityService;
         this.defaultServlets = defaultServlets;
         this.defaultFilters = defaultFilters;
         this.defaultFilterMappings = defaultFilterMappings;
@@ -349,11 +345,16 @@ public class JettyModuleBuilder implements ModuleBuilder {
             contextPriorityClassLoader = Boolean.valueOf(jettyWebApp.getContextPriorityClassloader()).booleanValue();
         }
         ClassLoader webClassLoader = new JettyClassLoader(webClassPathURLs, cl, contextPriorityClassLoader);
-
+        Map localSecurityRealms = new HashMap();
         if (jettyWebApp != null) {
             JettyGbeanType[] gbeans = jettyWebApp.getGbeanArray();
             for (int i = 0; i < gbeans.length; i++) {
-                GBeanHelper.addGbean(new JettyGBeanAdapter(gbeans[i]), webClassLoader, earContext);
+                GBeanData gBeanData = GBeanHelper.getGBeanData(new JettyGBeanAdapter(gbeans[i]), webClassLoader);
+                earContext.addGBean(gBeanData);
+                String className = gBeanData.getGBeanInfo().getClassName();
+                if (GenericSecurityRealm.class.getName().equals(className)) {
+                    localSecurityRealms.put(gBeanData.getAttribute("realmName"), gBeanData);
+                }
             }
         }
 
@@ -369,27 +370,16 @@ public class JettyModuleBuilder implements ModuleBuilder {
 
         GBeanData webModuleData = new GBeanData(webModuleName, JettyWebAppContext.GBEAN_INFO);
         try {
-            Set securityRoles = new HashSet();
+            Set securityRoles = collectRoleNames(webApp);
             if (jettyWebApp.isSetLoginDomainName()) {
-                Security security = SecurityBuilder.buildSecurityConfig(jettyWebApp.getSecurity(), collectRoleNames(webApp));
-                security.autoGenerate(securityService);
-                webModuleData.setAttribute("loginDomainName", jettyWebApp.getLoginDomainName().trim());
+                String loginDomainName = jettyWebApp.getLoginDomainName().trim();
+                Security security = SecurityBuilder.buildSecurityConfig(Collections.singleton(loginDomainName),  jettyWebApp.getSecurity(), securityRoles, localSecurityRealms, kernel);
+                webModuleData.setAttribute("loginDomainName", loginDomainName);
                 webModuleData.setAttribute("securityConfig", security);
 
                 String policyContextID = webModuleName.getCanonicalName();
                 webModuleData.setAttribute("policyContextID", policyContextID);
                 buildSpecSecurityConfig(webApp, webModuleData, securityRoles);
-                AutoMapAssistant assistant = security.getAssistant();
-                if (assistant != null) {
-                    String realmName = assistant.getSecurityRealm();
-                    ObjectName securityRealmName = null;
-                    try {
-                        securityRealmName = NameFactory.getSecurityRealmName(realmName);
-                    } catch (MalformedObjectNameException e) {
-                        throw new DeploymentException("Could not construct security realm name", e);
-                    }
-                    webModuleData.setReferencePattern("SecurityRealm", securityRealmName);
-                }
             }
 
             webModuleData.setAttribute("uri", URI.create(module.getTargetPath() + "/"));
@@ -762,11 +752,6 @@ public class JettyModuleBuilder implements ModuleBuilder {
         Set allSet = new HashSet();   // == allMap.values()
         Map allMap = new HashMap();   //uncheckedPatterns union excludedPatterns union rolesPatterns.
 
-        SecurityRoleType[] securityRoleArray = webApp.getSecurityRoleArray();
-        for (int i = 0; i < securityRoleArray.length; i++) {
-            SecurityRoleType securityRoleType = securityRoleArray[i];
-            securityRoles.add(securityRoleType.getRoleName().getStringValue().trim());
-        }
         webModuleData.setAttribute("securityRoles", securityRoles);
 
         SecurityConstraintType[] securityConstraintArray = webApp.getSecurityConstraintArray();
@@ -942,7 +927,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
 
         SecurityRoleType[] securityRoles = webApp.getSecurityRoleArray();
         for (int i = 0; i < securityRoles.length; i++) {
-            roleNames.add(securityRoles[i].getRoleName().getStringValue());
+            roleNames.add(securityRoles[i].getRoleName().getStringValue().trim());
         }
 
         return roleNames;
@@ -1067,7 +1052,6 @@ public class JettyModuleBuilder implements ModuleBuilder {
         infoBuilder.addAttribute("defaultServlets", ObjectName.class, true);
         infoBuilder.addAttribute("defaultFilters", ObjectName.class, true);
         infoBuilder.addAttribute("defaultFilterMappings", ObjectName.class, true);
-        infoBuilder.addReference("SecurityService", SecurityService.class);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
         infoBuilder.addInterface(ModuleBuilder.class);
 
@@ -1079,7 +1063,6 @@ public class JettyModuleBuilder implements ModuleBuilder {
             "defaultServlets",
             "defaultFilters",
             "defaultFilterMappings",
-            "SecurityService",
             "kernel"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

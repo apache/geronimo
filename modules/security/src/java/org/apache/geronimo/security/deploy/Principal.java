@@ -17,12 +17,21 @@
 package org.apache.geronimo.security.deploy;
 
 import java.io.Serializable;
+import java.beans.PropertyEditorManager;
+
+import org.apache.geronimo.common.propertyeditor.TextPropertyEditorSupport;
+import org.apache.geronimo.common.propertyeditor.PropertyEditorException;
 
 
 /**
  * @version $Rev$ $Date$
  */
 public class Principal implements Serializable {
+
+    static {
+        PropertyEditorManager.registerEditor(Principal.class, PrincipalEditor.class);
+    }
+
     private String className;
     private String principalName;
     private boolean designatedRunAs;
@@ -49,5 +58,31 @@ public class Principal implements Serializable {
 
     public void setDesignatedRunAs(boolean designatedRunAs) {
         this.designatedRunAs = designatedRunAs;
+    }
+
+    public static class PrincipalEditor extends TextPropertyEditorSupport {
+
+        public void setAsText(String text) {
+            if (text != null) {
+                String[] parts = text.split("=");
+                if (parts.length != 2) {
+                    throw new PropertyEditorException("Principal should have the form 'name=class'");
+                }
+                Principal principal = new Principal();
+                principal.setPrincipalName(parts[0]);
+                principal.setClassName(parts[1]);
+                setValue(principal);
+            } else {
+                setValue(null);
+            }
+        }
+
+        public String getAsText() {
+            Principal principal = (Principal) getValue();
+            if (principal == null) {
+                return null;
+            }
+            return new StringBuffer(principal.getPrincipalName()).append("=").append(principal.getClassName()).toString();
+        }
     }
 }

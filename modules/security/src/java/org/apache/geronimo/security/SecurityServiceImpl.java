@@ -45,19 +45,17 @@ import org.apache.geronimo.security.util.ConfigurationUtil;
  *
  * @version $Rev$ $Date$
  */
-public class SecurityServiceImpl implements SecurityService {
+public class SecurityServiceImpl {
 
-    private final Log log = LogFactory.getLog(SecurityService.class);
+    private final Log log = LogFactory.getLog(SecurityServiceImpl.class);
 
-    private final ConcurrentHashMap mappersMap = new ConcurrentHashMap();
 
     /**
      * Permissions that protect access to sensitive security information
      */
     public static final GeronimoSecurityPermission CONFIGURE = new GeronimoSecurityPermission("configure");
 
-    public SecurityServiceImpl(String policyConfigurationFactory,
-                               Collection mappers) throws PolicyContextException, ClassNotFoundException {
+    public SecurityServiceImpl(String policyConfigurationFactory) throws PolicyContextException, ClassNotFoundException {
         /**
          *  @see "JSR 115 4.6.1" Container Subject Policy Context Handler
          */
@@ -71,41 +69,7 @@ public class SecurityServiceImpl implements SecurityService {
         PolicyConfigurationFactory factory = PolicyConfigurationFactory.getPolicyConfigurationFactory();
         GeronimoPolicyConfigurationFactory geronimoPolicyConfigurationFactory = (GeronimoPolicyConfigurationFactory) factory;
         Policy.setPolicy(new GeronimoPolicy(geronimoPolicyConfigurationFactory));
-        if (mappers != null) {
-            SecurityManager sm = System.getSecurityManager();
-            if (sm != null) {
-                sm.checkPermission(CONFIGURE);
-            }
-            ((ReferenceCollection) mappers).addReferenceCollectionListener(new ReferenceCollectionListener() {
-
-                public void memberAdded(ReferenceCollectionEvent event) {
-                    SecurityManager sm = System.getSecurityManager();
-                    if (sm != null) {
-                        sm.checkPermission(CONFIGURE);
-                    }
-                    AutoMapAssistant assistant = (AutoMapAssistant) event.getMember();
-                    mappersMap.put(assistant.getRealmName(), assistant);
-                }
-
-                public void memberRemoved(ReferenceCollectionEvent event) {
-                    SecurityManager sm = System.getSecurityManager();
-                    if (sm != null) {
-                        sm.checkPermission(CONFIGURE);
-                    }
-                    AutoMapAssistant assistant = (AutoMapAssistant) event.getMember();
-                    mappersMap.remove(assistant.getRealmName());
-                }
-            });
-            for (Iterator iterator = mappers.iterator(); iterator.hasNext();) {
-                AutoMapAssistant assistant = (AutoMapAssistant) iterator.next();
-                mappersMap.put(assistant.getRealmName(), assistant);
-            }
-        }
         log.info("Security service started");
-    }
-
-    public AutoMapAssistant getMapper(String name) {
-        return (AutoMapAssistant) mappersMap.get(name);
     }
 
 
@@ -116,10 +80,8 @@ public class SecurityServiceImpl implements SecurityService {
 
         infoFactory.addAttribute("policyConfigurationFactory", String.class, true);
 
-        infoFactory.addReference("Mappers", AutoMapAssistant.class);
-        infoFactory.addOperation("getMapper", new Class[]{String.class});
 
-        infoFactory.setConstructor(new String[]{"policyConfigurationFactory", "Mappers"});
+        infoFactory.setConstructor(new String[]{"policyConfigurationFactory"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

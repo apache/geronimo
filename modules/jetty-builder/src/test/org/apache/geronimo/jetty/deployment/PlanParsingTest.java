@@ -14,7 +14,7 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
  */
 public class PlanParsingTest extends TestCase {
     ObjectName jettyContainerObjectName = JMXUtil.getObjectName("test:type=JettyContainer");
-    private JettyModuleBuilder builder = new JettyModuleBuilder(null, new Integer(1800), null, jettyContainerObjectName, null, null, null, null, null);
+    private JettyModuleBuilder builder = new JettyModuleBuilder(null, new Integer(1800), null, jettyContainerObjectName, null, null, null, null);
     private File basedir = new File(System.getProperty("basedir", "."));
 
     public void testResourceRef() throws Exception {

@@ -19,6 +19,7 @@ package org.apache.geronimo.deployment.service;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.gbean.GBeanData;
 
 /**
  *
@@ -28,6 +29,12 @@ import org.apache.geronimo.deployment.DeploymentContext;
  * */
 public class GBeanHelper {
     public static void addGbean(GBeanAdapter gbean, ClassLoader cl, DeploymentContext context) throws DeploymentException {
+        GBeanData gBeanData = getGBeanData(gbean, cl);
+
+        context.addGBean(gBeanData);
+    }
+
+    public static GBeanData getGBeanData(GBeanAdapter gbean, ClassLoader cl) throws DeploymentException {
         GBeanBuilder builder = new GBeanBuilder(gbean.getName(), cl, gbean.getClass1());
 
         // set up attributes
@@ -45,6 +52,7 @@ public class GBeanHelper {
             builder.setReference(gbean.getReferencesName(j), gbean.getReferencesPatternArray(j));
         }
 
-        context.addGBean(builder.getGBeanData());
+        GBeanData gBeanData = builder.getGBeanData();
+        return gBeanData;
     }
 }

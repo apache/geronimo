@@ -20,7 +20,6 @@ package org.apache.geronimo.security.bridge;
 import javax.security.auth.Subject;
 
 import org.apache.geronimo.security.AbstractTest;
-import org.apache.geronimo.security.SecurityService;
 import org.apache.geronimo.security.realm.providers.GeronimoPasswordCredential;
 
 
@@ -28,7 +27,6 @@ import org.apache.geronimo.security.realm.providers.GeronimoPasswordCredential;
  * @version $Rev$ $Date$
  */
 public abstract class AbstractUserPasswordBridgeTest extends AbstractTest {
-    private SecurityService securityService;
     protected final static String USER = "testuser";
     protected final static String PASSWORD = "testpassword";
 

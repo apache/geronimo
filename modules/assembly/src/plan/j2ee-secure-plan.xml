@@ -34,22 +34,22 @@ by the server.
 
     <gbean name="geronimo.security:type=LoginModule,name=demo-properties-login"
         class="org.apache.geronimo.security.jaas.LoginModuleGBean">
-        <attribute name="loginModuleClass" type="java.lang.String">org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule</attribute>
-        <attribute name="serverSide" type="boolean">true</attribute>
-        <attribute name="options" type="java.util.Properties">
+        <attribute name="loginModuleClass">org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule</attribute>
+        <attribute name="serverSide">true</attribute>
+        <attribute name="options">
             usersURI=var/security/demo_users.properties
             groupsURI=var/security/demo_groups.properties
         </attribute>
-        <attribute name="loginDomainName" type="java.lang.String">demo-properties-realm</attribute>
+        <attribute name="loginDomainName">demo-properties-realm</attribute>
     </gbean>
 
-    <gbean name="geronimo.security:type=SecurityRealm,realm=demo-properties-realm"
+    <gbean name="geronimo.security:type=SecurityRealm,name=demo-properties-realm"
         class="org.apache.geronimo.security.realm.GenericSecurityRealm">
-        <attribute name="realmName" type="java.lang.String">demo-properties-realm</attribute>
-        <attribute name="loginModuleConfiguration" type="java.util.Properties">
+        <attribute name="realmName">demo-properties-realm</attribute>
+        <attribute name="loginModuleConfiguration">
             LoginModule.1.REQUIRED=geronimo.security:type=LoginModule,name=demo-properties-login
         </attribute>
-        <attribute name="autoMapPrincipalClasses" type="java.lang.String">org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal</attribute>
+        <attribute name="autoMapPrincipalClasses">demo-properties-realm=org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal</attribute>
         <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
     </gbean>
 

@@ -49,7 +49,6 @@ import org.apache.geronimo.security.deploy.Realm;
 import org.apache.geronimo.security.deploy.Role;
 import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.security.jacc.RoleMappingConfiguration;
-import org.apache.geronimo.security.realm.AutoMapAssistant;
 import org.apache.geronimo.security.util.ConfigurationUtil;
 import org.mortbay.http.Authenticator;
 import org.mortbay.http.HttpException;
@@ -89,7 +88,6 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
                                       String policyContextID,
                                       Security securityConfig,
                                       String loginDomainName,
-                                      AutoMapAssistant assistant,
                                       Authenticator authenticator,
                                       Set securityRoles,
                                       PermissionCollection uncheckedPermissions,
@@ -101,7 +99,7 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
         this.webAppContextIndex = webAppContextIndex;
         this.policyContextID = policyContextID;
 
-        this.defaultPrincipal = generateDefaultPrincipal(securityConfig, loginDomainName, assistant);
+        this.defaultPrincipal = generateDefaultPrincipal(securityConfig, loginDomainName);
 
         if (authenticator instanceof FormAuthenticator) {
             String formLoginPath = ((FormAuthenticator) authenticator).getLoginPage();
@@ -333,24 +331,13 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
      * @param loginDomainName
      * @return the default principal
      */
-    protected JAASJettyPrincipal generateDefaultPrincipal(Security securityConfig, String loginDomainName, AutoMapAssistant assistant) throws GeronimoSecurityException {
+    protected JAASJettyPrincipal generateDefaultPrincipal(Security securityConfig, String loginDomainName) throws GeronimoSecurityException {
 
         DefaultPrincipal defaultPrincipal = securityConfig.getDefaultPrincipal();
         if (defaultPrincipal == null) {
-            if (assistant != null) {
-                org.apache.geronimo.security.deploy.Principal principal = assistant.obtainDefaultPrincipal();
-                defaultPrincipal = new DefaultPrincipal();
-                defaultPrincipal.setPrincipal(principal);
-                defaultPrincipal.setRealmName(assistant.getRealmName());
-            }
-
+            throw new GeronimoSecurityException("Unable to generate default principal");
         }
-        if (defaultPrincipal == null) throw new GeronimoSecurityException("Unable to generate default principal");
-
-        return generateDefaultPrincipal(securityConfig, defaultPrincipal, loginDomainName);
-    }
-
-    protected JAASJettyPrincipal generateDefaultPrincipal(Security securityConfig, DefaultPrincipal defaultPrincipal, String loginDomainName) throws GeronimoSecurityException {
+        
         JAASJettyPrincipal result = new JAASJettyPrincipal("default");
         Subject defaultSubject = new Subject();
 

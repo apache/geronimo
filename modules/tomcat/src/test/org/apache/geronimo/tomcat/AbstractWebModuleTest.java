@@ -36,6 +36,8 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.security.SecurityServiceImpl;
+import org.apache.geronimo.security.deploy.MapOfSets;
+import org.apache.geronimo.security.deploy.Principal;
 import org.apache.geronimo.security.jaas.JaasLoginService;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
@@ -48,6 +50,9 @@ import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
  * @version $Rev: 111239 $ $Date: 2004-12-08 02:29:11 -0700 (Wed, 08 Dec 2004) $
  */
 public class AbstractWebModuleTest extends TestCase {
+
+    protected static final String securityRealmName = "demo-properties-realm";
+
     protected Kernel kernel;
 
     private GBeanData container;
@@ -154,7 +159,6 @@ public class AbstractWebModuleTest extends TestCase {
     protected void setUpSecurity() throws Exception {
         securityServiceName = new ObjectName("geronimo.security:type=SecurityService");
         securityServiceGBean = new GBeanData(securityServiceName, SecurityServiceImpl.GBEAN_INFO);
-        securityServiceGBean.setReferencePatterns("Mappers", Collections.singleton(new ObjectName("geronimo.security:type=SecurityRealm,*")));
         securityServiceGBean.setAttribute("policyConfigurationFactory", "org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory");
 
         loginServiceName = new ObjectName("geronimo.security:type=JaasLoginService");
@@ -173,18 +177,21 @@ public class AbstractWebModuleTest extends TestCase {
         options.setProperty("usersURI", "src/test-resources/data/users.properties");
         options.setProperty("groupsURI", "src/test-resources/data/groups.properties");
         propertiesLMGBean.setAttribute("options", options);
-        propertiesLMGBean.setAttribute("loginDomainName", "demo-properties-realm");
+        propertiesLMGBean.setAttribute("loginDomainName", securityRealmName);
 
         propertiesRealmName = new ObjectName("geronimo.security:type=SecurityRealm,realm=demo-properties-realm");
         propertiesRealmGBean = new GBeanData(propertiesRealmName, GenericSecurityRealm.GBEAN_INFO);
         propertiesRealmGBean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfoName));
-        propertiesRealmGBean.setAttribute("realmName", "demo-properties-realm");
+        propertiesRealmGBean.setAttribute("realmName", securityRealmName);
         Properties config = new Properties();
         config.setProperty("LoginModule.1.REQUIRED", propertiesLMName.getCanonicalName());
         propertiesRealmGBean.setAttribute("loginModuleConfiguration", config);
-        // propertiesRealmGBean.setAttribute("autoMapPrincipalClasses",
-        // "org.apache.geronimo.security.realm.providers.PropertiesFileGroupPrincipal");
-        propertiesRealmGBean.setAttribute("defaultPrincipal", "metro=org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
+        MapOfSets.MapOfSetsEditor mapEditor = new MapOfSets.MapOfSetsEditor();
+        mapEditor.setAsText(securityRealmName + "=org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
+        propertiesRealmGBean.setAttribute("autoMapPrincipalClasses", mapEditor.getValue());
+        Principal.PrincipalEditor principalEditor = new Principal.PrincipalEditor();
+        principalEditor.setAsText("metro=org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
+        propertiesRealmGBean.setAttribute("defaultPrincipal", principalEditor.getValue());
 
         start(securityServiceGBean);
         start(loginServiceGBean);
