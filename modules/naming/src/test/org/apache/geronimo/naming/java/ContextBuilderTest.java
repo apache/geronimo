@@ -35,6 +35,7 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.naming.deployment.RefAdapter;
 import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
+import org.apache.geronimo.naming.ReferenceFactory;
 import org.apache.xmlbeans.XmlObject;
 
 /**
@@ -172,7 +173,7 @@ public class ContextBuilderTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        JMXReferenceFactory referenceFactory = new JMXReferenceFactory();
+        ReferenceFactory referenceFactory = new JMXReferenceFactory();
         builder = new ComponentContextBuilder(referenceFactory);
     }
 

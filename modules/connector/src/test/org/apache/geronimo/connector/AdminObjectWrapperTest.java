@@ -32,6 +32,7 @@ import org.apache.geronimo.naming.deployment.RefAdapter;
 import org.apache.geronimo.naming.java.ComponentContextBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
+import org.apache.geronimo.naming.ReferenceFactory;
 import org.apache.xmlbeans.XmlObject;
 
 /**
@@ -89,7 +90,7 @@ public class AdminObjectWrapperTest extends TestCase {
 
 
     public void testLocalLookup() throws Exception {
-        JMXReferenceFactory referenceFactory = new JMXReferenceFactory();
+        ReferenceFactory referenceFactory = new JMXReferenceFactory();
         ComponentContextBuilder builder = new ComponentContextBuilder(referenceFactory);
         builder.addResourceEnvRef("resourceenvref", MockAdminObject.class, new RefAdapter() {
             public XmlObject getXmlObject() {

@@ -22,6 +22,7 @@ import javax.management.ObjectName;
 import javax.naming.Reference;
 
 import org.apache.geronimo.naming.deployment.RefAdapter;
+import org.apache.geronimo.naming.ReferenceFactory;
 
 /**
  *
@@ -29,7 +30,7 @@ import org.apache.geronimo.naming.deployment.RefAdapter;
  * @version $Rev$ $Date$
  *
  * */
-public class JMXReferenceFactory {
+public class JMXReferenceFactory implements ReferenceFactory {
 
     //TODO these names are constructed in a more generic fashion in ConnectorModuleBuilder.
     public static final String BASE_MANAGED_CONNECTION_FACTORY_NAME = "geronimo.server:J2EEServer=geronimo,j2eeType=JCAManagedConnectionFactory,name=";

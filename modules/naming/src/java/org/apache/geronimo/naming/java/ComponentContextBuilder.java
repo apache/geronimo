@@ -24,7 +24,7 @@ import javax.naming.NamingException;
 import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.naming.deployment.RefAdapter;
-import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
+import org.apache.geronimo.naming.ReferenceFactory;
 
 /**
  *
@@ -33,10 +33,10 @@ import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
  */
 public class ComponentContextBuilder {
     private static final String ENV = "env/";
-    private final JMXReferenceFactory referenceFactory;
+    private final ReferenceFactory referenceFactory;
     private final ReadOnlyContext context;
 
-    public ComponentContextBuilder(JMXReferenceFactory referenceFactory) {
+    public ComponentContextBuilder(ReferenceFactory referenceFactory) {
         this.referenceFactory = referenceFactory;
         this.context = new ReadOnlyContext();
     }
