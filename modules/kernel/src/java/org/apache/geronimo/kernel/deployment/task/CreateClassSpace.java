@@ -55,8 +55,8 @@
  */
 package org.apache.geronimo.kernel.deployment.task;
 
-import java.lang.reflect.Constructor;
 import java.util.List;
+import javax.management.Attribute;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
 import javax.management.MBeanRegistrationException;
@@ -67,115 +67,159 @@ import javax.management.ReflectionException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.kernel.deployment.DeploymentException;
-import org.apache.geronimo.kernel.deployment.loader.ClassSpace;
 import org.apache.geronimo.kernel.deployment.service.ClassSpaceMetadata;
+import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.service.GeronimoMBean;
 
 /**
+ * Creates, registers, and starts a class space
  *
- *
- * @version $Revision: 1.2 $ $Date: 2003/10/22 02:04:31 $
+ * @version $Revision: 1.3 $ $Date: 2003/10/27 21:31:50 $
  */
 public class CreateClassSpace implements DeploymentTask {
     private final Log log = LogFactory.getLog(this.getClass());
     private final MBeanServer server;
     private final ClassSpaceMetadata metadata;
-    private ObjectName actualName;
+    private boolean created = false;
+    private boolean addedURLs = false;
 
+    /**
+     * Creates a CreateClassSpace task.
+     * @param server the mbean server to register the class space
+     * @param metadata the class space data
+     */
     public CreateClassSpace(MBeanServer server, ClassSpaceMetadata metadata) {
         this.server = server;
         this.metadata = metadata;
     }
 
-    public boolean canRun() throws DeploymentException {
+    /**
+     * This task can always run
+     * @return always true
+     */
+    public boolean canRun() {
+        final ObjectName parent = metadata.getParent();
+        if (parent != null && !server.isRegistered(parent)) {
+            log.trace("Cannot run because parent class space is not registered: parent=" + parent);
+            return false;
+        }
         return true;
     }
 
+    /**
+     * Creates, registers and starts a class space.
+     * Will only create a class space if there is no class space with the specified name,
+     * and the metadata is not set to NEVER create a new space.
+     * @throws DeploymentException if there is an issue creating the class space
+     */
     public void perform() throws DeploymentException {
         ObjectName name = metadata.getName();
         List urls = metadata.getUrls();
         if (!server.isRegistered(name)) {
-            // Get the class object for the class space
-            // Class must be available from the JMX classloader repoistory
-            Class clazz = null;
-            try {
-                clazz = server.getClassLoaderRepository().loadClass(metadata.getClassName());
-            } catch (ClassNotFoundException e) {
-                throw new DeploymentException(e);
-            }
-            if (!ClassSpace.class.isAssignableFrom(clazz)) {
-                throw new DeploymentException("Class does not implement ClassSpace: " + clazz.getName());
-            }
-            if (!ClassLoader.class.isAssignableFrom(clazz)) {
-                throw new DeploymentException("Class is not a ClassLoader: " + clazz.getName());
+            if (metadata.getCreate() == ClassSpaceMetadata.CREATE_NEVER) {
+                throw new DeploymentException("No class space is registerd with name: objectName=" + metadata.getName());
             }
 
-            // Get the constructor
-            Constructor constructor = null;
+            // Get the mbean descriptor
             try {
-                constructor = clazz.getConstructor(new Class[]{ClassLoader.class, ObjectName.class});
+                GeronimoMBean mbean = (GeronimoMBean) server.instantiate("org.apache.geronimo.kernel.service.GeronimoMBean");
+                mbean.setMBeanInfo(metadata.getGeronimoMBeanInfo());
+                server.registerMBean(mbean, metadata.getName());
+                created = true;
             } catch (Exception e) {
-                throw new DeploymentException("Class does not have the constructor " +
-                        clazz.getName() + "(Classloader parent, String name)");
-            }
-
-            // Determine the parent classloader
-            ObjectName parentName = metadata.getParent();
-            ClassLoader parent = null;
-            if (parentName != null) {
-                try {
-                    parent = server.getClassLoader(parentName);
-                } catch (InstanceNotFoundException e) {
-                    throw new DeploymentException("Parent class loader not found", e);
-                }
-            } else {
-                Thread.currentThread().getContextClassLoader();
-                if (parent == null) {
-                    parent = ClassLoader.getSystemClassLoader();
-                }
-            }
-
-            // Construct a class space instance
-            ClassSpace space = null;
-            try {
-                space = (ClassSpace) constructor.newInstance(new Object[]{parent, metadata.getName()});
-            } catch (Exception e) {
-                // @todo use a typed exception which carries the object name and class type
-                throw new DeploymentException("Could not create class space instance", e);
-            }
-
-            // Add the URLs from the deployment to the class space
-            space.addDeployment(metadata.getDeploymentName(), metadata.getUrls());
-
-            // Register the class loader witht the MBeanServer
-            try {
-                actualName = server.registerMBean(space, name).getObjectName();
-            } catch (Exception e) {
-                // @todo use a typed exception which carries the object name and class type
                 throw new DeploymentException("Could not register class space with MBeanServer", e);
             }
-        } else {
-            try {
-                server.invoke(name, "addDeployment", new Object[]{metadata.getDeploymentName(), urls}, new String[]{"javax.management.ObjectName", "java.util.List"});
-            } catch (InstanceNotFoundException e) {
-                throw new DeploymentException(e);
-            } catch (MBeanException e) {
-                throw new DeploymentException(e);
-            } catch (ReflectionException e) {
-                throw new DeploymentException(e);
+
+            // set the parent
+            if (metadata.getParent() != null) {
+                try {
+                    server.setAttribute(name, new Attribute("parent", metadata.getParent()));
+                } catch (Exception e) {
+                    throw new DeploymentException("A class space is already registerd with name: objectName=" + metadata.getName(), e);
+                }
             }
+
+            // start the class space
+            try {
+                server.invoke(name, "start", null, null);
+            } catch (Exception e) {
+                throw new DeploymentException("Could not start class space: objectName=" + metadata.getName(), e);
+            }
+        } else {
+            if (metadata.getCreate() == ClassSpaceMetadata.CREATE_ALWYAS) {
+                throw new DeploymentException("A class space is already registerd with name: objectName=" + metadata.getName());
+            }
+        }
+
+        // add the deployment's urls to the class space
+        try {
+            server.invoke(
+                    name,
+                    "addDeployment",
+                    new Object[]{metadata.getDeploymentName(), urls},
+                    new String[]{"javax.management.ObjectName", "java.util.List"});
+            addedURLs = true;
+        } catch (InstanceNotFoundException e) {
+            throw new DeploymentException(e);
+        } catch (MBeanException e) {
+            throw new DeploymentException(e);
+        } catch (ReflectionException e) {
+            throw new DeploymentException(e);
         }
     }
 
+    /**
+     * Undoes the class space creation.  If the task added URLs to an existing class space,
+     * the urls will be dropped from the existing class space, but the urls are not really removed
+     * until the class space is restarted.  This method will attempt to restart any such class
+     * space, but since live cycle of a component is not synchronous, it is possible that the class
+     * space will not be fully restarted, leaving part of the server stopped (or stopping).  This is
+     * the best choice for safty, but users must be careful when deploying urls into an existing
+     * class space.
+     */
     public void undo() {
-        // @todo  we have a problem here... class space may have been used so it may now contain bad classes (not a problem when constructing a new space)
-        if (actualName != null) {
+        final ObjectName name = metadata.getName();
+        if (created) {
             try {
-                server.unregisterMBean(actualName);
+                // should be ok to simply unregister as no dependent components could have started
+                server.unregisterMBean(name);
             } catch (InstanceNotFoundException e) {
-                log.warn("ClassSpace MBean was already removed " + actualName, e);
+                log.warn("ClassSpace MBean was already removed " + name, e);
                 return;
             } catch (MBeanRegistrationException e) {
-                log.error("Error while unregistering ClassSpace MBean " + actualName, e);
+                log.error("Error while unregistering ClassSpace MBean " + name, e);
+            }
+        } else if (addedURLs) {
+            // @todo  we have a problem here... we added URLs to class space may have been used so it may now contain bad classes (not a problem when constructing a new space)
+            log.warn("Stopping class space - added urls to existing class space during deployment which subsequently failed: name=" + name);
+
+            // remove the deployment from the class space
+            try {
+                // @todo add a restart or recycle method to class space
+                server.invoke(
+                        name,
+                        "dropDeployment",
+                        new Object[]{metadata.getDeploymentName()},
+                        new String[]{"javax.management.ObjectName"});
+            } catch (Exception e) {
+                log.error("Could not stop class space: objectName=" + name, e);
+            }
+
+            // @todo add a restart or recycle method to class space
+            // stop the class space
+            try {
+                server.invoke(name, "stop", null, null);
+            } catch (Exception e) {
+                log.error("Could not stop class space: objectName=" + name, e);
+            }
+
+            // try to restart the class space
+            try {
+                if (((Integer) server.getAttribute(name, "state")).intValue() == State.STOPPED_INDEX) {
+                    server.invoke(name, "start", null, null);
+                }
+            } catch (Exception e) {
+                log.error("Could not restart class space: objectName=" + name, e);
             }
         }
     }
