@@ -86,7 +86,7 @@ import org.w3c.dom.Element;
  * Knows how to load a set of POJOs from a DOM representing an ejb-jar.xml
  * deployment descriptor.
  *
- * @version $Revision: 1.7 $ $Date: 2003/09/29 15:14:19 $
+ * @version $Revision: 1.8 $ $Date: 2003/09/29 16:00:13 $
  */
 public class EjbJarLoader {
     public static EjbJarDocument load(Document doc) {
@@ -115,16 +115,20 @@ public class EjbJarLoader {
         Element ade = LoaderUtil.getChild(root, "assembly-descriptor");
         if(ade != null) {
             AssemblyDescriptor ad = new AssemblyDescriptor();
-            ad.setContainerTransaction(loadContainerTransactions(ade));
-            ad.setExcludeList(loadExcludeList(LoaderUtil.getChild(ade, "exclude-list")));
-            ad.setMessageDestination(J2EELoader.loadMessageDestinations(ade));
-            ad.setMethodPermission(loadMethodPermissions(ade));
-            ad.setSecurityRole(J2EELoader.loadSecurityRoles(ade));
+            loadAssemblyDescriptor(ade, ad);
             jar.setAssemblyDescriptor(ad);
         }
         EjbJarDocument result = new EjbJarDocument();
         result.setEjbJar(jar);
         return result;
+    }
+
+    static void loadAssemblyDescriptor(Element root, AssemblyDescriptor ad) {
+        ad.setContainerTransaction(loadContainerTransactions(root));
+        ad.setExcludeList(loadExcludeList(LoaderUtil.getChild(root, "exclude-list")));
+        ad.setMessageDestination(J2EELoader.loadMessageDestinations(root));
+        ad.setMethodPermission(loadMethodPermissions(root));
+        ad.setSecurityRole(J2EELoader.loadSecurityRoles(root));
     }
 
     private static ExcludeList loadExcludeList(Element parent) {
@@ -182,7 +186,7 @@ public class EjbJarLoader {
         return meth;
     }
 
-    private static EjbRelation[] loadEjbRelations(Element parent) {
+    static EjbRelation[] loadEjbRelations(Element parent) {
         Element[] roots = LoaderUtil.getChildren(parent, "ejb-relation");
         EjbRelation[] rels = new EjbRelation[roots.length];
         for(int i = 0; i < roots.length; i++) {
@@ -249,7 +253,7 @@ public class EjbJarLoader {
         return mdbs;
     }
 
-    private static ActivationConfig loadActivationConfig(Element parent) {
+    static ActivationConfig loadActivationConfig(Element parent) {
         if(parent == null) {
             return null;
         }
@@ -300,7 +304,7 @@ public class EjbJarLoader {
         return entities;
     }
 
-    private static Query[] loadQueries(Element parent) {
+    static Query[] loadQueries(Element parent) {
         Element[] roots = LoaderUtil.getChildren(parent, "query");
         Query[] queries = new Query[roots.length];
         for(int i = 0; i < roots.length; i++) {
@@ -322,7 +326,7 @@ public class EjbJarLoader {
         return method;
     }
 
-    private static CmpField[] loadCmpFields(Element parent) {
+    static CmpField[] loadCmpFields(Element parent) {
         Element[] roots = LoaderUtil.getChildren(parent, "cmp-field");
         CmpField[] fields = new CmpField[roots.length];
         for(int i = 0; i < roots.length; i++) {

@@ -64,11 +64,13 @@ import org.apache.geronimo.deployment.model.geronimo.ejb.MessageDriven;
 import org.apache.geronimo.deployment.model.geronimo.ejb.Entity;
 import org.apache.geronimo.deployment.model.geronimo.ejb.Session;
 import org.apache.geronimo.deployment.model.ejb.Ejb;
+import org.apache.geronimo.deployment.model.ejb.Relationships;
+import org.apache.geronimo.deployment.model.ejb.AssemblyDescriptor;
 
 /**
  * Loads a Geronimo ejb-jar.xml file into POJOs
  *
- * @version $Revision: 1.4 $ $Date: 2003/09/29 14:17:23 $
+ * @version $Revision: 1.5 $ $Date: 2003/09/29 16:00:13 $
  */
 public class GeronimoEjbJarLoader {
     public static GeronimoEjbJarDocument load(Document doc) {
@@ -77,6 +79,8 @@ public class GeronimoEjbJarLoader {
             throw new IllegalArgumentException("Document is not a Geronimo ejb-jar instance");
         }
         EjbJar jar = new EjbJar();
+        jar.setVersion(root.getAttribute("version"));
+        J2EELoader.loadDisplayable(root, jar);
         Element ebe = LoaderUtil.getChild(root, "enterprise-beans");
         if(ebe != null) {
             EnterpriseBeans eb = new EnterpriseBeans();
@@ -84,6 +88,21 @@ public class GeronimoEjbJarLoader {
             eb.setSession(loadSessions(ebe));
             eb.setEntity(loadEntities(ebe));
             eb.setMessageDriven(loadMessageDrivens(ebe));
+        }
+        //todo: override any Geronimo-specific relationship content
+        Element re = LoaderUtil.getChild(root, "relationships");
+        if(re != null) {
+            Relationships rel = new Relationships();
+            J2EELoader.loadDescribable(re, rel);
+            rel.setEjbRelation(EjbJarLoader.loadEjbRelations(re));
+            jar.setRelationships(rel);
+        }
+        //todo: override any Geronimo-specific assembly-descriptor content
+        Element ade = LoaderUtil.getChild(root, "assembly-descriptor");
+        if(ade != null) {
+            AssemblyDescriptor ad = new AssemblyDescriptor();
+            EjbJarLoader.loadAssemblyDescriptor(ade, ad);
+            jar.setAssemblyDescriptor(ad);
         }
         GeronimoEjbJarDocument result = new GeronimoEjbJarDocument();
         result.setEjbJar(jar);
@@ -97,6 +116,11 @@ public class GeronimoEjbJarLoader {
             Element root = roots[i];
             mdbs[i] = new MessageDriven();
             loadEjb(root, mdbs[i]);
+            mdbs[i].setMessageDestinationLink(LoaderUtil.getChildContent(root, "message-destination-link"));
+            mdbs[i].setMessageDestinationType(LoaderUtil.getChildContent(root, "message-destination-type"));
+            mdbs[i].setMessagingType(LoaderUtil.getChildContent(root, "messaging-type"));
+            mdbs[i].setTransactionType(LoaderUtil.getChildContent(root, "transaction-type"));
+            mdbs[i].setActivationConfig(EjbJarLoader.loadActivationConfig(root));
         }
         return mdbs;
     }
@@ -108,7 +132,14 @@ public class GeronimoEjbJarLoader {
             Element root = roots[i];
             sessions[i] = new Session();
             loadEjb(root, sessions[i]);
+            sessions[i].setHome(LoaderUtil.getChildContent(root, "home"));
+            sessions[i].setLocal(LoaderUtil.getChildContent(root, "local"));
+            sessions[i].setLocalHome(LoaderUtil.getChildContent(root, "local-home"));
+            sessions[i].setRemote(LoaderUtil.getChildContent(root, "remote"));
             sessions[i].setSecurityRoleRef(GeronimoJ2EELoader.loadSecurityRoleRefs(root));
+            sessions[i].setServiceEndpoint(LoaderUtil.getChildContent(root, "service-endpoint"));
+            sessions[i].setSessionType(LoaderUtil.getChildContent(root, "session-type"));
+            sessions[i].setTransactionType(LoaderUtil.getChildContent(root, "transaction-type"));
             sessions[i].setJndiName(LoaderUtil.getChildContent(root, "jndi-name"));
         }
         return sessions;
@@ -121,7 +152,19 @@ public class GeronimoEjbJarLoader {
             Element root = roots[i];
             entities[i] = new Entity();
             loadEjb(root, entities[i]);
+            entities[i].setHome(LoaderUtil.getChildContent(root, "home"));
+            entities[i].setLocal(LoaderUtil.getChildContent(root, "local"));
+            entities[i].setLocalHome(LoaderUtil.getChildContent(root, "local-home"));
+            entities[i].setRemote(LoaderUtil.getChildContent(root, "remote"));
             entities[i].setSecurityRoleRef(GeronimoJ2EELoader.loadSecurityRoleRefs(root));
+            entities[i].setPersistenceType(LoaderUtil.getChildContent(root, "persistence-type"));
+            entities[i].setPrimKeyClass(LoaderUtil.getChildContent(root, "prim-key-class"));
+            entities[i].setReentrant(LoaderUtil.getChildContent(root, "reentrant"));
+            entities[i].setCmpVersion(LoaderUtil.getChildContent(root, "cmp-version"));
+            entities[i].setAbstractSchemaName(LoaderUtil.getChildContent(root, "abstract-schema-name"));
+            entities[i].setPrimkeyField(LoaderUtil.getChildContent(root, "primkey-field"));
+            entities[i].setCmpField(EjbJarLoader.loadCmpFields(root));
+            entities[i].setQuery(EjbJarLoader.loadQueries(root));
             entities[i].setJndiName(LoaderUtil.getChildContent(root, "jndi-name"));
         }
         return entities;
