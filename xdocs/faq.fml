@@ -17,7 +17,7 @@
 -->
   
 
-<!-- $Revision: 1.5 $ $Date: 2004/03/10 10:00:45 $ -->
+<!-- $Revision: 1.6 $ $Date: 2004/06/23 11:09:43 $ -->
 
 <faqs title="Frequently Asked Questions">
 
@@ -54,12 +54,18 @@
         subscribe?
       </question>
       <answer>
-        The mailing list is geronimo-dev@incubator.apache.org, a
+        The developers mailing list is dev@geronimo.apache.org, a
         high-volume list currently receiving from 600 to 1,000 messages
         a month. You can subscribe by sending an e-mail to
-        <a href="mailto:geronimo-dev-subscribe@incubator.apache.org">geronimo-dev-subscribe@incubator.apache.org</a>. To catch up on old messages, read the
-        <a href="http://nagoya.apache.org/eyebrowse/SummarizeList?listId=140">mailing
-        list archive</a>.    
+        <a href="mailto:dev-subscribe@geronimo.apache.org">dev-subscribe@geronimo.apache.org</a>. To catch up on old messages, read the
+        <a href="http://nagoya.apache.org/eyebrowse/SummarizeList?listName=dev@geronimo.apache.org">mailing
+        list archive</a>.
+        <br/>
+        <br/>
+        The users mailing list is user@geronimo.apache.org. You can subscribe by sending an e-mail to
+        <a href="mailto:user-subscribe@geronimo.apache.org">user-subscribe@geronimo.apache.org</a>. To catch up on old messages, read the
+        <a href="http://nagoya.apache.org/eyebrowse/SummarizeList?listName=user@geronimo.apache.org">mailing
+        list archive</a>.
       </answer>
     </faq>
 
