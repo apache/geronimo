@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Revision: 1.4 $ $Date: 2003/10/22 02:27:45 $ -->
+<!-- $Revision: 1.5 $ $Date: 2003/10/24 22:57:23 $ -->
 
 <project>
     <pomVersion>3</pomVersion>
@@ -29,37 +29,45 @@
         <!-- Plugin Dependencies -->
 
         <dependency>
-          <id>xdoclet</id>
-          <version>1.2b2</version>
-          <properties>
-            <runtime>false</runtime>
-          </properties>
+            <id>xdoclet</id>
+            <version>1.2b2</version>
+            <properties>
+                <runtime>false</runtime>
+            </properties>
         </dependency>
 
         <dependency>
-          <id>xdoclet+xdoclet-module</id>
-          <version>1.2b2</version>
-          <properties>
-            <runtime>false</runtime>
-          </properties>
+            <id>xdoclet+xdoclet-module</id>
+            <version>1.2b2</version>
+            <properties>
+                <runtime>false</runtime>
+            </properties>
         </dependency>
 
         <dependency>
-          <id>xdoclet+jmx-module</id>
-          <version>1.2b2</version>
-          <properties>
-            <runtime>false</runtime>
-          </properties>
+            <id>xdoclet+jmx-module</id>
+            <version>1.2b2</version>
+            <properties>
+                <runtime>false</runtime>
+            </properties>
         </dependency>
 
         <dependency>
-          <id>xdoclet+xjavadoc</id>
-          <version>1.2b2</version>
-          <properties>
-            <runtime>false</runtime>
-          </properties>
+            <id>xdoclet+xjavadoc</id>
+            <version>1.2b2</version>
+            <properties>
+                <runtime>false</runtime>
+            </properties>
         </dependency>
 
+        <dependency>
+            <id>commons-collections</id>
+            <version>SNAPSHOT</version>
+            <url>http://jakarta.apache.org/commons/collections</url>
+            <properties>
+                <runtime>fasle</runtime>
+            </properties>
+        </dependency>
 
         <!-- Module Dependencies -->
 
@@ -78,16 +86,6 @@
             <id>cglib</id>
             <version>1.0</version>
             <url>http://cglib.sf.net/</url>
-            <properties>
-                <runtime>true</runtime>
-                <destinations>bootlib</destinations>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <id>commons-collections</id>
-            <version>SNAPSHOT</version>
-            <url>http://jakarta.apache.org/commons/collections</url>
             <properties>
                 <runtime>true</runtime>
                 <destinations>bootlib</destinations>
@@ -115,16 +113,6 @@
         </dependency>
 
         <dependency>
-          <id>commons-digester</id>
-          <version>1.5</version>
-          <url>http://jakarta.apache.org/commons/digester/</url>
-          <properties>
-              <runtime>true</runtime>
-              <destinations>bootlib</destinations>
-          </properties>
-        </dependency>
-
-        <dependency>
             <id>commons-httpclient</id>
             <version>2.0-beta1</version>
             <url>http://jakarta.apache.org/commons/httpclient/</url>
@@ -135,43 +123,44 @@
         </dependency>
 
         <dependency>
-          <id>mx4j</id>
-          <version>SNAPSHOT</version>
-          <properties>
-              <runtime>true</runtime>
-              <destinations>bootlib</destinations>
-          </properties>
+            <id>mx4j</id>
+            <version>SNAPSHOT</version>
+            <properties>
+                <runtime>true</runtime>
+                <destinations>bootlib</destinations>
+            </properties>
         </dependency>
 
         <dependency>
-          <id>xerces</id>
-          <version>2.4.0</version>
-          <url>http://xml.apache.org</url>
-          <properties>
-              <runtime>true</runtime>
-              <destinations>bootlib</destinations>
-          </properties>
+            <id>xerces</id>
+            <version>2.4.0</version>
+            <url>http://xml.apache.org</url>
+            <properties>
+                <runtime>true</runtime>
+                <destinations>bootlib</destinations>
+            </properties>
         </dependency>
 
         <dependency>
-          <id>xml-apis</id>
-          <version>1.0.b2</version>
-          <properties>
-              <runtime>true</runtime>
-              <destinations>bootlib</destinations>
-          </properties>
+            <id>xml-apis</id>
+            <version>1.0.b2</version>
+            <properties>
+                <runtime>true</runtime>
+                <destinations>bootlib</destinations>
+            </properties>
         </dependency>
-
-        <dependency>
-          <id>commons-lang</id>
-          <version>SNAPSHOT</version>
-          <url>http://jakarta.apache.org/commons/lang</url>
-          <properties>
-              <runtime>true</runtime>
-              <destinations>bootlib</destinations>
-          </properties>
-        </dependency>
-
     </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/java</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                    <include>**/*.properties</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
 
 </project>
