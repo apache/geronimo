@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.59 $ $Date: 2004/01/27 19:33:40 $ -->
+<!-- $Revision: 1.60 $ $Date: 2004/01/27 20:08:49 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -627,7 +627,7 @@
 
     <goal name="run:main">
         <ant:echo></ant:echo>
-        <ant:echo>Pleas use "maven run" instead</ant:echo>
+        <ant:echo>Please use "maven run" instead</ant:echo>
         <ant:echo></ant:echo>
     </goal>
 
