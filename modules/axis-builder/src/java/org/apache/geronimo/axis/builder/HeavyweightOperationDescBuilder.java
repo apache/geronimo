@@ -99,6 +99,8 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
         }
         built = true;
 
+        operationDesc.setName( operationName );
+        
         // Set to 'document' or 'rpc'
         Style style = Style.getStyle(soapOperation.getStyle(), defaultStyle);
         operationDesc.setStyle(style);
