@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Revision: 1.4 $ $Date: 2003/08/18 13:29:30 $ -->
+<!-- $Revision: 1.5 $ $Date: 2003/08/31 06:11:10 $ -->
 
 <project>
   <pomVersion>3</pomVersion>
@@ -14,6 +14,7 @@
   <siteDirectory></siteDirectory>
   <distributionDirectory></distributionDirectory>
   
+  <package>javax.management</package>
   <currentVersion>DEV</currentVersion>
   
   
