@@ -67,21 +67,14 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfoXMLLoader;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
  * Loads MBean metadata from xml.
  *
- * @version $Revision: 1.1 $ $Date: 2003/09/08 04:38:33 $
+ * @version $Revision: 1.2 $ $Date: 2003/10/24 22:47:28 $
  */
 public class MBeanMetadataXMLLoader {
-    private final GeronimoMBeanInfoXMLLoader xmlLoader;
-
-    public MBeanMetadataXMLLoader() throws DeploymentException {
-        this.xmlLoader = new GeronimoMBeanInfoXMLLoader();
-    }
-
     public MBeanMetadata loadXML(URI baseURI, Element element) throws DeploymentException {
         MBeanMetadata md = new MBeanMetadata();
         md.setBaseURI(baseURI);
@@ -92,7 +85,7 @@ public class MBeanMetadataXMLLoader {
         String descriptor = element.getAttribute("descriptor").trim();
         if (descriptor.length() > 0) {
             URI descriptorURI = baseURI.resolve(descriptor);
-            GeronimoMBeanInfo geronimoMBeanInfo = xmlLoader.loadXML(descriptorURI);
+            GeronimoMBeanInfo geronimoMBeanInfo = GeronimoMBeanInfoXMLLoader.loadMBean(descriptorURI);
             md.setGeronimoMBeanInfo(geronimoMBeanInfo);
         }
         String s = element.getAttribute("name").trim();
@@ -114,7 +107,7 @@ public class MBeanMetadataXMLLoader {
                 Element argElement = (Element) nl.item(i);
                 String type = argElement.getAttribute("type");
                 types.add(type);
-                args.add(getValue(argElement));
+                args.add(XMLUtil.getContent(argElement));
             }
         }
 
@@ -123,7 +116,7 @@ public class MBeanMetadataXMLLoader {
         for (int i = 0; i < nl.getLength(); i++) {
             Element argElement = (Element) nl.item(i);
             String name = argElement.getAttribute("name");
-            attrs.put(name, getValue(argElement));
+            attrs.put(name, XMLUtil.getContent(argElement));
         }
 
         nl = element.getElementsByTagName("relationship");
@@ -157,35 +150,5 @@ public class MBeanMetadataXMLLoader {
         }
 
         return md;
-    }
-
-    /**
-     * Return the value of an argument node.
-     * If the node contains an Element, then the Element is returned;
-     * otherwise the content of the node (after stripping comments and trimming)
-     * is returned, or null if it is empty or zero length
-     * @param element the element to extract the value from
-     * @return the value of the node (a String or Element)
-     */
-    private Object getValue(Element element) {
-        NodeList nl = element.getChildNodes();
-        if (nl.getLength() == 0) {
-            return null;
-        }
-
-        StringBuffer content = new StringBuffer();
-        for (int i = 0; i < nl.getLength(); i++) {
-            Node node = nl.item(i);
-            switch (node.getNodeType()) {
-            case Node.ELEMENT_NODE:
-                return node;
-            case Node.CDATA_SECTION_NODE:
-            case Node.TEXT_NODE:
-                content.append(node.getNodeValue());
-                break;
-            }
-        }
-        String s = content.toString().trim();
-        return (s.length() > 0) ? s : null;
     }
 }
