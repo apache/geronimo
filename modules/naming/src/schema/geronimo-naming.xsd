@@ -62,9 +62,6 @@
             <xsd:element name="resource-env-ref"
                 type="local-refType"
                 minOccurs="0" maxOccurs="unbounded"/>
-            <xsd:element name="message-destination-ref"
-                type="remote-refType"
-                minOccurs="0" maxOccurs="unbounded"/>
         </xsd:sequence>
     </xsd:group>
 

@@ -34,7 +34,7 @@ import org.apache.geronimo.j2ee.deployment.EARContext;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/08/06 22:44:37 $
+ * @version $Revision: 1.6 $ $Date: 2004/08/19 15:47:30 $
  *
  * */
 public class ENCConfigBuilder {
@@ -96,7 +96,7 @@ public class ENCConfigBuilder {
                 throw  new DeploymentException("No geronimo configuration for resource env ref named: " + name);
             }
             try {
-                builder.addResourceRef(name, iface, refAdapter);
+                builder.addResourceEnvRef(name, iface, refAdapter);
             } catch (NamingException e) {
                 throw new DeploymentException("Invalid resource-env-ref definition for name: " + name, e);
             }
