@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: maven.xml,v 1.13 2003/08/14 19:41:15 jdillon Exp $ -->
+<!-- $Id: maven.xml,v 1.14 2003/08/14 23:13:01 jdillon Exp $ -->
 
 <project default="default"
   xmlns:j="jelly:core" 
@@ -16,11 +16,11 @@
       <j:set var="module" value="*"/>
     </j:if>
     
-    <j:if test="${empty(modules.includes)}">
+    <j:if test="${context.getVariable('modules.includes') == null}">
       <j:set var="modules.includes" value="modules/${module}/project.xml,specs/${module}/project.xml"/>
     </j:if>
     
-    <j:if test="${empty(modules.excludes)}">
+    <j:if test="${context.getVariable('modules.excludes') == null}">
       <j:set var="modules.excludes" value=""/>
     </j:if>
   </goal>
