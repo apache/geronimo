@@ -16,7 +16,7 @@
     limitations under the License.
 -->
   
-<!-- $Revision: 1.13 $ $Date: 2004/05/26 07:43:39 $ -->
+<!-- $Revision: 1.14 $ $Date: 2004/05/28 22:22:40 $ -->
 
 <project default="default"
     xmlns:j="jelly:core"
@@ -93,6 +93,11 @@
                 <ant:include name="src/schema/*.xsd"/>
             </ant:fileset>
             <ant:fileset dir="src/etc"/>
+        </ant:copy>
+
+        <!-- copy in data files -->
+        <ant:copy todir="${distDir}/var">
+            <ant:fileset dir="src/var"/>
         </ant:copy>
 
         <!-- Pre-load the server's repository -->

@@ -31,6 +31,7 @@ import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Collections;
 
 import EDU.oswego.cs.dl.util.concurrent.Latch;
 import com.sun.security.auth.login.ConfigFile;
@@ -54,15 +55,17 @@ import org.apache.geronimo.security.AbstractTest;
 import org.apache.geronimo.security.jaas.GeronimoLoginConfiguration;
 import org.apache.geronimo.system.ClockPool;
 import org.apache.geronimo.system.ThreadPool;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 
 /**
- * @version $Revision: 1.7 $ $Date: 2004/04/03 22:59:43 $
+ * @version $Revision: 1.8 $ $Date: 2004/05/28 22:22:40 $
  */
 public class SubjectCarryingProtocolTest extends AbstractTest {
 
     final static private Log log = LogFactory.getLog(SubjectCarryingProtocolTest.class);
 
+    protected ObjectName serverInfo;
     protected ObjectName propertiesRealm;
     protected ObjectName propertiesCE;
 
@@ -268,12 +271,21 @@ public class SubjectCarryingProtocolTest extends AbstractTest {
 
         super.setUp();
 
-        GBeanMBean gbean = new GBeanMBean("org.apache.geronimo.security.realm.providers.PropertiesFileSecurityRealm");
+        GBeanMBean gbean;
+
+        gbean = new GBeanMBean(ServerInfo.GBEAN_INFO);
+        serverInfo = new ObjectName("geronimo.system:role=ServerInfo");
+        gbean.setAttribute("BaseDirectory", ".");
+        kernel.loadGBean(serverInfo, gbean);
+        kernel.startGBean(serverInfo);
+
+        gbean = new GBeanMBean("org.apache.geronimo.security.realm.providers.PropertiesFileSecurityRealm");
         propertiesRealm = new ObjectName("geronimo.security:type=SecurityRealm,realm=properties-realm");
         gbean.setAttribute("RealmName", "properties-realm");
         gbean.setAttribute("MaxLoginModuleAge", new Long(1 * 1000));
         gbean.setAttribute("UsersURI", (new File(new File("."), "src/test-data/data/users.properties")).toURI());
         gbean.setAttribute("GroupsURI", (new File(new File("."), "src/test-data/data/groups.properties")).toURI());
+        gbean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfo));
         kernel.loadGBean(propertiesRealm, gbean);
 
         gbean = new GBeanMBean("org.apache.geronimo.security.jaas.ConfigurationEntryRealmLocal");
@@ -301,8 +313,10 @@ public class SubjectCarryingProtocolTest extends AbstractTest {
     public void tearDown() throws Exception {
         kernel.stopGBean(propertiesCE);
         kernel.stopGBean(propertiesRealm);
+        kernel.stopGBean(serverInfo);
         kernel.unloadGBean(propertiesRealm);
         kernel.unloadGBean(propertiesCE);
+        kernel.unloadGBean(serverInfo);
 
         super.tearDown();
 

@@ -34,6 +34,7 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.security.GeronimoSecurityException;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 import org.apache.regexp.RE;
 import org.apache.commons.logging.Log;
@@ -41,12 +42,14 @@ import org.apache.commons.logging.LogFactory;
 
 
 /**
- * @version $Revision: 1.5 $ $Date: 2004/05/22 15:25:13 $
+ * @version $Revision: 1.6 $ $Date: 2004/05/28 22:22:40 $
  */
 public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
 
     private static final GBeanInfo GBEAN_INFO;
     private static Log log = LogFactory.getLog(PropertiesFileSecurityRealm.class);
+
+    private final ServerInfo serverInfo;
 
     private boolean running = false;
     private URI usersURI;
@@ -56,12 +59,9 @@ public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
 
     final static String REALM_INSTANCE = "org.apache.geronimo.security.realm.providers.PropertiesFileSecurityRealm";
 
-    //deprecated for geronimombeans only
-    public PropertiesFileSecurityRealm() {
-    }
-
-    public PropertiesFileSecurityRealm(String realmName, URI usersURI, URI groupsURI) {
+    public PropertiesFileSecurityRealm(String realmName, URI usersURI, URI groupsURI, ServerInfo serverInfo) {
         super(realmName);
+        this.serverInfo = serverInfo;
         setUsersURI(usersURI);
         setGroupsURI(groupsURI);
     }
@@ -92,7 +92,7 @@ public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
         if (running) {
             throw new IllegalStateException("Cannot change the Users URI after the realm is started");
         }
-        this.usersURI = usersURI == null ? null : usersURI.normalize();
+        this.usersURI = usersURI;
     }
 
     public URI getGroupsURI() {
@@ -103,7 +103,7 @@ public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
         if (running) {
             throw new IllegalStateException("Cannot change the Groups URI after the realm is started");
         }
-        this.groupsURI = groupsURI == null ? null : groupsURI.normalize();
+        this.groupsURI = groupsURI;
     }
 
     public Set getGroupPrincipals() throws GeronimoSecurityException {
@@ -158,10 +158,10 @@ public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
 
     public void refresh() throws GeronimoSecurityException {
         try {
-            users.load(usersURI.toURL().openStream());
+            users.load(serverInfo.resolve(usersURI).toURL().openStream());
 
             Properties temp = new Properties();
-            temp.load(groupsURI.toURL().openStream());
+            temp.load(serverInfo.resolve(groupsURI).toURL().openStream());
 
             Enumeration enum = temp.keys();
             while (enum.hasMoreElements()) {
@@ -206,8 +206,9 @@ public class PropertiesFileSecurityRealm extends AbstractSecurityRealm {
         infoFactory.addAttribute(new GAttributeInfo("UsersURI", true));
         infoFactory.addAttribute(new GAttributeInfo("GroupsURI", true));
         infoFactory.addOperation(new GOperationInfo("isLoginModuleLocal"));
-        infoFactory.setConstructor(new GConstructorInfo(new String[]{"RealmName", "UsersURI", "GroupsURI"},
-                                                        new Class[]{String.class, URI.class, URI.class}));
+        infoFactory.addReference("ServerInfo", ServerInfo.class);
+        infoFactory.setConstructor(new GConstructorInfo(new String[]{"RealmName", "UsersURI", "GroupsURI", "ServerInfo"},
+                                                        new Class[]{String.class, URI.class, URI.class, ServerInfo.class}));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

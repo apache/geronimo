@@ -40,13 +40,15 @@ import org.apache.geronimo.remoting.transport.TransportLoader;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.jaas.LoginServiceMBean;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 
 /**
- * @version $Revision: 1.6 $ $Date: 2004/05/22 15:25:35 $
+ * @version $Revision: 1.7 $ $Date: 2004/05/28 22:22:41 $
  */
 public class RemoteLoginTest extends TestCase {
     Kernel kernel;
+    ObjectName serverInfo;
     ObjectName loginService;
     ObjectName kerberosRealm;
     ObjectName subsystemRouter;
@@ -86,6 +88,12 @@ public class RemoteLoginTest extends TestCase {
 
         // Create all the parts
 
+        gbean = new GBeanMBean(ServerInfo.GBEAN_INFO);
+        serverInfo = new ObjectName("geronimo.system:role=ServerInfo");
+        gbean.setAttribute("BaseDirectory", ".");
+        kernel.loadGBean(serverInfo, gbean);
+        kernel.startGBean(serverInfo);
+
         gbean = new GBeanMBean("org.apache.geronimo.security.jaas.LoginService");
         loginService = new ObjectName("geronimo.security:type=LoginService");
         gbean.setReferencePatterns("Realms", Collections.singleton(new ObjectName("geronimo.security:type=SecurityRealm,*")));
@@ -100,6 +108,7 @@ public class RemoteLoginTest extends TestCase {
         gbean.setAttribute("MaxLoginModuleAge", new Long(1 * 1000));
         gbean.setAttribute("UsersURI", (new File(new File("."), "src/test-data/data/users.properties")).toURI());
         gbean.setAttribute("GroupsURI", (new File(new File("."), "src/test-data/data/groups.properties")).toURI());
+        gbean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfo));
         kernel.loadGBean(kerberosRealm, gbean);
 
         gbean = new GBeanMBean("org.apache.geronimo.remoting.router.SubsystemRouter");
@@ -178,6 +187,7 @@ public class RemoteLoginTest extends TestCase {
         kernel.stopGBean(subsystemRouter);
         kernel.stopGBean(kerberosRealm);
         kernel.stopGBean(loginService);
+        kernel.stopGBean(serverInfo);
 
         kernel.unloadGBean(loginService);
         kernel.unloadGBean(kerberosRealm);
@@ -189,6 +199,7 @@ public class RemoteLoginTest extends TestCase {
         kernel.unloadGBean(jmxRouter);
         kernel.unloadGBean(secureJmxRouter);
         kernel.unloadGBean(serverStub);
+        kernel.unloadGBean(serverInfo);
 
         kernel.shutdown();
     }
