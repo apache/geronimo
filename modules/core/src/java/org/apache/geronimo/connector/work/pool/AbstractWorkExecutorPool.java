@@ -69,10 +69,7 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
  * policy (should the call block until the end of the work; or when it starts
  * et cetera).
  *
- * @jmx:mbean
- *      extends="org.apache.geronimo.kernel.management.StateManageable,org.apache.geronimo.kernel.management.ManagedObject"
- *
- * @version $Revision: 1.3 $ $Date: 2003/11/26 02:15:32 $
+ * @version $Revision: 1.4 $ $Date: 2003/12/28 19:31:16 $
  */
 public abstract class AbstractWorkExecutorPool implements WorkExecutorPool {
 

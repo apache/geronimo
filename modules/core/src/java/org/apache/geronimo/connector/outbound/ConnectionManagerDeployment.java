@@ -56,29 +56,27 @@
 
 package org.apache.geronimo.connector.outbound;
 
-import javax.management.ObjectName;
 import javax.management.MBeanOperationInfo;
+import javax.management.ObjectName;
 import javax.resource.ResourceException;
 import javax.resource.spi.ManagedConnectionFactory;
 
 import org.apache.geronimo.connector.deployment.ConnectionManagerFactory;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
-import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
-import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
-
 import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
 import org.apache.geronimo.kernel.service.GeronimoMBeanEndpoint;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
+import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
+import org.apache.geronimo.kernel.service.GeronimoParameterInfo;
 
 /**
  * ConnectionManagerDeployment is an mbean that sets up a ProxyConnectionManager
  * and connection manager stack according to the policies described in the attributes.
  * It's used by deserialized copies of the proxy to get a reference to the actual stack.
  *
- * @version $Revision: 1.6 $ $Date: 2003/12/23 17:34:35 $
+ * @version $Revision: 1.7 $ $Date: 2003/12/28 19:31:16 $
  * */
 public class ConnectionManagerDeployment
 
