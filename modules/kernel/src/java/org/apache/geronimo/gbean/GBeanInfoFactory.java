@@ -67,7 +67,7 @@ import java.util.Arrays;
 /**
  *
  *
- * @version $Revision: 1.5 $ $Date: 2004/01/22 20:10:33 $
+ * @version $Revision: 1.6 $ $Date: 2004/01/23 16:43:06 $
  */
 public class GBeanInfoFactory {
     private final String name;
@@ -115,7 +115,8 @@ public class GBeanInfoFactory {
         for (int i = 0; i < methods.length; i++) {
             Method method = methods[i];
             String name = method.getName();
-            if (name.startsWith("get") || name.startsWith("is")) {
+            Class[] parameterTypes = method.getParameterTypes();
+            if ((name.startsWith("get") || name.startsWith("is")) && parameterTypes.length == 0) {
                 String attributeName = (name.startsWith("get")) ? name.substring(3) : name.substring(2);
                 GAttributeInfo attribute = (GAttributeInfo) tempAttributes.get(attributeName);
                 if (attribute == null) {
@@ -123,7 +124,7 @@ public class GBeanInfoFactory {
                 } else {
                     tempAttributes.put(attributeName, new GAttributeInfo(attributeName, persistentName.contains(attributeName), name, attribute.getSetterName()));
                 }
-            } else if (name.startsWith("set")) {
+            } else if (name.startsWith("set") && parameterTypes.length == 1) {
                 String attributeName = name.substring(3);
                 GAttributeInfo attribute = (GAttributeInfo) tempAttributes.get(attributeName);
                 if (attribute == null) {
@@ -132,7 +133,6 @@ public class GBeanInfoFactory {
                     tempAttributes.put(attributeName, new GAttributeInfo(attributeName, persistentName.contains(attributeName), attribute.getSetterName(), name));
                 }
             } else {
-                Class[] parameterTypes = method.getParameterTypes();
                 List parameters = new ArrayList(parameterTypes.length);
                 for (int j = 0; j < parameterTypes.length; j++) {
                     parameters.add(parameterTypes[j].getName());
