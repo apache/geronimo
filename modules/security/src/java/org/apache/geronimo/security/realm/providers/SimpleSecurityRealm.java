@@ -17,7 +17,7 @@
 package org.apache.geronimo.security.realm.providers;
 
 import javax.security.auth.login.AppConfigurationEntry;
-import java.util.HashMap;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -38,6 +38,7 @@ public class SimpleSecurityRealm extends AbstractSecurityRealm {
 
     private boolean running = false;
     private String loginModuleName;
+    private Properties options;
 
 
     public SimpleSecurityRealm(String realmName) {
@@ -50,6 +51,14 @@ public class SimpleSecurityRealm extends AbstractSecurityRealm {
 
     public void setLoginModuleName(String loginModuleName) {
         this.loginModuleName = loginModuleName;
+    }
+
+    public Properties getOptions() {
+        return options;
+    }
+
+    public void setOptions(Properties options) {
+        this.options = options;
     }
 
     public void doStart() {
@@ -104,7 +113,6 @@ public class SimpleSecurityRealm extends AbstractSecurityRealm {
     }
 
     public javax.security.auth.login.AppConfigurationEntry getAppConfigurationEntry() {
-        HashMap options = new HashMap();
 
         AppConfigurationEntry entry = new AppConfigurationEntry(loginModuleName,
                                                                 AppConfigurationEntry.LoginModuleControlFlag.SUFFICIENT,
@@ -123,6 +131,7 @@ public class SimpleSecurityRealm extends AbstractSecurityRealm {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(SimpleSecurityRealm.class, AbstractSecurityRealm.GBEAN_INFO);
 
         infoFactory.addAttribute("loginModuleName", String.class, true);
+        infoFactory.addAttribute("options", Properties.class, true);
 
         infoFactory.addOperation("isLoginModuleLocal");
 

@@ -28,9 +28,9 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 import java.io.IOException;
+import java.security.Principal;
 import java.util.Map;
 import java.util.Properties;
-import java.security.Principal;
 
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.security.AbstractTest;
@@ -65,10 +65,14 @@ public class LoginSimpleRealmTest extends AbstractTest {
         loginConfiguration = new ObjectName("geronimo.security:type=LoginConfiguration");
         kernel.loadGBean(loginConfiguration, gbean);
 
+        Properties options = new Properties();
+        options.put("group", "it");
+
         gbean = new GBeanMBean("org.apache.geronimo.security.realm.providers.SimpleSecurityRealm");
         simpleRealm = new ObjectName("geronimo.security:type=SecurityRealm,realm=simple-realm");
         gbean.setAttribute("realmName", "simple-realm");
         gbean.setAttribute("loginModuleName", TestLoginModule.class.getName());
+        gbean.setAttribute("options", options);
         gbean.setAttribute("maxLoginModuleAge", new Long(24 * 60 * 60 * 1000));
         kernel.loadGBean(simpleRealm, gbean);
 
@@ -162,9 +166,12 @@ public class LoginSimpleRealmTest extends AbstractTest {
         public void initialize(Subject subject, CallbackHandler handler, Map sharedState, Map options) {
             this.subject = subject;
             this.handler = handler;
+
+            if (!options.get("group").equals("it")) throw new IllegalArgumentException("Missing group option");
         }
 
         public class TestPrincipal implements Principal {
+
             private final String name;
 
             public TestPrincipal(String name) {
@@ -177,6 +184,7 @@ public class LoginSimpleRealmTest extends AbstractTest {
         }
 
         public class TestGroupPrincipal implements Principal {
+
             private final String name;
 
             public TestGroupPrincipal(String name) {
