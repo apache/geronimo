@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id: project.xml,v 1.14 2003/08/14 19:41:15 jdillon Exp $ -->
+<!-- $Id: project.xml,v 1.15 2003/08/16 08:52:29 jdillon Exp $ -->
 
 <project>
   
@@ -11,9 +11,8 @@
   <!-- Module Identification -->
   <!-- ===================== -->
   
-  <name>Geronimo</name>
+  <name>Apache Geronimo</name>
   <id>geronimo</id>
-  
   <currentVersion>DEV</currentVersion>
   
 </project>
