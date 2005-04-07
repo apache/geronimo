@@ -17,19 +17,13 @@
 package org.apache.geronimo.webservices;
 
 import java.io.IOException;
-import java.security.Principal;
 import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import javax.xml.rpc.ServiceException;
-import javax.xml.rpc.handler.MessageContext;
 import javax.xml.rpc.server.ServiceLifecycle;
-import javax.xml.rpc.server.ServletEndpointContext;
 
 /**
  * Delegates requests to a WebServiceContainer which is presumably for a POJO WebService

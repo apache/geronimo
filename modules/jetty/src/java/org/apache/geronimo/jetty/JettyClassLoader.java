@@ -25,13 +25,23 @@ import java.net.URLClassLoader;
 public class JettyClassLoader extends URLClassLoader {
     private final boolean contextPriorityClassLoader;
     private final ClassLoader parent;
+    private final ClassLoader resourceClassLoader;
 
-    public JettyClassLoader(URL[] urls, ClassLoader parent, boolean contextPriorityClassLoader) {
+    public JettyClassLoader(URL[] urls, URL resourceURL, ClassLoader parent, boolean contextPriorityClassLoader) {
         super(urls, parent);
 
         if (parent == null) {
             throw new IllegalArgumentException("Parent class loader is null");
         }
+        URL[] resourceURLS;
+        if (resourceURL != null) {
+            resourceURLS = new URL[urls.length + 1];
+            System.arraycopy(urls, 0, resourceURLS, 0, urls.length);
+            resourceURLS[resourceURLS.length - 1] = resourceURL;
+        } else {
+            resourceURLS = urls;
+        }
+        resourceClassLoader = new ResourceClassLoader(resourceURLS, parent);
 
         // hold on to the parent so we don't have to go throught the security check each time
         this.parent = parent;
@@ -69,23 +79,34 @@ public class JettyClassLoader extends URLClassLoader {
     }
 
     public URL getResource(String name) {
-        if (!contextPriorityClassLoader ||
-                name.startsWith("java/") ||
-                name.startsWith("javax/") ||
-                name.startsWith("org/apache/geronimo/") ||
-                name.startsWith("org/mortbay/") ||
-                name.startsWith("org/xml/") ||
-                name.startsWith("org/w3c/")) {
-            return super.getResource(name);
+        return resourceClassLoader.getResource(name);
+    }
+
+    private class ResourceClassLoader extends URLClassLoader {
+
+        public ResourceClassLoader(URL[] urls, ClassLoader classLoader) {
+            super(urls, classLoader);
         }
 
-        // try to load the resource from this class loader
-        URL url = findResource(name);
-        if (url != null) {
-            return url;
-        }
+        public URL getResource(String name) {
+            if (!contextPriorityClassLoader ||
+                    name.startsWith("java/") ||
+                    name.startsWith("javax/") ||
+                    name.startsWith("org/apache/geronimo/") ||
+                    name.startsWith("org/mortbay/") ||
+                    name.startsWith("org/xml/") ||
+                    name.startsWith("org/w3c/")) {
+                return super.getResource(name);
+            }
 
-        // that didn't work... try the parent
-        return parent.getResource(name);
+            // try to load the resource from this class loader
+            URL url = findResource(name);
+            if (url != null) {
+                return url;
+            }
+
+            // that didn't work... try the parent
+            return parent.getResource(name);
+        }
     }
 }

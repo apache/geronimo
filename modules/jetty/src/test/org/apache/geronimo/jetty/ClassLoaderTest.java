@@ -48,7 +48,7 @@ public class ClassLoaderTest extends TestCase {
      * parent ClassLoader.  This should work.
      */
     public void testFalseNonexistantJavaxClass() {
-        cl = new JettyClassLoader(urls, getClass().getClassLoader(), false);
+        cl = new JettyClassLoader(urls, null, getClass().getClassLoader(), false);
         try {
             cl.loadClass("javax.foo.Foo");
         } catch(ClassNotFoundException e) {
@@ -61,7 +61,7 @@ public class ClassLoaderTest extends TestCase {
      * parent ClassLoader.  This should work.
      */
     public void testTrueNonexistantJavaxClass() {
-        cl = new JettyClassLoader(urls, getClass().getClassLoader(), true);
+        cl = new JettyClassLoader(urls, null, getClass().getClassLoader(), true);
         try {
             cl.loadClass("javax.foo.Foo");
         } catch(ClassNotFoundException e) {
@@ -75,7 +75,7 @@ public class ClassLoaderTest extends TestCase {
      * This should always load the parent's copy.
      */
     public void testFalseExistantJavaxClass() {
-        cl = new JettyClassLoader(urls, getClass().getClassLoader(), false);
+        cl = new JettyClassLoader(urls, null, getClass().getClassLoader(), false);
         try {
             Class cls = cl.loadClass("javax.servlet.Servlet");
             assertTrue("Loaded wrong class first; expected to find parent CL's copy of javax.servlet.Servlet",cls.getDeclaredMethods().length > 0);
@@ -90,7 +90,7 @@ public class ClassLoaderTest extends TestCase {
      * This should always load the parent's copy.
      */
     public void testTrueExistantJavaxClass() {
-        cl = new JettyClassLoader(urls, getClass().getClassLoader(), true);
+        cl = new JettyClassLoader(urls, null, getClass().getClassLoader(), true);
         try {
             Class cls = cl.loadClass("javax.servlet.Servlet");
             assertTrue("Loaded wrong class first; expected to find parent CL's copy of javax.servlet.Servlet",cls.getDeclaredMethods().length > 0);
@@ -107,7 +107,7 @@ public class ClassLoaderTest extends TestCase {
      * copy when the contextPriorityClassLoader is set to true.
      */
     public void testFalseExistantNonJavaxClass() {
-        cl = new JettyClassLoader(urls, getClass().getClassLoader(), false);
+        cl = new JettyClassLoader(urls, null, getClass().getClassLoader(), false);
         try {
             Class cls = cl.loadClass("mx4j.MBeanDescription");
             assertTrue("Should not have overriden parent CL definition of class mx4j.MBeanDescription", cls.getDeclaredMethods().length > 0);
@@ -124,7 +124,7 @@ public class ClassLoaderTest extends TestCase {
      * the contextPriorityClassLoader is set to true (as here).
      */
     public void testTrueExistantNonJavaxClass() {
-        cl = new JettyClassLoader(urls, getClass().getClassLoader(), true);
+        cl = new JettyClassLoader(urls, null, getClass().getClassLoader(), true);
         try {
             Class cls = cl.loadClass("mx4j.MBeanDescription");
             assertTrue("Should be able to override a class that is not in java.*, javax.*, etc.", cls.getDeclaredMethods().length == 0);
@@ -138,7 +138,7 @@ public class ClassLoaderTest extends TestCase {
      * parent ClassLoader.  This should work.
      */
     public void testFalseNonexistantJavaxResource() {
-        cl = new JettyClassLoader(urls, getClass().getClassLoader(), false);
+        cl = new JettyClassLoader(urls, null, getClass().getClassLoader(), false);
         URL url = cl.getResource("javax/foo/Foo.class");
         if(url == null) {
             fail("Should be able to load a javax.* class that is not defined by my parent CL");
@@ -151,7 +151,7 @@ public class ClassLoaderTest extends TestCase {
      * parent ClassLoader.  This should work.
      */
     public void testTrueNonexistantJavaxResource() {
-        cl = new JettyClassLoader(urls, getClass().getClassLoader(), true);
+        cl = new JettyClassLoader(urls, null, getClass().getClassLoader(), true);
         URL url = cl.getResource("javax/foo/Foo.class");
         if(url == null) {
             fail("Should be able to load a javax.* class that is not defined by my parent CL");
@@ -165,7 +165,7 @@ public class ClassLoaderTest extends TestCase {
      * This should always load the parent's copy.
      */
     public void testFalseExistantJavaxResource() {
-        cl = new JettyClassLoader(urls, getClass().getClassLoader(), false);
+        cl = new JettyClassLoader(urls, null, getClass().getClassLoader(), false);
         URL url = cl.getResource("javax/servlet/Servlet.class");
         if(url == null) {
             fail("Problem with test; expecting to have javax.servlet.* on the ClassPath");
@@ -179,7 +179,7 @@ public class ClassLoaderTest extends TestCase {
      * This should always load the parent's copy.
      */
     public void testTrueExistantJavaxResource() {
-        cl = new JettyClassLoader(urls, getClass().getClassLoader(), true);
+        cl = new JettyClassLoader(urls, null, getClass().getClassLoader(), true);
         URL url = cl.getResource("javax/servlet/Servlet.class");
         if(url == null) {
             fail("Problem with test; expecting to have javax.servlet.* on the ClassPath");
@@ -195,7 +195,7 @@ public class ClassLoaderTest extends TestCase {
      * copy when the contextPriorityClassLoader is set to true.
      */
     public void testFalseExistantNonJavaxResource() {
-        cl = new JettyClassLoader(urls, getClass().getClassLoader(), false);
+        cl = new JettyClassLoader(urls, null, getClass().getClassLoader(), false);
         URL url = cl.getResource("mx4j/MBeanDescription.class");
         if(url == null) {
             fail("Problem with test; expecting to have mx4j.* on the ClassPath");
@@ -211,7 +211,7 @@ public class ClassLoaderTest extends TestCase {
      * the contextPriorityClassLoader is set to true (as here).
      */
     public void testTrueExistantNonJavaxResource() {
-        cl = new JettyClassLoader(urls, getClass().getClassLoader(), true);
+        cl = new JettyClassLoader(urls, null, getClass().getClassLoader(), true);
         URL url = cl.getResource("mx4j/MBeanDescription.class");
         if(url == null) {
             fail("Problem with test; expecting to have mx4j.* on the ClassPath");

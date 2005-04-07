@@ -1,12 +1,12 @@
 /*
  * Copyright 2001-2004 The Apache Software Foundation.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,13 +15,9 @@
  */
 package org.apache.geronimo.axis;
 
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URI;
-import java.net.URL;
 import java.util.HashMap;
-
 import javax.xml.namespace.QName;
 
 import org.apache.axis.constants.Style;
@@ -34,15 +30,15 @@ import org.apache.axis.encoding.TypeMappingRegistryImpl;
 import org.apache.axis.handlers.soap.SOAPService;
 import org.apache.axis.providers.java.RPCProvider;
 import org.apache.geronimo.axis.server.AxisWebServiceContainer;
-import org.apache.geronimo.axis.server.ReadOnlyServiceDesc;
 import org.apache.geronimo.axis.server.POJOProvider;
+import org.apache.geronimo.axis.server.ReadOnlyServiceDesc;
 import org.apache.geronimo.axis.testData.echosample.EchoBean;
 import org.apache.geronimo.webservices.WebServiceContainer;
 
 //import org.openejb.deployment.OpenEJBModuleBuilder;
 
 /**
- * 
+ *
  * @version $Rev: $ $Date: $
  */
 public class AxisWebServiceContainerTest extends AbstractTestCase {
@@ -90,23 +86,15 @@ public class AxisWebServiceContainerTest extends AbstractTestCase {
 
         RPCProvider provider = new POJOProvider();
         SOAPService service = new SOAPService(null, provider, null);
-        service.setServiceDescription(serviceDesc);
+        service.setServiceDescription(sd);
         service.setOption("className","org.apache.geronimo.axis.testData.echosample.EchoBean");
-        URL wsdlURL = cl.getResource("echo.wsdl");
+        String wsdlURL = "echo.wsdl";
         URI location = new URI(serviceDesc.getEndpointURL());
 
-        AxisWebServiceContainer axisWebServiceContainer =
+        AxisWebServiceContainer continaer =
             new AxisWebServiceContainer(location, wsdlURL, service, cl);
 
-        AxisWebServiceContainer continaer =
-            new AxisWebServiceContainer(
-                null,
-                null,
-                service,
-                Thread.currentThread().getContextClassLoader());
         InputStream in = cl.getResourceAsStream("echoString-req.txt");
-
-        OutputStream outputStream = new ByteArrayOutputStream();
 
         AxisRequest req =
             new AxisRequest(

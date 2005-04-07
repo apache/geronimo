@@ -16,10 +16,9 @@
  */
 package org.apache.geronimo.axis.builder;
 
-import java.net.URL;
-import javax.xml.namespace.QName;
 import javax.wsdl.Definition;
 import javax.wsdl.Port;
+import javax.xml.namespace.QName;
 
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingType;
 import org.apache.geronimo.xbeans.j2ee.PortComponentHandlerType;
@@ -38,9 +37,9 @@ public class PortInfo {
     private final PortComponentHandlerType[] handlers;
     private final Port port;
 
-    private final URL wsdlURL;
+    private final String wsdlLocation;
 
-    public PortInfo(String portName, QName portQName, Definition definition, JavaWsdlMappingType javaWsdlMapping, String seiInterfaceName, PortComponentHandlerType[] handlers, Port port, ServiceEndpointInterfaceMappingType seiMapping, URL wsdlURL) {
+    public PortInfo(String portName, QName portQName, Definition definition, JavaWsdlMappingType javaWsdlMapping, String seiInterfaceName, PortComponentHandlerType[] handlers, Port port, ServiceEndpointInterfaceMappingType seiMapping, String wsdlLocation) {
         this.portName = portName;
         this.portQName = portQName;
         this.definition = definition;
@@ -49,11 +48,11 @@ public class PortInfo {
         this.handlers = handlers;
         this.port = port;
         this.seiMapping = seiMapping;
-        this.wsdlURL = wsdlURL;
+        this.wsdlLocation = wsdlLocation;
     }
 
-    public URL getWsdlURL() {
-        return wsdlURL;
+    public String getWsdlLocation() {
+        return wsdlLocation;
     }
 
     public String getPortName() {

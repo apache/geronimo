@@ -19,10 +19,8 @@ package org.apache.geronimo.axis.server;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
-import java.net.URL;
 import java.util.Iterator;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletResponse;
 import javax.wsdl.Definition;
 import javax.wsdl.Port;
@@ -30,6 +28,7 @@ import javax.wsdl.Service;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.wsdl.factory.WSDLFactory;
+import javax.wsdl.xml.WSDLLocator;
 import javax.wsdl.xml.WSDLReader;
 import javax.wsdl.xml.WSDLWriter;
 import javax.xml.soap.SOAPException;
@@ -49,30 +48,31 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.w3c.dom.Element;
+import org.xml.sax.InputSource;
 
 /**
  * @version $Rev$ $Date$
  */
 public class AxisWebServiceContainer implements WebServiceContainer {
-    public static final String REQUEST = AxisWebServiceContainer.class.getName()+"@Request";
-    public static final String RESPONSE = AxisWebServiceContainer.class.getName()+"@Response";
+    public static final String REQUEST = AxisWebServiceContainer.class.getName() + "@Request";
+    public static final String RESPONSE = AxisWebServiceContainer.class.getName() + "@Response";
 
     private static Log log = LogFactory.getLog(AxisWebServiceContainer.class);
 
     public static final String XSD_NS = "http://www.w3.org/2001/XMLSchema";
 
     private final URI location;
-    private final URL wsdlURL;
+    private final String wsdlLocation;
     private final SOAPService service;
-    
+
     private final ClassLoader classLoader;
-    private final Byte wsdlMutext = new Byte((byte)0);
+    private final Byte wsdlMutext = new Byte((byte) 0);
     private transient Definition definition;
     private transient WSDLWriter wsdlWriter;
 
-    public AxisWebServiceContainer(URI location, URL wsdlURL, SOAPService service, ClassLoader classLoader) {
+    public AxisWebServiceContainer(URI location, String wsdlURL, SOAPService service, ClassLoader classLoader) {
         this.location = location;
-        this.wsdlURL = wsdlURL;
+        this.wsdlLocation = wsdlURL;
         this.service = service;
         this.classLoader = classLoader;
     }
@@ -82,7 +82,7 @@ public class AxisWebServiceContainer implements WebServiceContainer {
         req.setAttribute(MESSAGE_CONTEXT, context);
 
         context.setClassLoader(classLoader);
-        
+
         Message responseMessage = null;
 
         String contentType = req.getHeader(HTTPConstants.HEADER_CONTENT_TYPE);
@@ -120,7 +120,7 @@ public class AxisWebServiceContainer implements WebServiceContainer {
 
             Thread.currentThread().setContextClassLoader(classLoader);
             service.invoke(context);
-            
+
             responseMessage = context.getResponseMessage();
         } catch (AxisFault fault) {
             responseMessage = handleFault(fault, res, context);
@@ -196,17 +196,17 @@ public class AxisWebServiceContainer implements WebServiceContainer {
         }
         return responseMessage;
     }
-    
+
     public void getWsdl(Request request, Response response) throws Exception {
-        
+
         // Avoid concurrent modification of the WSDL dom.
-        synchronized(wsdlMutext) {
-            
-            // Read in the the WSDL in once. 
-            if( definition == null ) {
+        synchronized (wsdlMutext) {
+
+            // Read in the the WSDL in once.
+            if (definition == null) {
                 initWSDLDom();
             }
-            
+
             // Update all the service port soap address elements.
             Map services = definition.getServices();
             for (Iterator iter1 = services.values().iterator(); iter1.hasNext();) {
@@ -216,14 +216,13 @@ public class AxisWebServiceContainer implements WebServiceContainer {
                     Port port = (Port) iter2.next();
                     for (Iterator iter3 = port.getExtensibilityElements().iterator(); iter3.hasNext();) {
                         ExtensibilityElement element = (ExtensibilityElement) iter3.next();
-                        if (element instanceof SOAPAddress ) {
-                            SOAPAddress soapAddress = (SOAPAddress)element;
-                            URI realLocation = request.getURI();                            
+                        if (element instanceof SOAPAddress) {
+                            SOAPAddress soapAddress = (SOAPAddress) element;
+                            URI realLocation = request.getURI();
                             // We replace the host and port here.
-                            URI updated = new URI(
-                                    realLocation.getScheme(),
-                                    realLocation.getUserInfo(), 
-                                    realLocation.getHost(), 
+                            URI updated = new URI(realLocation.getScheme(),
+                                    realLocation.getUserInfo(),
+                                    realLocation.getHost(),
                                     realLocation.getPort(),
                                     realLocation.getPath(), // Humm is this right?
                                     null,
@@ -233,11 +232,11 @@ public class AxisWebServiceContainer implements WebServiceContainer {
                     }
                 }
             }
-            
+
             // Dump the WSDL dom to the output stream
             OutputStream out = response.getOutputStream();
             wsdlWriter.writeWSDL(definition, out);
-            out.close();
+//            out.close();
         }
     }
 
@@ -248,14 +247,59 @@ public class AxisWebServiceContainer implements WebServiceContainer {
         WSDLFactory wsdlFactory = WSDLFactory.newInstance();
         wsdlWriter = wsdlFactory.newWSDLWriter();
         WSDLReader wsdlReader = wsdlFactory.newWSDLReader();
-        definition = wsdlReader.readWSDL(wsdlURL.toExternalForm());
+        ResourceWSDLLocator wsdlLocator = new ResourceWSDLLocator(wsdlLocation, Thread.currentThread().getContextClassLoader(), classLoader);
+        definition = wsdlReader.readWSDL(wsdlLocator);
     }
 
     public URI getLocation() {
         return location;
     }
 
-    public URL getWsdlURL() {
-        return wsdlURL;
+    private static class ResourceWSDLLocator implements WSDLLocator {
+
+        private final String wsdlLocation;
+        private final ClassLoader classLoader;
+        private final ClassLoader classLoader2;
+
+        private String latestImportURI;
+
+        public ResourceWSDLLocator(String wsdlLocation, ClassLoader classLoader, ClassLoader classLoader2) {
+            this.wsdlLocation = wsdlLocation;
+            this.classLoader = classLoader;
+            this.classLoader2 = classLoader2;
+        }
+
+        public InputSource getBaseInputSource() {
+            InputStream wsdlInputStream = classLoader.getResourceAsStream(wsdlLocation);
+            if (wsdlInputStream == null) {
+                wsdlInputStream = classLoader2.getResourceAsStream(wsdlLocation);
+                if (wsdlInputStream == null) {
+                    throw new IllegalStateException("wsdl not found in classloader at " + wsdlLocation);
+                }
+            }
+            return new InputSource(wsdlInputStream);
+        }
+
+        public String getBaseURI() {
+            return wsdlLocation;
+        }
+
+        public InputSource getImportInputSource(String parentLocation, String relativeLocation) {
+            URI parentURI = URI.create(parentLocation);
+            latestImportURI = parentURI.resolve(relativeLocation).toString();
+            InputStream importInputStream = classLoader.getResourceAsStream(latestImportURI);
+            if (importInputStream == null) {
+                throw new IllegalStateException("wsdl not found in classloader at " + latestImportURI);
+            }
+            InputSource inputSource = new InputSource(importInputStream);
+            inputSource.setSystemId(getLatestImportURI());
+            return inputSource;
+        }
+
+        public String getLatestImportURI() {
+            return latestImportURI;
+        }
     }
+
+
 }

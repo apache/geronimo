@@ -128,14 +128,6 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
         HandlerInfoChainFactory handlerInfoChainFactory = new HandlerInfoChainFactory(serviceInfo.getHanlderInfos());
         service.setOption(org.apache.axis.Constants.ATTR_HANDLERINFOCHAIN, handlerInfoChainFactory);
 
-        URL wsdlURL = null;
-        try {
-            wsdlURL = new URL(serviceDesc.getWSDLFile());
-        } catch (MalformedURLException e) {
-            throw new DeploymentException("Invalid URL to the webservice's WSDL file", e);
-        }
-
-
         URI location = null;
         try {
             location = new URI(serviceDesc.getEndpointURL());
@@ -144,7 +136,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
         }
 
         classLoader = new ClassLoaderReference(classLoader);
-        AxisWebServiceContainer axisWebServiceContainer = new AxisWebServiceContainer(location, wsdlURL, service, classLoader);
+        AxisWebServiceContainer axisWebServiceContainer = new AxisWebServiceContainer(location, serviceDesc.getWSDLFile(), service, classLoader);
         //targetGBean.setAttribute("webServiceContainer", axisWebServiceContainer);
         try {
             targetGBean.setAttribute("webServiceContainer", new StoredObject(axisWebServiceContainer)); // Hack!

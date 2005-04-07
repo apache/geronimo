@@ -188,6 +188,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
         URI root = URI.create(configurationBaseUrl.toString());
         webAppRoot = root.resolve(uri);
+        URL webAppRootURL = webAppRoot.toURL();
 
         URL[] urls = new URL[webClassPath.length];
         for (int i = 0; i < webClassPath.length; i++) {
@@ -195,7 +196,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
             classPathEntry = root.resolve(classPathEntry);
             urls[i] = classPathEntry.toURL();
         }
-        this.webClassLoader = new JettyClassLoader(urls, classLoader, contextPriorityClassLoader);
+        this.webClassLoader = new JettyClassLoader(urls, webAppRootURL, classLoader, contextPriorityClassLoader);
         setClassLoader(this.webClassLoader);
 
         handler = new WebApplicationHandler();
@@ -479,7 +480,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
 
     public static final GBeanInfo GBEAN_INFO;
-                                                              
+
     static {
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder("Jetty WebApplication Context", JettyWebAppContext.class, NameFactory.WEB_MODULE);
         infoBuilder.addAttribute("deploymentDescriptor", String.class, true);

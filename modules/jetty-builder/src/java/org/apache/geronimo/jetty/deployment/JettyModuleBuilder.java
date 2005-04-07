@@ -720,6 +720,12 @@ public class JettyModuleBuilder implements ModuleBuilder {
         getWebClassPath(earContext, webModule);
         URI[] webClassPath = webModule.getWebClasspath();
         URI baseUri = earContext.getBaseDir().toURI();
+        URL baseUrl = null;
+        try {
+            baseUrl = baseUri.resolve(webModule.getTargetPathURI()).toURL();
+        } catch (MalformedURLException e) {
+            throw new DeploymentException("Invalid module location: " + webModule.getTargetPathURI() + ", baseUri: " + baseUri);
+        }
         URL[] webClassPathURLs = new URL[webClassPath.length];
         for (int i = 0; i < webClassPath.length; i++) {
             URI path = baseUri.resolve(webClassPath[i]);
@@ -730,7 +736,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
             }
         }
 
-        ClassLoader webClassLoader = new JettyClassLoader(webClassPathURLs, cl, contextPriorityClassLoader);
+        ClassLoader webClassLoader = new JettyClassLoader(webClassPathURLs, baseUrl, cl, contextPriorityClassLoader);
         return webClassLoader;
     }
 

@@ -150,7 +150,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
         built = true;
 
         operationDesc.setName(operationName);
-        
+
         // Set to 'document', 'rpc' or 'wrapped'
         if (wrappedStype) {
             operationDesc.setStyle(Style.WRAPPED);
@@ -368,10 +368,11 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
                     if (complexTypeMap.containsKey(elementType)) {
                         String javaClassName = (String) publicTypes.get(elementTypeQName);
                         javaElementType = getJavaClass(javaClassName);
-                    } else if (qnameToClassMap.containsKey(elementType)) {
-                        javaElementType = (Class) qnameToClassMap.get(elementType);
                     } else {
-                        throw new DeploymentException("Unknown type: " + elementType + " of name: " + elementName);
+                        javaElementType = (Class) qnameToClassMap.get(elementTypeQName);
+                        if (javaElementType == null) {
+                            throw new DeploymentException("Unknown type: " + elementType + " of name: " + elementName + " and QName: " + elementTypeQName);
+                        }
                     }
                 } else {
                     //anonymous type
@@ -588,7 +589,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
         if (null == operationType) {
             throw new DeploymentException("No global element named " + name + " for operation " + operationName);
         }
-        
+
         // schemaType should be complex using xsd:sequence compositor
         SchemaParticle parametersType = operationType.getContentModel();
         if (SchemaParticle.ELEMENT == parametersType.getParticleType()) {
@@ -615,12 +616,12 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
                     " is not a sequence for operation " + operationName);
         }
     }
-    
+
     /**
      * Supporting the Document/Literal Wrapped pattern
      *
      * See http://www-106.ibm.com/developerworks/webservices/library/ws-whichwsdl/ for a nice explanation and example
-     * 
+     *
      * wrapped-element tag is used
      * WSDL message with a single part
      * part uses the 'element' attribute to point to an elemement in the types section

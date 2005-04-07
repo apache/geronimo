@@ -21,7 +21,6 @@ import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -66,7 +65,6 @@ import javax.xml.rpc.holders.ShortWrapperHolder;
 import javax.xml.rpc.holders.StringHolder;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.j2ee.ExceptionMappingType;
@@ -167,14 +165,9 @@ public class WSDescriptorParser {
 
                 ServiceEndpointInterfaceMappingType seiMapping = (ServiceEndpointInterfaceMappingType) seiMappings.get(seiInterfaceName);
 
-                URL wsdlURL = null;
-                try {
-                    wsdlURL = DeploymentUtil.createJarURL(moduleFile, webserviceDescription.getWsdlFile().getStringValue().trim());
-                } catch (MalformedURLException e) {
-                    throw new DeploymentException("Invalid WSDL URL: " + webserviceDescription.getWsdlFile().getStringValue().trim(), e);
-                }
+                String wsdlLocation = webserviceDescription.getWsdlFile().getStringValue().trim();
 
-                PortInfo portInfo = new PortInfo(portComponentName, portQName, definition, javaWsdlMapping, seiInterfaceName, handlers, port, seiMapping, wsdlURL);
+                PortInfo portInfo = new PortInfo(portComponentName, portQName, definition, javaWsdlMapping, seiInterfaceName, handlers, port, seiMapping, wsdlLocation);
 
                 if (portMap.put(linkName, portInfo) != null) {
                     throw new DeploymentException("Ambiguous description of port associated with j2ee component " + linkName);
