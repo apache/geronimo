@@ -20,9 +20,6 @@ package org.apache.geronimo.security;
 import java.io.Serializable;
 import java.security.Principal;
 
-import org.apache.geronimo.common.NullArgumentException;
-
-
 /**
  * Represents a principal in an realm.
  *
@@ -35,8 +32,8 @@ public class RealmPrincipal implements Principal, Serializable {
     private transient long id;
 
     public RealmPrincipal(String loginDomain, Principal principal) {
-        if (loginDomain == null) throw new NullArgumentException("loginDomain");
-        if (principal == null) throw new NullArgumentException("principal");
+        if (loginDomain == null) throw new IllegalArgumentException("loginDomain is null");
+        if (principal == null) throw new IllegalArgumentException("principal is null");
 
         this.loginDomain = loginDomain;
         this.principal = principal;

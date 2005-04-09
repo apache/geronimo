@@ -22,7 +22,6 @@ import java.beans.PropertyEditorManager;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.geronimo.common.NullArgumentException;
 import org.apache.geronimo.kernel.ClassLoading;
 
 /**
@@ -54,7 +53,7 @@ public class PropertyEditors
     public static PropertyEditor findEditor(final Class type)
     {
         if (type == null) {
-            throw new NullArgumentException("type");
+            throw new IllegalArgumentException("type is null");
         }
 
         PropertyEditor editor = PropertyEditorManager.findEditor(type);
@@ -81,7 +80,7 @@ public class PropertyEditors
         throws ClassNotFoundException
     {
         if (typeName == null) {
-            throw new NullArgumentException("typeName");
+            throw new IllegalArgumentException("typeName is null");
         }
 
         Class type = null;
@@ -132,10 +131,10 @@ public class PropertyEditors
     public static void registerEditor(final Class type, final Class editorType)
     {
         if (type == null) {
-            throw new NullArgumentException("type");
+            throw new IllegalArgumentException("type is null");
         }
         if (editorType == null) {
-            throw new NullArgumentException("editorType");
+            throw new IllegalArgumentException("editorType is null");
         }
 
         PropertyEditorManager.registerEditor(type, editorType);
@@ -152,10 +151,10 @@ public class PropertyEditors
         throws ClassNotFoundException
     {
         if (typeName == null) {
-            throw new NullArgumentException("typeName");
+            throw new IllegalArgumentException("typeName is null");
         }
         if (editorTypeName == null) {
-            throw new NullArgumentException("editorTypeName");
+            throw new IllegalArgumentException("editorTypeName is null");
         }
 
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -190,7 +189,7 @@ public class PropertyEditors
     public static void setEditorSearchPath(final List path)
     {
         if (path == null) {
-            throw new NullArgumentException("path");
+            throw new IllegalArgumentException("path is null");
         }
 
         String[] elements = (String[])path.toArray(new String[path.size()]);
@@ -205,7 +204,7 @@ public class PropertyEditors
     public static void appendEditorSearchPath(final List names)
     {
         if (names == null) {
-            throw new NullArgumentException("names");
+            throw new IllegalArgumentException("names is null");
         }
         if (names.size() == 0) return;
 
@@ -223,7 +222,7 @@ public class PropertyEditors
     public static void appendEditorSearchPath(final String[] names)
     {
         if (names == null) {
-            throw new NullArgumentException("names");
+            throw new IllegalArgumentException("names is null");
         }
         if (names.length == 0) return;
 
@@ -243,7 +242,7 @@ public class PropertyEditors
     public static void appendEditorSearchPath(final String name)
     {
         if (name == null) {
-            throw new NullArgumentException("name");
+            throw new IllegalArgumentException("name is null");
         }
 
         appendEditorSearchPath(new String[] { name });
