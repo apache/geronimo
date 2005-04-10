@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.management;
+package org.apache.geronimo.kernel.management;
 
 import org.apache.geronimo.kernel.management.State;
 
