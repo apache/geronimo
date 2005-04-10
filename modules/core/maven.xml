@@ -28,15 +28,4 @@
         <attainGoal name="html2xdoc"/>
     </preGoal>
 
-    <postGoal name="jar:jar">
-        <ant:jar destfile="${basedir}/target/geronimo-core-rmiclassloaderspi.jar"
-            basedir="${basedir}/target/classes"
-            includes="org/apache/geronimo/rmi/RMIClassLoaderSpiImpl.class"/>
-    </postGoal>
-
-    <postGoal name="jar:install">
-        <ant:property name="jardir__" value="${maven.repo.local}/${pom.artifactDirectory}/jars"/>
-        <ant:mkdir dir="${jardir__}"/>
-    </postGoal>
-
 </project>
