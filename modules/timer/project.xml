@@ -141,24 +141,12 @@
             <url>http://jakarta.apache.org/commons/logging/</url>
         </dependency>
 
-        <dependency>
-            <groupId>mx4j</groupId>
-            <artifactId>mx4j</artifactId>
-            <version>${mx4j_version}</version>
-        </dependency>
-        <!-- needed for passwordcredential realm-->
+        <!-- needed for axion tests-->
         <dependency>
             <groupId>regexp</groupId>
             <artifactId>regexp</artifactId>
             <version>${regexp_version}</version>
             <url>http://jakarta.apache.org/regexp</url>
-        </dependency>
-
-        <dependency>
-            <groupId>tranql</groupId>
-            <artifactId>tranql</artifactId>
-            <version>${tranql_version}</version>
-            <url>http://tranql.codehaus.org</url>
         </dependency>
 
     </dependencies>
