@@ -34,6 +34,6 @@ public interface EJBReferenceBuilder {
 
     Reference createCORBAReference(URI corbaURL, String objectName, ObjectName containerName, String home) throws DeploymentException;
 
-    Object createHandleDelegateReference();
+    Object createHandleDelegateReference() throws DeploymentException;
 
 }
