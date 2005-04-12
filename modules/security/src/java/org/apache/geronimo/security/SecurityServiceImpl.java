@@ -42,8 +42,6 @@ public class SecurityServiceImpl implements SecurityService {
 
     public static boolean POLICY_INSTALLED = false;
 
-    private final ServerInfo serverInfo;
-
     private final Log log = LogFactory.getLog(SecurityServiceImpl.class);
 
     /**
@@ -54,9 +52,8 @@ public class SecurityServiceImpl implements SecurityService {
     public SecurityServiceImpl(ClassLoader classLoader, ServerInfo serverInfo, String policyConfigurationFactory,
                                String policyProvider, String keyStore, String keyStorePassword,
                                String trustStore, String trustStorePassword)
-            throws PolicyContextException, ClassNotFoundException, IllegalAccessException, InstantiationException {
-
-        this.serverInfo = serverInfo;
+            throws PolicyContextException, ClassNotFoundException, IllegalAccessException, InstantiationException
+    {
 
         /**
          *  @see "JSR 115 4.6.1" Container Subject Policy Context Handler
@@ -81,14 +78,16 @@ public class SecurityServiceImpl implements SecurityService {
         if (policyConfigurationFactory != null)
             PolicyConfigurationFactory.getPolicyConfigurationFactory();
 
-        if (keyStore != null)
-            keyStore = sysOverRide(serverInfo.resolvePath(keyStore), KEYSTORE);
-        sysOverRide(keyStorePassword, KEYSTORE_PASSWORD);
+        if (keyStore != null) sysOverRide(serverInfo.resolvePath(keyStore), KEYSTORE);
+        if (keyStorePassword != null) sysOverRide(keyStorePassword, KEYSTORE_PASSWORD);
 
-        if (trustStore != null)
-            trustStore = sysOverRide(serverInfo.resolvePath(trustStore), TRUSTSTORE);
-        sysOverRide(trustStore, TRUSTSTORE);
-        sysOverRide(trustStorePassword, TRUSTSTORE_PASSWORD);
+        if (trustStore != null) sysOverRide(serverInfo.resolvePath(trustStore), TRUSTSTORE);
+        if (trustStorePassword != null) sysOverRide(trustStorePassword, TRUSTSTORE_PASSWORD);
+
+        log.info(KEYSTORE + ": " + System.getProperty(KEYSTORE));
+        log.info(KEYSTORE_PASSWORD + ": " + System.getProperty(KEYSTORE_PASSWORD));
+        log.info(TRUSTSTORE + ": " + System.getProperty(TRUSTSTORE));
+        log.info(TRUSTSTORE_PASSWORD + ": " + System.getProperty(TRUSTSTORE_PASSWORD));
 
         log.info("JACC factory registered");
     }
