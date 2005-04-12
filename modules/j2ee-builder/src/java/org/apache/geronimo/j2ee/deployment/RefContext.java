@@ -226,7 +226,7 @@ public class RefContext {
         return ejbReferenceBuilder.createEJBLocalReference(objectName, isSession, localHome, local);
     }
 
-    public Object getHandleDelegateReference() {
+    public Object getHandleDelegateReference() throws DeploymentException {
         return ejbReferenceBuilder.createHandleDelegateReference();
     }
 
