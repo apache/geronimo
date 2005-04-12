@@ -110,7 +110,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
         this.classLoader = classLoader;
         this.serviceEndpointInterface = serviceEndpointInterface;
         BindingInput bindingInput = bindingOperation.getBindingInput();
-        this.soapBody = (SOAPBody) WSDescriptorParser.getExtensibilityElement(SOAPBody.class, bindingInput.getExtensibilityElements());
+        this.soapBody = (SOAPBody) SchemaInfoBuilder.getExtensibilityElement(SOAPBody.class, bindingInput.getExtensibilityElements());
         this.wrappedStype = methodMapping.isSetWrappedElement();
     }
 

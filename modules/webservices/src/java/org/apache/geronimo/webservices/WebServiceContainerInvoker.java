@@ -20,12 +20,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
 import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
@@ -63,7 +63,7 @@ public class WebServiceContainerInvoker implements Servlet {
         // This is the guy the WebServiceContainer should invoke
         req.setAttribute(WebServiceContainer.POJO_INSTANCE, pojo);
 
-        if (request.getParameter("wsdl") != null || request.getParameter("WSDL") != null) {
+        if (req.getParameter("wsdl") != null || req.getParameter("WSDL") != null) {
             try {
                 service.getWsdl(request, response);
             } catch (IOException e) {

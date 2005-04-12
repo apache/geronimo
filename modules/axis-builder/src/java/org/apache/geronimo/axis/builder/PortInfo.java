@@ -16,6 +16,7 @@
  */
 package org.apache.geronimo.axis.builder;
 
+import java.net.URI;
 import javax.wsdl.Definition;
 import javax.wsdl.Port;
 import javax.xml.namespace.QName;
@@ -30,25 +31,27 @@ import org.apache.geronimo.xbeans.j2ee.ServiceEndpointInterfaceMappingType;
 public class PortInfo {
     private final String portName;
     private final QName portQName;
-    private final Definition definition;
+    private final SchemaInfoBuilder schemaInfoBuilder;
     private final JavaWsdlMappingType javaWsdlMapping;
     private final ServiceEndpointInterfaceMappingType seiMapping;
     private final String seInterfaceName;
     private final PortComponentHandlerType[] handlers;
     private final Port port;
+    private final URI contextURI;
 
     private final String wsdlLocation;
 
-    public PortInfo(String portName, QName portQName, Definition definition, JavaWsdlMappingType javaWsdlMapping, String seiInterfaceName, PortComponentHandlerType[] handlers, Port port, ServiceEndpointInterfaceMappingType seiMapping, String wsdlLocation) {
+    public PortInfo(String portName, QName portQName, SchemaInfoBuilder schemaInfoBuilder, JavaWsdlMappingType javaWsdlMapping, String seiInterfaceName, PortComponentHandlerType[] handlers, Port port, ServiceEndpointInterfaceMappingType seiMapping, String wsdlLocation, URI contextURI) {
         this.portName = portName;
         this.portQName = portQName;
-        this.definition = definition;
+        this.schemaInfoBuilder = schemaInfoBuilder;
         this.javaWsdlMapping = javaWsdlMapping;
         this.seInterfaceName = seiInterfaceName;
         this.handlers = handlers;
         this.port = port;
         this.seiMapping = seiMapping;
         this.wsdlLocation = wsdlLocation;
+        this.contextURI = contextURI;
     }
 
     public String getWsdlLocation() {
@@ -71,8 +74,12 @@ public class PortInfo {
         return port;
     }
 
+    public SchemaInfoBuilder getSchemaInfoBuilder() {
+        return schemaInfoBuilder;
+    }
+
     public Definition getDefinition() {
-        return definition;
+        return schemaInfoBuilder.getDefinition();
     }
 
     public JavaWsdlMappingType getJavaWsdlMapping() {
@@ -90,5 +97,9 @@ public class PortInfo {
 
     public PortComponentHandlerType[] getHandlers() {
         return handlers;
+    }
+
+    public URI getContextURI() {
+        return contextURI;
     }
 }

@@ -156,10 +156,11 @@ public class ServiceReferenceTest extends TestCase {
 
     public void testBuildFullServiceProxy() throws Exception {
         Definition definition = buildDefinition();
+        SchemaInfoBuilder schemaInfoBuilder = new SchemaInfoBuilder(null, definition);
         JavaWsdlMappingType mapping = buildLightweightMappingType();
         QName serviceQName = new QName(NAMESPACE, "MockService");
         AxisBuilder builder = new AxisBuilder();
-        Object proxy = builder.createService(MockService.class, definition, mapping, serviceQName, SOAPConstants.SOAP11_CONSTANTS, handlerInfos, portLocationMap, credentialsNameMap, context, module, isolatedCl);
+        Object proxy = builder.createService(MockService.class, schemaInfoBuilder, mapping, serviceQName, SOAPConstants.SOAP11_CONSTANTS, handlerInfos, portLocationMap, credentialsNameMap, context, module, isolatedCl);
         assertNotNull(proxy);
         assertTrue(proxy instanceof MockService);
         MockPort mockPort = ((MockService) proxy).getMockPort();
@@ -171,12 +172,13 @@ public class ServiceReferenceTest extends TestCase {
         WSDLFactory factory = WSDLFactory.newInstance();
         WSDLReader reader = factory.newWSDLReader();
         Definition definition = reader.readWSDL(wsdl.toURI().toString());
+        SchemaInfoBuilder schemaInfoBuilder = new SchemaInfoBuilder(null, definition);
         File jaxrpcMapping = new File(basedir, "src/test-resources/BookQuote.xml");
         JavaWsdlMappingDocument mappingDocument = JavaWsdlMappingDocument.Factory.parse(jaxrpcMapping);
         JavaWsdlMappingType mapping = mappingDocument.getJavaWsdlMapping();
         QName serviceQName = new QName("http://www.Monson-Haefel.com/jwsbook/BookQuote", "BookQuoteService");
         AxisBuilder builder = new AxisBuilder();
-        Object proxy = builder.createService(BookQuoteService.class, definition, mapping, serviceQName, SOAPConstants.SOAP11_CONSTANTS, handlerInfos, portLocationMap, credentialsNameMap, context, module, isolatedCl);
+        Object proxy = builder.createService(BookQuoteService.class, schemaInfoBuilder, mapping, serviceQName, SOAPConstants.SOAP11_CONSTANTS, handlerInfos, portLocationMap, credentialsNameMap, context, module, isolatedCl);
         assertNotNull(proxy);
         assertTrue(proxy instanceof BookQuoteService);
         BookQuote bookQuote = ((BookQuoteService) proxy).getBookQuotePort();
@@ -188,12 +190,13 @@ public class ServiceReferenceTest extends TestCase {
         WSDLFactory factory = WSDLFactory.newInstance();
         WSDLReader reader = factory.newWSDLReader();
         Definition definition = reader.readWSDL(wsdlFile.toURI().toString());
+        SchemaInfoBuilder schemaInfoBuilder = new SchemaInfoBuilder(null, definition);
         File jaxrpcMapping = new File(basedir, "src/test-resources/interop/interop-jaxrpcmapping.xml");
         JavaWsdlMappingDocument mappingDocument = JavaWsdlMappingDocument.Factory.parse(jaxrpcMapping);
         JavaWsdlMappingType mapping = mappingDocument.getJavaWsdlMapping();
         QName serviceQName = new QName("http://tempuri.org/4s4c/1/3/wsdl/def/interopLab", "interopLab");
         AxisBuilder builder = new AxisBuilder();
-        Object proxy = builder.createService(InteropLab.class, definition, mapping, serviceQName, SOAPConstants.SOAP11_CONSTANTS, handlerInfos, portLocationMap, credentialsNameMap, context, module, isolatedCl);
+        Object proxy = builder.createService(InteropLab.class, schemaInfoBuilder, mapping, serviceQName, SOAPConstants.SOAP11_CONSTANTS, handlerInfos, portLocationMap, credentialsNameMap, context, module, isolatedCl);
         assertNotNull(proxy);
         assertTrue(proxy instanceof InteropLab);
         InteropTestPortType interopTestPort = ((InteropLab) proxy).getinteropTestPort();

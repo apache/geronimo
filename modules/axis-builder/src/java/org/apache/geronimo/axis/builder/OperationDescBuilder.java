@@ -39,7 +39,7 @@ public abstract class OperationDescBuilder {
     public OperationDescBuilder(BindingOperation bindingOperation) throws DeploymentException {
         this.bindingOperation = bindingOperation;
         this.operation = bindingOperation.getOperation();
-        this.soapOperation = (SOAPOperation) WSDescriptorParser.getExtensibilityElement(SOAPOperation.class, bindingOperation.getExtensibilityElements());
+        this.soapOperation = (SOAPOperation) SchemaInfoBuilder.getExtensibilityElement(SOAPOperation.class, bindingOperation.getExtensibilityElements());
 
         operationDesc = new OperationDesc();
         output = operation.getOutput() == null ? null : operation.getOutput().getMessage();

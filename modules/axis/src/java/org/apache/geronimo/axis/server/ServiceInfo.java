@@ -18,6 +18,7 @@ package org.apache.geronimo.axis.server;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.axis.description.JavaServiceDesc;
 
@@ -27,11 +28,14 @@ import org.apache.axis.description.JavaServiceDesc;
 public class ServiceInfo implements Serializable {
     private final JavaServiceDesc serviceDesc;
     /** List of javax.xml.rpc.handler.HandlerInfo objects */
-    private final List hanlderInfos;
+    private final List handlerInfos;
 
-    public ServiceInfo(JavaServiceDesc serviceDesc, List hanlderInfos) {
+    private final Map wsdlMap;
+
+    public ServiceInfo(JavaServiceDesc serviceDesc, List handlerInfos, Map wsdlMap) {
         this.serviceDesc = serviceDesc;
-        this.hanlderInfos = hanlderInfos;
+        this.handlerInfos = handlerInfos;
+        this.wsdlMap = wsdlMap;
     }
 
     public JavaServiceDesc getServiceDesc() {
@@ -39,8 +43,12 @@ public class ServiceInfo implements Serializable {
     }
 
     /** List of javax.xml.rpc.handler.HandlerInfo objects */
-    public List getHanlderInfos() {
-        return hanlderInfos;
+    public List getHandlerInfos() {
+        return handlerInfos;
+    }
+
+    public Map getWsdlMap() {
+        return wsdlMap;
     }
 
 }

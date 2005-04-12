@@ -40,6 +40,7 @@ import javax.wsdl.Definition;
 import javax.wsdl.Operation;
 import javax.wsdl.Port;
 import javax.wsdl.PortType;
+import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.wsdl.extensions.soap.SOAPBinding;
 import javax.xml.namespace.QName;
@@ -108,12 +109,11 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
     //WebServiceBuilder
     public void configurePOJO(GBeanData targetGBean, JarFile moduleFile, Object portInfoObject, String seiClassName, ClassLoader classLoader) throws DeploymentException {
         PortInfo portInfo = (PortInfo) portInfoObject;
-        ServiceInfo serviceInfo = AxisServiceBuilder.createServiceInfo(moduleFile, portInfo, classLoader);
+        ServiceInfo serviceInfo = AxisServiceBuilder.createServiceInfo(portInfo, classLoader);
         JavaServiceDesc serviceDesc = serviceInfo.getServiceDesc();
 
-        Class pojoClass = null;
         try {
-            pojoClass = classLoader.loadClass(seiClassName);
+            classLoader.loadClass(seiClassName);
         } catch (ClassNotFoundException e) {
             throw new DeploymentException("Unable to load servlet class for pojo webservice: "+seiClassName, e);
         }
@@ -125,7 +125,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
         service.setServiceDescription(serviceDesc);
         service.setOption("className", seiClassName);
 
-        HandlerInfoChainFactory handlerInfoChainFactory = new HandlerInfoChainFactory(serviceInfo.getHanlderInfos());
+        HandlerInfoChainFactory handlerInfoChainFactory = new HandlerInfoChainFactory(serviceInfo.getHandlerInfos());
         service.setOption(org.apache.axis.Constants.ATTR_HANDLERINFOCHAIN, handlerInfoChainFactory);
 
         URI location = null;
@@ -134,9 +134,21 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
         } catch (URISyntaxException e) {
             throw new DeploymentException("Invalid webservice endpoint URI", e);
         }
+        URI wsdlURI = null;
+        try {
+            wsdlURI = new URI(serviceDesc.getWSDLFile());
+        } catch (URISyntaxException e) {
+            throw new DeploymentException("Invalid wsdl URI", e);
+
+        }
 
         classLoader = new ClassLoaderReference(classLoader);
-        AxisWebServiceContainer axisWebServiceContainer = new AxisWebServiceContainer(location, serviceDesc.getWSDLFile(), service, classLoader);
+        AxisWebServiceContainer axisWebServiceContainer = null;
+        try {
+            axisWebServiceContainer = new AxisWebServiceContainer(location, wsdlURI, service, serviceInfo.getWsdlMap(), classLoader);
+        } catch (WSDLException e) {
+            throw new DeploymentException("Could not construct AxisWebServiceContainer", e);
+        }
         //targetGBean.setAttribute("webServiceContainer", axisWebServiceContainer);
         try {
             targetGBean.setAttribute("webServiceContainer", new StoredObject(axisWebServiceContainer)); // Hack!
@@ -153,15 +165,15 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
     //ServicereferenceBuilder
     public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlerInfos, Map portLocationMap, Map credentialsNameMap, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException {
         JarFile moduleFile = module.getModuleFile();
-        Definition definition = null;
+        SchemaInfoBuilder schemaInfoBuilder = null;
         JavaWsdlMappingType mapping = null;
         if (wsdlURI != null) {
-            definition = WSDescriptorParser.readWsdl(moduleFile, wsdlURI);
+            schemaInfoBuilder =  new SchemaInfoBuilder(moduleFile, wsdlURI);
 
             mapping = WSDescriptorParser.readJaxrpcMapping(moduleFile, jaxrpcMappingURI);
         }
 
-        Object service = createService(serviceInterface, definition, mapping, serviceQName, SOAP_VERSION, handlerInfos, portLocationMap, credentialsNameMap, deploymentContext, module, classLoader);
+        Object service = createService(serviceInterface, schemaInfoBuilder, mapping, serviceQName, SOAP_VERSION, handlerInfos, portLocationMap, credentialsNameMap, deploymentContext, module, classLoader);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = null;
         try {
@@ -176,12 +188,12 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
         return reference;
     }
 
-    public Object createService(Class serviceInterface, Definition definition, JavaWsdlMappingType mapping, QName serviceQName, SOAPConstants soapVersion, List handlerInfos, Map portLocationMap, Map credentialsNameMap, DeploymentContext context, Module module, ClassLoader classloader) throws DeploymentException {
+    public Object createService(Class serviceInterface, SchemaInfoBuilder schemaInfoBuilder, JavaWsdlMappingType mapping, QName serviceQName, SOAPConstants soapVersion, List handlerInfos, Map portLocationMap, Map credentialsNameMap, DeploymentContext context, Module module, ClassLoader classloader) throws DeploymentException {
         Map seiPortNameToFactoryMap = new HashMap();
         Map seiClassNameToFactoryMap = new HashMap();
         Object serviceInstance = createServiceInterfaceProxy(serviceInterface, seiPortNameToFactoryMap, seiClassNameToFactoryMap, context, module, classloader);
-        if (definition != null) {
-            buildSEIFactoryMap(serviceInterface, definition, portLocationMap, credentialsNameMap, mapping, handlerInfos, serviceQName, soapVersion, seiPortNameToFactoryMap, seiClassNameToFactoryMap, serviceInstance, context, module, classloader);
+        if (schemaInfoBuilder != null) {
+            buildSEIFactoryMap(serviceInterface, schemaInfoBuilder, portLocationMap, credentialsNameMap, mapping, handlerInfos, serviceQName, soapVersion, seiPortNameToFactoryMap, seiClassNameToFactoryMap, serviceInstance, context, module, classloader);
         }
         return serviceInstance;
     }
@@ -218,18 +230,16 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
         }
     }
 
-    public void buildSEIFactoryMap(Class serviceInterface, Definition definition, Map portLocationMap, Map credentialsNameMap, JavaWsdlMappingType mapping, List handlerInfos, QName serviceQName, SOAPConstants soapVersion, Map seiPortNameToFactoryMap, Map seiClassNameToFactoryMap, Object serviceImpl, DeploymentContext context, Module module, ClassLoader classLoader) throws DeploymentException {
+    public void buildSEIFactoryMap(Class serviceInterface, SchemaInfoBuilder schemaInfoBuilder, Map portLocationMap, Map credentialsNameMap, JavaWsdlMappingType mapping, List handlerInfos, QName serviceQName, SOAPConstants soapVersion, Map seiPortNameToFactoryMap, Map seiClassNameToFactoryMap, Object serviceImpl, DeploymentContext context, Module module, ClassLoader classLoader) throws DeploymentException {
 
         //find the service we are working with
-        javax.wsdl.Service service = getService(serviceQName, definition);
+        javax.wsdl.Service service = getService(serviceQName, schemaInfoBuilder.getDefinition());
 
         if (portLocationMap != null) {
-            WSDescriptorParser.updatePortLocations(service, portLocationMap);
+            SchemaInfoBuilder.updatePortLocations(service, portLocationMap);
         }
 
         Map exceptionMap = WSDescriptorParser.getExceptionMap(mapping);
-        JarFile moduleFile = module.getModuleFile();
-        SchemaInfoBuilder schemaInfoBuilder = new SchemaInfoBuilder(moduleFile, definition);
         Map schemaTypeKeyToSchemaTypeMap = schemaInfoBuilder.getSchemaTypeKeyToSchemaTypeMap();
         Map complexTypeMap = schemaInfoBuilder.getComplexTypesInWsdl();
         Map elementMap = schemaInfoBuilder.getElementToTypeMap();
@@ -281,7 +291,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
     }
 
     private Style getStyle(Binding binding) throws DeploymentException {
-        SOAPBinding soapBinding = (SOAPBinding) WSDescriptorParser.getExtensibilityElement(SOAPBinding.class, binding.getExtensibilityElements());
+        SOAPBinding soapBinding = (SOAPBinding) SchemaInfoBuilder.getExtensibilityElement(SOAPBinding.class, binding.getExtensibilityElements());
 //            String transportURI = soapBinding.getTransportURI();
         String portStyleString = soapBinding.getStyle();
         Style portStyle = Style.getStyle(portStyleString);
@@ -289,7 +299,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
     }
 
     private URL getAddressLocation(Port port) throws DeploymentException {
-        SOAPAddress soapAddress = (SOAPAddress) WSDescriptorParser.getExtensibilityElement(SOAPAddress.class, port.getExtensibilityElements());
+        SOAPAddress soapAddress = (SOAPAddress) SchemaInfoBuilder.getExtensibilityElement(SOAPAddress.class, port.getExtensibilityElements());
         String locationURIString = soapAddress.getLocationURI();
         URL location = null;
         try {
@@ -419,7 +429,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
             if (javaXmlTypeMapping.isSetRootTypeQname()) {
                 typeName = javaXmlTypeMapping.getRootTypeQname().getQNameValue();
                 key = new SchemaTypeKey(typeName, isElement, isSimpleType, false);
-                
+
                 // Skip the wrapper elements.
                 if (wrapperElementQNames.contains(typeName)) {
                     continue;
@@ -433,7 +443,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
                 //this appears to be ignored...
                 typeName = new QName(anonTypeQNameString.substring(0, pos), anonTypeQNameString.substring(pos + 1));
                 key = new SchemaTypeKey(typeName, isElement, isSimpleType, true);
-                
+
                 // Skip the wrapper elements.
                 if (wrapperElementQNames.contains(new QName(anonTypeQNameString.substring(0, pos), anonTypeQNameString.substring(pos + 2)))) {
                     continue;
@@ -445,7 +455,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
             if (schemaType == null) {
                 throw new DeploymentException("Schema type key " + key + " not found in analyzed schema: " + schemaTypeKeyToSchemaTypeMap);
             }
-            
+
             //default settings
             Class serializerFactoryClass = BeanSerializerFactory.class;
             Class deserializerFactoryClass = BeanDeserializerFactory.class;

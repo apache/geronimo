@@ -32,17 +32,26 @@ import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.xbeans.j2ee.*;
 import org.apache.xmlbeans.SchemaType;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlException;
+import org.w3.x2001.xmlSchema.SchemaDocument;
+import org.w3.x2001.xmlSchema.ImportDocument;
+import org.w3.x2001.xmlSchema.IncludeDocument;
+import org.w3c.dom.Element;
 
 import javax.wsdl.*;
 import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.wsdl.extensions.soap.SOAPBinding;
 import javax.wsdl.extensions.soap.SOAPBody;
+import javax.wsdl.extensions.schema.Schema;
 import javax.xml.namespace.QName;
 import javax.xml.rpc.handler.HandlerInfo;
 import java.lang.String;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import java.util.jar.JarFile;
 
@@ -70,9 +79,7 @@ public class AxisServiceBuilder {
 
         // Grab the portInfo for this ejb
         PortInfo portInfo = (PortInfo) portComponentsMap.get(ejbName);
-        JavaServiceDesc serviceDesc = createServiceDesc(jarFile, portInfo, classLoader);
-        List handlerInfos = createHandlerInfos(portInfo, classLoader);
-        return new ServiceInfo(serviceDesc, handlerInfos);
+        return createServiceInfo(portInfo, classLoader);
     }
 
     public static JavaServiceDesc createEJBServiceDesc(JarFile jarFile, String ejbName, ClassLoader classLoader) throws DeploymentException {
@@ -86,7 +93,7 @@ public class AxisServiceBuilder {
 
         // Grab the portInfo for this ejb
         PortInfo portInfo = (PortInfo) portComponentsMap.get(ejbName);
-        return createServiceDesc(jarFile, portInfo, classLoader);
+        return createServiceDesc(portInfo, classLoader);
     }
 
     private static List createHandlerInfos(PortInfo portInfo, ClassLoader classLoader) throws DeploymentException {
@@ -103,7 +110,7 @@ public class AxisServiceBuilder {
             try {
                 handlerClass = classLoader.loadClass(className);
             } catch (ClassNotFoundException e) {
-                throw new DeploymentException("Unable to load handler class: "+className, e);
+                throw new DeploymentException("Unable to load handler class: " + className, e);
             }
 
             // config data for the handler
@@ -129,13 +136,16 @@ public class AxisServiceBuilder {
         return list;
     }
 
-    public static ServiceInfo createServiceInfo(JarFile moduleFile, PortInfo portInfo, ClassLoader classLoader) throws DeploymentException {
-        JavaServiceDesc serviceDesc = createServiceDesc(moduleFile, portInfo, classLoader);
+    public static ServiceInfo createServiceInfo(PortInfo portInfo, ClassLoader classLoader) throws DeploymentException {
+        JavaServiceDesc serviceDesc = createServiceDesc(portInfo, classLoader);
         List handlerInfos = createHandlerInfos(portInfo, classLoader);
-        return new ServiceInfo(serviceDesc, handlerInfos);
+        SchemaInfoBuilder schemaInfoBuilder = portInfo.getSchemaInfoBuilder();
+        Map rawWsdlMap = schemaInfoBuilder.getWsdlMap();
+        Map wsdlMap = rewriteWsdlMap(portInfo, rawWsdlMap);
+        return new ServiceInfo(serviceDesc, handlerInfos, wsdlMap);
     }
 
-    public static JavaServiceDesc createServiceDesc(JarFile moduleFile, PortInfo portInfo, ClassLoader classLoader) throws DeploymentException {
+    public static JavaServiceDesc createServiceDesc(PortInfo portInfo, ClassLoader classLoader) throws DeploymentException {
 
         Port port = portInfo.getPort();
 //        System.out.println("port = " + port);
@@ -148,7 +158,7 @@ public class AxisServiceBuilder {
         }
 
         Map exceptionMap = WSDescriptorParser.getExceptionMap(portInfo.getJavaWsdlMapping());
-        SchemaInfoBuilder schemaInfoBuilder = new SchemaInfoBuilder(moduleFile, portInfo.getDefinition());
+        SchemaInfoBuilder schemaInfoBuilder = portInfo.getSchemaInfoBuilder();
         Map schemaTypeKeyToSchemaTypeMap = schemaInfoBuilder.getSchemaTypeKeyToSchemaTypeMap();
         Map complexTypeMap = schemaInfoBuilder.getComplexTypesInWsdl();
         Map elementMap = schemaInfoBuilder.getElementToTypeMap();
@@ -164,7 +174,7 @@ public class AxisServiceBuilder {
 
 
         BindingInput bindingInput = ((BindingOperation) binding.getBindingOperations().get(0)).getBindingInput();
-        SOAPBody soapBody = (SOAPBody) WSDescriptorParser.getExtensibilityElement(SOAPBody.class, bindingInput.getExtensibilityElements());
+        SOAPBody soapBody = (SOAPBody) SchemaInfoBuilder.getExtensibilityElement(SOAPBody.class, bindingInput.getExtensibilityElements());
 
         if (soapBody.getUse() != null) {
             Use use = Use.getUse(soapBody.getUse());
@@ -212,7 +222,7 @@ public class AxisServiceBuilder {
             if (javaXmlTypeMapping.isSetRootTypeQname()) {
                 typeQName = javaXmlTypeMapping.getRootTypeQname().getQNameValue();
                 key = new SchemaTypeKey(typeQName, isElement, isSimpleType, false);
-                
+
                 // Skip the wrapper elements.
                 if (wrapperElementQNames.contains(typeQName)) {
                     continue;
@@ -258,7 +268,7 @@ public class AxisServiceBuilder {
                 serializerFactoryClass = ArraySerializerFactory.class;
                 deserializerFactoryClass = ArrayDeserializerFactory.class;
             }
-            
+
             TypeDesc typeDesc = TypeDescBuilder.getTypeDescriptor(clazz, typeQName, javaXmlTypeMapping, schemaType);
 
             SerializerFactory ser = BaseSerializerFactory.createFactory(serializerFactoryClass, clazz, typeQName);
@@ -311,7 +321,7 @@ public class AxisServiceBuilder {
 
     private static Set buildOperations(Binding binding, Class serviceEndpointInterface, boolean lightweight, PortInfo portInfo, Map exceptionMap, Map complexTypeMap, Map elementMap, ClassLoader classLoader, JavaServiceDesc serviceDesc) throws DeploymentException {
         Set wrappedElementQNames = new HashSet();
-        
+
         List bindingOperations = binding.getBindingOperations();
         for (int i = 0; i < bindingOperations.size(); i++) {
             BindingOperation bindingOperation = (BindingOperation) bindingOperations.get(i);
@@ -332,13 +342,13 @@ public class AxisServiceBuilder {
 
             serviceDesc.addOperationDesc(operationDescBuilder.buildOperationDesc());
         }
-        
+
         return wrappedElementQNames;
     }
 
 
     private static Style getStyle(Binding binding) throws DeploymentException {
-        SOAPBinding soapBinding = (SOAPBinding) WSDescriptorParser.getExtensibilityElement(SOAPBinding.class, binding.getExtensibilityElements());
+        SOAPBinding soapBinding = (SOAPBinding) SchemaInfoBuilder.getExtensibilityElement(SOAPBinding.class, binding.getExtensibilityElements());
 //            String transportURI = soapBinding.getTransportURI();
         String portStyleString = soapBinding.getStyle();
         Style portStyle = Style.getStyle(portStyleString);
@@ -346,7 +356,7 @@ public class AxisServiceBuilder {
     }
 
     private static URL getAddressLocation(Port port) throws DeploymentException {
-        SOAPAddress soapAddress = (SOAPAddress) WSDescriptorParser.getExtensibilityElement(SOAPAddress.class, port.getExtensibilityElements());
+        SOAPAddress soapAddress = (SOAPAddress) SchemaInfoBuilder.getExtensibilityElement(SOAPAddress.class, port.getExtensibilityElements());
         String locationURIString = soapAddress.getLocationURI();
         URL location = null;
         try {
@@ -356,4 +366,93 @@ public class AxisServiceBuilder {
         }
         return location;
     }
+
+    private static Map rewriteWsdlMap(PortInfo portInfo, Map rawWsdlMap) throws DeploymentException {
+        URI contextURI = portInfo.getContextURI();
+        Map wsdlMap = new HashMap();
+        for (Iterator iterator = rawWsdlMap.entrySet().iterator(); iterator.hasNext();) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            URI key = (URI) entry.getKey();
+            Object value = entry.getValue();
+            if (value instanceof SchemaDocument) {
+                SchemaDocument schemaDocument = (SchemaDocument) ((SchemaDocument) value).copy();
+                SchemaDocument.Schema schema = schemaDocument.getSchema();
+                rewriteSchema(schema, contextURI, key);
+                String schemaString = schemaDocument.toString();
+                wsdlMap.put(key.toString(), schemaString);
+            } else if (value instanceof Definition) {
+                Definition definition = (Definition) value;
+                Map imports = definition.getImports();
+                for (Iterator iterator2 = imports.values().iterator(); iterator2.hasNext();) {
+                    List importList = (List) iterator2.next();
+                    for (Iterator iterator3 = importList.iterator(); iterator3.hasNext();) {
+                        Import anImport = (Import) iterator3.next();
+                        String importLocation = anImport.getLocationURI();
+                        if (!importLocation.startsWith("http://")) {
+                            URI updated = buildQueryURI(contextURI, key, importLocation);
+                            anImport.setLocationURI(updated.toString());
+                        }
+                    }
+                }
+                Types types = definition.getTypes();
+                List schemaList = types.getExtensibilityElements();
+                for (Iterator iterator1 = schemaList.iterator(); iterator1.hasNext();) {
+                    Object o = iterator1.next();
+                    if (o instanceof Schema) {
+                        Schema schemaType = (Schema) o;
+                        Element e = schemaType.getElement();
+                        try {
+                            SchemaDocument.Schema schema = (SchemaDocument.Schema) XmlObject.Factory.parse(e);
+                            rewriteSchema(schema, contextURI, key);
+                            Element e2 = (Element) schema.newDomNode();
+                            schemaType.setElement(e2);
+                        } catch (XmlException e1) {
+                            throw new DeploymentException("Could not parse included schema", e1);
+                        }
+                    }
+                }
+                wsdlMap.put(key.toString(), definition);
+            } else {
+                throw new DeploymentException("Unexpected element in wsdlMap at location: " + key + ", value: " + value);
+            }
+        }
+        return wsdlMap;
+    }
+
+    private static void rewriteSchema(SchemaDocument.Schema schema, URI contextURI, URI key) throws DeploymentException {
+        ImportDocument.Import[] imports = schema.getImportArray();
+        for (int i = 0; i < imports.length; i++) {
+            ImportDocument.Import anImport = imports[i];
+            if (anImport.isSetSchemaLocation()) {
+                String schemaLocation = anImport.getSchemaLocation();
+                URI absoluteSchemLocation = buildQueryURI(contextURI, key, schemaLocation);
+                anImport.setSchemaLocation(absoluteSchemLocation.toString());
+            }
+        }
+        IncludeDocument.Include[] includes = schema.getIncludeArray();
+        for (int i = 0; i < includes.length; i++) {
+            IncludeDocument.Include include = includes[i];
+            String schemaLocation = include.getSchemaLocation();
+            URI absoluteSchemLocation = buildQueryURI(contextURI, key, schemaLocation);
+            include.setSchemaLocation(absoluteSchemLocation.toString());
+        }
+    }
+
+    private static URI buildQueryURI(URI contextURI, URI key, String importLocation) throws DeploymentException {
+        try {
+            URI importLocationURI = new URI(importLocation);
+            if (importLocationURI.isAbsolute() || importLocationURI.getPath().startsWith("/")) {
+                return importLocationURI;
+            }
+            return new URI(null,
+                    null,
+                    contextURI.getPath(),
+                    "wsdl=" + key.resolve(importLocationURI),
+                    null);
+        } catch (URISyntaxException e) {
+            throw new DeploymentException("Could not construct wsdl location URI", e);
+        }
+    }
+
+
 }

@@ -18,9 +18,9 @@ package org.apache.geronimo.axis.builder;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -28,15 +28,26 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
-import java.util.zip.ZipEntry;
 import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
 import javax.wsdl.Definition;
 import javax.wsdl.Import;
+import javax.wsdl.Port;
+import javax.wsdl.Service;
 import javax.wsdl.Types;
+import javax.wsdl.WSDLException;
+import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.UnknownExtensibilityElement;
+import javax.wsdl.extensions.ExtensionRegistry;
 import javax.wsdl.extensions.schema.Schema;
+import javax.wsdl.extensions.soap.SOAPAddress;
+import javax.wsdl.factory.WSDLFactory;
+import javax.wsdl.xml.WSDLLocator;
+import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.xmlbeans.SchemaField;
@@ -46,16 +57,17 @@ import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.XmlError;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.w3.x2001.xmlSchema.SchemaDocument;
 import org.w3c.dom.Element;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import com.ibm.wsdl.extensions.PopulatedExtensionRegistry;
+import com.ibm.wsdl.extensions.schema.SchemaConstants;
 
 /**
  * @version $Rev:  $ $Date:  $
@@ -86,10 +98,21 @@ public class SchemaInfoBuilder {
     }
 
     private final JarFile moduleFile;
+    private final Definition definition;
     private final Stack uris = new Stack();
     private final Map schemaTypeKeyToSchemaTypeMap;
+    private final Map wsdlMap = new HashMap();
+
+    public SchemaInfoBuilder(JarFile moduleFile, URI wsdlUri) throws DeploymentException {
+        this.moduleFile = moduleFile;
+        uris.push(wsdlUri);
+        definition = readWsdl(moduleFile, wsdlUri);
+        SchemaTypeSystem schemaTypeSystem = compileSchemaTypeSystem(definition);
+        schemaTypeKeyToSchemaTypeMap = buildSchemaTypeKeyToSchemaTypeMap(schemaTypeSystem);
+    }
 
     public SchemaInfoBuilder(JarFile moduleFile, Definition definition) throws DeploymentException {
+        this.definition = definition;
         this.moduleFile = moduleFile;
         try {
             URI uri = new URI(definition.getDocumentBaseURI());
@@ -102,6 +125,7 @@ public class SchemaInfoBuilder {
     }
 
     SchemaInfoBuilder(JarFile moduleFile, URI uri, SchemaTypeSystem schemaTypeSystem) {
+        this.definition = null;
         this.moduleFile = moduleFile;
         uris.push(uri);
         schemaTypeKeyToSchemaTypeMap = buildSchemaTypeKeyToSchemaTypeMap(schemaTypeSystem);
@@ -109,6 +133,14 @@ public class SchemaInfoBuilder {
 
     public Map getSchemaTypeKeyToSchemaTypeMap() {
         return schemaTypeKeyToSchemaTypeMap;
+    }
+
+    public Definition getDefinition() {
+        return definition;
+    }
+
+    public Map getWsdlMap() {
+        return wsdlMap;
     }
 
     private static final String[] errorNames = {
@@ -383,6 +415,90 @@ public class SchemaInfoBuilder {
         return elementToTypeMap;
     }
 
+    /**
+     * Gets a map of all the javax.wsdl.Port instance in the WSDL definition keyed by the port's QName
+     * <p/>
+     * WSDL 1.1 spec: 2.6 "The name attribute provides a unique name among all ports defined within in the enclosing WSDL document."
+     *
+     * @return
+     */
+
+    public Map getPortMap() {
+        HashMap ports = new HashMap();
+        Collection services = definition.getServices().values();
+        for (Iterator iterator = services.iterator(); iterator.hasNext();) {
+            Service service = (Service) iterator.next();
+            ports.putAll(service.getPorts());
+        }
+        return ports;
+    }
+
+    public Definition readWsdl(JarFile moduleFile, URI wsdlURI) throws DeploymentException {
+        Definition definition;
+        WSDLFactory wsdlFactory = null;
+        try {
+            wsdlFactory = WSDLFactory.newInstance();
+        } catch (WSDLException e) {
+            throw new DeploymentException("Could not create WSDLFactory", e);
+        }
+        WSDLReader wsdlReaderNoImport = wsdlFactory.newWSDLReader();
+        wsdlReaderNoImport.setFeature("javax.wsdl.importDocuments", false);
+        ExtensionRegistry extensionRegistry = new PopulatedExtensionRegistry();
+        extensionRegistry.mapExtensionTypes(Types.class, SchemaConstants.Q_ELEM_XSD_1999,
+            UnknownExtensibilityElement.class);
+        extensionRegistry.registerDeserializer(Types.class, SchemaConstants.Q_ELEM_XSD_1999,
+            extensionRegistry.getDefaultDeserializer());
+        extensionRegistry.registerSerializer(Types.class, SchemaConstants.Q_ELEM_XSD_1999,
+            extensionRegistry.getDefaultSerializer());
+
+        extensionRegistry.mapExtensionTypes(Types.class, SchemaConstants.Q_ELEM_XSD_2000,
+            UnknownExtensibilityElement.class);
+        extensionRegistry.registerDeserializer(Types.class, SchemaConstants.Q_ELEM_XSD_2000,
+                extensionRegistry.getDefaultDeserializer());
+        extensionRegistry.registerSerializer(Types.class, SchemaConstants.Q_ELEM_XSD_2000,
+                extensionRegistry.getDefaultSerializer());
+
+        extensionRegistry.mapExtensionTypes(Types.class, SchemaConstants.Q_ELEM_XSD_2001,
+            UnknownExtensibilityElement.class);
+        extensionRegistry.registerDeserializer(Types.class, SchemaConstants.Q_ELEM_XSD_2001,
+                extensionRegistry.getDefaultDeserializer());
+        extensionRegistry.registerSerializer(Types.class, SchemaConstants.Q_ELEM_XSD_2001,
+                extensionRegistry.getDefaultSerializer());
+        wsdlReaderNoImport.setExtensionRegistry(extensionRegistry);
+        JarWSDLLocator wsdlLocator = new JarWSDLLocator(wsdlURI, wsdlReaderNoImport);
+        WSDLReader wsdlReader = wsdlFactory.newWSDLReader();
+        try {
+            definition = wsdlReader.readWSDL(wsdlLocator);
+        } catch (WSDLException e) {
+            throw new DeploymentException("Failed to read wsdl document", e);
+        }
+        return definition;
+    }
+
+    public static ExtensibilityElement getExtensibilityElement(Class clazz, List extensibilityElements) throws DeploymentException {
+        for (Iterator iterator = extensibilityElements.iterator(); iterator.hasNext();) {
+            ExtensibilityElement extensibilityElement = (ExtensibilityElement) iterator.next();
+            if (clazz.isAssignableFrom(extensibilityElement.getClass())) {
+                return extensibilityElement;
+            }
+        }
+        throw new DeploymentException("No element of class " + clazz.getName() + " found");
+    }
+
+    public static void updatePortLocations(Service service, Map portLocations) throws DeploymentException {
+        for (Iterator iterator = portLocations.entrySet().iterator(); iterator.hasNext();) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            String portName = (String) entry.getKey();
+            String location = (String) entry.getValue();
+            Port port = service.getPort(portName);
+            if (port == null) {
+                throw new DeploymentException("No port named " + portName + " found in service " + service.getQName());
+            }
+            SOAPAddress soapAddress = (SOAPAddress) getExtensibilityElement(SOAPAddress.class, port.getExtensibilityElements());
+            soapAddress.setLocationURI(location);
+        }
+    }
+
     private class JarEntityResolver implements EntityResolver {
 
         private final static String PROJECT_URL_PREFIX = "project://local/";
@@ -392,24 +508,76 @@ public class SchemaInfoBuilder {
                 systemId = systemId.substring(PROJECT_URL_PREFIX.length());
             }
             URI location = ((URI) uris.peek()).resolve(systemId);
-//            System.out.println("SystemId: " + systemId + ", location: " + location);
             InputStream wsdlInputStream = null;
             try {
                 ZipEntry entry = moduleFile.getEntry(location.toString());
-//                System.out.println("entry: " + entry.getName());
                 wsdlInputStream = moduleFile.getInputStream(entry);
-//                byte[] buf = new byte[1024];
-//                int i;
-//                while ((i = wsdlInputStream.read(buf)) > 0 ) {
-//                    System.out.write(buf, 0, i);
-//                }
-//                wsdlInputStream.close();
-//                wsdlInputStream = moduleFile.getInputStream(entry);
-            } catch (IOException e) {
-                throw new RuntimeException("Could not open stream to wsdl file", e);
+                XmlObject xmlObject = SchemaDocument.Factory.parse(wsdlInputStream);
+                wsdlMap.put(location, xmlObject);
+                wsdlInputStream.close();
+                wsdlInputStream = moduleFile.getInputStream(entry);
+            } catch (XmlException e) {
+                throw (IOException)new IOException("Could not parse schema document").initCause(e);
             }
             return new InputSource(wsdlInputStream);
         }
     }
 
+    class JarWSDLLocator implements WSDLLocator {
+
+        private final URI wsdlURI;
+        private final WSDLReader wsdlReader;
+        private URI latestImportURI;
+
+        public JarWSDLLocator(URI wsdlURI, WSDLReader wsdlReader) {
+            this.wsdlURI = wsdlURI;
+            this.wsdlReader = wsdlReader;
+        }
+
+        public InputSource getBaseInputSource() {
+            InputStream wsdlInputStream = null;
+            try {
+                ZipEntry entry = moduleFile.getEntry(wsdlURI.toString());
+                wsdlInputStream = moduleFile.getInputStream(entry);
+                Definition definition = wsdlReader.readWSDL(wsdlURI.toString(), new InputSource(wsdlInputStream));
+                wsdlMap.put(wsdlURI, definition);
+                wsdlInputStream.close();
+                wsdlInputStream = moduleFile.getInputStream(entry);
+            } catch (Exception e) {
+                throw new RuntimeException("Could not open stream to wsdl file", e);
+            }
+            return new InputSource(wsdlInputStream);
+        }
+
+        public String getBaseURI() {
+            return wsdlURI.toString();
+        }
+
+        public InputSource getImportInputSource(String parentLocation, String relativeLocation) {
+            URI parentURI = URI.create(parentLocation);
+            latestImportURI = parentURI.resolve(relativeLocation);
+            InputStream importInputStream = null;
+            try {
+                ZipEntry entry = moduleFile.getEntry(latestImportURI.toString());
+                importInputStream = moduleFile.getInputStream(entry);
+                try {
+                    Definition definition = wsdlReader.readWSDL(wsdlURI.toString(), new InputSource(importInputStream));
+                    wsdlMap.put(latestImportURI, definition);
+                    importInputStream.close();
+                } catch (WSDLException e) {
+                    //probably was a schema rather than wsdl.  If there are real problems they will show up later.
+                }
+                importInputStream = moduleFile.getInputStream(entry);
+            } catch (Exception e) {
+                throw new RuntimeException("Could not open stream to import file", e);
+            }
+            InputSource inputSource = new InputSource(importInputStream);
+            inputSource.setSystemId(getLatestImportURI());
+            return inputSource;
+        }
+
+        public String getLatestImportURI() {
+            return latestImportURI.toString();
+        }
+    }
 }

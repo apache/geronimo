@@ -48,6 +48,7 @@ import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.axis.builder.PortInfo;
 import org.apache.geronimo.axis.builder.WSDescriptorParser;
+import org.apache.geronimo.axis.builder.SchemaInfoBuilder;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;

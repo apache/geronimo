@@ -18,6 +18,7 @@ package org.apache.geronimo.axis;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.HashMap;
+import java.util.Map;
 import javax.xml.namespace.QName;
 
 import org.apache.axis.constants.Style;
@@ -88,11 +89,12 @@ public class AxisWebServiceContainerTest extends AbstractTestCase {
         SOAPService service = new SOAPService(null, provider, null);
         service.setServiceDescription(sd);
         service.setOption("className","org.apache.geronimo.axis.testData.echosample.EchoBean");
-        String wsdlURL = "echo.wsdl";
+        URI wsdlURL = new URI("echo.wsdl");
         URI location = new URI(serviceDesc.getEndpointURL());
+        Map wsdlMap = new HashMap();
 
         AxisWebServiceContainer continaer =
-            new AxisWebServiceContainer(location, wsdlURL, service, cl);
+            new AxisWebServiceContainer(location, wsdlURL, service, wsdlMap, cl);
 
         InputStream in = cl.getResourceAsStream("echoString-req.txt");
 
