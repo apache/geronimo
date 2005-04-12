@@ -16,6 +16,34 @@
  */
 package org.apache.geronimo.axis.builder;
 
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.jar.JarFile;
+import javax.wsdl.Binding;
+import javax.wsdl.BindingInput;
+import javax.wsdl.BindingOperation;
+import javax.wsdl.Definition;
+import javax.wsdl.Import;
+import javax.wsdl.Port;
+import javax.wsdl.Types;
+import javax.wsdl.extensions.schema.Schema;
+import javax.wsdl.extensions.soap.SOAPAddress;
+import javax.wsdl.extensions.soap.SOAPBinding;
+import javax.wsdl.extensions.soap.SOAPBody;
+import javax.wsdl.extensions.UnknownExtensibilityElement;
+import javax.xml.namespace.QName;
+import javax.xml.rpc.handler.HandlerInfo;
+
 import org.apache.axis.constants.Style;
 import org.apache.axis.constants.Use;
 import org.apache.axis.description.JavaServiceDesc;
@@ -24,36 +52,30 @@ import org.apache.axis.encoding.DeserializerFactory;
 import org.apache.axis.encoding.SerializerFactory;
 import org.apache.axis.encoding.TypeMapping;
 import org.apache.axis.encoding.TypeMappingRegistryImpl;
-import org.apache.axis.encoding.ser.*;
+import org.apache.axis.encoding.ser.ArrayDeserializerFactory;
+import org.apache.axis.encoding.ser.ArraySerializerFactory;
+import org.apache.axis.encoding.ser.BaseDeserializerFactory;
+import org.apache.axis.encoding.ser.BaseSerializerFactory;
+import org.apache.axis.encoding.ser.BeanDeserializerFactory;
+import org.apache.axis.encoding.ser.BeanSerializerFactory;
 import org.apache.geronimo.axis.server.ReadOnlyServiceDesc;
 import org.apache.geronimo.axis.server.ServiceInfo;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.kernel.ClassLoading;
-import org.apache.geronimo.xbeans.j2ee.*;
+import org.apache.geronimo.xbeans.j2ee.JavaXmlTypeMappingType;
+import org.apache.geronimo.xbeans.j2ee.ParamValueType;
+import org.apache.geronimo.xbeans.j2ee.PortComponentHandlerType;
+import org.apache.geronimo.xbeans.j2ee.ServiceEndpointMethodMappingType;
+import org.apache.geronimo.xbeans.j2ee.XsdQNameType;
 import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlException;
-import org.w3.x2001.xmlSchema.SchemaDocument;
+import org.apache.xmlbeans.XmlObject;
 import org.w3.x2001.xmlSchema.ImportDocument;
 import org.w3.x2001.xmlSchema.IncludeDocument;
+import org.w3.x2001.xmlSchema.SchemaDocument;
 import org.w3c.dom.Element;
-
-import javax.wsdl.*;
-import javax.wsdl.extensions.soap.SOAPAddress;
-import javax.wsdl.extensions.soap.SOAPBinding;
-import javax.wsdl.extensions.soap.SOAPBody;
-import javax.wsdl.extensions.schema.Schema;
-import javax.xml.namespace.QName;
-import javax.xml.rpc.handler.HandlerInfo;
-import java.lang.String;
-import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.*;
-import java.util.jar.JarFile;
+import org.w3c.dom.Node;
 
 /**
  * @version $Rev$ $Date$
@@ -61,6 +83,7 @@ import java.util.jar.JarFile;
 public class AxisServiceBuilder {
 
     public static final String XSD_NS = "http://www.w3.org/2001/XMLSchema";
+    public static final QName SCHEMA_QNAME = new QName(XSD_NS, "schema");
 
 
     private static void validateLightweightMapping(Definition definition) throws DeploymentException {
@@ -395,6 +418,7 @@ public class AxisServiceBuilder {
                     }
                 }
                 Types types = definition.getTypes();
+                Map namespaceMap = definition.getNamespaces();
                 List schemaList = types.getExtensibilityElements();
                 for (Iterator iterator1 = schemaList.iterator(); iterator1.hasNext();) {
                     Object o = iterator1.next();
@@ -408,6 +432,22 @@ public class AxisServiceBuilder {
                             schemaType.setElement(e2);
                         } catch (XmlException e1) {
                             throw new DeploymentException("Could not parse included schema", e1);
+                        }
+                    } else if (o instanceof UnknownExtensibilityElement) {
+                        UnknownExtensibilityElement u = (UnknownExtensibilityElement) o;
+                        QName elementType = u.getElementType();
+                        if (SCHEMA_QNAME.equals(elementType)) {
+                            Element e = u.getElement();
+                            try {
+                                SchemaDocument schemaDocument = (SchemaDocument) SchemaInfoBuilder.parseWithNamespaces(e, namespaceMap);
+                                SchemaDocument.Schema schema = schemaDocument.getSchema();
+                                rewriteSchema(schema, contextURI, key);
+                                Node node = schema.newDomNode();
+                                Element e2 = (Element) node.getFirstChild();
+                                u.setElement(e2);
+                            } catch (XmlException e1) {
+                                throw new DeploymentException("Could not parse included schema", e1);
+                            }
                         }
                     }
                 }

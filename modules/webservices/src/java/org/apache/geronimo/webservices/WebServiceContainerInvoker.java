@@ -106,8 +106,7 @@ public class WebServiceContainerInvoker implements Servlet {
 
         public java.net.URI getURI() {
             try {
-                String uriString = request.getRequestURI();
-                return new java.net.URI(uriString);
+                return new java.net.URI(request.getScheme(), null, request.getServerName(), request.getServerPort(), request.getRequestURI(), request.getQueryString(), null);
             } catch (URISyntaxException e) {
                 throw new IllegalStateException(e.getMessage());
             }

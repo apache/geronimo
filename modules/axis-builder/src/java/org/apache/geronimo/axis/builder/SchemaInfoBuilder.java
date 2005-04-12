@@ -237,21 +237,26 @@ public class SchemaInfoBuilder {
 
     private void addSchemaElement(Element element, Map namespaceMap, List schemaList) throws DeploymentException {
         try {
-            XmlObject xmlObject = SchemaConversionUtils.parse(element);
-            XmlCursor cursor = xmlObject.newCursor();
-            try {
-                cursor.toFirstContentToken();
-                for (Iterator namespaces = namespaceMap.entrySet().iterator(); namespaces.hasNext();) {
-                    Map.Entry entry = (Map.Entry) namespaces.next();
-                    cursor.insertNamespace((String) entry.getKey(), (String) entry.getValue());
-                }
-            } finally {
-                cursor.dispose();
-            }
+            XmlObject xmlObject = parseWithNamespaces(element, namespaceMap);
             schemaList.add(xmlObject);
         } catch (XmlException e) {
             throw new DeploymentException("Could not parse schema element", e);
         }
+    }
+
+    static XmlObject parseWithNamespaces(Element element, Map namespaceMap) throws XmlException {
+        XmlObject xmlObject = SchemaConversionUtils.parse(element);
+        XmlCursor cursor = xmlObject.newCursor();
+        try {
+            cursor.toFirstContentToken();
+            for (Iterator namespaces = namespaceMap.entrySet().iterator(); namespaces.hasNext();) {
+                Map.Entry entry = (Map.Entry) namespaces.next();
+                cursor.insertNamespace((String) entry.getKey(), (String) entry.getValue());
+            }
+        } finally {
+            cursor.dispose();
+        }
+        return xmlObject;
     }
 
     /**

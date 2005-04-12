@@ -201,20 +201,23 @@ public class AxisWebServiceContainer implements WebServiceContainer {
 
     public void getWsdl(Request request, Response response) throws Exception {
         URI realLocation = request.getURI();
-        String locationKey = request.getParameter("wsdl");
-        if (locationKey == null) {
-            locationKey = request.getParameter("WSDL");
-        }
-        if ("".equals(locationKey)) {
-            locationKey = wsdlLocation.toString();
-        } else if (locationKey == null) {
+        String query = realLocation.getQuery();
+        if (query == null || !query.toLowerCase().startsWith("wsdl")) {
             throw new IllegalStateException("request must contain a  wsdl or WSDL parameter: " + request.getParameters());
+        }
+        String locationKey;
+        if (query.length() > 4) {
+            locationKey = query.substring(5);
+        } else {
+            locationKey = wsdlLocation.toString();
         }
         Object wsdl = wsdlMap.get(locationKey);
         if (wsdl == null) {
             throw new IllegalStateException("No wsdl or schema known at location: " + locationKey);
         }
         if (wsdl instanceof String) {
+//            log.info("===========XSD==============" + locationKey);
+//            log.info(wsdl);
             response.getOutputStream().write(((String)wsdl).getBytes());
         } else {
             Definition definition = (Definition) wsdl;
@@ -244,6 +247,11 @@ public class AxisWebServiceContainer implements WebServiceContainer {
                         }
                     }
                 }
+//                log.info("===========WSDL==============" + locationKey);
+//                OutputStream baos = new java.io.ByteArrayOutputStream();
+//                wsdlWriter.writeWSDL(definition, baos);
+//                log.info(baos.toString());
+
                 // Dump the WSDL dom to the output stream
                 OutputStream out = response.getOutputStream();
                 wsdlWriter.writeWSDL(definition, out);
