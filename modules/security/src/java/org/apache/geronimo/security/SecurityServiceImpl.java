@@ -84,10 +84,8 @@ public class SecurityServiceImpl implements SecurityService {
         if (trustStore != null) sysOverRide(serverInfo.resolvePath(trustStore), TRUSTSTORE);
         if (trustStorePassword != null) sysOverRide(trustStorePassword, TRUSTSTORE_PASSWORD);
 
-        log.info(KEYSTORE + ": " + System.getProperty(KEYSTORE));
-        log.info(KEYSTORE_PASSWORD + ": " + System.getProperty(KEYSTORE_PASSWORD));
-        log.info(TRUSTSTORE + ": " + System.getProperty(TRUSTSTORE));
-        log.info(TRUSTSTORE_PASSWORD + ": " + System.getProperty(TRUSTSTORE_PASSWORD));
+        log.debug(KEYSTORE + ": " + System.getProperty(KEYSTORE));
+        log.debug(TRUSTSTORE + ": " + System.getProperty(TRUSTSTORE));
 
         log.info("JACC factory registered");
     }
