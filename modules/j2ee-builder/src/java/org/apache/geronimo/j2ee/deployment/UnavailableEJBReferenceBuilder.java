@@ -28,7 +28,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
  * @version $Rev:  $ $Date:  $
  */
 public class UnavailableEJBReferenceBuilder implements EJBReferenceBuilder {
-    
+
     public Reference createEJBLocalReference(String objectName, boolean isSession, String localHome, String local) throws DeploymentException {
         throw new DeploymentException("EJB references are unavailable in this configuration");
     }
@@ -41,8 +41,8 @@ public class UnavailableEJBReferenceBuilder implements EJBReferenceBuilder {
         throw new DeploymentException("EJB references are unavailable in this configuration");
     }
 
-    public Object createHandleDelegateReference() throws DeploymentException {
-        throw new DeploymentException("EJB references are unavailable in this configuration");
+    public Object createHandleDelegateReference() {
+        return null;
     }
 
     public static final GBeanInfo GBEAN_INFO;
