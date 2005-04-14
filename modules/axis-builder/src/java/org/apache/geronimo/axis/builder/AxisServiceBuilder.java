@@ -60,6 +60,7 @@ import org.apache.axis.encoding.ser.BeanDeserializerFactory;
 import org.apache.axis.encoding.ser.BeanSerializerFactory;
 import org.apache.geronimo.axis.server.ReadOnlyServiceDesc;
 import org.apache.geronimo.axis.server.ServiceInfo;
+import org.apache.geronimo.axis.server.TypeDescInfo;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.kernel.ClassLoading;
@@ -81,7 +82,8 @@ import org.w3c.dom.Node;
  * @version $Rev$ $Date$
  */
 public class AxisServiceBuilder {
-
+    public static final String CLASS_TO_TYPE_DESC_INFO = "classToTypeDescInfo";
+    
     public static final String XSD_NS = "http://www.w3.org/2001/XMLSchema";
     public static final QName SCHEMA_QNAME = new QName(XSD_NS, "schema");
 
@@ -105,7 +107,7 @@ public class AxisServiceBuilder {
         return createServiceInfo(portInfo, classLoader);
     }
 
-    public static JavaServiceDesc createEJBServiceDesc(JarFile jarFile, String ejbName, ClassLoader classLoader) throws DeploymentException {
+    private static JavaServiceDesc createEJBServiceDesc(JarFile jarFile, String ejbName, ClassLoader classLoader) throws DeploymentException {
         Map portComponentsMap = null;
         try {
             URL webservicesURL = DeploymentUtil.createJarURL(jarFile, "META-INF/webservices.xml");
@@ -223,18 +225,22 @@ public class AxisServiceBuilder {
         serviceDesc.setTypeMappingRegistry(tmr);
         serviceDesc.setTypeMapping(typeMapping);
 
+        Map classToTypeDescInfo = new HashMap();
+        
         if (isLightweight) {
-            buildLightweightTypes(schemaTypeKeyToSchemaTypeMap, portInfo, classLoader, typeMapping);
+            buildLightweightTypes(schemaTypeKeyToSchemaTypeMap, portInfo, classLoader, typeMapping, classToTypeDescInfo);
         } else {
             JavaXmlTypeMappingType[] javaXmlTypeMappings = portInfo.getJavaWsdlMapping().getJavaXmlTypeMappingArray();
-            buildHeavyweightTypes(wrapperElementQNames, javaXmlTypeMappings, classLoader, schemaTypeKeyToSchemaTypeMap, typeMapping);
+            buildHeavyweightTypes(wrapperElementQNames, javaXmlTypeMappings, classLoader, schemaTypeKeyToSchemaTypeMap, typeMapping, classToTypeDescInfo);
         }
 
+        serviceDesc.setProperty(CLASS_TO_TYPE_DESC_INFO, classToTypeDescInfo);
+        
         serviceDesc.getOperations();
         return new ReadOnlyServiceDesc(serviceDesc);
     }
 
-    private static void buildHeavyweightTypes(Set wrapperElementQNames, JavaXmlTypeMappingType[] javaXmlTypeMappings, ClassLoader classLoader, Map schemaTypeKeyToSchemaTypeMap, TypeMapping typeMapping) throws DeploymentException {
+    private static void buildHeavyweightTypes(Set wrapperElementQNames, JavaXmlTypeMappingType[] javaXmlTypeMappings, ClassLoader classLoader, Map schemaTypeKeyToSchemaTypeMap, TypeMapping typeMapping, Map classToTypeDescInfo) throws DeploymentException {
         for (int j = 0; j < javaXmlTypeMappings.length; j++) {
             JavaXmlTypeMappingType javaXmlTypeMapping = javaXmlTypeMappings[j];
 
@@ -292,17 +298,18 @@ public class AxisServiceBuilder {
                 deserializerFactoryClass = ArrayDeserializerFactory.class;
             }
 
-            TypeDesc typeDesc = TypeDescBuilder.getTypeDescriptor(clazz, typeQName, javaXmlTypeMapping, schemaType);
+            TypeDescInfo typeDescInfo = TypeDescBuilder.getTypeDescInfo(clazz, typeQName, javaXmlTypeMapping, schemaType);
+            TypeDesc.registerTypeDescForClass(clazz, typeDescInfo.buildTypeDesc());
+            classToTypeDescInfo.put(clazz, typeDescInfo);
 
             SerializerFactory ser = BaseSerializerFactory.createFactory(serializerFactoryClass, clazz, typeQName);
             DeserializerFactory deser = BaseDeserializerFactory.createFactory(deserializerFactoryClass, clazz, typeQName);
 
             typeMapping.register(clazz, typeQName, ser, deser);
-            TypeDesc.registerTypeDescForClass(clazz, typeDesc);
         }
     }
 
-    private static void buildLightweightTypes(Map schemaTypeKeyToSchemaTypeMap, PortInfo portInfo, ClassLoader classLoader, TypeMapping typeMapping) throws DeploymentException {
+    private static void buildLightweightTypes(Map schemaTypeKeyToSchemaTypeMap, PortInfo portInfo, ClassLoader classLoader, TypeMapping typeMapping, Map classToTypeDescInfo) throws DeploymentException {
         for (Iterator iterator = schemaTypeKeyToSchemaTypeMap.entrySet().iterator(); iterator.hasNext();) {
             Map.Entry entry = (Map.Entry) iterator.next();
             SchemaTypeKey key = (SchemaTypeKey) entry.getKey();
@@ -345,6 +352,10 @@ public class AxisServiceBuilder {
     private static Set buildOperations(Binding binding, Class serviceEndpointInterface, boolean lightweight, PortInfo portInfo, Map exceptionMap, Map complexTypeMap, Map elementMap, ClassLoader classLoader, JavaServiceDesc serviceDesc) throws DeploymentException {
         Set wrappedElementQNames = new HashSet();
 
+        SOAPBinding soapBinding = (SOAPBinding) SchemaInfoBuilder.getExtensibilityElement(SOAPBinding.class, binding.getExtensibilityElements());
+        String portStyleString = soapBinding.getStyle();
+        Style portStyle = Style.getStyle(portStyleString);
+        
         List bindingOperations = binding.getBindingOperations();
         for (int i = 0; i < bindingOperations.size(); i++) {
             BindingOperation bindingOperation = (BindingOperation) bindingOperations.get(i);
@@ -358,7 +369,7 @@ public class AxisServiceBuilder {
                 ServiceEndpointMethodMappingType[] methodMappings = portInfo.getServiceEndpointInterfaceMapping().getServiceEndpointMethodMappingArray();
                 ServiceEndpointMethodMappingType methodMapping = WSDescriptorParser.getMethodMappingForOperation(operationName, methodMappings);
                 JavaXmlTypeMappingType[] javaXmlTypeMappingTypes = portInfo.getJavaWsdlMapping().getJavaXmlTypeMappingArray();
-                operationDescBuilder = new HeavyweightOperationDescBuilder(bindingOperation, portInfo.getJavaWsdlMapping(), methodMapping, Style.RPC, exceptionMap, complexTypeMap, elementMap, javaXmlTypeMappingTypes, classLoader, serviceEndpointInterface);
+                operationDescBuilder = new HeavyweightOperationDescBuilder(bindingOperation, portInfo.getJavaWsdlMapping(), methodMapping, portStyle, exceptionMap, complexTypeMap, elementMap, javaXmlTypeMappingTypes, classLoader, serviceEndpointInterface);
                 Set wrappedElementQNamesForOper = ((HeavyweightOperationDescBuilder) operationDescBuilder).getWrapperElementQNames();
                 wrappedElementQNames.addAll(wrappedElementQNamesForOper);
             }
@@ -419,34 +430,36 @@ public class AxisServiceBuilder {
                 }
                 Types types = definition.getTypes();
                 Map namespaceMap = definition.getNamespaces();
-                List schemaList = types.getExtensibilityElements();
-                for (Iterator iterator1 = schemaList.iterator(); iterator1.hasNext();) {
-                    Object o = iterator1.next();
-                    if (o instanceof Schema) {
-                        Schema schemaType = (Schema) o;
-                        Element e = schemaType.getElement();
-                        try {
-                            SchemaDocument.Schema schema = (SchemaDocument.Schema) XmlObject.Factory.parse(e);
-                            rewriteSchema(schema, contextURI, key);
-                            Element e2 = (Element) schema.newDomNode();
-                            schemaType.setElement(e2);
-                        } catch (XmlException e1) {
-                            throw new DeploymentException("Could not parse included schema", e1);
-                        }
-                    } else if (o instanceof UnknownExtensibilityElement) {
-                        UnknownExtensibilityElement u = (UnknownExtensibilityElement) o;
-                        QName elementType = u.getElementType();
-                        if (SCHEMA_QNAME.equals(elementType)) {
-                            Element e = u.getElement();
+                if (null != types) {
+                    List schemaList = types.getExtensibilityElements();
+                    for (Iterator iterator1 = schemaList.iterator(); iterator1.hasNext();) {
+                        Object o = iterator1.next();
+                        if (o instanceof Schema) {
+                            Schema schemaType = (Schema) o;
+                            Element e = schemaType.getElement();
                             try {
-                                SchemaDocument schemaDocument = (SchemaDocument) SchemaInfoBuilder.parseWithNamespaces(e, namespaceMap);
-                                SchemaDocument.Schema schema = schemaDocument.getSchema();
+                                SchemaDocument.Schema schema = (SchemaDocument.Schema) XmlObject.Factory.parse(e);
                                 rewriteSchema(schema, contextURI, key);
-                                Node node = schema.newDomNode();
-                                Element e2 = (Element) node.getFirstChild();
-                                u.setElement(e2);
+                                Element e2 = (Element) schema.newDomNode();
+                                schemaType.setElement(e2);
                             } catch (XmlException e1) {
                                 throw new DeploymentException("Could not parse included schema", e1);
+                            }
+                        } else if (o instanceof UnknownExtensibilityElement) {
+                            UnknownExtensibilityElement u = (UnknownExtensibilityElement) o;
+                            QName elementType = u.getElementType();
+                            if (SCHEMA_QNAME.equals(elementType)) {
+                                Element e = u.getElement();
+                                try {
+                                    SchemaDocument schemaDocument = (SchemaDocument) SchemaInfoBuilder.parseWithNamespaces(e, namespaceMap);
+                                    SchemaDocument.Schema schema = schemaDocument.getSchema();
+                                    rewriteSchema(schema, contextURI, key);
+                                    Node node = schema.newDomNode();
+                                    Element e2 = (Element) node.getFirstChild();
+                                    u.setElement(e2);
+                                } catch (XmlException e1) {
+                                    throw new DeploymentException("Could not parse included schema", e1);
+                                }
                             }
                         }
                     }

@@ -67,12 +67,13 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
     private final SOAPBody soapBody;
 
 
-    private final Style defaultStyle;
     private final Map exceptionMap;
     private final Map complexTypeMap;
     private final Map elementMap;
     private final ClassLoader classLoader;
-    private final boolean wrappedStype;
+    private final boolean rpcStyle;
+    private final boolean documentStyle;
+    private final boolean wrappedStyle;
     private final Map publicTypes = new HashMap();
     private final Map anonymousTypes = new HashMap();
 
@@ -92,7 +93,6 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
         super(bindingOperation);
         this.mapping = mapping;
         this.methodMapping = methodMapping;
-        this.defaultStyle = defaultStyle;
         this.exceptionMap = exceptionMap;
         this.complexTypeMap = complexTypeMap;
         this.elementMap = elementMap;
@@ -111,7 +111,21 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
         this.serviceEndpointInterface = serviceEndpointInterface;
         BindingInput bindingInput = bindingOperation.getBindingInput();
         this.soapBody = (SOAPBody) SchemaInfoBuilder.getExtensibilityElement(SOAPBody.class, bindingInput.getExtensibilityElements());
-        this.wrappedStype = methodMapping.isSetWrappedElement();
+
+        wrappedStyle = methodMapping.isSetWrappedElement();
+        if (false == wrappedStyle) {
+            Style style = Style.getStyle(soapOperation.getStyle(), defaultStyle);
+            if (style == Style.RPC) {
+                rpcStyle = true;
+                documentStyle = false;
+            } else {
+                rpcStyle = false;
+                documentStyle = true;
+            }
+        } else {
+            rpcStyle = false;
+            documentStyle = false;
+        }
     }
 
     public Set getWrapperElementQNames() throws DeploymentException {
@@ -152,11 +166,12 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
         operationDesc.setName(operationName);
 
         // Set to 'document', 'rpc' or 'wrapped'
-        if (wrappedStype) {
+        if (wrappedStyle) {
             operationDesc.setStyle(Style.WRAPPED);
+        } else if (rpcStyle) {
+            operationDesc.setStyle(Style.RPC);
         } else {
-            Style style = Style.getStyle(soapOperation.getStyle(), defaultStyle);
-            operationDesc.setStyle(style);
+            operationDesc.setStyle(Style.DOCUMENT);
         }
 
         // Set to 'encoded' or 'literal'
@@ -182,7 +197,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
             parameterDescriptions[position] = parameterDesc;
         }
 
-        if (wrappedStype) {
+        if (wrappedStyle) {
             Part inputPart = getWrappedPart(input);
             QName name = inputPart.getElementName();
             SchemaType operationType = (SchemaType) complexTypeMap.get(name);
@@ -243,7 +258,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
             mapReturnType();
         }
 
-        if (null != output && wrappedStype) {
+        if (null != output && wrappedStyle) {
             Part inputPart = getWrappedPart(output);
             QName name = inputPart.getElementName();
             SchemaType operationType = (SchemaType) complexTypeMap.get(name);
@@ -428,20 +443,28 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
                 throw new DeploymentException("output message part " + wsdlMessagePartName + " has both an INOUT or OUT mapping and a return value mapping for operation " + operationName);
             }
 
-            if (wrappedStype) {
+            if (wrappedStyle) {
                 Part outPart = getWrappedPart(output);
                 SchemaParticle returnParticle = getWrapperChild(outPart, wsdlMessagePartName);
                 //TODO this makes little sense but may be correct, see comments in axis Parameter class
                 //the part name qname is really odd.
                 returnQName = new QName("", returnParticle.getName().getLocalPart());
                 returnType = returnParticle.getType().getName();
-            } else {
+            } else if (rpcStyle) {
                 Part part = output.getPart(wsdlMessagePartName);
                 if (part == null) {
                     throw new DeploymentException("No part for wsdlMessagePartName " + wsdlMessagePartName + " in output message for operation " + operationName);
                 }
                 returnQName = part.getElementName();
                 returnType = part.getTypeName();
+            } else {
+                Part part = output.getPart(wsdlMessagePartName);
+                if (part == null) {
+                    throw new DeploymentException("No part for wsdlMessagePartName " + wsdlMessagePartName + " in output message for operation " + operationName);
+                }
+                returnQName = part.getElementName();
+                //TODO mirror the Axis behavior. Why?
+                returnType = new QName(returnQName.getNamespaceURI(), ">" + returnQName.getLocalPart());
             }
 
             outParamNames.add(wsdlMessagePartName);
@@ -481,7 +504,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
                 throw new DeploymentException("QName of input message: " + input.getQName() +
                         " does not match mapping message QName: " + wsdlMessageQName + " for operation " + operationName);
             }
-            if (wrappedStype) {
+            if (wrappedStyle) {
                 Part inPart = getWrappedPart(input);
                 // the local name of the global element refered by the part is equal to the operation name
                 QName name = inPart.getElementName();
@@ -494,7 +517,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
                 //the part name qname is really odd.
                 paramQName = new QName("", inParameter.getName().getLocalPart());
                 paramTypeQName = inParameter.getType().getName();
-            } else {
+            } else if (rpcStyle) {
                 part = input.getPart(wsdlMessagePartName);
                 if (part == null) {
                     throw new DeploymentException("No part for wsdlMessagePartName " + wsdlMessagePartName + " in input message for operation " + operationName);
@@ -503,17 +526,25 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
                 //the part name qname is really odd.
                 paramQName = new QName("", part.getName());
                 paramTypeQName = part.getTypeName();
+            } else {
+                part = input.getPart(wsdlMessagePartName);
+                if (part == null) {
+                    throw new DeploymentException("No part for wsdlMessagePartName " + wsdlMessagePartName + " in input message for operation " + operationName);
+                }
+                paramQName = part.getElementName();
+                //TODO mirror the Axis behavior. Why?
+                paramTypeQName = new QName(paramQName.getNamespaceURI(), ">" + paramQName.getLocalPart());
             }
             inParamNames.add(wsdlMessagePartName);
             if (isOutParam) {
-                if (wrappedStype) {
-                    Part outPart = getWrappedPart(input);
+                if (wrappedStyle) {
+                    Part outPart = getWrappedPart(output);
                     SchemaParticle outParameter = getWrapperChild(outPart, wsdlMessagePartName);
                     if (inParameter.getType() != outParameter.getType()) {
                         throw new DeploymentException("The wrapper children " + wsdlMessagePartName +
                                 " do not have the same type for operation " + operationName);
                     }
-                } else {
+                } else if (rpcStyle) {
                     //inout, check that part of same name and type is in output message
                     Part outPart = output.getPart(wsdlMessagePartName);
                     if (outPart == null) {
@@ -529,6 +560,14 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
                     if (!(part.getTypeName() == null ? outPart.getTypeName() == null : part.getTypeName().equals(outPart.getTypeName()))) {
                         throw new DeploymentException("Mismatched input part type name: " + part.getTypeName() + " and output part type name: " + outPart.getTypeName() + " for INOUT parameter for wsdlMessagePartName " + wsdlMessagePartName + " for operation " + operationName);
                     }
+                } else {
+                    part = output.getPart(wsdlMessagePartName);
+                    if (part == null) {
+                        throw new DeploymentException("No part for wsdlMessagePartName " + wsdlMessagePartName + " in output message for operation " + operationName);
+                    }
+                    paramQName = part.getElementName();
+                    //TODO mirror the Axis behavior. Why?
+                    paramTypeQName = new QName(paramQName.getNamespaceURI(), ">" + paramQName.getLocalPart());
                 }
                 outParamNames.add(wsdlMessagePartName);
             }
@@ -537,14 +576,14 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
                 throw new DeploymentException("QName of output message: " + output.getQName() +
                         " does not match mapping message QName: " + wsdlMessageQName + " for operation " + operationName);
             }
-            if (wrappedStype) {
+            if (wrappedStyle) {
                 Part outPart = getWrappedPart(output);
                 SchemaParticle outParameter = getWrapperChild(outPart, wsdlMessagePartName);
                 //TODO this makes little sense but may be correct, see comments in axis Parameter class
                 //the part name qname is really odd.
                 paramQName = new QName("", outParameter.getName().getLocalPart());
                 paramTypeQName = outParameter.getType().getName();
-            } else {
+            } else if (rpcStyle) {
                 part = output.getPart(wsdlMessagePartName);
                 if (part == null) {
                     throw new DeploymentException("No part for wsdlMessagePartName " + wsdlMessagePartName + " in output message for operation " + operationName);
@@ -553,6 +592,14 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
                 //the part name qname is really odd.
                 paramQName = new QName("", part.getName());
                 paramTypeQName = part.getTypeName();
+            } else {
+                part = output.getPart(wsdlMessagePartName);
+                if (part == null) {
+                    throw new DeploymentException("No part for wsdlMessagePartName " + wsdlMessagePartName + " in output message for operation " + operationName);
+                }
+                paramQName = part.getElementName();
+                //TODO mirror the Axis behavior. Why?
+                paramTypeQName = new QName(paramQName.getNamespaceURI(), ">" + paramQName.getLocalPart());
             }
             outParamNames.add(wsdlMessagePartName);
         } else {

@@ -30,15 +30,14 @@ import org.apache.axis.description.AttributeDesc;
 import org.apache.axis.description.ElementDesc;
 import org.apache.geronimo.xbeans.j2ee.JavaXmlTypeMappingType;
 import org.apache.geronimo.xbeans.j2ee.VariableMappingType;
+import org.apache.geronimo.axis.server.TypeDescInfo;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.xmlbeans.SchemaType;
 
 public class TypeDescBuilder {
-    public static TypeDesc getTypeDescriptor(Class javaClass, QName typeQName, JavaXmlTypeMappingType javaXmlTypeMapping, SchemaType schemaType) throws DeploymentException {
+    public static TypeDescInfo getTypeDescInfo(Class javaClass, QName typeQName, JavaXmlTypeMappingType javaXmlTypeMapping, SchemaType schemaType) throws DeploymentException {
         boolean isRestriction = schemaType.getDerivationType() == SchemaType.DT_RESTRICTION;
-        TypeDesc typeDesc = new TypeDesc(javaClass, !isRestriction);
-        //TODO typeQName may be a 'anonymous" QName like construct.  Is this what axis expects?
-        typeDesc.setXmlType(typeQName);
+        
         VariableMappingType[] variableMappings = javaXmlTypeMapping.getVariableMappingArray();
         FieldDesc[] fields = new FieldDesc[variableMappings.length];
 
@@ -105,7 +104,13 @@ public class TypeDescBuilder {
                 fields[i] = elementDesc;
             }
         }
-        typeDesc.setFields(fields);
-        return typeDesc;
+        
+        //TODO typeQName may be a 'anonymous" QName like construct.  Is this what axis expects?
+        return new TypeDescInfo(javaClass, isRestriction, typeQName, fields);
+    }
+    
+    public static TypeDesc getTypeDescriptor(Class javaClass, QName typeQName, JavaXmlTypeMappingType javaXmlTypeMapping, SchemaType schemaType) throws DeploymentException {
+        TypeDescInfo info = getTypeDescInfo(javaClass, typeQName, javaXmlTypeMapping, schemaType);
+        return info.buildTypeDesc();
     }
 }
