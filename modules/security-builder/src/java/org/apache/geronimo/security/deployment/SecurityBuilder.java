@@ -16,10 +16,18 @@
  */
 package org.apache.geronimo.security.deployment;
 
-import java.util.Set;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import javax.management.ObjectName;
+import javax.security.auth.Subject;
+import javax.security.auth.x500.X500Principal;
 
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.deploy.DistinguishedName;
 import org.apache.geronimo.security.deploy.Principal;
@@ -27,14 +35,16 @@ import org.apache.geronimo.security.deploy.Realm;
 import org.apache.geronimo.security.deploy.Role;
 import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.security.jaas.NamedUsernamePasswordCredential;
+import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
+import org.apache.geronimo.security.util.ConfigurationUtil;
 import org.apache.geronimo.xbeans.geronimo.security.GerDefaultPrincipalType;
 import org.apache.geronimo.xbeans.geronimo.security.GerDistinguishedNameType;
+import org.apache.geronimo.xbeans.geronimo.security.GerNamedUsernamePasswordCredentialType;
 import org.apache.geronimo.xbeans.geronimo.security.GerPrincipalType;
 import org.apache.geronimo.xbeans.geronimo.security.GerRealmType;
 import org.apache.geronimo.xbeans.geronimo.security.GerRoleMappingsType;
 import org.apache.geronimo.xbeans.geronimo.security.GerRoleType;
 import org.apache.geronimo.xbeans.geronimo.security.GerSecurityType;
-import org.apache.geronimo.xbeans.geronimo.security.GerNamedUsernamePasswordCredentialType;
 
 
 /**
@@ -42,7 +52,92 @@ import org.apache.geronimo.xbeans.geronimo.security.GerNamedUsernamePasswordCred
  */
 public class SecurityBuilder {
 
-    public static Security buildSecurityConfig(GerSecurityType securityType, Set roleNames) throws DeploymentException {
+    public static SecurityConfiguration buildSecurityConfiguration(GerSecurityType securityType) throws DeploymentException {
+        Security security = buildSecurityConfig(securityType);
+        return buildSecurityConfiguration(security);
+    }
+
+    public static SecurityConfiguration buildSecurityConfiguration(Security security) throws DeploymentException {
+        Map roleDesignates = new HashMap();
+        Map principalRoleMap = new HashMap();
+        Map roleToPrincipalMap = new HashMap();
+        buildRolePrincipalMap(security, roleDesignates, roleToPrincipalMap);
+        invertMap(roleToPrincipalMap, principalRoleMap);
+        SecurityConfiguration securityConfiguration = new SecurityConfiguration(principalRoleMap, roleDesignates, security.getDefaultPrincipal(), security.getDefaultRole(), security.isDoAsCurrentCaller(), security.isUseContextHandler());
+        return securityConfiguration;
+    }
+
+    private static Map invertMap(Map roleToPrincipalMap, Map principalRoleMapping) {
+        for (Iterator roles = roleToPrincipalMap.entrySet().iterator(); roles.hasNext();) {
+            Map.Entry entry = (Map.Entry) roles.next();
+            String role = (String) entry.getKey();
+            Set principals = (Set) entry.getValue();
+            for (Iterator iter = principals.iterator(); iter.hasNext();) {
+                java.security.Principal principal = (java.security.Principal) iter.next();
+
+                HashSet roleSet = (HashSet) principalRoleMapping.get(principal);
+                if (roleSet == null) {
+                    roleSet = new HashSet();
+                    principalRoleMapping.put(principal, roleSet);
+                }
+                roleSet.add(role);
+            }
+        }
+        return principalRoleMapping;
+    }
+
+    private static void buildRolePrincipalMap(Security security, Map roleDesignates, Map roleToPrincipalMap) throws DeploymentException {
+
+        Iterator rollMappings = security.getRoleMappings().values().iterator();
+        while (rollMappings.hasNext()) {
+            Role role = (Role) rollMappings.next();
+
+            String roleName = role.getRoleName();
+            Subject roleDesignate = new Subject();
+            Set principalSet = new HashSet();
+
+            Iterator realms = role.getRealms().values().iterator();
+            while (realms.hasNext()) {
+                Realm realm = (Realm) realms.next();
+
+                Iterator principals = realm.getPrincipals().iterator();
+                while (principals.hasNext()) {
+                    Principal principal = (Principal) principals.next();
+
+                    RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(principal, realm.getRealmName());
+
+                    if (realmPrincipal == null) throw new DeploymentException("Unable to create realm principal");
+
+                    principalSet.add(realmPrincipal);
+                    if (principal.isDesignatedRunAs()) roleDesignate.getPrincipals().add(realmPrincipal);
+                }
+            }
+
+            for (Iterator names = role.getDNames().iterator(); names.hasNext();) {
+                DistinguishedName dn = (DistinguishedName) names.next();
+
+                X500Principal x500Principal = ConfigurationUtil.generateX500Principal(dn.getName());
+
+                principalSet.add(x500Principal);
+                if (dn.isDesignatedRunAs()) {
+                    roleDesignate.getPrincipals().add(x500Principal);
+                }
+            }
+
+            Set roleMapping = (Set) roleToPrincipalMap.get(roleName);
+            if (roleMapping == null) {
+                roleMapping = new HashSet();
+                roleToPrincipalMap.put(roleName, roleMapping);
+            }
+            roleMapping.addAll(principalSet);
+
+            if (roleDesignate.getPrincipals().size() > 0) {
+                roleDesignates.put(roleName, roleDesignate);
+            }
+        }
+    }
+
+    private static Security buildSecurityConfig(GerSecurityType securityType) {
         Security security = null;
 
         if (securityType == null) {
@@ -92,13 +187,12 @@ public class SecurityBuilder {
             }
         }
 
-        security.getRoleNames().addAll(roleNames);
-
         security.setDefaultPrincipal(buildDefaultPrincipal(securityType.getDefaultPrincipal()));
 
         return security;
     }
 
+    //used from app client builder
     public static DefaultPrincipal buildDefaultPrincipal(GerDefaultPrincipalType defaultPrincipalType) {
         DefaultPrincipal defaultPrincipal = new DefaultPrincipal();
 
@@ -117,6 +211,7 @@ public class SecurityBuilder {
         return defaultPrincipal;
     }
 
+    //used from TSSConfigEditor
     public static Principal buildPrincipal(GerPrincipalType principalType) {
         Principal principal = new Principal();
 
@@ -126,4 +221,13 @@ public class SecurityBuilder {
 
         return principal;
     }
+
+    public static GBeanData configureApplicationPolicyManager(ObjectName name, Map contextIDToPermissionsMap, SecurityConfiguration securityConfiguration) {
+        GBeanData jaccBeanData = new GBeanData(name, ApplicationPolicyConfigurationManager.GBEAN_INFO);
+        jaccBeanData.setAttribute("contextIdToPermissionsMap", contextIDToPermissionsMap);
+        jaccBeanData.setAttribute("principalRoleMap", securityConfiguration.getPrincipalRoleMap());
+        jaccBeanData.setAttribute("roleDesignates", securityConfiguration.getRoleDesignates());
+        return jaccBeanData;
+    }
+
 }

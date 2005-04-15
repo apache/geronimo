@@ -6,9 +6,9 @@
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
-  
+
        http://www.apache.org/licenses/LICENSE-2.0
-  
+
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,12 +19,14 @@
 <xs:schema
     xmlns:geronimo="http://geronimo.apache.org/xml/ns/j2ee/application"
     targetNamespace="http://geronimo.apache.org/xml/ns/j2ee/application"
+    xmlns:security="http://geronimo.apache.org/xml/ns/security"
     xmlns:sys="http://geronimo.apache.org/xml/ns/deployment"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     elementFormDefault="qualified"
     attributeFormDefault="unqualified"
     version="1.0">
 
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/security" schemaLocation="../../../security-builder/src/schema/geronimo-security.xsd"/>
     <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment" schemaLocation="../../../service-builder/src/schema/geronimo-config.xsd"/>
 
     <xs:element name="application" type="geronimo:applicationType"/>
@@ -33,6 +35,7 @@
         <xs:sequence>
             <xs:element ref="sys:dependency" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="module" type="geronimo:moduleType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="security:security" minOccurs="0"/>
             <xs:element ref="sys:gbean" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
 

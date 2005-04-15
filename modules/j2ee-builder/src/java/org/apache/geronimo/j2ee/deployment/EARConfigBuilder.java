@@ -54,6 +54,8 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.schema.SchemaConversionUtils;
+import org.apache.geronimo.security.deployment.SecurityBuilder;
+import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerApplicationDocument;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerApplicationType;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerModuleType;
@@ -110,7 +112,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             return null;
         }
 
-        Object plan = getEarPlan(planFile, jarFile);
+        ApplicationInfo plan = getEarPlan(planFile, jarFile);
         if (plan != null) {
             return plan;
         }
@@ -144,7 +146,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 null);
     }
 
-    private Object getEarPlan(File planFile, JarFile earFile) throws DeploymentException {
+    private ApplicationInfo getEarPlan(File planFile, JarFile earFile) throws DeploymentException {
         String specDD;
         ApplicationType application;
         try {
@@ -224,16 +226,16 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             }
 
             if (e instanceof DeploymentException) {
-                throw (DeploymentException)e;
+                throw (DeploymentException) e;
             } else if (e instanceof RuntimeException) {
-                throw (RuntimeException)e;
+                throw (RuntimeException) e;
             } else if (e instanceof Error) {
-                throw (Error)e;
+                throw (Error) e;
             }
             throw new DeploymentException(e);
         }
 
-        String applicationName = gerApplication.isSetApplicationName()? gerApplication.getApplicationName(): configId.toString();
+        String applicationName = gerApplication.isSetApplicationName() ? gerApplication.getApplicationName() : configId.toString();
 
         return new ApplicationInfo(ConfigurationModuleType.EAR,
                 configId,
@@ -348,6 +350,29 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 earContext.addGBean(gbeanData);
             }
 
+
+            //TODO this might need to be constructed only if there is security...
+            ObjectName jaccBeanName = null;
+            String moduleName;
+            if (ConfigurationModuleType.EAR == applicationType) {
+                moduleName = NameFactory.NULL;
+            } else {
+                Module module = (Module) modules.iterator().next();
+                moduleName = module.getName();
+            }
+            try {
+                jaccBeanName = NameFactory.getComponentName(null, null, null, moduleName, NameFactory.JACC_MANAGER, NameFactory.JACC_MANAGER, earContext.getJ2eeContext());
+            } catch (MalformedObjectNameException e) {
+                throw new DeploymentException("Could not construct name for JACCBean", e);
+            }
+            earContext.setJaccManagerName(jaccBeanName);
+
+            //look for application plan security config
+            if (geronimoApplication != null && geronimoApplication.isSetSecurity()) {
+                SecurityConfiguration securityConfiguration = SecurityBuilder.buildSecurityConfiguration(geronimoApplication.getSecurity());
+                earContext.setSecurityConfiguration(securityConfiguration);
+            }
+
             // each module can now add it's GBeans
             for (Iterator iterator = modules.iterator(); iterator.hasNext();) {
                 Module module = (Module) iterator.next();
@@ -359,6 +384,11 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 }
             }
 
+            //add the JACC gbean if there is a principal-role mapping
+            if (earContext.getSecurityConfiguration() != null) {
+                GBeanData jaccBeanData = SecurityBuilder.configureApplicationPolicyManager(jaccBeanName, earContext.getContextIDToPermissionsMap(), earContext.getSecurityConfiguration());
+                earContext.addGBean(jaccBeanData);
+            }
             earContext.close();
             return moduleIDs;
         } finally {
@@ -491,7 +521,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             for (Iterator iterator = altVendorDDs.values().iterator(); iterator.hasNext();) {
                 Object altVendorDD = iterator.next();
                 if (altVendorDD instanceof File) {
-                    ((File)altVendorDD).delete();
+                    ((File) altVendorDD).delete();
                 }
             }
         }

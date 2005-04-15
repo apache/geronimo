@@ -17,6 +17,7 @@
 package org.apache.geronimo.security.jacc;
 
 import java.util.Collection;
+import java.util.Map;
 import javax.security.jacc.PolicyContextException;
 
 
@@ -33,5 +34,9 @@ public class RoleMappingConfigurationImpl implements RoleMappingConfiguration {
 
     public void addRoleMapping(String role, Collection principals) throws PolicyContextException {
         policyConfiguration.addRoleMapping(role, principals);
+    }
+
+    public void setPrincipalRoleMapping(Map principalRoleMap) throws PolicyContextException {
+        policyConfiguration.setPrincipalRoleMapping(principalRoleMap);
     }
 }

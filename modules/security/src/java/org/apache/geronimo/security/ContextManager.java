@@ -67,7 +67,7 @@ public class ContextManager {
      * the Subject used by the server has more important contents.  This method
      * lets a server-side component acting as an authentication client (such
      * as Tocmat/Jetty) access the fully populated server-side Subject.
-     */ 
+     */
     public static Subject getServerSideSubject(Subject clientSideSubject) {
         Set set = clientSideSubject.getPrincipals(IdentificationPrincipal.class);
         if(set == null || set.size() == 0) {
@@ -123,7 +123,9 @@ public class ContextManager {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(GET_CONTEXT);
 
-        Context context = (Context) subjectContexts.get(currentCaller.get());
+        Subject currentSubject = (Subject) currentCaller.get();
+        assert currentSubject != null : "No current caller";
+        Context context = (Context) subjectContexts.get(currentSubject);
 
         assert context != null : "No registered context";
 

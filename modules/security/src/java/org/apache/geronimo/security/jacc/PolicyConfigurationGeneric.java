@@ -28,6 +28,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import javax.security.jacc.PolicyContextException;
 
 
@@ -89,6 +90,11 @@ public class PolicyConfigurationGeneric implements GeronimoPolicyConfiguration {
             }
             roles.add(role);
         }
+    }
+
+    public void setPrincipalRoleMapping(Map principalRoleMap) throws PolicyContextException {
+        principalRoleMapping.clear();
+        principalRoleMapping.putAll(principalRoleMap);
     }
 
     public void addToRole(String roleName, PermissionCollection permissions) throws PolicyContextException {
@@ -166,18 +172,18 @@ public class PolicyConfigurationGeneric implements GeronimoPolicyConfiguration {
     public void linkConfiguration(javax.security.jacc.PolicyConfiguration link) throws PolicyContextException {
         if (state != OPEN) throw new UnsupportedOperationException("Not in an open state");
 
-        RoleMappingConfiguration roleMapper = RoleMappingConfigurationFactory.getRoleMappingFactory().getRoleMappingConfiguration(link.getContextID(), false);
-        Iterator principals = principalRoleMapping.keySet().iterator();
-        while (principals.hasNext()) {
-            Principal principal = (Principal) principals.next();
-
-            Iterator roles = ((HashSet) principalRoleMapping.get(principal)).iterator();
-            while (roles.hasNext()) {
-                roleMapper.addRoleMapping((String) roles.next(), Collections.singletonList(principal));
-            }
-
-        }
-        link.linkConfiguration(this);
+//        RoleMappingConfiguration roleMapper = RoleMappingConfigurationFactory.getRoleMappingFactory().getRoleMappingConfiguration(link.getContextID(), false);
+//        Iterator principals = principalRoleMapping.keySet().iterator();
+//        while (principals.hasNext()) {
+//            Principal principal = (Principal) principals.next();
+//
+//            Iterator roles = ((HashSet) principalRoleMapping.get(principal)).iterator();
+//            while (roles.hasNext()) {
+//                roleMapper.addRoleMapping((String) roles.next(), Collections.singletonList(principal));
+//            }
+//
+//        }
+//        link.linkConfiguration(this);
     }
 
     public void delete() throws PolicyContextException {
@@ -187,9 +193,9 @@ public class PolicyConfigurationGeneric implements GeronimoPolicyConfiguration {
     public void commit() throws PolicyContextException {
         if (state != OPEN) throw new UnsupportedOperationException("Not in an open state");
 
-        Iterator principals = principalRoleMapping.keySet().iterator();
-        while (principals.hasNext()) {
-            Principal principal = (Principal) principals.next();
+        for (Iterator principalEntries = principalRoleMapping.entrySet().iterator(); principalEntries.hasNext(); ) {
+            Map.Entry principalEntry = (Map.Entry) principalEntries.next();
+            Principal principal = (Principal) principalEntry.getKey();
             Permissions principalPermissions = (Permissions) principalPermissionsMap.get(principal);
 
             if (principalPermissions == null) {
@@ -197,12 +203,11 @@ public class PolicyConfigurationGeneric implements GeronimoPolicyConfiguration {
                 principalPermissionsMap.put(principal, principalPermissions);
             }
 
-            Iterator roles = ((HashSet) principalRoleMapping.get(principal)).iterator();
-            while (roles.hasNext()) {
+            HashSet roleSet = (HashSet) principalEntry.getValue();
+            for (Iterator roles = roleSet.iterator(); roles.hasNext(); ) {
                 Permissions permissions = (Permissions) rolePermissionsMap.get(roles.next());
                 if (permissions == null) continue;
-                Enumeration rolePermissions = permissions.elements();
-                while (rolePermissions.hasMoreElements()) {
+                for (Enumeration rolePermissions = permissions.elements(); rolePermissions.hasMoreElements(); ) {
                     principalPermissions.add((Permission) rolePermissions.nextElement());
                 }
             }

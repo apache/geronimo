@@ -19,23 +19,14 @@ package org.apache.geronimo.jetty.interceptor;
 import java.io.IOException;
 import java.security.AccessControlContext;
 import java.security.AccessControlException;
-import java.security.Permission;
 import java.security.PermissionCollection;
-import java.security.Permissions;
 import java.security.Principal;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import javax.security.auth.Subject;
-import javax.security.auth.x500.X500Principal;
-import javax.security.jacc.PolicyConfiguration;
-import javax.security.jacc.PolicyConfigurationFactory;
 import javax.security.jacc.PolicyContext;
 import javax.security.jacc.PolicyContextException;
 import javax.security.jacc.WebResourcePermission;
-import javax.security.jacc.WebRoleRefPermission;
 import javax.security.jacc.WebUserDataPermission;
 import javax.servlet.http.HttpServletRequest;
 
@@ -43,15 +34,8 @@ import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.jetty.JAASJettyPrincipal;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.IdentificationPrincipal;
-import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.SubjectId;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
-import org.apache.geronimo.security.deploy.DistinguishedName;
-import org.apache.geronimo.security.deploy.Realm;
-import org.apache.geronimo.security.deploy.Role;
-import org.apache.geronimo.security.deploy.Security;
-import org.apache.geronimo.security.jacc.RoleMappingConfiguration;
-import org.apache.geronimo.security.jacc.RoleMappingConfigurationFactory;
 import org.apache.geronimo.security.util.ConfigurationUtil;
 import org.mortbay.http.Authenticator;
 import org.mortbay.http.HttpException;
@@ -73,14 +57,12 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
     private final int webAppContextIndex;
     private final String policyContextID;
     private final static ThreadLocal currentWebAppContext = new ThreadLocal();
-    private final Map roleDesignates = new HashMap();
+    private final Map roleDesignates;
     private final JAASJettyPrincipal defaultPrincipal;
 
     private final String formLoginPath;
-    private final PolicyConfigurationFactory factory;
-    private final PolicyConfiguration policyConfiguration;
 
-    private final PermissionCollection checked = new Permissions();
+    private final PermissionCollection checked;
     private final PermissionCollection excludedPermissions;
     private final Authenticator authenticator;
 
@@ -90,19 +72,21 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
                                       int policyContextIDIndex,
                                       int webAppContextIndex,
                                       String policyContextID,
-                                      Security securityConfig,
+                                      DefaultPrincipal defaultPrincipal,
                                       Authenticator authenticator,
-                                      Set securityRoles,
-                                      PermissionCollection uncheckedPermissions,
+                                      PermissionCollection checkedPermissions,
                                       PermissionCollection excludedPermissions,
-                                      Map rolePermissions,
-                                      UserRealm realm) throws PolicyContextException, ClassNotFoundException {
+                                      Map roleDesignates,
+                                      UserRealm realm) {
         this.next = next;
         this.policyContextIDIndex = policyContextIDIndex;
         this.webAppContextIndex = webAppContextIndex;
         this.policyContextID = policyContextID;
 
-        this.defaultPrincipal = generateDefaultPrincipal(securityConfig);
+        this.defaultPrincipal = generateDefaultPrincipal(defaultPrincipal);
+        this.roleDesignates = roleDesignates;
+        this.checked = checkedPermissions;
+        this.excludedPermissions = excludedPermissions;
 
         if (authenticator instanceof FormAuthenticator) {
             String formLoginPath = ((FormAuthenticator) authenticator).getLoginPage();
@@ -118,53 +102,21 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
         /**
          * Register our default principal with the ContextManager
          */
-        Subject defaultSubject = defaultPrincipal.getSubject();
+        Subject defaultSubject = this.defaultPrincipal.getSubject();
         ContextManager.registerSubject(defaultSubject);
         SubjectId id = ContextManager.getSubjectId(defaultSubject);
         defaultSubject.getPrincipals().add(new IdentificationPrincipal(id));
 
 //        log.debug("Default subject " + id + " for JACC policy '" + policyContextID + "' registered.");
 
-        /**
-         * Get the JACC policy configuration that's associated with this
-         * web application and configure it with the geronimo security
-         * configuration.  The work for this is done by the class
-         * JettyXMLConfiguration.
-         */
-        factory = PolicyConfigurationFactory.getPolicyConfigurationFactory();
-
-        policyConfiguration = factory.getPolicyConfiguration(policyContextID, true);
-        configure(uncheckedPermissions, excludedPermissions, rolePermissions);
-        RoleMappingConfiguration roleMapper = RoleMappingConfigurationFactory.getRoleMappingFactory().getRoleMappingConfiguration(policyContextID, false);
-        addRoleMappings(securityRoles, securityConfig, roleMapper);
-        policyConfiguration.commit();
-        this.excludedPermissions = excludedPermissions;
-
-        Set allRolePermissions = new HashSet();
-        for (Iterator iterator = rolePermissions.entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
-            Set permissionsForRole = (Set) entry.getValue();
-            allRolePermissions.addAll(permissionsForRole);
-        }
-        for (Iterator iterator = allRolePermissions.iterator(); iterator.hasNext();) {
-            Permission permission = (Permission) iterator.next();
-            checked.add(permission);
-        }
 
         this.realm = realm;
 //        log.info("JettyWebAppJACCContext started with JACC policy '" + policyContextID + "'");
     }
 
-    public void registerServletHolder(Map webRoleRefPermissions) throws PolicyContextException {
-        PolicyConfiguration policyConfiguration = factory.getPolicyConfiguration(policyContextID, false);
-        for (Iterator iterator = webRoleRefPermissions.entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
-            String roleName = (String) entry.getValue();
-            WebRoleRefPermission webRoleRefPermission = (WebRoleRefPermission) entry.getKey();
-            policyConfiguration.addToRole(roleName, webRoleRefPermission);
-        }
-        policyConfiguration.commit();
-
+    public void stop() {
+        Subject defaultSubject = this.defaultPrincipal.getSubject();
+        ContextManager.unregisterSubject(defaultSubject);
     }
 
     public void before(Object[] context, HttpRequest httpRequest, HttpResponse httpResponse) {
@@ -214,12 +166,8 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
         return (Subject) roleDesignates.get(roleName);
     }
 
-    private void setRoleDesignate(String roleName, Subject subject) {
-        roleDesignates.put(roleName, subject);
-    }
-    
     //security check methods, delegated from WebAppContext
-    
+
     /**
      * Check the security constraints using JACC.
      *
@@ -345,12 +293,11 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
     /**
      * Generate the default principal from the security config.
      *
-     * @param securityConfig The Geronimo security configuration.
+     * @param defaultPrincipal The Geronimo security configuration.
      * @return the default principal
      */
-    protected JAASJettyPrincipal generateDefaultPrincipal(Security securityConfig) throws GeronimoSecurityException {
+    protected JAASJettyPrincipal generateDefaultPrincipal(DefaultPrincipal defaultPrincipal) throws GeronimoSecurityException {
 
-        DefaultPrincipal defaultPrincipal = securityConfig.getDefaultPrincipal();
         if (defaultPrincipal == null) {
             throw new GeronimoSecurityException("Unable to generate default principal");
         }
@@ -363,109 +310,4 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
         return result;
     }
 
-
-    public void addRoleMappings(Set securityRoles, Security security, RoleMappingConfiguration roleMapper) throws PolicyContextException, GeronimoSecurityException {
-
-        for (Iterator roleMappings = security.getRoleMappings().values().iterator(); roleMappings.hasNext();) {
-            Role role = (Role) roleMappings.next();
-            String roleName = role.getRoleName();
-            Set principalSet = new HashSet();
-
-            if (!securityRoles.contains(roleName)) {
-                throw new GeronimoSecurityException("Role '" + roleName + "' does not exist in this configuration");
-            }
-
-            Subject roleDesignate = new Subject();
-
-            for (Iterator realms = role.getRealms().values().iterator(); realms.hasNext();) {
-                Realm realm = (Realm) realms.next();
-
-                for (Iterator principals = realm.getPrincipals().iterator(); principals.hasNext();) {
-                    org.apache.geronimo.security.deploy.Principal principal = (org.apache.geronimo.security.deploy.Principal) principals.next();
-
-                    RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(principal, realm.getRealmName());
-                    if (realmPrincipal == null) {
-                        throw new GeronimoSecurityException("Unable to create realm principal");
-                    }
-
-                    principalSet.add(realmPrincipal);
-                    if (principal.isDesignatedRunAs()) {
-                        roleDesignate.getPrincipals().add(realmPrincipal);
-                    }
-                }
-            }
-
-            for (Iterator names = role.getDNames().iterator(); names.hasNext();) {
-                DistinguishedName dn = (DistinguishedName) names.next();
-
-                X500Principal x500Principal = ConfigurationUtil.generateX500Principal(dn.getName());
-
-                principalSet.add(x500Principal);
-                if (dn.isDesignatedRunAs()) {
-                    roleDesignate.getPrincipals().add(x500Principal);
-                }
-            }
-
-            roleMapper.addRoleMapping(roleName, principalSet);
-
-            if (roleDesignate.getPrincipals().size() > 0) {
-                setRoleDesignate(roleName, roleDesignate);
-            }
-        }
-
-        /**
-         * Register the role designates with the context manager.
-         *
-         * THIS MUST BE RUN AFTER JettyXMLConfiguration.configure()
-         */
-        for (Iterator iter = roleDesignates.keySet().iterator(); iter.hasNext();) {
-            String roleName = (String) iter.next();
-            Subject roleDesignate = (Subject) roleDesignates.get(roleName);
-
-            ContextManager.registerSubject(roleDesignate);
-            SubjectId id = ContextManager.getSubjectId(roleDesignate);
-            roleDesignate.getPrincipals().add(new IdentificationPrincipal(id));
-
-//            log.debug("Role designate " + id + " for role '" + roleName + "' for JACC policy '" + policyContextID + "' registered.");
-        }
-
-    }
-
-    private void configure(PermissionCollection uncheckedPermissions,
-                           PermissionCollection excludedPermissions,
-                           Map rolePermissions) throws GeronimoSecurityException {
-        try {
-            policyConfiguration.addToExcludedPolicy(excludedPermissions);
-            policyConfiguration.addToUncheckedPolicy(uncheckedPermissions);
-            for (Iterator iterator = rolePermissions.entrySet().iterator(); iterator.hasNext();) {
-                Map.Entry entry = (Map.Entry) iterator.next();
-                String roleName = (String) entry.getKey();
-                Set permissions = (Set) entry.getValue();
-                for (Iterator iterator1 = permissions.iterator(); iterator1.hasNext();) {
-                    Permission permission = (Permission) iterator1.next();
-                    policyConfiguration.addToRole(roleName, permission);
-                }
-            }
-        } catch (PolicyContextException e) {
-            throw new GeronimoSecurityException(e);
-        }
-    }
-
-
-    public void stop() throws PolicyContextException {
-        for (Iterator iter = roleDesignates.keySet().iterator(); iter.hasNext();) {
-            String roleName = (String) iter.next();
-            Subject roleDesignate = (Subject) roleDesignates.get(roleName);
-
-            ContextManager.unregisterSubject(roleDesignate);
-//            log.debug("Role designate " + ContextManager.getSubjectId(roleDesignate) + " for role '" + roleName + "' for JACC policy '" + policyContextID + "' unregistered.");
-        }
-        ContextManager.unregisterSubject(defaultPrincipal.getSubject());
-
-        if (policyConfiguration != null) {
-            policyConfiguration.delete();
-        }
-
-
-    }
 }

@@ -37,8 +37,11 @@ import org.apache.geronimo.jetty.connector.HTTPConnector;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.security.SecurityServiceImpl;
+import org.apache.geronimo.security.jacc.ComponentPermissions;
+import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.deploy.Principal;
 import org.apache.geronimo.security.deploy.Security;
+import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.jaas.GeronimoLoginConfiguration;
 import org.apache.geronimo.security.jaas.JaasLoginService;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
@@ -125,14 +128,22 @@ public class AbstractWebModuleTest extends TestCase {
         start(app);
     }
 
-    protected void setUpSecureAppContext(Security securityConfig, PermissionCollection uncheckedPermissions, PermissionCollection excludedPermissions, Map rolePermissions, Set securityRoles) throws Exception {
+    protected void setUpSecureAppContext(Map roleDesignates, Map principalRoleMap, ComponentPermissions componentPermissions, DefaultPrincipal defaultPrincipal, PermissionCollection checked, Set securityRoles) throws Exception {
+        ObjectName jaccBeanName = NameFactory.getComponentName(null, null, null, null, "foo", NameFactory.JACC_MANAGER, moduleContext);
+        GBeanData jaccBeanData = new GBeanData(jaccBeanName, ApplicationPolicyConfigurationManager.GBEAN_INFO);
+        Map contextIDToPermissionsMap = new HashMap();
+        contextIDToPermissionsMap.put("TEST", componentPermissions);
+        jaccBeanData.setAttribute("contextIdToPermissionsMap", contextIDToPermissionsMap);
+        jaccBeanData.setAttribute("principalRoleMap", principalRoleMap);
+        jaccBeanData.setAttribute("roleDesignates", roleDesignates);
+        start(jaccBeanData);
+
         GBeanData app = new GBeanData(webModuleName, JettyWebAppContext.GBEAN_INFO);
         app.setAttribute("securityRealmName", "demo-properties-realm");
-        app.setAttribute("securityConfig", securityConfig);
-        app.setAttribute("uncheckedPermissions", uncheckedPermissions);
-        app.setAttribute("excludedPermissions", excludedPermissions);
-        app.setAttribute("rolePermissions", rolePermissions);
-        app.setAttribute("securityRoles", securityRoles);
+        app.setAttribute("defaultPrincipal", defaultPrincipal);
+        app.setAttribute("checkedPermissions", checked);
+        app.setAttribute("excludedPermissions", componentPermissions.getExcludedPermissions());
+        app.setReferencePattern("RoleDesignateSource", jaccBeanName);
 
         FormAuthenticator formAuthenticator = new FormAuthenticator();
         formAuthenticator.setLoginPage("/auth/logon.html?param=test");

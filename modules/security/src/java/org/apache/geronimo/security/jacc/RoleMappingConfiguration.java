@@ -18,6 +18,7 @@
 package org.apache.geronimo.security.jacc;
 
 import java.util.Collection;
+import java.util.Map;
 import javax.security.jacc.PolicyContextException;
 
 
@@ -45,5 +46,7 @@ public interface RoleMappingConfiguration {
      * @throws javax.security.jacc.PolicyContextException
      *          if the mapping principals to the same role twice occurs.
      */
-    public void addRoleMapping(String role, Collection principals) throws PolicyContextException;
+    void addRoleMapping(String role, Collection principals) throws PolicyContextException;
+
+    void setPrincipalRoleMapping(Map principalRoleMap) throws PolicyContextException;
 }

@@ -24,6 +24,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.security.Permission;
 import java.security.PermissionCollection;
 import java.security.Permissions;
 import java.util.ArrayList;
@@ -48,7 +49,6 @@ import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.axis.builder.PortInfo;
 import org.apache.geronimo.axis.builder.WSDescriptorParser;
-import org.apache.geronimo.axis.builder.SchemaInfoBuilder;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
@@ -76,8 +76,10 @@ import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
 import org.apache.geronimo.schema.SchemaConversionUtils;
-import org.apache.geronimo.security.deploy.Security;
+import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.deployment.SecurityBuilder;
+import org.apache.geronimo.security.deployment.SecurityConfiguration;
+import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.security.util.URLPattern;
 import org.apache.geronimo.transaction.context.OnlineUserTransaction;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppDocument;
@@ -384,20 +386,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
 
             webModuleData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());
             Set securityRoles = collectRoleNames(webApp);
-            if (jettyWebApp.isSetSecurityRealmName()) {
-                String securityRealmName = jettyWebApp.getSecurityRealmName().trim();
-                Security security = SecurityBuilder.buildSecurityConfig(jettyWebApp.getSecurity(), securityRoles);
-                webModuleData.setAttribute("securityRealmName", securityRealmName);
-                webModuleData.setAttribute("securityConfig", security);
-
-                /**
-                 * TODO - go back to commented version when possible.
-                 */
-                String policyContextID = webModuleName.getCanonicalName().replaceAll("[, ]","_");
-                //String policyContextID = webModuleName.getCanonicalName();
-                webModuleData.setAttribute("policyContextID", policyContextID);
-                buildSpecSecurityConfig(webApp, webModuleData, securityRoles);
-            }
+            Map rolePermissions = new HashMap();
 
             webModuleData.setAttribute("uri", URI.create(module.getTargetPath() + "/"));
             webModuleData.setAttribute("componentContext", compContext);
@@ -707,7 +696,42 @@ public class JettyModuleBuilder implements ModuleBuilder {
 
             for (int i = 0; i < servletTypes.length; i++) {
                 ServletType servletType = servletTypes[i];
-                addServlet(webModuleName, webModule.getModuleFile(), servletType, servletMappings, securityRoles, portMap, webClassLoader, moduleJ2eeContext, earContext);
+                addServlet(webModuleName, webModule.getModuleFile(), servletType, servletMappings, securityRoles, rolePermissions, portMap, webClassLoader, moduleJ2eeContext, earContext);
+            }
+            if (jettyWebApp.isSetSecurityRealmName()) {
+                String securityRealmName = jettyWebApp.getSecurityRealmName().trim();
+                webModuleData.setAttribute("securityRealmName", securityRealmName);
+//                webModuleData.setAttribute("securityConfig", security);
+
+                /**
+                 * TODO - go back to commented version when possible.
+                 */
+                String policyContextID = webModuleName.getCanonicalName().replaceAll("[, ]", "_");
+                //String policyContextID = webModuleName.getCanonicalName();
+                webModuleData.setAttribute("policyContextID", policyContextID);
+//                webModuleData.setAttribute("securityRoles", securityRoles);
+
+                ComponentPermissions componentPermissions = buildSpecSecurityConfig(webApp, securityRoles, rolePermissions);
+                webModuleData.setAttribute("excludedPermissions", componentPermissions.getExcludedPermissions());
+                PermissionCollection checkedPermissions = new Permissions();
+                for (Iterator iterator = rolePermissions.values().iterator(); iterator.hasNext();) {
+                    PermissionCollection permissionsForRole = (PermissionCollection) iterator.next();
+                    for (Enumeration iterator2 = permissionsForRole.elements(); iterator2.hasMoreElements();) {
+                        Permission permission = (Permission) iterator2.nextElement();
+                        checkedPermissions.add(permission);
+                    }
+                }
+                webModuleData.setAttribute("checkedPermissions", checkedPermissions);
+
+                earContext.addSecurityContext(policyContextID, componentPermissions);
+                if (jettyWebApp.isSetSecurity()) {
+                    SecurityConfiguration securityConfiguration = SecurityBuilder.buildSecurityConfiguration(jettyWebApp.getSecurity());
+                    earContext.setSecurityConfiguration(securityConfiguration);
+                }
+                DefaultPrincipal defaultPrincipal = earContext.getSecurityConfiguration().getDefaultPrincipal();
+                webModuleData.setAttribute("defaultPrincipal", defaultPrincipal);
+
+                webModuleData.setReferencePattern("RoleDesignateSource", earContext.getJaccManagerName());
             }
         } catch (DeploymentException de) {
             throw de;
@@ -746,7 +770,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
                             ServletType servletType,
                             Map servletMappings,
                             Set securityRoles,
-                            Map portMap,
+                            Map rolePermissions, Map portMap,
                             ClassLoader webClassLoader,
                             J2eeContext moduleJ2eeContext,
                             EARContext earContext) throws MalformedObjectNameException, DeploymentException {
@@ -813,7 +837,6 @@ public class JettyModuleBuilder implements ModuleBuilder {
 
         //WebRoleRefPermissions
         SecurityRoleRefType[] securityRoleRefTypeArray = servletType.getSecurityRoleRefArray();
-        Map webRoleRefPermissions = new HashMap();
         Set unmappedRoles = new HashSet(securityRoles);
         for (int j = 0; j < securityRoleRefTypeArray.length; j++) {
             SecurityRoleRefType securityRoleRefType = securityRoleRefTypeArray[j];
@@ -827,19 +850,19 @@ public class JettyModuleBuilder implements ModuleBuilder {
             * WebRoleRefPermission object resulting from the translation to the role
             * identified in the role-link appearing in the security-role-ref.
             */
-            webRoleRefPermissions.put(new WebRoleRefPermission(servletName, roleName), roleLink);
+            addPermissionToRole(roleLink, new WebRoleRefPermission(servletName, roleName), rolePermissions);
             unmappedRoles.remove(roleName);
         }
         for (Iterator iterator = unmappedRoles.iterator(); iterator.hasNext();) {
             String roleName = (String) iterator.next();
-            webRoleRefPermissions.put(new WebRoleRefPermission(servletName, roleName), roleName);
+            addPermissionToRole(roleName, new WebRoleRefPermission(servletName, roleName), rolePermissions);
         }
-        servletData.setAttribute("webRoleRefPermissions", webRoleRefPermissions);
+//        servletData.setAttribute("webRoleRefPermissions", webRoleRefPermissions);
 
         earContext.addGBean(servletData);
     }
 
-    private void buildSpecSecurityConfig(WebAppType webApp, GBeanData webModuleData, Set securityRoles) {
+    private ComponentPermissions buildSpecSecurityConfig(WebAppType webApp, Set securityRoles, Map rolePermissions) {
         Map uncheckedPatterns = new HashMap();
         Map uncheckedResourcePatterns = new HashMap();
         Map uncheckedUserPatterns = new HashMap();
@@ -847,8 +870,6 @@ public class JettyModuleBuilder implements ModuleBuilder {
         Map rolesPatterns = new HashMap();
         Set allSet = new HashSet();   // == allMap.values()
         Map allMap = new HashMap();   //uncheckedPatterns union excludedPatterns union rolesPatterns.
-
-        webModuleData.setAttribute("securityRoles", securityRoles);
 
         SecurityConstraintType[] securityConstraintArray = webApp.getSecurityConstraintArray();
         for (int i = 0; i < securityConstraintArray.length; i++) {
@@ -923,7 +944,6 @@ public class JettyModuleBuilder implements ModuleBuilder {
 
         PermissionCollection excludedPermissions = new Permissions();
         PermissionCollection uncheckedPermissions = new Permissions();
-        Map rolePermissions = new HashMap();
 
         Iterator iter = excludedPatterns.keySet().iterator();
         while (iter.hasNext()) {
@@ -942,15 +962,9 @@ public class JettyModuleBuilder implements ModuleBuilder {
             String actions = pattern.getMethods();
             WebResourcePermission permission = new WebResourcePermission(name, actions);
 
-            Iterator names = pattern.getRoles().iterator();
-            while (names.hasNext()) {
+            for (Iterator names = pattern.getRoles().iterator(); names.hasNext();) {
                 String roleName = (String) names.next();
-                Set permissionsForRole = (Set) rolePermissions.get(roleName);
-                if (permissionsForRole == null) {
-                    permissionsForRole = new HashSet();
-                    rolePermissions.put(roleName, permissionsForRole);
-                }
-                permissionsForRole.add(permission);
+                addPermissionToRole(roleName, permission, rolePermissions);
             }
         }
 
@@ -1016,29 +1030,38 @@ public class JettyModuleBuilder implements ModuleBuilder {
         //Create the uncheckedPermissions for WebResourcePermissions
         iter = uncheckedResourcePatterns.keySet().iterator();
         while (iter.hasNext()) {
-            UncheckedItem item = (UncheckedItem)iter.next();
-            String actions = (String)uncheckedResourcePatterns.get(item);
+            UncheckedItem item = (UncheckedItem) iter.next();
+            String actions = (String) uncheckedResourcePatterns.get(item);
 
             uncheckedPermissions.add(new WebResourcePermission(item.getName(), actions));
         }
         //Create the uncheckedPermissions for WebUserDataPermissions
         iter = uncheckedUserPatterns.keySet().iterator();
         while (iter.hasNext()) {
-            UncheckedItem item = (UncheckedItem)iter.next();
-            String actions = (String)uncheckedUserPatterns.get(item);
+            UncheckedItem item = (UncheckedItem) iter.next();
+            String actions = (String) uncheckedUserPatterns.get(item);
 
             uncheckedPermissions.add(new WebUserDataPermission(item.getName(), actions));
         }
 
-        webModuleData.setAttribute("excludedPermissions", excludedPermissions);
-        webModuleData.setAttribute("uncheckedPermissions", uncheckedPermissions);
-        webModuleData.setAttribute("rolePermissions", rolePermissions);
+        ComponentPermissions componentPermissions = new ComponentPermissions(excludedPermissions, uncheckedPermissions, rolePermissions);
+        return componentPermissions;
+
     }
 
-    private void addOrUpdatePattern(Map patternMap, String name, String actions){
+    private void addPermissionToRole(String roleName, Permission permission, Map rolePermissions) {
+        PermissionCollection permissionsForRole = (PermissionCollection) rolePermissions.get(roleName);
+        if (permissionsForRole == null) {
+            permissionsForRole = new Permissions();
+            rolePermissions.put(roleName, permissionsForRole);
+        }
+        permissionsForRole.add(permission);
+    }
+
+    private void addOrUpdatePattern(Map patternMap, String name, String actions) {
         UncheckedItem item = new UncheckedItem(name, actions);
-        String existingActions = (String)patternMap.get(item);
-        if (existingActions != null){
+        String existingActions = (String) patternMap.get(item);
+        if (existingActions != null) {
             patternMap.put(item, actions + "," + existingActions);
             return;
         }
@@ -1142,7 +1165,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
         if (webApp.getLoginConfigArray().length > 1) throw new DeploymentException("Multiple <login-config> elements found");
     }
 
-    class UncheckedItem{
+    class UncheckedItem {
         final static int NA = 0x00;
         final static int INTEGRAL = 0x01;
         final static int CONFIDENTIAL = 0x02;
@@ -1150,21 +1173,21 @@ public class JettyModuleBuilder implements ModuleBuilder {
         private int transportType = NA;
         private String name;
 
-        public UncheckedItem(String name, String actions){
+        public UncheckedItem(String name, String actions) {
             setName(name);
             setTransportType(actions);
         }
 
-        public boolean equals(Object o){
-            UncheckedItem item = (UncheckedItem)o;
+        public boolean equals(Object o) {
+            UncheckedItem item = (UncheckedItem) o;
             return item.getKey().equals(this.getKey());
         }
 
-        public String getKey(){
+        public String getKey() {
             return (name + transportType);
         }
 
-        public int hashCode(){
+        public int hashCode() {
             return getKey().hashCode();
         }
 

@@ -34,7 +34,6 @@ public class Security implements Serializable {
     private String defaultRole;
     private DefaultPrincipal defaultPrincipal;
     private Map roleMappings = new HashMap();
-    private Set roleNames = new HashSet();
 
     public Security() {
     }
@@ -73,10 +72,6 @@ public class Security implements Serializable {
 
     public Map getRoleMappings() {
         return roleMappings;
-    }
-
-    public Set getRoleNames() {
-        return roleNames;
     }
 
     public void append(Role role) {

@@ -6,16 +6,16 @@
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
-  
+
        http://www.apache.org/licenses/LICENSE-2.0
-  
+
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-  
+
 
 <!-- $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $ -->
 
@@ -23,10 +23,16 @@
     xmlns:j="jelly:core"
     xmlns:ant="jelly:ant"
     xmlns:maven="jelly:maven"
+    xmlns:xmlbeans="geronimo:xmlbeans"
     >
 
- <!--   <preGoal  name="java:compile">
-        <attainGoal name="axis:axis"/>
-    </preGoal>
--->
+<!--    <preGoal name="java:compile">-->
+<!--        <xmlbeans:schema2java-->
+<!--            sourcedir="${basedir}/src"-->
+<!--            sourceschema="schema/XMLSchema.xsd"-->
+<!--            xmlconfigs="${basedir}/src/schema/xmlconfig.xml"-->
+<!--            targetdir="${basedir}/target/xmlbeans"-->
+<!--            cataloglocation="${basedir}/../j2ee-schema/src/catalog/resolver-catalog.xml"/>-->
+<!--    </preGoal>-->
+
 </project>

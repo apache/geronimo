@@ -17,27 +17,54 @@
 
 package org.apache.geronimo.jetty;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
+import java.security.PermissionCollection;
 import java.util.Collection;
 import java.util.EventListener;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.Hashtable;
-import java.security.PermissionCollection;
-import java.io.IOException;
-
-import javax.naming.Context;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.naming.Context;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.management.J2EEApplication;
+import org.apache.geronimo.j2ee.management.J2EEServer;
+import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
+import org.apache.geronimo.j2ee.management.impl.Util;
+import org.apache.geronimo.jetty.interceptor.BeforeAfter;
+import org.apache.geronimo.jetty.interceptor.ComponentContextBeforeAfter;
+import org.apache.geronimo.jetty.interceptor.InstanceContextBeforeAfter;
+import org.apache.geronimo.jetty.interceptor.RequestWrappingBeforeAfter;
+import org.apache.geronimo.jetty.interceptor.SecurityContextBeforeAfter;
+import org.apache.geronimo.jetty.interceptor.ThreadClassloaderBeforeAfter;
+import org.apache.geronimo.jetty.interceptor.TransactionContextBeforeAfter;
+import org.apache.geronimo.jetty.interceptor.WebApplicationContextBeforeAfter;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.naming.java.SimpleReadOnlyContext;
+import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
+import org.apache.geronimo.naming.reference.KernelAwareReference;
+import org.apache.geronimo.security.deploy.DefaultPrincipal;
+import org.apache.geronimo.security.jacc.RoleDesignateSource;
+import org.apache.geronimo.transaction.TrackedConnectionAssociator;
+import org.apache.geronimo.transaction.context.OnlineUserTransaction;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.mortbay.http.Authenticator;
+import org.mortbay.http.HttpException;
 import org.mortbay.http.HttpRequest;
 import org.mortbay.http.HttpResponse;
-import org.mortbay.http.HttpException;
 import org.mortbay.jetty.servlet.AbstractSessionManager;
 import org.mortbay.jetty.servlet.Dispatcher;
 import org.mortbay.jetty.servlet.FilterHolder;
@@ -45,34 +72,6 @@ import org.mortbay.jetty.servlet.JSR154Filter;
 import org.mortbay.jetty.servlet.ServletHolder;
 import org.mortbay.jetty.servlet.WebApplicationContext;
 import org.mortbay.jetty.servlet.WebApplicationHandler;
-
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.jetty.interceptor.BeforeAfter;
-import org.apache.geronimo.jetty.interceptor.ComponentContextBeforeAfter;
-import org.apache.geronimo.jetty.interceptor.InstanceContextBeforeAfter;
-import org.apache.geronimo.jetty.interceptor.ThreadClassloaderBeforeAfter;
-import org.apache.geronimo.jetty.interceptor.TransactionContextBeforeAfter;
-import org.apache.geronimo.jetty.interceptor.WebApplicationContextBeforeAfter;
-import org.apache.geronimo.jetty.interceptor.RequestWrappingBeforeAfter;
-import org.apache.geronimo.jetty.interceptor.SecurityContextBeforeAfter;
-import org.apache.geronimo.transaction.context.OnlineUserTransaction;
-import org.apache.geronimo.transaction.TrackedConnectionAssociator;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.security.deploy.Security;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.naming.reference.KernelAwareReference;
-import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
-import org.apache.geronimo.naming.java.SimpleReadOnlyContext;
-import org.apache.geronimo.j2ee.management.J2EEServer;
-import org.apache.geronimo.j2ee.management.J2EEApplication;
-import org.apache.geronimo.j2ee.management.impl.Util;
-import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
@@ -149,16 +148,14 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
                               String policyContextID,
                               String securityRealmName,
-                              Security securityConfig,
-                              //from jettyxmlconfig
-                              Set securityRoles,
-                              PermissionCollection uncheckedPermissions,
+                              DefaultPrincipal defaultPrincipal,
+                              PermissionCollection checkedPermissions,
                               PermissionCollection excludedPermissions,
-                              Map rolePermissions,
 
                               TransactionContextManager transactionContextManager,
                               TrackedConnectionAssociator trackedConnectionAssociator,
                               JettyContainer jettyContainer,
+                              RoleDesignateSource roleDesignateSource,
                               J2EEServer server,
                               J2EEApplication application,
                               Kernel kernel) throws Exception, IllegalAccessException, InstantiationException, ClassNotFoundException {
@@ -241,10 +238,14 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         interceptor = new WebApplicationContextBeforeAfter(interceptor, index++, this);
 //JACC
         if (securityRealmName != null) {
+            if (roleDesignateSource == null) {
+                throw new IllegalArgumentException("RoleDesignateSource must be supplied for a secure web app");
+            }
+            Map roleDesignates = roleDesignateSource.getRoleDesignateMap();
             //set the JAASJettyRealm as our realm.
             JAASJettyRealm realm = new JAASJettyRealm(realmName, securityRealmName);
             setRealm(realm);
-            this.securityInterceptor = new SecurityContextBeforeAfter(interceptor, index++, index++, policyContextID, securityConfig, authenticator, securityRoles, uncheckedPermissions, excludedPermissions, rolePermissions, realm);
+            this.securityInterceptor = new SecurityContextBeforeAfter(interceptor, index++, index++, policyContextID, defaultPrincipal, authenticator, checkedPermissions, excludedPermissions, roleDesignates, realm);
             interceptor = this.securityInterceptor;
         } else {
             securityInterceptor = null;
@@ -460,9 +461,9 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
                 handler.mapPathToServlet(urlPattern, servletName);
             }
         }
-        if (securityInterceptor != null) {
-            securityInterceptor.registerServletHolder(webRoleRefPermissions);
-        }
+//        if (securityInterceptor != null) {
+//            securityInterceptor.registerServletHolder(webRoleRefPermissions);
+//        }
         Object context = enterContextScope(null, null);
         try {
             servletHolder.start();
@@ -516,17 +517,16 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         infoBuilder.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.JTA_RESOURCE);
         infoBuilder.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class, NameFactory.JCA_RESOURCE);
         infoBuilder.addReference("JettyContainer", JettyContainer.class, NameFactory.GERONIMO_SERVICE);
+        infoBuilder.addReference("RoleDesignateSource", RoleDesignateSource.class, NameFactory.JACC_MANAGER);
 
         infoBuilder.addInterface(JettyServletRegistration.class);
 
         infoBuilder.addAttribute("policyContextID", String.class, true);
         infoBuilder.addAttribute("securityRealmName", String.class, true);
-        infoBuilder.addAttribute("securityConfig", Security.class, true);
+        infoBuilder.addAttribute("defaultPrincipal", DefaultPrincipal.class, true);
 
-        infoBuilder.addAttribute("securityRoles", Set.class, true);
-        infoBuilder.addAttribute("uncheckedPermissions", PermissionCollection.class, true);
+        infoBuilder.addAttribute("checkedPermissions", PermissionCollection.class, true);
         infoBuilder.addAttribute("excludedPermissions", PermissionCollection.class, true);
-        infoBuilder.addAttribute("rolePermissions", Map.class, true);
 
         infoBuilder.addReference("J2EEServer", J2EEServer.class);
         infoBuilder.addReference("J2EEApplication", J2EEApplication.class);
@@ -566,16 +566,15 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
             "policyContextID",
             "securityRealmName",
-            "securityConfig",
+            "defaultPrincipal",
 
-            "securityRoles",
-            "uncheckedPermissions",
+            "checkedPermissions",
             "excludedPermissions",
-            "rolePermissions",
 
             "TransactionContextManager",
             "TrackedConnectionAssociator",
             "JettyContainer",
+            "RoleDesignateSource",
 
             "J2EEServer",
             "J2EEApplication",
