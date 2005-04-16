@@ -28,6 +28,8 @@ import java.net.MalformedURLException;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.jar.JarFile;
 import javax.wsdl.Definition;
 import javax.wsdl.Operation;
@@ -55,6 +57,7 @@ import javax.xml.rpc.holders.QNameHolder;
 import javax.xml.rpc.holders.ShortHolder;
 import javax.xml.rpc.holders.ShortWrapperHolder;
 import javax.xml.rpc.holders.StringHolder;
+import javax.xml.rpc.handler.HandlerInfo;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.kernel.ClassLoading;
@@ -71,6 +74,8 @@ import org.apache.geronimo.xbeans.j2ee.ServiceImplBeanType;
 import org.apache.geronimo.xbeans.j2ee.WebserviceDescriptionType;
 import org.apache.geronimo.xbeans.j2ee.WebservicesDocument;
 import org.apache.geronimo.xbeans.j2ee.WebservicesType;
+import org.apache.geronimo.xbeans.j2ee.ParamValueType;
+import org.apache.geronimo.xbeans.j2ee.XsdQNameType;
 import org.apache.xmlbeans.XmlException;
 
 /**
@@ -371,5 +376,42 @@ public class WSDescriptorParser {
             return null;
         }
 
+    }
+
+    public static List createHandlerInfoList(PortComponentHandlerType[] handlers, ClassLoader classLoader) throws DeploymentException {
+        List list = new ArrayList();
+        for (int i = 0; i < handlers.length; i++) {
+            PortComponentHandlerType handler = handlers[i];
+
+            // Get handler class
+            Class handlerClass = null;
+            String className = handler.getHandlerClass().getStringValue().trim();
+            try {
+                handlerClass = classLoader.loadClass(className);
+            } catch (ClassNotFoundException e) {
+                throw new DeploymentException("Unable to load handler class: " + className, e);
+            }
+
+            // config data for the handler
+            Map config = new HashMap();
+            ParamValueType[] paramValues = handler.getInitParamArray();
+            for (int j = 0; j < paramValues.length; j++) {
+                ParamValueType paramValue = paramValues[j];
+                String paramName = paramValue.getParamName().getStringValue().trim();
+                String paramStringValue = paramValue.getParamValue().getStringValue().trim();
+                config.put(paramName, paramStringValue);
+            }
+
+            // QName array of headers it processes
+            XsdQNameType[] soapHeaderQNames = handler.getSoapHeaderArray();
+            QName[] headers = new QName[soapHeaderQNames.length];
+            for (int j = 0; j < soapHeaderQNames.length; j++) {
+                XsdQNameType soapHeaderQName = soapHeaderQNames[j];
+                headers[j] = soapHeaderQName.getQNameValue();
+            }
+
+            list.add(new HandlerInfo(handlerClass, config, headers));
+        }
+        return list;
     }
 }

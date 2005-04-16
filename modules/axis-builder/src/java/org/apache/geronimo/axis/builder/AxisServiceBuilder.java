@@ -121,49 +121,9 @@ public class AxisServiceBuilder {
         return createServiceDesc(portInfo, classLoader);
     }
 
-    private static List createHandlerInfos(PortInfo portInfo, ClassLoader classLoader) throws DeploymentException {
-        List list = new ArrayList();
-
-        PortComponentHandlerType[] handlers = portInfo.getHandlers();
-
-        for (int i = 0; i < handlers.length; i++) {
-            PortComponentHandlerType handler = handlers[i];
-
-            // Get handler class
-            Class handlerClass = null;
-            String className = handler.getHandlerClass().getStringValue().trim();
-            try {
-                handlerClass = classLoader.loadClass(className);
-            } catch (ClassNotFoundException e) {
-                throw new DeploymentException("Unable to load handler class: " + className, e);
-            }
-
-            // config data for the handler
-            Map config = new HashMap();
-            ParamValueType[] paramValues = handler.getInitParamArray();
-            for (int j = 0; j < paramValues.length; j++) {
-                ParamValueType paramValue = paramValues[j];
-                String paramName = paramValue.getParamName().getStringValue().trim();
-                String paramStringValue = paramValue.getParamValue().getStringValue().trim();
-                config.put(paramName, paramStringValue);
-            }
-
-            // QName array of headers it processes
-            XsdQNameType[] soapHeaderQNames = handler.getSoapHeaderArray();
-            QName[] headers = new QName[soapHeaderQNames.length];
-            for (int j = 0; j < soapHeaderQNames.length; j++) {
-                XsdQNameType soapHeaderQName = soapHeaderQNames[j];
-                headers[j] = soapHeaderQName.getQNameValue();
-            }
-
-            list.add(new HandlerInfo(handlerClass, config, headers));
-        }
-        return list;
-    }
-
     public static ServiceInfo createServiceInfo(PortInfo portInfo, ClassLoader classLoader) throws DeploymentException {
         JavaServiceDesc serviceDesc = createServiceDesc(portInfo, classLoader);
-        List handlerInfos = createHandlerInfos(portInfo, classLoader);
+        List handlerInfos = WSDescriptorParser.createHandlerInfoList(portInfo.getHandlers(), classLoader);
         SchemaInfoBuilder schemaInfoBuilder = portInfo.getSchemaInfoBuilder();
         Map rawWsdlMap = schemaInfoBuilder.getWsdlMap();
         Map wsdlMap = rewriteWsdlMap(portInfo, rawWsdlMap);
