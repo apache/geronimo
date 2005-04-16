@@ -16,25 +16,41 @@
  */
 package org.apache.geronimo.axis.server;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+
 import javax.xml.namespace.QName;
 
 import org.apache.axis.constants.Style;
 import org.apache.axis.constants.Use;
 import org.apache.axis.description.JavaServiceDesc;
 import org.apache.axis.description.OperationDesc;
+import org.apache.axis.description.TypeDesc;
 import org.apache.axis.encoding.TypeMapping;
 import org.apache.axis.encoding.TypeMappingRegistry;
 
 /**
  * @version $Rev$ $Date$
  */
-public class ReadOnlyServiceDesc extends JavaServiceDesc {
-    private final JavaServiceDesc serviceDesc;
+public class ReadOnlyServiceDesc extends JavaServiceDesc implements Externalizable {
+    private JavaServiceDesc serviceDesc;
+    private Map classToTypeDescInfo;
 
-    public ReadOnlyServiceDesc(JavaServiceDesc serviceDesc) {
+    /**
+     * Only required as Externalizable.
+     */
+    public ReadOnlyServiceDesc() {
+    }
+
+    public ReadOnlyServiceDesc(JavaServiceDesc serviceDesc, Map classToTypeDescInfo) {
         this.serviceDesc = serviceDesc;
+        this.classToTypeDescInfo = classToTypeDescInfo;
     }
 
     public Class getImplClass() {
@@ -186,4 +202,24 @@ public class ReadOnlyServiceDesc extends JavaServiceDesc {
     public void setDisallowedMethods(List disallowedMethods) {
     }
 
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        classToTypeDescInfo = (Map) in.readObject();
+        
+        // one must register the TypeDesc before to deserialize the JavaServiceDesc
+        // as it contains a bunch of BeanXXXFactory instances which need 
+        // them registered to properly recreate the state of the factories.
+        for (Iterator iter = classToTypeDescInfo.entrySet().iterator(); iter.hasNext();) {
+            Map.Entry entry = (Map.Entry) iter.next();
+            Class clazz = (Class) entry.getKey();
+            TypeDescInfo typeDescInfo = (TypeDescInfo) entry.getValue();
+            TypeDesc.registerTypeDescForClass(clazz, typeDescInfo.buildTypeDesc());
+        }
+        
+        serviceDesc = (JavaServiceDesc) in.readObject();
+    }
+
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeObject(classToTypeDescInfo);
+        out.writeObject(serviceDesc);
+    }
 }

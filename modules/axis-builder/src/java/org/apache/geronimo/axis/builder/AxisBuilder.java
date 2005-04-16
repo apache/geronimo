@@ -19,7 +19,6 @@ package org.apache.geronimo.axis.builder;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
@@ -45,7 +44,6 @@ import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.wsdl.extensions.soap.SOAPBinding;
 import javax.xml.namespace.QName;
-import javax.xml.rpc.encoding.TypeMapping;
 import javax.xml.rpc.handler.HandlerInfo;
 
 import net.sf.cglib.core.DefaultGeneratorStrategy;
@@ -154,7 +152,6 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
         //targetGBean.setAttribute("webServiceContainer", axisWebServiceContainer);
         try {
             targetGBean.setAttribute("webServiceContainer", new StoredObject(axisWebServiceContainer)); // Hack!
-            targetGBean.setAttribute("classToTypeDescInfo", new StoredObject((Serializable) serviceDesc.getProperty(AxisServiceBuilder.CLASS_TO_TYPE_DESC_INFO))); // Hack!
         } catch (IOException e) {
             throw new DeploymentException("Unable to serialize the AxisWebServiceContainer", e);
         }

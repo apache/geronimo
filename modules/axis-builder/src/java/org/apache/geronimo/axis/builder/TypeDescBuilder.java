@@ -19,6 +19,7 @@ package org.apache.geronimo.axis.builder;
 import java.beans.PropertyDescriptor;
 import java.beans.Introspector;
 import java.beans.IntrospectionException;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.HashMap;
 import java.lang.reflect.Field;
@@ -32,9 +33,62 @@ import org.apache.geronimo.xbeans.j2ee.JavaXmlTypeMappingType;
 import org.apache.geronimo.xbeans.j2ee.VariableMappingType;
 import org.apache.geronimo.axis.server.TypeDescInfo;
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.xmlbeans.SchemaParticle;
 import org.apache.xmlbeans.SchemaType;
 
 public class TypeDescBuilder {
+    public static TypeDescInfo getTypeDescInfo(Class javaClass, QName typeQName, SchemaType schemaType) throws DeploymentException {
+        boolean isRestriction = schemaType.getDerivationType() == SchemaType.DT_RESTRICTION;
+        
+        Map nameToTypeQName = new HashMap();
+        SchemaParticle contentModel = schemaType.getContentModel();
+        int particleType = contentModel.getParticleType();
+        if (SchemaParticle.ALL == particleType || SchemaParticle.CHOICE == particleType ||
+                SchemaParticle.SEQUENCE == particleType) {
+            SchemaParticle[] properties = contentModel.getParticleChildren();
+            for (int i = 0; i < properties.length; i++) {
+                SchemaParticle parameter = properties[i];
+                nameToTypeQName.put(parameter.getName().getLocalPart(), parameter.getType().getName());
+            }
+        } else {
+            throw new DeploymentException("Only all, choice and sequence particle types are supported." +
+                    " SchemaType name =" + schemaType.getName());
+        }
+        
+        PropertyDescriptor[] descriptors;
+        try {
+            descriptors = Introspector.getBeanInfo(javaClass).getPropertyDescriptors();
+        } catch (IntrospectionException e) {
+            throw new DeploymentException("Class " + javaClass + " is not a valid javabean", e);
+        }
+        Map nameToClass = new HashMap();
+        for (int i = 0; i < descriptors.length; i++) {
+            nameToClass.put(descriptors[i].getName(), descriptors[i].getPropertyType());
+        }
+
+        int idx = 0;
+        FieldDesc[] fields = new FieldDesc[nameToTypeQName.size()];
+        for (Iterator iter = nameToTypeQName.entrySet().iterator(); iter.hasNext();) {
+            Map.Entry entry = (Map.Entry) iter.next();
+
+            String fieldName = (String) entry.getKey();
+            ElementDesc elementDesc = new ElementDesc();
+            elementDesc.setFieldName(fieldName);
+            
+            Class javaType = (Class) nameToClass.get(fieldName);
+            if (null == javaType) {
+                throw new DeploymentException("Field " + fieldName + " is not defined by class " + javaClass.getName());
+            }
+            elementDesc.setJavaType(javaType);
+            elementDesc.setXmlName(new QName("", fieldName));
+            elementDesc.setXmlType((QName) entry.getValue());
+            
+            fields[idx++] = elementDesc;
+        }
+        
+        return new TypeDescInfo(javaClass, isRestriction, typeQName, fields);
+    }
+    
     public static TypeDescInfo getTypeDescInfo(Class javaClass, QName typeQName, JavaXmlTypeMappingType javaXmlTypeMapping, SchemaType schemaType) throws DeploymentException {
         boolean isRestriction = schemaType.getDerivationType() == SchemaType.DT_RESTRICTION;
         

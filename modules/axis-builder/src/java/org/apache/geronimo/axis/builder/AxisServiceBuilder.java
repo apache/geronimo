@@ -21,7 +21,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -29,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
+
 import javax.wsdl.Binding;
 import javax.wsdl.BindingInput;
 import javax.wsdl.BindingOperation;
@@ -36,13 +36,12 @@ import javax.wsdl.Definition;
 import javax.wsdl.Import;
 import javax.wsdl.Port;
 import javax.wsdl.Types;
+import javax.wsdl.extensions.UnknownExtensibilityElement;
 import javax.wsdl.extensions.schema.Schema;
 import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.wsdl.extensions.soap.SOAPBinding;
 import javax.wsdl.extensions.soap.SOAPBody;
-import javax.wsdl.extensions.UnknownExtensibilityElement;
 import javax.xml.namespace.QName;
-import javax.xml.rpc.handler.HandlerInfo;
 
 import org.apache.axis.constants.Style;
 import org.apache.axis.constants.Use;
@@ -65,10 +64,7 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.xbeans.j2ee.JavaXmlTypeMappingType;
-import org.apache.geronimo.xbeans.j2ee.ParamValueType;
-import org.apache.geronimo.xbeans.j2ee.PortComponentHandlerType;
 import org.apache.geronimo.xbeans.j2ee.ServiceEndpointMethodMappingType;
-import org.apache.geronimo.xbeans.j2ee.XsdQNameType;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -82,8 +78,6 @@ import org.w3c.dom.Node;
  * @version $Rev$ $Date$
  */
 public class AxisServiceBuilder {
-    public static final String CLASS_TO_TYPE_DESC_INFO = "classToTypeDescInfo";
-    
     public static final String XSD_NS = "http://www.w3.org/2001/XMLSchema";
     public static final QName SCHEMA_QNAME = new QName(XSD_NS, "schema");
 
@@ -194,10 +188,8 @@ public class AxisServiceBuilder {
             buildHeavyweightTypes(wrapperElementQNames, javaXmlTypeMappings, classLoader, schemaTypeKeyToSchemaTypeMap, typeMapping, classToTypeDescInfo);
         }
 
-        serviceDesc.setProperty(CLASS_TO_TYPE_DESC_INFO, classToTypeDescInfo);
-        
         serviceDesc.getOperations();
-        return new ReadOnlyServiceDesc(serviceDesc);
+        return new ReadOnlyServiceDesc(serviceDesc, classToTypeDescInfo);
     }
 
     private static void buildHeavyweightTypes(Set wrapperElementQNames, JavaXmlTypeMappingType[] javaXmlTypeMappings, ClassLoader classLoader, Map schemaTypeKeyToSchemaTypeMap, TypeMapping typeMapping, Map classToTypeDescInfo) throws DeploymentException {
@@ -273,7 +265,7 @@ public class AxisServiceBuilder {
         for (Iterator iterator = schemaTypeKeyToSchemaTypeMap.entrySet().iterator(); iterator.hasNext();) {
             Map.Entry entry = (Map.Entry) iterator.next();
             SchemaTypeKey key = (SchemaTypeKey) entry.getKey();
-//            SchemaType schemaType = (SchemaType) entry.getValue();
+            SchemaType schemaType = (SchemaType) entry.getValue();
             if (!key.isElement() && !key.isAnonymous()) {
                 //default settings
                 QName typeQName = key.getqName();
@@ -297,14 +289,14 @@ public class AxisServiceBuilder {
                     deserializerFactoryClass = ArrayDeserializerFactory.class;
                 }
 
+                TypeDescInfo typeDescInfo = TypeDescBuilder.getTypeDescInfo(clazz, typeQName, schemaType);
+                TypeDesc.registerTypeDescForClass(clazz, typeDescInfo.buildTypeDesc());
+                classToTypeDescInfo.put(clazz, typeDescInfo);
+
                 SerializerFactory ser = BaseSerializerFactory.createFactory(serializerFactoryClass, clazz, typeQName);
                 DeserializerFactory deser = BaseDeserializerFactory.createFactory(deserializerFactoryClass, clazz, typeQName);
+
                 typeMapping.register(clazz, typeQName, ser, deser);
-
-                //TODO construct typedesc as well.
-//                TypeDesc typeDesc = getTypeDescriptor(clazz, typeQName, javaXmlTypeMapping, schemaType);
-//                typeDescriptors.put(clazz, typeDesc);
-
             }
         }
     }

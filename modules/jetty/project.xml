@@ -178,19 +178,6 @@
             <version>${tranql_version}</version>
             <url>http://tranql.codehaus.org</url>
         </dependency>
-
-       <!-- TODO Needed for JettyPOJOWebServiceHolder. Move resource to geronimo-axis -->
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-axis</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>axis</groupId>
-            <artifactId>axis</artifactId>
-            <version>${axis_version}</version>
-        </dependency>
     </dependencies>
 
 

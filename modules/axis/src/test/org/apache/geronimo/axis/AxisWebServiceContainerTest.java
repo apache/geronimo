@@ -81,7 +81,7 @@ public class AxisWebServiceContainerTest extends AbstractTestCase {
         serviceDesc.addOperationDesc(op);
 
         serviceDesc.getOperations();
-        ReadOnlyServiceDesc sd = new ReadOnlyServiceDesc(serviceDesc);
+        ReadOnlyServiceDesc sd = new ReadOnlyServiceDesc(serviceDesc, new HashMap());
 
         Class pojoClass = cl.loadClass("org.apache.geronimo.axis.testData.echosample.EchoBean");
 

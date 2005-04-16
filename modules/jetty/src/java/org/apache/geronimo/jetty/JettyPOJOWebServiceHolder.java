@@ -18,25 +18,23 @@ package org.apache.geronimo.jetty;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+
 import javax.security.jacc.PolicyContext;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.UnavailableException;
-import javax.servlet.ServletContext;
 
-import org.apache.axis.description.TypeDesc;
-import org.apache.geronimo.axis.server.TypeDescInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.StoredObject;
-import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.POJOWebServiceServlet;
+import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainerInvoker;
 import org.mortbay.jetty.servlet.ServletHolder;
 import org.mortbay.jetty.servlet.ServletHttpRequest;
@@ -50,7 +48,6 @@ import org.mortbay.jetty.servlet.ServletHttpRequest;
  */
 public class JettyPOJOWebServiceHolder extends ServletHolder implements GBeanLifecycle {
     private StoredObject storedWebServiceContainer;
-    private StoredObject storedClassToTypeDescInfo;
     private Set servletMappings;
     private Map webRoleRefPermissions;
     private JettyServletRegistration context;
@@ -67,7 +64,6 @@ public class JettyPOJOWebServiceHolder extends ServletHolder implements GBeanLif
                                      Integer loadOnStartup,
                                      Set servletMappings,
                                      Map webRoleRefPermissions,
-                                     StoredObject storedClassToTypeDescInfo,
                                      StoredObject storedWebServiceContainer,
                                      JettyServletRegistration context) throws Exception {
         super(context == null ? null : context.getServletHandler(), servletName, POJOWebServiceServlet.class.getName(), null);
@@ -84,8 +80,6 @@ public class JettyPOJOWebServiceHolder extends ServletHolder implements GBeanLif
             this.servletMappings = servletMappings;
             this.webRoleRefPermissions = webRoleRefPermissions == null ? Collections.EMPTY_MAP : webRoleRefPermissions;
         }
-
-        this.storedClassToTypeDescInfo = storedClassToTypeDescInfo;
     }
 
     //todo how do we stop/destroy the servlet?
@@ -124,7 +118,6 @@ public class JettyPOJOWebServiceHolder extends ServletHolder implements GBeanLif
         infoBuilder.addAttribute("loadOnStartup", Integer.class, true);
         infoBuilder.addAttribute("servletMappings", Set.class, true);
         infoBuilder.addAttribute("webRoleRefPermissions", Map.class, true);
-        infoBuilder.addAttribute("classToTypeDescInfo", StoredObject.class, true);
         infoBuilder.addAttribute("webServiceContainer", StoredObject.class, true);
         infoBuilder.addReference("JettyServletRegistration", JettyServletRegistration.class);
 
@@ -134,7 +127,6 @@ public class JettyPOJOWebServiceHolder extends ServletHolder implements GBeanLif
                                                 "loadOnStartup",
                                                 "servletMappings",
                                                 "webRoleRefPermissions",
-                                                "classToTypeDescInfo",
                                                 "webServiceContainer",
                                                 "JettyServletRegistration"});
 
@@ -147,14 +139,6 @@ public class JettyPOJOWebServiceHolder extends ServletHolder implements GBeanLif
 
     public void doStart() throws Exception {
         if (context != null) {
-            Map classToTypeDesc = (Map) storedClassToTypeDescInfo.getObject(context.getWebClassLoader());
-            for (Iterator iter = classToTypeDesc.entrySet().iterator(); iter.hasNext();) {
-                Map.Entry entry = (Map.Entry) iter.next();
-                Class clazz = (Class) entry.getKey();
-                TypeDescInfo typeDescInfo = (TypeDescInfo) entry.getValue();
-                TypeDesc.registerTypeDescForClass(clazz, typeDescInfo.buildTypeDesc());
-            }
-            
             Class pojoClass = context.getWebClassLoader().loadClass(pojoClassName);
             WebServiceContainer webServiceContainer = (WebServiceContainer) storedWebServiceContainer.getObject(context.getWebClassLoader());
 
