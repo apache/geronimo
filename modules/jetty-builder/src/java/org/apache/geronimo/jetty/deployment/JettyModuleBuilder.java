@@ -706,7 +706,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
                 /**
                  * TODO - go back to commented version when possible.
                  */
-                String policyContextID = webModuleName.getCanonicalName().replaceAll("[, ]", "_");
+                String policyContextID = webModuleName.getCanonicalName().replaceAll("[, :]", "_");
                 //String policyContextID = webModuleName.getCanonicalName();
                 webModuleData.setAttribute("policyContextID", policyContextID);
 //                webModuleData.setAttribute("securityRoles", securityRoles);
