@@ -19,7 +19,6 @@ package org.apache.geronimo.tomcat;
 
 import java.net.URI;
 import java.net.URL;
-import java.security.PermissionCollection;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;

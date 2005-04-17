@@ -171,6 +171,7 @@ public class TomcatContainer implements GBeanLifecycle {
     public void doStop() throws Exception {
         if (embedded != null) {
             embedded.stop();
+            embedded.getServer().await();
             embedded = null;
         }
     }

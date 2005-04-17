@@ -150,7 +150,6 @@ public class JAASSecurityTest extends AbstractWebModuleTest {
     }
 
     public void testGoodAuthentication() throws Exception {
-
         Set constraints = new HashSet();
 
         SecurityConstraint sc = new SecurityConstraint();
@@ -175,6 +174,10 @@ public class JAASSecurityTest extends AbstractWebModuleTest {
 
         startWebApp(constraints, securityRoles);
 
+        //Give the container some time to load the web context
+        //this is wierd..it only needs to be done on this test
+        Thread.sleep(5000);       
+ 
         //Begin the test
         HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8080/securetest/protected/hello.txt").openConnection();
         connection.setInstanceFollowRedirects(false);
@@ -217,8 +220,8 @@ public class JAASSecurityTest extends AbstractWebModuleTest {
 
     protected void setUp() throws Exception {
         super.setUp();
-        setUpSecurity();
-    }
+        setUpSecurity();        
+   }
 
     protected void tearDown() throws Exception {
         tearDownSecurity();
