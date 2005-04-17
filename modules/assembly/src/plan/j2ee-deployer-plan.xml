@@ -174,7 +174,7 @@ Configuration for the Geronimo deployer
     </gbean>
 
 <!--
-   - Uncomment it to deploy webapps to Apache Tomcat
+   - Uncomment this to deploy webapps to Apache Tomcat
    -
     <dependency>
         <uri>geronimo/jars/geronimo-tomcat-${geronimo_version}.jar</uri>
@@ -197,6 +197,7 @@ Configuration for the Geronimo deployer
     </gbean>
    -->
 
+   <!-- Uncomment the next StaticContent to enable Tomcat -->
     <gbean name="StaticContent" class="org.apache.geronimo.jetty.JettyServletHolder">
         <attribute name="servletName">default</attribute>
         <attribute name="servletClass">org.mortbay.jetty.servlet.Default</attribute>
@@ -211,6 +212,7 @@ Configuration for the Geronimo deployer
         <attribute name="servletMappings">/</attribute>
     </gbean>
 
+   <!-- Uncomment the next JSPServlet to enable Tomcat -->
     <gbean name="JSPServlet" class="org.apache.geronimo.jetty.JettyServletHolder">
         <attribute name="servletName">jsp</attribute>
         <attribute name="servletClass">org.apache.jasper.servlet.JspServlet</attribute>

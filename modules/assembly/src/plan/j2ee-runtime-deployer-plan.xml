@@ -64,6 +64,24 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
         <uri>geronimo/jars/geronimo-axis-builder-${geronimo_version}.jar</uri>
     </dependency>
 
+    <!-- Uncomment the next 5 dependencies to enable Tomcat
+    <dependency>
+        <uri>geronimo/jars/geronimo-tomcat-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/catalina-${tomcat_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/naming-resources-${tomcat_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/tomcat-coyote-${tomcat_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/tomcat-util-${tomcat_version}.jar</uri>
+    </dependency>
+    -->
+
     <!-- deployer gbeans -->
     <gbean name="Deployer" class="org.apache.geronimo.deployment.Deployer">
         <reference name="Builders"><name>*</name></reference>
@@ -99,21 +117,6 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
     - Uncomment this section to deploy webapps to Apache Tomcat
     -
 
-    <dependency>
-        <uri>geronimo/jars/geronimo-tomcat-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>tomcat/jars/catalina-${tomcat_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>tomcat/jars/naming-resources-${tomcat_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>tomcat/jars/tomcat-coyote-${tomcat_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>tomcat/jars/tomcat-util-${tomcat_version}.jar</uri>
-    </dependency>
     <gbean name="WebBuilder" class="org.apache.geronimo.tomcat.deployment.TomcatModuleBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Tomcat</attribute>
         <attribute name="tomcatContainerObjectName">geronimo.server:name=TomcatWebContainer,*</attribute>
@@ -133,6 +136,8 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
         <reference name="Repository"><gbean-name>*:name=Repository,*</gbean-name></reference>
     </gbean>
     
+    <!-- Comment out the next StaticContent gbean to enable Tomcat deployer
+    -->
     <gbean name="StaticContent" class="org.apache.geronimo.jetty.JettyServletHolder">
         <attribute name="servletName">default</attribute>
         <attribute name="servletClass">org.mortbay.jetty.servlet.Default</attribute>
@@ -147,6 +152,8 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
         <attribute name="servletMappings">/</attribute>
     </gbean>
 
+    <!-- Comment out the next JSPServlet gbean to enable Tomcat deployer
+    -->
     <gbean name="JSPServlet" class="org.apache.geronimo.jetty.JettyServletHolder">
         <attribute name="servletName">jsp</attribute>
         <attribute name="servletClass">org.apache.jasper.servlet.JspServlet</attribute>
@@ -158,6 +165,8 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
         <attribute name="servletMappings">*.jsp,*.jspf,*.jspx,*.xsp</attribute>
     </gbean>
 
+    <!-- Comment out the POJOTemplate gbean to enable Tomcat deployer
+    -->
     <gbean name="POJOTemplate" class="org.apache.geronimo.jetty.JettyPOJOWebServiceHolder">
         <attribute name="servletName">dummy</attribute>
     </gbean>
