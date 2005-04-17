@@ -25,20 +25,28 @@ import java.security.PermissionCollection;
 import java.security.Permissions;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import javax.management.ObjectName;
+import javax.security.auth.Subject;
+import javax.security.auth.x500.X500Principal;
 import javax.security.jacc.WebResourcePermission;
 import javax.security.jacc.WebUserDataPermission;
 
 import org.apache.catalina.deploy.SecurityCollection;
 import org.apache.catalina.deploy.SecurityConstraint;
 
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
+import org.apache.geronimo.security.deploy.DistinguishedName;
 import org.apache.geronimo.security.deploy.Principal;
 import org.apache.geronimo.security.deploy.Realm;
 import org.apache.geronimo.security.deploy.Role;
 import org.apache.geronimo.security.deploy.Security;
+import org.apache.geronimo.security.jacc.ComponentPermissions;
+import org.apache.geronimo.security.util.ConfigurationUtil;
 
 
 /**
@@ -56,6 +64,9 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
      * @throws Exception thrown if an error in the test occurs
      */
     public void testExplicitMapping() throws Exception {
+        
+        Security securityConfig = new Security();
+        securityConfig.setUseContextHandler(false);
 
         Set constraints = new HashSet();
 
@@ -75,9 +86,6 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
         sc.addCollection(coll);
         constraints.add(sc);
 
-        Security securityConfig = new Security();
-        securityConfig.setUseContextHandler(false);
-
         DefaultPrincipal defaultPrincipal = new DefaultPrincipal();
         defaultPrincipal.setRealmName("demo-properties-realm");
         Principal principal = new Principal();
@@ -86,7 +94,7 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
         defaultPrincipal.setPrincipal(principal);
 
         securityConfig.setDefaultPrincipal(defaultPrincipal);
-
+        
         Role role = new Role();
         role.setRoleName("content-administrator");
         principal = new Principal();
@@ -98,7 +106,11 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
         role.getRealms().put(realm.getRealmName(), realm);
 
         securityConfig.getRoleMappings().put(role.getRoleName(), role);
-
+        
+        Map roleDesignates = new HashMap();
+        Map principalRoleMap = new HashMap();
+        buildPrincipalRoleMap(securityConfig, roleDesignates, principalRoleMap);
+       
         PermissionCollection uncheckedPermissions = new Permissions();
 
         PermissionCollection excludedPermissions = new Permissions();
@@ -106,17 +118,22 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
         excludedPermissions.add(new WebUserDataPermission("/auth/login.html", ""));
 
         Map rolePermissions = new HashMap();
-        Set permissions = new HashSet();
+        PermissionCollection permissions = new Permissions();
         permissions.add(new WebUserDataPermission("/protected/*", ""));
         permissions.add(new WebResourcePermission("/protected/*", ""));
         rolePermissions.put("content-administrator", permissions);
         rolePermissions.put("auto-administrator", permissions);
+        
+        PermissionCollection checked = permissions;
 
+        ComponentPermissions componentPermissions = new ComponentPermissions(excludedPermissions, uncheckedPermissions, rolePermissions);
+       
         Set securityRoles = new HashSet();
         securityRoles.add("content-administrator");
         securityRoles.add("auto-administrator");
 
-        startWebApp(securityConfig, constraints, uncheckedPermissions, excludedPermissions, rolePermissions, securityRoles);
+        startWebApp(constraints, roleDesignates, principalRoleMap,  componentPermissions,
+                defaultPrincipal, checked, securityRoles);
 
         //Begin the test
         HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8080/securetest/protected/hello.txt").openConnection();
@@ -185,15 +202,17 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
         stopWebApp();
     }
 
-    protected void startWebApp(Security securityConfig,
-                               Set securityConstraints,
-                               PermissionCollection uncheckedPermissions,
-                               PermissionCollection excludedPermissions,
-                               Map rolePermissions,
-                               Set securityRoles) throws Exception {
+    protected void startWebApp(
+            Set securityConstraints,
+            Map roleDesignates, 
+            Map principalRoleMap,
+            ComponentPermissions componentPermissions, 
+            DefaultPrincipal defaultPrincipal, 
+            PermissionCollection checked,
+            Set securityRoles) throws Exception {
 
-        appName = setUpSecureAppContext(securityConfig, securityConstraints, uncheckedPermissions,
-                                        excludedPermissions, rolePermissions, securityRoles);
+        appName = setUpSecureAppContext(securityConstraints, roleDesignates, principalRoleMap,
+                componentPermissions, defaultPrincipal, checked, securityRoles);
 
 
     }
@@ -202,6 +221,82 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
         stop(appName);
     }
 
+    public static void buildPrincipalRoleMap(Security security, Map roleDesignates, Map principalRoleMap) throws DeploymentException {
+        Map roleToPrincipalMap = new HashMap();
+        buildRolePrincipalMap(security, roleDesignates, roleToPrincipalMap);
+        invertMap(roleToPrincipalMap, principalRoleMap);
+    }
+
+    private static Map invertMap(Map roleToPrincipalMap, Map principalRoleMapping) {
+        for (Iterator roles = roleToPrincipalMap.entrySet().iterator(); roles.hasNext();) {
+            Map.Entry entry = (Map.Entry) roles.next();
+            String role = (String) entry.getKey();
+            Set principals = (Set) entry.getValue();
+            for (Iterator iter = principals.iterator(); iter.hasNext();) {
+                java.security.Principal principal = (java.security.Principal) iter.next();
+
+                HashSet roleSet = (HashSet) principalRoleMapping.get(principal);
+                if (roleSet == null) {
+                    roleSet = new HashSet();
+                    principalRoleMapping.put(principal, roleSet);
+                }
+                roleSet.add(role);
+            }
+        }
+        return principalRoleMapping;
+    }
+
+    private static void buildRolePrincipalMap(Security security, Map roleDesignates, Map roleToPrincipalMap) throws DeploymentException {
+
+        Iterator rollMappings = security.getRoleMappings().values().iterator();
+        while (rollMappings.hasNext()) {
+            Role role = (Role) rollMappings.next();
+
+            String roleName = role.getRoleName();
+            Subject roleDesignate = new Subject();
+            Set principalSet = new HashSet();
+
+            Iterator realms = role.getRealms().values().iterator();
+            while (realms.hasNext()) {
+                Realm realm = (Realm) realms.next();
+
+                Iterator principals = realm.getPrincipals().iterator();
+                while (principals.hasNext()) {
+                    Principal principal = (Principal) principals.next();
+
+                    RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(principal, realm.getRealmName());
+
+                    if (realmPrincipal == null) throw new DeploymentException("Unable to create realm principal");
+
+                    principalSet.add(realmPrincipal);
+                    if (principal.isDesignatedRunAs()) roleDesignate.getPrincipals().add(realmPrincipal);
+                }
+            }
+
+            for (Iterator names = role.getDNames().iterator(); names.hasNext();) {
+                DistinguishedName dn = (DistinguishedName) names.next();
+
+                X500Principal x500Principal = ConfigurationUtil.generateX500Principal(dn.getName());
+
+                principalSet.add(x500Principal);
+                if (dn.isDesignatedRunAs()) {
+                    roleDesignate.getPrincipals().add(x500Principal);
+                }
+            }
+
+            Set roleMapping = (Set) roleToPrincipalMap.get(roleName);
+            if (roleMapping == null) {
+                roleMapping = new HashSet();
+                roleToPrincipalMap.put(roleName, roleMapping);
+            }
+            roleMapping.addAll(principalSet);
+
+            if (roleDesignate.getPrincipals().size() > 0) {
+                roleDesignates.put(roleName, roleDesignate);
+            }
+        }
+    }
+    
     protected void setUp() throws Exception {
         super.setUp();
         setUpSecurity();

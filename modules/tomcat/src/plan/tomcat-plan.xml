@@ -88,7 +88,6 @@ Configuration for the Apache Tomcat web container
     <gbean gbeanName="geronimo.server:type=WebContainer,container=Tomcat" class="org.apache.geronimo.tomcat.TomcatContainer">
         <attribute name="catalinaHome">var/catalina</attribute>
         <attribute name="port">8090</attribute>
-        <attribute name="endorsedDirs">lib</attribute>
         <reference name="ServerInfo"><gbean-name>geronimo.system:role=ServerInfo</gbean-name></reference>
     </gbean>
     <gbean gbeanName="geronimo.server:type=WebConnector,container=Tomcat,port=8090" class="org.apache.geronimo.tomcat.connector.HTTPConnector">

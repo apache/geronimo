@@ -52,6 +52,9 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.schema.SchemaConversionUtils;
+import org.apache.geronimo.security.deploy.DefaultPrincipal;
+import org.apache.geronimo.security.deployment.SecurityBuilder;
+import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.tomcat.TomcatWebAppContext;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
@@ -113,6 +116,13 @@ public class TomcatModuleBuilder implements ModuleBuilder {
         try {
             gbean = new GBeanData(TomcatWebAppContext.GBEAN_INFO);
 
+            gbean.setReferencePattern("J2EEServer", earContext.getServerObjectName());
+            if (!earContext.getJ2EEApplicationName().equals("null")) {
+                gbean.setReferencePattern("J2EEApplication", earContext.getApplicationObjectName());
+            }
+
+            gbean.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());
+
             gbean.setName(webModuleName);
             gbean.setAttribute("webAppRoot", baseUri);
             gbean.setAttribute("webClassPath", webClassPath);
@@ -125,6 +135,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
             gbean.setAttribute("path", webModule.getContextRoot());
 
             gbean.setReferencePattern("Container", tomcatContainerObjectName);
+            
         } catch (Exception e) {
             throw new DeploymentException("Unable to initialize webapp GBean", e);
         }

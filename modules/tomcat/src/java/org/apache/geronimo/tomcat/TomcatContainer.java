@@ -74,12 +74,7 @@ public class TomcatContainer implements GBeanLifecycle {
     private Context defaultContext;
 
     /**
-     * The java.endorsed.dirs directories
-     */
-    private String endorsedDirs = System.getProperty("java.endorsed.dirs");
-
-    /**
-     * Used only to resolve the path to the endorsed standards dir
+     * Used only to resolve the paths
      */
     private ServerInfo serverInfo;
 
@@ -111,10 +106,8 @@ public class TomcatContainer implements GBeanLifecycle {
     public void doStart() throws Exception {
         log.debug("doStart()");
 
-        // set endorsed dirs (so it's not mandatory to set it up by a user
-        // anymore)
-        System.setProperty("java.endorsed.dirs", serverInfo.resolvePath(getEndorsedDirs()));
-
+        log.info("Endorsed Dirs set to:" + System.getProperty("java.endorsed.dirs"));
+        
         // The comments are from the javadoc of the Embedded class
 
         // 1. Instantiate a new instance of this class.
@@ -218,14 +211,6 @@ public class TomcatContainer implements GBeanLifecycle {
         System.setProperty("catalina.home", catalinaHome);
     }
 
-    public String getEndorsedDirs() {
-        return endorsedDirs;
-    }
-
-    public void setEndorsedDirs(String endorsedDirs) {
-        this.endorsedDirs = endorsedDirs;
-    }
-
     public void addConnector(Connector connector) {
         embedded.addConnector(connector);
     }
@@ -242,7 +227,6 @@ public class TomcatContainer implements GBeanLifecycle {
         infoFactory.setConstructor(new String[] { "catalinaHome", "ServerInfo" });
 
         infoFactory.addAttribute("catalinaHome", String.class, true);
-        infoFactory.addAttribute("endorsedDirs", String.class, true);
 
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
 

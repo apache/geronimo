@@ -19,7 +19,9 @@ package org.apache.geronimo.tomcat;
 import java.io.File;
 import java.net.URI;
 import java.security.PermissionCollection;
+import java.security.Permissions;
 import java.util.*;
+
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;
@@ -34,11 +36,13 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.security.SecurityServiceImpl;
+import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.deploy.Principal;
-import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.security.jaas.GeronimoLoginConfiguration;
 import org.apache.geronimo.security.jaas.JaasLoginService;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
+import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
+import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.tomcat.connector.HTTPConnector;
@@ -104,13 +108,26 @@ public class AbstractWebModuleTest extends TestCase {
     }
 
     protected ObjectName setUpJAASSecureAppContext(Set securityConstraints, Set securityRoles) throws Exception {
+        ObjectName jaccBeanName = NameFactory.getComponentName(null, null, null, null, "foo", NameFactory.JACC_MANAGER, moduleContext);
+        GBeanData jaccBeanData = new GBeanData(jaccBeanName, ApplicationPolicyConfigurationManager.GBEAN_INFO);
+        PermissionCollection excludedPermissions= new Permissions();
+        PermissionCollection uncheckedPermissions= new Permissions();
+        ComponentPermissions componentPermissions = new ComponentPermissions(excludedPermissions, uncheckedPermissions, new HashMap());
+        Map contextIDToPermissionsMap = new HashMap();
+        contextIDToPermissionsMap.put(POLICY_CONTEXT_ID, componentPermissions);
+        jaccBeanData.setAttribute("contextIdToPermissionsMap", contextIDToPermissionsMap);
+        jaccBeanData.setAttribute("principalRoleMap", new HashMap());
+        jaccBeanData.setAttribute("roleDesignates", new HashMap());
+        start(jaccBeanData);
+
         GBeanData app = new GBeanData(webModuleName, TomcatWebAppContext.GBEAN_INFO);
         app.setAttribute("webAppRoot", new File("target/var/catalina/webapps/war3/").toURI());
         app.setAttribute("webClassPath", new URI[]{});
         app.setAttribute("configurationBaseUrl", new File("target/var/catalina/webapps/war3/WEB-INF/web.xml").toURL());
         app.setAttribute("path", "/securetest");
         app.setAttribute("policyContextID", POLICY_CONTEXT_ID);
-
+        app.setReferencePattern("RoleDesignateSource", jaccBeanName);
+ 
         LoginConfig loginConfig = new LoginConfig();
         loginConfig.setAuthMethod(Constants.FORM_METHOD);
         loginConfig.setRealmName("Test JAAS Realm");
@@ -141,13 +158,23 @@ public class AbstractWebModuleTest extends TestCase {
         return webModuleName;
     }
 
-    protected ObjectName setUpSecureAppContext(Security securityConfig,
-                                               Set securityConstraints,
-                                               PermissionCollection uncheckedPermissions,
-                                               PermissionCollection excludedPermissions,
-                                               Map rolePermissions,
+    protected ObjectName setUpSecureAppContext(Set securityConstraints,
+                                               Map roleDesignates, 
+                                               Map principalRoleMap,
+                                               ComponentPermissions componentPermissions, 
+                                               DefaultPrincipal defaultPrincipal, 
+                                               PermissionCollection checked,
                                                Set securityRoles)
             throws Exception {
+        
+        ObjectName jaccBeanName = NameFactory.getComponentName(null, null, null, null, "foo", NameFactory.JACC_MANAGER, moduleContext);
+        GBeanData jaccBeanData = new GBeanData(jaccBeanName, ApplicationPolicyConfigurationManager.GBEAN_INFO);
+        Map contextIDToPermissionsMap = new HashMap();
+        contextIDToPermissionsMap.put(POLICY_CONTEXT_ID, componentPermissions);
+        jaccBeanData.setAttribute("contextIdToPermissionsMap", contextIDToPermissionsMap);
+        jaccBeanData.setAttribute("principalRoleMap", principalRoleMap);
+        jaccBeanData.setAttribute("roleDesignates", roleDesignates);
+        start(jaccBeanData);
 
         GBeanData app = new GBeanData(webModuleName, TomcatWebAppContext.GBEAN_INFO);
         app.setAttribute("webAppRoot", new File("target/var/catalina/webapps/war3/").toURI());
@@ -155,6 +182,7 @@ public class AbstractWebModuleTest extends TestCase {
         app.setAttribute("configurationBaseUrl", new File("target/var/catalina/webapps/war3/WEB-INF/web.xml").toURL());
         app.setAttribute("path", "/securetest");
         app.setAttribute("policyContextID", POLICY_CONTEXT_ID);
+        app.setReferencePattern("RoleDesignateSource", jaccBeanName);
  
         LoginConfig loginConfig = new LoginConfig();
         loginConfig.setAuthMethod(Constants.FORM_METHOD);
@@ -167,12 +195,11 @@ public class AbstractWebModuleTest extends TestCase {
         app.setAttribute("securityRoles", securityRoles);
 
         TomcatGeronimoRealm realm = new TomcatGeronimoRealm(POLICY_CONTEXT_ID,
-                                                            securityConfig,
+                                                            defaultPrincipal,
                                                             "demo-properties-realm",
-                                                            securityRoles,
-                                                            uncheckedPermissions,
-                                                            excludedPermissions,
-                                                            rolePermissions);
+                                                            checked,
+                                                            componentPermissions.getExcludedPermissions(),
+                                                            roleDesignates);
         realm.setUserClassNames("org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
         realm.setRoleClassNames("org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
         app.setAttribute("tomcatRealm", realm);
@@ -264,7 +291,7 @@ public class AbstractWebModuleTest extends TestCase {
         cl = this.getClass().getClassLoader();
         containerName = NameFactory.getWebComponentName(null, null, null, null, "tomcatContainer", "WebResource", moduleContext);
         connectorName = NameFactory.getWebComponentName(null, null, null, null, "tomcatConnector", "WebResource", moduleContext);
-        webModuleName = NameFactory.getWebComponentName(null, null, null, null, NameFactory.WEB_MODULE, "WebResource", moduleContext);
+        webModuleName = NameFactory.getModuleName(null, null, null, null, "testModule", moduleContext);
 
         tmName = NameFactory.getComponentName(null, null, null, null, "TransactionManager", NameFactory.JTA_RESOURCE, moduleContext);
         tcmName = NameFactory.getComponentName(null, null, null, null, "TransactionContextManager", NameFactory.JTA_RESOURCE, moduleContext);
@@ -283,7 +310,6 @@ public class AbstractWebModuleTest extends TestCase {
         // Need to override the constructor for unit tests
         container = new GBeanData(containerName, TomcatContainer.GBEAN_INFO);
         container.setAttribute("catalinaHome", "target/var/catalina");
-        container.setAttribute("endorsedDirs", "target/endorsed");
         container.setReferencePattern("ServerInfo", serverInfoName);
 
         connector = new GBeanData(connectorName, HTTPConnector.GBEAN_INFO);

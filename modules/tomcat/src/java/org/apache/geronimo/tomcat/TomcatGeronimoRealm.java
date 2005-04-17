@@ -76,13 +76,13 @@ public class TomcatGeronimoRealm extends JAASRealm {
 
     private static final Log log = LogFactory.getLog(TomcatGeronimoRealm.class);
 
-    private String policyContextID = null;
-    private PolicyConfigurationFactory factory = null;
-    private PolicyConfiguration policyConfiguration = null;
-    private Subject defaultSubject = null;
-    private PermissionCollection checked = new Permissions();
-    private Map roleDesignates = new HashMap();
-    private String loginDomainName = null;
+    private final String policyContextID;
+    private final Subject defaultSubject;
+	private final DefaultPrincipal defaultPrincipal;
+    private final PermissionCollection checked;
+    private final PermissionCollection excluded;
+    private final Map roleDesignates;
+    private final String loginDomainName;
 
     private Context context = null;
     private static ThreadLocal currentRequest = new ThreadLocal();
@@ -98,15 +98,23 @@ public class TomcatGeronimoRealm extends JAASRealm {
     protected static final String name = "TomcatGeronimoRealm";
 
     public TomcatGeronimoRealm(String policyContextID,
-                               Security securityConfig,
+                               DefaultPrincipal defaultPrincipal,
                                String loginDomainName,
-                               Set securityRoles,
-                               PermissionCollection uncheckedPermissions,
+                               PermissionCollection checkedPermissions,
                                PermissionCollection excludedPermissions,
-                               Map rolePermissions) throws PolicyContextException, ClassNotFoundException {
+                               Map roleDesignates) 
+            throws PolicyContextException, ClassNotFoundException {
 
+        assert policyContextID != null;
+        assert defaultPrincipal != null;
+        
         this.policyContextID = policyContextID;
-        this.defaultSubject = ConfigurationUtil.generateDefaultSubject(securityConfig.getDefaultPrincipal());
+        this.defaultPrincipal = defaultPrincipal;
+        this.loginDomainName = loginDomainName;
+        this.defaultSubject = ConfigurationUtil.generateDefaultSubject(defaultPrincipal);
+        this.checked = checkedPermissions;
+        this.excluded = excludedPermissions;
+        this.roleDesignates = roleDesignates;
 
         /**
          * Register our default subject with the ContextManager
@@ -115,26 +123,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
         SubjectId id = ContextManager.getSubjectId(defaultSubject);
         defaultSubject.getPrincipals().add(new IdentificationPrincipal(id));
 
-        factory = PolicyConfigurationFactory.getPolicyConfigurationFactory();
-        policyConfiguration = factory.getPolicyConfiguration(policyContextID, true);
-
-        configure(uncheckedPermissions, excludedPermissions, rolePermissions);
-        RoleMappingConfiguration roleMapper = RoleMappingConfigurationFactory.getRoleMappingFactory().getRoleMappingConfiguration(policyContextID, false);
-        addRoleMappings(securityRoles, securityConfig, roleMapper);
-        policyConfiguration.commit();
-        this.loginDomainName = loginDomainName;
-
-        Set allRolePermissions = new HashSet();
-        for (Iterator iterator = rolePermissions.entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
-            Set permissionsForRole = (Set) entry.getValue();
-            allRolePermissions.addAll(permissionsForRole);
-        }
-        for (Iterator iterator = allRolePermissions.iterator(); iterator.hasNext();) {
-            Permission permission = (Permission) iterator.next();
-            checked.add(permission);
-        }
-    }
+     }
 
     /**
      * Enforce any user data constraint required by the security constraint
@@ -178,6 +167,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
             /**
              * JACC v1.0 secion 4.1.1
              */
+            WebUserDataPermission wudp = new WebUserDataPermission(request);
             acc.checkPermission(new WebUserDataPermission(request));
 
         } catch (AccessControlException ace) {
@@ -468,93 +458,6 @@ public class TomcatGeronimoRealm extends JAASRealm {
     }
 
 
-    public void addRoleMappings(Set securityRoles, Security security, RoleMappingConfiguration roleMapper) throws PolicyContextException, GeronimoSecurityException {
-
-        for (Iterator roleMappings = security.getRoleMappings().values().iterator(); roleMappings.hasNext();) {
-            Role role = (Role) roleMappings.next();
-            String roleName = role.getRoleName();
-            Set principalSet = new HashSet();
-
-            if (!securityRoles.contains(roleName)) {
-                throw new GeronimoSecurityException("Role does not exist in this configuration");
-            }
-
-            Subject roleDesignate = new Subject();
-
-            for (Iterator realms = role.getRealms().values().iterator(); realms.hasNext();) {
-                Realm realm = (Realm) realms.next();
-
-                for (Iterator principals = realm.getPrincipals().iterator(); principals.hasNext();) {
-                    org.apache.geronimo.security.deploy.Principal principal = (org.apache.geronimo.security.deploy.Principal) principals.next();
-
-                    RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(principal, realm.getRealmName());
-                    if (realmPrincipal == null) {
-                        throw new GeronimoSecurityException("Unable to create realm principal");
-                    }
-
-                    principalSet.add(realmPrincipal);
-                    if (principal.isDesignatedRunAs()) {
-                        roleDesignate.getPrincipals().add(realmPrincipal);
-                    }
-                }
-            }
-
-            for (Iterator names = role.getDNames().iterator(); names.hasNext();) {
-                DistinguishedName dn = (DistinguishedName) names.next();
-
-                X500Principal x500Principal = ConfigurationUtil.generateX500Principal(dn.getName());
-
-                principalSet.add(x500Principal);
-                if (dn.isDesignatedRunAs()) {
-                    roleDesignate.getPrincipals().add(x500Principal);
-                }
-            }
-
-            roleMapper.addRoleMapping(roleName, principalSet);
-
-            if (roleDesignate.getPrincipals().size() > 0) {
-                setRoleDesignate(roleName, roleDesignate);
-            }
-        }
-
-        /**
-         * Register the role designates with the context manager.
-         */
-        for (Iterator iter = roleDesignates.keySet().iterator(); iter.hasNext();) {
-            String roleName = (String) iter.next();
-            Subject roleDesignate = (Subject) roleDesignates.get(roleName);
-
-            ContextManager.registerSubject(roleDesignate);
-            SubjectId id = ContextManager.getSubjectId(roleDesignate);
-            roleDesignate.getPrincipals().add(new IdentificationPrincipal(id));
-        }
-
-    }
-
-    private void setRoleDesignate(String roleName, Subject subject) {
-        roleDesignates.put(roleName, subject);
-    }
-
-    private void configure(PermissionCollection uncheckedPermissions,
-                           PermissionCollection excludedPermissions,
-                           Map rolePermissions) throws GeronimoSecurityException {
-        try {
-            policyConfiguration.addToExcludedPolicy(excludedPermissions);
-            policyConfiguration.addToUncheckedPolicy(uncheckedPermissions);
-            for (Iterator iterator = rolePermissions.entrySet().iterator(); iterator.hasNext();) {
-                Map.Entry entry = (Map.Entry) iterator.next();
-                String roleName = (String) entry.getKey();
-                Set permissions = (Set) entry.getValue();
-                for (Iterator iterator1 = permissions.iterator(); iterator1.hasNext();) {
-                    Permission permission = (Permission) iterator1.next();
-                    policyConfiguration.addToRole(roleName, permission);
-                }
-            }
-        } catch (PolicyContextException e) {
-            throw new GeronimoSecurityException(e);
-        }
-    }
-
     /**
      * Prepare for active use of the public methods of this <code>Component</code>.
      *
@@ -581,23 +484,8 @@ public class TomcatGeronimoRealm extends JAASRealm {
         // Perform normal superclass finalization
         super.stop();
 
-        for (Iterator iter = roleDesignates.keySet().iterator(); iter.hasNext();) {
-            String roleName = (String) iter.next();
-            Subject roleDesignate = (Subject) roleDesignates.get(roleName);
-
-            ContextManager.unregisterSubject(roleDesignate);
-        }
+        // Remove the defaultSubject
         ContextManager.unregisterSubject(defaultSubject);
-
-        try {
-
-            if (policyConfiguration != null)
-                policyConfiguration.delete();
-
-        } catch (PolicyContextException pce) {
-            //Oh well, we tried
-        }
-
     }
 
     public void setContext(Context context) {

@@ -41,6 +41,7 @@ public class PolicyContextValve extends ValveBase{
         String oldId = PolicyContext.getContextID();
 
         PolicyContext.setContextID(policyContextID);
+        PolicyContext.setHandlerData(request);
 
         // Pass this request on to the next valve in our pipeline
         getNext().invoke(request, response);

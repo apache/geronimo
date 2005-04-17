@@ -20,6 +20,7 @@ package org.apache.geronimo.tomcat;
 import java.net.URI;
 import java.net.URL;
 import java.security.PermissionCollection;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -36,10 +37,12 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.security.deploy.Security;
+import org.apache.geronimo.security.jacc.RoleDesignateSource;
 import org.apache.geronimo.naming.reference.KernelAwareReference;
 import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
 import org.apache.geronimo.naming.java.SimpleReadOnlyContext;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.tomcat.valve.ComponentContextValve;
 import org.apache.geronimo.tomcat.valve.TransactionContextValve;
 import org.apache.geronimo.tomcat.valve.PolicyContextValve;
@@ -47,13 +50,16 @@ import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.context.OnlineUserTransaction;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.management.J2EEApplication;
+import org.apache.geronimo.j2ee.management.J2EEServer;
+import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
 
+import javax.management.ObjectName;
 import javax.naming.NamingException;
-
 
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
- *
+ * 
  * @version $Rev: 56022 $ $Date: 2004-10-30 07:16:18 +0200 (Sat, 30 Oct 2004) $
  */
 public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
@@ -63,39 +69,58 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
     protected final TomcatContainer container;
 
     protected Context context = null;
+
     private final URI webAppRoot;
+
     private String path = null;
+
     private String docBase = null;
 
     private final LoginConfig loginConfig;
+
     private final Realm tomcatRealm;
+
     private final Set securityConstraints;
+
     private final Set securityRoles;
+
     private final Map componentContext;
+
     private final Kernel kernel;
+
     private final TransactionContextManager transactionContextManager;
+
     private final String policyContextID;
 
-    public TomcatWebAppContext(URI webAppRoot,
-                               URI[] webClassPath,
-                               URL configurationBaseUrl,
-                               LoginConfig loginConfig,
-                               Realm tomcatRealm,
-                               Set securityConstraints,
+    private final RoleDesignateSource roleDesignateSource;
 
-                               String policyContextID,
-                               String loginDomainName,
-                               Security securityConfig,
-                               Set securityRoles,
-                               PermissionCollection uncheckedPermissions,
-                               PermissionCollection excludedPermissions,
-                               Map rolePermissions,
-                               Map componentContext,
-                               OnlineUserTransaction userTransaction,
-                               TransactionContextManager transactionContextManager,
-                               TrackedConnectionAssociator trackedConnectionAssociator,
-                               TomcatContainer container,
-                               Kernel kernel) throws NamingException {
+    private final J2EEServer server;
+
+    private final J2EEApplication application;
+
+    public TomcatWebAppContext(
+            String objectName, 
+            String originalSpecDD,
+            URI webAppRoot, 
+            URI[] webClassPath, 
+            URL configurationBaseUrl,
+            LoginConfig loginConfig, 
+            Realm tomcatRealm,
+            Set securityConstraints,
+            String policyContextID, 
+            String loginDomainName,
+            Security securityConfig, 
+            Set securityRoles,
+            Map componentContext, 
+            OnlineUserTransaction userTransaction,
+            TransactionContextManager transactionContextManager,
+            TrackedConnectionAssociator trackedConnectionAssociator,
+            TomcatContainer container, 
+            RoleDesignateSource roleDesignateSource,
+            J2EEServer server, 
+            J2EEApplication application, 
+            Kernel kernel)
+            throws NamingException {
 
         assert webAppRoot != null;
         assert webClassPath != null;
@@ -117,10 +142,27 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
 
         this.componentContext = componentContext;
         this.transactionContextManager = transactionContextManager;
+
+        this.roleDesignateSource = roleDesignateSource;
+        this.server = server;
+        this.application = application;
+
         this.kernel = kernel;
+        ObjectName myObjectName = JMXUtil.getObjectName(objectName);
+        verifyObjectName(myObjectName);
 
-        userTransaction.setUp(transactionContextManager, trackedConnectionAssociator);
+        if (tomcatRealm != null){
+            if (roleDesignateSource == null) {
+                throw new IllegalArgumentException("RoleDesignateSource must be supplied for a secure web app");
+            }            
+        }
+        userTransaction.setUp(transactionContextManager,
+                trackedConnectionAssociator);
 
+    }
+
+    public String getServer() {
+        return server.getObjectName();
     }
 
     public String getDocBase() {
@@ -135,7 +177,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
         context.setDocBase(webAppRoot.getPath());
         context.setPath(path);
 
-        //Security
+        // Security
         if (tomcatRealm != null) {
             if (tomcatRealm instanceof TomcatGeronimoRealm) {
                 ((TomcatGeronimoRealm) tomcatRealm).setContext(context);
@@ -167,13 +209,16 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
         javax.naming.Context enc = null;
         try {
             if (componentContext != null) {
-                for (Iterator iterator = componentContext.values().iterator(); iterator.hasNext();) {
+                for (Iterator iterator = componentContext.values().iterator(); iterator
+                        .hasNext();) {
                     Object value = iterator.next();
                     if (value instanceof KernelAwareReference) {
                         ((KernelAwareReference) value).setKernel(kernel);
                     }
                     if (value instanceof ClassLoaderAwareReference) {
-                        ((ClassLoaderAwareReference) value).setClassLoader(context.getLoader().getClassLoader());
+                        ((ClassLoaderAwareReference) value)
+                                .setClassLoader(context.getLoader()
+                                        .getClassLoader());
                     }
                 }
                 enc = new SimpleReadOnlyContext(componentContext);
@@ -182,19 +227,21 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
             log.error(ne);
         }
 
-        //Set the valves for the context
-        if (enc != null){
+        // Set the valves for the context
+        if (enc != null) {
             ComponentContextValve contextValve = new ComponentContextValve(enc);
             ((StandardContext) context).addValve(contextValve);
         }
 
-        if (transactionContextManager != null){
-            TransactionContextValve transactionValve = new TransactionContextValve(transactionContextManager);
+        if (transactionContextManager != null) {
+            TransactionContextValve transactionValve = new TransactionContextValve(
+                    transactionContextManager);
             ((StandardContext) context).addValve(transactionValve);
         }
 
-        if (policyContextID != null){
-            PolicyContextValve policyValve = new PolicyContextValve(policyContextID);
+        if (policyContextID != null) {
+            PolicyContextValve policyValve = new PolicyContextValve(
+                    policyContextID);
             ((StandardContext) context).addValve(policyValve);
         }
     }
@@ -213,6 +260,42 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+    /**
+     * ObjectName must match this pattern: <p/>
+     * domain:j2eeType=WebModule,name=MyName,J2EEServer=MyServer,J2EEApplication=MyApplication
+     */
+    private void verifyObjectName(ObjectName objectName) {
+        if (objectName.isPattern()) {
+            throw new InvalidObjectNameException(
+                    "ObjectName can not be a pattern", objectName);
+        }
+        Hashtable keyPropertyList = objectName.getKeyPropertyList();
+        if (!NameFactory.WEB_MODULE.equals(keyPropertyList.get("j2eeType"))) {
+            throw new InvalidObjectNameException(
+                    "WebModule object name j2eeType property must be 'WebModule'",
+                    objectName);
+        }
+        if (!keyPropertyList.containsKey(NameFactory.J2EE_NAME)) {
+            throw new InvalidObjectNameException(
+                    "WebModule object must contain a name property", objectName);
+        }
+        if (!keyPropertyList.containsKey(NameFactory.J2EE_SERVER)) {
+            throw new InvalidObjectNameException(
+                    "WebModule object name must contain a J2EEServer property",
+                    objectName);
+        }
+        if (!keyPropertyList.containsKey(NameFactory.J2EE_APPLICATION)) {
+            throw new InvalidObjectNameException(
+                    "WebModule object name must contain a J2EEApplication property",
+                    objectName);
+        }
+        if (keyPropertyList.size() != 4) {
+            throw new InvalidObjectNameException(
+                    "WebModule object name can only have j2eeType, name, J2EEApplication, and J2EEServer properties",
+                    objectName);
+        }
     }
 
     public void doStart() throws Exception {
@@ -240,58 +323,69 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Tomcat WebApplication Context", TomcatWebAppContext.class, NameFactory.WEB_MODULE);
+        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(
+                "Tomcat WebApplication Context", TomcatWebAppContext.class,
+                NameFactory.WEB_MODULE);
 
-        infoFactory.addAttribute("webAppRoot", URI.class, true);
-        infoFactory.addAttribute("webClassPath", URI[].class, true);
-        infoFactory.addAttribute("configurationBaseUrl", URL.class, true);
+        infoBuilder.addAttribute("objectName", String.class, false);
+        infoBuilder.addAttribute("deploymentDescriptor", String.class, true);
+        infoBuilder.addAttribute("webAppRoot", URI.class, true);
+        infoBuilder.addAttribute("webClassPath", URI[].class, true);
+        infoBuilder.addAttribute("configurationBaseUrl", URL.class, true);
 
-        infoFactory.addAttribute("path", String.class, true);
+        infoBuilder.addAttribute("path", String.class, true);
 
-        infoFactory.addAttribute("loginConfig", LoginConfig.class, true);
+        infoBuilder.addAttribute("loginConfig", LoginConfig.class, true);
 
-        infoFactory.addAttribute("tomcatRealm", Realm.class, true);
-        infoFactory.addAttribute("securityConstraints", Set.class, true);
+        infoBuilder.addAttribute("tomcatRealm", Realm.class, true);
+        infoBuilder.addAttribute("securityConstraints", Set.class, true);
 
-        infoFactory.addAttribute("policyContextID", String.class, true);
-        infoFactory.addAttribute("loginDomainName", String.class, true);
-        infoFactory.addAttribute("securityConfig", Security.class, true);
-        infoFactory.addAttribute("securityRoles", Set.class, true);
-        infoFactory.addAttribute("uncheckedPermissions", PermissionCollection.class, true);
-        infoFactory.addAttribute("excludedPermissions", PermissionCollection.class, true);
-        infoFactory.addAttribute("rolePermissions", Map.class, true);
+        infoBuilder.addAttribute("policyContextID", String.class, true);
+        infoBuilder.addAttribute("loginDomainName", String.class, true);
+        infoBuilder.addAttribute("securityConfig", Security.class, true);
+        infoBuilder.addAttribute("securityRoles", Set.class, true);
+        infoBuilder.addAttribute("componentContext", Map.class, true);
+        infoBuilder.addAttribute("userTransaction",
+                OnlineUserTransaction.class, true);
+        infoBuilder.addReference("TransactionContextManager",
+                TransactionContextManager.class, NameFactory.JTA_RESOURCE);
+        infoBuilder.addReference("TrackedConnectionAssociator",
+                TrackedConnectionAssociator.class, NameFactory.JCA_RESOURCE);
 
-        infoFactory.addAttribute("componentContext", Map.class, true);
-        infoFactory.addAttribute("userTransaction", OnlineUserTransaction.class, true);
-        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.JTA_RESOURCE);
-        infoFactory.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class, NameFactory.JCA_RESOURCE);
+        infoBuilder.addReference("Container", TomcatContainer.class,
+                NameFactory.GERONIMO_SERVICE);
+        infoBuilder.addReference("RoleDesignateSource",
+                RoleDesignateSource.class, NameFactory.JACC_MANAGER);
+        infoBuilder.addReference("J2EEServer", J2EEServer.class);
+        infoBuilder.addReference("J2EEApplication", J2EEApplication.class);
+        infoBuilder.addAttribute("kernel", Kernel.class, false);
 
-        infoFactory.addReference("Container", TomcatContainer.class, NameFactory.GERONIMO_SERVICE);
-        infoFactory.addAttribute("kernel", Kernel.class, false);
+        infoBuilder.setConstructor(new String[] { 
+                "objectName",
+                "deploymentDescriptor",
+                "webAppRoot", 
+                "webClassPath",
+                "configurationBaseUrl", 
+                "loginConfig", 
+                "tomcatRealm",
+                "securityConstraints", 
+                "policyContextID", 
+                "loginDomainName",
+                "securityConfig", 
+                "securityRoles", 
+                "componentContext",
+                "userTransaction", 
+                "TransactionContextManager",
+                "TrackedConnectionAssociator", 
+                "Container",
+                "RoleDesignateSource", 
+                "J2EEServer", 
+                "J2EEApplication",
+                "kernel" 
+                }
+        );
 
-        infoFactory.setConstructor(new String[]{
-            "webAppRoot",
-            "webClassPath",
-            "configurationBaseUrl",
-            "loginConfig",
-            "tomcatRealm",
-            "securityConstraints",
-            "policyContextID",
-            "loginDomainName",
-            "securityConfig",
-            "securityRoles",
-            "uncheckedPermissions",
-            "excludedPermissions",
-            "rolePermissions",
-            "componentContext",
-            "userTransaction",
-            "TransactionContextManager",
-            "TrackedConnectionAssociator",
-            "Container",
-            "kernel"
-        });
-
-        GBEAN_INFO = infoFactory.getBeanInfo();
+        GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 
     public static GBeanInfo getGBeanInfo() {
