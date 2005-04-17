@@ -64,7 +64,9 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
         <uri>geronimo/jars/geronimo-axis-builder-${geronimo_version}.jar</uri>
     </dependency>
 
-    <!-- Uncomment the next 5 dependencies to enable Tomcat
+    <!--
+    - Uncomment this section to deploy webapps to Apache Tomcat
+    -
     <dependency>
         <uri>geronimo/jars/geronimo-tomcat-${geronimo_version}.jar</uri>
     </dependency>
@@ -123,7 +125,9 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
     </gbean>
     -->
 
-    <!-- Comment out the next WebBuilder gbean to enable Tomcat deployer
+    <!--
+    - Comment this section to deploy webapps to Apache Tomcat
+    -
     -->
     <gbean name="WebBuilder" class="org.apache.geronimo.jetty.deployment.JettyModuleBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
@@ -136,7 +140,9 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
         <reference name="Repository"><gbean-name>*:name=Repository,*</gbean-name></reference>
     </gbean>
     
-    <!-- Comment out the next StaticContent gbean to enable Tomcat deployer
+    <!--
+    - Comment this section to deploy webapps to Apache Tomcat
+    -
     -->
     <gbean name="StaticContent" class="org.apache.geronimo.jetty.JettyServletHolder">
         <attribute name="servletName">default</attribute>
@@ -152,7 +158,9 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
         <attribute name="servletMappings">/</attribute>
     </gbean>
 
-    <!-- Comment out the next JSPServlet gbean to enable Tomcat deployer
+    <!--
+    - Comment this section to deploy webapps to Apache Tomcat
+    -
     -->
     <gbean name="JSPServlet" class="org.apache.geronimo.jetty.JettyServletHolder">
         <attribute name="servletName">jsp</attribute>
@@ -165,7 +173,9 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
         <attribute name="servletMappings">*.jsp,*.jspf,*.jspx,*.xsp</attribute>
     </gbean>
 
-    <!-- Comment out the POJOTemplate gbean to enable Tomcat deployer
+    <!--
+    - Comment this section to deploy webapps to Apache Tomcat
+    -
     -->
     <gbean name="POJOTemplate" class="org.apache.geronimo.jetty.JettyPOJOWebServiceHolder">
         <attribute name="servletName">dummy</attribute>
