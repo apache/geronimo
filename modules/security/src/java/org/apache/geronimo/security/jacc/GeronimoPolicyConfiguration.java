@@ -19,16 +19,20 @@ package org.apache.geronimo.security.jacc;
 
 import java.security.Permission;
 import java.security.ProtectionDomain;
+import java.util.Map;
 import javax.security.jacc.PolicyConfiguration;
+import javax.security.jacc.PolicyContextException;
 
 
 /**
  * @version $Rev$ $Date$
  */
 
-public interface GeronimoPolicyConfiguration extends PolicyConfiguration, RoleMappingConfiguration {
-    
-    public boolean implies(ProtectionDomain domain, Permission permission);
+public interface GeronimoPolicyConfiguration extends PolicyConfiguration {
 
-    public void open(boolean remove);
+    boolean implies(ProtectionDomain domain, Permission permission);
+
+    void open(boolean remove);
+
+    void setPrincipalRoleMapping(Map principalRoleMap) throws PolicyContextException;
 }

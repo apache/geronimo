@@ -19,24 +19,15 @@ package org.apache.geronimo.tomcat;
 import java.io.IOException;
 import java.security.AccessControlContext;
 import java.security.AccessControlException;
-import java.security.Permission;
 import java.security.PermissionCollection;
-import java.security.Permissions;
 import java.security.Principal;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import javax.security.auth.Subject;
 import javax.security.auth.login.AccountExpiredException;
 import javax.security.auth.login.CredentialExpiredException;
 import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-import javax.security.auth.x500.X500Principal;
-import javax.security.jacc.PolicyConfiguration;
-import javax.security.jacc.PolicyConfigurationFactory;
 import javax.security.jacc.PolicyContext;
 import javax.security.jacc.PolicyContextException;
 import javax.security.jacc.WebResourcePermission;
@@ -54,21 +45,11 @@ import org.apache.catalina.realm.JAASCallbackHandler;
 import org.apache.catalina.realm.JAASRealm;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.IdentificationPrincipal;
-import org.apache.geronimo.security.PrimaryRealmPrincipal;
-import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.SubjectId;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
-import org.apache.geronimo.security.deploy.DistinguishedName;
-import org.apache.geronimo.security.deploy.Realm;
-import org.apache.geronimo.security.deploy.Role;
-import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.security.jacc.PolicyContextHandlerContainerSubject;
-import org.apache.geronimo.security.jacc.RoleMappingConfiguration;
-import org.apache.geronimo.security.jacc.RoleMappingConfigurationFactory;
 import org.apache.geronimo.security.util.ConfigurationUtil;
 
 
@@ -102,12 +83,11 @@ public class TomcatGeronimoRealm extends JAASRealm {
                                String loginDomainName,
                                PermissionCollection checkedPermissions,
                                PermissionCollection excludedPermissions,
-                               Map roleDesignates) 
-            throws PolicyContextException, ClassNotFoundException {
+                               Map roleDesignates) {
 
         assert policyContextID != null;
         assert defaultPrincipal != null;
-        
+
         this.policyContextID = policyContextID;
         this.defaultPrincipal = defaultPrincipal;
         this.loginDomainName = loginDomainName;
@@ -168,7 +148,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
              * JACC v1.0 secion 4.1.1
              */
             WebUserDataPermission wudp = new WebUserDataPermission(request);
-            acc.checkPermission(new WebUserDataPermission(request));
+            acc.checkPermission(wudp);
 
         } catch (AccessControlException ace) {
             response.sendError(Response.SC_FORBIDDEN);

@@ -78,20 +78,6 @@ public class PolicyConfigurationGeneric implements GeronimoPolicyConfiguration {
         return false;
     }
 
-    public void addRoleMapping(String role, Collection principals) throws PolicyContextException {
-        Iterator iter = principals.iterator();
-        while (iter.hasNext()) {
-            Principal principal = (Principal) iter.next();
-
-            HashSet roles = (HashSet) principalRoleMapping.get(principal);
-            if (roles == null) {
-                roles = new HashSet();
-                principalRoleMapping.put(principal, roles);
-            }
-            roles.add(role);
-        }
-    }
-
     public void setPrincipalRoleMapping(Map principalRoleMap) throws PolicyContextException {
         principalRoleMapping.clear();
         principalRoleMapping.putAll(principalRoleMap);
@@ -171,19 +157,6 @@ public class PolicyConfigurationGeneric implements GeronimoPolicyConfiguration {
 
     public void linkConfiguration(javax.security.jacc.PolicyConfiguration link) throws PolicyContextException {
         if (state != OPEN) throw new UnsupportedOperationException("Not in an open state");
-
-//        RoleMappingConfiguration roleMapper = RoleMappingConfigurationFactory.getRoleMappingFactory().getRoleMappingConfiguration(link.getContextID(), false);
-//        Iterator principals = principalRoleMapping.keySet().iterator();
-//        while (principals.hasNext()) {
-//            Principal principal = (Principal) principals.next();
-//
-//            Iterator roles = ((HashSet) principalRoleMapping.get(principal)).iterator();
-//            while (roles.hasNext()) {
-//                roleMapper.addRoleMapping((String) roles.next(), Collections.singletonList(principal));
-//            }
-//
-//        }
-//        link.linkConfiguration(this);
     }
 
     public void delete() throws PolicyContextException {
