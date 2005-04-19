@@ -424,7 +424,7 @@ public class SkelCompiler extends Compiler {
 
             jc.addImport("org.apache.geronimo.interop.rmi.iiop", "RemoteInterface");
             jc.addImport("org.apache.geronimo.interop.rmi.iiop", "ObjectRef");
-            jc.addImport("org.apache.geronimo.interop.rmi.iiop", "RemoteObject");            
+            jc.addImport("org.apache.geronimo.interop.rmi.iiop", "RemoteObject");
 
             jc.setExtends("RemoteObject");
             jc.addImplements("RemoteInterface");
@@ -478,7 +478,7 @@ public class SkelCompiler extends Compiler {
             JCaseStatement caseStmt = null;
             ts.addStatement(switchStmt);
 
-            Method m[] = getMethods( riClass, go );
+            Method m[] = getMethods( riClass, go.isSimpleIdl());
             MethodOverload mo[] = null;
             mo = getMethodOverloads( m );
 

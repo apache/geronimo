@@ -142,7 +142,7 @@ public class Compiler {
     {
         // Maybe it would be easier if GenOptions just made sure that platform path
         // separators and file separators were as required on the platform?
-        
+
         if (File.separatorChar == '/') {
             // We're under Unix, change '\\' to '/'
             return path.replace( '\\', '/' );
@@ -199,18 +199,24 @@ public class Compiler {
         }
     }
 
-    protected Method[] getMethods( Class intfClass, GenOptions go )
+    protected Method[] getMethods(Class intfClass, boolean isSimpleIdl)
     {
         Method myMethods[] = intfClass.getDeclaredMethods();
         ArrayList list = new ArrayList( myMethods.length * 2 );
 
-        collectInterfaceMethods( list, intfClass, go.isSimpleIdl() );
+        collectInterfaceMethods( list, intfClass, isSimpleIdl );
 
         Object[] objs = list.toArray();
         Method[] methods = new Method[objs.length];
         System.arraycopy( objs, 0, methods, 0, objs.length );
 
         return methods;
+    }
+
+    public MethodOverload[] getMethodOverloads(Class intfCalss, boolean isSimpleIdl) {
+        Method[] methods = getMethods(intfCalss, isSimpleIdl);
+        MethodOverload[] methodOverloads = getMethodOverloads(methods);
+        return methodOverloads;
     }
 
     public MethodOverload[] getMethodOverloads( Method methods[] )
@@ -271,7 +277,7 @@ public class Compiler {
         return name.replace( '.', '_' );
     }
 
-    class MethodOverload
+    public class MethodOverload
     {
         public Method method;
         public String iiop_name;

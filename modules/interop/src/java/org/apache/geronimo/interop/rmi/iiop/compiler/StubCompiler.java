@@ -241,7 +241,7 @@ public class StubCompiler extends Compiler {
 
             addMethod_is_a(jc);
 
-            Method m[] = getMethods( riClass, go );
+            Method m[] = getMethods( riClass, go.isSimpleIdl());
             MethodOverload mo[] = null;
             mo = getMethodOverloads( m );
             for (int i = 0; mo != null && i < mo.length; i++) {
