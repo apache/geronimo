@@ -64,6 +64,10 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
         <uri>geronimo/jars/geronimo-axis-builder-${geronimo_version}.jar</uri>
     </dependency>
 
+    <dependency>
+        <uri>geronimo/jars/geronimo-interop-${geronimo_version}.jar</uri>
+    </dependency>
+
     <!--
     - Uncomment this section to deploy webapps to Apache Tomcat
     -
