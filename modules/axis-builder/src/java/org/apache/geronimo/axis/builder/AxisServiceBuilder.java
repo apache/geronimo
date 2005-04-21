@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
-
 import javax.wsdl.Binding;
 import javax.wsdl.BindingInput;
 import javax.wsdl.BindingOperation;
@@ -139,8 +138,6 @@ public class AxisServiceBuilder {
         Map exceptionMap = WSDescriptorParser.getExceptionMap(portInfo.getJavaWsdlMapping());
         SchemaInfoBuilder schemaInfoBuilder = portInfo.getSchemaInfoBuilder();
         Map schemaTypeKeyToSchemaTypeMap = schemaInfoBuilder.getSchemaTypeKeyToSchemaTypeMap();
-        Map complexTypeMap = schemaInfoBuilder.getComplexTypesInWsdl();
-        Map elementMap = schemaInfoBuilder.getElementToTypeMap();
 
         JavaServiceDesc serviceDesc = new JavaServiceDesc();
 
@@ -169,7 +166,7 @@ public class AxisServiceBuilder {
             validateLightweightMapping(portInfo.getDefinition());
         }
 
-        Set wrapperElementQNames = buildOperations(binding, serviceEndpointInterface, isLightweight, portInfo, exceptionMap, complexTypeMap, elementMap, classLoader, serviceDesc);
+        Set wrapperElementQNames = buildOperations(binding, serviceEndpointInterface, isLightweight, portInfo, exceptionMap, classLoader, serviceDesc);
 
         TypeMappingRegistryImpl tmr = new TypeMappingRegistryImpl();
         tmr.doRegisterFromVersion("1.3");
@@ -180,7 +177,7 @@ public class AxisServiceBuilder {
         serviceDesc.setTypeMapping(typeMapping);
 
         Map classToTypeDescInfo = new HashMap();
-        
+
         if (isLightweight) {
             buildLightweightTypes(schemaTypeKeyToSchemaTypeMap, portInfo, classLoader, typeMapping, classToTypeDescInfo);
         } else {
@@ -301,13 +298,13 @@ public class AxisServiceBuilder {
         }
     }
 
-    private static Set buildOperations(Binding binding, Class serviceEndpointInterface, boolean lightweight, PortInfo portInfo, Map exceptionMap, Map complexTypeMap, Map elementMap, ClassLoader classLoader, JavaServiceDesc serviceDesc) throws DeploymentException {
+    private static Set buildOperations(Binding binding, Class serviceEndpointInterface, boolean lightweight, PortInfo portInfo, Map exceptionMap, ClassLoader classLoader, JavaServiceDesc serviceDesc) throws DeploymentException {
         Set wrappedElementQNames = new HashSet();
 
         SOAPBinding soapBinding = (SOAPBinding) SchemaInfoBuilder.getExtensibilityElement(SOAPBinding.class, binding.getExtensibilityElements());
         String portStyleString = soapBinding.getStyle();
         Style portStyle = Style.getStyle(portStyleString);
-        
+
         List bindingOperations = binding.getBindingOperations();
         for (int i = 0; i < bindingOperations.size(); i++) {
             BindingOperation bindingOperation = (BindingOperation) bindingOperations.get(i);
@@ -321,7 +318,7 @@ public class AxisServiceBuilder {
                 ServiceEndpointMethodMappingType[] methodMappings = portInfo.getServiceEndpointInterfaceMapping().getServiceEndpointMethodMappingArray();
                 ServiceEndpointMethodMappingType methodMapping = WSDescriptorParser.getMethodMappingForOperation(operationName, methodMappings);
                 JavaXmlTypeMappingType[] javaXmlTypeMappingTypes = portInfo.getJavaWsdlMapping().getJavaXmlTypeMappingArray();
-                operationDescBuilder = new HeavyweightOperationDescBuilder(bindingOperation, portInfo.getJavaWsdlMapping(), methodMapping, portStyle, exceptionMap, complexTypeMap, elementMap, javaXmlTypeMappingTypes, classLoader, serviceEndpointInterface);
+                operationDescBuilder = new HeavyweightOperationDescBuilder(bindingOperation, portInfo.getJavaWsdlMapping(), methodMapping, portStyle, exceptionMap, portInfo.getSchemaInfoBuilder(), javaXmlTypeMappingTypes, classLoader, serviceEndpointInterface);
                 Set wrappedElementQNamesForOper = ((HeavyweightOperationDescBuilder) operationDescBuilder).getWrapperElementQNames();
                 wrappedElementQNames.addAll(wrappedElementQNamesForOper);
             }

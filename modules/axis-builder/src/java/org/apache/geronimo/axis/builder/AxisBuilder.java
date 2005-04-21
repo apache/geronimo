@@ -240,9 +240,9 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
         }
 
         Map exceptionMap = WSDescriptorParser.getExceptionMap(mapping);
-        Map schemaTypeKeyToSchemaTypeMap = schemaInfoBuilder.getSchemaTypeKeyToSchemaTypeMap();
-        Map complexTypeMap = schemaInfoBuilder.getComplexTypesInWsdl();
-        Map elementMap = schemaInfoBuilder.getElementToTypeMap();
+//        Map schemaTypeKeyToSchemaTypeMap = schemaInfoBuilder.getSchemaTypeKeyToSchemaTypeMap();
+//        Map complexTypeMap = schemaInfoBuilder.getComplexTypesInWsdl();
+//        Map elementMap = schemaInfoBuilder.getElementToTypeMap();
 
         Map wsdlPortMap = service.getPorts();
         for (Iterator iterator = wsdlPortMap.entrySet().iterator(); iterator.hasNext();) {
@@ -266,9 +266,9 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
             List operations = portType.getOperations();
             OperationInfo[] operationInfos = new OperationInfo[operations.size()];
             if (endpointMappings.length == 0) {
-                doLightweightMapping(service.getQName(), portType, mapping, classLoader, context, module, operations, binding, portStyle, soapVersion, operationInfos, schemaTypeKeyToSchemaTypeMap, portName, serviceImpl, location, handlerInfos, seiPortNameToFactoryMap, seiClassNameToFactoryMap, credentialsName);
+                doLightweightMapping(service.getQName(), portType, mapping, classLoader, context, module, operations, binding, portStyle, soapVersion, operationInfos, schemaInfoBuilder, portName, serviceImpl, location, handlerInfos, seiPortNameToFactoryMap, seiClassNameToFactoryMap, credentialsName);
             } else {
-                doHeavyweightMapping(service.getQName(), portType, endpointMappings, classLoader, context, module, operations, binding, portStyle, soapVersion, exceptionMap, complexTypeMap, elementMap, mapping, operationInfos, schemaTypeKeyToSchemaTypeMap, portName, serviceImpl, location, handlerInfos, seiPortNameToFactoryMap, seiClassNameToFactoryMap, credentialsName);
+                doHeavyweightMapping(service.getQName(), portType, endpointMappings, classLoader, context, module, operations, binding, portStyle, soapVersion, exceptionMap, schemaInfoBuilder, mapping, operationInfos, portName, serviceImpl, location, handlerInfos, seiPortNameToFactoryMap, seiClassNameToFactoryMap, credentialsName);
             }
         }
     }
@@ -310,7 +310,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
         return location;
     }
 
-    private void doHeavyweightMapping(QName serviceName, PortType portType, ServiceEndpointInterfaceMappingType[] endpointMappings, ClassLoader classLoader, DeploymentContext context, Module module, List operations, Binding binding, Style portStyle, SOAPConstants soapVersion, Map exceptionMap, Map complexTypeMap, Map elementMap, JavaWsdlMappingType mapping, OperationInfo[] operationInfos, Map schemaTypeKeyToSchemaTypeMap, String portName, Object serviceImpl, URL location, List handlerInfos, Map seiPortNameToFactoryMap, Map seiClassNameToFactoryMap, String credentialsName) throws DeploymentException {
+    private void doHeavyweightMapping(QName serviceName, PortType portType, ServiceEndpointInterfaceMappingType[] endpointMappings, ClassLoader classLoader, DeploymentContext context, Module module, List operations, Binding binding, Style portStyle, SOAPConstants soapVersion, Map exceptionMap, SchemaInfoBuilder schemaInfoBuilder, JavaWsdlMappingType mapping, OperationInfo[] operationInfos, String portName, Object serviceImpl, URL location, List handlerInfos, Map seiPortNameToFactoryMap, Map seiClassNameToFactoryMap, String credentialsName) throws DeploymentException {
         Class serviceEndpointInterface;
         SEIFactory seiFactory;
         //complete jaxrpc mapping file supplied
@@ -346,20 +346,20 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
                 throw new DeploymentException("No BindingOperation for operation: " + operationName + ", input: " + operation.getInput().getName() + ", output: " + (operation.getOutput() == null ? "<none>" : operation.getOutput().getName()));
             }
             ServiceEndpointMethodMappingType methodMapping = WSDescriptorParser.getMethodMappingForOperation(operationName, methodMappings);
-            HeavyweightOperationDescBuilder operationDescBuilder = new HeavyweightOperationDescBuilder(bindingOperation, mapping, methodMapping, portStyle, exceptionMap, complexTypeMap, elementMap, javaXmlTypeMappings, classLoader, enhancedServiceEndpointClass);
+            HeavyweightOperationDescBuilder operationDescBuilder = new HeavyweightOperationDescBuilder(bindingOperation, mapping, methodMapping, portStyle, exceptionMap, schemaInfoBuilder, javaXmlTypeMappings, classLoader, enhancedServiceEndpointClass);
             OperationInfo operationInfo = operationDescBuilder.buildOperationInfo(soapVersion);
             operationInfos[i++] = operationInfo;
             wrapperElementQNames.addAll(operationDescBuilder.getWrapperElementQNames());
         }
         List typeMappings = new ArrayList();
         Map typeDescriptors = new HashMap();
-        buildTypeInfoHeavyweight(wrapperElementQNames, javaXmlTypeMappings, schemaTypeKeyToSchemaTypeMap, classLoader, typeMappings, typeDescriptors);
+        buildTypeInfoHeavyweight(wrapperElementQNames, javaXmlTypeMappings, schemaInfoBuilder.getSchemaTypeKeyToSchemaTypeMap(), classLoader, typeMappings, typeDescriptors);
         seiFactory = createSEIFactory(serviceName, portName, enhancedServiceEndpointClass, serviceImpl, typeMappings, typeDescriptors, location, operationInfos, handlerInfos, credentialsName, context, classLoader);
         seiPortNameToFactoryMap.put(portName, seiFactory);
         seiClassNameToFactoryMap.put(serviceEndpointInterface.getName(), seiFactory);
     }
 
-    private void doLightweightMapping(QName serviceName, PortType portType, JavaWsdlMappingType mapping, ClassLoader classLoader, DeploymentContext context, Module module, List operations, Binding binding, Style portStyle, SOAPConstants soapVersion, OperationInfo[] operationInfos, Map schemaTypeKeyToSchemaTypeMap, String portName, Object serviceImpl, URL location, List handlerInfos, Map seiPortNameToFactoryMap, Map seiClassNameToFactoryMap, String credentialsName) throws DeploymentException {
+    private void doLightweightMapping(QName serviceName, PortType portType, JavaWsdlMappingType mapping, ClassLoader classLoader, DeploymentContext context, Module module, List operations, Binding binding, Style portStyle, SOAPConstants soapVersion, OperationInfo[] operationInfos, SchemaInfoBuilder schemaInfoBuilder, String portName, Object serviceImpl, URL location, List handlerInfos, Map seiPortNameToFactoryMap, Map seiClassNameToFactoryMap, String credentialsName) throws DeploymentException {
         Class serviceEndpointInterface;
         SEIFactory seiFactory;
         //lightweight jaxrpc mapping supplied
@@ -376,13 +376,14 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
         }
         List typeMappings = new ArrayList();
         Map typeDescriptors = new HashMap();
-        buildTypeInfoLightWeight(schemaTypeKeyToSchemaTypeMap, mapping, classLoader, typeMappings, typeDescriptors);
+        buildTypeInfoLightWeight(schemaInfoBuilder, mapping, classLoader, typeMappings, typeDescriptors);
         seiFactory = createSEIFactory(serviceName, portName, enhancedServiceEndpointClass, serviceImpl, typeMappings, typeDescriptors, location, operationInfos, handlerInfos, credentialsName, context, classLoader);
         seiPortNameToFactoryMap.put(portName, seiFactory);
         seiClassNameToFactoryMap.put(serviceEndpointInterface.getName(), seiFactory);
     }
 
-    private void buildTypeInfoLightWeight(Map schemaTypeKeyToSchemaTypeMap, JavaWsdlMappingType mapping, ClassLoader classLoader, List typeMappings, Map typeDescriptors) throws DeploymentException {
+    private void buildTypeInfoLightWeight(SchemaInfoBuilder schemaInfoBuilder, JavaWsdlMappingType mapping, ClassLoader classLoader, List typeMappings, Map typeDescriptors) throws DeploymentException {
+        Map schemaTypeKeyToSchemaTypeMap = schemaInfoBuilder.getSchemaTypeKeyToSchemaTypeMap();
         for (Iterator iterator = schemaTypeKeyToSchemaTypeMap.entrySet().iterator(); iterator.hasNext();) {
             Map.Entry entry = (Map.Entry) iterator.next();
             SchemaTypeKey key = (SchemaTypeKey) entry.getKey();

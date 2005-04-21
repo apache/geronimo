@@ -68,8 +68,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
 
 
     private final Map exceptionMap;
-    private final Map complexTypeMap;
-    private final Map elementMap;
+    private final SchemaInfoBuilder schemaInfoBuilder;
     private final ClassLoader classLoader;
     private final boolean rpcStyle;
     private final boolean documentStyle;
@@ -89,13 +88,12 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
      */
     private final Set wrapperElementQNames = new HashSet();
 
-    public HeavyweightOperationDescBuilder(BindingOperation bindingOperation, JavaWsdlMappingType mapping, ServiceEndpointMethodMappingType methodMapping, Style defaultStyle, Map exceptionMap, Map complexTypeMap, Map elementMap, JavaXmlTypeMappingType[] javaXmlTypeMappingTypes, ClassLoader classLoader, Class serviceEndpointInterface) throws DeploymentException {
+    public HeavyweightOperationDescBuilder(BindingOperation bindingOperation, JavaWsdlMappingType mapping, ServiceEndpointMethodMappingType methodMapping, Style defaultStyle, Map exceptionMap, SchemaInfoBuilder schemaInfoBuilder, JavaXmlTypeMappingType[] javaXmlTypeMappingTypes, ClassLoader classLoader, Class serviceEndpointInterface) throws DeploymentException {
         super(bindingOperation);
         this.mapping = mapping;
         this.methodMapping = methodMapping;
         this.exceptionMap = exceptionMap;
-        this.complexTypeMap = complexTypeMap;
-        this.elementMap = elementMap;
+        this.schemaInfoBuilder = schemaInfoBuilder;
         for (int i = 0; i < javaXmlTypeMappingTypes.length; i++) {
             JavaXmlTypeMappingType javaXmlTypeMappingType = javaXmlTypeMappingTypes[i];
             String javaClassName = javaXmlTypeMappingType.getJavaType().getStringValue().trim();
@@ -200,7 +198,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
         if (wrappedStyle) {
             Part inputPart = getWrappedPart(input);
             QName name = inputPart.getElementName();
-            SchemaType operationType = (SchemaType) complexTypeMap.get(name);
+            SchemaType operationType = (SchemaType) schemaInfoBuilder.getComplexTypesInWsdl().get(name);
 
             Set expectedInParams = new HashSet();
 
@@ -261,7 +259,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
         if (null != output && wrappedStyle) {
             Part inputPart = getWrappedPart(output);
             QName name = inputPart.getElementName();
-            SchemaType operationType = (SchemaType) complexTypeMap.get(name);
+            SchemaType operationType = (SchemaType) schemaInfoBuilder.getComplexTypesInWsdl().get(name);
 
             Set expectedOutParams = new HashSet();
 
@@ -349,12 +347,12 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
                 throw new DeploymentException("Neither type nor element name supplied for part: " + part);
             }
         } else {
-            faultTypeQName = (QName) elementMap.get(part.getElementName());
+            faultTypeQName = (QName) schemaInfoBuilder.getElementToTypeMap().get(part.getElementName());
             if (faultTypeQName == null) {
-                throw new DeploymentException("Can not find type for: element: " + part.getElementName() + ", known elements: " + elementMap);
+                throw new DeploymentException("Can not find type for: element: " + part.getElementName() + ", known elements: " + schemaInfoBuilder.getElementToTypeMap());
             }
         }
-        SchemaType complexType = (SchemaType) complexTypeMap.get(faultTypeQName);
+        SchemaType complexType = (SchemaType) schemaInfoBuilder.getComplexTypesInWsdl().get(faultTypeQName);
         boolean isComplex = complexType != null;
         FaultDesc faultDesc = new FaultDesc(faultQName, className, faultTypeQName, isComplex);
 
@@ -380,8 +378,11 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
 
                 QName elementTypeQName = elementType.getName();
                 if (elementTypeQName != null) {
-                    if (complexTypeMap.containsKey(elementType)) {
+                    if (schemaInfoBuilder.getComplexTypesInWsdl().containsKey(elementType)) {
                         String javaClassName = (String) publicTypes.get(elementTypeQName);
+                        if (javaClassName == null) {
+                            throw new DeploymentException("No class mapped for element type: " + elementType);
+                        }
                         javaElementType = getJavaClass(javaClassName);
                     } else {
                         javaElementType = (Class) qnameToClassMap.get(elementTypeQName);
@@ -394,7 +395,21 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
                     //anonymous type qname is constructed using rules 1.b and 2.b
                     String anonymousQName = complexType.getName().getNamespaceURI() + ":>" + complexType.getName().getLocalPart() + ">" + elementName;
                     String javaClassName = (String) anonymousTypes.get(anonymousQName);
-                    javaElementType = getJavaClass(javaClassName);
+                    if (javaClassName == null) {
+                        if (elementType.isSimpleType()) {
+                            //maybe it's a restriction of a built in simple type
+                            SchemaType baseType = elementType.getBaseType();
+                            QName simpleTypeQName = baseType.getName();
+                            javaElementType = (Class) qnameToClassMap.get(simpleTypeQName);
+                            if (javaElementType == null) {
+                                throw new DeploymentException("Unknown simple type: " + elementType + " of name: " + elementName + " and QName: " + simpleTypeQName);
+                            }
+                        } else {
+                            throw new DeploymentException("No class mapped for anonymous type: " + anonymousQName);
+                        }
+                    } else {
+                        javaElementType = getJavaClass(javaClassName);
+                    }
                 }
                 //todo faultTypeQName is speculative
                 //todo outheader might be true!
@@ -607,7 +622,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
         }
 
         //use complexTypeMap
-        boolean isComplexType = complexTypeMap.containsKey(paramTypeQName);
+        boolean isComplexType = schemaInfoBuilder.getComplexTypesInWsdl().containsKey(paramTypeQName);
         String paramJavaTypeName = paramMapping.getParamType().getStringValue().trim();
         boolean isInOnly = mode == ParameterDesc.IN;
         Class actualParamJavaType = WSDescriptorParser.getHolderType(paramJavaTypeName, isInOnly, paramTypeQName, isComplexType, mapping, classLoader);
@@ -632,7 +647,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
 
         wrapperElementQNames.add(name);
 
-        SchemaType operationType = (SchemaType) complexTypeMap.get(name);
+        SchemaType operationType = (SchemaType) schemaInfoBuilder.getComplexTypesInWsdl().get(name);
         if (null == operationType) {
             throw new DeploymentException("No global element named " + name + " for operation " + operationName);
         }

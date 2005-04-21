@@ -22,6 +22,8 @@ import java.util.Collection;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Iterator;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import junit.framework.TestCase;
 import org.apache.xmlbeans.XmlObject;
@@ -61,7 +63,7 @@ public class ParsingTest extends TestCase {
         assertEquals(3, map.size());
     }
 
-    private Map parse(File schema1) throws IOException, XmlException, DeploymentException {
+    private Map parse(File schema1) throws IOException, XmlException, DeploymentException, URISyntaxException {
         XmlObject xmlObject = SchemaConversionUtils.parse(schema1.toURL());
         Collection errors = new ArrayList();
         XmlOptions xmlOptions = new XmlOptions();
@@ -77,7 +79,7 @@ public class ParsingTest extends TestCase {
         } catch (XmlException e) {
             throw new DeploymentException("Could not compile schema type system", e);
         }
-        schemaInfoBuilder = new SchemaInfoBuilder(null, null, schemaTypeSystem);
+        schemaInfoBuilder = new SchemaInfoBuilder(null, new URI(""), schemaTypeSystem);
         Map map = schemaInfoBuilder.getSchemaTypeKeyToSchemaTypeMap();
         for (Iterator iterator = map.entrySet().iterator(); iterator.hasNext();) {
             Map.Entry entry = (Map.Entry) iterator.next();

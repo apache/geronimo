@@ -75,6 +75,7 @@ import com.ibm.wsdl.extensions.schema.SchemaConstants;
 public class SchemaInfoBuilder {
     private static final Log log = LogFactory.getLog(SchemaInfoBuilder.class);
     private static final SchemaTypeSystem basicTypeSystem;
+    private static final String[] errorNames = {"Error", "Warning", "Info"};
 
     static {
         URL url = WSDescriptorParser.class.getClassLoader().getResource("soap_encoding_1_1.xsd");
@@ -100,35 +101,52 @@ public class SchemaInfoBuilder {
     private final JarFile moduleFile;
     private final Definition definition;
     private final Stack uris = new Stack();
-    private final Map schemaTypeKeyToSchemaTypeMap;
     private final Map wsdlMap = new HashMap();
+    private final Map schemaTypeKeyToSchemaTypeMap;
+    private final Map complexTypeMap;
+    private final Map elementMap;
+    private final Map simpleTypeMap;
+    private final Map portMap;
+
 
     public SchemaInfoBuilder(JarFile moduleFile, URI wsdlUri) throws DeploymentException {
-        this.moduleFile = moduleFile;
-        uris.push(wsdlUri);
-        definition = readWsdl(moduleFile, wsdlUri);
-        SchemaTypeSystem schemaTypeSystem = compileSchemaTypeSystem(definition);
-        schemaTypeKeyToSchemaTypeMap = buildSchemaTypeKeyToSchemaTypeMap(schemaTypeSystem);
+        this(moduleFile, wsdlUri, null, null);
     }
 
     public SchemaInfoBuilder(JarFile moduleFile, Definition definition) throws DeploymentException {
-        this.definition = definition;
-        this.moduleFile = moduleFile;
-        try {
-            URI uri = new URI(definition.getDocumentBaseURI());
-            uris.push(uri);
-        } catch (URISyntaxException e) {
-            throw new DeploymentException("Could not locate definition", e);
-        }
-        SchemaTypeSystem schemaTypeSystem = compileSchemaTypeSystem(definition);
-        schemaTypeKeyToSchemaTypeMap = buildSchemaTypeKeyToSchemaTypeMap(schemaTypeSystem);
+        this(moduleFile, null, definition, null);
     }
 
-    SchemaInfoBuilder(JarFile moduleFile, URI uri, SchemaTypeSystem schemaTypeSystem) {
-        this.definition = null;
+    SchemaInfoBuilder(JarFile moduleFile, URI uri, SchemaTypeSystem schemaTypeSystem) throws DeploymentException {
+        this(moduleFile, uri, null, schemaTypeSystem);
+    }
+
+    SchemaInfoBuilder(JarFile moduleFile, URI uri, Definition definition, SchemaTypeSystem schemaTypeSystem) throws DeploymentException {
         this.moduleFile = moduleFile;
-        uris.push(uri);
+        if (uri != null) {
+            uris.push(uri);
+            if (definition == null && schemaTypeSystem == null) {
+                definition = readWsdl(moduleFile, uri);
+            }
+        } else if (definition != null) {
+            try {
+                uri = new URI(definition.getDocumentBaseURI());
+                uris.push(uri);
+            } catch (URISyntaxException e) {
+                throw new DeploymentException("Could not locate definition", e);
+            }
+        } else {
+            throw new DeploymentException("You must supply uri or definition");
+        }
+        if (schemaTypeSystem == null) {
+            schemaTypeSystem = compileSchemaTypeSystem(definition);
+        }
+        this.definition = definition;
         schemaTypeKeyToSchemaTypeMap = buildSchemaTypeKeyToSchemaTypeMap(schemaTypeSystem);
+        complexTypeMap = buildComplexTypeMap();
+        simpleTypeMap = buildSimpleTypeMap();
+        elementMap = buildElementMap();
+        portMap = buildPortMap();
     }
 
     public Map getSchemaTypeKeyToSchemaTypeMap() {
@@ -143,9 +161,90 @@ public class SchemaInfoBuilder {
         return wsdlMap;
     }
 
-    private static final String[] errorNames = {
-        "Error", "Warning", "Info"
-    };
+    /**
+     * Find all the complex types in the previously constructed schema analysis.
+     * Put them in a map from complex type QName to schema fragment.
+     *
+     * @return
+     */
+    public Map getComplexTypesInWsdl() {
+        return complexTypeMap;
+    }
+
+    private Map buildComplexTypeMap() {
+        Map complexTypeMap = new HashMap();
+        for (Iterator iterator = schemaTypeKeyToSchemaTypeMap.entrySet().iterator(); iterator.hasNext();) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            SchemaTypeKey key = (SchemaTypeKey) entry.getKey();
+            if (!key.isSimpleType() && !key.isAnonymous()) {
+                QName qName = key.getqName();
+                SchemaType schemaType = (SchemaType) entry.getValue();
+                complexTypeMap.put(qName, schemaType);
+            }
+        }
+        return complexTypeMap;
+    }
+
+    public Map getElementToTypeMap() {
+        return elementMap;
+    }
+
+    private Map buildElementMap() {
+        Map elementToTypeMap = new HashMap();
+        for (Iterator iterator = schemaTypeKeyToSchemaTypeMap.entrySet().iterator(); iterator.hasNext();) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            SchemaTypeKey key = (SchemaTypeKey) entry.getKey();
+            if (key.isElement()) {
+                QName elementQName = key.getqName();
+                SchemaType schemaType = (SchemaType) entry.getValue();
+                QName typeQName = schemaType.getName();
+                elementToTypeMap.put(elementQName, typeQName);
+            }
+        }
+        return elementToTypeMap;
+    }
+
+    /**
+     * Gets a map of all the javax.wsdl.Port instance in the WSDL definition keyed by the port's QName
+     * <p/>
+     * WSDL 1.1 spec: 2.6 "The name attribute provides a unique name among all ports defined within in the enclosing WSDL document."
+     *
+     * @return
+     */
+
+    public Map getPortMap() {
+        return portMap;
+    }
+
+    private Map buildPortMap() {
+        HashMap ports = new HashMap();
+        if (definition != null) {
+            Collection services = definition.getServices().values();
+            for (Iterator iterator = services.iterator(); iterator.hasNext();) {
+                Service service = (Service) iterator.next();
+                ports.putAll(service.getPorts());
+            }
+        }
+        return ports;
+    }
+
+    public Map getSimpleTypeMap() {
+        return simpleTypeMap;
+    }
+
+    private Map buildSimpleTypeMap() {
+        Map simpleTypeMap = new HashMap();
+        for (Iterator iterator = schemaTypeKeyToSchemaTypeMap.entrySet().iterator(); iterator.hasNext();) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            SchemaTypeKey key = (SchemaTypeKey) entry.getKey();
+            if (key.isSimpleType() && !key.isAnonymous()) {
+                QName qName = key.getqName();
+                SchemaType schemaType = (SchemaType) entry.getValue();
+                simpleTypeMap.put(qName, schemaType);
+            }
+        }
+        return simpleTypeMap;
+    }
 
     public SchemaTypeSystem compileSchemaTypeSystem(Definition definition) throws DeploymentException {
         List schemaList = new ArrayList();
@@ -265,7 +364,7 @@ public class SchemaInfoBuilder {
      * @param schemaTypeSystem
      * @return
      */
-    public Map buildSchemaTypeKeyToSchemaTypeMap(SchemaTypeSystem schemaTypeSystem) {
+    private Map buildSchemaTypeKeyToSchemaTypeMap(SchemaTypeSystem schemaTypeSystem) {
         Map qnameMap = new HashMap();
         SchemaType[] globalTypes = schemaTypeSystem.globalTypes();
         for (int i = 0; i < globalTypes.length; i++) {
@@ -351,10 +450,14 @@ public class SchemaInfoBuilder {
                 addArrayForms(schemaParticle, elementName, qnameMap, elementType);
             }
         } else {
-            SchemaParticle[] children = schemaParticle.getParticleChildren();
-            for (int i = 0; i < children.length; i++) {
-                SchemaParticle child = children[i];
-                addSchemaParticle(child, key, qnameMap);
+            try {
+                SchemaParticle[] children = schemaParticle.getParticleChildren();
+                for (int i = 0; i < children.length; i++) {
+                    SchemaParticle child = children[i];
+                    addSchemaParticle(child, key, qnameMap);
+                }
+            } catch (NullPointerException e) {
+                //ignore xmlbeans bug
             }
         }
     }
@@ -385,58 +488,6 @@ public class SchemaInfoBuilder {
         }
     }
 
-    /**
-     * Find all the complex types in the previously constructed schema analysis.
-     * Put them in a map from complex type QName to schema fragment.
-     *
-     * @return
-     */
-    public Map getComplexTypesInWsdl() {
-        Map complexTypeMap = new HashMap();
-        for (Iterator iterator = schemaTypeKeyToSchemaTypeMap.entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
-            SchemaTypeKey key = (SchemaTypeKey) entry.getKey();
-            if (!key.isSimpleType() && !key.isAnonymous()) {
-                QName qName = key.getqName();
-                SchemaType schemaType = (SchemaType) entry.getValue();
-                complexTypeMap.put(qName, schemaType);
-            }
-        }
-        return complexTypeMap;
-    }
-
-    public Map getElementToTypeMap() {
-        Map elementToTypeMap = new HashMap();
-        for (Iterator iterator = schemaTypeKeyToSchemaTypeMap.entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
-            SchemaTypeKey key = (SchemaTypeKey) entry.getKey();
-            if (key.isElement()) {
-                QName elementQName = key.getqName();
-                SchemaType schemaType = (SchemaType) entry.getValue();
-                QName typeQName = schemaType.getName();
-                elementToTypeMap.put(elementQName, typeQName);
-            }
-        }
-        return elementToTypeMap;
-    }
-
-    /**
-     * Gets a map of all the javax.wsdl.Port instance in the WSDL definition keyed by the port's QName
-     * <p/>
-     * WSDL 1.1 spec: 2.6 "The name attribute provides a unique name among all ports defined within in the enclosing WSDL document."
-     *
-     * @return
-     */
-
-    public Map getPortMap() {
-        HashMap ports = new HashMap();
-        Collection services = definition.getServices().values();
-        for (Iterator iterator = services.iterator(); iterator.hasNext();) {
-            Service service = (Service) iterator.next();
-            ports.putAll(service.getPorts());
-        }
-        return ports;
-    }
 
     public Definition readWsdl(JarFile moduleFile, URI wsdlURI) throws DeploymentException {
         Definition definition;
