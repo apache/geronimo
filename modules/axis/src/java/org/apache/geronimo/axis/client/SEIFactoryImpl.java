@@ -25,7 +25,6 @@ import java.net.URL;
 import java.rmi.Remote;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import javax.xml.namespace.QName;
 import javax.xml.rpc.ServiceException;
@@ -54,15 +53,14 @@ public class SEIFactoryImpl implements SEIFactory, Serializable {
     private final OperationInfo[] operationInfos;
     private transient final FastConstructor constructor;
     private final Object serviceImpl;
-    private final List typeMappings;
-    private final Map typeDescriptors;
+    private final List typeInfo;
     private final URL location;
     private final List handlerInfos;
     private final String credentialsName;
     private transient HandlerInfoChainFactory handlerInfoChainFactory;
     private transient OperationInfo[] sortedOperationInfos;
 
-    public SEIFactoryImpl(QName serviceName, String portName, Class serviceEndpointClass, OperationInfo[] operationInfos, Object serviceImpl, List typeMappings, Map typeDescriptors, URL location, List handlerInfos, ClassLoader classLoader, String credentialsName) throws ClassNotFoundException {
+    public SEIFactoryImpl(QName serviceName, String portName, Class serviceEndpointClass, OperationInfo[] operationInfos, Object serviceImpl, List typeInfo, URL location, List handlerInfos, ClassLoader classLoader, String credentialsName) throws ClassNotFoundException {
         this.serviceName = serviceName;
         this.portQName = new QName("", portName);
         this.serviceEndpointClass = serviceEndpointClass;
@@ -71,8 +69,7 @@ public class SEIFactoryImpl implements SEIFactory, Serializable {
             constructorTypes = classLoader == null? SERVICE_ENDPOINT_CONSTRUCTOR_TYPES: new Class[] {classLoader.loadClass(GenericServiceEndpoint.class.getName())};
         this.constructor = FastClass.create(serviceEndpointClass).getConstructor(constructorTypes);
         this.serviceImpl = serviceImpl;
-        this.typeMappings = typeMappings;
-        this.typeDescriptors = typeDescriptors;
+        this.typeInfo = typeInfo;
         this.location = location;
         this.handlerInfos = handlerInfos;
         this.credentialsName = credentialsName;
@@ -89,17 +86,15 @@ public class SEIFactoryImpl implements SEIFactory, Serializable {
             sortedOperationInfos[index] = operationInfo;
         }
         //register our type descriptors
-        for (Iterator iterator = typeDescriptors.entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
-            Class javaClass = (Class) entry.getKey();
-            TypeDesc typeDesc = (TypeDesc) entry.getValue();
-            TypeDesc.registerTypeDescForClass(javaClass, typeDesc);
+        for (Iterator iterator = typeInfo.iterator(); iterator.hasNext();) {
+            TypeInfo info = (TypeInfo) iterator.next();
+            TypeDesc.registerTypeDescForClass(info.getClass(), info.buildTypeDesc());
         }
     }
 
     public Remote createServiceEndpoint() throws ServiceException {
         Service service = ((ServiceImpl)serviceImpl).getService();
-        GenericServiceEndpoint serviceEndpoint = new GenericServiceEndpoint(portQName, service, typeMappings, location);
+        GenericServiceEndpoint serviceEndpoint = new GenericServiceEndpoint(portQName, service, typeInfo, location);
         Callback callback = new ServiceEndpointMethodInterceptor(serviceEndpoint, sortedOperationInfos, credentialsName);
         Callback[] callbacks = new Callback[]{SerializableNoOp.INSTANCE, callback};
         Enhancer.registerCallbacks(serviceEndpointClass, callbacks);
@@ -118,7 +113,7 @@ public class SEIFactoryImpl implements SEIFactory, Serializable {
 
     private Object readResolve() throws ObjectStreamException {
         try {
-            return new SEIFactoryImpl(serviceName, portQName.getLocalPart(), serviceEndpointClass, operationInfos, serviceImpl, typeMappings, typeDescriptors, location, handlerInfos, null, credentialsName);
+            return new SEIFactoryImpl(serviceName, portQName.getLocalPart(), serviceEndpointClass, operationInfos, serviceImpl, typeInfo, location, handlerInfos, null, credentialsName);
         } catch (ClassNotFoundException e) {
             throw new InvalidClassException(GenericServiceEndpoint.class.getName(), "this is impossible");
         }

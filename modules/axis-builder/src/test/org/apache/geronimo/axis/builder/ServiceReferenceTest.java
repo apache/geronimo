@@ -23,6 +23,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.rmi.Remote;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -131,7 +132,6 @@ public class ServiceReferenceTest extends TestCase {
         AxisBuilder builder = new AxisBuilder();
 
         ServiceImpl serviceInstance = new ServiceImpl(null, null);
-        List typeMappings = new ArrayList();
 
         URL location = new URL("http://geronimo.apache.org/ws");
 
@@ -139,8 +139,7 @@ public class ServiceReferenceTest extends TestCase {
         OperationInfo[] operationInfos = new OperationInfo[]{op};
         Class serviceEndpointClass = builder.enhanceServiceEndpointInterface(MockPort.class, context, module, isolatedCl);
         String portName = "foo";
-        Map typeDescriptors = new HashMap();
-        SEIFactory serviceInterfaceFactory = builder.createSEIFactory(null, portName, serviceEndpointClass, serviceInstance, typeMappings, typeDescriptors, location, operationInfos, handlerInfos, null, context, isolatedCl);
+        SEIFactory serviceInterfaceFactory = builder.createSEIFactory(null, portName, serviceEndpointClass, serviceInstance, Collections.EMPTY_LIST, location, operationInfos, handlerInfos, null, context, isolatedCl);
         assertNotNull(serviceInterfaceFactory);
         Remote serviceInterface = serviceInterfaceFactory.createServiceEndpoint();
         assertTrue(serviceInterface instanceof MockPort);

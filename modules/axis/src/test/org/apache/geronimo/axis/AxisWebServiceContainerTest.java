@@ -17,6 +17,7 @@ package org.apache.geronimo.axis;
 
 import java.io.InputStream;
 import java.net.URI;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import javax.xml.namespace.QName;
@@ -81,7 +82,7 @@ public class AxisWebServiceContainerTest extends AbstractTestCase {
         serviceDesc.addOperationDesc(op);
 
         serviceDesc.getOperations();
-        ReadOnlyServiceDesc sd = new ReadOnlyServiceDesc(serviceDesc, new HashMap());
+        ReadOnlyServiceDesc sd = new ReadOnlyServiceDesc(serviceDesc, Collections.EMPTY_LIST);
 
         Class pojoClass = cl.loadClass("org.apache.geronimo.axis.testData.echosample.EchoBean");
 

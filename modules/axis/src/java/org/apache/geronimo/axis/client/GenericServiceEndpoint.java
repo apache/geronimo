@@ -32,11 +32,11 @@ import org.apache.axis.client.Service;
  */
 public class GenericServiceEndpoint extends org.apache.axis.client.Stub {
 
-    private final List typeMappings;
+    private final List typeInfo;
 
-    public GenericServiceEndpoint(QName portQName, Service service, List typeMappings, URL location) {
+    public GenericServiceEndpoint(QName portQName, Service service, List typeInfo, URL location) {
         this.service = service;
-        this.typeMappings = typeMappings;
+        this.typeInfo = typeInfo;
         cachedEndpoint = location;
         cachedPortName = portQName;
     }
@@ -80,9 +80,9 @@ public class GenericServiceEndpoint extends org.apache.axis.client.Stub {
                     //TODO these constants probably need to be parameters of GSE.
                     _call.setSOAPVersion(org.apache.axis.soap.SOAPConstants.SOAP11_CONSTANTS);
                     _call.setEncodingStyle(org.apache.axis.Constants.URI_SOAP11_ENC);
-                    for (Iterator iterator = typeMappings.iterator(); iterator.hasNext();) {
-                        TypeMappingInfo info = (TypeMappingInfo) iterator.next();
-                        _call.registerTypeMapping(info.getClazz(), info.getqName(), info.getSerializerClass(), info.getDeserializerClass(), false);
+                    for (Iterator iterator = typeInfo.iterator(); iterator.hasNext();) {
+                        TypeInfo info = (TypeInfo) iterator.next();
+                        _call.registerTypeMapping(info.getClazz(), info.getqName(), info.getSerFactoryClass(), info.getDeserFactoryClass(), false);
                     }
                 }
             }

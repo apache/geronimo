@@ -26,6 +26,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -57,11 +58,6 @@ import net.sf.cglib.reflect.FastConstructor;
 import org.apache.axis.client.Service;
 import org.apache.axis.constants.Style;
 import org.apache.axis.description.JavaServiceDesc;
-import org.apache.axis.description.TypeDesc;
-import org.apache.axis.encoding.ser.ArrayDeserializerFactory;
-import org.apache.axis.encoding.ser.ArraySerializerFactory;
-import org.apache.axis.encoding.ser.BeanDeserializerFactory;
-import org.apache.axis.encoding.ser.BeanSerializerFactory;
 import org.apache.axis.handlers.HandlerInfoChainFactory;
 import org.apache.axis.handlers.soap.SOAPService;
 import org.apache.axis.providers.java.RPCProvider;
@@ -74,7 +70,6 @@ import org.apache.geronimo.axis.client.SEIFactoryImpl;
 import org.apache.geronimo.axis.client.SerializableNoOp;
 import org.apache.geronimo.axis.client.ServiceImpl;
 import org.apache.geronimo.axis.client.ServiceMethodInterceptor;
-import org.apache.geronimo.axis.client.TypeMappingInfo;
 import org.apache.geronimo.axis.server.AxisWebServiceContainer;
 import org.apache.geronimo.axis.server.POJOProvider;
 import org.apache.geronimo.axis.server.ServiceInfo;
@@ -88,14 +83,12 @@ import org.apache.geronimo.j2ee.deployment.POJOWebServiceBuilder;
 import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.ClassLoaderReference;
-import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.kernel.StoredObject;
 import org.apache.geronimo.naming.reference.DeserializingReference;
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingType;
 import org.apache.geronimo.xbeans.j2ee.JavaXmlTypeMappingType;
 import org.apache.geronimo.xbeans.j2ee.ServiceEndpointInterfaceMappingType;
 import org.apache.geronimo.xbeans.j2ee.ServiceEndpointMethodMappingType;
-import org.apache.xmlbeans.SchemaType;
 
 /**
  * @version $Rev:  $ $Date:  $
@@ -351,10 +344,10 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
             operationInfos[i++] = operationInfo;
             wrapperElementQNames.addAll(operationDescBuilder.getWrapperElementQNames());
         }
-        List typeMappings = new ArrayList();
-        Map typeDescriptors = new HashMap();
-        buildTypeInfoHeavyweight(wrapperElementQNames, javaXmlTypeMappings, schemaInfoBuilder.getSchemaTypeKeyToSchemaTypeMap(), classLoader, typeMappings, typeDescriptors);
-        seiFactory = createSEIFactory(serviceName, portName, enhancedServiceEndpointClass, serviceImpl, typeMappings, typeDescriptors, location, operationInfos, handlerInfos, credentialsName, context, classLoader);
+        HeavyweightTypeInfoBuilder builder = new HeavyweightTypeInfoBuilder(classLoader, schemaInfoBuilder.getSchemaTypeKeyToSchemaTypeMap(), wrapperElementQNames);
+        List typeInfo = builder.buildTypeInfo(mapping);
+        
+        seiFactory = createSEIFactory(serviceName, portName, enhancedServiceEndpointClass, serviceImpl, typeInfo, location, operationInfos, handlerInfos, credentialsName, context, classLoader);
         seiPortNameToFactoryMap.put(portName, seiFactory);
         seiClassNameToFactoryMap.put(serviceEndpointInterface.getName(), seiFactory);
     }
@@ -374,112 +367,12 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
             OperationInfo operationInfo = buildOperationInfoLightweight(method, bindingOperation, portStyle, soapVersion);
             operationInfos[i++] = operationInfo;
         }
-        List typeMappings = new ArrayList();
-        Map typeDescriptors = new HashMap();
-        buildTypeInfoLightWeight(schemaInfoBuilder, mapping, classLoader, typeMappings, typeDescriptors);
-        seiFactory = createSEIFactory(serviceName, portName, enhancedServiceEndpointClass, serviceImpl, typeMappings, typeDescriptors, location, operationInfos, handlerInfos, credentialsName, context, classLoader);
+        LightweightTypeInfoBuilder builder = new LightweightTypeInfoBuilder(classLoader, schemaInfoBuilder.getSchemaTypeKeyToSchemaTypeMap(), Collections.EMPTY_SET);
+        List typeInfo = builder.buildTypeInfo(mapping);
+        
+        seiFactory = createSEIFactory(serviceName, portName, enhancedServiceEndpointClass, serviceImpl, typeInfo, location, operationInfos, handlerInfos, credentialsName, context, classLoader);
         seiPortNameToFactoryMap.put(portName, seiFactory);
         seiClassNameToFactoryMap.put(serviceEndpointInterface.getName(), seiFactory);
-    }
-
-    private void buildTypeInfoLightWeight(SchemaInfoBuilder schemaInfoBuilder, JavaWsdlMappingType mapping, ClassLoader classLoader, List typeMappings, Map typeDescriptors) throws DeploymentException {
-        Map schemaTypeKeyToSchemaTypeMap = schemaInfoBuilder.getSchemaTypeKeyToSchemaTypeMap();
-        for (Iterator iterator = schemaTypeKeyToSchemaTypeMap.entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
-            SchemaTypeKey key = (SchemaTypeKey) entry.getKey();
-//            SchemaType schemaType = (SchemaType) entry.getValue();
-            if (!key.isElement() && !key.isAnonymous()) {
-                //default settings
-                Class serializerFactoryClass = BeanSerializerFactory.class;
-                Class deserializerFactoryClass = BeanDeserializerFactory.class;
-                QName typeQName = key.getqName();
-                String namespace = typeQName.getNamespaceURI();
-                String packageName = WSDescriptorParser.getPackageFromNamespace(namespace, mapping);
-                String classShortName = typeQName.getLocalPart();
-                String className = packageName + "." + classShortName;
-
-                Class clazz = null;
-                try {
-                    clazz = ClassLoading.loadClass(className, classLoader);
-                } catch (ClassNotFoundException e) {
-                    throw new DeploymentException("Could not load java type", e);
-                }
-                if (clazz.isArray()) {
-                    serializerFactoryClass = ArraySerializerFactory.class;
-                    deserializerFactoryClass = ArrayDeserializerFactory.class;
-                }
-
-                TypeMappingInfo typeMappingInfo = new TypeMappingInfo(clazz, typeQName, serializerFactoryClass, deserializerFactoryClass);
-                typeMappings.add(typeMappingInfo);
-                //TODO construct typedesc as well.
-//                TypeDesc typeDesc = getTypeDescriptor(clazz, typeQName, javaXmlTypeMapping, schemaType);
-//                typeDescriptors.put(clazz, typeDesc);
-
-            }
-        }
-    }
-
-    public static void buildTypeInfoHeavyweight(Set wrapperElementQNames, JavaXmlTypeMappingType[] javaXmlTypeMappings, Map schemaTypeKeyToSchemaTypeMap, ClassLoader classLoader, List typeMappings, Map typeDescriptors) throws DeploymentException {
-        for (int j = 0; j < javaXmlTypeMappings.length; j++) {
-            JavaXmlTypeMappingType javaXmlTypeMapping = javaXmlTypeMappings[j];
-
-            QName typeName;
-            SchemaTypeKey key;
-            boolean isElement = javaXmlTypeMapping.getQnameScope().getStringValue().equals("element");
-            boolean isSimpleType = javaXmlTypeMapping.getQnameScope().getStringValue().equals("simpleType");
-            if (javaXmlTypeMapping.isSetRootTypeQname()) {
-                typeName = javaXmlTypeMapping.getRootTypeQname().getQNameValue();
-                key = new SchemaTypeKey(typeName, isElement, isSimpleType, false);
-
-                // Skip the wrapper elements.
-                if (wrapperElementQNames.contains(typeName)) {
-                    continue;
-                }
-            } else if (javaXmlTypeMapping.isSetAnonymousTypeQname()) {
-                String anonTypeQNameString = javaXmlTypeMapping.getAnonymousTypeQname().getStringValue();
-                int pos = anonTypeQNameString.lastIndexOf(":");
-                if (pos == -1) {
-                    throw new DeploymentException("anon QName is invalid, no final ':' " + anonTypeQNameString);
-                }
-                //this appears to be ignored...
-                typeName = new QName(anonTypeQNameString.substring(0, pos), anonTypeQNameString.substring(pos + 1));
-                key = new SchemaTypeKey(typeName, isElement, isSimpleType, true);
-
-                // Skip the wrapper elements.
-                if (wrapperElementQNames.contains(new QName(anonTypeQNameString.substring(0, pos), anonTypeQNameString.substring(pos + 2)))) {
-                    continue;
-                }
-            } else {
-                throw new DeploymentException("either root type qname or anonymous type qname must be set");
-            }
-            SchemaType schemaType = (SchemaType) schemaTypeKeyToSchemaTypeMap.get(key);
-            if (schemaType == null) {
-                throw new DeploymentException("Schema type key " + key + " not found in analyzed schema: " + schemaTypeKeyToSchemaTypeMap);
-            }
-
-            //default settings
-            Class serializerFactoryClass = BeanSerializerFactory.class;
-            Class deserializerFactoryClass = BeanDeserializerFactory.class;
-
-            String className = javaXmlTypeMapping.getJavaType().getStringValue().trim();
-
-            Class clazz = null;
-            try {
-                clazz = ClassLoading.loadClass(className, classLoader);
-            } catch (ClassNotFoundException e) {
-                throw new DeploymentException("Could not load java type", e);
-            }
-            if (clazz.isArray()) {
-                serializerFactoryClass = ArraySerializerFactory.class;
-                deserializerFactoryClass = ArrayDeserializerFactory.class;
-            }
-
-            TypeDesc typeDesc = TypeDescBuilder.getTypeDescriptor(clazz, typeName, javaXmlTypeMapping, schemaType);
-
-            TypeMappingInfo typeMappingInfo = new TypeMappingInfo(clazz, typeName, serializerFactoryClass, deserializerFactoryClass);
-            typeMappings.add(typeMappingInfo);
-            typeDescriptors.put(clazz, typeDesc);
-        }
     }
 
     private Class getServiceEndpointInterfaceLightweight(PortType portType, JavaWsdlMappingType mappings, ClassLoader classLoader) throws DeploymentException {
@@ -498,10 +391,10 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
     }
 
 
-    public SEIFactory createSEIFactory(QName serviceName, String portName, Class enhancedServiceEndpointClass, Object serviceImpl, List typeMappings, Map typeDescriptors, URL location, OperationInfo[] operationInfos, List handlerInfoInfos, String credentialsName, DeploymentContext deploymentContext, ClassLoader classLoader) throws DeploymentException {
+    public SEIFactory createSEIFactory(QName serviceName, String portName, Class enhancedServiceEndpointClass, Object serviceImpl, List typeInfo, URL location, OperationInfo[] operationInfos, List handlerInfoInfos, String credentialsName, DeploymentContext deploymentContext, ClassLoader classLoader) throws DeploymentException {
         List handlerInfos = buildHandlerInfosForPort(portName, handlerInfoInfos);
         try {
-            SEIFactory factory = new SEIFactoryImpl(serviceName, portName, enhancedServiceEndpointClass, operationInfos, serviceImpl, typeMappings, typeDescriptors, location, handlerInfos, classLoader, credentialsName);
+            SEIFactory factory = new SEIFactoryImpl(serviceName, portName, enhancedServiceEndpointClass, operationInfos, serviceImpl, typeInfo, location, handlerInfos, classLoader, credentialsName);
             return factory;
         } catch (ClassNotFoundException e) {
             throw new DeploymentException("Could not load GenericServiceEndpoint from application classloader", e);
