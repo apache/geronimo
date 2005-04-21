@@ -19,11 +19,15 @@ package org.apache.geronimo.j2ee.deployment;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;
 import java.util.jar.JarFile;
+import java.util.Map;
+import java.net.URL;
 
 /**
  * @version $Rev:  $ $Date:  $
  */
-public interface POJOWebServiceBuilder {
+public interface WebServiceBuilder {
+
+    Map parseWebServiceDescriptor(URL wsDDUrl, JarFile moduleFile, boolean isEJB) throws DeploymentException;
 
     //obviously these need the deployment descriptors, but I'm not sure in what form yet.
     /**

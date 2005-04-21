@@ -172,13 +172,6 @@
             <version>${pom.currentVersion}</version>
         </dependency>
 
-        <!--todo put WSDescriptorParser somewhere else and remove this dependency-->
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-axis-builder</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
-
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jta</artifactId>

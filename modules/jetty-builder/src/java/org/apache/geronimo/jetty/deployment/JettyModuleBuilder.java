@@ -47,8 +47,6 @@ import javax.security.jacc.WebUserDataPermission;
 import javax.servlet.Servlet;
 import javax.transaction.UserTransaction;
 
-import org.apache.geronimo.axis.builder.PortInfo;
-import org.apache.geronimo.axis.builder.WSDescriptorParser;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
@@ -60,7 +58,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
-import org.apache.geronimo.j2ee.deployment.POJOWebServiceBuilder;
+import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
@@ -128,7 +126,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
     private final ObjectName defaultFilterMappings;
     private final ObjectName pojoWebServiceTemplate;
 
-    private final POJOWebServiceBuilder pojoWebServiceBuilder;
+    private final WebServiceBuilder webServiceBuilder;
 
     private final List defaultWelcomeFiles;
     private final Integer defaultSessionTimeoutSeconds;
@@ -144,7 +142,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
                               ObjectName defaultFilters,
                               ObjectName defaultFilterMappings,
                               ObjectName pojoWebServiceTemplate,
-                              POJOWebServiceBuilder pojoWebServiceBuilder,
+                              WebServiceBuilder webServiceBuilder,
                               Repository repository,
                               Kernel kernel) {
         this.defaultParentId = defaultParentId;
@@ -154,7 +152,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
         this.defaultFilters = defaultFilters;
         this.defaultFilterMappings = defaultFilterMappings;
         this.pojoWebServiceTemplate = pojoWebServiceTemplate;
-        this.pojoWebServiceBuilder = pojoWebServiceBuilder;
+        this.webServiceBuilder = webServiceBuilder;
         this.repository = repository;
         this.kernel = kernel;
 
@@ -206,7 +204,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
         Map portMap = Collections.EMPTY_MAP;
         try {
             URL wsDDUrl = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/webservices.xml");
-            portMap = WSDescriptorParser.parseWebServiceDescriptor(wsDDUrl, moduleFile, false);
+            portMap = webServiceBuilder.parseWebServiceDescriptor(wsDDUrl, moduleFile, false);
         } catch (MalformedURLException e) {
             //no descriptor
         }
@@ -802,11 +800,11 @@ public class JettyModuleBuilder implements ModuleBuilder {
                 }
                 servletData.setName(servletObjectName);
                 //let the web service builder deal with configuring the gbean with the web service stack
-                PortInfo portInfo = (PortInfo) portMap.get(servletName);
+                Object portInfo = portMap.get(servletName);
                 if (portInfo == null) {
                     throw new DeploymentException("No web service deployment info for servlet name " + servletName);
                 }
-                pojoWebServiceBuilder.configurePOJO(servletData, moduleFile, portInfo, servletClassName, webClassLoader);
+                webServiceBuilder.configurePOJO(servletData, moduleFile, portInfo, servletClassName, webClassLoader);
             }
         } else if (servletType.isSetJspFile()) {
             servletData = new GBeanData(servletObjectName, JettyServletHolder.GBEAN_INFO);
@@ -1227,7 +1225,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
         infoBuilder.addAttribute("defaultFilters", ObjectName.class, true);
         infoBuilder.addAttribute("defaultFilterMappings", ObjectName.class, true);
         infoBuilder.addAttribute("pojoWebServiceTemplate", ObjectName.class, true);
-        infoBuilder.addReference("WebServiceBuilder", POJOWebServiceBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addReference("WebServiceBuilder", WebServiceBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("Repository", Repository.class, NameFactory.GERONIMO_SERVICE);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
         infoBuilder.addInterface(ModuleBuilder.class);

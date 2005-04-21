@@ -79,8 +79,8 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.j2ee.deployment.POJOWebServiceBuilder;
 import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
+import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.ClassLoaderReference;
 import org.apache.geronimo.kernel.StoredObject;
@@ -93,13 +93,17 @@ import org.apache.geronimo.xbeans.j2ee.ServiceEndpointMethodMappingType;
 /**
  * @version $Rev:  $ $Date:  $
  */
-public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuilder {
+public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
     private static final Class[] SERVICE_CONSTRUCTOR_TYPES = new Class[]{Map.class, Map.class};
 
     private static final SOAPConstants SOAP_VERSION = SOAPConstants.SOAP11_CONSTANTS;
 
-
     //WebServiceBuilder
+
+    public Map parseWebServiceDescriptor(URL wsDDUrl, JarFile moduleFile, boolean isEJB) throws DeploymentException {
+        return WSDescriptorParser.parseWebServiceDescriptor(wsDDUrl, moduleFile, isEJB);
+    }
+
     public void configurePOJO(GBeanData targetGBean, JarFile moduleFile, Object portInfoObject, String seiClassName, ClassLoader classLoader) throws DeploymentException {
         PortInfo portInfo = (PortInfo) portInfoObject;
         ServiceInfo serviceInfo = AxisServiceBuilder.createServiceInfo(portInfo, classLoader);
@@ -346,7 +350,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
         }
         HeavyweightTypeInfoBuilder builder = new HeavyweightTypeInfoBuilder(classLoader, schemaInfoBuilder.getSchemaTypeKeyToSchemaTypeMap(), wrapperElementQNames);
         List typeInfo = builder.buildTypeInfo(mapping);
-        
+
         seiFactory = createSEIFactory(serviceName, portName, enhancedServiceEndpointClass, serviceImpl, typeInfo, location, operationInfos, handlerInfos, credentialsName, context, classLoader);
         seiPortNameToFactoryMap.put(portName, seiFactory);
         seiClassNameToFactoryMap.put(serviceEndpointInterface.getName(), seiFactory);
@@ -369,7 +373,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
         }
         LightweightTypeInfoBuilder builder = new LightweightTypeInfoBuilder(classLoader, schemaInfoBuilder.getSchemaTypeKeyToSchemaTypeMap(), Collections.EMPTY_SET);
         List typeInfo = builder.buildTypeInfo(mapping);
-        
+
         seiFactory = createSEIFactory(serviceName, portName, enhancedServiceEndpointClass, serviceImpl, typeInfo, location, operationInfos, handlerInfos, credentialsName, context, classLoader);
         seiPortNameToFactoryMap.put(portName, seiFactory);
         seiClassNameToFactoryMap.put(serviceEndpointInterface.getName(), seiFactory);
@@ -463,7 +467,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, POJOWebServiceBuild
     static {
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(AxisBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addInterface(ServiceReferenceBuilder.class);
-        infoBuilder.addInterface(POJOWebServiceBuilder.class);
+        infoBuilder.addInterface(WebServiceBuilder.class);
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
