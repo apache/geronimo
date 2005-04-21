@@ -21,11 +21,10 @@ import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.interop.IOP.IOR;
+import org.omg.IOP.IOR;
 
 
 /**
@@ -98,9 +97,9 @@ public class InteropGBean implements GBeanLifecycle {
      */
     public void echo(String msg) {
         log.info(getName() + ": Echo " + msg);
-    }    
+    }
 
-    /* 
+    /*
      * Interface :: GBeanLifecycle
      */
 
@@ -116,7 +115,7 @@ public class InteropGBean implements GBeanLifecycle {
         log.info("Failed " + getName());
     }
 
-    /* 
+    /*
      * GBeanInfo
      */
 

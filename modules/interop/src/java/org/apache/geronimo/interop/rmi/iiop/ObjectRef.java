@@ -17,13 +17,24 @@
  */
 package org.apache.geronimo.interop.rmi.iiop;
 
-import org.apache.geronimo.interop.*;
-import org.apache.geronimo.interop.rmi.iiop.client.*;
-import org.apache.geronimo.interop.IOP.*;
-import org.apache.geronimo.interop.IIOP.*;
-import org.apache.geronimo.interop.security.*;
-import org.apache.geronimo.interop.util.*;
-import java.util.*;
+import java.util.Hashtable;
+
+import org.apache.geronimo.interop.rmi.iiop.client.ClientNamingContext;
+import org.apache.geronimo.interop.rmi.iiop.client.Connection;
+import org.apache.geronimo.interop.security.SimpleSubject;
+import org.apache.geronimo.interop.util.Base16Binary;
+import org.apache.geronimo.interop.util.FutureObject;
+import org.apache.geronimo.interop.util.StringUtil;
+import org.apache.geronimo.interop.util.ThreadContext;
+import org.apache.geronimo.interop.util.UTF8;
+import org.apache.geronimo.interop.util.UnsignedShort;
+import org.omg.IIOP.ProfileBody_1_1;
+import org.omg.IIOP.ProfileBody_1_1Helper;
+import org.omg.IIOP.Version;
+import org.omg.IOP.IOR;
+import org.omg.IOP.TAG_INTERNET_IOP;
+import org.omg.IOP.TaggedComponent;
+import org.omg.IOP.TaggedProfile;
 
 public class ObjectRef extends CorbaObject
 {
@@ -65,7 +76,7 @@ public class ObjectRef extends CorbaObject
 
     private int _iiopVersion = IIOP_VERSION_1_2;
 
-    private org.apache.geronimo.interop.IOP.IOR _ior;
+    private IOR _ior;
 
     private ClientNamingContext _namingContext;
 
@@ -88,10 +99,10 @@ public class ObjectRef extends CorbaObject
     public long _objectVersion;
 
     // public methods
-    
+
    public ObjectRef()
    {
-   } 
+   }
 
     public Connection $connect()
     {
@@ -148,7 +159,7 @@ public class ObjectRef extends CorbaObject
         _repositoryID = id;
     }
 
-    public org.apache.geronimo.interop.IOP.IOR $getIOR()
+    public IOR $getIOR()
     {
         if (_ior == null)
         {
@@ -189,7 +200,7 @@ public class ObjectRef extends CorbaObject
         return _ior;
     }
 
-    public void $setIOR(org.apache.geronimo.interop.IOP.IOR ior)
+    public void $setIOR(IOR ior)
     {
         _ior = ior;
         _endpoint = null;
@@ -371,7 +382,7 @@ public class ObjectRef extends CorbaObject
 
     public String $getIORString()
     {
-		org.apache.geronimo.interop.IOP.IOR ior = $getIOR();
+		IOR ior = $getIOR();
 		CdrOutputStream output = CdrOutputStream.getInstanceForEncapsulation();
 		output.setGiopVersion(GiopVersion.VERSION_1_0);
 		output.write_Object(this);
@@ -399,8 +410,8 @@ public class ObjectRef extends CorbaObject
 
     public String toString()
     {
-        return getClass().getName() + ":protocol=" + Protocol.getName($getProtocol())  
-            + ":host=" + $getHost()  + ":port=" + $getPort() 
+        return getClass().getName() + ":protocol=" + Protocol.getName($getProtocol())
+            + ":host=" + $getHost()  + ":port=" + $getPort()
             +  ":key=" + Base16Binary.toString($getObjectKey());
     }
 }

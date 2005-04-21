@@ -17,18 +17,15 @@
  */
 package org.apache.geronimo.interop.rmi.iiop.server;
 
-import org.apache.geronimo.gbean.*;
-import org.apache.geronimo.interop.adapter.AdapterManager;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Properties;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-//import org.openejb.server.SocketService;
-//import org.openejb.server.ServerService;
-//import org.openejb.server.ServiceException;
-
-import java.util.*;
-import java.net.Socket;
-import java.io.IOException;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.interop.adapter.AdapterManager;
 
 //public class RmiIiopServerGBean implements ServerService {
 public class RmiIiopServerGBean {

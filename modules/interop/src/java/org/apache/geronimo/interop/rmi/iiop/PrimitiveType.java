@@ -17,7 +17,7 @@
  */
 package org.apache.geronimo.interop.rmi.iiop;
 
-import org.apache.geronimo.interop.util.*;
+import org.apache.geronimo.interop.util.ArrayUtil;
 
 public class PrimitiveType
 {

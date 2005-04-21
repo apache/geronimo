@@ -17,10 +17,9 @@
  */
 package org.apache.geronimo.interop.rmi.iiop;
 
-import org.apache.geronimo.interop.*;
-import org.apache.geronimo.interop.rmi.*;
-import org.apache.geronimo.interop.util.*;
-import java.io.*;
+import java.io.IOException;
+
+import org.apache.geronimo.interop.util.JavaObject;
 
 public class SimpleObjectInputStream extends ObjectInputStream
 {

@@ -17,7 +17,6 @@
  */
 package org.apache.geronimo.interop.rmi.iiop;
 
-import org.omg.CORBA.*;
 
 public class CorbaObject implements org.omg.CORBA.Object {
     // -----------------------------------------------------------------------

@@ -17,8 +17,6 @@
  */
 package org.apache.geronimo.interop.rmi.iiop;
 
-import org.apache.geronimo.interop.adapter.Adapter;
-
 import java.util.HashMap;
 
 public abstract class RemoteObject {

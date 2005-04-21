@@ -17,8 +17,7 @@
  */
 package org.apache.geronimo.interop.rmi.iiop;
 
-import org.apache.geronimo.interop.*;
-import org.apache.geronimo.interop.IOP.*;
+
 
 public class ObjectRefHelper implements ObjectHelper
 {

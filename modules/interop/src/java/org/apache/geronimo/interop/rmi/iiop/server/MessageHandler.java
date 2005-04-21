@@ -17,22 +17,35 @@
  */
 package org.apache.geronimo.interop.rmi.iiop.server;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.InputStream;
 
-import org.apache.geronimo.interop.GIOP.*;
-import org.apache.geronimo.interop.IOP.*;
 import org.apache.geronimo.interop.SystemException;
-//import org.apache.geronimo.interop.adapter.HomeAdapter;
-import org.apache.geronimo.interop.adapter.AdapterManager;
 import org.apache.geronimo.interop.adapter.Adapter;
+import org.apache.geronimo.interop.adapter.AdapterManager;
 import org.apache.geronimo.interop.naming.NameService;
-import org.apache.geronimo.interop.rmi.iiop.*;
+import org.apache.geronimo.interop.rmi.iiop.BadMagicException;
+import org.apache.geronimo.interop.rmi.iiop.CdrInputStream;
+import org.apache.geronimo.interop.rmi.iiop.CdrOutputStream;
+import org.apache.geronimo.interop.rmi.iiop.GiopMessage;
+import org.apache.geronimo.interop.rmi.iiop.ObjectInputStream;
+import org.apache.geronimo.interop.rmi.iiop.ObjectOutputStream;
+import org.apache.geronimo.interop.rmi.iiop.UnsupportedProtocolVersionException;
 import org.apache.geronimo.interop.util.UTF8;
-//import org.openejb.server.ServiceException;
+import org.omg.GIOP.KeyAddr;
+import org.omg.GIOP.LocateReplyHeader_1_2;
+import org.omg.GIOP.LocateRequestHeader_1_2;
+import org.omg.GIOP.LocateStatusType_1_2;
+import org.omg.GIOP.MsgType_1_1;
+import org.omg.GIOP.ProfileAddr;
+import org.omg.GIOP.ReferenceAddr;
+import org.omg.GIOP.ReplyHeader_1_2;
+import org.omg.GIOP.ReplyStatusType_1_2;
+import org.omg.GIOP.RequestHeader_1_2;
+import org.omg.GIOP.TargetAddress;
+import org.omg.IOP.ServiceContext;
 
 public class MessageHandler {
 

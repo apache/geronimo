@@ -17,7 +17,9 @@
  */
 package org.apache.geronimo.interop.rmi.iiop;
 
-import org.apache.geronimo.interop.GIOP.*;
+import org.omg.GIOP.RequestHeader_1_2;
+import org.omg.GIOP.LocateRequestHeader_1_2;
+import org.omg.GIOP.ReplyHeader_1_2;
 
 public class GiopMessage
 {

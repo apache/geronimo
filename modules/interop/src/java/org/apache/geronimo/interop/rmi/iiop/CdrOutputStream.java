@@ -17,13 +17,34 @@
  */
 package org.apache.geronimo.interop.rmi.iiop;
 
-import org.apache.geronimo.interop.rmi.*;
-import org.apache.geronimo.interop.util.*;
-import org.apache.geronimo.interop.IOP.*;
-import org.apache.geronimo.interop.GIOP.*;
 import org.apache.geronimo.interop.SystemException;
+import org.apache.geronimo.interop.rmi.RmiTrace;
+import org.apache.geronimo.interop.util.ArrayUtil;
+import org.apache.geronimo.interop.util.BigEndian;
+import org.apache.geronimo.interop.util.ExceptionUtil;
+import org.apache.geronimo.interop.util.JavaClass;
+import org.apache.geronimo.interop.util.UTF8;
 import org.omg.CORBA.TCKind;
-import java.io.*;
+import org.omg.GIOP.LocateReplyHeader_1_2;
+import org.omg.GIOP.LocateReplyHeader_1_2Helper;
+import org.omg.GIOP.MessageHeader_1_1;
+import org.omg.GIOP.MessageHeader_1_1Helper;
+import org.omg.GIOP.MsgType_1_1;
+import org.omg.GIOP.ReplyHeader_1_0;
+import org.omg.GIOP.ReplyHeader_1_0Helper;
+import org.omg.GIOP.ReplyHeader_1_2;
+import org.omg.GIOP.ReplyHeader_1_2Helper;
+import org.omg.GIOP.RequestHeader_1_0;
+import org.omg.GIOP.RequestHeader_1_0Helper;
+import org.omg.GIOP.RequestHeader_1_1;
+import org.omg.GIOP.RequestHeader_1_1Helper;
+import org.omg.GIOP.RequestHeader_1_2;
+import org.omg.GIOP.RequestHeader_1_2Helper;
+import org.omg.GIOP.Version;
+import org.omg.IOP.IOR;
+import org.omg.IOP.IORHelper;
+import org.omg.IOP.ServiceContext;
+import org.omg.IOP.TaggedProfile;
 
 /**
  ** CORBA 2.3 / GIOP 1.2 CDR OutputStream.
@@ -416,7 +437,7 @@ public class CdrOutputStream extends org.omg.CORBA_2_3.portable.OutputStream
         respHeader.append("Content-Length: ");
         respHeader.append(java.lang.Integer.toString(_offset));
         respHeader.append(CRLF + CRLF);
-        
+
         byte[] header = null;
         try
         {
@@ -473,7 +494,7 @@ public class CdrOutputStream extends org.omg.CORBA_2_3.portable.OutputStream
         byte[] data = new byte[header.length + _offset];
         System.arraycopy(header, 0, data, 0, header.length);
         System.arraycopy(_buffer, 0, data, header.length, _offset);
-        
+
         if (RMI_TRACE)
         {
             RmiTrace.send(url, data);
@@ -948,7 +969,7 @@ public class CdrOutputStream extends org.omg.CORBA_2_3.portable.OutputStream
     }
 
 
-    // doing this specifically to handle Any. This implementation 
+    // doing this specifically to handle Any. This implementation
     // could be worng but will work for us
     public org.omg.CORBA.portable.InputStream create_input_stream()
     {

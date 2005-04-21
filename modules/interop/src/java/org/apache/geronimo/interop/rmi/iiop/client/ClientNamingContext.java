@@ -17,7 +17,10 @@
  */
 package org.apache.geronimo.interop.rmi.iiop.client;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Map;
 import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.NameNotFoundException;
@@ -33,8 +36,11 @@ import org.apache.geronimo.interop.properties.SystemProperties;
 import org.apache.geronimo.interop.rmi.iiop.ObjectRef;
 import org.apache.geronimo.interop.rmi.iiop.compiler.StubFactory;
 import org.apache.geronimo.interop.util.ExceptionUtil;
+import org.omg.CosNaming.NameComponent;
+import org.omg.CosNaming.NamingContext;
+import org.omg.CosNaming.NamingContextPackage.NotFound;
 
-public class ClientNamingContext implements Context, java.io.Serializable 
+public class ClientNamingContext implements Context, java.io.Serializable
 {
 
     public static ClientNamingContext getInstance(Hashtable env)
@@ -45,7 +51,7 @@ public class ClientNamingContext implements Context, java.io.Serializable
             synchronized (contextMap)
             {
                 nc = (ClientNamingContext) contextMap.get(env);
-                if (nc == null) 
+                if (nc == null)
                 {
                     nc = new ClientNamingContext();
                     nc.init(env);
@@ -99,7 +105,7 @@ public class ClientNamingContext implements Context, java.io.Serializable
 
     private String          namePrefix;
 
-    private org.apache.geronimo.interop.CosNaming.NamingContext serverNamingContext;
+    private NamingContext serverNamingContext;
 
     public ConnectionPool getConnectionPool() {
         return connectionPool;
@@ -169,7 +175,7 @@ public class ClientNamingContext implements Context, java.io.Serializable
                     hostListCache.remove(name);
                     nb = null;
                 }
-                if (nb == null) {                    
+                if (nb == null) {
                     hostListCache.put(name, nb);
                 }
             }
@@ -289,7 +295,7 @@ public class ClientNamingContext implements Context, java.io.Serializable
         throw new OperationNotSupportedException();
     }
 
-    protected void init(Hashtable env) 
+    protected void init(Hashtable env)
     {
         this.env = env;
         Object urlObject = env.get(Context.PROVIDER_URL);
@@ -299,8 +305,8 @@ public class ClientNamingContext implements Context, java.io.Serializable
         }
         String url = urlObject.toString();
         UrlInfo urlInfo = UrlInfo.getInstance(url);
-        serverNamingContext = (org.apache.geronimo.interop.CosNaming.NamingContext)
-                StubFactory.getInstance().getStub(org.apache.geronimo.interop.CosNaming.NamingContext.class);
+        serverNamingContext = (NamingContext)
+                StubFactory.getInstance().getStub(NamingContext.class);
 
         namePrefix = urlInfo.getNamePrefix();
 
@@ -369,15 +375,15 @@ public class ClientNamingContext implements Context, java.io.Serializable
         }
         try
         {
-            org.apache.geronimo.interop.CosNaming.NameComponent[] resolveName =
-                { new org.apache.geronimo.interop.CosNaming.NameComponent(namePrefix + name, "") };
+            NameComponent[] resolveName =
+                { new NameComponent(namePrefix + name, "") };
             org.omg.CORBA.Object object = serverNamingContext.resolve(resolveName);
             NameBinding nb = new NameBinding();
             nb.object = object;
             nb.cacheTimeout = System.currentTimeMillis() + lookupCacheTimeout;
             return nb;
         }
-        catch (org.apache.geronimo.interop.CosNaming.NamingContextPackage.NotFound notFound)
+        catch (NotFound notFound)
         {
             throw new NameNotFoundException(name);
         }

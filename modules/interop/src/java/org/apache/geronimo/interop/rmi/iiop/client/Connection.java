@@ -17,30 +17,42 @@
  */
 package org.apache.geronimo.interop.rmi.iiop.client;
 
-import java.net.Socket;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.net.Socket;
 
-import org.apache.geronimo.interop.GIOP.*;
-import org.apache.geronimo.interop.IOP.*;
 import org.apache.geronimo.interop.SystemException;
 import org.apache.geronimo.interop.properties.BooleanProperty;
 import org.apache.geronimo.interop.properties.IntProperty;
 import org.apache.geronimo.interop.properties.PropertyMap;
 import org.apache.geronimo.interop.properties.SystemProperties;
-import org.apache.geronimo.interop.rmi.iiop.*;
+import org.apache.geronimo.interop.rmi.iiop.BadMagicException;
+import org.apache.geronimo.interop.rmi.iiop.CdrInputStream;
+import org.apache.geronimo.interop.rmi.iiop.CdrOutputStream;
+import org.apache.geronimo.interop.rmi.iiop.GiopMessage;
+import org.apache.geronimo.interop.rmi.iiop.ObjectRef;
+import org.apache.geronimo.interop.rmi.iiop.SecurityInfo;
+import org.apache.geronimo.interop.rmi.iiop.SimpleObjectInputStream;
+import org.apache.geronimo.interop.rmi.iiop.UnsupportedProtocolVersionException;
 import org.apache.geronimo.interop.util.ExceptionUtil;
 import org.apache.geronimo.interop.util.InstancePool;
 import org.apache.geronimo.interop.util.StringUtil;
 import org.apache.geronimo.interop.util.ThreadContext;
-import org.apache.geronimo.interop.util.UTF8;
+import org.omg.GIOP.MsgType_1_1;
+import org.omg.GIOP.ReplyHeader_1_2;
+import org.omg.GIOP.ReplyStatusType_1_2;
+import org.omg.GIOP.RequestHeader_1_2;
+import org.omg.GIOP.SystemExceptionReplyBody;
+import org.omg.GIOP.SystemExceptionReplyBodyHelper;
+import org.omg.GIOP.TargetAddress;
+import org.omg.IOP.ServiceContext;
 
-public class Connection 
+public class Connection
 {
 
     private static final byte reservedBA[] = new byte[] { 0, 0, 0};
     private int requestid_ = 0;
-    
+
     // http tunnelling related
     private boolean httpTunnelled;
     private String  httpHeaders;
@@ -51,7 +63,7 @@ public class Connection
     {
     }
 
-    public static Connection getInstance(String endpoint, ObjectRef objectRef, PropertyMap connProps) 
+    public static Connection getInstance(String endpoint, ObjectRef objectRef, PropertyMap connProps)
     {
         Connection conn = new Connection();
         conn.init(endpoint, objectRef, connProps);
@@ -110,17 +122,17 @@ public class Connection
 
     protected java.io.OutputStream  socketOut;
 
-    public String getInstanceName() 
+    public String getInstanceName()
     {
         return url;
     }
 
-    public void close() 
+    public void close()
     {
         parameters = null;
         input = null;
         output = null;
-        if (ok) 
+        if (ok)
         {
             pool.put(this);
         }
@@ -162,7 +174,7 @@ public class Connection
         requestOut.write_request(request, parameters);
 
 
-        try 
+        try
         {
             if(httpTunnelled)
             {
@@ -313,7 +325,7 @@ public class Connection
             socketOut = socket.getOutputStream();
             socket.setSoTimeout(1000 * socketTimeout);
         }
-        catch (Exception ex) 
+        catch (Exception ex)
         {
             throw new SystemException(ex);
         }
@@ -537,7 +549,7 @@ public class Connection
         {
             // get http extra headers if present
             httpHeaders = connprops.getProperty("HttpExtraHeader");
-            
+
             if(httpHeaders != null && httpHeaders.toLowerCase().indexOf("user-agent") == -1)
             {
                 httpHeaders += "User-Agent: Geronimo/1.0\r\n";
@@ -551,7 +563,7 @@ public class Connection
             //get webproxy host/port if present:
             webProxyHost = connprops.getProperty("WebProxyHost");
             String port = connprops.getProperty("WebProxyPort");
-            
+
             if(port != null)
             {
                 try

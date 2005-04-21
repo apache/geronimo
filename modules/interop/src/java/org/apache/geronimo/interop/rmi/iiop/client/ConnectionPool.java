@@ -17,7 +17,6 @@
  */
 package org.apache.geronimo.interop.rmi.iiop.client;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.apache.geronimo.interop.SystemException;

@@ -17,8 +17,10 @@
  */
 package org.apache.geronimo.interop.rmi.iiop;
 
-import org.apache.geronimo.interop.*;
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+
+import org.apache.geronimo.interop.SystemException;
 
 public class ValueTypeField
 {
@@ -208,7 +210,7 @@ public class ValueTypeField
         {
             if(isFinal)
             {
-                finalFieldSetter.setChar(that, value);            
+                finalFieldSetter.setChar(that, value);
             }
             else
             {

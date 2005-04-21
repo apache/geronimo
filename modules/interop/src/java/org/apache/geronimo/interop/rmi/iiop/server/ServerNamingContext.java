@@ -20,17 +20,22 @@ package org.apache.geronimo.interop.rmi.iiop.server;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 
-import org.apache.geronimo.interop.CosNaming.*;
-import org.apache.geronimo.interop.CosNaming.NamingContextExtPackage.InvalidAddress;
-import org.apache.geronimo.interop.CosNaming.NamingContextPackage.AlreadyBound;
-import org.apache.geronimo.interop.CosNaming.NamingContextPackage.CannotProceed;
-import org.apache.geronimo.interop.CosNaming.NamingContextPackage.InvalidName;
-import org.apache.geronimo.interop.CosNaming.NamingContextPackage.NotFound;
-import org.apache.geronimo.interop.CosNaming.NamingContextPackage.NotFoundReason;
 import org.apache.geronimo.interop.adapter.Adapter;
 import org.apache.geronimo.interop.naming.NameService;
 import org.apache.geronimo.interop.naming.NameServiceLog;
 import org.apache.geronimo.interop.rmi.iiop.CorbaObject;
+import org.omg.CosNaming.BindingIteratorHolder;
+import org.omg.CosNaming.BindingListHolder;
+import org.omg.CosNaming.NameComponent;
+import org.omg.CosNaming.NamingContext;
+import org.omg.CosNaming.NamingContextExt;
+import org.omg.CosNaming.NamingContextExtPackage.InvalidAddress;
+import org.omg.CosNaming.NamingContextPackage.AlreadyBound;
+import org.omg.CosNaming.NamingContextPackage.CannotProceed;
+import org.omg.CosNaming.NamingContextPackage.InvalidName;
+import org.omg.CosNaming.NamingContextPackage.NotFound;
+import org.omg.CosNaming.NamingContextPackage.NotFoundReason;
+import org.omg.CosNaming.NamingContextPackage.NotEmpty;
 
 public class ServerNamingContext extends CorbaObject implements NamingContextExt {
 
@@ -66,15 +71,15 @@ public class ServerNamingContext extends CorbaObject implements NamingContextExt
         throw NoImplement();
     }
 
-    public void bind_context(org.apache.geronimo.interop.CosNaming.NameComponent[] n, org.apache.geronimo.interop.CosNaming.NamingContext nc) throws NotFound, CannotProceed, InvalidName, AlreadyBound {
+    public void bind_context(NameComponent[] n, NamingContext nc) throws NotFound, CannotProceed, InvalidName, AlreadyBound {
         throw NoImplement();
     }
 
-    public void rebind(org.apache.geronimo.interop.CosNaming.NameComponent[] n, org.omg.CORBA.Object obj) throws NotFound, CannotProceed, InvalidName {
+    public void rebind(NameComponent[] n, org.omg.CORBA.Object obj) throws NotFound, CannotProceed, InvalidName {
         throw NoImplement();
     }
 
-    public void rebind_context(org.apache.geronimo.interop.CosNaming.NameComponent[] n, org.apache.geronimo.interop.CosNaming.NamingContext nc) throws NotFound, CannotProceed, InvalidName {
+    public void rebind_context(NameComponent[] n, NamingContext nc) throws NotFound, CannotProceed, InvalidName {
         throw NoImplement();
     }
 
@@ -92,6 +97,10 @@ public class ServerNamingContext extends CorbaObject implements NamingContextExt
 
     public NamingContext bind_new_context(NameComponent[] n) throws NotFound, AlreadyBound, CannotProceed, InvalidName {
         throw NoImplement();
+    }
+
+    public void destroy() throws NotEmpty {
+        //TODO what should this do?
     }
 
     protected org.omg.CORBA.NO_IMPLEMENT NoImplement() {

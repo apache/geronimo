@@ -21,17 +21,15 @@ import java.util.HashMap;
 import javax.naming.NamingException;
 
 import org.apache.geronimo.interop.adapter.Adapter;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 public class NameService {
     private static NameService ns = null;
-    private final Log log = LogFactory.getLog(NameService.class);
 
     public static synchronized NameService getInstance() {
         if (ns == null) {
             ns = new NameService();
             ns.init();
+            
         }
         return ns;
     }

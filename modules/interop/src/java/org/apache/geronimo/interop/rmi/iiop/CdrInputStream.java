@@ -17,16 +17,37 @@
  */
 package org.apache.geronimo.interop.rmi.iiop;
 
-import org.apache.geronimo.interop.rmi.*;
-import org.apache.geronimo.interop.rmi.iiop.client.*;
-import org.apache.geronimo.interop.rmi.iiop.compiler.StubFactory;
-import org.apache.geronimo.interop.util.*;
-import org.apache.geronimo.interop.IOP.*;
-import org.apache.geronimo.interop.GIOP.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.util.zip.GZIPInputStream;
+
 import org.apache.geronimo.interop.SystemException;
+import org.apache.geronimo.interop.rmi.RmiTrace;
+import org.apache.geronimo.interop.rmi.iiop.client.ClientNamingContext;
+import org.apache.geronimo.interop.rmi.iiop.compiler.StubFactory;
+import org.apache.geronimo.interop.util.ArrayUtil;
+import org.apache.geronimo.interop.util.BigEndian;
+import org.apache.geronimo.interop.util.ExceptionUtil;
+import org.apache.geronimo.interop.util.LittleEndian;
+import org.apache.geronimo.interop.util.ThreadContext;
+import org.apache.geronimo.interop.util.UTF8;
+import org.apache.geronimo.interop.util.UnsignedShort;
 import org.omg.CORBA.TCKind;
-import java.io.*;
-import java.util.zip.*;
+import org.omg.GIOP.LocateRequestHeader_1_0;
+import org.omg.GIOP.LocateRequestHeader_1_0Helper;
+import org.omg.GIOP.LocateRequestHeader_1_2;
+import org.omg.GIOP.LocateRequestHeader_1_2Helper;
+import org.omg.GIOP.MsgType_1_1;
+import org.omg.GIOP.ReplyHeader_1_2Helper;
+import org.omg.GIOP.RequestHeader_1_0;
+import org.omg.GIOP.RequestHeader_1_0Helper;
+import org.omg.GIOP.RequestHeader_1_1;
+import org.omg.GIOP.RequestHeader_1_1Helper;
+import org.omg.GIOP.RequestHeader_1_2;
+import org.omg.GIOP.RequestHeader_1_2Helper;
+import org.omg.GIOP.TargetAddress;
+import org.omg.IOP.IOR;
+import org.omg.IOP.IORHelper;
 
 /**
  ** CORBA 2.3 / GIOP 1.2 CDR InputStream.
@@ -36,7 +57,7 @@ public class CdrInputStream extends org.omg.CORBA_2_3.portable.InputStream
 
     public static CdrInputStream getInstance()
     {
-        CdrInputStream input = new CdrInputStream(); 
+        CdrInputStream input = new CdrInputStream();
         input.init(new byte[64], 0, DEFAULT_BUFFER_LENGTH, false);
         return input;
     }
@@ -50,7 +71,7 @@ public class CdrInputStream extends org.omg.CORBA_2_3.portable.InputStream
 
     public static CdrInputStream getInstance(byte[] buffer, int offset, int length, boolean little)
     {
-        CdrInputStream input = new CdrInputStream(); 
+        CdrInputStream input = new CdrInputStream();
         input.init(buffer, offset, length, little);
         return input;
     }
@@ -62,7 +83,7 @@ public class CdrInputStream extends org.omg.CORBA_2_3.portable.InputStream
 
     public static CdrInputStream getPooledInstance()
     {
-        CdrInputStream input = null; 
+        CdrInputStream input = null;
         if (input == null)
         {
             input = getInstance();
@@ -78,7 +99,7 @@ public class CdrInputStream extends org.omg.CORBA_2_3.portable.InputStream
 
     private static final int MAXIMUM_POOLED_BUFFER_LENGTH = 1024;
 
-    private static boolean RMI_TRACE = true; 
+    private static boolean RMI_TRACE = true;
 
     private static final byte[] EMPTY_BYTE_ARRAY = {};
 
@@ -283,12 +304,12 @@ public class CdrInputStream extends org.omg.CORBA_2_3.portable.InputStream
             {
                 _gzip = true;
             }
-            else if ((m1 == 'P' || m1 == 'p') && (m2 == 'O' || m2 == 'o') && (m3 == 'S' || m3 == 's') && 
+            else if ((m1 == 'P' || m1 == 'p') && (m2 == 'O' || m2 == 'o') && (m3 == 'S' || m3 == 's') &&
                     (m4 == 'T' || m4 == 't'))
             {
                 return receive_http_post_message(input, url);
             }
-            else if( (m1 == 'G' || m1 == 'g') && (m2 == 'E' || m2 == 'e') && (m3 == 'T' || m3 == 't') && 
+            else if( (m1 == 'G' || m1 == 'g') && (m2 == 'E' || m2 == 'e') && (m3 == 'T' || m3 == 't') &&
                 m4 == ' ')
             {
                 return receive_http_get_message(input, url);
@@ -483,7 +504,7 @@ public class CdrInputStream extends org.omg.CORBA_2_3.portable.InputStream
     protected GiopMessage receive_http_get_message(java.io.InputStream input, String url)
     {
         //We have already read first 12 bytes ( = sizeof(GIOP header) )
-        
+
         int count = http_read_line(input, 12);
         String str = new String(_buffer, 0, count);
         int index = str.indexOf("/HIOP/1.0/");
@@ -508,7 +529,7 @@ public class CdrInputStream extends org.omg.CORBA_2_3.portable.InputStream
     }
 
     /**
-     * Note that we consider that the client always uses HIOP/2.0. Hence, the 
+     * Note that we consider that the client always uses HIOP/2.0. Hence, the
      * iiop data is binary stream instead of base64 hex string.
      */
     public GiopMessage receive_http_response(java.io.InputStream input, String url)
@@ -520,7 +541,7 @@ public class CdrInputStream extends org.omg.CORBA_2_3.portable.InputStream
         {
             throw new SystemException("HTTP response error");
         }
-        
+
         if(status.indexOf("200") == -1 || status.indexOf("ok") == -1)
         {
             throw new SystemException("HTTP response error");
@@ -572,7 +593,7 @@ public class CdrInputStream extends org.omg.CORBA_2_3.portable.InputStream
     {
         //We have already read first 12 bytes ( = sizeof(GIOP header) )
         int count = http_read_line(input, 12);
-        
+
         String str = new String(_buffer, 0, count);
         int index, ver;
 
@@ -613,7 +634,7 @@ public class CdrInputStream extends org.omg.CORBA_2_3.portable.InputStream
     }
 
     /**
-     * Read the line from input stream terminated by CRLF. 
+     * Read the line from input stream terminated by CRLF.
      * CRLF is not part of the data in the buffer. Return the number of bytes in the line
      */
 
@@ -1167,7 +1188,7 @@ public class CdrInputStream extends org.omg.CORBA_2_3.portable.InputStream
         value.read_value(os.create_input_stream(), tc);
         return value;
     }
-    
+
     public void read_Any(org.omg.CORBA.portable.OutputStream os, org.omg.CORBA.TypeCode tc)
     {
         try

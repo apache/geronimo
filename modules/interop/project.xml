@@ -56,6 +56,12 @@
 
         <dependency>
             <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-corba</artifactId>
+            <version>${geronimo_spec_corba_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-ejb</artifactId>
             <version>${geronimo_spec_ejb_version}</version>
         </dependency>

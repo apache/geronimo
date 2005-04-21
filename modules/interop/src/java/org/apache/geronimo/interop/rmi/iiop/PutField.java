@@ -17,9 +17,11 @@
  */
 package org.apache.geronimo.interop.rmi.iiop;
 
-import java.io.*;
-import java.util.*;
-import java.lang.reflect.*;
+import java.io.IOException;
+import java.io.ObjectOutput;
+import java.io.ObjectStreamClass;
+import java.io.ObjectStreamField;
+import java.lang.reflect.Method;
 
 /**
  ** An implementation of java.io.ObjectOutputStream.PutField
@@ -171,7 +173,7 @@ public class PutField extends java.io.ObjectOutputStream.PutField
 
     /**
      * Write the data and fields to the specified ObjectOutput stream.
-     * 
+     *
      * @param  out the stream to write the data and fields to
      * @throws IOException if I/O errors occur while writing to the
      *        underlying stream
@@ -192,7 +194,7 @@ public class PutField extends java.io.ObjectOutputStream.PutField
          * broken implementation is being retained solely for behavioral
          * compatibility, in order to support applications which use
          * OOS.PutField.write() for writing only non-primitive data.
-         * 
+         *
          * Serialization of unshared objects is not implemented here since
          * it is not necessary for backwards compatibility; also, unshared
          * semantics may not be supported by the given ObjectOutput
@@ -307,7 +309,7 @@ public class PutField extends java.io.ObjectOutputStream.PutField
             java.io.ObjectStreamField f = fields[i];
             _fields[i] = new ObjectStreamField(fields[i].getName(), fields[i].getType());
             ObjectStreamField _f = _fields[i];
-            
+
             switch (f.getTypeCode())
             {
                 case 'Z':
@@ -352,7 +354,7 @@ public class PutField extends java.io.ObjectOutputStream.PutField
             }
         }
         if (firstObjIndex != -1 && firstObjIndex + numObjFields != fields.length)
-        {   
+        {
             //throw new InvalidClassException(name, "illegal field order");
         }
     }
