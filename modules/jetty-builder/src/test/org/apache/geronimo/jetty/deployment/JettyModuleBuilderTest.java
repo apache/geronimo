@@ -48,6 +48,7 @@ import org.apache.geronimo.j2ee.deployment.RefContext;
 import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
+import org.apache.geronimo.j2ee.deployment.UnavailableWebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -241,7 +242,7 @@ public class JettyModuleBuilderTest extends TestCase {
 
         ObjectName defaultServlets = ObjectName.getInstance("test:name=test,type=none,*");
         ObjectName pojoWebServiceTemplate = null;
-        WebServiceBuilder webServiceBuilder = null;
+        WebServiceBuilder webServiceBuilder = new UnavailableWebServiceBuilder();
 
         serverInfoName = new ObjectName("geronimo.system:name=ServerInfo");
         serverInfoGBean = new GBeanData(serverInfoName, ServerInfo.GBEAN_INFO);
