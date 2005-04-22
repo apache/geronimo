@@ -53,16 +53,16 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
     private final ClassLoader cl;
     private final Map schemaTypeKeyToSchemaTypeMap;
     private final Set wrapperElementQNames;
-    
+
     public HeavyweightTypeInfoBuilder(ClassLoader cl, Map schemaTypeKeyToSchemaTypeMap, Set wrapperElementQNames) {
         this.cl = cl;
         this.schemaTypeKeyToSchemaTypeMap = schemaTypeKeyToSchemaTypeMap;
         this.wrapperElementQNames = wrapperElementQNames;
     }
-    
+
     public List buildTypeInfo(JavaWsdlMappingType mapping) throws DeploymentException {
         List typeInfoList = new ArrayList();
-        
+
         JavaXmlTypeMappingType[] javaXmlTypeMappings = mapping.getJavaXmlTypeMappingArray();
         for (int j = 0; j < javaXmlTypeMappings.length; j++) {
             JavaXmlTypeMappingType javaXmlTypeMapping = javaXmlTypeMappings[j];
@@ -119,34 +119,34 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
                 deserializerFactoryClass = SimpleListDeserializerFactory.class;
             }
 
-            TypeInfo.UpdatableTypeInfo internalTypeInfo = new TypeInfo.UpdatableTypeInfo(); 
+            TypeInfo.UpdatableTypeInfo internalTypeInfo = new TypeInfo.UpdatableTypeInfo();
             internalTypeInfo.setClazz(clazz);
             internalTypeInfo.setQName(typeQName);
             internalTypeInfo.setSerializerClass(serializerFactoryClass);
             internalTypeInfo.setDeserializerClass(deserializerFactoryClass);
-            
+
             populateInternalTypeInfo(clazz, typeQName, key, javaXmlTypeMapping, internalTypeInfo);
 
             typeInfoList.add(internalTypeInfo.buildTypeInfo());
         }
-        
+
         return typeInfoList;
     }
-    
+
     private void populateInternalTypeInfo(Class javaClass, QName typeQName, SchemaTypeKey key, JavaXmlTypeMappingType javaXmlTypeMapping, TypeInfo.UpdatableTypeInfo typeInfo) throws DeploymentException {
         SchemaType schemaType = (SchemaType) schemaTypeKeyToSchemaTypeMap.get(key);
         if (schemaType == null) {
             throw new DeploymentException("Schema type key " + key + " not found in analyzed schema: " + schemaTypeKeyToSchemaTypeMap);
         }
         String ns = key.getqName().getNamespaceURI();
-                
         typeInfo.setCanSearchParents(schemaType.getDerivationType() == SchemaType.DT_RESTRICTION);
-        
-        
+
+
         Map nameToType = new HashMap();
         if (null  == schemaType.getContentModel()) {
             ;
-        } else if (SchemaParticle.SEQUENCE == schemaType.getContentModel().getParticleType()) {
+        } else if (SchemaParticle.SEQUENCE == schemaType.getContentModel().getParticleType()
+                || SchemaParticle.ALL == schemaType.getContentModel().getParticleType()) {
             SchemaParticle[] properties = schemaType.getContentModel().getParticleChildren();
             for (int i = 0; i < properties.length; i++) {
                 SchemaParticle parameter = properties[i];
@@ -156,14 +156,14 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
             SchemaParticle parameter = schemaType.getContentModel();
             nameToType.put(parameter.getName(), parameter);
         } else {
-            throw new DeploymentException("Only sequence particle types are supported." +
+            throw new DeploymentException("Only element, sequence, and all particle types are supported." +
                     " SchemaType name =" + schemaType.getName());
         }
-        
+
         VariableMappingType[] variableMappings = javaXmlTypeMapping.getVariableMappingArray();
         FieldDesc[] fields = new FieldDesc[variableMappings.length];
         typeInfo.setFields(fields);
-        
+
         PropertyDescriptor[] propertyDescriptors = new PropertyDescriptor[0];
         try {
             propertyDescriptors = Introspector.getBeanInfo(javaClass).getPropertyDescriptors();
@@ -219,7 +219,7 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
                 elementDesc.setNillable(particle.isNillable());
                 elementDesc.setXmlName(xmlName);
                 elementDesc.setXmlType(particle.getType().getName());
-                
+
                 if (javaType.isArray()) {
                     elementDesc.setMinOccurs(particle.getIntMinOccurs());
                     elementDesc.setMaxOccurs(particle.getIntMaxOccurs());
