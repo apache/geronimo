@@ -103,8 +103,6 @@ public class LightweightTypeInfoBuilder implements TypeInfoBuilder {
         if (schemaType == null) {
             throw new DeploymentException("Schema type key " + key + " not found in analyzed schema: " + schemaTypeKeyToSchemaTypeMap);
         }
-        String ns = key.getqName().getNamespaceURI();
-
         typeInfo.setCanSearchParents(schemaType.getDerivationType() == SchemaType.DT_RESTRICTION);
 
         Map nameToType = new HashMap();
@@ -117,13 +115,11 @@ public class LightweightTypeInfoBuilder implements TypeInfoBuilder {
                 if (SchemaParticle.ELEMENT != parameter.getType().getContentModel().getParticleType()) {
                     throw new DeploymentException(parameter.getName() + " is not an element in schema " + schemaType.getName());
                 }
-                // TODO why the ns of parameter.getName() is wrong?
-                nameToType.put(new QName(ns, parameter.getName().getLocalPart()) , parameter);
+                nameToType.put(parameter.getName(), parameter);
             }
         } else if (SchemaParticle.ELEMENT == schemaType.getContentModel().getParticleType()) {
             SchemaParticle parameter = schemaType.getContentModel();
-            // TODO why the ns of parameter.getName() is wrong?
-            nameToType.put(new QName(ns, parameter.getName().getLocalPart()) , parameter);
+            nameToType.put(parameter.getName(), parameter);
         } else {
             throw new DeploymentException("Only all, choice and sequence particle types are supported." +
                     " SchemaType name =" + schemaType.getName());
@@ -155,7 +151,6 @@ public class LightweightTypeInfoBuilder implements TypeInfoBuilder {
             if (null == javaType) {
                 throw new DeploymentException("Field " + fieldName + " is not defined by class " + javaClass.getName());
             }
-            elementDesc.setJavaType(javaType);
             elementDesc.setNillable(particle.isNillable());
             elementDesc.setXmlName(fieldName);
             elementDesc.setXmlType(particle.getType().getName());

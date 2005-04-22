@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,9 +23,6 @@ import java.util.Iterator;
 import javax.xml.namespace.QName;
 import javax.wsdl.Part;
 import javax.wsdl.BindingOperation;
-import javax.wsdl.Operation;
-import javax.wsdl.Message;
-import javax.wsdl.extensions.soap.SOAPOperation;
 
 import org.apache.geronimo.axis.client.OperationInfo;
 import org.apache.geronimo.common.DeploymentException;
@@ -36,6 +33,9 @@ import org.apache.axis.constants.Style;
 import org.apache.axis.constants.Use;
 import org.objectweb.asm.Type;
 
+/**
+ * @version $Rev$ $Date$
+ */
 public class LightweightOperationDescBuilder extends OperationDescBuilder {
 
     private final Method method;

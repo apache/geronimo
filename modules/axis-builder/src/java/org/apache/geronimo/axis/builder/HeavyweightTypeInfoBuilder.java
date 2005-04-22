@@ -139,8 +139,9 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
             throw new DeploymentException("Schema type key " + key + " not found in analyzed schema: " + schemaTypeKeyToSchemaTypeMap);
         }
         String ns = key.getqName().getNamespaceURI();
-        
+                
         typeInfo.setCanSearchParents(schemaType.getDerivationType() == SchemaType.DT_RESTRICTION);
+        
         
         Map nameToType = new HashMap();
         if (null  == schemaType.getContentModel()) {
@@ -149,13 +150,11 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
             SchemaParticle[] properties = schemaType.getContentModel().getParticleChildren();
             for (int i = 0; i < properties.length; i++) {
                 SchemaParticle parameter = properties[i];
-                // TODO why the ns of parameter.getName() is wrong?
-                nameToType.put(new QName(ns, parameter.getName().getLocalPart()) , parameter);
+                nameToType.put(parameter.getName(), parameter);
             }
         } else if (SchemaParticle.ELEMENT == schemaType.getContentModel().getParticleType()) {
             SchemaParticle parameter = schemaType.getContentModel();
-            // TODO why the ns of parameter.getName() is wrong?
-            nameToType.put(new QName(ns, parameter.getName().getLocalPart()) , parameter);
+            nameToType.put(parameter.getName(), parameter);
         } else {
             throw new DeploymentException("Only sequence particle types are supported." +
                     " SchemaType name =" + schemaType.getName());
@@ -187,7 +186,6 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
                 if (javaType == null) {
                     throw new DeploymentException("field name " + fieldName + " not found in " + properties);
                 }
-                attributeDesc.setJavaType(javaType);
                 QName xmlName = new QName("", variableMapping.getXmlAttributeName().getStringValue().trim());
                 attributeDesc.setXmlName(xmlName);
                 // TODO retrieve the type of the attribute.
@@ -207,12 +205,14 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
                         throw new DeploymentException("field name " + fieldName + " not found in " + properties);
                     }
                 }
-                elementDesc.setJavaType(javaType);
-                
-                QName xmlName = new QName(ns, variableMapping.getXmlElementName().getStringValue().trim());
+                QName xmlName = new QName("", variableMapping.getXmlElementName().getStringValue().trim());
                 SchemaParticle particle = (SchemaParticle) nameToType.get(xmlName);
                 if (null == particle) {
-                    throw new DeploymentException("element " + xmlName + " not found in schema " + schemaType.getName());
+                    xmlName = new QName(ns, variableMapping.getXmlElementName().getStringValue().trim());
+                    particle = (SchemaParticle) nameToType.get(xmlName);
+                    if (null == particle) {
+                        throw new DeploymentException("element " + xmlName + " not found in schema " + schemaType.getName());
+                    }
                 } else if (SchemaParticle.ELEMENT != particle.getParticleType()) {
                     throw new DeploymentException(xmlName + " is not an element in schema " + schemaType.getName());
                 }

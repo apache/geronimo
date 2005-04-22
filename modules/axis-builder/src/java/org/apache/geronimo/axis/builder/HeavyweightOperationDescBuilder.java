@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -60,6 +60,9 @@ import org.apache.xmlbeans.SchemaType;
 import org.objectweb.asm.Type;
 import org.apache.geronimo.xbeans.j2ee.JavaXmlTypeMappingType;
 
+/**
+ * @version $Rev$ $Date$
+ */
 public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
 
     private final JavaWsdlMappingType mapping;
@@ -477,9 +480,8 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
                 if (part == null) {
                     throw new DeploymentException("No part for wsdlMessagePartName " + wsdlMessagePartName + " in output message for operation " + operationName);
                 }
-                returnQName = part.getElementName();
-                //TODO mirror the Axis behavior. Why?
-                returnType = new QName(returnQName.getNamespaceURI(), ">" + returnQName.getLocalPart());
+                returnQName = getPartName(part);
+                returnType = returnQName;
             }
 
             outParamNames.add(wsdlMessagePartName);
@@ -546,9 +548,8 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
                 if (part == null) {
                     throw new DeploymentException("No part for wsdlMessagePartName " + wsdlMessagePartName + " in input message for operation " + operationName);
                 }
-                paramQName = part.getElementName();
-                //TODO mirror the Axis behavior. Why?
-                paramTypeQName = new QName(paramQName.getNamespaceURI(), ">" + paramQName.getLocalPart());
+                paramQName = getPartName(part);
+                paramTypeQName = paramQName;
             }
             inParamNames.add(wsdlMessagePartName);
             if (isOutParam) {
@@ -580,9 +581,8 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
                     if (part == null) {
                         throw new DeploymentException("No part for wsdlMessagePartName " + wsdlMessagePartName + " in output message for operation " + operationName);
                     }
-                    paramQName = part.getElementName();
-                    //TODO mirror the Axis behavior. Why?
-                    paramTypeQName = new QName(paramQName.getNamespaceURI(), ">" + paramQName.getLocalPart());
+                    paramQName = getPartName(part);
+                    paramTypeQName = paramQName;
                 }
                 outParamNames.add(wsdlMessagePartName);
             }
@@ -612,9 +612,8 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
                 if (part == null) {
                     throw new DeploymentException("No part for wsdlMessagePartName " + wsdlMessagePartName + " in output message for operation " + operationName);
                 }
-                paramQName = part.getElementName();
-                //TODO mirror the Axis behavior. Why?
-                paramTypeQName = new QName(paramQName.getNamespaceURI(), ">" + paramQName.getLocalPart());
+                paramQName = getPartName(part);
+                paramTypeQName = paramQName;
             }
             outParamNames.add(wsdlMessagePartName);
         } else {
@@ -631,6 +630,10 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
         return parameterDesc;
     }
 
+    private QName getPartName(Part part) {
+        return null == part.getElementName()? part.getTypeName() : part.getElementName();
+    }
+    
     private Part getWrappedPart(Message message) throws DeploymentException {
         // in case of wrapped element, the message has only one part.
         Collection parts = message.getParts().values();
