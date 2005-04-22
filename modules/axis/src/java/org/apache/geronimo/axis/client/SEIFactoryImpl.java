@@ -88,7 +88,7 @@ public class SEIFactoryImpl implements SEIFactory, Serializable {
         //register our type descriptors
         for (Iterator iterator = typeInfo.iterator(); iterator.hasNext();) {
             TypeInfo info = (TypeInfo) iterator.next();
-            TypeDesc.registerTypeDescForClass(info.getClass(), info.buildTypeDesc());
+            TypeDesc.registerTypeDescForClass(info.getClazz(), info.buildTypeDesc());
         }
     }
 
