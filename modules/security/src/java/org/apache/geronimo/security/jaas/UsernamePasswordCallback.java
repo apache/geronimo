@@ -31,9 +31,9 @@ import javax.security.auth.callback.UnsupportedCallbackException;
  */
 public class UsernamePasswordCallback implements CallbackHandler {
     private final String username;
-    private final String password;
+    private final char[] password;
 
-    public UsernamePasswordCallback(String username, String password) {
+    public UsernamePasswordCallback(String username, char[] password) {
         this.username = username;
         this.password = password;
     }
@@ -41,7 +41,7 @@ public class UsernamePasswordCallback implements CallbackHandler {
     public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
         for (int i = 0; i < callbacks.length; i++) {
             if (callbacks[i] instanceof PasswordCallback) {
-                ((PasswordCallback) callbacks[i]).setPassword(password.toCharArray());
+                ((PasswordCallback) callbacks[i]).setPassword(password);
             } else if (callbacks[i] instanceof NameCallback) {
                 ((NameCallback) callbacks[i]).setName(username);
             }
