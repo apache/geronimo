@@ -21,18 +21,23 @@ import java.rmi.RemoteException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.List;
+import java.util.Map;
 import javax.security.auth.Subject;
+import javax.xml.rpc.holders.Holder;
 
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 import org.apache.axis.client.Call;
+import org.apache.axis.description.ParameterDesc;
+import org.apache.axis.utils.JavaUtils;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.jaas.NamedUsernamePasswordCredential;
 
 /**
  * @version $Rev:  $ $Date:  $
  */
-public class ServiceEndpointMethodInterceptor implements MethodInterceptor{
+public class ServiceEndpointMethodInterceptor implements MethodInterceptor {
 
     private final GenericServiceEndpoint stub;
     private final OperationInfo[] operations;
@@ -74,27 +79,65 @@ public class ServiceEndpointMethodInterceptor implements MethodInterceptor{
                     }
                 }
                 if (!found) {
-                    throw new IllegalStateException("no NamedUsernamePasswordCredential found for name "  + credentialsName);
+                    throw new IllegalStateException("no NamedUsernamePasswordCredential found for name " + credentialsName);
                 }
             }
         }
         Object response = null;
+        List parameterDescs = operationInfo.getOperationDesc().getParameters();
+        Object[] unwrapped = extractFromHolders(objects, parameterDescs);
         try {
-            response = call.invoke(objects);
+            response = call.invoke(unwrapped);
         } catch (RemoteException e) {
             throw operationInfo.unwrapFault(e);
         }
 
         if (response instanceof java.rmi.RemoteException) {
             throw operationInfo.unwrapFault((RemoteException) response);
-        }
-        else {
+        } else {
             stub.extractAttachments(call);
+            Map outputParameters = call.getOutputParams();
+            putInHolders(outputParameters, objects, parameterDescs);
             Class returnType = operationInfo.getOperationDesc().getReturnClass();
-            if (response == null || returnType.isAssignableFrom(response.getClass())) {
+            //return type should never be null... but we are not objecting if wsdl-return-value-mapping is not set.
+            if (response == null || returnType == null || returnType.isAssignableFrom(response.getClass())) {
                 return response;
             } else {
                 return org.apache.axis.utils.JavaUtils.convert(response, returnType);
+            }
+        }
+    }
+
+    private Object[] extractFromHolders(Object[] objects, List parameterDescs) throws JavaUtils.HolderException {
+        if (objects.length != parameterDescs.size()) {
+            throw new IllegalArgumentException("Mismatch parameter count: expected: " + parameterDescs.size() + ", actual: " + objects.length);
+        }
+        Object[] unwrapped = new Object[objects.length];
+        for (int i = 0; objects != null && i < objects.length; i++) {
+            Object parameter = objects[i];
+            ParameterDesc parameterDesc = (ParameterDesc) parameterDescs.get(i);
+
+            if (parameterDesc.getMode() == ParameterDesc.INOUT) {
+                unwrapped[i] = JavaUtils.getHolderValue((Holder) parameter);
+            } else if (parameterDesc.getMode() == ParameterDesc.IN) {
+                unwrapped[i] = parameter;
+            }
+        }
+        return unwrapped;
+    }
+
+    private void putInHolders(Map outputParameters, Object[] objects, List parameterDescs) throws JavaUtils.HolderException {
+        for (int i = 0; i < objects.length; i++) {
+            Object parameter = objects[i];
+            ParameterDesc parameterDesc = (ParameterDesc) parameterDescs.get(i);
+            if ((parameterDesc.getMode() == ParameterDesc.INOUT) ||
+                    (parameterDesc.getMode() == ParameterDesc.OUT)) {
+                Object returned = outputParameters.get(parameterDesc.getQName());
+                if (returned instanceof Holder) {
+                    //TODO this must be a bug somewhere!!!!
+                    returned = JavaUtils.getHolderValue(returned);
+                }
+                JavaUtils.setHolderValue((Holder) parameter, returned);
             }
         }
     }
