@@ -17,9 +17,6 @@
 package org.apache.geronimo.axis.client;
 
 import java.net.URL;
-import java.util.Iterator;
-import java.util.List;
-
 import javax.xml.namespace.QName;
 
 import org.apache.axis.AxisFault;
@@ -32,13 +29,12 @@ import org.apache.axis.client.Service;
  */
 public class GenericServiceEndpoint extends org.apache.axis.client.Stub {
 
-    private final List typeInfo;
 
-    public GenericServiceEndpoint(QName portQName, Service service, List typeInfo, URL location) {
+    public GenericServiceEndpoint(QName portQName, Service service, URL location) {
         this.service = service;
-        this.typeInfo = typeInfo;
         cachedEndpoint = location;
         cachedPortName = portQName;
+
     }
 
     Call createCall() throws java.rmi.RemoteException {
@@ -74,18 +70,27 @@ public class GenericServiceEndpoint extends org.apache.axis.client.Stub {
             // the TypeMappingRegistry of the service, which
             // is the reason why registration is only needed for the first call.
             //TODO figure out if this can be done during deployment!
-            synchronized (this) {
-                if (firstCall()) {
-                    // must set encoding style before registering serializers
-                    //TODO these constants probably need to be parameters of GSE.
-                    _call.setSOAPVersion(org.apache.axis.soap.SOAPConstants.SOAP11_CONSTANTS);
-                    _call.setEncodingStyle(org.apache.axis.Constants.URI_SOAP11_ENC);
-                    for (Iterator iterator = typeInfo.iterator(); iterator.hasNext();) {
-                        TypeInfo info = (TypeInfo) iterator.next();
-                        _call.registerTypeMapping(info.getClazz(), info.getqName(), info.getSerFactoryClass(), info.getDeserFactoryClass(), false);
-                    }
-                }
-            }
+//            synchronized (this) {
+//                if (firstCall()) {
+//                    // must set encoding style before registering serializers
+//                    //TODO these constants probably need to be parameters of GSE.
+//                    _call.setSOAPVersion(org.apache.axis.soap.SOAPConstants.SOAP11_CONSTANTS);
+////                    _call.setEncodingStyle(org.apache.axis.Constants.URI_SOAP11_ENC);
+//                    //override unsigned long mapping
+//                    _call.registerTypeMapping(BigInteger.class,
+//                            Constants.XSD_UNSIGNEDLONG,
+//                            new SimpleSerializerFactory(BigInteger.class, Constants.XSD_UNSIGNEDLONG),
+//                            new SimpleDeserializerFactory(BigInteger.class, Constants.XSD_UNSIGNEDLONG));
+//                    _call.registerTypeMapping(URI.class,
+//                            Constants.XSD_ANYURI,
+//                            new SimpleSerializerFactory(URI.class, Constants.XSD_ANYURI),
+//                            new SimpleDeserializerFactory(URI.class, Constants.XSD_ANYURI));
+//                    for (Iterator iterator = typeInfo.iterator(); iterator.hasNext();) {
+//                        TypeInfo info = (TypeInfo) iterator.next();
+//                        _call.registerTypeMapping(info.getClazz(), info.getqName(), info.getSerFactoryClass(), info.getDeserFactoryClass(), false);
+//                    }
+//                }
+//            }
             return _call;
         } catch (java.lang.Throwable t) {
             throw new org.apache.axis.AxisFault("Failure trying to get the Call object", t);

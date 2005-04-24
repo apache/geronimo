@@ -78,5 +78,8 @@ public class OperationInfo implements Serializable {
         call.setSOAPActionURI(soapActionURI);
         call.setSOAPVersion(soapVersion);
         call.setOperationName(operationName);
+        //GAH!!!
+        call.setOperationStyle(operationDesc.getStyle());
+        call.setOperationUse(operationDesc.getUse());
     }
 }

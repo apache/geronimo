@@ -32,8 +32,10 @@ public final class SchemaTypeKey {
     private final boolean isSimpleType;
     private final boolean isAnonymous;
 
+    private final QName elementQName;
 
-    public SchemaTypeKey(QName qName, boolean element, boolean isSimpleType, boolean anonymous) {
+
+    public SchemaTypeKey(QName qName, boolean element, boolean isSimpleType, boolean anonymous, QName elementQName) {
         assert qName != null;
         this.qName = qName;
         isElement = element;
@@ -46,6 +48,7 @@ public final class SchemaTypeKey {
         } else {
             qNameScope = QNAME_SCOPE_COMPLEX_TYPE;
         }
+        this.elementQName = elementQName;
     }
 
     public QName getqName() {
@@ -66,6 +69,10 @@ public final class SchemaTypeKey {
 
     public String getqNameScope() {
         return qNameScope;
+    }
+
+    public QName getElementQName() {
+        return elementQName;
     }
 
     public int hashCode() {

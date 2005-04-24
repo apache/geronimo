@@ -384,6 +384,7 @@ public class SchemaInfoBuilder {
         //TODO is this null if element is a ref?
         QName elementName = element.getName();
         String elementNamespace = elementName.getNamespaceURI();
+        //"" namespace means local element with elementFormDefault="unqualified"
         if (elementNamespace == null || elementNamespace.equals("")) {
             elementNamespace = key.getqName().getNamespaceURI();
         }
@@ -392,14 +393,14 @@ public class SchemaInfoBuilder {
         if (key == null) {
             //top level. rule 2.a,
             elementQNameLocalName = elementName.getLocalPart();
-            elementKey = new SchemaTypeKey(elementName, true, false, false);
+            elementKey = new SchemaTypeKey(elementName, true, false, false, elementName);
         } else {
             //not top level. rule 2.b, key will be for enclosing Type.
             QName enclosingTypeQName = key.getqName();
             String enclosingTypeLocalName = enclosingTypeQName.getLocalPart();
             elementQNameLocalName = enclosingTypeLocalName + ">" + elementName.getLocalPart();
             QName subElementName = new QName(elementNamespace, elementQNameLocalName);
-            elementKey = new SchemaTypeKey(subElementName, true, false, true);
+            elementKey = new SchemaTypeKey(subElementName, true, false, true, elementName);
         }
         SchemaType schemaType = element.getType();
         qnameMap.put(elementKey, schemaType);
@@ -419,7 +420,7 @@ public class SchemaInfoBuilder {
     }
 
     private void addSchemaType(QName typeQName, SchemaType schemaType, boolean anonymous, Map qnameMap) {
-        SchemaTypeKey typeKey = new SchemaTypeKey(typeQName, false, schemaType.isSimpleType(), anonymous);
+        SchemaTypeKey typeKey = new SchemaTypeKey(typeQName, false, schemaType.isSimpleType(), anonymous, null);
         qnameMap.put(typeKey, schemaType);
 //        new Exception("Adding: " + typeKey.getqName().getLocalPart()).printStackTrace();
         //TODO xmlbeans recommends using summary info from getElementProperties and getAttributeProperties instead of traversing the content model by hand.
@@ -474,14 +475,14 @@ public class SchemaInfoBuilder {
                 elementNamespace = keyName.getNamespaceURI();
             }
             QName arrayName = new QName(elementNamespace, arrayQNameLocalName);
-            SchemaTypeKey arrayKey = new SchemaTypeKey(arrayName, false, false, true);
+            SchemaTypeKey arrayKey = new SchemaTypeKey(arrayName, false, false, true, elementName);
             //TODO not clear we want the schemaType as the value
             qnameMap.put(arrayKey, elementType);
 //            new Exception("Adding: " + arrayKey.getqName().getLocalPart()).printStackTrace();
             if (minOccurs == 1) {
                 arrayQNameLocalName = keyName.getLocalPart() + "[," + maxOccurs + "]";
                 arrayName = new QName(elementNamespace, arrayQNameLocalName);
-                arrayKey = new SchemaTypeKey(arrayName, false, false, true);
+                arrayKey = new SchemaTypeKey(arrayName, false, false, true, elementName);
                 //TODO not clear we want the schemaType as the value
                 qnameMap.put(arrayKey, elementType);
             }

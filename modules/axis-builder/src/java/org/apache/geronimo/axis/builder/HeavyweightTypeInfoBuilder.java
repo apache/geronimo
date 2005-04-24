@@ -67,13 +67,12 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
         for (int j = 0; j < javaXmlTypeMappings.length; j++) {
             JavaXmlTypeMappingType javaXmlTypeMapping = javaXmlTypeMappings[j];
 
-            QName typeQName;
             SchemaTypeKey key;
             boolean isElement = javaXmlTypeMapping.getQnameScope().getStringValue().equals("element");
             boolean isSimpleType = javaXmlTypeMapping.getQnameScope().getStringValue().equals("simpleType");
             if (javaXmlTypeMapping.isSetRootTypeQname()) {
-                typeQName = javaXmlTypeMapping.getRootTypeQname().getQNameValue();
-                key = new SchemaTypeKey(typeQName, isElement, isSimpleType, false);
+                QName typeQName = javaXmlTypeMapping.getRootTypeQname().getQNameValue();
+                key = new SchemaTypeKey(typeQName, isElement, isSimpleType, false, null);
 
                 // Skip the wrapper elements.
                 if (wrapperElementQNames.contains(typeQName)) {
@@ -87,8 +86,8 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
                 }
 
                 //this appears to be ignored...
-                typeQName = new QName(anonTypeQNameString.substring(0, pos), anonTypeQNameString.substring(pos + 1));
-                key = new SchemaTypeKey(typeQName, isElement, isSimpleType, true);
+                QName typeQName = new QName(anonTypeQNameString.substring(0, pos), anonTypeQNameString.substring(pos + 1));
+                key = new SchemaTypeKey(typeQName, isElement, isSimpleType, true, null);
 
                 // Skip the wrapper elements.
                 if (wrapperElementQNames.contains(new QName(anonTypeQNameString.substring(0, pos), anonTypeQNameString.substring(pos + 2)))) {
@@ -121,11 +120,11 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
 
             TypeInfo.UpdatableTypeInfo internalTypeInfo = new TypeInfo.UpdatableTypeInfo();
             internalTypeInfo.setClazz(clazz);
-            internalTypeInfo.setQName(typeQName);
+
             internalTypeInfo.setSerializerClass(serializerFactoryClass);
             internalTypeInfo.setDeserializerClass(deserializerFactoryClass);
 
-            populateInternalTypeInfo(clazz, typeQName, key, javaXmlTypeMapping, internalTypeInfo);
+            populateInternalTypeInfo(clazz, key, javaXmlTypeMapping, internalTypeInfo);
 
             typeInfoList.add(internalTypeInfo.buildTypeInfo());
         }
@@ -133,7 +132,7 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
         return typeInfoList;
     }
 
-    private void populateInternalTypeInfo(Class javaClass, QName typeQName, SchemaTypeKey key, JavaXmlTypeMappingType javaXmlTypeMapping, TypeInfo.UpdatableTypeInfo typeInfo) throws DeploymentException {
+    private void populateInternalTypeInfo(Class javaClass, SchemaTypeKey key, JavaXmlTypeMappingType javaXmlTypeMapping, TypeInfo.UpdatableTypeInfo typeInfo) throws DeploymentException {
         SchemaType schemaType = (SchemaType) schemaTypeKeyToSchemaTypeMap.get(key);
         if (schemaType == null) {
             throw new DeploymentException("Schema type key " + key + " not found in analyzed schema: " + schemaTypeKeyToSchemaTypeMap);
@@ -141,6 +140,12 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
         String ns = key.getqName().getNamespaceURI();
         typeInfo.setCanSearchParents(schemaType.getDerivationType() == SchemaType.DT_RESTRICTION);
 
+        //figure out the name axis expects to look up under.
+        QName axisKey = key.getElementQName();
+        if (axisKey == null) {
+            axisKey = key.getqName();
+        }
+        typeInfo.setQName(axisKey);
 
         Map nameToType = new HashMap();
         if (null  == schemaType.getContentModel()) {
