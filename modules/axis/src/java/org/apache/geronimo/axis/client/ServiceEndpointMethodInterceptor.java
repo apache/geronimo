@@ -17,6 +17,7 @@
 package org.apache.geronimo.axis.client;
 
 import java.lang.reflect.Method;
+import java.rmi.RemoteException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Set;
@@ -77,10 +78,15 @@ public class ServiceEndpointMethodInterceptor implements MethodInterceptor{
                 }
             }
         }
-        java.lang.Object response = call.invoke(objects);
+        Object response = null;
+        try {
+            response = call.invoke(objects);
+        } catch (RemoteException e) {
+            throw operationInfo.unwrapFault(e);
+        }
 
         if (response instanceof java.rmi.RemoteException) {
-            throw (java.rmi.RemoteException)response;
+            throw operationInfo.unwrapFault((RemoteException) response);
         }
         else {
             stub.extractAttachments(call);

@@ -17,12 +17,15 @@
 package org.apache.geronimo.axis.client;
 
 import java.io.Serializable;
+import java.rmi.RemoteException;
 
 import javax.xml.namespace.QName;
 
 import org.apache.axis.description.OperationDesc;
+import org.apache.axis.description.FaultDesc;
 import org.apache.axis.client.Call;
 import org.apache.axis.soap.SOAPConstants;
+import org.apache.axis.AxisFault;
 import net.sf.cglib.core.Signature;
 
 /**
@@ -81,5 +84,15 @@ public class OperationInfo implements Serializable {
         //GAH!!!
         call.setOperationStyle(operationDesc.getStyle());
         call.setOperationUse(operationDesc.getUse());
+    }
+
+    public Throwable unwrapFault(RemoteException re) {
+        if (re instanceof AxisFault && re.getCause() != null) {
+            Throwable t = re.getCause();
+            if (operationDesc.getFaultByClass(t.getClass()) != null) {
+                return t;
+            }
+        }
+        return re;
     }
 }
