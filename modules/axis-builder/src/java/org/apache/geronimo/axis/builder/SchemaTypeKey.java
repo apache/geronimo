@@ -88,11 +88,11 @@ public final class SchemaTypeKey {
     }
 
     public String toString() {
-        StringBuffer buf = new StringBuffer("SchemaTypeKey: scope: ").append(qNameScope);
+        StringBuffer buf = new StringBuffer("\nSchemaTypeKey: scope: ").append(qNameScope);
         buf.append(" isElement: ").append(isElement);
         buf.append(" isAnonymous: ").append(isAnonymous);
         buf.append(" isSimpleType: ").append(isSimpleType);
-        buf.append(" QName: ").append(qName);
+        buf.append("\n QName: ").append(qName).append("\n");
         return buf.toString();
     }
 
