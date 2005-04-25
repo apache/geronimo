@@ -811,6 +811,14 @@
             </properties>
         </dependency>
         <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-tomcat-builder</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+        <dependency>
             <groupId>tomcat</groupId>
             <artifactId>catalina</artifactId>
             <version>${tomcat_version}</version>
