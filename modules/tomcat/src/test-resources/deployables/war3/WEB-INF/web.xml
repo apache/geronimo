@@ -52,7 +52,7 @@
 
     <login-config>
         <auth-method>FORM</auth-method>
-        <realm-name>Test JAAS Realm</realm-name>
+        <realm-name>geronimo-properties-realm</realm-name>
         <form-login-config>
             <form-login-page>/auth/logon.html?param=test</form-login-page>
             <form-error-page>/auth/logonError.html?param=test</form-error-page>

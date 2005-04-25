@@ -28,14 +28,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+
 import javax.management.ObjectName;
 import javax.security.auth.Subject;
 import javax.security.auth.x500.X500Principal;
 import javax.security.jacc.WebResourcePermission;
 import javax.security.jacc.WebUserDataPermission;
-
-import org.apache.catalina.deploy.SecurityCollection;
-import org.apache.catalina.deploy.SecurityConstraint;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.security.RealmPrincipal;
@@ -68,26 +66,8 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
         Security securityConfig = new Security();
         securityConfig.setUseContextHandler(false);
 
-        Set constraints = new HashSet();
-
-        SecurityConstraint sc = new SecurityConstraint();
-        sc.setAuthConstraint(true);
-        sc.addAuthRole("content-administrator");
-        sc.addAuthRole("auto-administrator");
-        SecurityCollection coll = new SecurityCollection("Admin Role");
-        coll.addPattern("/protected/*");
-        sc.addCollection(coll);
-        constraints.add(sc);
-
-        sc = new SecurityConstraint();
-        sc.setAuthConstraint(false);
-        coll = new SecurityCollection("NO ACCESS");
-        coll.addPattern("/auth/logon.html");
-        sc.addCollection(coll);
-        constraints.add(sc);
-
         DefaultPrincipal defaultPrincipal = new DefaultPrincipal();
-        defaultPrincipal.setRealmName("demo-properties-realm");
+        defaultPrincipal.setRealmName("geronimo-properties-realm");
         Principal principal = new Principal();
         principal.setClassName("org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
         principal.setPrincipalName("izumi");
@@ -101,7 +81,7 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
         principal.setClassName("org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
         principal.setPrincipalName("it");
         Realm realm = new Realm();
-        realm.setRealmName("demo-properties-realm");
+        realm.setRealmName("geronimo-properties-realm");
         realm.getPrincipals().add(principal);
         role.getRealms().put(realm.getRealmName(), realm);
 
@@ -128,12 +108,8 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
 
         ComponentPermissions componentPermissions = new ComponentPermissions(excludedPermissions, uncheckedPermissions, rolePermissions);
        
-        Set securityRoles = new HashSet();
-        securityRoles.add("content-administrator");
-        securityRoles.add("auto-administrator");
-
-        startWebApp(constraints, roleDesignates, principalRoleMap,  componentPermissions,
-                defaultPrincipal, checked, securityRoles);
+        startWebApp(roleDesignates, principalRoleMap,  componentPermissions,
+                defaultPrincipal, checked);
 
         //Begin the test
         HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8080/securetest/protected/hello.txt").openConnection();
@@ -203,16 +179,14 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
     }
 
     protected void startWebApp(
-            Set securityConstraints,
             Map roleDesignates, 
             Map principalRoleMap,
             ComponentPermissions componentPermissions, 
             DefaultPrincipal defaultPrincipal, 
-            PermissionCollection checked,
-            Set securityRoles) throws Exception {
+            PermissionCollection checked) throws Exception {
 
-        appName = setUpSecureAppContext(securityConstraints, roleDesignates, principalRoleMap,
-                componentPermissions, defaultPrincipal, checked, securityRoles);
+        appName = setUpSecureAppContext(roleDesignates, principalRoleMap,
+                componentPermissions, defaultPrincipal, checked);
 
 
     }
@@ -298,7 +272,7 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
     }
     
     protected void setUp() throws Exception {
-        super.setUp();
+        super.setUp("org.apache.geronimo.tomcat.realm.TomcatGeronimoRealm");
         setUpSecurity();
     }
 

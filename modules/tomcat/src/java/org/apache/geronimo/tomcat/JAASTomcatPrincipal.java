@@ -18,7 +18,6 @@ package org.apache.geronimo.tomcat;
 
 
 import java.security.Principal;
-import java.util.Stack;
 import javax.security.auth.Subject;
 
 

@@ -14,14 +14,13 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.tomcat;
+package org.apache.geronimo.tomcat.realm;
 
 import java.io.IOException;
 import java.security.AccessControlContext;
 import java.security.AccessControlException;
-import java.security.PermissionCollection;
 import java.security.Principal;
-import java.util.Map;
+
 import javax.security.auth.Subject;
 import javax.security.auth.login.AccountExpiredException;
 import javax.security.auth.login.CredentialExpiredException;
@@ -46,27 +45,18 @@ import org.apache.catalina.realm.JAASRealm;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.security.ContextManager;
-import org.apache.geronimo.security.IdentificationPrincipal;
-import org.apache.geronimo.security.SubjectId;
-import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.jacc.PolicyContextHandlerContainerSubject;
-import org.apache.geronimo.security.util.ConfigurationUtil;
+import org.apache.geronimo.tomcat.JAASTomcatPrincipal;
 
 
 public class TomcatGeronimoRealm extends JAASRealm {
 
     private static final Log log = LogFactory.getLog(TomcatGeronimoRealm.class);
 
-    private final String policyContextID;
-    private final Subject defaultSubject;
-	private final DefaultPrincipal defaultPrincipal;
-    private final PermissionCollection checked;
-    private final PermissionCollection excluded;
-    private final Map roleDesignates;
-    private final String loginDomainName;
-
-    private Context context = null;
+//    private Context context = null;
     private static ThreadLocal currentRequest = new ThreadLocal();
+    
+    private boolean enabled = false;
 
     /**
      * Descriptive information about this <code>Realm</code> implementation.
@@ -78,30 +68,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
      */
     protected static final String name = "TomcatGeronimoRealm";
 
-    public TomcatGeronimoRealm(String policyContextID,
-                               DefaultPrincipal defaultPrincipal,
-                               String loginDomainName,
-                               PermissionCollection checkedPermissions,
-                               PermissionCollection excludedPermissions,
-                               Map roleDesignates) {
-
-        assert policyContextID != null;
-        assert defaultPrincipal != null;
-
-        this.policyContextID = policyContextID;
-        this.defaultPrincipal = defaultPrincipal;
-        this.loginDomainName = loginDomainName;
-        this.defaultSubject = ConfigurationUtil.generateDefaultSubject(defaultPrincipal);
-        this.checked = checkedPermissions;
-        this.excluded = excludedPermissions;
-        this.roleDesignates = roleDesignates;
-
-        /**
-         * Register our default subject with the ContextManager
-         */
-        ContextManager.registerSubject(defaultSubject);
-        SubjectId id = ContextManager.getSubjectId(defaultSubject);
-        defaultSubject.getPrincipals().add(new IdentificationPrincipal(id));
+    public TomcatGeronimoRealm() {
 
      }
 
@@ -208,7 +175,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
 
         //If we have no principal, then we should use the default.
         if (principal == null) {
-            ContextManager.setCurrentCaller(defaultSubject);
+            return false;
         } else {
             ContextManager.setCurrentCaller(((JAASTomcatPrincipal) principal).getSubject());
         }
@@ -239,6 +206,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
         String relativeURI = requestURI.substring(contextPath.length());
         String servletPath = relativeURI;
         String name = null;
+        Context context = request.getContext();
 
         //Try exact match
         if (!(relativeURI.equals("/")))
@@ -360,7 +328,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
             }
 
             try {
-                loginContext = new LoginContext(loginDomainName, new JAASCallbackHandler(this, username, credentials));
+                loginContext = new LoginContext(appName, new JAASCallbackHandler(this, username, credentials));
             } catch (Throwable e) {
                 log.error(sm.getString("jaasRealm.unexpectedError"), e);
                 return (null);
@@ -452,7 +420,6 @@ public class TomcatGeronimoRealm extends JAASRealm {
 
     }
 
-
     /**
      * Gracefully shut down active use of the public methods of this <code>Component</code>.
      *
@@ -464,12 +431,5 @@ public class TomcatGeronimoRealm extends JAASRealm {
         // Perform normal superclass finalization
         super.stop();
 
-        // Remove the defaultSubject
-        ContextManager.unregisterSubject(defaultSubject);
     }
-
-    public void setContext(Context context) {
-        this.context = context;
-    }
-
 }

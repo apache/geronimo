@@ -20,13 +20,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.HashSet;
-import java.util.Set;
 import javax.management.ObjectName;
-
-import org.apache.catalina.deploy.SecurityCollection;
-import org.apache.catalina.deploy.SecurityConstraint;
-
 
 /**
  * Tests the JAAS security for Tomcat
@@ -39,29 +33,7 @@ public class JAASSecurityTest extends AbstractWebModuleTest {
 
     public void testNotAuthorized() throws Exception {
 
-        Set constraints = new HashSet();
-
-        SecurityConstraint sc = new SecurityConstraint();
-        sc.setAuthConstraint(true);
-        sc.addAuthRole("content-administrator");
-        sc.addAuthRole("auto-administrator");
-        SecurityCollection coll = new SecurityCollection("Admin Role");
-        coll.addPattern("/protected/*");
-        sc.addCollection(coll);
-        constraints.add(sc);
-
-        sc = new SecurityConstraint();
-        sc.setAuthConstraint(false);
-        coll = new SecurityCollection("NO ACCESS");
-        coll.addPattern("/auth/logon.html");
-        sc.addCollection(coll);
-        constraints.add(sc);
-
-        Set securityRoles = new HashSet();
-        securityRoles.add("content-administrator");
-        securityRoles.add("auto-administrator");
-
-        startWebApp(constraints, securityRoles);
+        startWebApp();
 
         //Begin the test
         HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8080/securetest/protected/hello.txt").openConnection();
@@ -93,29 +65,7 @@ public class JAASSecurityTest extends AbstractWebModuleTest {
 
     public void testBadAuthentication() throws Exception {
 
-        Set constraints = new HashSet();
-
-        SecurityConstraint sc = new SecurityConstraint();
-        sc.setAuthConstraint(true);
-        sc.addAuthRole("content-administrator");
-        sc.addAuthRole("auto-administrator");
-        SecurityCollection coll = new SecurityCollection("Admin Role");
-        coll.addPattern("/protected/*");
-        sc.addCollection(coll);
-        constraints.add(sc);
-
-        sc = new SecurityConstraint();
-        sc.setAuthConstraint(false);
-        coll = new SecurityCollection("NO ACCESS");
-        coll.addPattern("/auth/logon.html");
-        sc.addCollection(coll);
-        constraints.add(sc);
-
-        Set securityRoles = new HashSet();
-        securityRoles.add("content-administrator");
-        securityRoles.add("auto-administrator");
-
-        startWebApp(constraints, securityRoles);
+        startWebApp();
 
         //Begin the test
         HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8080/securetest/protected/hello.txt").openConnection();
@@ -150,29 +100,7 @@ public class JAASSecurityTest extends AbstractWebModuleTest {
     }
 
     public void testGoodAuthentication() throws Exception {
-        Set constraints = new HashSet();
-
-        SecurityConstraint sc = new SecurityConstraint();
-        sc.setAuthConstraint(true);
-        sc.addAuthRole("content-administrator");
-        sc.addAuthRole("auto-administrator");
-        SecurityCollection coll = new SecurityCollection("Admin Role");
-        coll.addPattern("/protected/*");
-        sc.addCollection(coll);
-        constraints.add(sc);
-
-        sc = new SecurityConstraint();
-        sc.setAuthConstraint(false);
-        coll = new SecurityCollection("NO ACCESS");
-        coll.addPattern("/auth/logon.html");
-        sc.addCollection(coll);
-        constraints.add(sc);
-
-        Set securityRoles = new HashSet();
-        securityRoles.add("content-administrator");
-        securityRoles.add("auto-administrator");
-
-        startWebApp(constraints, securityRoles);
+         startWebApp();
 
         //Give the container some time to load the web context
         //this is wierd..it only needs to be done on this test
@@ -210,8 +138,8 @@ public class JAASSecurityTest extends AbstractWebModuleTest {
         stopWebApp();
     }
 
-    protected void startWebApp(Set securityConstraints, Set securityRoles) throws Exception {
-        appName = setUpJAASSecureAppContext(securityConstraints, securityRoles);
+    protected void startWebApp() throws Exception {
+        appName = setUpJAASSecureAppContext();
     }
 
     protected void stopWebApp() throws Exception {
@@ -219,7 +147,7 @@ public class JAASSecurityTest extends AbstractWebModuleTest {
     }
 
     protected void setUp() throws Exception {
-        super.setUp();
+        super.setUp("org.apache.geronimo.tomcat.realm.TomcatJAASRealm");
         setUpSecurity();        
    }
 

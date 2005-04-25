@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.tomcat;
+package org.apache.geronimo.tomcat.realm;
 
 import java.security.Principal;
 import javax.security.auth.Subject;
@@ -35,26 +35,25 @@ import org.apache.geronimo.security.ContextManager;
 /**
  * @version $Rev: 106522 $ $Date: 2004-11-25 01:28:57 +0100 (Thu, 25 Nov 2004) $
  */
-public class TomcatJAASRealm extends JAASRealm {
+public class TomcatJAASRealm extends JAASRealm implements Cloneable {
     private static final Log log = LogFactory.getLog(TomcatJAASRealm.class);
+    
+    private static final String DEFAULT_NAME = "tomcat";
 
     /**
      * Descriptive information about this <code>Realm</code> implementation.
      */
-    protected static final String info = "org.apache.geronimo.tomcat.TomcatJAASRealm/1.0";
+    protected static final String info = "org.apache.geronimo.tomcat.realm.TomcatJAASRealm/1.0";
 
     /**
      * Descriptive information about this <code>Realm</code> implementation.
      */
     protected static final String name = "TomcatJAASRealm";
-    private String loginDomainName = null;
 
-    public TomcatJAASRealm(String loginDomainName) {
+    public TomcatJAASRealm() {
         super();
-
-        this.loginDomainName = loginDomainName;
-
     }
+
 
     /**
      * Return the <code>Principal</code> associated with the specified
@@ -76,7 +75,7 @@ public class TomcatJAASRealm extends JAASRealm {
         try {
             LoginContext loginContext = null;
             if (appName == null)
-                appName = "Tomcat";
+                appName = DEFAULT_NAME;
 
             if (log.isDebugEnabled())
                 log.debug(sm.getString("jaasRealm.beginLogin", username, appName));
@@ -90,7 +89,7 @@ public class TomcatJAASRealm extends JAASRealm {
             }
 
             try {
-                loginContext = new LoginContext(loginDomainName, new JAASCallbackHandler(this, username, credentials));
+                loginContext = new LoginContext(appName, new JAASCallbackHandler(this, username, credentials));
             } catch (Throwable e) {
                 log.error(sm.getString("jaasRealm.unexpectedError"), e);
                 return (null);
@@ -161,4 +160,7 @@ public class TomcatJAASRealm extends JAASRealm {
         }
     }
 
+    public Object clone() throws CloneNotSupportedException{
+        return super.clone();
+    }
 }

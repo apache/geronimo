@@ -37,5 +37,8 @@ public class ApplicationTest extends AbstractWebModuleTest {
         assertEquals("Hello World", reader.readLine());
         connection.disconnect();
     }
-
+    
+    protected void setUp() throws Exception {
+        super.setUp(null);
+   }
 }

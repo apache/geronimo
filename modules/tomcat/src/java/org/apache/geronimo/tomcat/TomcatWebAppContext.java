@@ -20,41 +20,28 @@ package org.apache.geronimo.tomcat;
 import java.net.URI;
 import java.net.URL;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import javax.management.ObjectName;
+
 import org.apache.catalina.Context;
-import org.apache.catalina.Realm;
-import org.apache.catalina.core.StandardContext;
-import org.apache.catalina.deploy.LoginConfig;
-import org.apache.catalina.deploy.SecurityConstraint;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.security.deploy.Security;
-import org.apache.geronimo.security.jacc.RoleDesignateSource;
-import org.apache.geronimo.naming.reference.KernelAwareReference;
-import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
-import org.apache.geronimo.naming.java.SimpleReadOnlyContext;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.tomcat.valve.ComponentContextValve;
-import org.apache.geronimo.tomcat.valve.TransactionContextValve;
-import org.apache.geronimo.tomcat.valve.PolicyContextValve;
-import org.apache.geronimo.transaction.TrackedConnectionAssociator;
-import org.apache.geronimo.transaction.context.OnlineUserTransaction;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.J2EEApplication;
 import org.apache.geronimo.j2ee.management.J2EEServer;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
-
-import javax.management.ObjectName;
-import javax.naming.NamingException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.security.jacc.RoleDesignateSource;
+import org.apache.geronimo.tomcat.util.SecurityHolder;
+import org.apache.geronimo.transaction.TrackedConnectionAssociator;
+import org.apache.geronimo.transaction.context.OnlineUserTransaction;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
@@ -67,6 +54,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
 
     protected final TomcatContainer container;
 
+    private final ClassLoader webClassLoader;
+
     protected Context context = null;
 
     private final URI webAppRoot;
@@ -74,43 +63,42 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
     private String path = null;
 
     private String docBase = null;
-
-    private final LoginConfig loginConfig;
-
-    private final Realm tomcatRealm;
-
-    private final Set securityConstraints;
-
-    private final Set securityRoles;
+    
+    private String virtualServer = null;
 
     private final Map componentContext;
-
+    
     private final Kernel kernel;
+    
+    private final Set unshareableResources;
+    
+    private final Set applicationManagedSecurityResources;
+    
+    private final TrackedConnectionAssociator trackedConnectionAssociator;
 
     private final TransactionContextManager transactionContextManager;
 
-    private final String policyContextID;
-
     private final RoleDesignateSource roleDesignateSource;
+    
+    private final SecurityHolder securityHolder;
 
     private final J2EEServer server;
 
     private final J2EEApplication application;
 
     public TomcatWebAppContext(
+            ClassLoader classLoader,
             String objectName, 
             String originalSpecDD,
             URI webAppRoot, 
             URI[] webClassPath, 
+            boolean contextPriorityClassLoader,
             URL configurationBaseUrl,
-            LoginConfig loginConfig, 
-            Realm tomcatRealm,
-            Set securityConstraints,
-            String policyContextID, 
-            String loginDomainName,
-            Security securityConfig, 
-            Set securityRoles,
+            SecurityHolder securityHolder,
+            String virtualServer,
             Map componentContext, 
+            Set unshareableResources,
+            Set applicationManagedSecurityResources,            
             OnlineUserTransaction userTransaction,
             TransactionContextManager transactionContextManager,
             TrackedConnectionAssociator trackedConnectionAssociator,
@@ -119,8 +107,9 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
             J2EEServer server, 
             J2EEApplication application, 
             Kernel kernel)
-            throws NamingException {
+            throws Exception {
 
+        assert classLoader != null;
         assert webAppRoot != null;
         assert webClassPath != null;
         assert configurationBaseUrl != null;
@@ -133,24 +122,36 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
         this.container = container;
 
         this.setDocBase(this.webAppRoot.getPath());
-        this.tomcatRealm = tomcatRealm;
-        this.policyContextID = policyContextID;
-        this.securityConstraints = securityConstraints;
-        this.securityRoles = securityRoles;
-        this.loginConfig = loginConfig;
+        this.virtualServer = virtualServer;
+        this.securityHolder = securityHolder;
 
         this.componentContext = componentContext;
         this.transactionContextManager = transactionContextManager;
+        this.unshareableResources = unshareableResources;
+        this.applicationManagedSecurityResources = applicationManagedSecurityResources;
+        this.trackedConnectionAssociator = trackedConnectionAssociator;
 
         this.roleDesignateSource = roleDesignateSource;
         this.server = server;
         this.application = application;
+        
+        URI root = URI.create(configurationBaseUrl.toString());
+        webAppRoot = root.resolve(webAppRoot);
+        URL webAppRootURL = webAppRoot.toURL();
+        
+        URL[] urls = new URL[webClassPath.length];
+        for (int i = 0; i < webClassPath.length; i++) {
+            URI classPathEntry = webClassPath[i];
+            classPathEntry = root.resolve(classPathEntry);
+            urls[i] = classPathEntry.toURL();
+        }
+        this.webClassLoader = new TomcatClassLoader(urls, webAppRootURL, classLoader, contextPriorityClassLoader);
 
         this.kernel = kernel;
         ObjectName myObjectName = JMXUtil.getObjectName(objectName);
         verifyObjectName(myObjectName);
 
-        if (tomcatRealm != null){
+        if (securityHolder != null){
             if (roleDesignateSource == null) {
                 throw new IllegalArgumentException("RoleDesignateSource must be supplied for a secure web app");
             }            
@@ -172,77 +173,24 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
         this.docBase = docBase;
     }
 
-    public void setContextProperties() {
-        context.setDocBase(webAppRoot.getPath());
-        context.setPath(path);
+    public Map getComponentContext() {
+        return componentContext;
+    }
 
-        // Security
-        if (tomcatRealm != null) {
-            if (tomcatRealm instanceof TomcatGeronimoRealm) {
-                ((TomcatGeronimoRealm) tomcatRealm).setContext(context);
-            }
+    public String getVirtualServer() {
+        return virtualServer;
+    }
 
-            context.setRealm(tomcatRealm);
-        }
+    public ClassLoader getWebClassLoader() {
+        return webClassLoader;
+    }
 
-        if (loginConfig != null)
-            context.setLoginConfig(loginConfig);
+    public Kernel getKernel() {
+        return kernel;
+    }
 
-        // Add the security constraints
-        if (securityConstraints != null) {
-            Iterator conIterator = securityConstraints.iterator();
-            while (conIterator.hasNext()) {
-                context.addConstraint((SecurityConstraint) conIterator.next());
-            }
-        }
-
-        // Add the security roles
-        if (securityRoles != null) {
-            Iterator secIterator = securityRoles.iterator();
-            while (secIterator.hasNext()) {
-                context.addSecurityRole((String) secIterator.next());
-            }
-        }
-
-        // create ReadOnlyContext
-        javax.naming.Context enc = null;
-        try {
-            if (componentContext != null) {
-                for (Iterator iterator = componentContext.values().iterator(); iterator
-                        .hasNext();) {
-                    Object value = iterator.next();
-                    if (value instanceof KernelAwareReference) {
-                        ((KernelAwareReference) value).setKernel(kernel);
-                    }
-                    if (value instanceof ClassLoaderAwareReference) {
-                        ((ClassLoaderAwareReference) value)
-                                .setClassLoader(context.getLoader()
-                                        .getClassLoader());
-                    }
-                }
-                enc = new SimpleReadOnlyContext(componentContext);
-            }
-        } catch (NamingException ne) {
-            log.error(ne);
-        }
-
-        // Set the valves for the context
-        if (enc != null) {
-            ComponentContextValve contextValve = new ComponentContextValve(enc);
-            ((StandardContext) context).addValve(contextValve);
-        }
-
-        if (transactionContextManager != null) {
-            TransactionContextValve transactionValve = new TransactionContextValve(
-                    transactionContextManager);
-            ((StandardContext) context).addValve(transactionValve);
-        }
-
-        if (policyContextID != null) {
-            PolicyContextValve policyValve = new PolicyContextValve(
-                    policyContextID);
-            ((StandardContext) context).addValve(policyValve);
-        }
+    public TransactionContextManager getTransactionContextManager() {
+        return transactionContextManager;
     }
 
     public Context getContext() {
@@ -259,6 +207,23 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+    public SecurityHolder getSecurityHolder() {
+        return securityHolder;
+    }
+
+    
+    public Set getApplicationManagedSecurityResources() {
+        return applicationManagedSecurityResources;
+    }
+
+    public TrackedConnectionAssociator getTrackedConnectionAssociator() {
+        return trackedConnectionAssociator;
+    }
+
+    public Set getUnshareableResources() {
+        return unshareableResources;
     }
 
     /**
@@ -326,29 +291,26 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
                 "Tomcat WebApplication Context", TomcatWebAppContext.class,
                 NameFactory.WEB_MODULE);
 
+        infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
         infoBuilder.addAttribute("objectName", String.class, false);
         infoBuilder.addAttribute("deploymentDescriptor", String.class, true);
         infoBuilder.addAttribute("webAppRoot", URI.class, true);
         infoBuilder.addAttribute("webClassPath", URI[].class, true);
+        infoBuilder.addAttribute("contextPriorityClassLoader", boolean.class, true);
         infoBuilder.addAttribute("configurationBaseUrl", URL.class, true);
 
         infoBuilder.addAttribute("path", String.class, true);
 
-        infoBuilder.addAttribute("loginConfig", LoginConfig.class, true);
-
-        infoBuilder.addAttribute("tomcatRealm", Realm.class, true);
-        infoBuilder.addAttribute("securityConstraints", Set.class, true);
-
-        infoBuilder.addAttribute("policyContextID", String.class, true);
-        infoBuilder.addAttribute("loginDomainName", String.class, true);
-        infoBuilder.addAttribute("securityConfig", Security.class, true);
-        infoBuilder.addAttribute("securityRoles", Set.class, true);
+        infoBuilder.addAttribute("securityHolder", SecurityHolder.class, true);
+        infoBuilder.addAttribute("virtualServer", String.class, true);
         infoBuilder.addAttribute("componentContext", Map.class, true);
+        infoBuilder.addAttribute("unshareableResources", Set.class, true);
+        infoBuilder.addAttribute("applicationManagedSecurityResources", Set.class, true);
         infoBuilder.addAttribute("userTransaction",
                 OnlineUserTransaction.class, true);
-        infoBuilder.addReference("TransactionContextManager",
+        infoBuilder.addReference("transactionContextManager",
                 TransactionContextManager.class, NameFactory.JTA_RESOURCE);
-        infoBuilder.addReference("TrackedConnectionAssociator",
+        infoBuilder.addReference("trackedConnectionAssociator",
                 TrackedConnectionAssociator.class, NameFactory.JCA_RESOURCE);
 
         infoBuilder.addReference("Container", TomcatContainer.class,
@@ -360,22 +322,21 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
         infoBuilder.addAttribute("kernel", Kernel.class, false);
 
         infoBuilder.setConstructor(new String[] { 
+                "classLoader",
                 "objectName",
                 "deploymentDescriptor",
                 "webAppRoot", 
                 "webClassPath",
+                "contextPriorityClassLoader",
                 "configurationBaseUrl", 
-                "loginConfig", 
-                "tomcatRealm",
-                "securityConstraints", 
-                "policyContextID", 
-                "loginDomainName",
-                "securityConfig", 
-                "securityRoles", 
+                "securityHolder", 
+                "virtualServer",
                 "componentContext",
+                "unshareableResources",
+                "applicationManagedSecurityResources",
                 "userTransaction", 
-                "TransactionContextManager",
-                "TrackedConnectionAssociator", 
+                "transactionContextManager",
+                "trackedConnectionAssociator", 
                 "Container",
                 "RoleDesignateSource", 
                 "J2EEServer", 

@@ -16,13 +16,19 @@
  */
 package org.apache.geronimo.tomcat;
 
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.catalina.Context;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.tomcat.util.SecurityHolder;
+import org.apache.geronimo.transaction.TrackedConnectionAssociator;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
  * @version $Rev: 106522 $ $Date: 2004-11-25 01:28:57 +0100 (Thu, 25 Nov 2004) $
  */
 public interface TomcatContext {
-    public void setContextProperties();
 
     public String getPath();
 
@@ -31,4 +37,23 @@ public interface TomcatContext {
     public Context getContext();
 
     public String getDocBase();
+    
+    public SecurityHolder getSecurityHolder();
+    
+    public String getVirtualServer();
+    
+    public ClassLoader getWebClassLoader();
+    
+    public Map getComponentContext();
+
+    public Kernel getKernel();
+    
+    public TransactionContextManager getTransactionContextManager();
+    
+    public Set getApplicationManagedSecurityResources();
+
+    public TrackedConnectionAssociator getTrackedConnectionAssociator();
+
+    public Set getUnshareableResources();
+    
 }

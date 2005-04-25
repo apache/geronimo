@@ -16,17 +16,16 @@
  */
 package org.apache.geronimo.tomcat;
 
+import org.apache.catalina.Container;
 import org.apache.catalina.Context;
 import org.apache.catalina.Engine;
-import org.apache.catalina.Host;
 import org.apache.catalina.connector.Connector;
-import org.apache.catalina.core.StandardHost;
-import org.apache.catalina.startup.Embedded;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
@@ -47,19 +46,9 @@ public class TomcatContainer implements GBeanLifecycle {
     private static final String DEFAULT_CATALINA_HOME = "var/catalina";
 
     /**
-     * Work directory
-     */
-    private static final String WORK_DIR = "work";
-
-    /**
      * Reference to the org.apache.catalina.Embedded embedded.
      */
-    private Embedded embedded;
-
-    /**
-     * Tomcat Host that will contain deployed contexts (webapps)
-     */
-    private Host host;
+    private TomcatGeronimoEmbedded embedded;
 
     /**
      * Tomcat Engine that will contain the host
@@ -86,8 +75,14 @@ public class TomcatContainer implements GBeanLifecycle {
     /**
      * GBean constructor (invoked dynamically when the gbean is declared in a plan)
      */
-    public TomcatContainer(String catalinaHome, ServerInfo serverInfo) {
+    public TomcatContainer(String catalinaHome, ObjectRetriever engineGBean, ServerInfo serverInfo) {
         setCatalinaHome(catalinaHome);
+
+        if (engineGBean == null){
+            throw new IllegalArgumentException("engineGBean cannot be null.");
+        }
+        
+        this.engine = (Engine)engineGBean.getInternalObject();
         this.serverInfo = serverInfo;
     }
 
@@ -107,12 +102,12 @@ public class TomcatContainer implements GBeanLifecycle {
         log.debug("doStart()");
 
         log.info("Endorsed Dirs set to:" + System.getProperty("java.endorsed.dirs"));
-        
+ 
         // The comments are from the javadoc of the Embedded class
 
         // 1. Instantiate a new instance of this class.
         if (embedded == null) {
-            embedded = new Embedded();
+            embedded = new TomcatGeronimoEmbedded();
         }
 
         // Assemble FileLogger as a gbean
@@ -126,39 +121,11 @@ public class TomcatContainer implements GBeanLifecycle {
         // the default Realm if you are using container-managed security.
         embedded.setUseNaming(false);
 
-        // 3. Call createEngine() to create an Engine object, and then call its
-        // property setters as desired.
-        engine = embedded.createEngine();
-        engine.setName("tomcat.engine");
-        engine.setDefaultHost("localhost");
-
-        // Set a default realm for Geronimo, or Tomcat will use JAASRealm
-        // TomcatJAASRealm realm = new TomcatJAASRealm();
-        // realm.setUserClassNames("org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
-        // realm.setRoleClassNames("org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
-        // engine.setRealm(realm);
-
         // 4. Call createHost() to create at least one virtual Host associated
         // with the newly created Engine, and then call its property setters as
         // desired. After you customize this Host, add it to the corresponding
         // Engine with engine.addChild(host).
-        host = embedded.createHost("localhost", "");
-        // TODO: Make it the gbean's attribute or tomcatwebappcontext's one
-        ((StandardHost) host).setWorkDir(WORK_DIR);
-
-        engine.addChild(host);
-
-        // 5. Call createContext() to create at least one Context associated
-        // with each newly created Host, and then call its property setters as
-        // desired. You SHOULD create a Context with a pathname equal to a
-        // zero-length string, which will be used to process all requests not
-        // mapped to some other Context. After you customize this Context, add
-        // it to the corresponding Host with host.addChild(context).
-        // TODO: Make a default webapp configurable - another gbean?
-        defaultContext = embedded.createContext("", "");
-        defaultContext.setParentClassLoader(this.getClass().getClassLoader());
-        host.addChild(defaultContext);
-
+        
         // 6. Call addEngine() to attach this Engine to the set of defined
         // Engines for this object.
         embedded.addEngine(engine);
@@ -171,7 +138,6 @@ public class TomcatContainer implements GBeanLifecycle {
     public void doStop() throws Exception {
         if (embedded != null) {
             embedded.stop();
-            embedded.getServer().await();
             embedded = null;
         }
     }
@@ -186,15 +152,29 @@ public class TomcatContainer implements GBeanLifecycle {
      * @see org.apache.catalina.startup.Embedded
      * @see org.apache.catalina.Host
      */
-    public void addContext(TomcatContext ctx) {
+    public void addContext(TomcatContext ctx) throws Exception{
         Context anotherCtxObj = embedded.createContext(ctx.getPath(), ctx.getDocBase());
-        anotherCtxObj.setParentClassLoader(this.getClass().getClassLoader());
+        anotherCtxObj.setParentClassLoader(ctx.getWebClassLoader());
+        //anotherCtxObj.setParentClassLoader(this.getClass().getClassLoader());
 
-        // Set the context for thew Tomcat implementation
+        // Set the context for the Tomcat implementation
         ctx.setContext(anotherCtxObj);
 
-        // Have the context to set its properties
-        ctx.setContextProperties();
+        // Have the context to set its properties if its a GeronimoStandardContext
+        if (anotherCtxObj instanceof GeronimoStandardContext) 
+            ((GeronimoStandardContext)anotherCtxObj).setContextProperties(ctx);
+
+        //Was a virtual server defined?
+        String virtualServer = ctx.getVirtualServer();
+        if (virtualServer == null)
+            virtualServer = engine.getDefaultHost();
+        
+        Container host = engine.findChild(virtualServer);
+        if (host == null){
+            throw new IllegalArgumentException("Invalid virtual host '" + virtualServer +"'.  Do you have a matchiing Host entry in the plan?");
+        }
+        
+        anotherCtxObj.setRealm(host.getRealm());
 
         host.addChild(anotherCtxObj);
     }
@@ -205,9 +185,8 @@ public class TomcatContainer implements GBeanLifecycle {
         if (context != null)
             embedded.removeContext(context);
 
-        ctx.setContext(null);
     }
-
+    
     public void setCatalinaHome(String catalinaHome) {
         System.setProperty("catalina.home", catalinaHome);
     }
@@ -225,9 +204,11 @@ public class TomcatContainer implements GBeanLifecycle {
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Tomcat Web Container", TomcatContainer.class);
 
-        infoFactory.setConstructor(new String[] { "catalinaHome", "ServerInfo" });
+        infoFactory.setConstructor(new String[] { "catalinaHome", "engineGBean", "ServerInfo" });
 
         infoFactory.addAttribute("catalinaHome", String.class, true);
+
+        infoFactory.addReference("engineGBean", ObjectRetriever.class, NameFactory.GERONIMO_SERVICE);
 
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
 

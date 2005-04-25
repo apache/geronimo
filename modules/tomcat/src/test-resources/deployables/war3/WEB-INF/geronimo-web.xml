@@ -24,7 +24,7 @@
     <context-root>/test</context-root>
     <context-priority-classloader>false</context-priority-classloader>
     <sec:security>
-        <sec:default-principal realm-name="demo-properties-realm">
+        <sec:default-principal realm-name="geronimo-properties-realm">
             <sec:principal class="org.apache.geronimo.security.realm.providers.PropertiesFileUserPrincipal" name="metro"/>
         </sec:default-principal>
     </sec:security>
