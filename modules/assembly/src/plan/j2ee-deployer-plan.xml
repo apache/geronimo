@@ -133,6 +133,9 @@ Configuration for the Geronimo deployer
    - Uncomment this to deploy webapps to Apache Tomcat
    -
     <dependency>
+        <uri>geronimo/jars/geronimo-tomcat-builder-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
         <uri>geronimo/jars/geronimo-tomcat-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>
@@ -203,6 +206,7 @@ Configuration for the Geronimo deployer
     <gbean name="WebBuilder" class="org.apache.geronimo.tomcat.deployment.TomcatModuleBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Tomcat</attribute>
         <attribute name="tomcatContainerObjectName">geronimo.server:name=TomcatWebContainer,*</attribute>
+        <reference name="Repository"><gbean-name>*:name=Repository,*</gbean-name></reference>
     </gbean>
    -->
 
