@@ -31,6 +31,9 @@ by the server.
     >
 
     <dependency>
+        <uri>geronimo/jars/geronimo-tomcat-builder-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
         <uri>geronimo/jars/geronimo-tomcat-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>
@@ -91,14 +94,54 @@ by the server.
         <uri>commons-el/jars/commons-el-${commons_el_version}.jar</uri>
     </dependency>
 
-    <gbean name="TomcatWebContainer" class="org.apache.geronimo.tomcat.TomcatContainer">
-        <attribute name="catalinaHome">var/catalina</attribute>
+    <!-- JAAS Geronimo Login Configuration -->
+   <gbean name="tomcat-properties-realm"
+        class="org.apache.geronimo.security.realm.GenericSecurityRealm">
+        <attribute name="realmName">Geronimo</attribute>
+        <attribute name="loginModuleConfiguration">
+LoginModule.1.REQUIRED=geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=LoginModule,name=properties-login
+        </attribute>
         <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
     </gbean>
 
-    <gbean name="TomcatWebConnector" class="org.apache.geronimo.tomcat.connector.HTTPConnector">
-        <attribute name="port" type="int">8090</attribute>
+    <gbean name="TomcatWebContainer" class="org.apache.geronimo.tomcat.TomcatContainer">
+        <attribute name="catalinaHome">var/catalina</attribute>
+        <reference name="engineGBean"><name>TomcatEngine</name></reference>
+        <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
+    </gbean>
+
+    <gbean name="TomcatWebConnector" class="org.apache.geronimo.tomcat.ConnectorGBean">
+        <attribute name="initParams">
+            port=8090
+        </attribute>
         <reference name="TomcatContainer"><name>TomcatWebContainer</name></reference>
+    </gbean>
+
+    <gbean name="TomcatEngine" class="org.apache.geronimo.tomcat.EngineGBean">
+        <attribute name="className">org.apache.geronimo.tomcat.TomcatEngine</attribute>
+        <attribute name="initParams">
+            name=Geronimo
+            defaultHost=localhost
+        </attribute>
+        <reference name="realmGBean"><name>TomcatJAASRealm</name></reference>
+    </gbean>
+
+    <gbean name="TomcatJAASRealm" class="org.apache.geronimo.tomcat.RealmGBean">
+        <attribute name="className">org.apache.geronimo.tomcat.realm.TomcatJAASRealm</attribute>
+        <attribute name="initParams">
+            userClassNames=org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal
+            roleClassNames=org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal
+        </attribute>
+    </gbean>
+
+    <gbean name="TomcatHost" class="org.apache.geronimo.tomcat.HostGBean">
+        <attribute name="className">org.apache.catalina.core.StandardHost</attribute>
+        <attribute name="initParams">
+            name=localhost
+            appBase=
+            workDir=work
+        </attribute>
+        <reference name="engineGBean"><name>TomcatEngine</name></reference>
     </gbean>
 
 </configuration>
