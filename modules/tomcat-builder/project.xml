@@ -280,6 +280,13 @@
         </dependency>
 
         <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons_io_version}</version>
+            <url>http://jakarta.apache.org/commons/io/</url>
+        </dependency>
+
+        <dependency>
             <groupId>ant</groupId>
             <artifactId>ant</artifactId>
             <version>${ant_version}</version>

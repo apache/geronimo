@@ -18,15 +18,11 @@ package org.apache.geronimo.tomcat.deployment;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.net.URL;
-import java.nio.channels.FileChannel;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -41,6 +37,7 @@ import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.deployment.DeploymentContext;
@@ -289,76 +286,17 @@ public class TomcatModuleBuilderTest extends TestCase {
         }
     }
 
-    public void recursiveCopy(File src, File dest) throws IOException {
-
-        if (!src.exists()) {
-            return;
-        }
-
-        if (src.isDirectory()) {
-            // Create destination directory
-            dest.mkdirs();
-
-            // Go trough the contents of the directory
-            String list[] = src.list();
-            for (int i = 0; i < list.length; i++) {
-                recursiveCopy(new File(src, list[i]), new File(dest, list[i]));
-            }
-
-        } else {
-            copyFile(src, dest, -1);
-        }
-    }
-
-    public boolean copyFile(File src, File dest, long extent)
-            throws FileNotFoundException, IOException {
-        boolean result = false;
-        if (dest.exists()) {
-            dest.delete();
-        }
-        FileInputStream fis = null;
-        FileOutputStream fos = null;
-        FileChannel fcin = null;
-        FileChannel fcout = null;
-        try {
-            // Get channels
-            fis = new FileInputStream(src);
-            fos = new FileOutputStream(dest);
-            fcin = fis.getChannel();
-            fcout = fos.getChannel();
-            if (extent < 0) {
-                extent = fcin.size();
-            }
-
-            // do the file copy
-            long trans = fcin.transferTo(0, extent, fcout);
-            if (trans < extent) {
-                result = false;
-            }
-            result = true;
-        } catch (IOException e) {
-            // Add more info to the exception. Preserve old stacktrace.
-            IOException newE = new IOException("Copying "
-                    + src.getAbsolutePath() + " to " + dest.getAbsolutePath()
-                    + " with extent " + extent + " got IOE: " + e.getMessage());
-            newE.setStackTrace(e.getStackTrace());
-            throw newE;
-        } finally {
-            // finish up
-            if (fcin != null) {
-                fcin.close();
-            }
-            if (fcout != null) {
-                fcout.close();
-            }
-            if (fis != null) {
-                fis.close();
-            }
-            if (fos != null) {
-                fos.close();
+    public void recursiveCopy(File src, File dest) throws IOException {       
+        Collection files = FileUtils.listFiles(src,null,true);
+        Iterator iterator = files.iterator();
+        while(iterator.hasNext()){
+            File file = (File) iterator.next(); 
+            if (file.getAbsolutePath().indexOf(".svn") < 0){
+                String pathToFile = file.getPath();
+                String relativePath = pathToFile.substring(src.getPath().length(), pathToFile.length());
+                FileUtils.copyFileToDirectory(file,new File(dest.getPath() + relativePath));
             }
         }
-        return result;
     }
 
     protected void setUp() throws Exception {
