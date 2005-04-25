@@ -50,14 +50,17 @@ import org.apache.xmlbeans.SchemaType;
  * @version $Rev:  $ $Date:  $
  */
 public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
+    private static final String SOAP_ENCODING_NS = "http://schemas.xmlsoap.org/soap/encoding/";
     private final ClassLoader cl;
     private final Map schemaTypeKeyToSchemaTypeMap;
     private final Set wrapperElementQNames;
+    private final boolean hasEncoded;
 
-    public HeavyweightTypeInfoBuilder(ClassLoader cl, Map schemaTypeKeyToSchemaTypeMap, Set wrapperElementQNames) {
+    public HeavyweightTypeInfoBuilder(ClassLoader cl, Map schemaTypeKeyToSchemaTypeMap, Set wrapperElementQNames, boolean hasEncoded) {
         this.cl = cl;
         this.schemaTypeKeyToSchemaTypeMap = schemaTypeKeyToSchemaTypeMap;
         this.wrapperElementQNames = wrapperElementQNames;
+        this.hasEncoded = hasEncoded;
     }
 
     public List buildTypeInfo(JavaWsdlMappingType mapping) throws DeploymentException {
@@ -221,7 +224,7 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
                 } else if (SchemaParticle.ELEMENT != particle.getParticleType()) {
                     throw new DeploymentException(xmlName + " is not an element in schema " + schemaType.getName());
                 }
-                elementDesc.setNillable(particle.isNillable());
+                elementDesc.setNillable(particle.isNillable() || hasEncoded);
                 elementDesc.setXmlName(xmlName);
                 elementDesc.setXmlType(particle.getType().getName());
 

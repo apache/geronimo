@@ -325,6 +325,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
         int i = 0;
         Set wrapperElementQNames = new HashSet();
         JavaXmlTypeMappingType[] javaXmlTypeMappings = mapping.getJavaXmlTypeMappingArray();
+        boolean hasEncoded = false;
         for (Iterator ops = operations.iterator(); ops.hasNext();) {
             Operation operation = (Operation) ops.next();
             String operationName = operation.getName();
@@ -347,8 +348,9 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
             OperationInfo operationInfo = operationDescBuilder.buildOperationInfo(soapVersion);
             operationInfos[i++] = operationInfo;
             wrapperElementQNames.addAll(operationDescBuilder.getWrapperElementQNames());
+            hasEncoded |= operationDescBuilder.isEncoded();
         }
-        HeavyweightTypeInfoBuilder builder = new HeavyweightTypeInfoBuilder(classLoader, schemaInfoBuilder.getSchemaTypeKeyToSchemaTypeMap(), wrapperElementQNames);
+        HeavyweightTypeInfoBuilder builder = new HeavyweightTypeInfoBuilder(classLoader, schemaInfoBuilder.getSchemaTypeKeyToSchemaTypeMap(), wrapperElementQNames, hasEncoded);
         List typeInfo = builder.buildTypeInfo(mapping);
 
         seiFactory = createSEIFactory(serviceName, portName, enhancedServiceEndpointClass, serviceImpl, typeInfo, location, operationInfos, handlerInfos, credentialsName, context, classLoader);

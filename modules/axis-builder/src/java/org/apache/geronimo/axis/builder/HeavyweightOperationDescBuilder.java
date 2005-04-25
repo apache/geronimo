@@ -76,6 +76,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
     private final boolean rpcStyle;
     private final boolean documentStyle;
     private final boolean wrappedStyle;
+    private final boolean isEncoded;
     private final Map publicTypes = new HashMap();
     private final Map anonymousTypes = new HashMap();
 
@@ -127,12 +128,17 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
             rpcStyle = false;
             documentStyle = false;
         }
+        isEncoded = Use.getUse(soapBody.getUse()) == Use.ENCODED;
     }
 
     public Set getWrapperElementQNames() throws DeploymentException {
         buildOperationDesc();
 
         return Collections.unmodifiableSet(wrapperElementQNames);
+    }
+
+    public boolean isEncoded() {
+        return isEncoded;
     }
 
     public OperationInfo buildOperationInfo(SOAPConstants soapVersion) throws DeploymentException {
@@ -633,7 +639,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
     private QName getPartName(Part part) {
         return null == part.getElementName()? part.getTypeName() : part.getElementName();
     }
-    
+
     private Part getWrappedPart(Message message) throws DeploymentException {
         // in case of wrapped element, the message has only one part.
         Collection parts = message.getParts().values();

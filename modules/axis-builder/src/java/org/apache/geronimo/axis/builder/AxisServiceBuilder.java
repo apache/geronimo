@@ -147,7 +147,7 @@ public class AxisServiceBuilder {
         } else {
             serviceDesc.setUse(Use.ENCODED);
         }
-
+        boolean hasEncoded = serviceDesc.getUse() == Use.ENCODED;
 
         boolean isLightweight = portInfo.getServiceEndpointInterfaceMapping() == null;
 
@@ -170,11 +170,11 @@ public class AxisServiceBuilder {
             LightweightTypeInfoBuilder builder = new LightweightTypeInfoBuilder(classLoader, schemaTypeKeyToSchemaTypeMap, wrapperElementQNames);
             typeInfo = builder.buildTypeInfo(portInfo.getJavaWsdlMapping());
         } else {
-            HeavyweightTypeInfoBuilder builder = new HeavyweightTypeInfoBuilder(classLoader, schemaTypeKeyToSchemaTypeMap, wrapperElementQNames);
+            HeavyweightTypeInfoBuilder builder = new HeavyweightTypeInfoBuilder(classLoader, schemaTypeKeyToSchemaTypeMap, wrapperElementQNames, hasEncoded);
             typeInfo = builder.buildTypeInfo(portInfo.getJavaWsdlMapping());
         }
         TypeInfo.register(typeInfo, typeMapping);
-        
+
         serviceDesc.getOperations();
         return new ReadOnlyServiceDesc(serviceDesc, typeInfo);
     }
