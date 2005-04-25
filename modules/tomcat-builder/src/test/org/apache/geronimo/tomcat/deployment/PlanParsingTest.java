@@ -9,14 +9,11 @@ import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
 import org.apache.geronimo.xbeans.geronimo.tomcat.TomcatWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.tomcat.TomcatWebAppType;
-import org.apache.geronimo.j2ee.deployment.POJOWebServiceBuilder;
 
 /**
  */
 public class PlanParsingTest extends TestCase {
     ObjectName tomcatContainerObjectName = JMXUtil.getObjectName("test:type=TomcatContainer");
-    ObjectName pojoWebServiceTemplate = null;
-    POJOWebServiceBuilder pojoWebServiceBuilder = null;
     private TomcatModuleBuilder builder = new TomcatModuleBuilder(null, tomcatContainerObjectName, null, null);
     private File basedir = new File(System.getProperty("basedir", "."));
 
