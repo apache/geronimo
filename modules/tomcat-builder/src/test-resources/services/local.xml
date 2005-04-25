@@ -1,0 +1,11 @@
+<gbeans>
+    <gbean class="org.apache.geronimo.jetty.JettyContainerImpl" objectName="geronimo.web:type=WebContainer,container=Jetty">
+    </gbean>
+
+    <gbean class="org.apache.geronimo.jetty.connector.HTTPConnector" objectName="geronimo.web:type=WebConnector,container=Jetty,port=8080">
+        <default attribute="Port">5678</default>
+        <endpoint name="JettyContainer">
+            <pattern><gbean-name>geronimo.web:type=WebContainer,container=Jetty</gbean-name></pattern>
+        </endpoint>
+    </gbean>
+</gbeans>

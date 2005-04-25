@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2004 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<xs:schema
+    xmlns:tomcat="http://geronimo.apache.org/xml/ns/web/tomcat"
+    targetNamespace="http://geronimo.apache.org/xml/ns/web/tomcat"
+    xmlns:naming="http://geronimo.apache.org/xml/ns/naming"
+    xmlns:security="http://geronimo.apache.org/xml/ns/security"
+    xmlns:sys="http://geronimo.apache.org/xml/ns/deployment"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified"
+    version="1.0">
+
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/naming" schemaLocation="../../../naming-builder/src/schema/geronimo-naming.xsd"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/security" schemaLocation="../../../security-builder/src/schema/geronimo-security.xsd"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment" schemaLocation="../../../service-builder/src/schema/geronimo-config.xsd"/>
+
+
+    <xs:element name="web-app" type="tomcat:web-appType"/>
+
+    <xs:complexType name="web-appType">
+        <xs:sequence>
+            <xs:element ref="sys:dependency" minOccurs="0" maxOccurs="unbounded"/>
+
+            <xs:element name="context-root" type="xs:string" minOccurs="0"/>
+            <xs:element name="context-priority-classloader" type="xs:boolean"/>
+            <xs:element name="virtual-server" type="xs:string" minOccurs="0"/>
+
+            <xs:sequence minOccurs="0">
+                <xs:element name="security-realm-name" type="xs:string"/>
+                <xs:element ref="security:security" minOccurs="0"/>
+            </xs:sequence>
+
+            <!--xs:group ref="naming:jndiEnvironmentRefsGroup"/-->
+
+            <xs:element ref="naming:ejb-ref" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="naming:ejb-local-ref" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="naming:service-ref" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="naming:resource-ref" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="naming:resource-env-ref" minOccurs="0" maxOccurs="unbounded"/>
+
+            <xs:element ref="sys:gbean" minOccurs="0" maxOccurs="unbounded"/>
+
+        </xs:sequence>
+        <xs:attribute name="configId" type="xs:string" use="required"/>
+        <xs:attribute name="parentId" type="xs:string" use="optional"/>
+    </xs:complexType>
+
+</xs:schema>
