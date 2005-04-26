@@ -43,6 +43,7 @@ import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingType;
 import org.apache.geronimo.xbeans.j2ee.JavaXmlTypeMappingType;
 import org.apache.geronimo.xbeans.j2ee.VariableMappingType;
+import org.apache.xmlbeans.SchemaLocalAttribute;
 import org.apache.xmlbeans.SchemaParticle;
 import org.apache.xmlbeans.SchemaType;
 
@@ -150,7 +151,7 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
         }
         typeInfo.setQName(axisKey);
 
-        Map nameToType = new HashMap();
+        Map paramNameToType = new HashMap();
         if (null  == schemaType.getContentModel()) {
             ;
         } else if (SchemaParticle.SEQUENCE == schemaType.getContentModel().getParticleType()
@@ -158,17 +159,27 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
             SchemaParticle[] properties = schemaType.getContentModel().getParticleChildren();
             for (int i = 0; i < properties.length; i++) {
                 SchemaParticle parameter = properties[i];
-                nameToType.put(parameter.getName(), parameter);
+                paramNameToType.put(parameter.getName(), parameter);
             }
         } else if (SchemaParticle.ELEMENT == schemaType.getContentModel().getParticleType()) {
             SchemaParticle parameter = schemaType.getContentModel();
-            nameToType.put(parameter.getName(), parameter);
+            paramNameToType.put(parameter.getName(), parameter);
         } else {
             throw new DeploymentException("Only element, sequence, and all particle types are supported." +
                     " SchemaType name =" + schemaType.getName());
         }
 
+        Map attNameToType = new HashMap();
+        if (null != schemaType.getAttributeModel()) {
+            SchemaLocalAttribute[] attributes = schemaType.getAttributeModel().getAttributes();
+            for (int i = 0; i < attributes.length; i++) {
+                SchemaLocalAttribute attribute = attributes[i];
+                attNameToType.put(attribute.getName(), attribute);
+            }
+        }
+        
         VariableMappingType[] variableMappings = javaXmlTypeMapping.getVariableMappingArray();
+        
         FieldDesc[] fields = new FieldDesc[variableMappings.length];
         typeInfo.setFields(fields);
 
@@ -196,9 +207,17 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
                 }
                 QName xmlName = new QName("", variableMapping.getXmlAttributeName().getStringValue().trim());
                 attributeDesc.setXmlName(xmlName);
-                // TODO retrieve the type of the attribute.
-                QName xmlType = schemaType.getName();
-                attributeDesc.setXmlType(xmlType);
+                
+                SchemaLocalAttribute attribute = (SchemaLocalAttribute) attNameToType.get(xmlName);
+                if (null == attribute) {
+                    xmlName = new QName(ns, variableMapping.getXmlAttributeName().getStringValue().trim());
+                    attribute = (SchemaLocalAttribute) attNameToType.get(xmlName);
+                    if (null == attribute) {
+                        throw new DeploymentException("attribute " + xmlName + " not found in schema " + schemaType.getName());
+                    }
+                }
+                attributeDesc.setXmlType(attribute.getType().getName());
+
                 fields[i] = attributeDesc;
             } else {
                 ElementDesc elementDesc = new ElementDesc();
@@ -214,10 +233,10 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
                     }
                 }
                 QName xmlName = new QName("", variableMapping.getXmlElementName().getStringValue().trim());
-                SchemaParticle particle = (SchemaParticle) nameToType.get(xmlName);
+                SchemaParticle particle = (SchemaParticle) paramNameToType.get(xmlName);
                 if (null == particle) {
                     xmlName = new QName(ns, variableMapping.getXmlElementName().getStringValue().trim());
-                    particle = (SchemaParticle) nameToType.get(xmlName);
+                    particle = (SchemaParticle) paramNameToType.get(xmlName);
                     if (null == particle) {
                         throw new DeploymentException("element " + xmlName + " not found in schema " + schemaType.getName());
                     }
