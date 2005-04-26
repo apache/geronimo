@@ -89,9 +89,7 @@
 
 
 Interop :: idlj :: ${idlFile}</echo>
-                <exec dir="${basedir}" executable="idlj" failonerror='true'>
-                    <arg value="-td"/>
-                    <arg file="${maven.idl.target}"/>
+                <exec dir="${maven.idl.target}" executable="idlj" failonerror='true'>
                     <arg value="-i"/>
                     <arg file="${java.home}/lib"/>
                     <arg value="-i"/>
