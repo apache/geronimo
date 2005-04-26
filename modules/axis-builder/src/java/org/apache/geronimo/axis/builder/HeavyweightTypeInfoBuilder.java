@@ -245,7 +245,19 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
                 }
                 elementDesc.setNillable(particle.isNillable() || hasEncoded);
                 elementDesc.setXmlName(xmlName);
-                elementDesc.setXmlType(particle.getType().getName());
+                if (null != particle.getType().getName()) {
+                    elementDesc.setXmlType(particle.getType().getName());
+                } else {
+                    QName anonymousName;
+                    if (key.isAnonymous()) {
+                        anonymousName = new QName(key.getqName().getNamespaceURI(), key.getqName().getLocalPart() +
+                                ">" + particle.getName().getLocalPart());
+                    } else {
+                        anonymousName = new QName(key.getqName().getNamespaceURI(),
+                                ">" + key.getqName().getLocalPart() + ">" + particle.getName().getLocalPart());
+                    }
+                    elementDesc.setXmlType(anonymousName);
+                }
 
                 if (javaType.isArray()) {
                     elementDesc.setMinOccurs(particle.getIntMinOccurs());
