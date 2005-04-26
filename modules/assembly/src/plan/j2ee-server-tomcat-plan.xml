@@ -117,6 +117,33 @@ LoginModule.1.REQUIRED=geronimo.server:J2EEApplication=null,J2EEModule=org/apach
         <reference name="TomcatContainer"><name>TomcatWebContainer</name></reference>
     </gbean>
 
+    <!-- Uncomment for SSL support
+    The following parameters assume your keystore resides in your ~/.keystore file and the keystore password is the default
+    "changeit".  To change these values (and is recommended), add the following parameters to the initParams list below:
+    
+    keystoreFile=path_to_your_keystore
+    keystorePass=your_keystore_password
+
+    For more information on the specific parameters, see http://jakarta.apache.org/tomcat/tomcat-5.5-doc/ssl-howto.html
+
+    <gbean name="TomcatWebSSLConnector" class="org.apache.geronimo.tomcat.ConnectorGBean">
+        <attribute name="initParams">
+            port=8443
+            minProcessors=5
+            maxProcessors=75
+            enableLookups=true
+            disableUploadTimeout=true
+            acceptCount=100
+            debug=0
+            scheme=https
+            secure=true
+            clientAuth=false
+            sslProtocol=TLS
+        </attribute>
+        <reference name="TomcatContainer"><name>TomcatWebContainer</name></reference>
+    </gbean>
+    -->
+
     <gbean name="TomcatEngine" class="org.apache.geronimo.tomcat.EngineGBean">
         <attribute name="className">org.apache.geronimo.tomcat.TomcatEngine</attribute>
         <attribute name="initParams">
