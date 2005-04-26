@@ -35,6 +35,7 @@ import javax.wsdl.BindingOperation;
 import javax.wsdl.Fault;
 import javax.wsdl.Message;
 import javax.wsdl.Part;
+import javax.wsdl.OperationType;
 import javax.wsdl.extensions.soap.SOAPBody;
 import javax.xml.namespace.QName;
 
@@ -44,6 +45,7 @@ import org.apache.axis.description.FaultDesc;
 import org.apache.axis.description.OperationDesc;
 import org.apache.axis.description.ParameterDesc;
 import org.apache.axis.soap.SOAPConstants;
+import org.apache.axis.encoding.XMLType;
 import org.apache.geronimo.axis.client.OperationInfo;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.kernel.ClassLoading;
@@ -263,6 +265,12 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
         // MAP RETURN TYPE
         if (methodMapping.isSetWsdlReturnValueMapping()) {
             mapReturnType();
+        } else if (operation.getStyle() == OperationType.REQUEST_RESPONSE) {
+            //TODO WARNING THIS APPEARS TO SUBVERT THE COMMENT IN j2ee_jaxrpc_mapping_1_1.xsd IN service-endpoint-method-mappingType:
+            //The wsdl-return-value-mapping is not specified for one-way operations.
+            operationDesc.setReturnQName(null);             //??
+            operationDesc.setReturnType(XMLType.AXIS_VOID);
+            operationDesc.setReturnClass(void.class);
         }
 
         if (null != output && wrappedStyle) {
