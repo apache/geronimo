@@ -63,6 +63,11 @@ public class TomcatContainer implements GBeanLifecycle {
     private Context defaultContext;
 
     /**
+     * Geronimo class loader
+     **/
+    private ClassLoader classLoader;
+
+    /**
      * Used only to resolve the paths
      */
     private ServerInfo serverInfo;
@@ -75,12 +80,18 @@ public class TomcatContainer implements GBeanLifecycle {
     /**
      * GBean constructor (invoked dynamically when the gbean is declared in a plan)
      */
-    public TomcatContainer(String catalinaHome, ObjectRetriever engineGBean, ServerInfo serverInfo) {
+    public TomcatContainer(ClassLoader classLoader, String catalinaHome, ObjectRetriever engineGBean, ServerInfo serverInfo) {
         setCatalinaHome(catalinaHome);
+
+        if (classLoader == null){
+            throw new IllegalArgumentException("classLoader cannot be null.");
+        }
 
         if (engineGBean == null){
             throw new IllegalArgumentException("engineGBean cannot be null.");
         }
+
+        this.classLoader = classLoader;
         
         this.engine = (Engine)engineGBean.getInternalObject();
         this.serverInfo = serverInfo;
@@ -121,10 +132,13 @@ public class TomcatContainer implements GBeanLifecycle {
         // the default Realm if you are using container-managed security.
         embedded.setUseNaming(false);
 
-        // 4. Call createHost() to create at least one virtual Host associated
-        // with the newly created Engine, and then call its property setters as
-        // desired. After you customize this Host, add it to the corresponding
-        // Engine with engine.addChild(host).
+        //Add default contexts
+        Container[] hosts = engine.findChildren();
+        for(int i = 0; i < hosts.length; i++){
+            Context defaultContext = embedded.createContext("","");
+            defaultContext.setParentClassLoader(classLoader);
+            hosts[i].addChild(defaultContext);
+        }
         
         // 6. Call addEngine() to attach this Engine to the set of defined
         // Engines for this object.
@@ -204,7 +218,9 @@ public class TomcatContainer implements GBeanLifecycle {
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Tomcat Web Container", TomcatContainer.class);
 
-        infoFactory.setConstructor(new String[] { "catalinaHome", "engineGBean", "ServerInfo" });
+        infoFactory.setConstructor(new String[] { "classLoader", "catalinaHome", "engineGBean", "ServerInfo" });
+
+        infoFactory.addAttribute("classLoader", ClassLoader.class, false);
 
         infoFactory.addAttribute("catalinaHome", String.class, true);
 

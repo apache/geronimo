@@ -321,6 +321,7 @@ public class AbstractWebModuleTest extends TestCase {
 
         // Need to override the constructor for unit tests
         container = new GBeanData(containerName, TomcatContainer.GBEAN_INFO);
+        container.setAttribute("classLoader", cl);
         container.setAttribute("catalinaHome", "target/var/catalina");
         container.setReferencePattern("engineGBean", engineName);
         container.setReferencePattern("ServerInfo", serverInfoName);

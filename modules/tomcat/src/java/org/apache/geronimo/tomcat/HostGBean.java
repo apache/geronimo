@@ -18,9 +18,11 @@ package org.apache.geronimo.tomcat;
 
 import java.util.Map;
 
+import org.apache.catalina.Context;
 import org.apache.catalina.Engine;
 import org.apache.catalina.Host;
 import org.apache.catalina.Realm;
+import org.apache.catalina.core.StandardContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -49,6 +51,7 @@ public class HostGBean extends BaseGBean implements GBeanLifecycle, ObjectRetrie
         setParameters(host, initParams);
         
         Engine engine = ((Engine)engineGBean.getInternalObject());
+
         if (realmGBean != null)
             host.setRealm((Realm)realmGBean.getInternalObject());
         else

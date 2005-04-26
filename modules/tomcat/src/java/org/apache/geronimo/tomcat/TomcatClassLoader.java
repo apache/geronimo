@@ -53,6 +53,7 @@ public class TomcatClassLoader extends URLClassLoader {
                name.startsWith("java.") ||
                name.startsWith("javax.") ||
                name.startsWith("org.apache.geronimo.") ||
+               name.startsWith("org.apache.jasper.") ||
                name.startsWith("org.apache.tomcat.") ||
                name.startsWith("org.apache.naming.") ||
                name.startsWith("org.apache.catalina.") ||
@@ -95,6 +96,7 @@ public class TomcatClassLoader extends URLClassLoader {
                    name.startsWith("java/") ||
                    name.startsWith("javax/") ||
                    name.startsWith("org/apache/geronimo/") ||
+                   name.startsWith("org/apache/jasper") ||
                    name.startsWith("org/apache/tomcat") ||
                    name.startsWith("org/apache/naming") ||
                    name.startsWith("org/apache/catalina") ||
