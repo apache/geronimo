@@ -390,6 +390,7 @@ public class TomcatModuleBuilderTest extends TestCase {
         start(host);
 
         container = new GBeanData(containerName, TomcatContainer.GBEAN_INFO);
+        container.setAttribute("classLoader", cl);
         container.setAttribute("catalinaHome", "target/var/catalina");
         container.setReferencePattern("engineGBean", engineName);
         container.setReferencePattern("ServerInfo", serverInfoName);
