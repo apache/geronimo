@@ -85,7 +85,7 @@ public class ServiceEndpointMethodInterceptor implements MethodInterceptor {
         }
         Object response = null;
         List parameterDescs = operationInfo.getOperationDesc().getParameters();
-        Object[] unwrapped = extractFromHolders(objects, parameterDescs);
+        Object[] unwrapped = extractFromHolders(objects, parameterDescs, operationInfo.getOperationDesc().getNumInParams());
         try {
             response = call.invoke(unwrapped);
         } catch (RemoteException e) {
@@ -108,19 +108,20 @@ public class ServiceEndpointMethodInterceptor implements MethodInterceptor {
         }
     }
 
-    private Object[] extractFromHolders(Object[] objects, List parameterDescs) throws JavaUtils.HolderException {
+    private Object[] extractFromHolders(Object[] objects, List parameterDescs, int inParameterCount) throws JavaUtils.HolderException {
         if (objects.length != parameterDescs.size()) {
             throw new IllegalArgumentException("Mismatch parameter count: expected: " + parameterDescs.size() + ", actual: " + objects.length);
         }
-        Object[] unwrapped = new Object[objects.length];
+        Object[] unwrapped = new Object[inParameterCount];
+        int j = 0;
         for (int i = 0; objects != null && i < objects.length; i++) {
             Object parameter = objects[i];
             ParameterDesc parameterDesc = (ParameterDesc) parameterDescs.get(i);
 
             if (parameterDesc.getMode() == ParameterDesc.INOUT) {
-                unwrapped[i] = JavaUtils.getHolderValue((Holder) parameter);
+                unwrapped[j++] = JavaUtils.getHolderValue((Holder) parameter);
             } else if (parameterDesc.getMode() == ParameterDesc.IN) {
-                unwrapped[i] = parameter;
+                unwrapped[j++] = parameter;
             }
         }
         return unwrapped;
