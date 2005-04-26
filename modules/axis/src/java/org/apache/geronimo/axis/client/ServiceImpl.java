@@ -31,9 +31,15 @@ import javax.xml.rpc.encoding.TypeMappingRegistry;
 import javax.xml.rpc.handler.HandlerRegistry;
 
 import org.apache.axis.EngineConfiguration;
+import org.apache.axis.SimpleTargetedChain;
+import org.apache.axis.transport.http.HTTPSender;
+import org.apache.axis.constants.Use;
+import org.apache.axis.encoding.TypeMappingRegistryImpl;
+import org.apache.axis.encoding.TypeMapping;
 import org.apache.axis.client.AxisClient;
 import org.apache.axis.client.Service;
 import org.apache.axis.configuration.FileProvider;
+import org.apache.axis.configuration.SimpleProvider;
 
 
 /**
@@ -44,7 +50,7 @@ public class ServiceImpl implements javax.xml.rpc.Service, Serializable {
     private transient Service delegate;
     private final Map seiClassNameToFactoryMap;
     private final Map portToImplementationMap;
-    
+
     public ServiceImpl(Map portToImplementationMap, Map seiClassNameToFactoryMap) {
         this.portToImplementationMap = portToImplementationMap;
         this.seiClassNameToFactoryMap = seiClassNameToFactoryMap;
@@ -52,14 +58,15 @@ public class ServiceImpl implements javax.xml.rpc.Service, Serializable {
     }
 
     private void buildDelegateService() {
-        delegate = new Service();
+        TypeMappingRegistryImpl typeMappingRegistry = new TypeMappingRegistryImpl();
+        typeMappingRegistry.doRegisterFromVersion("1.3");
 
-        EngineConfiguration engineConfiguration = delegate.getEngine().getConfig();
-        //there must be a better way
-        ((FileProvider)engineConfiguration).setInputStream(AxisClient.class.getResourceAsStream("client-config.wsdd"));
+        SimpleProvider engineConfiguration = new SimpleProvider(typeMappingRegistry);
+        engineConfiguration.deployTransport("http", new SimpleTargetedChain(new HTTPSender()));
+
         GeronimoAxisClient engine = new GeronimoAxisClient(engineConfiguration, portToImplementationMap);
-        delegate.setEngine(engine);
-        delegate.setEngineConfiguration(engineConfiguration);
+
+        delegate = new Service(engineConfiguration, engine);
     }
 
     public Remote getPort(QName qName, Class portClass) throws ServiceException {
@@ -78,15 +85,15 @@ public class ServiceImpl implements javax.xml.rpc.Service, Serializable {
     }
 
     public Call[] getCalls(QName portName) throws ServiceException {
-        
+
         if (portName == null)
             throw new ServiceException("Portname cannot be null");
-        
+
         SEIFactory factory = (SEIFactory) portToImplementationMap.get(portName.getLocalPart());
         if( factory == null )
             throw new ServiceException("No port for portname: " + portName);
 
-        OperationInfo[] operationInfos = factory.getOperationInfos();        
+        OperationInfo[] operationInfos = factory.getOperationInfos();
         javax.xml.rpc.Call[] array = new javax.xml.rpc.Call[operationInfos.length];
         for (int i = 0; i < operationInfos.length; i++) {
             OperationInfo operation = operationInfos[i];
@@ -115,7 +122,7 @@ public class ServiceImpl implements javax.xml.rpc.Service, Serializable {
         Iterator iterator = portToImplementationMap.values().iterator();
         if( !iterator.hasNext() )
             return null;
-        SEIFactory factory = (SEIFactory)iterator.next();        
+        SEIFactory factory = (SEIFactory)iterator.next();
         return factory.getServiceName();
     }
 
@@ -127,7 +134,7 @@ public class ServiceImpl implements javax.xml.rpc.Service, Serializable {
         Iterator iterator = portToImplementationMap.values().iterator();
         if( !iterator.hasNext() )
             return null;
-        SEIFactory factory = (SEIFactory)iterator.next();        
+        SEIFactory factory = (SEIFactory)iterator.next();
         return factory.getWSDLDocumentLocation();
     }
 

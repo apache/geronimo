@@ -302,17 +302,6 @@
             </properties>
         </dependency>
 
-        <!--
-<dependency>
-<groupId>geronimo</groupId>
-<artifactId>geronimo-remoting</artifactId>
-<version>${pom.currentVersion}</version>
-<properties>
-<repository>true</repository>
-</properties>
-</dependency>
-        -->
-
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-security</artifactId>
@@ -1023,38 +1012,10 @@
             </properties>
         </dependency>
 
-<!--
-        <dependency>
-            <groupId>axis</groupId>
-            <artifactId>axis-jaxrpc</artifactId>
-            <version>${axis_jaxrpc_version}</version>
-            <properties>
-                <repository>true</repository>
-            </properties>
-        </dependency>
--->
-        <dependency>
-            <groupId>axis</groupId>
-            <artifactId>axis-saaj</artifactId>
-            <version>${axis_saaj_version}</version>
-            <properties>
-                <repository>true</repository>
-            </properties>
-        </dependency>
-
         <dependency>
             <groupId>axis</groupId>
             <artifactId>commons-discovery</artifactId>
             <version>${axis_commons_discovery_version}</version>
-            <properties>
-                <repository>true</repository>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>ews</groupId>
-            <artifactId>ews</artifactId>
-            <version>${ews_version}</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -1105,7 +1066,7 @@
             </properties>
         </dependency>
 
-        <!--corba support -->
+<!--        corba support -->
         <dependency>
             <groupId>tmporb</groupId>
             <artifactId>tmporb-orb</artifactId>
