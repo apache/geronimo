@@ -32,7 +32,7 @@ by the server.
 
     <!-- Security GBeans -->
 
-    <gbean gbeanName="geronimo.security:type=LoginModule,name=demo-properties-login"
+    <gbean name="demo-properties-login"
         class="org.apache.geronimo.security.jaas.LoginModuleGBean">
         <attribute name="loginModuleClass">org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule</attribute>
         <attribute name="serverSide">true</attribute>
@@ -43,7 +43,7 @@ by the server.
         <attribute name="loginDomainName">demo-properties-realm</attribute>
     </gbean>
 
-    <gbean gbeanName="geronimo.security:type=SecurityRealm,name=demo-properties-realm"
+    <gbean name="demo-properties-realm"
         class="org.apache.geronimo.security.realm.GenericSecurityRealm">
         <attribute name="realmName">demo-properties-realm</attribute>
         <attribute name="loginModuleConfiguration">
@@ -52,7 +52,7 @@ by the server.
         <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
     </gbean>
 
-    <gbean gbeanName="geronimo.security:type=ConfigurationEntry,jaasId=jaasTest"
+    <gbean name="jaasTest"
         class="org.apache.geronimo.security.jaas.ServerRealmConfigurationEntry">
         <attribute name="applicationConfigName">jaasTest</attribute>
         <attribute name="realmName">demo-properties-realm</attribute>

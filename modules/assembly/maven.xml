@@ -258,7 +258,7 @@
         <ant:jvmarg value="-Djava.compiler=NONE"/>
         <ant:jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"/>
         -->
-        
+
         <!-- build the J2EEServer configuration -->
         <ant:echo>Building server configuration</ant:echo>
         <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
@@ -420,12 +420,16 @@
             <ant:copy todir="${distDir}/var/catalina/conf" file="${project.root}/modules/tomcat/src/var/web.xml"/>
 
             <!-- build the Demo configuration -->
-            <!--        <ant:echo>Building demo website configuration</ant:echo>-->
-            <!--        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">-->
-            <!--            <ant:jvmarg value="-ea"/>-->
-            <!--            <ant:arg value="distribute"/>-->
-            <!--            <ant:arg value="${maven.repo.local}/geronimo/wars/geronimo-demo-${pom.currentVersion}.war"/>-->
-            <!--        </ant:java>-->
+            <ant:echo>Building demo website configuration</ant:echo>
+            <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
+                <ant:jvmarg value="-ea"/>
+                <ant:arg value="--user"/>
+                <ant:arg value="system"/>
+                <ant:arg value="--password"/>
+                <ant:arg value="manager"/>
+                <ant:arg value="distribute"/>
+                <ant:arg value="${maven.repo.local}/geronimo/wars/geronimo-demo-${pom.currentVersion}.war"/>
+            </ant:java>
 
             <!-- build the Debug Tool configuration "org/apache/geronimo/DebugConsole"-->
             <ant:echo>Building debug tool configuration</ant:echo>
