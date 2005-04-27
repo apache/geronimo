@@ -45,7 +45,6 @@ import javax.xml.namespace.QName;
 import org.apache.axis.constants.Style;
 import org.apache.axis.constants.Use;
 import org.apache.axis.description.JavaServiceDesc;
-import org.apache.axis.description.OperationDesc;
 import org.apache.axis.encoding.TypeMapping;
 import org.apache.axis.encoding.TypeMappingRegistryImpl;
 import org.apache.geronimo.axis.client.TypeInfo;
@@ -205,14 +204,7 @@ public class AxisServiceBuilder {
                 wrappedElementQNames.addAll(wrappedElementQNamesForOper);
             }
 
-            // TODO fix Axis: a JavaServiceDesc can be document or rpc and
-            // still define a WSDL operation using a wrapper style mapping.
-            // when fixed, the three following lines should be removed.
-            OperationDesc operationDesc =  operationDescBuilder.buildOperationDesc();
-            if (Style.WRAPPED == operationDesc.getStyle()) {
-                serviceDesc.setStyle(Style.WRAPPED);
-            }
-            serviceDesc.addOperationDesc(operationDesc);
+            serviceDesc.addOperationDesc(operationDescBuilder.buildOperationDesc());
         }
 
         return wrappedElementQNames;
