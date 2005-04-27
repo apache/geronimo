@@ -152,7 +152,7 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
         typeInfo.setQName(axisKey);
 
         Map paramNameToType = new HashMap();
-        if (null  == schemaType.getContentModel()) {
+        if (null == schemaType.getContentModel()) {
             ;
         } else if (SchemaParticle.SEQUENCE == schemaType.getContentModel().getParticleType()
                 || SchemaParticle.ALL == schemaType.getContentModel().getParticleType()) {
@@ -174,12 +174,15 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
             SchemaLocalAttribute[] attributes = schemaType.getAttributeModel().getAttributes();
             for (int i = 0; i < attributes.length; i++) {
                 SchemaLocalAttribute attribute = attributes[i];
-                attNameToType.put(attribute.getName(), attribute);
+                Object old = attNameToType.put(attribute.getName().getLocalPart(), attribute);
+                if (old != null) {
+                    throw new DeploymentException("Complain to your expert group member, spec does not support attributes with the same local name and differing namespaces: original: " + old + ", duplicate local name: " + attribute);
+                }
             }
         }
-        
+
         VariableMappingType[] variableMappings = javaXmlTypeMapping.getVariableMappingArray();
-        
+
         FieldDesc[] fields = new FieldDesc[variableMappings.length];
         typeInfo.setFields(fields);
 
@@ -205,16 +208,13 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
                 if (javaType == null) {
                     throw new DeploymentException("field name " + fieldName + " not found in " + properties);
                 }
-                QName xmlName = new QName("", variableMapping.getXmlAttributeName().getStringValue().trim());
+                String attributeLocalName = variableMapping.getXmlAttributeName().getStringValue().trim();
+                QName xmlName = new QName("", attributeLocalName);
                 attributeDesc.setXmlName(xmlName);
-                
-                SchemaLocalAttribute attribute = (SchemaLocalAttribute) attNameToType.get(xmlName);
+
+                SchemaLocalAttribute attribute = (SchemaLocalAttribute) attNameToType.get(attributeLocalName);
                 if (null == attribute) {
-                    xmlName = new QName(ns, variableMapping.getXmlAttributeName().getStringValue().trim());
-                    attribute = (SchemaLocalAttribute) attNameToType.get(xmlName);
-                    if (null == attribute) {
-                        throw new DeploymentException("attribute " + xmlName + " not found in schema " + schemaType.getName());
-                    }
+                    throw new DeploymentException("attribute " + xmlName + " not found in schema " + schemaType.getName());
                 }
                 attributeDesc.setXmlType(attribute.getType().getName());
 
