@@ -148,7 +148,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
 
         String soapActionURI = soapOperation.getSoapActionURI();
         boolean usesSOAPAction = (soapActionURI != null);
-        QName operationQName = new QName("", operation.getName());
+        QName operationQName = getOperationQName();
 
         String methodName = methodMapping.getJavaMethodName().getStringValue().trim();
 
@@ -164,6 +164,20 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
         String methodDesc = Type.getMethodDescriptor(returnASMType, parameterASMTypes);
         OperationInfo operationInfo = new OperationInfo(operationDesc, usesSOAPAction, soapActionURI, soapVersion, operationQName, methodName, methodDesc);
         return operationInfo;
+    }
+
+    private QName getOperationQName() {
+        if (wrappedStyle) {
+            Map parts = operation.getInput().getMessage().getParts();
+            if (parts != null && !parts.isEmpty()) {
+                for (Iterator iterator = parts.values().iterator(); iterator.hasNext();) {
+                    Part part = (Part) iterator.next();
+                    return part.getElementName();
+                }
+            }
+        }
+        return getOperationNameFromSOAPBody();
+
     }
 
     public OperationDesc buildOperationDesc() throws DeploymentException {
@@ -645,7 +659,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
     }
 
     private QName getPartName(Part part) {
-        return null == part.getElementName()? part.getTypeName() : part.getElementName();
+        return null == part.getElementName() ? part.getTypeName() : part.getElementName();
     }
 
     private Part getWrappedPart(Message message) throws DeploymentException {

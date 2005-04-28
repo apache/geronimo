@@ -57,7 +57,7 @@ public class LightweightOperationDescBuilder extends OperationDescBuilder {
         buildOperationDesc();
         String soapActionURI = soapOperation.getSoapActionURI();
         boolean usesSOAPAction = (soapActionURI != null);
-        QName operationQName = new QName("", operation.getName());
+        QName operationQName = getOperationNameFromSOAPBody();
 
         String methodName = method.getName();
         String methodDesc = Type.getMethodDescriptor(method);
@@ -75,7 +75,7 @@ public class LightweightOperationDescBuilder extends OperationDescBuilder {
         built = true;
 
         operationDesc.setMethod(method);
-        
+
         //section 7.3.2, we don't have to look at parameter ordering.
         //unless it turns out we have to validate it.
 //        List order = operation.getParameterOrdering();

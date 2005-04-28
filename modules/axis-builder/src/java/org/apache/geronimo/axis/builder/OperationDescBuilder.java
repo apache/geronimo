@@ -16,10 +16,16 @@
  */
 package org.apache.geronimo.axis.builder;
 
+import java.util.Iterator;
+import java.util.List;
 import javax.wsdl.BindingOperation;
 import javax.wsdl.Operation;
 import javax.wsdl.Message;
+import javax.wsdl.BindingInput;
 import javax.wsdl.extensions.soap.SOAPOperation;
+import javax.wsdl.extensions.ExtensibilityElement;
+import javax.xml.namespace.QName;
+import javax.xml.soap.SOAPBody;
 
 import org.apache.geronimo.axis.client.OperationInfo;
 import org.apache.geronimo.common.DeploymentException;
@@ -50,4 +56,17 @@ public abstract class OperationDescBuilder {
     public abstract OperationInfo buildOperationInfo(SOAPConstants soapVersion) throws DeploymentException;
 
     public abstract OperationDesc buildOperationDesc() throws DeploymentException;
+
+    protected QName getOperationNameFromSOAPBody() {
+        BindingInput bindingInput = bindingOperation.getBindingInput();
+        List extensibilityElements = bindingInput.getExtensibilityElements();
+        for (Iterator iterator = extensibilityElements.iterator(); iterator.hasNext();) {
+            ExtensibilityElement extensibilityElement = (ExtensibilityElement) iterator.next();
+            if (SOAPBody.class.isAssignableFrom(extensibilityElement.getClass())) {
+                String namespaceURI = ((SOAPBody)extensibilityElement).getNamespaceURI();
+                return new QName(namespaceURI, operationName);
+            }
+        }
+        return new QName("", operationName);
+    }
 }
