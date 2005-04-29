@@ -99,7 +99,7 @@ public class JettyPOJOWebServiceHolder extends ServletHolder implements GBeanLif
         //  TODO There has to be some way to get this in on the Servlet's init method.
 //        request.setAttribute(POJOWebServiceServlet.WEBSERVICE_CONTAINER, webServiceContainer);
 
-        JettyServletHolder.currentServletHolder.set(this);
+        JettyServletHolder.setCurrentServletName(getServletName());
         PolicyContext.setHandlerData(ServletHttpRequest.unwrap(request));
 
         super.handle(request, response);

@@ -44,7 +44,7 @@ import org.mortbay.jetty.servlet.ServletHttpRequest;
  * @see org.apache.geronimo.jetty.JAASJettyRealm#isUserInRole(java.security.Principal, java.lang.String)
  */
 public class JettyServletHolder extends ServletHolder {
-    static final ThreadLocal currentServletHolder = new ThreadLocal();
+    private static final ThreadLocal currentServletName = new ThreadLocal();
 
     //todo consider interface instead of this constructor for endpoint use.
     public JettyServletHolder() {
@@ -87,7 +87,7 @@ public class JettyServletHolder extends ServletHolder {
     public void handle(ServletRequest request, ServletResponse response)
             throws ServletException, UnavailableException, IOException {
 
-        currentServletHolder.set(this);
+        setCurrentServletName(getServletName());
 
         super.handle(request, response);
     }
@@ -98,8 +98,12 @@ public class JettyServletHolder extends ServletHolder {
      * @return the thread's current JettyServletHolder
      * @see org.apache.geronimo.jetty.JAASJettyRealm#isUserInRole(java.security.Principal, java.lang.String)
      */
-    static JettyServletHolder getJettyServletHolder() {
-        return (JettyServletHolder) currentServletHolder.get();
+    static String getCurrentServletName() {
+        return (String) currentServletName.get();
+    }
+
+    static void setCurrentServletName(String servletName) {
+        currentServletName.set(servletName);
     }
 
     public static final GBeanInfo GBEAN_INFO;
@@ -108,7 +112,7 @@ public class JettyServletHolder extends ServletHolder {
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(JettyServletHolder.class, NameFactory.DEFAULT_SERVLET);
         //todo replace with interface
         infoBuilder.addInterface(ServletHolder.class);
-        
+
         infoBuilder.addAttribute("servletName", String.class, true);
         infoBuilder.addAttribute("servletClass", String.class, true);
         infoBuilder.addAttribute("jspFile", String.class, true);
@@ -121,8 +125,8 @@ public class JettyServletHolder extends ServletHolder {
         infoBuilder.setConstructor(new String[] {"servletName",
                                                  "servletClass",
                                                  "jspFile",
-                                                 "initParams", 
-                                                 "loadOnStartup", 
+                                                 "initParams",
+                                                 "loadOnStartup",
                                                  "servletMappings",
                                                  "webRoleRefPermissions",
                                                  "JettyServletRegistration"});
