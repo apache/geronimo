@@ -54,14 +54,22 @@ public class LoginKerberosTest extends AbstractTest {
         gbean.setAttribute("options", props);
         kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
 
+        ObjectName testUseName = new ObjectName("geronimo.security:type=LoginModuleUse,name=TOOLAZYDOGS.COM");
+        gbean = new GBeanData(testUseName, JaasLoginModuleUse.getGBeanInfo());
+        gbean.setAttribute("controlFlag", "REQUIRED");
+        gbean.setReferencePattern("LoginModule", kerberosLM);
+        kernel.loadGBean(gbean, JaasLoginModuleUse.class.getClassLoader());
+
         kerberosRealm = new ObjectName("geronimo.security:type=SecurityRealm,realm=TOOLAZYDOGS.COM");
         gbean = new GBeanData(kerberosRealm, GenericSecurityRealm.getGBeanInfo());
         gbean.setAttribute("realmName", "TOOLAZYDOGS.COM");
-        props = new Properties();
-        props.setProperty("LoginModule.1.REQUIRED", "geronimo.security:type=LoginModule,name=TOOLAZYDOGS.COM");
-        gbean.setAttribute("loginModuleConfiguration", props);
+//        props = new Properties();
+//        props.setProperty("LoginModule.1.REQUIRED", "geronimo.security:type=LoginModule,name=TOOLAZYDOGS.COM");
+//        gbean.setAttribute("loginModuleConfiguration", props);
+        gbean.setReferencePattern("LoginModuleConfiguration", testUseName);
         kernel.loadGBean(gbean, GenericSecurityRealm.class.getClassLoader());
         kernel.startGBean(kerberosLM);
+        kernel.startGBean(testUseName);
         kernel.startGBean(kerberosRealm);
     }
 

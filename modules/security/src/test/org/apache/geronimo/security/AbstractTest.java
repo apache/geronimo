@@ -35,6 +35,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.security.bridge.TestLoginModule;
 import org.apache.geronimo.security.jaas.JaasLoginService;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
+import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.security.remoting.jmx.JaasLoginServiceRemotingServer;
 
@@ -72,12 +73,19 @@ public abstract class AbstractTest extends TestCase {
         gbean.setAttribute("loginDomainName", "TestLoginDomain");
         kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
 
+        ObjectName testUseName = new ObjectName("geronimo.security:type=LoginModuleUse,name=TestModule");
+        gbean = new GBeanData(testUseName, JaasLoginModuleUse.getGBeanInfo());
+        gbean.setAttribute("controlFlag", "REQUIRED");
+        gbean.setReferencePattern("LoginModule", testLoginModule);
+        kernel.loadGBean(gbean, JaasLoginModuleUse.class.getClassLoader());
+
         testRealm = new ObjectName("geronimo.security:type=SecurityRealm,realm="+TestLoginModule.REALM_NAME);
         gbean = new GBeanData(testRealm, GenericSecurityRealm.getGBeanInfo());
         gbean.setAttribute("realmName", TestLoginModule.REALM_NAME);
         Properties props = new Properties();
-        props.setProperty("LoginModule.1.REQUIRED","geronimo.security:type=LoginModule,name=TestModule");
-        gbean.setAttribute("loginModuleConfiguration", props);
+//        props.setProperty("LoginModule.1.REQUIRED","geronimo.security:type=LoginModule,name=TestModule");
+//        gbean.setAttribute("loginModuleConfiguration", props);
+        gbean.setReferencePattern("LoginModuleConfiguration", testUseName);
         kernel.loadGBean(gbean, GenericSecurityRealm.class.getClassLoader());
 
         serverStub = new ObjectName("geronimo.remoting:target=JaasLoginServiceRemotingServer");
@@ -88,6 +96,7 @@ public abstract class AbstractTest extends TestCase {
 
         kernel.startGBean(loginService);
         kernel.startGBean(testLoginModule);
+        kernel.startGBean(testUseName);
         kernel.startGBean(testRealm);
         kernel.startGBean(serverStub);
     }

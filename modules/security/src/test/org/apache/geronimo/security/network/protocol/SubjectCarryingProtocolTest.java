@@ -49,6 +49,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.security.AbstractTest;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
+import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
@@ -70,42 +71,42 @@ public class SubjectCarryingProtocolTest extends AbstractTest implements Request
     private Subject serverSubject;
     private URI serverURI;
     private AsynchChannelServer server;
-    
-    public void testNothing() throws Exception {        
+
+    public void testNothing() throws Exception {
     }
-    
+
     /*
-     * Enable this test again once its working. 
+     * Enable this test again once its working.
      */
     public void disabledtest() throws Exception {
-        
+
         SocketSynchChannelFactory factory = new SocketSynchChannelFactory();
-        final RequestChannel channel = 
+        final RequestChannel channel =
             new AsynchChannelToClientRequestChannel(
                 AsynchToSynchChannelAdapter.adapt(
                     new SubjectCarryingChannel(
-                        new PacketAggregatingAsynchChannel( 
+                        new PacketAggregatingAsynchChannel(
                             SynchToAsynchChannelAdapter.adapt(
-                                 factory.openSynchChannel(serverURI))))));        
-        try { 
+                                 factory.openSynchChannel(serverURI))))));
+        try {
             channel.start();
 	        Subject.doAs(clientSubject, new PrivilegedExceptionAction() {
 	            public Object run() throws Exception {
-	                
+
 	                Subject subject = Subject.getSubject(AccessController.getContext());
 	                String p = subject.getPrincipals().iterator().next().toString();
 	                log.info("Sending request as: "+p);
-	                
+
                     Packet request = new ByteArrayPacket("whoami".getBytes());
                     Packet response = channel.request(request, 1000*5*1000);
-                    
+
                     assertNotNull(response);
-                    assertEquals( p, new String(response.sliceAsBytes()) );	 
+                    assertEquals( p, new String(response.sliceAsBytes()) );
                     return null;
 	            }
 	        });
         } finally {
-            channel.dispose();                
+            channel.dispose();
         }
     }
 
@@ -132,16 +133,24 @@ public class SubjectCarryingProtocolTest extends AbstractTest implements Request
         gbean.setAttribute("loginDomainName", "PropertiesDomain");
         kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
 
+        ObjectName testUseName = new ObjectName("geronimo.security:type=LoginModuleUse,name=properties");
+        gbean = new GBeanData(testUseName, JaasLoginModuleUse.getGBeanInfo());
+        gbean.setAttribute("controlFlag", "REQUIRED");
+        gbean.setReferencePattern("LoginModule", testCE);
+        kernel.loadGBean(gbean, JaasLoginModuleUse.class.getClassLoader());
+
         testRealm = new ObjectName("geronimo.security:type=SecurityRealm,realm=properties-realm");
         gbean = new GBeanData(testRealm, GenericSecurityRealm.getGBeanInfo());
         gbean.setAttribute("realmName", "properties-realm");
-        props = new Properties();
-        props.setProperty("LoginModule.1.REQUIRED","geronimo.security:type=LoginModule,name=properties");
-        gbean.setAttribute("loginModuleConfiguration", props);
+//        props = new Properties();
+//        props.setProperty("LoginModule.1.REQUIRED","geronimo.security:type=LoginModule,name=properties");
+//        gbean.setAttribute("loginModuleConfiguration", props);
+        gbean.setReferencePattern("LoginModuleConfiguration", testUseName);
         gbean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfo));
         kernel.loadGBean(gbean, GenericSecurityRealm.class.getClassLoader());
 
         kernel.startGBean(testCE);
+        kernel.startGBean(testUseName);
         kernel.startGBean(testRealm);
 
         LoginContext context = new LoginContext("properties", new AbstractTest.UsernamePasswordCallback("alan", "starcraft"));
@@ -151,46 +160,46 @@ public class SubjectCarryingProtocolTest extends AbstractTest implements Request
         context = new LoginContext("properties", new AbstractTest.UsernamePasswordCallback("izumi", "violin"));
         context.login();
         serverSubject = context.getSubject();
-        
+
         SocketSynchChannelFactory factory = new SocketSynchChannelFactory();
         server = new SynchToAsynchChannelServerAdapter(
                 factory.bindSynchChannel(new URI("tcp://localhost:0")));
-        
+
         server.setAcceptListener(new AcceptListener() {
             public void onAccept(Channel channel) {
                 RequestChannel requestChannel=null;
                 try {
-                    
-                    requestChannel = 
-                        new AsynchChannelToServerRequestChannel( 
+
+                    requestChannel =
+                        new AsynchChannelToServerRequestChannel(
 	                        new SubjectCarryingChannel(
 	                            new PacketAggregatingAsynchChannel(
 	                                SynchToAsynchChannelAdapter.adapt(channel))));
-                    
+
                     requestChannel.setRequestListener(SubjectCarryingProtocolTest.this);
                     requestChannel.start();
-                    
+
                 } catch (IOException e) {
                     log.info("Failed to accept connection.", e);
                     if( requestChannel!=null )
                         requestChannel.dispose();
                     else
                         channel.dispose();
-                }                
+                }
             }
             public void onAcceptError(IOException error) {
                 log.info("Accept Failed: "+error);
             }
         });
-        
+
         server.start();
         serverURI = server.getConnectURI();
-        
+
     }
 
     public void tearDown() throws Exception {
         server.dispose();
-        
+
         kernel.stopGBean(testRealm);
         kernel.stopGBean(testCE);
         kernel.stopGBean(serverInfo);

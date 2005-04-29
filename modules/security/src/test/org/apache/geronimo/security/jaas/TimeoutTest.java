@@ -102,12 +102,19 @@ public class TimeoutTest extends AbstractTest {
         gbean.setAttribute("loginDomainName", "PropertiesDomain");
         kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
 
+        ObjectName testUseName = new ObjectName("geronimo.security:type=LoginModuleUse,name=properties");
+        gbean = new GBeanData(testUseName, JaasLoginModuleUse.getGBeanInfo());
+        gbean.setAttribute("controlFlag", "REQUIRED");
+        gbean.setReferencePattern("LoginModule", testCE);
+        kernel.loadGBean(gbean, JaasLoginModuleUse.class.getClassLoader());
+
         testRealm = new ObjectName("geronimo.security:type=SecurityRealm,realm=properties-realm");
         gbean = new GBeanData(testRealm, GenericSecurityRealm.getGBeanInfo());
         gbean.setAttribute("realmName", "properties-realm");
-        props = new Properties();
-        props.setProperty("LoginModule.1.REQUIRED","geronimo.security:type=LoginModule,name=properties");
-        gbean.setAttribute("loginModuleConfiguration", props);
+//        props = new Properties();
+//        props.setProperty("LoginModule.1.REQUIRED","geronimo.security:type=LoginModule,name=properties");
+//        gbean.setAttribute("loginModuleConfiguration", props);
+        gbean.setReferencePattern("LoginModuleConfiguration", testUseName);
         gbean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfo));
         kernel.loadGBean(gbean, GenericSecurityRealm.class.getClassLoader());
 
@@ -133,6 +140,7 @@ public class TimeoutTest extends AbstractTest {
         kernel.startGBean(clientLM);
         kernel.startGBean(clientCE);
         kernel.startGBean(testCE);
+        kernel.startGBean(testUseName);
         kernel.startGBean(testRealm);
     }
 

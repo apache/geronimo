@@ -37,7 +37,7 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
-import org.apache.geronimo.security.realm.GenericSecurityRealm;
+import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 
 
 /**
@@ -76,7 +76,7 @@ public class SQLLoginModule implements LoginModule {
         properties.put("password", options.get(PASSWORD));
         userSelect = (String) options.get(USER_SELECT);
         groupSelect = (String) options.get(GROUP_SELECT);
-        ClassLoader cl = (ClassLoader) options.get(GenericSecurityRealm.CLASSLOADER_LM_OPTION);
+        ClassLoader cl = (ClassLoader) options.get(JaasLoginModuleUse.CLASSLOADER_LM_OPTION);
         try {
             this.driver = (Driver) cl.loadClass((String) options.get(DRIVER)).newInstance();
         } catch (ClassNotFoundException e) {

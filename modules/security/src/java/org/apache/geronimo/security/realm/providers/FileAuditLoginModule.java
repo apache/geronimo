@@ -33,7 +33,7 @@ import javax.security.auth.callback.NameCallback;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
-import org.apache.geronimo.security.realm.GenericSecurityRealm;
+import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
@@ -59,7 +59,7 @@ public class FileAuditLoginModule implements LoginModule {
     public void initialize(Subject subject, CallbackHandler callbackHandler,
                            Map sharedState, Map options) {
         String name = (String) options.get(LOG_FILE_OPTION);
-        ServerInfo info = (ServerInfo) options.get(GenericSecurityRealm.SERVERINFO_LM_OPTION);
+        ServerInfo info = (ServerInfo) options.get(JaasLoginModuleUse.SERVERINFO_LM_OPTION);
         logFile = info.resolve(name);
         handler = callbackHandler;
     }

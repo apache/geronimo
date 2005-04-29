@@ -51,7 +51,8 @@ public class ConfigurationEntryTest extends TestCase {
     protected ObjectName loginService;
     protected ObjectName clientCE;
     protected ObjectName testUPCred;
-    protected ObjectName testCE;
+    protected ObjectName testCE;         //audit lm
+    protected ObjectName testProperties; //properties lm
     protected ObjectName testRealm;
     protected ObjectName serverStub;
 
@@ -159,8 +160,8 @@ public class ConfigurationEntryTest extends TestCase {
         gbean.setAttribute("realmName", "properties-realm");
         kernel.loadGBean(gbean, ServerRealmConfigurationEntry.class.getClassLoader());
 
-        testCE = new ObjectName("geronimo.security:type=LoginModule,name=properties");
-        gbean = new GBeanData(testCE, LoginModuleGBean.getGBeanInfo());
+        testProperties = new ObjectName("geronimo.security:type=LoginModule,name=properties");
+        gbean = new GBeanData(testProperties, LoginModuleGBean.getGBeanInfo());
         gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule");
         gbean.setAttribute("serverSide", new Boolean(true));
         Properties props = new Properties();
@@ -186,14 +187,35 @@ public class ConfigurationEntryTest extends TestCase {
         gbean.setAttribute("options", props);
         kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
 
+        ObjectName testUseName3 = new ObjectName("geronimo.security:type=LoginModuleUse,name=UPCred");
+        gbean = new GBeanData(testUseName3, JaasLoginModuleUse.getGBeanInfo());
+        gbean.setAttribute("controlFlag", "REQUIRED");
+        gbean.setReferencePattern("LoginModule", testUPCred);
+        kernel.loadGBean(gbean, JaasLoginModuleUse.class.getClassLoader());
+
+        ObjectName testUseName2 = new ObjectName("geronimo.security:type=LoginModuleUse,name=audit");
+        gbean = new GBeanData(testUseName2, JaasLoginModuleUse.getGBeanInfo());
+        gbean.setAttribute("controlFlag", "REQUIRED");
+        gbean.setReferencePattern("LoginModule", testCE);
+        gbean.setReferencePattern("Next", testUseName3);
+        kernel.loadGBean(gbean, JaasLoginModuleUse.class.getClassLoader());
+
+        ObjectName testUseName1 = new ObjectName("geronimo.security:type=LoginModuleUse,name=properties");
+        gbean = new GBeanData(testUseName1, JaasLoginModuleUse.getGBeanInfo());
+        gbean.setAttribute("controlFlag", "REQUIRED");
+        gbean.setReferencePattern("LoginModule", testProperties);
+        gbean.setReferencePattern("Next", testUseName2);
+        kernel.loadGBean(gbean, JaasLoginModuleUse.class.getClassLoader());
+
         testRealm = new ObjectName("geronimo.security:type=SecurityRealm,realm=properties-realm");
         gbean = new GBeanData(testRealm, GenericSecurityRealm.getGBeanInfo());
         gbean.setAttribute("realmName", "properties-realm");
-        props = new Properties();
-        props.setProperty("LoginModule.3.REQUIRED","geronimo.security:type=LoginModule,name=UPCred");
-        props.setProperty("LoginModule.2.REQUIRED","geronimo.security:type=LoginModule,name=audit");
-        props.setProperty("LoginModule.1.REQUIRED","geronimo.security:type=LoginModule,name=properties");
-        gbean.setAttribute("loginModuleConfiguration", props);
+//        props = new Properties();
+//        props.setProperty("LoginModule.3.REQUIRED","geronimo.security:type=LoginModule,name=UPCred");
+//        props.setProperty("LoginModule.2.REQUIRED","geronimo.security:type=LoginModule,name=audit");
+//        props.setProperty("LoginModule.1.REQUIRED","geronimo.security:type=LoginModule,name=properties");
+//        gbean.setAttribute("loginModuleConfiguration", props);
+        gbean.setReferencePattern("LoginModuleConfiguration", testUseName1);
         gbean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfo));
         kernel.loadGBean(gbean, GenericSecurityRealm.class.getClassLoader());
 
@@ -201,13 +223,17 @@ public class ConfigurationEntryTest extends TestCase {
         gbean = new GBeanData(serverStub, JaasLoginServiceRemotingServer.getGBeanInfo());
         gbean.setAttribute("bindURI", new URI("tcp://0.0.0.0:4242"));
         gbean.setReferencePattern("LoginService", loginService);
-        kernel.loadGBean(gbean, JaasLoginServiceRemotingServer.class.getClassLoader());               
+        kernel.loadGBean(gbean, JaasLoginServiceRemotingServer.class.getClassLoader());
 
         kernel.startGBean(loginConfiguration);
         kernel.startGBean(loginService);
         kernel.startGBean(clientCE);
         kernel.startGBean(testCE);
+        kernel.startGBean(testProperties);
         kernel.startGBean(testUPCred);
+        kernel.startGBean(testUseName3);
+        kernel.startGBean(testUseName2);
+        kernel.startGBean(testUseName1);
         kernel.startGBean(testRealm);
         kernel.startGBean(serverStub);
     }

@@ -45,6 +45,7 @@ import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.jaas.GeronimoLoginConfiguration;
 import org.apache.geronimo.security.jaas.JaasLoginService;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
+import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.transaction.context.OnlineUserTransaction;
@@ -206,13 +207,19 @@ public class AbstractWebModuleTest extends TestCase {
         //TODO should this be called securityRealmName?
         propertiesLMGBean.setAttribute("loginDomainName", "demo-properties-realm");
 
+        ObjectName testUseName = new ObjectName("geronimo.security:type=LoginModuleUse,name=properties");
+        GBeanData lmUseGBean = new GBeanData(testUseName, JaasLoginModuleUse.getGBeanInfo());
+        lmUseGBean.setAttribute("controlFlag", "REQUIRED");
+        lmUseGBean.setReferencePattern("LoginModule", propertiesLMName);
+
         propertiesRealmName = new ObjectName("geronimo.server:j2eeType=SecurityRealm,name=demo-properties-realm");
         propertiesRealmGBean = new GBeanData(propertiesRealmName, GenericSecurityRealm.GBEAN_INFO);
         propertiesRealmGBean.setReferencePattern("ServerInfo", serverInfoName);
         propertiesRealmGBean.setAttribute("realmName", "demo-properties-realm");
-        Properties config = new Properties();
-        config.setProperty("LoginModule.1.REQUIRED", propertiesLMName.getCanonicalName());
-        propertiesRealmGBean.setAttribute("loginModuleConfiguration", config);
+//        Properties config = new Properties();
+//        config.setProperty("LoginModule.1.REQUIRED", propertiesLMName.getCanonicalName());
+//        propertiesRealmGBean.setAttribute("loginModuleConfiguration", config);
+        propertiesRealmGBean.setReferencePattern("LoginModuleConfiguration", testUseName);
         Principal.PrincipalEditor principalEditor = new Principal.PrincipalEditor();
         principalEditor.setAsText("metro=org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
         propertiesRealmGBean.setAttribute("defaultPrincipal", principalEditor.getValue());
@@ -222,6 +229,7 @@ public class AbstractWebModuleTest extends TestCase {
         start(securityServiceGBean);
         start(loginServiceGBean);
         start(propertiesLMGBean);
+        start(lmUseGBean);
         start(propertiesRealmGBean);
 
     }

@@ -95,32 +95,49 @@ by the server.
     </dependency>
 
     <!-- JAAS Geronimo Login Configuration -->
-   <gbean name="tomcat-properties-realm"
+    <gbean name="tomcat-properties-realm"
         class="org.apache.geronimo.security.realm.GenericSecurityRealm">
         <attribute name="realmName">Geronimo</attribute>
-        <attribute name="loginModuleConfiguration">
-LoginModule.1.REQUIRED=geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=LoginModule,name=properties-login
-        </attribute>
-        <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
+        <reference name="LoginModuleConfiguration">
+            <name>properties-login</name>
+        </reference>
+        <reference name="ServerInfo">
+            <module>org/apache/geronimo/System</module>
+            <name>ServerInfo</name>
+        </reference>
+    </gbean>
+    <gbean name="properties-login" class="org.apache.geronimo.security.jaas.JaasLoginModuleUse">
+        <attribute name="controlFlag">REQUIRED</attribute>
+        <reference name="LoginModule">
+            <module>org/apache/geronimo/Server</module>
+            <name>properties-login</name>
+        </reference>
     </gbean>
 
     <gbean name="TomcatWebContainer" class="org.apache.geronimo.tomcat.TomcatContainer">
         <attribute name="catalinaHome">var/catalina</attribute>
-        <reference name="engineGBean"><name>TomcatEngine</name></reference>
-        <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
+        <reference name="engineGBean">
+            <name>TomcatEngine</name>
+        </reference>
+        <reference name="ServerInfo">
+            <module>org/apache/geronimo/System</module>
+            <name>ServerInfo</name>
+        </reference>
     </gbean>
 
     <gbean name="TomcatWebConnector" class="org.apache.geronimo.tomcat.ConnectorGBean">
         <attribute name="initParams">
             port=8090
         </attribute>
-        <reference name="TomcatContainer"><name>TomcatWebContainer</name></reference>
+        <reference name="TomcatContainer">
+            <name>TomcatWebContainer</name>
+        </reference>
     </gbean>
 
     <!-- Uncomment for SSL support
     The following parameters assume your keystore resides in your ~/.keystore file and the keystore password is the default
     "changeit".  To change these values (and is recommended), add the following parameters to the initParams list below:
-    
+
     keystoreFile=path_to_your_keystore
     keystorePass=your_keystore_password
 
@@ -150,7 +167,9 @@ LoginModule.1.REQUIRED=geronimo.server:J2EEApplication=null,J2EEModule=org/apach
             name=Geronimo
             defaultHost=localhost
         </attribute>
-        <reference name="realmGBean"><name>TomcatJAASRealm</name></reference>
+        <reference name="realmGBean">
+            <name>TomcatJAASRealm</name>
+        </reference>
     </gbean>
 
     <gbean name="TomcatJAASRealm" class="org.apache.geronimo.tomcat.RealmGBean">
@@ -168,7 +187,9 @@ LoginModule.1.REQUIRED=geronimo.server:J2EEApplication=null,J2EEModule=org/apach
             appBase=
             workDir=work
         </attribute>
-        <reference name="engineGBean"><name>TomcatEngine</name></reference>
+        <reference name="engineGBean">
+            <name>TomcatEngine</name>
+        </reference>
     </gbean>
 
 </configuration>

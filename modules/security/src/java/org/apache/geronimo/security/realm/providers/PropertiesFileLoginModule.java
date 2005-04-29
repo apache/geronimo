@@ -40,7 +40,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.security.realm.GenericSecurityRealm;
+import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 
@@ -67,8 +67,8 @@ public class PropertiesFileLoginModule implements LoginModule {
         this.subject = subject;
         this.handler = callbackHandler;
         try {
-            Kernel kernel = Kernel.getKernel((String)options.get(GenericSecurityRealm.KERNEL_LM_OPTION));
-            ServerInfo serverInfo = (ServerInfo) options.get(GenericSecurityRealm.SERVERINFO_LM_OPTION);
+            Kernel kernel = Kernel.getKernel((String)options.get(JaasLoginModuleUse.KERNEL_LM_OPTION));
+            ServerInfo serverInfo = (ServerInfo) options.get(JaasLoginModuleUse.SERVERINFO_LM_OPTION);
             URI usersURI = new URI((String)options.get(USERS_URI));
             URI groupsURI = new URI((String)options.get(GROUPS_URI));
             loadProperties(kernel, serverInfo, usersURI, groupsURI);

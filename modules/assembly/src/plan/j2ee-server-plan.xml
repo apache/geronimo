@@ -131,11 +131,17 @@ by the server.
     <gbean name="geronimo-properties-realm"
         class="org.apache.geronimo.security.realm.GenericSecurityRealm">
         <attribute name="realmName">geronimo-properties-realm</attribute>
-        <attribute name="loginModuleConfiguration">
-            LoginModule.1.REQUIRED=geronimo.server:j2eeType=LoginModule,J2EEServer=geronimo,J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,name=properties-login
-        </attribute>
+        <reference name="LoginModuleConfiguration">
+            <name>properties-login</name>
+        </reference>
         <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
     </gbean>
+    <gbean name="properties-login" class="org.apache.geronimo.security.jaas.JaasLoginModuleUse">
+         <attribute name="controlFlag">REQUIRED</attribute>
+         <reference name="LoginModule">
+             <name>properties-login</name>
+         </reference>
+     </gbean>
 
     <gbean name="JMX"
         class="org.apache.geronimo.security.jaas.ServerRealmConfigurationEntry">

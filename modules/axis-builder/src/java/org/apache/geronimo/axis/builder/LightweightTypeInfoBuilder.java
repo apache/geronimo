@@ -48,16 +48,16 @@ public class LightweightTypeInfoBuilder implements TypeInfoBuilder {
     private final ClassLoader cl;
     private final Map schemaTypeKeyToSchemaTypeMap;
     private final Set wrapperElementQNames;
-    
+
     public LightweightTypeInfoBuilder(ClassLoader cl, Map schemaTypeKeyToSchemaTypeMap, Set wrapperElementQNames) {
         this.cl = cl;
         this.schemaTypeKeyToSchemaTypeMap = schemaTypeKeyToSchemaTypeMap;
         this.wrapperElementQNames = wrapperElementQNames;
     }
-    
+
     public List buildTypeInfo(JavaWsdlMappingType mapping) throws DeploymentException {
         List typeInfoList = new ArrayList();
-        
+
         for (Iterator iterator = schemaTypeKeyToSchemaTypeMap.keySet().iterator(); iterator.hasNext();) {
             SchemaTypeKey key = (SchemaTypeKey) iterator.next();
             if (!key.isElement() && !key.isAnonymous()) {
@@ -83,21 +83,21 @@ public class LightweightTypeInfoBuilder implements TypeInfoBuilder {
                     deserializerFactoryClass = ArrayDeserializerFactory.class;
                 }
 
-                TypeInfo.UpdatableTypeInfo internalTypeInfo = new TypeInfo.UpdatableTypeInfo(); 
+                TypeInfo.UpdatableTypeInfo internalTypeInfo = new TypeInfo.UpdatableTypeInfo();
                 internalTypeInfo.setClazz(clazz);
                 internalTypeInfo.setQName(typeQName);
                 internalTypeInfo.setSerializerClass(serializerFactoryClass);
                 internalTypeInfo.setDeserializerClass(deserializerFactoryClass);
-                
+
                 populateInternalTypeInfo(clazz, typeQName, key, internalTypeInfo);
 
                 typeInfoList.add(internalTypeInfo.buildTypeInfo());
             }
         }
-        
+
         return typeInfoList;
     }
-    
+
     private void populateInternalTypeInfo(Class javaClass, QName typeQName, SchemaTypeKey key, TypeInfo.UpdatableTypeInfo typeInfo) throws DeploymentException {
         SchemaType schemaType = (SchemaType) schemaTypeKeyToSchemaTypeMap.get(key);
         if (schemaType == null) {
@@ -108,13 +108,14 @@ public class LightweightTypeInfoBuilder implements TypeInfoBuilder {
         Map nameToType = new HashMap();
         if (null  == schemaType.getContentModel()) {
             ;
-        } else if (SchemaParticle.SEQUENCE == schemaType.getContentModel().getParticleType()) {
+        } else if (SchemaParticle.SEQUENCE == schemaType.getContentModel().getParticleType()
+                || SchemaParticle.ALL == schemaType.getContentModel().getParticleType()) {
             SchemaParticle[] properties = schemaType.getContentModel().getParticleChildren();
             for (int i = 0; i < properties.length; i++) {
                 SchemaParticle parameter = properties[i];
-                if (SchemaParticle.ELEMENT != parameter.getType().getContentModel().getParticleType()) {
-                    throw new DeploymentException(parameter.getName() + " is not an element in schema " + schemaType.getName());
-                }
+//                if (SchemaParticle.ELEMENT != parameter.getType().getContentModel().getParticleType()) {
+//                    throw new DeploymentException(parameter.getName() + " is not an element in schema " + schemaType.getName());
+//                }
                 nameToType.put(parameter.getName(), parameter);
             }
         } else if (SchemaParticle.ELEMENT == schemaType.getContentModel().getParticleType()) {
@@ -124,7 +125,7 @@ public class LightweightTypeInfoBuilder implements TypeInfoBuilder {
             throw new DeploymentException("Only all, choice and sequence particle types are supported." +
                     " SchemaType name =" + schemaType.getName());
         }
-        
+
         PropertyDescriptor[] descriptors;
         try {
             descriptors = Introspector.getBeanInfo(javaClass).getPropertyDescriptors();
@@ -143,10 +144,10 @@ public class LightweightTypeInfoBuilder implements TypeInfoBuilder {
             Map.Entry entry = (Map.Entry) iter.next();
             QName fieldName = (QName) entry.getKey();
             SchemaParticle particle = (SchemaParticle) entry.getValue();
-            
+
             ElementDesc elementDesc = new ElementDesc();
             elementDesc.setFieldName(fieldName.getLocalPart());
-            
+
             Class javaType = (Class) nameToClass.get(fieldName);
             if (null == javaType) {
                 throw new DeploymentException("Field " + fieldName + " is not defined by class " + javaClass.getName());
@@ -154,7 +155,7 @@ public class LightweightTypeInfoBuilder implements TypeInfoBuilder {
             elementDesc.setNillable(particle.isNillable());
             elementDesc.setXmlName(fieldName);
             elementDesc.setXmlType(particle.getType().getName());
-            
+
             if (javaType.isArray()) {
                 elementDesc.setMinOccurs(particle.getIntMinOccurs());
                 elementDesc.setMaxOccurs(particle.getIntMaxOccurs());

@@ -39,6 +39,7 @@ import org.apache.geronimo.security.jaas.JaasLoginModuleConfiguration;
 import org.apache.geronimo.security.jaas.LoginModuleControlFlag;
 import org.apache.geronimo.security.jaas.LoginModuleControlFlagEditor;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
+import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 
@@ -65,9 +66,9 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  * server-side login modules, marked as not Serializable below):
  * <pre>
  * Option                                      Type                   Serializable
- * GenericSecurityRealm.KERNEL_LM_OPTION       String (Kernel name)        Yes
- * GenericSecurityRealm.SERVERINFO_LM_OPTION   ServerInfo                  No
- * GenericSecurityRealm.CLASSLOADER_LM_OPTION  ClassLoader                 No
+ * JaasLoginModuleUse.KERNEL_LM_OPTION       String (Kernel name)        Yes
+ * JaasLoginModuleUse.SERVERINFO_LM_OPTION   ServerInfo                  No
+ * JaasLoginModuleUse.CLASSLOADER_LM_OPTION  ClassLoader                 No
  * </pre>
  * These options can be safely ignored by login modules that don't need them
  * (such as any custom LoginModules you may already have lying around).
@@ -76,35 +77,38 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  */
 public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFactory {
 
-    public final static String KERNEL_LM_OPTION = "org.apache.geronimo.security.realm.GenericSecurityRealm.KERNEL";
-    public final static String SERVERINFO_LM_OPTION = "org.apache.geronimo.security.realm.GenericSecurityRealm.SERVERINFO";
-    public final static String CLASSLOADER_LM_OPTION = "org.apache.geronimo.security.realm.GenericSecurityRealm.CLASSLOADER";
     private final String realmName;
     private JaasLoginModuleConfiguration[] config;
     private final Kernel kernel;
-    private final ServerInfo serverInfo;
-    private final ClassLoader classLoader;
 
     private final Principal defaultPrincipal;
 
     private String[] domains;
     private boolean restrictPrincipalsToServer;
 
+
     public GenericSecurityRealm(String realmName,
-                                Properties loginModuleConfiguration,
+                                JaasLoginModuleUse loginModuleUse,
                                 boolean restrictPrincipalsToServer,
                                 Principal defaultPrincipal,
                                 ServerInfo serverInfo,
                                 ClassLoader classLoader,
-                                Kernel kernel) throws MalformedObjectNameException {
+                                Kernel kernel) {
         this.realmName = realmName;
         this.kernel = kernel;
-        this.serverInfo = serverInfo;
-        this.classLoader = classLoader;
         this.restrictPrincipalsToServer = restrictPrincipalsToServer;
         this.defaultPrincipal = defaultPrincipal;
 
-        processConfiguration(loginModuleConfiguration);
+        Set domainNames = new HashSet();
+        List loginModuleConfigurations = new ArrayList();
+
+        if (loginModuleUse != null) {
+            loginModuleUse.configure(domainNames,  loginModuleConfigurations,  kernel, serverInfo, classLoader);
+        }
+
+        domains = (String[]) domainNames.toArray(new String[domainNames.size()]);
+        config = (JaasLoginModuleConfiguration[]) loginModuleConfigurations.toArray(new JaasLoginModuleConfiguration[loginModuleConfigurations.size()]);
+
     }
 
     public String getRealmName() {
@@ -158,65 +162,6 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
         return new JaasLoginModuleConfiguration(JaasLoginCoordinator.class.getName(), LoginModuleControlFlag.REQUIRED, options, true, realmName);
     }
 
-    private void processConfiguration(Properties props) throws MalformedObjectNameException {
-        int i = 1;
-        Set domains = new HashSet();
-        List list = new ArrayList();
-        LoginModuleControlFlagEditor editor = new LoginModuleControlFlagEditor();
-        ProxyManager proxyManager = kernel.getProxyManager();
-        while (true) {
-            boolean found = false;
-            String prefix = "LoginModule." + i + ".";
-            for (Enumeration en = props.propertyNames(); en.hasMoreElements();) {
-                String key = (String) en.nextElement();
-                if (key.startsWith(prefix)) {
-                    String flagName = key.substring(prefix.length()).toUpperCase();
-                    editor.setAsText(flagName);
-                    LoginModuleControlFlag flag = (LoginModuleControlFlag) editor.getValue();
-                    LoginModuleGBean module = null;
-                    try {
-                        module = (LoginModuleGBean) proxyManager.createProxy(new ObjectName(props.getProperty(key)), LoginModuleGBean.class);
-                        Map options = module.getOptions();
-                        if (options != null) {
-                            options = new HashMap(options);
-                        } else {
-                            options = new HashMap();
-                        }
-                        if (kernel != null && !options.containsKey(KERNEL_LM_OPTION)) {
-                            options.put(KERNEL_LM_OPTION, kernel.getKernelName());
-                        }
-                        if (serverInfo != null && !options.containsKey(SERVERINFO_LM_OPTION)) {
-                            options.put(SERVERINFO_LM_OPTION, serverInfo);
-                        }
-                        if (classLoader != null && !options.containsKey(CLASSLOADER_LM_OPTION)) {
-                            options.put(CLASSLOADER_LM_OPTION, classLoader);
-                        }
-                        if (module.getLoginDomainName() != null) {
-                            if (domains.contains(module.getLoginDomainName())) {
-                                throw new IllegalStateException("Error in " + realmName + ": one security realm cannot contain multiple login modules for the same login domain");
-                            } else {
-                                domains.add(module.getLoginDomainName());
-                            }
-                        }
-                        JaasLoginModuleConfiguration config = new JaasLoginModuleConfiguration(module.getLoginModuleClass(), flag, options, module.isServerSide(), module.getLoginDomainName());
-                        list.add(config);
-                    } finally {
-                        proxyManager.destroyProxy(module);
-                    }
-                    ++i;
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                break;
-            }
-        }
-        this.domains = (String[]) domains.toArray(new String[domains.size()]);
-        config = (JaasLoginModuleConfiguration[]) list.toArray(new JaasLoginModuleConfiguration[list.size()]);
-    }
-
-
     public static final GBeanInfo GBEAN_INFO;
 
     static {
@@ -226,18 +171,18 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
         infoFactory.addInterface(ConfigurationEntryFactory.class);
         infoFactory.addAttribute("realmName", String.class, true);
         infoFactory.addAttribute("kernel", Kernel.class, false);
-        infoFactory.addAttribute("loginModuleConfiguration", Properties.class, true);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.addAttribute("defaultPrincipal", Principal.class, true);
         infoFactory.addAttribute("deploymentSupport", Properties.class, true);
         infoFactory.addAttribute("restrictPrincipalsToServer", boolean.class, true);
 
+        infoFactory.addReference("LoginModuleConfiguration", JaasLoginModuleUse.class, "LoginModuleUse");
         infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
 
         infoFactory.addOperation("getAppConfigurationEntries", new Class[0]);
 
         infoFactory.setConstructor(new String[]{"realmName",
-                                                "loginModuleConfiguration",
+                                                "LoginModuleConfiguration",
                                                 "restrictPrincipalsToServer",
                                                 "defaultPrincipal",
                                                 "ServerInfo",

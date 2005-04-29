@@ -46,10 +46,20 @@ by the server.
     <gbean name="demo-properties-realm"
         class="org.apache.geronimo.security.realm.GenericSecurityRealm">
         <attribute name="realmName">demo-properties-realm</attribute>
-        <attribute name="loginModuleConfiguration">
-            LoginModule.1.REQUIRED=geronimo.server:j2eeType=LoginModule,J2EEServer=geronimo,J2EEApplication=null,J2EEModule=org/apache/geronimo/Secure,name=demo-properties-login
-        </attribute>
-        <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
+        <reference name="LoginModuleConfiguration">
+            <name>demo-properties-login</name>
+        </reference>
+        <reference name="ServerInfo">
+            <module>org/apache/geronimo/System</module>
+            <name>ServerInfo</name>
+        </reference>
+    </gbean>
+
+    <gbean name="demo-properties-login" class="org.apache.geronimo.security.jaas.JaasLoginModuleUse">
+        <attribute name="controlFlag">REQUIRED</attribute>
+        <reference name="LoginModule">
+            <name>demo-properties-login</name>
+        </reference>
     </gbean>
 
     <gbean name="jaasTest"

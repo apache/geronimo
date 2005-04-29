@@ -95,12 +95,20 @@ public class LoginSQLTest extends AbstractTest {
         kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
         kernel.startGBean(sqlModule);
 
+        ObjectName testUseName = new ObjectName("geronimo.security:type=LoginModuleUse,name=sql");
+        gbean = new GBeanData(testUseName, JaasLoginModuleUse.getGBeanInfo());
+        gbean.setAttribute("controlFlag", "REQUIRED");
+        gbean.setReferencePattern("LoginModule", sqlModule);
+        kernel.loadGBean(gbean, JaasLoginModuleUse.class.getClassLoader());
+        kernel.startGBean(testUseName);
+        
         sqlRealm = new ObjectName("geronimo.security:type=SecurityRealm,realm=sql-realm");
         gbean = new GBeanData(sqlRealm, GenericSecurityRealm.getGBeanInfo());
         gbean.setAttribute("realmName", "sql-realm");
-        props = new Properties();
-        props.setProperty("LoginModule.1.REQUIRED","geronimo.security:type=LoginModule,name=sql");
-        gbean.setAttribute("loginModuleConfiguration", props);
+//        props = new Properties();
+//        props.setProperty("LoginModule.1.REQUIRED","geronimo.security:type=LoginModule,name=sql");
+//        gbean.setAttribute("loginModuleConfiguration", props);
+        gbean.setReferencePattern("LoginModuleConfiguration", testUseName);
         kernel.loadGBean(gbean, GenericSecurityRealm.class.getClassLoader());
         kernel.startGBean(sqlRealm);
 
