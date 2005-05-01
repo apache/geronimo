@@ -5,4 +5,9 @@
         <xb:prefix>Ger</xb:prefix>
     </xb:namespace>
 
+    <xb:namespace uri="http://geronimo.apache.org/xml/ns/loginconfig">
+        <xb:package>org.apache.geronimo.xbeans.geronimo.loginconfig</xb:package>
+        <xb:prefix>Ger</xb:prefix>
+    </xb:namespace>
+
 </xb:config>

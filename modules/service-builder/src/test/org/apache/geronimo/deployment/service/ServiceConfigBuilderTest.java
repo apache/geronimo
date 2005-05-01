@@ -45,7 +45,7 @@ public class ServiceConfigBuilderTest extends TestCase {
         JavaBeanXmlAttributeBuilder javaBeanXmlAttributeBuilder = new JavaBeanXmlAttributeBuilder();
         //this is kind of cheating, we rely on the builder to iterate through existing members of the collection.
         referenceCollection.add(javaBeanXmlAttributeBuilder);
-        ServiceConfigBuilder builder = new ServiceConfigBuilder(URI.create("test/foo"), null, referenceCollection, null);
+        ServiceConfigBuilder builder = new ServiceConfigBuilder(URI.create("test/foo"), null, referenceCollection, null, null);
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         URL plan1 = cl.getResource("services/plan1.xml");
         ConfigurationDocument doc = ConfigurationDocument.Factory.parse(plan1);

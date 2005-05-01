@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2003-2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,24 +19,25 @@ package org.apache.geronimo.deployment.service;
 
 import java.beans.PropertyEditor;
 import java.util.HashSet;
-import java.util.Set;
-import java.util.Map;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
+import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.deployment.xbeans.PatternType;
+import org.apache.geronimo.deployment.xbeans.ReferenceType;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GReferenceInfo;
-import org.apache.geronimo.deployment.xbeans.ReferenceType;
-import org.apache.geronimo.deployment.xbeans.PatternType;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlObject;
 
 /**
  *
@@ -46,13 +47,19 @@ import org.apache.xmlbeans.XmlCursor;
 public class GBeanBuilder {
     private final GBeanData gbean;
     private final ClassLoader classLoader;
+    private final DeploymentContext context;
+    private final J2eeContext j2eeContext;
     private final Map xmlAttributeBuilderMap;
+    private final Map xmlReferenceBuilderMap;
 
-    GBeanBuilder(ObjectName objectName, GBeanInfo gBeanInfo, ClassLoader classLoader, Map xmlAttributeBuilderMap) {
+    GBeanBuilder(ObjectName objectName, GBeanInfo gBeanInfo, ClassLoader classLoader, DeploymentContext context, J2eeContext j2eeContext, Map xmlAttributeBuilderMap, Map xmlReferenceBuilderMap) {
 
         this.classLoader = classLoader;
+        this.context = context;
+        this.j2eeContext = j2eeContext;
         this.gbean = new GBeanData(objectName, gBeanInfo);
         this.xmlAttributeBuilderMap = xmlAttributeBuilderMap;
+        this.xmlReferenceBuilderMap = xmlReferenceBuilderMap;
     }
 
     public void setAttribute(String name, String type, String text) throws DeploymentException {
@@ -89,7 +96,7 @@ public class GBeanBuilder {
         String namespace = xmlCursor.getName().getNamespaceURI();
         XmlAttributeBuilder builder = (XmlAttributeBuilder) xmlAttributeBuilderMap.get(namespace);
         if (builder == null) {
-            throw new DeploymentException("No builder deployed for namespace: " + namespace);
+            throw new DeploymentException("No attribute builder deployed for namespace: " + namespace);
         }
         XmlObject xmlObject = xmlCursor.getObject();
         GAttributeInfo attribute = gbean.getGBeanInfo().getAttribute(name);
@@ -99,6 +106,19 @@ public class GBeanBuilder {
         String type = attribute.getType();
         Object value = builder.getValue(xmlObject, type, classLoader);
         gbean.setAttribute(name, value);
+    }
+
+    public void setXmlReference(String name, XmlCursor xmlCursor) throws DeploymentException {
+        String namespace = xmlCursor.getName().getNamespaceURI();
+        XmlReferenceBuilder builder = (XmlReferenceBuilder) xmlReferenceBuilderMap.get(namespace);
+        if (builder == null) {
+            throw new DeploymentException("No reference builder deployed for namespace: " + namespace);
+        }
+        XmlObject xmlObject = xmlCursor.getObject();
+        Set references = builder.getReferences(xmlObject, context, j2eeContext, classLoader);
+        if (references != null && !references.isEmpty()) {
+            gbean.setReferencePatterns(name, references);
+        }
     }
 
     public void setReference(String name, ReferenceType pattern, J2eeContext j2eeContext) throws DeploymentException {
