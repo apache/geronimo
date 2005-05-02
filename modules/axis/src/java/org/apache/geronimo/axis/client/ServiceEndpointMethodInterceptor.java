@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import javax.security.auth.Subject;
 import javax.xml.rpc.holders.Holder;
+import javax.wsdl.OperationType;
 
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
@@ -86,25 +87,33 @@ public class ServiceEndpointMethodInterceptor implements MethodInterceptor {
         Object response = null;
         List parameterDescs = operationInfo.getOperationDesc().getParameters();
         Object[] unwrapped = extractFromHolders(objects, parameterDescs, operationInfo.getOperationDesc().getNumInParams());
-        try {
-            response = call.invoke(unwrapped);
-        } catch (RemoteException e) {
-            throw operationInfo.unwrapFault(e);
-        }
-
-        if (response instanceof java.rmi.RemoteException) {
-            throw operationInfo.unwrapFault((RemoteException) response);
-        } else {
-            stub.extractAttachments(call);
-            Map outputParameters = call.getOutputParams();
-            putInHolders(outputParameters, objects, parameterDescs);
-            Class returnType = operationInfo.getOperationDesc().getReturnClass();
-            //return type should never be null... but we are not objecting if wsdl-return-value-mapping is not set.
-            if (response == null || returnType == null || returnType.isAssignableFrom(response.getClass())) {
-                return response;
-            } else {
-                return org.apache.axis.utils.JavaUtils.convert(response, returnType);
+        if (operationInfo.getOperationDesc().getMep() == OperationType.REQUEST_RESPONSE) {
+            try {
+                response = call.invoke(unwrapped);
+            } catch (RemoteException e) {
+                throw operationInfo.unwrapFault(e);
             }
+
+            if (response instanceof RemoteException) {
+                throw operationInfo.unwrapFault((RemoteException) response);
+            } else {
+                stub.extractAttachments(call);
+                Map outputParameters = call.getOutputParams();
+                putInHolders(outputParameters, objects, parameterDescs);
+                Class returnType = operationInfo.getOperationDesc().getReturnClass();
+                //return type should never be null... but we are not objecting if wsdl-return-value-mapping is not set.
+                if (response == null || returnType == null || returnType.isAssignableFrom(response.getClass())) {
+                    return response;
+                } else {
+                    return JavaUtils.convert(response, returnType);
+                }
+            }
+        } else if (operationInfo.getOperationDesc().getMep() == OperationType.ONE_WAY) {
+            //one way
+            call.invokeOneWay(unwrapped);
+            return null;
+        } else {
+            throw new RuntimeException("Invalid messaging style: " + operationInfo.getOperationDesc().getMep());
         }
     }
 

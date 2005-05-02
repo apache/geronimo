@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 import javax.wsdl.Definition;
+import javax.wsdl.OperationType;
 import javax.wsdl.Port;
 import javax.wsdl.Service;
 import javax.wsdl.WSDLException;
@@ -32,7 +33,8 @@ import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLWriter;
-import javax.xml.soap.SOAPException;
+import javax.xml.soap.MimeHeader;
+import javax.xml.soap.MimeHeaders;
 import javax.xml.soap.SOAPMessage;
 
 import org.apache.axis.AxisFault;
@@ -80,10 +82,10 @@ public class AxisWebServiceContainer implements WebServiceContainer {
     }
 
     public void invoke(Request req, Response res) throws Exception {
-        org.apache.axis.MessageContext context = new org.apache.axis.MessageContext(null);
-        req.setAttribute(MESSAGE_CONTEXT, context);
+        org.apache.axis.MessageContext messageContext = new org.apache.axis.MessageContext(null);
+        req.setAttribute(MESSAGE_CONTEXT, messageContext);
 
-        context.setClassLoader(classLoader);
+        messageContext.setClassLoader(classLoader);
 
         Message responseMessage = null;
 
@@ -92,57 +94,87 @@ public class AxisWebServiceContainer implements WebServiceContainer {
         InputStream inputStream = req.getInputStream();
         Message requestMessage = new Message(inputStream, false, contentType, contentLocation);
 
-        context.setRequestMessage(requestMessage);
-        context.setProperty(HTTPConstants.MC_HTTP_SERVLETPATHINFO, req.getURI().getPath());
-        context.setProperty(org.apache.axis.MessageContext.TRANS_URL, req.getURI().toString());
-        context.setService(service);
-        context.setProperty(REQUEST, req);
-        context.setProperty(RESPONSE, res);
+        messageContext.setRequestMessage(requestMessage);
+        messageContext.setProperty(HTTPConstants.MC_HTTP_SERVLETPATHINFO, req.getURI().getPath());
+        messageContext.setProperty(org.apache.axis.MessageContext.TRANS_URL, req.getURI().toString());
+        messageContext.setService(service);
+        messageContext.setProperty(REQUEST, req);
+        messageContext.setProperty(RESPONSE, res);
 
         try {
             String characterEncoding = (String) requestMessage.getProperty(SOAPMessage.CHARACTER_SET_ENCODING);
             if (characterEncoding != null) {
-                context.setProperty(SOAPMessage.CHARACTER_SET_ENCODING, characterEncoding);
+                messageContext.setProperty(SOAPMessage.CHARACTER_SET_ENCODING, characterEncoding);
             } else {
-                context.setProperty(SOAPMessage.CHARACTER_SET_ENCODING, "UTF-8");
+                messageContext.setProperty(SOAPMessage.CHARACTER_SET_ENCODING, "UTF-8");
             }
 
 
             String soapAction = req.getHeader(HTTPConstants.HEADER_SOAP_ACTION);
             if (soapAction != null) {
-                context.setUseSOAPAction(true);
-                context.setSOAPActionURI(soapAction);
+                messageContext.setUseSOAPAction(true);
+                messageContext.setSOAPActionURI(soapAction);
             }
 
             SOAPEnvelope env = requestMessage.getSOAPEnvelope();
             if (env != null && env.getSOAPConstants() != null) {
-                context.setSOAPConstants(env.getSOAPConstants());
+                messageContext.setSOAPConstants(env.getSOAPConstants());
             }
-            SOAPService service = context.getService();
+            SOAPService service = messageContext.getService();
 
             Thread.currentThread().setContextClassLoader(classLoader);
-            service.invoke(context);
+            service.invoke(messageContext);
 
-            responseMessage = context.getResponseMessage();
+            responseMessage = messageContext.getResponseMessage();
         } catch (AxisFault fault) {
-            responseMessage = handleFault(fault, res, context);
+            responseMessage = handleFault(fault, res, messageContext);
 
         } catch (Exception e) {
-            responseMessage = handleException(context, res, e);
+            responseMessage = handleException(messageContext, res, e);
+        }
+        //TODO investigate and fix operation == null!
+        if (messageContext.getOperation() != null) {
+            if (messageContext.getOperation().getMep() == OperationType.ONE_WAY) {
+                // No content, so just indicate accepted
+                res.setStatusCode(202);
+                return;
+            } else if (responseMessage == null) {
+                responseMessage = handleException(messageContext, null, new RuntimeException("No response for non-one-way operation"));
+            }
+        } else if (responseMessage == null) {
+            res.setStatusCode(202);
+            return;
         }
         try {
-            SOAPConstants soapConstants = context.getSOAPConstants();
+            SOAPConstants soapConstants = messageContext.getSOAPConstants();
             String contentType1 = responseMessage.getContentType(soapConstants);
             res.setContentType(contentType1);
+                // Transfer MIME headers to HTTP headers for response message.
+                MimeHeaders responseMimeHeaders = responseMessage.getMimeHeaders();
+                for (Iterator i = responseMimeHeaders.getAllHeaders(); i.hasNext(); ) {
+                    MimeHeader responseMimeHeader = (MimeHeader) i.next();
+                    res.setHeader(responseMimeHeader.getName(),
+                                  responseMimeHeader.getValue());
+                }
+            //TODO discuss this with dims.
+//                // synchronize the character encoding of request and response
+//                String responseEncoding = (String) messageContext.getProperty(
+//                        SOAPMessage.CHARACTER_SET_ENCODING);
+//                if (responseEncoding != null) {
+//                    try {
+//                        responseMessage.setProperty(SOAPMessage.CHARACTER_SET_ENCODING,
+//                                                responseEncoding);
+//                    } catch (SOAPException e) {
+//                        log.info(Messages.getMessage("exception00"), e);
+//                    }
+//                }
+                //determine content type from message response
+                contentType = responseMessage.getContentType(messageContext.
+                        getSOAPConstants());
+                responseMessage.writeTo(res.getOutputStream());
         } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try {
-            responseMessage.writeTo(res.getOutputStream());
-        } catch (SOAPException e) {
             log.info(Messages.getMessage("exception00"), e);
         }
-
     }
 
     private Message handleException(MessageContext context, Response res, Exception e) {

@@ -277,6 +277,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
         operationDesc.setMethod(method);
 
         // MAP RETURN TYPE
+        operationDesc.setMep(operation.getStyle());
         if (methodMapping.isSetWsdlReturnValueMapping()) {
             mapReturnType();
         } else if (operation.getStyle() == OperationType.REQUEST_RESPONSE) {
