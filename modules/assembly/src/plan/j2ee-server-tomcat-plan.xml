@@ -182,7 +182,7 @@ by the server.
     </gbean>
 
     <!-- Valve -->
-    <! -- Uncomment this section to add a valve chain.  This example consists of the Tomcat
+    <!-- Uncomment this section to add a valve chain.  This example consists of the Tomcat
           SingleSignOn and AccessLogValve. Notice the dependency that chains the FirstValve with the
           SecondValve.  The valves will be added in the order that they are chained.
     <gbean name="FirstValve" class="org.apache.geronimo.tomcat.ValveGBean">
