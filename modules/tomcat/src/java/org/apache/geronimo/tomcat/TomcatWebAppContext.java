@@ -19,13 +19,17 @@ package org.apache.geronimo.tomcat;
 
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.management.ObjectName;
 
 import org.apache.catalina.Context;
+import org.apache.catalina.Realm;
+import org.apache.catalina.Valve;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -65,6 +69,10 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
     private String docBase = null;
     
     private String virtualServer = null;
+    
+    private final Realm realm;
+    
+    private final List valveChain;
 
     private final Map componentContext;
     
@@ -104,6 +112,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
             TrackedConnectionAssociator trackedConnectionAssociator,
             TomcatContainer container, 
             RoleDesignateSource roleDesignateSource,
+            ObjectRetriever tomcatRealm,
+            ValveGBean tomcatValveChain,
             J2EEServer server, 
             J2EEApplication application, 
             Kernel kernel)
@@ -134,6 +144,28 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
         this.roleDesignateSource = roleDesignateSource;
         this.server = server;
         this.application = application;
+        
+        if (tomcatRealm != null){
+            realm = (Realm)tomcatRealm.getInternalObject();
+            if (!(realm instanceof Realm)){
+                throw new IllegalArgumentException("tomcatRealm must be an instance of org.apache.catalina.Realm.");
+            }
+        } else{
+            realm = null;
+        }
+        
+        //Add the valve list
+        if (tomcatValveChain != null){
+            ArrayList chain = new ArrayList();
+            ValveGBean valveGBean = tomcatValveChain;
+            while(valveGBean != null){
+                chain.add((Valve)valveGBean.getInternalObject());
+                valveGBean = valveGBean.getNextValve();
+            }
+            valveChain = chain;
+        } else {
+            valveChain = null;
+        }
         
         URI root = URI.create(configurationBaseUrl.toString());
         webAppRoot = root.resolve(webAppRoot);
@@ -224,6 +256,14 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
 
     public Set getUnshareableResources() {
         return unshareableResources;
+    }
+
+    public Realm getRealm() {
+        return realm;
+    }
+
+    public List getValveChain() {
+        return valveChain;
     }
 
     /**
@@ -317,6 +357,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
                 NameFactory.GERONIMO_SERVICE);
         infoBuilder.addReference("RoleDesignateSource",
                 RoleDesignateSource.class, NameFactory.JACC_MANAGER);
+        infoBuilder.addReference("TomcatRealm", ObjectRetriever.class);
+        infoBuilder.addReference("TomcatValveChain", ValveGBean.class);
         infoBuilder.addReference("J2EEServer", J2EEServer.class);
         infoBuilder.addReference("J2EEApplication", J2EEApplication.class);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
@@ -339,6 +381,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
                 "trackedConnectionAssociator", 
                 "Container",
                 "RoleDesignateSource", 
+                "TomcatRealm",
+                "TomcatValveChain",
                 "J2EEServer", 
                 "J2EEApplication",
                 "kernel" 

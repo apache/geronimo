@@ -16,11 +16,14 @@
  **/
 package org.apache.geronimo.tomcat.util;
 
+import java.io.Serializable;
 import java.security.PermissionCollection;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 
-public class SecurityHolder
+public class SecurityHolder implements Serializable
 {
+
+    private static final long serialVersionUID = 3761404231197734961L;
 
     private String policyContextID;
     private DefaultPrincipal defaultPrincipal;

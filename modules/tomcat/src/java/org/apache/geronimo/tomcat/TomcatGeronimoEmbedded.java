@@ -16,6 +16,8 @@
 */
 package org.apache.geronimo.tomcat;
 
+import java.io.File;
+
 import org.apache.catalina.Context;
 import org.apache.catalina.Lifecycle;
 import org.apache.catalina.startup.ContextConfig;
@@ -37,7 +39,7 @@ public class TomcatGeronimoEmbedded extends Embedded{
 
         context.setDocBase(docBase);
         context.setPath(path);
-
+        
         ContextConfig config = new ContextConfig();
         config.setCustomAuthenticators(authenticators);
         ((Lifecycle) context).addLifecycleListener(config);

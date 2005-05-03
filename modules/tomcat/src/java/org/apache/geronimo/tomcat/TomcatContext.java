@@ -16,10 +16,12 @@
  */
 package org.apache.geronimo.tomcat;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.catalina.Context;
+import org.apache.catalina.Realm;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
@@ -56,4 +58,7 @@ public interface TomcatContext {
 
     public Set getUnshareableResources();
     
+    public Realm getRealm();
+    
+    public List getValveChain();    
 }

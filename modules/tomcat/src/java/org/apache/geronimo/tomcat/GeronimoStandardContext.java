@@ -16,6 +16,7 @@
  */
 package org.apache.geronimo.tomcat;
 
+import java.util.List;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -24,6 +25,7 @@ import javax.security.auth.Subject;
 import javax.security.jacc.PolicyContext;
 
 import org.apache.catalina.LifecycleException;
+import org.apache.catalina.Valve;
 import org.apache.catalina.core.StandardContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -52,7 +54,7 @@ public class GeronimoStandardContext extends StandardContext{
     
     public void setContextProperties(TomcatContext ctx){
     
-        // create ReadOnlyContext
+        // Create ReadOnlyContext
         javax.naming.Context enc = null;
         Map componentContext = ctx.getComponentContext();
         try {
@@ -118,6 +120,17 @@ public class GeronimoStandardContext extends StandardContext{
                 addValve(policyValve);
             }    
         }
+        
+        // Add User Defined Valves
+        List valveChain = ctx.getValveChain();
+        if (valveChain != null){
+            Iterator iterator = valveChain.iterator();
+            while(iterator.hasNext()){
+                addValve((Valve)iterator.next());
+            }
+        }
+
+
     }
 
     public synchronized void start() throws LifecycleException {

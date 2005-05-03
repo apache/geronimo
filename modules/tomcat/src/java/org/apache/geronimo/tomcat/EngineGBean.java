@@ -16,10 +16,13 @@
 */
 package org.apache.geronimo.tomcat;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import org.apache.catalina.Engine;
 import org.apache.catalina.Realm;
+import org.apache.catalina.Valve;
+import org.apache.catalina.core.StandardEngine;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -29,7 +32,10 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
     
     private final Engine engine;
 
-    public EngineGBean(String className, Map initParams, ObjectRetriever realmGBean) throws Exception {
+    public EngineGBean(String className, 
+            Map initParams, 
+            ObjectRetriever realmGBean,            
+            ValveGBean tomcatValveChain) throws Exception {
         super(); // TODO: make it an attribute
         
         if (className == null){
@@ -44,6 +50,19 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
         if (realmGBean != null){
             engine.setRealm((Realm)realmGBean.getInternalObject());
         }
+        
+        //Add the valve list
+        if (engine instanceof StandardEngine){
+            if (tomcatValveChain != null){
+                ArrayList chain = new ArrayList();
+                ValveGBean valveGBean = tomcatValveChain;
+                while(valveGBean != null){
+                    ((StandardEngine)engine).addValve((Valve)valveGBean.getInternalObject());
+                    valveGBean = valveGBean.getNextValve();
+                }
+            }
+        }
+
     }
 
     public Object getInternalObject() {
@@ -66,8 +85,9 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
         infoFactory.addAttribute("className", String.class, true);
         infoFactory.addAttribute("initParams", Map.class, true);
         infoFactory.addReference("realmGBean", ObjectRetriever.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("TomcatValveChain", ValveGBean.class, ValveGBean.J2EE_TYPE);
         infoFactory.addOperation("getInternalObject");
-        infoFactory.setConstructor(new String[] { "className", "initParams", "realmGBean" });
+        infoFactory.setConstructor(new String[] { "className", "initParams", "realmGBean", "TomcatValveChain" });
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

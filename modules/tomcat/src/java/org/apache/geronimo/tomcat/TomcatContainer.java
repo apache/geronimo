@@ -16,6 +16,9 @@
  */
 package org.apache.geronimo.tomcat;
 
+import java.util.Iterator;
+import java.util.List;
+
 import org.apache.catalina.Container;
 import org.apache.catalina.Context;
 import org.apache.catalina.Engine;
@@ -173,7 +176,7 @@ public class TomcatContainer implements GBeanLifecycle {
 
         // Set the context for the Tomcat implementation
         ctx.setContext(anotherCtxObj);
-
+        
         // Have the context to set its properties if its a GeronimoStandardContext
         if (anotherCtxObj instanceof GeronimoStandardContext) 
             ((GeronimoStandardContext)anotherCtxObj).setContextProperties(ctx);
@@ -188,7 +191,11 @@ public class TomcatContainer implements GBeanLifecycle {
             throw new IllegalArgumentException("Invalid virtual host '" + virtualServer +"'.  Do you have a matchiing Host entry in the plan?");
         }
         
-        anotherCtxObj.setRealm(host.getRealm());
+        if (ctx.getRealm() != null)
+            anotherCtxObj.setRealm(ctx.getRealm());
+        else
+            anotherCtxObj.setRealm(host.getRealm());
+            
 
         host.addChild(anotherCtxObj);
     }
