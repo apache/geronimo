@@ -31,7 +31,6 @@
     <xs:import namespace="http://geronimo.apache.org/xml/ns/security" schemaLocation="../../../security-builder/src/schema/geronimo-security.xsd"/>
     <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment" schemaLocation="../../../service-builder/src/schema/geronimo-config.xsd"/>
 
-
     <xs:element name="web-app" type="tomcat:web-appType"/>
 
     <xs:complexType name="web-appType">
@@ -41,6 +40,8 @@
             <xs:element name="context-root" type="xs:string" minOccurs="0"/>
             <xs:element name="context-priority-classloader" type="xs:boolean"/>
             <xs:element name="virtual-server" type="xs:string" minOccurs="0"/>
+            <xs:element name="tomcat-realm" type="xs:string" minOccurs="0"/>
+            <xs:element name="tomcat-valve-chain" type="xs:string" minOccurs="0"/>
 
             <xs:sequence minOccurs="0">
                 <xs:element name="security-realm-name" type="xs:string"/>
@@ -61,5 +62,4 @@
         <xs:attribute name="configId" type="xs:string" use="required"/>
         <xs:attribute name="parentId" type="xs:string" use="optional"/>
     </xs:complexType>
-
 </xs:schema>

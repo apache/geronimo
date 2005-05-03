@@ -22,7 +22,10 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.net.URL;
+import java.security.PermissionCollection;
+import java.security.Permissions;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -65,6 +68,8 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.registry.BasicGBeanRegistry;
 import org.apache.geronimo.security.SecurityServiceImpl;
+import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
+import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.tomcat.ConnectorGBean;
 import org.apache.geronimo.tomcat.EngineGBean;
@@ -143,7 +148,21 @@ public class TomcatModuleBuilderTest extends TestCase {
         UnpackedJarFile jarFile = new UnpackedJarFile(path);
         Module module = builder.createModule(null, jarFile);
         URI id = new URI("war4");
+        
+        ObjectName jaccBeanName = NameFactory.getComponentName(null, null, null, null, "foo", NameFactory.JACC_MANAGER, moduleContext);
+        GBeanData jaccBeanData = new GBeanData(jaccBeanName, ApplicationPolicyConfigurationManager.GBEAN_INFO);
+        PermissionCollection excludedPermissions= new Permissions();
+        PermissionCollection uncheckedPermissions= new Permissions();
+        ComponentPermissions componentPermissions = new ComponentPermissions(excludedPermissions, uncheckedPermissions, new HashMap());
+        Map contextIDToPermissionsMap = new HashMap();
+        contextIDToPermissionsMap.put("test_J2EEApplication=null_J2EEServer=bar_j2eeType=WebModule_name=org/apache/geronimo/test", componentPermissions);
+        jaccBeanData.setAttribute("contextIdToPermissionsMap", contextIDToPermissionsMap);
+        jaccBeanData.setAttribute("principalRoleMap", new HashMap());
+        jaccBeanData.setAttribute("roleDesignates", new HashMap());
+        start(jaccBeanData);        
+        
         EARContext earContext = createEARContext(outputPath, id);
+        earContext.setJaccManagerName(jaccBeanName);
         ObjectName serverName = earContext.getServerObjectName();
         GBeanData server = new GBeanData(serverName, J2EEServerImpl.GBEAN_INFO);
         start(server);
@@ -160,19 +179,16 @@ public class TomcatModuleBuilderTest extends TestCase {
                 .intValue() != State.RUNNING_INDEX) {
             fail("gbean not started: " + configData.getName());
         }
-        assertEquals(
-                new Integer(State.RUNNING_INDEX),
-                kernel
-                        .getAttribute(
-                                ObjectName
-                                        .getInstance("test:J2EEApplication=null,J2EEServer=bar,j2eeType=WebModule,name=war4"),
-                                "state"));
-        Set names = kernel
-                .listGBeans(ObjectName
-                        .getInstance("test:J2EEApplication=null,J2EEServer=bar,WebModule=war4,*"));
+
+        assertEquals(new Integer(State.RUNNING_INDEX),kernel.getAttribute(
+                                ObjectName.getInstance("test:J2EEApplication=null,J2EEServer=bar,j2eeType=WebModule,name=org/apache/geronimo/test"),
+                                "state"));        
+
+        Set names = kernel.listGBeans(ObjectName.getInstance("test:J2EEApplication=null,J2EEServer=bar,*"));
         System.out.println("Object names: " + names);
         for (Iterator iterator = names.iterator(); iterator.hasNext();) {
             ObjectName objectName = (ObjectName) iterator.next();
+            System.out.println("STATE: " + kernel.getAttribute(objectName, "state") + " - " + objectName.getCanonicalName());
             assertEquals(new Integer(State.RUNNING_INDEX), kernel.getAttribute(
                     objectName, "state"));
         }
@@ -406,9 +422,7 @@ public class TomcatModuleBuilderTest extends TestCase {
 
         tm = new GBeanData(tmName, TransactionManagerImpl.GBEAN_INFO);
         Set patterns = new HashSet();
-        patterns
-                .add(ObjectName
-                        .getInstance("geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
+        patterns.add(ObjectName.getInstance("geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
         tm.setAttribute("defaultTransactionTimeoutSeconds", new Integer(10));
         tm.setReferencePatterns("ResourceManagers", patterns);
         start(tm);

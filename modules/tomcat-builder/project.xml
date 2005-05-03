@@ -360,6 +360,16 @@
 
         <dependency>
             <groupId>tomcat</groupId>
+            <artifactId>servlets-default</artifactId>
+            <version>${tomcat_version}</version>
+            <url>http://jakarta.apache.org/tomcat/</url>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>tomcat</groupId>
             <artifactId>tomcat-http</artifactId>
             <version>${tomcat_version}</version>
             <url>http://jakarta.apache.org/tomcat/</url>

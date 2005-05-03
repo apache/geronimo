@@ -27,18 +27,16 @@ import java.net.URL;
 import java.security.Permission;
 import java.security.PermissionCollection;
 import java.security.Permissions;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
+
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.security.jacc.WebResourcePermission;
@@ -46,7 +44,6 @@ import javax.security.jacc.WebRoleRefPermission;
 import javax.security.jacc.WebUserDataPermission;
 import javax.transaction.UserTransaction;
 
-import org.apache.catalina.core.StandardWrapper;
 import org.apache.geronimo.axis.builder.WSDescriptorParser;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
@@ -63,9 +60,6 @@ import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.tomcat.TomcatClassLoader;
-import org.apache.geronimo.tomcat.TomcatWebAppContext;
-import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
@@ -76,40 +70,26 @@ import org.apache.geronimo.security.deployment.SecurityBuilder;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.security.util.URLPattern;
+import org.apache.geronimo.tomcat.RealmGBean;
+import org.apache.geronimo.tomcat.TomcatClassLoader;
+import org.apache.geronimo.tomcat.TomcatWebAppContext;
+import org.apache.geronimo.tomcat.ValveGBean;
+import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.transaction.context.OnlineUserTransaction;
 import org.apache.geronimo.xbeans.geronimo.tomcat.TomcatWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.tomcat.TomcatWebAppType;
-import org.apache.geronimo.xbeans.j2ee.DescriptionType;
-import org.apache.geronimo.xbeans.j2ee.DispatcherType;
-import org.apache.geronimo.xbeans.j2ee.DisplayNameType;
-import org.apache.geronimo.xbeans.j2ee.ErrorPageType;
 import org.apache.geronimo.xbeans.j2ee.FilterMappingType;
-import org.apache.geronimo.xbeans.j2ee.FilterType;
-import org.apache.geronimo.xbeans.j2ee.FormLoginConfigType;
 import org.apache.geronimo.xbeans.j2ee.HttpMethodType;
-import org.apache.geronimo.xbeans.j2ee.JspConfigType;
-import org.apache.geronimo.xbeans.j2ee.ListenerType;
-import org.apache.geronimo.xbeans.j2ee.LocaleEncodingMappingListType;
-import org.apache.geronimo.xbeans.j2ee.LocaleEncodingMappingType;
-import org.apache.geronimo.xbeans.j2ee.LoginConfigType;
-import org.apache.geronimo.xbeans.j2ee.MimeMappingType;
-import org.apache.geronimo.xbeans.j2ee.ParamValueType;
 import org.apache.geronimo.xbeans.j2ee.RoleNameType;
 import org.apache.geronimo.xbeans.j2ee.SecurityConstraintType;
 import org.apache.geronimo.xbeans.j2ee.SecurityRoleRefType;
 import org.apache.geronimo.xbeans.j2ee.SecurityRoleType;
 import org.apache.geronimo.xbeans.j2ee.ServletMappingType;
 import org.apache.geronimo.xbeans.j2ee.ServletType;
-import org.apache.geronimo.xbeans.j2ee.TaglibType;
 import org.apache.geronimo.xbeans.j2ee.UrlPatternType;
 import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
 import org.apache.geronimo.xbeans.j2ee.WebAppType;
 import org.apache.geronimo.xbeans.j2ee.WebResourceCollectionType;
-import org.apache.geronimo.xbeans.j2ee.WelcomeFileListType;
-import org.apache.catalina.deploy.ErrorPage;
-import org.apache.catalina.deploy.FilterDef;
-import org.apache.catalina.deploy.FilterMap;
-import org.apache.catalina.deploy.LoginConfig;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
@@ -303,7 +283,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
            // and the url class loader will not pick up a manifiest from an unpacked dir
            earContext.addManifestClassPath(warFile, URI.create(module.getTargetPath()));
 
-           // add the dependencies declared in the geronimo-jetty.xml file
+           // add the dependencies declared in the geronimo-tomcat.xml file
            TomcatWebAppType tomcatWebApp = (TomcatWebAppType) module.getVendorDD();
            DependencyType[] dependencies = tomcatWebApp.getDependencyArray();
            ServiceConfigBuilder.addDependencies(earContext, dependencies, repository);
@@ -378,6 +358,32 @@ public class TomcatModuleBuilder implements ModuleBuilder {
            webModuleData.setReferencePattern("trackedConnectionAssociator", earContext.getConnectionTrackerObjectName());
            webModuleData.setReferencePattern("Container", tomcatContainerObjectName);
 
+           //Is there a Tomcat realm declaration?
+           if (tomcatWebApp != null) {
+               String tomcatRealm = tomcatWebApp.getTomcatRealm();
+               if ( tomcatRealm != null) {
+                   ObjectName realmName = NameFactory.getComponentName(null, null, null, null, tomcatRealm.trim(), RealmGBean.GBEAN_INFO.getJ2eeType(), moduleJ2eeContext);
+                   webModuleData.setReferencePattern("TomcatRealm", realmName);
+               }           
+           }
+           
+           //Is there a Tomcat Valve Chain declaration?
+           if (tomcatWebApp != null) {
+               String tomcatValveChain = tomcatWebApp.getTomcatValveChain();
+               if ( tomcatValveChain != null) {
+                   ObjectName valveName = NameFactory.getComponentName(null, null, null, null, tomcatValveChain.trim(), ValveGBean.J2EE_TYPE, moduleJ2eeContext);
+                       //NameFactory.getComponentName(null, null, null, null, tomcatValveChain.trim(), ValveGbean., moduleJ2eeContext);
+                   webModuleData.setReferencePattern("TomcatValveChain", valveName);
+               }           
+           }
+           
+           //Handle the role permissions on the servlets.
+           ServletType[] servletTypes = webApp.getServletArray();
+           for (int i = 0; i < servletTypes.length; i++) {
+               ServletType servletType = servletTypes[i];
+               processRoleRefPermissions(servletType, securityRoles, rolePermissions);
+           }
+           
            if (tomcatWebApp.isSetSecurityRealmName()) {
                
                SecurityHolder securityHolder = new SecurityHolder();
@@ -399,8 +405,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
                        checkedPermissions.add(permission);
                    }
                }
-               securityHolder.setChecked(checkedPermissions);
-
+               securityHolder.setChecked(checkedPermissions);      
                earContext.addSecurityContext(policyContextID, componentPermissions);
                if (tomcatWebApp.isSetSecurity()) {
                    SecurityConfiguration securityConfiguration = SecurityBuilder.buildSecurityConfiguration(tomcatWebApp.getSecurity());
@@ -450,44 +455,11 @@ public class TomcatModuleBuilder implements ModuleBuilder {
        ClassLoader webClassLoader = new TomcatClassLoader(webClassPathURLs, baseUrl, cl, contextPriorityClassLoader);
        return webClassLoader;
    }
-/*
-   private StandardWrapper createServlet(ServletType servletType,
-                               Map servletMappings,
+
+   private void processRoleRefPermissions(ServletType servletType,
                                Set securityRoles,
                                Map rolePermissions) throws MalformedObjectNameException, DeploymentException {
        String servletName = servletType.getServletName().getStringValue().trim();
- //      GBeanData servletData;
-       StandardWrapper servletData = new StandardWrapper();
-       if (servletType.isSetServletClass()) {
-           String servletClassName = servletType.getServletClass().getStringValue().trim();
-           servletData.setServletClass(servletClassName);
-       } else if (servletType.isSetJspFile()) {
-           servletData.setJspFile(servletType.getJspFile().getStringValue().trim());
-           //TODO MAKE THIS CONFIGURABLE!!! Tomcat uses the servlet mapping set up from the default-web.xml
-           servletData.setServletClass("org.apache.jasper.servlet.JspServlet");
-       } else {
-           throw new DeploymentException("Neither servlet class nor jsp file is set for " + servletName);
-       }
-       //TODO in init param setter, add classpath if jspFile is not null.
-       servletData.setServletName(servletName);
-       ParamValueType[] initParamArray = servletType.getInitParamArray();
-       for (int j = 0; j < initParamArray.length; j++) {
-           ParamValueType paramValueType = initParamArray[j];
-           servletData.addInitParameter(paramValueType.getParamName().getStringValue().trim(), paramValueType.getParamValue().getStringValue().trim());
-       }
-
-       if (servletType.isSetLoadOnStartup()) {
-           Integer loadOnStartup = new Integer(servletType.getLoadOnStartup().getBigIntegerValue().intValue());
-           servletData.setLoadOnStartup(loadOnStartup.intValue());
-       }
-
-       Set mappings = (Set) servletMappings.get(servletName);
-       if (mappings != null){
-           Iterator iterator = mappings.iterator();
-           while(iterator.hasNext()){
-               servletData.addMapping((String)iterator.next());
-           }
-       }
 
        //WebRoleRefPermissions
        SecurityRoleRefType[] securityRoleRefTypeArray = servletType.getSecurityRoleRefArray();
@@ -496,8 +468,6 @@ public class TomcatModuleBuilder implements ModuleBuilder {
            SecurityRoleRefType securityRoleRefType = securityRoleRefTypeArray[j];
            String roleName = securityRoleRefType.getRoleName().getStringValue().trim();
            String roleLink = securityRoleRefType.getRoleLink().getStringValue().trim();
-
-           servletData.addSecurityReference(roleName, roleLink);
 
            //jacc 3.1.3.2
            addPermissionToRole(roleLink, new WebRoleRefPermission(servletName, roleName), rolePermissions);
@@ -509,9 +479,8 @@ public class TomcatModuleBuilder implements ModuleBuilder {
        }
 //       servletData.setAttribute("webRoleRefPermissions", webRoleRefPermissions);
 
-       return servletData;
    }
-**/
+
    private ComponentPermissions buildSpecSecurityConfig(WebAppType webApp, Set securityRoles, Map rolePermissions) {
        Map uncheckedPatterns = new HashMap();
        Map uncheckedResourcePatterns = new HashMap();
