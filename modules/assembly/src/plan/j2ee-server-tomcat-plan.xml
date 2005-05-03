@@ -114,6 +114,9 @@ by the server.
         </reference>
     </gbean>
 
+    <!-- The following is the equivalent of the server.xml file, but done with GBeans -->
+
+    <!-- The TomcatContainer/Service -->
     <gbean name="TomcatWebContainer" class="org.apache.geronimo.tomcat.TomcatContainer">
         <attribute name="catalinaHome">var/catalina</attribute>
         <reference name="engineGBean">
@@ -161,6 +164,7 @@ by the server.
     </gbean>
     -->
 
+    <!-- Engine -->
     <gbean name="TomcatEngine" class="org.apache.geronimo.tomcat.EngineGBean">
         <attribute name="className">org.apache.geronimo.tomcat.TomcatEngine</attribute>
         <attribute name="initParams">
@@ -170,8 +174,34 @@ by the server.
         <reference name="realmGBean">
             <name>TomcatJAASRealm</name>
         </reference>
+        <!-- Uncomment this to add the valve chain below to the Engine 
+        <reference name="TomcatValveChain">
+            <name>FirstValve</name>
+        </reference> 
+        -->
     </gbean>
 
+    <!-- Valve -->
+    <! -- Uncomment this section to add a valve chain.  This example consists of the Tomcat
+          SingleSignOn and AccessLogValve. Notice the dependency that chains the FirstValve with the
+          SecondValve.  The valves will be added in the order that they are chained.
+    <gbean name="FirstValve" class="org.apache.geronimo.tomcat.ValveGBean">
+        <attribute name="className">org.apache.catalina.authenticator.SingleSignOn</attribute>
+        <reference name="NextValve"><moduleType>J2EEModule</moduleType><name>SecondValve</name></reference>
+    </gbean>
+    
+    <gbean name="SecondValve" class="org.apache.geronimo.tomcat.ValveGBean">
+        <attribute name="className">org.apache.catalina.valves.AccessLogValve</attribute>
+        <attribute name="initParams">
+            prefix=localhost_access_log.
+            suffix=.txt
+            pattern=common
+        </attribute>
+    </gbean>
+    -->
+
+    <!-- Realm -->
+    <!-- This is an example TomcatJAASRealm -->
     <gbean name="TomcatJAASRealm" class="org.apache.geronimo.tomcat.RealmGBean">
         <attribute name="className">org.apache.geronimo.tomcat.realm.TomcatJAASRealm</attribute>
         <attribute name="initParams">
@@ -180,6 +210,7 @@ by the server.
         </attribute>
     </gbean>
 
+    <!-- Host -->
     <gbean name="TomcatHost" class="org.apache.geronimo.tomcat.HostGBean">
         <attribute name="className">org.apache.catalina.core.StandardHost</attribute>
         <attribute name="initParams">
@@ -190,6 +221,24 @@ by the server.
         <reference name="engineGBean">
             <name>TomcatEngine</name>
         </reference>
+        <!-- You may attach a Realm to a Host as well.  Only attach to the Engine *or* the Host.
+             Attempting to add the same Realm GBeans to the Engine *and* Host at the same time
+             will result in an error.
+
+             Uncomment this to add the Realm to the Host 
+        <reference name="realmGBean">
+            <name>TomcatJAASRealm</name>
+        </reference>
+        -->
+        <!-- You may attach a Valve chain to a Host as well.  Only attach to the Engine *or* the Host.
+             Attempting to add the same valve GBeans to the Engine *and* Host at the same time
+             will result in an error.
+
+             Uncomment this to add the valve chain to the Host 
+        <reference name="TomcatValveChain">
+            <name>FirstValve</name>
+        </reference> 
+        -->
     </gbean>
 
 </configuration>
