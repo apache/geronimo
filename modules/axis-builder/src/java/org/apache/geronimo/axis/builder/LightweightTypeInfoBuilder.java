@@ -142,18 +142,19 @@ public class LightweightTypeInfoBuilder implements TypeInfoBuilder {
         typeInfo.setFields(fields);
         for (Iterator iter = nameToType.entrySet().iterator(); iter.hasNext();) {
             Map.Entry entry = (Map.Entry) iter.next();
-            QName fieldName = (QName) entry.getKey();
+            QName fieldQName = (QName) entry.getKey();
+            String fieldName = fieldQName.getLocalPart();
             SchemaParticle particle = (SchemaParticle) entry.getValue();
 
             ElementDesc elementDesc = new ElementDesc();
-            elementDesc.setFieldName(fieldName.getLocalPart());
+            elementDesc.setFieldName(fieldName);
 
             Class javaType = (Class) nameToClass.get(fieldName);
             if (null == javaType) {
                 throw new DeploymentException("Field " + fieldName + " is not defined by class " + javaClass.getName());
             }
             elementDesc.setNillable(particle.isNillable());
-            elementDesc.setXmlName(fieldName);
+            elementDesc.setXmlName(fieldQName);
             elementDesc.setXmlType(particle.getType().getName());
 
             if (javaType.isArray()) {
