@@ -87,9 +87,7 @@ public class JettyEJBWebServiceContext extends HttpContext implements HttpHandle
             
         if (req.getParameter("wsdl") != null) {
             try {
-                OutputStream out = response.getOutputStream();
                 webServiceContainer.getWsdl(request,response);
-                //WHO IS RESPONSIBLE FOR CLOSING OUT?
             } catch (IOException e) {
                 throw e;
             } catch (Exception e) {
