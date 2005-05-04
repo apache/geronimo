@@ -23,9 +23,9 @@ import javax.wsdl.Operation;
 import javax.wsdl.Message;
 import javax.wsdl.BindingInput;
 import javax.wsdl.extensions.soap.SOAPOperation;
+import javax.wsdl.extensions.soap.SOAPBody;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.namespace.QName;
-import javax.xml.soap.SOAPBody;
 
 import org.apache.geronimo.axis.client.OperationInfo;
 import org.apache.geronimo.common.DeploymentException;
@@ -62,7 +62,7 @@ public abstract class OperationDescBuilder {
         List extensibilityElements = bindingInput.getExtensibilityElements();
         for (Iterator iterator = extensibilityElements.iterator(); iterator.hasNext();) {
             ExtensibilityElement extensibilityElement = (ExtensibilityElement) iterator.next();
-            if (SOAPBody.class.isAssignableFrom(extensibilityElement.getClass())) {
+            if (extensibilityElement instanceof SOAPBody) {
                 String namespaceURI = ((SOAPBody)extensibilityElement).getNamespaceURI();
                 return new QName(namespaceURI, operationName);
             }
