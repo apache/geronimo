@@ -98,14 +98,15 @@ public class GeronimoLogFactory extends LogFactory {
 
     public void release() {
         synchronized (factoryLock) {
-            for (Iterator maps = instancesByClassLoader.values().iterator(); maps.hasNext();) {
-                Map instances = (Map) maps.next();
-                for (Iterator logs = instances.values().iterator(); logs.hasNext();) {
-                    GeronimoLog log = (GeronimoLog) logs.next();
-                    log.setLog(null);
-
-                }
-            }
+// TODO rethink this - it works for now
+//            for (Iterator maps = instancesByClassLoader.values().iterator(); maps.hasNext();) {
+//                Map instances = (Map) maps.next();
+//                for (Iterator logs = instances.values().iterator(); logs.hasNext();) {
+//                    GeronimoLog log = (GeronimoLog) logs.next();
+//                    log.setLog(null);
+//
+//                }
+//            }
             instancesByClassLoader.clear();
         }
     }
